@@ -1,0 +1,13 @@
+#!/bin/sh
+
+j=0
+
+while expr $j \< 10 > /dev/null ; do
+	i=0
+	while expr $i \< 10 > /dev/null ; do
+		./char_stats 500 $j.$i >> stats_nnw.dat
+		echo $j.$i
+		i=`expr $i + 5`
+	done
+	j=`expr $j + 1`
+done

@@ -1,0 +1,58 @@
+2/5/2001
+
+Newer version of libtool and a change from (s)random() to (s)rand() mean it
+now works on Solaris (and a reduction in randomness on this platform is not
+a major issue - on Linux random() is just as good as rand()).
+
+15/6/2000
+
+Minor buglet fixed, thanks to Ole-Morten Duesund and Will Andrews. Now
+compiles with gcc 2.95.2, and works under FreeBSD.
+
+14/6/2000
+
+Posted on freshmeat.net
+
+22/5/1999
+
+Portability changes - should now compile under NT. Replaced random srandom
+with rand and srand, replaced \n with endl in the function for writing
+weight files. Thanks to <look up the guy's name> for pointing these out.
+
+3/10/1998
+
+Fixed silly omission in the headers - now check to see if they are already
+included.
+
+29/9/1998
+
+Minor changes to char_recognition.cc, marginal code reduction. Start
+thinking about changes for 1.1.
+
+26/9/98
+
+Released version 1.0
+
+20/9/98
+
+Preparing for initial release. Packaged up using autoconf / automake /
+libtool. Expect to release around Saturday 26/9/98.
+
+11/11/98 
+
+Attempted to introduce both bias terms and momentum term. The
+former produced no noticable speed improvement, whereas the latter seemed to
+slow it down ... probably could be made to work with some more effort and
+code rearrangement. Also tried a "fast BPN" algorithm... again, no great
+improvement. Probably this is a consequence of the design of the network
+code.
+
+5/9/98	
+
+Wrote a demonstration application for character recognition. It seems to
+work very well.
+
+4/9/98 
+
+Got the network working for the first time today. It can be trained to
+recognise odd and even numbers. Not much, but it works.

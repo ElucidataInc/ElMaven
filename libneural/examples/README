@@ -1,0 +1,50 @@
+Examples
+--------
+
+The examples here are just for illustrating the training, running, loading
+and saving features of nnlib. They are trivial but useful examples of the
+flexibility of this type of neural network. Pattern recognition has never
+been easier or more fun! Example pre-trained weight data is provided, which
+will be overwritten if you run the programs in this directory and answer "t"
+when prompted to load or train.
+
+odd_even was the first program I wrote with nnlib, and it does a very good
+job of figuring out the difference between odd and even numbers, given a few
+examples. The weightings in the network change such that the only part of
+the input "number" that is significantly "looked at" is the "lsb". Pointless
+but interesting!
+
+char_recognition trains the network with some noisy characters, then tries
+to recognise characters with some more noise thrown in. The noise is just
+additive random numbers, as you might expect from a scanned document (I'd
+like to write some OCR stuff with this library one day!). This is
+effectively training the network to perform correlations, with the character
+patterns stored in the network weights. Try adjusting the number of nodes in
+the hidden layer (I have found it to work well over a very wide range).
+
+Note that with char_recognition, the character + noise displayed is
+(obviously) "thresholded" - you would probably find it easier to pick the
+character visually if it was greyscale.
+
+There is an additional program called "char_stats" - it is there for
+collecting statistics on the failure rate of the character recognition
+network. For comparison with the neural network, a covariance-based system
+is included in form of a program "char_cov". This works exactly like
+char_stats, but uses the covariance of the noisy data with the reference
+data (which is like correlation but rather than x[i]y[i] it is (x[i] -
+xbar)(y[i] - ybar), which works better on data with a DC component). The
+covariance method works better overall, and is a bit faster, but much less
+flexible.
+
+char_stats N Range
+
+will run each character through the network N times with uniformly
+distributed additive pseudorandom noise (between +/-Range) introduced. The
+total errors for each letter are printed out, plus the mean number of
+errors, the minimum and the maximum. A few other scripts are provided to
+automatically generate data.
+
+The source is the best documentation. Refer to that for more details. It is
+pretty straightforward.
+
+- Daniel

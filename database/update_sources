@@ -1,0 +1,8 @@
+#kegg database update
+mkdir kegg
+wget ftp://ftp.genome.jp/pub/kegg/ligand/rpair/rpair 	-O kegg/rpair
+wget ftp://ftp.genome.jp/pub/kegg/ligand/compound/compound -O kegg/compound
+wget ftp://ftp.genome.jp/pub/kegg/ligand/reaction/reaction -O kegg/reaction
+wget -r ftp://ftp.genome.jp/pub/kegg/xml/kgml/metabolic/ko/ -nd -nH -P kegg/pathways
+
+

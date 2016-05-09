@@ -1,0 +1,25 @@
+TODO for libneural
+------------------
+
+TODO before the next release (+ essential for 1.1, - possible, likely for 2.0)
+
++ more examples (XOR problem, DSP examples, prediction, other recognition
+  stuff);
++ try some different versions of the generalised delta rule algorithm for 
+  weight updates - cumulative delta rule looks useful for prediction;
++ Eliminate the neuron and nnlayer classes, replace with faster data
+  structures (arrays) in the main nnwork class.
+- add optional bias term (initial test indicates this will have a negligible
+  positive effect, and may actually slow the training process down);
+- add optional momentum term (unless this is done well, it will also slow 
+  things down!);
+- add alternative transfer functions for hidden and/or output layers - sin,
+  tanh, linear;
+- allow arbitrary number of hidden layers (each with different numbers
+  of elements? Is there any point?); and
++ finish my thesis... ;)
+ 
+TODO in the future
+ 
+- start looking at other network structures (other than BPN); and
+- implement hidden-layer node pruning algorithms.

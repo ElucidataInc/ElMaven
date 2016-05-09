@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <link href="layout.css" rel="stylesheet" type="text/css">
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="../jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="../jquery.flot.js"></script>
+ </head>
+    <body>
+    <h1>Flot Examples</h1>
+
+    <div id="placeholder" style="width:600px;height:300px;"></div>
+
+    <p id="hoverdata">Mouse hovers at
+    (<span id="x">0</span>, <span id="y">0</span>). <span id="clickdata"></span></p>
+
+
+    <p>
+      <input class="fetchSeries" type="button" value="First dataset"> -
+      <a href="eics.json">data</a> -
+      <span></span>
+    </p>
+
+
+<script type="text/javascript">
+$(function () {
+    var options = {
+        lines: { show: true },
+        points: { show: true },
+        xaxis: { tickDecimals: 0, tickSize: 1 },
+        grid: { hoverable: true, clickable: true },
+    };
+    var data = [];
+    var placeholder = $("#placeholder");
+    
+    $.plot(placeholder, data, options);
+
+    
+    // fetch one series, adding to what we got
+    var alreadyFetched = {};
+    
+    $("input.fetchSeries").click(function () {
+        var button = $(this);
+        
+        // find the URL in the link right next to us 
+        var dataurl = button.siblings('a').attr('href');
+
+        // then fetch the data with jQuery
+        function onDataReceived(seriesset) {
+			if (seriesset.eics.length == 0) return;
+
+			for(s=0; s<seriesset.eics.length; s++ ) {
+					series = seriesset.eics[s];
+					
+					// extract the first coordinate pair so you can see that
+					// data is now an ordinary Javascript object
+					var firstcoordinate = '(' + series.data[0][0] + ', ' + series.data[0][1] + ')';
+
+					button.siblings('span').text('Fetched ' + series.label + ', first point: ' + firstcoordinate);
+
+					// let's add it to our current data
+					if (!alreadyFetched[series.label]) {
+						alreadyFetched[series.label] = true;
+						data.push(series);
+					}
+			}
+            
+            // and plot all we got
+            $.plot(placeholder, data, options);
+         }
+       
+    function showTooltip(x, y, contents) {
+        $('<div id="tooltip">' + contents + '</div>').css( {
+            position: 'absolute',
+            display: 'none',
+            top: y + 5,
+            left: x + 5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+    var previousPoint = null;
+    $("#placeholder").bind("plothover", function (event, pos, item) {
+        $("#x").text(pos.x.toFixed(2));
+        $("#y").text(pos.y.toFixed(2));
+
+        if ($("#enableTooltip:checked").length > 0) {
+            if (item) {
+                if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+                    
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(2),
+                        y = item.datapoint[1].toFixed(2);
+                    
+                    showTooltip(item.pageX, item.pageY,
+                                item.series.label + " of " + x + " = " + y);
+                }
+            }
+            else {
+                $("#tooltip").remove();
+                previousPoint = null;            
+            }
+        }
+    });
+
+
+    $("#placeholder").bind("plotclick", function (event, pos, item) {
+        if (item) {
+            $("#clickdata").text("You clicked point " + item.dataIndex + " in " + item.series.label + ".");
+            plot.highlight(item.series, item.datapoint);
+        }
+    });
+
+        $.ajax({
+            url: dataurl,
+            method: 'GET',
+            dataType: 'json',
+            success: onDataReceived
+        });
+    });
+
+});
+</script>
+
+ </body>
+</html>

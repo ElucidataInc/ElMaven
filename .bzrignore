@@ -1,0 +1,9 @@
+Makefile
+libcdfread/tmp
+libmzorbi/tmp
+libneural/tmp
+mzroll/tmp
+mzWatcher/tmp
+peakdetector/tmp
+pugixml/src/tmp
+build

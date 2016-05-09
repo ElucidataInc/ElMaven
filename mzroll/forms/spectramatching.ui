@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SpectraMatchingForm</class>
+ <widget class="QDialog" name="SpectraMatchingForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>615</width>
+    <height>359</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Spectra Matching</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="0">
+    <widget class="QPlainTextEdit" name="fragmentsText">
+     <property name="backgroundVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Precurrsor m/z </string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QPushButton" name="findButton">
+     <property name="text">
+      <string>Find</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>List of mz values(or list of mz intensity pairs) seperated by commas </string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLineEdit" name="precursorMz"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Scan Type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QComboBox" name="scanTypeComboBox">
+     <item>
+      <property name="text">
+       <string>any</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms6</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms7</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ms8</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="3">
+    <widget class="QTreeWidget" name="resultTable">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>false</bool>
+     </property>
+     <column>
+      <property name="text">
+       <string>Scan#</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Score</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

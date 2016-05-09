@@ -1,0 +1,29 @@
+OUTPUT_DIR = $$(OUTPUT_DIR)
+isEmpty(OUTPUT_DIR):OUTPUT_DIR=$$PWD/build
+
+
+INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
+unix {
+  !mac {
+    isEmpty(INSTALL_LIBDIR):INSTALL_LIBDIR=lib
+} }
+
+INSTALL_PREFIX=$$(DESTDIR)$$INSTALL_PREFIX
+DEFINES += INSTALL_LIBDIR=\\\"$$INSTALL_LIBDIR\\\"
+
+QMAKE_CFLAGS_RELEASE += -O3 -Wno-sign-compare
+QMAKE_CFLAGS_DEBUG += -O2 -g -Wall -Wno-sign-compare
+
+QT += core 
+CONFIG += silent
+OBJECTS_DIR = tmp
+MOC_DIR = tmp
+UI_DIR   =  tmp
+QMAKE_CC = gcc
+QMAKE_CXX = g++
+
+TOPLEVELDIR = $$PWD
+INCLUDEPATH += $$TOPLEVELDIR
+
+LIBS += -L$$OUTPUT_DIR/lib -L$$OUTPUT_DIR/plugin
+VERSION = 2.0.0
