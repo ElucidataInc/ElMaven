@@ -37,3 +37,15 @@ mzWatcher/tmp
 peakdetector/tmp
 pugixml/src/tmp
 build
+
+#QT Resource File
+mzroll/qrc_mzroll.cpp
+
+#Compiled Binaries
+bin/maven
+bin/mzWatcher
+bin/peakdetector
+
+#Documentation HTML files
+mzroll/docs/html/*
+mzroll/docs/latex/*
