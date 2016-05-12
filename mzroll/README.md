@@ -1,5 +1,5 @@
-MZRoll
-======
+Maven - MZRoll
+==============
 
 ## Documentation
 1. Use `cd mzroll/docs/ && doxygen Doxyfile` to generate documentation of the mzroll source code.
