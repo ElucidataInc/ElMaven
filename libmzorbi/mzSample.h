@@ -71,7 +71,7 @@ public:
 
 
 /**
- * \class mzScan
+ * \class Scan
  *
  * \ingroup mzroll
  *
