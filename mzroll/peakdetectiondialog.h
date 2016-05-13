@@ -9,8 +9,20 @@
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
-extern Database DB; 
+extern Database DB;
 
+/**
+ * \class PeakDetectionDialog
+ *
+ * \ingroup mzroll
+ *
+ * \brief Dialog used to find peaks in metabolite samples.
+ *
+ * This class is used when we need to find peaks in a sample according to some settings.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 {
