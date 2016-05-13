@@ -47,5 +47,5 @@ bin/mzWatcher
 bin/peakdetector
 
 #Documentation HTML files
-mzroll/docs/html/*
-mzroll/docs/latex/*
+docs/html/*
+docs/latex/*
