@@ -1,10 +1,10 @@
 #include "enzyme_node.h"
 
 
-EnzymeNode::EnzymeNode(QGraphicsItem* parent, QGraphicsScene *scene):Node(parent,scene) {
-		setMolClass(Node::Enzyme);
-		setZValue(3);
-		showLabel(false);
+EnzymeNode::EnzymeNode(QGraphicsItem* parent, QGraphicsScene *scene): Node(parent, scene) {
+	setMolClass(Node::Enzyme);
+	setZValue(3);
+	showLabel(false);
 }
 
 void EnzymeNode::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget *)
@@ -21,93 +21,93 @@ float EnzymeNode::summary() {
 
 float EnzymeNode::getFreeConcentration() { return _freeConcentration; }
 
-float EnzymeNode::computeComplexFormation() { 
+float EnzymeNode::computeComplexFormation() {
 	cerr << "computeComplexFormation() " << endl;
-	_complexConcentration=0;
-	float complexForming=0;
-	float complexBreaking=0;
+	_complexConcentration = 0;
+	float complexForming = 0;
+	float complexBreaking = 0;
 	foreach (Edge* e, edges() ) {
 	}
 	_complexConcentration = complexForming - complexBreaking;
-	_freeConcentration    = getInitConcentration()-_complexConcentration;
+	_freeConcentration    = getInitConcentration() - _complexConcentration;
 	return _complexConcentration;
 }
 
 
-void EnzymeNode::setInitConcentration(float x) { 
-		Node::setInitConcentration(x); 
-		setConcentration(x);
-		setFreeConcentration(x); 
-		setComplexConcentration(0.0); 
+void EnzymeNode::setInitConcentration(float x) {
+	Node::setInitConcentration(x);
+	setConcentration(x);
+	setFreeConcentration(x);
+	setComplexConcentration(0.0);
 }
 
 void EnzymeNode::paintEnzyme(QPainter *painter) {
 
 	//qDebug() << "paintEnzyme() " << getNote() << " " << pos().x() << " " << pos().y();
 
-	_shape.addEllipse(-2,2,4,4);
+	_shape.addEllipse(-2, 2, 4, 4);
 	painter->drawPath(_shape);
 
 	if ( isSelected() || isHighlighted() || labelIsVisible() )  {
-		 paintLabel(painter);
+		paintLabel(painter);
 		_shape = QPainterPath();
 		float scale = 0.05;
 		if ( _graph ) scale *= _graph->getNodeSizeScale();
-		double circleSize= _graph->getAvgEdgeLength()*0.05;
+		double circleSize = _graph->getAvgEdgeLength() * 0.05;
 
 		painter->setPen(Qt::gray);
 		painter->setBrush(Qt::gray);
-		painter->drawEllipse(-circleSize/2,-circleSize/2,circleSize,circleSize);
-		_shape.addEllipse(-circleSize/2,-circleSize/2,circleSize,circleSize);
+		painter->drawEllipse(-circleSize / 2, -circleSize / 2, circleSize, circleSize);
+		_shape.addEllipse(-circleSize / 2, -circleSize / 2, circleSize, circleSize);
 	}
 }
 
 float EnzymeNode::getMinRate() {
 	//called with enzyme node
 
-	float minRate=-1;
-	foreach(Edge* e, edges() ) {
+	float minRate = -1;
+	foreach (Edge* e, edges() ) {
 		float x = e->getRateForward();
-		if ( minRate < 0 || x < minRate ) minRate=x;
+		if ( minRate < 0 || x < minRate ) minRate = x;
 	}
 	return minRate;
 }
 
 void EnzymeNode::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
 	Reaction* r = getReaction();
-	if (r) r->setReversable( ! r->reversable ); 
+	if (r) r->setReversable( ! r->reversable );
 
-	foreach(Edge* e, edges()) {
+	foreach (Edge* e, edges()) {
 		e->reverseDirection();
 	}
 }
 
 void EnzymeNode::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    QGraphicsItem::mouseReleaseEvent(event);
+	QGraphicsItem::mouseReleaseEvent(event);
 	layoutCofactors();
-    update();
+	update();
 }
 
 void EnzymeNode::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
-	Reaction* r = getReaction(); 
+	Reaction* r = getReaction();
 	setHighlighted(true);
-	foreach(Edge* e, edges() ) {
+	foreach (Edge* e, edges() ) {
 		e->setHighlighted(true);
-		if(e->sourceNode()) { e->sourceNode()->setHighlighted(true); e->sourceNode()->update(); }
-		if(e->destNode())   { e->destNode()->setHighlighted(true); e->destNode()->update(); }
+		if (e->sourceNode()) { e->sourceNode()->setHighlighted(true); e->sourceNode()->update(); }
+		if (e->destNode())   { e->destNode()->setHighlighted(true); e->destNode()->update(); }
 		e->update();
 	}
 
- 	if (r) {
+	if (r) {
 		QStringList reactants;
 		QStringList products;
 
-		for( unsigned int j=0; j < r->reactants.size(); j++ ) {
-				if(r->reactants[j] != NULL) reactants << QString(r->reactants[j]->name.c_str());
+		for ( unsigned int j = 0; j < r->reactants.size(); j++ ) {
+			if (r->reactants[j] != NULL) reactants << QString(r->reactants[j]->name.c_str());
 		}
 
-		for( unsigned int j=0; j < r->products.size(); j++ )  {
-				if(r->products[j] != NULL) products << QString(r->products[j]->name.c_str());
+		for ( unsigned int j = 0; j < r->products.size(); j++ )  {
+			if (r->products[j] != NULL) products << QString(r->products[j]->name.c_str());
 		}
 		QString direction(" => ");
 		if ( r->reversable ) direction = " &lt;=&gt; ";
@@ -115,75 +115,75 @@ void EnzymeNode::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 		setToolTip(reaction);
 	}
 
-	//if (r) emit enzymeFocused(r); 
-    update();
+	//if (r) emit enzymeFocused(r);
+	update();
 }
 
 void EnzymeNode::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
 
 	setHighlighted(false);
-	foreach(Edge* e, edges() ) {
+	foreach (Edge* e, edges() ) {
 		e->setHighlighted(false);
-		if(e->sourceNode()) { e->sourceNode()->setHighlighted(false); e->sourceNode()->update(); }
-		if(e->destNode())   { e->destNode()->setHighlighted(false); e->destNode()->update(); }
+		if (e->sourceNode()) { e->sourceNode()->setHighlighted(false); e->sourceNode()->update(); }
+		if (e->destNode())   { e->destNode()->setHighlighted(false); e->destNode()->update(); }
 		e->update();
 	}
-    update();
+	update();
 }
 
 
 void EnzymeNode::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-    QGraphicsItem::mousePressEvent(event);
+	QGraphicsItem::mousePressEvent(event);
 	this->setSelected(true);
-	Reaction* r = getReaction(); 
-	if (r) emit enzymeFocused(r); 
-    update();
+	Reaction* r = getReaction();
+	if (r) emit enzymeFocused(r);
+	update();
 }
 
 void EnzymeNode::layoutCofactors() {
 	QRectF box = boundingRect();
-	QPointF epos = pos() + QPointF(box.width()/2+10, 0);
+	QPointF epos = pos() + QPointF(box.width() / 2 + 10, 0);
 	double angl1 = 0;
 	double angl2 = 0;
 	double D  = 30;
 	double angleTo  =  0;
-	double angleFrom=  0;
-	bool hasCofactors=false;
+	double angleFrom =  0;
+	bool hasCofactors = false;
 
-	foreach(Edge* e, edges()) {
-		if ( e->sourceNode()->isCofactor() || e->destNode()->isCofactor()) { hasCofactors=true; continue; }
+	foreach (Edge* e, edges()) {
+		if ( e->sourceNode()->isCofactor() || e->destNode()->isCofactor()) { hasCofactors = true; continue; }
 		if ( e->sourceNode() == this ) { angleFrom = e->angle(); }	//angle from Enzyme
 		if ( e->destNode()   == this ) { angleTo  =  e->angle(); }	//angle to Enzyme
 	}
 
 	//cerr << "angle --> E --> =" << angleTo << " " << angleFrom << endl;
 
-	if (hasCofactors==false) return;
-	foreach(Edge* e, edges()) {
-		if ( e->sourceNode()->isCofactor() == true) { 
-		  	 angl1 += 0.3;
-			 float newAngle = (angleTo+Pi)+angl1;
-			 QPointF npos = epos + QPointF(cos(newAngle)*D,sin(newAngle)*D);
-			 e->sourceNode()->setPos(npos);
-		} 
-		
-		if ( e->destNode()->isCofactor() == true) 	 { 
-		  	 angl2 += 0.3;
-			 float newAngle = angleFrom+angl2;
-			 QPointF npos = epos + QPointF(cos(newAngle)*D,sin(newAngle)*D);
-			 e->destNode()->setPos(npos);
-		} 
+	if (hasCofactors == false) return;
+	foreach (Edge* e, edges()) {
+		if ( e->sourceNode()->isCofactor() == true) {
+			angl1 += 0.3;
+			float newAngle = (angleTo + Pi) + angl1;
+			QPointF npos = epos + QPointF(cos(newAngle) * D, sin(newAngle) * D);
+			e->sourceNode()->setPos(npos);
+		}
+
+		if ( e->destNode()->isCofactor() == true) 	 {
+			angl2 += 0.3;
+			float newAngle = angleFrom + angl2;
+			QPointF npos = epos + QPointF(cos(newAngle) * D, sin(newAngle) * D);
+			e->destNode()->setPos(npos);
+		}
 
 	}
 }
 
-QPointF EnzymeNode::activeSitePosition() { 
+QPointF EnzymeNode::activeSitePosition() {
 
 	QList<QPointF> links;
-	QList<QPointF> positions; 
+	QList<QPointF> positions;
 	QRectF box = boundingRect();
-	float hW = box.width()/2;
-	float hH = box.height()/2;
+	float hW = box.width() / 2;
+	float hH = box.height() / 2;
 	QPointF bestPoint = pos();
 	/*
 	foreach(Edge* e, edges()) {
@@ -197,25 +197,25 @@ QPointF EnzymeNode::activeSitePosition() {
 	float minDist = 100000;
 	foreach( QPointF a, positions ) {
 		float totalDist=0;
-		foreach(QPointF b, links ) { 
+		foreach(QPointF b, links ) {
 			totalDist += sqrt(POW2(a.x()-b.x())+POW2(a.y()-b.y()));
 		}
-		if ( totalDist < minDist ) { 
+		if ( totalDist < minDist ) {
 				bestPoint = a;
 				minDist = totalDist;
 		}
 	}
-		
+
 	return bestPoint + QPoint(boundingRect().width()/2+10,0);
 	*/
 	return bestPoint;
 }
 
 void EnzymeNode::contextMenuEvent (QGraphicsSceneContextMenuEvent * event ) {
-		QMenu menu;
+	QMenu menu;
 
-		QAction* a1 = menu.addAction("Remove Reaction");
-		connect(a1, SIGNAL(triggered()),getGraphWidget(),SLOT(removeSelectedNodes()));
+	QAction* a1 = menu.addAction("Remove Reaction");
+	connect(a1, SIGNAL(triggered()), getGraphWidget(), SLOT(removeSelectedNodes()));
 
-		QAction *selectedAction = menu.exec(event->screenPos());
+	QAction *selectedAction = menu.exec(event->screenPos());
 }

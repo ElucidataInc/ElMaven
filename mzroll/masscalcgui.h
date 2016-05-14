@@ -12,7 +12,20 @@ class MainWindow;
 class MassCalculator;
 class Database;
 
-extern Database DB; 
+extern Database DB;
+
+/**
+ * \class massCalcGui
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for Mass calculation widget GUI.
+ *
+ * This class is used for Mass calculation widget GUI.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
 
 class massCalcGui: public QDockWidget,  public Ui_MassCalcWidget {
       Q_OBJECT
@@ -22,9 +35,9 @@ public:
       ~massCalcGui();
 
 protected:
-        
 
-public slots: 
+
+public slots:
  	  void setMass(float mz);
 	  void setCharge(float charge);
 	  void setPPM(float ppm);
@@ -35,7 +48,7 @@ private slots:
       void showCellInfo(int row, int col, int lrow, int lcol);
 	  void getMatches();
       void showTable();
-   
+
 private:
       MainWindow* _mw;
       MassCalculator mcalc;
@@ -49,7 +62,7 @@ private:
       void pubChemLink(QString formula);
       void keggLink(QString formula);
       void setupSortedCompoundsDB();
-      
+
 };
 
 #endif

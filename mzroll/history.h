@@ -28,21 +28,34 @@
 
 using namespace std;
 
+/**
+ * \class History
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for History.
+ *
+ * This class is used for History.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
+
 class History: public QObject {
-	Q_OBJECT
+  Q_OBJECT
 
-    public:
-          History();
-		  int size() { return history.size(); }
-		  mzSlice next();
-		  mzSlice last();
+public:
+  History();
+  int size() { return history.size(); }
+  mzSlice next();
+  mzSlice last();
 
-	public slots:
-      void addToHistory(const mzSlice slice);
+public slots:
+  void addToHistory(const mzSlice slice);
 
-    private:
-      int _pos;
-      QList<mzSlice> history;
+private:
+  int _pos;
+  QList<mzSlice> history;
 
 };
 

@@ -8,6 +8,18 @@
 #include "statistics.h"
 
 
+/**
+ * \class HeatMap
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for HeatMap.
+ *
+ * This class is used for HeatMap.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
 
 class HeatMap : public QGraphicsView
 {

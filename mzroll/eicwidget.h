@@ -19,6 +19,19 @@ class BoxPlot;
 class IsotopePlot;
 class Note;
 
+/**
+ * \class EicWidget
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for EicWidget.
+ *
+ * This class is used for EicWidget.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
+
 class EicWidget : public QGraphicsView
 {
     Q_OBJECT
@@ -29,8 +42,8 @@ public:
 
     vector<EIC*> getEICs() { return eics; }
     vector<PeakGroup>& getPeakGroups() { return peakgroups; }
-    PeakGroup* getSelectedGroup() 	  {  return selectedGroup; }
-    mzSlice&   getMzSlice() 		  {	 return _slice; }
+    PeakGroup* getSelectedGroup()     {  return selectedGroup; }
+    mzSlice&   getMzSlice()           {  return _slice; }
 
 public slots:
     void setMzSlice(float mz);
@@ -73,18 +86,18 @@ public slots:
     void addPeakGroup(PeakGroup& group);
     void eicToClipboard();
 
-    void showSpline(bool f) { _showSpline=f; }
-    void showPeaks(bool f)  { _showPeaks=f; }
-    void showTicLine(bool f) { _showTicLine=f; }
-    void showBaseLine(bool f) { _showBaseline=f; }
-    void showNotes(bool f) { _showNotes=f; }
+    void showSpline(bool f) { _showSpline = f; }
+    void showPeaks(bool f)  { _showPeaks = f; }
+    void showTicLine(bool f) { _showTicLine = f; }
+    void showBaseLine(bool f) { _showBaseline = f; }
+    void showNotes(bool f) { _showNotes = f; }
 
-    void showIsotopePlot(bool f) { _showIsotopePlot=f; }
-    void showBarPlot(bool f) { _showBarPlot=f; }
-    void showBoxPlot(bool f) { _showBoxPlot=f; }
+    void showIsotopePlot(bool f) { _showIsotopePlot = f; }
+    void showBarPlot(bool f) { _showBarPlot = f; }
+    void showBoxPlot(bool f) { _showBoxPlot = f; }
 
     void setStatusText(QString text);
-    void autoZoom(bool f ) { _autoZoom=f; }
+    void autoZoom(bool f ) { _autoZoom = f; }
 
     void markGroupGood();
     void markGroupBad();
@@ -114,21 +127,21 @@ protected:
     void createNotesTable();
 
 signals:
-    void viewSet(float,float,float,float);
+    void viewSet(float, float, float, float);
 
 private:
 
-    mzSlice _slice;						// current slice
-    float _focusLineRt;					// 0
+    mzSlice _slice;                     // current slice
+    float _focusLineRt;                 // 0
 
-    vector <EIC*> eics;					// vectors mass slices one from each sample
-    deque  <EIC*> tics;					// vectors total chromatogram intensities;
+    vector <EIC*> eics;                 // vectors mass slices one from each sample
+    deque  <EIC*> tics;                 // vectors total chromatogram intensities;
 
-    float _minX;						//plot bounds
+    float _minX;                        //plot bounds
     float _minY;
     float _maxX;
     float _maxY;
-    float _zoomFactor;					//scaling of zoom in
+    float _zoomFactor;                  //scaling of zoom in
 
     QPointF _lastClickPos;
     QPointF _mouseStartPos;
@@ -157,10 +170,10 @@ private:
 
 
 
-    vector<PeakGroup> peakgroups;	    //peaks grouped across samples
-	PeakGroup* selectedGroup;			//currently selected peak group
-	PeakGroup  _integratedGroup;		//manually integrated peak group
-    
+    vector<PeakGroup> peakgroups;       //peaks grouped across samples
+    PeakGroup* selectedGroup;           //currently selected peak group
+    PeakGroup  _integratedGroup;        //manually integrated peak group
+
     //gui related
     QWidget *parent;
     QGraphicsLineItem* _focusLine;
@@ -168,8 +181,8 @@ private:
     void showPeak(float freq, float amplitude);
     void groupPeaks();
     void computeEICs();
-    void cleanup();		//deallocate eics, fragments, peaks, peakgroups
-    void clearPlot();	//removes non permenent graphics objects
+    void cleanup();     //deallocate eics, fragments, peaks, peakgroups
+    void clearPlot();   //removes non permenent graphics objects
     void findPlotBounds(); //find _minX, _maxX...etc
     mzSlice visibleSamplesBounds(); //find absoulte max and min for visible samples
     mzSlice visibleEICBounds(); //find absolute min and max for extracted ion chromatograms
@@ -180,7 +193,7 @@ private:
     float invY(float y);
 
 
-    MainWindow* getMainWindow();		//return parent 
+    MainWindow* getMainWindow();        //return parent
     void zoomPeakGroup( PeakGroup* group );
 
     //function to add and remove notes

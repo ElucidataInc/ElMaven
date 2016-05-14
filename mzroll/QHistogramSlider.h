@@ -1,6 +1,19 @@
 #include<QtGui>
 #include<QStyle>
 
+/**
+ * \class QHistogramSlider
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for slider for Q Histogram.
+ *
+ * This class is used for slider for Q Histogram.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
+
 class QHistogramSlider : public QWidget
 {
     Q_OBJECT
@@ -33,22 +46,22 @@ signals:
     void valueChanged(double);
 
 public slots:
-	void addDataPoint(QPointF p) { data << p; }
-	void clearData() { data.clear(); }
-	void recalculatePlotBounds();
+    void addDataPoint(QPointF p) { data << p; }
+    void clearData() { data.clear(); }
+    void recalculatePlotBounds();
     void setMaxValue(double);
     void setMinValue(double);
-	void setMinBound(double);
-	void setMaxBound(double);
+    void setMinBound(double);
+    void setMaxBound(double);
     void setFontDim(int);
     void setPrecision(int);
     void setBarColor(QColor);
 
 signals:
-	void minBoundChanged(double);
-	void maxBoundChanged(double);
-	void minValueChanged(double);
-	void maxValueChanged(double);
+    void minBoundChanged(double);
+    void maxBoundChanged(double);
+    void minValueChanged(double);
+    void maxValueChanged(double);
 
 protected:
 
@@ -58,24 +71,24 @@ protected:
     void paintBar(Qt::AlignmentFlag, float boundVal);
     void paintLine();
     void paintValue(Qt::AlignmentFlag, float value);
-	void mouseMoveEvent ( QMouseEvent * );
-	void mousePressEvent ( QMouseEvent * );
-	void mouseReleaseEvent ( QMouseEvent * );
-	void resizeEvent(QResizeEvent * );
+    void mouseMoveEvent ( QMouseEvent * );
+    void mousePressEvent ( QMouseEvent * );
+    void mouseReleaseEvent ( QMouseEvent * );
+    void resizeEvent(QResizeEvent * );
 
 private:
 
-	QVector<QPointF>data;
+    QVector<QPointF>data;
 
     int fontDim;
     int precision;
-    double lengthBar; 
+    double lengthBar;
 
     double minVal;
     double maxVal;
 
-	double maxY;
-	double minY;
+    double maxY;
+    double minY;
 
     double maxBound;
     double minBound;

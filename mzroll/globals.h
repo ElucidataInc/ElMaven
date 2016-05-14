@@ -62,25 +62,25 @@ Q_DECLARE_METATYPE(UserNote*)
 Q_DECLARE_METATYPE(mzSlice)
 
 enum itemType {
-		SampleType=4999,
-		PeakGroupType,
-		CompoundType,
-		ScanType,
-		EICType,
-		PeakType,
-		PathwayType,
-		mzSliceType, 
-		mzLinkType
+    SampleType = 4999,
+    PeakGroupType,
+    CompoundType,
+    ScanType,
+    EICType,
+    PeakType,
+    PathwayType,
+    mzSliceType,
+    mzLinkType
 };
 
-extern Database DB; 
+extern Database DB;
 
 struct compReactionCounts
 {
-		bool operator()(Compound* s1, Compound* s2) const
-		{
-				return s1->reactions.size() > s2->reactions.size();
-		}
+    bool operator()(Compound* s1, Compound* s2) const
+    {
+        return s1->reactions.size() > s2->reactions.size();
+    }
 };
 
 #endif

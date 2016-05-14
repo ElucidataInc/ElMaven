@@ -12,21 +12,34 @@
 
 using namespace std;
 
+/**
+ * \class Classifier
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for Classifier.
+ *
+ * This class is used for Classifier to train a model.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
+
 class Classifier
 {
 
 public:
 	Classifier();
 	virtual ~Classifier();
-	
+
 	//reimplemented in children
-	virtual void classify(PeakGroup* grp)=0;
-	virtual void train(vector<PeakGroup*>& groups)=0;
-	virtual void refineModel(PeakGroup* grp)=0;
-	virtual void saveModel(string filename)=0;
-	virtual void loadModel(string filename)=0;
-	virtual bool hasModel()=0;
-	
+	virtual void classify(PeakGroup* grp) = 0;
+	virtual void train(vector<PeakGroup*>& groups) = 0;
+	virtual void refineModel(PeakGroup* grp) = 0;
+	virtual void saveModel(string filename) = 0;
+	virtual void loadModel(string filename) = 0;
+	virtual bool hasModel() = 0;
+
 	//common non virtal functions
 	void classify(vector<PeakGroup*>& groups);
 	void saveFeatures(vector<PeakGroup*>& groups, string filename);
@@ -41,12 +54,12 @@ public:
 private:
 	virtual vector<float> getFeatures(Peak& p) = 0;
 
-protected: 
+protected:
 	string _filename;
 
 	string clsf_type;
 	int num_features;
-    vector<string> features_names;
+	vector<string> features_names;
 	vector< vector<float> > FEATURES;
 	vector<char>labels;
 };

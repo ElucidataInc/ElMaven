@@ -36,10 +36,23 @@ class Database;
 
 using namespace std;
 
-extern Database DB; 
+extern Database DB;
+
+/**
+ * \class LigandWidget
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for LigandWidget.
+ *
+ * This class is used for LigandWidget.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
 
 class LigandWidget: public QDockWidget {
-      Q_OBJECT
+    Q_OBJECT
 
 public:
     LigandWidget(MainWindow* parent);
@@ -50,9 +63,9 @@ public:
     void showMatches(QString needle);
     void showNext();
     void showLast();
-    void setDatabaseAltered(QString dbame,bool altered);
+    void setDatabaseAltered(QString dbame, bool altered);
 
-public slots: 
+public slots:
     void setCompoundFocus(Compound* c);
     void setDatabase(QString dbname);
     void setFilterString(QString s);
@@ -67,12 +80,12 @@ signals:
     void databaseChanged(QString dbname);
 
 private slots:
-      void showLigand();
-      void showTable();
-      void databaseChanged(int index);
-      void readRemoteData(const QHttpResponseHeader &);
-      void fetchRemoteCompounds();
-      QList<Compound*> parseXMLRemoteCompounds();
+    void showLigand();
+    void showTable();
+    void databaseChanged(int index);
+    void readRemoteData(const QHttpResponseHeader &);
+    void fetchRemoteCompounds();
+    QList<Compound*> parseXMLRemoteCompounds();
 
 
 private:
@@ -86,11 +99,11 @@ private:
     QToolButton *loadButton;
     QPoint dragStartPosition;
 
-    QHash<Compound*,QTreeWidgetItem*> items;
-    QHash<QTreeWidgetItem*,Compound*> compoundMap;
+    QHash<Compound*, QTreeWidgetItem*> items;
+    QHash<QTreeWidgetItem*, Compound*> compoundMap;
 
-    QHash<QString,QTreeWidgetItem*>categoryMap;
-    QHash<QString,bool>alteredDatabases;
+    QHash<QString, QTreeWidgetItem*>categoryMap;
+    QHash<QString, bool>alteredDatabases;
 
     MainWindow* _mw;
     QString filterString;

@@ -61,8 +61,21 @@ class mzFileIO;
 class ProjectDockWidget;
 class SpectraMatching;
 
-extern Database DB; 
+extern Database DB;
 
+
+/**
+ * \class MainWindow
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for defining widgets and components of the main Qt window.
+ *
+ * This class is used for defining widgets and components of the main Qt window.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
 
 class MainWindow : public QMainWindow
 {
@@ -250,8 +263,8 @@ struct EicLoader {
                           float amuQ1=0.1,
                           float amuQ2=0.5) {
 
-				slice=islice; 
-				pdetect=iflag; 
+				slice=islice;
+				pdetect=iflag;
 				eic_smoothingWindow=smoothingWindow;
                                 eic_smoothingAlgorithm=smoothingAlgorithm;
                                 eic_amuQ1=amuQ1;

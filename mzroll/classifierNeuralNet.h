@@ -13,18 +13,31 @@
 
 using namespace std;
 
+/**
+ * \class ClassifierNeuralNet
+ *
+ * \ingroup mzroll
+ *
+ * \brief Class for ClassifierNeuralNet to train a model using a Neural Net.
+ *
+ * This class is used for ClassifierNeuralNet to train a model using a Neural Net.
+ *
+ * \author Euigen
+ * \author(documentation prepared by naman)
+ */
+
 class ClassifierNeuralNet: public Classifier
 {
 public:
 	ClassifierNeuralNet();
 	~ClassifierNeuralNet();
 	void classify(PeakGroup* grp);
-    void train(vector<PeakGroup*>& groups);
-    void refineModel(PeakGroup* grp);
-    void saveModel(string filename);
-    void loadModel(string filename);
+	void train(vector<PeakGroup*>& groups);
+	void refineModel(PeakGroup* grp);
+	void saveModel(string filename);
+	void loadModel(string filename);
 	bool hasModel();
- 
+
 private:
 	vector<float> getFeatures(Peak& p);
 

@@ -10,54 +10,54 @@ class MainWindow;
 using namespace std;
 
 class TreeDockWidget: public QDockWidget {
-      Q_OBJECT
+  Q_OBJECT
 
 public:
-    QWidget 	*dockWidgetContents;
-    QHBoxLayout *horizontalLayout;
-    QTreeWidget *treeWidget;
+  QWidget   *dockWidgetContents;
+  QHBoxLayout *horizontalLayout;
+  QTreeWidget *treeWidget;
 
-    TreeDockWidget(MainWindow*, QString title, int numColms);
-
-
-public slots: 
-	  //void showInfo(PeakGroup* group);
-	  QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value,  int type);
-      QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value, int type);
+  TreeDockWidget(MainWindow*, QString title, int numColms);
 
 
-	  void showInfo();
-	  void setInfo(Peak* peak);
-	  void setInfo(PeakGroup* group);
-	  void setInfo(Compound* c);
-	  void setInfo(vector<Compound*>&compounds);
+public slots:
+  //void showInfo(PeakGroup* group);
+  QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value,  int type);
+  QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value, int type);
 
-	  void setInfo(vector<mzLink>&links);
-	  void setInfo(vector<mzSlice*>&slices);
-	  void setInfo(deque<Pathway*>&pathways);
 
-	  void addScanItem(Scan* scan);
-	  void clearTree();
-	  void filterTree(QString needle);
-      void copyToClipbard();
+  void showInfo();
+  void setInfo(Peak* peak);
+  void setInfo(PeakGroup* group);
+  void setInfo(Compound* c);
+  void setInfo(vector<Compound*>&compounds);
 
-      bool hasPeakGroup(PeakGroup* group);
+  void setInfo(vector<mzLink>&links);
+  void setInfo(vector<mzSlice*>&slices);
+  void setInfo(deque<Pathway*>&pathways);
 
-      protected slots:
-          void keyPressEvent(QKeyEvent *e );
-      void contextMenuEvent ( QContextMenuEvent *e );
+  void addScanItem(Scan* scan);
+  void clearTree();
+  void filterTree(QString needle);
+  void copyToClipbard();
 
-      private slots:
-      QTreeWidgetItem* addPeakGroup(PeakGroup* group, QTreeWidgetItem* parent);
-      QTreeWidgetItem* addPeak(Peak* peak, QTreeWidgetItem* parent);
-      QTreeWidgetItem* addCompound(Compound* c, QTreeWidgetItem* parent);
-      QTreeWidgetItem* addSlice(mzSlice* s,QTreeWidgetItem* parent);
-      QTreeWidgetItem* addLink(mzLink* s,  QTreeWidgetItem* parent);
+  bool hasPeakGroup(PeakGroup* group);
 
-      void unlinkGroup();
+protected slots:
+  void keyPressEvent(QKeyEvent *e );
+  void contextMenuEvent ( QContextMenuEvent *e );
 
-    private:
-      void itemToClipboard(QTreeWidgetItem* item, QString& clipboardtext);
+private slots:
+  QTreeWidgetItem* addPeakGroup(PeakGroup* group, QTreeWidgetItem* parent);
+  QTreeWidgetItem* addPeak(Peak* peak, QTreeWidgetItem* parent);
+  QTreeWidgetItem* addCompound(Compound* c, QTreeWidgetItem* parent);
+  QTreeWidgetItem* addSlice(mzSlice* s, QTreeWidgetItem* parent);
+  QTreeWidgetItem* addLink(mzLink* s,  QTreeWidgetItem* parent);
+
+  void unlinkGroup();
+
+private:
+  void itemToClipboard(QTreeWidgetItem* item, QString& clipboardtext);
 };
 
 #endif
