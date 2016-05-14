@@ -1,6 +1,6 @@
 #include "settingsform.h"
 
-SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
+SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     setupUi(this);
     settings = s;
     mainwindow = w;
@@ -46,7 +46,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
 }
 
-void SettingsForm::recomputeIsotopes() { 
+void SettingsForm::recomputeIsotopes() {
     getFormValues();
     if (!mainwindow) return;
 
@@ -65,7 +65,7 @@ void SettingsForm::recomputeIsotopes() {
     }
 }
 
-void SettingsForm::recomputeEIC() { 
+void SettingsForm::recomputeEIC() {
     getFormValues();
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();

@@ -11,22 +11,22 @@ class MainWindow;
 class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
 {
     Q_OBJECT
-    public:
-        SpectraMatching(MainWindow *w);
+public:
+    SpectraMatching(MainWindow *w);
 
-        public slots:
-        void getFormValues();
-        void findMatches();
-        void showScan();
-        void doSearch();
-        double scoreScan(Scan*);
+public slots:
+    void getFormValues();
+    void findMatches();
+    void showScan();
+    void doSearch();
+    double scoreScan(Scan*);
 
-    private:
-        MainWindow *mainwindow;
-        int _msScanType;
-        double _precursorMz;
-        QList<double> _mzsList;
-        QList<double> _intensityList;
+private:
+    MainWindow *mainwindow;
+    int _msScanType;
+    double _precursorMz;
+    QList<double> _mzsList;
+    QList<double> _intensityList;
 
 };
 

@@ -125,8 +125,14 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
         qDebug() << "EIC.." << i;
         for ( int j = 0; j < eic->size(); j++) {
             if (eic->rt[j] >= rtmin && eic->rt[j] <= rtmax) {
-                if (peak.minpos == 0) { peak.minpos = j;  peak.rtmin = eic->rt[j]; }
-                if (peak.maxpos < j) { peak.maxpos = j;  peak.rtmax = eic->rt[j]; }
+                if (peak.minpos == 0) {
+                    peak.minpos = j;
+                    peak.rtmin = eic->rt[j];
+                }
+                if (peak.maxpos < j) {
+                    peak.maxpos = j;
+                    peak.rtmax = eic->rt[j];
+                }
                 peak.peakArea += eic->intensity[j];
                 peak.rtmin = rtmin;
                 peak.rtmax = rtmax;
@@ -168,7 +174,8 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
     float rt = invX(pos.x());
 
     vector <mzSample*> samples = getMainWindow()->getVisibleSamples();
-    Scan* selScan = NULL; float minDiff = FLT_MAX;
+    Scan* selScan = NULL;
+    float minDiff = FLT_MAX;
     for (int i = 0; i < samples.size(); i++ ) {
         for (int j = 0; j < samples[i]->scans.size(); j++ ) {
             //if ( samples[i]->scans[j]->mslevel != 1) continue;
@@ -244,7 +251,10 @@ void EicWidget::cleanup() {
     delete_all(eics);
     eics.clear();
     peakgroups.clear();
-    if (_showTicLine == false && tics.size() > 0 ) { delete_all(tics); tics.clear(); }
+    if (_showTicLine == false && tics.size() > 0 ) {
+        delete_all(tics);
+        tics.clear();
+    }
     clearPlot();
 }
 
@@ -381,7 +391,9 @@ void EicWidget::replotForced() {
 }
 
 void EicWidget::replot() {
-    if ( isVisible() ) { replot(getSelectedGroup()); }
+    if ( isVisible() ) {
+        replot(getSelectedGroup());
+    }
 }
 
 void EicWidget::addEICLines(bool showSpline) {
@@ -410,7 +422,10 @@ void EicWidget::addEICLines(bool showSpline) {
         //sample stacking..
         int zValue = 0;
         for (int j = 0; j < peaks.size(); j++ ) {
-            if (peaks[j].getSample() == eic->getSample()) { zValue = j; break; }
+            if (peaks[j].getSample() == eic->getSample()) {
+                zValue = j;
+                break;
+            }
         }
 
         //ignore EICs that do not fall within current time range
@@ -492,7 +507,8 @@ void EicWidget::addTicLine() {
     }
 
     //restore min and max Y
-    _maxY = tmpMaxY; _minY = tmpMinY;
+    _maxY = tmpMaxY;
+    _minY = tmpMinY;
 }
 
 void EicWidget::addMergedEIC() {
@@ -568,7 +584,10 @@ void EicWidget::showPeakArea(Peak* peak) {
     //make sure that this is not a dead pointer to lost eic
     bool matched = false;
     EIC* eic = peak->getEIC();
-    for (int i = 0; i < eics.size(); i++) if (eics[i] == eic) {matched = true; break; }
+    for (int i = 0; i < eics.size(); i++) if (eics[i] == eic) {
+            matched = true;
+            break;
+        }
     if (!matched) return;
 
     //get points around the peak.
@@ -607,11 +626,24 @@ void EicWidget::setupColors() {
 }
 
 void EicWidget::clearPlot() {
-    if (_isotopeplot && _isotopeplot->scene()) { _isotopeplot->clear(); scene()->removeItem(_isotopeplot); }
-    if (_barplot && _barplot->scene()) { _barplot->clear(); scene()->removeItem(_barplot);  }
-    if (_boxplot && _boxplot->scene()) { _boxplot->clear(); scene()->removeItem(_boxplot);  }
-    if (_focusLine && _focusLine->scene()) {scene()->removeItem(_focusLine); }
-    if (_statusText && _statusText->scene()) { scene()->removeItem(_statusText); }
+    if (_isotopeplot && _isotopeplot->scene()) {
+        _isotopeplot->clear();
+        scene()->removeItem(_isotopeplot);
+    }
+    if (_barplot && _barplot->scene()) {
+        _barplot->clear();
+        scene()->removeItem(_barplot);
+    }
+    if (_boxplot && _boxplot->scene()) {
+        _boxplot->clear();
+        scene()->removeItem(_boxplot);
+    }
+    if (_focusLine && _focusLine->scene()) {
+        scene()->removeItem(_focusLine);
+    }
+    if (_statusText && _statusText->scene()) {
+        scene()->removeItem(_statusText);
+    }
     scene()->clear();
     scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
 }
@@ -852,10 +884,14 @@ void EicWidget::addFitLine(PeakGroup* group) {
 
         //find max point and total intensity
         float sum = 0;
-        float maxpoint = 0; float max = observed[0].y;
+        float maxpoint = 0;
+        float max = observed[0].y;
         for (int i = 0; i < observed.size(); i++ ) {
             sum += observed[i].y;
-            if (observed[i].y > max) { max = observed[i].y; maxpoint = i; }
+            if (observed[i].y > max) {
+                max = observed[i].y;
+                maxpoint = i;
+            }
         }
         if (sum == 0) return;
         /*
@@ -930,7 +966,8 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
         }
 
         QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        QBrush brush(color); brush.setStyle(Qt::NoBrush);
+        QBrush brush(color);
+        brush.setStyle(Qt::NoBrush);
 
         EicPoint* p  = new EicPoint(toX(peak.rt), toY(peak.peakIntensity), &peak, getMainWindow());
         if (setZValue) p->setZValue(i);
@@ -1344,7 +1381,10 @@ void EicWidget::selectGroupNearRt(float rt) {
     for (int i = 0; i < peakgroups.size(); i++ ) {
         float diff = abs(peakgroups[i].meanRt - rt);
         if ( diff < 2 ) {
-            if (selGroup == NULL ) { selGroup = &peakgroups[i]; continue; }
+            if (selGroup == NULL ) {
+                selGroup = &peakgroups[i];
+                continue;
+            }
             if (selGroup != NULL && peakgroups[i].maxIntensity > selGroup->maxIntensity ) {
                 selGroup = &peakgroups[i];
             }
@@ -1357,7 +1397,9 @@ void EicWidget::selectGroupNearRt(float rt) {
 }
 
 void EicWidget::setSelectedGroup(PeakGroup* group ) {
-    if (_frozen) { qDebug() << "frozen:"; }
+    if (_frozen) {
+        qDebug() << "frozen:";
+    }
     if (group == NULL) return;
     if (_frozen) return;
     if (_showBarPlot)     addBarPlot(group);
@@ -1459,9 +1501,15 @@ void EicWidget::setStatusText(QString text) {
 }
 
 
-void EicWidget::markGroupGood()  { getMainWindow()->markGroup(getSelectedGroup(), 'g'); }
-void EicWidget::markGroupBad()   { getMainWindow()->markGroup(getSelectedGroup(), 'b'); }
-void EicWidget::copyToClipboard() { getMainWindow()->setClipboardToGroup(getSelectedGroup()); }
+void EicWidget::markGroupGood()  {
+    getMainWindow()->markGroup(getSelectedGroup(), 'g');
+}
+void EicWidget::markGroupBad()   {
+    getMainWindow()->markGroup(getSelectedGroup(), 'b');
+}
+void EicWidget::copyToClipboard() {
+    getMainWindow()->setClipboardToGroup(getSelectedGroup());
+}
 
 void EicWidget::freezeView(bool freeze) {
     if (freeze == true) {
@@ -1478,5 +1526,10 @@ void EicWidget::freezeView(bool freeze) {
 
 void EicWidget::timerEvent( QTimerEvent * event ) {
     _freezeTime--;
-    if (_freezeTime <= 0) { killTimer(_timerId); _frozen = false; _freezeTime = 0; _timerId = 0; }
+    if (_freezeTime <= 0) {
+        killTimer(_timerId);
+        _frozen = false;
+        _freezeTime = 0;
+        _timerId = 0;
+    }
 }

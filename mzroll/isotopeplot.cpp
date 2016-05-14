@@ -12,9 +12,11 @@ IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
     }
 }
 
-void IsotopePlot::setMainWindow(MainWindow* mw) { _mw = mw; }
+void IsotopePlot::setMainWindow(MainWindow* mw) {
+    _mw = mw;
+}
 
-void IsotopePlot::clear() { 
+void IsotopePlot::clear() {
     QList<QGraphicsItem *> mychildren = QGraphicsItem::childItems();
     if (mychildren.size() > 0 ) {
         foreach (QGraphicsItem *child, mychildren) {
@@ -36,9 +38,9 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
     if ( isVisible() == true && group == _group) return;
     _group = group;
 
-	_samples.clear();
-	_samples = _mw->getVisibleSamples();
-	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
+    _samples.clear();
+    _samples = _mw->getVisibleSamples();
+    sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
 
     _isotopes.clear();
     for(int i=0; i < group->childCount(); i++ ) {
@@ -48,11 +50,11 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
         }
     }
     std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
-	/*
-	for(int i=0; i < _isotopes.size(); i++ )  {
-		cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl; 
-	}
-	*/
+    /*
+    for(int i=0; i < _isotopes.size(); i++ )  {
+    	cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl;
+    }
+    */
 
     showBars();
 }
@@ -94,7 +96,7 @@ void IsotopePlot::showBars() {
         if (sum == 0) continue;
         MM.row(i) /= sum;
 
-        double ycoord = _barwidth*i; 
+        double ycoord = _barwidth*i;
         double xcoord = 0;
 
         for(int j=0; j < MM.cols(); j++ ) {	//isotopes
@@ -108,8 +110,8 @@ void IsotopePlot::showBars() {
             rect->setRect(xcoord,ycoord,length,_barwidth);
 
             QString name = tr("%1 <br> %2 <b>%3\%</b>").arg(_samples[i]->sampleName.c_str(),
-                                                            _isotopes[j]->tagString.c_str(),
-                                                            QString::number(MM(i,j)*100));
+                           _isotopes[j]->tagString.c_str(),
+                           QString::number(MM(i,j)*100));
 
             rect->setData(0,QVariant::fromValue(name));
             rect->setData(1,QVariant::fromValue(_isotopes[j]));
@@ -138,7 +140,9 @@ void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
 
 }
 
-void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) { return; }
+void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
+    return;
+}
 
 /*
 void IsotopeBar::mouseDoubleClickEvent (QGraphicsSceneMouseEvent*event) {
@@ -164,8 +168,11 @@ void IsotopeBar::hoverEnterEvent (QGraphicsSceneHoverEvent*event) {
 void IsotopeBar::keyPressEvent(QKeyEvent *e) {
     if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace ) {
         QVariant v = data(1);
-    	PeakGroup*  g = v.value<PeakGroup*>();
-        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); emit(groupUpdated(g->parent)); }
+        PeakGroup*  g = v.value<PeakGroup*>();
+        if (g && g->parent && g->parent != g) {
+            g->parent->deleteChild(g);
+            emit(groupUpdated(g->parent));
+        }
         IsotopePlot* parent = (IsotopePlot*) parentItem();
         if (parent) parent->showBars();
     }

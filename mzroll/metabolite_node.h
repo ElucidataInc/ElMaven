@@ -16,17 +16,35 @@ public:
     MetaboliteNode(QGraphicsItem* parent, QGraphicsScene *scene);
 
 public slots:
-    void setCompound(Compound* c) { setDataReference(c); }
-    Compound* getCompound() { return (Compound*) getDataReference(); }
+    void setCompound(Compound* c) {
+        setDataReference(c);
+    }
+    Compound* getCompound() {
+        return (Compound*) getDataReference();
+    }
 
-    bool isLinked()			  { return _isLinked; }
-    void setLinked(bool v)	  { _isLinked = v; }
+    bool isLinked()			  {
+        return _isLinked;
+    }
+    void setLinked(bool v)	  {
+        _isLinked = v;
+    }
     float getTextWidth();
-    int getSelectedAtom() { return _selectedAtom; }
-    void setSelectedAtom(int atomNumber) { _selectedAtom=atomNumber; }
-    void showCoordinates(bool flag) { _showCoordinates=flag; }
-    void setMolecularCoordinates(Molecule2D* mol) { coordinates=mol; }
-    bool showBarPlot(bool flag) { _showBarPlot=flag; }
+    int getSelectedAtom() {
+        return _selectedAtom;
+    }
+    void setSelectedAtom(int atomNumber) {
+        _selectedAtom=atomNumber;
+    }
+    void showCoordinates(bool flag) {
+        _showCoordinates=flag;
+    }
+    void setMolecularCoordinates(Molecule2D* mol) {
+        coordinates=mol;
+    }
+    bool showBarPlot(bool flag) {
+        _showBarPlot=flag;
+    }
     void addBarPlot();
 
 signals:

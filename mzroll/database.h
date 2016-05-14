@@ -42,15 +42,26 @@ public:
 class Database {
 
 public:
-    Database() { _connected = false; };
-    Database(string filename) { connect(filename); loadAll(); }
-    ~Database() { closeAll(); }
+    Database() {
+        _connected = false;
+    };
+    Database(string filename) {
+        connect(filename);
+        loadAll();
+    }
+    ~Database() {
+        closeAll();
+    }
 
-    QSqlDatabase& getLigandDB() { return ligandDB; }
+    QSqlDatabase& getLigandDB() {
+        return ligandDB;
+    }
     void loadAll();  //loads all tables
     void closeAll();
     bool connect(string filename);
-    bool isConnected() { return _connected; }
+    bool isConnected() {
+        return _connected;
+    }
 
     void loadKnowns();
     void loadAdducts(string filename);

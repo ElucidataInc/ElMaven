@@ -36,12 +36,20 @@ public:
     ~PathwayWidget();
     void itemMoved();
 
-    int  getTimerSpeed() { return _timerSpeed; }
-    int  getTimerMaxSteps() { return _timerMaxSteps; }
-    double  getTimerStep()	{ return _timerStep; }
+    int  getTimerSpeed() {
+        return _timerSpeed;
+    }
+    int  getTimerMaxSteps() {
+        return _timerMaxSteps;
+    }
+    double  getTimerStep()	{
+        return _timerStep;
+    }
 
 public:
-    MainWindow* getMainWindow() { return mw; }
+    MainWindow* getMainWindow() {
+        return mw;
+    }
 
 public slots:
     void setCompound(Compound* c);			//clear graph, and expond this compound
@@ -61,13 +69,23 @@ public slots:
 
     void updateConcentrations();
     void recalculateConcentrations();
-    void setAnimationControl(AnimationControl* a) { animationControl=a; }
+    void setAnimationControl(AnimationControl* a) {
+        animationControl=a;
+    }
 
-    void setTimerSpeed ( int x ) { _timerSpeed = x; }
-    void setTimerMaxSteps( int x ) { _timerMaxSteps = x; }
-    void setTimerStep( float x)	{   _timerStep=x; }
+    void setTimerSpeed ( int x ) {
+        _timerSpeed = x;
+    }
+    void setTimerMaxSteps( int x ) {
+        _timerMaxSteps = x;
+    }
+    void setTimerStep( float x)	{
+        _timerStep=x;
+    }
 
-    void setEncodeVideo(bool f) { _encodeVideo=f; }
+    void setEncodeVideo(bool f) {
+        _encodeVideo=f;
+    }
 
     bool saveLayout();
     void loadModelFile();
@@ -77,7 +95,9 @@ public slots:
     void saveModelFile(QString filename);
     int  loadSpreadsheet(QString filename);
 
-    void showAtomCoordinates(bool flag) { _showAtomCoordinatesFlag=flag; }
+    void showAtomCoordinates(bool flag) {
+        _showAtomCoordinatesFlag=flag;
+    }
     void showCofactors(bool flag);
     void showEnzymes(bool flag);
     void calculateIsotopes(bool flag);
@@ -86,7 +106,9 @@ public slots:
     void normalizeNodeSizes(int x);
     void changeLayoutAlgorithm(int x);
 
-    void setTitle(QString s) { GraphWidget::setTitle(s); }
+    void setTitle(QString s) {
+        GraphWidget::setTitle(s);
+    }
     void setTitle(Reaction*);
 
     void setupAnimationMatrix();
@@ -105,7 +127,7 @@ signals:
     void reactionFocused(Reaction*);
 
 
-protected: 
+protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dragLeaveEvent(QDragLeaveEvent *event);
@@ -141,7 +163,7 @@ protected:
 
 private:
 
-    MainWindow* mw;			
+    MainWindow* mw;
     vector<mzSample*>samples;		//list of samples
 
     //atom transformation animation

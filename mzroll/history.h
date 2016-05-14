@@ -42,20 +42,22 @@ using namespace std;
  */
 
 class History: public QObject {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  History();
-  int size() { return history.size(); }
-  mzSlice next();
-  mzSlice last();
+    History();
+    int size() {
+        return history.size();
+    }
+    mzSlice next();
+    mzSlice last();
 
 public slots:
-  void addToHistory(const mzSlice slice);
+    void addToHistory(const mzSlice slice);
 
 private:
-  int _pos;
-  QList<mzSlice> history;
+    int _pos;
+    QList<mzSlice> history;
 
 };
 

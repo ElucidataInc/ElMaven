@@ -18,10 +18,10 @@
 
 class AnimationControl: public QWidget, public Ui_AnimationControl
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	AnimationControl(QWidget *parent);
+    AnimationControl(QWidget *parent);
 };
 
 #endif

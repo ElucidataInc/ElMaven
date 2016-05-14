@@ -1,45 +1,73 @@
 #include "mainwindow.h"
 
-QDataStream &operator<<( QDataStream &out, const mzSample* ) { return out; }
-QDataStream &operator>>( QDataStream &in, mzSample* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const Compound* ) { return out; }
-QDataStream &operator>>( QDataStream &in, Compound* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const PeakGroup* ) { return out; }
-QDataStream &operator>>( QDataStream &in, PeakGroup* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const Scan* ) { return out; }
-QDataStream &operator>>( QDataStream &in, Scan* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const Pathway* ) { return out; }
-QDataStream &operator>>( QDataStream &in, Pathway* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const mzSlice* ) { return out; }
-QDataStream &operator>>( QDataStream &in, mzSlice* ) { return in; }
-QDataStream &operator<<( QDataStream &out, const mzSlice& ) { return out; }
-QDataStream &operator>>( QDataStream &in, mzSlice& ) { return in; }
+QDataStream &operator<<( QDataStream &out, const mzSample* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, mzSample* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const Compound* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, Compound* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const PeakGroup* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, PeakGroup* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const Scan* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, Scan* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const Pathway* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, Pathway* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const mzSlice* ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, mzSlice* ) {
+    return in;
+}
+QDataStream &operator<<( QDataStream &out, const mzSlice& ) {
+    return out;
+}
+QDataStream &operator>>( QDataStream &in, mzSlice& ) {
+    return in;
+}
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 
- qRegisterMetaType<mzSample*>("mzSample*");
- qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
+    qRegisterMetaType<mzSample*>("mzSample*");
+    qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 
- qRegisterMetaType<Compound*>("Compound*");
- qRegisterMetaTypeStreamOperators<Compound*>("Compound*");
+    qRegisterMetaType<Compound*>("Compound*");
+    qRegisterMetaTypeStreamOperators<Compound*>("Compound*");
 
- qRegisterMetaType<Scan*>("Scan*");
- qRegisterMetaTypeStreamOperators<Scan*>("Scan*");
+    qRegisterMetaType<Scan*>("Scan*");
+    qRegisterMetaTypeStreamOperators<Scan*>("Scan*");
 
- qRegisterMetaType<PeakGroup*>("PeakGroup*");
- qRegisterMetaTypeStreamOperators<PeakGroup*>("PeakGroup*");
+    qRegisterMetaType<PeakGroup*>("PeakGroup*");
+    qRegisterMetaTypeStreamOperators<PeakGroup*>("PeakGroup*");
 
- qRegisterMetaType<Pathway*>("Pathway*");
- qRegisterMetaTypeStreamOperators<Pathway*>("Pathway*");
+    qRegisterMetaType<Pathway*>("Pathway*");
+    qRegisterMetaTypeStreamOperators<Pathway*>("Pathway*");
 
- qRegisterMetaType<mzSlice*>("mzSlice*");
- qRegisterMetaTypeStreamOperators<mzSlice*>("mzSlice*");
+    qRegisterMetaType<mzSlice*>("mzSlice*");
+    qRegisterMetaTypeStreamOperators<mzSlice*>("mzSlice*");
 
- qRegisterMetaType<mzSlice>("mzSlice");
- qRegisterMetaTypeStreamOperators<mzSlice>("mzSlice");
+    qRegisterMetaType<mzSlice>("mzSlice");
+    qRegisterMetaTypeStreamOperators<mzSlice>("mzSlice");
 
- qRegisterMetaType<UserNote*>("UserNote*");
- //qRegisterMetaTypeStreamOperators<UserNote*>("UserNote*");
+    qRegisterMetaType<UserNote*>("UserNote*");
+//qRegisterMetaTypeStreamOperators<UserNote*>("UserNote*");
 
 
 
@@ -56,17 +84,22 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 
     readSettings();
 
-    QList<QString> dirs; QString dataDir;
+    QList<QString> dirs;
+    QString dataDir;
     if (settings->contains("dataDir")) dirs << settings->value("dataDir").value<QString>();
 
     dirs << "."
-            << QApplication::applicationDirPath()
-            << QApplication::applicationDirPath() + "/../Resources/";
+         << QApplication::applicationDirPath()
+         << QApplication::applicationDirPath() + "/../Resources/";
 
     //find location of KNOWNS
     foreach (QString d, dirs) {
         qDebug() << "Checking dir: " + d;
-        QFile test(d+"/KNOWNS.csv"); if (test.exists()) { dataDir=d; break;}
+        QFile test(d+"/KNOWNS.csv");
+        if (test.exists()) {
+            dataDir=d;
+            break;
+        }
     }
 
     setWindowTitle(programName + " " + programVersion);
@@ -227,7 +260,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
     }
 
     if ( settings->contains("geometry")) {
-    	restoreGeometry(settings->value("geometry").toByteArray());
+        restoreGeometry(settings->value("geometry").toByteArray());
     }
 
 
@@ -239,12 +272,12 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 
     setIonizationMode(0);
     if ( settings->contains("ionizationMode")) {
-    	setIonizationMode(settings->value("ionizationMode").toInt());
+        setIonizationMode(settings->value("ionizationMode").toInt());
     }
 
     setUserPPM(5);
     if ( settings->contains("ppmWindowBox")) {
-    	setUserPPM(settings->value("ppmWindowBox").toDouble());
+        setUserPPM(settings->value("ppmWindowBox").toDouble());
     }
 
     QRectF view = settings->value("mzslice").value<QRectF>();
@@ -293,8 +326,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
     if (settings->contains("closeEvent") and settings->value("closeEvent").toInt() == 0) {
 
         setUrl("http://genomics-pubs.princeton.edu/mzroll/index.php?show=bugs",
-                "Woops.. did the program crash last time? Would you like to report a bug?");
-    } 
+               "Woops.. did the program crash last time? Would you like to report a bug?");
+    }
 
     qDebug() << "Last close event" << settings->value("closeEvent").toInt();
     qDebug() << "Initiaalization complete..";
@@ -319,15 +352,15 @@ void MainWindow::reportBugs() {
 }
 
 
-void MainWindow::setUrl(QString url,QString link) { 
+void MainWindow::setUrl(QString url,QString link) {
 
     if(url.isEmpty()) return;
     if(link.isEmpty()) link="Link";
     setStatusText(tr("<a href=\"%1\">%2</a>").arg(url, link));
-} 
+}
 
 
-void MainWindow::setUrl(Compound* c) { 
+void MainWindow::setUrl(Compound* c) {
     if(c==NULL) return;
     QString biocycURL="http://biocyc.org/ECOLI/NEW-IMAGE?type=NIL&object";
     QString keggURL= "http://www.genome.jp/dbget-bin/www_bget?";
@@ -335,11 +368,11 @@ void MainWindow::setUrl(Compound* c) {
 
     QString url;
     if ( c->db == "MetaCyc" ) {
-    	url = biocycURL+tr("=%1").arg(c->id.c_str());
+        url = biocycURL+tr("=%1").arg(c->id.c_str());
     } else if ( c->db == "KEGG" ) {
-    	url = keggURL+tr("%1").arg(c->id.c_str());
-    //} else if ( c->id.c_str() != "") {
-      //  url = keggURL+tr("%1").arg(c->id.c_str());
+        url = keggURL+tr("%1").arg(c->id.c_str());
+        //} else if ( c->id.c_str() != "") {
+        //  url = keggURL+tr("%1").arg(c->id.c_str());
     } else {
         url = pubChemURL+tr("%1").arg(c->name.c_str());
     }
@@ -347,16 +380,16 @@ void MainWindow::setUrl(Compound* c) {
     setUrl(url,link);
 }
 
-void MainWindow::setUrl(Reaction* r) { 
+void MainWindow::setUrl(Reaction* r) {
     if(r==NULL) return;
     //QString url = wikiUrl+tr("n=Reaction.%1").arg(r->id.c_str());
     QString biocycURL="http://biocyc.org/ECOLI/NEW-IMAGE?type=NIL&object";
     QString keggURL= "http://www.genome.jp/dbget-bin/www_bget?";
     QString url;
     if ( r->db == "MetaCyc" ) {
-    	url = biocycURL+tr("=%1").arg(r->id.c_str());
+        url = biocycURL+tr("=%1").arg(r->id.c_str());
     } else if ( r->db == "KEGG" ) {
-    	url = keggURL+tr("%1").arg(r->id.c_str());
+        url = keggURL+tr("%1").arg(r->id.c_str());
     } else {
         url = keggURL+tr("%1").arg(r->id.c_str());
     }
@@ -364,7 +397,7 @@ void MainWindow::setUrl(Reaction* r) {
     setUrl(url,link);
 }
 
-TableDockWidget* MainWindow::addPeaksTable(QString title) { 
+TableDockWidget* MainWindow::addPeaksTable(QString title) {
     //TableDockWidget* panel	 = new TableDockWidget(this,"Bookmarked Groups",0);
     QPointer<TableDockWidget> panel	 = new TableDockWidget(this,"Bookmarked Groups",0);
     addDockWidget(Qt::BottomDockWidgetArea,panel,Qt::Horizontal);
@@ -384,18 +417,18 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
     return panel;
 }
 
-void MainWindow::setUserPPM( double x) { 
+void MainWindow::setUserPPM( double x) {
     _ppmWindow=x;
 }
 
 void MainWindow::setIonizationMode( int x ) {
     _ionizationMode=x;
-     massCalcWidget->setCharge(_ionizationMode);
-     isotopeWidget->setCharge(_ionizationMode);
+    massCalcWidget->setCharge(_ionizationMode);
+    isotopeWidget->setCharge(_ionizationMode);
 
 
 }
-vector<mzSample*> MainWindow::getVisibleSamples() { 
+vector<mzSample*> MainWindow::getVisibleSamples() {
 
     vector<mzSample*>vsamples;
     for(int i=0; i < samples.size(); i++ ) {
@@ -407,7 +440,7 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 }
 
 
-void MainWindow::bookmarkPeakGroup() { 
+void MainWindow::bookmarkPeakGroup() {
     //qDebug() << "MainWindow::bookmarkPeakGroup()";
     if ( eicWidget ) bookmarkPeakGroup(eicWidget->getSelectedGroup() );
 }
@@ -463,7 +496,9 @@ void MainWindow::setCompoundFocus(Compound*c) {
     //}
 
     if ( isotopeWidget && isotopeWidget->isVisible() ) isotopeWidget->setCompound(c);
-    if ( massCalcWidget && massCalcWidget->isVisible() ) { massCalcWidget->setMass(mz); }
+    if ( massCalcWidget && massCalcWidget->isVisible() ) {
+        massCalcWidget->setMass(mz);
+    }
 
     if (eicWidget->isVisible() && samples.size() > 0 ) {
         eicWidget->setCompound(c);
@@ -473,13 +508,13 @@ void MainWindow::setCompoundFocus(Compound*c) {
         if( peaksPanel->isVisible() && c->hasGroup() ) {
             peaksPanel->setInfo(c->getPeakGroup());
          }
-		*/
+    	*/
 
     if (c) setUrl(c);
 }
 
 void MainWindow::hideDockWidgets() {
-  // setWindowState(windowState() ^ Qt::WindowFullScreen);
+    // setWindowState(windowState() ^ Qt::WindowFullScreen);
     QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
     for (int i = 0; i < dockWidgets.size(); i++) {
         dockWidgets[i]->hide();
@@ -498,7 +533,7 @@ void MainWindow::showDockWidgets() {
     if(menu) menu->show();
 }
 
-void MainWindow::doSearch(QString needle) { 
+void MainWindow::doSearch(QString needle) {
     QRegExp words("[a-z][A-Z]",Qt::CaseInsensitive,QRegExp::RegExp);
     QRegExp formula("C[1-9].*(H[1-9]+|O[1-9]+|N[1-9]+)",Qt::CaseInsensitive,QRegExp::RegExp);
 
@@ -512,7 +547,7 @@ void MainWindow::doSearch(QString needle) {
     }
 }
 
-void MainWindow::setMzValue() { 
+void MainWindow::setMzValue() {
     bool isDouble =false;
     QString value = searchText->text();
     float mz = value.toDouble(&isDouble);
@@ -524,14 +559,14 @@ void MainWindow::setMzValue() {
     suggestPopup->addToHistory(QString::number(mz,'f',5));
 }
 
-void MainWindow::setMzValue(float mz) { 
+void MainWindow::setMzValue(float mz) {
     searchText->setText(QString::number(mz,'f',8));
     if (eicWidget->isVisible() ) eicWidget->setMzSlice(mz);
     if (massCalcWidget->isVisible() ) massCalcWidget->setMass(mz);
     if (fragPanel->isVisible()   ) showFragmentationScans(mz);
 }
 
-void MainWindow::print(){
+void MainWindow::print() {
 
     QPrinter printer;
     QPrintDialog dialog(&printer);
@@ -549,7 +584,7 @@ void MainWindow::print(){
     }
 }
 
-void MainWindow::open(){
+void MainWindow::open() {
 
     QString dir = ".";
 
@@ -560,15 +595,15 @@ void MainWindow::open(){
     }
 
     QStringList filelist = QFileDialog::getOpenFileNames(
-            this, "Select projects, peaks, samples to open:",
-            dir,  
-                  tr("All Known Formats(*.mzroll *.mzPeaks *.mzXML *.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc);;")+
-                  tr("mzXML Format(*.mzXML *.mzxml);;")+
-                  tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")+
-                  tr("NetCDF Format(*.cdf *.nc);;")+
-                  tr("Maven Project File (*.mzroll);;")+
-                  tr("Maven Peaks File (*.mzPeaks);;")+
-                  tr("All Files(*.*)"));
+                               this, "Select projects, peaks, samples to open:",
+                               dir,
+                               tr("All Known Formats(*.mzroll *.mzPeaks *.mzXML *.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc);;")+
+                               tr("mzXML Format(*.mzXML *.mzxml);;")+
+                               tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")+
+                               tr("NetCDF Format(*.cdf *.nc);;")+
+                               tr("Maven Project File (*.mzroll);;")+
+                               tr("Maven Peaks File (*.mzPeaks);;")+
+                               tr("All Files(*.*)"));
 
     if (filelist.size() == 0 ) return;
 
@@ -615,12 +650,12 @@ void MainWindow::open(){
     }
 }
 
-void MainWindow::loadModel(){
+void MainWindow::loadModel() {
     QStringList filelist = QFileDialog::getOpenFileNames( this, "Select Model To Load", ".", "All Files(*.model)");
     if ( filelist.size() > 0 )  clsf->loadModel(filelist[0].toStdString());
 }
 
-void MainWindow::loadCompoundsFile(QString filename){
+void MainWindow::loadCompoundsFile(QString filename) {
 
     string dbfilename = filename.toStdString();
     string dbname = mzUtils::cleanFilename(dbfilename);
@@ -645,9 +680,9 @@ void MainWindow::loadCompoundsFile(QString filename){
 
 void MainWindow::loadCompoundsFile() {
     QStringList filelist = QFileDialog::getOpenFileNames(this,
-            "Select Compounds File To Load",
-             ".",
-            "CSV File(*.csv);;NIST Library(*.msp)");
+                           "Select Compounds File To Load",
+                           ".",
+                           "CSV File(*.csv);;NIST Library(*.msp)");
 
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
     loadCompoundsFile(filelist[0]);
@@ -664,7 +699,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 }
 
 /*
-void MainWindow::terminateTheads() { 
+void MainWindow::terminateTheads() {
 
 	for(int i=0; i < threads.size(); i++ ) {
 		if (threads[i] != NULL ) {
@@ -682,11 +717,11 @@ void MainWindow::terminateTheads() {
 */
 
 
-void MainWindow::exportPDF(){
+void MainWindow::exportPDF() {
 
     const QString fileName = QFileDialog::getSaveFileName(
-            this, "Export File Name", QString(),
-            "PDF Documents (*.pdf)");
+                                 this, "Export File Name", QString(),
+                                 "PDF Documents (*.pdf)");
 
     if ( !fileName.isEmpty() )
     {
@@ -706,7 +741,7 @@ void MainWindow::exportPDF(){
     }
 }
 
-void MainWindow::exportSVG(){
+void MainWindow::exportSVG() {
     QPixmap image(eicWidget->width()*2,eicWidget->height()*2);
     image.fill(Qt::white);
     //eicWidget->print(&image);
@@ -719,17 +754,21 @@ void MainWindow::exportSVG(){
     statusBar()->showMessage("EIC Image copied to Clipboard");
 }
 
-void MainWindow::setStatusText(QString text){
+void MainWindow::setStatusText(QString text) {
     statusText->setText(text);
     //statusBar()->showMessage(text,500);
 }
 
-void MainWindow::setProgressBar(QString text, int progress, int totalSteps){
+void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
     setStatusText(text);
-    if (progressBar->isVisible() == false && progress != totalSteps ) { progressBar->show();}
+    if (progressBar->isVisible() == false && progress != totalSteps ) {
+        progressBar->show();
+    }
     progressBar->setRange(0,totalSteps);
     progressBar->setValue(progress);
-    if (progress == totalSteps ) { progressBar->hide();}
+    if (progress == totalSteps ) {
+        progressBar->hide();
+    }
 }
 
 void MainWindow::readSettings() {
@@ -890,7 +929,8 @@ void MainWindow::createMenus() {
     widgetsMenu->addAction(hideWidgets);
 
     QAction* aj = widgetsMenu->addAction("Fragmentation");
-    aj->setCheckable(true);  aj->setChecked(false);
+    aj->setCheckable(true);
+    aj->setChecked(false);
     connect(aj,SIGNAL(toggled(bool)),fragPanel,SLOT(setVisible(bool)));
 
 
@@ -991,14 +1031,14 @@ void MainWindow::createToolBars() {
     searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b>,<br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
     searchText->setObjectName(QString::fromUtf8("searchText"));
     searchText->setShortcutEnabled(true);
-    connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
+    connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString)));
     connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));
 
     QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")), this);
     QShortcut* ctrlF = new QShortcut(QKeySequence(tr("Ctrl+F", "Do Search")), this);
 
-    connect(ctrlK,SIGNAL(activated()),searchText,SLOT(selectAll())); 
-    connect(ctrlK,SIGNAL(activated()),searchText,SLOT(setFocus())); 
+    connect(ctrlK,SIGNAL(activated()),searchText,SLOT(selectAll()));
+    connect(ctrlK,SIGNAL(activated()),searchText,SLOT(setFocus()));
 
     connect(ctrlF,SIGNAL(activated()),searchText,SLOT(selectAll()));
     connect(ctrlF,SIGNAL(activated()),searchText,SLOT(setFocus()));
@@ -1098,7 +1138,7 @@ void MainWindow::historyNext() {
     eicWidget->setMzSlice(history.next());
 }
 
-void MainWindow::addToHistory(const mzSlice& slice) { 
+void MainWindow::addToHistory(const mzSlice& slice) {
     history.addToHistory(slice);
 }
 
@@ -1117,17 +1157,17 @@ bool MainWindow::addSample(mzSample* sample) {
     }
 }
 
-void MainWindow::showMassSlices() { 
+void MainWindow::showMassSlices() {
     peakDetectionDialog->setFeatureDetection( PeakDetectionDialog::FullSpectrum );
     peakDetectionDialog->show();
 }
 
-void MainWindow::computeKnowsPeaks() { 
+void MainWindow::computeKnowsPeaks() {
     peakDetectionDialog->setFeatureDetection(PeakDetectionDialog::CompoundDB);
     peakDetectionDialog->show();
 }
 
-void MainWindow::showSRMList() { 
+void MainWindow::showSRMList() {
     vector<mzSlice*>slices = getSrmSlices();
     if (slices.size() ==  0 ) return;
     srmDockWidget->setInfo(slices);
@@ -1166,7 +1206,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 }
 
 
-void MainWindow::Align() { 
+void MainWindow::Align() {
     if (sampleCount() < 2 ) return;
 
     BackgroundPeakUpdate* workerThread = newWorkerThread("processMassSlices");
@@ -1189,7 +1229,7 @@ void MainWindow::Align() {
 void MainWindow::UndoAlignment() {
     for(int i=0; i < samples.size(); i++ ) {
         if (samples[i])
-          samples[i]->restoreOriginalRetentionTimes();
+            samples[i]->restoreOriginalRetentionTimes();
     }
     getEicWidget()->replotForced();
 }
@@ -1208,7 +1248,7 @@ vector<mzSlice*> MainWindow::getSrmSlices() {
 
     vector<mzSlice*>slices;
     for(int i=0; i < samples.size(); i++ ) {
-    	mzSample* sample = samples[i];
+        mzSample* sample = samples[i];
         for( int j=0; j < sample->scans.size(); j++ ) {
             Scan* scan = sample->getScan(j);
             if (!scan) continue;
@@ -1253,8 +1293,8 @@ vector<mzSlice*> MainWindow::getSrmSlices() {
             }
 
             if(!compound) {
-            //    qDebug() <<  "Matching failed: precursorMz=" << precursorMz
-              //          << " productMz=" << productMz
+                //    qDebug() <<  "Matching failed: precursorMz=" << precursorMz
+                //          << " productMz=" << productMz
                 //        << " polarity=" << polarity;
             }
 
@@ -1292,7 +1332,7 @@ void MainWindow::showPeakInfo(Peak* _peak) {
         massCalcWidget->setCharge(ionizationMode);
     }
 
-   if ( isotopeWidget->isVisible() ) {
+    if ( isotopeWidget->isVisible() ) {
         isotopeWidget->setIonizationMode(ionizationMode);
         isotopeWidget->setCharge(ionizationMode);
         isotopeWidget->setPeak(_peak);
@@ -1310,7 +1350,7 @@ void MainWindow::spectaFocused(Peak* _peak) {
     mzSample* sample = _peak->getSample();
     if (sample == NULL) return;
 
-    Scan* scan = sample->getScan(_peak->scan); 
+    Scan* scan = sample->getScan(_peak->scan);
     if (scan == NULL) return;
 
     int ionizationMode = scan->getPolarity();
@@ -1324,7 +1364,7 @@ void MainWindow::spectaFocused(Peak* _peak) {
 
 }
 
-void MainWindow::setupSampleColors() { 
+void MainWindow::setupSampleColors() {
     if (samples.size()==0) return;
 
     float N = samples.size();
@@ -1383,28 +1423,28 @@ QString MainWindow::groupTextExport(PeakGroup* group ) {
         if ( s!=NULL) sampleName = s->sampleName;
 
         peakinfo << QString(sampleName.c_str())
-                << QString::number(group->groupId)
-                << compoundName
-                << QString::number(expectedRt, 'f',4 )
-                << QString::number(peak.peakMz, 'f',4 )
-                << QString::number(peak.medianMz, 'f', 4)
-                << QString::number(peak.rt, 'f', 4)
-                << QString::number(peak.rtmin, 'f', 4)
-                << QString::number(peak.rtmax, 'f', 4)
-                << QString::number(peak.quality, 'f', 4)
-                << QString::number(peak.peakIntensity, 'f', 4)
-                << QString::number(peak.peakArea, 'f', 4)
-                << QString::number(peak.peakAreaTop, 'f', 4)
-                << QString::number(peak.peakAreaCorrected, 'f', 4)
-                << QString::number(peak.noNoiseObs, 'f', 4)
-                << QString::number(peak.signalBaselineRatio, 'f', 4)
-                << QString::number(peak.fromBlankSample, 'f', 4);
+                 << QString::number(group->groupId)
+                 << compoundName
+                 << QString::number(expectedRt, 'f',4 )
+                 << QString::number(peak.peakMz, 'f',4 )
+                 << QString::number(peak.medianMz, 'f', 4)
+                 << QString::number(peak.rt, 'f', 4)
+                 << QString::number(peak.rtmin, 'f', 4)
+                 << QString::number(peak.rtmax, 'f', 4)
+                 << QString::number(peak.quality, 'f', 4)
+                 << QString::number(peak.peakIntensity, 'f', 4)
+                 << QString::number(peak.peakArea, 'f', 4)
+                 << QString::number(peak.peakAreaTop, 'f', 4)
+                 << QString::number(peak.peakAreaCorrected, 'f', 4)
+                 << QString::number(peak.noNoiseObs, 'f', 4)
+                 << QString::number(peak.signalBaselineRatio, 'f', 4)
+                 << QString::number(peak.fromBlankSample, 'f', 4);
         groupInfo << peakinfo.join("\t");
     }
     return groupInfo.join("\n");
 }
 
-void MainWindow::findCovariants(Peak* _peak) { 
+void MainWindow::findCovariants(Peak* _peak) {
     if ( covariantsPanel->isVisible() ) {
         vector<mzLink> links = _peak->findCovariants();
         covariantsPanel->setInfo(links);
@@ -1417,7 +1457,7 @@ void MainWindow::setClipboardToGroup(PeakGroup* group) {
     clipboard->setText( groupTextExport(group) );
 }
 
-void MainWindow::showFragmentationScans(float pmz) { 
+void MainWindow::showFragmentationScans(float pmz) {
 
     if (!fragPanel || fragPanel->isVisible() == false ) return;
 
@@ -1440,7 +1480,7 @@ void MainWindow::reorderSamples(PeakGroup* group ) {
     if ( pathwayWidget ) pathwayWidget->updateCompoundConcentrations();
 }
 
-bool MainWindow::checkCompoundExistance(Compound* c) { 
+bool MainWindow::checkCompoundExistance(Compound* c) {
     int charge = -1;
     if ( samples.size() > 0  && samples[0]->getPolarity() > 0) charge = 1;
     if (getIonizationMode()) charge=getIonizationMode(); //user specified ionization mode
@@ -1453,7 +1493,10 @@ bool MainWindow::checkCompoundExistance(Compound* c) {
         int consectveMatches=0;
         for (unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
             vector<int> matches = samples[i]->scans[j]->findMatchingMzs(mzmin,mzmax);
-            if (matches.size() > 0 ) { consectveMatches++; } else consectveMatches=0;
+            if (matches.size() > 0 ) {
+                consectveMatches++;
+            }
+            else consectveMatches=0;
             if (consectveMatches > 3 ) return true;
         }
     }
@@ -1537,14 +1580,14 @@ QWidget* MainWindow::eicWidgetController() {
     btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
     btnBookmark->setShortcut(tr("Ctrl+D"));
 
-/*
-    QSpinBox* smoothingWindowBox = new QSpinBox(toolBar);
-    smoothingWindowBox->setRange(1, 2000);
-    smoothingWindowBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    smoothingWindowBox->setValue(settings->value("eic_smoothingWindow").toInt());
-    smoothingWindowBox->setToolTip("EIC Smoothing Window");
-    connect(smoothingWindowBox, SIGNAL(valueChanged(int)), SLOT(updateEicSmoothingWindow(int)));
-*/
+    /*
+        QSpinBox* smoothingWindowBox = new QSpinBox(toolBar);
+        smoothingWindowBox->setRange(1, 2000);
+        smoothingWindowBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        smoothingWindowBox->setValue(settings->value("eic_smoothingWindow").toInt());
+        smoothingWindowBox->setToolTip("EIC Smoothing Window");
+        connect(smoothingWindowBox, SIGNAL(valueChanged(int)), SLOT(updateEicSmoothingWindow(int)));
+    */
 
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnBookmark);
@@ -1594,7 +1637,7 @@ QWidget* MainWindow::eicWidgetController() {
     return window;
 }
 
-QWidget* MainWindow::pathwayWidgetController() { 
+QWidget* MainWindow::pathwayWidgetController() {
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
@@ -1711,11 +1754,16 @@ void MainWindow::getLinks(Peak* peak ) {
     //matching compounds
     for(int i=0; i < links.size(); i++ ) {
         QSet<Compound*>compunds = massCalcWidget->findMathchingCompounds(links[i].mz2, ppm, ionizationMode);
-        if (compunds.size() > 0 ) foreach( Compound*c, compunds) { links[i].note += " |" + c->name; break; }
+        if (compunds.size() > 0 ) foreach( Compound*c, compunds) {
+            links[i].note += " |" + c->name;
+            break;
+        }
     }
 
     vector<mzLink>subset;
-    for(int i=0; i < links.size(); i++ ) { if(links[i].correlation > 0.5)  subset.push_back(links[i]); }
+    for(int i=0; i < links.size(); i++ ) {
+        if(links[i].correlation > 0.5)  subset.push_back(links[i]);
+    }
     if(subset.size()) covariantsPanel->setInfo(subset);
     if(subset.size() && galleryDockWidget->isVisible()) galleryWidget->addEicPlots(subset);
     if (adductWidget->isVisible()) adductWidget->setPeak(peak);
@@ -1796,16 +1844,22 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons) {
     if (settings && settings->value("isotopeC13Correction").toBool() == false ) return;
 
     for(int i=0; i<MM.rows(); i++ ) {		//samples
-        float sum=0; vector<double>mv(MM.cols());
+        float sum=0;
+        vector<double>mv(MM.cols());
         //qDebug() << "Correction for " << i;
 
         //make a copy
-        for(int j=0; j< MM.cols(); j++) { mv[j]=MM(i,j); sum += MM(i,j); }
+        for(int j=0; j< MM.cols(); j++) {
+            mv[j]=MM(i,j);
+            sum += MM(i,j);
+        }
 
 
         //normalize to sum=1 and correct
         if(sum>0) {
-            for(int j=0; j< mv.size(); j++) { mv[j] /= sum; } //normalize
+            for(int j=0; j< mv.size(); j++) {
+                mv[j] /= sum;    //normalize
+            }
             vector<double>cmv = mzUtils::naturalAbundanceCorrection(numberofCarbons,mv);
 
             for(int j=0; j< mv.size(); j++) {
@@ -1839,7 +1893,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
- {
+{
 
     QStringList samples;
     QStringList projects;
@@ -1867,17 +1921,17 @@ void MainWindow::dropEvent(QDropEvent *event)
         fileLoader->loadSamples(samples);
         fileLoader->start();
     }
- }
+}
 
 bool MainWindow::isSampleFileType(QString filename) {
     if (filename.endsWith("mzXML",Qt::CaseInsensitive)) {
-       return 1;
+        return 1;
     } else if (filename.endsWith("cdf",Qt::CaseInsensitive) || filename.endsWith("nc",Qt::CaseInsensitive) ) {
-       return 1;
+        return 1;
     } else if (filename.endsWith("mzCSV",Qt::CaseInsensitive)) {
-       return 1;
+        return 1;
     } else if (filename.contains("mzData",Qt::CaseInsensitive)) {
-      return 1;
+        return 1;
     }
     return 0;
 }
@@ -1885,7 +1939,7 @@ bool MainWindow::isSampleFileType(QString filename) {
 
 bool MainWindow::isProjectFileType(QString filename) {
     if (filename.endsWith("mzroll",Qt::CaseInsensitive)) {
-       return 1;
+        return 1;
     }
     return 0;
 }

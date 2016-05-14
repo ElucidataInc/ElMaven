@@ -9,10 +9,10 @@ class TableDockWidget;
 
 class TrainDialog : public QDialog, public Ui_TrainingDialog
 {
-		Q_OBJECT
+    Q_OBJECT
 
-		public:
-			 TrainDialog(QWidget *parent);
+public:
+    TrainDialog(QWidget *parent);
 };
 
 #endif

@@ -30,20 +30,20 @@ class ClassifierNaiveBayes: public Classifier
 {
 
 public:
-	ClassifierNaiveBayes();
-	~ClassifierNaiveBayes();
-	void classify(PeakGroup* grp);
-	void classify(vector<PeakGroup*>& groups);
-	void train(vector<PeakGroup*>& groups);
-	void refineModel(PeakGroup* grp);
-	void saveModel(string filename);
-	void loadModel(string filename);
-	bool hasModel();
+    ClassifierNaiveBayes();
+    ~ClassifierNaiveBayes();
+    void classify(PeakGroup* grp);
+    void classify(vector<PeakGroup*>& groups);
+    void train(vector<PeakGroup*>& groups);
+    void refineModel(PeakGroup* grp);
+    void saveModel(string filename);
+    void loadModel(string filename);
+    bool hasModel();
 
 private:
-	vector<float> getFeatures(Peak& p);
-	void classify(Peak&p);
-	void findOptimalSplit(vector<Peak*>&peaks, int fNum);
+    vector<float> getFeatures(Peak& p);
+    void classify(Peak&p);
+    void findOptimalSplit(vector<Peak*>&peaks, int fNum);
 
 };
 #endif

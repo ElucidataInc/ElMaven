@@ -43,7 +43,7 @@ void NotesWidget::fetchRemoteNotes()
         url.addQueryItem("format", "xml");
         http.setHost(url.host());
         connectionId = http.get(url.toEncoded());
-       // qDebug() << " ConnectionId=" << connectionId;
+        // qDebug() << " ConnectionId=" << connectionId;
     }
 }
 
@@ -72,7 +72,7 @@ void NotesWidget::showNotes() {
         item->setText(2, usernote->title);
         item->setData(0,Qt::UserRole,QVariant::fromValue(usernote));
         treeWidget->addTopLevelItem(item);
-       // qDebug() << usernote->title;
+        // qDebug() << usernote->title;
     }
     treeWidget->update();
 }
@@ -84,7 +84,7 @@ void NotesWidget::showNotes() {
 void NotesWidget::updateAllNotes() {
     qDeleteAll(_notes);
     _notes.clear();
- //   _notes << getLocalNotes(); //local notes
+//   _notes << getLocalNotes(); //local notes
     fetchRemoteNotes();       //remote notes
 }
 
@@ -110,7 +110,7 @@ QList<UserNote*> NotesWidget::getRemoteNotes()
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
-            if (xml.name() == "item"){
+            if (xml.name() == "item") {
                 usernote = new UserNote();
                 usernote->remoteNote=true;
             }
@@ -118,13 +118,13 @@ QList<UserNote*> NotesWidget::getRemoteNotes()
         } else if (xml.isEndElement()) {
             if (xml.name() == "item") {
                 if (usernote) remotenotes << usernote;
-           //     qDebug() << "new remote note..";
+                //     qDebug() << "new remote note..";
             }
         }  else if (xml.isCharacters() && !xml.isWhitespace()) {
-	    if (usernote == NULL ){
+            if (usernote == NULL ) {
                 qDebug() << "Parse Error: ";
-		return remotenotes;
-	    }
+                return remotenotes;
+            }
             else if (currentTag == "noteid")
                 usernote->noteid = xml.text().toString().toInt();
             else if (currentTag == "mz")
@@ -172,21 +172,21 @@ void NotesWidget::editNote() {
     QUrl url(_mainwindow->getSettings()->value("notes_server_url").toString());
 
     QString newTitle = titleEdit->text();
-    if (newTitle != selectedNote->title){
-      selectedNote->title = newTitle;
-      url.addQueryItem("title", newTitle);      
+    if (newTitle != selectedNote->title) {
+        selectedNote->title = newTitle;
+        url.addQueryItem("title", newTitle);
     }
 
     QString newDesc = noteEdit->toPlainText();
-    if (newDesc != selectedNote->description){
-      selectedNote->description = newDesc;
-      url.addQueryItem("description", newDesc);
+    if (newDesc != selectedNote->description) {
+        selectedNote->description = newDesc;
+        url.addQueryItem("description", newDesc);
     }
 
     if (url.hasQuery()) {
-      url.addQueryItem("action", "editnote");
-      url.addQueryItem("noteid", QString::number(selectedNote->noteid));
-      QDesktopServices::openUrl(url);
+        url.addQueryItem("action", "editnote");
+        url.addQueryItem("noteid", QString::number(selectedNote->noteid));
+        QDesktopServices::openUrl(url);
     } // else no changes
     return;
 }
@@ -200,7 +200,7 @@ void NotesWidget::editRemoteNote() {
             QVariant v =   item->data(0,Qt::UserRole);
             UserNote* usernote =  v.value<UserNote*>();
 
-	    usernote->title = titleEdit->text();
+            usernote->title = titleEdit->text();
             usernote->description = noteEdit->toPlainText();
 
             QUrl url(settings->value("notes_server_url").toString());
@@ -215,7 +215,7 @@ void NotesWidget::editRemoteNote() {
 
 // NOTE DISPLAY
 void NotesWidget::showNote(int noteid) {
-  //  qDebug() << "showNote() " << noteid;
+    //  qDebug() << "showNote() " << noteid;
     foreach(UserNote* usernote, _notes ) {
         if (usernote && usernote->noteid == noteid ) {
             qDebug() << "showingNote() " << usernote;
@@ -229,11 +229,11 @@ void NotesWidget::showNote(UserNote* usernote) {
     if (!usernote) return;
 
     QString title = tr("Notes: Author:%1 m/z:%2 rt:%3 I:%2").arg(
-            usernote->author,
-            QString::number(usernote->mz),
-            QString::number(usernote->rt),
-            QString::number(usernote->intensity)
-            );
+                        usernote->author,
+                        QString::number(usernote->mz),
+                        QString::number(usernote->rt),
+                        QString::number(usernote->intensity)
+                    );
 
 
     //if (!usernote->link.isEmpty() ) { title += tr("<a href=\"%1\">Link</a>").arg(usernote->link); }
@@ -254,7 +254,7 @@ void NotesWidget::showSelectedNote()
         UserNote* usernote =  v.value<UserNote*>();
         showNote(usernote);
         mzSlice slice(usernote->mzmin,usernote->mzmax,usernote->rt-2,usernote->rt+2);
-         qDebug() << "showSelectedNote()" << usernote->mzmin << " " << usernote->mzmax;
+        qDebug() << "showSelectedNote()" << usernote->mzmin << " " << usernote->mzmax;
         _mainwindow->getEicWidget()->setMzSlice(slice);
         return;
     }

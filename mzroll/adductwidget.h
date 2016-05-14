@@ -44,31 +44,31 @@ using namespace std;
 
 
 class AdductWidget: public QDockWidget {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	AdductWidget(MainWindow*);
-	void setPeak(Peak*);
+    AdductWidget(MainWindow*);
+    void setPeak(Peak*);
 
 private slots:
-	void showGraph();
-	void showLink(Node* n);
-	void expandNode(Node* n);
-	void addLinks(float centerMz, int recursionLevel);
-	void addLink(mzLink* l);
-	mzLink* checkConnection(float centerMz, float mz, std::string);
+    void showGraph();
+    void showLink(Node* n);
+    void expandNode(Node* n);
+    void addLinks(float centerMz, int recursionLevel);
+    void addLink(mzLink* l);
+    mzLink* checkConnection(float centerMz, float mz, std::string);
 
 private:
-	void addToolBar();
+    void addToolBar();
 
-	MainWindow* _mw;
-	vector<mzLink*> links;
-	QVector<float> processedMzs;
-	GraphWidget* _graph;
-	Scan* _scan;
+    MainWindow* _mw;
+    vector<mzLink*> links;
+    QVector<float> processedMzs;
+    GraphWidget* _graph;
+    Scan* _scan;
 
-	bool linkExists(float mz1, float mz2, float ppm);
-	float getIntensity(float mz, float ppm);
+    bool linkExists(float mz1, float mz2, float ppm);
+    float getIntensity(float mz, float ppm);
 
 };
 

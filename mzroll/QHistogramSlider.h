@@ -27,15 +27,29 @@ class QHistogramSlider : public QWidget
 
 
 public:
-    double minBoundValue() const { return minBound; }
-    double maxBoundValue() const { return maxBound; }
+    double minBoundValue() const {
+        return minBound;
+    }
+    double maxBoundValue() const {
+        return maxBound;
+    }
 
-    double minValue() const { return minVal; }
-    double maxValue() const { return maxVal; }
+    double minValue() const {
+        return minVal;
+    }
+    double maxValue() const {
+        return maxVal;
+    }
 
-    int font() const { return fontDim; }
-    int numPrec() const { return precision; }
-    QColor color() const { return colBar; }
+    int font() const {
+        return fontDim;
+    }
+    int numPrec() const {
+        return precision;
+    }
+    QColor color() const {
+        return colBar;
+    }
 
 
     QHistogramSlider(QWidget *parent = 0);
@@ -46,8 +60,12 @@ signals:
     void valueChanged(double);
 
 public slots:
-    void addDataPoint(QPointF p) { data << p; }
-    void clearData() { data.clear(); }
+    void addDataPoint(QPointF p) {
+        data << p;
+    }
+    void clearData() {
+        data.clear();
+    }
     void recalculatePlotBounds();
     void setMaxValue(double);
     void setMinValue(double);

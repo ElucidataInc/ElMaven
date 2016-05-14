@@ -92,7 +92,9 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     if (!scene()) return;
 
     float maxYvalue = 0;
-    for (int i = 0; i < _yvalues.size(); i++) { if (_yvalues[i] > maxYvalue) maxYvalue = _yvalues[i]; }
+    for (int i = 0; i < _yvalues.size(); i++) {
+        if (_yvalues[i] > maxYvalue) maxYvalue = _yvalues[i];
+    }
     if (maxYvalue == 0) return;
 
     float maxBarHeight =   scene()->width() * 0.25;
@@ -118,13 +120,27 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
     QString title;
     switch (qtype ) {
-    case PeakGroup::AreaTop: title = "Peak AreaTop"; break;
-    case PeakGroup::Area: title = "Peak Area"; break;
-    case PeakGroup::Height: title = "Peak Height"; break;
-    case PeakGroup::Quality: title = "Peak Quality"; break;
-    case PeakGroup::RetentionTime: title = "RetentionTime"; break;
-    case PeakGroup::SNRatio: title = "Peak S/N Ratio"; break;
-    default: title = "?"; break;
+    case PeakGroup::AreaTop:
+        title = "Peak AreaTop";
+        break;
+    case PeakGroup::Area:
+        title = "Peak Area";
+        break;
+    case PeakGroup::Height:
+        title = "Peak Height";
+        break;
+    case PeakGroup::Quality:
+        title = "Peak Quality";
+        break;
+    case PeakGroup::RetentionTime:
+        title = "RetentionTime";
+        break;
+    case PeakGroup::SNRatio:
+        title = "Peak S/N Ratio";
+        break;
+    default:
+        title = "?";
+        break;
     }
 
     if (_showQValueType) {
@@ -154,10 +170,22 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
         char numType = 'g';
         int  numPrec = 2;
-        if (maxYvalue < 10000 ) { numType = 'f'; numPrec = 0;}
-        if (maxYvalue < 1000 ) { numType = 'f';  numPrec = 1;}
-        if (maxYvalue < 100 ) { numType = 'f';   numPrec = 2;}
-        if (maxYvalue < 1 ) { numType = 'f';     numPrec = 3;}
+        if (maxYvalue < 10000 ) {
+            numType = 'f';
+            numPrec = 0;
+        }
+        if (maxYvalue < 1000 ) {
+            numType = 'f';
+            numPrec = 1;
+        }
+        if (maxYvalue < 100 ) {
+            numType = 'f';
+            numPrec = 2;
+        }
+        if (maxYvalue < 1 ) {
+            numType = 'f';
+            numPrec = 3;
+        }
 
         if (_yvalues[i] > 0 && _showIntensityText) {
             QString value = QString::number(_yvalues[i], numType, numPrec);

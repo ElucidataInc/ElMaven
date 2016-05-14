@@ -12,145 +12,203 @@ class PlotScene : public QGraphicsScene
 {
     Q_OBJECT
 
-	public:
-	PlotScene(QObject * parent = 0);
-	~PlotScene();
+public:
+    PlotScene(QObject * parent = 0);
+    ~PlotScene();
 
-	void setPlotRect(QRectF r) { plotRect = r; }
-    QRectF getPlotRect() { return plotRect; }
-	QPointF plotToMap(float x,float y);
-	QPointF mapToPlot(float sceneX, float sceneY);
+    void setPlotRect(QRectF r) {
+        plotRect = r;
+    }
+    QRectF getPlotRect() {
+        return plotRect;
+    }
+    QPointF plotToMap(float x,float y);
+    QPointF mapToPlot(float sceneX, float sceneY);
 
-    QPointF getXDim() { return xDim; }
-    QPointF getYDim() { return yDim; }
-    QPointF getZoomXDim() { return zoomXDim; }
-    QPointF getZoomYDim() { return zoomYDim; }
+    QPointF getXDim() {
+        return xDim;
+    }
+    QPointF getYDim() {
+        return yDim;
+    }
+    QPointF getZoomXDim() {
+        return zoomXDim;
+    }
+    QPointF getZoomYDim() {
+        return zoomYDim;
+    }
 
-    void setXDim(float min, float max) { xDim = QPointF(min,max);  }
-    void setYDim(float min, float max) { yDim = QPointF(min,max);  }
-    void setZoomXDim(float min, float max) { zoomXDim = QPointF(min,max);  }
-    void setZoomYDim(float min, float max) { zoomYDim = QPointF(min,max);  }
+    void setXDim(float min, float max) {
+        xDim = QPointF(min,max);
+    }
+    void setYDim(float min, float max) {
+        yDim = QPointF(min,max);
+    }
+    void setZoomXDim(float min, float max) {
+        zoomXDim = QPointF(min,max);
+    }
+    void setZoomYDim(float min, float max) {
+        zoomYDim = QPointF(min,max);
+    }
 
-    void resetZoom() { zoomXDim = xDim; zoomYDim = yDim; }
-    void setLogTransformed( bool x, bool y) { logX=x; logY=y;}
+    void resetZoom() {
+        zoomXDim = xDim;
+        zoomYDim = yDim;
+    }
+    void setLogTransformed( bool x, bool y) {
+        logX=x;
+        logY=y;
+    }
 
-    bool logTrasformedX() { return logX; }
-    bool logTrasformedY() { return logY; }
+    bool logTrasformedX() {
+        return logX;
+    }
+    bool logTrasformedY() {
+        return logY;
+    }
 
-	void showVLine( bool flag) { if(vline) { addItem(vline); vline->setVisible(flag);  }}
-	void showHLine( bool flag) { if(hline) { addItem(hline); hline->setVisible(flag);  }}
-	void showXLabel( QString text ); 
-	void showYLabel( QString text );
+    void showVLine( bool flag) {
+        if(vline) {
+            addItem(vline);
+            vline->setVisible(flag);
+        }
+    }
+    void showHLine( bool flag) {
+        if(hline) {
+            addItem(hline);
+            hline->setVisible(flag);
+        }
+    }
+    void showXLabel( QString text );
+    void showYLabel( QString text );
 
 
-	void clear();
-	void clearData() { data.clear(); }
+    void clear();
+    void clearData() {
+        data.clear();
+    }
 
-	//graphics items
-	//QGraphicsEllipseItem* addPoint(float x, float y, float radius, QColor color);
+    //graphics items
+    //QGraphicsEllipseItem* addPoint(float x, float y, float radius, QColor color);
 
-	protected:
-	void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
-	void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
-	void mouseMoveEvent  ( QGraphicsSceneMouseEvent * mouseEvent );
+protected:
+    void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
+    void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
+    void mouseMoveEvent  ( QGraphicsSceneMouseEvent * mouseEvent );
 
-    signals:
-	void zoomArea(QPointF from, QPointF to );
-	void selectArea(QPointF from, QPointF to );
+signals:
+    void zoomArea(QPointF from, QPointF to );
+    void selectArea(QPointF from, QPointF to );
 
-	private:
-	QPointF down;
-	QPointF up;
-        QRectF plotRect;
+private:
+    QPointF down;
+    QPointF up;
+    QRectF plotRect;
 
-        bool logX;
-        bool logY;
+    bool logX;
+    bool logY;
 
-        QPointF xDim;
-        QPointF yDim;
+    QPointF xDim;
+    QPointF yDim;
 
-        QPointF zoomXDim;
-        QPointF zoomYDim;
+    QPointF zoomXDim;
+    QPointF zoomYDim;
 
-	QGraphicsRectItem *selectionRect;
-	QGraphicsLineItem* vline;
-	QGraphicsLineItem* hline;
-	QGraphicsTextItem*  ylabel;
-	QGraphicsTextItem*  xlabel;
-	Note* xValueLabel;
-	Note* yValueLabel;
+    QGraphicsRectItem *selectionRect;
+    QGraphicsLineItem* vline;
+    QGraphicsLineItem* hline;
+    QGraphicsTextItem*  ylabel;
+    QGraphicsTextItem*  xlabel;
+    Note* xValueLabel;
+    Note* yValueLabel;
 
-	bool _mousePressed;
-	bool _mouseReleased;
+    bool _mousePressed;
+    bool _mouseReleased;
 
-	QVector< QVector<QPointF> > data;
+    QVector< QVector<QPointF> > data;
 
 };
 
 class PlotAxes : public QGraphicsItem
 {
 public:
-	PlotAxes(int type, int nticks, PlotScene *scene):QGraphicsItem(0,scene){ 
-        this->type = type; this->nticks=nticks; offset=0; tickLinesFlag=false; logTrasformed=false;
+    PlotAxes(int type, int nticks, PlotScene *scene):QGraphicsItem(0,scene) {
+        this->type = type;
+        this->nticks=nticks;
+        offset=0;
+        tickLinesFlag=false;
+        logTrasformed=false;
     };
 
     QRectF boundingRect() const;
-	void setNumTicks(int x)  { nticks = x; }
-	void setOffset(int o ) { offset=o;  }
-	void showTicLines(bool f) { tickLinesFlag=f; }
-    void setLogTransformed(bool x) { logTrasformed=x; }
-	
+    void setNumTicks(int x)  {
+        nticks = x;
+    }
+    void setOffset(int o ) {
+        offset=o;
+    }
+    void showTicLines(bool f) {
+        tickLinesFlag=f;
+    }
+    void setLogTransformed(bool x) {
+        logTrasformed=x;
+    }
+
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    
+
 private:
-   int type;
-   int nticks;
-   int offset;
-   bool tickLinesFlag;
-   bool logTrasformed;
+    int type;
+    int nticks;
+    int offset;
+    bool tickLinesFlag;
+    bool logTrasformed;
 };
 
 
 class PlotDockWidget: public QDockWidget {
-		Q_OBJECT
+    Q_OBJECT
 
-		public:
-                 PlotDockWidget(QWidget * parent, Qt::WindowFlags flags);
-                ~PlotDockWidget();
+public:
+    PlotDockWidget(QWidget * parent, Qt::WindowFlags flags);
+    ~PlotDockWidget();
 
-		public slots: 
-                                void replot();
-				void selectionChanged();
-				void exportPDF();
-                                void resetZoom();
-                                void zoomArea(QPointF from, QPointF to);
+public slots:
+    void replot();
+    void selectionChanged();
+    void exportPDF();
+    void resetZoom();
+    void zoomArea(QPointF from, QPointF to);
 
-		signals:
-				void groupSelected(PeakGroup*);
-				void peakSelected(Peak*);
-				void scanSelected(Scan*);
+signals:
+    void groupSelected(PeakGroup*);
+    void peakSelected(Peak*);
+    void scanSelected(Scan*);
 
-		protected:
-				virtual void draw();
-                                virtual void draw(QPointF a, QPointF b);
-                                void contextMenuEvent(QContextMenuEvent * event);
+protected:
+    virtual void draw();
+    virtual void draw(QPointF a, QPointF b);
+    void contextMenuEvent(QContextMenuEvent * event);
 
-				void drawAxes();
-				void resizeEvent ( QResizeEvent *event );
-                                // void mousePressEvent(QMouseEvent *event);
-				void keyPressEvent(QKeyEvent *event);
+    void drawAxes();
+    void resizeEvent ( QResizeEvent *event );
+    // void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
-				inline PlotScene* scene() { return myScene; }
-				inline QGraphicsView* view()   { return myView; }
-				void   addToolBar();
+    inline PlotScene* scene() {
+        return myScene;
+    }
+    inline QGraphicsView* view()   {
+        return myView;
+    }
+    void   addToolBar();
 
-                                QStack<QRectF> zoomHistory;
-				QWidget* mainWidget;
-				QGraphicsView *myView;
-				PlotScene *myScene;
-				QToolBar*	toolBar;
-				QMenu*	    contextMenu;
+    QStack<QRectF> zoomHistory;
+    QWidget* mainWidget;
+    QGraphicsView *myView;
+    PlotScene *myScene;
+    QToolBar*	toolBar;
+    QMenu*	    contextMenu;
 
 };
 

@@ -40,10 +40,18 @@ public:
     EicWidget(QWidget *p);
     ~EicWidget();
 
-    vector<EIC*> getEICs() { return eics; }
-    vector<PeakGroup>& getPeakGroups() { return peakgroups; }
-    PeakGroup* getSelectedGroup()     {  return selectedGroup; }
-    mzSlice&   getMzSlice()           {  return _slice; }
+    vector<EIC*> getEICs() {
+        return eics;
+    }
+    vector<PeakGroup>& getPeakGroups() {
+        return peakgroups;
+    }
+    PeakGroup* getSelectedGroup()     {
+        return selectedGroup;
+    }
+    mzSlice&   getMzSlice()           {
+        return _slice;
+    }
 
 public slots:
     void setMzSlice(float mz);
@@ -86,18 +94,36 @@ public slots:
     void addPeakGroup(PeakGroup& group);
     void eicToClipboard();
 
-    void showSpline(bool f) { _showSpline = f; }
-    void showPeaks(bool f)  { _showPeaks = f; }
-    void showTicLine(bool f) { _showTicLine = f; }
-    void showBaseLine(bool f) { _showBaseline = f; }
-    void showNotes(bool f) { _showNotes = f; }
+    void showSpline(bool f) {
+        _showSpline = f;
+    }
+    void showPeaks(bool f)  {
+        _showPeaks = f;
+    }
+    void showTicLine(bool f) {
+        _showTicLine = f;
+    }
+    void showBaseLine(bool f) {
+        _showBaseline = f;
+    }
+    void showNotes(bool f) {
+        _showNotes = f;
+    }
 
-    void showIsotopePlot(bool f) { _showIsotopePlot = f; }
-    void showBarPlot(bool f) { _showBarPlot = f; }
-    void showBoxPlot(bool f) { _showBoxPlot = f; }
+    void showIsotopePlot(bool f) {
+        _showIsotopePlot = f;
+    }
+    void showBarPlot(bool f) {
+        _showBarPlot = f;
+    }
+    void showBoxPlot(bool f) {
+        _showBoxPlot = f;
+    }
 
     void setStatusText(QString text);
-    void autoZoom(bool f ) { _autoZoom = f; }
+    void autoZoom(bool f ) {
+        _autoZoom = f;
+    }
 
     void markGroupGood();
     void markGroupBad();
@@ -113,7 +139,9 @@ protected:
     void mousePressEvent(QMouseEvent * mouseEvent);
     void mouseMoveEvent(QMouseEvent * mouseEvent);
     void mouseDoubleClickEvent ( QMouseEvent * event );
-    void resizeEvent( QResizeEvent * ) { replot(NULL); }
+    void resizeEvent( QResizeEvent * ) {
+        replot(NULL);
+    }
     void contextMenuEvent(QContextMenuEvent * event);
     void keyPressEvent( QKeyEvent *e );
     void timerEvent ( QTimerEvent * event );

@@ -35,11 +35,22 @@ public:
         _arrow = NULL;
     }
 
-    QPointF getLastCursorPos() { return lastCursorPos; }
-    QPointF getLastMousePressPos()   { return down; }
-    QPointF getLastMouseReleasePos() { return up; }
-    void showArrow(bool flag) { _showArrow = flag; }
-    void clear() { QGraphicsScene::clear(); _arrow = NULL; }
+    QPointF getLastCursorPos() {
+        return lastCursorPos;
+    }
+    QPointF getLastMousePressPos()   {
+        return down;
+    }
+    QPointF getLastMouseReleasePos() {
+        return up;
+    }
+    void showArrow(bool flag) {
+        _showArrow = flag;
+    }
+    void clear() {
+        QGraphicsScene::clear();
+        _arrow = NULL;
+    }
 
 protected:
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
@@ -90,45 +101,95 @@ public:
     void removeNode(Node* n);
     Edge* findEdge(Node* n1, Node* n2);
 
-    void  setNodeSizeScale( float scale) { _nodeSizeScale = scale; }
-    float getNodeSizeScale() { return _nodeSizeScale; }
+    void  setNodeSizeScale( float scale) {
+        _nodeSizeScale = scale;
+    }
+    float getNodeSizeScale() {
+        return _nodeSizeScale;
+    }
 
-    void  setLabelSizeScale( float scale) { _labelSizeScale = scale; }
-    float getLabelSizeScale() { return _labelSizeScale; }
+    void  setLabelSizeScale( float scale) {
+        _labelSizeScale = scale;
+    }
+    float getLabelSizeScale() {
+        return _labelSizeScale;
+    }
 
-    void  setEdgeSizeScale( float scale) { _edgeSizeScale = scale; }
-    float getEdgeSizeScale() { return _edgeSizeScale; }
+    void  setEdgeSizeScale( float scale) {
+        _edgeSizeScale = scale;
+    }
+    float getEdgeSizeScale() {
+        return _edgeSizeScale;
+    }
 
     enum  sizeNormalization { FixedSize = 1, AbsoluteSize = 2, RelativeSize = 3, PairwiseSize = 4 };
-    sizeNormalization getNodeSizeNormalization() { return _nodeSizeNormalization; }
+    sizeNormalization getNodeSizeNormalization() {
+        return _nodeSizeNormalization;
+    }
 
     enum  LayoutAlgorithm { FMMM = 1, Circular = 2, Balloon = 3, Random = 4 };
-    LayoutAlgorithm getLayoutAlgorithm() { return _layoutAlgorithm; }
+    LayoutAlgorithm getLayoutAlgorithm() {
+        return _layoutAlgorithm;
+    }
 
     void  setTitle(const QString& title);
     void  showLabels();
 
-    MyScene* getMyScene() { return _myscene; }
+    MyScene* getMyScene() {
+        return _myscene;
+    }
 
     QList<Node*> getNodes(int type);
 
 public slots:
     void resetZoom();
-    void zoomIn() { scale(1.2, 1.2); }
-    void zoomOut() { scale(1 / 1.2, 1 / 1.2); }
-    void zoomArea(QRectF sceneArea) { fitInView(sceneArea, Qt::KeepAspectRatio); }
-    void increaseLabelSize() { setLabelSizeScale(getLabelSizeScale() * 1.1); showLabels(); scene()->update(); }
-    void decreaseLabelSize() { setLabelSizeScale(getLabelSizeScale() * 0.9); showLabels(); scene()->update(); }
-    void increaseNodeSize() {  setNodeSizeScale(getNodeSizeScale() * 1.1);   scene()->update(); }
-    void decreaseNodeSize() {  setNodeSizeScale(getNodeSizeScale() * 0.9);   scene()->update(); }
-    void increaseEdgeSize() {  setEdgeSizeScale(getEdgeSizeScale() * 1.1);   scene()->update(); }
-    void decreaseEdgeSize() {  setEdgeSizeScale(getEdgeSizeScale() * 0.9);   scene()->update(); }
+    void zoomIn() {
+        scale(1.2, 1.2);
+    }
+    void zoomOut() {
+        scale(1 / 1.2, 1 / 1.2);
+    }
+    void zoomArea(QRectF sceneArea) {
+        fitInView(sceneArea, Qt::KeepAspectRatio);
+    }
+    void increaseLabelSize() {
+        setLabelSizeScale(getLabelSizeScale() * 1.1);
+        showLabels();
+        scene()->update();
+    }
+    void decreaseLabelSize() {
+        setLabelSizeScale(getLabelSizeScale() * 0.9);
+        showLabels();
+        scene()->update();
+    }
+    void increaseNodeSize() {
+        setNodeSizeScale(getNodeSizeScale() * 1.1);
+        scene()->update();
+    }
+    void decreaseNodeSize() {
+        setNodeSizeScale(getNodeSizeScale() * 0.9);
+        scene()->update();
+    }
+    void increaseEdgeSize() {
+        setEdgeSizeScale(getEdgeSizeScale() * 1.1);
+        scene()->update();
+    }
+    void decreaseEdgeSize() {
+        setEdgeSizeScale(getEdgeSizeScale() * 0.9);
+        scene()->update();
+    }
 
     void computeAvgEdgeLength();
-    float getAvgEdgeLength() { return _averageEdgeSize; }
+    float getAvgEdgeLength() {
+        return _averageEdgeSize;
+    }
 
-    void  setLayoutAlgorithm(LayoutAlgorithm x) { _layoutAlgorithm = x; }
-    void  setNodeSizeNormalization(sizeNormalization x) { _nodeSizeNormalization = x; }
+    void  setLayoutAlgorithm(LayoutAlgorithm x) {
+        _layoutAlgorithm = x;
+    }
+    void  setNodeSizeNormalization(sizeNormalization x) {
+        _nodeSizeNormalization = x;
+    }
 
 
     void dump();
@@ -149,7 +210,9 @@ public slots:
     void addToTree(Node* a, Node* b);
 
     void setBackgroundImage(QString filename);
-    QString getBackgroundImageFilename() { return _backgroundImageFile; }
+    QString getBackgroundImageFilename() {
+        return _backgroundImageFile;
+    }
 
 signals:
     void titleChanged(QString);
@@ -168,10 +231,19 @@ protected:
 
     QHash<QString, Node*> nodelist;
 
-    float len(float b1, float b2) { return sqrt(b1 * b1 + b2 * b2); }
-    float attraction (float d, float k) { return d * d / k; }
-    float repulsion (float d, float k)  { return k * k / d; }
-    float cool (float temp, float initial_temp, int rep_max) { temp -= initial_temp / rep_max; return temp < 0 ? 0 : temp; }
+    float len(float b1, float b2) {
+        return sqrt(b1 * b1 + b2 * b2);
+    }
+    float attraction (float d, float k) {
+        return d * d / k;
+    }
+    float repulsion (float d, float k)  {
+        return k * k / d;
+    }
+    float cool (float temp, float initial_temp, int rep_max) {
+        temp -= initial_temp / rep_max;
+        return temp < 0 ? 0 : temp;
+    }
 
 
 private:

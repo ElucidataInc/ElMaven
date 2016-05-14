@@ -1,16 +1,16 @@
 #include "base64.h"
 using namespace std;
 
-namespace base64 { 
+namespace base64 {
 /**
  *  * Base64 encode one byte
  *   */
 char encode(unsigned char u) {
-		if(u < 26)  return 'A'+u;
-		if(u < 52)  return 'a'+(u-26);
-		if(u < 62)  return '0'+(u-52);
-		if(u == 62) return '+';
-		return '/';
+    if(u < 26)  return 'A'+u;
+    if(u < 52)  return 'a'+(u-26);
+    if(u < 62)  return '0'+(u-52);
+    if(u == 62) return '+';
+    return '/';
 }
 
 /**
@@ -18,24 +18,24 @@ char encode(unsigned char u) {
  *   */
 
 
-unsigned char decode(char c){
-		if(c >= 'A' && c <= 'Z') return(c - 'A');
-		if(c >= 'a' && c <= 'z') return(c - 'a' + 26);
-		if(c >= '0' && c <= '9') return(c - '0' + 52);
-		if(c == '+') return 62;
-		return 63;
+unsigned char decode(char c) {
+    if(c >= 'A' && c <= 'Z') return(c - 'A');
+    if(c >= 'a' && c <= 'z') return(c - 'a' + 26);
+    if(c >= '0' && c <= '9') return(c - '0' + 52);
+    if(c == '+') return 62;
+    return 63;
 }
 
 /**
  *  * Return TRUE if 'c' is a valid base64 character, otherwise FALSE
  *   */
 int is_base64(char c) {
-		if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-				(c >= '0' && c <= '9') || (c == '+')             ||
-				(c == '/')             || (c == '=')) {
-				return true;
-		}
-		return false;
+    if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') || (c == '+')             ||
+            (c == '/')             || (c == '=')) {
+        return true;
+    }
+    return false;
 }
 
 vector<float> decode_base64(const string& src, int float_size, bool neworkorder) {
@@ -76,14 +76,14 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
     int size = 1+(src.length() * 3/4 - 4)/float_size;
 
     /*
-		cout << "Dest=" << dest << endl;
-		cout << "src.length()=" << src.length() << endl;
-		cout << "size=" << size << endl;
-		*/
+    	cout << "Dest=" << dest << endl;
+    	cout << "src.length()=" << src.length() << endl;
+    	cout << "size=" << size << endl;
+    	*/
 
 #if (LITTLE_ENDIAN == 1)
-	 cerr << "WARNING: LITTLE_ENDIAN.. Inverted network order";
-     neworkorder=!neworkorder;
+    cerr << "WARNING: LITTLE_ENDIAN.. Inverted network order";
+    neworkorder=!neworkorder;
 #endif
 
 
@@ -128,55 +128,57 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
 unsigned char *encode_base64(const vector<float>& farray) {
 
 
-		int i;
-		unsigned char *p;
+    int i;
+    unsigned char *p;
 
-		//copy vector to C array
-		int sizeF = farray.size();
-		float* srcF= (float*) calloc(sizeof(float), sizeF);
-		for(i=0; i<sizeF; i++ ) { srcF[i]=farray[i]; } 
-		
-		int size = sizeF*4;
-		unsigned char *src = (unsigned char*) srcF;
-		unsigned char* out= (unsigned char*) calloc(sizeof(char), size*4/3+4);
-		p= out;
+    //copy vector to C array
+    int sizeF = farray.size();
+    float* srcF= (float*) calloc(sizeof(float), sizeF);
+    for(i=0; i<sizeF; i++ ) {
+        srcF[i]=farray[i];
+    }
 
-		
-		for(i=0; i<size; i+=3) {
+    int size = sizeF*4;
+    unsigned char *src = (unsigned char*) srcF;
+    unsigned char* out= (unsigned char*) calloc(sizeof(char), size*4/3+4);
+    p= out;
 
-				unsigned char b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, b7=0;
 
-				b1 = src[i];
+    for(i=0; i<size; i+=3) {
 
-				if(i+1<size)
-						b2 = src[i+1];
+        unsigned char b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, b7=0;
 
-				if(i+2<size)
-						b3 = src[i+2];
+        b1 = src[i];
 
-				b4= b1>>2;
-				b5= ((b1&0x3)<<4)|(b2>>4);
-				b6= ((b2&0xf)<<2)|(b3>>6);
-				b7= b3&0x3f;
+        if(i+1<size)
+            b2 = src[i+1];
 
-				*p++= encode(b4);
-				*p++= encode(b5);
+        if(i+2<size)
+            b3 = src[i+2];
 
-				if(i+1<size) {
-						*p++= encode(b6);
-				} else {
-						*p++= '=';
-				}
+        b4= b1>>2;
+        b5= ((b1&0x3)<<4)|(b2>>4);
+        b6= ((b2&0xf)<<2)|(b3>>6);
+        b7= b3&0x3f;
 
-				if(i+2<size) {
-						*p++= encode(b7);
-				} else {
-						*p++= '=';
-				}
+        *p++= encode(b4);
+        *p++= encode(b5);
 
-		}
-		free(srcF);
-		return out;
+        if(i+1<size) {
+            *p++= encode(b6);
+        } else {
+            *p++= '=';
+        }
+
+        if(i+2<size) {
+            *p++= encode(b7);
+        } else {
+            *p++= '=';
+        }
+
+    }
+    free(srcF);
+    return out;
 }
 
 }//namespace

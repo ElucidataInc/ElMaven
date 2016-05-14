@@ -34,19 +34,19 @@ void gauss(int n, double *a, int adim, double *b, double *x)
     double mult;
 
     for (k = 0; k < n - 1; k++) {
-	for (i = k + 1; i < n; i++) {
-	    mult = a[adim * i + k] / a[adim * k + k];
-	    for (j = k + 1; j < n; j++) {
-		a[adim * i + j] = a[adim * i + j] - mult * a[adim * k + j];
-	    }
-	    b[i] = b[i] - mult * b[k];
-	}
+        for (i = k + 1; i < n; i++) {
+            mult = a[adim * i + k] / a[adim * k + k];
+            for (j = k + 1; j < n; j++) {
+                a[adim * i + j] = a[adim * i + j] - mult * a[adim * k + j];
+            }
+            b[i] = b[i] - mult * b[k];
+        }
     }
     for (i = n - 1; i >= 0; i--) {
-	x[i] = b[i];
-	for (j = i + 1; j < n; j++)
-	    x[i] = x[i] - a[adim * i + j] * x[j];
-	x[i] = x[i] / a[adim * i + i];
+        x[i] = b[i];
+        for (j = i + 1; j < n; j++)
+            x[i] = x[i] - a[adim * i + j] * x[j];
+        x[i] = x[i] / a[adim * i + i];
     }
 }
 
@@ -78,28 +78,28 @@ int linear_regression(int n, double *x, double *y, double *fitted)
     double nonl_parms[2];
 
     if (n <= 3) {
-	return 1;
+        return 1;
     }
     xbar = ybar = 0.0;
     SXX = SYY = SXY = 0.0;
     for (i = 0; i < n; i++) {
-	xbar = xbar + x[i];
-	ybar = ybar + y[i];
+        xbar = xbar + x[i];
+        ybar = ybar + y[i];
     }
     xbar = xbar / n;
     ybar = ybar / n;
     for (i = 0; i < n; i++) {
-	SXX = SXX + (x[i] - xbar) * (x[i] - xbar);
-	SYY = SYY + (y[i] - ybar) * (y[i] - ybar);
-	SXY = SXY + (x[i] - xbar) * (y[i] - ybar);
+        SXX = SXX + (x[i] - xbar) * (x[i] - xbar);
+        SYY = SYY + (y[i] - ybar) * (y[i] - ybar);
+        SXY = SXY + (x[i] - xbar) * (y[i] - ybar);
     }
     sdx = sqrt(SXX / (n - 1));
     sdy = sqrt(SYY / (n - 1));
     if (sdx == 0.0) {
-	return 2;
+        return 2;
     }
     if (sdy == 0.0) {
-	return 2;
+        return 2;
     }
     sxy = SXY / (n - 1);
     rxy = sxy / (sdx * sdy);
@@ -150,7 +150,7 @@ int linear_regression(int n, double *x, double *y, double *fitted)
     //sprintf(buf, "Total\t\t%5d\t%.7g\n\n", n - 1, SYY);
     //stufftext(buf, 2);
     for (i = 0; i < n; i++) {
-		fitted[i] = slope * x[i] + intercept;
+        fitted[i] = slope * x[i] + intercept;
     }
     return 0;
 }
@@ -166,17 +166,17 @@ void stasum(double *x, int n, double *xbar, double *sd, int flag)
     *xbar = 0;
     *sd = 0;
     if (n < 1)
-	return;
+        return;
     for (i = 0; i < n; i++)
-	*xbar = (*xbar) + x[i];
+        *xbar = (*xbar) + x[i];
     *xbar = (*xbar) / n;
     for (i = 0; i < n; i++)
-	*sd = (*sd) + (x[i] - *xbar) * (x[i] - *xbar);
+        *sd = (*sd) + (x[i] - *xbar) * (x[i] - *xbar);
     if (n - flag)
-	*sd = sqrt(*sd / (n - flag));
+        *sd = sqrt(*sd / (n - flag));
     else {
-	printf("compmean: (n-flag)==0");
-	*sd = 0;
+        printf("compmean: (n-flag)==0");
+        *sd = 0;
     }
 }
 
@@ -195,46 +195,46 @@ void leasqu(int n, double *x, double *y, int degree, double *w, int wdim, double
     sumy2 = 0.0;
     /* form the matrix with normal equations and RHS */
     for (k = 0; k <= degree; k++) {
-	for (j = k; j <= degree; j++) {
-	    w[wdim * k + j] = 0.0;
-	    for (i = 0; i < n; i++) {
-		if (x[i] != 0.0)
-		    w[wdim * k + j] = pow(x[i], (double) (k)) * pow(x[i], (double) (j)) + w[wdim * k + j];
-	    }
-	    if (k != j)
-		w[wdim * j + k] = w[wdim * k + j];
-	}
+        for (j = k; j <= degree; j++) {
+            w[wdim * k + j] = 0.0;
+            for (i = 0; i < n; i++) {
+                if (x[i] != 0.0)
+                    w[wdim * k + j] = pow(x[i], (double) (k)) * pow(x[i], (double) (j)) + w[wdim * k + j];
+            }
+            if (k != j)
+                w[wdim * j + k] = w[wdim * k + j];
+        }
     }
     for (k = 0; k <= degree; k++) {
-	b[k] = 0.0;
-	for (i = 0; i < n; i++) {
-	    if (x[i] != 0.0)
-		b[k] = b[k] + pow(x[i], (double) (k)) * y[i];
-	}
+        b[k] = 0.0;
+        for (i = 0; i < n; i++) {
+            if (x[i] != 0.0)
+                b[k] = b[k] + pow(x[i], (double) (k)) * y[i];
+        }
     }
     gauss(degree + 1, w, wdim, b, r);	/* solve */
     stasum(y, n, &ybar, &ysdev, 1);	/* compute statistics on fit */
     stasum(x, n, &xbar, &xsdev, 1);
     for (i = 0; i < n; i++) {
-	stemp = 0.0;
-	for (j = 1; j <= degree; j++) {
-	    if (x[i] != 0.0)
-		stemp = stemp + r[j] * pow(x[i], (double) (j));
-	}
-	sumy1 = sumy1 + (stemp + r[0] - y[i]) * (stemp + r[0] - y[i]);
-	sumy2 = sumy2 + y[i] * y[i];
+        stemp = 0.0;
+        for (j = 1; j <= degree; j++) {
+            if (x[i] != 0.0)
+                stemp = stemp + r[j] * pow(x[i], (double) (j));
+        }
+        sumy1 = sumy1 + (stemp + r[0] - y[i]) * (stemp + r[0] - y[i]);
+        sumy2 = sumy2 + y[i] * y[i];
     }
     rsqu = 1.0 - sumy1 / (sumy2 - n * ybar * ybar);
     if (rsqu < 0.0) {
-	rsqu = 0.0;
+        rsqu = 0.0;
     }
     //sprintf(buf, "Number of observations = %10d\n", n);
     ////stufftext(buf, 0);
     //sprintf(buf, "A[0] is the constant, A[i] is the coefficient for ith power of X\n", n);
     ////stufftext(buf, 0);
     for (i = 0; i <= degree; i++) {
-	//sprintf(buf, "A[%d] = %.9lg\n", i, r[i]);
-	////stufftext(buf, 0);
+        //sprintf(buf, "A[%d] = %.9lg\n", i, r[i]);
+        ////stufftext(buf, 0);
     }
     i += 4;
     //sprintf(buf, "R square = %.7lg\n", rsqu);
@@ -260,10 +260,10 @@ double leasev(double *c, int degree, double x)
 
     temp = 0.0;
     for (i = 0; i <= degree; i++) {
-	if ((i == 0) && (x == 0.0))
-	    temp = temp + c[i];	/* avoid 0.0^0 */
-	else
-	    temp = temp + c[i] * pow(x, (double) (i));
+        if ((i == 0) && (x == 0.0))
+            temp = temp + c[i];	/* avoid 0.0^0 */
+        else
+            temp = temp + c[i] * pow(x, (double) (i));
     }
     return (temp);
 }
@@ -279,18 +279,18 @@ void fitcurve(double *x, double *y, int n, int ideg, double *fitted)
 
     ifail = 1;
     if (ideg > 1) {
-	leasqu(n, x, y, ideg, w, MAXFIT, result);
-	for (i = 0; i < n; i++) {
-	    fitted[i] = leasev(result, ideg, x[i]);
-	}
-	ifail = 0;
+        leasqu(n, x, y, ideg, w, MAXFIT, result);
+        for (i = 0; i < n; i++) {
+            fitted[i] = leasev(result, ideg, x[i]);
+        }
+        ifail = 0;
     } else {
-	ifail = linear_regression(n, x, y, fitted);
-	if (ifail == 1) {
-	    //errwin("Linear_regression entered with N <= 3");
-	} else if (ifail == 2) {
-	    //errwin("Linear_regression - all values of x or y are the same");
-	}
+        ifail = linear_regression(n, x, y, fitted);
+        if (ifail == 1) {
+            //errwin("Linear_regression entered with N <= 3");
+        } else if (ifail == 2) {
+            //errwin("Linear_regression - all values of x or y are the same");
+        }
     }
 }
 
@@ -304,16 +304,16 @@ void runavg(double *x, double *y, double *ax, double *ay, int n, int ilen)
     double sumx = 0.0;
 
     for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
-	sumy = sumy + y[i];
+        sumx = sumx + x[i];
+        sumy = sumy + y[i];
     }
     ax[0] = sumx / ilen;
     ay[0] = sumy / ilen;
     for (i = 1; i < (n - ilen + 1); i++) {
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	sumy = y[i + ilen - 1] - y[i - 1] + sumy;
-	ay[i] = sumy / ilen;
+        sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+        ax[i] = sumx / ilen;
+        sumy = y[i + ilen - 1] - y[i - 1] + sumy;
+        ay[i] = sumy / ilen;
     }
 }
 
@@ -327,16 +327,16 @@ void runstddev(double *x, double *y, double *ax, double *ay, int n, int ilen)
     double sumx = 0.0;
 
     for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
+        sumx = sumx + x[i];
     }
     ax[0] = sumx / ilen;
     stasum(y, ilen, &ybar, &ysd, 0);
     ay[0] = ysd;
     for (i = 1; i < (n - ilen + 1); i++) {
-	stasum(y + i, ilen, &ybar, &ysd, 0);
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	ay[i] = ysd;
+        stasum(y + i, ilen, &ybar, &ysd, 0);
+        sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+        ax[i] = sumx / ilen;
+        ay[i] = ysd;
     }
 }
 
@@ -350,29 +350,29 @@ void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
 
     tmpx = (double *) calloc(ilen, sizeof(double));
     if (tmpx == NULL) {
-	errwin("Can't calloc tmpx in runmedian");
-	return;
+        errwin("Can't calloc tmpx in runmedian");
+        return;
     }
     tmpy = (double *) calloc(ilen, sizeof(double));
     if (tmpy == NULL) {
-	errwin("Can't calloc tmpy in runmedian");
-	cxfree(tmpx);
-	return;
+        errwin("Can't calloc tmpy in runmedian");
+        cxfree(tmpx);
+        return;
     }
     for (i = 0; i < nlen; i++) {
-	for (j = 0; j < ilen; j++) {
-	    tmpx[j] = x[j + i];
-	    tmpy[j] = y[j + i];
-	}
-	sort_xy(tmpx, tmpy, ilen, 1, 0);
+        for (j = 0; j < ilen; j++) {
+            tmpx[j] = x[j + i];
+            tmpy[j] = y[j + i];
+        }
+        sort_xy(tmpx, tmpy, ilen, 1, 0);
 
-	if (ilen % 2) {
-	    ax[i] = x[i + (ilen / 2)];
-	    ay[i] = tmpy[ilen / 2];
-	} else {
-	    ax[i] = (x[i + ilen / 2] + x[i + (ilen - 1) / 2]) * 0.5;
-	    ay[i] = (tmpy[ilen / 2] + tmpy[(ilen - 1) / 2]) * 0.5;
-	}
+        if (ilen % 2) {
+            ax[i] = x[i + (ilen / 2)];
+            ay[i] = tmpy[ilen / 2];
+        } else {
+            ax[i] = (x[i + ilen / 2] + x[i + (ilen - 1) / 2]) * 0.5;
+            ay[i] = (tmpy[ilen / 2] + tmpy[(ilen - 1) / 2]) * 0.5;
+        }
     }
     cxfree(tmpx);
     cxfree(tmpy);
@@ -389,37 +389,37 @@ void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, in
 
     min = max = y[0];
     for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
-	if (min > y[i])
-	    min = y[i];
-	if (max < y[i])
-	    max = y[i];
+        sumx = sumx + x[i];
+        if (min > y[i])
+            min = y[i];
+        if (max < y[i])
+            max = y[i];
     }
     ax[0] = sumx / ilen;
     if (type == 0) {
-	ay[0] = min;
+        ay[0] = min;
     } else if (type == 1) {
-	ay[0] = max;
+        ay[0] = max;
     } else {
-	errwin("Unknown type in runminmax, setting type = min");
-	type = 0;
+        errwin("Unknown type in runminmax, setting type = min");
+        type = 0;
     }
     for (i = 1; i < (n - ilen + 1); i++) {
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	min = y[i];
-	max = y[i];
-	for (j = 0; j < ilen; j++) {
-	    if (min > y[i + j])
-		min = y[i + j];
-	    if (max < y[i + j])
-		max = y[i + j];
-	}
-	if (type == 0) {
-	    ay[i] = min;
-	} else if (type == 1) {
-	    ay[i] = max;
-	}
+        sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+        ax[i] = sumx / ilen;
+        min = y[i];
+        max = y[i];
+        for (j = 0; j < ilen; j++) {
+            if (min > y[i + j])
+                min = y[i + j];
+            if (max < y[i + j])
+                max = y[i + j];
+        }
+        if (type == 0) {
+            ay[i] = min;
+        } else if (type == 1) {
+            ay[i] = max;
+        }
     }
 }
 
@@ -437,15 +437,15 @@ void filterser(int n, double *x, double *y, double *resx, double *resy, double *
     eo = len % 2;
     ld2 = len / 2;
     for (i = 0; i < outlen; i++) {
-	sum = 0.0;
-	for (j = 0; j < len; j++) {
-	    sum = sum + h[j] * y[j + i];
-	}
-	resy[i] = sum;
-	if (eo)
-	    resx[i] = x[i + ld2];
-	else
-	    resx[i] = (x[i + ld2] + x[i + ld2 - 1]) / 2.0;
+        sum = 0.0;
+        for (j = 0; j < len; j++) {
+            sum = sum + h[j] * y[j + i];
+        }
+        resy[i] = sum;
+        if (eo)
+            resx[i] = x[i + ld2];
+        else
+            resx[i] = (x[i + ld2] + x[i + ld2 - 1]) / 2.0;
     }
 }
 
@@ -458,12 +458,12 @@ void linearconv(double *x, double *h, double *y, int n, int m)
     int i, j, itmp;
 
     for (i = 0; i < n + m - 1; i++) {
-	for (j = 0; j < m; j++) {
-	    itmp = i - j;
-	    if ((itmp >= 0) && (itmp < n)) {
-		y[i] = y[i] + h[j] * x[itmp];
-	    }
-	}
+        for (j = 0; j < m; j++) {
+            itmp = i - j;
+            if ((itmp >= 0) && (itmp < n)) {
+                y[i] = y[i] + h[j] * x[itmp];
+            }
+        }
     }
 }
 
@@ -477,25 +477,25 @@ int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, doub
     int i, j;
 
     if (lag >= n)
-	return 1;
+        return 1;
     stasum(x, n, &xbar, &xsd, 0);
     if (xsd == 0.0)
-	return 2;
+        return 2;
     stasum(y, n, &ybar, &ysd, 0);
     if (ysd == 0.0)
-	return 3;
+        return 3;
     for (i = 0; i < lag; i++) {
-	xcor[i] = 0.0;
-	xcov[i] = 0.0;
-	for (j = 0; j < n - i; j++) {
-	    xcov[i] = xcov[i] + (y[j] - ybar) * (x[j + i] - xbar);
-	}
-	if (meth)
-	    xcov[i] = xcov[i] / (n - i);
-	else
-	    xcov[i] = xcov[i] / n;
+        xcor[i] = 0.0;
+        xcov[i] = 0.0;
+        for (j = 0; j < n - i; j++) {
+            xcov[i] = xcov[i] + (y[j] - ybar) * (x[j + i] - xbar);
+        }
+        if (meth)
+            xcov[i] = xcov[i] / (n - i);
+        else
+            xcov[i] = xcov[i] / n;
 
-	xcor[i] = xcov[i] / (xsd * ysd);
+        xcor[i] = xcov[i] / (xsd * ysd);
     }
     return 0;
 }
@@ -505,128 +505,130 @@ int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, doub
 */
 void spline(int n, double *x, double *y, double *b, double *c, double *d)
 {
-/*
-c
-c  the coefficients b(i), c(i), and d(i), i=1,2,...,n are computed
-c  for a cubic interpolating spline
-c
-c    s(x) = y(i) + b(i)*(x-x(i)) + c(i)*(x-x(i))**2 + d(i)*(x-x(i))**3
-c
-c    for  x(i) .le. x .le. x(i+1)
-c
-c  input..
-c
-c    n = the number of data points or knots (n.ge.2)
-c    x = the abscissas of the knots in strictly increasing order
-c    y = the ordinates of the knots
-c
-c  output..
-c
-c    b, c, d  = arrays of spline coefficients as defined above.
-c
-c  using  p  to denote differentiation,
-c
-c    y(i) = s(x(i))
-c    b(i) = sp(x(i))
-c    c(i) = spp(x(i))/2
-c    d(i) = sppp(x(i))/6  (derivative from the right)
-c
-c  the accompanying function subprogram  seval	can be used
-c  to evaluate the spline.
-c
-c
-*/
+    /*
+    c
+    c  the coefficients b(i), c(i), and d(i), i=1,2,...,n are computed
+    c  for a cubic interpolating spline
+    c
+    c    s(x) = y(i) + b(i)*(x-x(i)) + c(i)*(x-x(i))**2 + d(i)*(x-x(i))**3
+    c
+    c    for  x(i) .le. x .le. x(i+1)
+    c
+    c  input..
+    c
+    c    n = the number of data points or knots (n.ge.2)
+    c    x = the abscissas of the knots in strictly increasing order
+    c    y = the ordinates of the knots
+    c
+    c  output..
+    c
+    c    b, c, d  = arrays of spline coefficients as defined above.
+    c
+    c  using  p  to denote differentiation,
+    c
+    c    y(i) = s(x(i))
+    c    b(i) = sp(x(i))
+    c    c(i) = spp(x(i))/2
+    c    d(i) = sppp(x(i))/6  (derivative from the right)
+    c
+    c  the accompanying function subprogram  seval	can be used
+    c  to evaluate the spline.
+    c
+    c
+    */
 
     int nm1, ib, i;
     double t;
 
-/*
-Gack!
-*/
+    /*
+    Gack!
+    */
     x--;
     y--;
     b--;
     c--;
     d--;
 
-/*
-Fortran 66
-*/
+    /*
+    Fortran 66
+    */
     nm1 = n - 1;
     if (n < 2)
-	return;
+        return;
     if (n < 3)
-	goto l50;
-/*
-c
-c  set up tridiagonal system
-c
-c  b = diagonal, d = offdiagonal, c = right hand side.
-c
-*/
+        goto l50;
+    /*
+    c
+    c  set up tridiagonal system
+    c
+    c  b = diagonal, d = offdiagonal, c = right hand side.
+    c
+    */
     d[1] = x[2] - x[1];
     c[2] = (y[2] - y[1]) / d[1];
     for (i = 2; i <= nm1; i++) {
-	d[i] = x[i + 1] - x[i];
-	b[i] = 2.0 * (d[i - 1] + d[i]);
-	c[i + 1] = (y[i + 1] - y[i]) / d[i];
-	c[i] = c[i + 1] - c[i];
+        d[i] = x[i + 1] - x[i];
+        b[i] = 2.0 * (d[i - 1] + d[i]);
+        c[i + 1] = (y[i + 1] - y[i]) / d[i];
+        c[i] = c[i + 1] - c[i];
     }
-/*
-c
-c  end conditions.  third derivatives at  x(1)	and  x(n)
-c  obtained from divided differences
-c
-*/
+    /*
+    c
+    c  end conditions.  third derivatives at  x(1)	and  x(n)
+    c  obtained from divided differences
+    c
+    */
     b[1] = -d[1];
     b[n] = -d[n - 1];
     c[1] = 0.0;
     c[n] = 0.0;
     if (n == 3)
-	goto l15;
+        goto l15;
     c[1] = c[3] / (x[4] - x[2]) - c[2] / (x[3] - x[1]);
     c[n] = c[n - 1] / (x[n] - x[n - 2]) - c[n - 2] / (x[n - 1] - x[n - 3]);
     c[1] = c[1] * d[1] * d[1] / (x[4] - x[1]);
     c[n] = -c[n] * d[n - 1] * d[n - 1] / (x[n] - x[n - 3]);
-/*
-c
-c  forward elimination
-c
-*/
-l15:;
+    /*
+    c
+    c  forward elimination
+    c
+    */
+l15:
+    ;
     for (i = 2; i <= n; i++) {
-	t = d[i - 1] / b[i - 1];
-	b[i] = b[i] - t * d[i - 1];
-	c[i] = c[i] - t * c[i - 1];
+        t = d[i - 1] / b[i - 1];
+        b[i] = b[i] - t * d[i - 1];
+        c[i] = c[i] - t * c[i - 1];
     }
-/*
-c
-c  back substitution
-c
-*/
+    /*
+    c
+    c  back substitution
+    c
+    */
     c[n] = c[n] / b[n];
     for (ib = 1; ib <= nm1; ib++) {
-	i = n - ib;
-	c[i] = (c[i] - d[i] * c[i + 1]) / b[i];
+        i = n - ib;
+        c[i] = (c[i] - d[i] * c[i + 1]) / b[i];
     }
-/*
-c
-c  c(i) is now the sigma(i) of the text
-c
-c  compute polynomial coefficients
-c
-*/
+    /*
+    c
+    c  c(i) is now the sigma(i) of the text
+    c
+    c  compute polynomial coefficients
+    c
+    */
     b[n] = (y[n] - y[nm1]) / d[nm1] + d[nm1] * (c[nm1] + 2.0 * c[n]);
     for (i = 1; i <= nm1; i++) {
-	b[i] = (y[i + 1] - y[i]) / d[i] - d[i] * (c[i + 1] + 2.0 * c[i]);
-	d[i] = (c[i + 1] - c[i]) / d[i];
-	c[i] = 3.0 * c[i];
+        b[i] = (y[i + 1] - y[i]) / d[i] - d[i] * (c[i + 1] + 2.0 * c[i]);
+        d[i] = (c[i + 1] - c[i]) / d[i];
+        c[i] = 3.0 * c[i];
     }
     c[n] = 3.0 * c[n];
     d[n] = d[n - 1];
     return;
 
-l50:;
+l50:
+    ;
     b[1] = (y[2] - y[1]) / (x[2] - x[1]);
     c[1] = 0.0;
     d[1] = 0.0;
@@ -638,58 +640,59 @@ l50:;
 
 double seval(int n, double u, double *x, double *y, double *b, double *c, double *d)
 {
-/*
-c
-c  this subroutine evaluates the cubic spline function
-c
-c    seval = y(i) + b(i)*(u-x(i)) + c(i)*(u-x(i))**2 + d(i)*(u-x(i))**3
-c
-c    where  x(i) .lt. u .lt. x(i+1), using horner's rule
-c
-c  if  u .lt. x(1) then  i = 1	is used.
-c  if  u .ge. x(n) then  i = n	is used.
-c
-c  input..
-c
-c    n = the number of data points
-c    u = the abscissa at which the spline is to be evaluated
-c    x,y = the arrays of data abscissas and ordinates
-c    b,c,d = arrays of spline coefficients computed by spline
-c
-c  if  u  is not in the same interval as the previous call, then a
-c  binary search is performed to determine the proper interval.
-c
-*/
+    /*
+    c
+    c  this subroutine evaluates the cubic spline function
+    c
+    c    seval = y(i) + b(i)*(u-x(i)) + c(i)*(u-x(i))**2 + d(i)*(u-x(i))**3
+    c
+    c    where  x(i) .lt. u .lt. x(i+1), using horner's rule
+    c
+    c  if  u .lt. x(1) then  i = 1	is used.
+    c  if  u .ge. x(n) then  i = n	is used.
+    c
+    c  input..
+    c
+    c    n = the number of data points
+    c    u = the abscissa at which the spline is to be evaluated
+    c    x,y = the arrays of data abscissas and ordinates
+    c    b,c,d = arrays of spline coefficients computed by spline
+    c
+    c  if  u  is not in the same interval as the previous call, then a
+    c  binary search is performed to determine the proper interval.
+    c
+    */
     int j, k;
     double dx;
     int i;
 
-/*
-c
-c  binary search
-c
-*/
+    /*
+    c
+    c  binary search
+    c
+    */
     if (u < x[0]) {
-	i = 0;
+        i = 0;
     } else if (u >= x[n - 1]) {
-	i = n - 1;
+        i = n - 1;
     } else {
-	i = 0;
-	j = n;
-l20:	;
-	k = (i + j) / 2;
-	if (u < x[k])
-	    j = k;
-	if (u >= x[k])
-	    i = k;
-	if (j > i + 1)
-	    goto l20;
+        i = 0;
+        j = n;
+l20:
+        ;
+        k = (i + j) / 2;
+        if (u < x[k])
+            j = k;
+        if (u >= x[k])
+            i = k;
+        if (j > i + 1)
+            goto l20;
     }
-/*
-c
-c  evaluate spline
-c
-*/
+    /*
+    c
+    c  evaluate spline
+    c
+    */
     dx = u - x[i];
     return (y[i] + dx * (b[i] + dx * (c[i] + dx * d[i])));
 }
@@ -704,25 +707,25 @@ void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
 
     tmpx = (double *) calloc(n, sizeof(double));
     if (tmpx == NULL) {
-	errwin("Can't calloc tmpx in percentiles");
-	return;
+        errwin("Can't calloc tmpx in percentiles");
+        return;
     }
     tmpy = (double *) calloc(n, sizeof(double));
     if (tmpy == NULL) {
-	errwin("Can't calloc tmpy in percentiles");
-	cxfree(tmpx);
-	return;
+        errwin("Can't calloc tmpy in percentiles");
+        cxfree(tmpx);
+        return;
     }
     for (i = 0; i < n; i++) {
-	tmpx[i] = x[i];
-	tmpy[i] = y[i];
+        tmpx[i] = x[i];
+        tmpy[i] = y[i];
     }
     sort_xy(tmpx, tmpy, n, 1, 0);
     for (i = 0; i < nt; i++) {
-	div = 1.0 / nt;
-	resx[j] = (i + 1) * n * div;
-	resy[j] = tmpy[(i * n) / nt];
-	j++;
+        div = 1.0 / nt;
+        resx[j] = (i + 1) * n * div;
+        resy[j] = tmpy[(i * n) / nt];
+        j++;
     }
     cxfree(tmpx);
     cxfree(tmpy);
@@ -748,38 +751,38 @@ void sort_xy(double *tmp1, double *tmp2, int up, int sorton, int stype)
     double t1, t2;
 
     if (sorton == 1) {
-	double *ttmp;
+        double *ttmp;
 
-	ttmp = tmp1;
-	tmp1 = tmp2;
-	tmp2 = ttmp;
+        ttmp = tmp1;
+        tmp1 = tmp2;
+        tmp2 = ttmp;
     }
     up--;
 
     for (d = up - lo + 1; d > 1;) {
-	if (d < 5)
-	    d = 1;
-	else
-	    d = (5 * d - 1) / 11;
-	for (i = up - d; i >= lo; i--) {
-	    t1 = tmp1[i];
-	    t2 = tmp2[i];
-	    if (!stype) {
-		for (j = i + d; j <= up && (t1 > tmp1[j]); j += d) {
-		    tmp1[j - d] = tmp1[j];
-		    tmp2[j - d] = tmp2[j];
-		}
-		tmp1[j - d] = t1;
-		tmp2[j - d] = t2;
-	    } else {
-		for (j = i + d; j <= up && (t1 < tmp1[j]); j += d) {
-		    tmp1[j - d] = tmp1[j];
-		    tmp2[j - d] = tmp2[j];
-		}
-		tmp1[j - d] = t1;
-		tmp2[j - d] = t2;
-	    }
-	}
+        if (d < 5)
+            d = 1;
+        else
+            d = (5 * d - 1) / 11;
+        for (i = up - d; i >= lo; i--) {
+            t1 = tmp1[i];
+            t2 = tmp2[i];
+            if (!stype) {
+                for (j = i + d; j <= up && (t1 > tmp1[j]); j += d) {
+                    tmp1[j - d] = tmp1[j];
+                    tmp2[j - d] = tmp2[j];
+                }
+                tmp1[j - d] = t1;
+                tmp2[j - d] = t2;
+            } else {
+                for (j = i + d; j <= up && (t1 < tmp1[j]); j += d) {
+                    tmp1[j - d] = tmp1[j];
+                    tmp2[j - d] = tmp2[j];
+                }
+                tmp1[j - d] = t1;
+                tmp2[j - d] = t2;
+            }
+        }
     }
 }
 
@@ -789,7 +792,7 @@ void sort_xy(double *tmp1, double *tmp2, int up, int sorton, int stype)
 void cxfree(void *ptr)
 {
     if (ptr != NULL) {
-	free(ptr);
+        free(ptr);
     }
 }
 

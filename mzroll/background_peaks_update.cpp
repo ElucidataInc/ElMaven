@@ -57,7 +57,10 @@ BackgroundPeakUpdate::~BackgroundPeakUpdate() {
 
 void BackgroundPeakUpdate::run(void) {
 
-    if (mainwindow == NULL)   { quit(); return; }
+    if (mainwindow == NULL)   {
+        quit();
+        return;
+    }
     _stopped = false;
 
     if ( samples.size() == 0) samples = mainwindow->getSamples(); //get samples
@@ -143,7 +146,10 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices, string setName
             eicCount++;
             if (eics[j]->maxIntensity > eicMaxIntensity) eicMaxIntensity = eics[j]->maxIntensity;
         }
-        if (eicMaxIntensity < minGroupIntensity) { delete_all(eics); continue; }
+        if (eicMaxIntensity < minGroupIntensity) {
+            delete_all(eics);
+            continue;
+        }
 
         //for ( unsigned int j=0; j < eics.size(); j++ )  eics[j]->getPeakPositions(eic_smoothingWindow);
         vector<PeakGroup> peakgroups = EIC::groupPeaks(eics, eic_smoothingWindow, grouping_maxRtWindow);
@@ -157,7 +163,10 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices, string setName
             groupCount++;
             peakCount += group.peakCount();
 
-            if (clsf->hasModel()) { clsf->classify(&group); group.groupStatistics(); }
+            if (clsf->hasModel()) {
+                clsf->classify(&group);
+                group.groupStatistics();
+            }
             if (clsf->hasModel() && group.goodPeakCount < minGoodPeakCount) continue;
             // if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
             if (group.blankMax * minSignalBlankRatio > group.maxIntensity) continue;
@@ -250,7 +259,11 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices, string setName
         }
     }
 
-    if (csvreports != NULL) { csvreports->closeFiles(); delete(csvreports); csvreports = NULL; }
+    if (csvreports != NULL) {
+        csvreports->closeFiles();
+        delete(csvreports);
+        csvreports = NULL;
+    }
     emit(updateProgressBar("Done" , 1, 1));
 
     qDebug() << "processSlices() Slices=" << slices.size();
@@ -330,7 +343,8 @@ void BackgroundPeakUpdate::processMassSlices() {
 
     showProgressFlag = true;
     checkConvergance = true;
-    QTime timer; timer.start();
+    QTime timer;
+    timer.start();
 
     if ( samples.size() > 0 ) avgScanTime = samples[0]->getAverageFullScanTime();
 
@@ -362,7 +376,9 @@ void BackgroundPeakUpdate::processMassSlices() {
 }
 
 void BackgroundPeakUpdate::computePeaks() {
-    if (compounds.size() == 0 ) { return; }
+    if (compounds.size() == 0 ) {
+        return;
+    }
     processCompounds(compounds, "compounds");
 }
 
@@ -597,12 +613,16 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
             }
             if (!eic) continue;
 
-            Peak* nearestPeak = NULL; float d = FLT_MAX;
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
             for (int i = 0; i < eic->peaks.size(); i++ ) {
                 Peak& x = eic->peaks[i];
                 float dist = abs(x.rt - rt);
                 if ( dist > maxIsotopeScanDiff * avgScanTime) continue;
-                if ( dist < d ) { d = dist; nearestPeak = &x; }
+                if ( dist < d ) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
             }
 
             if (nearestPeak) {
@@ -631,7 +651,10 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
         child.parent = parentgroup;
         child.setType(PeakGroup::Isotope);
         child.groupStatistics();
-        if (clsf->hasModel()) { clsf->classify(&child); child.groupStatistics(); }
+        if (clsf->hasModel()) {
+            clsf->classify(&child);
+            child.groupStatistics();
+        }
         parentgroup->addChild(child);
         //cerr << " add: " << isotopeName << " " <<  child.peaks.size() << " " << isotopes.size() << endl;
     }
@@ -672,7 +695,8 @@ void BackgroundPeakUpdate::printSettings() {
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
 
-    QFile test(outfile); if (test.exists()) return true;
+    QFile test(outfile);
+    if (test.exists()) return true;
 
     QString command = QString("ReAdW.exe --centroid --mzXML \"%1\" \"%2\"").
                       arg(filename).
@@ -690,6 +714,7 @@ bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
     }
 
     while (!process->waitForFinished()) {};
-    QFile testOut(outfile); return testOut.exists();
+    QFile testOut(outfile);
+    return testOut.exists();
 }
 

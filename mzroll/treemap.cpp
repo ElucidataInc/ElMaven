@@ -46,7 +46,9 @@ void TreeMap::drawMap() {
             if ( area > 0 ) {
                 Item* treeItem = new Item(log2(area), Qt::gray);
                 treeItem->setGroup(g);
-                if ( g->hasCompoundLink() ) { Compound* c = g->compound; }
+                if ( g->hasCompoundLink() ) {
+                    Compound* c = g->compound;
+                }
                 treeItems << treeItem;
             }
         }

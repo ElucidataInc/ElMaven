@@ -18,27 +18,27 @@ int main(int argc, char *argv[])
     splash.show();
     app.processEvents();
 
-	MainWindow* mainWindow = new MainWindow();
-	
+    MainWindow* mainWindow = new MainWindow();
+
     QStringList filelist;
- 	for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         QString filename(argv[i]);
 
         if (filename.endsWith(".mzroll",Qt::CaseInsensitive) ) {
-                        mainWindow->projectDockWidget->loadProject(filename);
-		}
+            mainWindow->projectDockWidget->loadProject(filename);
+        }
 
         if (filename.endsWith("mzxml",Qt::CaseInsensitive) ||
-            filename.endsWith("mzdata",Qt::CaseInsensitive) ||
-            filename.endsWith("mzdata.xml",Qt::CaseInsensitive) ||
-            filename.endsWith("cdf",Qt::CaseInsensitive) ||
-            filename.endsWith("netcdf",Qt::CaseInsensitive) ||
-            filename.endsWith("nc",Qt::CaseInsensitive) ||
-            filename.endsWith("mzcsv",Qt::CaseInsensitive))  {
+                filename.endsWith("mzdata",Qt::CaseInsensitive) ||
+                filename.endsWith("mzdata.xml",Qt::CaseInsensitive) ||
+                filename.endsWith("cdf",Qt::CaseInsensitive) ||
+                filename.endsWith("netcdf",Qt::CaseInsensitive) ||
+                filename.endsWith("nc",Qt::CaseInsensitive) ||
+                filename.endsWith("mzcsv",Qt::CaseInsensitive))  {
             filelist << filename;
             splash.showMessage("Loading " + filename, Qt::AlignLeft, Qt::white );
         }
-	}
+    }
 
     splash.finish(mainWindow);
     mainWindow->show();

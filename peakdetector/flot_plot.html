@@ -32,17 +32,17 @@ $(function () {
     };
     var data = [];
     var placeholder = $("#placeholder");
-    
+
     $.plot(placeholder, data, options);
 
-    
+
     // fetch one series, adding to what we got
     var alreadyFetched = {};
-    
+
     $("input.fetchSeries").click(function () {
         var button = $(this);
-        
-        // find the URL in the link right next to us 
+
+        // find the URL in the link right next to us
         var dataurl = button.siblings('a').attr('href');
 
         // then fetch the data with jQuery
@@ -51,7 +51,7 @@ $(function () {
 
 			for(s=0; s<seriesset.eics.length; s++ ) {
 					series = seriesset.eics[s];
-					
+
 					// extract the first coordinate pair so you can see that
 					// data is now an ordinary Javascript object
 					var firstcoordinate = '(' + series.data[0][0] + ', ' + series.data[0][1] + ')';
@@ -64,11 +64,11 @@ $(function () {
 						data.push(series);
 					}
 			}
-            
+
             // and plot all we got
             $.plot(placeholder, data, options);
          }
-       
+
     function showTooltip(x, y, contents) {
         $('<div id="tooltip">' + contents + '</div>').css( {
             position: 'absolute',
@@ -91,18 +91,18 @@ $(function () {
             if (item) {
                 if (previousPoint != item.dataIndex) {
                     previousPoint = item.dataIndex;
-                    
+
                     $("#tooltip").remove();
                     var x = item.datapoint[0].toFixed(2),
                         y = item.datapoint[1].toFixed(2);
-                    
+
                     showTooltip(item.pageX, item.pageY,
                                 item.series.label + " of " + x + " = " + y);
                 }
             }
             else {
                 $("#tooltip").remove();
-                previousPoint = null;            
+                previousPoint = null;
             }
         }
     });

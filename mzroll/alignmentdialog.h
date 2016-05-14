@@ -19,10 +19,10 @@
  */
 
 class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	AlignmentDialog(QWidget *parent);
+    AlignmentDialog(QWidget *parent);
 };
 
 #endif

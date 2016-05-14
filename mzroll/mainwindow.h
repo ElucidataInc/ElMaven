@@ -83,7 +83,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
-    QSettings* getSettings() { return settings; }
+    QSettings* getSettings() {
+        return settings;
+    }
     vector <mzSample*> samples;		//list of loadded samples
     static mzSample* loadSample(QString filename);
 
@@ -132,24 +134,43 @@ public:
 
     QProgressBar  *progressBar;
 
-    int sampleCount() { return samples.size(); }
-    EicWidget* getEicWidget() { return eicWidget; }
-    SpectraWidget*  getSpectraWidget() { return spectraWidget; }
-    PathwayWidget* getPathwayWidget() { return pathwayWidget; }
-    ProjectDockWidget* getProjectWidget() { return projectDockWidget; }
+    int sampleCount() {
+        return samples.size();
+    }
+    EicWidget* getEicWidget() {
+        return eicWidget;
+    }
+    SpectraWidget*  getSpectraWidget() {
+        return spectraWidget;
+    }
+    PathwayWidget* getPathwayWidget() {
+        return pathwayWidget;
+    }
+    ProjectDockWidget* getProjectWidget() {
+        return projectDockWidget;
+    }
 
-    Classifier* getClassifier() { return clsf; }
+    Classifier* getClassifier() {
+        return clsf;
+    }
 
     MatrixXf getIsotopicMatrix(PeakGroup* group);
     void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
 
-    mzSample* getSample(int i) { assert(i < samples.size()); return(samples[i]);  }
-    inline vector<mzSample*> getSamples() { return samples; }
+    mzSample* getSample(int i) {
+        assert(i < samples.size());
+        return(samples[i]);
+    }
+    inline vector<mzSample*> getSamples() {
+        return samples;
+    }
     vector<mzSample*> getVisibleSamples();
 
     PeakGroup::QType getUserQuantType();
 
-    QSqlDatabase* getLocalDB() { return &localDB; }
+    QSqlDatabase* getLocalDB() {
+        return &localDB;
+    }
     int versionCheck();
     bool isSampleFileType(QString filename);
     bool isProjectFileType(QString filename);
@@ -211,10 +232,14 @@ public slots:
     void markGroup(PeakGroup* group,char label);
 
     void setIonizationMode( int x );
-    int  getIonizationMode() { return _ionizationMode; }
+    int  getIonizationMode() {
+        return _ionizationMode;
+    }
 
     void setUserPPM( double x);
-    double getUserPPM() { return _ppmWindow; }
+    double getUserPPM() {
+        return _ppmWindow;
+    }
 
 
     TableDockWidget* addPeaksTable(QString title);
@@ -244,64 +269,64 @@ private:
 };
 
 struct FileLoader {
-		FileLoader(){};
-		typedef mzSample* result_type;
+    FileLoader() {};
+    typedef mzSample* result_type;
 
-		mzSample* operator()(const QString filename) {
-				mzSample* sample = MainWindow::loadSample(filename);
-				return sample;
-		}
+    mzSample* operator()(const QString filename) {
+        mzSample* sample = MainWindow::loadSample(filename);
+        return sample;
+    }
 };
 
 struct EicLoader {
-		enum   PeakDetectionFlag { NoPeakDetection=0, PeakDetection=1 };
+    enum   PeakDetectionFlag { NoPeakDetection=0, PeakDetection=1 };
 
-                EicLoader(mzSlice* islice,
-                          PeakDetectionFlag iflag=NoPeakDetection,
-                          int smoothingWindow=5,
-                          int smoothingAlgorithm=0,
-                          float amuQ1=0.1,
-                          float amuQ2=0.5) {
+    EicLoader(mzSlice* islice,
+              PeakDetectionFlag iflag=NoPeakDetection,
+              int smoothingWindow=5,
+              int smoothingAlgorithm=0,
+              float amuQ1=0.1,
+              float amuQ2=0.5) {
 
-				slice=islice;
-				pdetect=iflag;
-				eic_smoothingWindow=smoothingWindow;
-                                eic_smoothingAlgorithm=smoothingAlgorithm;
-                                eic_amuQ1=amuQ1;
-                                eic_amuQ2=amuQ2;
-		}
+        slice=islice;
+        pdetect=iflag;
+        eic_smoothingWindow=smoothingWindow;
+        eic_smoothingAlgorithm=smoothingAlgorithm;
+        eic_amuQ1=amuQ1;
+        eic_amuQ2=amuQ2;
+    }
 
-		typedef EIC* result_type;
+    typedef EIC* result_type;
 
-		EIC* operator()(mzSample* sample) {
-                    EIC* e = NULL;
-                    Compound* c = slice->compound;
+    EIC* operator()(mzSample* sample) {
+        EIC* e = NULL;
+        Compound* c = slice->compound;
 
-                    if ( ! slice->srmId.empty() ) {
-                        //cout << "computeEIC srm:" << slice->srmId << endl;
-                        e = sample->getEIC(slice->srmId);
-                    } else if ( c && c->precursorMz >0 && c->productMz >0 ) {
-                        //cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
-                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,eic_amuQ1, eic_amuQ2);
-                    } else {
-                        //cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
-                        e = sample->getEIC(slice->mzmin, slice->mzmax,slice->rtmin,slice->rtmax,1);
-                    }
+        if ( ! slice->srmId.empty() ) {
+            //cout << "computeEIC srm:" << slice->srmId << endl;
+            e = sample->getEIC(slice->srmId);
+        } else if ( c && c->precursorMz >0 && c->productMz >0 ) {
+            //cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
+            e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,eic_amuQ1, eic_amuQ2);
+        } else {
+            //cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
+            e = sample->getEIC(slice->mzmin, slice->mzmax,slice->rtmin,slice->rtmax,1);
+        }
 
-                    if (e) {
-                        e->setSmootherType((EIC::SmootherType) (eic_smoothingAlgorithm));
-                    }
+        if (e) {
+            e->setSmootherType((EIC::SmootherType) (eic_smoothingAlgorithm));
+        }
 
-                    if(pdetect == PeakDetection && e) e->getPeakPositions(eic_smoothingWindow);
-                    return e;
-		}
+        if(pdetect == PeakDetection && e) e->getPeakPositions(eic_smoothingWindow);
+        return e;
+    }
 
-		mzSlice* slice;
-		PeakDetectionFlag pdetect;
-		int eic_smoothingWindow;
-                int eic_smoothingAlgorithm;
-                float eic_amuQ1;
-                float eic_amuQ2;
+    mzSlice* slice;
+    PeakDetectionFlag pdetect;
+    int eic_smoothingWindow;
+    int eic_smoothingAlgorithm;
+    float eic_amuQ1;
+    float eic_amuQ2;
 };
 
 #endif

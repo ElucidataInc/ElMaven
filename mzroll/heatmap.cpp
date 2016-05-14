@@ -137,7 +137,8 @@ void HeatMap::drawMap() {
     }
 
     //draw lagend
-    int steps = 16; int boxSize = (scene()->width() - _rowSpacer) / steps;
+    int steps = 16;
+    int boxSize = (scene()->width() - _rowSpacer) / steps;
     for (int i = 0; i < steps; i++ ) {
         int ypos = i * boxSize;
         int xpos = -boxSize;

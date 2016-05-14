@@ -14,7 +14,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     font.setFamily("Helvetica");
     font.setPointSize(10);
 
-   // _splitter = new QSplitter(Qt::Vertical,this);
+    // _splitter = new QSplitter(Qt::Vertical,this);
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);
@@ -27,7 +27,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setObjectName("Samples");
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
     _treeWidget->setHeaderHidden(true);
-   // _treeWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MaximumExpanding);
+    // _treeWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MaximumExpanding);
 
     //_splitter->addWidget(_treeWidget);
     //_splitter->addWidget(_editor);
@@ -36,7 +36,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     // _splitter->setCollapsible(1,true);
     // QList<int> sizes; sizes << 100 << 0;
     //_splitter->setSizes(sizes);
-         
+
     setWidget(_treeWidget);
 }
 
@@ -57,21 +57,21 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
     if ( sample == NULL) return;
 
     QColor color = QColor::fromRgbF(
-            sample->color[0],
-            sample->color[1],
-            sample->color[2],
-            sample->color[3] );
+                       sample->color[0],
+                       sample->color[1],
+                       sample->color[2],
+                       sample->color[3] );
 
-        color = QColorDialog::getColor(color,this,"Select Sample Color",QColorDialog::ShowAlphaChannel);
+    color = QColorDialog::getColor(color,this,"Select Sample Color",QColorDialog::ShowAlphaChannel);
 
-        if (color.isValid() ) {
-                        sample->color[0] = color.redF();
-                        sample->color[1] = color.greenF();
-                        sample->color[2] = color.blueF();
-                        sample->color[3] = color.alphaF();
-                        item->setBackgroundColor(0,color);
-                        _treeWidget->update();
-        }
+    if (color.isValid() ) {
+        sample->color[0] = color.redF();
+        sample->color[1] = color.greenF();
+        sample->color[2] = color.blueF();
+        sample->color[3] = color.alphaF();
+        item->setBackgroundColor(0,color);
+        _treeWidget->update();
+    }
     _mainwindow->getEicWidget()->replot();
 }
 
@@ -90,7 +90,7 @@ void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
                 sample->setSampleName(sampleName.toStdString());
             }
         }
-   // cerr <<"changeSampleSet: " << sample->sampleName << "  " << sample->getSetName() << endl;
+        // cerr <<"changeSampleSet: " << sample->sampleName << "  " << sample->getSetName() << endl;
     }
 }
 
@@ -183,7 +183,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     _treeWidget->clear();
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    QStringList header; header << "Sample" << "Set" << "Scalling";
+    QStringList header;
+    header << "Sample" << "Set" << "Scalling";
     _treeWidget->setHeaderLabels( header );
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
@@ -255,14 +256,14 @@ void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col) {
 
         if (sample)  {
             this->setToolTip(tr("m/z Range: %1-%2<br> rt Range: %3-%4<br> Scan#: %5 <br> MRMs #: %6<br> Ionization: %7<br> Filename: %8").
-                   arg(sample->minMz).
-                   arg(sample->maxMz).
-                   arg(sample->minRt).
-                   arg(sample->maxRt).
-                   arg(sample->scanCount()).
-                   arg(sample->srmScans.size()).
-                   arg(ionizationMode).
-                   arg(sample->fileName.c_str()));
+                             arg(sample->minMz).
+                             arg(sample->maxMz).
+                             arg(sample->minRt).
+                             arg(sample->maxRt).
+                             arg(sample->scanCount()).
+                             arg(sample->srmScans.size()).
+                             arg(ionizationMode).
+                             arg(sample->fileName.c_str()));
         }
     }
 
@@ -288,13 +289,13 @@ void ProjectDockWidget::saveProject() {
     QString fileName = settings->value("lastOpenedProject").value<QString>();
 
     if ( !fileName.isEmpty() &&
-         settings->value("lastSavedProject").value<QString>() == fileName ) {
-         saveProject(fileName);
-     } else {
+            settings->value("lastSavedProject").value<QString>() == fileName ) {
+        saveProject(fileName);
+    } else {
         QString fileName = QFileDialog::getSaveFileName( this,
-                   "Save Project (.mzroll)",
-                   dir,
-                   "mzRoll Project(*.mzroll)");
+                           "Save Project (.mzroll)",
+                           dir,
+                           "mzRoll Project(*.mzroll)");
 
         if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
 
@@ -457,8 +458,8 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     stream.writeCharacters(getProjectDescription());
     stream.writeEndElement();
 
-    if( peakTable ){
-         peakTable->writePeakTableXML(stream);
+    if( peakTable ) {
+        peakTable->writePeakTableXML(stream);
     } else {
         _mainwindow->bookmarkedPeaks->writePeakTableXML(stream);
     }

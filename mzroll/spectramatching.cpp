@@ -1,13 +1,13 @@
 #include "spectramatching.h"
 
-SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) { 
+SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) {
     setupUi(this);
     mainwindow = w;
     connect(resultTable,SIGNAL(itemSelectionChanged()), SLOT(showScan()));
     connect(findButton, SIGNAL(clicked(bool)), SLOT(findMatches()));
 }
 
-void SpectraMatching::findMatches() { 
+void SpectraMatching::findMatches() {
     getFormValues();
     doSearch();
     /*
@@ -34,53 +34,53 @@ void SpectraMatching::getFormValues() {
     _precursorMz = this->precursorMz->text().toDouble();
 
     //get scan type
-   _msScanType=0;
-   QString scanType=this->scanTypeComboBox->currentText();
-   if (scanType != "any")
-       _msScanType = scanType.mid(2,1).toInt();
+    _msScanType=0;
+    QString scanType=this->scanTypeComboBox->currentText();
+    if (scanType != "any")
+        _msScanType = scanType.mid(2,1).toInt();
 
 
-   //parse fragmentation mz. intensity pairs
-   QString mzpairs = this->fragmentsText->toPlainText();
-   _mzsList.clear();
-   _intensityList.clear();
+    //parse fragmentation mz. intensity pairs
+    QString mzpairs = this->fragmentsText->toPlainText();
+    _mzsList.clear();
+    _intensityList.clear();
 
-   QRegExp SPACE("\\s+");
-   QRegExp COMMA("[;|,|\n|\r]");
-   if ( mzpairs.contains(COMMA) ) {
-       QStringList mz_ints_pairs = mzpairs.split(COMMA);
-       foreach (QString mzint, mz_ints_pairs) {
-           mzint = mzint.simplified();
-           qDebug() << "Pair:" << mzint;
+    QRegExp SPACE("\\s+");
+    QRegExp COMMA("[;|,|\n|\r]");
+    if ( mzpairs.contains(COMMA) ) {
+        QStringList mz_ints_pairs = mzpairs.split(COMMA);
+        foreach (QString mzint, mz_ints_pairs) {
+            mzint = mzint.simplified();
+            qDebug() << "Pair:" << mzint;
 
-           QStringList _mz_int = mzint.split(SPACE);
-           if (_mz_int.size() == 2) {
-               float mz =   _mz_int[0].simplified().toDouble();
-               float ints = _mz_int[1].simplified().toDouble();
-               if (mz > 0 && ints > 0 ) {
-                _mzsList << mz;
-                _intensityList << ints;
-               }
-           }  else if (_mz_int.size() == 1) {
-               float mz =   _mz_int[0].simplified().toDouble();
-               if (mz > 0) {
-                _mzsList << mz;
-                _intensityList << 0.0;
-               }
-           }
-       }
-   } else {
-       QStringList mzs = mzpairs.split(SPACE);
-       foreach (QString mzstr, mzs) {
-           float mz = mzstr.simplified().toDouble();
-           if (mz > 0) _mzsList << mz;
-       }
-   }
+            QStringList _mz_int = mzint.split(SPACE);
+            if (_mz_int.size() == 2) {
+                float mz =   _mz_int[0].simplified().toDouble();
+                float ints = _mz_int[1].simplified().toDouble();
+                if (mz > 0 && ints > 0 ) {
+                    _mzsList << mz;
+                    _intensityList << ints;
+                }
+            }  else if (_mz_int.size() == 1) {
+                float mz =   _mz_int[0].simplified().toDouble();
+                if (mz > 0) {
+                    _mzsList << mz;
+                    _intensityList << 0.0;
+                }
+            }
+        }
+    } else {
+        QStringList mzs = mzpairs.split(SPACE);
+        foreach (QString mzstr, mzs) {
+            float mz = mzstr.simplified().toDouble();
+            if (mz > 0) _mzsList << mz;
+        }
+    }
 
-   qDebug() << _msScanType;
-   qDebug() << _precursorMz;
-   qDebug() << _mzsList;
-   qDebug() << _intensityList;
+    qDebug() << _msScanType;
+    qDebug() << _precursorMz;
+    qDebug() << _mzsList;
+    qDebug() << _intensityList;
 
 }
 
@@ -121,17 +121,17 @@ double SpectraMatching::scoreScan(Scan* scan) {
     if (_msScanType > 0 && scan->mslevel != _msScanType)
         return 0;
 
-   if (_precursorMz > 0 && mzUtils::ppmDist(_precursorMz,(double)scan->precursorMz) > 100)
-       return 0;
+    if (_precursorMz > 0 && mzUtils::ppmDist(_precursorMz,(double)scan->precursorMz) > 100)
+        return 0;
 
-   double score=0;
-   int N = _mzsList.size();
-   int Nc = _intensityList.size();
+    double score=0;
+    int N = _mzsList.size();
+    int Nc = _intensityList.size();
 
-   for(int i=0; i < N; i++ ) {
-       if (scan->hasMz(_mzsList[i],100)) {
+    for(int i=0; i < N; i++ ) {
+        if (scan->hasMz(_mzsList[i],100)) {
             score++;
-       }
-   }
+        }
+    }
     return score;
 }
