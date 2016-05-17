@@ -2,7 +2,7 @@
 #define CLASSIFER_H
 
 #include "mzSample.h"
-#include "../libmzorbi/Matrix.h"
+#include "../libmaven/Matrix.h"
 #include <nnwork.h>
 #include <sstream>
 #include <iostream>

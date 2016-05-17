@@ -3,20 +3,20 @@ DESTDIR = $$OUTPUT_DIR/lib
 
 TEMPLATE = lib
 CONFIG += staticlib warn_off console silent
-TARGET = mzorbi
+TARGET = maven
 
 win32 {
     DEFINES += MINGW
     DEFINES += CDFPARSER
 }
 
-unix { 
+unix {
 	DEFINE -= LITTLE_ENDIAN
 }
 
 
-QMAKE_CXXFLAGS_RELEASE += -O3 -Wno-sign-compare 
-#QMAKE_CXXFLAGS = -Wno-sign-compare -Wunused-parameter -Wmissing-declarations  -Wno-conversion -Wcast-align -Wparentheses -Wsequence-point -Wundef -Wpointer-arith -Wredundant-decls -Wdisabled-optimization -Wunused-value -pedantic -Wfatal-errors 
+QMAKE_CXXFLAGS_RELEASE += -O3 -Wno-sign-compare
+#QMAKE_CXXFLAGS = -Wno-sign-compare -Wunused-parameter -Wmissing-declarations  -Wno-conversion -Wcast-align -Wparentheses -Wsequence-point -Wundef -Wpointer-arith -Wredundant-decls -Wdisabled-optimization -Wunused-value -pedantic -Wfatal-errors
 
 INCLUDEPATH += ../pugixml/src/ ../libcdfread/
 

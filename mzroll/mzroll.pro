@@ -15,7 +15,7 @@ DESTDIR = ../bin
 QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_NO_DEBUG QT_THREAD_LIB
 INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql 
-INCLUDEPATH += ../libmzorbi ../mzorbi ../pugixml/src ../libneural ../Rserve/
+INCLUDEPATH += ../libmaven ../mzorbi ../pugixml/src ../libneural ../Rserve/
 LIBS += -L.  -lmzorbi -lpugixml -lneural -lcdfread -lnetcdf
 INSTALLS += sources target
 

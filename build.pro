@@ -1,12 +1,10 @@
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
 SUBDIRS += \
-		libneural\
+        libneural\
         libcdfread\
-		pugixml/src\
-		libmzorbi\
-        mzroll \
-		peakdetector\
-		mzWatcher\
-	 	
-#!win32:SUBDIRS += tests 
+        pugixml/src\
+        libmaven\
+        mzroll
+
+#!win32:SUBDIRS += tests

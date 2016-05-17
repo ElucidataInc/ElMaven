@@ -30,13 +30,23 @@
 #project files
 Makefile
 libcdfread/tmp
-libmzorbi/tmp
+libmaven/tmp
 libneural/tmp
 mzroll/tmp
 mzWatcher/tmp
 peakdetector/tmp
 pugixml/src/tmp
 build
+
+# Unused Makefiles
+Makefile
+libcdfread/Makefile
+libmaven/Makefile
+libneural/Makefile
+mzroll/Makefile
+mzWatcher/Makefile
+peakdetector/Makefile
+pugixml/src/Makefile
 
 #QT Resource File
 mzroll/qrc_mzroll.cpp
@@ -47,5 +57,5 @@ bin/mzWatcher
 bin/peakdetector
 
 #Documentation HTML files
-docs/html/*
-docs/latex/*
+docs/html
+docs/latex

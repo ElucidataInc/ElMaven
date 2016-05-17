@@ -8,7 +8,7 @@ CONFIG += warn_off xml
 QT -= network gui opengl 
 CONFIG -= network  gui opengl 
 
-INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmzorbi ../pugixml/src ../libneural 
+INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural 
 LDFLAGS     +=  $$OUTPUT_DIR/lib
 
 LIBS += -L. \
