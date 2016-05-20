@@ -1,5 +1,6 @@
 #include "gallerywidget.h"
 
+#include "../libmaven/PeakDetector.h"
 GalleryWidget::GalleryWidget(MainWindow* mw) {
     this->mainwindow = mw;
 
@@ -206,7 +207,7 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 
     //qDebug() << "addEicPlot(slice)";
 
-    vector<EIC*> eics = BackgroundPeakUpdate::pullEICs(&slice,
+    vector<EIC*> eics = PeakDetector::pullEICs(&slice,
                         samples,
                         EicLoader::NoPeakDetection,
                         smoothingWindow,

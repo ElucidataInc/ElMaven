@@ -1,3 +1,3 @@
 qmake
-make -j 10
+make -j 50
 bin/maven

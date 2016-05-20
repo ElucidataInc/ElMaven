@@ -1809,4 +1809,3 @@ QVector<QPoint> PathwayWidget::getEqualentAtoms(QString rpairId) {
 
     return atompairs;
 }
-

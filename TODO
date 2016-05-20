@@ -1,0 +1,4 @@
+I am able to shift some of the functions to libmaven/PeakDetector class from mzroll/BackgroundPeakDetector. 
+Facing problems with moving processMassSlices(), processSlices() and functions linked to it.
+
+ 
