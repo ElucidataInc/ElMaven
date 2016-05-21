@@ -14,9 +14,9 @@ DESTDIR = ../bin
 
 QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_NO_DEBUG QT_THREAD_LIB
-INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql 
-INCLUDEPATH += ../libmaven ../mzorbi ../pugixml/src ../libneural ../Rserve/
-LIBS += -L.  -lmzorbi -lpugixml -lneural -lcdfread -lnetcdf
+INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql
+INCLUDEPATH += ../libmaven ../pugixml/src ../libneural ../Rserve/
+LIBS += -L.  -lmaven -lpugixml -lneural -lcdfread -lnetcdf
 INSTALLS += sources target
 
 #MOC_DIR 	= ../tmp/
@@ -35,7 +35,7 @@ FORMS = forms/settingsform.ui  \
 	    forms/animationcontrol.ui  \
 		forms/noteswidget.ui   \
 		forms/rconsoledialog.ui \
-        forms/spectramatching.ui 
+        forms/spectramatching.ui
 
 HEADERS +=  stable.h \
  globals.h \
@@ -78,7 +78,7 @@ HEADERS +=  stable.h \
  note.h  \
  suggest.h \
  animationcontrol.h \
- alignmentdialog.h \ 
+ alignmentdialog.h \
  scatterplot.h \
  noteswidget.h \
  gallerywidget.h \
@@ -87,7 +87,7 @@ HEADERS +=  stable.h \
 #Rserve/Rconnection.h \
 #Rserve/Rsrv.h \
 #Rserve/sisocks.h
- widgets/qprog.h \ 
+ widgets/qprog.h \
     projectdockwidget.h \
     spectramatching.h \
     mzfileio.h
@@ -140,7 +140,7 @@ csvreports.cpp \
  QHistogramSlider.cpp \
 # rconsoledialog.cpp \
 #Rserve/Rconnection.cc \
- widgets/qprog.cpp \ 
+ widgets/qprog.cpp \
     projectdockwidget.cpp \
     spectramatching.cpp \
     mzfileio.cpp
@@ -162,6 +162,6 @@ build_all {
   }
 }
 
-win32:DEFINES += WIN32 
-win32:DEFINES += Win32 
+win32:DEFINES += WIN32
+win32:DEFINES += Win32
 macx:DEFINES += unix

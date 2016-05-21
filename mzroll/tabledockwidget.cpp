@@ -1,4 +1,5 @@
 #include "tabledockwidget.h";
+#include "csvreports.h";
 
 TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     setAllowedAreas(Qt::AllDockWidgetAreas);

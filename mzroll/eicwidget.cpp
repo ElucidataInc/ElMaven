@@ -1,7 +1,5 @@
 #include "eicwidget.h"
 
-#include "../libmaven/PeakDetector.cpp"
-
 EicWidget::EicWidget(QWidget *p) {
 
     parent = p;

@@ -205,22 +205,23 @@ void PathwayWidget::checkCompoundExistance() {
     //cerr << "PathwayWidget::checkCompoundExistance() compounds=" <<  checkList.size() << endl;
 
     if ( checkList.size() > 0 ) {
-        workerThread->setSamples(samples);
-        workerThread->setCompounds(checkList);
-        workerThread->compoundPPMWindow = mw->getUserPPM();
+		PeakDetector pd = workerThread->getPeakDetector();
+		pd.setSamples(samples);
+        pd.setCompounds(checkList);
+        pd.compoundPPMWindow = mw->getUserPPM();
         workerThread->setRunFunction("computePeaks");
 
-        workerThread->minGoodPeakCount=1;
-        workerThread->minSignalBlankRatio=2;
-        workerThread->minSignalBaseLineRatio=2;
-        workerThread->minNoNoiseObs=2;
-        workerThread->minGroupIntensity=0;
-        workerThread->writePdfReportFlag=false;
-        workerThread->writeCSVFlag=false;
-        workerThread->matchRtFlag=true;
-        workerThread->showProgressFlag=true;
-        workerThread->pullIsotopesFlag=true;
-        workerThread->keepFoundGroups=true;
+        pd.minGoodPeakCount=1;
+        pd.minSignalBlankRatio=2;
+        pd.minSignalBaseLineRatio=2;
+        pd.minNoNoiseObs=2;
+        pd.minGroupIntensity=0;
+        pd.writePdfReportFlag=false;
+        pd.writeCSVFlag=false;
+        pd.matchRtFlag=true;
+        pd.showProgressFlag=true;
+        pd.pullIsotopesFlag=true;
+        pd.keepFoundGroups=true;
         workerThread->start();
     }
 }
@@ -835,7 +836,8 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event) {
 
     QAction* e2 = options.addAction("Show Isotopes");
     e2->setCheckable(true);
-    e2->setChecked(workerThread->pullIsotopesFlag);
+    PeakDetector pd = workerThread->getPeakDetector();
+    e2->setChecked(pd.pullIsotopesFlag);
     connect(e2, SIGNAL(toggled(bool)), SLOT(calculateIsotopes(bool)));
 
     QAction* e3 = options.addAction("Show Atoms");
@@ -1256,7 +1258,8 @@ void PathwayWidget::showCofactors(bool flag) {
 }
 
 void PathwayWidget::calculateIsotopes(bool flag) {
-    if (workerThread ) workerThread->pullIsotopesFlag=flag;
+    PeakDetector pd = workerThread->getPeakDetector();
+    if (workerThread ) pd.pullIsotopesFlag=flag;
 }
 
 void PathwayWidget::normalizeNodeSizes(int x) {
@@ -1807,5 +1810,5 @@ QVector<QPoint> PathwayWidget::getEqualentAtoms(QString rpairId) {
         atompairs << pair;
     }
 
-    return atompairs;
+	return atompairs;
 }

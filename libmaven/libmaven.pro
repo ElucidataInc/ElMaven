@@ -18,7 +18,7 @@ unix {
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wno-sign-compare
 #QMAKE_CXXFLAGS = -Wno-sign-compare -Wunused-parameter -Wmissing-declarations  -Wno-conversion -Wcast-align -Wparentheses -Wsequence-point -Wundef -Wpointer-arith -Wredundant-decls -Wdisabled-optimization -Wunused-value -pedantic -Wfatal-errors
 
-INCLUDEPATH += ../pugixml/src/ ../libcdfread/
+INCLUDEPATH += ../pugixml/src/ ../libcdfread/ /usr/include/qt4/QtSql /usr/include/qt4/QtNetwork ../libneural ../mzroll/tmp
 
 SOURCES=base64.cpp mzMassCalculator.cpp mzSample.cpp  mzUtils.cpp statistics.cpp mzFit.cpp mzAligner.cpp mzMassSlicer.cpp\
        PeakGroup.cpp EIC.cpp Scan.cpp Peak.cpp  \

@@ -21,17 +21,20 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
     workerThread = new BackgroundPeakUpdate(mw);
     workerThread->setRunFunction("pullIsotopes");
     workerThread->setMainWindow(mw);
-    workerThread->minGoodPeakCount = 1;
-    workerThread->minSignalBlankRatio = 2;
-    workerThread->minSignalBaseLineRatio = 2;
-    workerThread->minNoNoiseObs = 2;
-    workerThread->minGroupIntensity = 0;
-    workerThread->writePdfReportFlag = false;
-    workerThread->writeCSVFlag = false;
-    workerThread->matchRtFlag = false;
-    workerThread->showProgressFlag = true;
-    workerThread->pullIsotopesFlag = true;
-    workerThread->keepFoundGroups = true;
+
+    PeakDetector pd = workerThread->getPeakDetector();
+
+    pd.minGoodPeakCount = 1;
+    pd.minSignalBlankRatio = 2;
+    pd.minSignalBaseLineRatio = 2;
+    pd.minNoNoiseObs = 2;
+    pd.minGroupIntensity = 0;
+    pd.writePdfReportFlag = false;
+    pd.writeCSVFlag = false;
+    pd.matchRtFlag = false;
+    pd.showProgressFlag = true;
+    pd.pullIsotopesFlag = true;
+    pd.keepFoundGroups = true;
 
     connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
     connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(), SLOT(update()));
@@ -199,10 +202,12 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
     }
 
     vector <mzSample*> vsamples = _mw->getVisibleSamples();
+    PeakDetector pd = workerThread->getPeakDetector();
+
     workerThread->stop();
-    workerThread->setPeakGroup(group);
-    workerThread->setSamples(vsamples);
-    workerThread->compoundPPMWindow = _mw->getUserPPM();
+    pd.setPeakGroup(group);
+    pd.setSamples(vsamples);
+    pd.compoundPPMWindow = _mw->getUserPPM();
     workerThread->start();
     _mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
@@ -348,4 +353,3 @@ QString IsotopeWidget::groupTextEport(PeakGroup* group) {
     }
     return info.join("\t");
 }
-

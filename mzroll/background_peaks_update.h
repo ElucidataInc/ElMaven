@@ -1,21 +1,11 @@
 #ifndef BACKGROUND_PEAK_UPDATE_H
 #define BACKGROUND_PEAK_UPDATE_H
 
-#include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "database.h"
-#include "csvreports.h"
-#include <iostream>
+#include <qstring.h>
+#include <qthread.h>
+#include <string>
 
 #include "../libmaven/PeakDetector.h"
-class MainWindow;
-class Database;
-class QInputDialog;
-class TableDockWidget;
-class EIC;
-
-extern Database DB;
 
 /**
  * \class BackgroundPeakUpdate
@@ -39,32 +29,13 @@ public:
 	 * @param pointer to QWidget
 	 */
 	BackgroundPeakUpdate(QWidget*);
-
-	~BackgroundPeakUpdate();
+//
+//	~BackgroundPeakUpdate();
 
 	/** Sets the run function name.
 	 * @param Qstring inpute filename
 	 */
 	void setRunFunction(QString functionName);
-	void setCompounds(vector<Compound*> set) {
-		compounds = set;
-	}
-	void setSlices(vector<mzSlice*> set) {
-		_slices = set;
-	}
-	void setPeakGroup(PeakGroup* p) {
-		_group = p;
-	}
-	void setSamples(vector<mzSample*>&set);
-	void setMainWindow(MainWindow* mw) {
-		mainwindow = mw;
-	}
-	void setOutputDir(QString outdir) {
-		outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
-	}
-	void setMaxGroupCount(int x) {
-		limitGroupCount = x;
-	}
 
 	/** Stop the thread.
 	 */
@@ -77,69 +48,17 @@ public:
 	bool stopped() {
 		return _stopped;
 	}
+	void setMainWindow(MainWindow* mw) {
+		mainwindow = mw;
+	}
 
-	bool writePdfReportFlag;
-	bool writeCSVFlag;
-	bool alignSamplesFlag;
-	bool keepFoundGroups;
-	bool processKeggFlag;
-	bool processMassSlicesFlag;
-	bool pullIsotopesFlag;
-	bool showProgressFlag;
-	bool matchRtFlag;
-	bool checkConvergance;
+	PeakDetector getPeakDetector() {
+		return peakDetector;
+	}
 
-	/** default ionization mode used by mass spec
-	 */
-	int ionizationMode;
-
-	/** mass slicing parameters
-	 */
-	float mzBinStep;
-	float rtStepSize;
-	float avgScanTime;
-	float ppmMerge;
-	float qcut;
-
-	//peak detection
-
-	/** smoothing window
-	 */
-	float eic_smoothingWindow;
-	int eic_smoothingAlgorithm;
-	float eic_ppmWindow;
-	int baseline_smoothing;
-	int baseline_quantile;
-
-	/** merging of ajacent peaks within eic
-	 */
-	bool eic_mergeOverlapingPeaks;
-	float eic_mergePPMCutoff;
-	float eic_mergeMaxHeightDrop;
-
-	//peak filtering
-	int minGoodPeakCount;
-	float minSignalBlankRatio;
-	float minNoNoiseObs;
-	float minSignalBaseLineRatio;
-	float minGroupIntensity;
-
-	//eic window around compound
-	float compoundPPMWindow;
-	float compoundRTWindow;
-	int eicMaxGroups;
-
-	//grouping of peaks across samples
-
-	/** do no group peaks that are greater than differ more than X in retention time
-	 */
-	float grouping_maxRtWindow;
-	float grouping_maxMzWindow;
-
-	/** stop looking for groups if group count is greater than X
-	 */
-	int limitGroupCount;
-	bool addPeakGroup(PeakGroup& group);
+	void setPeakDetector(PeakDetector* pd) {
+		peakDetector = *pd;
+	}
 
 	signals:
 	/** Update the progress bar at the bottom of Maven.
@@ -153,36 +72,12 @@ protected:
 	void run(void);
 
 private:
-	string runFunction;
-	string outputdir;
-
-	MassCalculator mcalc;
 	MainWindow *mainwindow;
-	Classifier* clsf;
-	PeakGroup* _group;
-	vector<mzSample*> samples;
-	vector<Compound*> compounds;
-	vector<mzSlice*> _slices;
-
-	void pullIsotopes(PeakGroup *group);
-	void processSlices(void);
-	void processSlices(vector<mzSlice*>&slices, string setName);
-	void processSlice(mzSlice& slice);
-	void processCompounds(vector<Compound*> set, string setName);
-	void computePeaks();
-
-	/** Processes Mass Slices using two algorithms A and B.
-	 */
-	void processMassSlices();
-	void findPeaksOrbi(void);
-	void findPeaksQQQ(void);
-	void computeKnowsPeaks(void);
-	vector<PeakGroup> allgroups;
-	void cleanup();
+	PeakDetector peakDetector;
+	string runFunction;
 
 private:
 	volatile bool _stopped;
-
 };
 
 #endif

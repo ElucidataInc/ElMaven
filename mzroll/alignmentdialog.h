@@ -4,7 +4,6 @@
 #include "stable.h"
 #include "ui_alignmentdialog.h"
 
-
 /**
  * \class AlignmentDialog
  *
@@ -18,11 +17,11 @@
  * \author(documentation prepared by naman)
  */
 
-class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
-    Q_OBJECT
+class AlignmentDialog: public QDialog, public Ui_AlignmentDialog {
+	Q_OBJECT
 
 public:
-    AlignmentDialog(QWidget *parent);
+	AlignmentDialog(QWidget *parent);
 };
 
 #endif

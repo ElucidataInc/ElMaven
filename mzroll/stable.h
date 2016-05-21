@@ -58,6 +58,7 @@
 #include "mzUtils.h"
 #include "mzMassCalculator.h"
 #include "mzFit.h"
+#include "PeakDetector.h"
 
 //Linear Algebra
 #include <Eigen/Core>
