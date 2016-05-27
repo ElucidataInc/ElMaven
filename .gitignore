@@ -52,7 +52,7 @@ pugixml/src/Makefile
 mzroll/qrc_mzroll.cpp
 
 # Compiled Binaries
-bin/mzroll
+bin/maven_dev_766
 bin/mzWatcher
 bin/peakdetector
 
