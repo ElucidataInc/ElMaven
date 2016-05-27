@@ -1,0 +1,7 @@
+Basically, type 
+
+./configure && make && make install-strip
+
+to configure, compile, strip and install the binaries, headers and library.
+
+- Daniel Franklin, 23/9/1998

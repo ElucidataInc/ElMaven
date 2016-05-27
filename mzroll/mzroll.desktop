@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=mzRoll
+Comment=Metabolomics Data and Pathway Browser
+Exec=mzroll
+Icon=mzroll
+Categories=Education;Science;Biology;

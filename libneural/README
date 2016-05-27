@@ -1,0 +1,95 @@
+libneural - a simple Backpropagation Neural Network implementation
+------------------------------------------------------------------
+
+I wrote this tiny library to perform some pattern recognition in my thesis
+project. It is by no means a comprehensive package, and it is certainly not
+ultra-fast. However, the library source is simple and very readable IMO. It
+implements the most basic backpropagation network.
+
+This library contains all you need for the construction of a three (or two,
+depending on your terminology) layer backpropagation neural network. It is
+very basic at the moment, more functionality may be added in the future if
+needed. See the TODO list for possible future developments.
+
+The main reference used in the development of this library was Chapter 3 of
+the book "Neural Networks Algorithms, Applications and Programming
+Techniques", by Freeman and Skapura (Addison-Wesley, 1991). This library is
+an implementation of the algorithm described there, however it does *not*
+use any of the pseudo-code from this book.
+
+libneural is distributed under the terms of the GNU Library General Public
+License version 2. It is Copyright (C) Daniel Franklin 1998.
+
+Refer to the INSTALL file for compilation and installation instructions.
+
+[note: The following section should go in the docs directory eventually.]
+
+Essentially, to use libneural, you simply need to create an instance of a
+nnwork class thusly:
+
+nnwork ganglion (10, 5, 2);
+
+which creates a 10 input, 2 outputs neural network with 5 hidden nodes. Also
+available is
+
+nnwork ganglion ("filename.nnw");
+
+(see the later section on saving and restoring network data), and
+
+nnwork ganglion;
+
+which just creates an empty network.
+
+Then, you need to design a set of training data - one array of 10 input
+floats and another of two output floats. The input array contains the
+example (e.g. data + noise) and the output contains the desired output (e.g.
+data without noise). To train the network, given the existance of float
+input [10] and float desired_output [2] with the appropriate data, you do
+this:
+
+ganglion.train (input, desired_output, max_allowable_error, learning_rate);
+
+for each example that you have. The more examples you have, the better your
+network will function. This needs to be repeated many times for each example
+you have, preferable in a random or repeated order (not the same data
+repeated over and over again, mix them up). I would suggest a learning rate
+of 0.05-0.25, while the max_allowable_error will depend on the learning rate
+(too small and it will never converge). Perhaps try something like 1e-10.
+
+One key point is that the desired_output numbers should _NOT_ go to zero or
+1 - they should be just above or below, e.g. 0.05 and 0.95. The sigmoid
+function can never attain zero or one, so the network won't converge very
+well...
+
+The first few training sessions will take a while, but the network gets
+faster with each cycle through your training examples.
+
+Anyway, once trained, you do a 
+
+ganglion.run (input, output)
+
+where once again input is a 10 element arrays of floats and the output is a
+2 element array of floats. Hopefully, the network should do fairly well at
+recognising the pattern.
+
+Now, obviously, the training process can take a while. Therefore, you
+probably want to save your trained network for later restoration. To do
+this, you can use the following member functions:
+
+ganglion.save ("filename.nnw");
+ganglion.load ("filename.nnw");
+
+Loading a network memory pattern resizes the network if required. Obviously
+it overwrites the current data in the network.
+
+A number of examples are supplied with libneural, so hopefully you will see
+something which matches your needs or which at least shows you how it works.
+If you actually use this package, I would appreciate an e-mail and some
+feedback. If you find any bugs, let me know (better yet send me a patch),
+and if you add new features (see the TODO file) such as support for other
+types of networks, I will be happy to roll those into the source. Any small
+examples would also be useful.
+
+- Daniel Franklin 23/9/1998
+
+To report bugs, please e-mail d.franklin@computer.org

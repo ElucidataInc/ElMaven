@@ -1,0 +1,62 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Project Files
+Makefile
+libcdfread/tmp
+libmzorbi/tmp
+libneural/tmp
+mzroll/tmp
+mzWatcher/tmp
+peakdetector/tmp
+pugixml/src/tmp
+build
+
+# Unused Makefiles
+Makefile
+libcdfread/Makefile
+libmzorbi/Makefile
+libneural/Makefile
+mzroll/Makefile
+mzWatcher/Makefile
+peakdetector/Makefile
+pugixml/src/Makefile
+
+# QT Resource File
+mzroll/qrc_mzroll.cpp
+
+# Compiled Binaries
+bin/mzroll
+bin/mzWatcher
+bin/peakdetector
+
+#Documentation files
+docs/html
+docs/latex
+/Release/

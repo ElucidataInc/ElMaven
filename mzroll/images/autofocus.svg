@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2878"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="New document 3">
+  <defs
+     id="defs2880">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective2886" />
+    <inkscape:perspective
+       id="perspective2871"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="59.962109"
+     inkscape:cy="522.95073"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="928"
+     inkscape:window-height="816"
+     inkscape:window-x="1"
+     inkscape:window-y="27"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata2883">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:0.84070794;stroke:#000000;stroke-width:4.30000019;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3675"
+       width="275.91629"
+       height="198.55406"
+       x="232.04185"
+       y="573.06775"
+       rx="0.29305649"
+       ry="0.28365636"
+       inkscape:export-filename="/home/melamud/work/maven/trunk/mzroll/images/autofocus.png"
+       inkscape:export-xdpi="9.512948"
+       inkscape:export-ydpi="9.512948" />
+    <path
+       id="path29916-6"
+       style="opacity:0.98950824;fill:#5555ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.57168508;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.69999981;stroke-opacity:1;stroke-dasharray:none"
+       d="m 516.28475,761.17097 c 0,0 -116.72884,3.06729 -144.36752,-83.32323 -25.95159,-81.11647 -33.27063,-96.71241 -36.8224,-94.65455 -11.10618,24.17171 -6.07684,11.31271 -27.74298,101.1532 -20.78652,86.19237 -76.29865,79.80468 -76.29865,79.80468 l 0,0"
+       sodipodi:nodetypes="cscscc"
+       inkscape:export-filename="/home/melamud/work/maven/trunk/mzroll/images/autofocus.png"
+       inkscape:export-xdpi="9.512948"
+       inkscape:export-ydpi="9.512948" />
+    <path
+       style="fill:#ff0000;stroke:#ff000c;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:80.00000081, 10.00000009;stroke-dashoffset:1"
+       d="m 389.3481,499.03566 0,266.25293"
+       id="path2901"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/melamud/work/maven/trunk/mzroll/images/autofocus.png"
+       inkscape:export-xdpi="9.512948"
+       inkscape:export-ydpi="9.512948" />
+  </g>
+</svg>
