@@ -30,7 +30,7 @@
 # Project Files
 Makefile
 libcdfread/tmp
-libmzorbi/tmp
+libmaven/tmp
 libneural/tmp
 mzroll/tmp
 mzWatcher/tmp
@@ -41,7 +41,7 @@ build
 # Unused Makefiles
 Makefile
 libcdfread/Makefile
-libmzorbi/Makefile
+libmaven/Makefile
 libneural/Makefile
 mzroll/Makefile
 mzWatcher/Makefile

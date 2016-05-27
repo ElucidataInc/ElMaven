@@ -3,7 +3,7 @@ DESTDIR = $$OUTPUT_DIR/lib
 
 TEMPLATE=lib
 CONFIG += staticlib warn_on console silent
-TARGET = mzorbi
+TARGET = maven
 
 LIBS += -L.
 

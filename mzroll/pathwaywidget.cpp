@@ -1,5 +1,5 @@
 #include "pathwaywidget.h"
-#include "../libmzorbi/Matrix.h"
+#include "../libmaven/Matrix.h"
 
 
 PathwayWidget::PathwayWidget(MainWindow* parent) 

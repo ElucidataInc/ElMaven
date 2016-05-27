@@ -4,7 +4,7 @@ SUBDIRS += \
 		libneural\
         	libcdfread\
 		pugixml/src\
-		libmzorbi\
+		libmaven\
         	mzroll \
 		peakdetector\
 		mzWatcher

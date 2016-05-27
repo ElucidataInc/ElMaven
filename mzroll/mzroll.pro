@@ -21,10 +21,10 @@ DESTDIR = ../bin
 QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
-INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql 
-INCLUDEPATH += ../libmzorbi ../mzorbi ../pugixml/src ../libneural ../zlib/
-#LIBS += -L.  -lmzorbi -lpugixml -lneural  #32bit windows
-LIBS += -L.  -lmzorbi -lpugixml -lneural                     #64bit
+INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql
+INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/
+#LIBS += -L.  -lmaven -lpugixml -lneural  #32bit windows
+LIBS += -L.  -lmaven -lpugixml -lneural                     #64bit
 message($$LIBS)
 
 INSTALLS += sources target
@@ -85,7 +85,7 @@ HEADERS +=  stable.h \
                     note.h  \
                     suggest.h \
                     animationcontrol.h \
-                    alignmentdialog.h \ 
+                    alignmentdialog.h \
                     scatterplot.h \
                     noteswidget.h \
                     gallerywidget.h \
@@ -93,7 +93,7 @@ HEADERS +=  stable.h \
                     qdownloader.h \
                     rconsolewidget.h \
                     highlighter.h \
-                    widgets/qprog.h \ 
+                    widgets/qprog.h \
                     projectdockwidget.h \
                     spectramatching.h \
                     mzfileio.h \
@@ -152,7 +152,7 @@ csvreports.cpp \
  highlighter.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
- widgets/qprog.cpp \ 
+ widgets/qprog.cpp \
  projectdockwidget.cpp \
  spectramatching.cpp \
  mzfileio.cpp \
@@ -175,5 +175,3 @@ build_all {
    CONFIG -=    build_all
   }
 }
-
-

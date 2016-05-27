@@ -8,10 +8,10 @@ CONFIG += warn_off xml
 QT -= network gui opengl 
 CONFIG -= network gui opengl 
 
-INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmzorbi ../pugixml/src ../libneural ../zlib/
+INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/
 LDFLAGS     +=  $$OUTPUT_DIR/lib
 
-LIBS += -L.  -lmzorbi -lpugixml -lneural
+LIBS += -L.  -lmaven -lpugixml -lneural
 
 SOURCES= peakdetector.cpp  \
 		options.cpp \

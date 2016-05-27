@@ -21,7 +21,7 @@ foreach my $x ( keys %$X ) {
 #	system("./eicpull $x/*.mzCSV"); 
 	system("./fragpull $x/*.mzXML"); 
 	print "Importing..\n";
-	system("mysql mzorbi < eicpullDatabase.sql");
+	system("mysql maven < eicpullDatabase.sql");
 	print "Done $x\n";
 }
 
