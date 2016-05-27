@@ -27,7 +27,7 @@
 *.out
 *.app
 
-#project files
+# Project Files
 Makefile
 libcdfread/tmp
 libmaven/tmp
@@ -48,15 +48,15 @@ mzWatcher/Makefile
 peakdetector/Makefile
 pugixml/src/Makefile
 
-#QT Resource File
+# QT Resource File
 mzroll/qrc_mzroll.cpp
 
-#Compiled Binaries
-bin/maven
+# Compiled Binaries
+bin/mzroll
 bin/mzWatcher
 bin/peakdetector
 
-#Documentation HTML files
+#Documentation files
 docs/html
 docs/latex
 /Release/

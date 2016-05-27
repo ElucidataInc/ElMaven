@@ -24,37 +24,38 @@ extern Database DB;
  * \author(documentation prepared by naman)
  */
 
-class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
-{
-    Q_OBJECT
+class PeakDetectionDialog: public QDialog, public Ui_PeakDetectionDialog {
+Q_OBJECT
 
 public:
-    enum FeatureDetectionType { FullSpectrum=0, CompoundDB, QQQ };
-    PeakDetectionDialog(QWidget *parent);
-    ~PeakDetectionDialog();
-    void setSettings(QSettings* settings) {
-        this->settings = settings;
-    }
-    void setMainWindow(MainWindow* w) {
-        this->mainwindow = w;
-    }
+	enum FeatureDetectionType {
+		FullSpectrum = 0, CompoundDB, QQQ
+	};
+	PeakDetectionDialog(QWidget *parent);
+	~PeakDetectionDialog();
+	void setSettings(QSettings* settings) {
+		this->settings = settings;
+	}
+	void setMainWindow(MainWindow* w) {
+		this->mainwindow = w;
+	}
 
 public slots:
-    void findPeaks();
-    void loadModel();
-    void setOutputDir();
-    void setProgressBar(QString text, int progress, int totalSteps);
-    void runBackgroupJob(QString func);
-    void showInfo(QString text);
-    void cancel();
-    void show();
-    void setFeatureDetection(FeatureDetectionType type);
+	void findPeaks();
+	void loadModel();
+	void setOutputDir();
+	void setProgressBar(QString text, int progress, int totalSteps);
+	void runBackgroupJob(QString func);
+	void showInfo(QString text);
+	void cancel();
+	void show();
+	void setFeatureDetection(FeatureDetectionType type);
 
 private:
-    QSettings *settings;
-    MainWindow *mainwindow;
-    BackgroundPeakUpdate* peakupdater;
-    FeatureDetectionType _featureDetectionType;
+	QSettings *settings;
+	MainWindow *mainwindow;
+	BackgroundPeakUpdate* peakupdater;
+	FeatureDetectionType _featureDetectionType;
 };
 
 #endif

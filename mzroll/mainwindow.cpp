@@ -1,5 +1,87 @@
 #include "mainwindow.h"
 
+#include <qaction.h>
+#include <qapplication.h>
+#include <qboxlayout.h>
+#include <qbytearray.h>
+#include <qchar.h>
+#include <qclipboard.h>
+#include <qcolor.h>
+#include <qcombobox.h>
+#include <qcoreevent.h>
+#include <qdatastream.h>
+#include <qdebug.h>
+#include <qdesktopservices.h>
+#include <qdir.h>
+#include <qdockwidget.h>
+#include <qevent.h>
+#include <qfile.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
+#include <qglobal.h>
+#include <qkeysequence.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qmap.h>
+#include <qmargins.h>
+#include <qmenu.h>
+#include <qmenubar.h>
+#include <qmetaobject.h>
+#include <qmetatype.h>
+#include <qnamespace.h>
+#include <qobject.h>
+#include <qpainter.h>
+#include <qpixmap.h>
+#include <qpoint.h>
+#include <qprintdialog.h>
+#include <qprinter.h>
+#include <qprogressbar.h>
+#include <qrect.h>
+#include <qregexp.h>
+#include <qset.h>
+#include <qsettings.h>
+#include <qshortcut.h>
+#include <qsize.h>
+#include <qspinbox.h>
+#include <qstatusbar.h>
+#include <qstringlist.h>
+#include <qtoolbar.h>
+#include <qtoolbutton.h>
+#include <qurl.h>
+#include <qvariant.h>
+#include <qwidget.h>
+#include <algorithm>
+#include <deque>
+#include <map>
+#include <string>
+
+#include "../libmaven/classifierNeuralNet.h"
+#include "../libmaven/mzMassCalculator.h"
+#include "../libmaven/mzUtils.h"
+#include "../libmaven/PeakDetector.h"
+#include "adductwidget.h"
+#include "alignmentdialog.h"
+#include "animationcontrol.h"
+#include "background_peaks_update.h"
+#include "eicwidget.h"
+#include "gallerywidget.h"
+#include "globals.h"
+#include "heatmap.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "masscalcgui.h"
+#include "mzfileio.h"
+#include "noteswidget.h"
+#include "pathwaywidget.h"
+#include "peakdetectiondialog.h"
+#include "projectdockwidget.h"
+#include "scatterplot.h"
+#include "settingsform.h"
+#include "spectramatching.h"
+#include "spectrawidget.h"
+#include "suggest.h"
+#include "treedockwidget.h"
+
 QDataStream &operator<<(QDataStream &out, const mzSample*) {
 	return out;
 }
@@ -215,7 +297,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	spectraMatchingForm = new SpectraMatching(this);
 
-	connect(scatterDockWidget, SIGNAL(groupSelected(PeakGroup*)), SLOT(setPeakGroup(PeakGroup*)));
+	connect(scatterDockWidget, SIGNAL(groupSelected(PeakGroup*)),
+			SLOT(setPeakGroup(PeakGroup*)));
 	pathwayWidgetController();
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
@@ -413,8 +496,9 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
 		btnTable->setChecked(panel->isVisible());
 		btnTable->setCheckable(true);
 		btnTable->setToolTip(title);
-		connect(btnTable,SIGNAL(clicked(bool)),panel, SLOT(setVisible(bool)));
-		connect(panel,SIGNAL(visibilityChanged(bool)),btnTable,SLOT(setChecked(bool)));
+		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
+		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
+				SLOT(setChecked(bool)));
 		sideBar->addWidget(btnTable);
 	}
 
@@ -722,7 +806,8 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	BackgroundPeakUpdate* workerThread = new BackgroundPeakUpdate(this);
 	workerThread->setMainWindow(this);
 
-	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
+			SLOT(setProgressBar(QString, int,int)));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;
@@ -958,7 +1043,7 @@ void MainWindow::createMenus() {
 	QAction* aj = widgetsMenu->addAction("Fragmentation");
 	aj->setCheckable(true);
 	aj->setChecked(false);
-	connect(aj,SIGNAL(toggled(bool)),fragPanel,SLOT(setVisible(bool)));
+	connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
 
 	menuBar()->show();
 }
@@ -970,10 +1055,11 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 	btn->setIcon(icon);
 	btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	btn->setToolTip(description);
-	connect(btn,SIGNAL(clicked(bool)),dockwidget, SLOT(setVisible(bool)));
-	connect(btn,SIGNAL(clicked(bool)),dockwidget, SLOT(raise()));
+	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(setVisible(bool)));
+	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(raise()));
 	btn->setChecked(dockwidget->isVisible());
-	connect(dockwidget,SIGNAL(visibilityChanged(bool)),btn,SLOT(setChecked(bool)));
+	connect(dockwidget, SIGNAL(visibilityChanged(bool)), btn,
+			SLOT(setChecked(bool)));
 	return btn;
 }
 
@@ -1048,8 +1134,10 @@ void MainWindow::createToolBars() {
 	ppmWindowBox->setValue(settings->value("ppmWindowBox").toDouble());
 	ppmWindowBox->setSingleStep(0.5);	//ppm step
 	ppmWindowBox->setToolTip("PPM (parts per million) Window");
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)),this , SLOT(setUserPPM(double)));
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)), eicWidget, SLOT(setPPM(double)));
+	connect(ppmWindowBox, SIGNAL(valueChanged(double)), this,
+			SLOT(setUserPPM(double)));
+	connect(ppmWindowBox, SIGNAL(valueChanged(double)), eicWidget,
+			SLOT(setPPM(double)));
 
 	searchText = new QLineEdit(hBox);
 	searchText->setMinimumWidth(200);
@@ -1073,11 +1161,16 @@ void MainWindow::createToolBars() {
 	connect(ctrlF, SIGNAL(activated()), searchText, SLOT(setFocus()));
 
 	suggestPopup = new SuggestPopup(searchText);
-	connect(suggestPopup,SIGNAL(compoundSelected(Compound*)),this, SLOT(setCompoundFocus(Compound*)));
-	connect(suggestPopup,SIGNAL(compoundSelected(Compound*)),ligandWidget,SLOT(setCompoundFocus(Compound*)));
-	connect(suggestPopup,SIGNAL(pathwaySelected(Pathway*)),pathwayPanel,SLOT(show()));
-	connect(suggestPopup,SIGNAL(pathwaySelected(Pathway*)),pathwayDockWidget,SLOT(show()));
-	connect(suggestPopup,SIGNAL(pathwaySelected(Pathway*)),this,SLOT(setPathwayFocus(Pathway*)));
+	connect(suggestPopup, SIGNAL(compoundSelected(Compound*)), this,
+			SLOT(setCompoundFocus(Compound*)));
+	connect(suggestPopup, SIGNAL(compoundSelected(Compound*)), ligandWidget,
+			SLOT(setCompoundFocus(Compound*)));
+	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), pathwayPanel,
+			SLOT(show()));
+	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), pathwayDockWidget,
+			SLOT(show()));
+	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), this,
+			SLOT(setPathwayFocus(Pathway*)));
 	connect(ligandWidget, SIGNAL(databaseChanged(QString)), suggestPopup,
 			SLOT(setDatabase(QString)));
 	layout->addSpacing(10);
@@ -1089,7 +1182,7 @@ void MainWindow::createToolBars() {
 	quantType->addItem("Retention Time");
 	quantType->addItem("Quality");
 	quantType->setToolTip("Peak Quntitation Type");
-	connect(quantType,SIGNAL(activated(int)),eicWidget,SLOT(replot()));
+	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
 
 	settings->beginGroup("searchHistory");
 	QStringList keys = settings->childKeys();
@@ -1142,8 +1235,9 @@ void MainWindow::createToolBars() {
 	btnBookmarks->setShortcut(Qt::Key_F10);
 	btnSRM->setShortcut(Qt::Key_F12);
 
-	connect(pathwayDockWidget,SIGNAL(visibilityChanged(bool)),pathwayPanel,SLOT(setVisible(bool)));
-	connect(btnSRM,SIGNAL(clicked(bool)),SLOT(showSRMList()));
+	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
+			SLOT(setVisible(bool)));
+	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
 
 	sideBar->setOrientation(Qt::Vertical);
 	sideBar->setMovable(false);
@@ -1256,12 +1350,10 @@ void MainWindow::Align() {
 
 	pd.minGoodPeakCount = alignmentDialog->minGoodPeakCount->value();
 	pd.limitGroupCount = alignmentDialog->limitGroupCount->value();
-	pd.minGroupIntensity =
-			alignmentDialog->minGroupIntensity->value();
-	pd.eic_smoothingWindow =
-			alignmentDialog->groupingWindow->value();
-	pd.eic_smoothingAlgorithm = settings->value(
-			"eic_smoothingAlgorithm").toDouble();
+	pd.minGroupIntensity = alignmentDialog->minGroupIntensity->value();
+	pd.eic_smoothingWindow = alignmentDialog->groupingWindow->value();
+	pd.eic_smoothingAlgorithm =
+			settings->value("eic_smoothingAlgorithm").toDouble();
 
 	pd.minSignalBaseLineRatio = alignmentDialog->minSN->value();
 	pd.minNoNoiseObs = alignmentDialog->minPeakWidth->value();
@@ -1688,14 +1780,16 @@ QWidget* MainWindow::eicWidgetController() {
 	connect(btnZoom, SIGNAL(clicked()), eicWidget, SLOT(resetZoom()));
 	connect(btnPDF, SIGNAL(clicked()), SLOT(exportPDF()));
 	connect(btnPNG, SIGNAL(clicked()), SLOT(exportSVG()));
-	connect(btnAutoZoom,SIGNAL(toggled(bool)), eicWidget,SLOT(autoZoom(bool)));
+	connect(btnAutoZoom, SIGNAL(toggled(bool)), eicWidget,
+			SLOT(autoZoom(bool)));
 	connect(btnBookmark, SIGNAL(clicked()), this, SLOT(bookmarkPeakGroup()));
 	connect(btnCopyCSV, SIGNAL(clicked()), eicWidget, SLOT(copyToClipboard()));
 	connect(btnMarkGood, SIGNAL(clicked()), eicWidget, SLOT(markGroupGood()));
 	connect(btnMarkBad, SIGNAL(clicked()), eicWidget, SLOT(markGroupBad()));
 
-	connect(btnShowTic,SIGNAL(toggled(bool)), eicWidget, SLOT(showTicLine(bool)));
-	connect(btnShowTic,SIGNAL(toggled(bool)), eicWidget, SLOT(replot()));
+	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget,
+			SLOT(showTicLine(bool)));
+	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget, SLOT(replot()));
 
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -1783,7 +1877,8 @@ QWidget* MainWindow::pathwayWidgetController() {
 			SLOT(recalculateConcentrations()));
 
 	AnimationControl* animationControl = new AnimationControl(this);
-	connect(animationControl->slider,SIGNAL(valueChanged(int)), pathwayWidget, SLOT(showSample(int)));
+	connect(animationControl->slider, SIGNAL(valueChanged(int)), pathwayWidget,
+			SLOT(showSample(int)));
 	connect(pathwayWidget, SIGNAL(titleChanged(QString)),
 			animationControl->titleLabel, SLOT(setText(QString)));
 	animationControl->adjustSize();

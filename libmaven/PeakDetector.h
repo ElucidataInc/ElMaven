@@ -46,10 +46,42 @@ public:
 		clsf = cl;
 	}
 
+	Classifier* getClassifier() {
+		return clsf;
+	}
+
+	void setOutputDir(string od) {
+		outputdir = od;
+	}
+
+	string getOutputDir() {
+		return outputdir;
+	}
+
+	void setDBLigandName(string ldbf) {
+		ligandDbFilename = ldbf;
+	}
+
+	string getDBLigandName() {
+		return ligandDbFilename;
+	}
+
+	void setClassifierModelFile(string cmf) {
+		clsfModelFilename = cmf;
+	}
+
+	string getClassifierModelFile() {
+		return clsfModelFilename;
+	}
 
 	PeakGroup* getPeakGroup() {
 		return _group;
 	}
+
+	vector<PeakGroup> getAllGroups() {
+		return allgroups;
+	}
+
 	void pullIsotopes(PeakGroup *group);
 	void processMassSlices();
 	void computeKnowsPeaks(void);
@@ -57,6 +89,8 @@ public:
 	void processSlices(void);
 	void processSlices(vector<mzSlice*>&slices, string setName);
 	void processSlice(mzSlice& slice);
+	void alignSamples();
+	void processCompounds(vector<Compound*> set, string setName);
 
 	/** Processes Mass Slices using two algorithms A and B.
 	 */
@@ -108,7 +142,7 @@ public:
 	float minNoNoiseObs;
 	float minSignalBaseLineRatio;
 	float minGroupIntensity;
-
+	float minQuality;
 	//eic window around compound
 	float compoundPPMWindow;
 	float compoundRTWindow;
@@ -140,11 +174,13 @@ private:
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
 	vector<PeakGroup> allgroups;
+
+	string ligandDbFilename;
+	string clsfModelFilename;
 	string outputdir;
 
 	void printSettings();
 	bool covertToMzXML(QString filename, QString outfile);
-	void processCompounds(vector<Compound*> set, string setName);
 
 	void cleanup();
 };

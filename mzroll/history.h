@@ -18,13 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
 #ifndef HISTORY_H
 #define HISTORY_H
 
-#include "stable.h"
-#include "mzSample.h"
+#include <qlist.h>
+#include <qobject.h>
+#include <qobjectdefs.h>
 
+#include "../libmaven/mzSample.h"
 
 using namespace std;
 
@@ -42,22 +43,22 @@ using namespace std;
  */
 
 class History: public QObject {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    History();
-    int size() {
-        return history.size();
-    }
-    mzSlice next();
-    mzSlice last();
+	History();
+	int size() {
+		return history.size();
+	}
+	mzSlice next();
+	mzSlice last();
 
 public slots:
-    void addToHistory(const mzSlice slice);
+	void addToHistory(const mzSlice slice);
 
 private:
-    int _pos;
-    QList<mzSlice> history;
+	int _pos;
+	QList<mzSlice> history;
 
 };
 

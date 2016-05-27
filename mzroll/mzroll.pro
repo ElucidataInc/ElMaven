@@ -1,16 +1,13 @@
 include(../mzroll.pri)
-#TEMPLATE = app
-CONFIG += qt thread warn_off sql svg console precompile_header
-#CONFIG += debug qt thread sql svg console precompile_header
-QMAKE_STRIP=echo
-PRECOMPILED_HEADER  = stable.h
+DESTDIR = ../bin
 
-TARGET = maven
+TEMPLATE = app
+CONFIG += qt thread warn_off sql svg console
+
+TARGET = mzroll
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
 ICON = images/icon.icns
-
-DESTDIR = ../bin
 
 QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_NO_DEBUG QT_THREAD_LIB
@@ -19,13 +16,9 @@ INCLUDEPATH += ../libmaven ../pugixml/src ../libneural ../Rserve/
 LIBS += -L.  -lmaven -lpugixml -lneural -lcdfread -lnetcdf
 INSTALLS += sources target
 
-#MOC_DIR 	= ../tmp/
-#UI_DIR   =  ../tmp/
-#OBJECTS_DIR = ../tmp/
-
 FORMS = forms/settingsform.ui  \
 		forms/masscalcwidget.ui \
-#		forms/ligandwidget.ui \
+		forms/ligandwidget.ui \
 		forms/adductwidget.ui \
 		forms/isotopeswidget.ui \
 		forms/peakdetectiondialog.ui \
@@ -37,68 +30,52 @@ FORMS = forms/settingsform.ui  \
 		forms/rconsoledialog.ui \
         forms/spectramatching.ui
 
-HEADERS +=  stable.h \
- globals.h \
- mainwindow.h \
- tinyplot.h \
- node.h \
- enzyme_node.h \
- plotdock.h \
- metabolite_node.h \
- pathwaywidget.h \
- graphwidget.h \
- settingsform.h \
- database.h \
- classifier.h \
- classifierNaiveBayes.h \
- classifierNeuralNet.h \
- csvreports.h \
- background_peaks_update.h \
- isotopeplot.h\
- barplot.h \
- boxplot.h \
- edge.h \
- line.h \
- point.h \
- history.h \
- plot_axes.h \
- spectrawidget.h\
- masscalcgui.h \
- adductwidget.h \
- isotopeswidget.h \
- ligandwidget.h \
- eicwidget.h \
- peakdetectiondialog.h \
- comparesamplesdialog.h \
- traindialog.h \
- tabledockwidget.h  \
- treedockwidget.h  \
- heatmap.h  \
- treemap.h  \
- note.h  \
- suggest.h \
- animationcontrol.h \
- alignmentdialog.h \
- scatterplot.h \
- noteswidget.h \
- gallerywidget.h \
- QHistogramSlider.h \
-# rconsoledialog.h \
-#Rserve/Rconnection.h \
-#Rserve/Rsrv.h \
-#Rserve/sisocks.h
- widgets/qprog.h \
-    projectdockwidget.h \
-    spectramatching.h \
-    mzfileio.h
-
+HEADERS +=   globals.h \
+ 			 mainwindow.h \
+ 			 tinyplot.h \
+			 node.h \
+			 enzyme_node.h \
+			 plotdock.h \
+			 metabolite_node.h \
+			 pathwaywidget.h \
+			 graphwidget.h \
+			 settingsform.h \
+			 background_peaks_update.h \
+			 isotopeplot.h\
+			 barplot.h \
+			 boxplot.h \
+			 edge.h \
+			 line.h \
+			 point.h \
+			 history.h \
+			 plot_axes.h \
+			 spectrawidget.h\
+			 masscalcgui.h \
+			 adductwidget.h \
+			 isotopeswidget.h \
+			 ligandwidget.h \
+			 eicwidget.h \
+			 peakdetectiondialog.h \
+			 comparesamplesdialog.h \
+			 traindialog.h \
+			 tabledockwidget.h  \
+			 treedockwidget.h  \
+			 heatmap.h  \
+			 treemap.h  \
+			 note.h  \
+			 suggest.h \
+			 animationcontrol.h \
+			 alignmentdialog.h \
+			 scatterplot.h \
+			 noteswidget.h \
+			 gallerywidget.h \
+			 QHistogramSlider.h \
+			 widgets/qprog.h \
+			 projectdockwidget.h \
+			 spectramatching.h \
+			 mzfileio.h
 
 SOURCES += mainwindow.cpp  \
-classifier.cpp \
-classifierNaiveBayes.cpp \
-classifierNeuralNet.cpp \
-database.cpp \
-csvreports.cpp \
  plotdock.cpp \
  treedockwidget.cpp \
  node.cpp \
@@ -138,8 +115,6 @@ csvreports.cpp \
  noteswidget.cpp \
  gallerywidget.cpp \
  QHistogramSlider.cpp \
-# rconsoledialog.cpp \
-#Rserve/Rconnection.cc \
  widgets/qprog.cpp \
     projectdockwidget.cpp \
     spectramatching.cpp \

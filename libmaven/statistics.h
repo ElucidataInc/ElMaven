@@ -19,12 +19,11 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
-
 // C++ includes
+
 #include <vector>
 #include <cmath>
-
+#include <algorithm>
 // Local includes
 
 typedef double Real;
@@ -69,155 +68,154 @@ typedef double Real;
 
 // ------------------------------------------------------------
 // StatisticsVector class definition
-template <typename T>
-class StatisticsVector : public std::vector<T>
-{
+template<typename T>
+class StatisticsVector: public std::vector<T> {
 public:
 
-    /**
-     * Call the std::vector constructor.
-     */
-    StatisticsVector(unsigned int i=0) : std::vector<T> (i) {}
+	/**
+	 * Call the std::vector constructor.
+	 */
+	StatisticsVector(unsigned int i = 0) :
+			std::vector<T>(i) {
+	}
 
-    /**
-     * Call the std::vector constructor, fill each entry with \p val
-     */
-    StatisticsVector(unsigned int i, T val) : std::vector<T> (i,val) {}
+	/**
+	 * Call the std::vector constructor, fill each entry with \p val
+	 */
+	StatisticsVector(unsigned int i, T val) :
+			std::vector<T>(i, val) {
+	}
 
-    /*copy std:vector */
-    StatisticsVector(const std::vector<T>o) : std::vector<T>(o) {}
+	/*copy std:vector */
+	StatisticsVector(const std::vector<T> o) :
+			std::vector<T>(o) {
+	}
 
-    /**
-     * Destructor.  Virtual so we can derive from the \p StatisticsVector
-     */
-    virtual ~StatisticsVector () {}
+	/**
+	 * Destructor.  Virtual so we can derive from the \p StatisticsVector
+	 */
+	virtual ~StatisticsVector() {
+	}
 
+	/**
+	 * Returns the l2 norm of the data set.
+	 */
+	virtual Real l2_norm() const;
 
-    /**
-     * Returns the l2 norm of the data set.
-     */
-    virtual Real l2_norm() const;
+	/**
+	 * Returns the minimum value in the data set.
+	 */
+	virtual T minimum() const;
 
-    /**
-     * Returns the minimum value in the data set.
-     */
-    virtual T minimum() const;
+	/**
+	 * Returns the maximum value in the data set.
+	 */
+	virtual T maximum() const;
 
-    /**
-     * Returns the maximum value in the data set.
-     */
-    virtual T maximum() const;
+	/**
+	 * Returns the mean value of the
+	 * data set using a recurrence relation.
+	 * Source: GNU Scientific Library
+	 */
+	virtual Real mean() const;
 
-    /**
-     * Returns the mean value of the
-     * data set using a recurrence relation.
-     * Source: GNU Scientific Library
-     */
-    virtual Real mean() const;
+	/**
+	 * Returns the median (e.g. the middle)
+	 * value of the data set.
+	 * This function modifies the
+	 * original data by sorting, so it
+	 * can't be called on const objects.
+	 * Source: GNU Scientific Library
+	 */
+	virtual Real median();
 
-    /**
-     * Returns the median (e.g. the middle)
-     * value of the data set.
-     * This function modifies the
-     * original data by sorting, so it
-     * can't be called on const objects.
-     * Source: GNU Scientific Library
-     */
-    virtual Real median();
+	/**
+	 * A const version of the median funtion.
+	 * Requires twice the memory of original
+	 * data set but does not change the original.
+	 */
+	virtual Real median() const;
 
-    /**
-     * A const version of the median funtion.
-     * Requires twice the memory of original
-     * data set but does not change the original.
-     */
-    virtual Real median() const;
+	/**
+	 * Computes the variance of the data set.
+	 * Uses a recurrence relation to prevent
+	 * data overflow for large sums.
+	 * Note: The variance is equal to the
+	 * standard deviation squared.
+	 * Source: GNU Scientific Library
+	 */
+	virtual Real variance() const {
+		return this->variance(this->mean());
+	}
 
-    /**
-     * Computes the variance of the data set.
-     * Uses a recurrence relation to prevent
-     * data overflow for large sums.
-     * Note: The variance is equal to the
-     * standard deviation squared.
-     * Source: GNU Scientific Library
-     */
-    virtual Real variance() const
-    {
-        return this->variance(this->mean());
-    }
+	/**
+	 * Computes the variance of the data set
+	 * where the \p mean is provided. This is useful
+	 * for efficiency when you have already calculated
+	 * the mean. Uses a recurrence relation to prevent
+	 * data overflow for large sums.
+	 * Note: The variance is equal to the
+	 * standard deviation squared.
+	 * Source: GNU Scientific Library
+	 */
+	virtual Real variance(const Real mean) const;
 
-    /**
-     * Computes the variance of the data set
-     * where the \p mean is provided. This is useful
-     * for efficiency when you have already calculated
-     * the mean. Uses a recurrence relation to prevent
-     * data overflow for large sums.
-     * Note: The variance is equal to the
-     * standard deviation squared.
-     * Source: GNU Scientific Library
-     */
-    virtual Real variance(const Real mean) const;
+	/**
+	 * Computes the standard deviation of
+	 * the data set, which is simply the square-root
+	 * of the variance.
+	 */
+	virtual Real stddev() const {
+		return std::sqrt(this->variance());
+	}
 
-    /**
-     * Computes the standard deviation of
-     * the data set, which is simply the square-root
-     * of the variance.
-     */
-    virtual Real stddev() const
-    {
-        return std::sqrt(this->variance());
-    }
+	/**
+	 * Computes the standard deviation of
+	 * the data set, which is simply the square-root
+	 * of the variance.  This method can be used for
+	 * efficiency when the \p mean has already been computed.
+	 */
+	virtual Real stddev(const Real mean) const {
+		return std::sqrt(this->variance(mean));
+	}
 
-    /**
-     * Computes the standard deviation of
-     * the data set, which is simply the square-root
-     * of the variance.  This method can be used for
-     * efficiency when the \p mean has already been computed.
-     */
-    virtual Real stddev(const Real mean) const
-    {
-        return std::sqrt(this->variance(mean));
-    }
+	/**
+	 * Divides all entries by the largest entry and
+	 * stores the result
+	 */
+	void normalize();
 
-    /**
-     * Divides all entries by the largest entry and
-     * stores the result
-     */
-    void normalize();
+	/**
+	 * Computes and returns a histogram with n_bins bins for the data
+	 * set.  For simplicity, the bins are assumed to be of uniform size.
+	 * Upon return, the bin_members vector will contain unsigned
+	 * integers which give the number of members in each bin.
+	 * Source: GNU Scientific Library
+	 */
+	virtual void histogram(std::vector<unsigned int>& bin_members,
+			unsigned int n_bins = 10);
 
+	/**
+	 * A const version of the histogram function.
+	 */
+	virtual void histogram(std::vector<unsigned int>& bin_members,
+			unsigned int n_bins = 10) const;
 
+	/**
+	 * Returns a vector of unsigned ints which correspond
+	 * to the indices of every member of the data set
+	 * below the cutoff value "cut".
+	 */
+	virtual std::vector<unsigned int> cut_below(Real cut) const;
 
-    /**
-     * Computes and returns a histogram with n_bins bins for the data
-     * set.  For simplicity, the bins are assumed to be of uniform size.
-     * Upon return, the bin_members vector will contain unsigned
-     * integers which give the number of members in each bin.
-     * Source: GNU Scientific Library
-     */
-    virtual void histogram (std::vector<unsigned int>& bin_members,
-                            unsigned int n_bins=10);
-
-    /**
-     * A const version of the histogram function.
-     */
-    virtual void histogram (std::vector<unsigned int>& bin_members,
-                            unsigned int n_bins=10) const;
-
-    /**
-     * Returns a vector of unsigned ints which correspond
-     * to the indices of every member of the data set
-     * below the cutoff value "cut".
-     */
-    virtual std::vector<unsigned int> cut_below(Real cut) const;
-
-    /**
-     * Returns a vector of unsigned ints which correspond
-     * to the indices of every member of the data set
-     * above the cutoff value cut.  I chose not to combine
-     * these two functions since the interface is cleaner
-     * with one passed parameter instead of two.
-     */
-    virtual std::vector<unsigned int> cut_above(Real cut) const;
-
+	/**
+	 * Returns a vector of unsigned ints which correspond
+	 * to the indices of every member of the data set
+	 * above the cutoff value cut.  I chose not to combine
+	 * these two functions since the interface is cleaner
+	 * with one passed parameter instead of two.
+	 */
+	virtual std::vector<unsigned int> cut_above(Real cut) const;
 
 private:
 

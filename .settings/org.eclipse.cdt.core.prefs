@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
 indexer/indexAllFiles=true
-indexer/indexAllHeaderVersions=false
+indexer/indexAllHeaderVersions=true
 indexer/indexAllVersionsSpecificHeaders=
 indexer/indexOnOpen=false
 indexer/indexUnusedHeadersWithAlternateLang=false

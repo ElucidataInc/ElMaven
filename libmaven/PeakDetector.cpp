@@ -6,7 +6,6 @@
 #include <qfile.h>
 #include <qprocess.h>
 #include <qsettings.h>
-#include <qspinbox.h>
 #include <qvariant.h>
 #include <algorithm>
 #include <cfloat>
@@ -17,18 +16,15 @@
 #include <map>
 
 #include "../mzroll/alignmentdialog.h"
-#include "../mzroll/classifier.h"
-#include "../mzroll/csvreports.h"
-#include "../mzroll/database.h"
 #include "../mzroll/mainwindow.h"
+#include "classifier.h"
+#include "csvreports.h"
+#include "database.h"
 #include "mzMassSlicer.h"
 
 PeakDetector::PeakDetector() {
-}
-
-PeakDetector::PeakDetector(MainWindow* mainwindow) {
 	clsf = NULL;    //initially classifier is not loaded
-	mainWindow = mainwindow;
+	mainWindow = NULL;
 	writePdfReportFlag = false;
 	alignSamplesFlag = false;
 	processKeggFlag = false;
@@ -70,6 +66,55 @@ PeakDetector::PeakDetector(MainWindow* mainwindow) {
 	compoundPPMWindow = 10;
 	compoundRTWindow = 2;
 	eicMaxGroups = INT_MAX;
+	clsfModelFilename = "default.model";
+}
+
+PeakDetector::PeakDetector(MainWindow* mainwindow) {
+	clsf = NULL;    //initially classifier is not loaded
+	mainWindow = mainwindow;
+	writePdfReportFlag = false;
+	alignSamplesFlag = false;
+	processKeggFlag = false;
+	processMassSlicesFlag = false;
+	pullIsotopesFlag = false;
+	matchRtFlag = false;
+	checkConvergance = false;
+	clsfModelFilename = "default.model";
+
+	outputdir = "reports" + string(DIR_SEPARATOR_STR);
+
+	writeCSVFlag = false;
+	ionizationMode = -1;
+	keepFoundGroups = true;
+	showProgressFlag = true;
+
+	mzBinStep = 0.01;
+	rtStepSize = 20;
+	ppmMerge = 30;
+	qcut = 0.05;
+	avgScanTime = 0.2;
+
+	limitGroupCount = INT_MAX;
+
+	//peak detection
+	eic_smoothingWindow = 10;
+	eic_smoothingAlgorithm = 0;
+
+	//peak grouping across samples
+	grouping_maxRtWindow = 0.5;
+
+	//peak filtering criteria
+	minGoodPeakCount = 1;
+	minSignalBlankRatio = 2;
+	minNoNoiseObs = 1;
+	minSignalBaseLineRatio = 2;
+	minGroupIntensity = 500;
+	minQuality = 0.5;
+
+	//compound detection setting
+	compoundPPMWindow = 10;
+	compoundRTWindow = 2;
+	eicMaxGroups = INT_MAX;
 
 }
 
@@ -85,6 +130,21 @@ void PeakDetector::processSlice(mzSlice& slice) {
 	vector<mzSlice*> slices;
 	slices.push_back(&slice);
 	processSlices(slices, "sliceset");
+}
+
+void PeakDetector::alignSamples() {
+	cerr << "Aligning samples" << endl;
+
+	writePdfReportFlag = false;
+	processMassSlices(); //top 1000 groups
+
+	cerr << "Aligner=" << allgroups.size() << endl;
+	vector<PeakGroup*> agroups(allgroups.size());
+	for (unsigned int i = 0; i < allgroups.size(); i++)
+		agroups[i] = &allgroups[i];
+	Aligner aligner;
+	aligner.doAlignment(agroups);
+	writePdfReportFlag = true;
 }
 
 void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
@@ -163,6 +223,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				group.groupStatistics();
 			}
 			if (clsf->hasModel() && group.goodPeakCount < minGoodPeakCount)
+				continue;
+			if (clsf->hasModel() && group.maxQuality < minQuality)
 				continue;
 			// if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
 			if (group.blankMax * minSignalBlankRatio > group.maxIntensity)

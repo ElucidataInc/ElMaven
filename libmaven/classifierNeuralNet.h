@@ -10,7 +10,6 @@
 #include <vector>
 #include "classifier.h"
 
-
 using namespace std;
 
 /**
@@ -26,26 +25,25 @@ using namespace std;
  * \author(documentation prepared by naman)
  */
 
-class ClassifierNeuralNet: public Classifier
-{
+class ClassifierNeuralNet: public Classifier {
 public:
-    ClassifierNeuralNet();
-    ~ClassifierNeuralNet();
-    void classify(PeakGroup* grp);
-    void train(vector<PeakGroup*>& groups);
-    void refineModel(PeakGroup* grp);
-    void saveModel(string filename);
-    void loadModel(string filename);
-    bool hasModel();
+	ClassifierNeuralNet();
+	~ClassifierNeuralNet();
+	void classify(PeakGroup* grp);
+	void train(vector<PeakGroup*>& groups);
+	void refineModel(PeakGroup* grp);
+	void saveModel(string filename);
+	void loadModel(string filename);
+	bool hasModel();
 
 private:
-    vector<float> getFeatures(Peak& p);
+	vector<float> getFeatures(Peak& p);
 
-    //neural net specific features
-    nnwork* brain;
-    int hidden_layer;
-    int num_outputs;
-    float trainingSize;
+	//neural net specific features
+	nnwork* brain;
+	int hidden_layer;
+	int num_outputs;
+	float trainingSize;
 
 };
 #endif

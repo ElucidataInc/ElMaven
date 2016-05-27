@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
 #ifndef LIGANDWIDGET_H
 #define LIGANDWIDGET_H
 
@@ -32,7 +31,6 @@ class QMenu;
 class QTextEdit;
 class MainWindow;
 class Database;
-
 
 using namespace std;
 
@@ -52,72 +50,72 @@ extern Database DB;
  */
 
 class LigandWidget: public QDockWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    LigandWidget(MainWindow* parent);
+	LigandWidget(MainWindow* parent);
 
-    void setDatabaseNames();
-    QString getDatabaseName();
-    void clear() {
-        treeWidget->clear();
-    }
-    void showMatches(QString needle);
-    void showNext();
-    void showLast();
-    void setDatabaseAltered(QString dbame, bool altered);
+	void setDatabaseNames();
+	QString getDatabaseName();
+	void clear() {
+		treeWidget->clear();
+	}
+	void showMatches(QString needle);
+	void showNext();
+	void showLast();
+	void setDatabaseAltered(QString dbame, bool altered);
 
 public slots:
-    void setCompoundFocus(Compound* c);
-    void setDatabase(QString dbname);
-    void setFilterString(QString s);
-    void showGallery();
-    void saveCompoundList();
-    void updateTable() {
-        showTable();
-    }
-
+	void setCompoundFocus(Compound* c);
+	void setDatabase(QString dbname);
+	void setFilterString(QString s);
+	void showGallery();
+	void saveCompoundList();
+	void updateTable() {
+		showTable();
+	}
 
 signals:
-    void urlChanged(QString url);
-    void compoundFocused(Compound* c);
-    void databaseChanged(QString dbname);
+	void urlChanged(QString url);
+	void compoundFocused(Compound* c);
+	void databaseChanged(QString dbname);
 
 private slots:
-    void showLigand();
-    void showTable();
-    void databaseChanged(int index);
-    void readRemoteData(const QHttpResponseHeader &);
-    void fetchRemoteCompounds();
-    QList<Compound*> parseXMLRemoteCompounds();
-
+	void showLigand();
+	void showTable();
+	void databaseChanged(int index);
+	void readRemoteData(const QHttpResponseHeader &);
+	void fetchRemoteCompounds();
+	QList<Compound*> parseXMLRemoteCompounds();
 
 private:
 
-    void createCategoryItems();
+	void createCategoryItems();
 
-    QTreeWidget *treeWidget;
-    QComboBox *databaseSelect;
-    QToolButton *galleryButton;
-    QToolButton *saveButton;
-    QToolButton *loadButton;
-    QPoint dragStartPosition;
+	QTreeWidget *treeWidget;
+	QComboBox *databaseSelect;
+	QToolButton *galleryButton;
+	QToolButton *saveButton;
+	QToolButton *loadButton;
+	QPoint dragStartPosition;
 
-    QHash<Compound*, QTreeWidgetItem*> items;
-    QHash<QTreeWidgetItem*, Compound*> compoundMap;
+	QHash<Compound*, QTreeWidgetItem*> items;
+	QHash<QTreeWidgetItem*, Compound*> compoundMap;
 
-    QHash<QString, QTreeWidgetItem*>categoryMap;
-    QHash<QString, bool>alteredDatabases;
+	QHash<QString, QTreeWidgetItem*> categoryMap;
+	QHash<QString, bool> alteredDatabases;
 
-    MainWindow* _mw;
-    QString filterString;
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
+	MainWindow* _mw;
+	QString filterString;
+	QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key,
+			float value);
+	QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key,
+			string value);
 
-    //fetching of compounds from remote database
-    int connectionId;
-    QHttp http;
-    QXmlStreamReader xml;
+	//fetching of compounds from remote database
+	int connectionId;
+	QHttp http;
+	QXmlStreamReader xml;
 
 };
 

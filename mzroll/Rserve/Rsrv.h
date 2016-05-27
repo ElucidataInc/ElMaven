@@ -22,7 +22,7 @@
  */
 
 /* external defines:
-   MAIN - should be defined in just one file that will contain the fn definitions and variables
+ MAIN - should be defined in just one file that will contain the fn definitions and variables
  */
 
 #ifndef __RSRV_H__
@@ -37,43 +37,43 @@
 #define default_Rsrv_port 6311
 
 /* Rserve communication is done over any reliable connection-oriented
-   protocol (usually TCP/IP or local sockets). After the connection is
-   established, the server sends 32 bytes of ID-string defining the
-   capabilities of the server. Each attribute of the ID-string is 4 bytes
-   long and is meant to be user-readable (i.e. don't use special characters),
-   and it's a good idea to make "\r\n\r\n" the last attribute
+ protocol (usually TCP/IP or local sockets). After the connection is
+ established, the server sends 32 bytes of ID-string defining the
+ capabilities of the server. Each attribute of the ID-string is 4 bytes
+ long and is meant to be user-readable (i.e. don't use special characters),
+ and it's a good idea to make "\r\n\r\n" the last attribute
 
-   the ID string must be of the form:
+ the ID string must be of the form:
 
-   [0] "Rsrv" - R-server ID signature
-   [4] "0100" - version of the R server
-   [8] "QAP1" - protocol used for communication (here Quad Attributes Packets v1)
-   [12] any additional attributes follow. \r\n<space> and '-' are ignored.
+ [0] "Rsrv" - R-server ID signature
+ [4] "0100" - version of the R server
+ [8] "QAP1" - protocol used for communication (here Quad Attributes Packets v1)
+ [12] any additional attributes follow. \r\n<space> and '-' are ignored.
 
-   optional attributes
-   (in any order; it is legitimate to put dummy attributes, like "----" or
-    "    " between attributes):
+ optional attributes
+ (in any order; it is legitimate to put dummy attributes, like "----" or
+ "    " between attributes):
 
-   "R151" - version of R (here 1.5.1)
-   "ARpt" - authorization required (here "pt"=plain text, "uc"=unix crypt,
-            "m5"=MD5)
-            connection will be closed if the first packet is not CMD_login.
-	    if more AR.. methods are specified, then client is free to
-	    use the one he supports (usually the most secure)
-   "K***" - key if encoded authentification is challenged (*** is the key)
-            for unix crypt the first two letters of the key are the salt
-	    required by the server */
+ "R151" - version of R (here 1.5.1)
+ "ARpt" - authorization required (here "pt"=plain text, "uc"=unix crypt,
+ "m5"=MD5)
+ connection will be closed if the first packet is not CMD_login.
+ if more AR.. methods are specified, then client is free to
+ use the one he supports (usually the most secure)
+ "K***" - key if encoded authentification is challenged (*** is the key)
+ for unix crypt the first two letters of the key are the salt
+ required by the server */
 
 /* QAP1 transport protocol header structure
 
-   all int and double entries throughout the transfer are in
-   Intel-endianess format: int=0x12345678 -> char[4]=(0x78,0x56,x34,0x12)
-   functions/macros for converting from native to protocol format 
-   are available below
+ all int and double entries throughout the transfer are in
+ Intel-endianess format: int=0x12345678 -> char[4]=(0x78,0x56,x34,0x12)
+ functions/macros for converting from native to protocol format 
+ are available below
 
-   Please note also that all values muse be quad-aligned, i.e. the length
-   must be divisible by 4. This is automatically assured for int/double etc.,
-   but care must be taken when using strings and byte streams.
+ Please note also that all values muse be quad-aligned, i.e. the length
+ must be divisible by 4. This is automatically assured for int/double etc.,
+ but care must be taken when using strings and byte streams.
 
  */
 
@@ -82,22 +82,22 @@ struct phdr { /* always 16 bytes */
 	int len; /* length of the packet minus header (ergo -16) */
 	int dof; /* data offset behind header (ergo usually 0) */
 	int res; /* high 32-bit of the packet length (since 0103
-				and supported on 64-bit platforms only)
-				aka "lenhi", but the name was not changed to
-				maintain compatibility */
+	 and supported on 64-bit platforms only)
+	 aka "lenhi", but the name was not changed to
+	 maintain compatibility */
 };
 
 /* each entry in the data section (aka parameter list) is preceded by 4 bytes:
-   1 byte : parameter type
-   3 bytes: length
-   parameter list may be terminated by 0/0/0/0 but doesn't have to since "len"
-   field specifies the packet length sufficiently (hint: best method for parsing is
-   to allocate len+4 bytes, set the last 4 bytes to 0 and trverse list of parameters
-   until (int)0 occurs
-   
-   since 0102:
-   if the 7-th bit (0x40) in parameter type is set then the length is encoded
-   in 7 bytes enlarging the header by 4 bytes. 
+ 1 byte : parameter type
+ 3 bytes: length
+ parameter list may be terminated by 0/0/0/0 but doesn't have to since "len"
+ field specifies the packet length sufficiently (hint: best method for parsing is
+ to allocate len+4 bytes, set the last 4 bytes to 0 and trverse list of parameters
+ until (int)0 occurs
+ 
+ since 0102:
+ if the 7-th bit (0x40) in parameter type is set then the length is encoded
+ in 7 bytes enlarging the header by 4 bytes. 
  */
 
 /* macros for handling the first int - split/combine (24-bit version only!) */
@@ -117,10 +117,10 @@ struct phdr { /* always 16 bytes */
 				      attached string may describe the error */
 
 /* stat codes; 0-0x3f are reserved for program specific codes - e.g. for R
-   connection they correspond to the stat of Parse command.
-   the following codes are returned by the Rserv itself
+ connection they correspond to the stat of Parse command.
+ the following codes are returned by the Rserv itself
 
-   codes <0 denote Rerror as provided by R_tryEval
+ codes <0 denote Rerror as provided by R_tryEval
  */
 #define ERR_auth_failed      0x41 /* auth.failed or auth.requested but no
 				     login came. in case of authentification
@@ -201,13 +201,13 @@ struct phdr { /* always 16 bytes */
 
 /* control commands (since 0.6-0) - passed on to the master process */
 /* Note: currently all control commands are asychronous, i.e. RESP_OK
-   indicates that the command was enqueued in the master pipe, but there
-   is no guarantee that it will be processed. Moreover non-forked
-   connections (e.g. the default debug setup) don't process any
-   control commands until the current client connection is closed so
-   the connection issuing the control command will never see its
-   result.
-*/
+ indicates that the command was enqueued in the master pipe, but there
+ is no guarantee that it will be processed. Moreover non-forked
+ connections (e.g. the default debug setup) don't process any
+ control commands until the current client connection is closed so
+ the connection issuing the control command will never see its
+ result.
+ */
 #define CMD_ctrl            0x40  /* -- not a command - just a constant -- */
 #define CMD_ctrlEval        0x42  /* string : - */
 #define CMD_ctrlSource      0x45  /* string : - */
@@ -231,7 +231,7 @@ struct phdr { /* always 16 bytes */
 #define CMD_serEEval     0xf7 /* serialized expression eval - like serEval with one additional evaluation round */
 
 /* data types for the transport protocol (QAP1)
-   do NOT confuse with XT_.. values. */
+ do NOT confuse with XT_.. values. */
 
 #define DT_INT        1  /* int */
 #define DT_CHAR       2  /* char */
@@ -245,11 +245,11 @@ struct phdr { /* always 16 bytes */
 			    is coded as 56-bit integer enlarging the header by 4 bytes */
 
 /* XpressionTypes
-   REXP - R expressions are packed in the same way as command parameters
-   transport format of the encoded Xpressions:
-   [0] int type/len (1 byte type, 3 bytes len - same as SET_PAR)
-   [4] REXP attr (if bit 8 in type is set)
-   [4/8] data .. */
+ REXP - R expressions are packed in the same way as command parameters
+ transport format of the encoded Xpressions:
+ [0] int type/len (1 byte type, 3 bytes len - same as SET_PAR)
+ [4] REXP attr (if bit 8 in type is set)
+ [4/8] data .. */
 
 #define XT_NULL          0  /* P  data: [0] */
 #define XT_INT           1  /* -  data: [4]int */
@@ -282,16 +282,16 @@ struct phdr { /* always 16 bytes */
 
 #define XT_UNKNOWN       48 /* P  data: [4]int - SEXP type (as from TYPEOF(x)) */
 /*                             |
-                               +--- interesting flags for client implementations:
-                                    P = primary type
-                                    s = secondary type - its decoding is identical to
-									    a primary type and thus the client doesn't need to
-										decode it separately.
-									- = deprecated/removed. if a client doesn't need to
-									    support old Rserve versions, those can be safely
-										skipped. 
-  Total primary: 4 trivial types (NULL, STR, S4, UNKNOWN) + 6 array types + 3 recursive types
-*/
+ +--- interesting flags for client implementations:
+ P = primary type
+ s = secondary type - its decoding is identical to
+ a primary type and thus the client doesn't need to
+ decode it separately.
+ - = deprecated/removed. if a client doesn't need to
+ support old Rserve versions, those can be safely
+ skipped. 
+ Total primary: 4 trivial types (NULL, STR, S4, UNKNOWN) + 6 array types + 3 recursive types
+ */
 
 #define XT_LARGE         64 /* new in 0102: if this flag is set then the length of the object
 			       is coded as 56-bit integer enlarging the header by 4 bytes */
@@ -313,11 +313,11 @@ struct phdr { /* always 16 bytes */
 #endif
 
 /* functions/macros to convert native endianess of int/double for transport
-   currently ony PPC style and Intel style are supported */
+ currently ony PPC style and Intel style are supported */
 
 /* Since 0.4-5 we no longer use configure-time endianness tests to allow cross-compilation.
-   Either BS_xx_ENDIAN constant is defined by configure and thus should be relied upon only if
-   the compiler contants don't work */
+ Either BS_xx_ENDIAN constant is defined by configure and thus should be relied upon only if
+ the compiler contants don't work */
 #if defined __BIG_ENDIAN__ || defined _BIG_ENDIAN_
 #define SWAPEND 1
 #elif defined __LITTLE_ENDIAN__ || defined _LITTLE_ENDIAN_ || defined BS_LITTLE_ENDIAN
@@ -337,9 +337,9 @@ struct phdr { /* always 16 bytes */
 
 #ifdef SWAPEND  /* swap endianness - for PPC and co. */
 #ifdef MAIN
-unsigned int itop(unsigned int i) { char b[4]; b[0]=((char*)&i)[3]; b[3]=((char*)&i)[0]; b[1]=((char*)&i)[2]; b[2]=((char*)&i)[1]; return *((unsigned int*)b); }
-double dtop(double i) { char b[8]; b[0]=((char*)&i)[7]; b[1]=((char*)&i)[6]; b[2]=((char*)&i)[5]; b[3]=((char*)&i)[4]; b[7]=((char*)&i)[0]; b[6]=((char*)&i)[1]; b[5]=((char*)&i)[2]; b[4]=((char*)&i)[3]; return *((double*)b); }
-void fixdcpy(void *t,void *s) { int i=0; while (i<8) { ((char*)t)[7-i]=((char*)s)[i]; i++; } }
+unsigned int itop(unsigned int i) {char b[4]; b[0]=((char*)&i)[3]; b[3]=((char*)&i)[0]; b[1]=((char*)&i)[2]; b[2]=((char*)&i)[1]; return *((unsigned int*)b);}
+double dtop(double i) {char b[8]; b[0]=((char*)&i)[7]; b[1]=((char*)&i)[6]; b[2]=((char*)&i)[5]; b[3]=((char*)&i)[4]; b[7]=((char*)&i)[0]; b[6]=((char*)&i)[1]; b[5]=((char*)&i)[2]; b[4]=((char*)&i)[3]; return *((double*)b);}
+void fixdcpy(void *t,void *s) {int i=0; while (i<8) {((char*)t)[7-i]=((char*)s)[i]; i++;}}
 #else
 extern unsigned int itop(unsigned int i);
 extern double dtop(double i);
@@ -357,13 +357,13 @@ extern void fixdcpy(void *t,void *s);
 
 #ifndef HAVE_CONFIG_H
 /* this tiny function can be used to make sure that the endianess
-   is correct (it is not included if the package was configured with
-   autoconf since then it should be fine anyway) */
+ is correct (it is not included if the package was configured with
+ autoconf since then it should be fine anyway) */
 #ifdef MAIN
 int isByteSexOk() {
-    int i;
-    i=itop(0x12345678);
-    return (*((char*)&i)==0x78);
+	int i;
+	i=itop(0x12345678);
+	return (*((char*)&i)==0x78);
 }
 #else
 extern int isByteSexOk();
@@ -376,7 +376,7 @@ extern int isByteSexOk();
 #endif
 
 /*--- The following makes the indenting behavior of emacs compatible
-      with Xcode's 4/4 setting ---*/
+ with Xcode's 4/4 setting ---*/
 /* Local Variables: */
 /* indent-tabs-mode: t */
 /* tab-width: 4 */

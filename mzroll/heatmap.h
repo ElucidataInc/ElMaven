@@ -7,7 +7,6 @@
 #include "tabledockwidget.h"
 #include "statistics.h"
 
-
 /**
  * \class HeatMap
  *
@@ -21,40 +20,38 @@
  * \author(documentation prepared by naman)
  */
 
-class HeatMap : public QGraphicsView
-{
-    Q_OBJECT
+class HeatMap: public QGraphicsView {
+Q_OBJECT
 
 public:
-    HeatMap(MainWindow* mw);
-    ~HeatMap();
+	HeatMap(MainWindow* mw);
+	~HeatMap();
 
 public slots:
-    void setTable(TableDockWidget* t);
-    void replot();
-    void updateColors();
+	void setTable(TableDockWidget* t);
+	void replot();
+	void updateColors();
 
 private:
-    QColor getColor(float cellValue, float minValue, float maxValue);
-    MainWindow* mainwindow;
-    TableDockWidget* _table;
+	QColor getColor(float cellValue, float minValue, float maxValue);
+	MainWindow* mainwindow;
+	TableDockWidget* _table;
 
-    MatrixXf heatmap;
-    float _heatMax;
-    float _heatMin;
-    float _colorramp;
-    int _sampleSpacer;
-    int _rowSpacer;
-    float _boxW;
-    float _boxH;
-
+	MatrixXf heatmap;
+	float _heatMax;
+	float _heatMin;
+	float _colorramp;
+	int _sampleSpacer;
+	int _rowSpacer;
+	float _boxW;
+	float _boxH;
 
 protected:
-    void drawMap();
-    void resizeEvent ( QResizeEvent *event );
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+	void drawMap();
+	void resizeEvent(QResizeEvent *event);
+	void wheelEvent(QWheelEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 
 };
 

@@ -1,8 +1,8 @@
 #ifndef ALIGNDIALOG_H
 #define ALIGNDIALOG_H
 
-#include "stable.h"
-#include "ui_alignmentdialog.h"
+#include <qdialog.h>
+#include <qobjectdefs.h>
 
 /**
  * \class AlignmentDialog
@@ -17,8 +17,8 @@
  * \author(documentation prepared by naman)
  */
 
-class AlignmentDialog: public QDialog, public Ui_AlignmentDialog {
-	Q_OBJECT
+class AlignmentDialog: public QDialog {
+Q_OBJECT
 
 public:
 	AlignmentDialog(QWidget *parent);

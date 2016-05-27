@@ -1,11 +1,15 @@
 #ifndef BACKGROUND_PEAK_UPDATE_H
 #define BACKGROUND_PEAK_UPDATE_H
 
+#include <qobjectdefs.h>
 #include <qstring.h>
 #include <qthread.h>
 #include <string>
 
 #include "../libmaven/PeakDetector.h"
+
+class PeakGroup;
+class QWidget;
 
 /**
  * \class BackgroundPeakUpdate
@@ -21,7 +25,7 @@
  */
 
 class BackgroundPeakUpdate: public QThread {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 
@@ -60,7 +64,7 @@ public:
 		peakDetector = *pd;
 	}
 
-	signals:
+signals:
 	/** Update the progress bar at the bottom of Maven.
 	 * Shows progress of the file imports.
 	 * @param Qstring inpute filename, int, int

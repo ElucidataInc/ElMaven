@@ -7,20 +7,19 @@
 
 class Rconnection;
 
-
-class RConsoleDialog : public QDialog, public Ui_RConsoleDialog {
-    Q_OBJECT
+class RConsoleDialog: public QDialog, public Ui_RConsoleDialog {
+Q_OBJECT
 
 public:
-    RConsoleDialog(QWidget *parent);
-    int connectToRserve();
+	RConsoleDialog(QWidget *parent);
+	int connectToRserve();
 
 public slots:
-    void runScript();
-    void clearScript();
+	void runScript();
+	void clearScript();
 
 private:
-    Rconnection *rc ;
+	Rconnection *rc;
 };
 
 #endif

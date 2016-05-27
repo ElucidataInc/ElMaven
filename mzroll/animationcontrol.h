@@ -1,7 +1,10 @@
 #ifndef ANIMATIONCONTROL_H
 #define ANIMATIONCONTROL_H
-#include "ui_animationcontrol.h"
 
+#include <qobjectdefs.h>
+#include <qwidget.h>
+
+#include "../ui_files/ui_animationcontrol.h"
 
 /**
  * \class AnimationControl
@@ -16,12 +19,11 @@
  * \author(documentation prepared by naman)
  */
 
-class AnimationControl: public QWidget, public Ui_AnimationControl
-{
-    Q_OBJECT
+class AnimationControl: public QWidget, public Ui_AnimationControl {
+Q_OBJECT
 
 public:
-    AnimationControl(QWidget *parent);
+	AnimationControl(QWidget *parent);
 };
 
 #endif

@@ -24,78 +24,71 @@
 #include <QtGui>
 #include <math.h>
 
-
-class QProg : public QObject, public QGraphicsItem
-{
-    Q_OBJECT
+class QProg: public QObject, public QGraphicsItem {
+Q_OBJECT
 #if QT_VERSION >= 0x040600
-    Q_INTERFACES( QGraphicsItem )
+	Q_INTERFACES( QGraphicsItem )
 #endif
-    Q_PROPERTY(double value READ value WRITE setValue);
-    Q_PROPERTY(double min READ minValue WRITE setMinValue);
-    Q_PROPERTY(double max READ maxValue WRITE setMaxValue);
-    Q_PROPERTY(int font READ font WRITE setFontDim);
-    Q_PROPERTY(int numPrec READ numPrec WRITE setPrecision);
-    Q_PROPERTY(QColor color READ color WRITE setBarColor);
+	Q_PROPERTY(double value READ value WRITE setValue)
+	;Q_PROPERTY(double min READ minValue WRITE setMinValue)
+	;Q_PROPERTY(double max READ maxValue WRITE setMaxValue)
+	;Q_PROPERTY(int font READ font WRITE setFontDim)
+	;Q_PROPERTY(int numPrec READ numPrec WRITE setPrecision)
+	;Q_PROPERTY(QColor color READ color WRITE setBarColor)
+	;
 
 public:
 	QProg(QGraphicsItem *parent, QGraphicsScene *scene);
 
-    double value() const
-    {
-        return actVal;
-    }
-    double minValue() const
-    {
-        return minVal;
-    }
-    double maxValue() const
-    {
-        return maxVal;
-    }
-    int font() const
-    {
-        return fontDim;
-    }
-    int numPrec() const
-    {
-        return precision;
-    }
-    QColor color() const
-    {
-        return colBar;
-    }
+	double value() const {
+		return actVal;
+	}
+	double minValue() const {
+		return minVal;
+	}
+	double maxValue() const {
+		return maxVal;
+	}
+	int font() const {
+		return fontDim;
+	}
+	int numPrec() const {
+		return precision;
+	}
+	QColor color() const {
+		return colBar;
+	}
 
 	QRectF boundingRect() const;
 
 public slots:
 
-    void setValue(double);
-    void setMaxValue(double);
-    void setMinValue(double);
-    void setFontDim(int);
-    void setPrecision(int);
-    void setBarColor(QColor);
+	void setValue(double);
+	void setMaxValue(double);
+	void setMinValue(double);
+	void setFontDim(int);
+	void setPrecision(int);
+	void setBarColor(QColor);
 
 protected:
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget *);
-    void paint(QPaintEvent *);
-    void initValue();
-    void paintBorder(QPainter *painter);
-    void paintBar(QPainter    *painter);
-    void paintLine(QPainter	  *painter);
-    void paintValue(QPainter  *painter);
+	void paint(QPaintEvent *);
+	void initValue();
+	void paintBorder(QPainter *painter);
+	void paintBar(QPainter *painter);
+	void paintLine(QPainter *painter);
+	void paintValue(QPainter *painter);
 
 private:
 
-    int fontDim;
-    int precision;
-    double lengthBar; 
-    double minVal;
-    double maxVal;
-    double actVal;
-    QColor colBar;
+	int fontDim;
+	int precision;
+	double lengthBar;
+	double minVal;
+	double maxVal;
+	double actVal;
+	QColor colBar;
 
 };
 

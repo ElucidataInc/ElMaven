@@ -2,10 +2,10 @@ Maven
 =====
 
 ## Installation
-Run `bash run.sh` on UNIX systems.
+Run `./run.sh` on UNIX systems.
 
 ## Uninstall MAVEN
-Run  `bash uninstall.sh` on UNIX systems.
+Run  `./uninstall.sh` on UNIX systems.
 
 ## Documentation
 1. Use `cd maven_opensource/docs/ && doxygen Doxyfile` to generate documentation of the mzroll source code.
