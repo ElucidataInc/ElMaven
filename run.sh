@@ -1,3 +1,3 @@
 qmake
-make -j 20
-bin/mzroll
+make -j 50
+bin/maven_dev_766
