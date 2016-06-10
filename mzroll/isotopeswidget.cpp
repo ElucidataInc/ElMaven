@@ -2,7 +2,7 @@
 using namespace std;
 
 
-IsotopeWidget::IsotopeWidget(MainWindow* mw) { 
+IsotopeWidget::IsotopeWidget(MainWindow* mw) {
   _mw = mw;
   _scan = NULL;
   _group = NULL;
@@ -13,55 +13,55 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 
   setupUi(this);
   connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
-  connect(formula, SIGNAL(textEdited(QString)), this, SLOT(userChangedFormula(QString))); 
-  connect(ionization, SIGNAL(valueChanged(double)), this, SLOT(setCharge(double))); 
-  
+  connect(formula, SIGNAL(textEdited(QString)), this, SLOT(userChangedFormula(QString)));
+  connect(ionization, SIGNAL(valueChanged(double)), this, SLOT(setCharge(double)));
+
   ionization->setValue(_charge);
 
   workerThread = new BackgroundPeakUpdate(mw);
   workerThread->setRunFunction("pullIsotopes");
   workerThread->setMainWindow(mw);
-  workerThread->minGoodPeakCount=1;
-  workerThread->minSignalBlankRatio=2;
-  workerThread->minSignalBaseLineRatio=2;
-  workerThread->minNoNoiseObs=2;
-  workerThread->minGroupIntensity=0;
-  workerThread->writeCSVFlag=false;
-  workerThread->matchRtFlag=false;
-  workerThread->showProgressFlag=true;
-  workerThread->pullIsotopesFlag=true;
-  workerThread->keepFoundGroups=true;
+  workerThread->peakDetector.minGoodPeakCount=1;
+  workerThread->peakDetector.minSignalBlankRatio=2;
+  workerThread->peakDetector.minSignalBaseLineRatio=2;
+  workerThread->peakDetector.minNoNoiseObs=2;
+  workerThread->peakDetector.minGroupIntensity=0;
+  workerThread->peakDetector.writeCSVFlag=false;
+  workerThread->peakDetector.matchRtFlag=false;
+  workerThread->peakDetector.showProgressFlag=true;
+  workerThread->peakDetector.pullIsotopesFlag=true;
+  workerThread->peakDetector.keepFoundGroups=true;
 
   connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
   connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(), SLOT(update()));
 
 }
 
-IsotopeWidget::~IsotopeWidget(){ 
+IsotopeWidget::~IsotopeWidget(){
 	links.clear();
 }
 
-void IsotopeWidget::setPeakGroup(PeakGroup* grp) { 
+void IsotopeWidget::setPeakGroup(PeakGroup* grp) {
 	if (!grp) return;
 
 	_group = grp;
-	if (grp && grp->type() != PeakGroup::Isotope ) pullIsotopes(grp); 
+	if (grp && grp->type() != PeakGroup::Isotope ) pullIsotopes(grp);
 }
 
-void IsotopeWidget::setPeak(Peak* peak) { 
+void IsotopeWidget::setPeak(Peak* peak) {
 	if (peak == NULL ) return;
 
 	mzSample* sample = peak->getSample();
 	if (sample == NULL) return;
 
-	Scan* scan = sample->getScan(peak->scan); 
+	Scan* scan = sample->getScan(peak->scan);
 	if (scan == NULL) return;
 	_scan = scan;
 
 	if (! _formula.empty() ) computeIsotopes(_formula);
 }
 
-void IsotopeWidget::setCompound(Compound* cpd ) { 
+void IsotopeWidget::setCompound(Compound* cpd ) {
 		if (cpd == NULL ) return;
 		QString f = QString(cpd->formula.c_str());
 		_group = NULL;
@@ -74,7 +74,7 @@ void IsotopeWidget::setIonizationMode(int mode ) {
 		setCharge((float) mode );
 }
 
-void IsotopeWidget::userChangedFormula(QString f) { 
+void IsotopeWidget::userChangedFormula(QString f) {
 	if (f.toStdString() == _formula ) return;
 
 	_formula = f.toStdString();
@@ -86,24 +86,24 @@ void IsotopeWidget::userChangedFormula(QString f) {
 	_compound = tempCompound;
 
 	setWindowTitle("Unknown_" + f);
-	computeIsotopes(_formula); 
+	computeIsotopes(_formula);
 
 }
 
-void IsotopeWidget::setFormula(QString f) { 
-	formula->setText(f); 
+void IsotopeWidget::setFormula(QString f) {
+	formula->setText(f);
 	userChangedFormula(f);
 }
 
-void IsotopeWidget::setCharge(double charge) { 
+void IsotopeWidget::setCharge(double charge) {
 	if ( charge != _charge ) {
-		ionization->setValue(charge); 
-		_charge = charge;  
-		computeIsotopes(_formula); 
+		ionization->setValue(charge);
+		_charge = charge;
+		computeIsotopes(_formula);
 	}
 }
 
-void IsotopeWidget::computeIsotopes(string f) { 
+void IsotopeWidget::computeIsotopes(string f) {
 	if (f.empty()) return;
         if(links.size() > 0 ) links.clear();
 	double parentMass = mcalc.computeMass(f,_charge);
@@ -153,7 +153,7 @@ void IsotopeWidget::computeIsotopes(string f) {
  	showTable();
 }
 
-float IsotopeWidget::getIsotopeIntensity(float mz)  { 
+float IsotopeWidget::getIsotopeIntensity(float mz)  {
     float highestIntensity=0;
 	double ppm = _mw->getUserPPM();
 
@@ -172,15 +172,15 @@ float IsotopeWidget::getIsotopeIntensity(float mz)  {
     return highestIntensity;
 }
 
-Peak* IsotopeWidget::getSamplePeak(PeakGroup* group, mzSample* sample) { 
+Peak* IsotopeWidget::getSamplePeak(PeakGroup* group, mzSample* sample) {
 		for (int i=0; i< group->peaks.size(); i++ ) {
-				if ( group->peaks[i].getSample() == sample ) { 
+				if ( group->peaks[i].getSample() == sample ) {
 					return &(group->peaks[i]);
 				}
 		}
 		return NULL;
 }
-void IsotopeWidget::pullIsotopes(PeakGroup* group) { 
+void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		if(!group) return;
 
 		//clear clipboard
@@ -196,20 +196,20 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 
 		int isotopeCount=0;
 		for (int i=0; i < group->children.size(); i++ ) {
-			if ( group->children[i].isIsotope() ) isotopeCount++; 
+			if ( group->children[i].isIsotope() ) isotopeCount++;
 		}
 
         vector <mzSample*> vsamples = _mw->getVisibleSamples();
 		workerThread->stop();
-		workerThread->setPeakGroup(group);
-		workerThread->setSamples(vsamples);
-		workerThread->compoundPPMWindow = _mw->getUserPPM();
+		workerThread->peakDetector.setPeakGroup(group);
+		workerThread->peakDetector.setSamples(vsamples);
+		workerThread->peakDetector.compoundPPMWindow = _mw->getUserPPM();
         workerThread->start();
         _mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
 
 void IsotopeWidget::setClipboard() {
-	if ( _group ) { 
+	if ( _group ) {
 
 		//update clipboard
 		setClipboard(_group);
@@ -253,14 +253,14 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group) {
     if (group == NULL ) return "";
 		//header line
 		QString tag(group->tagString.c_str());
-		if ( tag.isEmpty() && group->compound != NULL ) tag = QString(group->compound->name.c_str()); 
+		if ( tag.isEmpty() && group->compound != NULL ) tag = QString(group->compound->name.c_str());
 		if ( tag.isEmpty() && group->srmId.length()   ) tag = QString(group->srmId.c_str());
 		if ( tag.isEmpty() )  tag = QString::number(group->groupId);
 		QString isotopeInfo = tag;
 
 		vector <mzSample*> vsamples = _mw->getVisibleSamples();
     	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-		for(int i=0; i < vsamples.size(); i++ ) { 
+		for(int i=0; i < vsamples.size(); i++ ) {
 			isotopeInfo += "\t" + QString(vsamples[i]->sampleName.c_str());
 		}
 		isotopeInfo += "\n";
@@ -299,12 +299,12 @@ void IsotopeWidget::showTable() {
 	QTreeWidget *p = treeWidget;
 	p->clear();
  	p->setColumnCount( 5 );
-	p->setHeaderLabels(  QStringList() << "Isotope Name" << "m/z" << "Intensity" << "%Labeling" << "%Expected");	
+	p->setHeaderLabels(  QStringList() << "Isotope Name" << "m/z" << "Intensity" << "%Labeling" << "%Expected");
 	p->setUpdatesEnabled(true);
 	p->setSortingEnabled(true);
-	
+
 	float isotopeIntensitySum=0;
-	for(unsigned int i=0;  i < links.size(); i++ )  isotopeIntensitySum += links[i].value2; 
+	for(unsigned int i=0;  i < links.size(); i++ )  isotopeIntensitySum += links[i].value2;
 
 	for(unsigned int i=0;  i < links.size(); i++ ) {
 		float frac=0;
@@ -316,7 +316,7 @@ void IsotopeWidget::showTable() {
 		QString item3 = QString::number( links[i].value2, 'f', 2 );
 		QString item4 = QString::number(frac, 'f', 1 );
 		QString item5 = QString::number(links[i].value1*100, 'f', 2 );
-	
+
 		item->setText(0,item1);
 		item->setText(1,item2);
 		item->setText(2,item3);
@@ -366,4 +366,3 @@ QString IsotopeWidget::groupTextEport(PeakGroup* group) {
 		}
 		return info.join("\t");
 }
-

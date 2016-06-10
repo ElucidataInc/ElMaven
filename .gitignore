@@ -28,7 +28,6 @@
 *.app
 
 # Project Files
-Makefile
 libcdfread/tmp
 libmaven/tmp
 libneural/tmp
@@ -37,6 +36,7 @@ mzWatcher/tmp
 peakdetector/tmp
 pugixml/src/tmp
 build
+build.pro.user
 
 # Unused Makefiles
 Makefile
@@ -52,7 +52,7 @@ pugixml/src/Makefile
 mzroll/qrc_mzroll.cpp
 
 # Compiled Binaries
-bin/maven_dev_766
+bin/maven_dev_769
 bin/mzWatcher
 bin/peakdetector
 

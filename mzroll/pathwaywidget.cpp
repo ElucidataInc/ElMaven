@@ -2,7 +2,7 @@
 #include "../libmaven/Matrix.h"
 
 
-PathwayWidget::PathwayWidget(MainWindow* parent) 
+PathwayWidget::PathwayWidget(MainWindow* parent)
 {
     mw = parent;
     GraphWidget();
@@ -117,7 +117,7 @@ void PathwayWidget::showTinyPlot(Node* n) {
 	*/
 }
 
-void PathwayWidget::hideEmpty() { 
+void PathwayWidget::hideEmpty() {
 
     foreach (Node* n, nodelist ) {
         if (!n->isEnzyme() || !n->isVisible()) continue;
@@ -132,7 +132,7 @@ void PathwayWidget::hideEmpty() {
     }
 }
 
-void PathwayWidget::clear() { 
+void PathwayWidget::clear() {
 
 	if(nodelist.size() == 0 ) return;
 	stopSimulation();
@@ -160,7 +160,7 @@ void PathwayWidget::recalculateConcentrations() {
 	_forceUpdate=false;
 }
 
-void PathwayWidget::checkCompoundExistance() { 
+void PathwayWidget::checkCompoundExistance() {
 	//cerr << "PathwayWidget::checkCompoundExistance() force=" << _forceUpdate << endl;
 
 	if (workerThread->isRunning() ) { workerThread->stop(); workerThread->wait(10); }
@@ -170,10 +170,10 @@ void PathwayWidget::checkCompoundExistance() {
 	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
 	if (samples.size() == 0 ) return;
 
-	if ( samples.size() > 1 && animationControl) { 
-			animationControl->show(); 
-	} else { 
-			animationControl->hide(); 
+	if ( samples.size() > 1 && animationControl) {
+			animationControl->show();
+	} else {
+			animationControl->hide();
 	}
 
     vector<Compound*>checkList;
@@ -194,26 +194,26 @@ void PathwayWidget::checkCompoundExistance() {
 	//cerr << "PathwayWidget::checkCompoundExistance() compounds=" <<  checkList.size() << endl;
 
     if ( checkList.size() > 0 ) {
-            workerThread->setSamples(samples);
-            workerThread->setCompounds(checkList);
-            workerThread->compoundPPMWindow = mw->getUserPPM();
+            workerThread->peakDetector.setSamples(samples);
+            workerThread->peakDetector.setCompounds(checkList);
+            workerThread->peakDetector.compoundPPMWindow = mw->getUserPPM();
             workerThread->setRunFunction("computePeaks");
 
-            workerThread->minGoodPeakCount=1;
-            workerThread->minSignalBlankRatio=2;
-            workerThread->minSignalBaseLineRatio=2;
-            workerThread->minNoNoiseObs=2;
-            workerThread->minGroupIntensity=0;
-            workerThread->writeCSVFlag=false;
-            workerThread->matchRtFlag=true;
-            workerThread->showProgressFlag=true;
-            workerThread->pullIsotopesFlag=true;
-            workerThread->keepFoundGroups=true;
+            workerThread->peakDetector.minGoodPeakCount=1;
+            workerThread->peakDetector.minSignalBlankRatio=2;
+            workerThread->peakDetector.minSignalBaseLineRatio=2;
+            workerThread->peakDetector.minNoNoiseObs=2;
+            workerThread->peakDetector.minGroupIntensity=0;
+            workerThread->peakDetector.writeCSVFlag=false;
+            workerThread->peakDetector.matchRtFlag=true;
+            workerThread->peakDetector.showProgressFlag=true;
+            workerThread->peakDetector.pullIsotopesFlag=true;
+            workerThread->peakDetector.keepFoundGroups=true;
             workerThread->start();
     }
 }
 
-PathwayWidget::~PathwayWidget() { 
+PathwayWidget::~PathwayWidget() {
 	delete(workerThread);
 }
 
@@ -224,13 +224,13 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 	 QSet<Node*>cnodes;
 	 n->setVisible(true);
 
-     for(int i=0; i<edges.size(); i++) { 
+     for(int i=0; i<edges.size(); i++) {
          Node* sn = edges[i]->sourceNode();
          Node* dn = edges[i]->destNode();
          if (sn->getId() == dn->getId() ) continue;
 
 		 if (sn->molClass() == Node::Enzyme ) {
-				foreach (Edge *se, sn->edges() ) { 
+				foreach (Edge *se, sn->edges() ) {
 					 if ( se->sourceNode() && !se->sourceNode()->isVisible() ) {
 							 cnodes.insert(se->sourceNode());
 					 }
@@ -241,7 +241,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 		 }
 
 		 if (dn->molClass() == Node::Enzyme ) {
-				 foreach (Edge *de, dn->edges() ) { 
+				 foreach (Edge *de, dn->edges() ) {
 						 if ( de->sourceNode() && !de->sourceNode()->isVisible() ) {
 								 cnodes.insert(de->sourceNode());
 						 }
@@ -257,7 +257,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
          edges[i]->setVisible(true);
      }
 
-	 foreach (Node* n, cnodes) { 
+	 foreach (Node* n, cnodes) {
 		Compound* c=NULL;
 		 if ( n->molClass() == Node::Metabolite ) {
 		 	Compound* c = ((MetaboliteNode*) n)->getCompound();
@@ -266,12 +266,12 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 		 if (c!= NULL && cofactorCheck(c->id.c_str())) continue;
 		 if (n->edges().size() > 20 ) continue;
 		 n->setVisible(true);
-		 showConnectedNodes(n,depth+1); 	// recurse 
+		 showConnectedNodes(n,depth+1); 	// recurse
 	 }
 	 n->setVisible(true);
 }
 
-bool PathwayWidget::cofactorCheck(QString id) { 
+bool PathwayWidget::cofactorCheck(QString id) {
 	 if ( cofactors.contains(id.toUpper())) return true;
 	 return false;
 }
@@ -299,8 +299,8 @@ void PathwayWidget::setCompound(Compound* c) {
 		if (list.size() > 1 ) compoundId=list[0];
 		string id = compoundId.toStdString();
 		for(int i=0; i < DB.compoundsDB.size(); i++ ) {
-			if (DB.compoundsDB[i]->db == "KEGG" && DB.compoundsDB[i]->id == id )  { 
-					c = DB.compoundsDB[i]; break; 
+			if (DB.compoundsDB[i]->db == "KEGG" && DB.compoundsDB[i]->id == id )  {
+					c = DB.compoundsDB[i]; break;
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void PathwayWidget::expandOnCompound(Compound* c) {
 	*/
 }
 
-vector<string> PathwayWidget::getCompoundReactions(Compound* c0 ,int depth) { 
+vector<string> PathwayWidget::getCompoundReactions(Compound* c0 ,int depth) {
 	vector<string>rids;
 	if ( c0 == NULL ) return rids;
 
@@ -363,7 +363,7 @@ vector<string> PathwayWidget::getCompoundReactions(Compound* c0 ,int depth) {
 }
 
 
-void PathwayWidget::setTitle(Reaction* r) { 
+void PathwayWidget::setTitle(Reaction* r) {
 	if( r==NULL) return;
 
 	QStringList reactants;
@@ -383,7 +383,7 @@ void PathwayWidget::setTitle(Reaction* r) {
 	GraphWidget::setTitle(title);
 }
 
-void PathwayWidget::setCompoundFocus(Compound* c) { 
+void PathwayWidget::setCompoundFocus(Compound* c) {
 	if(c == NULL) return;
 	if(c == _focusedCompound ) return;
 	_focusedCompound = c;
@@ -405,7 +405,7 @@ void PathwayWidget::setCompoundFocus(Compound* c) {
 	}
 }
 
-void PathwayWidget::setCompoundSelected(Compound* c) { 
+void PathwayWidget::setCompoundSelected(Compound* c) {
 	Node* n = locateNode(c->id.c_str());
 	if (n) centerOn(n);
 }
@@ -422,13 +422,13 @@ void PathwayWidget::showSample(int pos ) {
 	showAnimationStep( ((float)pos)/(getTimerMaxSteps()-1));
 }
 
-void PathwayWidget::updateCompoundConcentrations() { 
+void PathwayWidget::updateCompoundConcentrations() {
 
 	//cerr << "PathwayWidget::updateCompoundConcentrations() " << endl;
 	if ( mw->sampleCount() == 0 ) return;
 	samples = mw->getVisibleSamples();  	//get list of visibleSamples
 	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-	
+
 	foreach(Node* n, nodelist) {
 			if (!n->isMetabolite()) continue;
 			MetaboliteNode* m = (MetaboliteNode*) n;
@@ -468,10 +468,10 @@ void PathwayWidget::updateCompoundConcentrations() {
 			for(int j=0; j<visibleSamplesCount; j++ ) vt[j] = vp[j]+vl[j];
 
             //fill in blanks.. set values to previous values
-			for(int j=1; j<visibleSamplesCount; j++ ) { 
+			for(int j=1; j<visibleSamplesCount; j++ ) {
                if (vt[j]==0 && vt[j-1]>0 ) { vt[j]=vt[j-1]; vp[j]=vp[j-1]; vl[j]=vl[j-1]; }
             }
-                    
+
 			if ( visibleSamplesCount ) {
 				n->setConcentrations(vt);
 				n->setLabeledConcentrations(vl);
@@ -490,7 +490,7 @@ void PathwayWidget::setReactions(vector<string>& reactions) {
 	clear();
 	addReactions(reactions);
 
-	if (!_pathwayId.isEmpty()) { 
+	if (!_pathwayId.isEmpty()) {
 		if (loadLayout(_pathwayId) == false) newLayout();
 	} else {
 		newLayout();
@@ -500,7 +500,7 @@ void PathwayWidget::setReactions(vector<string>& reactions) {
 	updateCompoundConcentrations();
 
 	normalizeNodeSizes(getNodeSizeNormalization());
-	layoutCofactors();	
+	layoutCofactors();
 }
 
 MetaboliteNode* PathwayWidget::addMetabolite(QString id, Compound* c) {
@@ -521,7 +521,7 @@ MetaboliteNode* PathwayWidget::addMetabolite(QString id, Compound* c) {
                         n->showCoordinates(true);
                         n->setMolecularCoordinates(mol);
                     }
-		} else { 
+		} else {
                     n->showCoordinates(false);
 		}
 
@@ -572,7 +572,7 @@ EnzymeNode* PathwayWidget::addReaction(Reaction* r) {
 			MetaboliteNode* n = addMetabolite(c->id.c_str(), c);
 			if (n) {
 				Edge* e = addEdge(n,enzyme,r->id,r);
-				e->setReversable(r->reversable); 
+				e->setReversable(r->reversable);
 			}
 		}
 
@@ -582,7 +582,7 @@ EnzymeNode* PathwayWidget::addReaction(Reaction* r) {
 			MetaboliteNode* n = addMetabolite(c->id.c_str(),c);
 			if (n) {
 				Edge* e = addEdge(enzyme,n,r->id,r);
-				e->setReversable(r->reversable); 
+				e->setReversable(r->reversable);
 			}
 		}
         return enzyme;
@@ -594,11 +594,11 @@ bool PathwayWidget::setPathway(QString pid) {
 
 	//qDebug() << "PathwayWidget::setPathway() " << pid << endl;
 	clear();
-	vector<string>reactionsIds = DB.getPathwayReactions(pid.toStdString()); 
+	vector<string>reactionsIds = DB.getPathwayReactions(pid.toStdString());
 	if ( reactionsIds.size() == 0 ) return false;
 
 	for(int i=0; i<reactionsIds.size();i++ ) {
-		if (reactionsIds[i].find("RXN") == string::npos ) { 
+		if (reactionsIds[i].find("RXN") == string::npos ) {
 			vector<string> subreactions = DB.getPathwayReactions(reactionsIds[i]);
 			for(int j=0; j<subreactions.size();j++) reactionsIds.push_back(subreactions[j]);
 		}
@@ -627,7 +627,7 @@ bool PathwayWidget::saveLayout() {
 	foreach (Node* n, nodelist ) {
 		QString id = n->getNote();
 
-		if ( n->isMetabolite() ) { 
+		if ( n->isMetabolite() ) {
 			Compound* c = ((MetaboliteNode*) n)->getCompound();
 			if (c) id = QString(c->id.c_str());
 		}
@@ -706,8 +706,8 @@ bool PathwayWidget::loadLayout(QString pid) {
 						}
 				}
 		}
-		if (count) { xpos/=count; ypos/=count; n->setPos(xpos+1,ypos+1); } 
-		if ( n->pos().x()==0 && n->pos().y() == 0) n->hide(); 
+		if (count) { xpos/=count; ypos/=count; n->setPos(xpos+1,ypos+1); }
+		if ( n->pos().x()==0 && n->pos().y() == 0) n->hide();
 	}
 
 	resetZoom();
@@ -718,12 +718,12 @@ bool PathwayWidget::loadLayout(QString pid) {
 
 
 
-void PathwayWidget::addReactions(vector<string>& reactionsIds) { 
-	for(int i=0; i < reactionsIds.size(); i++ ) { 
+void PathwayWidget::addReactions(vector<string>& reactionsIds) {
+	for(int i=0; i < reactionsIds.size(); i++ ) {
 		string rxnId = reactionsIds[i];
 
 		//if reaction has not been loaded.. load reaction
-		if ( ! locateNode(rxnId.c_str()) ) { 
+		if ( ! locateNode(rxnId.c_str()) ) {
 			if (DB.reactionIdMap.count(rxnId) > 0 ) {
 					Reaction* r = DB.reactionIdMap[rxnId];
 					addReaction(r);
@@ -797,7 +797,7 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event){
 
     QAction* e2 = options.addAction("Show Isotopes");
 	e2->setCheckable(true);
-    e2->setChecked(workerThread->pullIsotopesFlag);
+    e2->setChecked(workerThread->peakDetector.pullIsotopesFlag);
     connect(e2, SIGNAL(toggled(bool)), SLOT(calculateIsotopes(bool)));
 
 	QAction* e3 = options.addAction("Show Atoms");
@@ -887,7 +887,7 @@ void PathwayWidget::loadModelFile(QString filename) {
 
 	QFile data(filename);
 	if ( !data.open(QFile::ReadOnly) ) {
-		QErrorMessage errDialog(this); 
+		QErrorMessage errDialog(this);
 		errDialog.showMessage("File open " + filename + " failed");
 		return;
 	}
@@ -979,17 +979,17 @@ void PathwayWidget::loadModelFile(QString filename) {
 				//if (xml.name() == "reaction") addReaction(r);
 			} else if (xml.isCharacters() && !xml.isWhitespace()) {
 				if (currentTag == "concentration" && !currentId.isEmpty()) {
-					concentrations[currentId] += xml.text().toString(); 
+					concentrations[currentId] += xml.text().toString();
 				} else if (currentTag == "concentrationsLabeled" && !currentId.isEmpty()) {
-					concentrationsLabeled[currentId] += xml.text().toString(); 
+					concentrationsLabeled[currentId] += xml.text().toString();
 				} else if (currentTag == "fluxes" && !currentId.isEmpty()) {
-					fluxes[currentId] += xml.text().toString(); 
+					fluxes[currentId] += xml.text().toString();
 				}
 			}
 	}
-	if (xml.error() ) qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString(); 
+	if (xml.error() ) qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
 
-	foreach (QString id, concentrations.keys() ) { 
+	foreach (QString id, concentrations.keys() ) {
 		QVector<float>v;
 		string cid = id.toStdString();
 		foreach ( QString f, concentrations[id].split(",") )  v << f.toDouble();
@@ -998,7 +998,7 @@ void PathwayWidget::loadModelFile(QString filename) {
 		}
 	}
 
-	foreach (QString id, concentrationsLabeled.keys() ) { 
+	foreach (QString id, concentrationsLabeled.keys() ) {
 		QVector<float>v;
 		string cid = id.toStdString();
 		foreach ( QString f, concentrationsLabeled[id].split(",") )  v << f.toDouble();
@@ -1007,7 +1007,7 @@ void PathwayWidget::loadModelFile(QString filename) {
 		}
 	}
 
-    foreach (QString id, fluxes.keys() ) { 
+    foreach (QString id, fluxes.keys() ) {
 		QList<float>v;
 		string cid = id.toStdString();
 		foreach ( QString f, fluxes[id].split(",") )  v << f.toDouble();
@@ -1081,7 +1081,7 @@ void PathwayWidget::saveModelFile(QString filename) {
 				stream.writeEndElement();
 		}
 	}
-				
+
 	foreach( Node* node, enzymes ) {
 		if ( node->isEnzyme() ) {
 		 		Reaction* r = ((EnzymeNode*) node)->getReaction();
@@ -1098,14 +1098,14 @@ void PathwayWidget::saveModelFile(QString filename) {
 				if ( r ) {
 					for( unsigned int j=0; j < r->reactants.size(); j++ ) {
 							if(r->reactants[j] != NULL) {
-									stream.writeStartElement("reactant"); 
+									stream.writeStartElement("reactant");
 									stream.writeAttribute("id",r->reactants[j]->id.c_str());
 									stream.writeEndElement();
 							}
 					}
 					for( unsigned int j=0; j < r->products.size(); j++ ) {
 							if(r->products[j] != NULL) {
-									stream.writeStartElement("product"); 
+									stream.writeStartElement("product");
 									stream.writeAttribute("id",r->products[j]->id.c_str());
 									stream.writeEndElement();
 							}
@@ -1119,12 +1119,12 @@ void PathwayWidget::saveModelFile(QString filename) {
 	stream.writeStartElement("backgroundImage");
 	stream.writeAttribute("filename", getBackgroundImageFilename() );
 	stream.writeEndElement();
-	
+
 
 	stream.writeEndElement();
 	QFile file(filename);
 	if ( !file.open(QFile::WriteOnly) ) {
-		QErrorMessage errDialog(this); 
+		QErrorMessage errDialog(this);
 		errDialog.showMessage("File open: " + filename + " failed");
 		return;
 	}
@@ -1177,8 +1177,8 @@ int PathwayWidget::loadSpreadsheet(QString filename) {
 	}
 }
 
-void PathwayWidget::showEnzymes(bool flag) { 
-	_showEnzymesFlag=flag; 
+void PathwayWidget::showEnzymes(bool flag) {
+	_showEnzymesFlag=flag;
 
 	foreach (QGraphicsItem *item, scene()->items()) {
 		if (Node *n = qgraphicsitem_cast<Node *>(item)) {
@@ -1188,8 +1188,8 @@ void PathwayWidget::showEnzymes(bool flag) {
 	scene()->update();
 }
 
-void PathwayWidget::showCofactors(bool flag) { 
-	_showCofactorsFlag=flag; 
+void PathwayWidget::showCofactors(bool flag) {
+	_showCofactorsFlag=flag;
 
 	foreach (QGraphicsItem *item, scene()->items()) {
 		if (Node *n = qgraphicsitem_cast<Node *>(item)) {
@@ -1203,8 +1203,8 @@ void PathwayWidget::showCofactors(bool flag) {
 	scene()->update();
 }
 
-void PathwayWidget::calculateIsotopes(bool flag) { 
-    if (workerThread ) workerThread->pullIsotopesFlag=flag;
+void PathwayWidget::calculateIsotopes(bool flag) {
+    if (workerThread ) workerThread->peakDetector.pullIsotopesFlag=flag;
 }
 
 void PathwayWidget::normalizeNodeSizes(int x) {
@@ -1224,7 +1224,7 @@ void PathwayWidget::changeLayoutAlgorithm(int x) {
 
 ////simulation code
 
-void PathwayWidget::resetSimulation() { 
+void PathwayWidget::resetSimulation() {
 
 	setupAnimationMatrix();
     if (ConcMatrix.rows() == 0 || ConcMatrix.cols() == 0 ) return;
@@ -1235,14 +1235,14 @@ void PathwayWidget::resetSimulation() {
 	}
 }
 
-void PathwayWidget::stopSimulation() { 
+void PathwayWidget::stopSimulation() {
     if(_timerId !=0) killTimer(_timerId); _timerId=0;
 	if(animationProgress) animationProgress->hide();
 	if(_encodeVideo) encodeVideo();
 	setTimerStep(0);
 }
 
-void PathwayWidget::startSimulation() { 
+void PathwayWidget::startSimulation() {
 	if (_timerId != 0) { stopSimulation(); return; }
 
 	cleanTempVideoDir();
@@ -1261,7 +1261,7 @@ void PathwayWidget::keyPressEvent(QKeyEvent *event)
             case Qt::Key_C: clear(); break;
 	}
 
-		
+
 	GraphWidget::keyPressEvent(event);
 	scene()->update();
 }
@@ -1276,12 +1276,12 @@ void PathwayWidget::timerEvent(QTimerEvent* event) {
 	if (getTimerMaxSteps() == 0 ) return;
 	//qDebug() << "timerEvent() " << getTimerMaxSteps() << " " << getTimerStep();
 
-	if ( getTimerStep() > 1 ) { 
+	if ( getTimerStep() > 1 ) {
 		stopSimulation();
 		return;
 	}
 	double increment = 0.1;
-	if (getTimerMaxSteps() > 0 ) increment = (1.0/getTimerMaxSteps())/25; 
+	if (getTimerMaxSteps() > 0 ) increment = (1.0/getTimerMaxSteps())/25;
 	setTimerStep( getTimerStep()+increment );
 	showAnimationStep( getTimerStep() );
 
@@ -1289,7 +1289,7 @@ void PathwayWidget::timerEvent(QTimerEvent* event) {
 
 
 
-void PathwayWidget::setupAnimationMatrix() { 
+void PathwayWidget::setupAnimationMatrix() {
 	//maximum number of steps for simulation
 	QList<Node*> visiableNodes; 			//visible nodes
 	int animationSteps=0;
@@ -1325,7 +1325,7 @@ void PathwayWidget::setupAnimationMatrix() {
     if ( getNodeSizeNormalization() == GraphWidget::PairwiseSize ) setupPairWiseComparisonMatrix();
 
     if (animationControl) {
-        if (animationSteps <= 1 ) { 
+        if (animationSteps <= 1 ) {
             animationControl->hide();
         } else {
             animationControl->slider->setMinimum(0);
@@ -1337,7 +1337,7 @@ void PathwayWidget::setupAnimationMatrix() {
 	//qDebug() << "setupAnimationMatrix() maxConc=" << ConcMatrix.maxValue();
 }
 
-void PathwayWidget::setupPairWiseComparisonMatrix() { 
+void PathwayWidget::setupPairWiseComparisonMatrix() {
         if ( ConcMatrix.cols() < 2 ) return;
         if ( LabelingMatrix.cols() < 2 ) return;
 
@@ -1345,7 +1345,7 @@ void PathwayWidget::setupPairWiseComparisonMatrix() {
         int nRows  =  ConcMatrix.rows();
         int nCols  =  ConcMatrix.cols();
 	int newCols = nCols;
-	
+
         MatrixXf M(vnodes.size(),newCols);
         MatrixXf L(vnodes.size(),newCols);
 
@@ -1372,16 +1372,16 @@ void PathwayWidget::setupPairWiseComparisonMatrix() {
 void PathwayWidget::showAnimationStep(float fraction ) {
 
 	if ( fraction >= 1 ) fraction = 1;
-	if ( fraction <= 0 ) fraction = 0; 
+	if ( fraction <= 0 ) fraction = 0;
 
 	if(tinyPlot) tinyPlot->setCurrentXCoord(fraction);
 	if(animationProgress) animationProgress->setValue(fraction);
 
-	
+
 	if (getTimerMaxSteps() == 0 ) return;
 
 	int step=(int) (fraction*getTimerMaxSteps());	//lower bound
-    if (step < 0 ) step=0;		
+    if (step < 0 ) step=0;
     if (step > getTimerMaxSteps() ) return;
 
 	float stepFraction = (fraction*getTimerMaxSteps())-step;
@@ -1421,10 +1421,10 @@ void PathwayWidget::showAnimationStep(float fraction ) {
     }
 
 	scene()->update();
- 
+
 	if ( _encodeVideo ) {
 	   QDir(QDir::tempPath()).mkpath("video/");
-	   QRectF source = scene()->sceneRect(); 
+	   QRectF source = scene()->sceneRect();
 	   source.adjust(-50,-50,+50,+50);
 	   QRectF dist =  source;	//save size as scene
 	   QPixmap pixmap(dist.width(),dist.height());
@@ -1453,19 +1453,19 @@ void PathwayWidget::wheelEvent(QWheelEvent *event) {
     }
 }
 
-void PathwayWidget::encodeVideo() 
+void PathwayWidget::encodeVideo()
 {
 	   QStringList videoFilesFilter; videoFilesFilter << "video*.png";
 	   QFileInfoList filelist = QDir(QDir::tempPath() + "/video/").entryInfoList(videoFilesFilter, QDir::Files,QDir::NoSort);
 	   if (filelist.size() == 0) return;
 
-		QString outputFile = QFileDialog::getSaveFileName(this, tr("Save Movie to a File"), 
-						QDir::tempPath() + "/video/video.wmv", 
+		QString outputFile = QFileDialog::getSaveFileName(this, tr("Save Movie to a File"),
+						QDir::tempPath() + "/video/video.wmv",
 						tr("Movies (*.wmv *.avi *.mp4 *.mpeg *.mov)"));
 
 		if (outputFile.isEmpty() ) outputFile= QDir::tempPath() + "/video/video.wmv";
 
-	   	QRectF  source = scene()->sceneRect(); 
+	   	QRectF  source = scene()->sceneRect();
 		source.adjust(-50,-50,+50,+50);
 	   	//QRectF  source = QRectF(0,0,1200,900);
 		QString fps   =  QString::number(10);
@@ -1501,7 +1501,7 @@ void PathwayWidget::encodeVideo()
 	   _encodeVideo=false;
 }
 
-void PathwayWidget::cleanTempVideoDir() { 
+void PathwayWidget::cleanTempVideoDir() {
 	if (_encodeVideo == false) return;
 	QStringList videoFilesFilter; videoFilesFilter << "video*.png";
 	QFileInfoList filelist = QDir(QDir::tempPath() + "/video/").entryInfoList(videoFilesFilter, QDir::Files,QDir::NoSort);
@@ -1740,4 +1740,3 @@ QVector<QPoint> PathwayWidget::getEqualentAtoms(QString rpairId) {
 
     return atompairs;
 }
-

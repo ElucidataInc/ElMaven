@@ -1,6 +1,6 @@
 #include "gallerywidget.h"
 
-GalleryWidget::GalleryWidget(MainWindow* mw) { 
+GalleryWidget::GalleryWidget(MainWindow* mw) {
 	this->mainwindow = mw;
 
     setScene(new QGraphicsScene(this));
@@ -15,7 +15,7 @@ GalleryWidget::GalleryWidget(MainWindow* mw) {
 	recursionCheck=false;
 	plotitems.clear();
 //	fileGallery("/home/melamud/samples/");
-	
+
 	/*
 	for(int i=0; i<100; i++ ) {
 //		QPen pen(Qt::black); pen.setWidth(2);
@@ -55,7 +55,7 @@ void GalleryWidget::fileGallery(const QString &fromDir) {
 		//qDebug() << "GalleryWidget::fileGallery: dir=" <<  fromDir << " exists=" << d.exists();
 
 		QStringList filters; //filters << "*.mzXML" << "*.mzCSV" << "*.raw" << "*.mzData" << "." << "..";
-		QFileInfoList list = d.entryInfoList( filters, 
+		QFileInfoList list = d.entryInfoList( filters,
 										QDir::Files | QDir::Dirs | QDir::NoSymLinks  | QDir::Readable,
 										QDir::Name | QDir::DirsFirst | QDir::IgnoreCase);
 		if (list.size() == 0) return;
@@ -69,11 +69,11 @@ void GalleryWidget::fileGallery(const QString &fromDir) {
 		//			qDebug() << "GalleryWidget::fileGallery: dir=" << fi.fileName();
 					fileGallery(fi.absoluteFilePath()); //recurse
 				} else if (fi.isFile()) {
-					if ( 	filename.contains("mzXML",Qt::CaseSensitive) || 
+					if ( 	filename.contains("mzXML",Qt::CaseSensitive) ||
 							filename.contains("mzData",Qt::CaseSensitive) ||
 							filename.contains("mzCSV",Qt::CaseSensitive) ||
 							filename.contains("mzML",Qt::CaseSensitive) ||
-							filename.contains("raw",Qt::CaseSensitive) 
+							filename.contains("raw",Qt::CaseSensitive)
 							) {
 						fileCount++;
 		//				qDebug() << "\tGalleryWidget::fileGallery: file=" << fi.fileName();
@@ -255,7 +255,7 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 
 	//qDebug() << "addEicPlot(slice)";
 
-        vector<EIC*> eics = BackgroundPeakUpdate::pullEICs(&slice,
+        vector<EIC*> eics = PeakDetector::pullEICs(&slice,
                                                            samples,
                                                            EicLoader::NoPeakDetection,
                                                            smoothingWindow,
@@ -279,7 +279,7 @@ TinyPlot* GalleryWidget::addEicPlot(std::vector<EIC*>& eics) {
 	std::sort(eics.begin(), eics.end(), EIC::compMaxIntensity);
 	int insertCount=0;
 	for(int i=0; i < eics.size(); i++ ) {
-		EIC* eic = eics[i]; 
+		EIC* eic = eics[i];
 		if(!eic) continue;
 		if (eic->maxIntensity == 0 ) continue;
         QColor color = QColor::fromRgbF( eic->sample->color[0], eic->sample->color[1], eic->sample->color[2], 1.0 );
@@ -324,7 +324,7 @@ void GalleryWidget::wheelEvent(QWheelEvent *event) {
 		}
 }
 
-void GalleryWidget::drawMap() { 
+void GalleryWidget::drawMap() {
 
 
     //gallary widget is too small
@@ -422,5 +422,3 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
 		}
 	scene()->update();
 }
-
-

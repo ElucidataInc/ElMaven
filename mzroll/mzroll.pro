@@ -5,7 +5,7 @@ QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 
 #add version information during compilation
-VERSION="766"
+VERSION="769"
 DEFINES += "MAVEN_VERSION=$$VERSION"
 DEFINES += "PLATFORM=\"$$QMAKE_HOST.os\""
 
@@ -21,9 +21,9 @@ DESTDIR = ../bin
 QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
-INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt/QtSql
+INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/
-#LIBS += -L.  -lmaven -lpugixml -lneural  #32bit windows
+
 LIBS += -L.  -lmaven -lpugixml -lneural                     #64bit
 message($$LIBS)
 
@@ -100,7 +100,7 @@ HEADERS +=  stable.h \
                     logwidget.h \
                     spectralhit.h \
                    spectralhitstable.h\
-                    clusterdialog.h
+                    clusterdialog.h 
 
 
 SOURCES += mainwindow.cpp  \
@@ -157,7 +157,7 @@ csvreports.cpp \
  spectramatching.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
- logwidget.cpp
+ logwidget.cpp 
 
 
 sources.files =  $$HEADERS \

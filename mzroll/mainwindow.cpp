@@ -1258,20 +1258,20 @@ void MainWindow::Align() {
 
 
     if (settings != NULL ) {
-         workerThread->eic_ppmWindow = settings->value("eic_ppmWindow").toDouble();
-         workerThread->eic_smoothingAlgorithm = settings->value("eic_smoothingWindow").toInt();
+         workerThread->peakDetector.eic_ppmWindow = settings->value("eic_ppmWindow").toDouble();
+         workerThread->peakDetector.eic_smoothingAlgorithm = settings->value("eic_smoothingWindow").toInt();
     }
 
-    workerThread->minGoodPeakCount = alignmentDialog->minGoodPeakCount->value();
-    workerThread->limitGroupCount =  alignmentDialog->limitGroupCount->value();
-    workerThread->minGroupIntensity =  alignmentDialog->minGroupIntensity->value();
-    workerThread->eic_smoothingWindow = alignmentDialog->groupingWindow->value();
+    workerThread->peakDetector.minGoodPeakCount = alignmentDialog->minGoodPeakCount->value();
+    workerThread->peakDetector.limitGroupCount =  alignmentDialog->limitGroupCount->value();
+    workerThread->peakDetector.minGroupIntensity =  alignmentDialog->minGroupIntensity->value();
+    workerThread->peakDetector.eic_smoothingWindow = alignmentDialog->groupingWindow->value();
 
-    workerThread->minSignalBaseLineRatio = alignmentDialog->minSN->value();
-    workerThread->minNoNoiseObs = alignmentDialog->minPeakWidth->value();
-    workerThread->alignSamplesFlag=true;
-    workerThread->keepFoundGroups=false;
-    workerThread->eicMaxGroups=5;
+    workerThread->peakDetector.minSignalBaseLineRatio = alignmentDialog->minSN->value();
+    workerThread->peakDetector.minNoNoiseObs = alignmentDialog->minPeakWidth->value();
+    workerThread->peakDetector.alignSamplesFlag=true;
+    workerThread->peakDetector.keepFoundGroups=false;
+    workerThread->peakDetector.eicMaxGroups=5;
     workerThread->start();
 }
 

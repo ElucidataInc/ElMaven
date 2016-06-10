@@ -1,7 +1,6 @@
 #ifndef CSVREPORT_H
 #define CSVREPORT_H
 
-#include "stable.h"
 #include "mzUtils.h"
 #include "mzSample.h"
 
@@ -15,7 +14,7 @@ class PeakGroup;
 class CSVReports {
 
 	public:
-		CSVReports(){};
+		CSVReports();
         CSVReports(vector<mzSample*>& insamples);
 		~CSVReports();
         void openGroupReport(string filename);
@@ -26,19 +25,19 @@ class CSVReports {
 		void setUserQuantType(PeakGroup::QType t) { qtype=t; }
         void setTabDelimited()   { SEP="\t"; }
         void setCommaDelimited() { SEP=","; }
+		ofstream groupReport;
+		ofstream peakReport;
 
 	private:
 		void writeGroupInfo(PeakGroup* group);
 		void writePeakInfo(PeakGroup* group);
-						
+
 		int groupId;	//sequential group numbering
         string SEP;
 
 		vector<mzSample*>samples;
-		ofstream groupReport;
-		ofstream peakReport;
 		PeakGroup::QType qtype;
-		
+
 
 };
 

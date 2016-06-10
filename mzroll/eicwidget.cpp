@@ -285,7 +285,7 @@ void EicWidget::computeEICs() {
 	slice.rtmax=bounds.rtmax;
 
 	//get eics
-        eics = BackgroundPeakUpdate::pullEICs(&slice,
+        eics = PeakDetector::pullEICs(&slice,
                                               samples,
                                               EicLoader::PeakDetection,
                                               eic_smoothingWindow,
