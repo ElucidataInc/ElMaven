@@ -38,6 +38,9 @@ public:
 	void setPeakGroup(PeakGroup* p) {
 		_group = p;
 	}
+
+	void setAverageScanTime();
+	void setIonizationMode();
 	void setSamples(vector<mzSample*>&set);
 
 	bool writeCSVFlag;
@@ -86,6 +89,9 @@ public:
 	float amuQ1;
 	float amuQ3;
 
+	float minQuality;
+	string ligandDbFilename;
+
 	double maxIsotopeScanDiff;
 	double maxNaturalAbundanceErr;
 	double minIsotopicCorrelation;
@@ -93,6 +99,7 @@ public:
 	bool N15Labeled;
 	bool S34Labeled;
 	bool D2Labeled;
+
 	string outputdir;
 	vector<PeakGroup> allgroups;
 	MassCalculator mcalc;
@@ -102,6 +109,7 @@ public:
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
 
+	void alignSamples();
 	void processSlices(void);
 	void processSlice(mzSlice& slice);
 	void processMassSlices();

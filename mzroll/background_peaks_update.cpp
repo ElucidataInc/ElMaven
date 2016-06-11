@@ -26,11 +26,8 @@ void BackgroundPeakUpdate::run(void) {
 		peakDetector.samples = mainwindow->getSamples(); //get samples
 	peakDetector.clsf = mainwindow->getClassifier(); //get classification modej
 
-	if (peakDetector.samples.size() > 0
-			&& peakDetector.samples[0]->getPolarity() > 0)
-		peakDetector.ionizationMode = +1;
-	else
-		peakDetector.ionizationMode = -1; //set ionization mode for compound matching
+	peakDetector.setIonizationMode();
+
 	if (mainwindow->getIonizationMode())
 		peakDetector.ionizationMode = mainwindow->getIonizationMode(); //user specified ionization mode
 

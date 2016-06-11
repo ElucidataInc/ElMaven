@@ -9,17 +9,18 @@ QT -= network gui opengl
 CONFIG -= network gui opengl 
 
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/
+
 LDFLAGS     +=  $$OUTPUT_DIR/lib
 
 LIBS += -L.  -lmaven -lpugixml -lneural
 
-SOURCES= peakdetector.cpp  \
-		options.cpp \
-		../mzroll/classifier.cpp \  
-		../mzroll/classifierNeuralNet.cpp\
+SOURCES	= 	PeakDetectorCLI.cpp  \
+		 	options.cpp \
+			../mzroll/classifier.cpp \  
+			../mzroll/classifierNeuralNet.cpp\
 
-HEADERS += ../mzroll/classifier.h \
-		../mzroll/classifierNeuralNet.h \
-		options.h
+HEADERS += 	../mzroll/classifier.h \
+			../mzroll/classifierNeuralNet.h \
+			options.h
 
 

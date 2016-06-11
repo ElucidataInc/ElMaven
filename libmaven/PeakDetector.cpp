@@ -1,6 +1,5 @@
 #include "PeakDetector.h"
 
-
 PeakDetector::PeakDetector() {
 	clsf = NULL;	//initially classifier is not loaded
 
@@ -39,6 +38,7 @@ PeakDetector::PeakDetector() {
 	minNoNoiseObs = 1;
 	minSignalBaseLineRatio = 2;
 	minGroupIntensity = 500;
+	minQuality = 0.5;
 
 	//compound detection setting
 	compoundPPMWindow = 10;
@@ -149,8 +149,7 @@ void PeakDetector::processMassSlices() {
 	QTime timer;
 	timer.start();
 
-	if (samples.size() > 0)
-		avgScanTime = samples[0]->getAverageFullScanTime();
+	setAverageScanTime();
 
 	//emit (updateProgressBar("Computing Mass Slices", 2, 10)); TODO
 	MassSlices massSlices;
@@ -406,10 +405,38 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	 */
 }
 
-void PeakDetector::setSamples(vector<mzSample*>&set) {
-	samples = set;
+void PeakDetector::alignSamples() {
+	if (samples.size() > 1 && alignSamplesFlag) {
+		cerr << "Aligning samples" << endl;
+
+		writeCSVFlag = false;
+		processMassSlices();
+
+		cerr << "Aligner=" << allgroups.size() << endl;
+		vector<PeakGroup*> agroups(allgroups.size());
+		for (unsigned int i = 0; i < allgroups.size(); i++)
+			agroups[i] = &allgroups[i];
+		Aligner aligner;
+		aligner.doAlignment(agroups);
+		writeCSVFlag = true;
+	}
+}
+
+void PeakDetector::setAverageScanTime() {
 	if (samples.size() > 0)
 		avgScanTime = samples[0]->getAverageFullScanTime();
+}
+
+void PeakDetector::setIonizationMode() {
+	if (samples.size() > 0 && samples[0]->getPolarity() > 0)
+		ionizationMode = +1;
+	else
+		ionizationMode = -1; //set ionization mode for compound matching
+}
+
+void PeakDetector::setSamples(vector<mzSample*>&set) {
+	samples = set;
+	setAverageScanTime();
 }
 
 void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
@@ -484,6 +511,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				group.groupStatistics();
 			}
 			if (clsf->hasModel() && group.goodPeakCount < minGoodPeakCount)
+				continue;
+			if (clsf->hasModel() && group.maxQuality < minQuality)
 				continue;
 			// if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
 			if (group.blankMax * minSignalBlankRatio > group.maxIntensity)
