@@ -54,19 +54,38 @@ using namespace pugi;
 using namespace mzUtils;
 using namespace std;
 
+
+/**
+ * @class mzPoint
+ * @ingroup mzroll
+ * @brief Wrapper class for Point
+ * @author Elucidata
+ */
 class mzPoint {
 	public:
+
+	/**
+	   Constructor for mzPoint.
+	 */
 		mzPoint() {x=y=z=0; }
+
+		/**
+			 Constructor for mzPoint
+			 @brief				brief description.
+			 @param [ix]    ix.
+			 @param [iy]    iy.
+			 @param [iz] 		iz.
+		 */
 		mzPoint(double ix,double iy,double iz) { x=ix; y=iy; z=iz; }
 		mzPoint& operator=(const mzPoint& b) { x=b.x; y=b.y; z=b.z; return *this;}
 		static bool compX(const mzPoint& a, const mzPoint& b ) { return a.x < b.x; }
 		static bool compY(const mzPoint& a, const mzPoint& b ) { return a.y < b.y; }
 		static bool compZ(const mzPoint& a, const mzPoint& b ) { return a.z < b.z; }
-	
+
         double x,y,z;
 };
 
-class Scan { 
+class Scan {
     public:
 
     Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursorMz, int polarity);
@@ -120,7 +139,7 @@ class Scan {
 };
 
 
-class mzSlice { 
+class mzSlice {
     public:
         mzSlice(float a, float b, float c, float d) { mzmin= a; mzmax=b; rtmin=c; rtmax=d; mz=a+(b-a)/2; rt=c+(d-c)/2; compound=NULL; ionCount=0; }
         mzSlice(float a, float b, float c ) {  mz=mzmin=mzmax=a; rt=rtmin=rtmax=b; ionCount=c;  compound=NULL; ionCount=0;}
@@ -146,23 +165,23 @@ class mzSlice {
 	bool operator< (const mzSlice* b) { return mz < b->mz; }
 };
 
-class mzLink { 
-		public: 
+class mzLink {
+		public:
 			mzLink(){ mz1=mz2=0; value1=value2=0.0; data1=data2=NULL; correlation=0;}
 			mzLink( int a, int b, string n ) { value1=a; value2=b; note=n; correlation=0; }
 			mzLink( float a,float b, string n ) { mz1=a; mz2=b; note=n; correlation=0; }
 			~mzLink() {}
             //link between two mzs
-			float mz1;          //from 
+			float mz1;          //from
 			float mz2;          //to
 			string note;        //note about this link
 
             //generic placeholders to attach values to links
-			float value1;		
-			float value2;	
+			float value1;
+			float value2;
 
             //generic  placeholders to attach objects to the link
-            void* data1;   
+            void* data1;
             void* data2;
 			//
            float correlation;
@@ -231,7 +250,7 @@ public:
     //saving and restoring retention times
     vector<float>originalRetentionTimes;        //saved retention times prior to alignment
     void saveOriginalRetentionTimes();
-    void restoreOriginalRetentionTimes();       
+    void restoreOriginalRetentionTimes();
 
     //class functions
     void addScan(Scan*s);
@@ -276,7 +295,7 @@ public:
 };
 
 class EIC {
-	
+
 	public:
 
     EIC() {
@@ -334,7 +353,7 @@ class EIC {
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
 
 		inline unsigned int size() { return intensity.size();}
-		inline mzSample* getSample() { return sample; } 
+		inline mzSample* getSample() { return sample; }
 		static vector<PeakGroup> groupPeaks(vector<EIC*>&eics, int smoothingWindow, float maxRtDiff);
 
 		static EIC* eicMerge(const vector<EIC*>& eics);
@@ -391,12 +410,12 @@ class Peak {
 		float gaussFitR2;		//fit to gaussian curve
                 int groupNum;
 
-		unsigned int noNoiseObs; 
+		unsigned int noNoiseObs;
                 float noNoiseFraction;
                 float symmetry;
                 float signalBaselineRatio;
 		float groupOverlap;			// 0 no overlap, 1 perfect overlap
-		float groupOverlapFrac;		
+		float groupOverlapFrac;
 
 		bool localMaxFlag;
 		bool fromBlankSample;		//true if peak is from blank sample
@@ -404,22 +423,22 @@ class Peak {
 		char label;		//classification label
 
          private:
-		EIC* eic; 		//pointer to eic 
+		EIC* eic; 		//pointer to eic
         mzSample *sample;  //pointer to sample
 
-	public: 
+	public:
 		void setEIC(EIC* e) { eic=e; }
 		inline EIC*	 getEIC() { return eic;    }
 		inline bool hasEIC() { return eic != NULL; }
-		Scan* getScan() { if(sample) return sample->getScan(scan); else return NULL; }	
+		Scan* getScan() { if(sample) return sample->getScan(scan); else return NULL; }
 
 		void   setSample(mzSample* s ) { sample=s; }
 		inline mzSample* getSample() { return sample; }
 		inline bool hasSample() 	{  return sample != NULL; }
-		
+
 		void setLabel(char label) { this->label=label;}
 		inline char getLabel() { return label;}
-		
+
 		static bool compRt(const Peak& a, const Peak& b ) { return a.rt < b.rt; }
 		static bool compIntensity(const Peak& a, const Peak& b ) { return b.peakIntensity < a.peakIntensity; }
 		static bool compArea(const Peak& a, const Peak& b ) { return b.peakAreaFractional < a.peakAreaFractional; }
@@ -462,7 +481,7 @@ class PeakGroup {
 
 		float maxIntensity;
 		float meanRt;
-		float meanMz; 
+		float meanMz;
 		int totalSampleCount;
 
                 //isotopic information
@@ -493,7 +512,7 @@ class PeakGroup {
                 unsigned int groupRank;
 
                 //for sample contrasts  ratio and pvalue
-		float changeFoldRatio;	
+		float changeFoldRatio;
 		float changePValue;
 
 		bool  	hasSrmId()  { return srmId.empty(); }
@@ -502,14 +521,14 @@ class PeakGroup {
 
 		bool isPrimaryGroup();
 		inline bool hasCompoundLink()  { if(compound != NULL) return true ; return false; }
-		inline bool isEmpty()   { if(peaks.size() == 0) return true; return false; } 
+		inline bool isEmpty()   { if(peaks.size() == 0) return true; return false; }
 		inline unsigned int peakCount()  { return peaks.size(); 	  }
 		inline unsigned int childCount() { return children.size(); }
 		inline Compound* getCompound() { return compound; }
 
 		inline PeakGroup* getParent() { return parent; }
 
-		inline vector<Peak>& getPeaks() { return peaks; } 
+		inline vector<Peak>& getPeaks() { return peaks; }
 		inline deque<PeakGroup>& getChildren()  { return children; }
 
 		inline void setParent(PeakGroup* p) {parent=p;}
@@ -568,7 +587,7 @@ class PeakGroup {
                 bool operator< (const PeakGroup* b) { return this->maxIntensity < b->maxIntensity; }
 };
 
-class Compound { 
+class Compound {
         static MassCalculator* mcalc;
 
 		private:
@@ -581,7 +600,7 @@ class Compound {
 
             PeakGroup* getPeakGroup() { return &_group; }
 			void setPeakGroup(const PeakGroup& group ) { _group = group; _group.compound = this; }
-			bool hasGroup()    { if(_group.meanMz != 0 ) return true; return false; } 
+			bool hasGroup()    { if(_group.meanMz != 0 ) return true; return false; }
 			void clearGroup()  { _group.clear(); }
 			void unlinkGroup() { _group.clear(); _groupUnlinked = true; }
 			bool groupUnlinked() { return _groupUnlinked; }
@@ -623,10 +642,10 @@ class Compound {
             static bool compFormula(const Compound* a, const Compound* b ) { return(a->formula < b->formula); }
             static bool compReactionCount(const Compound* a, const Compound* b ) { return(a->reactions.size() < b->reactions.size()); }
 
-	
+
 };
 
-class Pathway { 
+class Pathway {
 		public:
 		Pathway( string id, string name) {  this->id=id; this->name=name; }
 		string id;
@@ -668,7 +687,7 @@ public:
 
 };
 
-class  Reaction{ 
+class  Reaction{
 		public:
 		Reaction(string db, string id, string name) { this->db  = db; this->id =  id; this->name = name; reversable=false; }
 		void addReactant(Compound* r, int s) {  reactants.push_back(r); stoichiometry[r] = s; }
@@ -685,7 +704,7 @@ class  Reaction{
 
 };
 
-class Adduct { 
+class Adduct {
 
 	public:
 		Adduct(){ isParent=false; mass=0; charge=1; nmol=1; }
@@ -694,7 +713,7 @@ class Adduct {
 		float mass;
 		float charge;
 		bool isParent;
-		
+
         //given adduct mass compute parent ion mass
 		inline float computeParentMass(float mz)  { return  (mz*abs(charge)-mass)/nmol; }
         //given perent compute adduct mass
@@ -719,7 +738,7 @@ class Aligner {
 		vector<PeakGroup*> allgroups;
 		int maxItterations;
 		int polynomialDegree;
-		
+
 };
 
 
