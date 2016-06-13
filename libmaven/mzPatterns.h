@@ -5,6 +5,12 @@
 
 using namespace std;
 
+/**
+ * @class mzPattern
+ * @ingroup libmaven
+ * @brief Wrapper class for pattern.
+ * @author Elucidata
+ */
 class mzPattern {
 
     public:
@@ -18,29 +24,29 @@ class mzPattern {
             findNonZeroBounds();
         }
 
-        int countItems(char c) { 
+        int countItems(char c) {
             int count=0;
-            for(unsigned int i=0; i < pattern.length(); i++) { 
+            for(unsigned int i=0; i < pattern.length(); i++) {
                 if (pattern[i] == c ) count++;
             }
             return count;
         }
 
-        int longestStratch(char c) { 
+        int longestStratch(char c) {
             int stretch=0;
             int longest=0;
             for(unsigned int i=0; i < pattern.length(); i++ ) {
-                if (pattern[i] == c ) { 
-                    stretch++; 
-                } else { 
+                if (pattern[i] == c ) {
+                    stretch++;
+                } else {
                     if (longest < stretch) longest = stretch;
-                    stretch=0; 
-                } 
+                    stretch=0;
+                }
             }
              if (longest < stretch) longest = stretch;
              return longest;
         }
-        
+
         int countCharSwitches(char x, char y) {
             int count=0;
             for(unsigned int i=0; i < pattern.length()-1; i++ ) {
@@ -96,7 +102,7 @@ class mzPattern {
                 if (pattern[i] == '0') rb--; else break;
         }
 
-        int lengthWithNonZeroEnds() { 
+        int lengthWithNonZeroEnds() {
             findNonZeroBounds();
             return(rb-lb);
         }
@@ -113,10 +119,10 @@ class mzPattern {
 			return (float)count/length;
        }
 
-       int countZeros() { 
+       int countZeros() {
             return countItems('0');
        }
 
 };
 
-#endif 
+#endif

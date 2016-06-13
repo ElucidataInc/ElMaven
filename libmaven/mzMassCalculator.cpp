@@ -29,12 +29,12 @@ aaLookup["W"] = 186.07931;
 
 MassCalculator::IonizationType MassCalculator::ionizationType = MassCalculator::ESI;
 
-/*---------- function to get molar weight of an element or group --------*/
+
 double MassCalculator::getElementMass(string elmnt){
 
 	/* default behavior is to ignore string */
 	double val_atome(0);
-	
+
 	/* Check for atoms */
 	if (elmnt == "H"){
 		val_atome = 1.0078250321;
@@ -71,21 +71,18 @@ double MassCalculator::getElementMass(string elmnt){
 	}
 	return(val_atome);
 }
-/*-----------------------------------------------------------------------*/
-
-/*-------------- parsing function ---------------------------------------*/
 
 map<string,int> MassCalculator::getComposition(string formula) {
-	
+
 	/* define allowed characters for formula */
 	const string UPP("ABCDEFGHIKLMNOPRSTUVWXYZ");
 	const string LOW("abcdefghiklmnoprstuy");
 	const string COEFF("0123456789");
-	
+
 	/* define some variable */
 	int SIZE = formula.length();
 	map<string,int> atoms;
-	
+
 	/* parse the formula */
 	for(int i = 0; i < SIZE; i++) {
 		string bloc, coeff_txt;
@@ -138,18 +135,15 @@ double MassCalculator::adjustMass(double mass,int charge) {
        return ((mass - charge*EMASS)/charge); // lost of electrons
 	}
 
-	if ( charge < 0 ) { 
+	if ( charge < 0 ) {
 		return ((mass - -charge*HMASS + -charge*EMASS)/-charge); //-nH + nelectron
-	} else if ( charge > 0 ) { 
+	} else if ( charge > 0 ) {
 		return ((mass + charge*HMASS -  charge*EMASS)/charge); // +nH - nelectron
 	} else {
 		return mass;
-	} 
+	}
 }
 
-
-//input neutral formala with all the hydrogens and charge state of molecule
-//output expected mass of the molecule after loss/gain of protons
 double MassCalculator::computeMass(string formula, int charge) {
     double mass = computeNeutralMass(formula);
     return adjustMass(mass,charge);
@@ -165,7 +159,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge) {
 	double parentMass=computeMass(formula,charge);
 	charge = abs(charge);
 	if (charge == 0 ) charge=1;
-	
+
 	const double abC12 = 0.988930;
 	const double abC13 = 0.011070;
 	const double abN14 = 0.996337;
@@ -233,8 +227,8 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge) {
                 int d=x.H2;
 
 		isotopes[i].abundance=
-                 mzUtils::nchoosek(CatomCount,c)*pow(abC12,CatomCount-c)*pow(abC13,c) 
-               * mzUtils::nchoosek(NatomCount,n)*pow(abN14,NatomCount-n)*pow(abN15,n) 
+                 mzUtils::nchoosek(CatomCount,c)*pow(abC12,CatomCount-c)*pow(abC13,c)
+               * mzUtils::nchoosek(NatomCount,n)*pow(abN14,NatomCount-n)*pow(abN15,n)
                * mzUtils::nchoosek(SatomCount,s)*pow(abS32,SatomCount-s)*pow(abS34,s)
                * mzUtils::nchoosek(HatomCount,d)*pow(abH,HatomCount-d)  *pow(abH2,d);
     }
@@ -251,7 +245,7 @@ void MassCalculator::enumerateMasses(double inputMass, double charge, double max
         if (c*12 > inputMass) break;
         for(int n=0; n<30; n++) {//N
             if (c*12+n*14 > inputMass) break;
-            for(int o=0; o<30;o++){//O 
+            for(int o=0; o<30;o++){//O
                 if (c*12+n*14+o*16 > inputMass) break;
                 for(int p=0; p<6;p++) { //P
                     for(int s=0; s<6;s++) { //S
@@ -282,7 +276,7 @@ void MassCalculator::enumerateMasses(double inputMass, double charge, double max
     std::sort(matches.begin(), matches.end(), compDiff );
 }
 
-std::string MassCalculator::prettyName(int c, int h, int n, int o, int p, int s) { 
+std::string MassCalculator::prettyName(int c, int h, int n, int o, int p, int s) {
 		char buf[1000];
 		string name;
 		if ( c != 0 ) { name += "C"; if (c>1) { sprintf(buf,"%d",c);  name += buf;} }
@@ -293,5 +287,3 @@ std::string MassCalculator::prettyName(int c, int h, int n, int o, int p, int s)
 		if ( s != 0 ) { name += "S"; if (s>1) { sprintf(buf,"%d",s);  name += buf;} }
 		return name;
 }
-
-/*-----------------------------------------------------------------------*/

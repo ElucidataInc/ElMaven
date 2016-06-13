@@ -27,7 +27,7 @@ void Scan::deepcopy(Scan* b) {
     this->collisionEnergy= b->collisionEnergy;
     this->centroided= b->centroided;
     this->intensity = b->intensity;
-    this->mz    = b->mz;    
+    this->mz    = b->mz;
     this->scanType = b->scanType;
     this->filterLine = b->filterLine;
     this->setPolarity( b->getPolarity() );
@@ -65,7 +65,6 @@ vector<int> Scan::findMatchingMzs(float mzmin, float mzmax) {
 	return matches;
 }
 
-//removes intensities from scan that lower than X
 void Scan::quantileFilter(int minQuantile) {
         if (intensity.size() == 0 ) return;
         if( minQuantile <= 0 || minQuantile >= 100 ) return;
@@ -86,8 +85,6 @@ void Scan::quantileFilter(int minQuantile) {
         intensity.swap(cIntensity);
 }
 
-
-//removes intensities from scan that lower than X
 void Scan::intensityFilter(int minIntensity) {
         if (intensity.size() == 0 ) return;
 
@@ -107,7 +104,7 @@ void Scan::intensityFilter(int minIntensity) {
         intensity.swap(cIntensity);
 }
 
-void Scan::simpleCentroid() { //centroid data
+void Scan::simpleCentroid() {
 
         if (intensity.size() < 5 ) return;
 
@@ -146,7 +143,7 @@ void Scan::simpleCentroid() { //centroid data
         intensity.swap(cIntensity);
 
         centroided = true;
-} 
+}
 
 bool Scan::hasMz(float _mz, float ppm) {
     float mzmin = _mz - _mz/1e6*ppm;
@@ -156,7 +153,7 @@ bool Scan::hasMz(float _mz, float ppm) {
 	for(unsigned int k=itr-mz.begin(); k < nobs(); k++ ) {
         if (mz[k] >= mzmin && mz[k] <= mzmax )  return true;
 		if (mz[k] > mzmax ) return false;
-    } 
+    }
     return false;
 }
 
@@ -175,17 +172,15 @@ void Scan::summary() {
 
 }
 
-//generate multi charges series..endingin in change Zx,Mx
 vector<float> Scan::chargeSeries(float Mx, unsigned int Zx) {
     //Mx  = observed m/z
     //Zz  = charge of Mx
     //n =  number of charge states to g
     vector<float>chargeStates(Zx+20,0);
     double M = (Mx*Zx)-Zx;
-    for(unsigned int z=1; z<Zx+20; z++) chargeStates[z]=(M+z)/z;  
+    for(unsigned int z=1; z<Zx+20; z++) chargeStates[z]=(M+z)/z;
     return(chargeStates);
 }
-
 
 ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
 
@@ -304,11 +299,6 @@ ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, float ppmMerg
     }
 }
 
-
-//return pairing of mz,intensity values for top intensities.
-//intensities are normalized to a maximum intensity in a scan * 100
-//minFracCutoff specfies mininum relative intensity
-//for example 0.05,  filters out all intensites below 5% of maxium scan intensity
 vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff) {
     vector<pair<float,float> > mzarray(nobs());
     float maxI = 0;

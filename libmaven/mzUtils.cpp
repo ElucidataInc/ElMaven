@@ -1,13 +1,15 @@
 #include "mzUtils.h"
 
-//random collection of useful functions
 
-namespace mzUtils { 
+/**
+ * random collection of useful functions 
+ */
+namespace mzUtils {
 
 std::string makeLowerCase(string &s) {
 		for (unsigned int i=0; i != s.length(); ++i ) {
 			s[i] = std::tolower(s[i]);
-		}	
+		}
 		return s;
 }
 
@@ -48,15 +50,14 @@ char *mystrcasestr(const char *s1, const char *s2) {
 	} while (1);
 }
 
-/* ========================================================================= */
 string substituteInQuotedString(const string& s, const string& chars, const string& substitutions ) {
  string result;
  for (string::size_type pos = 0; pos < s.size(); ++pos) {
      char c = s[pos];
      string::size_type subst_pos = chars.find_first_of(c);
-     if (subst_pos != string::npos) c = substitutions[subst_pos]; 
+     if (subst_pos != string::npos) c = substitutions[subst_pos];
      result += c;
- } 
+ }
   return result;
 }
 
@@ -121,7 +122,7 @@ Author:  Dave Hale, Colorado School of Mines, 11/23/91
 	}
 }
 
-void gaussian1d_smoothing (int ns, int nsr, float *data) 
+void gaussian1d_smoothing (int ns, int nsr, float *data)
 {
 //Subroutine to apply a one-dimensional gaussian smoothing
 
@@ -259,7 +260,7 @@ float torben_median(const vector<float> &m) {
      float min, max, guess, maxltguess, mingtguess;
 	 int n = m.size();
 	 if (n == 0 ) return 0;
-	 if (n == 1 ) return m[0]; 
+	 if (n == 1 ) return m[0];
      min = max = m[0] ;
 
      for (i=1 ; i<n ; i++) {
@@ -344,7 +345,7 @@ int string2integer(const std::string& s){
 float string2float(const std::string& s){
 	std::istringstream i(s);
 	float x = 0;
-	i >> x; 
+	i >> x;
 	return x;
 }
 
@@ -362,13 +363,13 @@ string float2string(float f, int p) {
 	ss << setprecision(p) << f; string str; ss >> str;
 	return(str);
 }
-		
-float ppmDist(const float mz1, const float mz2) { 
-		return ( abs((mz2-mz1)/(mz1/1e6)) ); 
+
+float ppmDist(const float mz1, const float mz2) {
+		return ( abs((mz2-mz1)/(mz1/1e6)) );
 }
 
-double ppmDist(const double mz1, const double mz2) { 
-		return ( abs((mz2-mz1)/(mz1/1e6)) ); 
+double ppmDist(const double mz1, const double mz2) {
+		return ( abs((mz2-mz1)/(mz1/1e6)) );
 }
 
 
@@ -381,8 +382,8 @@ float ppmround(const float mz1, const float resolution) {
     return( round(mz1*resolution)/resolution);
 }
 
-bool withinXppm( float mz1, float mz2, int ppmWindow ) { 
-	if ( mz2 > (mz1 - (mz1/1e6)*ppmWindow) && mz2 < (mz1 + (mz1/1e6)*ppmWindow) ) return(true); 
+bool withinXppm( float mz1, float mz2, int ppmWindow ) {
+	if ( mz2 > (mz1 - (mz1/1e6)*ppmWindow) && mz2 < (mz1 + (mz1/1e6)*ppmWindow) ) return(true);
 	else return(false);
 }
 
@@ -417,13 +418,13 @@ float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB ) {
             }
 
 
-int countBelow(vector<float>& y, float ymax) { 
+int countBelow(vector<float>& y, float ymax) {
 	vector<float>::iterator itr = lower_bound(y.begin(), y.end(), ymax);
 	int lb = itr-y.begin();
 	return lb;
 /*
 	int count=0;
-		for (int i=0; i < y.size(); i++) if (y[i] < ymax) count++; 
+		for (int i=0; i < y.size(); i++) if (y[i] < ymax) count++;
 		return(count);
 		*/
 }
@@ -493,7 +494,7 @@ float correlation(const vector<float>&x, const vector<float>&y) {
 
 
 /*peak fitting function*/
-void gaussFit(const vector<float>&ycoord, float* sigma, float* R2) {  
+void gaussFit(const vector<float>&ycoord, float* sigma, float* R2) {
 
         float s = 20;
 		float min_s = 0;
@@ -514,19 +515,19 @@ void gaussFit(const vector<float>&ycoord, float* sigma, float* R2) {
 		int greaterZeroCount=0;
 
 		for(int i=0; i<ysize; i++ ) {
-				x[i] = xinit+i; 
+				x[i] = xinit+i;
 				if ( yobs[i] > ymin ) greaterZeroCount++;
-				yobs[i] = (yobs[i]-ymin)/(ymax-ymin); 
-				if(yobs[i]<0) yobs[i]=0; 
+				yobs[i] = (yobs[i]-ymin)/(ymax-ymin);
+				if(yobs[i]<0) yobs[i]=0;
 		}
 
 		/*
-		cerr << "fitting yobs:" << endl; for(int i=0; i < ysize; i++ ) 
+		cerr << "fitting yobs:" << endl; for(int i=0; i < ysize; i++ )
 				cerr << setprecision(2) << yobs[i] << ", "; cerr << endl;
 		*/
-	
-        bool converged = false; 
-		int ittr = 0; 
+
+        bool converged = false;
+		int ittr = 0;
 
 		if (greaterZeroCount <= 3 ) return;
 		while (!converged ) {
@@ -546,18 +547,18 @@ void gaussFit(const vector<float>&ycoord, float* sigma, float* R2) {
 	}
 
 
-inline unsigned long factorial(int n) { 
+inline unsigned long factorial(int n) {
 		long p=1; while(n>1) p*=n--; return p; }
 
 		/*
-long nchoosek(int n, int k) { 
+long nchoosek(int n, int k) {
 	if(k==n) return 1;
 	if(k==0) return 1;
 	if(k>n) return 0;
-	return (factorial(n)/(factorial(n-k)*factorial(k))); 
+	return (factorial(n)/(factorial(n-k)*factorial(k)));
 }
 */
-long nchoosek(int n, int k) { 
+long nchoosek(int n, int k) {
 
 		int n_k = n - k;
 
@@ -576,22 +577,22 @@ long nchoosek(int n, int k) {
 		return nchsk;
 }
 
-string cleanFilename(const string& filename) { 
+string cleanFilename(const string& filename) {
 
 		string outstring=filename;
 		std::string::size_type pos =outstring.find_last_of("/");
 
-		if (pos != std::string::npos) { 
+		if (pos != std::string::npos) {
 			outstring=outstring.substr(pos+1, outstring.length());
 		}
 
 		pos=outstring.find_last_of("\\");
-		if (pos != std::string::npos) { 
+		if (pos != std::string::npos) {
 				outstring=outstring.substr(pos+1, outstring.length());
 		}
 
 		pos=outstring.find_last_of(".");
-		if (pos != std::string::npos) { 
+		if (pos != std::string::npos) {
 			outstring=outstring.substr(0,pos);
 		}
 		return outstring;
@@ -622,8 +623,8 @@ std::vector<double> naturalAbundanceCorrection(int nC, std::vector<double>& M) {
 
 const long double 	Pi = 3.1415926535897932384626433832795028841968;
 
-double beta(double x, double y) { 
-	
+double beta(double x, double y) {
+
 	if (x >= 2 && y >= 2 ) { //approximation
 		return sqrt(2*Pi)*pow(x,x-0.5)*pow(y,y-0.5)/pow(x+y,(x+y-0.5));
 	}
@@ -637,7 +638,7 @@ double beta(double x, double y) {
 	return sum;
 }
 
-double gamma(double z) { 
+double gamma(double z) {
 	//integral form
 	double dt=0.0001;
 	double sum=0;
@@ -647,7 +648,7 @@ double gamma(double z) {
 	return sum;
 }
 
-double betaPDF(double x, double a, double b) { 
+double betaPDF(double x, double a, double b) {
 	return pow(x,a-1)*pow(1-x,b-1)/beta(a,b);
 }
 
@@ -936,4 +937,3 @@ bool gzipInflate( const std::string& compressedBytes, std::string& uncompressedB
   return true ;
 }
 } //namespace end
-

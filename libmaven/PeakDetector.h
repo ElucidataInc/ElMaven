@@ -20,27 +20,78 @@
 
 class Classifier;
 
+/**
+ * @class PeakDetector
+ * @ingroup libmaven
+ * @brief all peak detection logic resides here.
+ * @author Elucidata
+ */
 class PeakDetector {
 public:
 	PeakDetector();
+
+	/**
+	 * [setOutputDir description]
+	 * @method setOutputDir
+	 * @param  outdir       [description]
+	 */
 	void setOutputDir(QString outdir) {
 		outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
 	}
+
+	/**
+	 * [setMaxGroupCount description]
+	 * @method setMaxGroupCount
+	 * @param  x                [description]
+	 */
 	void setMaxGroupCount(int x) {
 		limitGroupCount = x;
 	}
+
+	/**
+	 * [setCompounds description]
+	 * @method setCompounds
+	 * @param  set          [description]
+	 */
 	void setCompounds(vector<Compound*> set) {
 		compounds = set;
 	}
+
+	/**
+	 * [setSlices description]
+	 * @method setSlices
+	 * @param  set       [description]
+	 */
 	void setSlices(vector<mzSlice*> set) {
 		_slices = set;
 	}
+
+	/**
+	 * [setPeakGroup description]
+	 * @method setPeakGroup
+	 * @param  p            [description]
+	 */
 	void setPeakGroup(PeakGroup* p) {
 		_group = p;
 	}
 
+	/**
+	 * [setAverageScanTime description]
+	 * @method setAverageScanTime
+	 */
 	void setAverageScanTime();
+
+	/**
+	 * [setIonizationMode description]
+	 * @method setIonizationMode
+	 */
 	void setIonizationMode();
+
+	/**
+	 * [setSamples description]
+	 * @method setSamples
+	 * @param  set        [description]
+	 */
 	void setSamples(vector<mzSample*>&set);
 
 	bool writeCSVFlag;
@@ -52,7 +103,10 @@ public:
 	bool matchRtFlag;
 	bool checkConvergance;
 
-	int ionizationMode; //default ionization mode used by mass spec
+	/**
+	 * default ionization mode used by mass spec
+	 */
+	int ionizationMode;
 
 	//mass slicing parameters
 	float mzBinStep;
@@ -61,7 +115,11 @@ public:
 	float ppmMerge;
 
 	//peak detection
-	float eic_smoothingWindow; //smoothing window
+
+	/**
+	 * smoothing window
+	 */
+	float eic_smoothingWindow;
 	int eic_smoothingAlgorithm;
 	float eic_ppmWindow;
 	int baseline_smoothingWindow;
@@ -74,19 +132,34 @@ public:
 	float minSignalBaseLineRatio;
 	float minGroupIntensity;
 
-	//eic window around compound
+	/**
+	 * eic window around compound, compound detection setting
+	 */
 	float compoundPPMWindow;
 	float compoundRTWindow;
 	int eicMaxGroups;
 
-	//grouping of peaks across samples
-	float grouping_maxRtWindow;	//do no group peaks that are greater than differ more than X in retention time
 
-	//stop looking for groups if group count is greater than X
+	/**
+	 * grouping of peaks across samples
+	 * do no group peaks that are greater than differ more than X in retention time
+	 */
+	float grouping_maxRtWindow;
+
+	/**
+	 * stop looking for groups if group count is greater than X
+	 */
 	int limitGroupCount;
 
-	//triple quad compound matching
+
+	/**
+	 * triple quad compound matching Q1
+	 */
 	float amuQ1;
+
+	/**
+	 * triple quad compound matching Q3
+	 */
 	float amuQ3;
 
 	float minQuality;
@@ -101,6 +174,7 @@ public:
 	bool D2Labeled;
 
 	string outputdir;
+
 	vector<PeakGroup> allgroups;
 	MassCalculator mcalc;
 	Classifier* clsf;
@@ -109,28 +183,85 @@ public:
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
 
+	/**
+	 * [alignSamples description]
+	 * @method alignSamples
+	 */
 	void alignSamples();
+
+	/**
+	 * [processSlices description]
+	 * @method processSlices
+	 */
 	void processSlices(void);
+
+	/**
+	 * [processSlice description]
+	 * @method processSlice
+	 * @param  slice        [description]
+	 */
 	void processSlice(mzSlice& slice);
+
+	/**
+	 * [processMassSlices description]
+	 * @method processMassSlices
+	 */
 	void processMassSlices();
+
+	/**
+	 * [pullIsotopes description]
+	 * @method pullIsotopes
+	 * @param  group        [description]
+	 */
 	void pullIsotopes(PeakGroup *group);
+
+	/**
+	 * [processSlices description]
+	 * @method processSlices
+	 * @param  slices        [description]
+	 * @param  setName       [description]
+	 */
 	void processSlices(vector<mzSlice*>&slices, string setName);
+
+	/**
+	 *
+	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
+
+	/**
+	 * [cleanup description]
+	 * @method cleanup
+	 */
 	void cleanup();
 
-	//CLASS FUNCTIONS
+	/**
+	 *
+	 */
 	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
 			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
 			float amuQ1, float amuQ3, int baselineSmoothingWindow,
 			int baselineDropTopX);
 
 private:
+	/**
+	 * [addPeakGroup description]
+	 * @method addPeakGroup
+	 * @param  group        [description]
+	 * @return [description]
+	 */
 	bool addPeakGroup(PeakGroup& group);
+
+	/**
+	 * [printSettings description]
+	 * @method printSettings
+	 */
 	void printSettings();
 
 };
 
+
 struct EicLoader {
+
 	enum PeakDetectionFlag {
 		NoPeakDetection = 0, PeakDetection = 1
 	};

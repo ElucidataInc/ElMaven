@@ -1,10 +1,8 @@
 #include "base64.h"
 using namespace std;
 
-namespace base64 { 
-/**
- *  * Base64 encode one byte
- *   */
+namespace base64 {
+
 char encode(unsigned char u) {
 		if(u < 26)  return 'A'+u;
 		if(u < 52)  return 'a'+(u-26);
@@ -12,11 +10,6 @@ char encode(unsigned char u) {
 		if(u == 62) return '+';
 		return '/';
 }
-
-/**
- *  * Decode a base64 character
- *   */
-
 
 unsigned char decode(char c){
 		if(c >= 'A' && c <= 'Z') return(c - 'A');
@@ -26,9 +19,6 @@ unsigned char decode(char c){
 		return 63;
 }
 
-/**
- *  * Return TRUE if 'c' is a valid base64 character, otherwise FALSE
- *   */
 int is_base64(char c) {
 		if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
 				(c >= '0' && c <= '9') || (c == '+')             ||
@@ -86,11 +76,10 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
      neworkorder=!neworkorder;
 #endif
 
-
     //we will cast everything as a float may be this is not wise, but have not found a need for double
     //precission yet
     vector<float> decodedArray(size);
-    ////cerr << "Net=" << neworkorder << " float_size=" << float_size << endl;
+    cerr << "Net=" << neworkorder << " float_size=" << float_size << endl;
     if ( float_size == 8 ) {
         if ( neworkorder == false ) {
             for (int i=0; i<size; i++) decodedArray[i] = (float) ((double*)dest)[i];
@@ -134,14 +123,14 @@ unsigned char *encode_base64(const vector<float>& farray) {
 		//copy vector to C array
 		int sizeF = farray.size();
 		float* srcF= (float*) calloc(sizeof(float), sizeF);
-		for(i=0; i<sizeF; i++ ) { srcF[i]=farray[i]; } 
-		
+		for(i=0; i<sizeF; i++ ) { srcF[i]=farray[i]; }
+
 		int size = sizeF*4;
 		unsigned char *src = (unsigned char*) srcF;
 		unsigned char* out= (unsigned char*) calloc(sizeof(char), size*4/3+4);
 		p= out;
 
-		
+
 		for(i=0; i<size; i+=3) {
 
 				unsigned char b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, b7=0;

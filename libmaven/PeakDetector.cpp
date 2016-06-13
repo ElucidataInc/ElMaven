@@ -40,12 +40,10 @@ PeakDetector::PeakDetector() {
 	minGroupIntensity = 500;
 	minQuality = 0.5;
 
-	//compound detection setting
 	compoundPPMWindow = 10;
 	compoundRTWindow = 2;
 	eicMaxGroups = INT_MAX;
 
-	//triple quad matching options
 	amuQ1 = 0.25;
 	amuQ3 = 0.3;
 
