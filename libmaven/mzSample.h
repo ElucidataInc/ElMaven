@@ -71,7 +71,7 @@ class mzPoint {
 
 		/**
 			 Constructor for mzPoint
-			 @brief				brief description.
+			 @brief				with input paramaters ix, iy, iz.
 			 @param [ix]    ix.
 			 @param [iy]    iy.
 			 @param [iz] 		iz.
