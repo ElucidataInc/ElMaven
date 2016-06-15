@@ -1,7 +1,7 @@
 #include "background_peaks_update.h"
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
-	PeakDetector* pd = new PeakDetector();
+	PeakDetector* pd = new PeakDetector(); //create PeakDetector instance
 	setPeakDetector(pd);
 
 	mainwindow = NULL;
@@ -11,7 +11,7 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
 }
 
 BackgroundPeakUpdate::~BackgroundPeakUpdate() {
-	peakDetector.cleanup();
+	peakDetector.cleanup(); //remove allgroups
 }
 
 void BackgroundPeakUpdate::run(void) {
@@ -50,6 +50,7 @@ void BackgroundPeakUpdate::run(void) {
 }
 
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
+
 	//write reports
 	CSVReports* csvreports = NULL;
 	if (peakDetector.writeCSVFlag) {
@@ -161,6 +162,7 @@ void BackgroundPeakUpdate::align() {
 
 void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 		string setName) {
+
 	getProcessSlicesSettings();
 	peakDetector.processSlices(slices, setName);
 	align();
@@ -226,4 +228,3 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
  while (!process->waitForFinished()) {};
  QFile testOut(outfile); return testOut.exists();
  }*/
-

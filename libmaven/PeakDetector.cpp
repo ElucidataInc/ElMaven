@@ -64,6 +64,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 	vector<EIC*> eics;
 	vector<mzSample*> vsamples;
 
+	//considering only the selected samples into vsamples
 	for (unsigned int i = 0; i < samples.size(); i++) {
 		if (samples[i] == NULL)
 			continue;
@@ -89,41 +90,47 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
 		/*
 		 QList<EIC*> _eics = result.results();
-		 for(int i=0; i < _eics.size(); i++ )  {
+		 for(int i=0; i < _eics.size(); i++ )	{
 		 if ( _eics[i] && _eics[i]->size() > 0) {
 		 eics.push_back(_eics[i]);
 		 }
 		 }*/
 	}
 
-	// single threaded version
-
+	// single threaded version - getting EICs of selected samples.
 	for (unsigned int i = 0; i < vsamples.size(); i++) {
-		mzSample* sample = vsamples[i];
-		Compound* c = slice->compound;
+		mzSample* sample = vsamples[i]; //sample #
+		Compound* c = slice->compound; //compound in slice
 
-		EIC* e = NULL;
+		EIC* e = NULL; //init eic
 
 		if (!slice->srmId.empty()) {
-			//cout << "computeEIC srm:" << slice->srmId << endl;
+			//if srmId of the slice is present, get EICs on the basis of srmId
+			cout << "computeEIC srm:" << slice->srmId << endl;
 			e = sample->getEIC(slice->srmId);
 		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
-			//cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
+			//if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
+			cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
 					amuQ1, amuQ3);
 		} else {
-			//cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
+			//else, get EICs for with a m/z and rt window
+			cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin	<< " " << slice->mzmax << slice->rtmin	<< " " << slice->rtmax << endl;
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
 					slice->rtmax, 1);
 		}
 
 		if (e) {
+			//if eic exists, perform smoothing
 			EIC::SmootherType smootherType =
 					(EIC::SmootherType) smoothingAlgorithm;
 			e->setSmootherType(smootherType);
 			e->setBaselineSmoothingWindow(baseline_smoothingWindow);
 			e->setBaselineDropTopX(baseline_dropTopX);
 			e->getPeakPositions(smoothingWindow);
+			//smoohing over
+
+			//push eic to all eics vector
 			eics.push_back(e);
 		}
 	}
@@ -136,43 +143,50 @@ void PeakDetector::processSlices() {
 
 void PeakDetector::processSlice(mzSlice& slice) {
 	vector<mzSlice*> slices;
-	slices.push_back(&slice);
+	slices.push_back(&slice); //add slice to slices vector
 	processSlices(slices, "sliceset");
 }
 
 void PeakDetector::processMassSlices() {
 
+	//init
 	showProgressFlag = true;
 	checkConvergance = true;
 	QTime timer;
 	timer.start();
 
-	setAverageScanTime();
+	setAverageScanTime(); //find avgScanTime
 
 	//emit (updateProgressBar("Computing Mass Slices", 2, 10)); TODO
 	MassSlices massSlices;
 	massSlices.setSamples(samples);
-	massSlices.algorithmB(ppmMerge, minGroupIntensity, rtStepSize);
+	massSlices.algorithmB(ppmMerge, minGroupIntensity, rtStepSize); //perform algorithmB for samples
 
 	if (massSlices.slices.size() == 0)
-		massSlices.algorithmA();
+		massSlices.algorithmA(); //if no slices present, perform algorithmA TODO WHY?!
+
+		//sort the massslices based on their intensities to enurmerate good slices.
 	sort(massSlices.slices.begin(), massSlices.slices.end(),
 			mzSlice::compIntensity);
 
 //	emit (updateProgressBar("Computing Mass Slices", 0, 10)); TODO
 
+	//enumerate goodslices //TODO: Copying all the pre-sorted slices (by intensities) to good slices
 	vector<mzSlice*> goodslices;
 	goodslices.resize(massSlices.slices.size());
 	for (int i = 0; i < massSlices.slices.size(); i++)
 		goodslices[i] = massSlices.slices[i];
 
 	if (goodslices.size() == 0) {
-//		emit (updateProgressBar("Quting! No good mass slices found", 1, 1)); TODO
+//		emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO
 		return;
 	}
 
+	//process goodslices
 	string setName = "allslices";
 	processSlices(goodslices, setName);
+
+	//cleanup
 	delete_all(massSlices.slices);
 	massSlices.slices.clear();
 	goodslices.clear();
@@ -186,8 +200,10 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 //	if (set.size() == 0)
 //		return;
 
+
 	limitGroupCount = INT_MAX; //must not be active when processing compounds
 
+	//iterating over all compounds in the set
 	vector<mzSlice*> slices;
 	for (unsigned int i = 0; i < set.size(); i++) {
 		Compound* c = set[i];
@@ -195,27 +211,27 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 			continue;
 
 		mzSlice* slice = new mzSlice();
-		slice->compound = c;
-		if (!c->srmId.empty())
+		slice->compound = c; //set slice.compound as compound in the set
+		if (!c->srmId.empty()) // with SRM id, update slice.srmId
 			slice->srmId = c->srmId;
 
-		if (!c->formula.empty()) {
-			double mass = mcalc.computeMass(c->formula, ionizationMode);
-			slice->mzmin = mass - compoundPPMWindow * mass / 1e6;
-			slice->mzmax = mass + compoundPPMWindow * mass / 1e6;
-		} else if (c->mass > 0) {
-			double mass = c->mass;
-			slice->mzmin = mass - compoundPPMWindow * mass / 1e6;
-			slice->mzmax = mass + compoundPPMWindow * mass / 1e6;
+		if (!c->formula.empty()) { //with formula, calculate mass here
+			double mass = mcalc.computeMass(c->formula, ionizationMode); //compute mass from compound's formula
+			slice->mzmin = mass - compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
+			slice->mzmax = mass + compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
+		} else if (c->mass > 0) { //mass already calculated
+			double mass = c->mass; //TODO REFACTOR: CAN BE DONE ONLY ONCE
+			slice->mzmin = mass - compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
+			slice->mzmax = mass + compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
 		} else {
-			continue;
+			continue; //TODO REFACTOR: useless
 		}
 
-		if (matchRtFlag && c->expectedRt > 0) {
-			slice->rtmin = c->expectedRt - compoundRTWindow;
+		if (matchRtFlag && c->expectedRt > 0) { //if match RT flag is true, and expected RT is > 0
+			slice->rtmin = c->expectedRt - compoundRTWindow;	//find min RT using compoundRTWindow
 			slice->rtmax = c->expectedRt + compoundRTWindow;
 		} else {
-			slice->rtmin = 0;
+			slice->rtmin = 0; //TODO fixed WHY!?
 			slice->rtmax = 1e9;
 		}
 		slices.push_back(slice);
@@ -226,6 +242,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
 void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
+	// FALSE CONDITIONS
 	if (parentgroup == NULL)
 		return;
 	if (parentgroup->compound == NULL)
@@ -235,6 +252,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	if (samples.size() == 0)
 		return;
 
+	//init
 	float ppm = compoundPPMWindow;
 	double maxIsotopeScanDiff = 10;
 	double maxNaturalAbundanceErr = 100;
@@ -245,15 +263,14 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	bool D2Labeled = false;
 	int eic_smoothingAlgorithm = 0;
 
-//	BackgroundPeakUpdate::getPullIsotopeSettings(maxIsotopeScanDiff,
-//			minIsotopicCorrelation, maxNaturalAbundanceErr, C13Labeled,
-//			N15Labeled, S34Labeled, D2Labeled);
-
-	string formula = parentgroup->compound->formula;
+	string formula = parentgroup->compound->formula; //parent formula
+	//generate isotope list for parent mass
 	vector<Isotope> masslist = mcalc.computeIsotopes(formula, ionizationMode);
 
+//iterate over samples to find properties for parent's isotopes.
 	map<string, PeakGroup> isotopes;
 	map<string, PeakGroup>::iterator itr2;
+
 	for (unsigned int s = 0; s < samples.size(); s++) {
 		mzSample* sample = samples[s];
 		for (int k = 0; k < masslist.size(); k++) {
@@ -263,6 +280,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 			string isotopeName = x.name;
 			double isotopeMass = x.mass;
 			double expectedAbundance = x.abundance;
+
+			//
 			float mzmin = isotopeMass - isotopeMass / 1e6 * ppm;
 			float mzmax = isotopeMass + isotopeMass / 1e6 * ppm;
 			float rt = parentgroup->medianRt();
@@ -302,10 +321,10 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 			//if(isotopePeakIntensity==0) continue;
 
 			//natural abundance check
-			if ((x.C13 > 0 && C13Labeled == false)
-					|| (x.N15 > 0 && N15Labeled == false)
-					|| (x.S34 > 0 && S34Labeled == false)
-					|| (x.H2 > 0 && D2Labeled == false)
+			if ((x.C13 > 0 && C13Labeled == false) //if isotope is not C13Labeled
+					|| (x.N15 > 0 && N15Labeled == false) //if isotope is not N15 Labeled
+					|| (x.S34 > 0 && S34Labeled == false) //if isotope is not S34 Labeled
+					|| (x.H2 > 0 && D2Labeled == false) //if isotope is not D2 Labeled
 
 					) {
 				if (expectedAbundance < 1e-8)
@@ -313,15 +332,16 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 				if (expectedAbundance * parentPeakIntensity < 1)
 					continue;
 				float observedAbundance = isotopePeakIntensity
-						/ (parentPeakIntensity + isotopePeakIntensity);
+						/ (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
+
 				float naturalAbundanceError = abs(
-						observedAbundance - expectedAbundance)
-						/ expectedAbundance * 100;
+					observedAbundance - expectedAbundance) //if observedAbundance is significant wrt expectedAbundance
+						/ expectedAbundance * 100;						// compute natural Abundance Error
 
 				//cerr << isotopeName << endl;
 				//cerr << "Expected isotopeAbundance=" << expectedAbundance;
 				//cerr << " Observed isotopeAbundance=" << observedAbundance;
-				//cerr << " Error="     << naturalAbundanceError << endl;
+				//cerr << " Error="		 << naturalAbundanceError << endl;
 
 				if (naturalAbundanceError > maxNaturalAbundanceErr)
 					continue;
@@ -329,20 +349,21 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
 			float w = maxIsotopeScanDiff * avgScanTime;
 			double c = sample->correlation(isotopeMass, parentgroup->meanMz,
-					ppm, rtmin - w, rtmax + w);
-			if (c < minIsotopicCorrelation)
+					ppm, rtmin - w, rtmax + w); //find correlation for isotopes
+			if (c < minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
 				continue;
 
-			//cerr << "pullIsotopes: " << isotopeMass << " " << rtmin-w << " " <<  rtmin+w << " c=" << c << endl;
+			//cerr << "pullIsotopes: " << isotopeMass << " " << rtmin-w << " " <<	rtmin+w << " c=" << c << endl;
 
-			EIC* eic = NULL;
+			EIC* eic = NULL; //find EIC for isotopes
 			for (int i = 0; i < maxIsotopeScanDiff; i++) {
 				float window = i * avgScanTime;
 				eic = sample->getEIC(mzmin, mzmax, rtmin - window,
 						rtmax + window, 1);
+						//smooth fond eic TODO: null check for found eic
 				eic->setSmootherType(
 						(EIC::SmootherType) eic_smoothingAlgorithm);
-				eic->getPeakPositions(eic_smoothingWindow);
+				eic->getPeakPositions(eic_smoothingWindow); //find peak position insice eic
 				if (eic->peaks.size() == 0)
 					continue;
 				if (eic->peaks.size() > 1)
@@ -351,6 +372,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 			if (!eic)
 				continue;
 
+				//find nearest peak. compute distance between parent peak and all other peaks
+				// nearest peak is one with mimimum distance== min RT
 			Peak* nearestPeak = NULL;
 			float d = FLT_MAX;
 			for (int i = 0; i < eic->peaks.size(); i++) {
@@ -364,8 +387,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 				}
 			}
 
-			if (nearestPeak) {
-				if (isotopes.count(isotopeName) == 0) {
+			if (nearestPeak) { //if nearest peak is present
+				if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
 					PeakGroup g;
 					g.meanMz = isotopeMass;
 					g.tagString = isotopeName;
@@ -373,12 +396,15 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 					g.isotopeC13count = x.C13;
 					isotopes[isotopeName] = g;
 				}
-				isotopes[isotopeName].addPeak(*nearestPeak);
+				isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
 			}
 			delete (eic);
 		}
 	}
 
+	//fill peak group list with the compound and it's isotopes.
+	// peak group list would be filled with the parent group, with its isotopes as children
+	// click on + to see children == isotopes
 	parentgroup->children.clear();
 	for (itr2 = isotopes.begin(); itr2 != isotopes.end(); itr2++) {
 		string isotopeName = (*itr2).first;
@@ -395,7 +421,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 			child.groupStatistics();
 		}
 		parentgroup->addChild(child);
-		//cerr << " add: " << isotopeName << " " <<  child.peaks.size() << " " << isotopes.size() << endl;
+		//cerr << " add: " << isotopeName << " " <<	child.peaks.size() << " " << isotopes.size() << endl;
 	}
 	//cerr << "Done: " << parentgroup->children.size();
 	/*
@@ -414,6 +440,7 @@ void PeakDetector::alignSamples() {
 		vector<PeakGroup*> agroups(allgroups.size());
 		for (unsigned int i = 0; i < allgroups.size(); i++)
 			agroups[i] = &allgroups[i];
+			//init aligner
 		Aligner aligner;
 		aligner.doAlignment(agroups);
 		writeCSVFlag = true;
@@ -444,7 +471,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 	allgroups.clear();
 	sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
-//process KNOWNS
+	//process KNOWNS
 	QTime timer;
 	timer.start();
 	qDebug() << "Proessing slices: setName=" << setName.c_str() << " slices="
@@ -457,6 +484,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 	int groupCount = 0;
 	int peakCount = 0;
 
+	// for all the slies, find EICs and score quality and rank ofpeaks in the EICs
+	// using the classifier
 	for (unsigned int s = 0; s < slices.size(); s++) {
 		mzSlice* slice = slices[s];
 		double mzmin = slice->mzmin;
@@ -475,7 +504,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				break;	 //exit main loop
 			foundGroups = allgroups.size();
 		}
-
+		// for all the slies, find EICs
 		vector<EIC*> eics = pullEICs(slice, samples, EicLoader::PeakDetection,
 				eic_smoothingWindow, eic_smoothingAlgorithm, amuQ1, amuQ3,
 				baseline_smoothingWindow, baseline_dropTopX);
@@ -491,11 +520,11 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			continue;
 		}
 
-		//for ( unsigned int j=0; j < eics.size(); j++ )  eics[j]->getPeakPositions(eic_smoothingWindow);
+		//for ( unsigned int j=0; j < eics.size(); j++ )	eics[j]->getPeakPositions(eic_smoothingWindow);
 		vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
 				eic_smoothingWindow, grouping_maxRtWindow);
 
-		//score quality of each group
+		//score quality of each group using classifier
 		vector<PeakGroup*> groupsToAppend;
 		for (int j = 0; j < peakgroups.size(); j++) {
 			PeakGroup& group = peakgroups[j];
@@ -527,11 +556,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			if (!slice->srmId.empty())
 				group.srmId = slice->srmId;
 
+				//update peak group rank using rt difference b/w compound's expectedRt and peak groups's RT
 			if (matchRtFlag && compound != NULL && compound->expectedRt > 0) {
 				float rtDiff = abs(compound->expectedRt - (group.meanRt));
 				group.expectedRtDiff = rtDiff;
 				group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
-						* (1 / log(group.maxIntensity + 1));
+						* (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
 				if (group.expectedRtDiff > compoundRTWindow)
 					continue;
 			} else {
@@ -542,11 +572,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			groupsToAppend.push_back(&group);
 		}
 
+		//sort groups according to their rank
 		std::sort(groupsToAppend.begin(), groupsToAppend.end(),
 				PeakGroup::compRankPtr);
 
 		for (int j = 0; j < groupsToAppend.size(); j++) {
-			//check for duplicates  and append group
+			//check for duplicates	and append group
 			if (j >= eicMaxGroups)
 				break;
 
@@ -558,6 +589,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				allgroups.push_back(*group);
 		}
 
+		//cleanup
 		delete_all(eics);
 
 		if (allgroups.size() > limitGroupCount)
@@ -589,7 +621,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
-
+//check over leap between RT for each group through all the samples
+// if a certain degree of overlap is present, do not create a new group`
 	for (int i = 0; i < allgroups.size(); i++) {
 		PeakGroup& grp2 = allgroups[i];
 		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
@@ -598,7 +631,7 @@ bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
 			return false;
 		}
 	}
-
+	//ekse push the group to the allgroups vector
 	allgroups.push_back(grp1);
 	return true;
 }

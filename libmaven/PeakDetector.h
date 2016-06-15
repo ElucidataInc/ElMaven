@@ -263,7 +263,9 @@ private:
 
 };
 
-
+/**
+ * struct for EicLoader
+ */
 struct EicLoader {
 
 	enum PeakDetectionFlag {
@@ -287,6 +289,10 @@ struct EicLoader {
 
 	typedef EIC* result_type;
 
+	/**
+	 * [operator]
+	 * @return [eic]
+	 */
 	EIC* operator()(mzSample* sample) {
 		EIC* e = NULL;
 		Compound* c = slice->compound;
