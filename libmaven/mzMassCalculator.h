@@ -47,26 +47,26 @@ class MassCalculator {
     MassCalculator(){};
 
     /**
-     * [computeNeutralMass description]
+     * [computeNeutralMass ]
      * @method computeNeutralMass
-     * @param  formula            [description]
-     * @return                    [description]
+     * @param  formula            []
+     * @return                    []
      */
     double computeNeutralMass(string formula);
 
     /**
      * [input is neutral formala with all the hydrogens and charge state of molecule.]
      * @method computeMass
-     * @param  formula     [description]
-     * @param  polarity    [description]
+     * @param  formula     []
+     * @param  polarity    []
      * @return             [expected mass of the molecule after loss/gain of protons]
      */
     double computeMass(string formula, int polarity);
     /**
-     * [computeC13IsotopeMass description]
+     * [computeC13IsotopeMass ]
      * @method computeC13IsotopeMass
-     * @param  formula               [description]
-     * @return                       [description]
+     * @param  formula               []
+     * @return                       []
      */
     double computeC13IsotopeMass(string formula);
 
@@ -83,33 +83,33 @@ class MassCalculator {
     map<string,int> getComposition(string formula);
 
     /**
-     * [matchMass description]
+     * [matchMass ]
      * @method matchMass
-     * @param  mass      [description]
-     * @param  ppm       [description]
+     * @param  mass      []
+     * @param  ppm       []
      */
     void matchMass(double mass, double ppm);
 
     /**
-     * [prettyName description]
+     * [prettyName ]
      * @method prettyName
-     * @param  c          [description]
-     * @param  h          [description]
-     * @param  n          [description]
-     * @param  o          [description]
-     * @param  p          [description]
-     * @param  s          [description]
-     * @return            [description]
+     * @param  c          []
+     * @param  h          []
+     * @param  n          []
+     * @param  o          []
+     * @param  p          []
+     * @param  s          []
+     * @return            []
      */
     string prettyName(int c, int h, int n, int o, int p, int s);
 
     /**
-     * [enumerateMasses description]
+     * [enumerateMasses ]
      * @method enumerateMasses
-     * @param  inputMass       [description]
-     * @param  charge          [description]
-     * @param  maxdiff         [description]
-     * @param  matches         [description]
+     * @param  inputMass       []
+     * @param  charge          []
+     * @param  maxdiff         []
+     * @param  matches         []
      */
     void enumerateMasses(double inputMass, double charge, double maxdiff, vector<Match*>& matches);
 
@@ -117,20 +117,20 @@ class MassCalculator {
     vector<Isotope> computeIsotopes(string formula, int polarity);
 
     /**
-     * [adjustMass description]
+     * [adjustMass ]
      * @method adjustMass
-     * @param  mass       [description]
-     * @param  charge     [description]
-     * @return            [description]
+     * @param  mass       []
+     * @param  charge     []
+     * @return            []
      */
     double adjustMass(double mass,int charge);
 
     /**
-     * [compDiff description]
+     * [compDiff ]
      * @method compDiff
-     * @param  a        [description]
-     * @param  b        [description]
-     * @return          [description]
+     * @param  a        []
+     * @param  b        []
+     * @return          []
      */
     static bool compDiff(const Match* a, const Match* b ) { return a->diff < b->diff; }
 

@@ -24,31 +24,31 @@ class MassSlices {
 			mzSlice* sliceExists(float mz,float rt);
 
 			/**
-			 * [algorithmA description]
+			 * [algorithmA ]
 			 * @method algorithmA
 			 */
 			void algorithmA();
 
 			/**
-			 * [algorithmB description]
+			 * [algorithmB ]
 			 * @method algorithmB
-			 * @param  ppm          [description]
-			 * @param  minIntensity [description]
-			 * @param  step         [description]
+			 * @param  ppm          []
+			 * @param  minIntensity []
+			 * @param  step         []
 			 */
     	void algorithmB(float ppm, float minIntensity, int step);
 
 			/**
-			 * [setMaxSlices description]
+			 * [setMaxSlices ]
 			 * @method setMaxSlices
-			 * @param  x            [description]
+			 * @param  x            []
 			 */
 			void setMaxSlices( int x) { _maxSlices=x; }
 
 			/**
-			 * [setSamples description]
+			 * [setSamples ]
 			 * @method setSamples
-			 * @param  samples    [description]
+			 * @param  samples    []
 			 */
 			void setSamples(vector<mzSample*> samples)  { this->samples = samples; }
 

@@ -31,66 +31,66 @@ public:
 	PeakDetector();
 
 	/**
-	 * [setOutputDir description]
+	 * [set Output Directory]
 	 * @method setOutputDir
-	 * @param  outdir       [description]
+	 * @param  outdir       [name of the output directory]
 	 */
 	void setOutputDir(QString outdir) {
 		outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
 	}
 
 	/**
-	 * [setMaxGroupCount description]
+	 * [set Maximum Group Count]
 	 * @method setMaxGroupCount
-	 * @param  x                [description]
+	 * @param  x                [Maximum Group Count]
 	 */
 	void setMaxGroupCount(int x) {
 		limitGroupCount = x;
 	}
 
 	/**
-	 * [setCompounds description]
+	 * [set Compounds]
 	 * @method setCompounds
-	 * @param  set          [description]
+	 * @param  set          [vector of pointer to Compound]
 	 */
 	void setCompounds(vector<Compound*> set) {
 		compounds = set;
 	}
 
 	/**
-	 * [setSlices description]
+	 * [set mass Slices]
 	 * @method setSlices
-	 * @param  set       [description]
+	 * @param  set       [vector of pointer to mzSlice]
 	 */
 	void setSlices(vector<mzSlice*> set) {
 		_slices = set;
 	}
 
 	/**
-	 * [setPeakGroup description]
+	 * [set Peak Group]
 	 * @method setPeakGroup
-	 * @param  p            [description]
+	 * @param  p            [pointer to Peak Group]
 	 */
 	void setPeakGroup(PeakGroup* p) {
 		_group = p;
 	}
 
 	/**
-	 * [setAverageScanTime description]
+	 * [set Average Scan Time]
 	 * @method setAverageScanTime
 	 */
 	void setAverageScanTime();
 
 	/**
-	 * [setIonizationMode description]
+	 * [set Ionization Mode]
 	 * @method setIonizationMode
 	 */
 	void setIonizationMode();
 
 	/**
-	 * [setSamples description]
+	 * [set Samples]
 	 * @method setSamples
-	 * @param  set        [description]
+	 * @param  set        [pointer to vector of pointer to mzSample]
 	 */
 	void setSamples(vector<mzSample*>&set);
 
@@ -184,52 +184,56 @@ public:
 	vector<mzSlice*> _slices;
 
 	/**
-	 * [alignSamples description]
+	 * [align Samples using Aligner class]
 	 * @method alignSamples
 	 */
 	void alignSamples();
 
 	/**
-	 * [processSlices description]
+	 * [process Slices]
 	 * @method processSlices
 	 */
 	void processSlices(void);
 
 	/**
-	 * [processSlice description]
+	 * [process one Slice]
 	 * @method processSlice
-	 * @param  slice        [description]
+	 * @param  slice        [pointer to mzSlice]
 	 */
 	void processSlice(mzSlice& slice);
 
 	/**
-	 * [processMassSlices description]
+	 * [process Mass Slices]
 	 * @method processMassSlices
 	 */
 	void processMassSlices();
 
 	/**
-	 * [pullIsotopes description]
+	 * [pull Isotopes for metabolites]
 	 * @method pullIsotopes
-	 * @param  group        [description]
+	 * @param  group        [group]
 	 */
 	void pullIsotopes(PeakGroup *group);
 
 	/**
-	 * [processSlices description]
+	 * [process Slices]
 	 * @method processSlices
-	 * @param  slices        [description]
-	 * @param  setName       [description]
+	 * @param  slices        [pointer to vector of pointer to mzSlice]
+	 * @param  setName       [name of set]
 	 */
 	void processSlices(vector<mzSlice*>&slices, string setName);
 
 	/**
-	 *
+	 * [process Compounds]
+	 * @method processSlices
+	 * @param  set        [vector of pointer to Compound]
+	 * @param  setName       [name of set]
+	 * @return [vector of pointer to mzSlice]
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
 
 	/**
-	 * [cleanup description]
+	 * [cleanup all groups]
 	 * @method cleanup
 	 */
 	void cleanup();
@@ -244,15 +248,15 @@ public:
 
 private:
 	/**
-	 * [addPeakGroup description]
+	 * [add Peak Group]
 	 * @method addPeakGroup
-	 * @param  group        [description]
-	 * @return [description]
+	 * @param  group        [pointer to PeakGroup]
+	 * @return [True if group is added to all groups, else False]
 	 */
 	bool addPeakGroup(PeakGroup& group);
 
 	/**
-	 * [printSettings description]
+	 * [print parameter Settings]
 	 * @method printSettings
 	 */
 	void printSettings();

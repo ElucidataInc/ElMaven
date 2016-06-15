@@ -55,8 +55,8 @@ namespace base64 {
 		/**
 		 * [swap bytes .. borrowed from xmms  GNU]
 		 * @method swapbytes
-		 * @param  x         [description]
-		 * @return [description]
+		 * @param  x         []
+		 * @return []
 		 */
 		inline uint32_t swapbytes(uint32_t x) {
 				return ((x & 0x000000ffU) << 24) |
@@ -68,8 +68,8 @@ namespace base64 {
 		/**
 		 * [swap bytes .. borrowed from xmms  GNU]
 		 * @method swapbytes64
-		 * @param  x           [description]
-		 * @return [description]
+		 * @param  x           []
+		 * @return []
 		 */
 		inline uint64_t swapbytes64(uint64_t x) {
 				return ((((uint64_t)swapbytes((uint32_t)(x & 0xffffffffU)) << 32) |

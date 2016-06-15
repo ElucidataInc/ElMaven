@@ -62,10 +62,10 @@ using namespace std;
 namespace mzUtils {
 
 /**
- * [round description]
+ * [round ]
  * @method round
- * @param  val   [description]
- * @return       [description]
+ * @param  val   []
+ * @return       []
  */
 inline float round(float val) {
 	if (val - long(val) >= 0.5 ) return (ceil(val));
@@ -75,118 +75,118 @@ inline float round(float val) {
 /**
  * [spline fitting]
  * @method spline_eval
- * @param  n           [description]
- * @param  x           [description]
- * @param  f           [description]
- * @param  b           [description]
- * @param  c           [description]
- * @param  d           [description]
- * @param  t           [description]
- * @return             [description]
+ * @param  n           []
+ * @param  x           []
+ * @param  f           []
+ * @param  b           []
+ * @param  c           []
+ * @param  d           []
+ * @param  t           []
+ * @return             []
  */
 float spline_eval( int n, float *x, float *f, float *b, float *c, float *d, float t );
 
 /**
- * [tridiagonal  description]
+ * [tridiagonal  ]
  * @method tridiagonal
- * @param  n           [description]
- * @param  c           [description]
- * @param  a           [description]
- * @param  b           [description]
- * @param  r           [description]
+ * @param  n           []
+ * @param  c           []
+ * @param  a           []
+ * @param  b           []
+ * @param  r           []
  */
 void tridiagonal ( int n, float *c, float *a, float *b, float *r );
 
 /**
- * [cubic_nak    description]
+ * [cubic_nak    ]
  * @method cubic_nak
- * @param  n         [description]
- * @param  x         [description]
- * @param  f         [description]
- * @param  b         [description]
- * @param  c         [description]
- * @param  d         [description]
+ * @param  n         []
+ * @param  x         []
+ * @param  f         []
+ * @param  b         []
+ * @param  c         []
+ * @param  d         []
  */
 void cubic_nak   ( int n, float *x, float *f, float *b, float *c, float *d );
 
 /*smoothing functions */
 
 /**
- * [gaussian1d_smoothing  description]
+ * [gaussian1d_smoothing  ]
  * @method gaussian1d_smoothing
- * @param  ns                   [description]
- * @param  nsr                  [description]
- * @param  data                 [description]
+ * @param  ns                   []
+ * @param  nsr                  []
+ * @param  data                 []
  */
 void gaussian1d_smoothing (int ns, int nsr, float *data);
 
 /**
- * [smoothAverage description]
+ * [smoothAverage ]
  * @method smoothAverage
- * @param  y             [description]
- * @param  s             [description]
- * @param  points        [description]
- * @param  n             [description]
+ * @param  y             []
+ * @param  s             []
+ * @param  points        []
+ * @param  n             []
  */
 void smoothAverage(float *y, float* s, int points, int n);
 
 /**
- * [conv description]
+ * [conv ]
  * @method conv
- * @param  lx   [description]
- * @param  ifx  [description]
- * @param  x    [description]
- * @param  ly   [description]
- * @param  ify  [description]
- * @param  y    [description]
- * @param  lz   [description]
- * @param  ifz  [description]
- * @param  z    [description]
+ * @param  lx   []
+ * @param  ifx  []
+ * @param  x    []
+ * @param  ly   []
+ * @param  ify  []
+ * @param  y    []
+ * @param  lz   []
+ * @param  ifz  []
+ * @param  z    []
  */
 void conv(int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz, float *z);	//convolutio
 
 /*statistical functions*/
 /**
- * [ttest description]
+ * [ttest ]
  * @method ttest
- * @param  groupA [description]
- * @param  groupB [description]
- * @return        [description]
+ * @param  groupA []
+ * @param  groupB []
+ * @return        []
  */
 float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB );
 
 /**
- * [median description]
+ * [median ]
  * @method median
- * @param  y      [description]
- * @return        [description]
+ * @param  y      []
+ * @return        []
  */
 float median(vector <float> y);
 
 /**
- * [median description]
+ * [median ]
  * @method median
- * @param  y      [description]
- * @param  n      [description]
- * @return        [description]
+ * @param  y      []
+ * @param  n      []
+ * @return        []
  */
 float median(float* y, int n);
 
 /**
- * [kth_smallest description]
+ * [kth_smallest ]
  * @method kth_smallest
- * @param  a            [description]
- * @param  n            [description]
- * @param  k            [description]
- * @return              [description]
+ * @param  a            []
+ * @param  n            []
+ * @param  k            []
+ * @return              []
  */
 float kth_smallest(float a[], int n, int k);
 
 /**
- * [torben_median description]
+ * [torben_median ]
  * @method torben_median
- * @param  m             [description]
- * @return               [description]
+ * @param  m             []
+ * @return               []
  */
 float torben_median(const vector<float> &m);
 
@@ -194,84 +194,84 @@ float torben_median(const vector<float> &m);
 vector<float> quantileDistribution(vector<float> y);
 
 /**
- * [countBelow description]
+ * [countBelow ]
  * @method countBelow
- * @param  y          [description]
- * @param  ymax       [description]
- * @return            [description]
+ * @param  y          []
+ * @param  ymax       []
+ * @return            []
  */
 int countBelow(vector<float>& y, float ymax);
 
 /**
- * [correlation description]
+ * [correlation ]
  * @method correlation
- * @param  a           [description]
- * @param  b           [description]
- * @return             [description]
+ * @param  a           []
+ * @param  b           []
+ * @return             []
  */
 float correlation(const vector<float>&a, const vector<float>&b);
 
 /**
- * [gaussFit description]
+ * [gaussFit ]
  * @method gaussFit
- * @param  yobs     [description]
- * @param  sigmal   [description]
- * @param  R2       [description]
+ * @param  yobs     []
+ * @param  sigmal   []
+ * @param  R2       []
  */
 void gaussFit(const vector<float>& yobs, float* sigmal, float* R2);
 
 /**
- * [factorial description]
+ * [factorial ]
  * @method factorial
- * @param  n         [description]
- * @return [description]
+ * @param  n         []
+ * @return []
  */
 inline unsigned long factorial(int n);
 
 /**
- * [nchoosek description]
+ * [nchoosek ]
  * @method nchoosek
- * @param  n        [description]
- * @param  k        [description]
- * @return [description]
+ * @param  n        []
+ * @param  k        []
+ * @return []
  */
 long nchoosek(int n, int k);
 
 /**
- * [beta description]
+ * [beta ]
  * @method beta
- * @param  x    [description]
- * @param  y    [description]
- * @return [description]
+ * @param  x    []
+ * @param  y    []
+ * @return []
  */
 double beta(double x, double y);
 
 /**
- * [gamma description]
+ * [gamma ]
  * @method gamma
- * @param  z     [description]
- * @return [description]
+ * @param  z     []
+ * @return []
  */
 double gamma(double z);
 
 /**
- * [betaPDF description]
+ * [betaPDF ]
  * @method betaPDF
- * @param  x       [description]
- * @param  a       [description]
- * @param  b       [description]
- * @return [description]
+ * @param  x       []
+ * @param  a       []
+ * @param  b       []
+ * @return []
  */
 double betaPDF(double x, double a, double b);
 
 /**
- * [pertPDF description]
+ * [pertPDF ]
  * @method pertPDF
- * @param  x       [description]
- * @param  min     [description]
- * @param  mode    [description]
- * @param  max     [description]
- * @return [description]
+ * @param  x       []
+ * @param  min     []
+ * @param  mode    []
+ * @param  max     []
+ * @return []
  */
 double pertPDF(double x, double min, double mode, double max);
 
@@ -283,177 +283,177 @@ vector<double> naturalAbundanceCorrection(int nC, vector<double>& M);
 
 /* string functions */
 /**
- * [string2integer description]
+ * [string2integer ]
  * @method string2integer
- * @param  s              [description]
- * @return [description]
+ * @param  s              []
+ * @return []
  */
 int string2integer(const std::string& s);
 
 /**
- * [string2float description]
+ * [string2float ]
  * @method string2float
- * @param  s            [description]
- * @return [description]
+ * @param  s            []
+ * @return []
  */
 float string2float(const std::string& s);
 
 /**
- * [integer2string description]
+ * [integer2string ]
  * @method integer2string
- * @param  x              [description]
- * @return [description]
+ * @param  x              []
+ * @return []
  */
 string integer2string(int x);
 
 /**
- * [float2string description]
+ * [float2string ]
  * @method float2string
- * @param  f            [description]
- * @param  p            [description]
- * @return [description]
+ * @param  f            []
+ * @param  p            []
+ * @return []
  */
 string float2string(float f, int p);
 
 /**
- * [makeLowerCase description]
+ * [makeLowerCase ]
  * @method makeLowerCase
- * @param  s             [description]
- * @return [description]
+ * @param  s             []
+ * @return []
  */
 string makeLowerCase(string &s);
 
 /**
- * [split description]
+ * [split ]
  * @method split
- * @param  s     [description]
- * @param  c     [description]
- * @param  v     [description]
+ * @param  s     []
+ * @param  c     []
+ * @param  v     []
  */
 void split(const string& s, char c, vector<string>& v);
 
 /**
- * [mystrcasestr description]
+ * [mystrcasestr ]
  * @method mystrcasestr
- * @param  s1           [description]
- * @param  s2           [description]
- * @return [description]
+ * @param  s1           []
+ * @param  s2           []
+ * @return []
  */
 char *mystrcasestr(const char *s1, const char *s2);
 
 /**
- * [strincmp description]
+ * [strincmp ]
  * @method strincmp
- * @param  s1       [description]
- * @param  s2       [description]
- * @param  n        [description]
- * @return [description]
+ * @param  s1       []
+ * @param  s2       []
+ * @param  n        []
+ * @return []
  */
 int strincmp(char *s1, char* s2,int n);
 
 /**
- * [cleanFilename description]
+ * [cleanFilename ]
  * @method cleanFilename
- * @param  s             [description]
- * @return [description]
+ * @param  s             []
+ * @return []
  */
 string cleanFilename(const string& s);
 
 /**
- * [substituteInQuotedString description]
+ * [substituteInQuotedString ]
  * @method substituteInQuotedString
- * @param  s                        [description]
- * @param  chars                    [description]
- * @param  substitutions            [description]
- * @return [description]
+ * @param  s                        []
+ * @param  chars                    []
+ * @param  substitutions            []
+ * @return []
  */
 string substituteInQuotedString(const string& s, const string& chars, const string& substitutions );
 
 /**
- * [gzipInflate description]
+ * [gzipInflate ]
  * @method gzipInflate
- * @param  compressedBytes   [description]
- * @param  uncompressedBytes [description]
- * @return [description]
+ * @param  compressedBytes   []
+ * @param  uncompressedBytes []
+ * @return []
  */
 bool gzipInflate( const std::string& compressedBytes, std::string& uncompressedBytes );
 
 /**
- * [decompress_string description]
+ * [decompress_string ]
  * @method decompress_string
- * @param  str               [description]
- * @return [description]
+ * @param  str               []
+ * @return []
  */
 std::string decompress_string(const std::string& str);
 
 /* rounding and ppm functions */
 /**
- * [ppmDist description]
+ * [ppmDist ]
  * @method ppmDist
- * @param  mz1     [description]
- * @param  mz2     [description]
- * @return [description]
+ * @param  mz1     []
+ * @param  mz2     []
+ * @return []
  */
 float ppmDist(const float mz1, const float mz2);
 
 /**
- * [ppmDist description]
+ * [ppmDist ]
  * @method ppmDist
- * @param  mz1     [description]
- * @param  mz2     [description]
- * @return [description]
+ * @param  mz1     []
+ * @param  mz2     []
+ * @return []
  */
 double ppmDist(const double mz1, const double mz2);
 
 /**
- * [ppmround description]
+ * [ppmround ]
  * @method ppmround
- * @param  mz1        [description]
- * @param  resolution [description]
- * @return [description]
+ * @param  mz1        []
+ * @param  resolution []
+ * @return []
  */
 float ppmround(const float mz1, const float resolution);
 
 /**
- * [withinXppm description]
+ * [withinXppm ]
  * @method withinXppm
- * @param  mz1        [description]
- * @param  mz2        [description]
- * @param  ppmWindow  [description]
- * @return [description]
+ * @param  mz1        []
+ * @param  mz2        []
+ * @param  ppmWindow  []
+ * @return []
  */
 bool withinXppm( float mz1, float mz2, int ppmWindow );
 
 /* file system functions */
 /**
- * [fileExists description]
+ * [fileExists ]
  * @method fileExists
- * @param  strFilename [description]
- * @return [description]
+ * @param  strFilename []
+ * @return []
  */
 bool fileExists(string strFilename);
 
 /**
- * [createDir description]
+ * [createDir ]
  * @method createDir
- * @param  path      [description]
- * @return [description]
+ * @param  path      []
+ * @return []
  */
 int createDir(const char* path);
 
 /**
- * [isFile description]
+ * [isFile ]
  * @method isFile
- * @param  path   [description]
- * @return [description]
+ * @param  path   []
+ * @return []
  */
 int isFile(const char* path);
 
 /**
- * [isDir description]
+ * [isDir ]
  * @method isDir
- * @param  path  [description]
- * @return [description]
+ * @param  path  []
+ * @return []
  */
 int isDir(const char* path);
 
@@ -461,11 +461,11 @@ int isDir(const char* path);
 /**
  * [fractional overlap between two line segments]
  * @method checkOverlap
- * @param  a            [description]
- * @param  b            [description]
- * @param  c            [description]
- * @param  d            [description]
- * @return [description]
+ * @param  a            []
+ * @param  b            []
+ * @param  c            []
+ * @param  d            []
+ * @return []
  */
 inline float checkOverlap(float a, float b, float c, float d) {
 	 if( (a<c && b<c) || (d<a && d<b) )    return(0.0);  //no overalp
@@ -479,9 +479,9 @@ inline float checkOverlap(float a, float b, float c, float d) {
 template <typename T>
 
 /**
- * [shuffle description]
+ * [shuffle ]
  * @method shuffle
- * @param  my_vector [description]
+ * @param  my_vector []
  */
 void shuffle(vector<T>& my_vector) {
     int N = my_vector.size()-1; if (N <= 0) return;
@@ -499,7 +499,7 @@ template <typename T>
 /**
  * [print vector]
  * @method printF
- * @param  my_vector [description]
+ * @param  my_vector []
  */
 void printF(vector<T>& my_vector) {
        for (unsigned int i = 0; i < my_vector.size(); i++ ) {
@@ -513,7 +513,7 @@ template <typename T>
 /**
  * [delete_all deallocated elements fo array from memory]
  * @method delete_all
- * @param  my_vector  [description]
+ * @param  my_vector  []
  */
 void delete_all(vector<T>& my_vector) {
 		if (my_vector.empty()) return;
@@ -537,7 +537,7 @@ template <typename T>
 /**
  * [deallocated elements fo array from memory]
  * @method delete_all
- * @param  my_vector  [description]
+ * @param  my_vector  []
  */
 inline void delete_all(deque<T>& my_vector) {
 		if (my_vector.empty()) return;
@@ -554,8 +554,8 @@ template <typename T>
 /**
  * [deallocated single element]
  * @method delete_one
- * @param  my_vector  [description]
- * @param  idx        [description]
+ * @param  my_vector  []
+ * @param  idx        []
  */
 void delete_one(vector<T> & my_vector, unsigned int idx) {
 		if ( my_vector.size() == 0 ) return;
@@ -569,8 +569,8 @@ template <typename T>
 /**
  * [deallocated single element]
  * @method delete_one
- * @param  my_vector  [description]
- * @param  idx        [description]
+ * @param  my_vector  []
+ * @param  idx        []
  */
 void delete_one(deque<T> & my_vector, unsigned int idx) {
 		if ( my_vector.size() == 0 ) return;
@@ -584,7 +584,7 @@ template<typename vector>
 /**
  * [resize vector in order to free up memory]
  * @method shrink_vector
- * @param  v             [description]
+ * @param  v             []
  */
 void shrink_vector(vector& v) {
     vector(v.begin(), v.end()).swap(v);

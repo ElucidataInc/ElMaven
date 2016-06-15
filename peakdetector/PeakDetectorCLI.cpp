@@ -58,23 +58,99 @@ float minSignalBaseLineRatio = 2;
 float minGroupIntensity = 100;
 float minQuality = 0.5;
 
+/**
+ * [process command line Options]
+ * @param argc [argument counter]
+ * @param argv [argument variables]
+ */
 void processOptions(int argc, char* argv[]);
+
+/**
+ * [loadSamples description]
+ * @param filenames [description]
+ */
 void loadSamples(vector<string>&filenames);
+
+/**
+ * [loadCompoundCSVFile description]
+ * @param filename [description]
+ */
 void loadCompoundCSVFile(string filename);
-void printSettings();
+
+
+// void printSettings();
+
+/**
+ * [reduce number of Groups]
+ */
 void reduceGroups();
+
+/**
+ * [write multiple types of Reports]
+ * @param setName [name of the set]
+ */
 void writeReport(string setName);
+
+/**
+ * [write Sample List in XML]
+ * @param parent [parent node]
+ */
 void writeSampleListXML(xml_node& parent);
+
+/**
+ * [write Peak Table in XML]
+ * @param filename [name of the file]
+ */
 void writePeakTableXML(string filename);
+
+/**
+ * [write CSV Report]
+ * @param filename [name of the file]
+ */
 void writeCSVReport(string filename);
+
+/**
+ * [write Group information in XML]
+ * @param parent [parent ion]
+ * @param g      [peak group]
+ */
 void writeGroupXML(xml_node& parent, PeakGroup* g);
+
+/**
+ * [write Parameters of ion in XML]
+ * @param parent [parent ion]
+ */
 void writeParametersXML(xml_node& parent);
-bool addPeakGroup(PeakGroup& grp);
+// bool addPeakGroup(PeakGroup& grp);
+
 vector<mzSlice*> getSrmSlices();
+
+/**
+ * [clean Sample Name]
+ * @param  sampleName [name of the sample]
+ * @return            [cleaned name]
+ */
 string cleanSampleName(string sampleName);
 
+/**
+ * [save EICs]
+ * @param filename [name of the file]
+ */
 void saveEICs(string filename);
+
+/**
+ * [save EIC]
+ * @param out [the output file]
+ * @param eic [the eic to be saved]
+ */
 void saveEIC(ofstream& out, EIC* eic);
+
+/**
+ * [get EICs from a group]
+ * @param rtmin [minimum retention time]
+ * @param rtmax [maximum retention time]
+ * @param grp [the peak group]
+ */
 vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 
 PeakDetector* peakDetector;
@@ -137,22 +213,22 @@ int main(int argc, char *argv[]) {
 	return (0);
 }
 
-vector<mzSlice*> getSrmSlices() {
-	map<string, int> uniqSrms;
-	vector<mzSlice*> slices;
-	for (int i = 0; i < samples.size(); i++) {
-		for (int j = 0; j < samples[i]->scans.size(); j++) {
-			Scan* scan = samples[i]->scans[j];
-			string filterLine = scan->filterLine;
-			if (uniqSrms.count(filterLine) == 0) {
-				uniqSrms[filterLine] = 1;
-				slices.push_back(new mzSlice(filterLine));
-			}
-		}
-	}
-	cerr << "getSrmSlices() " << slices.size() << endl;
-	return slices;
-}
+// vector<mzSlice*> getSrmSlices() {
+// 	map<string, int> uniqSrms;
+// 	vector<mzSlice*> slices;
+// 	for (int i = 0; i < samples.size(); i++) {
+// 		for (int j = 0; j < samples[i]->scans.size(); j++) {
+// 			Scan* scan = samples[i]->scans[j];
+// 			string filterLine = scan->filterLine;
+// 			if (uniqSrms.count(filterLine) == 0) {
+// 				uniqSrms[filterLine] = 1;
+// 				slices.push_back(new mzSlice(filterLine));
+// 			}
+// 		}
+// 	}
+// 	cerr << "getSrmSlices() " << slices.size() << endl;
+// 	return slices;
+// }
 
 void saveEICs(string filename) {
 	ofstream myfile(filename.c_str());
@@ -464,22 +540,23 @@ void loadCompoundCSVFile(string filename) {
 	myfile.close();
 }
 
-bool addPeakGroup(PeakGroup& grp1) {
-
-	for (unsigned int i = 0; i < allgroups.size(); i++) {
-		PeakGroup& grp2 = allgroups[i];
-		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
-				grp2.minRt, grp2.maxRt);
-		if (rtoverlap > 0.9 && ppmDist(grp1.meanMz, grp2.meanMz) < ppmMerge
-				&& grp1.maxIntensity < grp2.maxIntensity) {
-			return false;
-		}
-	}
-
-	//cerr << "\t\t accepting " << grp1.meanMz << "@" << grp1.meanRt;
-	allgroups.push_back(grp1);
-	return true;
-}
+//
+// bool addPeakGroup(PeakGroup& grp1) {
+//
+// 	for (unsigned int i = 0; i < allgroups.size(); i++) {
+// 		PeakGroup& grp2 = allgroups[i];
+// 		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
+// 				grp2.minRt, grp2.maxRt);
+// 		if (rtoverlap > 0.9 && ppmDist(grp1.meanMz, grp2.meanMz) < ppmMerge
+// 				&& grp1.maxIntensity < grp2.maxIntensity) {
+// 			return false;
+// 		}
+// 	}
+//
+// 	//cerr << "\t\t accepting " << grp1.meanMz << "@" << grp1.meanRt;
+// 	allgroups.push_back(grp1);
+// 	return true;
+// }
 
 void reduceGroups() {
 	sort(allgroups.begin(), allgroups.end(), PeakGroup::compMz);
@@ -728,4 +805,3 @@ void writeGroupXML(xml_node& parent, PeakGroup* g) {
 		}
 	}
 }
-

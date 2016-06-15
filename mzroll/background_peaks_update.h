@@ -16,6 +16,12 @@ class EIC;
 
 extern Database DB;
 
+/**
+ * @class BackgroundPeakUpdate
+ * @ingroup mzroll
+ * @brief Class which runs a background thread. Used for peak detection.
+ * @author Elucidata
+ */
 class BackgroundPeakUpdate: public QThread {
 Q_OBJECT
 
@@ -24,17 +30,39 @@ public:
 	BackgroundPeakUpdate(QWidget*);
 	~BackgroundPeakUpdate();
 
+	/**
+	 * [set Peak Detector]
+	 * @param pd [pointer to peakDetector]
+	 */
 	void setPeakDetector(PeakDetector* pd) {
 		peakDetector = *pd;
 	}
+
+	/**
+	 * [set RunFunction]
+	 * @param functionName [QString RunFunction]
+	 */
 	void setRunFunction(QString functionName);
 
+	/**
+	 * [stop thread]
+	 */
 	void stop() {
 		_stopped = true;
 	}
+
+	/**
+	 * [check for stopped thread]
+	 * @return [true if stopped, else false]
+	 */
 	bool stopped() {
 		return _stopped;
 	}
+
+	/**
+	 * [set Main Window]
+	 * @param mw [pointer to MainWindow]
+	 */
 	void setMainWindow(MainWindow* mw) {
 		mainwindow = mw;
 	}
@@ -42,29 +70,111 @@ public:
 	PeakDetector peakDetector;
 
 signals:
+
+/**
+ * [update ProgressBar]
+ * @param QString [message]
+ * @param int     [progress value]
+ * @param int     [total value]
+ */
 	void updateProgressBar(QString, int, int);
+
+	/**
+	 * [new PeakGroup]
+	 * @param group [pointer to PeakGroup]
+	 */
 	void newPeakGroup(PeakGroup* group);
 
 protected:
+	/**
+	 * [run method for a thread]
+	 */
 	void run(void);
 
 private:
 	string runFunction;
 	MainWindow *mainwindow;
 
+	/**
+	 * [align function]
+	 */
 	void align();
+
+	/**
+	 * [get PullIsotope Settings]
+	 */
 	void getPullIsotopeSettings();
+
+	/**
+	 * [write CSV Report]
+	 * @param setName [name of the set]
+	 */
 	void writeCSVRep(string setName);
+
+	/**
+	 * [get ProcessSlices Settings]
+	 */
 	void getProcessSlicesSettings();
+
+	/**
+	 * [pullIsotopes]
+	 * @param group [pointer to group]
+	 */
 	void pullIsotopes(PeakGroup *group);
+
+	/**
+	 * [processSlices]
+	 */
 	void processSlices(void);
+
+	/**
+	 * [process one Slice]
+	 * @method processSlice
+	 * @param  slice        [pointer to mzSlice]
+	 */
 	void processSlices(vector<mzSlice*>&slices, string setName);
+
+	/**
+	 * [process one Slice]
+	 * @method processSlice
+	 * @param  slice        [pointer to mzSlice]
+	 */
 	void processSlice(mzSlice& slice);
+
+	/**
+	 * [process Compounds]
+	 * @method processSlices
+	 * @param  set        [vector of pointer to Compound]
+	 * @param  setName       [name of set]
+	 */
 	void processCompounds(vector<Compound*> set, string setName);
+
+	/**
+	 * [compute Peaks]
+	 */
 	void computePeaks();
+
+	/**
+	 * [process Mass Slices]
+	 * @method processMassSlices
+	 */
 	void processMassSlices();
+
+	/**
+	 * [find Peaks for Orbitrap machine mode]
+	 */
 	void findPeaksOrbi(void);
+
+	/**
+	 * [find Peaks for QQQ mode]
+	 */
 	void findPeaksQQQ(void);
+
+	/**
+	 * [addPeakGroup description]
+	 * @param  group [pointer to Peak Group]
+	 * @return       [true if the group has been added to PeakGroup, else false]
+	 */
 	bool addPeakGroup(PeakGroup& group);
 
 private:
@@ -73,4 +183,3 @@ private:
 };
 
 #endif
-

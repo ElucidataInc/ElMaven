@@ -231,16 +231,16 @@ class Scan {
 		/**
 		 * [Deconvolution]
 		 * @method deconvolute
-		 * @param  mzfocus                [description]
-		 * @param  noiseLevel             [description]
-		 * @param  ppmMerge               [description]
-		 * @param  minSigNoiseRatio       [description]
-		 * @param  minDeconvolutionCharge [description]
-		 * @param  maxDeconvolutionCharge [description]
-		 * @param  minDeconvolutionMass   [description]
-		 * @param  maxDeconvolutionMass   [description]
-		 * @param  minChargedStates       [description]
-		 * @return [description]
+		 * @param  mzfocus                []
+		 * @param  noiseLevel             []
+		 * @param  ppmMerge               []
+		 * @param  minSigNoiseRatio       []
+		 * @param  minDeconvolutionCharge []
+		 * @param  maxDeconvolutionCharge []
+		 * @param  minDeconvolutionMass   []
+		 * @param  maxDeconvolutionMass   []
+		 * @param  minChargedStates       []
+		 * @return []
 		 */
 		ChargedSpecies* deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates );
 		//TODO deconvolute
@@ -445,7 +445,14 @@ public:
 		 * @method parseMzData
 		 * @param  char        [mzData file]
 		 */
-    void parseMzData(const char);
+    void parseMzData(const char*);
+
+		/**
+		 * [load data from mzCSV file]
+		 * @method parseMzData
+		 * @param  char        [mzCSV file]
+		 */
+		void parseMzCSV(const char*);
 
 		/**
 		 * [load data from mzXML file]
@@ -489,16 +496,16 @@ public:
     map<string,string> mzML_cvParams(xml_node node);
 
 		/**
-		 * [parseMzMLChromatogromList description]
+		 * [parse MzML Chromatogrom List]
 		 * @method parseMzMLChromatogromList
-		 * @param  xml_node                  [description]
+		 * @param  xml_node                  [xml node]
 		 */
 	  void parseMzMLChromatogromList(xml_node);
 
 		/**
-		 * [parseMzMLSpectrumList description]
+		 * [parse MzML Spectrum List]
 		 * @method parseMzMLSpectrumList
-		 * @param  xml_node              [description]
+		 * @param  xml_node              [xml node]
 		 */
     void parseMzMLSpectrumList(xml_node);
 
@@ -528,14 +535,14 @@ public:
     void enumerateSRMScans();
 
 		/**
-		 * [correlation in EIC space]]
+		 * [find correlation in EIC space]
 		 * @method correlation
-		 * @param  mz1         [description]
-		 * @param  mz2         [description]
-		 * @param  ppm         [description]
-		 * @param  rt1         [description]
-		 * @param  rt2         [description]
-		 * @return [description]
+		 * @param  mz1         [m/z for first sample]
+		 * @param  mz2         [m/z for second sample]
+		 * @param  ppm         [ppm window]
+		 * @param  rt1         [retention time for first sample]
+		 * @param  rt2         [retention time for second sample]
+		 * @return [correlation]
 		 */
     float correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 );
 
@@ -562,58 +569,57 @@ public:
     Scan* getScan(unsigned int scanNum);
 
 		/**
-		 * [getAverageScan description]
+		 * [get Average Scan]
 		 * @method getAverageScan
-		 * @param  rtmin          [description]
-		 * @param  rtmax          [description]
-		 * @param  mslevel        [description]
-		 * @param  polarity       [description]
-		 * @param  resolution     [description]
+		 * @param  rtmin          [minimum retention time]
+		 * @param  rtmax          [maximum retention time]
+		 * @param  mslevel        [MS Level]
+		 * @param  polarity       [ionization mode/polarity]
+		 * @param  resolution     [mass resolution of the MS machine]
 		 * @return [pointer to Scan]
 		 */
     Scan* getAverageScan(float rtmin, float rtmax, int mslevel, int polarity, float resolution);
 
 		/**
 		 * [get eic based on minMz, maxMz, minRt, maxRt,mslevel]
-		 * @method getEIC
-		 * @param  float  [description]
-		 * @param  float  [description]
-		 * @param  float  [description]
-		 * @param  float  [description]
-		 * @param  int    [description]
-		 * @return [description]
+		 * @param  mzmin   [minimum m/z]
+		 * @param  mzmax   [maximum m/z]
+		 * @param  rtmin   [minimum retention time]
+		 * @param  rtmax   [maximum retention time]
+		 * @param  mslevel [MS Level]
+		 * @return         [pointer to EIC]
 		 */
-    EIC* getEIC(float,float,float,float,int);
+    EIC* getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel);
+
 
 		/**
 		 * [get eic based on srmId]
 		 * @method getEIC
-		 * @param  srmId  [description]
-		 * @return [description]
+		 * @param  srmId  [single reaction monitoring ID]
+		 * @return [pointer to EIC]
 		 */
     EIC* getEIC(string srmId);
 
 		/**
-		 * [getEIC description]
+		 * [get EIC]
 		 * @method getEIC
-		 * @param  precursorMz     [description]
-		 * @param  collisionEnergy [description]
-		 * @param  productMz       [description]
-		 * @param  amuQ1           [description]
-		 * @param  amuQ2           [description]
-		 * @return [description]
+		 * @param  precursorMz     [m/z of precur Ion]
+		 * @param  collisionEnergy [collision Energy]
+		 * @param  productMz       [m/z of product Ion]
+		 * @param  amuQ1           [amu in Q1 step]
+		 * @param  amuQ2           [amu in Q2 step]
+		 * @return [pointer to EIC]
 		 */
     EIC* getEIC(float precursorMz, float collisionEnergy, float productMz, float amuQ1, float amuQ2 );
 
 		/**
 		 * [get Total Ion Chromatogram]
-		 * @method getTIC
-		 * @param  float  [description]
-		 * @param  float  [description]
-		 * @param  int    [description]
-		 * @return [description]
+		 * @param  rtmin   [minimum retention time]
+		 * @param  rtmax   [maximum retention time]
+		 * @param  mslevel [MS level of the MS machine]
+		 * @return         [pointer to the EIC]
 		 */
-		EIC* getTIC(float,float,int);
+		EIC* getTIC(float rtmin, float rtmax, int mslevel);
 
     deque <Scan*> scans;
     string sampleName;
@@ -670,176 +676,174 @@ public:
     //class functions
 
 		/**
-		 * [addScan description]
+		 * [add Scan]
 		 * @method addScan
-		 * @param  s       [description]
+		 * @param  s       [scan]
 		 */
     void addScan(Scan*s);
 
 		/**
-		 * [getPolarity description]
+		 * [get Polarity]
 		 * @method getPolarity
-		 * @return [description]
+		 * @return [polarity of the scan]
 		 */
     inline int getPolarity() { if( scans.size()>0) return scans[0]->getPolarity(); return 0; }
 
 		/**
-		 * [scanCount description]
+		 * [scan Count]
 		 * @method scanCount
-		 * @return [description]
+		 * @return [scan count]
 		 */
     inline unsigned int   scanCount() { return(scans.size()); }
 
 		/**
-		 * [getSampleName description]
+		 * [get Sample Name]
 		 * @method getSampleName
-		 * @return [description]
+		 * @return [name of the sample]
 		 */
     inline string getSampleName() { return sampleName; }
 
 		/**
-		 * [setSampleOrder description]
+		 * [set Sample Order]
 		 * @method setSampleOrder
-		 * @param  x              [description]
+		 * @param  x              [sample order]
 		 */
     void setSampleOrder(int x) { _sampleOrder=x; }
 
 		/**
-		 * [getSampleOrder description]
+		 * [get Sample Order]
 		 * @method getSampleOrder
-		 * @return [description]
+		 * @return [sample order]
 		 */
     inline int	  getSampleOrder() { return _sampleOrder; }
 
 		/**
-		 * [getSetName description]
+		 * [get Set Name]
 		 * @method getSetName
-		 * @return [description]
+		 * @return [set name]
 		 */
     inline string  getSetName()  { return _setName; }
 
 		/**
-		 * [setSetName description]
+		 * [set set Name]
 		 * @method setSetName
-		 * @param  x          [description]
-		 * @return [description]
+		 * @param  x          [set name]
 		 */
     void   setSetName(string x) { _setName=x; }
 
 		/**
-		 * [setSampleName description]
+		 * [set Sample Name]
 		 * @method setSampleName
-		 * @param  x             [description]
-		 * @return [description]
+		 * @param  x             [sample name]
 		 */
     void   setSampleName(string x) { sampleName=x; }
 
 		/**
-		 * [getMaxRt description]
+		 * [get Max retention time]
 		 * @method getMaxRt
-		 * @param  samples  [description]
-		 * @return [description]
+		 * @param  samples  [vector of pointer to mzSample]
+		 * @return [maximum retention time]
 		 */
     static float getMaxRt(const vector<mzSample*>&samples);
 
 		/**
-		 * [C13Labeled description]
+		 * [C13Labeled?]
 		 * @method C13Labeled
-		 * @return [description]
+		 * @return [true or false]
 		 */
     bool C13Labeled(){ return _C13Labeled; }
 
 		/**
-		 * [N15Labeled description]
+		 * [N15Labeled]
 		 * @method N15Labeled
-		 * @return [description]
+		 * @return [true or false]
 		 */
     bool N15Labeled(){ return _N15Labeled; }
 
 		/**
-		 * [compSampleOrder description]
+		 * [compare Sample Order]
 		 * @method compSampleOrder
-		 * @param  a               [description]
-		 * @param  b               [description]
-		 * @return [description]
+		 * @param  a               [sample a]
+		 * @param  b               [sample b]
+		 * @return [true if sample order for sample a is less than b else false]
 		 */
     static bool compSampleOrder(const mzSample* a, const mzSample* b ) { return a->_sampleOrder < b->_sampleOrder; }
 
 		/**
-		 * [getMinMaxDimentions description]
+		 * [getMinMaxDimentions ]
 		 * @method getMinMaxDimentions
-		 * @param  samples             [description]
-		 * @return [description]
+		 * @param  samples             []
+		 * @return []
 		 */
 		static mzSlice getMinMaxDimentions(const vector<mzSample*>& samples);
 
 		/**
-		 * [setFilter_minIntensity description]
+		 * [setFilter_minIntensity ]
 		 * @method setFilter_minIntensity
-		 * @param  x                      [description]
+		 * @param  x                      []
 		 */
     static void setFilter_minIntensity(int x ) { filter_minIntensity=x; }
 
 		/**
-		 * [setFilter_centroidScans description]
+		 * [setFilter_centroidScans ]
 		 * @method setFilter_centroidScans
-		 * @param  x                       [description]
+		 * @param  x                       []
 		 */
     static void setFilter_centroidScans( bool x) { filter_centroidScans=x; }
 
 		/**
-		 * [setFilter_intensityQuantile description]
+		 * [setFilter_intensityQuantile ]
 		 * @method setFilter_intensityQuantile
-		 * @param  x                           [description]
+		 * @param  x                           []
 		 */
     static void setFilter_intensityQuantile(int x ) { filter_intensityQuantile=x; }
 
 		/**
-		 * [setFilter_mslevel description]
+		 * [setFilter_mslevel ]
 		 * @method setFilter_mslevel
-		 * @param  x                 [description]
+		 * @param  x                 []
 		 */
 		static void setFilter_mslevel(int x ) { filter_mslevel=x; }
 
 		/**
-		 * [setFilter_polarity description]
+		 * [setFilter_polarity ]
 		 * @method setFilter_polarity
-		 * @param  x                  [description]
+		 * @param  x                  []
 		 */
     static void setFilter_polarity(int x ) { filter_polarity=x; }
 
 		/**
-		 * [getFilter_minIntensity description]
+		 * [getFilter_minIntensity ]
 		 * @method getFilter_minIntensity
-		 * @return [description]
+		 * @return []
 		 */
     static int getFilter_minIntensity() { return filter_minIntensity; }
 
 		/**
-		 * [getFilter_intensityQuantile description]
+		 * [getFilter_intensityQuantile ]
 		 * @method getFilter_intensityQuantile
-		 * @return [description]
+		 * @return []
 		 */
     static int getFilter_intensityQuantile() { return filter_intensityQuantile; }
 
 		/**
-		 * [getFilter_centroidScans description]
+		 * [getFilter_centroidScans ]
 		 * @method getFilter_centroidScans
-		 * @return [description]
+		 * @return []
 		 */
     static int getFilter_centroidScans() { return filter_centroidScans; }
 
 		/**
-		 * [getFilter_mslevel description]
+		 * [getFilter_mslevel ]
 		 * @method getFilter_mslevel
-		 * @return [description]
+		 * @return []
 		 */
     static int getFilter_mslevel()  { return filter_mslevel; }
 
 		/**
-		 * [getFilter_polarity description]
+		 * [getFilter_polarity ]
 		 * @method getFilter_polarity
-		 * @return [description]
+		 * @return []
 		 */
     static int getFilter_polarity() { return filter_polarity; }
 
@@ -915,73 +919,73 @@ class EIC {
         float rtmax;
 
 			/**
-			 * [addPeak description]
+			 * [addPeak ]
 			 * @method addPeak
-			 * @param  peakPos [description]
-			 * @return [description]
+			 * @param  peakPos []
+			 * @return []
 			 */
 		Peak* addPeak(int peakPos);
 
 		/**
-		 * [deletePeak description]
+		 * [delete Peak]
 		 * @method deletePeak
-		 * @param  i          [description]
+		 * @param  i          [peak position]
 		 */
 		void deletePeak(unsigned int i);
 
 		/**
-		 * [getPeakPositions description]
+		 * [get Peak Positions]
 		 * @method getPeakPositions
-		 * @param  smoothWindow     [description]
+		 * @param  smoothWindow     [smoothing Window]
 		 */
         void getPeakPositions(int smoothWindow);
 
 				/**
-				 * [getPeakDetails description]
+				 * [get Peak Details]
 				 * @method getPeakDetails
-				 * @param  peak           [description]
+				 * @param  peak           [peak]
 				 */
 		void getPeakDetails(Peak& peak);
 
 		/**
-		 * [getPeakWidth description]
+		 * [get Peak Width]
 		 * @method getPeakWidth
-		 * @param  peak         [description]
+		 * @param  peak         [peak]
 		 */
 		void getPeakWidth(Peak& peak);
 
 		/**
-		 * [computeBaseLine description]
+		 * [compute BaseLine]
 		 * @method computeBaseLine
-		 * @param  smoothingWindow [description]
-		 * @param  dropTopX        [description]
+		 * @param  smoothingWindow [smoothing Window]
+		 * @param  dropTopX        [drop top X percent]
 		 */
         void computeBaseLine(int smoothingWindow, int dropTopX);
 
 				/**
-				 * [computeSpline description]
+				 * [compute Spline]
 				 * @method computeSpline
-				 * @param  smoothWindow  [description]
+				 * @param  smoothWindow  [smoothing Window]
 				 */
         void computeSpline(int smoothWindow);
 
 				/**
-				 * [findPeakBounds description]
+				 * [find Peak Bounds]
 				 * @method findPeakBounds
-				 * @param  peak           [description]
+				 * @param  peak           [peak]
 				 */
 		void findPeakBounds(Peak& peak);
 
 		/**
-		 * [getPeakStatistics description]
+		 * [get Peak Statistics]
 		 * @method getPeakStatistics
 		 */
 		void getPeakStatistics();
 
 		/**
-		 * [checkGaussianFit description]
+		 * [check Gaussian Fit]
 		 * @method checkGaussianFit
-		 * @param  peak             [description]
+		 * @param  peak             [peak]
 		 */
 		void checkGaussianFit(Peak& peak);
 
@@ -989,70 +993,70 @@ class EIC {
 		vector<mzPoint> getIntensityVector(Peak& peak);
 
 		/**
-		 * [summary description]
+		 * [summary]
 		 * @method summary
 		 */
 		void summary();
 
 		/**
-		 * [setSmootherType description]
+		 * [set Smoother Type]
 		 * @method setSmootherType
-		 * @param  x               [description]
+		 * @param  x               [Smoother type]
 		 */
         void setSmootherType(EIC::SmootherType x) { smootherType=x; }
 
 				/**
-				 * [setBaselineSmoothingWindow description]
+				 * [set Baseline Smoothing Window]
 				 * @method setBaselineSmoothingWindow
-				 * @param  x                          [description]
+				 * @param  x                          [baseline Smoothing Window]
 				 */
         void setBaselineSmoothingWindow(int x) { baselineSmoothingWindow=x;}
 
 				/**
-				 * [setBaselineDropTopX description]
+				 * [setBaselineDropTopX ]
 				 * @method setBaselineDropTopX
-				 * @param  x                   [description]
+				 * @param  x                   []
 				 */
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
 
 				/**
-				 * [size description]
+				 * [size ]
 				 * @method size
-				 * @return [description]
+				 * @return []
 				 */
 		inline unsigned int size() { return intensity.size();}
 
 		/**
-		 * [getSample description]
+		 * [getSample ]
 		 * @method getSample
-		 * @return [description]
+		 * @return []
 		 */
 		inline mzSample* getSample() { return sample; }
 
 
 		static vector<PeakGroup> groupPeaks(vector<EIC*>&eics, int smoothingWindow, float maxRtDiff);
 /**
- * [eicMerge description]
+ * [eicMerge ]
  * @method eicMerge
- * @param  eics     [description]
- * @return [description]
+ * @param  eics     []
+ * @return []
  */
 		static EIC* eicMerge(const vector<EIC*>& eics);
 
 		/**
-		 * [removeLowRankGroups description]
+		 * [remove Low Rank Groups ]
 		 * @method removeLowRankGroups
-		 * @param  groups              [description]
-		 * @param  rankLimit           [description]
+		 * @param  groups              [vector of peak groups]
+		 * @param  rankLimit           [group rank limit ]
 		 */
 		static void removeLowRankGroups(vector<PeakGroup>&groups, unsigned int rankLimit );
 
 		/**
-		 * [compMaxIntensity description]
+		 * [compare Max Intensity]
 		 * @method compMaxIntensity
-		 * @param  a                [description]
-		 * @param  b                [description]
-		 * @return [description]
+		 * @param  a                [EIC a]
+		 * @param  b                [EIC b]
+		 * @return [true or false]
 		 */
 		static bool compMaxIntensity(EIC* a, EIC* b ) { return a->maxIntensity > b->maxIntensity; }
 
@@ -1150,130 +1154,130 @@ class Peak {
 
 	public:
 		/**
-		 * [setEIC description]
+		 * [setEIC ]
 		 * @method setEIC
-		 * @param  e      [description]
+		 * @param  e      []
 		 */
 		void setEIC(EIC* e) { eic=e; }
 
 		/**
-		 * [getEIC description]
+		 * [getEIC ]
 		 * @method getEIC
-		 * @return [description]
+		 * @return []
 		 */
 		inline EIC*	 getEIC() { return eic;    }
 
 		/**
-		 * [hasEIC description]
+		 * [hasEIC ]
 		 * @method hasEIC
-		 * @return [description]
+		 * @return []
 		 */
 		inline bool hasEIC() { return eic != NULL; }
 
 		/**
-		 * [getScan description]
+		 * [getScan ]
 		 * @method getScan
-		 * @return [description]
+		 * @return []
 		 */
 		Scan* getScan() { if(sample) return sample->getScan(scan); else return NULL; }
 
 		/**
-		 * [setSample description]
+		 * [setSample ]
 		 * @method setSample
-		 * @param  s         [description]
-		 * @return [description]
+		 * @param  s         []
+		 * @return []
 		 */
 		void   setSample(mzSample* s ) { sample=s; }
 
 		/**
-		 * [getSample description]
+		 * [getSample ]
 		 * @method getSample
-		 * @return [description]
+		 * @return []
 		 */
 		inline mzSample* getSample() { return sample; }
 
 		/**
-		 * [hasSample description]
+		 * [hasSample ]
 		 * @method hasSample
-		 * @return [description]
+		 * @return []
 		 */
 		inline bool hasSample() 	{  return sample != NULL; }
 
 		/**
-		 * [setLabel description]
+		 * [setLabel ]
 		 * @method setLabel
-		 * @param  label    [description]
+		 * @param  label    []
 		 */
 		void setLabel(char label) { this->label=label;}
 
 		/**
-		 * [getLabel description]
+		 * [getLabel ]
 		 * @method getLabel
-		 * @return [description]
+		 * @return []
 		 */
 		inline char getLabel() { return label;}
 
 
 /**
- * [compRt description]
+ * [compRt ]
  * @method compRt
- * @param  a      [description]
- * @param  b      [description]
- * @return [description]
+ * @param  a      []
+ * @param  b      []
+ * @return []
  */
 		static bool compRt(const Peak& a, const Peak& b ) { return a.rt < b.rt; }
 
 		/**
-		 * [compIntensity description]
+		 * [compIntensity ]
 		 * @method compIntensity
-		 * @param  a             [description]
-		 * @param  b             [description]
-		 * @return [description]
+		 * @param  a             []
+		 * @param  b             []
+		 * @return []
 		 */
 		static bool compIntensity(const Peak& a, const Peak& b ) { return b.peakIntensity < a.peakIntensity; }
 
 		/**
-		 * [compArea description]
+		 * [compArea ]
 		 * @method compArea
-		 * @param  a        [description]
-		 * @param  b        [description]
-		 * @return [description]
+		 * @param  a        []
+		 * @param  b        []
+		 * @return []
 		 */
 		static bool compArea(const Peak& a, const Peak& b ) { return b.peakAreaFractional < a.peakAreaFractional; }
 
 		/**
-		 * [compMz description]
+		 * [compMz ]
 		 * @method compMz
-		 * @param  a      [description]
-		 * @param  b      [description]
-		 * @return [description]
+		 * @param  a      []
+		 * @param  b      []
+		 * @return []
 		 */
 		static bool compMz(const Peak& a, const Peak& b ) { return a.peakMz < b.peakMz; }
 
 		/**
-		 * [compSampleName description]
+		 * [compSampleName ]
 		 * @method compSampleName
-		 * @param  a              [description]
-		 * @param  b              [description]
-		 * @return [description]
+		 * @param  a              []
+		 * @param  b              []
+		 * @return []
 		 */
 		static bool compSampleName(const Peak& a, const Peak& b ) { return a.sample->getSampleName() < b.sample->getSampleName(); }
 
 		/**
-		 * [compSampleOrder description]
+		 * [compSampleOrder ]
 		 * @method compSampleOrder
-		 * @param  a               [description]
-		 * @param  b               [description]
-		 * @return [description]
+		 * @param  a               []
+		 * @param  b               []
+		 * @return []
 		 */
 		static bool compSampleOrder(const Peak& a, const Peak& b ) { return a.sample->getSampleOrder() < b.sample->getSampleOrder(); }
 
 		/**
-		 * [overlap description]
+		 * [overlap ]
 		 * @method overlap
-		 * @param  a       [description]
-		 * @param  b       [description]
-		 * @return [description]
+		 * @param  a       []
+		 * @param  b       []
+		 * @return []
 		 */
 		inline static float overlap(const Peak& a, const Peak& b) {	return( checkOverlap(a.rtmin, a.rtmax, b.rtmin, b.rtmax)); }
                 vector<mzLink> findCovariants();
@@ -1296,16 +1300,16 @@ class PeakGroup {
 
 		bool operator==(const PeakGroup* o);
 		/**
-		 * [copyObj description]
+		 * [copyObj ]
 		 * @method copyObj
-		 * @param  o       [description]
+		 * @param  o       []
 		 */
 		void copyObj(const PeakGroup& o);
 
 		/**
-		 * [copy description]
+		 * [copy ]
 		 * @method copy
-		 * @param  o    [description]
+		 * @param  o    []
 		 */
 		void copy(const PeakGroup* o);
 
@@ -1324,7 +1328,7 @@ class PeakGroup {
 		/**
 		 * [compound name + tagString + srmid]
 		 * @method getName
-		 * @return [description]
+		 * @return []
 		 */
                 string getName();
 
@@ -1370,74 +1374,74 @@ class PeakGroup {
 		float changePValue;
 
 		/**
-		 * [hasSrmId description]
+		 * [hasSrmId ]
 		 * @method hasSrmId
-		 * @return [description]
+		 * @return []
 		 */
 		bool  	hasSrmId()  { return srmId.empty(); }
 
 		/**
-		 * [setSrmId description]
+		 * [setSrmId ]
 		 * @method setSrmId
-		 * @param  id       [description]
-		 * @return [description]
+		 * @param  id       []
+		 * @return []
 		 */
 		void  	setSrmId(string id)	  { srmId=id; }
 
 		/**
-		 * [getSrmId description]
+		 * [getSrmId ]
 		 * @method getSrmId
-		 * @return [description]
+		 * @return []
 		 */
 		inline  string getSrmId() { return srmId; }
 
 
 		/**
-		 * [isPrimaryGroup description]
+		 * [isPrimaryGroup ]
 		 * @method isPrimaryGroup
-		 * @return [description]
+		 * @return []
 		 */
 		 bool isPrimaryGroup();
 
 		 /**
-		  * [hasCompoundLink description]
+		  * [hasCompoundLink ]
 		  * @method hasCompoundLink
-		  * @return [description]
+		  * @return []
 		  */
 		inline bool hasCompoundLink()  { if(compound != NULL) return true ; return false; }
 
 /**
- * [isEmpty description]
+ * [isEmpty ]
  * @method isEmpty
- * @return [description]
+ * @return []
  */
 	inline bool isEmpty()   { if(peaks.size() == 0) return true; return false; }
 
 		/**
-		 * [peakCount description]
+		 * [peakCount ]
 		 * @method peakCount
-		 * @return [description]
+		 * @return []
 		 */
 	inline unsigned int peakCount()  { return peaks.size(); 	  }
 
 		/**
-		 * [childCount description]
+		 * [childCount ]
 		 * @method childCount
-		 * @return [description]
+		 * @return []
 		 */
 	inline unsigned int childCount() { return children.size(); }
 
 	/**
-	 * [getCompound description]
+	 * [getCompound ]
 	 * @method getCompound
-	 * @return [description]
+	 * @return []
 	 */
 	inline Compound* getCompound() { return compound; }
 
 	/**
-	 * [getParent description]
+	 * [getParent ]
 	 * @method getParent
-	 * @return [description]
+	 * @return []
 	 */
 		inline PeakGroup* getParent() { return parent; }
 
@@ -1448,46 +1452,46 @@ class PeakGroup {
 		inline deque<PeakGroup>& getChildren()  { return children; }
 
 /**
- * [setParent description]
+ * [setParent ]
  * @method setParent
- * @param  p         [description]
+ * @param  p         []
  */
 		inline void setParent(PeakGroup* p) {parent=p;}
 
 /**
- * [setLabel description]
+ * [setLabel ]
  * @method setLabel
- * @param  label    [description]
+ * @param  label    []
  */
 		inline void setLabel(char label) { this->label=label;}
 
 		/**
-		 * [ppmDist description]
+		 * [ppmDist ]
 		 * @method ppmDist
-		 * @param  cmass   [description]
-		 * @return [description]
+		 * @param  cmass   []
+		 * @return []
 		 */
 	inline float ppmDist(float cmass) { return mzUtils::ppmDist(cmass,meanMz); }
 
 	/**
-	 * [addPeak description]
+	 * [addPeak ]
 	 * @method addPeak
-	 * @param  peak    [description]
+	 * @param  peak    []
 	 */
 		inline void addPeak(const Peak& peak) { peaks.push_back(peak); peaks.back().groupNum=groupId; }
 
 /**
- * [addChild description]
+ * [addChild ]
  * @method addChild
- * @param  child    [description]
+ * @param  child    []
  */
 		inline void addChild(const PeakGroup& child) { children.push_back(child); children.back().parent = this;   }
 
 /**
- * [getPeak description]
+ * [getPeak ]
  * @method getPeak
- * @param  sample  [description]
- * @return [description]
+ * @param  sample  []
+ * @return []
  */
 
 		Peak* getPeak(mzSample* sample);
@@ -1495,259 +1499,259 @@ class PeakGroup {
 		GroupType _type;
 
 /**
- * [type description]
+ * [type ]
  * @method type
- * @return [description]
+ * @return []
  */
 		inline GroupType type() { return _type; }
 /**
- * [setType description]
+ * [setType ]
  * @method setType
- * @param  t       [description]
+ * @param  t       []
  */
 		inline void setType(GroupType t)  { _type = t; }
 
 /**
- * [isIsotope description]
+ * [isIsotope ]
  * @method isIsotope
- * @return [description]
+ * @return []
  */
 	inline bool isIsotope() { return _type == Isotope; }
 
 /**
- * [isFragment description]
+ * [isFragment ]
  * @method isFragment
- * @return [description]
+ * @return []
  */
 		inline bool isFragment() { return _type == Fragment; }
 
 		/**
-		 * [isAdduct description]
+		 * [isAdduct ]
 		 * @method isAdduct
-		 * @return [description]
+		 * @return []
 		 */
 	inline bool isAdduct() {  return _type == Adduct; }
 
 	/**
-	 * [summary description]
+	 * [summary ]
 	 * @method summary
 	 */
 		void summary();
 
 		/**
-		 * [groupStatistics description]
+		 * [groupStatistics ]
 		 * @method groupStatistics
 		 */
 		void groupStatistics();
 
 		/**
-		 * [updateQuality description]
+		 * [updateQuality ]
 		 * @method updateQuality
 		 */
 		void updateQuality();
 
 		/**
-		 * [medianRt description]
+		 * [medianRt ]
 		 * @method medianRt
-		 * @return [description]
+		 * @return []
 		 */
 		float medianRt();
 
 		/**
-		 * [meanRtW description]
+		 * [meanRtW ]
 		 * @method meanRtW
-		 * @return [description]
+		 * @return []
 		 */
 		float meanRtW();
 
 /**
- * [reduce description]
+ * [reduce ]
  * @method reduce
  */
 		void reduce();
 
 		/**
-		 * [fillInPeaks description]
+		 * [fillInPeaks ]
 		 * @method fillInPeaks
-		 * @param  eics        [description]
+		 * @param  eics        []
 		 */
 		void fillInPeaks(const vector<EIC*>& eics);
 
 		/**
-		 * [computeAvgBlankArea description]
+		 * [computeAvgBlankArea ]
 		 * @method computeAvgBlankArea
-		 * @param  eics                [description]
+		 * @param  eics                []
 		 */
 		void computeAvgBlankArea(const vector<EIC*>& eics);
 
 		/**
-		 * [groupOverlapMatrix description]
+		 * [groupOverlapMatrix ]
 		 * @method groupOverlapMatrix
 		 */
 		void groupOverlapMatrix();
 
 /**
- * [getSamplePeak description]
+ * [getSamplePeak ]
  * @method getSamplePeak
- * @param  sample        [description]
- * @return [description]
+ * @param  sample        []
+ * @return []
  */
 		Peak* getSamplePeak(mzSample* sample);
 
 /**
- * [deletePeaks description]
+ * [deletePeaks ]
  * @method deletePeaks
  */
 		void deletePeaks();
 
 			/**
-			 * [deletePeak description]
+			 * [deletePeak ]
 			 * @method deletePeak
-			 * @param  index      [description]
-			 * @return [description]
+			 * @param  index      []
+			 * @return []
 			 */
 		bool deletePeak(unsigned int index);
 
 /**
- * [clear description]
+ * [clear ]
  * @method clear
  */
 		void clear();
 
 		/**
-		 * [deleteChildren description]
+		 * [deleteChildren ]
 		 * @method deleteChildren
 		 */
 		void deleteChildren();
 
 		/**
-		 * [deleteChild description]
+		 * [deleteChild ]
 		 * @method deleteChild
-		 * @param  index       [description]
-		 * @return [description]
+		 * @param  index       []
+		 * @return []
 		 */
 		bool deleteChild(unsigned int index);
 
 		/**
-		 * [deleteChild description]
+		 * [deleteChild ]
 		 * @method deleteChild
-		 * @param  child       [description]
-		 * @return [description]
+		 * @param  child       []
+		 * @return []
 		 */
 		bool deleteChild(PeakGroup* child);
 
 		/**
-		 * [copyChildren description]
+		 * [copyChildren ]
 		 * @method copyChildren
-		 * @param  other        [description]
+		 * @param  other        []
 		 */
         void copyChildren(const PeakGroup& other);
 
 		vector<float> getOrderedIntensityVector(vector<mzSample*>& samples, QType type);
 
 		/**
-		 * [reorderSamples description]
+		 * [reorderSamples ]
 		 * @method reorderSamples
 		 */
 		void reorderSamples();
 
 		/**
-		 * [compRt description]
+		 * [compRt ]
 		 * @method compRt
-		 * @param  a      [description]
-		 * @param  b      [description]
-		 * @return [description]
+		 * @param  a      []
+		 * @param  b      []
+		 * @return []
 		 */
 		static bool compRt(const PeakGroup& a, const PeakGroup& b ) { return(a.meanRt < b.meanRt); }
 
 /**
- * [compMz description]
+ * [compMz ]
  * @method compMz
- * @param  a      [description]
- * @param  b      [description]
- * @return [description]
+ * @param  a      []
+ * @param  b      []
+ * @return []
  */
 								static bool compMz(const PeakGroup& a, const PeakGroup& b ) { return(a.meanMz > b.meanMz); }
 
 								/**
-								 * [compIntensity description]
+								 * [compIntensity ]
 								 * @method compIntensity
-								 * @param  a             [description]
-								 * @param  b             [description]
-								 * @return [description]
+								 * @param  a             []
+								 * @param  b             []
+								 * @return []
 								 */
 								static bool compIntensity(const PeakGroup& a, const PeakGroup& b ) { return(a.maxIntensity > b.maxIntensity); }
 
 								/**
-								 * [compArea description]
+								 * [compArea ]
 								 * @method compArea
-								 * @param  a        [description]
-								 * @param  b        [description]
-								 * @return [description]
+								 * @param  a        []
+								 * @param  b        []
+								 * @return []
 								 */
 		static bool compArea(const PeakGroup& a, const PeakGroup& b ) { return(a.maxPeakFracionalArea > b.maxPeakFracionalArea); }
 
 		/**
-		 * [compQuality description]
+		 * [compQuality ]
 		 * @method compQuality
-		 * @param  a           [description]
-		 * @param  b           [description]
-		 * @return [description]
+		 * @param  a           []
+		 * @param  b           []
+		 * @return []
 		 */
 		static bool compQuality(const PeakGroup& a, const PeakGroup& b ) { return(a.maxQuality > b.maxQuality); }
 		//static bool compInfoScore(const PeakGroup& a, const PeakGroup& b ) { return(a.informationScore > b.informationScore); }
 
 		/**
-		 * [compRank description]
+		 * [compRank ]
 		 * @method compRank
-		 * @param  a        [description]
-		 * @param  b        [description]
-		 * @return [description]
+		 * @param  a        []
+		 * @param  b        []
+		 * @return []
 		 */
 			          static bool compRank(const PeakGroup& a, const PeakGroup& b ) { return(a.groupRank > b.groupRank); }
 
 /**
- * [compRankPtr description]
+ * [compRankPtr ]
  * @method compRankPtr
- * @param  a           [description]
- * @param  b           [description]
- * @return [description]
+ * @param  a           []
+ * @param  b           []
+ * @return []
  */
 								static bool compRankPtr(const PeakGroup* a, const PeakGroup* b ) { return(a->groupRank > b->groupRank); }
 
 /**
- * [compRatio description]
+ * [compRatio ]
  * @method compRatio
- * @param  a         [description]
- * @param  b         [description]
- * @return [description]
+ * @param  a         []
+ * @param  b         []
+ * @return []
  */
 		static bool compRatio(const PeakGroup& a, const PeakGroup& b ) { return(a.changeFoldRatio < b.changeFoldRatio); }
 
 /**
- * [compPvalue description]
+ * [compPvalue ]
  * @method compPvalue
- * @param  a          [description]
- * @param  b          [description]
- * @return [description]
+ * @param  a          []
+ * @param  b          []
+ * @return []
  */
 		static bool compPvalue(const PeakGroup* a, const PeakGroup* b ) { return(a->changePValue< b->changePValue); }
 
 /**
- * [compC13 description]
+ * [compC13 ]
  * @method compC13
- * @param  a       [description]
- * @param  b       [description]
- * @return [description]
+ * @param  a       []
+ * @param  b       []
+ * @return []
  */
 								static bool compC13(const PeakGroup* a, const PeakGroup* b) { return(a->isotopeC13count < b->isotopeC13count); }
 
 /**
- * [compMetaGroup description]
+ * [compMetaGroup ]
  * @method compMetaGroup
- * @param  a             [description]
- * @param  b             [description]
- * @return [description]
+ * @param  a             []
+ * @param  b             []
+ * @return []
  */
 								static bool compMetaGroup(const PeakGroup& a, const PeakGroup& b) { return(a.metaGroupId < b.metaGroupId); }
                 bool operator< (const PeakGroup* b) { return this->maxIntensity < b->maxIntensity; }
@@ -1954,54 +1958,54 @@ public:
     int maxIsotopeMass;
 
 		/**
-		 * [compIntensity description]
+		 * [compIntensity ]
 		 * @method compIntensity
-		 * @param  a             [description]
-		 * @param  b             [description]
-		 * @return [description]
+		 * @param  a             []
+		 * @param  b             []
+		 * @return []
 		 */
     static bool compIntensity(ChargedSpecies* a, ChargedSpecies* b ) { return a->totalIntensity > b->totalIntensity; }
 
 		/**
-		 * [compMass description]
+		 * [compMass ]
 		 * @method compMass
-		 * @param  a        [description]
-		 * @param  b        [description]
-		 * @return [description]
+		 * @param  a        []
+		 * @param  b        []
+		 * @return []
 		 */
 		static bool compMass(ChargedSpecies* a, ChargedSpecies* b ) { return a->deconvolutedMass < b->deconvolutedMass; }
 
 		/**
-		 * [compMatches description]
+		 * [compMatches ]
 		 * @method compMatches
-		 * @param  a           [description]
-		 * @param  b           [description]
-		 * @return [description]
+		 * @param  a           []
+		 * @param  b           []
+		 * @return []
 		 */
 		static bool compMatches(ChargedSpecies* a, ChargedSpecies* b ) { return a->countMatches > b->countMatches; }
 
 		/**
-		 * [compRt description]
+		 * [compRt ]
 		 * @method compRt
-		 * @param  a      [description]
-		 * @param  b      [description]
-		 * @return [description]
+		 * @param  a      []
+		 * @param  b      []
+		 * @return []
 		 */
 		static bool compRt(ChargedSpecies* a, ChargedSpecies* b ) { return a->meanRt < b->meanRt; }
 
 		/**
-		 * [compMetaGroup description]
+		 * [compMetaGroup ]
 		 * @method compMetaGroup
-		 * @param  a             [description]
-		 * @param  b             [description]
-		 * @return [description]
+		 * @param  a             []
+		 * @param  b             []
+		 * @return []
 		 */
     static bool compMetaGroup(ChargedSpecies* a, ChargedSpecies* b ) {
         return (a->isotopicClusterId * 100000 + a->deconvolutedMass  < b->isotopicClusterId* 100000 + b->deconvolutedMass);
     }
 
 		/**
-		 * [updateIsotopeStatistics description]
+		 * [updateIsotopeStatistics ]
 		 * @method updateIsotopeStatistics
 		 */
     void updateIsotopeStatistics() {
