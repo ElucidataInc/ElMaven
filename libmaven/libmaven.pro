@@ -10,7 +10,7 @@ LIBS += -L.
 
 INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/
 
-SOURCES = 	base64.cpp \
+SOURCES = 		base64.cpp \
                 mzMassCalculator.cpp \
                 mzSample.cpp \
                 mzUtils.cpp \
@@ -18,17 +18,21 @@ SOURCES = 	base64.cpp \
                 mzFit.cpp \
                 mzAligner.cpp \
                 mzMassSlicer.cpp \
-       		PeakGroup.cpp \
-       		EIC.cpp \
-       		Scan.cpp \
-       		Peak.cpp  \
-       		Compound.cpp \
-       		savgol.cpp \
-       		SavGolSmoother.cpp \
+	       		PeakGroup.cpp \
+	       		EIC.cpp \
+	       		Scan.cpp \
+	       		Peak.cpp  \
+	       		Compound.cpp \
+	       		savgol.cpp \
+       			SavGolSmoother.cpp \
                 PeakDetector.cpp \
-                mavenparameters.cpp
+                mavenparameters.cpp \
+                classifier.cpp \
+                classifierNaiveBayes.cpp \
+                classifierNeuralNet.cpp \
+                csvreports.cpp
 
-HEADERS += 	base64.h \
+HEADERS += 		base64.h \
                 mzFit.h \
                 mzMassSlicer.h \
                 mzSample.h \
@@ -38,6 +42,10 @@ HEADERS += 	base64.h \
                 statistics.h \
                 SavGolSmoother.h \
                 PeakDetector.h \
-                mavenparameters.h
+                mavenparameters.h\
+                classifier.h \
+                classifierNaiveBayes.h \
+                classifierNeuralNet.h \
+                csvreports.h
 
 message($$LIBS)

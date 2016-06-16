@@ -56,10 +56,6 @@ HEADERS +=  stable.h \
                     graphwidget.h \
                     settingsform.h \
                     database.h \
-                    classifier.h \
-                    classifierNaiveBayes.h \
-                    classifierNeuralNet.h \
-                    csvreports.h \
                     background_peaks_update.h \
                     isotopeplot.h\
                     barplot.h \
@@ -104,11 +100,7 @@ HEADERS +=  stable.h \
 
 
 SOURCES += mainwindow.cpp  \
-classifier.cpp \
-classifierNaiveBayes.cpp \
-classifierNeuralNet.cpp \
 database.cpp \
-csvreports.cpp \
  plotdock.cpp \
  treedockwidget.cpp \
  node.cpp \

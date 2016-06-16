@@ -10,21 +10,19 @@
 #include <vector>
 #include "classifier.h"
 
-
 using namespace std;
 
-class ClassifierNeuralNet: public Classifier
-{
+class ClassifierNeuralNet: public Classifier {
 public:
 	ClassifierNeuralNet();
 	~ClassifierNeuralNet();
 	void classify(PeakGroup* grp);
-    void train(vector<PeakGroup*>& groups);
-    void refineModel(PeakGroup* grp);
-    void saveModel(string filename);
-    void loadModel(string filename);
+	void train(vector<PeakGroup*>& groups);
+	void refineModel(PeakGroup* grp);
+	void saveModel(string filename);
+	void loadModel(string filename);
 	bool hasModel();
- 
+
 private:
 	vector<float> getFeatures(Peak& p);
 

@@ -60,3 +60,5 @@ bin/peakdetector
 docs/html
 docs/latex
 /Release/
+
+*.user

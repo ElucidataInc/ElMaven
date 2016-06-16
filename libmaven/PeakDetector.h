@@ -18,7 +18,7 @@
 
 #include "mavenparameters.h"
 #include "mzSample.h"
-#include "../mzroll/classifier.h"
+#include "classifier.h"
 #include "mzMassCalculator.h"
 #include "mzMassSlicer.h"
 #include "mzUtils.h"
