@@ -1,24 +1,27 @@
 #ifndef PEAKDETECTOR_H
 #define PEAKDETECTOR_H
 
-#include <qstring.h>
 #include <string>
 #include <vector>
-
-#include "mzMassCalculator.h"
-#include "mzSample.h"
-#include "mzUtils.h"
 #include <qdatetime.h>
 #include <qdebug.h>
+#include <qstring.h>
 #include <algorithm>
+#include <cfloat>
+#include <climits>
+#include <cmath>
 #include <deque>
+#include <iomanip>
 #include <iostream>
 #include <map>
+#include <utility>
 
+#include "mavenparameters.h"
+#include "mzSample.h"
 #include "../mzroll/classifier.h"
+#include "mzMassCalculator.h"
 #include "mzMassSlicer.h"
-
-class Classifier;
+#include "mzUtils.h"
 
 /**
  * @class PeakDetector
@@ -31,157 +34,20 @@ public:
 	PeakDetector();
 
 	/**
-	 * [set Output Directory]
-	 * @method setOutputDir
-	 * @param  outdir       [name of the output directory]
+	 * [get Maven Parameters]
+	 * @return [params]
 	 */
-	void setOutputDir(QString outdir) {
-		outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
+	MavenParameters getMavenParameters() {
+		return mavenParameters;
 	}
 
 	/**
-	 * [set Maximum Group Count]
-	 * @method setMaxGroupCount
-	 * @param  x                [Maximum Group Count]
+	 * [set Maven Parameters]
+	 * @param mp [params]
 	 */
-	void setMaxGroupCount(int x) {
-		limitGroupCount = x;
+	void setMavenParameters(MavenParameters mp) {
+		mavenParameters = mp;
 	}
-
-	/**
-	 * [set Compounds]
-	 * @method setCompounds
-	 * @param  set          [vector of pointer to Compound]
-	 */
-	void setCompounds(vector<Compound*> set) {
-		compounds = set;
-	}
-
-	/**
-	 * [set mass Slices]
-	 * @method setSlices
-	 * @param  set       [vector of pointer to mzSlice]
-	 */
-	void setSlices(vector<mzSlice*> set) {
-		_slices = set;
-	}
-
-	/**
-	 * [set Peak Group]
-	 * @method setPeakGroup
-	 * @param  p            [pointer to Peak Group]
-	 */
-	void setPeakGroup(PeakGroup* p) {
-		_group = p;
-	}
-
-	/**
-	 * [set Average Scan Time]
-	 * @method setAverageScanTime
-	 */
-	void setAverageScanTime();
-
-	/**
-	 * [set Ionization Mode]
-	 * @method setIonizationMode
-	 */
-	void setIonizationMode();
-
-	/**
-	 * [set Samples]
-	 * @method setSamples
-	 * @param  set        [pointer to vector of pointer to mzSample]
-	 */
-	void setSamples(vector<mzSample*>&set);
-
-	bool writeCSVFlag;
-	bool alignSamplesFlag;
-	bool keepFoundGroups;
-	bool processMassSlicesFlag;
-	bool pullIsotopesFlag;
-	bool showProgressFlag;
-	bool matchRtFlag;
-	bool checkConvergance;
-
-	/**
-	 * default ionization mode used by mass spec
-	 */
-	int ionizationMode;
-
-	//mass slicing parameters
-	float mzBinStep;
-	float rtStepSize;
-	float avgScanTime;
-	float ppmMerge;
-
-	//peak detection
-
-	/**
-	 * smoothing window
-	 */
-	float eic_smoothingWindow;
-	int eic_smoothingAlgorithm;
-	float eic_ppmWindow;
-	int baseline_smoothingWindow;
-	int baseline_dropTopX;
-
-	//peak filtering
-	int minGoodPeakCount;
-	float minSignalBlankRatio;
-	float minNoNoiseObs;
-	float minSignalBaseLineRatio;
-	float minGroupIntensity;
-
-	/**
-	 * eic window around compound, compound detection setting
-	 */
-	float compoundPPMWindow;
-	float compoundRTWindow;
-	int eicMaxGroups;
-
-
-	/**
-	 * grouping of peaks across samples
-	 * do no group peaks that are greater than differ more than X in retention time
-	 */
-	float grouping_maxRtWindow;
-
-	/**
-	 * stop looking for groups if group count is greater than X
-	 */
-	int limitGroupCount;
-
-
-	/**
-	 * triple quad compound matching Q1
-	 */
-	float amuQ1;
-
-	/**
-	 * triple quad compound matching Q3
-	 */
-	float amuQ3;
-
-	float minQuality;
-	string ligandDbFilename;
-
-	double maxIsotopeScanDiff;
-	double maxNaturalAbundanceErr;
-	double minIsotopicCorrelation;
-	bool C13Labeled;
-	bool N15Labeled;
-	bool S34Labeled;
-	bool D2Labeled;
-
-	string outputdir;
-
-	vector<PeakGroup> allgroups;
-	MassCalculator mcalc;
-	Classifier* clsf;
-	PeakGroup* _group;
-	vector<mzSample*> samples;
-	vector<Compound*> compounds;
-	vector<mzSlice*> _slices;
 
 	/**
 	 * [align Samples using Aligner class]
@@ -232,21 +98,13 @@ public:
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
 
-	/**
-	 * [cleanup all groups]
-	 * @method cleanup
-	 */
-	void cleanup();
-
-	/**
-	 *
-	 */
 	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
 			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
 			float amuQ1, float amuQ3, int baselineSmoothingWindow,
 			int baselineDropTopX);
 
 private:
+
 	/**
 	 * [add Peak Group]
 	 * @method addPeakGroup
@@ -254,13 +112,7 @@ private:
 	 * @return [True if group is added to all groups, else False]
 	 */
 	bool addPeakGroup(PeakGroup& group);
-
-	/**
-	 * [print parameter Settings]
-	 * @method printSettings
-	 */
-	void printSettings();
-
+	MavenParameters mavenParameters;
 };
 
 /**

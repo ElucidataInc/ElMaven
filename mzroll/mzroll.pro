@@ -30,11 +30,11 @@ message($$LIBS)
 INSTALLS += sources target
 
 FORMS = forms/settingsform.ui  \
-		forms/masscalcwidget.ui \
-#		forms/ligandwidget.ui \
-		forms/adductwidget.ui \
-		forms/isotopeswidget.ui \
-		forms/peakdetectiondialog.ui \
+        forms/masscalcwidget.ui \
+#	forms/ligandwidget.ui \
+        forms/adductwidget.ui \
+        forms/isotopeswidget.ui \
+        forms/peakdetectiondialog.ui \
         forms/comparesamplesdialog.ui \
         forms/trainingdialog.ui \
         forms/alignmentdialog.ui \
@@ -45,10 +45,10 @@ FORMS = forms/settingsform.ui  \
         forms/spectramatching.ui
 
 HEADERS +=  stable.h \
-                    globals.h \
-                    mainwindow.h \
-                    tinyplot.h \
-                    node.h \
+            globals.h \
+            mainwindow.h \
+            tinyplot.h \
+            node.h \
                     enzyme_node.h \
                     plotdock.h \
                     metabolite_node.h \

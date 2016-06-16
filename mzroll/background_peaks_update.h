@@ -8,6 +8,7 @@
 #include "csvreports.h"
 #include <iostream>
 #include "../libmaven/PeakDetector.h"
+#include <../libmaven/mavenparameters.h>
 
 class MainWindow;
 class Database;
@@ -36,6 +37,14 @@ public:
 	 */
 	void setPeakDetector(PeakDetector* pd) {
 		peakDetector = *pd;
+	}
+
+	/**
+	 * [get Peak Detector]
+	 * @return peakDetector
+	 */
+	PeakDetector getPeakDetector() {
+		return peakDetector;
 	}
 
 	/**
@@ -68,15 +77,16 @@ public:
 	}
 
 	PeakDetector peakDetector;
+	MavenParameters mavenParameters;
 
 signals:
 
-/**
- * [update ProgressBar]
- * @param QString [message]
- * @param int     [progress value]
- * @param int     [total value]
- */
+	/**
+	 * [update ProgressBar]
+	 * @param QString [message]
+	 * @param int     [progress value]
+	 * @param int     [total value]
+	 */
 	void updateProgressBar(QString, int, int);
 
 	/**

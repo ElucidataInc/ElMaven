@@ -4,6 +4,8 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
 	PeakDetector* pd = new PeakDetector(); //create PeakDetector instance
 	setPeakDetector(pd);
 
+	mavenParameters = pd->getMavenParameters();
+
 	mainwindow = NULL;
 	_stopped = true;
 	//	setTerminationEnabled(false);
@@ -11,7 +13,7 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
 }
 
 BackgroundPeakUpdate::~BackgroundPeakUpdate() {
-	peakDetector.cleanup(); //remove allgroups
+	mavenParameters.cleanup(); //remove allgroups
 }
 
 void BackgroundPeakUpdate::run(void) {
@@ -22,14 +24,15 @@ void BackgroundPeakUpdate::run(void) {
 	}
 	_stopped = false;
 
-	if (peakDetector.samples.size() == 0)
-		peakDetector.samples = mainwindow->getSamples(); //get samples
-	peakDetector.clsf = mainwindow->getClassifier(); //get classification modej
+	if (mavenParameters.samples.size() == 0) {
+		mavenParameters.samples = mainwindow->getSamples(); //get samples
+	}
+	mavenParameters.clsf = mainwindow->getClassifier(); //get classification modej
 
-	peakDetector.setIonizationMode();
+	mavenParameters.setIonizationMode();
 
 	if (mainwindow->getIonizationMode())
-		peakDetector.ionizationMode = mainwindow->getIonizationMode(); //user specified ionization mode
+		mavenParameters.ionizationMode = mainwindow->getIonizationMode(); //user specified ionization mode
 
 	if (runFunction == "findPeaksQQQ") {
 		findPeaksQQQ();
@@ -38,7 +41,7 @@ void BackgroundPeakUpdate::run(void) {
 	} else if (runFunction == "processMassSlices") {
 		processMassSlices();
 	} else if (runFunction == "pullIsotopes") {
-		pullIsotopes(peakDetector._group);
+		pullIsotopes(mavenParameters._group);
 	} else if (runFunction == "computePeaks") {
 		computePeaks();
 	} else {
@@ -53,18 +56,18 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
 
 	//write reports
 	CSVReports* csvreports = NULL;
-	if (peakDetector.writeCSVFlag) {
-		string groupfilename = peakDetector.outputdir + setName + ".csv";
-		csvreports = new CSVReports(peakDetector.samples);
+	if (mavenParameters.writeCSVFlag) {
+		string groupfilename = mavenParameters.outputdir + setName + ".csv";
+		csvreports = new CSVReports(mavenParameters.samples);
 		csvreports->setUserQuantType(mainwindow->getUserQuantType());
 		csvreports->openGroupReport(groupfilename);
 	}
 
-	for (int j = 0; j < peakDetector.allgroups.size(); j++) {
-		PeakGroup& group = peakDetector.allgroups[j];
+	for (int j = 0; j < mavenParameters.allgroups.size(); j++) {
+		PeakGroup& group = mavenParameters.allgroups[j];
 		Compound* compound = group.compound;
 
-		if (peakDetector.pullIsotopesFlag && !group.isIsotope())
+		if (mavenParameters.pullIsotopesFlag && !group.isIsotope())
 			pullIsotopes(&group);
 		if (csvreports != NULL)
 			csvreports->addGroup(&group);
@@ -75,15 +78,15 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
 				compound->setPeakGroup(group);
 		}
 
-		if (peakDetector.keepFoundGroups) {
-			emit(newPeakGroup(&peakDetector.allgroups[j]));
+		if (mavenParameters.keepFoundGroups) {
+			emit(newPeakGroup(&mavenParameters.allgroups[j]));
 			QCoreApplication::processEvents();
 		}
 
-		if (peakDetector.showProgressFlag && peakDetector.pullIsotopesFlag
+		if (mavenParameters.showProgressFlag && mavenParameters.pullIsotopesFlag
 				&& j % 10 == 0) {
 			emit(updateProgressBar("Calculating Isotopes", j,
-					peakDetector.allgroups.size()));
+					mavenParameters.allgroups.size()));
 		}
 	}
 
@@ -99,25 +102,28 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
 	if (mainwindow) {
 		QSettings* settings = mainwindow->getSettings();
 		if (settings) {
-			peakDetector.maxIsotopeScanDiff = settings->value(
+			mavenParameters.maxIsotopeScanDiff = settings->value(
 					"maxIsotopeScanDiff").toDouble();
-			peakDetector.minIsotopicCorrelation = settings->value(
+			mavenParameters.minIsotopicCorrelation = settings->value(
 					"minIsotopicCorrelation").toDouble();
-			peakDetector.maxNaturalAbundanceErr = settings->value(
+			mavenParameters.maxNaturalAbundanceErr = settings->value(
 					"maxNaturalAbundanceErr").toDouble();
-			peakDetector.C13Labeled = settings->value("C13Labeled").toBool();
-			peakDetector.N15Labeled = settings->value("N15Labeled").toBool();
-			peakDetector.S34Labeled = settings->value("S34Labeled").toBool();
-			peakDetector.D2Labeled = settings->value("D2Labeled").toBool();
+			mavenParameters.C13Labeled = settings->value("C13Labeled").toBool();
+			mavenParameters.N15Labeled = settings->value("N15Labeled").toBool();
+			mavenParameters.S34Labeled = settings->value("S34Labeled").toBool();
+			mavenParameters.D2Labeled = settings->value("D2Labeled").toBool();
 			QSettings* settings = mainwindow->getSettings();
-			peakDetector.eic_smoothingAlgorithm = settings->value(
+			mavenParameters.eic_smoothingAlgorithm = settings->value(
 					"eic_smoothingAlgorithm").toInt();
 
 			//Feng note: assign labeling state to sample
-			peakDetector.samples[0]->_C13Labeled = peakDetector.C13Labeled;
-			peakDetector.samples[0]->_N15Labeled = peakDetector.N15Labeled;
-			peakDetector.samples[0]->_S34Labeled = peakDetector.S34Labeled;
-			peakDetector.samples[0]->_D2Labeled = peakDetector.D2Labeled;
+			mavenParameters.samples[0]->_C13Labeled =
+					mavenParameters.C13Labeled;
+			mavenParameters.samples[0]->_N15Labeled =
+					mavenParameters.N15Labeled;
+			mavenParameters.samples[0]->_S34Labeled =
+					mavenParameters.S34Labeled;
+			mavenParameters.samples[0]->_D2Labeled = mavenParameters.D2Labeled;
 			//End Feng addition
 		}
 	}
@@ -135,22 +141,22 @@ void BackgroundPeakUpdate::processSlice(mzSlice& slice) {
 
 void BackgroundPeakUpdate::getProcessSlicesSettings() {
 	QSettings* settings = mainwindow->getSettings();
-	peakDetector.amuQ1 = settings->value("amuQ1").toDouble();
-	peakDetector.amuQ3 = settings->value("amuQ3").toDouble();
-	peakDetector.baseline_smoothingWindow = settings->value(
+	mavenParameters.amuQ1 = settings->value("amuQ1").toDouble();
+	mavenParameters.amuQ3 = settings->value("amuQ3").toDouble();
+	mavenParameters.baseline_smoothingWindow = settings->value(
 			"baseline_smoothing").toInt();
-	peakDetector.baseline_dropTopX =
+	mavenParameters.baseline_dropTopX =
 			settings->value("baseline_quantile").toInt();
 
 }
 
 void BackgroundPeakUpdate::align() {
 
-	if (peakDetector.alignSamplesFlag) {
+	if (mavenParameters.alignSamplesFlag) {
 		//		emit(updateProgressBar("Aligning Samples", 1, 100));
-		vector<PeakGroup*> groups(peakDetector.allgroups.size());
-		for (int i = 0; i < peakDetector.allgroups.size(); i++)
-			groups[i] = &peakDetector.allgroups[i];
+		vector<PeakGroup*> groups(mavenParameters.allgroups.size());
+		for (int i = 0; i < mavenParameters.allgroups.size(); i++)
+			groups[i] = &mavenParameters.allgroups[i];
 		Aligner aligner;
 		aligner.setMaxItterations(
 				mainwindow->alignmentDialog->maxItterations->value());
@@ -181,10 +187,10 @@ void BackgroundPeakUpdate::processMassSlices() {
 }
 
 void BackgroundPeakUpdate::computePeaks() {
-	if (peakDetector.compounds.size() == 0) {
+	if (mavenParameters.compounds.size() == 0) {
 		return;
 	}
-	processCompounds(peakDetector.compounds, "compounds");
+	processCompounds(mavenParameters.compounds, "compounds");
 }
 
 void BackgroundPeakUpdate::findPeaksQQQ() {
