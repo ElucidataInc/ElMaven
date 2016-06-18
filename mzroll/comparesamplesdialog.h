@@ -1,5 +1,7 @@
 #ifndef COMPARESAMPLESDIALOG_H
 #define COMPARESAMPLESDIALOG_H
+
+#include "../libmaven/comparesampleslogic.h"
 #include "ui_comparesamplesdialog.h"
 #include "mainwindow.h"
 
@@ -17,7 +19,7 @@ public:
 public slots:
 	void compareSamples();
 	void resetSamples();
-	void compareSets();
+	void compareSets(vector<mzSample*> sset1, vector<mzSample*> sset2);
 	void cancel();
 	void updateSampleList();
 	void setQuantitationType(PeakGroup::QType x) {
@@ -41,11 +43,8 @@ private:
 	TableDockWidget* table;
 	QSet<mzSample*> samples;
 	vector<mzSample*> getSampleSet(QListWidget* set);
-	void shuffle(StatisticsVector<float>& groupA,
-			StatisticsVector<float>& groupB);
-	StatisticsVector<float> rand_scores;
-	StatisticsVector<float> real_scores;
+
+	CompareSamplesLogic compareLogic; //TODO: comparesamplesdialog would be a singleton
 };
-;
 
 #endif

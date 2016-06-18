@@ -7,6 +7,9 @@ CompareSamplesDialog::CompareSamplesDialog(QWidget *parent) :
 	setModal(false);
 	_qtype = PeakGroup::AreaTop;
 
+	CompareSamplesLogic* c = new CompareSamplesLogic();
+	compareLogic = *c;
+
 	connect(compareButton, SIGNAL(clicked(bool)), SLOT(compareSamples()));
 	connect(resetButton, SIGNAL(clicked(bool)), SLOT(resetSamples()));
 	connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -139,95 +142,36 @@ void CompareSamplesDialog::compareSamples() {
 	vector<mzSample*> sset2 = getSampleSet(filelist2);
 	if (sset1.size() == 0 || sset2.size() == 0)
 		return;
-	vector<mzSample*> sset3;
-	for (int i = 0; i < sset1.size(); i++)
-		sset3.push_back(sset1[i]);
-	for (int i = 0; i < sset2.size(); i++)
-		sset3.push_back(sset2[i]);
-	compareSets();
-
+	compareSets(sset1, sset2);
 }
 
-void CompareSamplesDialog::shuffle(StatisticsVector<float>& groupA,
-		StatisticsVector<float>& groupB) {
-	int n1 = groupA.size();
-	int n2 = groupB.size();
-	int n3 = n1 + n2;
-	if (n1 == 0 || n2 == 0)
-		return;
-	MTRand mtrand;
-
-	//combine two sets
-	//cerr << "N3=" << n3 << endl;
-	StatisticsVector<float> groupC(n1 + n2);
-	for (int i = 0; i < n1; i++)
-		groupC[i] = groupA[i];
-	for (int i = 0; i < n2; i++)
-		groupC[n1 + i] = groupB[i];
-	//for(int i=0; i < n3; i++ ) cerr << groupC[i] << " "; cerr << endl;
-
-	//float realT = ttest(groupA,ratio>100groupB);
-
-	for (int s = 0; s < 10; s++) {
-		//shuffle combined set
-		for (int i = 0; i < n3; i++) {
-			int r = mtrand.randInt(n3 - 1);
-			assert(r <= n3 - 1);
-			if (i == r)
-				continue;
-			float tmp = groupC[i];
-			groupC[i] = groupC[r];
-			groupC[r] = tmp; //swap
-		}
-
-		//split random vector
-		StatisticsVector<float> tmpA(n1);
-		StatisticsVector<float> tmpB(n2);
-		for (int i = 0; i < n1; i++)
-			tmpA[i] = groupC[i];
-		for (int i = 0; i < n2; i++)
-			tmpB[i] = groupC[n1 + i];
-
-		//for(int i=0; i < n1; i++ ) cerr << tmpA[i] << " "; cerr << endl;
-		//for(int i=0; i < n2; i++ ) cerr << tmpB[i] << " "; cerr << endl;
-
-		//ttest
-		float randT = abs(mzUtils::ttest(tmpA, tmpB));
-		//cerr << "RealT=" << realT << "  RandT=" << randT << endl;
-		rand_scores.push_back(randT);
-	}
-	/*
-	 std::sort(rand_scores.begin(), rand_scores.end());
-	 int rank = countBelow(rand_scores,  ttest(groupA,groupB));
-	 cerr << "Q=" << rank << " p-value=" << 1.0-(float) rank / rand_scores.size() << endl;
-	 */
-
-}
-
-void CompareSamplesDialog::compareSets() {
+void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
+		vector<mzSample*> sset2) {
 	if (!table)
 		return;
 
 	vector<mzSample*> sampleSet;
-	vector<mzSample*> sset1 = getSampleSet(filelist1);
-	vector<mzSample*> sset2 = getSampleSet(filelist2);
 	for (int i = 0; i < sset1.size(); i++)
 		sampleSet.push_back(sset1[i]);
 	for (int i = 0; i < sset2.size(); i++)
 		sampleSet.push_back(sset2[i]);
+
 	QList<PeakGroup*> allgroups = table->getGroups();
-	rand_scores.clear();
+	compareLogic.rand_scores.clear();
 
 	for (int i = 0; i < allgroups.size(); i++) {
 		PeakGroup* group = allgroups[i];
-		group->changeFoldRatio = 0;
-		group->changePValue = 1;
+		group->changeFoldRatio = 0;		//TODO why?
+		group->changePValue = 1;		//TODO why?
+
 		//group->groupStatistics();
 		vector<float> yvalues = group->getOrderedIntensityVector(sampleSet,
 				_qtype);
+
 		StatisticsVector<float> groupA(sset1.size());
 		StatisticsVector<float> groupB(sset2.size());
 
+		//Compute missing intensities (0) in each group A and B.
 		int missingSet1 = 0;
 		int missingSet2 = 0;
 		for (int i = 0; i < sset1.size(); i++) {
@@ -260,7 +204,7 @@ void CompareSamplesDialog::compareSets() {
 
 		group->changeFoldRatio = meanA > meanB ? meanA / meanB : -meanB / meanA;
 		group->changePValue = abs(mzUtils::ttest(groupA, groupB));
-		shuffle(groupA, groupB);
+		compareLogic.shuffle(groupA, groupB);
 
 		//qDebug() << "CompareSamplesDialog: " << i << " " << meanA << " " << meanB;
 		emit(setProgressBar("CompareSamples", i + 1, allgroups.size()));
@@ -269,17 +213,19 @@ void CompareSamplesDialog::compareSets() {
 	float alpha = minPValue->value(); //alpha value
 
 	//calculate Pvalues
-	std::sort(rand_scores.begin(), rand_scores.end()); //sort random scores, 
+	std::sort(compareLogic.rand_scores.begin(), compareLogic.rand_scores.end()); //sort random scores,
 	for (int i = 0; i < allgroups.size(); i++) {
 		PeakGroup* group = allgroups[i];
 		if (group->changeFoldRatio == 0)
 			continue;
-		int rank = countBelow(rand_scores, group->changePValue); //calculate p-value
+		int rank = countBelow(compareLogic.rand_scores, group->changePValue); //calculate p-value
 		//cerr << group->changePValue << " " <<  ((float) rank)/rand_scores.size() << endl;
-		group->changePValue = 1 - ((float) rank) / rand_scores.size();
+		group->changePValue = 1
+				- ((float) rank) / compareLogic.rand_scores.size();
 
 	}
 
+	//TODO move FDR Correction inside compareLogic.FDRCorrection()
 	//correct P-values (FDR)
 	int correction = correctionBox->currentIndex();
 	int Ngroups = allgroups.size();
@@ -319,6 +265,6 @@ void CompareSamplesDialog::compareSets() {
 	 */
 
 	//cleanup
-	rand_scores.clear();
+	compareLogic.rand_scores.clear();
 	allgroups.clear();
 }
