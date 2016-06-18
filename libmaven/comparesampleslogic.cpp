@@ -10,7 +10,7 @@ void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 	int n3 = n1 + n2;
 	if (n1 == 0 || n2 == 0)
 		return;
-	MTRand mtrand;
+	MTRand mtrand; //TODO: replace by std::mt
 
 	//combine two sets
 	//cerr << "N3=" << n3 << endl;
@@ -57,4 +57,77 @@ void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 	 cerr << "Q=" << rank << " p-value=" << 1.0-(float) rank / rand_scores.size() << endl;
 	 */
 
+}
+
+void CompareSamplesLogic::FDRCorrection(QList<PeakGroup*> allgroups,
+		int correction) {
+
+	int Ngroups = allgroups.size();
+	int j = 0;
+	sort(allgroups.begin(), allgroups.end(), PeakGroup::compPvalue);
+	for (int i = 0; i < Ngroups; i++) {
+		PeakGroup* group = allgroups[i];
+		if (group->changeFoldRatio == 0)
+			continue;
+		//cerr << group->changePValue << " " ;
+		if (correction == 1) {	 	//Bonferroni
+			group->changePValue *= Ngroups;
+		}
+		if (correction == 2) { 	//HOLMS
+			group->changePValue *= Ngroups - j;
+		}
+		if (correction == 3) { 	//Benjamini
+			group->changePValue *= Ngroups / (j + 1);
+		}
+		//cerr << group->changePValue << endl;
+		j++;
+	}
+
+}
+
+void CompareSamplesLogic::computeMinPValue(QList<PeakGroup*> allgroups) {
+
+	std::sort(rand_scores.begin(), rand_scores.end()); //sort random scores,
+	for (int i = 0; i < allgroups.size(); i++) {
+		PeakGroup* group = allgroups[i];
+		if (group->changeFoldRatio == 0)
+			continue;
+		int rank = countBelow(rand_scores, group->changePValue); //calculate p-value
+		//cerr << group->changePValue << " " <<  ((float) rank)/rand_scores.size() << endl;
+		group->changePValue = 1 - ((float) rank) / rand_scores.size();
+
+	}
+}
+
+void CompareSamplesLogic::computeStats(PeakGroup* group,
+		vector<mzSample*> sampleSet, vector<mzSample*> sset1,
+		vector<mzSample*> sset2, float _missingValue) {
+	group->changeFoldRatio = 0;		//TODO why?
+	group->changePValue = 1;		//TODO why?
+
+//group->groupStatistics();
+	vector<float> yvalues = group->getOrderedIntensityVector(sampleSet,
+			PeakGroup::AreaTop);
+
+	StatisticsVector<float> groupA(sset1.size());
+	StatisticsVector<float> groupB(sset2.size());
+
+	for (int i = 0; i < groupA.size(); i++)
+		if (groupA[i] < _missingValue)
+			groupA[i] = _missingValue;
+	for (int i = 0; i < groupB.size(); i++)
+		if (groupB[i] < _missingValue)
+			groupB[i] = _missingValue;
+
+//skip empty
+	float meanA = abs(groupA.mean());
+	float meanB = abs(groupB.mean());
+	if (meanA == 0)
+		meanA = 1;
+	if (meanB == 0)
+		meanB = 1;
+
+	group->changeFoldRatio = meanA > meanB ? meanA / meanB : -meanB / meanA;
+	group->changePValue = abs(mzUtils::ttest(groupA, groupB));
+	shuffle(groupA, groupB);
 }
