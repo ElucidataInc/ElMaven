@@ -112,7 +112,6 @@ void PeakDetector::processMassSlices() {
 
 	mavenParameters->setAverageScanTime(); //find avgScanTime
 
-	//emit (updateProgressBar("Computing Mass Slices", 2, 10)); TODO
 	MassSlices massSlices;
 	massSlices.setSamples(mavenParameters->samples);
 	massSlices.algorithmB(mavenParameters->ppmMerge,
@@ -125,16 +124,14 @@ void PeakDetector::processMassSlices() {
 	sort(massSlices.slices.begin(), massSlices.slices.end(),
 			mzSlice::compIntensity);
 
-//	emit (updateProgressBar("Computing Mass Slices", 0, 10)); TODO
-
-	//enumerate goodslices //TODO: Copying all the pre-sorted slices (by intensities) to good slices
+	//enumerate goodslices //Copying all the pre-sorted slices (by intensities) to good slices
 	vector<mzSlice*> goodslices;
 	goodslices.resize(massSlices.slices.size());
 	for (int i = 0; i < massSlices.slices.size(); i++)
 		goodslices[i] = massSlices.slices[i];
 
 	if (goodslices.size() == 0) {
-//		emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO
+//		emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix emit.
 		return;
 	}
 
@@ -152,9 +149,6 @@ void PeakDetector::processMassSlices() {
 vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 		string setName) {
 
-//	if (set.size() == 0)
-//		return;
-//
 	mavenParameters->limitGroupCount = INT_MAX; //must not be active when processing compounds
 
 	//iterating over all compounds in the set
@@ -227,7 +221,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	vector<Isotope> masslist = mavenParameters->mcalc.computeIsotopes(formula,
 			mavenParameters->ionizationMode);
 
-//iterate over samples to find properties for parent's isotopes.
+	//iterate over samples to find properties for parent's isotopes.
 	map<string, PeakGroup> isotopes;
 	map<string, PeakGroup>::iterator itr2;
 
@@ -235,13 +229,12 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 		mzSample* sample = mavenParameters->samples[s];
 		for (int k = 0; k < masslist.size(); k++) {
 //			if (stopped())
-//				break; TODO stop
+//				break; TODO: stop
 			Isotope& x = masslist[k];
 			string isotopeName = x.name;
 			double isotopeMass = x.mass;
 			double expectedAbundance = x.abundance;
 
-			//TODO doesn't make sense
 			float mzmin = isotopeMass - isotopeMass / 1e6 * ppm;
 			float mzmax = isotopeMass + isotopeMass / 1e6 * ppm;
 
@@ -562,17 +555,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			QString progressText = "Found "
 					+ QString::number(mavenParameters->allgroups.size())
 					+ " groups";
-			/*
+			/*TODO: Fix emit update progress of slices.
 			 emit(
 			 updateProgressBar(progressText, s + 1,
 			 std::min((int) slices.size(), limitGroupCount)));
 			 */
 		}
-	}
-
-	if (mavenParameters->showProgressFlag
-			&& mavenParameters->pullIsotopesFlag) {
-		//		emit(updateProgressBar("Calculation Isotopes", 1, 100)); TODO
 	}
 
 	qDebug() << "processSlices() Slices=" << slices.size();

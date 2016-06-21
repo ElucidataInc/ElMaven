@@ -129,7 +129,7 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
 }
 
 void BackgroundPeakUpdate::processSlices() {
-	processSlices();
+	processSlices(mavenParameters->_slices, "sliceset");
 }
 
 void BackgroundPeakUpdate::processSlice(mzSlice& slice) {
@@ -150,7 +150,6 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
 }
 
 void BackgroundPeakUpdate::align() {
-
 	if (mavenParameters->alignSamplesFlag) {
 		//		emit(updateProgressBar("Aligning Samples", 1, 100));
 		vector<PeakGroup*> groups(mavenParameters->allgroups.size());
@@ -170,25 +169,39 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
 	getProcessSlicesSettings();
 	peakDetector.processSlices(slices, setName);
+
 	align();
+
+	if (mavenParameters->showProgressFlag
+			&& mavenParameters->pullIsotopesFlag) {
+		emit(updateProgressBar("Calculation Isotopes", 1, 100));
+
+	}
+
 	writeCSVRep(setName);
 }
 
 void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 		string setName) {
+
+	if (set.size() == 0)
+		return;
+
 	vector<mzSlice*> slices = peakDetector.processCompounds(set, setName);
 	processSlices(slices, setName);
 	delete_all(slices);
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
+
+	emit (updateProgressBar("Computing Mass Slices", 0, 10));
 	peakDetector.processMassSlices();
 }
 
 void BackgroundPeakUpdate::computePeaks() {
-	if (mavenParameters->compounds.size() == 0) {
+	if (mavenParameters->compounds.size() == 0)
 		return;
-	}
+
 	processCompounds(mavenParameters->compounds, "compounds");
 }
 
@@ -210,26 +223,28 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
 	peakDetector.pullIsotopes(parentgroup);
 }
 
-/*
- bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
+bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
 
- QFile test(outfile); if(test.exists()) return true;
+	QFile test(outfile);
+	if (test.exists())
+		return true;
 
- QString command = QString("ReAdW.exe --centroid --mzXML \"%1\" \"%2\"").
- arg(filename).
- arg(outfile);
+	QString command = QString("ReAdW.exe --centroid --mzXML \"%1\" \"%2\"").arg(
+			filename).arg(outfile);
 
- qDebug() << command;
+	qDebug() << command;
 
- QProcess *process = new QProcess();
- //connect(process, SIGNAL(finished(int)), this, SLOT(doVideoCreated(int)));
- process->start(command);
+	QProcess *process = new QProcess();
+	//connect(process, SIGNAL(finished(int)), this, SLOT(doVideoCreated(int)));
+	process->start(command);
 
- if (!process->waitForStarted()){
- process->kill();
- return false;
- }
+	if (!process->waitForStarted()) {
+		process->kill();
+		return false;
+	}
 
- while (!process->waitForFinished()) {};
- QFile testOut(outfile); return testOut.exists();
- }*/
+	while (!process->waitForFinished()) {
+	};
+	QFile testOut(outfile);
+	return testOut.exists();
+}

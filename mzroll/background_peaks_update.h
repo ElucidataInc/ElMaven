@@ -195,12 +195,7 @@ private:
 	 */
 	void findPeaksQQQ(void);
 
-	/**
-	 * [addPeakGroup description]
-	 * @param  group [pointer to Peak Group]
-	 * @return       [true if the group has been added to PeakGroup, else false]
-	 */
-	bool addPeakGroup(PeakGroup& group);
+	bool covertToMzXML(QString filename, QString outfile);
 
 private:
 	volatile bool _stopped;
