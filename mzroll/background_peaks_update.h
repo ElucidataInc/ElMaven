@@ -32,6 +32,21 @@ public:
 	~BackgroundPeakUpdate();
 
 	/**
+	 * [get Maven Parameters]
+	 * @return [params]
+	 */
+	MavenParameters* getMavenParameters() {
+		return mavenParameters;
+	}
+
+	/**
+	 * [set Maven Parameters]
+	 * @param mp [params]
+	 */
+	void setMavenParameters(MavenParameters* mp) {
+		mavenParameters = mp;
+	}
+	/**
 	 * [set Peak Detector]
 	 * @param pd [pointer to peakDetector]
 	 */
@@ -77,7 +92,7 @@ public:
 	}
 
 	PeakDetector peakDetector;
-	MavenParameters mavenParameters;
+	MavenParameters* mavenParameters;
 
 signals:
 

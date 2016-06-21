@@ -22,19 +22,22 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThread = new BackgroundPeakUpdate(mw);
 	workerThread->setRunFunction("pullIsotopes");
 	workerThread->setMainWindow(mw);
-	MavenParameters mavenParameters =
+	workerThread->setMavenParameters(mw->mavenParameters);
+	workerThread->setPeakDetector(new PeakDetector(mw->mavenParameters));
+
+	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
 
-	mavenParameters.minGoodPeakCount = 1;
-	mavenParameters.minSignalBlankRatio = 2;
-	mavenParameters.minSignalBaseLineRatio = 2;
-	mavenParameters.minNoNoiseObs = 2;
-	mavenParameters.minGroupIntensity = 0;
-	mavenParameters.writeCSVFlag = false;
-	mavenParameters.matchRtFlag = false;
-	mavenParameters.showProgressFlag = true;
-	mavenParameters.pullIsotopesFlag = true;
-	mavenParameters.keepFoundGroups = true;
+	mavenParameters->minGoodPeakCount = 1;
+	mavenParameters->minSignalBlankRatio = 2;
+	mavenParameters->minSignalBaseLineRatio = 2;
+	mavenParameters->minNoNoiseObs = 2;
+	mavenParameters->minGroupIntensity = 0;
+	mavenParameters->writeCSVFlag = false;
+	mavenParameters->matchRtFlag = false;
+	mavenParameters->showProgressFlag = true;
+	mavenParameters->pullIsotopesFlag = true;
+	mavenParameters->keepFoundGroups = true;
 
 	connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
 	connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(),
@@ -229,12 +232,12 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
 	workerThread->stop();
-	MavenParameters mavenParameters =
+	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
 
-	mavenParameters.setPeakGroup(group);
-	mavenParameters.setSamples(vsamples);
-	mavenParameters.compoundPPMWindow = _mw->getUserPPM();
+	mavenParameters->setPeakGroup(group);
+	mavenParameters->setSamples(vsamples);
+	mavenParameters->compoundPPMWindow = _mw->getUserPPM();
 	workerThread->start();
 	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }

@@ -131,12 +131,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	QString commonAdducts = dataDir + "/" + "ADDUCTS.csv";
 	if (QFile::exists(commonAdducts))
 		DB.loadFragments(commonAdducts.toStdString());
+	cerr << "HERERERERE" << endl;
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 	QString clsfModelFilename = dataDir + "/"
 			+ settings->value("clsfModelFilename").value<QString>();
 	if (QFile::exists(clsfModelFilename))
 		clsf->loadModel(clsfModelFilename.toStdString());
+
+	cerr << "HERERERERE" << endl;
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -148,6 +151,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	progressBar = new QProgressBar(this);
 	progressBar->hide();
 	statusBar()->addPermanentWidget(progressBar);
+
+	cerr << "HERERERERE" << endl;
 
 	QToolButton *btnBugs = new QToolButton(this);
 	btnBugs->setIcon(QIcon(rsrcPath + "/bug.png"));
@@ -161,22 +166,35 @@ MainWindow::MainWindow(QWidget *parent) :
 	setDockOptions(
 			QMainWindow::AllowNestedDocks | QMainWindow::VerticalTabs
 					| QMainWindow::AnimatedDocks);
+	cerr << "HERERERERE  .........." << endl;
 
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	setCentralWidget(eicWidgetController());
 
 	spectraWidget = new SpectraWidget(this);
+
+
+	mavenParameters = new MavenParameters();
+
+	cerr << "HERERERERE" << endl;
 	pathwayWidget = new PathwayWidget(this);
+
+	cerr << "HERERERERE" << endl;
 	adductWidget = new AdductWidget(this);
+
+	cerr << "HERERERERE" << endl;
 	isotopeWidget = new IsotopeWidget(this);
+
+	cerr << "HERERERERE aftwr iso" << endl;
+
 	massCalcWidget = new MassCalcWidget(this);
 	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
 	fragPanel = new TreeDockWidget(this, "Fragmentation", 5);
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
-	heatmap = new HeatMap(this);
+	 heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0);
 	//treemap	 = 	  new TreeMap(this);
@@ -191,6 +209,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	logWidget = new LogWidget(this, std::cout);
 	rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
+
+	cerr << "HERERERERE" << endl;
 
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
@@ -213,6 +233,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	//treemap->setVisible(false);
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
+
+	cerr << "HERERERERE" << endl;
+
 
 	//
 	//DIALOGS
@@ -1359,33 +1382,31 @@ void MainWindow::Align() {
 	BackgroundPeakUpdate* workerThread = newWorkerThread("processMassSlices");
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
-
-	MavenParameters mavenParameters =
-			workerThread->peakDetector.getMavenParameters();
+	workerThread->setMavenParameters(mavenParameters);
+	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	if (settings != NULL) {
-		mavenParameters.eic_ppmWindow =
+		mavenParameters->eic_ppmWindow =
 				settings->value("eic_ppmWindow").toDouble();
-		mavenParameters.eic_smoothingAlgorithm =
-				settings->value("eic_smoothingWindow").toInt();
+		mavenParameters->eic_smoothingAlgorithm = settings->value(
+				"eic_smoothingWindow").toInt();
 	}
 
-	mavenParameters.minGoodPeakCount =
+	mavenParameters->minGoodPeakCount =
 			alignmentDialog->minGoodPeakCount->value();
-	mavenParameters.limitGroupCount =
+	mavenParameters->limitGroupCount =
 			alignmentDialog->limitGroupCount->value();
-	mavenParameters.minGroupIntensity =
+	mavenParameters->minGroupIntensity =
 			alignmentDialog->minGroupIntensity->value();
-	mavenParameters.eic_smoothingWindow =
+	mavenParameters->eic_smoothingWindow =
 			alignmentDialog->groupingWindow->value();
 
-	mavenParameters.minSignalBaseLineRatio =
-			alignmentDialog->minSN->value();
-	mavenParameters.minNoNoiseObs =
-			alignmentDialog->minPeakWidth->value();
-	mavenParameters.alignSamplesFlag = true;
-	mavenParameters.keepFoundGroups = false;
-	mavenParameters.eicMaxGroups = 5;
+	mavenParameters->minSignalBaseLineRatio = alignmentDialog->minSN->value();
+	mavenParameters->minNoNoiseObs = alignmentDialog->minPeakWidth->value();
+	mavenParameters->alignSamplesFlag = true;
+	mavenParameters->keepFoundGroups = false;
+	mavenParameters->eicMaxGroups = 5;
+
 	workerThread->start();
 }
 

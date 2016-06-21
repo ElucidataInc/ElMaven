@@ -3,7 +3,7 @@
 
 #include "stable.h"
 #include "globals.h"
-
+#include "../libmaven/mavenparameters.h"
 #include "scatterplot.h"
 #include "eicwidget.h"
 #include "settingsform.h"
@@ -70,189 +70,217 @@ class RconsoleWidget;
 class SpectralHit;
 class SpectralHitsDockWidget;
 
-extern Database DB; 
+extern Database DB;
 
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow: public QMainWindow {
+Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    QSettings* getSettings() { return settings; }
-    vector <mzSample*> samples;		//list of loadded samples
-    static mzSample* loadSample(QString filename);
+	MainWindow(QWidget *parent = 0);
+	QSettings* getSettings() {
+		return settings;
+	}
+	vector<mzSample*> samples;		//list of loadded samples
+	static mzSample* loadSample(QString filename);
 
+	MavenParameters* mavenParameters;
+	QSqlDatabase localDB;					//local database
+	QDoubleSpinBox *ppmWindowBox;
+	QLineEdit *searchText;
+	QComboBox *quantType;
+	QLabel *statusText;
 
+	PathwayWidget *pathwayWidget;
+	SpectraWidget *spectraWidget;
+	MassCalcWidget *massCalcWidget;
+	AdductWidget *adductWidget;
+	LigandWidget *ligandWidget;
+	IsotopeWidget *isotopeWidget;
+	TreeDockWidget *covariantsPanel;
+	TreeDockWidget *fragPanel;
+	TreeDockWidget *pathwayPanel;
+	TreeDockWidget *srmDockWidget;
+	//TreeDockWidget   *peaksPanel;
+	QDockWidget *spectraDockWidget;
+	QDockWidget *pathwayDockWidget;
+	QDockWidget *heatMapDockWidget;
+	QDockWidget *scatterDockWidget;
+	QDockWidget *treeMapDockWidget;
+	QDockWidget *galleryDockWidget;
+	LogWidget *logWidget;
+	NotesWidget *notesDockWidget;
+	ProjectDockWidget *projectDockWidget;
+	SpectraMatching *spectraMatchingForm;
 
-    QSqlDatabase localDB;					//local database
-    QDoubleSpinBox 	  *ppmWindowBox;
-    QLineEdit         *searchText;
-    QComboBox		  *quantType;
-    QLabel			  *statusText;
+	TableDockWidget *bookmarkedPeaks;
+	SuggestPopup *suggestPopup;
+	HeatMap *heatmap;
+	GalleryWidget *galleryWidget;
+	ScatterPlot *scatterplot;
+	TreeMap *treemap;
+	SpectralHitsDockWidget *spectralHitsDockWidget;
 
-    PathwayWidget     *pathwayWidget;
-    SpectraWidget     *spectraWidget;
-    MassCalcWidget       *massCalcWidget;
-    AdductWidget     *adductWidget;
-    LigandWidget     *ligandWidget;
-    IsotopeWidget    *isotopeWidget;
-    TreeDockWidget 	*covariantsPanel;
-    TreeDockWidget	 *fragPanel;
-    TreeDockWidget	 *pathwayPanel;
-    TreeDockWidget	 *srmDockWidget;
-    //TreeDockWidget   *peaksPanel;
-    QDockWidget         *spectraDockWidget;
-    QDockWidget         *pathwayDockWidget;
-    QDockWidget		 *heatMapDockWidget;
-    QDockWidget		 *scatterDockWidget;
-    QDockWidget		 *treeMapDockWidget;
-    QDockWidget	 	 *galleryDockWidget;
-    LogWidget            *logWidget;
-    NotesWidget		 *notesDockWidget;
-    ProjectDockWidget    *projectDockWidget;
-    SpectraMatching      *spectraMatchingForm;
+	SettingsForm *settingsForm;
+	PeakDetectionDialog *peakDetectionDialog;
+	AlignmentDialog* alignmentDialog;
+	RconsoleWidget* rconsoleDockWidget;
 
-    TableDockWidget      *bookmarkedPeaks;
-    SuggestPopup	 *suggestPopup;
-    HeatMap		 *heatmap;
-    GalleryWidget	 *galleryWidget;
-    ScatterPlot		 *scatterplot;
-    TreeMap		 *treemap;
-    SpectralHitsDockWidget *spectralHitsDockWidget;
+	QProgressBar *progressBar;
 
-    SettingsForm   *settingsForm;
-    PeakDetectionDialog *peakDetectionDialog;
-    AlignmentDialog*	  alignmentDialog;
-    RconsoleWidget*       rconsoleDockWidget;
+	int sampleCount() {
+		return samples.size();
+	}
+	EicWidget* getEicWidget() {
+		return eicWidget;
+	}
+	SpectraWidget* getSpectraWidget() {
+		return spectraWidget;
+	}
+	PathwayWidget* getPathwayWidget() {
+		return pathwayWidget;
+	}
+	ProjectDockWidget* getProjectWidget() {
+		return projectDockWidget;
+	}
+	RconsoleWidget* getRconsoleWidget() {
+		return rconsoleDockWidget;
+	}
+	TableDockWidget* getBookmarkedPeaks() {
+		return bookmarkedPeaks;
+	}
 
-    QProgressBar  *progressBar;
+	Classifier* getClassifier() {
+		return clsf;
+	}
 
-    int sampleCount() { return samples.size(); }
-    EicWidget* getEicWidget() { return eicWidget; }
-    SpectraWidget*  getSpectraWidget() { return spectraWidget; }
-    PathwayWidget* getPathwayWidget() { return pathwayWidget; }
-    ProjectDockWidget* getProjectWidget() { return projectDockWidget; }
-    RconsoleWidget*    getRconsoleWidget() { return rconsoleDockWidget; }
-    TableDockWidget*    getBookmarkedPeaks() { return bookmarkedPeaks; }
+	MatrixXf getIsotopicMatrix(PeakGroup* group);
+	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
 
-    Classifier* getClassifier() { return clsf; }
+	mzSample* getSample(int i) {
+		assert(i < samples.size());
+		return (samples[i]);
+	}
+	inline vector<mzSample*> getSamples() {
+		return samples;
+	}
+	vector<mzSample*> getVisibleSamples();
 
-    MatrixXf getIsotopicMatrix(PeakGroup* group);
-    void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
+	PeakGroup::QType getUserQuantType();
 
-    mzSample* getSample(int i) { assert(i < samples.size()); return(samples[i]);  }
-    inline vector<mzSample*> getSamples() { return samples; }
-    vector<mzSample*> getVisibleSamples();
-
-    PeakGroup::QType getUserQuantType();
-
-    QSqlDatabase* getLocalDB() { return &localDB; }
-    int versionCheck();
-    bool isSampleFileType(QString filename);
-    bool isProjectFileType(QString filename);
+	QSqlDatabase* getLocalDB() {
+		return &localDB;
+	}
+	int versionCheck();
+	bool isSampleFileType(QString filename);
+	bool isProjectFileType(QString filename);
 
 protected:
-    void closeEvent(QCloseEvent *event);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+	void closeEvent(QCloseEvent *event);
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 public slots:
-    QDockWidget* createDockWidget(QString title, QWidget* w);
-    void showPeakInfo(Peak*);
-    void setProgressBar(QString, int step, int totalSteps);
-    void setStatusText(QString text = QString::null);
-    void setMzValue();
-    void setMzValue(float mz);
-    void loadModel();
-    void loadCompoundsFile();
-    void loadCompoundsFile(QString filename);
-    void loadMethodsFolder(QString& methodsFolder);
-    void loadPathwaysFolder(QString& pathwaysFolder);
+	QDockWidget* createDockWidget(QString title, QWidget* w);
+	void showPeakInfo(Peak*);
+	void setProgressBar(QString, int step, int totalSteps);
+	void setStatusText(QString text = QString::null);
+	void setMzValue();
+	void setMzValue(float mz);
+	void loadModel();
+	void loadCompoundsFile();
+	void loadCompoundsFile(QString filename);
+	void loadMethodsFolder(QString& methodsFolder);
+	void loadPathwaysFolder(QString& pathwaysFolder);
 
-    bool addSample(mzSample* sample);
-    void compoundDatabaseSearch();
-    void setUrl(QString url,QString link=QString::null);
-    void setUrl(Compound*);
-    void setUrl(Reaction*);
-    void setFormulaFocus(QString formula);
-    void Align();
-    void UndoAlignment();
-    void spectaFocused(Peak* _peak);
-    bool checkCompoundExistance(Compound* c);
-    void setCompoundFocus(Compound* c);
-    void setPathwayFocus(Pathway* p);
-    void showFragmentationScans(float pmz);
-    QString groupTextExport(PeakGroup* group);
-    void bookmarkPeakGroup(PeakGroup* group);
-    void setClipboardToGroup(PeakGroup* group);
-    void bookmarkPeakGroup();
-    void reorderSamples(PeakGroup* group);
-    void findCovariants(Peak* _peak);
-    void reportBugs();
-    void updateEicSmoothingWindow(int value);
-    vector<mzSlice*> getSrmSlices();
+	bool addSample(mzSample* sample);
+	void compoundDatabaseSearch();
+	void setUrl(QString url, QString link = QString::null);
+	void setUrl(Compound*);
+	void setUrl(Reaction*);
+	void setFormulaFocus(QString formula);
+	void Align();
+	void UndoAlignment();
+	void spectaFocused(Peak* _peak);
+	bool checkCompoundExistance(Compound* c);
+	void setCompoundFocus(Compound* c);
+	void setPathwayFocus(Pathway* p);
+	void showFragmentationScans(float pmz);
+	QString groupTextExport(PeakGroup* group);
+	void bookmarkPeakGroup(PeakGroup* group);
+	void setClipboardToGroup(PeakGroup* group);
+	void bookmarkPeakGroup();
+	void reorderSamples(PeakGroup* group);
+	void findCovariants(Peak* _peak);
+	void reportBugs();
+	void updateEicSmoothingWindow(int value);
+	vector<mzSlice*> getSrmSlices();
 
-    void open();
-    void print();
-    void exportPDF();
-    void exportSVG();
-    void setPeakGroup(PeakGroup* group);
-    void showDockWidgets();
-    void hideDockWidgets();
-    //void terminateTheads();
-    void doSearch(QString needle);
-    void setupSampleColors();
-    void showMassSlices();
-    void showSRMList();
-    void addToHistory(const mzSlice& slice);
-    void historyNext();
-    void historyLast();
-    void getLinks(Peak* peak);
-    void markGroup(PeakGroup* group,char label);
+	void open();
+	void print();
+	void exportPDF();
+	void exportSVG();
+	void setPeakGroup(PeakGroup* group);
+	void showDockWidgets();
+	void hideDockWidgets();
+	//void terminateTheads();
+	void doSearch(QString needle);
+	void setupSampleColors();
+	void showMassSlices();
+	void showSRMList();
+	void addToHistory(const mzSlice& slice);
+	void historyNext();
+	void historyLast();
+	void getLinks(Peak* peak);
+	void markGroup(PeakGroup* group, char label);
 
-    void setIonizationMode( int x );
-    int  getIonizationMode() { return _ionizationMode; }
+	void setIonizationMode(int x);
+	int getIonizationMode() {
+		return _ionizationMode;
+	}
 
-    void setUserPPM( double x);
-    double getUserPPM() { return _ppmWindow; }
+	void setUserPPM(double x);
+	double getUserPPM() {
+		return _ppmWindow;
+	}
 
-
-    TableDockWidget* addPeaksTable(QString title);
-    SpectralHitsDockWidget* addSpectralHitsTable(QString title);
-    BackgroundPeakUpdate* newWorkerThread(QString funcName);
-    QWidget* eicWidgetController();
-    QWidget* pathwayWidgetController();
+	TableDockWidget* addPeaksTable(QString title);
+	SpectralHitsDockWidget* addSpectralHitsTable(QString title);
+	BackgroundPeakUpdate* newWorkerThread(QString funcName);
+	QWidget* eicWidgetController();
+	QWidget* pathwayWidgetController();
 
 private slots:
-    void createMenus();
-    void createToolBars();
-    void readSettings();
-    void writeSettings();
+	void createMenus();
+	void createToolBars();
+	void readSettings();
+	void writeSettings();
 
 private:
-    QSettings* settings;
-    Classifier* clsf;
-    QList< QPointer<TableDockWidget> > groupTables;
-    EicWidget *eicWidget; //plot of extractred EIC
-    History history;
+	QSettings* settings;
+	Classifier* clsf;
+	QList<QPointer<TableDockWidget> > groupTables;
+	EicWidget *eicWidget; //plot of extractred EIC
+	History history;
 
-    int _ionizationMode;
-    double _ppmWindow;
+	int _ionizationMode;
+	double _ppmWindow;
 
-    QToolBar* sideBar;
-    QToolButton* addDockWidgetButton( QToolBar*, QDockWidget*, QIcon, QString);
+	QToolBar* sideBar;
+
+	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 
 };
 
 struct FileLoader {
-		FileLoader(){};
-		typedef mzSample* result_type;
+	FileLoader() {
+	}
+	;
+	typedef mzSample* result_type;
 
-		mzSample* operator()(const QString filename) {
-				mzSample* sample = MainWindow::loadSample(filename);
-				return sample;
-		}
+	mzSample* operator()(const QString filename) {
+		mzSample* sample = MainWindow::loadSample(filename);
+		return sample;
+	}
 };
 
 #endif

@@ -1,8 +1,9 @@
 #include "PeakDetector.h"
 
 PeakDetector::PeakDetector() {
-	MavenParameters* mp = new MavenParameters();
-	mavenParameters = *mp;
+}
+PeakDetector::PeakDetector(MavenParameters* mp) {
+	mavenParameters = mp;
 }
 
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
@@ -65,9 +66,11 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 					amuQ1, amuQ3);
 		} else {
 			//else, get EICs for with a m/z and rt window
-			cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin
-					<< " " << slice->mzmax << slice->rtmin << " "
-					<< slice->rtmax << endl;
+			/*
+			 cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin
+			 << " " << slice->mzmax << slice->rtmin << " "
+			 << slice->rtmax << endl;
+			 */
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
 					slice->rtmax, 1);
 		}
@@ -90,7 +93,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 }
 
 void PeakDetector::processSlices() {
-	processSlices(mavenParameters._slices, "sliceset");
+	processSlices(mavenParameters->_slices, "sliceset");
 }
 
 void PeakDetector::processSlice(mzSlice& slice) {
@@ -102,18 +105,18 @@ void PeakDetector::processSlice(mzSlice& slice) {
 void PeakDetector::processMassSlices() {
 
 	//init
-	mavenParameters.showProgressFlag = true;
-	mavenParameters.checkConvergance = true;
+	mavenParameters->showProgressFlag = true;
+	mavenParameters->checkConvergance = true;
 	QTime timer;
 	timer.start();
 
-	mavenParameters.setAverageScanTime(); //find avgScanTime
+	mavenParameters->setAverageScanTime(); //find avgScanTime
 
 	//emit (updateProgressBar("Computing Mass Slices", 2, 10)); TODO
 	MassSlices massSlices;
-	massSlices.setSamples(mavenParameters.samples);
-	massSlices.algorithmB(mavenParameters.ppmMerge,
-			mavenParameters.minGroupIntensity, mavenParameters.rtStepSize); //perform algorithmB for samples
+	massSlices.setSamples(mavenParameters->samples);
+	massSlices.algorithmB(mavenParameters->ppmMerge,
+			mavenParameters->minGroupIntensity, mavenParameters->rtStepSize); //perform algorithmB for samples
 
 	if (massSlices.slices.size() == 0)
 		massSlices.algorithmA(); //if no slices present, perform algorithmA TODO WHY?!
@@ -152,7 +155,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 //	if (set.size() == 0)
 //		return;
 //
-	mavenParameters.limitGroupCount = INT_MAX; //must not be active when processing compounds
+	mavenParameters->limitGroupCount = INT_MAX; //must not be active when processing compounds
 
 	//iterating over all compounds in the set
 	vector<mzSlice*> slices;
@@ -167,25 +170,25 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 			slice->srmId = c->srmId;
 
 		if (!c->formula.empty()) { //with formula, calculate mass here
-			double mass = mavenParameters.mcalc.computeMass(c->formula,
-					mavenParameters.ionizationMode); //compute mass from compound's formula
+			double mass = mavenParameters->mcalc.computeMass(c->formula,
+					mavenParameters->ionizationMode); //compute mass from compound's formula
 			slice->mzmin = mass
-					- mavenParameters.compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
+					- mavenParameters->compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
 			slice->mzmax = mass
-					+ mavenParameters.compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
+					+ mavenParameters->compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
 		} else if (c->mass > 0) { //mass already calculated
 			double mass = c->mass; //TODO REFACTOR: CAN BE DONE ONLY ONCE
 			slice->mzmin = mass
-					- mavenParameters.compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
+					- mavenParameters->compoundPPMWindow * mass / 1e6; //find min ppm using compoundPPMWindow
 			slice->mzmax = mass
-					+ mavenParameters.compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
+					+ mavenParameters->compoundPPMWindow * mass / 1e6; //find max ppm using compoundPPMWindow
 		} else {
 			continue; //TODO REFACTOR: useless
 		}
 
-		if (mavenParameters.matchRtFlag && c->expectedRt > 0) { //if match RT flag is true, and expected RT is > 0
-			slice->rtmin = c->expectedRt - mavenParameters.compoundRTWindow; //find min RT using compoundRTWindow
-			slice->rtmax = c->expectedRt + mavenParameters.compoundRTWindow;
+		if (mavenParameters->matchRtFlag && c->expectedRt > 0) { //if match RT flag is true, and expected RT is > 0
+			slice->rtmin = c->expectedRt - mavenParameters->compoundRTWindow; //find min RT using compoundRTWindow
+			slice->rtmax = c->expectedRt + mavenParameters->compoundRTWindow;
 		} else {
 			slice->rtmin = 0; //TODO fixed WHY!?
 			slice->rtmax = 1e9;
@@ -205,11 +208,11 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 		return;
 	if (parentgroup->compound->formula.empty() == true)
 		return;
-	if (mavenParameters.samples.size() == 0)
+	if (mavenParameters->samples.size() == 0)
 		return;
 
 	//init
-	float ppm = mavenParameters.compoundPPMWindow;
+	float ppm = mavenParameters->compoundPPMWindow;
 	double maxIsotopeScanDiff = 10;
 	double maxNaturalAbundanceErr = 100;
 	double minIsotopicCorrelation = 0;
@@ -221,15 +224,15 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
 	string formula = parentgroup->compound->formula; //parent formula
 	//generate isotope list for parent mass
-	vector<Isotope> masslist = mavenParameters.mcalc.computeIsotopes(formula,
-			mavenParameters.ionizationMode);
+	vector<Isotope> masslist = mavenParameters->mcalc.computeIsotopes(formula,
+			mavenParameters->ionizationMode);
 
 //iterate over samples to find properties for parent's isotopes.
 	map<string, PeakGroup> isotopes;
 	map<string, PeakGroup>::iterator itr2;
 
-	for (unsigned int s = 0; s < mavenParameters.samples.size(); s++) {
-		mzSample* sample = mavenParameters.samples[s];
+	for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
+		mzSample* sample = mavenParameters->samples[s];
 		for (int k = 0; k < masslist.size(); k++) {
 //			if (stopped())
 //				break; TODO stop
@@ -305,24 +308,24 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 					continue;
 			}
 
-			float w = mavenParameters.maxIsotopeScanDiff
-					* mavenParameters.avgScanTime;
+			float w = mavenParameters->maxIsotopeScanDiff
+					* mavenParameters->avgScanTime;
 			double c = sample->correlation(isotopeMass, parentgroup->meanMz,
 					ppm, rtmin - w, rtmax + w); //find correlation for isotopes
-			if (c < mavenParameters.minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
+			if (c < mavenParameters->minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
 				continue;
 
 			//cerr << "pullIsotopes: " << isotopeMass << " " << rtmin-w << " " <<	rtmin+w << " c=" << c << endl;
 
 			EIC* eic = NULL; //find EIC for isotopes
-			for (int i = 0; i < mavenParameters.maxIsotopeScanDiff; i++) {
-				float window = i * mavenParameters.avgScanTime;
+			for (int i = 0; i < mavenParameters->maxIsotopeScanDiff; i++) {
+				float window = i * mavenParameters->avgScanTime;
 				eic = sample->getEIC(mzmin, mzmax, rtmin - window,
 						rtmax + window, 1);
 				//smooth fond eic TODO: null check for found eic
 				eic->setSmootherType(
-						(EIC::SmootherType) mavenParameters.eic_smoothingAlgorithm);
-				eic->getPeakPositions(mavenParameters.eic_smoothingWindow); //find peak position inside eic
+						(EIC::SmootherType) mavenParameters->eic_smoothingAlgorithm);
+				eic->getPeakPositions(mavenParameters->eic_smoothingWindow); //find peak position inside eic
 				if (eic->peaks.size() == 0)
 					continue;
 				if (eic->peaks.size() > 1)
@@ -339,8 +342,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 				Peak& x = eic->peaks[i];
 				float dist = abs(x.rt - rt);
 				if (dist
-						> mavenParameters.maxIsotopeScanDiff
-								* mavenParameters.avgScanTime)
+						> mavenParameters->maxIsotopeScanDiff
+								* mavenParameters->avgScanTime)
 					continue;
 				if (dist < d) {
 					d = dist;
@@ -377,8 +380,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 		child.parent = parentgroup;
 		child.setType(PeakGroup::Isotope);
 		child.groupStatistics();
-		if (mavenParameters.clsf->hasModel()) {
-			mavenParameters.clsf->classify(&child);
+		if (mavenParameters->clsf->hasModel()) {
+			mavenParameters->clsf->classify(&child);
 			child.groupStatistics();
 		}
 		parentgroup->addChild(child);
@@ -391,21 +394,21 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 }
 
 void PeakDetector::alignSamples() {
-	if (mavenParameters.samples.size() > 1
-			&& mavenParameters.alignSamplesFlag) {
+	if (mavenParameters->samples.size() > 1
+			&& mavenParameters->alignSamplesFlag) {
 		cerr << "Aligning samples" << endl;
 
-		mavenParameters.writeCSVFlag = false;
+		mavenParameters->writeCSVFlag = false;
 		processMassSlices();
 
-		cerr << "Aligner=" << mavenParameters.allgroups.size() << endl;
-		vector<PeakGroup*> agroups(mavenParameters.allgroups.size());
-		for (unsigned int i = 0; i < mavenParameters.allgroups.size(); i++)
-			agroups[i] = &mavenParameters.allgroups[i];
+		cerr << "Aligner=" << mavenParameters->allgroups.size() << endl;
+		vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
+		for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
+			agroups[i] = &mavenParameters->allgroups[i];
 		//init aligner
 		Aligner aligner;
 		aligner.doAlignment(agroups);
-		mavenParameters.writeCSVFlag = true;
+		mavenParameters->writeCSVFlag = true;
 	}
 }
 
@@ -413,7 +416,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 	if (slices.size() == 0)
 		return;
-	mavenParameters.allgroups.clear();
+	mavenParameters->allgroups.clear();
 	sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
 	//process KNOWNS
@@ -443,19 +446,21 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 		if (compound != NULL && compound->hasGroup())
 			compound->unlinkGroup();
 
-		if (mavenParameters.checkConvergance) {
-			mavenParameters.allgroups.size() - foundGroups > 0 ?
-					converged = 0 : converged++;
+		if (mavenParameters->checkConvergance) {
+			mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
+																			0 :
+																	converged++;
 			if (converged > 1000)
 				break;	 //exit main loop
-			foundGroups = mavenParameters.allgroups.size();
+			foundGroups = mavenParameters->allgroups.size();
 		}
 		// for all the slies, find EICs
-		vector<EIC*> eics = pullEICs(slice, mavenParameters.samples,
-				EicLoader::PeakDetection, mavenParameters.eic_smoothingWindow,
-				mavenParameters.eic_smoothingAlgorithm, mavenParameters.amuQ1,
-				mavenParameters.amuQ3, mavenParameters.baseline_smoothingWindow,
-				mavenParameters.baseline_dropTopX);
+		vector<EIC*> eics = pullEICs(slice, mavenParameters->samples,
+				EicLoader::PeakDetection, mavenParameters->eic_smoothingWindow,
+				mavenParameters->eic_smoothingAlgorithm, mavenParameters->amuQ1,
+				mavenParameters->amuQ3,
+				mavenParameters->baseline_smoothingWindow,
+				mavenParameters->baseline_dropTopX);
 
 		float eicMaxIntensity = 0;
 
@@ -464,15 +469,15 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			if (eics[j]->maxIntensity > eicMaxIntensity)
 				eicMaxIntensity = eics[j]->maxIntensity;
 		}
-		if (eicMaxIntensity < mavenParameters.minGroupIntensity) {
+		if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
 			delete_all(eics);
 			continue;
 		}
 
 		//for ( unsigned int j=0; j < eics.size(); j++ )	eics[j]->getPeakPositions(eic_smoothingWindow);
 		vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-				mavenParameters.eic_smoothingWindow,
-				mavenParameters.grouping_maxRtWindow);
+				mavenParameters->eic_smoothingWindow,
+				mavenParameters->grouping_maxRtWindow);
 
 		//score quality of each group using classifier
 		vector<PeakGroup*> groupsToAppend;
@@ -483,26 +488,26 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			groupCount++;
 			peakCount += group.peakCount();
 
-			if (mavenParameters.clsf->hasModel()) {
-				mavenParameters.clsf->classify(&group);
+			if (mavenParameters->clsf->hasModel()) {
+				mavenParameters->clsf->classify(&group);
 				group.groupStatistics();
 			}
-			if (mavenParameters.clsf->hasModel()
-					&& group.goodPeakCount < mavenParameters.minGoodPeakCount)
+			if (mavenParameters->clsf->hasModel()
+					&& group.goodPeakCount < mavenParameters->minGoodPeakCount)
 				continue;
-			if (mavenParameters.clsf->hasModel()
-					&& group.maxQuality < mavenParameters.minQuality)
+			if (mavenParameters->clsf->hasModel()
+					&& group.maxQuality < mavenParameters->minQuality)
 				continue;
 			// if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
-			if (group.blankMax * mavenParameters.minSignalBlankRatio
+			if (group.blankMax * mavenParameters->minSignalBlankRatio
 					> group.maxIntensity)
 				continue;
-			if (group.maxNoNoiseObs < mavenParameters.minNoNoiseObs)
+			if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
 				continue;
 			if (group.maxSignalBaselineRatio
-					< mavenParameters.minSignalBaseLineRatio)
+					< mavenParameters->minSignalBaseLineRatio)
 				continue;
-			if (group.maxIntensity < mavenParameters.minGroupIntensity)
+			if (group.maxIntensity < mavenParameters->minGroupIntensity)
 				continue;
 
 			if (compound)
@@ -511,13 +516,13 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				group.srmId = slice->srmId;
 
 			//update peak group rank using rt difference b/w compound's expectedRt and peak groups's RT
-			if (mavenParameters.matchRtFlag && compound != NULL
+			if (mavenParameters->matchRtFlag && compound != NULL
 					&& compound->expectedRt > 0) {
 				float rtDiff = abs(compound->expectedRt - (group.meanRt));
 				group.expectedRtDiff = rtDiff;
 				group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
 						* (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
-				if (group.expectedRtDiff > mavenParameters.compoundRTWindow)
+				if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
 					continue;
 			} else {
 				group.groupRank = (1.1 - group.maxQuality)
@@ -533,7 +538,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 		for (int j = 0; j < groupsToAppend.size(); j++) {
 			//check for duplicates	and append group
-			if (j >= mavenParameters.eicMaxGroups)
+			if (j >= mavenParameters->eicMaxGroups)
 				break;
 
 			PeakGroup* group = groupsToAppend[j];
@@ -541,20 +546,21 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 			//force insert when processing compounds.. even if duplicated
 			if (ok == false && compound != NULL)
-				mavenParameters.allgroups.push_back(*group);
+				mavenParameters->allgroups.push_back(*group);
 		}
 
 		//cleanup
 		delete_all(eics);
 
-		if (mavenParameters.allgroups.size() > mavenParameters.limitGroupCount)
+		if (mavenParameters->allgroups.size()
+				> mavenParameters->limitGroupCount)
 			break;
 		//		if (stopped())
 		//			break;
 
-		if (mavenParameters.showProgressFlag && s % 10 == 0) {
+		if (mavenParameters->showProgressFlag && s % 10 == 0) {
 			QString progressText = "Found "
-					+ QString::number(mavenParameters.allgroups.size())
+					+ QString::number(mavenParameters->allgroups.size())
 					+ " groups";
 			/*
 			 emit(
@@ -564,7 +570,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 		}
 	}
 
-	if (mavenParameters.showProgressFlag && mavenParameters.pullIsotopesFlag) {
+	if (mavenParameters->showProgressFlag
+			&& mavenParameters->pullIsotopesFlag) {
 		//		emit(updateProgressBar("Calculation Isotopes", 1, 100)); TODO
 	}
 
@@ -583,17 +590,17 @@ bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
 	 * if a certain degree of overlap is present, do not create a new group
 	 */
 
-	for (int i = 0; i < mavenParameters.allgroups.size(); i++) {
-		PeakGroup& grp2 = mavenParameters.allgroups[i];
+	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+		PeakGroup& grp2 = mavenParameters->allgroups[i];
 		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
 				grp2.minRt, grp2.maxRt);
 		if (rtoverlap > 0.9
 				&& ppmDist(grp2.meanMz, grp1.meanMz)
-						< mavenParameters.ppmMerge) {
+						< mavenParameters->ppmMerge) {
 			return false;
 		}
 	}
 	//ekse push the group to the allgroups vector
-	mavenParameters.allgroups.push_back(grp1);
+	mavenParameters->allgroups.push_back(grp1);
 	return true;
 }

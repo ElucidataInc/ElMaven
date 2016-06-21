@@ -117,42 +117,45 @@ void PeakDetectionDialog::findPeaks() {
 
 	peakupdater = new BackgroundPeakUpdate(this);
 	peakupdater->setMainWindow(mainwindow);
-	MavenParameters mavenParameters =
+	peakupdater->setMavenParameters(mainwindow->mavenParameters);
+	peakupdater->setPeakDetector(new PeakDetector(mainwindow->mavenParameters));
+
+	MavenParameters* mavenParameters =
 			peakupdater->peakDetector.getMavenParameters();
 
 	connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
 			SLOT(setProgressBar(QString, int,int)));
 
 	if (settings != NULL) {
-		mavenParameters.eic_ppmWindow =
+		mavenParameters->eic_ppmWindow =
 				settings->value("eic_ppmWindow").toDouble();
-		mavenParameters.eic_smoothingAlgorithm = settings->value(
+		mavenParameters->eic_smoothingAlgorithm = settings->value(
 				"eic_smoothingAlgorithm").toInt();
 	}
 
-	mavenParameters.baseline_smoothingWindow = baseline_smoothing->value();
-	mavenParameters.baseline_dropTopX = baseline_quantile->value();
-	mavenParameters.eic_smoothingWindow = eic_smoothingWindow->value();
-	mavenParameters.grouping_maxRtWindow = grouping_maxRtDiff->value();
-	mavenParameters.matchRtFlag = matchRt->isChecked();
-	mavenParameters.minGoodPeakCount = minGoodGroupCount->value();
-	mavenParameters.minNoNoiseObs = minNoNoiseObs->value();
-	mavenParameters.minSignalBaseLineRatio = sigBaselineRatio->value();
-	mavenParameters.minSignalBlankRatio = sigBlankRatio->value();
-	mavenParameters.minGroupIntensity = minGroupIntensity->value();
-	mavenParameters.pullIsotopesFlag = reportIsotopes->isChecked();
-	mavenParameters.ppmMerge = ppmStep->value();
-	mavenParameters.compoundPPMWindow = compoundPPMWindow->value(); //convert to half window units.
-	mavenParameters.compoundRTWindow = compoundRTWindow->value();
-	mavenParameters.eicMaxGroups = eicMaxGroups->value();
-	mavenParameters.avgScanTime = samples[0]->getAverageFullScanTime();
-	mavenParameters.rtStepSize = rtStep->value();
+	mavenParameters->baseline_smoothingWindow = baseline_smoothing->value();
+	mavenParameters->baseline_dropTopX = baseline_quantile->value();
+	mavenParameters->eic_smoothingWindow = eic_smoothingWindow->value();
+	mavenParameters->grouping_maxRtWindow = grouping_maxRtDiff->value();
+	mavenParameters->matchRtFlag = matchRt->isChecked();
+	mavenParameters->minGoodPeakCount = minGoodGroupCount->value();
+	mavenParameters->minNoNoiseObs = minNoNoiseObs->value();
+	mavenParameters->minSignalBaseLineRatio = sigBaselineRatio->value();
+	mavenParameters->minSignalBlankRatio = sigBlankRatio->value();
+	mavenParameters->minGroupIntensity = minGroupIntensity->value();
+	mavenParameters->pullIsotopesFlag = reportIsotopes->isChecked();
+	mavenParameters->ppmMerge = ppmStep->value();
+	mavenParameters->compoundPPMWindow = compoundPPMWindow->value(); //convert to half window units.
+	mavenParameters->compoundRTWindow = compoundRTWindow->value();
+	mavenParameters->eicMaxGroups = eicMaxGroups->value();
+	mavenParameters->avgScanTime = samples[0]->getAverageFullScanTime();
+	mavenParameters->rtStepSize = rtStep->value();
 
 	if (!outputDirName->text().isEmpty()) {
-		mavenParameters.setOutputDir(outputDirName->text());
-		mavenParameters.writeCSVFlag = true;
+		mavenParameters->setOutputDir(outputDirName->text());
+		mavenParameters->writeCSVFlag = true;
 	} else {
-		mavenParameters.writeCSVFlag = false;
+		mavenParameters->writeCSVFlag = false;
 	}
 
 	QString title;
@@ -179,7 +182,7 @@ void PeakDetectionDialog::findPeaks() {
 	} else if (_featureDetectionType == FullSpectrum) {
 		runBackgroupJob("processMassSlices");
 	} else {
-		mavenParameters.setCompounds(
+		mavenParameters->setCompounds(
 				DB.getCopoundsSubset(
 						compoundDatabase->currentText().toStdString()));
 		runBackgroupJob("computePeaks");

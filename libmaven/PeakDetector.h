@@ -32,12 +32,13 @@
 class PeakDetector {
 public:
 	PeakDetector();
+	PeakDetector(MavenParameters* mp);
 
 	/**
 	 * [get Maven Parameters]
 	 * @return [params]
 	 */
-	MavenParameters getMavenParameters() {
+	MavenParameters* getMavenParameters() {
 		return mavenParameters;
 	}
 
@@ -45,7 +46,7 @@ public:
 	 * [set Maven Parameters]
 	 * @param mp [params]
 	 */
-	void setMavenParameters(MavenParameters mp) {
+	void setMavenParameters(MavenParameters* mp) {
 		mavenParameters = mp;
 	}
 
@@ -112,7 +113,7 @@ private:
 	 * @return [True if group is added to all groups, else False]
 	 */
 	bool addPeakGroup(PeakGroup& group);
-	MavenParameters mavenParameters;
+	MavenParameters* mavenParameters;
 };
 
 /**

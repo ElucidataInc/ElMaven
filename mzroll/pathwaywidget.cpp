@@ -201,25 +201,28 @@ void PathwayWidget::checkCompoundExistance() {
 }
 
 //cerr << "PathwayWidget::checkCompoundExistance() compounds=" <<  checkList.size() << endl;
-	MavenParameters mavenParameters =
+	workerThread->setMavenParameters(mw->mavenParameters);
+	workerThread->setPeakDetector(new PeakDetector(mw->mavenParameters));
+
+	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
 
 	if (checkList.size() > 0) {
-		mavenParameters.setSamples(samples);
-		mavenParameters.setCompounds(checkList);
-		mavenParameters.compoundPPMWindow = mw->getUserPPM();
+		mavenParameters->setSamples(samples);
+		mavenParameters->setCompounds(checkList);
+		mavenParameters->compoundPPMWindow = mw->getUserPPM();
 		workerThread->setRunFunction("computePeaks");
 
-		mavenParameters.minGoodPeakCount = 1;
-		mavenParameters.minSignalBlankRatio = 2;
-		mavenParameters.minSignalBaseLineRatio = 2;
-		mavenParameters.minNoNoiseObs = 2;
-		mavenParameters.minGroupIntensity = 0;
-		mavenParameters.writeCSVFlag = false;
-		mavenParameters.matchRtFlag = true;
-		mavenParameters.showProgressFlag = true;
-		mavenParameters.pullIsotopesFlag = true;
-		mavenParameters.keepFoundGroups = true;
+		mavenParameters->minGoodPeakCount = 1;
+		mavenParameters->minSignalBlankRatio = 2;
+		mavenParameters->minSignalBaseLineRatio = 2;
+		mavenParameters->minNoNoiseObs = 2;
+		mavenParameters->minGroupIntensity = 0;
+		mavenParameters->writeCSVFlag = false;
+		mavenParameters->matchRtFlag = true;
+		mavenParameters->showProgressFlag = true;
+		mavenParameters->pullIsotopesFlag = true;
+		mavenParameters->keepFoundGroups = true;
 		workerThread->start();
 	}
 }
@@ -869,12 +872,12 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event) {
 	e4->setChecked(_showEnzymesFlag);
 	connect(e4, SIGNAL(toggled(bool)), SLOT(showEnzymes(bool)));
 
-	MavenParameters mavenParameters =
+	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
 
 	QAction* e2 = options.addAction("Show Isotopes");
 	e2->setCheckable(true);
-	e2->setChecked(workerThread->mavenParameters.pullIsotopesFlag);
+	e2->setChecked(mavenParameters->pullIsotopesFlag);
 	connect(e2, SIGNAL(toggled(bool)), SLOT(calculateIsotopes(bool)));
 
 	QAction* e3 = options.addAction("Show Atoms");
@@ -1310,9 +1313,9 @@ void PathwayWidget::showCofactors(bool flag) {
 
 void PathwayWidget::calculateIsotopes(bool flag) {
 	if (workerThread) {
-		MavenParameters mavenParameters =
+		MavenParameters* mavenParameters =
 				workerThread->peakDetector.getMavenParameters();
-		mavenParameters.pullIsotopesFlag = flag;
+		mavenParameters->pullIsotopesFlag = flag;
 	}
 
 }
