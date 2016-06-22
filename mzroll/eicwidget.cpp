@@ -2,7 +2,7 @@
 
 EicWidget::EicWidget(QWidget *p) {
 
-	parent = p; 
+	parent = p;
 
 	//default values
 	_slice = mzSlice(0,0.01,0,0.01);
@@ -61,7 +61,7 @@ void EicWidget::mousePressEvent(QMouseEvent *event) {
 
     if (event->button() == Qt::LeftButton) {
 		_mouseStartPos = event->pos();
-	} 
+	}
 }
 
 void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
@@ -171,14 +171,14 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event){
 		for(int j=0; j < samples[i]->scans.size(); j++ ) {
 				//if ( samples[i]->scans[j]->mslevel != 1) continue;
 				float diff = abs(samples[i]->scans[j]->rt - rt);
-				if (  diff < minDiff ) { 
+				if (  diff < minDiff ) {
 					minDiff = diff;
 					selScan = samples[i]->scans[j];
 				}
 		}
 	}
 
-	if (selScan != NULL) { 
+	if (selScan != NULL) {
         setFocusLine(selScan->rt);
 		getMainWindow()->spectraWidget->setScan(selScan);
 	}
@@ -187,7 +187,7 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event){
 void EicWidget::selectionChangedAction() {
  //qDebug <<" EicWidget::selectionChangedAction()";
 	QList<QGraphicsItem*>items = scene()->selectedItems();
-	if (items.size()) { 
+	if (items.size()) {
 		if (QGraphicsPixmapItem *note = qgraphicsitem_cast<QGraphicsPixmapItem *>(items[0])) {
 			QVariant v = note->data(0);
 			int noteid = v.value<int>();
@@ -196,7 +196,7 @@ void EicWidget::selectionChangedAction() {
 	}
 }
 
-void EicWidget::setFocusLine(float rt) { 
+void EicWidget::setFocusLine(float rt) {
  //qDebug <<" EicWidget::setFocusLine(float rt)";
 	_focusLineRt = rt;
 	if (_focusLine == NULL ) _focusLine = new QGraphicsLineItem(0,scene());
@@ -208,7 +208,7 @@ void EicWidget::setFocusLine(float rt) {
 }
 
 
-void EicWidget::drawSelectionLine(float rtmin, float rtmax) { 
+void EicWidget::drawSelectionLine(float rtmin, float rtmax) {
  //qDebug <<" EicWidget::drawSelectionLine(float rtmin, float rtmax)";
 	if (_selectionLine == NULL ) _selectionLine = new QGraphicsLineItem(0,scene());
 	if (_selectionLine->scene() != scene() ) scene()->addItem(_selectionLine);
@@ -226,7 +226,7 @@ void EicWidget::setScan(Scan* scan) {
  //qDebug <<" EicWidget::setScan(Scan* scan)";
 	if ( scan == NULL ) return;
 	getMainWindow()->spectraWidget->setScan(scan,_slice.rtmin-5, _slice.rtmax+5);
-	 
+
 
 
 }
@@ -252,13 +252,12 @@ void EicWidget::cleanup() {
  //qDebug <<" EicWidget::cleanup()";
 	//remove groups
 	delete_all(eics);
-	eics.clear();
 	peakgroups.clear();
-	if (_showTicLine == false && tics.size() > 0 ) { delete_all(tics); tics.clear(); }
+	if (_showTicLine == false && tics.size() > 0 ) { delete_all(tics); }
 	clearPlot();
 }
 
-void EicWidget::addPeakGroup(PeakGroup& group) { 
+void EicWidget::addPeakGroup(PeakGroup& group) {
  //qDebug <<" EicWidget::addPeakGroup(PeakGroup& group)";
 	peakgroups.push_back(group);
 }
@@ -305,7 +304,7 @@ void EicWidget::computeEICs() {
 
 	////qDebug << tr("computeEICs() Done. ElepsTime=%1 msec").arg(timer.elapsed());
 	//associate compound names with peak groups
-	if (_slice.compound)  for(int i=0; i < peakgroups.size(); i++ ) peakgroups[i].compound = _slice.compound; 
+	if (_slice.compound)  for(int i=0; i < peakgroups.size(); i++ ) peakgroups[i].compound = _slice.compound;
 	if (!_slice.srmId.empty()) for(int i=0; i < peakgroups.size(); i++ ) peakgroups[i].srmId = _slice.srmId;
 }
 
@@ -355,9 +354,9 @@ void EicWidget::findPlotBounds() {
 
     _minY = 0;
     _maxY = 0;       //intensity
-   
+
     /*/
-    //full proof version    
+    //full proof version
     for(int i=0; i < eics.size(); i++ ) {
         EIC* eic = eics[i];
         for (int j=0; j < eic->size(); j++ ){
@@ -418,15 +417,15 @@ void EicWidget::replot() {
     if ( isVisible() ) { replot(getSelectedGroup()); }
 }
 
-void EicWidget::addEICLines(bool showSpline) {	
+void EicWidget::addEICLines(bool showSpline) {
  //qDebug <<" EicWidget::addEICLines(bool showSpline)";
 
     //sort eics by peak height of selected group
     vector<Peak> peaks;
-    if (getSelectedGroup()) { 
-        PeakGroup* group=getSelectedGroup(); 
-        peaks=group->getPeaks(); 
-        sort(peaks.begin(), peaks.end(), Peak::compIntensity); 
+    if (getSelectedGroup()) {
+        PeakGroup* group=getSelectedGroup();
+        peaks=group->getPeaks();
+        sort(peaks.begin(), peaks.end(), Peak::compIntensity);
     } else {
         std::sort(eics.begin(), eics.end(), EIC::compMaxIntensity);
     }
@@ -637,7 +636,7 @@ void EicWidget::showPeakArea(Peak* peak) {
     //line->setPen(pen);
 }
 
-void EicWidget::setupColors() { 
+void EicWidget::setupColors() {
  //qDebug <<" EicWidget::setupColors()";
 	for( unsigned int i=0; i< eics.size(); i++ ) {
 		EIC* eic = eics[i];
@@ -656,7 +655,7 @@ void EicWidget::setupColors() {
 	}
 }
 
-void EicWidget::clearPlot() { 
+void EicWidget::clearPlot() {
  //qDebug <<" EicWidget::clearPlot()";
 	if(_isotopeplot && _isotopeplot->scene()) { _isotopeplot->clear(); scene()->removeItem(_isotopeplot); }
 	if(_barplot && _barplot->scene()) { _barplot->clear(); scene()->removeItem(_barplot);  }
@@ -665,7 +664,7 @@ void EicWidget::clearPlot() {
 	if(_selectionLine && _selectionLine->scene()) {scene()->removeItem(_selectionLine); }
 	if(_statusText && _statusText->scene()) { scene()->removeItem(_statusText); }
 	scene()->clear();
-	scene()->setSceneRect(10,10,this->width()-10, this->height()-10);	
+	scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
 }
 
 void EicWidget::replot(PeakGroup* group ) {
@@ -718,7 +717,7 @@ void EicWidget::replot(PeakGroup* group ) {
     //qDebug << "\t Number of graphic objects " << scene()->items().size();
     //qDebug << "\t BSP Depth " << scene()->bspTreeDepth();
     //qDebug << "\t EicWidget::replot() done ";
-}	
+}
 
 void EicWidget::setTitle() {
  //qDebug <<" EicWidget::setTitle()";
@@ -744,7 +743,7 @@ void EicWidget::setTitle() {
                                 QString::number(_slice.mzmax, 'f', 4)
         );
 
-	QGraphicsTextItem* title = scene()->addText(titleText, font); 
+	QGraphicsTextItem* title = scene()->addText(titleText, font);
 	title->setHtml(titleText);
 	int titleWith = title->boundingRect().width();
 	title->setPos(scene()->width()/2-titleWith/2, 5);
@@ -784,7 +783,7 @@ void EicWidget::wheelEvent(QWheelEvent *event) {
     replot(NULL);
 }
 
-void EicWidget::addFocusLine(PeakGroup* group) { 
+void EicWidget::addFocusLine(PeakGroup* group) {
  //qDebug <<" EicWidget::addFocusLine(PeakGroup* group)";
 	//focus line
 	if ( group == NULL ) return;
@@ -792,9 +791,9 @@ void EicWidget::addFocusLine(PeakGroup* group) {
     if ( group->compound != NULL and group->compound->expectedRt > 0 ) {
 		_focusLineRt=group->compound->expectedRt;
     }
-    
+
     if (group->peaks.size() > 0 ) {
-        Peak& selPeak = group->peaks[0]; 
+        Peak& selPeak = group->peaks[0];
         for(int i=1; i< group->peaks.size(); i++ ) {
             if ( group->peaks[i].peakIntensity > selPeak.peakIntensity ) {
                 selPeak = group->peaks[i];
@@ -809,7 +808,7 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 	return;
 }
 
-void EicWidget::addAxes() { 
+void EicWidget::addAxes() {
  //qDebug <<" EicWidget::addAxes()";
 //	 qDebug() << "EicWidget: addAxes() " << _minY << " " << _maxY << endl;
     Axes* x = new Axes(0,_minX, _maxX,10);
@@ -857,7 +856,7 @@ void EicWidget::addBarPlot(PeakGroup* group ) {
 		float x1 = toX(group->parent->minRt);
 		float x2 = toX(group->parent->maxRt);
 		QColor color = QColor::fromRgbF( 0.2, 0, 0 , 0.1 );
-	  	QBrush brush(color); 
+	  	QBrush brush(color);
 	   	QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 	 	scene()->addRect(QRectF(x1,y1,x2-x1,y2-y1),pen,brush);
 		*/
@@ -926,16 +925,16 @@ void EicWidget::addFitLine(PeakGroup* group) {
 		if(observed.size() == 0 ) return;
 
 		//find max point and total intensity
-		float sum=0; 
+		float sum=0;
 		float maxpoint=0; float max=observed[0].y;
-		for(int i=0; i < observed.size(); i++ ) { 
-			sum += observed[i].y; 
+		for(int i=0; i < observed.size(); i++ ) {
+			sum += observed[i].y;
 			if (observed[i].y > max) { max=observed[i].y; maxpoint=i; }
 		}
 		if (sum == 0) return;
 		/*
 		//normalize
-		for(int i=0; i < observed.size(); i++ ) { observed.y[i] /= sum; } 
+		for(int i=0; i < observed.size(); i++ ) { observed.y[i] /= sum; }
 
 		Line* line = new Line(0,scene());
 		for(int i=0; i < observed.size(); i++ ) {
@@ -949,7 +948,7 @@ void EicWidget::addFitLine(PeakGroup* group) {
 		*/
 
 		//samples
-		vector<float>x(steps); 
+		vector<float>x(steps);
 		vector<float>y(steps);
 
 		for(int i=0; i<steps; i++ ) {
@@ -976,8 +975,8 @@ void EicWidget::addFitLine(PeakGroup* group) {
 
 
 
-void EicWidget::showAllPeaks() { 
- //qDebug <<"EicWidget::showAllPeaks() "; 
+void EicWidget::showAllPeaks() {
+ //qDebug <<"EicWidget::showAllPeaks() ";
 	for(int i=0; i < peakgroups.size(); i++ ) {
 	PeakGroup& group = peakgroups[i];
         addPeakPositions(&group);
@@ -990,7 +989,7 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 
 		bool setZValue=false;
 		if (selectedGroup && group == selectedGroup ) {
-				sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity); 
+				sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
 				setZValue=true;
 		}
 
@@ -1017,12 +1016,12 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 				p->setPeakGroup(group);
 				//connect(p,SIGNAL(addNote(Peak*)),this,SLOT(addNote(Peak*)));
 				scene()->addItem(p);
-		} 
+		}
 }
 
 
-void EicWidget::resetZoom() { 
- //qDebug <<"EicWidget::resetZoom() "; 
+void EicWidget::resetZoom() {
+ //qDebug <<"EicWidget::resetZoom() ";
     mzSlice bounds(0,0,0,0);
 
     if( eics.size() > 0) {
@@ -1052,9 +1051,9 @@ void EicWidget::zoom(float factor) {
 
 
 
-MainWindow* EicWidget::getMainWindow() {  
-// //qDebug <<"EicWidget::getMainWindow() ";  
-	return (MainWindow*) parent; 
+MainWindow* EicWidget::getMainWindow() {
+// //qDebug <<"EicWidget::getMainWindow() ";
+	return (MainWindow*) parent;
 }
 
 void EicWidget::setRtWindow(float rtmin, float rtmax ) {
@@ -1063,8 +1062,8 @@ void EicWidget::setRtWindow(float rtmin, float rtmax ) {
 	_slice.rtmax = rtmax;
 }
 
-void EicWidget::setSrmId(string srmId) { 
- //qDebug <<"EicWidget::setSrmId(string srmId) "; 
+void EicWidget::setSrmId(string srmId) {
+ //qDebug <<"EicWidget::setSrmId(string srmId) ";
          //qDebug << "EicWidget::setSrmId" <<  srmId.c_str();
 	_slice.compound = NULL;
 	_slice.srmId = srmId;
@@ -1081,7 +1080,7 @@ void EicWidget::setCompound(Compound* c ) {
     //clock_gettime(CLOCK_REALTIME, &tS);
 
 //	for(int i =0; i < 100000; i++ ) { findPlotBounds(); }
-    
+
     if ( c == NULL ) return;
     if ( getMainWindow()->sampleCount() == 0) return;
 
@@ -1133,7 +1132,7 @@ void EicWidget::setCompound(Compound* c ) {
     if (c->expectedRt > 0 ) {
         setFocusLine(c->expectedRt);
         selectGroupNearRt(c->expectedRt);
-    } 
+    }
 
 //   clock_gettime(CLOCK_REALTIME, &tE);
   // qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
@@ -1142,7 +1141,7 @@ void EicWidget::setCompound(Compound* c ) {
 
 void EicWidget::setMzSlice(const mzSlice& slice) {
     //qDebug << "EicWidget::setmzSlice()";
-    if ( slice.mzmin != _slice.mzmin || slice.mzmax != _slice.mzmax  
+    if ( slice.mzmin != _slice.mzmin || slice.mzmax != _slice.mzmax
          || slice.srmId != _slice.srmId
          || slice.compound != _slice.compound ) {
         _slice = slice;
@@ -1211,8 +1210,8 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
 
 
-void EicWidget::setPPM(double ppm) { 
- //qDebug <<"EicWidget::setPPM(double ppm) "; 
+void EicWidget::setPPM(double ppm) {
+ //qDebug <<"EicWidget::setPPM(double ppm) ";
         mzSlice x = _slice;
 	if ( x.mz <= 0 ) x.mz = x.mzmin + (x.mzmax - x.mzmin)/2.0;
 	x.mzmin = x.mz - x.mz/1e6*ppm;
@@ -1229,7 +1228,7 @@ void EicWidget::setMzSlice(float mz){
 	setMzSlice(x);
 }
 
-void EicWidget::groupPeaks() { 
+void EicWidget::groupPeaks() {
 	 //qDebug() << "EicWidget::groupPeaks() " << endl;
 	//delete previous set of pointers to groups
 	QSettings *settings 		= getMainWindow()->getSettings();
@@ -1268,8 +1267,8 @@ void EicWidget::addNote(Peak* peak) {
 	addNote(peak->rt,peak->peakIntensity,text);
 }
 
-void EicWidget::addNote(float rt, float intensity, QString text) { 
- //qDebug <<"EicWidget::addNote(float rt, float intensity, QString text) "; 
+void EicWidget::addNote(float rt, float intensity, QString text) {
+ //qDebug <<"EicWidget::addNote(float rt, float intensity, QString text) ";
 
     if (text.isEmpty() ) {
         bool ok;
@@ -1309,14 +1308,14 @@ void EicWidget::addNote(float rt, float intensity, QString text) {
 }
 
 
-void EicWidget::updateNote(Note* note) { 
- //qDebug <<"EicWidget::updateNote(Note* note) "; 
+void EicWidget::updateNote(Note* note) {
+ //qDebug <<"EicWidget::updateNote(Note* note) ";
 	if (note == NULL) return;
 	//getMainWindow()->notesDockWidgeth->updateNote(Note* note);
 }
 
-void EicWidget::getNotes(float mzmin, float mzmax) { 
- //qDebug <<"EicWidget::getNotes(float mzmin, float mzmax) "; 
+void EicWidget::getNotes(float mzmin, float mzmax) {
+ //qDebug <<"EicWidget::getNotes(float mzmin, float mzmax) ";
 
         QSettings* settings = getMainWindow()->getSettings();
 
@@ -1413,22 +1412,22 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
 
 }
 
-void EicWidget::eicToClipboard() { 
- //qDebug <<"EicWidget::eicToClipboard() "; 
+void EicWidget::eicToClipboard() {
+ //qDebug <<"EicWidget::eicToClipboard() ";
 
 	if (eics.size() == 0 ) return;
 	QString eicText;
 	for(int i=0; i < eics.size(); i++ ) {
-		EIC* e = eics[i]; 
+		EIC* e = eics[i];
 		if (e == NULL ) continue;
 		mzSample* s = e->getSample();
 		if (s == NULL ) continue;
 
 		eicText += QString(s->sampleName.c_str()) + "\n";
-				 
+
 		for(int j=0;  j<e->size(); j++ ) {
 				if (e->rt[j] >= _slice.rtmin && e->rt[j] <= _slice.rtmax ) {
-						eicText += tr("%1,%2,%3,%4\n").arg( 
+						eicText += tr("%1,%2,%3,%4\n").arg(
 								QString::number(i),
 								QString::number(e->rt[j], 'f', 2),
 								QString::number(e->intensity[j], 'f', 4),
@@ -1453,7 +1452,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 
 	for(int i=0; i < peakgroups.size(); i++ ) {
        float diff = abs(peakgroups[i].meanRt - rt);
-	   if ( diff < 2 ) { 
+	   if ( diff < 2 ) {
 			if (selGroup == NULL ) { selGroup = &peakgroups[i]; continue; }
 			if (selGroup != NULL && peakgroups[i].maxIntensity > selGroup->maxIntensity ) {
 			   	selGroup = &peakgroups[i];
@@ -1495,8 +1494,8 @@ void EicWidget::saveRetentionTime() {
 	DB.saveRetentionTime(selectedGroup->compound, rt, "user_method");
 }
 
-void EicWidget::align() { 
- //qDebug <<"EicWidget::align() "; 
+void EicWidget::align() {
+ //qDebug <<"EicWidget::align() ";
 	if (peakgroups.size() == 0) return;
 	vector<PeakGroup*>_groups;
 	for(int i=0; i < peakgroups.size(); i++ ) {
@@ -1569,9 +1568,9 @@ void EicWidget::keyPressEvent( QKeyEvent *e ) {
 
 void EicWidget::setStatusText(QString text) {
  //qDebug <<"EicWidget::setStatusText(QString text) ";
-	if (_statusText == NULL) { 
-		_statusText = new Note(text,0,scene()); 
-		_statusText->setExpanded(true); 
+	if (_statusText == NULL) {
+		_statusText = new Note(text,0,scene());
+		_statusText->setExpanded(true);
 		_statusText->setFlag(QGraphicsItem::ItemIsSelectable,false);
                 _statusText->setFlag(QGraphicsItem::ItemIsFocusable,false);
 		_statusText->setFlag(QGraphicsItem::ItemIsMovable,false);

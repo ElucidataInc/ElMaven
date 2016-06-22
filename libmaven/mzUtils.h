@@ -24,7 +24,6 @@
 #include <zlib.h>
 #endif
 
-
 #ifdef MINGW
 #include <io.h>
 #endif
@@ -40,22 +39,21 @@
 #define HMASS  		 1.007825032
 #define EMASS 		 0.00054857971 //(6.022141×10^23 ⋅ 9.10938×10^-28 )
 #if defined _WIN32 && !defined __CYGWIN__
-   /* Use Windows separators on all _WIN32 defining
-	*       environments, except Cygwin. */
+/* Use Windows separators on all _WIN32 defining
+ *       environments, except Cygwin. */
 #  define DIR_SEPARATOR_CHAR		'\\'
 #  define DIR_SEPARATOR_STR		"\\"
 #  define PATH_SEPARATOR_CHAR		';'
 #  define PATH_SEPARATOR_STR		";"
 #endif
 #ifndef DIR_SEPARATOR_CHAR
-   /* Assume that not having this is an indicator that all
-	*       are missing. */
+/* Assume that not having this is an indicator that all
+ *       are missing. */
 #  define DIR_SEPARATOR_CHAR		'/'
 #  define DIR_SEPARATOR_STR		"/"
 #  define PATH_SEPARATOR_CHAR		':'
 #  define PATH_SEPARATOR_STR		":"
 #endif /* !DIR_SEPARATOR_CHAR */
-
 
 using namespace std;
 
@@ -68,7 +66,8 @@ namespace mzUtils {
  * @return       []
  */
 inline float round(float val) {
-	if (val - long(val) >= 0.5 ) return (ceil(val));
+	if (val - long(val) >= 0.5)
+		return (ceil(val));
 	return (floor(val));
 }
 
@@ -84,7 +83,8 @@ inline float round(float val) {
  * @param  t           []
  * @return             []
  */
-float spline_eval( int n, float *x, float *f, float *b, float *c, float *d, float t );
+float spline_eval(int n, float *x, float *f, float *b, float *c, float *d,
+		float t);
 
 /**
  * [tridiagonal  ]
@@ -95,7 +95,7 @@ float spline_eval( int n, float *x, float *f, float *b, float *c, float *d, floa
  * @param  b           []
  * @param  r           []
  */
-void tridiagonal ( int n, float *c, float *a, float *b, float *r );
+void tridiagonal(int n, float *c, float *a, float *b, float *r);
 
 /**
  * [cubic_nak    ]
@@ -107,7 +107,7 @@ void tridiagonal ( int n, float *c, float *a, float *b, float *r );
  * @param  c         []
  * @param  d         []
  */
-void cubic_nak   ( int n, float *x, float *f, float *b, float *c, float *d );
+void cubic_nak(int n, float *x, float *f, float *b, float *c, float *d);
 
 /*smoothing functions */
 
@@ -118,7 +118,7 @@ void cubic_nak   ( int n, float *x, float *f, float *b, float *c, float *d );
  * @param  nsr                  []
  * @param  data                 []
  */
-void gaussian1d_smoothing (int ns, int nsr, float *data);
+void gaussian1d_smoothing(int ns, int nsr, float *data);
 
 /**
  * [smoothAverage ]
@@ -143,7 +143,8 @@ void smoothAverage(float *y, float* s, int points, int n);
  * @param  ifz  []
  * @param  z    []
  */
-void conv(int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz, float *z);	//convolutio
+void conv(int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz,
+		float *z);	//convolutio
 
 /*statistical functions*/
 /**
@@ -153,7 +154,7 @@ void conv(int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz,
  * @param  groupB []
  * @return        []
  */
-float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB );
+float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB);
 
 /**
  * [median ]
@@ -161,7 +162,7 @@ float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB );
  * @param  y      []
  * @return        []
  */
-float median(vector <float> y);
+float median(vector<float> y);
 
 /**
  * [median ]
@@ -189,7 +190,6 @@ float kth_smallest(float a[], int n, int k);
  * @return               []
  */
 float torben_median(const vector<float> &m);
-
 
 vector<float> quantileDistribution(vector<float> y);
 
@@ -280,7 +280,6 @@ double pertPDF(double x, double min, double mode, double max);
  */
 vector<double> naturalAbundanceCorrection(int nC, vector<double>& M);
 
-
 /* string functions */
 /**
  * [string2integer ]
@@ -349,7 +348,7 @@ char *mystrcasestr(const char *s1, const char *s2);
  * @param  n        []
  * @return []
  */
-int strincmp(char *s1, char* s2,int n);
+int strincmp(char *s1, char* s2, int n);
 
 /**
  * [cleanFilename ]
@@ -367,7 +366,8 @@ string cleanFilename(const string& s);
  * @param  substitutions            []
  * @return []
  */
-string substituteInQuotedString(const string& s, const string& chars, const string& substitutions );
+string substituteInQuotedString(const string& s, const string& chars,
+		const string& substitutions);
 
 /**
  * [gzipInflate ]
@@ -376,7 +376,8 @@ string substituteInQuotedString(const string& s, const string& chars, const stri
  * @param  uncompressedBytes []
  * @return []
  */
-bool gzipInflate( const std::string& compressedBytes, std::string& uncompressedBytes );
+bool gzipInflate(const std::string& compressedBytes,
+		std::string& uncompressedBytes);
 
 /**
  * [decompress_string ]
@@ -422,7 +423,7 @@ float ppmround(const float mz1, const float resolution);
  * @param  ppmWindow  []
  * @return []
  */
-bool withinXppm( float mz1, float mz2, int ppmWindow );
+bool withinXppm(float mz1, float mz2, int ppmWindow);
 
 /* file system functions */
 /**
@@ -457,7 +458,6 @@ int isFile(const char* path);
  */
 int isDir(const char* path);
 
-
 /**
  * [fractional overlap between two line segments]
  * @method checkOverlap
@@ -468,15 +468,19 @@ int isDir(const char* path);
  * @return []
  */
 inline float checkOverlap(float a, float b, float c, float d) {
-	 if( (a<c && b<c) || (d<a && d<b) )    return(0.0);  //no overalp
-     if( (c<=a && b<=d) || (a<=c && d<=b) ) return(1.0); //100% overlap
-	 if  (c<=a) return(1/abs((c-b)/(d-a)));
-	 if  (a<=c) return(abs((c-b)/(d-a)));
-	 return 0.0;
+	if ((a < c && b < c) || (d < a && d < b))
+		return (0.0);  //no overalp
+	if ((c <= a && b <= d) || (a <= c && d <= b))
+		return (1.0); //100% overlap
+	if (c <= a)
+		return (1 / abs((c - b) / (d - a)));
+	if (a <= c)
+		return (abs((c - b) / (d - a)));
+	return 0.0;
 }
 
 //print vector
-template <typename T>
+template<typename T>
 
 /**
  * [shuffle ]
@@ -484,74 +488,61 @@ template <typename T>
  * @param  my_vector []
  */
 void shuffle(vector<T>& my_vector) {
-    int N = my_vector.size()-1; if (N <= 0) return;
-	for (unsigned int i = 0; i < my_vector.size(); i++ ) {
-		int j = ((double) rand()/RAND_MAX)*N;
-		if (i == j) continue;
+	int N = my_vector.size() - 1;
+	if (N <= 0)
+		return;
+	for (unsigned int i = 0; i < my_vector.size(); i++) {
+		int j = ((double) rand() / RAND_MAX) * N;
+		if (i == j)
+			continue;
 		T tmp = my_vector[i];
 		my_vector[i] = my_vector[j];
 		my_vector[j] = tmp;
 	}
 }
 
+template<typename T>
 
-template <typename T>
 /**
  * [print vector]
  * @method printF
  * @param  my_vector []
  */
 void printF(vector<T>& my_vector) {
-       for (unsigned int i = 0; i < my_vector.size(); i++ ) {
-			cerr << setprecision(6) << my_vector[i] << " ";
-		}
-	   cerr << endl;
+	for (unsigned int i = 0; i < my_vector.size(); i++) {
+		cerr << setprecision(6) << my_vector[i] << " ";
+	}
+	cerr << endl;
 }
 
+template<typename T>
 
-template <typename T>
 /**
  * [delete_all deallocated elements fo array from memory]
  * @method delete_all
  * @param  my_vector  []
  */
 void delete_all(vector<T>& my_vector) {
-	//TODO: Delete this!!!
-		if (my_vector.empty()) return;
-        for (unsigned int i = 0; i < my_vector.size(); i++ ) {
-              if (  my_vector[i] != NULL ) {
-					  try {
-						  delete(my_vector[i]);
-						  my_vector[i] = NULL;
-
-					  }
-					  catch(...) {
-						  cerr << "delete_all() sigfaulting.. ";
-					  }
-			  }
-        }
-        my_vector.clear();
+	my_vector.clear();
+	my_vector.shrink_to_fit();
 }
 
+template<typename T>
 
-template <typename T>
 /**
  * [deallocated elements fo array from memory]
  * @method delete_all
  * @param  my_vector  []
  */
 inline void delete_all(deque<T>& my_vector) {
-		if (my_vector.empty()) return;
-        for (unsigned int i = 0; i < my_vector.size(); i++ ) {
-              if (  my_vector[i] != NULL ) { delete(my_vector[i]);  my_vector[i] = NULL; }
-        }
-        my_vector.clear();
+	my_vector.clear();
+	my_vector.shrink_to_fit();
 }
 
 }
 
+template<typename T>
 
-template <typename T>
 /**
  * [deallocated single element]
  * @method delete_one
@@ -559,14 +550,17 @@ template <typename T>
  * @param  idx        []
  */
 void delete_one(vector<T> & my_vector, unsigned int idx) {
-		if ( my_vector.size() == 0 ) return;
-        if ( idx < 0 || idx > my_vector.size()-1) return;
-        if ( my_vector[idx] != NULL ) delete(my_vector[idx]); my_vector[idx] = NULL;
-        my_vector.erase( my_vector.begin()+idx );
+	if (my_vector.size() == 0)
+		return;
+	if (idx < 0 || idx > my_vector.size() - 1)
+		return;
+	if (my_vector[idx] != NULL)
+		delete (my_vector[idx]);
+	my_vector[idx] = NULL;
+	my_vector.erase(my_vector.begin() + idx);
 }
 
-
-template <typename T>
+template<typename T>
 /**
  * [deallocated single element]
  * @method delete_one
@@ -574,22 +568,24 @@ template <typename T>
  * @param  idx        []
  */
 void delete_one(deque<T> & my_vector, unsigned int idx) {
-		if ( my_vector.size() == 0 ) return;
-        if ( idx > my_vector.size()-1) return;
-        if ( my_vector[idx] != NULL ) delete(my_vector[idx]); my_vector[idx] = NULL;
-        my_vector.erase( my_vector.begin()+idx );
+	if (my_vector.size() == 0)
+		return;
+	if (idx > my_vector.size() - 1)
+		return;
+	if (my_vector[idx] != NULL)
+		delete (my_vector[idx]);
+	my_vector[idx] = NULL;
+	my_vector.erase(my_vector.begin() + idx);
 }
 
-
-template<typename vector>
-/**
- * [resize vector in order to free up memory]
- * @method shrink_vector
- * @param  v             []
- */
-void shrink_vector(vector& v) {
-    vector(v.begin(), v.end()).swap(v);
-}
-
+// template<typename vector>
+// /**
+//  * [resize vector in order to free up memory]
+//  * @method shrink_vector
+//  * @param  v             []
+//  */
+// void shrink_vector(vector& v) {
+// 	vector(v.begin(), v.end()).swap(v);
+// }
 
 #endif

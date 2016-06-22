@@ -2,7 +2,6 @@
 
 void MassSlices::algorithmA() {
     delete_all(slices);
-    slices.clear();
     cache.clear();
     map< string, int> seen;
 
@@ -19,10 +18,9 @@ void MassSlices::algorithmA() {
     cerr << "#algorithmA" << slices.size() << endl;
 }
 
-	
-void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) { 
+
+void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 	delete_all(slices);
-	slices.clear();
 	cache.clear();
 
         float ppm=userPPM;	//centering of ppm values for +/- mz calculation
@@ -40,7 +38,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 			Scan* scan = samples[i]->scans[j];
 			if (scan->mslevel != 1 ) continue;
 
-			if ( lastScan ) { 
+			if ( lastScan ) {
 				for(unsigned int k=0; k < scan->nobs(); k++ ){
 					if (scan->intensity[k] < minIntensity) continue;
 					float mz = scan->mz[k];
@@ -50,7 +48,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 
 					mzSlice* Z = sliceExists(mz,rt);
 
-					if (Z) { 
+					if (Z) {
 						//cerr << "Merged Slice " <<  Z->mzmin << " " << Z->mzmax << " " << scan->intensity[k] << "  " << Z->ionCount << endl;
 
 						Z->ionCount = std::max((float) Z->ionCount, (float ) scan->intensity[k]);
@@ -72,7 +70,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 						//cerr << "\t" << rt << "  " << mzmin << "  "  << mzmax << endl;
 						mzSlice* s = new mzSlice(mzmin,mzmax, rt-2*rtWindow, rt+2*rtWindow);
 						s->ionCount = scan->intensity[k];
-						s->rt=scan->rt; 
+						s->rt=scan->rt;
 						s->mz=mz;
 						//cerr << "New Slice " <<  s->mzmin << " " << s->mzmax << " " << s->ionCount << endl;
 						slices.push_back(s);
@@ -83,7 +81,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 						if ( slices.size() % 1000 == 0) { cerr << "MassSlices count=" << slices.size() << endl; }
 					}
 					}
-				} 
+				}
 
 				lastScan = scan;
 			}
@@ -99,7 +97,7 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
 	multimap<int, mzSlice*>::iterator it2 = ppp.first;
 	float bestDist=10000000; mzSlice* best=NULL;
 	for( ;it2 != ppp.second; ++it2 ) {
-		mzSlice* x = (*it2).second; 
+		mzSlice* x = (*it2).second;
 		if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {
 			float d = (mz-x->mzmin) + (x->mzmax-mz);
 			if ( d < bestDist ) { best=x; bestDist=d; }
@@ -107,6 +105,3 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
 	}
 	return best;
 }
-
-
-

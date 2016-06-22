@@ -221,7 +221,6 @@ void BackgroundPeakUpdate::findPeaksQQQ() {
 	vector<mzSlice*> slices = mainwindow->getSrmSlices();
 	processSlices(slices, "QQQ Peaks");
 	delete_all(slices);
-	slices.clear();
 }
 
 void BackgroundPeakUpdate::setRunFunction(QString functionName) {

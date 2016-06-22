@@ -2,7 +2,7 @@
 using namespace std;
 
 
-MassCalcWidget::MassCalcWidget(MainWindow* mw) { 
+MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);
   _mw = mw;
   _mz = 0;
@@ -16,18 +16,17 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   connect(mTable, SIGNAL(currentCellChanged(int,int,int,int)), SLOT(showCellInfo(int,int,int,int)));
 }
 
-void MassCalcWidget::setMass(float mz) { 
+void MassCalcWidget::setMass(float mz) {
 	if ( mz == _mz ) return;
 
-    lineEdit->setText(QString::number(mz,'f',5)); 
-    _mz = mz; 
-    delete_all(matches); 
-	matches.resize(0); //clean up
+    lineEdit->setText(QString::number(mz,'f',5));
+    _mz = mz;
+    delete_all(matches);
     getMatches();
     showTable();
 }
 
-void MassCalcWidget::setCharge(float charge) { 
+void MassCalcWidget::setCharge(float charge) {
 
                 ionization->setValue(charge);
                 _charge=charge;
@@ -39,32 +38,31 @@ void MassCalcWidget::compute() {
 	 _mz = 		lineEdit->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
   	 _ppm = 	maxppmdiff->value();
-     
+
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
-     delete_all(matches); 
-	 matches.resize(0); //clean up
+     delete_all(matches);
 
 	_mw->setStatusText("Searching for formulas..");
-     mcalc.enumerateMasses(_mz,_charge,_ppm, matches);	
+     mcalc.enumerateMasses(_mz,_charge,_ppm, matches);
 	 getMatches();
 	_mw->setStatusText(tr("Found %1 formulas").arg(matches.size()));
 
-     showTable(); 
+     showTable();
 }
 
 void MassCalcWidget::showTable() {
-        
-    QTableWidget *p = mTable; 
-    p->setUpdatesEnabled(false); 
-    p->clear(); 
+
+    QTableWidget *p = mTable;
+    p->setUpdatesEnabled(false);
+    p->clear();
     p->setColumnCount( 5 );
-    p->setRowCount(  matches.size() ) ; 
+    p->setRowCount(  matches.size() ) ;
     p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << "ppmDiff" << "DB");
     p->setSortingEnabled(false);
     p->setUpdatesEnabled(false);
-    
+
     for(unsigned int i=0;  i < matches.size(); i++ ) {
         //no duplicates in the list
         Compound* c = matches[i]->compoundLink;
@@ -82,19 +80,19 @@ void MassCalcWidget::showTable() {
 
         p->setItem(i,0, item );
         p->setItem(i,1, new QTableWidgetItem(item2,0));
-        p->setItem(i,2, new QTableWidgetItem(item3,0)); 
+        p->setItem(i,2, new QTableWidgetItem(item3,0));
         p->setItem(i,3, new QTableWidgetItem(item4,0));
         p->setItem(i,4, new QTableWidgetItem(item5,0));
 		if (c != NULL) item->setData(Qt::UserRole,QVariant::fromValue(c));
     }
 
-    p->setSortingEnabled(true); 
+    p->setSortingEnabled(true);
     p->setUpdatesEnabled(true);
     p->update();
 
 }
 
-void MassCalcWidget::setupSortedCompoundsDB() { 
+void MassCalcWidget::setupSortedCompoundsDB() {
     sortedcompounds.clear();
     sortedcompounds.resize(DB.compoundsDB.size());
     copy(DB.compoundsDB.begin(), DB.compoundsDB.end(),   sortedcompounds.begin());
@@ -134,22 +132,22 @@ void MassCalcWidget::getMatches() {
 
 void MassCalcWidget::pubChemLink(QString formula){
 	_mw->setStatusText("Searhing pubchem");
-	QString requestStr( 
+	QString requestStr(
 		tr("http://pubchem.ncbi.nlm.nih.gov/search/search.cgi?cmd=search&q_type=mf&q_data=%1&simp_schtp=mf")
     .arg(formula));
-    
+
     _mw->setUrl(requestStr);
 }
 
 void MassCalcWidget::keggLink(QString formula){
 	_mw->setStatusText("Searhing Kegg");
-	QString requestStr( 
+	QString requestStr(
 		tr("http://www.genome.jp/ligand-bin/txtsearch?column=formula&query=%1&DATABASE=compound").arg(formula));
     _mw->setUrl(requestStr);
 }
 
 void MassCalcWidget::showCellInfo(int row, int col, int lrow, int lcol) {
-	
+
 	lrow=lcol=0;
     if ( row < 0 || col < 0 )  return;
     if ( row < mTable->rowCount()  ) {
@@ -157,8 +155,8 @@ void MassCalcWidget::showCellInfo(int row, int col, int lrow, int lcol) {
 		QVariant v = mTable->item(row,0)->data(Qt::UserRole);
     	Compound*  c =  v.value<Compound*>();
 
-		if ( c) { 
-			_mw->setCompoundFocus(c); 
+		if ( c) {
+			_mw->setCompoundFocus(c);
 			return;
 		}
 
@@ -171,7 +169,6 @@ void MassCalcWidget::showCellInfo(int row, int col, int lrow, int lcol) {
     }
 }
 
-MassCalcWidget::~MassCalcWidget() { 
-    delete_all(matches); 
-    matches.resize(0); 
+MassCalcWidget::~MassCalcWidget() {
+    delete_all(matches);
 }

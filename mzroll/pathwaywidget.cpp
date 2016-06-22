@@ -1690,7 +1690,6 @@ void PathwayWidget::getReactionPairs() {
 	//clear list of reaction pairs
 	if (rpairs.size()) {
 		delete_all(rpairs);
-		rpairs.clear();
 	}
 
 	//construct list of reaction in current view

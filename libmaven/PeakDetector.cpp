@@ -124,25 +124,17 @@ void PeakDetector::processMassSlices() {
 	sort(massSlices.slices.begin(), massSlices.slices.end(),
 			mzSlice::compIntensity);
 
-	//enumerate goodslices //Copying all the pre-sorted slices (by intensities) to good slices
-	vector<mzSlice*> goodslices;
-	goodslices.resize(massSlices.slices.size());
-	for (int i = 0; i < massSlices.slices.size(); i++)
-		goodslices[i] = massSlices.slices[i];
-
-	if (goodslices.size() == 0) {
-//		emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix emit.
+	if (massSlices.slices.size() == 0) {
+		//	emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix emit.
 		return;
 	}
 
 	//process goodslices
-	processSlices(goodslices, "allslices");
+	processSlices(massSlices.slices, "allslices");
 
-	massSlices.slices.shrink_to_fit();
 	//cleanup
-//	delete_all(massSlices.slices);
-//	massSlices.slices.clear();
-	goodslices.clear();
+	delete_all(massSlices.slices);
+
 	qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
 			<< timer.elapsed();
 }
