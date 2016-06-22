@@ -516,6 +516,7 @@ template <typename T>
  * @param  my_vector  []
  */
 void delete_all(vector<T>& my_vector) {
+	//TODO: Delete this!!!
 		if (my_vector.empty()) return;
         for (unsigned int i = 0; i < my_vector.size(); i++ ) {
               if (  my_vector[i] != NULL ) {

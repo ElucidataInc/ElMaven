@@ -1,6 +1,8 @@
 include(../mzroll.pri)
 #TEMPLATE = app
 CONFIG += qt thread warn_off sql svg console precompile_header
+CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
 QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 

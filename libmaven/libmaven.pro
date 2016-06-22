@@ -4,6 +4,8 @@ DESTDIR = $$OUTPUT_DIR/lib
 QT+= sql network
 TEMPLATE=lib
 CONFIG += staticlib warn_on console silent
+CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
 TARGET = maven
 
 LIBS += -L.

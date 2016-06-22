@@ -517,6 +517,7 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 
 void MainWindow::bookmarkPeakGroup() {
 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
+	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
 	if (eicWidget)
 		bookmarkPeakGroup(eicWidget->getSelectedGroup());
 }

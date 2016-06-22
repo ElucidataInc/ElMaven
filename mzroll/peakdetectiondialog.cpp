@@ -120,8 +120,7 @@ void PeakDetectionDialog::findPeaks() {
 	peakupdater->setMavenParameters(mainwindow->mavenParameters);
 	peakupdater->setPeakDetector(new PeakDetector(mainwindow->mavenParameters));
 
-	MavenParameters* mavenParameters =
-			peakupdater->peakDetector.getMavenParameters();
+	MavenParameters* mavenParameters = peakupdater->getMavenParameters();
 
 	connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
 			SLOT(setProgressBar(QString, int,int)));
@@ -168,6 +167,7 @@ void PeakDetectionDialog::findPeaks() {
 
 	TableDockWidget* peaksTable = mainwindow->addPeaksTable(title);
 	peaksTable->setWindowTitle(title);
+
 	connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
 			SLOT(addPeakGroup(PeakGroup*)));
 	connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));

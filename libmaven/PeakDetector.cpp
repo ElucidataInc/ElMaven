@@ -138,9 +138,10 @@ void PeakDetector::processMassSlices() {
 	//process goodslices
 	processSlices(goodslices, "allslices");
 
+	massSlices.slices.shrink_to_fit();
 	//cleanup
-	delete_all(massSlices.slices);
-	massSlices.slices.clear();
+//	delete_all(massSlices.slices);
+//	massSlices.slices.clear();
 	goodslices.clear();
 	qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
 			<< timer.elapsed();
@@ -447,6 +448,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				break;	 //exit main loop
 			foundGroups = mavenParameters->allgroups.size();
 		}
+
 		// for all the slies, find EICs
 		vector<EIC*> eics = pullEICs(slice, mavenParameters->samples,
 				EicLoader::PeakDetection, mavenParameters->eic_smoothingWindow,
@@ -546,12 +548,15 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 		delete_all(eics);
 
 		if (mavenParameters->allgroups.size()
-				> mavenParameters->limitGroupCount)
+				> mavenParameters->limitGroupCount) {
 			break;
+		}
+
 		//		if (stopped())
-		//			break;
+		//		break;
 
 		if (mavenParameters->showProgressFlag && s % 10 == 0) {
+
 			QString progressText = "Found "
 					+ QString::number(mavenParameters->allgroups.size())
 					+ " groups";
