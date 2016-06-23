@@ -1,6 +1,6 @@
 #include "settingsform.h"
 
-SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
+SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     setupUi(this);
     settings = s;
     mainwindow = w;
@@ -46,13 +46,13 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
 }
 
-void SettingsForm::recomputeIsotopes() { 
+void SettingsForm::recomputeIsotopes() {
     getFormValues();
     if (!mainwindow) return;
 
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {
-        PeakGroup* group =mainwindow->getEicWidget()->getSelectedGroup();
+        PeakGroup* group =mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
         cerr << "recomputeIsotopes() " << group << endl;
         mainwindow->isotopeWidget->setPeakGroup(group);
     }
@@ -65,7 +65,7 @@ void SettingsForm::recomputeIsotopes() {
     }
 }
 
-void SettingsForm::recomputeEIC() { 
+void SettingsForm::recomputeEIC() {
     getFormValues();
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();
@@ -215,5 +215,3 @@ void SettingsForm::selectFile(QString key) {
         setFormValues();
     }
 }
-
-

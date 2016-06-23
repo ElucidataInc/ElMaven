@@ -40,7 +40,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 
 	string sampleName;
     if (_peak && _peak->getSample() ) { sampleName = _peak->getSample()->sampleName; }
-	setToolTip( 		"<b>  Sample: </b>"   + QString( sampleName.c_str() ) + 
+	setToolTip( 		"<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
 						"<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
 						"<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
 						"<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
@@ -78,7 +78,7 @@ void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
            if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
        }
     }
-    update(); 
+    update();
 }
 
 void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
@@ -125,10 +125,10 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     QBrush brush = _brush;
 
     int maxRadius = scene()->height()*0.05;
-    if (maxRadius > 30) maxRadius = 30; 
+    if (maxRadius > 30) maxRadius = 30;
     if (maxRadius < 5) maxRadius=5;
 
-    PeakGroup* selGroup = _mw->getEicWidget()->getSelectedGroup();
+    PeakGroup* selGroup = _mw->getEicWidget()->getParameters()->getSelectedGroup();
 
     if (_group != NULL && selGroup == _group ) {
         brush.setStyle(Qt::SolidPattern);

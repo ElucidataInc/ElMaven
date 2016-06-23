@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QString commonAdducts = dataDir + "/" + "ADDUCTS.csv";
 	if (QFile::exists(commonAdducts))
 		DB.loadFragments(commonAdducts.toStdString());
-	cerr << "HERERERERE" << endl;
+
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 	QString clsfModelFilename = dataDir + "/"
@@ -139,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	if (QFile::exists(clsfModelFilename))
 		clsf->loadModel(clsfModelFilename.toStdString());
 
-	cerr << "HERERERERE" << endl;
+
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -151,8 +151,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	progressBar = new QProgressBar(this);
 	progressBar->hide();
 	statusBar()->addPermanentWidget(progressBar);
-
-	cerr << "HERERERERE" << endl;
 
 	QToolButton *btnBugs = new QToolButton(this);
 	btnBugs->setIcon(QIcon(rsrcPath + "/bug.png"));
@@ -166,27 +164,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	setDockOptions(
 			QMainWindow::AllowNestedDocks | QMainWindow::VerticalTabs
 					| QMainWindow::AnimatedDocks);
-	cerr << "HERERERERE  .........." << endl;
 
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	setCentralWidget(eicWidgetController());
-
 	spectraWidget = new SpectraWidget(this);
-
-
 	mavenParameters = new MavenParameters();
-
-	cerr << "HERERERERE" << endl;
 	pathwayWidget = new PathwayWidget(this);
-
-	cerr << "HERERERERE" << endl;
 	adductWidget = new AdductWidget(this);
-
-	cerr << "HERERERERE" << endl;
 	isotopeWidget = new IsotopeWidget(this);
 
-	cerr << "HERERERERE aftwr iso" << endl;
 
 	massCalcWidget = new MassCalcWidget(this);
 	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
@@ -210,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
 
-	cerr << "HERERERERE" << endl;
+
 
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
@@ -234,7 +221,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
 
-	cerr << "HERERERERE" << endl;
+
 
 
 	//
@@ -519,7 +506,7 @@ void MainWindow::bookmarkPeakGroup() {
 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
 	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
 	if (eicWidget)
-		bookmarkPeakGroup(eicWidget->getSelectedGroup());
+		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
 }
 
 void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
@@ -992,7 +979,7 @@ void MainWindow::writeSettings() {
 	settings->setValue("windowState", saveState());
 	settings->setValue("ionizationMode", getIonizationMode());
 
-	mzSlice slice = eicWidget->getMzSlice();
+	mzSlice slice = eicWidget->getParameters()->getMzSlice();
 	settings->setValue("mzslice",
 			QRectF(slice.mzmin, slice.mzmax, slice.rtmin, slice.rtmax));
 

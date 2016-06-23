@@ -16,17 +16,17 @@ BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 
 }
 
-void BarPlot::switchQValue() {  
-	BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6); 
+void BarPlot::switchQValue() {
+	BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6);
 	PeakGroup* g = NULL;
-	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getSelectedGroup();
+	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
 	if ( g != NULL ) {
 		setPeakGroup(g);
 		scene()->update();
 	}
 }
 
-BarPlot::~BarPlot() { 
+BarPlot::~BarPlot() {
     clear();
 }
 
@@ -86,7 +86,7 @@ void BarPlot::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 }
 
 void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{ 
+{
     int visibleSamplesCount = _yvalues.size();
     if (visibleSamplesCount == 0) return;
     if (!scene()) return;

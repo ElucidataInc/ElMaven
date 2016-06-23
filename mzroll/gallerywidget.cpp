@@ -168,7 +168,7 @@ void GalleryWidget::addEicPlots(std::vector<mzLink>&links) {
 	if (samples.size() == 0 ) return;
 
 	float compoundPPMWindow=mainwindow->getUserPPM();
-        mzSlice& current = mainwindow->getEicWidget()->getMzSlice();
+        mzSlice& current = mainwindow->getEicWidget()->getParameters()->getMzSlice();
 
 	sort(links.begin(), links.end(), mzLink::compCorrelation);
 
@@ -198,7 +198,7 @@ void GalleryWidget::addIdividualEicPlots(std::vector<EIC*>&eics, PeakGroup*group
         if(!eic) continue;
         QColor color = QColor::fromRgbF( eic->sample->color[0], eic->sample->color[1], eic->sample->color[2], 1.0 );
 
-        mzSlice& slice =  mainwindow->getEicWidget()->getMzSlice();
+        mzSlice& slice =  mainwindow->getEicWidget()->getParameters()->getMzSlice();
 
         TinyPlot* plot = new TinyPlot(0,scene());
         plot->setWidth(_boxW);

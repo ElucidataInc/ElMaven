@@ -9,17 +9,17 @@ BoxPlot::BoxPlot(QGraphicsItem* parent, QGraphicsScene *scene)
     _barwidth=10;
 }
 
-void BoxPlot::switchQValue() {  
-	BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6); 
+void BoxPlot::switchQValue() {
+	BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6);
 	PeakGroup* g = NULL;
-	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getSelectedGroup();
+	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
 	if ( g != NULL ) {
 		setPeakGroup(g);
 		scene()->update();
 	}
 }
 
-BoxPlot::~BoxPlot() { 
+BoxPlot::~BoxPlot() {
     clear();
 }
 
@@ -54,8 +54,8 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
 		QString qname( sample->getSetName().c_str());
 		qname=qname.simplified();
 		QList<QString> names = qname.split(splitStr);
-		foreach(QString name, names) { 
-			name=name.simplified(); 
+		foreach(QString name, names) {
+			name=name.simplified();
 			if(!name.isEmpty()) {
 				_labels.push_back(name);
 				_yvalues.push_back(yvalues[i]);
@@ -81,7 +81,7 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
 }
 
 void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{ 
+{
 
 	//qDebug() << "BoxPlot::paint:" << _yvalues.size() ;
 
@@ -94,9 +94,9 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
         if(maxYvalue <= 0 ) return;
 
 	QMap<QString,int>setnames; int longestName=0;
-	for(int i=0;i<_labels.size();i++) { 
-		if (!setnames.contains(_labels[i])) setnames[_labels[i]]=setnames.size(); 
-		if(_labels[i].length() > longestName) longestName=_labels[i].length(); 
+	for(int i=0;i<_labels.size();i++) {
+		if (!setnames.contains(_labels[i])) setnames[_labels[i]]=setnames.size();
+		if(_labels[i].length() > longestName) longestName=_labels[i].length();
 	}
 
 	QMap<QString, StatisticsVector<float> >setvalues;
@@ -116,7 +116,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 			c.setAlphaF(0.5);
 			setcolors[setname]=QColor(c);
 		} else {
-			QColor c = _colors[i]; 
+			QColor c = _colors[i];
 			setcolors[setname]=c;
 			c.setAlphaF(0.5);
 		}
@@ -131,7 +131,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
     QFont font("Helvetica");
     float fontsize = _barwidth*0.8;
-    if  (fontsize < 1 ) fontsize=1; 
+    if  (fontsize < 1 ) fontsize=1;
     font.setPointSizeF(fontsize);
     painter->setFont(font);
     QFontMetrics fm( font );
@@ -178,7 +178,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 		float minValue = setvalues[setname].minimum();
 		float maxValue = setvalues[setname].maximum();
 
-		if ( setvalues[setname].size() >= 5) { 
+		if ( setvalues[setname].size() >= 5) {
 			float sd = sqrt(setvalues[setname].variance(midValue));
 			minValue = midValue-sd;
 			maxValue = midValue+sd;

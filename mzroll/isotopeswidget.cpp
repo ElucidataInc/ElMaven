@@ -68,7 +68,7 @@ void IsotopeWidget::setPeak(Peak* peak) {
 	isotopeParameters->_scan = scan;
 
 	if (!isotopeParameters->_formula.empty())
-		computeIsotopes (isotopeParameters->_formula);
+		computeIsotopes(isotopeParameters->_formula);
 }
 
 void IsotopeWidget::setCompound(Compound* cpd) {
@@ -93,7 +93,7 @@ void IsotopeWidget::userChangedFormula(QString f) {
 	isotopeParameters->userChangedFormula();
 
 	setWindowTitle("Unknown_" + f);
-	computeIsotopes (isotopeParameters->_formula);
+	computeIsotopes(isotopeParameters->_formula);
 
 }
 
@@ -106,7 +106,7 @@ void IsotopeWidget::setCharge(double charge) {
 	if (charge != isotopeParameters->_charge) {
 		ionization->setValue(charge);
 		isotopeParameters->_charge = charge;
-		computeIsotopes (isotopeParameters->_formula);
+		computeIsotopes(isotopeParameters->_formula);
 	}
 }
 
@@ -135,7 +135,6 @@ void IsotopeWidget::computeIsotopes(string f) {
 			C13Labeled, N15Labeled, S34Labeled, D2Labeled);
 	showTable();
 }
-
 
 Peak* IsotopeWidget::getSamplePeak(PeakGroup* group, mzSample* sample) {
 	for (int i = 0; i < group->peaks.size(); i++) {
@@ -184,7 +183,7 @@ void IsotopeWidget::setClipboard() {
 	if (isotopeParameters->_group) {
 
 		//update clipboard
-		setClipboard (isotopeParameters->_group);
+		setClipboard(isotopeParameters->_group);
 
 		//update eic widget
 		_mw->getEicWidget()->setSelectedGroup(isotopeParameters->_group);
@@ -295,12 +294,13 @@ void IsotopeWidget::showTable() {
 		NumericTreeWidgetItem *item = new NumericTreeWidgetItem(treeWidget,
 				mzSliceType);
 		QString item1 = QString(isotopeParameters->links[i].note.c_str());
-		QString item2 = QString::number(isotopeParameters->links[i].mz2, 'f', 5);
+		QString item2 = QString::number(isotopeParameters->links[i].mz2, 'f',
+				5);
 		QString item3 = QString::number(isotopeParameters->links[i].value2, 'f',
 				2);
 		QString item4 = QString::number(frac, 'f', 1);
-		QString item5 = QString::number(isotopeParameters->links[i].value1 * 100,
-				'f', 2);
+		QString item5 = QString::number(
+				isotopeParameters->links[i].value1 * 100, 'f', 2);
 
 		item->setText(0, item1);
 		item->setText(1, item2);
@@ -327,7 +327,7 @@ void IsotopeWidget::showInfo() {
 
 	if (mz > 0) {
 		double ppm = _mw->getUserPPM();
-		mzSlice slice = _mw->getEicWidget()->getMzSlice();
+		mzSlice slice = _mw->getEicWidget()->getParameters()->getMzSlice();
 		slice.mzmin = mz - mz / 1e6 * ppm;
 		slice.mzmax = mz + mz / 1e6 * ppm;
 		if (isotopeParameters->_compound)
