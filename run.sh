@@ -1,3 +1,3 @@
 qmake
-make -j 40
+make -j 30
 bin/maven_dev_769

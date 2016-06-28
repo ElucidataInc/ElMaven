@@ -4,7 +4,8 @@ void MassSlices::algorithmA() {
     delete_all(slices);
     cache.clear();
     map< string, int> seen;
-
+    
+    #pragma omp parallel for ordered
     for(unsigned int i=0; i < samples.size(); i++) {
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
             Scan* scan = samples[i]->scans[j];
@@ -28,12 +29,13 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 	if (samples.size() > 0 ) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
 	cerr << "#algorithmB:" << " PPM=" << userPPM << " rtWindow=" << rtWindow << " rtStep=" << rtStep << endl;
-
+	
+	//#pragma omp parallel for ordered      
 	for(unsigned int i=0; i < samples.size(); i++) {
-		if (slices.size() > _maxSlices) break;
+		//if (slices.size() > _maxSlices) break;
 		Scan* lastScan = NULL;
 		cerr << samples[i]->sampleName << endl;
-
+  
 		for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
 			Scan* scan = samples[i]->scans[j];
 			if (scan->mslevel != 1 ) continue;
@@ -46,8 +48,11 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 					float mzmin = mz - mz/1e6*ppm;
 					float rt = scan->rt;
 
-					mzSlice* Z = sliceExists(mz,rt);
-
+					mzSlice* Z;
+				//	#pragma omp declare target critical
+					Z = sliceExists(mz,rt);
+				//	#pragma omp end declare target critical
+					
 					if (Z) {
 						//cerr << "Merged Slice " <<  Z->mzmin << " " << Z->mzmax << " " << scan->intensity[k] << "  " << Z->ionCount << endl;
 
@@ -96,6 +101,7 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
 	ppp = cache.equal_range( (int) mz );
 	multimap<int, mzSlice*>::iterator it2 = ppp.first;
 	float bestDist=10000000; mzSlice* best=NULL;
+	
 	for( ;it2 != ppp.second; ++it2 ) {
 		mzSlice* x = (*it2).second;
 		if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {

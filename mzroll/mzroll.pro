@@ -1,8 +1,13 @@
 include(../mzroll.pri)
 #TEMPLATE = app
+
 CONFIG += qt thread warn_off sql svg console precompile_header
-CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11
+
+#Faster build + C++11 ++ OpenMP
+QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11 -flto -fwhole-program
+QMAKE_CXXFLAGS += -g -DOMP_PARALLEL -fopenmp
+LIBS += -fopenmp
+
 QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 
@@ -27,6 +32,7 @@ INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/
 
 LIBS += -L.  -lmaven -lpugixml -lneural                     #64bit
+
 message($$LIBS)
 
 INSTALLS += sources target

@@ -3,9 +3,14 @@ DESTDIR = $$OUTPUT_DIR/lib
 
 QT+= sql network
 TEMPLATE=lib
+
 CONFIG += staticlib warn_on console silent
-CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11
+
+#Faster build + C++11 ++ OpenMP
+QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -g -DOMP_PARALLEL -fopenmp
+LIBS += -fopenmp
+
 TARGET = maven
 
 LIBS += -L.

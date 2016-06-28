@@ -62,3 +62,7 @@ docs/latex
 /Release/
 
 *.user
+
+# KDevelop4
+maven_opensource.kdev4
+.kdev4

@@ -5,6 +5,9 @@
 #include "mzUtils.h"
 #include "Matrix.h"
 
+
+#include <omp.h>
+
 class mzSample;
 using namespace std;
 

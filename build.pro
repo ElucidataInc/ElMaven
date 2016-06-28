@@ -1,9 +1,11 @@
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
-CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11
+
+#Faster build + C++11 ++ OpenMP
+QMAKE_CXXFLAGS += -Ofast
+
 SUBDIRS +=	libneural \
         	libcdfread \
-			pugixml/src \
-			libmaven \
+		pugixml/src \
+		libmaven \
                 mzroll

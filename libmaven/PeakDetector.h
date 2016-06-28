@@ -23,6 +23,8 @@
 #include "mzMassSlicer.h"
 #include "mzUtils.h"
 
+#include <omp.h>
+
 /**
  * @class PeakDetector
  * @ingroup libmaven
