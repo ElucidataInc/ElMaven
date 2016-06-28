@@ -30,7 +30,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 
 	cerr << "#algorithmB:" << " PPM=" << userPPM << " rtWindow=" << rtWindow << " rtStep=" << rtStep << endl;
 	
-	//#pragma omp parallel for ordered      
+	#pragma omp parallel for ordered
 	for(unsigned int i=0; i < samples.size(); i++) {
 		//if (slices.size() > _maxSlices) break;
 		Scan* lastScan = NULL;
@@ -49,9 +49,8 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 					float rt = scan->rt;
 
 					mzSlice* Z;
-				//	#pragma omp declare target critical
+					#pragma omp ordered
 					Z = sliceExists(mz,rt);
-				//	#pragma omp end declare target critical
 					
 					if (Z) {
 						//cerr << "Merged Slice " <<  Z->mzmin << " " << Z->mzmax << " " << scan->intensity[k] << "  " << Z->ionCount << endl;

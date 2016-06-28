@@ -48,6 +48,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 	}
 
 	// single threaded version - getting EICs of selected samples.
+	//#pragma omp parallel for
 	for (unsigned int i = 0; i < vsamples.size(); i++) {
 		mzSample* sample = vsamples[i]; //sample #
 		Compound* c = slice->compound; //compound in slice
@@ -62,8 +63,11 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 			//if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 			cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
 					<< endl;
+					
+		//	#pragma omp critical
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
 					amuQ1, amuQ3);
+		//	#pragma omp end critical
 		} else {
 			//else, get EICs for with a m/z and rt window
 			/*
@@ -218,6 +222,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	map<string, PeakGroup> isotopes;
 	map<string, PeakGroup>::iterator itr2;
 
+	
 	for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
 		mzSample* sample = mavenParameters->samples[s];
 		for (int k = 0; k < masslist.size(); k++) {
@@ -420,6 +425,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 	// for all the slies, find EICs and score quality and rank ofpeaks in the EICs
 	// using the classifier
+	#pragma omp parallel for ordered
 	for (unsigned int s = 0; s < slices.size(); s++) {
 		mzSlice* slice = slices[s];
 		double mzmin = slice->mzmin;
@@ -436,19 +442,27 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 			mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
 																			0 :
 																	converged++;
-			if (converged > 1000)
-				break;	 //exit main loop
+			if (converged > 1000){
+			  #pragma omp cancel for
+			//	break;	 //exit main loop
+			}
 			foundGroups = mavenParameters->allgroups.size();
 		}
 
+//		qDebug() << "Pulling EICs";
+	
+		vector<EIC*> eics;
 		// for all the slies, find EICs
-		vector<EIC*> eics = pullEICs(slice, mavenParameters->samples,
+		#pragma omp ordered
+		eics = pullEICs(slice, mavenParameters->samples,
 				EicLoader::PeakDetection, mavenParameters->eic_smoothingWindow,
 				mavenParameters->eic_smoothingAlgorithm, mavenParameters->amuQ1,
 				mavenParameters->amuQ3,
 				mavenParameters->baseline_smoothingWindow,
 				mavenParameters->baseline_dropTopX);
 
+		//qDebug() << "End pulling EICs";
+		
 		float eicMaxIntensity = 0;
 
 		for (unsigned int j = 0; j < eics.size(); j++) {
@@ -541,7 +555,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 		if (mavenParameters->allgroups.size()
 				> mavenParameters->limitGroupCount) {
-			break;
+		  #pragma omp cancel for	
+		  //break;
 		}
 
 		//		if (stopped())
@@ -569,12 +584,9 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
-
-	/**
-	 * check overlap between RT for each group through all the samples
-	 * if a certain degree of overlap is present, do not create a new group
-	 */
-
+	bool noOverlap = true;
+	
+	#pragma omp parallel for
 	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
 		PeakGroup& grp2 = mavenParameters->allgroups[i];
 		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
@@ -582,10 +594,12 @@ bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
 		if (rtoverlap > 0.9
 				&& ppmDist(grp2.meanMz, grp1.meanMz)
 						< mavenParameters->ppmMerge) {
-			return false;
+			noOverlap = false;
+			#pragma omp cancel for
 		}
 	}
-	//ekse push the group to the allgroups vector
+	
+	//push the group to the allgroups vector
 	mavenParameters->allgroups.push_back(grp1);
-	return true;
+	return noOverlap;
 }

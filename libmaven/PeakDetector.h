@@ -109,12 +109,12 @@ public:
 private:
 
 	/**
-	 * [add Peak Group]
+	 * [check overlap between RT for each group through all the samples; if a certain degree of overlap is present, do not create a new group]
 	 * @method addPeakGroup
 	 * @param  group        [pointer to PeakGroup]
 	 * @return [True if group is added to all groups, else False]
 	 */
-	bool addPeakGroup(PeakGroup& group);
+	bool addPeakGroup(PeakGroup& grp1);
 	MavenParameters* mavenParameters;
 };
 

@@ -27,7 +27,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QFile file(filename);
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
-    if (!file.exists() ) { 	//couldn't fine this file.. check localdirectory
+    if (!file.exists() ) { 	//couldn't fine this file.. check local directory
         qDebug() << "Can't find file " << filename; return 0;
     }
 
@@ -334,10 +334,13 @@ void mzFileIO::fileImport(void) {
     if ( filelist.size() == 0 ) return;
     emit (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
 
+    #pragma omp parallel for
     for (int i = 0; i < filelist.size(); i++) {
         QString filename = filelist.at(i);
-        emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
 
+	//#pragma omp ordered
+        emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
+	
         if(_mainwindow) {
             qDebug() << "Loading sample:" << filename;
             mzSample* sample = this->loadSample(filename);
