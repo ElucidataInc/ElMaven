@@ -48,7 +48,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 	}
 
 	// single threaded version - getting EICs of selected samples.
-	//#pragma omp parallel for
+	#pragma omp parallel for ordered
 	for (unsigned int i = 0; i < vsamples.size(); i++) {
 		mzSample* sample = vsamples[i]; //sample #
 		Compound* c = slice->compound; //compound in slice
@@ -58,16 +58,19 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 		if (!slice->srmId.empty()) {
 			//if srmId of the slice is present, get EICs on the basis of srmId
 			cout << "computeEIC srm:" << slice->srmId << endl;
+
+			#pragma omp ordered
 			e = sample->getEIC(slice->srmId);
+
 		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
 			//if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 			cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
 					<< endl;
 					
-		//	#pragma omp critical
+			#pragma omp ordered
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
 					amuQ1, amuQ3);
-		//	#pragma omp end critical
+
 		} else {
 			//else, get EICs for with a m/z and rt window
 			/*
@@ -75,6 +78,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 			 << " " << slice->mzmax << slice->rtmin << " "
 			 << slice->rtmax << endl;
 			 */
+			#pragma omp ordered
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
 					slice->rtmax, 1);
 		}
@@ -150,7 +154,13 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
 	//iterating over all compounds in the set
 	vector<mzSlice*> slices;
+
+	//cerr << "Processing Compounds!!!!" << endl;
+
+	//#pragma omp parallel for ordered
 	for (unsigned int i = 0; i < set.size(); i++) {
+		//cerr << "Processing Compounds!!!!" << endl;
+
 		Compound* c = set[i];
 		if (c == NULL)
 			continue;
@@ -222,7 +232,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	map<string, PeakGroup> isotopes;
 	map<string, PeakGroup>::iterator itr2;
 
-	
+	#pragma omp parallel for ordered
 	for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
 		mzSample* sample = mavenParameters->samples[s];
 		for (int k = 0; k < masslist.size(); k++) {
@@ -385,6 +395,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 }
 
 void PeakDetector::alignSamples() {
+	//being called in CLI.
 	if (mavenParameters->samples.size() > 1
 			&& mavenParameters->alignSamplesFlag) {
 		cerr << "Aligning samples" << endl;
