@@ -50,9 +50,9 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
     QAction* exportSelected = btnGroupCSV->menu()->addAction(tr("Export Selected"));
     QAction* exportAll = btnGroupCSV->menu()->addAction(tr("Export All Groups"));
-    connect(exportSelected, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+    connect(exportSelected, SIGNAL(triggered()), SLOT(exportSelectedGroupsToSpreadsheet()));
     connect(exportAll, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+    connect(exportAll, SIGNAL(triggered()), SLOT(exportAllGroupsToSpreadsheet()));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
     //QToolButton *btnHeatmap = new QToolButton(toolBar);
@@ -492,7 +492,72 @@ void TableDockWidget::showAllGroups() {
 	(*/
 }
 
-void TableDockWidget::exportGroupsToSpreadsheet() {
+void TableDockWidget::exportSelectedGroupsToSpreadsheet() {
+
+	QList<PeakGroup*> groups = getSelectedGroups();
+
+	if (groups.size() == 0) {
+		QString msg = "Peaks Table is Empty";
+		QMessageBox::warning(this, tr("Error"), msg);
+		return;
+	}
+
+	QString dir = ".";
+	QSettings* settings = _mainwindow->getSettings();
+
+	if (settings->contains("lastDir"))
+		dir = settings->value("lastDir").value<QString>();
+
+	QString groupsTAB = "Groups  Summary Matrix Format (*.tab)";
+	QString peaksTAB = "Peaks   Detailed Format   (*.tab)";
+	QString groupsCSV = "Groups  Summary Matrix Format Comma Delimited (*.csv)";
+	QString peaksCSV = "Peaks   Detailed Format Comma Delimited  (*.csv)";
+
+	QString sFilterSel;
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Export Groups"),
+			dir,
+			groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV,
+			&sFilterSel);
+
+	if (fileName.isEmpty())
+		return;
+
+	if (sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
+		if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
+			fileName = fileName + ".csv";
+	}
+
+	if (sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
+		if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
+			fileName = fileName + ".tab";
+	}
+
+	vector<mzSample*> samples = _mainwindow->getSamples();
+	if (samples.size() == 0)
+		return;
+
+	CSVReports* csvreports = new CSVReports(samples);
+	csvreports->setUserQuantType(_mainwindow->getUserQuantType());
+
+	if (sFilterSel == groupsCSV) {
+		csvreports->openGroupReport(fileName.toStdString());
+	} else if (sFilterSel == groupsTAB) {
+		csvreports->openGroupReport(fileName.toStdString());
+	} else if (sFilterSel == peaksCSV) {
+		csvreports->openPeakReport(fileName.toStdString());
+	} else if (sFilterSel == peaksTAB) {
+		csvreports->openPeakReport(fileName.toStdString());
+	}
+
+	for (int i = 0; i < groups.size(); i++) {
+		PeakGroup* group = groups[i];
+		csvreports->addGroup(group);
+	}
+	csvreports->closeFiles();
+}
+
+
+void TableDockWidget::exportAllGroupsToSpreadsheet() {
 
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";

@@ -50,7 +50,9 @@ public slots:
 	  void writePeakTableXML(QXmlStreamWriter& stream);
 
       //output to csv file
-      void exportGroupsToSpreadsheet();
+
+	  void exportSelectedGroupsToSpreadsheet();
+	  void exportAllGroupsToSpreadsheet();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
