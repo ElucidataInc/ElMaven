@@ -1,4 +1,4 @@
 OMP_CANCELLATION=true
 qmake
-make -j 30
+make -j $(nproc)
 bin/maven_dev_769
