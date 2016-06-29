@@ -523,8 +523,23 @@ template<typename T>
  * @param  my_vector  []
  */
 void delete_all(vector<T>& my_vector) {
+	if (my_vector.empty())
+		return;
+	for (unsigned int i = 0; i < my_vector.size(); i++) {
+		if (my_vector[i] != NULL) {
+			try {
+				delete (my_vector[i]);
+				my_vector[i] = NULL;
+
+			} catch (...) {
+				cerr << "delete_all() segfaulting.. ";
+			}
+		}
+	}
 	my_vector.clear();
-	my_vector.shrink_to_fit();
+
+	//	my_vector.clear();
+	//	my_vector.shrink_to_fit();
 }
 
 template<typename T>
@@ -535,8 +550,23 @@ template<typename T>
  * @param  my_vector  []
  */
 inline void delete_all(deque<T>& my_vector) {
+
+	if (my_vector.empty())
+		return;
+	for (unsigned int i = 0; i < my_vector.size(); i++) {
+		if (my_vector[i] != NULL) {
+			try {
+				delete (my_vector[i]);
+				my_vector[i] = NULL;
+
+			} catch (...) {
+				cerr << "delete_all() segfaulting.. ";
+			}
+		}
+	}
 	my_vector.clear();
-	my_vector.shrink_to_fit();
+	//	my_vector.clear();
+	//	my_vector.shrink_to_fit();
 }
 
 }

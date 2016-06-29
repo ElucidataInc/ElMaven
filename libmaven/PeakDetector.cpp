@@ -566,6 +566,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 		if (mavenParameters->allgroups.size()
 				> mavenParameters->limitGroupCount) {
+			cerr << "Group limit exceeded!" << endl;
 		  #pragma omp cancel for	
 		  //break;
 		}
