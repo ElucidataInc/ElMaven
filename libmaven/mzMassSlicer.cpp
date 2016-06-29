@@ -32,7 +32,10 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 	
 	#pragma omp parallel for ordered
 	for(unsigned int i=0; i < samples.size(); i++) {
-		//if (slices.size() > _maxSlices) break;
+		if (slices.size() > _maxSlices) {
+			//			break;
+			#pragma omp cancel for
+		}
 		Scan* lastScan = NULL;
 		cerr << samples[i]->sampleName << endl;
   
