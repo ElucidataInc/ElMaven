@@ -201,11 +201,8 @@ void PathwayWidget::checkCompoundExistance() {
 }
 
 //cerr << "PathwayWidget::checkCompoundExistance() compounds=" <<  checkList.size() << endl;
-	workerThread->setMavenParameters(mw->mavenParameters);
-	workerThread->setPeakDetector(new PeakDetector(mw->mavenParameters));
 
-	MavenParameters* mavenParameters =
-			workerThread->peakDetector.getMavenParameters();
+	MavenParameters* mavenParameters = mw->mavenParameters;
 
 	if (checkList.size() > 0) {
 		mavenParameters->setSamples(samples);
@@ -223,6 +220,10 @@ void PathwayWidget::checkCompoundExistance() {
 		mavenParameters->showProgressFlag = true;
 		mavenParameters->pullIsotopesFlag = true;
 		mavenParameters->keepFoundGroups = true;
+
+		workerThread->setMavenParameters(mavenParameters);
+		workerThread->setPeakDetector(new PeakDetector(mavenParameters));
+
 		workerThread->start();
 	}
 }

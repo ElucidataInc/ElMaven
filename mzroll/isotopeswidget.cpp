@@ -18,12 +18,8 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThread = new BackgroundPeakUpdate(mw);
 	workerThread->setRunFunction("pullIsotopes");
 	workerThread->setMainWindow(mw);
-	workerThread->setMavenParameters(mw->mavenParameters);
-	workerThread->setPeakDetector(new PeakDetector(mw->mavenParameters));
 
-	MavenParameters* mavenParameters =
-			workerThread->peakDetector.getMavenParameters();
-
+	MavenParameters* mavenParameters = mw->mavenParameters;
 	mavenParameters->minGoodPeakCount = 1;
 	mavenParameters->minSignalBlankRatio = 2;
 	mavenParameters->minSignalBaseLineRatio = 2;
@@ -34,6 +30,9 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	mavenParameters->showProgressFlag = true;
 	mavenParameters->pullIsotopesFlag = true;
 	mavenParameters->keepFoundGroups = true;
+
+	workerThread->setMavenParameters(mavenParameters);
+	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
 	connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(),
@@ -169,9 +168,9 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
 	workerThread->stop();
+
 	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
-
 	mavenParameters->setPeakGroup(group);
 	mavenParameters->setSamples(vsamples);
 	mavenParameters->compoundPPMWindow = _mw->getUserPPM();

@@ -117,10 +117,8 @@ void PeakDetectionDialog::findPeaks() {
 
 	peakupdater = new BackgroundPeakUpdate(this);
 	peakupdater->setMainWindow(mainwindow);
-	peakupdater->setMavenParameters(mainwindow->mavenParameters);
-	peakupdater->setPeakDetector(new PeakDetector(mainwindow->mavenParameters));
 
-	MavenParameters* mavenParameters = peakupdater->getMavenParameters();
+	MavenParameters* mavenParameters = mainwindow->mavenParameters;
 
 	connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
 			SLOT(setProgressBar(QString, int,int)));
@@ -176,15 +174,31 @@ void PeakDetectionDialog::findPeaks() {
 	connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
 	connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
 
+
+	peakupdater->setMavenParameters(mavenParameters);
+	peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+
 	//RUN THREAD
 	if (_featureDetectionType == QQQ) {
+
+		peakupdater->setMavenParameters(mavenParameters);
+		peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+
 		runBackgroupJob("findPeaksQQQ");
 	} else if (_featureDetectionType == FullSpectrum) {
+
+		peakupdater->setMavenParameters(mavenParameters);
+		peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+
 		runBackgroupJob("processMassSlices");
 	} else {
 		mavenParameters->setCompounds(
 				DB.getCopoundsSubset(
 						compoundDatabase->currentText().toStdString()));
+
+		peakupdater->setMavenParameters(mavenParameters);
+		peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+
 		runBackgroupJob("computePeaks");
 	}
 }

@@ -1370,8 +1370,6 @@ void MainWindow::Align() {
 	BackgroundPeakUpdate* workerThread = newWorkerThread("processMassSlices");
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
-	workerThread->setMavenParameters(mavenParameters);
-	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	if (settings != NULL) {
 		mavenParameters->eic_ppmWindow =
@@ -1394,6 +1392,9 @@ void MainWindow::Align() {
 	mavenParameters->alignSamplesFlag = true;
 	mavenParameters->keepFoundGroups = false;
 	mavenParameters->eicMaxGroups = 5;
+
+	workerThread->setMavenParameters(mavenParameters);
+	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	workerThread->start();
 }
