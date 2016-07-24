@@ -9,7 +9,7 @@
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
-extern Database DB; 
+extern Database DB;
 
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
@@ -32,12 +32,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showInfo(QString text);
 				 void cancel();
 				 void show();
-                 void setFeatureDetection(FeatureDetectionType type);
+         void setFeatureDetection(FeatureDetectionType type);
 
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-   				BackgroundPeakUpdate* peakupdater;
+   			BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
 };
 
