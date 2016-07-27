@@ -135,14 +135,27 @@ void PeakDetectionDialog::show() {
         QDialog::show();
 }
 
+/**
+ * PeakDetectionDialog::findPeaks This is the function which excuite functions
+ * related to peak detection
+ * Peak detection happens in a different thread called "peakupdater"
+ * According to the settings that is selected by the user, peak detection can
+ * happen using different algorithm
+ */
 void PeakDetectionDialog::findPeaks() {
         if (mainwindow == NULL)
                 return;
 
+        //Setting all the samples that are uploaded by the user and if number of
+        //samples are zero terminating the peakdetection process
         vector<mzSample*> samples = mainwindow->getSamples();
         if (samples.size() == 0)
                 return;
 
+        //Making sure that peak detector is not running
+        //If its running  allowing it to complete so that the new peakdetection
+        //process dosent case any problem to the already running peakdetection
+        //process
         if (peakupdater != NULL) {
                 if (peakupdater->isRunning())
                         cancel();
@@ -150,11 +163,14 @@ void PeakDetectionDialog::findPeaks() {
                         return;
         }
 
+        //Making sure that new peakupdater thread that is made is set to NULL
+        //before starting another peak detection process
         if (peakupdater != NULL) {
                 delete (peakupdater);
                 peakupdater = NULL;
         }
 
+        //Instance of peakdetector thread
         peakupdater = new BackgroundPeakUpdate(this);
         peakupdater->setMainWindow(mainwindow);
 
@@ -163,38 +179,59 @@ void PeakDetectionDialog::findPeaks() {
         connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                 SLOT(setProgressBar(QString, int,int)));
 
+        //TODO: Why is only this two paremeter set her from the settings
         if (settings != NULL) {
+                // This is only present in peakdetection process with DB
                 mavenParameters->eic_ppmWindow =
                         settings->value("eic_ppmWindow").toDouble();
+                //This comes from the "Option" window
                 mavenParameters->eic_smoothingAlgorithm = settings->value(
                         "eic_smoothingAlgorithm").toInt();
         }
 
+        //Baseline Smoothing in scans
         mavenParameters->baseline_smoothingWindow = baseline_smoothing->value();
+        //Drop top x% intensities from chromatogram in percentage
         mavenParameters->baseline_dropTopX = baseline_quantile->value();
+        //This is present in both peakdetection and options diolog box
+        //This is EIC Smoothing in scans
         mavenParameters->eic_smoothingWindow = eic_smoothingWindow->value();
+        //Peak grouping (Max Group Rt Difference)
         mavenParameters->grouping_maxRtWindow = grouping_maxRtDiff->value();
+        //Match Retension Times this is used in Peakdetection with DB
         mavenParameters->matchRtFlag = matchRt->isChecked();
+        //Min. Good Peaks/Groups in numbers
         mavenParameters->minGoodPeakCount = minGoodGroupCount->value();
+        //Min. Peak Width
         mavenParameters->minNoNoiseObs = minNoNoiseObs->value();
+        //Min.Signal/ Baseline Ratio in numbers
         mavenParameters->minSignalBaseLineRatio = sigBaselineRatio->value();
+        //Min. Signal/ Blank Ratio
         mavenParameters->minSignalBlankRatio = sigBlankRatio->value();
+        //Min. Group Intensity
         mavenParameters->minGroupIntensity = minGroupIntensity->value();
+        //Report Isotopic Peaks this is used in finding peaks with DB
         mavenParameters->pullIsotopesFlag = reportIsotopes->isChecked();
+        //Mass domain Resolution (ppm)
         mavenParameters->ppmMerge = ppmStep->value();
+        //EIC Extraction window +/- PPM
         mavenParameters->compoundPPMWindow = compoundPPMWindow->value(); //convert to half window units.
+        //Compound Retention Time Matching Window
         mavenParameters->compoundRTWindow = compoundRTWindow->value();
+        //Limit the number of reported groups per compound
         mavenParameters->eicMaxGroups = eicMaxGroups->value();
+        //TODO: what is this?
         mavenParameters->avgScanTime = samples[0]->getAverageFullScanTime();
+        //Time domain resolution(scans)
         mavenParameters->rtStepSize = rtStep->value();
-
+        //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {
                 mavenParameters->setOutputDir(outputDirName->text());
                 mavenParameters->writeCSVFlag = true;
         } else {
                 mavenParameters->writeCSVFlag = false;
         }
-
+        // Changing the mainwindow title according to the peak detection type
         QString title;
         if (_featureDetectionType == FullSpectrum)
                 title = "Detected Features";
@@ -202,7 +239,7 @@ void PeakDetectionDialog::findPeaks() {
                 title = "DB Search " + compoundDatabase->currentText();
         else if (_featureDetectionType == QQQ)
                 title = "QQQ DB Search " + compoundDatabase->currentText();
-
+        //Getting the peak table
         TableDockWidget* peaksTable = mainwindow->addPeaksTable(title);
         peaksTable->setWindowTitle(title);
 
@@ -218,17 +255,17 @@ void PeakDetectionDialog::findPeaks() {
         peakupdater->setMavenParameters(mavenParameters);
         peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
-        //RUN THREAD
+        //Running the thread
         if (_featureDetectionType == QQQ) {
 
-                peakupdater->setMavenParameters(mavenParameters);
-                peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+                //peakupdater->setMavenParameters(mavenParameters);
+                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("findPeaksQQQ");
         } else if (_featureDetectionType == FullSpectrum) {
 
-                peakupdater->setMavenParameters(mavenParameters);
-                peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+                //peakupdater->setMavenParameters(mavenParameters);
+                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("processMassSlices");
         } else {
@@ -236,8 +273,8 @@ void PeakDetectionDialog::findPeaks() {
                         DB.getCopoundsSubset(
                                 compoundDatabase->currentText().toStdString()));
 
-                peakupdater->setMavenParameters(mavenParameters);
-                peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
+                //peakupdater->setMavenParameters(mavenParameters);
+                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("computePeaks");
         }
