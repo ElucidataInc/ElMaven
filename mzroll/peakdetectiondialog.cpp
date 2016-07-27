@@ -141,6 +141,11 @@ void PeakDetectionDialog::show() {
  * Peak detection happens in a different thread called "peakupdater"
  * According to the settings that is selected by the user, peak detection can
  * happen using different algorithm
+ *
+ * In this funtion all the paremeters that are input by the user is taken into
+ * the maven parameter class
+ *
+ * Then the needed algorithm is ran
  */
 void PeakDetectionDialog::findPeaks() {
         if (mainwindow == NULL)
