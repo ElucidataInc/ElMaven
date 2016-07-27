@@ -23,7 +23,9 @@ PeakDetectionDialog::~PeakDetectionDialog() {
         if (peakupdater)
                 delete (peakupdater);
 }
-
+/**
+ * PeakDetectionDialog::cancel Stoping the peak detection process
+ */
 void PeakDetectionDialog::cancel() {
 
         if (peakupdater) {
@@ -34,7 +36,13 @@ void PeakDetectionDialog::cancel() {
         }
         close();
 }
-
+/**
+ * PeakDetectionDialog::setFeatureDetection This function is being called when
+ * the database search button or the feature detection button is cliecked
+ * from the main window
+ * @param type this is an enum which can take the following values
+ * FullSpectrum, CompoundDB, QQQ
+ */
 void PeakDetectionDialog::setFeatureDetection(FeatureDetectionType type) {
         _featureDetectionType = type;
 
@@ -50,24 +58,47 @@ void PeakDetectionDialog::setFeatureDetection(FeatureDetectionType type) {
         }
         adjustSize();
 }
-void PeakDetectionDialog::loadModel() {
 
+/**
+ * PeakDetectionDialog::loadModel This function works in the peakdector window
+ * When theuser clicks on the Peak classifier Model file a dialog box appears
+ * from which they can seect the model that is been trained
+ */
+void PeakDetectionDialog::loadModel() {
+        //This gives the name of the file that is selected by the user
         const QString name = QFileDialog::getOpenFileName(this,
                                                           "Select Classification Model", ".", tr("Model File (*.model)"));
-
+        //This is applying the text to the window that the user has selected
         classificationModelFilename->setText(name);
-        Classifier* clsf = mainwindow->getClassifier(); //get classification model
-        if (clsf)
-                clsf->loadModel(classificationModelFilename->text().toStdString());
+        //Getting the classifier instance from the main window
+        Classifier* clsf = mainwindow->getClassifier();
+
+        //Loading the model to the to the model instance
+        if (clsf) {
+                clsf->loadModel(name.toStdString());
+        }
 }
 
+/**
+ * PeakDetectionDialog::setOutputDir this function sets the directory of the
+ * file to which the output has to be connected
+ */
 void PeakDetectionDialog::setOutputDir() {
+        //Getting the user selected folder name and path
         const QString dirName = QFileDialog::getExistingDirectory(this,
                                                                   "Save Reports to a Folder", ".", QFileDialog::ShowDirsOnly);
+        // Showing it in the output directory box
         outputDirName->setText(dirName);
 }
 
+/**
+ * PeakDetectionDialog::show This function is being called when the
+ * database search button or the feature detection button is cliecked
+ * from the main window
+ */
 void PeakDetectionDialog::show() {
+        //TODO: Why only this two variables are updated in the windows that is
+        //selected by the user
         if (mainwindow != NULL) {
                 QSettings* settings = mainwindow->getSettings();
                 if (settings) {
@@ -78,9 +109,14 @@ void PeakDetectionDialog::show() {
                 }
         }
 
+        /**
+         * Getting the database present and updating in the dropdown of the
+         * peak detection windows
+         */
         map<string, int>::iterator itr;
         map<string, int> dbnames = DB.getDatabaseNames();
 
+        //Clearing so that old value is not appended with the new values
         compoundDatabase->clear();
         for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
                 string db = (*itr).first;
@@ -88,10 +124,14 @@ void PeakDetectionDialog::show() {
                         compoundDatabase->addItem(QString(db.c_str()));
         }
 
+        //selecting the compound database that is selected by the user in the
+        //ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
         compoundDatabase->setCurrentIndex(compoundDatabase->findText(selectedDB));
-        compoundPPMWindow->setValue(mainwindow->getUserPPM()); //total ppm window, not half sized.
 
+        //EIC extraction windows ppm value that is set in the main
+        //window is been set to the GUI
+        compoundPPMWindow->setValue(mainwindow->getUserPPM());
         QDialog::show();
 }
 

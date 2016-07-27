@@ -310,6 +310,9 @@ MainWindow::MainWindow(QWidget *parent) :
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
 
+  // This been set here why is this here; beacuse of this
+  // in the show function of peak detector its been made to set to this
+  // value
 	setUserPPM(5);
 	if (settings->contains("ppmWindowBox")) {
 		setUserPPM(settings->value("ppmWindowBox").toDouble());
@@ -693,30 +696,34 @@ void MainWindow::open() {
 	if (filelist.size() == 0)
 		return;
 
+  //Saving the file location into the Qsettings class so that it can be
+  //used yhe next time the user opens
 	QString absoluteFilePath(filelist[0]);
 	QFileInfo fileInfo(absoluteFilePath);
 	QDir tmp = fileInfo.absoluteDir();
 	if (tmp.exists())
 		settings->setValue("lastDir", tmp.absolutePath());
+
+  //Changing the title of the main window aftyer selecting the samples
 	setWindowTitle(
 			programName + "_" + QString::number(MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
 
-	QStringList samples;
-	QStringList peaks;
-	QStringList projects;
-	foreach(QString filename, filelist ){
-	QFileInfo fileInfo(filename);
-	if (!fileInfo.exists()) continue;
+  	QStringList samples;
+  	QStringList peaks;
+  	QStringList projects;
+  	foreach(QString filename, filelist ){
+  	QFileInfo fileInfo(filename);
+  	if (!fileInfo.exists()) continue;
 
-	if (isSampleFileType(filename)) {
-		samples << filename;
-	} else if (isProjectFileType(filename)) {
-		projects << filename;
-	} else if (filename.endsWith("mzpeaks",Qt::CaseInsensitive)) {
-		peaks << filename;
-	}
-}
+  	if (isSampleFileType(filename)) {
+  		samples << filename;
+  	} else if (isProjectFileType(filename)) {
+  		projects << filename;
+  	} else if (filename.endsWith("mzpeaks",Qt::CaseInsensitive)) {
+  		peaks << filename;
+  	}
+  }
 
 	if (projects.size() > 0) {
 		projectDockWidget->loadProject(projects[0]);
@@ -1002,6 +1009,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 }
 
+/**
+ * MainWindow::createMenus This functin creates the menu that is on top of
+ * the window. All the functionalities that are here are there in other
+ * places on the window
+ */
 void MainWindow::createMenus() {
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 	QMenu* widgetsMenu = menuBar()->addMenu(tr("&Widgets"));
