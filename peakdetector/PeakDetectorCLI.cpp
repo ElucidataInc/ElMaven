@@ -159,11 +159,11 @@ PeakDetector* peakDetector = new PeakDetector ();
 
 int main(int argc, char *argv[]) {
 
-
 	cout << "read command line options" << endl;
 	processOptions(argc, argv);
 
 	cout << "Loading classifiation model" << endl;
+	cerr << "clsfModelFilename " << clsfModelFilename << endl;
 	clsf.loadModel(clsfModelFilename);
 
 	cout << "load compound list" << endl;
@@ -302,15 +302,24 @@ vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 void processOptions(int argc, char* argv[]) {
 
 	//command line options
-	const char * optv[] = { "a?alignSamples", "b?minGoodPeakCount <int>",
-			"c?matchRtFlag", "d?db <sting>", "e?processMassSlicesFlag",
-			"g:grouping_maxRtWindow <float>", "h?help",
-			"i:minGroupIntensity <float>", "m?model <string>",
-			"l?list  <string>", "o?outputdir <string>", "p?ppmMerge <float>",
-			"r?rtStepSize <float>", "q:minQuality <float>", "v?ver",
-			"w?minPeakWidth <int>", "y:?eicSmoothingWindow <int>",
-			"z:minSignalBaseLineRatio <float>",
-			NULL };
+	const char * optv[] = { "a?alignSamples <int>",
+							"b?minGoodPeakCount <int>",
+							"c?matchRtFlag <int>",
+							"d?db <string>",
+							"e?processMassSlicesFlag",
+							"g:grouping_maxRtWindow <float>",
+							"h?help",
+							"i?minGroupIntensity <float>",
+							"m?model <string>",
+							"l?list  <string>",
+							"o?outputdir <string>",
+							"p?ppmMerge <float>",
+							"r?rtStepSize <float>",
+							"q:minQuality <float>",
+							"w?minPeakWidth <int>",
+							"y?eicSmoothingWindow <int>",
+							"z:minSignalBaseLineRatio <float>",
+							NULL };
 
 	//parse input options
 	Options opts(*argv, optv);
@@ -319,8 +328,10 @@ void processOptions(int argc, char* argv[]) {
 
 	while (const char optchar = opts(iter, optarg)) {
 		switch (optchar) {
+
 		case 'a':
 			mavenParameters->alignSamplesFlag = true;
+			if (atoi(optarg) == 0) mavenParameters->alignSamplesFlag = false;
 			break;
 
 		case 'b':
@@ -329,7 +340,6 @@ void processOptions(int argc, char* argv[]) {
 
 		case 'c':
 			mavenParameters->matchRtFlag = true;
-			break;
 
 		case 'e':
 			mavenParameters->processMassSlicesFlag = true;
@@ -342,7 +352,6 @@ void processOptions(int argc, char* argv[]) {
 
 		case 'i':
 			mavenParameters->minGroupIntensity = atof(optarg);
-			cerr << "~~~~~~~~~~~~~~~~~~~~~~ mavenParameters->minGroupIntensity  " << mavenParameters->minGroupIntensity << " @#$%^&*(&^%$%^&*&YT)" << endl;
 			break;
 
 		case 'y':
