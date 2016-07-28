@@ -9,7 +9,7 @@
 #include "mzSample.h"
 #include "mzMassSlicer.h"
 #include "options.h"
-#include "../mzroll/classifierNeuralNet.h"
+#include "../libmaven/classifierNeuralNet.h"
 #include "pugixml.hpp"
 #include "../libmaven/PeakDetector.h"
 
@@ -153,11 +153,12 @@ void saveEIC(ofstream& out, EIC* eic);
  */
 vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 
-PeakDetector* peakDetector;
+MavenParameters* mavenParameters = new MavenParameters ();
+
+PeakDetector* peakDetector = new PeakDetector ();
 
 int main(int argc, char *argv[]) {
 
-	peakDetector = new PeakDetector();
 
 	cout << "read command line options" << endl;
 	processOptions(argc, argv);
@@ -166,32 +167,32 @@ int main(int argc, char *argv[]) {
 	clsf.loadModel(clsfModelFilename);
 
 	cout << "load compound list" << endl;
-	if (!peakDetector->ligandDbFilename.empty()) {
-		peakDetector->processMassSlicesFlag = false;
+	if (!mavenParameters->ligandDbFilename.empty()) {
+		mavenParameters->processMassSlicesFlag = false;
 		cerr << "Loading ligand database" << endl;
-		loadCompoundCSVFile(peakDetector->ligandDbFilename);
+		loadCompoundCSVFile(mavenParameters->ligandDbFilename);
 	}
 
 	//load files
 	loadSamples(filenames);
-	if (peakDetector->samples.size() == 0) {
+	if (mavenParameters->samples.size() == 0) {
 		cerr << "Exiting .. nothing to process " << endl;
 		exit(1);
 	}
 
 	//get retention time resolution
-	peakDetector->setAverageScanTime();
+	mavenParameters->setAverageScanTime();
 
 	//ionization
-	peakDetector->setIonizationMode();
+	mavenParameters->setIonizationMode();
 
 	//align samples
 	peakDetector->alignSamples();
 
 	//process compound list
-	if (peakDetector->compounds.size()) {
+	if (mavenParameters->compounds.size()) {
 		vector<mzSlice*> slices = peakDetector->processCompounds(
-				peakDetector->compounds, "compounds");
+				mavenParameters->compounds, "compounds");
 		peakDetector->processSlices(slices, "compounds");
 
 		writeReport("compounds");
@@ -199,16 +200,16 @@ int main(int argc, char *argv[]) {
 	}
 
 	//process all mass slices
-	if (peakDetector->processMassSlicesFlag == true) {
-		peakDetector->matchRtFlag = false;
-		peakDetector->checkConvergance = true;
+	if (mavenParameters->processMassSlicesFlag == true) {
+		mavenParameters->matchRtFlag = false;
+		mavenParameters->checkConvergance = true;
 		peakDetector->processMassSlices();
 	}
 
 	//cleanup
-	delete_all(peakDetector->samples);
-	peakDetector->samples.clear();
-	peakDetector->allgroups.clear();
+	delete_all(mavenParameters->samples);
+	mavenParameters->samples.clear();
+	mavenParameters->allgroups.clear();
 
 	return (0);
 }
@@ -234,8 +235,8 @@ void saveEICs(string filename) {
 	ofstream myfile(filename.c_str());
 	if (!myfile.is_open())
 		return;
-	for (int i = 0; i < peakDetector->allgroups.size(); i++) {
-		PeakGroup& grp = peakDetector->allgroups[i];
+	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+		PeakGroup& grp = mavenParameters->allgroups[i];
 		float rtmin = grp.minRt - 3;
 		float rtmax = grp.maxRt + 3;
 
@@ -287,7 +288,7 @@ vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 
 		for (unsigned int j = 0; j < samples.size(); j++) {
 			if (!grp.srmId.empty()) {
-				EIC* eic = peakDetector->samples[j]->getEIC(grp.srmId);
+				EIC* eic = mavenParameters->samples[j]->getEIC(grp.srmId);
 				eics.push_back(eic);
 			} else {
 				EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1);
@@ -319,19 +320,19 @@ void processOptions(int argc, char* argv[]) {
 	while (const char optchar = opts(iter, optarg)) {
 		switch (optchar) {
 		case 'a':
-			peakDetector->alignSamplesFlag = true;
+			mavenParameters->alignSamplesFlag = true;
 			break;
 
 		case 'b':
-			peakDetector->minGoodPeakCount = atoi(optarg);
+			mavenParameters->minGoodPeakCount = atoi(optarg);
 			break;
 
 		case 'c':
-			peakDetector->matchRtFlag = true;
+			mavenParameters->matchRtFlag = true;
 			break;
 
 		case 'e':
-			peakDetector->processMassSlicesFlag = true;
+			mavenParameters->processMassSlicesFlag = true;
 			break;
 
 		case 'h':
@@ -340,43 +341,44 @@ void processOptions(int argc, char* argv[]) {
 			break;
 
 		case 'i':
-			peakDetector->minGroupIntensity = atof(optarg);
+			mavenParameters->minGroupIntensity = atof(optarg);
+			cerr << "~~~~~~~~~~~~~~~~~~~~~~ mavenParameters->minGroupIntensity  " << mavenParameters->minGroupIntensity << " @#$%^&*(&^%$%^&*&YT)" << endl;
 			break;
 
 		case 'y':
-			peakDetector->eic_smoothingWindow = atoi(optarg);
+			mavenParameters->eic_smoothingWindow = atoi(optarg);
 			break;
 
 		case 'g':
-			peakDetector->grouping_maxRtWindow = atof(optarg);
+			mavenParameters->grouping_maxRtWindow = atof(optarg);
 			break;
 
 		case 'w':
-			peakDetector->minNoNoiseObs = atoi(optarg);
+			mavenParameters->minNoNoiseObs = atoi(optarg);
 			break;
 
 		case 'r':
-			peakDetector->rtStepSize = atoi(optarg);
+			mavenParameters->rtStepSize = atoi(optarg);
 			break;
 
 		case 'p':
-			peakDetector->ppmMerge = atof(optarg);
+			mavenParameters->ppmMerge = atof(optarg);
 			break;
 
 		case 'q':
-			peakDetector->minQuality = atof(optarg);
+			mavenParameters->minQuality = atof(optarg);
 			break;
 
 		case 'z':
-			peakDetector->minSignalBaseLineRatio = atof(optarg);
+			mavenParameters->minSignalBaseLineRatio = atof(optarg);
 			break;
 
 		case 'o':
-			peakDetector->outputdir = optarg + string(DIR_SEPARATOR_STR);
+			mavenParameters->outputdir = optarg + string(DIR_SEPARATOR_STR);
 			break;
 
 		case 'd':
-			peakDetector->ligandDbFilename = optarg;
+			mavenParameters->ligandDbFilename = optarg;
 			break;
 
 		case 'm':
@@ -408,7 +410,7 @@ void loadSamples(vector<string>&filenames) {
 		sample->sampleName = cleanSampleName(filenames[i]);
 
 		if (sample->scans.size() >= 1) {
-			peakDetector->samples.push_back(sample);
+			mavenParameters->samples.push_back(sample);
 			sample->summary();
 		} else {
 			if (sample != NULL) {
@@ -417,7 +419,7 @@ void loadSamples(vector<string>&filenames) {
 			}
 		}
 	}
-	cerr << "loadSamples done: loaded " << peakDetector->samples.size()
+	cerr << "loadSamples done: loaded " << mavenParameters->samples.size()
 			<< " samples\n";
 }
 
@@ -530,11 +532,11 @@ void loadCompoundCSVFile(string filename) {
 			compound->precursorMz = precursormz;
 			compound->productMz = productmz;
 			compound->collisionEnergy = collisionenergy;
-			peakDetector->compounds.push_back(compound);
+			mavenParameters->compounds.push_back(compound);
 			loadCount++;
 		}
 	}
-	sort(peakDetector->compounds.begin(), peakDetector->compounds.end(),
+	sort(mavenParameters->compounds.begin(), mavenParameters->compounds.end(),
 			Compound::compMass);
 	cerr << "Loading " << dbname << " " << loadCount << endl;
 	myfile.close();
@@ -590,7 +592,7 @@ void reduceGroups() {
 
 void writeReport(string setName) {
 
-	if (peakDetector->writeCSVFlag == false)
+	if (mavenParameters->writeCSVFlag == false)
 		return;
 
 	//create an output folder
@@ -694,11 +696,11 @@ void writePeakTableXML(std::string filename) {
 	writeSampleListXML(peak);
 	writeParametersXML(peak);
 
-	if (peakDetector->allgroups.size()) {
+	if (mavenParameters->allgroups.size()) {
 		peak.append_child().set_name("PeakGroups");
 		xml_node peakgroups = peak.child("PeakGroups");
-		for (int i = 0; i < peakDetector->allgroups.size(); i++) {
-			writeGroupXML(peakgroups, &peakDetector->allgroups[i]);
+		for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+			writeGroupXML(peakgroups, &mavenParameters->allgroups[i]);
 		}
 	}
 
@@ -709,25 +711,25 @@ void writeParametersXML(xml_node& parent) {
 
 	xml_node p = parent.append_child();
 	p.set_name("PeakDetectionParameters");
-	p.append_attribute("alignSamples") = peakDetector->alignSamplesFlag;
-	p.append_attribute("matchRt") = peakDetector->matchRtFlag;
+	p.append_attribute("alignSamples") = mavenParameters->alignSamplesFlag;
+	p.append_attribute("matchRt") = mavenParameters->matchRtFlag;
 	p.append_attribute("ligandDbFilename") =
-			peakDetector->ligandDbFilename.c_str();
+			mavenParameters->ligandDbFilename.c_str();
 	p.append_attribute("clsfModelFilename") = clsfModelFilename.c_str();
-	p.append_attribute("rtStepSize") = peakDetector->rtStepSize;
-	p.append_attribute("ppmMerge") = peakDetector->ppmMerge;
+	p.append_attribute("rtStepSize") = mavenParameters->rtStepSize;
+	p.append_attribute("ppmMerge") = mavenParameters->ppmMerge;
 	p.append_attribute("eic_smoothingWindow") =
-			peakDetector->eic_smoothingWindow;
+			mavenParameters->eic_smoothingWindow;
 	p.append_attribute("grouping_maxRtWindow") =
-			peakDetector->grouping_maxRtWindow;
-	p.append_attribute("minGoodPeakCount") = peakDetector->minGoodPeakCount;
+			mavenParameters->grouping_maxRtWindow;
+	p.append_attribute("minGoodPeakCount") = mavenParameters->minGoodPeakCount;
 	p.append_attribute("minSignalBlankRatio") =
-			peakDetector->minSignalBlankRatio;
-	p.append_attribute("minPeakWidth") = peakDetector->minNoNoiseObs;
+			mavenParameters->minSignalBlankRatio;
+	p.append_attribute("minPeakWidth") = mavenParameters->minNoNoiseObs;
 	p.append_attribute("minSignalBaseLineRatio") =
-			peakDetector->minSignalBaseLineRatio;
-	p.append_attribute("minGroupIntensity") = peakDetector->minGroupIntensity;
-	p.append_attribute("minQuality") = peakDetector->minQuality;
+			mavenParameters->minSignalBaseLineRatio;
+	p.append_attribute("minGroupIntensity") = mavenParameters->minGroupIntensity;
+	p.append_attribute("minQuality") = mavenParameters->minQuality;
 }
 
 void writeGroupXML(xml_node& parent, PeakGroup* g) {

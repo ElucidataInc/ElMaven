@@ -79,7 +79,7 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
     //we will cast everything as a float may be this is not wise, but have not found a need for double
     //precission yet
     vector<float> decodedArray(size);
-    cerr << "Net=" << neworkorder << " float_size=" << float_size << endl;
+    // cerr << "Net=" << neworkorder << " float_size=" << float_size << endl;
     if ( float_size == 8 ) {
         if ( neworkorder == false ) {
             for (int i=0; i<size; i++) decodedArray[i] = (float) ((double*)dest)[i];

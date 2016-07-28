@@ -8,4 +8,5 @@ SUBDIRS +=	libneural \
         	libcdfread \
 		pugixml/src \
 		libmaven \
-                mzroll
+                mzroll\
+                peakdetector
