@@ -11,23 +11,38 @@ BackgroundPeakUpdate::~BackgroundPeakUpdate() {
         mavenParameters->cleanup(); //remove allgroups
 }
 
-void BackgroundPeakUpdate::run(void) {
 
+/**
+ * BackgroundPeakUpdate::run This function starts the thread. This function is
+ * called by start() internally in QTThread. start() function will be called
+ * where the thread starts.
+ */
+void BackgroundPeakUpdate::run(void) {
+        //Making sure that instance of the mainwindow is present so that the
+        //peakdetection process can be ran
         if (mainwindow == NULL) {
                 quit();
                 return;
         }
         _stopped = false;
 
-        if (mavenParameters->samples.size() == 0) {
-                mavenParameters->samples = mainwindow->getSamples(); //get samples
-        }
-        mavenParameters->clsf = mainwindow->getClassifier(); //get classification modej
+        //populating the maven setting insatnces with with the samples
+        // if (mavenParameters->samples.size() == 0) {
+        //         mavenParameters->samples = mainwindow->getSamples();
+        // }
+        //Getting the classification model
+        //mavenParameters->clsf = mainwindow->getClassifier();
 
-        mavenParameters->setIonizationMode();
-
-        if (mainwindow->getIonizationMode())
-                mavenParameters->ionizationMode = mainwindow->getIonizationMode();  //user specified ionization mode
+        //Setting the ionization mode if the user specifies the ionization mode
+        //then its given the priority else the ionization mode is taken from the
+        //sample
+        //TODO: See how the ionization mode is effected if the user selects
+        //Neutral or autodetect
+        // if (mainwindow->getIonizationMode()) {
+        //         mavenParameters->ionizationMode = mainwindow->getIonizationMode();
+        // } else {
+        //         mavenParameters->setIonizationMode();
+        // }
 
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();

@@ -157,6 +157,7 @@ void PeakDetectionDialog::findPeaks() {
         if (samples.size() == 0)
                 return;
 
+
         //Making sure that peak detector is not running
         //If its running  allowing it to complete so that the new peakdetection
         //process dosent case any problem to the already running peakdetection
@@ -180,6 +181,9 @@ void PeakDetectionDialog::findPeaks() {
         peakupdater->setMainWindow(mainwindow);
 
         MavenParameters* mavenParameters = mainwindow->mavenParameters;
+
+        //populating the maven setting insatnces with with the samples
+        mavenParameters->samples = mainwindow->getSamples();
 
         connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                 SLOT(setProgressBar(QString, int,int)));
@@ -236,6 +240,21 @@ void PeakDetectionDialog::findPeaks() {
         } else {
                 mavenParameters->writeCSVFlag = false;
         }
+        //Getting the classification model
+        mavenParameters->clsf = mainwindow->getClassifier();
+
+
+        //Setting the ionization mode if the user specifies the ionization mode
+        //then its given the priority else the ionization mode is taken from the
+        //sample
+        //TODO: See how the ionization mode is effected if the user selects
+        //Neutral or autodetect
+        if (mainwindow->getIonizationMode()) {
+                mavenParameters->ionizationMode = mainwindow->getIonizationMode();
+        } else {
+                mavenParameters->setIonizationMode();
+        }
+
         // Changing the mainwindow title according to the peak detection type
         QString title;
         if (_featureDetectionType == FullSpectrum)
