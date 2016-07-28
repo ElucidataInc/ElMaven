@@ -262,13 +262,13 @@ void PeakDetectionDialog::findPeaks() {
 
         //Running the thread
         if (_featureDetectionType == QQQ) {
-
+                //TODO: remove this line
                 //peakupdater->setMavenParameters(mavenParameters);
                 //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("findPeaksQQQ");
         } else if (_featureDetectionType == FullSpectrum) {
-
+                //TODO: remove this line
                 //peakupdater->setMavenParameters(mavenParameters);
                 //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
@@ -277,32 +277,52 @@ void PeakDetectionDialog::findPeaks() {
                 mavenParameters->setCompounds(
                         DB.getCopoundsSubset(
                                 compoundDatabase->currentText().toStdString()));
-
+                //TODO: remove this line
                 //peakupdater->setMavenParameters(mavenParameters);
                 //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("computePeaks");
         }
 }
-
+/**
+ * PeakDetectionDialog::runBackgroupJob This function will start the thread for
+ * the given algorithm with which the peak detection has to be done.
+ * @param funcName [description]
+ */
 void PeakDetectionDialog::runBackgroupJob(QString funcName) {
+        //Making sure all the setting that is necessary for starting the
+        //thread is being added
+        //TODO: have to add to check if the mavenParameters is not null
         if (peakupdater == NULL)
                 return;
-
+        // Making sure that the already some peakdetector thread is not
+        // working
         if (peakupdater->isRunning()) {
                 cancel();
         }
-
+        //Starting the thread
         if (!peakupdater->isRunning()) {
                 peakupdater->setRunFunction(funcName); //set thread function
                 peakupdater->start(); //start a background thread
         }
 }
 
+/**
+ * PeakDetectionDialog::showInfo This updates the status process with the
+ * algorithm with which thepeak detection is going to happen
+ * @param text this is the algorithm that the peakdetection process uses
+ */
 void PeakDetectionDialog::showInfo(QString text) {
         statusText->setText(text);
 }
 
+/**
+ * PeakDetectionDialog::setProgressBar This functionupdates the progress bar
+ * with the percentage ofcomplition of peak detectionprocess
+ * @param text       Text to be updated in the label
+ * @param progress   Progress
+ * @param totalSteps Total number of steps
+ */
 void PeakDetectionDialog::setProgressBar(QString text, int progress,
                                          int totalSteps) {
         showInfo(text);
