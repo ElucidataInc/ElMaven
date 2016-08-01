@@ -22,7 +22,7 @@ void BackgroundPeakUpdate::run(void) {
 	if (mavenParameters->samples.size() == 0) {
 		mavenParameters->samples = mainwindow->getSamples(); //get samples
 	}
-	mavenParameters->clsf = mainwindow->getClassifier(); //get classification modej
+	mavenParameters->clsf = mainwindow->getClassifier(); //get classification model
 
 	mavenParameters->setIonizationMode();
 

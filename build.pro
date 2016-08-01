@@ -6,7 +6,9 @@ QMAKE_CXXFLAGS += -Ofast
 
 SUBDIRS +=	libneural \
         	libcdfread \
-		pugixml/src \
-		libmaven \
-                mzroll\
-                peakdetector
+			libcsvparser\
+			pugixml/src \
+			libmaven \
+            mzroll\
+            peakdetector
+            

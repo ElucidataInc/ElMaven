@@ -16,9 +16,9 @@ QMAKE_CXXFLAGS += -g -DOMP_PARALLEL
 
 TARGET = maven
 
-LIBS += -L.
+LIBS += -L. -lcsvparser
 
-INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/
+INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/ ../libcsvparser
 
 SOURCES = 		base64.cpp \
                 mzMassCalculator.cpp \

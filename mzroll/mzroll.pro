@@ -31,9 +31,9 @@ QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
 INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
-INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/
+INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../libcsvparser
 
-LIBS += -L.  -lmaven -lpugixml -lneural                     #64bit
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser                     #64bit
 
 message($$LIBS)
 
