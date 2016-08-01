@@ -1,34 +1,34 @@
 
 class paths():
 
-	def __init__(self, buildMaven):
+	def __init__(self, build_maven):
 
 		#For build 769
-		if buildMaven == 769:
-			self.pathPeakDetector = '/home/sahil/elucidata/maven/mavenOpenSource/bin/peakdetector'
+		if build_maven == 769:
+			self.path_peakdetector = '/home/sahil/elucidata/maven/mavenOpenSource/bin/peakdetector'
 			self.outputdir = '/home/sahil/Desktop/769'
 
 		#For build 776
-		if buildMaven == 776:
-			self.pathPeakDetector = '/home/sahil/code/qe/maven_stable/bin/peakdetector'
+		if build_maven == 776:
+			self.path_peakdetector = '/home/sahil/code/qe/maven_stable/bin/peakdetector'
 			self.outputdir = '/home/sahil/Desktop/776'
 
 		#For all builds
-		self.inputdir = '//home/sahil/Desktop/deleteIT'
+		self.inputdir = '/home/sahil/Desktop/deleteIT'
 		self.db = '/home/sahil/code/qe/maven_data/CDatabases/qe3_v11_2016_04_13.tab.txt'
 		self.model = '/home/sahil/code/qe/maven_data/Models/default.model'
 
 
 class constants():
 
-	def __init__(self, buildMaven):
+	def __init__(self, build_maven):
 
 		#For build 769
-		if buildMaven == 769:
+		if build_maven == 769:
 			pass
 		
 		#For build 776
-		if buildMaven == 776:
+		if build_maven == 776:
 			self.savemzroll = 1
 			self.minPrecursorCharge = 0
 			self.pullIsotopes = 0

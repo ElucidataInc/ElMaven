@@ -3,51 +3,51 @@ import os
 import pandas as pd
 from os.path import isfile, join
 
-def getListOfFilesInDirectory(pathToDirectory, extension):
+def get_list_of_files_in_directory(path_to_directory, extension):
 
-    listOfFiles = []
-    for file in os.listdir(pathToDirectory):
+    list_of_files = []
+    for file in os.listdir(path_to_directory):
         if file.endswith(extension):
-            listOfFiles.append(join(pathToDirectory, file))
+            list_of_files.append(join(path_to_directory, file))
+    print list_of_files
+    return list_of_files
 
-    return listOfFiles
+def get_dict_of_attributes_in_class(class_object):
 
-def getDictOfAttributesInClass(classObject):
+    dict_of_attributes = vars(class_object)
 
-    dictOfAttributes = vars(classObject)
+    return dict_of_attributes
 
-    return dictOfAttributes
+def convert_dict_to_command_line_arguments(input_dict):
 
-def convertDictToCommandLineArguments(ipDict):
+    keys_in_dict = input_dict.keys()
+    command_line_script = ""
 
-    keysInDict = ipDict.keys()
-    commandLineScript = ""
+    for argument in keys_in_dict:
+        command_line_script += " --" + argument + " " + str(input_dict[argument])
 
-    for argument in keysInDict:
-        commandLineScript += " --" + argument + " " + str(ipDict[argument])
+    return command_line_script
 
-    return commandLineScript
+def run_command(command_line_script):
 
-def runCommand(commandLineScript):
+    os.system(command_line_script)
 
-    os.system(commandLineScript)
-
-def readCsvPandas(pathToCsv):
-    df = pd.read_csv(pathToCsv)
+def read_csv_pandas(path_to_csv):
+    df = pd.read_csv(path_to_csv)
     return df
 
-def getIntersectionOfList(listOfLists):
-    sets = iter(map(set, listOfLists))
-    intersectedList = sets.next()
+def get_intersection_of_list(list_of_lists):
+    sets = iter(map(set, list_of_lists))
+    intersected_list = sets.next()
     for s in sets:
-        intersectedList = intersectedList.intersection(s)
+        intersected_list = intersected_list.intersection(s)
 
-    return intersectedList
+    return intersected_list
 
-def createListOfEmptyDfs(sizeOfList):
+def create_list_of_empty_dfs(size_of_list):
 
-    listOfEmptyDfs = []
-    for i in xrange(sizeOfList):
-        listOfEmptyDfs.append(pd.DataFrame())
+    list_of_empty_dfs = []
+    for i in xrange(size_of_list):
+        list_of_empty_dfs.append(pd.DataFrame())
 
-    return listOfEmptyDfs
+    return list_of_empty_dfs
