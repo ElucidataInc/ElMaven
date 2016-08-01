@@ -35,3 +35,11 @@ def runCommand(commandLineScript):
 def readCsvPandas(pathToCsv):
     df = pd.read_csv(pathToCsv)
     return df
+
+def getIntersectionOfList(listOfLists):
+    sets = iter(map(set, listOfLists))
+    intersectedList = sets.next()
+    for s in sets:
+        intersectedList = intersectedList.intersection(s)
+
+    return intersectedList

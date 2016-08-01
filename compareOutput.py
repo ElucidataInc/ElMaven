@@ -1,24 +1,59 @@
 
+import sys
 import pandas as pd
+from os.path import join
 from helper import helper
 
-data_df_1 = helper.readCsvPandas('/home/sahil/elucidata/compounds.csv')
-data_df_2 = helper.readCsvPandas('/home/sahil/code/qe/maven_data/Experiments/769peakDetectorCLITest-1469697786.02/output/769peakDetectorCLITest-1469697786.02.csv')
+def compare(listBuilds):
 
-listOfCompounds_1 = data_df_1['compound'].unique()
-listOfCompounds_2 = data_df_2['compound'].unique()
+    if len(listBuilds) < 2:
+        sys.exit('You need 2 or more outputs to compare')
 
-uniqueListOfCompounds = list(set(listOfCompounds_1) & set(listOfCompounds_2))
+    listOfDataFrames = getListOfDataFrames(listBuilds)
+    uniqueListOfCompounds = getIntersectedListOfCompounds(listOfDataFrames)
+    listOfIntersectedDataFrames = getListOfIntersectedDataFrames(listOfDataFrames, uniqueListOfCompounds)
 
-topThree_1 = data_df_1.groupby('compound').head(3)
-topThree_2 = data_df_2.groupby('compound').head(3)
+def getListOfDataFrames(listBuilds):
 
-topThree_1 = topThree_1.loc[topThree_1['compound'].isin(uniqueListOfCompounds)]
-topThree_2 = topThree_2.loc[topThree_2['compound'].isin(uniqueListOfCompounds)]
+    listOfDataFrames = []
+    for buildMaven in listBuilds:
+        paths = config.paths(buildMaven)
+        df = helper.readCsvPandas(join(paths.outputdir, 'compounds.csv'))
+        listOfDataFrames.append(df)
+    
+    return listOfDataFrames
+
+def getIntersectedListOfCompounds(listOfDataFrames):
+
+    listOfLists = []
+
+    for df in listOfDataFrames:
+        listOfCompounds = getListOfCompounds(df)
+        listOfLists.append(listOfCompounds)
+    
+    uniqueListOfCompounds = helper.getIntersectionOfList(listOfLists)
+    return uniqueListOfCompounds
+
+def getListOfCompounds(df):
+    listOfCompounds = df['compound'].unique()
+    return listOfCompounds
+
+def getListOfIntersectedDataFrames(listOfDataFrames, uniqueListOfCompounds)
+
+    listOfIntersectedDataFrames = []
+
+    for df in listOfDataFrames:
+
+        listOfIntersectedDataFrames.append(df.loc[df['compound'].isin(uniqueListOfCompounds)])
+    
+    return listOfIntersectedDataFrames
 
 for compound in uniqueListOfCompounds:
     compound_topThree_1 = topThree_1[topThree_1['compound'] == compound]
     compound_topThree_2 = topThree_2[topThree_2['compound'] == compound]
     for element in xrange(len(compound_topThree_1)):
-        print compound_topThree_1.iloc[[element]]
+        # print compound_topThree_1.iloc[[element]]
+    
+    break
+
 
