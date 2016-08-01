@@ -14,7 +14,7 @@ class paths():
 			self.outputdir = '/home/sahil/Desktop/776'
 
 		#For all builds
-		self.inputdir = '/home/sahil/code/qe/maven_data/Datasets/alignmenttest-1469088471.6'
+		self.inputdir = '//home/sahil/Desktop/deleteIT'
 		self.db = '/home/sahil/code/qe/maven_data/CDatabases/qe3_v11_2016_04_13.tab.txt'
 		self.model = '/home/sahil/code/qe/maven_data/Models/default.model'
 

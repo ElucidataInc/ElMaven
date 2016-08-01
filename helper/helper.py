@@ -43,3 +43,11 @@ def getIntersectionOfList(listOfLists):
         intersectedList = intersectedList.intersection(s)
 
     return intersectedList
+
+def createListOfEmptyDfs(sizeOfList):
+
+    listOfEmptyDfs = []
+    for i in xrange(sizeOfList):
+        listOfEmptyDfs.append(pd.DataFrame())
+
+    return listOfEmptyDfs
