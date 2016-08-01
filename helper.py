@@ -27,3 +27,6 @@ def convertDictToCommandLineArguments(ipDict):
 
     return commandLineScript
 
+def runCommand(commandLineScript):
+
+    os.system(commandLineScript)
