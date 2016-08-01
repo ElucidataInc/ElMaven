@@ -1,5 +1,6 @@
 
 import os
+import pandas as pd
 from os.path import isfile, join
 
 def getListOfFilesInDirectory(pathToDirectory, extension):
@@ -30,3 +31,7 @@ def convertDictToCommandLineArguments(ipDict):
 def runCommand(commandLineScript):
 
     os.system(commandLineScript)
+
+def readCsvPandas(pathToCsv):
+    df = pd.read_csv(pathToCsv)
+    return df

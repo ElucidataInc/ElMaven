@@ -1,7 +1,7 @@
 
 import os
-import config
-import helper
+from helper import helper
+from config import config
 
 def run(listBuilds):
 
