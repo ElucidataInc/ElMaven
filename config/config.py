@@ -47,3 +47,13 @@ class constants():
 		self.minGoodGroupCount = 3
 		self.eicSmoothingWindow = 12
 		self.rtStepSize = 10
+
+class variables():
+
+	def __init__(self):
+
+		self.path_compare_compounds_csv = '/home/sahil/Desktop/comparison/compare_compounds.csv'
+		self.path_r2_values_csv = '/home/sahil/Desktop/comparison/r2_values.csv'
+		self.path_csv_with_diff_rt_mz = '/home/sahil/Desktop/comparison/diff_rt_mz_values.csv'
+
+variables = variables()

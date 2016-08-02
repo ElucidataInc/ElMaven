@@ -51,3 +51,9 @@ def create_list_of_empty_dfs(size_of_list):
         list_of_empty_dfs.append(pd.DataFrame())
 
     return list_of_empty_dfs
+
+def export_file(input_string, path_output_file):
+
+    f = open(path_output_file, "w")
+    f.write(input_string)
+    f.close()
