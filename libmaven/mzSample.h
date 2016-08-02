@@ -1762,7 +1762,7 @@ class Compound {
 
 		private:
 			PeakGroup _group;			//link to peak group
-                        bool      _groupUnlinked;
+      bool      _groupUnlinked;
 
 		public:
 			Compound(string id, string name, string formula, int charge );
