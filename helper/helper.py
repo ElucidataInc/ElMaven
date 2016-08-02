@@ -37,10 +37,10 @@ def read_csv_pandas(path_to_csv):
     return df
 
 def get_intersection_of_list(list_of_lists):
-    sets = iter(map(set, list_of_lists))
-    intersected_list = sets.next()
-    for s in sets:
-        intersected_list = intersected_list.intersection(s)
+
+    a = list_of_lists[0]
+    b= list_of_lists[1]
+    intersected_list = list(set(a) & set(b))
 
     return intersected_list
 
