@@ -43,7 +43,6 @@ void BackgroundPeakUpdate::run(void) {
         // } else {
         //         mavenParameters->setIonizationMode();
         // }
-
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();
         } else if (runFunction == "processSlices") {
@@ -211,7 +210,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 void BackgroundPeakUpdate::processMassSlices() {
         emit (updateProgressBar("Computing Mass Slices", 0, 10));
         peakDetector.processMassSlices();
-//	cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
+        //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
         align();
 
