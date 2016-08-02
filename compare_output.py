@@ -16,7 +16,7 @@ def compare(list_builds):
     lists_of_compounds = get_lists_of_compounds(list_of_dfs)
     unique_list_of_compounds = helper.get_intersection_of_list(lists_of_compounds)
 
-    compare_lists(lists_of_compounds, unique_list_of_compounds)
+    compare_lists(lists_of_compounds)
 
     list_of_intersected_dfs = get_list_of_intersected_dfs(list_of_dfs, unique_list_of_compounds)
     list_of_dfs_with_same_mz_rt = get_list_of_dfs_with_same_mz_rt(list_of_intersected_dfs, unique_list_of_compounds)
@@ -156,32 +156,30 @@ def get_list_of_compounds(df):
     list_of_compounds = df['compound'].unique()
     return list_of_compounds
 
-def compare_lists(list_of_lists, unique_list):
+def compare_lists(list_of_lists):
 
     a = list_of_lists[0]
 
     b = list_of_lists[1]
 
-    c = unique_list
-
-    d = list(set(a) | set(b)) #union of a & b
+    c = list(set(a) | set(b)) #union of a & b
 
     SEP = ','
-    csv_output = "Common compounds, compounds build 769, compounds build 776\n"
+    csv_output = "Compounds, Compounds (769), compounds (776)\n"
 
-    for i in d:
+    for i in c:
 
-        if i in a:
-            csv_output += str(i)
+        csv_output += str(i)
         csv_output += SEP
 
-        if i in b:
-            csv_output += str(i)
+        if not(i in a):
+            csv_output += "Not Present"
         csv_output += SEP
 
-        if i in c:
-            csv_output += str(i)
+        if not(i in b):
+            csv_output += "Not Present"
         csv_output += '\n'
+
 
     f = open("/home/sahil/Desktop/comparison/compare_compounds.csv", "w")
     f.write(csv_output)
