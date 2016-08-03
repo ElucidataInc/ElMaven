@@ -5,7 +5,7 @@ CONFIG += ordered qt thread
 QMAKE_CXXFLAGS += -Ofast
 
 SUBDIRS +=	libneural \
-        	libcdfread \
-		pugixml/src \
-		libmaven \
-                mzroll
+        	  libcdfread \
+		        pugixml/src \
+		        libmaven \
+            mzroll
