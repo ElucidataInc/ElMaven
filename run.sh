@@ -1,4 +1,4 @@
 OMP_CANCELLATION=true
-qmake
+qmake -qt=qt4 -o Makefile build.pro
 make -j $(nproc)
-bin/maven_dev_769
+make clean
