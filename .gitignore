@@ -66,3 +66,8 @@ docs/latex
 # KDevelop4
 maven_opensource.kdev4
 .kdev4
+
+#editor configuration
+.jsbeautifyrc
+.mzroll
+
