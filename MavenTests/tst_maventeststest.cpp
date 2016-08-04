@@ -16,6 +16,7 @@ MavenTestsTest::MavenTestsTest()
 {
 }
 
+//This is a sample test case
 void MavenTestsTest::testCase()
 {
         QString str = "Hello";
