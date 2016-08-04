@@ -58,6 +58,7 @@ bin/peakdetector
 
 #Documentation files
 docs/html
+html
 docs/latex
 /Release/
 
