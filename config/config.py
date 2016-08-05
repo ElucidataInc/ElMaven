@@ -49,12 +49,6 @@ class constants():
 		self.eicSmoothingWindow = 12
 		self.rtStepSize = 10
 
-class runFunction():
-
-	def __init__(self):
-
-		
-
 
 class variables():
 
@@ -65,7 +59,7 @@ class variables():
 		#	2 for processMassSlices	(Automatic Peak Detection)
 		#	3 for processCompounds with pullIsotopes (includes Reporting isotopic Peaks)
 		#	4 for processMassSlices with pullIsotopes (includes Reporting isotopic Peaks)
-		self.runFunction = 1
+		self.run_function = 1
 
 		self.path_compare_compounds_csv = '/home/sahil/Desktop/comparison/compare_compounds.csv'
 		self.path_r2_values_csv = '/home/sahil/Desktop/comparison/r2_values.csv'
