@@ -76,3 +76,4 @@ maven_opensource.kdev4
 *.browse.VC.db
 *.browse.VC.db-shm
 *.browse.VC.db-wal
+MavenTests/MavenTests
