@@ -29,13 +29,14 @@ class constants():
 		
 		#For build 776
 		if build_maven == 776:
-			self.savemzroll = 1
+			
 			self.minPrecursorCharge = 0
 			self.pullIsotopes = 0
-			self.eicMaxGroups = 20
-			self.minGoodGroupCount = 3
 		
 		#For all builds
+		self.minGoodGroupCount = 1
+		self.eicMaxGroups = 5	
+		self.savemzroll = 1
 		self.minQuality = 0.5
 		self.ppmMerge = 10
 		self.minSignalBaseLineRatio = 2
@@ -55,5 +56,5 @@ class variables():
 		self.path_compare_compounds_csv = '/home/sahil/Desktop/comparison/compare_compounds.csv'
 		self.path_r2_values_csv = '/home/sahil/Desktop/comparison/r2_values.csv'
 		self.path_csv_with_diff_rt_mz = '/home/sahil/Desktop/comparison/diff_rt_mz_values.csv'
-
+		self.path_summary_of_results = '/home/sahil/Desktop/comparison/summary_of_results.docx'
 variables = variables()
