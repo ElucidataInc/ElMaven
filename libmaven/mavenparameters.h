@@ -88,7 +88,7 @@ public:
 	bool writeCSVFlag;
 	bool alignSamplesFlag;
 	bool keepFoundGroups;
-	bool processMassSlicesFlag;
+	bool processAllSlices;
 	bool pullIsotopesFlag;
 	bool showProgressFlag;
 	bool matchRtFlag;
@@ -117,7 +117,7 @@ public:
 	int baseline_dropTopX;
 
 	//peak filtering
-	int minGoodPeakCount;
+	int minGoodGroupCount;
 	float minSignalBlankRatio;
 	float minNoNoiseObs;
 	float minSignalBaseLineRatio;

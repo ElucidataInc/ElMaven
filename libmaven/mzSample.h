@@ -1293,7 +1293,7 @@ class PeakGroup {
 
 	public:
 		enum GroupType {None=0, C13=1, Adduct=2, Fragment=3, Covariant=4, Isotope=5 };     //group types
-		enum QType	   {AreaTop=0, Area=1, Height=2, RetentionTime=3, Quality=4, SNRatio=5 };
+		enum QType	   {AreaTop=0, Area=1, Height=2, AreaNotCorrected=3, RetentionTime=4, Quality=5, SNRatio=6 };
 		PeakGroup();
 		PeakGroup(const PeakGroup& o);
 		PeakGroup& operator=(const PeakGroup& o);
@@ -1336,6 +1336,8 @@ class PeakGroup {
 
 		int groupId;
 		int metaGroupId;
+
+		bool deletedFlag;
 
 		float maxIntensity;
 		float meanRt;

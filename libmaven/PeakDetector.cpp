@@ -505,7 +505,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				group.groupStatistics();
 			}
 			if (mavenParameters->clsf->hasModel()
-					&& group.goodPeakCount < mavenParameters->minGoodPeakCount)
+					&& group.goodPeakCount < mavenParameters->minGoodGroupCount)
 				continue;
 			if (mavenParameters->clsf->hasModel()
 					&& group.maxQuality < mavenParameters->minQuality)

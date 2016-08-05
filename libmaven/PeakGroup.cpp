@@ -17,6 +17,8 @@ PeakGroup::PeakGroup()  {
     sampleCount=0;
     sampleMean=0;
 
+    deletedFlag = false;
+
     totalSampleCount=0;
     maxNoNoiseObs=0;
     maxPeakFracionalArea=0;
@@ -79,6 +81,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
     isotopeC13count=o.isotopeC13count;
+
+    deletedFlag = o.deletedFlag;
 
     minRt=o.minRt;
     maxRt=o.maxRt;

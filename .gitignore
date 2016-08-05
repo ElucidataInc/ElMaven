@@ -66,3 +66,8 @@ docs/latex
 # KDevelop4
 maven_opensource.kdev4
 .kdev4
+
+#Visual Studio Code
+*.browse.VC.db
+*.browse.VC.db-shm
+*.browse.VC.db-wal

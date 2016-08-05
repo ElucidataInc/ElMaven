@@ -5,15 +5,27 @@
 #include <map>
 #include <ctime>
 #include <limits.h>
+#include <algorithm>
 
 #include "mzSample.h"
 #include "mzMassSlicer.h"
 #include "options.h"
+#include "omp.h"
 #include "../libmaven/classifierNeuralNet.h"
+#include <sys/time.h>
+
+#include <QtCore>
+
 #include "pugixml.hpp"
 #include "../libmaven/PeakDetector.h"
 
 using namespace std;
+#ifdef OMP_PARALLEL
+	#define getTime() omp_get_wtime()
+#else 
+	#define getTime() get_wall_time()
+	#define omp_get_thread_num()  1
+#endif
 
 //variables
 Classifier* clsf;
@@ -27,11 +39,21 @@ time_t startTime, curTime, stopTime;
 vector<string> filenames;
 
 bool alignSamplesFlag = false;
-bool processMassSlicesFlag = true;
+bool processAllSlices = true;
 bool reduceGroupsFlag = true;
 bool matchRtFlag = true;
 bool writeReportFlag = true;
 bool checkConvergance = true;
+bool saveJsonEIC=false;
+bool saveMzrollFile=true;
+
+bool pullIsotopesFlag=false;
+    bool C13Labeled=false;
+    bool N15Labeled=false;
+    bool S34Labeled=false;
+    bool D2Labeled=false;
+string csvFileFieldSeparator=",";
+PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
 string ligandDbFilename;
 string clsfModelFilename = "default.model";
@@ -47,16 +69,23 @@ float avgScanTime = 0.2;
 //peak detection
 int eic_smoothingWindow = 5;
 
+//maxGroupsOption
+int eicMaxGroups=10;
+
 //peak grouping across samples
 float grouping_maxRtWindow = 0.5;
 
 //peak filtering criteria
-int minGoodPeakCount = 1;
+int minGoodGroupCount = 1;
 float minSignalBlankRatio = 2;
 int minNoNoiseObs = 3;
 float minSignalBaseLineRatio = 2;
 float minGroupIntensity = 100;
 float minQuality = 0.5;
+
+
+// Temporary variable for pullIsotopesFlag
+int label =0;
 
 /**
  * [process command line Options]
@@ -116,6 +145,8 @@ void writeCSVReport(string filename);
  */
 void writeGroupXML(xml_node& parent, PeakGroup* g);
 
+void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport);
+
 /**
  * [write Parameters of ion in XML]
  * @param parent [parent ion]
@@ -133,17 +164,17 @@ vector<mzSlice*> getSrmSlices();
 string cleanSampleName(string sampleName);
 
 /**
- * [save EICs]
+ * [save EICs Json]
  * @param filename [name of the file]
  */
-void saveEICs(string filename);
+void saveEICsJson(string filename);
 
 /**
- * [save EIC]
+ * [save EIC json]
  * @param out [the output file]
  * @param eic [the eic to be saved]
  */
-void saveEIC(ofstream& out, EIC* eic);
+void saveEICJson(ofstream& out, EIC* eic);
 
 /**
  * [get EICs from a group]
@@ -153,34 +184,42 @@ void saveEIC(ofstream& out, EIC* eic);
  */
 vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 
+double get_wall_time();
+double get_cpu_time(); 
+
 MavenParameters* mavenParameters = new MavenParameters ();
 
 PeakDetector* peakDetector = new PeakDetector ();
 
 int main(int argc, char *argv[]) {
 
-	cout << "read command line options" << endl;
+    double programStartTime = getTime();
+	//read command line options
 	processOptions(argc, argv);
 
-	cout << "Loading classifiation model" << endl;
+	//load classification model
+	cerr << "Loading classifiation model" << endl;
 	cerr << "clsfModelFilename " << clsfModelFilename << endl;
-
 	clsf = new ClassifierNeuralNet();
 	clsf->loadModel(clsfModelFilename);
-
 	mavenParameters->clsf = clsf;
+
 	peakDetector->setMavenParameters(mavenParameters);
 
 
-	cout << "load compound list" << endl;
+	//load compound list
 	if (!mavenParameters->ligandDbFilename.empty()) {
-		mavenParameters->processMassSlicesFlag = false;
+		mavenParameters->processAllSlices = false;
 		cerr << "Loading ligand database" << endl;
 		loadCompoundCSVFile(mavenParameters->ligandDbFilename);
 	}
 
 	//load files
+    double startLoadingTime = getTime();
 	loadSamples(filenames);
+
+	cerr << "Execution time (Sample loading) : %f seconds \n", getTime() - startLoadingTime;
+
 	if (mavenParameters->samples.size() == 0) {
 		cerr << "Exiting .. nothing to process " << endl;
 		exit(1);
@@ -193,7 +232,10 @@ int main(int argc, char *argv[]) {
 	mavenParameters->setIonizationMode();
 
 	//align samples
-	peakDetector->alignSamples();
+	if (mavenParameters->samples.size() > 1 && mavenParameters->alignSamplesFlag){
+		peakDetector->alignSamples();
+	}
+	
 
 	//process compound list
 	if (mavenParameters->compounds.size()) {
@@ -206,7 +248,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	//process all mass slices
-	if (mavenParameters->processMassSlicesFlag == true) {
+	if (mavenParameters->processAllSlices == true) {
 		mavenParameters->matchRtFlag = false;
 		mavenParameters->checkConvergance = true;
 		peakDetector->processMassSlices();
@@ -217,7 +259,8 @@ int main(int argc, char *argv[]) {
 	mavenParameters->samples.clear();
 	mavenParameters->allgroups.clear();
 
-	return (0);
+    cerr << "Total program execution time : %f seconds \n",getTime() - programStartTime;
+	return(0);
 }
 
 // vector<mzSlice*> getSrmSlices() {
@@ -237,10 +280,11 @@ int main(int argc, char *argv[]) {
 // 	return slices;
 // }
 
-void saveEICs(string filename) {
+void saveEICsJson(string filename) {
 	ofstream myfile(filename.c_str());
-	if (!myfile.is_open())
-		return;
+	if (!myfile.is_open()) return;
+    myfile << "[\n";
+	
 	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
 		PeakGroup& grp = mavenParameters->allgroups[i];
 		float rtmin = grp.minRt - 3;
@@ -252,37 +296,42 @@ void saveEICs(string filename) {
 		myfile << "\"rtmax\": " << rtmax << "," << endl;
 		myfile << "\"eics\": [ " << endl;
 		vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
-		for (int j = 0; j < eics.size(); j++) {
-			myfile << "{\n";
-			saveEIC(myfile, eics[j]); //save EICs
-			myfile << "}\n";
-			if (j < eics.size() - 1)
-				myfile << ",\n";
+
+		for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
+				myfile << "{\n";
+				saveEICJson(myfile, eics[j] ); //save EICs
+				myfile << "}\n";
+				if ( j < ((eics.size() / grp.peaks.size())-1)) myfile << ",\n";
 		}
 		myfile << "]" << endl;
 		myfile << "}" << endl;
+        
+        if (i != (mavenParameters->allgroups.size()-1)){
+            myfile << ",";        	
+        }
+
 		delete_all(eics); //cleanup
 	}
+	myfile << "]";
+
 	myfile.close();
 }
 
-void saveEIC(ofstream& out, EIC* eic) {
+void saveEICJson(ofstream& out, EIC* eic) {
 	int N = eic->rt.size();
 	int count = 0;
 
-	out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\","
-			<< endl;
-	out << "\"data\": [";
-	out << setprecision(4);
-	for (int i = 0; i < N; i++) {
-		if (eic->intensity[i] > 0) {
-			if (count && i < N - 1)
-				out << ",";
-			out << "[" << eic->rt[i] << "," << eic->intensity[i] << "]";
-			count++;
-		};
-	}
-	out << "]\n";
+		out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
+		out << "\"data\": [";
+		out << setprecision(4);
+		for(int i=0; i<N; i++) { 
+				if (eic->intensity[i]>0) {
+					  if(count && i<N) out << ",";
+					  out << "[" << eic->rt[i] << "," <<  eic->intensity[i] << "]"; 
+					  count++;
+				};
+		}
+		out << "]\n"; 
 }
 
 vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
@@ -308,24 +357,30 @@ vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 void processOptions(int argc, char* argv[]) {
 
 	//command line options
-	const char * optv[] = { "a?alignSamples <int>",
-							"b?minGoodPeakCount <int>",
+	const char * optv[] = {
+							"a?alignSamples <int>",
+							"b?minGoodGroupCount <int>",
 							"c?matchRtFlag <int>",
 							"d?db <string>",
-							"e?processMassSlicesFlag",
+							"e?processAllSlices",
+							"f?pullIsotopes <int>",				//C13(1st bit), S34i(2nd bit), N15i(3rd bit), D2(4th bit)
 							"g:grouping_maxRtWindow <float>",
 							"h?help",
 							"i?minGroupIntensity <float>",
 							"m?model <string>",
+							"n?eicMaxGroups <int>",
 							"l?list  <string>",
 							"o?outputdir <string>",
 							"p?ppmMerge <float>",
 							"r?rtStepSize <float>",
+                            "s?savemzroll <int>",
 							"q:minQuality <float>",
+                            "v?ionizationMode <int>",
 							"w?minPeakWidth <int>",
 							"y?eicSmoothingWindow <int>",
 							"z:minSignalBaseLineRatio <float>",
-							NULL };
+							NULL 
+	};
 
 	//parse input options
 	Options opts(*argv, optv);
@@ -339,16 +394,32 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->alignSamplesFlag = true;
 			if (atoi(optarg) == 0) mavenParameters->alignSamplesFlag = false;
 			break;
-
+        case 'v' : 
+                    mavenParameters->ionizationMode = atoi(optarg);
+        case 'f' :
+                    mavenParameters->pullIsotopesFlag = 0;
+                    label = atoi(optarg);
+                    if (label > 0) {
+                        mavenParameters->pullIsotopesFlag = 1;
+                        if (label & 1) mavenParameters->C13Labeled = true; 
+                        if (label & 2) mavenParameters->S34Labeled = true; 
+                        if (label & 4) mavenParameters->N15Labeled = true; 
+                        if (label & 8) mavenParameters->D2Labeled  = true; 
+                    }
+                    
+                    break;
 		case 'b':
-			mavenParameters->minGoodPeakCount = atoi(optarg);
+			mavenParameters->minGoodGroupCount = atoi(optarg);
 			break;
 
 		case 'c':
-			mavenParameters->matchRtFlag = true;
+        	mavenParameters->compoundRTWindow=atof(optarg);
+            mavenParameters->matchRtFlag=true;
+            if(mavenParameters->compoundRTWindow==0) mavenParameters->matchRtFlag=false;
+            break;
 
 		case 'e':
-			mavenParameters->processMassSlicesFlag = true;
+			mavenParameters->processAllSlices = true;
 			break;
 
 		case 'h':
@@ -360,9 +431,19 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->minGroupIntensity = atof(optarg);
 			break;
 
+        case 'j' :
+        	saveJsonEIC=atoi(optarg);
+            break;
+
+        case 's':
+        	saveMzrollFile=atoi(optarg);
+
 		case 'y':
 			mavenParameters->eic_smoothingWindow = atoi(optarg);
 			break;
+
+        case 'n' :
+        	eicMaxGroups = atoi(optarg);
 
 		case 'g':
 			mavenParameters->grouping_maxRtWindow = atof(optarg);
@@ -434,8 +515,7 @@ void loadSamples(vector<string>&filenames) {
 			}
 		}
 	}
-	cerr << "loadSamples done: loaded " << mavenParameters->samples.size()
-			<< " samples\n";
+	cerr << "loadSamples done: loaded " << mavenParameters->samples.size() << " samples\n";
 }
 
 string cleanSampleName(string sampleName) {
@@ -580,8 +660,7 @@ void loadCompoundCSVFile(string filename){
 			loadCount++;
 		}
 	}
-	sort(mavenParameters->compounds.begin(), mavenParameters->compounds.end(),
-			Compound::compMass);
+	sort(mavenParameters->compounds.begin(), mavenParameters->compounds.end(), Compound::compMass);
     cout << "Loading compound list from file:" << dbname << " Found: " << loadCount << " compounds" << endl;
 	myfile.close();
 }
@@ -605,33 +684,53 @@ void loadCompoundCSVFile(string filename){
 // }
 
 void reduceGroups() {
-	sort(allgroups.begin(), allgroups.end(), PeakGroup::compMz);
-	cerr << "reduceGroups(): " << allgroups.size();
-	for (unsigned int i = 0; i < allgroups.size(); i++) {
-		PeakGroup& grp1 = allgroups[i];
-		for (unsigned int j = i + 1; j < allgroups.size(); j++) {
-			PeakGroup& grp2 = allgroups[j];
+	sort(mavenParameters->allgroups.begin(), mavenParameters->allgroups.end(), PeakGroup::compMz);
+	cerr << "reduceGroups(): " << mavenParameters->allgroups.size();
+	//init deleteFlag 
+	for(unsigned int i=0; i<mavenParameters->allgroups.size(); i++) {
+			mavenParameters->allgroups[i].deletedFlag=false;
+	}
 
-			float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
-					grp2.minRt, grp2.maxRt);
+	for(unsigned int i=0; i<mavenParameters->allgroups.size(); i++) {
+		PeakGroup& grp1 = mavenParameters->allgroups[i];
+        if(grp1.deletedFlag) continue;
+		for(unsigned int j=i+1; j<mavenParameters->allgroups.size(); j++) {
+			PeakGroup& grp2 = mavenParameters->allgroups[j];
+            if( grp2.deletedFlag) continue;
+
+			float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt, grp2.minRt, grp2.maxRt );
 			float ppmdist = ppmDist(grp2.meanMz, grp1.meanMz);
-			if (ppmdist > ppmMerge)
-				break;
+		    if ( ppmdist > ppmMerge ) break;
 
 			if (rtoverlap > 0.8 && ppmdist < ppmMerge) {
 				if (grp1.maxIntensity <= grp2.maxIntensity) {
-					allgroups.erase(allgroups.begin() + i);
-					i--;
-					break;
-				} else if (grp1.maxIntensity > grp2.maxIntensity) {
-					allgroups.erase(allgroups.begin() + j);
-					i--;
-					break;
+                     grp1.deletedFlag = true;
+					 //allgroups.erase(allgroups.begin()+i);
+					 //i--;
+					 break;
+				} else if ( grp1.maxIntensity > grp2.maxIntensity) {
+                     grp2.deletedFlag = true;
+					 //allgroups.erase(allgroups.begin()+j);
+					 //i--;
+					// break;
 				}
 			}
 		}
 	}
-	cerr << " done final group count(): " << allgroups.size() << endl;
+    int reducedGroupCount = 0;
+    vector<PeakGroup> allgroups_;
+    for(int i=0; i <mavenParameters->allgroups.size(); i++)
+    {
+        PeakGroup& grp1 = mavenParameters->allgroups[i];
+        if(grp1.deletedFlag == false)
+        {
+            allgroups_.push_back(grp1);
+            reducedGroupCount++;
+        }
+    }
+    printf("Reduced count of groups : %d \n",  reducedGroupCount);
+    mavenParameters->allgroups = allgroups_;
+	cerr << " done final group count(): " << mavenParameters->allgroups.size() << endl;
 }
 
 void writeReport(string setName) {
@@ -641,76 +740,170 @@ void writeReport(string setName) {
 	mzUtils::createDir(mavenParameters->outputdir.c_str());
 
 	cerr << "writeReport() " << mavenParameters->allgroups.size() << " groups ";
-//	if (reduceGroupsFlag)
-//		reduceGroups();
-	// saveEICs(mavenParameters->outputdir + setName + ".eics.json");
-	writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
+    double startGroupReduction = getTime();
+	if (reduceGroupsFlag) reduceGroups();
+    cerr << "\tExecution time (Group reduction) : %f seconds \n", getTime() - startGroupReduction;
+	if (saveJsonEIC)      saveEICsJson(outputdir + setName + ".eics.json");
+	if (saveMzrollFile == true)
+	{
+		double startSavingMzroll = getTime();
+		writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
+		printf("\tExecution time (Saving mzroll)   : %f seconds \n", getTime() - startSavingMzroll);
+	
+    }
+    double startSavingCSV = getTime();
 	writeCSVReport(mavenParameters->outputdir + setName + ".csv");
+    printf("\tExecution time (Saving CSV)      : %f seconds \n", getTime() - startSavingCSV);
 }
 
-void writeCSVReport(string filename) {
-	ofstream groupReport;
-	groupReport.open(filename.c_str());
-	if (!groupReport.is_open())
-		return;
+void writeCSVReport( string filename) {
+    ofstream groupReport;
+    groupReport.open(filename.c_str());
+    if(! groupReport.is_open()) return;
 
-	groupReport
-			<< "label,metaGroupId,groupId,goodPeakCount,medMz,medRt,maxQuality,note,compound,compoundId,expectedRtDiff,ppmDiff,parent";
-	for (unsigned int i = 0; i < mavenParameters->samples.size(); i++) {
-		groupReport << "," << mavenParameters->samples[i]->sampleName;
-	}
-	groupReport << endl;
+    int groupId=0;
+    int metaGroupId=0;
+    string SEP = csvFileFieldSeparator;
 
-	int groupId = 0;
 
-	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
-		PeakGroup* group = &(mavenParameters->allgroups[i]);
-		groupId = i;
+    groupReport << "label,metaGroupId,groupId,goodPeakCount,medMz,medRt,maxQuality,note,compound,compoundId,expectedRtDiff,ppmDiff,parent";
+    for(unsigned int i=0; i< mavenParameters->samples.size(); i++) { groupReport << "," << mavenParameters->samples[i]->sampleName; }
+    groupReport << endl;
 
-		vector<float> yvalues = group->getOrderedIntensityVector(mavenParameters->samples,
-				PeakGroup::AreaTop);    //areatop
-		//if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+    for (int i=0; i < mavenParameters->allgroups.size(); i++ ) {
+        PeakGroup* group = &mavenParameters->allgroups[i];
 
-		string tagString = group->srmId + group->tagString;
-		tagString = mzUtils::substituteInQuotedString(tagString, "\",'", "---");
-		char label[2];
-		sprintf(label, "%c", group->label);
+        //if compound is unknown, output only the unlabeled form information
+        if( group->compound == NULL || group->childCount() == 0 ) {
+            group->groupId= ++groupId;
+            group->metaGroupId= ++metaGroupId;
+            writeGroupInfoCSV(group,groupReport);
+        } else { //output all relevant isotope info otherwise
+            group->groupId = group->children[0].groupId = ++groupId;
+            group->metaGroupId = group->children[0].metaGroupId= ++metaGroupId;
+            writeGroupInfoCSV( &group->children[0],groupReport); //C12 info
 
-		groupReport << label << "," << setprecision(7) << group->metaGroupId
-				<< "," << groupId << "," << group->goodPeakCount << ", "
-				<< group->meanMz << "," << group->meanRt << ","
-				<< group->maxQuality << "," << tagString;
+            string formula = group->compound->formula;
+            vector<Isotope> masslist = mcalc.computeIsotopes(formula, mavenParameters->ionizationMode);
+            for( int i=0; i<masslist.size(); i++ ) {
+            Isotope& x = masslist[i];
+            string isotopeName = x.name;
 
-		string compoundName;
-		string compoundID;
-		float expectedRtDiff = 0;
-		float ppmDist = 0;
+            if( 
+                    (isotopeName.find("C13-label")!=string::npos  && mavenParameters->C13Labeled) || 
+                    (isotopeName.find("N15-label")!=string::npos  && mavenParameters->N15Labeled) || 
+                    (isotopeName.find("S34-label")!=string::npos  && mavenParameters->S34Labeled) || 
+                    (isotopeName.find("D2-label")!=string::npos  && mavenParameters->D2Labeled)  
+                    
+            ) {
+                int counter=0;
+                    for (unsigned int k=0; k<group->children.size() && counter==0; k++) { //output non-zero-intensity peaks
+                        PeakGroup* subgroup = &group->children[k];
+                        if( subgroup->tagString == isotopeName ) {
+                            subgroup->metaGroupId = group->metaGroupId;
+                            subgroup->groupId= ++groupId;
+                            counter=1;
+                            writeGroupInfoCSV(subgroup,groupReport);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-		if (group->compound != NULL) {
-			compoundName = mzUtils::substituteInQuotedString(
-					group->compound->name, "\",'", "---");
-			compoundID = group->compound->id;
-			ppmDist = mzUtils::ppmDist((double) group->compound->mass,
-					(double) group->meanMz);
-			expectedRtDiff = group->expectedRtDiff;
-		}
-
-		groupReport << "," << compoundName;
-		groupReport << "," << compoundID;
-		groupReport << "," << expectedRtDiff;
-		groupReport << "," << ppmDist;
-
-		if (group->parent != NULL) {
-			groupReport << "," << group->parent->meanMz;
-		} else {
-			groupReport << "," << group->meanMz;
-		}
-
-		for (unsigned int j = 0; j < samples.size(); j++)
-			groupReport << "," << yvalues[j];
-		groupReport << endl;
-	}
+    if(groupReport.is_open()) groupReport.close();
 }
+
+QString sanitizeString(const char* s,const char* SEP) {
+    QString out=s;
+    out.replace("\"","\"\"");
+    if(out.contains(SEP)){
+        out="\""+out+"\"";
+    }
+    return out;
+}
+
+void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport) {
+    if(! groupReport.is_open()) return;
+    string SEP = csvFileFieldSeparator;
+    PeakGroup::QType qtype = quantitationType;
+    vector<float> yvalues = group->getOrderedIntensityVector(samples,qtype);
+    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+
+    string tagString = group->srmId + group->tagString;
+    tagString=sanitizeString(tagString.c_str(),SEP.c_str()).toStdString();
+    char label[2];
+    sprintf(label,"%c",group->label);
+
+    groupReport << label << SEP
+                << setprecision(7)
+                << group->metaGroupId << SEP
+                << group->groupId << SEP
+                << group->goodPeakCount << SEP
+                << group->meanMz << SEP
+                << group->meanRt << SEP
+                << group->maxQuality << SEP
+                << tagString;
+
+    string compoundName;
+    string compoundID;
+    float  expectedRtDiff=1000;
+    float  ppmDist=1000;
+
+    if ( group->hasCompoundLink() ) {
+        Compound* c = group->compound;
+        compoundID = c->id;
+        if (group->tagString.length()) { 
+            cout << "TRUE" << group->tagString.c_str() << group->tagString.length() << endl;
+            compoundID = compoundID + " [" + group->tagString.c_str() + "]";
+        }
+
+        compoundID = sanitizeString(compoundID.c_str(),SEP.c_str()).toStdString();
+    }
+
+    if ( group->compound != NULL or group->parent != NULL ) {
+        Compound* c = group->compound;
+        compoundName = sanitizeString(c->name.c_str(),SEP.c_str()).toStdString();
+        //compoundID =  c->id;
+        double mass =c->mass;
+        if (!c->formula.empty()) {
+            float formula_mass =  mcalc.computeMass(c->formula,mavenParameters->ionizationMode);
+            if(formula_mass) mass=formula_mass;
+        }
+        ppmDist = mzUtils::ppmDist(mass,(double) group->meanMz);
+        expectedRtDiff = c->expectedRt-group->meanRt;
+
+    }
+
+    groupReport << SEP << compoundName;
+    groupReport << SEP << compoundID;
+    
+    Compound* c = group->compound;
+    if (c->expectedRt == 0 or c->expectedRt == NULL){ // If there is 0 or unspecified rt value
+        groupReport << SEP;                           // then the expectedRtDiff field would
+    }                                                 // be empty (blank)
+    else{
+        groupReport << SEP << expectedRtDiff;
+    }
+
+    groupReport << SEP << ppmDist;
+
+    if ( group->parent != NULL ) {
+        groupReport << SEP << group->parent->meanMz;
+    } else {
+        groupReport << SEP << group->meanMz;
+    }
+
+    for( unsigned int j=0; j < mavenParameters->samples.size(); j++) groupReport << SEP <<  yvalues[j];
+    groupReport << endl;
+
+    /*for (unsigned int k=0; k < group->children.size(); k++) {
+        group->children[k].metaGroupId = group->metaGroupId;
+        writeGroupInfoCSV(&group->children[k]);
+        //writePeakInfo(&group->children[k]);
+    }*/
+}
+
 
 void writeSampleListXML(xml_node& parent) {
 	xml_node samplesset = parent.append_child();
@@ -764,7 +957,7 @@ void writeParametersXML(xml_node& parent) {
 			mavenParameters->eic_smoothingWindow;
 	p.append_attribute("grouping_maxRtWindow") =
 			mavenParameters->grouping_maxRtWindow;
-	p.append_attribute("minGoodPeakCount") = mavenParameters->minGoodPeakCount;
+	p.append_attribute("minGoodGroupCount") = mavenParameters->minGoodGroupCount;
 	p.append_attribute("minSignalBlankRatio") =
 			mavenParameters->minSignalBlankRatio;
 	p.append_attribute("minPeakWidth") = mavenParameters->minNoNoiseObs;
@@ -848,4 +1041,15 @@ void writeGroupXML(xml_node& parent, PeakGroup* g) {
 			writeGroupXML(group, child);
 		}
 	}
+}
+double get_wall_time(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+double get_cpu_time(){
+    return (double)getTime() / CLOCKS_PER_SEC;
 }
