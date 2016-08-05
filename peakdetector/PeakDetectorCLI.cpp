@@ -827,7 +827,7 @@ void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport) {
     if(! groupReport.is_open()) return;
     string SEP = csvFileFieldSeparator;
     PeakGroup::QType qtype = quantitationType;
-    vector<float> yvalues = group->getOrderedIntensityVector(samples,qtype);
+    vector<float> yvalues = group->getOrderedIntensityVector(mavenParameters->samples,qtype);
     //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
