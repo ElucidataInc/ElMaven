@@ -210,7 +210,7 @@ void PathwayWidget::checkCompoundExistance() {
 		mavenParameters->compoundPPMWindow = mw->getUserPPM();
 		workerThread->setRunFunction("computePeaks");
 
-		mavenParameters->minGoodPeakCount = 1;
+		mavenParameters->minGoodGroupCount = 1;
 		mavenParameters->minSignalBlankRatio = 2;
 		mavenParameters->minSignalBaseLineRatio = 2;
 		mavenParameters->minNoNoiseObs = 2;

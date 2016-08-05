@@ -210,7 +210,7 @@ void PeakDetectionDialog::findPeaks() {
         //Match Retension Times this is used in Peakdetection with DB
         mavenParameters->matchRtFlag = matchRt->isChecked();
         //Min. Good Peaks/Groups in numbers
-        mavenParameters->minGoodPeakCount = minGoodGroupCount->value();
+        mavenParameters->minGoodGroupCount = minGoodGroupCount->value();
         //Min. Peak Width
         mavenParameters->minNoNoiseObs = minNoNoiseObs->value();
         //Min.Signal/ Baseline Ratio in numbers

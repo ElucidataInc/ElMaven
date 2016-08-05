@@ -5,7 +5,7 @@ MavenParameters::MavenParameters() {
         clsf = NULL; //initially classifier is not loaded
 
         alignSamplesFlag = false;
-        processMassSlicesFlag = false;
+        processAllSlices = false;
         pullIsotopesFlag = false;
         matchRtFlag = false;
         checkConvergance = false;
@@ -34,7 +34,7 @@ MavenParameters::MavenParameters() {
         grouping_maxRtWindow = 0.5;
 
         //peak filtering criteria
-        minGoodPeakCount = 1;
+        minGoodGroupCount = 1;
         minSignalBlankRatio = 2;
         minNoNoiseObs = 1;
         minSignalBaseLineRatio = 2;
@@ -100,11 +100,12 @@ void MavenParameters::printSettings() {
         cerr << "#grouping_maxRtWindow=" << grouping_maxRtWindow << endl;
 
 //peak filtering criteria
-        cerr << "#minGoodPeakCount=" << minGoodPeakCount << endl;
+        cerr << "#minGoodGroupCount=" << minGoodGroupCount << endl;
         cerr << "#minSignalBlankRatio=" << minSignalBlankRatio << endl;
         cerr << "#minNoNoiseObs=" << minNoNoiseObs << endl;
         cerr << "#minSignalBaseLineRatio=" << minSignalBaseLineRatio << endl;
         cerr << "#minGroupIntensity=" << minGroupIntensity << endl;
+
 
 //compound detection setting
         cerr << "#compoundPPMWindow=" << compoundPPMWindow << endl;

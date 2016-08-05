@@ -20,7 +20,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThread->setMainWindow(mw);
 
 	MavenParameters* mavenParameters = mw->mavenParameters;
-	mavenParameters->minGoodPeakCount = 1;
+	mavenParameters->minGoodGroupCount = 1;
 	mavenParameters->minSignalBlankRatio = 2;
 	mavenParameters->minSignalBaseLineRatio = 2;
 	mavenParameters->minNoNoiseObs = 2;

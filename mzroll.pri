@@ -14,8 +14,13 @@ DEFINES += INSTALL_LIBDIR=\\\"$$INSTALL_LIBDIR\\\"
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wall -Wno-sign-compare
 QMAKE_CXXFLAGS_DEBUG   += -O2 -g -Wall -Wno-sign-compare
 
+QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_LFLAGS_DEBUG += -pg
+
+
+
 QT += core
-CONFIG += silent exceptions
+CONFIG += silent exceptions debug
 OBJECTS_DIR = tmp
 MOC_DIR = tmp
 UI_DIR   =  tmp

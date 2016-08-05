@@ -1390,7 +1390,7 @@ void MainWindow::Align() {
 				"eic_smoothingWindow").toInt();
 	}
 
-	mavenParameters->minGoodPeakCount =
+	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();
 	mavenParameters->limitGroupCount =
 			alignmentDialog->limitGroupCount->value();

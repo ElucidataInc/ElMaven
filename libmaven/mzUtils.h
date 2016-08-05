@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include "statistics.h"
 #include "SavGolSmoother.h"
+#include "csvparser.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -330,6 +331,8 @@ string makeLowerCase(string &s);
  * @param  v     []
  */
 void split(const string& s, char c, vector<string>& v);
+
+void splitNew(const string& s, const string& c, vector<string>& v);
 
 /**
  * [mystrcasestr ]

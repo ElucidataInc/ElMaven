@@ -72,3 +72,7 @@ maven_opensource.kdev4
 .jsbeautifyrc
 .mzroll
 
+#Visual Studio Code
+*.browse.VC.db
+*.browse.VC.db-shm
+*.browse.VC.db-wal

@@ -11,7 +11,6 @@ BackgroundPeakUpdate::~BackgroundPeakUpdate() {
         mavenParameters->cleanup(); //remove allgroups
 }
 
-
 /**
  * BackgroundPeakUpdate::run This function starts the thread. This function is
  * called by start() internally in QTThread. start() function will be called

@@ -28,6 +28,23 @@ void split(const string& s, char c, vector<string>& v) {
     if ( v.size() == 0) v.push_back(s);
 }
 
+void splitNew(const string& s, const string& c, vector<string>& v){
+
+    const char *whole_row = s.c_str();
+     const char *del = c.c_str();
+
+    CsvParser *csvparser = CsvParser_new_from_string(whole_row, del, 0);
+
+    CsvRow *row;
+
+    row = CsvParser_getRow(csvparser);
+    const char **rowFields = CsvParser_getFields(row);
+    for (int i = 0 ; i < CsvParser_getNumFields(row) ; i++) {
+        v.push_back(rowFields[i]);
+    }
+}
+
+
 char *mystrcasestr(const char *s1, const char *s2) {
 	register const char *s = s1;
 	register const char *p = s2;

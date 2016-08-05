@@ -448,7 +448,6 @@ void PeakDetector::alignSamples() {
 
 void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
-        std::cerr << "This is happening <<<<<<<<<<<<<<" << std::endl;
         if (slices.size() == 0)
                 return;
         mavenParameters->allgroups.clear();
@@ -545,7 +544,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 group.groupStatistics();
                         }
                         if (mavenParameters->clsf->hasModel()
-                            && group.goodPeakCount < mavenParameters->minGoodPeakCount)
+                            && group.goodPeakCount < mavenParameters->minGoodGroupCount)
                                 continue;
                         if (mavenParameters->clsf->hasModel()
                             && group.maxQuality < mavenParameters->minQuality)
@@ -632,7 +631,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
         qDebug() << "processSlices() Groups=" << groupCount;
         qDebug() << "processSlices() Peaks=" << peakCount;
         qDebug() << "processSlices() done. " << timer.elapsed() << " sec.";
-//cleanup();
+        //cleanup();
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grp1) {

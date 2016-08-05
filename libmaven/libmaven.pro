@@ -7,15 +7,18 @@ TEMPLATE=lib
 CONFIG += staticlib warn_on console silent
 
 #Faster build + C++11 ++ OpenMP
+
+QMAKE_CFLAGS_RELEASE += -fopenmp
+QMAKE_CFLAGS_DEBUG += -fopenmp
+
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
-QMAKE_CXXFLAGS += -g -DOMP_PARALLEL -fopenmp
-LIBS += -fopenmp
+QMAKE_CXXFLAGS += -g -DOMP_PARALLEL
 
 TARGET = maven
 
-LIBS += -L.
+LIBS += -L. -lcsvparser
 
-INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/
+INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/ ../libcsvparser
 
 SOURCES = 		base64.cpp \
                 mzMassCalculator.cpp \

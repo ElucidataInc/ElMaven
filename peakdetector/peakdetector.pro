@@ -3,24 +3,24 @@ include(../mzroll.pri)
 TEMPLATE = app
 TARGET = peakdetector
 DESTDIR = ../bin
-CONFIG += warn_off xml
+CONFIG += warn_off xml 
 
 QT -= network gui opengl 
 CONFIG -= network gui opengl 
 
-INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/
+INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/ ../libcsvparser
 
 LDFLAGS     +=  $$OUTPUT_DIR/lib
 
-LIBS += -L.  -lmaven -lpugixml -lneural
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser
 
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \
-			../mzroll/classifier.cpp \  
-			../mzroll/classifierNeuralNet.cpp\
+			../libmaven/classifier.cpp \  
+			../libmaven/classifierNeuralNet.cpp\
 
-HEADERS += 	../mzroll/classifier.h \
-			../mzroll/classifierNeuralNet.h \
+HEADERS += 	../libmaven/classifier.h \
+			../libmaven/classifierNeuralNet.h \
 			options.h
 
 
