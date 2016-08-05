@@ -19,6 +19,7 @@ class compare_output():
             sys.exit('You need 2 or more outputs to compare')
 
         list_of_dfs = self.get_list_of_dfs(list_builds)
+        self.summary += '1. Total numer of peaks found by maven v769 is %d and by maven v776 is %d\n' %(len(list_of_dfs[0].index), len(list_of_dfs[1].index))
         lists_of_compounds = self.get_lists_of_compounds(list_of_dfs)
         unique_list_of_compounds = helper.get_intersection_of_list(lists_of_compounds)
 
@@ -41,7 +42,7 @@ class compare_output():
 
         df1 = list_of_dfs_with_same_mz_rt[0]
         df2 = list_of_dfs_with_same_mz_rt[1]
-
+        number_r2 = 0
         for i in xrange(len_of_df):
             df_1 = list_of_dfs_with_same_mz_rt[0].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
             df_2 = list_of_dfs_with_same_mz_rt[1].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
@@ -49,9 +50,13 @@ class compare_output():
             df_2 = [float(i) for i in df_2]
             slope, intercept, r_value, p_value, std_err = stats.linregress(df_1,df_2)
             r2_value = round(r_value ** 2,3)
+            if r2_value > 0.5:
+                number_r2 += 1
             list_of_r2_values.append(r2_value)
-
-
+        
+        self.summary += '3. The total numer of peaks with same mz & rt are %d\n' %(len(list_of_r2_values))
+        self.summary += '4. Out of this %d peaks, %d number of peaks has r-square greater than 0.5\n' %(len(list_of_r2_values), number_r2)
+        helper.export_file(self.summary, config.variables.path_summary_of_results)
         df1 = df1[['compound', 'medMz', 'medRt']]
         df2 = df2[['compound', 'medMz', 'medRt']]
         df1.columns = ['compound_1', 'medMz_1', 'medRt_1']
@@ -172,6 +177,8 @@ class compare_output():
 
         SEP = ','
         csv_output = "Compounds, Compounds (769), compounds (776)\n"
+
+        self.summary += '2. Out of the total %d compounds found by both the versions, v769 found %d compounds and v776 found %d compounds\n' %(len(c), len(a), len(b))
 
         for i in c:
 
