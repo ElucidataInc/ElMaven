@@ -443,7 +443,7 @@ void processOptions(int argc, char* argv[]) {
 			break;
 
         case 'n' :
-        	eicMaxGroups = atoi(optarg);
+        	mavenParameters->eicMaxGroups = atoi(optarg);
 
 		case 'g':
 			mavenParameters->grouping_maxRtWindow = atof(optarg);
