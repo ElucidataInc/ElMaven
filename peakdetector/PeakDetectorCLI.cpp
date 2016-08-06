@@ -419,7 +419,7 @@ void processOptions(int argc, char* argv[]) {
             break;
 
 		case 'e':
-			mavenParameters->processAllSlices = true;
+			mavenParameters->processAllSlices = atoi(optarg);
 			break;
 
 		case 'h':
