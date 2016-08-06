@@ -9,7 +9,7 @@ def get_list_of_files_in_directory(path_to_directory, extension):
     for file in os.listdir(path_to_directory):
         if file.endswith(extension):
             list_of_files.append(join(path_to_directory, file))
-    print list_of_files
+
     return list_of_files
 
 def get_dict_of_attributes_in_class(class_object):
