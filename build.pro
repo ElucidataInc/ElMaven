@@ -11,25 +11,5 @@ SUBDIRS +=	\
 		pugixml/src \
 		libmaven \
     	mzroll \
-        peakdetector
-
-test {
-	message(Test build)
-	TEMPLATE = app
-	TARGET = MavenTests
-	DESTDIR = .
-	QT += testlib core
-	CONFIG += qtestlib
-	INCLUDEPATH += MavenTests
-
-	# Input
-	HEADERS += \
-        MavenTests/testEIC.h
-
-	SOURCES += \
-        MavenTests/main.cpp \
-        MavenTests/testEIC.cpp
-
-} else  {
-	message(Normal build)
-}
+        peakdetector \
+        MavenTests

@@ -1,4 +1,5 @@
 #include <QtTest>
+#include <QApplication>
 #include "testEIC.h"
 
 int main(int argc, char** argv) {

@@ -1,7 +1,9 @@
 #ifndef TESTEIC_H
 #define TESTEIC_H
-
+#include <iostream>
 #include <QtTest>
+#include <string>
+#include <sstream>
 
 class TestEIC : public QObject {
     Q_OBJECT
