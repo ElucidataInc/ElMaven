@@ -1,5 +1,6 @@
 
 import os
+import sys
 from helper import helper
 from config import config
 class run_peakdetector():
@@ -58,7 +59,7 @@ class run_peakdetector():
                 dict_of_constants['pullIsotopes'] = 0
             else:
                 dict_of_constants['pullIsotopes'] = 15
-        else if run_function in (2,4):
+        elif run_function in (2,4):
 
             dict_of_constants.pop("db", None)
             dict_of_constants['processAllSlices'] = 1
@@ -66,7 +67,13 @@ class run_peakdetector():
                 dict_of_constants['pullIsotopes'] = 0
             else:
                 dict_of_constants['pullIsotopes'] = 15
-
+        else:
+            sys.exit("Wrong configuration selected\n" \
+                     "run_function can be following:\n" \
+                     "run_function = 1 (processCompounds)\n" \
+                     "run_function = 2 (processAllSlices)\n" \
+                     "run_function = 3 (processCompounds & pullIsotopes)\n"\
+                     "run_function = 4 (processAllSlices & pullIsotopes)\n")
 
 
 run_peakdetector = run_peakdetector()
