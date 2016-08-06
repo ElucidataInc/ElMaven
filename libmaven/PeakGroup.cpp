@@ -195,42 +195,43 @@ bool PeakGroup::deleteChild(PeakGroup* child ) {
         return false;
 }
 
-//return intensity vectory ordered by samples
+//return intensity vectory ordered by samples 
 vector<float> PeakGroup::getOrderedIntensityVector(vector<mzSample*>& samples, QType type) {
 
-        if (samples.size() == 0) { vector<float>x; return x; } //empty vector;
+    if (samples.size() == 0) { vector<float>x; return x; } //empty vector;
 
-        map<mzSample*,float> sampleOrder;
-        vector<float>maxIntensity(samples.size(),0);
+    map<mzSample*,float> sampleOrder;
+    vector<float>maxIntensity(samples.size(),0);
 
-        for( unsigned int j=0; j < samples.size(); j++) {
-                sampleOrder[samples[j]]=j;
-                maxIntensity[j]=0;
+    for( unsigned int j=0; j < samples.size(); j++) {
+        sampleOrder[samples[j]]=j;
+        maxIntensity[j]=0;
+    }
+
+    for( unsigned int j=0; j < peaks.size(); j++) {
+        Peak& peak = peaks.at(j);
+        mzSample* sample = peak.getSample();
+
+        if ( sampleOrder.count(sample) > 0 ) {
+            int s  = sampleOrder[ sample ];
+            float y = 0;
+            switch (type)  {
+            case AreaTop: y = peak.peakAreaTop; break;
+            case Area: y = peak.peakAreaCorrected; break;
+            case Height: y = peak.peakIntensity; break;
+            case AreaNotCorrected: y = peak.peakArea; break;
+            case RetentionTime: y = peak.rt; break;
+            case Quality: y = peak.quality; break;
+            case SNRatio: y = peak.signalBaselineRatio; break;
+            default: y = peak.peakAreaTop; break;
+            }
+
+            //normalize
+            if(sample) y *= sample->getNormalizationConstant();
+            if(maxIntensity[s] < y) { maxIntensity[s] = y; }
         }
-
-        for( unsigned int j=0; j < peaks.size(); j++) {
-                Peak& peak = peaks.at(j);
-                mzSample* sample = peak.getSample();
-
-                if ( sampleOrder.count(sample) > 0 ) {
-                        int s  = sampleOrder[ sample ];
-                        float y = 0;
-                        switch (type)  {
-                        case AreaTop: y = peak.peakAreaTop; break;
-                        case Area: y = peak.peakAreaCorrected; break;
-                        case Height: y = peak.peakIntensity; break;
-                        case RetentionTime: y = peak.rt; break;
-                        case Quality: y = peak.quality; break;
-                        case SNRatio: y = peak.signalBaselineRatio; break;
-                        default: y = peak.peakAreaTop; break;
-                        }
-
-                        //normalize
-                        if(sample) y *= sample->getNormalizationConstant();
-                        if(maxIntensity[s] < y) { maxIntensity[s] = y; }
-                }
-        }
-        return maxIntensity;
+    }
+    return maxIntensity;
 }
 
 void PeakGroup::computeAvgBlankArea(const vector<EIC*>& eics) {
@@ -360,7 +361,7 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
         }
 
         peaks.clear();
-        for( itr = maxPeaks.begin(); itr != maxPeaks.end(); itr++ ) {
+        for( itr = maxPeaks.begin(); itr != maxPeaks.end(); ++itr ) {
                 const Peak& peak = (*itr).second;
                 addPeak(peak);
         }

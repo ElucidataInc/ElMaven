@@ -419,7 +419,7 @@ void processOptions(int argc, char* argv[]) {
             break;
 
 		case 'e':
-			mavenParameters->processAllSlices = true;
+			mavenParameters->processAllSlices = atoi(optarg);
 			break;
 
 		case 'h':
@@ -443,7 +443,7 @@ void processOptions(int argc, char* argv[]) {
 			break;
 
         case 'n' :
-        	eicMaxGroups = atoi(optarg);
+        	mavenParameters->eicMaxGroups = atoi(optarg);
 
 		case 'g':
 			mavenParameters->grouping_maxRtWindow = atof(optarg);
@@ -827,7 +827,7 @@ void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport) {
     if(! groupReport.is_open()) return;
     string SEP = csvFileFieldSeparator;
     PeakGroup::QType qtype = quantitationType;
-    vector<float> yvalues = group->getOrderedIntensityVector(samples,qtype);
+    vector<float> yvalues = group->getOrderedIntensityVector(mavenParameters->samples,qtype);
     //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
