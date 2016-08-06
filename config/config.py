@@ -48,7 +48,7 @@ class constants():
 		self.minGoodGroupCount = 3
 		self.eicSmoothingWindow = 12
 		self.rtStepSize = 10
-
+		self.processAllSlices = 0
 
 class variables():
 
