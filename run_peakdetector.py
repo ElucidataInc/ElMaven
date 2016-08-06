@@ -34,7 +34,9 @@ class run_peakdetector():
         command_line_script += command_line_paths
 
 
-        dict_of_constants = helper.get_dict_of_attributes_in_class(constants)
+        dict_of_constants = helper.get_dict_of_attributes_in_class(constants)        
+        dict_of_constants = self.set_run_function(dict_of_constants)
+
         command_line_constants = helper.convert_dict_to_command_line_arguments(dict_of_constants)
         command_line_script += command_line_constants
 
@@ -42,5 +44,29 @@ class run_peakdetector():
         for mzxml_file in list_of_mzxml_files:
             command_line_script += " " + mzxml_file
         return command_line_script
+
+    def set_run_function(self, dict_of_constants):
+
+        run_function = config.variables.run_function
+        if run_function in (1,3):
+            if 'db' in dict_of_constants:
+                pass
+            else:
+                sys.exit("No Database found")
+
+            if run_function in 1:
+                dict_of_constants['pullIsotopes'] = 0
+            else:
+                dict_of_constants['pullIsotopes'] = 15
+        else if run_function in (2,4):
+
+            dict_of_constants.pop("db", None)
+            dict_of_constants['processAllSlices'] = 1
+            if run_function in 2:
+                dict_of_constants['pullIsotopes'] = 0
+            else:
+                dict_of_constants['pullIsotopes'] = 15
+
+
 
 run_peakdetector = run_peakdetector()
