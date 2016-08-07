@@ -67,6 +67,24 @@ void mzSample::addScan(Scan*s ) {
         s->scannum=scans.size()-1;
 }
 
+string mzSample::getFileName(const string& filename) {
+        
+        char sep = '/';
+        #ifdef _WIN32
+                sep = '\\';
+        #endif
+        
+        size_t i = filename.rfind(sep, filename.length());
+        
+        if (i != string::npos) {
+            string fullname = filename.substr(i+1, filename.length() - i) ;
+            return(fullname.substr(0, fullname.find_last_of("."))); 
+
+        }
+
+   return("");
+}
+
 void mzSample::loadSample(const char* filename) {
         if (mystrcasestr(filename,"mzCSV") != NULL ) {
                 parseMzCSV(filename);
@@ -89,8 +107,10 @@ void mzSample::loadSample(const char* filename) {
 
         //check if this is a blank sample
         string filenameString = string(filename);
+        this->sampleName = getFileName(filenameString);
         this->fileName = filenameString;
         makeLowerCase(filenameString);
+
         if ( filenameString.find("blan") != string::npos) {
                 this->isBlank = true;
                 cerr << "Found Blank: " << filenameString << endl;
@@ -418,21 +438,39 @@ void mzSample::parseMzXML(const char* filename) {
         xml_document doc;
         try {
 
+                /** parse_minimal has all options turned off. This option mask means 
+                 * that pugixml does not add declaration nodes, document type declaration 
+                 * nodes, PI nodes, CDATA sections and comments to the resulting tree and
+                 * does not perform any conversion for input data, so theoretically it is
+                 * the fastest mode
+                **/
                 bool loadok = doc.load_file(filename,pugi::parse_minimal);
 
+                //Checking if the file can be loaded if it can be loaded
                 if (!loadok ) {
                         cerr << "Failed to load " << filename << endl;
                         return;
                 }
 
-                //Get a spectrumstore node
+                //"msRun" is the first child of the parent child "mzXML"
                 xml_node spectrumstore = doc.first_child().child("msRun");
+
+                //Checking if the node is empty which means that msRun is not there
+                //but then it might have scan which contain the data 
                 if (spectrumstore.empty()) {
+                        //Getting the first child named "scan"
                         xml_node scan = doc.first_child().child("scan");
-                        if(!scan.empty()) { spectrumstore=doc.first_child(); }
-                        else { cerr << "parseMzXML: can't find <msRun> or <scan> section" << endl; return; }
+                        //If scan is not present then there is no data
+                        // which means that there is no information in the
+                        //mzXML file
+                        if(!scan.empty()) {
+                                spectrumstore=doc.first_child(); 
+                        } else { 
+                                cerr << "parseMzXML: can't find <msRun> or <scan> section" << endl; return; 
+                        }
                 }
 
+                //Getting the instrument related information
                 xml_node msInstrument = spectrumstore.child("msInstrument");
                 if (!msInstrument.empty()) {
                         xml_node msManufacturer = msInstrument.child("msManufacturer");
@@ -522,6 +560,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
                 }
         }
 
+        //TODO: WHat is this for this is zero
         precursorMz = string2float(string(scan.child_value("precursorMz")));
         //cout << "precursorMz=" << precursorMz << endl;
 
@@ -551,7 +590,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
                          */
                 }
 #endif
-
+                //mslevel is hard coded to 1 if the mslevel is > 0
                 if (msLevel <= 0 ) msLevel=1;
                 Scan* _scan = new Scan(this,scannum,msLevel,rt,precursorMz,scanpolarity);
 

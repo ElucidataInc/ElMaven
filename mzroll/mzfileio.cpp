@@ -63,16 +63,6 @@ mzSample* mzFileIO::loadSample(QString filename){
     qDebug() << "loadSample time (msec) = " << timer.elapsed();
 
     if ( sample && sample->scans.size() > 0 ) {
-        sample->sampleName = string( sampleName.toLatin1().data() );
-        sample->enumerateSRMScans();
-
-        //set min and max values for rt
-        sample->calculateMzRtRange();
-
-        //set file path
-        sample->fileName = filename.toStdString();
-
-        if (filename.contains("blan",Qt::CaseInsensitive)) sample->isBlank = true;
         return sample;
     }
 
@@ -334,26 +324,17 @@ void mzFileIO::fileImport(void) {
     if ( filelist.size() == 0 ) return;
     emit (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
 
-    #pragma omp parallel for
+    #pragma omp parallel for ordered
     for (int i = 0; i < filelist.size(); i++) {
+       
         QString filename = filelist.at(i);
-
-	//#pragma omp ordered
+        #pragma omp ordered
         emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
 	
         if(_mainwindow) {
             qDebug() << "Loading sample:" << filename;
-            mzSample* sample = this->loadSample(filename);
-            if (sample) {
-                sample->enumerateSRMScans();
-                //set min and max values for rt
-                sample->calculateMzRtRange();
-                //check if this is a blank sample
-                sample->fileName = filename.toStdString();
-                if ( filename.contains("blan",Qt::CaseInsensitive)) sample->isBlank = true;
-                if (sample->scans.size()>0) _mainwindow->addSample(sample);
-
-            }
+            mzSample* sample = loadSample(filename);
+            _mainwindow->addSample(sample);
         }
     }
    emit (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
