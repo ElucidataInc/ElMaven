@@ -203,68 +203,52 @@ void PeakDetectionDialog::findPeaks() {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow");
         
         //Drop top x% intensities from chromatogram in percentage
-        mavenParameters-> = ->value();
         settings->setValue("baseline_dropTopX",baseline_quantile->value());
         mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX");
         //This is present in both peakdetection and options diolog box
         //This is EIC Smoothing in scans
-        mavenParameters->eic_smoothingWindow = ->value();
         settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
         mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow");
         //Peak grouping (Max Group Rt Difference)
-        mavenParameters-> = ->value();
         settings->setValue("grouping_maxRtWindow",grouping_maxRtDiff->value());
         mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow");
         //Match Retension Times this is used in Peakdetection with DB
-        mavenParameters-> = ->isChecked();
         settings->setValue("matchRtFlag",matchRt->isChecked());
         mavenParameters->matchRtFlag = settings->value("matchRtFlag");
         //Min. Good Peaks/Groups in numbers
-        mavenParameters-> = ->value();
         settings->setValue("minGoodGroupCount",minGoodGroupCount->value());
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount");
         //Min. Peak Width
-        mavenParameters-> = ->value();
         settings->setValue("minNoNoiseObs",minNoNoiseObs->value());
         mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs");
         //Min.Signal/ Baseline Ratio in numbers
-        mavenParameters-> = ->value();
         settings->setValue("minSignalBaseLineRatio",sigBaselineRatio->value());
         mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio");
         //Min. Signal/ Blank Ratio
-        mavenParameters-> = ->value();
         settings->setValue("minSignalBlankRatio",sigBlankRatio->value());
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio");
         //Min. Group Intensity
-        mavenParameters-> = ->value();
         settings->setValue("minGroupIntensity",minGroupIntensity->value());
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity");
         //Report Isotopic Peaks this is used in finding peaks with DB
-        mavenParameters-> = ->isChecked();
         settings->setValue("pullIsotopesFlag",reportIsotopes->isChecked());
         mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag");
         //Mass domain Resolution (ppm)
-        mavenParameters-> = ->value();
         settings->setValue("ppmMerge",ppmStep->value());
         mavenParameters->ppmMerge = settings->value("ppmMerge");
         //EIC Extraction window +/- PPM
-        mavenParameters-> = ->value();
         settings->setValue("compoundPPMWindow",compoundPPMWindow->value());
         mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow"); //convert to half window units.
         //Compound Retention Time Matching Window
-        mavenParameters-> = ->value();
         settings->setValue("compoundRTWindow",compoundRTWindow->value());
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow");
         //Limit the number of reported groups per compound
-        mavenParameters-> = eicMaxGroups->value();
         settings->setValue("eicMaxGroups",eicMaxGroups->value());
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups");
         //TODO: what is this?
-        mavenParameters-> = ;
         settings->setValue("avgScanTime",samples[0]->getAverageFullScanTime());
         mavenParameters->avgScanTime = settings->value("avgScanTime");
         //Time domain resolution(scans)
-        mavenParameters-> = ->value();
         settings->setValue("rtStepSize",rtStep->value());
         mavenParameters->rtStepSize = settings->value("rtStepSize");
         //Pointing the output directory
