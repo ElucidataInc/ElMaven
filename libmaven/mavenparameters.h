@@ -171,9 +171,6 @@ public:
 	vector<mzSample*> samples;
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
-
-private:
-
 	/**
 	 * [print parameter Settings]
 	 * @method printSettings

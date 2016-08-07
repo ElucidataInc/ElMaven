@@ -440,6 +440,9 @@ public:
 		 */
     void loadSample(const char* filename);
 
+
+	string getFileName(const string& filename);
+
 		/**
 		 * [load data from mzData file]
 		 * @method parseMzData
