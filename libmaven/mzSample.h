@@ -440,6 +440,29 @@ public:
 		 */
     void loadSample(const char* filename);
 
+	void sampleNameing(const char* filename);
+
+	void checkSampleBlank(const char* filename);
+
+	void setInstrumentSettigs(xml_document & doc,xml_node spectrumstore);
+
+	void parseMzXMLData(xml_document & doc,xml_node spectrumstore);
+
+	xml_node getmzXMLSpectrumData(xml_document & doc,const char* filename);
+
+	float parseRTFromMzXML(xml_attribute & attr);
+
+	int parsePolarityFromMzXML(xml_attribute & attr);
+
+	int getPolarityFromfilterLine(string filterLine);
+
+	vector<float> parsePeaksFromMzXML(const xml_node& scan);
+
+	void populateMzAndIntensity(vector<float> mzint, Scan* _scan);
+
+	void populateFilterline(string filterLine,  Scan* _scan);
+
+	void loadAnySample(const char* filename);
 
 	string getFileName(const string& filename);
 

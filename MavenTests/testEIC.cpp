@@ -31,7 +31,6 @@ void TestEIC::cleanup() {
 void TestEIC::testFileLoad() {
     mzSample loadSample;
     loadSample.parseMzXML("/home/rajat/elucidata/maven/maven_data/mzXML_files/macrophagePositiveMode/bk_#sucyxpe_1_9.mzxml");
-    cerr << "Hello" << endl;
     QString str = "Hello";
     QCOMPARE(str.toUpper(), QString("HELLO"));
 }
