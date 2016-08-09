@@ -207,93 +207,12 @@ void PeakDetectionDialog::findPeaks() {
         connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                 SLOT(setProgressBar(QString, int,int)));
 
-        //TODO: Why is only this two paremeter set her from the settings
-        if (settings != NULL) {
-                // This is only present in peakdetection process with DB
-                mavenParameters->eic_ppmWindow =
-                        settings->value("eic_ppmWindow").toDouble();
-                //This comes from the "Option" window
-                mavenParameters->eic_smoothingAlgorithm = settings->value(
-                        "eic_smoothingAlgorithm").toInt();
-        }
-
-        //Baseline Smoothing in scans
-        settings->setValue("baseline_smoothingWindow",baseline_smoothing->value());
-        mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
-        
-        //Drop top x% intensities from chromatogram in percentage
-        settings->setValue("baseline_dropTopX",baseline_quantile->value());
-        mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
-        //This is present in both peakdetection and options diolog box
-        //This is EIC Smoothing in scans
-        settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
-        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
-        //Peak grouping (Max Group Rt Difference)
-        settings->setValue("grouping_maxRtWindow",grouping_maxRtDiff->value());
-        mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
-        //Match Retension Times this is used in Peakdetection with DB
-        settings->setValue("matchRtFlag",matchRt->isChecked());
-        mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        //Min. Good Peaks/Groups in numbers
-        settings->setValue("minGoodGroupCount",minGoodGroupCount->value());
-        mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
-        //Min. Peak Width
-        settings->setValue("minNoNoiseObs",minNoNoiseObs->value());
-        mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
-        //Min.Signal/ Baseline Ratio in numbers
-        settings->setValue("minSignalBaseLineRatio",sigBaselineRatio->value());
-        mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
-        //Min. Signal/ Blank Ratio
-        settings->setValue("minSignalBlankRatio",sigBlankRatio->value());
-        mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
-        //Min. Group Intensity
-        cerr << minGroupIntensity->value() << endl;
-        settings->setValue("minGroupIntensity",minGroupIntensity->value());
-        mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
-        //Report Isotopic Peaks this is used in finding peaks with DB
-        settings->setValue("pullIsotopesFlag",reportIsotopes->isChecked());
-        mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
-        //Mass domain Resolution (ppm)
-        settings->setValue("ppmMerge",ppmStep->value());
-        mavenParameters->ppmMerge = settings->value("ppmMerge").toDouble();
-        //EIC Extraction window +/- PPM
-        settings->setValue("compoundPPMWindow",compoundPPMWindow->value());
-        mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow").toDouble(); //convert to half window units.
-        //Compound Retention Time Matching Window
-        settings->setValue("compoundRTWindow",compoundRTWindow->value());
-        mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
-        //Limit the number of reported groups per compound
-        settings->setValue("eicMaxGroups",eicMaxGroups->value());
-        mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
-        //TODO: what is this?
-        settings->setValue("avgScanTime",samples[0]->getAverageFullScanTime());
-        mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
-        //Time domain resolution(scans)
-        settings->setValue("rtStepSize",rtStep->value());
-        mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
 
 
-        //Pointing the output directory
-        if (!outputDirName->text().isEmpty()) {
-                mavenParameters->setOutputDir(outputDirName->text());
-                mavenParameters->writeCSVFlag = true;
-        } else {
-                mavenParameters->writeCSVFlag = false;
-        }
-        //Getting the classification model
-        mavenParameters->clsf = mainwindow->getClassifier();
+        updateQSettingsWithUserInput(settings, samples);
 
+        setMavenParameters(mavenParameters, settings);
 
-        //Setting the ionization mode if the user specifies the ionization mode
-        //then its given the priority else the ionization mode is taken from the
-        //sample
-        //TODO: See how the ionization mode is effected if the user selects
-        //Neutral or autodetect
-        if (mainwindow->getIonizationMode()) {
-                mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        } else {
-                mavenParameters->setIonizationMode();
-        }
 
         // Changing the mainwindow title according to the peak detection type
         QString title;
@@ -315,8 +234,6 @@ void PeakDetectionDialog::findPeaks() {
         connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
         connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
 
-
-        peakupdater->setMavenParameters(mavenParameters);
         peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
         //Running the thread
@@ -341,6 +258,118 @@ void PeakDetectionDialog::findPeaks() {
                 //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
                 runBackgroupJob("computePeaks");
+        }
+}
+
+void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings *settings, vector<mzSample*> samples) {
+
+        //Baseline Smoothing in scans
+        settings->setValue("baseline_smoothingWindow",baseline_smoothing->value());
+        //Drop top x% intensities from chromatogram in percentage
+        settings->setValue("baseline_dropTopX",baseline_quantile->value());
+        //This is present in both peakdetection and options diolog box
+        //This is EIC Smoothing in scans
+        settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
+        //Peak grouping (Max Group Rt Difference)
+        settings->setValue("grouping_maxRtWindow",grouping_maxRtDiff->value());
+        //Match Retension Times this is used in Peakdetection with DB
+        settings->setValue("matchRtFlag",matchRt->isChecked());
+        //Min. Good Peaks/Groups in numbers
+        settings->setValue("minGoodGroupCount",minGoodGroupCount->value());
+        //Min. Peak Width
+        settings->setValue("minNoNoiseObs",minNoNoiseObs->value());
+        //Min.Signal/ Baseline Ratio in numbers
+        settings->setValue("minSignalBaseLineRatio",sigBaselineRatio->value());
+        //Min. Signal/ Blank Ratio
+        settings->setValue("minSignalBlankRatio",sigBlankRatio->value());
+        //Min. Group Intensity
+        settings->setValue("minGroupIntensity",minGroupIntensity->value());
+        //Report Isotopic Peaks this is used in finding peaks with DB
+        settings->setValue("pullIsotopesFlag",reportIsotopes->isChecked());
+        //Mass domain Resolution (ppm)
+        settings->setValue("ppmMerge",ppmStep->value());
+        //EIC Extraction window +/- PPM
+        settings->setValue("compoundPPMWindow",compoundPPMWindow->value());
+        //Compound Retention Time Matching Window
+        settings->setValue("compoundRTWindow",compoundRTWindow->value());
+        //Limit the number of reported groups per compound
+        settings->setValue("eicMaxGroups",eicMaxGroups->value());
+        //TODO: what is this?
+        settings->setValue("avgScanTime",samples[0]->getAverageFullScanTime());
+        //Time domain resolution(scans)
+        settings->setValue("rtStepSize",rtStep->value());
+}
+
+void PeakDetectionDialog::setMavenParameters(MavenParameters* mavenParameters, QSettings *settings) {
+
+    //TODO: Why is only this two paremeter set her from the settings
+        if (settings != NULL) {
+            // This is only present in peakdetection process with DB
+            mavenParameters->eic_ppmWindow =
+                    settings->value("eic_ppmWindow").toDouble();
+            //This comes from the "Option" window
+            mavenParameters->eic_smoothingAlgorithm = settings->value(
+                    "eic_smoothingAlgorithm").toInt();
+
+            //Baseline Smoothing in scans
+            mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
+            //Drop top x% intensities from chromatogram in percentage
+            mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
+            //This is present in both peakdetection and options diolog box
+            //This is EIC Smoothing in scans
+            mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+            //Peak grouping (Max Group Rt Difference)
+            mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
+            //Match Retension Times this is used in Peakdetection with DB
+            mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
+            //Min. Good Peaks/Groups in numbers
+            mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
+            //Min. Peak Width
+            mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
+            //Min.Signal/ Baseline Ratio in numbers
+            mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
+            //Min. Signal/ Blank Ratio
+            mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
+            //Min. Group Intensity
+            mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
+            //Report Isotopic Peaks this is used in finding peaks with DB
+            mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
+            //Mass domain Resolution (ppm)
+            mavenParameters->ppmMerge = settings->value("ppmMerge").toDouble();
+            //EIC Extraction window +/- PPM
+            mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow").toDouble(); //convert to half window units.
+            //Compound Retention Time Matching Window
+            mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
+            //Limit the number of reported groups per compound
+            mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
+            //TODO: what is this?
+            mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
+            //Time domain resolution(scans)
+            mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
+
+        //Pointing the output directory
+        if (!outputDirName->text().isEmpty()) {
+                mavenParameters->setOutputDir(outputDirName->text());
+                mavenParameters->writeCSVFlag = true;
+        } else {
+                mavenParameters->writeCSVFlag = false;
+        }
+        //Getting the classification model
+        mavenParameters->clsf = mainwindow->getClassifier();
+
+        //Setting the ionization mode if the user specifies the ionization mode
+        //then its given the priority else the ionization mode is taken from the
+        //sample
+        //TODO: See how the ionization mode is effected if the user selects
+        //Neutral or autodetect
+        if (mainwindow->getIonizationMode()) {
+                mavenParameters->ionizationMode = mainwindow->getIonizationMode();
+        } else {
+                mavenParameters->setIonizationMode();
+        }
+
+        peakupdater->setMavenParameters(mavenParameters);
+
         }
 }
 /**
