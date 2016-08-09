@@ -31,14 +31,16 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void runBackgroupJob(QString func);
 				 void showInfo(QString text);
 				 void cancel();
-				 void show();
-         void setFeatureDetection(FeatureDetectionType type);
+                 void initPeakDetectionDialogWindow(FeatureDetectionType type);
 
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-   			BackgroundPeakUpdate* peakupdater;
+                BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
+
+                void displayAppropriatePeakDetectionDialog(FeatureDetectionType type);
+                void inputInitialValuesPeakDetectionDialog();
 };
 
 #endif

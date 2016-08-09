@@ -970,9 +970,37 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minIsotopicCorrelation"))
 		settings->setValue("minIsotopicCorrelation", 0.1);
 
-	if (settings->contains("lastOpenedProject")) {
+    if (settings->contains("lastOpenedProject"))
 		settings->setValue("lastOpenedProject", "");
-	}
+
+    if (!settings->contains("baseline_smoothingWindow"))
+        settings->setValue("baseline_smoothingWindow", 5);
+    if (!settings->contains("baseline_dropTopX"))
+        settings->setValue("baseline_dropTopX", 80);
+    if (!settings->contains("matchRtFlag"))
+        settings->setValue("matchRtFlag", 0);
+    if (!settings->contains("minGoodGroupCount"))
+        settings->setValue("minGoodGroupCount", 1);
+    if (!settings->contains("minNoNoiseObs"))
+        settings->setValue("minNoNoiseObs", 3);
+    if (!settings->contains("minSignalBaseLineRatio"))
+        settings->setValue("minSignalBaseLineRatio", 2);
+    if (!settings->contains("minSignalBlankRatio"))
+        settings->setValue("minSignalBlankRatio", 2);
+    if (!settings->contains("minGroupIntensity"))
+        settings->setValue("minGroupIntensity", 5000);
+    if (!settings->contains("pullIsotopesFlag"))
+        settings->setValue("pullIsotopesFlag", 0);
+    if (!settings->contains("ppmMerge"))
+        settings->setValue("ppmMerge", 20);
+    if (!settings->contains("compoundPPMWindow"))
+        settings->setValue("compoundPPMWindow", 20);
+    if (!settings->contains("compoundRTWindow"))
+        settings->setValue("compoundRTWindow", 2);
+    if (!settings->contains("eicMaxGroups"))
+        settings->setValue("eicMaxGroups", 10);
+    if (!settings->contains("rtStepSize"))
+        settings->setValue("rtStepSize", 10);
 
 	resize(size);
 	move(pos);
@@ -1328,13 +1356,11 @@ bool MainWindow::addSample(mzSample* sample) {
 }
 
 void MainWindow::showMassSlices() {
-	peakDetectionDialog->setFeatureDetection(PeakDetectionDialog::FullSpectrum);
-	peakDetectionDialog->show();
+    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::FullSpectrum);
 }
 
 void MainWindow::compoundDatabaseSearch() {
-	peakDetectionDialog->setFeatureDetection(PeakDetectionDialog::CompoundDB);
-	peakDetectionDialog->show();
+    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::CompoundDB);
 }
 
 void MainWindow::showSRMList() {
