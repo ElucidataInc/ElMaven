@@ -308,8 +308,7 @@ class Scan {
 		 */
     bool operator< (const Scan& b) { return rt < b.rt; }
 
-    private:
-        int polarity;
+    int polarity;
 };
 
 
@@ -428,6 +427,37 @@ class mzLink {
   * @author Elucidata
   */
 class mzSample {
+
+
+private:
+	void sampleNameing(const char* filename);
+
+	void checkSampleBlank(const char* filename);
+
+	void setInstrumentSettigs(xml_document & doc,xml_node spectrumstore);
+
+	void parseMzXMLData(xml_document & doc,xml_node spectrumstore);
+
+	xml_node getmzXMLSpectrumData(xml_document & doc,const char* filename);
+
+	float parseRTFromMzXML(xml_attribute & attr);
+
+	int parsePolarityFromMzXML(xml_attribute & attr);
+
+	int getPolarityFromfilterLine(string filterLine);
+
+	vector<float> parsePeaksFromMzXML(const xml_node& scan);
+
+	void populateMzAndIntensity(vector<float> mzint, Scan* _scan);
+
+	void populateFilterline(string filterLine,  Scan* _scan);
+
+	void loadAnySample(const char* filename);
+
+	//TODO: This should be moved 
+	string getFileName(const string& filename);
+
+
 public:
 
     mzSample();
@@ -439,9 +469,6 @@ public:
 		 * @param  filename   [input string filename]
 		 */
     void loadSample(const char* filename);
-
-
-	string getFileName(const string& filename);
 
 		/**
 		 * [load data from mzData file]

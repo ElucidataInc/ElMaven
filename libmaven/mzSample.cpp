@@ -79,42 +79,64 @@ string mzSample::getFileName(const string& filename) {
         if (i != string::npos) {
             string fullname = filename.substr(i+1, filename.length() - i) ;
             return(fullname.substr(0, fullname.find_last_of("."))); 
-
         }
 
    return("");
 }
 
+void mzSample::loadAnySample(const char* filename) {
+
+    if (mystrcasestr(filename,"mzCSV") != NULL ) {
+        parseMzCSV(filename);
+    } else if(mystrcasestr(filename,"mzdata") != NULL ) {
+        parseMzData(filename);
+    } else if(mystrcasestr(filename,"mzxml") != NULL ) {
+        parseMzXML(filename);
+    } else if(mystrcasestr(filename,"mzml") != NULL ) {
+        parseMzML(filename);
+    } else if(mystrcasestr(filename,"cdf") != NULL ) {
+        parseCDF(filename,1);
+    } else {
+        parseMzData(filename);
+    }
+}
+
+void mzSample::sampleNameing(const char* filename) {
+    string filenameString = string(filename);
+
+    //This is the complete file name
+    this->sampleName = getFileName(filenameString);
+
+    // This is the sample name
+    this->fileName = filenameString;
+}
+
+void mzSample::checkSampleBlank(const char* filename) {
+    string filenameString = string(filename);
+    this->isBlank = false;
+
+    makeLowerCase(filenameString);
+    if ( filenameString.find("blan") != string::npos) {
+        this->isBlank = true;
+    }
+}
+
 void mzSample::loadSample(const char* filename) {
-        if (mystrcasestr(filename,"mzCSV") != NULL ) {
-                parseMzCSV(filename);
-        } else if(mystrcasestr(filename,"mzdata") != NULL ) {
-                parseMzData(filename);
-        } else if(mystrcasestr(filename,"mzxml") != NULL ) {
-                parseMzXML(filename);
-        } else if(mystrcasestr(filename,"mzml") != NULL ) {
-                parseMzML(filename);
-        } else if(mystrcasestr(filename,"cdf") != NULL ) {
-                parseCDF(filename,1);
-        } else {
-                parseMzData(filename);
-        }
 
-        enumerateSRMScans();
+    //Loading and Decoding the file
+    loadAnySample(filename);
 
-        //set min and max values for rt
-        calculateMzRtRange();
+    //getting the SRM scan type
+    enumerateSRMScans();
 
-        //check if this is a blank sample
-        string filenameString = string(filename);
-        this->sampleName = getFileName(filenameString);
-        this->fileName = filenameString;
-        makeLowerCase(filenameString);
+    //set min and max values for rt and mz
+    calculateMzRtRange();
 
-        if ( filenameString.find("blan") != string::npos) {
-                this->isBlank = true;
-                cerr << "Found Blank: " << filenameString << endl;
-        }
+    //Setting Sample name 
+    sampleNameing(filename);
+
+    //Checking if a sample is blank or not
+    checkSampleBlank(filename);
 }
 
 void mzSample::parseMzCSV(const char* filename) {
@@ -434,214 +456,307 @@ void mzSample::parseMzData(const char* filename) {
         }
 }
 
-void mzSample::parseMzXML(const char* filename) {
-        xml_document doc;
-        try {
+xml_node mzSample::getmzXMLSpectrumData(xml_document & doc, const char* filename) {
 
-                /** parse_minimal has all options turned off. This option mask means 
-                 * that pugixml does not add declaration nodes, document type declaration 
-                 * nodes, PI nodes, CDATA sections and comments to the resulting tree and
-                 * does not perform any conversion for input data, so theoretically it is
-                 * the fastest mode
-                **/
-                bool loadok = doc.load_file(filename,pugi::parse_minimal);
+    //parse_minimal has all options turned off. This option mask means 
+    //that pugixml does not add declaration nodes, document type declaration 
+    //nodes, PI nodes, CDATA sections and comments to the resulting tree and
+    //does not perform any conversion for input data, so theoretically it is
+    //the fastest mode
+    bool loadok = doc.load_file(filename, pugi::parse_minimal);
 
-                //Checking if the file can be loaded if it can be loaded
-                if (!loadok ) {
-                        cerr << "Failed to load " << filename << endl;
-                        return;
-                }
+    //Checking if the file can be loaded if it can be loaded
+    if (!loadok ) {
+        cerr << "Failed to load " << filename << endl;
+        //returning an empty node
+        return xml_node();
+    }
 
-                //"msRun" is the first child of the parent child "mzXML"
-                xml_node spectrumstore = doc.first_child().child("msRun");
+    //"msRun" is the first child of the parent child "mzXML"
+    xml_node spectrumstore = doc.first_child().child("msRun");
 
-                //Checking if the node is empty which means that msRun is not there
-                //but then it might have scan which contain the data 
-                if (spectrumstore.empty()) {
-                        //Getting the first child named "scan"
-                        xml_node scan = doc.first_child().child("scan");
-                        //If scan is not present then there is no data
-                        // which means that there is no information in the
-                        //mzXML file
-                        if(!scan.empty()) {
-                                spectrumstore=doc.first_child(); 
-                        } else { 
-                                cerr << "parseMzXML: can't find <msRun> or <scan> section" << endl; return; 
-                        }
-                }
-
-                //Getting the instrument related information
-                xml_node msInstrument = spectrumstore.child("msInstrument");
-                if (!msInstrument.empty()) {
-                        xml_node msManufacturer = msInstrument.child("msManufacturer");
-                        xml_node msModel = msInstrument.child("msModel");
-                        xml_node msIonisation = msInstrument.child("msIonisation");
-                        xml_node msMassAnalyzer = msInstrument.child("msMassAnalyzer");
-                        xml_node msDetector = msInstrument.child("msDetector");
-                        instrumentInfo[ "msManufacturer" ] =  msManufacturer.attribute("value").value();
-                        instrumentInfo[ "msModel" ] =  msModel.attribute("value").value();
-                        instrumentInfo[ "msIonisation" ] =  msIonisation.attribute("value").value();
-                        instrumentInfo[ "msMassAnalyzer" ] =  msMassAnalyzer.attribute("value").value();
-                        instrumentInfo[ "msDetector" ] =  msDetector.attribute("value").value();
-                }
-
-
-                //Iterate through spectrums
-                int scannum=0;
-
-                for (xml_node scan = spectrumstore.child("scan"); scan; scan = scan.next_sibling("scan")) {
-                        scannum++;
-                        if (strncasecmp(scan.name(),"scan",4) == 0) {
-                                parseMzXMLScan(scan,scannum);
-                        }
-
-                        for ( xml_node child = scan.first_child(); child; child = child.next_sibling()) {
-                                scannum++;
-                                if (strncasecmp(child.name(),"scan",4) == 0) {
-                                        parseMzXMLScan(child,scannum);
-                                }
-                        }
-                }
-        } catch(char* err) {
-                cerr << "Failed to load file: " <<  filename << " " << err << endl;
+    //Checking if the node is empty which means that msRun is not there
+    //but then it might have scan which contain the data 
+    if (spectrumstore.empty()) {
+        cerr << "This is here" <<endl;
+        //Getting the first child named "scan"
+        xml_node scan = doc.first_child().child("scan");
+        //If scan is not present then there is no data
+        // which means that there is no information in the
+        //mzXML file
+        if(!scan.empty()) {
+            cerr << "This is here1" << endl;
+            spectrumstore = doc.first_child(); 
+        } else {
+        //if the above condition is not satisfied return a empty spectrumstore
+            cerr << "parseMzXML: can't find <msRun> or <scan> section" << endl;
+            return xml_node(); 
         }
+    }
+    return spectrumstore;
+}
+
+void mzSample::setInstrumentSettigs(xml_document & doc,xml_node spectrumstore) {
+    //Getting the instrument related information
+    xml_node msInstrument = spectrumstore.child("msInstrument");
+    if (!msInstrument.empty()) {
+        xml_node msManufacturer = msInstrument.child("msManufacturer");
+        xml_node msModel = msInstrument.child("msModel");
+        xml_node msIonisation = msInstrument.child("msIonisation");
+        xml_node msMassAnalyzer = msInstrument.child("msMassAnalyzer");
+        xml_node msDetector = msInstrument.child("msDetector");
+        instrumentInfo[ "msManufacturer" ] =  msManufacturer.attribute("value").value();
+        instrumentInfo[ "msModel" ] =  msModel.attribute("value").value();
+        instrumentInfo[ "msIonisation" ] =  msIonisation.attribute("value").value();
+        instrumentInfo[ "msMassAnalyzer" ] =  msMassAnalyzer.attribute("value").value();
+        instrumentInfo[ "msDetector" ] =  msDetector.attribute("value").value();
+    }
+}
+
+void mzSample::parseMzXMLData(xml_document & doc,xml_node spectrumstore) {
+    
+    //Iterate through spectrums
+    int scannum=0;
+
+    for (xml_node scan = spectrumstore.child("scan"); scan; scan = scan.next_sibling("scan")) {
+        scannum++;
+        if (strncasecmp(scan.name(),"scan",4) == 0) {
+            parseMzXMLScan(scan,scannum);
+        }
+
+        for ( xml_node child = scan.first_child(); child; child = child.next_sibling()) {
+            scannum++;
+            if (strncasecmp(child.name(),"scan",4) == 0) {
+                    parseMzXMLScan(child,scannum);
+            }
+        }
+    }
+}
+
+
+void mzSample::parseMzXML(const char* filename) {
+    xml_document doc;
+    try {
+
+        xml_node spectrumstore = getmzXMLSpectrumData(doc, filename);
+
+        if (!spectrumstore.empty()) {   
+            //Setting the instrument related information
+            setInstrumentSettigs(doc, spectrumstore);
+            //parse mzXML information from the scan
+            parseMzXMLData(doc, spectrumstore);
+        } else {
+            return;
+        }
+    } catch(char* err) {
+
+        cerr << "Failed to load file: " <<  filename << " " << err << endl;
+    }
+}
+
+/**
+ * calculate the RT in minutes
+ **/
+float mzSample::parseRTFromMzXML(xml_attribute & attr) {
+    float rt = 0.0;
+    if ( strncasecmp(attr.value(), "PT", 2) == 0 ) {
+        rt = string2float( string(attr.value() + 2) );
+    } else if ( strncasecmp(attr.value(), "P", 1) == 0 ) {
+        rt = string2float( string(attr.value() + 1) );
+    } else {
+        rt = string2float( attr.value() );
+    }
+    rt /= 60.0;
+    return rt;
+}
+
+int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
+    char p = attr.value()[0];
+    //For polarity 0 is the default value
+    int scanpolarity = 0; 
+    switch(p) {
+    case '+': scanpolarity=  1; break;
+    case '-': scanpolarity= -1; break;
+    default:
+            scanpolarity=0;
+            break;
+    }
+
+    return scanpolarity;
+}
+
+int mzSample::getPolarityFromfilterLine(string filterLine) {
+    int MIN_FILTER_LINE_LENGTH = 13;
+    int scanpolarity = 0;
+
+    if (filterLine.size() > MIN_FILTER_LINE_LENGTH ) {
+
+        if ( filterLine.find(" + ") != string::npos) {
+            scanpolarity = 1;
+        }  else {
+            scanpolarity = -1;
+        }
+    }
+
+    return scanpolarity;
+}
+
+vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
+    xml_node peaks =  scan.child("peaks");
+    bool networkorder = false;
+    int precision = 32;
+    vector<float> mzint;
+
+    if ( !peaks.empty() ) {
+        string b64String(peaks.child_value());
+
+        //no m/z intensity values
+        if ( b64String.empty()) return mzint;
+
+
+        #ifdef ZLIB
+        //if the data is been compressed in zlib format this part will 
+        //take care. 
+        if(strncasecmp(peaks.attribute("compressionType").value(),"zlib",4) == 0) {
+            /*
+                const char* sampleEncoded32LittleZlib_ = "eJzjYfBwZgACGSitA6VtoLSTtCeYDoLSSVC6CEo3AenL2skuk4D0PI95LouA9CrnuS6bgPRxoxCXQ1B1l6D0IyjNADWfgWEakG6wZ2A4AaQVHBkYfgHpE04MDGIuDAxVLgB7LB3q";
+                const char* sampleEncoded32BigZlib_ = "eJxz9mDgYQACZw8GGSitA6VtwLSntBOUDoLSSVC6CEo3uSRrXwbSk1zmecwD0otc5jqvAtKbXEKMjgPpQ1B1l6D0I6j5YOA8jYHBvgFIn2BgcFQA0r8YGJyAbBcxIK5iYAAAfLkd6g==";
+                const char* sampleEncoded64LittleZlib_ = "eJz7Lz63i5Eh04EBClora9uYkfhLtOOaWJH48Xr2dexI/HXsZqYZygj+6j07zLKQ+HMOW1vkIPGbZPZb5iHxo447WRdA+AlVqT0OqkeO2RRB+AeET052eCrkbVcC4TuUrpjsMGPzefsyCP9BRFuXg/2yEMcKJPNuv7rpVIXEz2yMd6lB4kNFUfkHiqD8D/YQuhLKV4HQDvVQfiSEPtAEFe93AACmsz1+";
+                const char* sampleEncoded64BigZlib_ = "eJxzyGRg7Jor/p8BChwyGZjbaitbkfisTXHaS5D47HX2evEIvnKGqRn7OiR+ltmOPauR+DkW1ofnIPHzLPfLNCHxC6ydjkc59KRWJUD4RTbHjqg6TD4pfADCL7HzFnrqMHlFqQOEX2Z/fvMMh662iAcQfoVjyDJ7JPOqnG6+uo3Er3GJb8xEcj8KcCg6AKbtP0D5lVBaBUrXO0DoSCi/CaLeoR8iDgC0Qj1+";
+
+                string testStr(sampleEncoded64LittleZlib_);
+
+                string uncompressed;
+                //gzipInflate( testStr, uncompressed );
+                uncompressed = mzUtils::decompress_string(testStr);
+                //b64String = uncompressed;
+
+                cerr << "Uncompressed : " << uncompressed << endl;
+                */
+            }
+        #endif
+
+        if (peaks.attribute("byteOrder").empty() || strncasecmp(peaks.attribute("byteOrder").value(),"network",5) == 0 ) {
+            networkorder = true;
+        }
+
+                
+        if (!peaks.attribute("precision").empty()) { 
+            precision = peaks.attribute("precision").as_int();
+        }
+
+        // cerr << "new scan=" << scannum << " msL=" << msLevel << " rt=" << rt << " precMz=" << precursorMz << " polar=" << scanpolarity
+        //    << " prec=" << precision << endl;
+
+        mzint = base64::decode_base64(b64String, precision / 8, networkorder);
+
+        return mzint;
+    }
+
+    return mzint;
+}
+
+void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
+    int j = 0, count = 0, size = mzint.size() / 2;
+
+    // sizing the mz variable and the intensity variable
+    _scan->mz.resize(size);
+    _scan->intensity.resize(size);
+
+    for(int i = 0; i < size; i++ ) {
+        float mzValue = mzint[j++];
+        float intensityValue = mzint[j++];
+        //cerr << mzValue << " " << intensityValue << endl;
+        if (mzValue > 0 && intensityValue > 0 ) {
+            _scan->mz[i]= mzValue;
+            _scan->intensity[i] = intensityValue;
+            count++;
+        }
+    }
+
+    _scan->mz.resize(count);
+    _scan->intensity.resize(count);
+}
+
+void mzSample::populateFilterline(string filterLine,  Scan* _scan) {
+
+    if (!filterLine.empty()) _scan->filterLine = filterLine;
+
+    //TODO: why is this logic like this is 
+    if (filterLine.empty() &&  _scan->precursorMz > 0 ) {
+        _scan->filterLine =  _scan->scanType + ":" + float2string(_scan->precursorMz,4) + " [" + float2string(_scan->productMz,4) + "]";
+    }
 }
 
 void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
 
-        float rt = 0;
-        float precursorMz = 0;
-        float productMz=0;
-        float collisionEnergy=0;
-        int scanpolarity = 0; //default case
-        int msLevel=1;
-        bool networkorder = false;
-        string filterLine;
-        string scanType;
+    float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;
+    int scanpolarity = 0, msLevel=1;
+    string filterLine, scanType;
+    vector<float> mzint;
 
-        for(xml_attribute attr = scan.first_attribute(); attr; attr=attr.next_attribute()) {
-                if (strncasecmp(attr.name(), "retentionTime",10) == 0 ) {
-                        if (strncasecmp(attr.value(),"PT",2) == 0 ) {
-                                rt=string2float( string(attr.value()+2));
-                        } else if (strncasecmp(attr.value(),"P",1) == 0 ) {
-                                rt=string2float( string(attr.value()+1));
-                        } else {
-                                rt=string2float( attr.value());
-                        }
-                        rt /=60;
-                }
-
-                if (strncasecmp(attr.name(),"polarity",5) == 0 ) {
-                        char p = attr.value()[0];
-                        switch(p) {
-                        case '+': scanpolarity=  1; break;
-                        case '-': scanpolarity= -1; break;
-                        default:
-                                //cerr << "Warning:: scan has unknown polarity type=" << scanpolarity << endl;
-                                scanpolarity=0;
-                                break;
-                        }
-                }
-
-                if (strncasecmp(attr.name(),"filterLine",9) == 0) filterLine = attr.value();
-                if (strncasecmp(attr.name(),"mslevel",5) == 0 ) msLevel = string2integer(attr.value());
-                if (strncasecmp(attr.name(),"basePeakMz",9) == 0 ) productMz = string2float(attr.value());
-                if (strncasecmp(attr.name(),"collisionEnergy",12) == 0 ) collisionEnergy= string2float(attr.value());
-                if (strncasecmp(attr.name(),"scanType",8) == 0 ) scanType = attr.value();
-
+    for(xml_attribute attr = scan.first_attribute(); attr; attr=attr.next_attribute()) {
+        if (strncasecmp(attr.name(), "retentionTime", 10) == 0 ) {
+            rt  = parseRTFromMzXML(attr);
         }
 
-        //work around .. get polarity from filterline
-        if (scanpolarity == 0 && filterLine.size()>13 ) {
-                if ( filterLine[12] == '+' ) {
-                        scanpolarity = 1;
-                }  else {
-                        scanpolarity = -1;
-                }
+        if (strncasecmp(attr.name(),"polarity",5) == 0 ) {
+            scanpolarity = parsePolarityFromMzXML(attr);
         }
 
-        //TODO: WHat is this for this is zero
-        precursorMz = string2float(string(scan.child_value("precursorMz")));
-        //cout << "precursorMz=" << precursorMz << endl;
-
-        xml_node peaks =  scan.child("peaks");
-        if ( !peaks.empty() ) {
-                string b64String(peaks.child_value());
-                if ( b64String.empty()) return;  //no m/z intensity values
-
-
-#ifdef ZLIB
-                //decompress
-                if(strncasecmp(peaks.attribute("compressionType").value(),"zlib",4) == 0) {
-                        /*
-                           const char* sampleEncoded32LittleZlib_ = "eJzjYfBwZgACGSitA6VtoLSTtCeYDoLSSVC6CEo3AenL2skuk4D0PI95LouA9CrnuS6bgPRxoxCXQ1B1l6D0IyjNADWfgWEakG6wZ2A4AaQVHBkYfgHpE04MDGIuDAxVLgB7LB3q";
-                           const char* sampleEncoded32BigZlib_ = "eJxz9mDgYQACZw8GGSitA6VtwLSntBOUDoLSSVC6CEo3uSRrXwbSk1zmecwD0otc5jqvAtKbXEKMjgPpQ1B1l6D0I6j5YOA8jYHBvgFIn2BgcFQA0r8YGJyAbBcxIK5iYAAAfLkd6g==";
-                           const char* sampleEncoded64LittleZlib_ = "eJz7Lz63i5Eh04EBClora9uYkfhLtOOaWJH48Xr2dexI/HXsZqYZygj+6j07zLKQ+HMOW1vkIPGbZPZb5iHxo447WRdA+AlVqT0OqkeO2RRB+AeET052eCrkbVcC4TuUrpjsMGPzefsyCP9BRFuXg/2yEMcKJPNuv7rpVIXEz2yMd6lB4kNFUfkHiqD8D/YQuhLKV4HQDvVQfiSEPtAEFe93AACmsz1+";
-                           const char* sampleEncoded64BigZlib_ = "eJxzyGRg7Jor/p8BChwyGZjbaitbkfisTXHaS5D47HX2evEIvnKGqRn7OiR+ltmOPauR+DkW1ofnIPHzLPfLNCHxC6ydjkc59KRWJUD4RTbHjqg6TD4pfADCL7HzFnrqMHlFqQOEX2Z/fvMMh662iAcQfoVjyDJ7JPOqnG6+uo3Er3GJb8xEcj8KcCg6AKbtP0D5lVBaBUrXO0DoSCi/CaLeoR8iDgC0Qj1+";
-
-                           string testStr(sampleEncoded64LittleZlib_);
-
-                           string uncompressed;
-                           //gzipInflate( testStr, uncompressed );
-                           uncompressed = mzUtils::decompress_string(testStr);
-                           //b64String = uncompressed;
-
-                           cerr << "Uncompressed : " << uncompressed << endl;
-                         */
-                }
-#endif
-                //mslevel is hard coded to 1 if the mslevel is > 0
-                if (msLevel <= 0 ) msLevel=1;
-                Scan* _scan = new Scan(this,scannum,msLevel,rt,precursorMz,scanpolarity);
-
-                if (!filterLine.empty()) _scan->filterLine=filterLine;
-                if (!scanType.empty()) _scan->scanType= scanType;
-                _scan->productMz=productMz;
-                _scan->collisionEnergy=collisionEnergy;
-
-                if (peaks.attribute("byteOrder").empty() || strncasecmp(peaks.attribute("byteOrder").value(),"network",5) == 0 ) {
-                        networkorder = true;
-                }
-
-                int precision=32;
-                if (!peaks.attribute("precision").empty()) { precision = peaks.attribute("precision").as_int(); }
-
-                // cerr << "new scan=" << scannum << " msL=" << msLevel << " rt=" << rt << " precMz=" << precursorMz << " polar=" << scanpolarity
-                //    << " prec=" << precision << endl;
-
-                vector<float> mzint = base64::decode_base64(b64String,precision/8,networkorder);
-                int size = mzint.size()/2;
-
-
-                _scan->mz.resize(size);
-                _scan->intensity.resize(size);
-
-                // cerr << "Network:" << networkorder << " precision" << precision <<  " size=" << size << endl;
-
-                int j=0; int count=0;
-                for(int i=0; i < size; i++ ) {
-                        float mzValue = mzint[j++];
-                        float intensityValue = mzint[j++];
-                        //cerr << mzValue << " " << intensityValue << endl;
-                        if (mzValue > 0 && intensityValue > 0 ) {
-                                _scan->mz[i]= mzValue;
-                                _scan->intensity[i] = intensityValue;
-                                count++;
-                        }
-                }
-
-
-                _scan->mz.resize(count);
-                _scan->intensity.resize(count);
-
-                if (filterLine.empty() && precursorMz > 0 ) {
-                        _scan->filterLine = scanType + ":" + float2string(_scan->precursorMz,4) + " [" + float2string(_scan->productMz,4) + "]";
-                }
-
-                //cerr << _scan->scanType << " " << _scan->precursorMz << " " << _scan->productMz;
-                //cerr << " addScan:" << _scan->filterLine << endl;
-                addScan(_scan);
+        if (strncasecmp(attr.name(),"filterLine",9) == 0) {
+            filterLine = attr.value();
         }
+
+        if (strncasecmp(attr.name(),"mslevel",5) == 0 ) {
+            msLevel = string2integer(attr.value());
+            //If ms Level is less than Zero then its hardcoded
+            //to one
+            if (msLevel <= 0 ) msLevel = 1;
+        }
+
+        if (strncasecmp(attr.name(),"basePeakMz",9) == 0 ) {
+            productMz = string2float(attr.value());
+        }
+
+        if (strncasecmp(attr.name(),"collisionEnergy",12) == 0 ) {
+            collisionEnergy= string2float(attr.value());
+        }
+
+        if (strncasecmp(attr.name(),"scanType",8) == 0 ) {
+            scanType = attr.value();
+        }
+
+    }
+
+    //To get the polarity from filterline if polarity turns out to be neurtal
+    if (scanpolarity == 0) {
+        scanpolarity = getPolarityFromfilterLine(filterLine);
+    }
+    
+
+    //TODO: What is this for this is zero
+    precursorMz = string2float(string(scan.child_value("precursorMz")));
+
+    string b64String;
+
+    //no m/z intensity values
+    mzint = parsePeaksFromMzXML(scan);
+    if (mzint.empty()) return;
+
+    Scan* _scan = new Scan(this,scannum,msLevel,rt,precursorMz,scanpolarity);
+
+    if (!scanType.empty()) _scan->scanType = scanType;
+    
+    _scan->productMz = productMz;
+    
+    _scan->collisionEnergy = collisionEnergy;
+
+    populateMzAndIntensity(mzint, _scan);
+
+    populateFilterline(filterLine, _scan);
+
+    addScan(_scan);
 }
 
 void mzSample::summary() {
@@ -667,20 +782,19 @@ void mzSample::calculateMzRtRange() {
         int nobs = 0;
 
         for (unsigned int j=0; j < scans.size(); j++ ) {
-                for (unsigned int i=0; i < scans[j]->mz.size(); i++ ) {
-                        totalIntensity +=  scans[j]->intensity[i];
-                        float mz = scans[j]->mz[i];
-                        if( mz < minMz && mz > 0   ) minMz = mz;  //sanity check must be greater > 0
-                        if (mz > maxMz && mz < 1e9 ) maxMz = mz;  //sanity check m/z over a billion
-                        if (scans[j]->intensity[i] < minIntensity ) minIntensity = scans[j]->intensity[i];
-                        if (scans[j]->intensity[i] > maxIntensity ) maxIntensity = scans[j]->intensity[i];
-                        nobs++;
-                }
+            for (unsigned int i=0; i < scans[j]->mz.size(); i++ ) {
+                totalIntensity +=  scans[j]->intensity[i];
+                float mz = scans[j]->mz[i];
+                if( mz < minMz && mz > 0   ) minMz = mz;  //sanity check must be greater > 0
+                if (mz > maxMz && mz < 1e9 ) maxMz = mz;  //sanity check m/z over a billion
+                if (scans[j]->intensity[i] < minIntensity ) minIntensity = scans[j]->intensity[i];
+                if (scans[j]->intensity[i] > maxIntensity ) maxIntensity = scans[j]->intensity[i];
+                nobs++;
+            }
         }
         //sanity check
         if (minRt <= 0 ) minRt = 0;
         if (maxRt >= 1e4 ) maxRt = 1e4;
-        cerr << "calculateMzRtRange() rt=" << minRt << "-" << maxRt << " mz=" << minMz << "-" << maxMz << endl;
 }
 
 mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
@@ -741,12 +855,11 @@ float mzSample::getAverageFullScanTime() {
 
 void mzSample::enumerateSRMScans() {
         srmScans.clear();
-        for(unsigned int i=0; i < scans.size(); i++ ) {
-                if (scans[i]->filterLine.length()>0) {
+        for(unsigned int i = 0; i < scans.size(); i++ ) {
+                if (scans[i]->filterLine.length() > 0) {
                         srmScans[scans[i]->filterLine].push_back(i);
                 }
         }
-        cerr << "enumerateSRMScans: " << srmScans.size() << endl;
 }
 
 Scan* mzSample::getScan(unsigned int scanNum) {

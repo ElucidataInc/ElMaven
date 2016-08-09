@@ -28,7 +28,8 @@ mzSample* mzFileIO::loadSample(QString filename){
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
     if (!file.exists() ) { 	//couldn't fine this file.. check local directory
-        qDebug() << "Can't find file " << filename; return 0;
+        qDebug() << "Can't find file " << filename;
+        return NULL;
     }
 
     sampleName.replace(QRegExp(".*/"),"");

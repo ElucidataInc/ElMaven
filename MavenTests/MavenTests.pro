@@ -21,9 +21,13 @@ QMAKE_LFLAGS_DEBUG -= -pg
 
 # Input
 HEADERS += \
-    testEIC.h 
+    common.h \
+    testEIC.h
+
 
 SOURCES += \
+    common.cpp \
     testEIC.cpp \
     main.cpp
+
     
