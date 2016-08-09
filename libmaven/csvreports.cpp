@@ -72,7 +72,7 @@ void CSVReports::addGroup(PeakGroup* group) {
 	//output all relevant isotope info otherwise
 	else {
 		writeGroupInfo(&group->children[0]); //C12 info
-		MassCalculator *masscalc;
+		MassCalculator* masscalc = new MassCalculator();
 		string formula = group->compound->formula;
 		vector<Isotope> masslist = masscalc->computeIsotopes(formula,
 				ionizationMode);
