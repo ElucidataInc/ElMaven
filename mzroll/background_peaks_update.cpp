@@ -157,6 +157,7 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
         QSettings* settings = mainwindow->getSettings();
         mavenParameters->amuQ1 = settings->value("amuQ1").toDouble();
         mavenParameters->amuQ3 = settings->value("amuQ3").toDouble();
+        // To Do: Are these lines required. The same is already being done in PeakDetectionDialog.cpp
         mavenParameters->baseline_smoothingWindow = settings->value(
                 "baseline_smoothing").toInt();
         mavenParameters->baseline_dropTopX =

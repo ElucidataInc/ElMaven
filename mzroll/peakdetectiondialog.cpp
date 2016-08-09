@@ -102,10 +102,23 @@ void PeakDetectionDialog::show() {
         if (mainwindow != NULL) {
                 QSettings* settings = mainwindow->getSettings();
                 if (settings) {
-                        eic_smoothingWindow->setValue(
-                                settings->value("eic_smoothingWindow").toDouble());
-                        grouping_maxRtDiff->setValue(
-                                settings->value("grouping_maxRtWindow").toDouble());
+                        eic_smoothingWindow->setValue(settings->value("eic_smoothingWindow").toDouble());
+                        grouping_maxRtDiff->setValue(settings->value("grouping_maxRtWindow").toDouble());
+                        baseline_smoothing->setValue(settings->value("baseline_smoothingWindow").toInt());
+                        baseline_quantile->setValue(settings->value("baseline_dropTopX").toInt());
+                        matchRt->setChecked(settings->value("matchRtFlag").toBool());
+                        minGoodGroupCount->setValue(settings->value("minGoodGroupCount").toInt());
+                        minNoNoiseObs->setValue(settings->value("minNoNoiseObs").toDouble());
+                        sigBaselineRatio->setValue(settings->value("minSignalBaseLineRatio").toDouble());
+                        sigBlankRatio->setValue(settings->value("minSignalBlankRatio").toDouble());
+                        minGroupIntensity->setValue(settings->value("minGroupIntensity").toDouble());
+                        reportIsotopes->setChecked(settings->value("pullIsotopesFlag").toBool());
+                        ppmStep->setValue(settings->value("ppmMerge").toDouble());
+                        compoundPPMWindow->setValue(settings->value("compoundPPMWindow").toDouble());
+                        compoundRTWindow->setValue(settings->value("compoundRTWindow").toDouble());
+                        eicMaxGroups->setValue(settings->value("eicMaxGroups").toInt());
+                        rtStep->setValue(settings->value("rtStepSize").toDouble());
+
                 }
         }
 
@@ -228,6 +241,7 @@ void PeakDetectionDialog::findPeaks() {
         settings->setValue("minSignalBlankRatio",sigBlankRatio->value());
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
         //Min. Group Intensity
+        cerr << minGroupIntensity->value() << endl;
         settings->setValue("minGroupIntensity",minGroupIntensity->value());
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         //Report Isotopic Peaks this is used in finding peaks with DB
@@ -251,6 +265,8 @@ void PeakDetectionDialog::findPeaks() {
         //Time domain resolution(scans)
         settings->setValue("rtStepSize",rtStep->value());
         mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
+
+
         //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {
                 mavenParameters->setOutputDir(outputDirName->text());
