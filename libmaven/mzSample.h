@@ -308,8 +308,7 @@ class Scan {
 		 */
     bool operator< (const Scan& b) { return rt < b.rt; }
 
-    private:
-        int polarity;
+    int polarity;
 };
 
 
@@ -428,18 +427,9 @@ class mzLink {
   * @author Elucidata
   */
 class mzSample {
-public:
 
-    mzSample();
-    ~mzSample();
 
-		/**
-		 * [load from file]
-		 * @method loadSample
-		 * @param  filename   [input string filename]
-		 */
-    void loadSample(const char* filename);
-
+private:
 	void sampleNameing(const char* filename);
 
 	void checkSampleBlank(const char* filename);
@@ -464,7 +454,21 @@ public:
 
 	void loadAnySample(const char* filename);
 
+	//TODO: This should be moved 
 	string getFileName(const string& filename);
+
+
+public:
+
+    mzSample();
+    ~mzSample();
+
+		/**
+		 * [load from file]
+		 * @method loadSample
+		 * @param  filename   [input string filename]
+		 */
+    void loadSample(const char* filename);
 
 		/**
 		 * [load data from mzData file]

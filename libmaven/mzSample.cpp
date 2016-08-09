@@ -113,11 +113,11 @@ void mzSample::sampleNameing(const char* filename) {
 
 void mzSample::checkSampleBlank(const char* filename) {
     string filenameString = string(filename);
+    this->isBlank = false;
 
     makeLowerCase(filenameString);
     if ( filenameString.find("blan") != string::npos) {
         this->isBlank = true;
-        cerr << "Found Blank: " << filenameString << endl;
     }
 }
 
@@ -795,7 +795,6 @@ void mzSample::calculateMzRtRange() {
         //sanity check
         if (minRt <= 0 ) minRt = 0;
         if (maxRt >= 1e4 ) maxRt = 1e4;
-        cerr << "calculateMzRtRange() rt=" << minRt << "-" << maxRt << " mz=" << minMz << "-" << maxMz << endl;
 }
 
 mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
@@ -856,12 +855,11 @@ float mzSample::getAverageFullScanTime() {
 
 void mzSample::enumerateSRMScans() {
         srmScans.clear();
-        for(unsigned int i=0; i < scans.size(); i++ ) {
-                if (scans[i]->filterLine.length()>0) {
+        for(unsigned int i = 0; i < scans.size(); i++ ) {
+                if (scans[i]->filterLine.length() > 0) {
                         srmScans[scans[i]->filterLine].push_back(i);
                 }
         }
-        cerr << "enumerateSRMScans: " << srmScans.size() << endl;
 }
 
 Scan* mzSample::getScan(unsigned int scanNum) {
