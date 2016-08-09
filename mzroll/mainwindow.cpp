@@ -742,7 +742,7 @@ void MainWindow::open() {
 		mzFileIO* fileLoader = new mzFileIO(this);
 		fileLoader->setMainWindow(this);
 		fileLoader->loadSamples(samples);
-		fileLoader->start();
+		//fileLoader->start();
 	}
 }
 
