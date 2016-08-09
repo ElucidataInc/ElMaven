@@ -36,6 +36,11 @@ void PeakDetectionDialog::cancel() {
         }
         close();
 }
+
+void PeakDetectionDialog::initPeakDetectionDialogWindow(FeatureDetectionType type){
+        displayAppropriatePeakDetectionDialog(type);
+        inputInitialValuesPeakDetectionDialog();
+}
 /**
  * PeakDetectionDialog::setFeatureDetection This function is being called when
  * the database search button or the feature detection button is cliecked
@@ -43,7 +48,7 @@ void PeakDetectionDialog::cancel() {
  * @param type this is an enum which can take the following values
  * FullSpectrum, CompoundDB, QQQ
  */
-void PeakDetectionDialog::setFeatureDetection(FeatureDetectionType type) {
+void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(FeatureDetectionType type) {
         _featureDetectionType = type;
 
         if (_featureDetectionType == QQQ) {
@@ -96,7 +101,7 @@ void PeakDetectionDialog::setOutputDir() {
  * database search button or the feature detection button is cliecked
  * from the main window
  */
-void PeakDetectionDialog::show() {
+void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         //TODO: Why only this two variables are updated in the windows that is
         //selected by the user
         if (mainwindow != NULL) {
@@ -120,32 +125,33 @@ void PeakDetectionDialog::show() {
                         rtStep->setValue(settings->value("rtStepSize").toDouble());
 
                 }
+                /**
+                 * Getting the database present and updating in the dropdown of the
+                 * peak detection windows
+                 */
+                map<string, int>::iterator itr;
+                map<string, int> dbnames = DB.getDatabaseNames();
+
+                //Clearing so that old value is not appended with the new values
+                compoundDatabase->clear();
+                for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
+                        string db = (*itr).first;
+                        if (!db.empty())
+                                compoundDatabase->addItem(QString(db.c_str()));
+                }
+
+                //selecting the compound database that is selected by the user in the
+                //ligand widget
+                QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
+                compoundDatabase->setCurrentIndex(compoundDatabase->findText(selectedDB));
+
+                //EIC extraction windows ppm value that is set in the main
+                //window is been set to the GUI
+                compoundPPMWindow->setValue(mainwindow->getUserPPM());
+                QDialog::show();
         }
 
-        /**
-         * Getting the database present and updating in the dropdown of the
-         * peak detection windows
-         */
-        map<string, int>::iterator itr;
-        map<string, int> dbnames = DB.getDatabaseNames();
 
-        //Clearing so that old value is not appended with the new values
-        compoundDatabase->clear();
-        for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
-                string db = (*itr).first;
-                if (!db.empty())
-                        compoundDatabase->addItem(QString(db.c_str()));
-        }
-
-        //selecting the compound database that is selected by the user in the
-        //ligand widget
-        QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
-        compoundDatabase->setCurrentIndex(compoundDatabase->findText(selectedDB));
-
-        //EIC extraction windows ppm value that is set in the main
-        //window is been set to the GUI
-        compoundPPMWindow->setValue(mainwindow->getUserPPM());
-        QDialog::show();
 }
 
 /**
