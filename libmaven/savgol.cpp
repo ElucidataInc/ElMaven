@@ -158,7 +158,6 @@ namespace mzUtils
             int kk=((np-k) % np)+1;
             c[kk]=sum;
         }
-        return 0;
 
         delete [] indx ;
         delete [] b;
@@ -168,5 +167,7 @@ namespace mzUtils
             delete [] a[j] ;
         }
         delete [] a ;
+        return 0;
+        
     }
 }
