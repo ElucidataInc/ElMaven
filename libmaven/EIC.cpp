@@ -147,7 +147,7 @@ void EIC::computeSpline(int smoothWindow) {
                 float* y  = new float[n];
                 for(int i=0; i<n; i++) y[i] = intensity[i];
                 smoothAverage(y,spline,smoothWindow,n);
-                free(y);
+                delete[] y;
         }
 
         /*
