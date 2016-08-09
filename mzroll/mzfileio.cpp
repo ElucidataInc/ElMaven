@@ -70,6 +70,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     return NULL;
 }
 
+//TODO: Shouldnot be here
 int mzFileIO::loadNISTLibrary(QString fileName) {
     qDebug() << "Loading Nist Libary: " << fileName;
     QFile data(fileName);
@@ -169,6 +170,7 @@ int mzFileIO::loadNISTLibrary(QString fileName) {
     return compoundCount;
 }
 
+//TODO: Should not be here
 int mzFileIO::loadPepXML(QString fileName) {
 
     qDebug() << "Loading pepXML sample: " << fileName;
@@ -247,7 +249,7 @@ int mzFileIO::loadPepXML(QString fileName) {
     data.close();
     return hitCount;
 }
-
+//TODO: should not be here
 mzSample* mzFileIO::parseMzData(QString fileName) {
 
     qDebug() << "Loading mzData sample: " << fileName;
