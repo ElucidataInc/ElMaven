@@ -3,8 +3,8 @@
 #include "../libmaven/mzSample.h"
 
 TestEIC::TestEIC() {
-    loadFile = "/home/rajat/elucidata/maven/maven_opensource/bin/methods/bk_#sucyxpe_1_9.mzxml";
-    blankSample = "/home/rajat/elucidata/maven/maven_opensource/bin/methods/blan_#sucyxpe_2_4.mzxml";
+    loadFile = "bin/methods/bk_#sucyxpe_1_9.mzxml";
+    blankSample = "bin/methods/blan_#sucyxpe_2_4.mzxml";
 }
 
 void TestEIC::initTestCase() {
