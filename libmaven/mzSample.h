@@ -366,6 +366,15 @@ class mzSlice {
 	 */
 	static bool compRt(const mzSlice* a, const mzSlice* b ) { return a->rt < b->rt; }
 	bool operator< (const mzSlice* b) { return mz < b->mz; }
+
+
+	bool calculateMzMinMax(float CompoundppmWindow, int ionizationMode);
+
+	void calculateRTMinMax(bool matchRtFlag, float compoundRTWindow);
+
+	void setSRMId();
+
+
 };
 
 

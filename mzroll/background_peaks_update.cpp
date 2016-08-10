@@ -153,15 +153,17 @@ void BackgroundPeakUpdate::processSlice(mzSlice& slice) {
         processSlices(slices, "sliceset");
 }
 
+//TODO: kiran Make a function which tell that its from option
+//window and should be called where the settings are been called
 void BackgroundPeakUpdate::getProcessSlicesSettings() {
         QSettings* settings = mainwindow->getSettings();
         mavenParameters->amuQ1 = settings->value("amuQ1").toDouble();
         mavenParameters->amuQ3 = settings->value("amuQ3").toDouble();
         // To Do: Are these lines required. The same is already being done in PeakDetectionDialog.cpp
-        mavenParameters->baseline_smoothingWindow = settings->value(
-                "baseline_smoothing").toInt();
-        mavenParameters->baseline_dropTopX =
-                settings->value("baseline_quantile").toInt();
+        // mavenParameters->baseline_smoothingWindow = settings->value(
+        //         "baseline_smoothing").toInt();
+        // mavenParameters->baseline_dropTopX =
+        //         settings->value("baseline_quantile").toInt();
 
 }
 

@@ -167,7 +167,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         //When doing the peakdetection without database then the amount of
         //peaks that will be there will be huge then its better to take the
         //first n relevent peaks rather than all the peaks
-        mavenParameters->limitGroupCount = INT_MAX;
+        //mavenParameters->limitGroupCount = INT_MAX;
 
         //iterating over all compounds in the set
         vector<mzSlice*> slices;
@@ -179,53 +179,21 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                         continue;
 
                 mzSlice* slice = new mzSlice();
+
                 //setting the compound information into the slices
                 slice->compound = c;
 
-                //TODO: Why is SRM id used for
-                if (!c->srmId.empty()) {
-                        slice->srmId = c->srmId;
-                }
+                slice->setSRMId();
 
-                //Calculating the mzmin and mzmax
-                if (!c->formula.empty()) {
-                        //Computing the mass if the formula is given
-                        double mass = MassCalculator::computeMass(c->formula,
-                                                                         mavenParameters->ionizationMode);
-                        slice->mzmin = mass
-                                       - mavenParameters->compoundPPMWindow * mass / 1e6;
-                        slice->mzmax = mass
-                                       + mavenParameters->compoundPPMWindow * mass / 1e6;
+                // //Calculating the mzmin and mzmax
+                bool success  = \
+                slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, \
+                                                mavenParameters->ionizationMode);
+                if (!success) continue;
 
-                } else if (c->mass > 0) {
-                        // Mass already present in the compound DB then using
-                        // it to find the mzmin and mzmax
-                        double mass = c->mass;
-                        slice->mzmin = mass
-                                       - mavenParameters->compoundPPMWindow * mass / 1e6;
-                        slice->mzmax = mass
-                                       + mavenParameters->compoundPPMWindow * mass / 1e6;
-                } else {
-                        // Not adding the compound if the formula is not given
-                        // and if the mass is also not given
-                        continue;
-                }
-
-                //If the compound database has the expected RT information and
-                //if RT matching flag has been enabled in the peakdetection
-                //window then only calculate the rt min and max else set
-                //it in such a way that it will look in all the rt values
-                //possible
-                if (mavenParameters->matchRtFlag && c->expectedRt > 0) {
-                        slice->rtmin = c->expectedRt - mavenParameters->compoundRTWindow;
-                        slice->rtmax = c->expectedRt + mavenParameters->compoundRTWindow;
-                } else {
-                        // As its time min value will be 0
-                        slice->rtmin = 0;
-                        //TODO: max value shoould be set as the max of the
-                        //double
-                        slice->rtmax = 1e9;
-                }
+                //calculating the min and max RT
+                slice->calculateRTMinMax(mavenParameters->matchRtFlag, \
+                                        mavenParameters->compoundRTWindow);
                 slices.push_back(slice);
         }
 
@@ -470,7 +438,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
         // for all the slies, find EICs and score quality and rank ofpeaks in the EICs
         // using the classifier
-  #pragma omp parallel for ordered
+        #pragma omp parallel for ordered
         for (unsigned int s = 0; s < slices.size(); s++) {
                 mzSlice* slice = slices[s];
                 double mzmin = slice->mzmin;
@@ -490,7 +458,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 0 :
                                 converged++;
                         if (converged > 1000) {
-        #pragma omp cancel for
+                        #pragma omp cancel for
                                 //	break;	 //exit main loop
                         }
                         foundGroups = mavenParameters->allgroups.size();
@@ -500,7 +468,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
                 vector<EIC*> eics;
                 // for all the slies, find EICs
-    #pragma omp ordered
+                #pragma omp ordered
                 //TODO: all the settings from this are not connected to the main
                 //window parameters which are not connected are they are
                 //connected from options settings
