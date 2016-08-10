@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from os.path import isfile, join
 
-def get_list_of_files_in_directory(path_to_directory, extension):
+def get_list_of_files_in_directory_with_full_path(path_to_directory, extension):
 
     list_of_files = []
     for file in os.listdir(path_to_directory):
@@ -18,19 +18,19 @@ def get_dict_of_attributes_in_class(class_object):
 
     return dict_of_attributes
 
-def convert_dict_to_command_line_arguments(input_dict):
+def convert_dict_to_CL_arguments(input_dict):
 
     keys_in_dict = input_dict.keys()
-    command_line_script = ""
+    CL_script = ""
 
     for argument in keys_in_dict:
-        command_line_script += " --" + argument + " " + str(input_dict[argument])
+        CL_script += " --" + argument + " " + str(input_dict[argument])
 
-    return command_line_script
+    return CL_script
 
-def run_command(command_line_script):
+def run_command(CL_script):
 
-    os.system(command_line_script)
+    os.system(CL_script)
 
 def read_csv_pandas(path_to_csv):
     df = pd.read_csv(path_to_csv)
@@ -57,3 +57,15 @@ def export_file(input_string, path_output_file):
     f = open(path_output_file, "w")
     f.write(input_string)
     f.close()
+
+def get_list_of_files_in_directory_without_extension(path_to_directory):
+
+    list_files = os.listdir(path_to_directory)
+
+    list_file_names = []
+
+    for file in list_files:
+
+        list_file_names.append(file.split('.')[0])
+    
+    return list_file_names
