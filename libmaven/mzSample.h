@@ -383,24 +383,16 @@ class mzLink {
 			void* data1;
             void* data2;
 
+			float value1;
+			float value2;
+
+			string note;
+
 			mzLink();
 			mzLink( int a, int b, string n );
 			mzLink( float a,float b, string n );
 			~mzLink(){}
 
-			/** from */
-
-			/** to */
-			
-
-			/** note about this link */
-			string note;
-
-            //generic placeholders to attach values to links
-			float value1;
-			float value2;
-
-            //generic  placeholders to attach objects to the link
 
            float correlation;
 

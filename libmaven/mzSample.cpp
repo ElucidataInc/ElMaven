@@ -1424,15 +1424,9 @@ mzLink::mzLink(){
     correlation = 0;
 }
 
-mzLink::mzLink( int a, int b, string n ) { 
-    value1 = a;
-    value2 = b; 
-    note = n;
+mzLink::mzLink(int a, int b, string n): value1(a), value2(b), note(n){ 
     correlation = 0; 
 }
-mzLink::mzLink( float a,float b, string n ) {
-    mz1 = a;
-    mz2 = b;
-    note = n;
+mzLink::mzLink(float a,float b, string n): mz1(a), mz2(b), note(n){
     correlation = 0;
 }
