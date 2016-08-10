@@ -377,15 +377,21 @@ class mzSlice {
  */
 class mzLink {
 		public:
-			mzLink(){ mz1=mz2=0; value1=value2=0.0; data1=data2=NULL; correlation=0;}
-			mzLink( int a, int b, string n ) { value1=a; value2=b; note=n; correlation=0; }
-			mzLink( float a,float b, string n ) { mz1=a; mz2=b; note=n; correlation=0; }
-			~mzLink() {}
+			float mz1;
+			float mz2;
+
+			void* data1;
+            void* data2;
+
+			mzLink();
+			mzLink( int a, int b, string n );
+			mzLink( float a,float b, string n );
+			~mzLink(){}
 
 			/** from */
-			float mz1;
+
 			/** to */
-			float mz2;
+			
 
 			/** note about this link */
 			string note;
@@ -395,8 +401,6 @@ class mzLink {
 			float value2;
 
             //generic  placeholders to attach objects to the link
-            void* data1;
-            void* data2;
 
            float correlation;
 
