@@ -1,6 +1,6 @@
-"""This module is used to create script(s) from the arguments in configuration
-file and run the executable on the terminal using that script
-"""
+"""This module is used to create script(s) from the arguments in
+configuration file and run the executable on the terminal using 
+that script"""
 
 import os
 import sys
@@ -28,7 +28,8 @@ class run_peakdetector():
     def get_CL_script(self, input_paths, arguments):
 
         script_exec = self.add_path_exec_script(input_paths)
-        script_argu = self.add_arguments_script(arguments)
+        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
+        script_argu = self.add_arguments_script(dict_of_arguments)
         script_inps = self.add_input_files_script(input_paths)
 
         CL_script = script_exec + script_argu + script_inps
@@ -38,10 +39,9 @@ class run_peakdetector():
 
         script_exec = input_paths.path_peakdetector
         return script_exec
-    
-    def add_arguments_script(self, arguments):
 
-        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
+    def add_arguments_script(self, dict_of_arguments):
+
         dict_of_arguments = self.set_run_function(dict_of_arguments)
         script_argu = helper.convert_dict_to_CL_arguments(dict_of_arguments)
         return script_argu
@@ -50,12 +50,12 @@ class run_peakdetector():
 
         list_of_mzxmls = \
         helper.get_list_of_files_in_directory_with_full_path(input_paths.inputdir, '.mzxml')
-        
+
         script_inps = ''
-        
+
         for mzxml_file in list_of_mzxmls:
             script_inps += " " + mzxml_file
-        
+
         return script_inps
 
     def set_run_function(self, dict_of_arguments):
