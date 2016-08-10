@@ -35,6 +35,7 @@ mzroll/tmp
 mzWatcher/tmp
 peakdetector/tmp
 pugixml/src/tmp
+MavenTests/tmp/
 build
 build.pro.user
 
@@ -55,6 +56,7 @@ mzroll/qrc_mzroll.cpp
 bin/maven_dev_769
 bin/mzWatcher
 bin/peakdetector
+bin/MavenTests
 
 #Documentation files
 docs/html
@@ -76,4 +78,22 @@ maven_opensource.kdev4
 *.browse.VC.db
 *.browse.VC.db-shm
 *.browse.VC.db-wal
+*.vscode
 MavenTests/MavenTests
+
+#Mzxml Files
+*.mzXML
+*.mzxml
+*.MZXML
+*.mzXml
+*.mZxml
+
+#XML Files
+*.xml
+*.Xml
+*.XML
+
+#log Files
+*.log
+*.LOG
+*.Log
