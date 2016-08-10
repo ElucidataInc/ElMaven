@@ -10,16 +10,14 @@ from scipy import stats
 class compare_output():
 
     def __init__(self):
-
-        self.summary = ''
+        pass
 
     def compare(self, list_builds):
 
-        if len(list_builds) < 2:
-            sys.exit('You need 2 or more outputs to compare')
+        self.check_input_conditions(list_builds)
 
         list_of_dfs = self.get_list_of_dfs(list_builds)
-        self.summary += '1. Total numer of peaks found by maven v769 is %d and by maven v776 is %d\n' %(len(list_of_dfs[0].index), len(list_of_dfs[1].index))
+
         lists_of_compounds = self.get_lists_of_compounds(list_of_dfs)
         unique_list_of_compounds = helper.get_intersection_of_list(lists_of_compounds)
 
@@ -28,13 +26,7 @@ class compare_output():
         list_of_intersected_dfs = self.get_list_of_intersected_dfs(list_of_dfs, unique_list_of_compounds)
         list_of_dfs_with_same_mz_rt = self.get_list_of_dfs_with_same_mz_rt(list_of_intersected_dfs, unique_list_of_compounds)
 
-        list_mzxml_files = os.listdir(config.paths(0).inputdir)
-
-        list_mzxml_file_names = []
-
-        for mzxml_file in list_mzxml_files:
-
-            list_mzxml_file_names.append(mzxml_file.split('.')[0])
+        list_mzxml_file_names = helper.get_list_of_files_in_directory_without_extension(config.paths(0).inputdir)
 
         len_of_df = len(list_of_dfs_with_same_mz_rt[0])
 
@@ -53,10 +45,8 @@ class compare_output():
             if r2_value > 0.5:
                 number_r2 += 1
             list_of_r2_values.append(r2_value)
-        
-        self.summary += '3. The total numer of peaks with same mz & rt are %d\n' %(len(list_of_r2_values))
-        self.summary += '4. Out of this %d peaks, %d number of peaks has r-square greater than 0.5\n' %(len(list_of_r2_values), number_r2)
-        helper.export_file(self.summary, config.variables.path_summary_of_results)
+
+
         df1 = df1[['compound', 'medMz', 'medRt']]
         df2 = df2[['compound', 'medMz', 'medRt']]
         df1.columns = ['compound_1', 'medMz_1', 'medRt_1']
@@ -88,6 +78,11 @@ class compare_output():
         se = pd.Series(list_of_r2_values)
         r2_df['r2'] = se.values
         r2_df.to_csv(config.variables.path_r2_values_csv)
+
+
+        summary = self.generate_summary(list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2)
+        helper.export_file(summary, config.variables.path_summary_of_results)
+
 
     def get_list_of_dfs(self, list_builds):
 
@@ -178,7 +173,6 @@ class compare_output():
         SEP = ','
         csv_output = "Compounds, Compounds (769), compounds (776)\n"
 
-        self.summary += '2. Out of the total %d compounds found by both the versions, v769 found %d compounds and v776 found %d compounds\n' %(len(c), len(a), len(b))
 
         for i in c:
 
@@ -194,5 +188,27 @@ class compare_output():
             csv_output += '\n'
 
         helper.export_file(csv_output, config.variables.path_compare_compounds_csv)
+    
+    def check_input_conditions(self, list_builds):
+
+        if len(list_builds) < 2:
+            sys.exit('You need 2 or more outputs to compare')
+
+    def generate_summary(self, list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2):
+
+        summary = ''
+        summary += '1. Total numer of peaks found by maven v769 is %d and by maven v776 is %d\n' %(len(list_of_dfs[0].index), len(list_of_dfs[1].index))
+
+        a = lists_of_compounds[0]
+
+        b = lists_of_compounds[1]
+
+        c = list(set(a) | set(b)) #union of a & b
+
+        summary += '2. Out of the total %d compounds found by both the versions, v769 found %d compounds and v776 found %d compounds\n' %(len(c), len(a), len(b))
+        summary += '3. The total numer of peaks with same mz & rt are %d\n' %(len(list_of_r2_values))
+        summary += '4. Out of this %d peaks, %d number of peaks has r-square greater than 0.5\n' %(len(list_of_r2_values), number_r2)
+
+        return summary
 
 compare_output = compare_output()
