@@ -22,18 +22,33 @@ class run_peakdetector():
         input_paths = config.input_paths(build_maven)
         arguments = config.arguments(build_maven)
 
-        CL_script = self.get_CL_script(input_paths, arguments)
-        helper.run_command(CL_script)
+        list_of_CL_scripts = self.get_list_of_CL_scripts(input_paths, arguments)
+        
+        for CL_script in list_of_CL_scripts:
+            helper.run_command(CL_script)
 
-    def get_CL_script(self, input_paths, arguments):
+    def get_list_of_CL_scripts(self, input_paths, arguments):
 
         script_exec = self.add_path_exec_script(input_paths)
-        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
-        script_argu = self.add_arguments_script(dict_of_arguments)
         script_inps = self.add_input_files_script(input_paths)
 
-        CL_script = script_exec + script_argu + script_inps
-        return CL_script
+        list_of_dict_of_argu = self.list_of_dict_of_argu(arguments)
+
+        list_of_CL_scripts = []
+        for dict_of_arguments in list_of_dict_of_argu:
+
+            script_argu = self.add_arguments_script(dict_of_arguments)
+            CL_script = script_exec + script_argu + script_inps
+            list_of_CL_scripts.append(CL_script)
+        return list_of_CL_scripts
+
+    def list_of_dict_of_argu(self, arguments):
+
+        list_of_dict_of_argu = []
+        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
+        list_of_dict_of_argu.append(dict_of_arguments)
+
+        return list_of_dict_of_argu        
 
     def add_path_exec_script(self, input_paths):
 
