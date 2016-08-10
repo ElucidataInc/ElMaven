@@ -80,7 +80,7 @@ class MassCalculator {
      * @param  elmnt          string formula
      * @return                map of string and int.
      */
-    map<string,int> getComposition(string formula);
+    static map<string,int> getComposition(string formula);
 
     /**
      * [matchMass ]
