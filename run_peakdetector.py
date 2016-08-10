@@ -1,8 +1,12 @@
+"""This module is used to create script(s) from the arguments in configuration
+file and run the executable on the terminal using that script
+"""
 
 import os
 import sys
 from helper import helper
 from config import config
+
 class run_peakdetector():
 
     def __init__(self):
@@ -15,65 +19,89 @@ class run_peakdetector():
 
     def run_build(self, build_maven):
 
-        paths = config.paths(build_maven)
-        constants = config.constants(build_maven)
-        command_line_script = self.get_command_line_script(paths, constants)
-        helper.run_command(command_line_script)
+        input_paths = config.input_paths(build_maven)
+        arguments = config.arguments(build_maven)
 
-    def get_command_line_script(self, paths, constants):
+        CL_script = self.get_CL_script(input_paths, arguments)
+        helper.run_command(CL_script)
 
-        command_line_script = ''
+    def get_CL_script(self, input_paths, arguments):
 
-        command_line_script += paths.path_peakdetector
-        list_of_mzxml_files = helper.get_list_of_files_in_directory(paths.inputdir, '.mzXML' )
+        script_exec = self.add_path_exec_script(input_paths)
+        script_argu = self.add_arguments_script(arguments)
+        script_inps = self.add_input_files_script(input_paths)
 
-        dict_of_paths = helper.get_dict_of_attributes_in_class(paths)
+        CL_script = script_exec + script_argu + script_inps
+        return CL_script
 
-        dict_of_paths.pop('path_peakdetector')
-        dict_of_paths.pop('inputdir')
-        command_line_paths = helper.convert_dict_to_command_line_arguments(dict_of_paths)
-        command_line_script += command_line_paths
+    def add_path_exec_script(self, input_paths):
 
+        script_exec = input_paths.path_peakdetector
+        return script_exec
+    
+    def add_arguments_script(self, arguments):
 
-        dict_of_constants = helper.get_dict_of_attributes_in_class(constants)        
-        dict_of_constants = self.set_run_function(dict_of_constants)
+        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
+        dict_of_arguments = self.set_run_function(dict_of_arguments)
+        script_argu = helper.convert_dict_to_CL_arguments(dict_of_arguments)
+        return script_argu
 
-        command_line_constants = helper.convert_dict_to_command_line_arguments(dict_of_constants)
-        command_line_script += command_line_constants
+    def add_input_files_script(self, input_paths):
 
+        list_of_mzxmls = \
+        helper.get_list_of_files_in_directory_with_full_path(input_paths.inputdir, '.mzxml')
+        
+        script_inps = ''
+        
+        for mzxml_file in list_of_mzxmls:
+            script_inps += " " + mzxml_file
+        
+        return script_inps
 
-        for mzxml_file in list_of_mzxml_files:
-            command_line_script += " " + mzxml_file
-        return command_line_script
-
-    def set_run_function(self, dict_of_constants):
+    def set_run_function(self, dict_of_arguments):
 
         run_function = config.variables.run_function
-        if run_function in (1,3):
-            if 'db' in dict_of_constants:
+
+        dict_of_arguments = \
+        self.run_function_pullIsotopes(run_function, dict_of_arguments)
+        dict_of_arguments = \
+        self.run_function_processAllSlices(run_function, dict_of_arguments)
+
+        return dict_of_arguments
+
+    def run_function_pullIsotopes(self, run_function, dict_of_arguments):
+
+        if run_function in [1,2]:
+            dict_of_arguments['pullIsotopes'] = 0
+        elif run_function in [3,4]:
+            dict_of_arguments['pullIsotopes'] = 15
+        else:
+            self.run_function_exit_message()
+
+        return dict_of_arguments
+
+    def run_function_processAllSlices(self, run_function, dict_of_arguments):
+
+        if run_function in [1,3]:
+            if 'db' in dict_of_arguments:
                 pass
             else:
                 sys.exit("No Database found")
-
-            if run_function in 1:
-                dict_of_constants['pullIsotopes'] = 0
-            else:
-                dict_of_constants['pullIsotopes'] = 15
-        elif run_function in (2,4):
-
-            dict_of_constants.pop("db", None)
-            dict_of_constants['processAllSlices'] = 1
-            if run_function in 2:
-                dict_of_constants['pullIsotopes'] = 0
-            else:
-                dict_of_constants['pullIsotopes'] = 15
+        elif run_function in [2,4]:
+            dict_of_arguments.pop("db", None)
+            dict_of_arguments['processAllSlices'] = 1
         else:
-            sys.exit("Wrong configuration selected\n" \
-                     "run_function can be following:\n" \
-                     "run_function = 1 (processCompounds)\n" \
-                     "run_function = 2 (processAllSlices)\n" \
-                     "run_function = 3 (processCompounds & pullIsotopes)\n"\
-                     "run_function = 4 (processAllSlices & pullIsotopes)\n")
+            self.run_function_exit_message()
 
+        return dict_of_arguments
+
+    def run_function_exit_message(self):
+
+        sys.exit("Wrong configuration selected\n" \
+                    "run_function can be following:\n" \
+                    "run_function = 1 (processCompounds)\n" \
+                    "run_function = 2 (processAllSlices)\n" \
+                    "run_function = 3 (processCompounds & pullIsotopes)\n"\
+                    "run_function = 4 (processAllSlices & pullIsotopes)\n")
 
 run_peakdetector = run_peakdetector()
