@@ -534,7 +534,7 @@ void MainWindow::setFormulaFocus(QString formula) {
 		charge = getIonizationMode(); //user specified ionization mode
 
 	MassCalculator mcalc;
-	double parentMass = mcalc.computeMass(formula.toStdString(), charge);
+	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
 	if (eicWidget->isVisible())
 		eicWidget->setMzSlice(parentMass);
 	isotopeWidget->setFormula(formula);
@@ -2141,7 +2141,7 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	int numberofCarbons = 0;
 	if (group->compound && !group->compound->formula.empty()) {
 		MassCalculator mcalc;
-		map<string, int> composition = mcalc.getComposition(
+		map<string, int> composition = MassCalculator::getComposition(
 				group->compound->formula);
 		numberofCarbons = composition["C"];
 	}

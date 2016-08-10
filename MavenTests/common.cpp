@@ -1,7 +1,7 @@
 #include "common.h"
 
 bool common::floatCompare(float a, float b) {
-    float EPSILON = 0.0001;
+    float EPSILON = 0.001;
     return fabs(a - b) < EPSILON;
 }
 

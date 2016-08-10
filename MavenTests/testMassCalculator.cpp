@@ -1,5 +1,6 @@
 #include "testMassCalculator.h"
 #include "../libmaven/mzMassCalculator.h"
+#include "../libmaven/mzSample.h"
 
 TestMassCalculator::TestMassCalculator() {
 
@@ -51,4 +52,47 @@ void TestMassCalculator::testGetComposition() {
     massCompoHClMan["Cl"] = 1;
     QVERIFY(common::compareMaps(massCompoHCl,massCompoHClMan));
 
+}
+
+void TestMassCalculator::testNeutralMass() {
+    double alcoholMonoIsotopicMass = 46.041866;
+
+    QVERIFY(common::floatCompare(MassCalculator::computeNeutralMass("C2H6O"), alcoholMonoIsotopicMass));
+
+    QVERIFY(common::floatCompare(MassCalculator::computeNeutralMass("C2H5OH"), alcoholMonoIsotopicMass));
+
+}
+
+void TestMassCalculator::testComputeMass() {
+    string XanthosineChe = "C10H12N4O6";
+    double XanthosineMonoIso = 284.075684;
+    double HydrogenMass =  1.007;
+
+    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, 0), XanthosineMonoIso));
+
+    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, -1), XanthosineMonoIso - HydrogenMass ));
+
+    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, +1), XanthosineMonoIso + HydrogenMass ));
+
+}
+
+void TestMassCalculator::testComputeIsotopes() {
+    string XanthosineChe = "C10H12N4O6";
+
+    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1);
+
+    //TODO: have to add a test case here
+    for(vector<Isotope>::iterator it = isotopesXanthosine.begin(); it != isotopesXanthosine.end(); ++it) {
+         //cerr << it->name << endl;
+    }
+
+    QVERIFY(true);
+}
+ 
+void TestMassCalculator::testenumerateMasses() {
+    //TODO: have to add a test case for ennumurate mass
+    MassCalculator masCal;
+    //masCal.enumerateMasses()
+
+    QVERIFY(true);
 }

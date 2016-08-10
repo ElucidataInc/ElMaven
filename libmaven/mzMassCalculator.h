@@ -52,7 +52,7 @@ class MassCalculator {
      * @param  formula            []
      * @return                    []
      */
-    double computeNeutralMass(string formula);
+    static double computeNeutralMass(string formula);
 
     /**
      * [input is neutral formala with all the hydrogens and charge state of molecule.]
@@ -61,18 +61,7 @@ class MassCalculator {
      * @param  polarity    []
      * @return             [expected mass of the molecule after loss/gain of protons]
      */
-    double computeMass(string formula, int polarity);
-    /**
-     * [computeC13IsotopeMass ]
-     * @method computeC13IsotopeMass
-     * @param  formula               []
-     * @return                       []
-     */
-    double computeC13IsotopeMass(string formula);
-
-    map<string,double>computeLabeledMasses(string formula, int polarity);
-    map<string,double>computeLabeledAbundances(string formula);
-
+    static double computeMass(string formula, int polarity);
 
     /**
      * [getComposition parsing function]
@@ -82,13 +71,6 @@ class MassCalculator {
      */
     static map<string,int> getComposition(string formula);
 
-    /**
-     * [matchMass ]
-     * @method matchMass
-     * @param  mass      []
-     * @param  ppm       []
-     */
-    void matchMass(double mass, double ppm);
 
     /**
      * [prettyName ]
@@ -101,7 +83,7 @@ class MassCalculator {
      * @param  s          []
      * @return            []
      */
-    string prettyName(int c, int h, int n, int o, int p, int s);
+    static string prettyName(int c, int h, int n, int o, int p, int s);
 
     /**
      * [enumerateMasses ]
@@ -114,7 +96,7 @@ class MassCalculator {
     void enumerateMasses(double inputMass, double charge, double maxdiff, vector<Match*>& matches);
 
 
-    vector<Isotope> computeIsotopes(string formula, int polarity);
+    static vector<Isotope> computeIsotopes(string formula, int polarity);
 
     /**
      * [adjustMass ]
@@ -123,7 +105,7 @@ class MassCalculator {
      * @param  charge     []
      * @return            []
      */
-    double adjustMass(double mass,int charge);
+    static double adjustMass(double mass,int charge);
 
     /**
      * [compDiff ]
@@ -142,7 +124,7 @@ class MassCalculator {
          * @param  elmnt          string element
          * @return                double mass of element.
          */
-        double getElementMass(string elmnt);
+        static double getElementMass(string elmnt);
 
 };
 
