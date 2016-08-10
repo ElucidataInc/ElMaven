@@ -38,8 +38,8 @@ double MassCalculator::getElementMass(string elmnt){
 	/* Check for atoms */
 	if (elmnt == "H"){
 		val_atome = 1.0078250321;
-        } else if ( elmnt == "D") {
-                val_atome =  2.01410178;
+    } else if ( elmnt == "D") {
+        val_atome =  2.01410178;
 	} else if (elmnt == "C") {
 		val_atome = 12.00000000;
 	} else if (elmnt == "N") {
@@ -64,9 +64,9 @@ double MassCalculator::getElementMass(string elmnt){
 		val_atome = 39.9625912;
 	} else if (elmnt == "Se") {
 		val_atome = 79.916521;
-    	} else if (elmnt == "As") {
+    } else if (elmnt == "As") {
 		val_atome = 74.921596;
-    	} else if (elmnt == "Si") {
+    } else if (elmnt == "Si") {
 		val_atome = 27.9769265325;
 	}
 	return(val_atome);

@@ -190,7 +190,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                 //Calculating the mzmin and mzmax
                 if (!c->formula.empty()) {
                         //Computing the mass if the formula is given
-                        double mass = mavenParameters->mcalc.computeMass(c->formula,
+                        double mass = MassCalculator::computeMass(c->formula,
                                                                          mavenParameters->ionizationMode);
                         slice->mzmin = mass
                                        - mavenParameters->compoundPPMWindow * mass / 1e6;
@@ -257,7 +257,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
         string formula = parentgroup->compound->formula; //parent formula
         //generate isotope list for parent mass
-        vector<Isotope> masslist = mavenParameters->mcalc.computeIsotopes(formula,
+        vector<Isotope> masslist = MassCalculator::computeIsotopes(formula,
                                                                           mavenParameters->ionizationMode);
 
         //iterate over samples to find properties for parent's isotopes.

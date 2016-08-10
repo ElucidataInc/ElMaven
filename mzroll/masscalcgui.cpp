@@ -111,7 +111,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
 	//cerr << "findMathchingCompounds() mz=" << mz << " ppm=" << ppm << " charge=" <<  charge;
     for(;itr != sortedcompounds.end(); itr++ ) {
         Compound* c = *itr; if (!c) continue;
-        double cmass = mcalc.computeMass(c->formula, charge);
+        double cmass = MassCalculator::computeMass(c->formula, charge);
         if ( mzUtils::ppmDist((double) cmass, (double) mz) < ppm && !uniqset.contains(c) ) uniqset << c;
         if (cmass > mz+2) break;
 	}
@@ -123,7 +123,7 @@ void MassCalcWidget::getMatches() {
 	foreach(Compound* c, compounds) {
           MassCalculator::Match* m = new MassCalculator::Match();
           m->name = c->formula;
-          m->mass = mcalc.computeMass(c->formula,_charge);
+          m->mass = MassCalculator::computeMass(c->formula,_charge);
           m->diff = mzUtils::ppmDist((double) m->mass,(double) _mz);
           m->compoundLink = c;
           matches.push_back(m);

@@ -25,6 +25,10 @@ class TestMassCalculator : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testGetComposition();
+        void testNeutralMass();
+        void testComputeMass();
+        void testComputeIsotopes();
+        void testenumerateMasses();
 };
 
 #endif // TESTMASSCALCULATOR_H

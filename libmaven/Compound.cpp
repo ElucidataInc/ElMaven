@@ -5,7 +5,7 @@ Compound::Compound(string id, string name, string formula, int charge ) {
 		this->name = name;
 		this->formula = formula;
 		this->charge = charge;
-        this->mass =  mcalc->computeNeutralMass(formula);
+        this->mass =  MassCalculator::computeNeutralMass(formula);
 		this->massDelta = FLT_MAX;
 		this->expectedRt = -1;
 
@@ -15,9 +15,7 @@ Compound::Compound(string id, string name, string formula, int charge ) {
 		_groupUnlinked=false;
 }
 
-MassCalculator* Compound::mcalc = new MassCalculator();
-
 float Compound::ajustedMass(int charge) { 
-	return Compound::mcalc->computeMass(formula,charge); 
+	return MassCalculator::computeMass(formula,charge); 
 }
 
