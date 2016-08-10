@@ -41,6 +41,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 
                 void displayAppropriatePeakDetectionDialog(FeatureDetectionType type);
                 void inputInitialValuesPeakDetectionDialog();
+                void updateQSettingsWithUserInput(QSettings *settings,vector<mzSample*> samples);
+                void setMavenParameters(MavenParameters* mavenParameters, QSettings *settings);
 };
 
 #endif
