@@ -30,7 +30,6 @@ void TestMassCalculator::testGetComposition() {
     massCompoH20Man["H"] = 2;
     massCompoH20Man["O"] = 1;
     QVERIFY(common::compareMaps(massCompoH20, massCompoH20Man));
-    //cerr <<common::compareMaps(massCompoH20, massCompoH20Man) << endl;
 
     map<string,int> massCompoC2H6O = MassCalculator::getComposition("C2H6O");
     map<string,int> massCompoC2H6OMan;
@@ -38,7 +37,6 @@ void TestMassCalculator::testGetComposition() {
     massCompoC2H6OMan["H"] = 6;
     massCompoC2H6OMan["O"] = 1;
     QVERIFY(common::compareMaps(massCompoC2H6O, massCompoC2H6OMan));
-    //common::mapCompare(massCompoC2H6O, massCompoC2H6OMan);
 
     map<string,int> massCompoC2H5OH = MassCalculator::getComposition("C2H5OH");
     map<string,int> massCompoC2H5OHMan;

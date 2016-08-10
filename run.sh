@@ -4,10 +4,10 @@ make -j $(nproc)
 
 
 if [ -f MavenTests/test.xml ]; then
-	rm MavenTests/test.xml
+	rm test*.xml
 fi
 
 if [ -f bin/MavenTests ]; then
-	./bin/MavenTests -xml -o MavenTests/test.xml
+	./bin/MavenTests -xml
 fi
 

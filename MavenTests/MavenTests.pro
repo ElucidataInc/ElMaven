@@ -23,7 +23,7 @@ QMAKE_LFLAGS_DEBUG -= -pg
 HEADERS += \
     common.h \
     testEIC.h \
-    testMassCalculator.h
+    testMassCalculator.h 
 
 
 SOURCES += \
