@@ -32,7 +32,6 @@ class arguments():
 		#For all builds
 		self.db = '/home/sahil/code/qe/maven_data/CDatabases/qe3_v11_2016_04_13.tab.txt'
 		self.model = '/home/sahil/code/qe/maven_data/Models/default.model'
-		self.minGoodGroupCount = 1
 		self.eicMaxGroups = 5	
 		self.savemzroll = 1
 		self.minQuality = 0.5
