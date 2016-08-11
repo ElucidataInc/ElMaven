@@ -15,7 +15,8 @@ class run_peakdetector():
     def __init__(self):
         ts = time.time()
         self.st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-
+        self.list_of_dict_of_argu = []
+        
     def run(self, list_of_builds):
 
         for build_maven in list_of_builds:
@@ -36,10 +37,10 @@ class run_peakdetector():
         script_exec = self.add_path_exec_script(input_paths)
         script_inps = self.add_input_files_script(input_paths)
 
-        list_of_dict_of_argu = self.get_list_of_dict_of_argu(arguments)
+        self.list_of_dict_of_argu = self.get_list_of_dict_of_argu(arguments)
 
         list_of_CL_scripts = []
-        for dict_of_arguments in list_of_dict_of_argu:
+        for dict_of_arguments in self.list_of_dict_of_argu:
 
             script_argu = self.add_arguments_script(dict_of_arguments)
             CL_script = script_exec + script_argu + script_inps
@@ -48,7 +49,6 @@ class run_peakdetector():
 
     def get_list_of_dict_of_argu(self, arguments):
 
-        list_of_dict_of_argu = []
         dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
 
         list_of_tuples = self.get_tuple_if_value_list(dict_of_arguments)
@@ -63,9 +63,9 @@ class run_peakdetector():
             dict_of_arguments['outputdir'] = str(join(path, self.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1]))))
 
             dict_of_arguments[key_value_tuple[0]] = key_value_tuple[1]
-            list_of_dict_of_argu.append(dict_of_arguments.copy())
-        print list_of_dict_of_argu
-        return list_of_dict_of_argu
+            self.list_of_dict_of_argu.append(dict_of_arguments.copy())
+
+        return self.list_of_dict_of_argu
     
     def get_tuple_if_value_list(self, dict_of_arguments):
 
