@@ -1,9 +1,17 @@
 #include "testCSVReports.h"
-#include "../libmaven/mzSample.h"
-#include "../libmaven/csvreports.h"
+
 
 TestCSVReports::TestCSVReports() {
     outputfile = "output.csv";
+    mzsample1 = new mzSample();
+    mzsample1->sampleName = "bk_#sucyxpe_1_9";
+    mzsample1->_sampleOrder = 1;
+    mzsample2 = new mzSample();
+    mzsample2->sampleName = "bk_#sucyxpe_1_10";
+    mzsample2->_sampleOrder = 2;
+    mzsamples.resize(2);
+    mzsamples[0] = mzsample1;
+    mzsamples[1] = mzsample2;
     
 }
 
@@ -28,19 +36,7 @@ void TestCSVReports::cleanup() {
 
 void TestCSVReports::testopenGroupReport() {
 
-    mzSample* mzsample1 = new mzSample();
-    mzsample1->sampleName = "bk_#sucyxpe_1_9";
-    mzsample1->_sampleOrder = 1;
 
-    mzSample* mzsample2 = new mzSample();
-    mzsample2->sampleName = "bk_#sucyxpe_1_10";
-    mzsample2->_sampleOrder = 1;
-
-    vector<mzSample*> mzsamples;
-
-    mzsamples.resize(2);
-    mzsamples[0] = mzsample1;
-    mzsamples[1] = mzsample2;
 
     CSVReports* csvreports =  new CSVReports(mzsamples);
 
@@ -57,6 +53,29 @@ void TestCSVReports::testopenGroupReport() {
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
                 << "compoundId" << "expectedRtDiff" << "ppmDiff" << "parent"
                 <<"bk_#sucyxpe_1_9"<<"bk_#sucyxpe_1_10";
+
+    QString header = colnames.join(",");
+    QVERIFY(header.toStdString()==temp);
+}
+
+void TestCSVReports::testopenPeakReport() {
+
+    CSVReports* csvreports =  new CSVReports(mzsamples);
+
+    csvreports->openPeakReport(outputfile);
+
+    ifstream ifile(outputfile.c_str());
+    string temp;
+    getline(ifile, temp);
+    remove(outputfile.c_str());
+
+
+    QStringList colnames;
+    colnames << "groupId" << "compound" << "compoundId" << "sample" << "peakMz"
+             << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
+             << "peakIntensity" << "peakArea" << "peakAreaTop"
+             << "peakAreaCorrected" << "noNoiseObs" << "signalBaseLineRatio"
+             << "fromBlankSample";
 
     QString header = colnames.join(",");
     QVERIFY(header.toStdString()==temp);
