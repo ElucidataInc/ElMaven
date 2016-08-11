@@ -24,7 +24,7 @@ HEADERS += \
     common.h \
     testEIC.h \
     testMassCalculator.h \
-    testCSVReports.h
+    testCSVReports.h \
     testMzSlice.h \
     testPeakDetection.h
 
