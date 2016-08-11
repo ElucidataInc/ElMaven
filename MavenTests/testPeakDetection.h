@@ -1,20 +1,21 @@
-#ifndef TESTMASSCALCULATOR_H
-#define TESTMASSCALCULATOR_H
+#ifndef TESTPEAKDETECTION_H
+#define TESTPEAKDETECTION_H
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
 #include "common.h"
-#include "../libmaven/databases.h"
+#include "../libmaven/mzSample.h"
+#include "../libmaven/PeakDetector.h"
+#include "../libmaven/mavenparameters.h"
 
-extern Databases DBS;
-
-class TestMassCalculator : public QObject {
+class TestPeakDetection : public QObject {
     Q_OBJECT
 
     public:
-        TestMassCalculator();
+        TestPeakDetection();
     private:
+        const char* loadCompoundDB;
 
     private slots:
         // functions executed by QtTest before and after test suite
@@ -27,11 +28,7 @@ class TestMassCalculator : public QObject {
 
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testGetComposition();
-        void testNeutralMass();
-        void testComputeMass();
-        void testComputeIsotopes();
-        void testenumerateMasses();
+        void testProcessCompound();
 };
 
-#endif // TESTMASSCALCULATOR_H
+#endif // TESTPEAKDETECTION_H

@@ -25,6 +25,8 @@ HEADERS += \
     testEIC.h \
     testMassCalculator.h \
     testCSVReports.h
+    testMzSlice.h \
+    testPeakDetection.h
 
 
 SOURCES += \
@@ -32,6 +34,8 @@ SOURCES += \
     testEIC.cpp \
     testMassCalculator.cpp \
     testCSVReports.cpp \
+    testPeakDetection.cpp \
+    testMzSlice.cpp \
     main.cpp
 
     

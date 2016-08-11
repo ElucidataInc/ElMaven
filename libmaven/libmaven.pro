@@ -41,9 +41,10 @@ SOURCES = 		base64.cpp \
                 classifierNaiveBayes.cpp \
                 classifierNeuralNet.cpp \
                 csvreports.cpp \
-    comparesampleslogic.cpp \
-    isotopelogic.cpp \
-    eiclogic.cpp
+                comparesampleslogic.cpp \
+                isotopelogic.cpp \
+                eiclogic.cpp \
+                databases.cpp
 
 HEADERS += 		base64.h \
                 mzFit.h \
@@ -60,8 +61,9 @@ HEADERS += 		base64.h \
                 classifierNaiveBayes.h \
                 classifierNeuralNet.h \
                 csvreports.h \
-    comparesampleslogic.h \
-    isotopelogic.h \
-    eiclogic.h
+                comparesampleslogic.h \
+                isotopelogic.h \
+                eiclogic.h \
+                databases.h
 
 message($$LIBS)

@@ -1,9 +1,9 @@
 mz,rt,charge,name,formula,id
-0,0,0,dGMP,C10H14N5O7P,HMDB00045
+588.07523818,14.14,-1,ADP-D-glucose,C16H25N5O15P2,C00498
 0,15.5,0,acetoacetyl-CoA,C25H40N7O18P3S,
 101.03767,15.46,-2,acetyl-CoA,,
 507.99277,15.46,-1,dGTP,,
-120.0433,1,-1,YourFavoriteCompound1,,
+,1,-1,YourFavoriteCompound1,,
 120.0433,2,-2,YourFavoriteCompound2,,
 ,,0,YourFavoriteCompound3,C4H9O4R,
 120.0433,,,YourFavoriteCompound4,,

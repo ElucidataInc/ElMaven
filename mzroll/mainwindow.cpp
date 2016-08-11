@@ -767,6 +767,7 @@ void MainWindow::loadCompoundsFile(QString filename) {
 		mzFileIO fileLoader(this);
 		compoundCount = fileLoader.loadNISTLibrary(filename);
 	} else {
+		cerr << dbfilename <<"<<<<<<";
 		compoundCount = DB.loadCompoundCSVFile(dbfilename);
 	}
 
@@ -783,14 +784,14 @@ void MainWindow::loadCompoundsFile(QString filename) {
 }
 
 void MainWindow::loadCompoundsFile() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
+	QString fileName =
+			QFileDialog::getOpenFileName(this, "Select Compounds File To Load",
 					".",
 					"All Known Formats(*.csv *.tab *.msp *.sptxt *.pepXML);;Tab Delimited(*.tab);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt) pepXML(*.pepXML)");
 
-	if (filelist.size() == 0 || filelist[0].isEmpty())
+	if (fileName.size() == 0)
 		return;
-	loadCompoundsFile(filelist[0]);
+	loadCompoundsFile(fileName);
 }
 
 void MainWindow::loadMethodsFolder(QString& methodsFolder) {

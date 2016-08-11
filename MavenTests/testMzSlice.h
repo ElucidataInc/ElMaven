@@ -1,19 +1,18 @@
-#ifndef TESTMASSCALCULATOR_H
-#define TESTMASSCALCULATOR_H
+#ifndef TESTMZSLICE_H
+#define TESTMZSLICE_H
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
 #include "common.h"
-#include "../libmaven/databases.h"
+#include "../libmaven/mzSample.h"
+#include "../libmaven/mavenparameters.h"
 
-extern Databases DBS;
-
-class TestMassCalculator : public QObject {
+class TestMzSlice : public QObject {
     Q_OBJECT
 
     public:
-        TestMassCalculator();
+        TestMzSlice();
     private:
 
     private slots:
@@ -27,11 +26,13 @@ class TestMassCalculator : public QObject {
 
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testGetComposition();
-        void testNeutralMass();
-        void testComputeMass();
-        void testComputeIsotopes();
-        void testenumerateMasses();
+        void testCalculateMzMaxMinWithCF();
+        void testCalculateMzMaxMinWithNOCF();
+        void testCalculateMzMaxMinWithNOCFNOMass();
+        void testcalculateRTMinMaxWithRTandEnabled();
+        void testcalculateRTMinMaxWithNORTandEnabled();
+        void testcalculateRTMinMaxWithNORTandDisabled();
+        void testcalculateRTMinMaxWithRTandDisabled();
 };
 
-#endif // TESTMASSCALCULATOR_H
+#endif // TESTMZSLICE_H
