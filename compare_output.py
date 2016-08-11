@@ -6,89 +6,119 @@ from os.path import join
 from helper import helper
 from config import config
 from scipy import stats
+import run_peakdetector
 
 class compare_output():
 
     def __init__(self):
-        pass
+        self.st = config.variables.st
+        self.append_path = ''
+        self.dict_of_changes = {}
 
     def compare(self, list_builds):
 
         self.check_input_conditions(list_builds)
 
-        list_of_dfs = self.get_list_of_dfs(list_builds)
+        dict_of_scripts = run_peakdetector.run_peakdetector.dict_of_scripts
 
-        lists_of_compounds = self.get_lists_of_compounds(list_of_dfs)
-        unique_list_of_compounds = helper.get_intersection_of_list(lists_of_compounds)
+        for build_maven in list_builds:
+            for key, value in dict_of_scripts[build_maven].iteritems():
+                if key in self.dict_of_changes:
+                    self.dict_of_changes[key].append(value)
+                else:
+                    self.dict_of_changes[key] = [value]
 
-        self.compare_lists(lists_of_compounds)
+        for key, value in self.dict_of_changes.iteritems():
+                list_of_dfs = []
+                self.append_path = key
+                for v in value:
+                    df = helper.read_csv_pandas(join(v['outputdir'], 'compounds.csv'))
+                    list_of_dfs.append(df)
 
-        list_of_intersected_dfs = self.get_list_of_intersected_dfs(list_of_dfs, unique_list_of_compounds)
-        list_of_dfs_with_same_mz_rt = self.get_list_of_dfs_with_same_mz_rt(list_of_intersected_dfs, unique_list_of_compounds)
+                lists_of_compounds = self.get_lists_of_compounds(list_of_dfs)
+                unique_list_of_compounds = helper.get_intersection_of_list(lists_of_compounds)
 
-        list_mzxml_file_names = helper.get_list_of_files_in_directory_without_extension(config.paths(0).inputdir)
+                self.compare_lists(lists_of_compounds)
 
-        len_of_df = len(list_of_dfs_with_same_mz_rt[0])
+                list_of_intersected_dfs = self.get_list_of_intersected_dfs(list_of_dfs, unique_list_of_compounds)
+                list_of_dfs_with_same_mz_rt = self.get_list_of_dfs_with_same_mz_rt(list_of_intersected_dfs, unique_list_of_compounds)
 
-        list_of_r2_values = []
+                list_mzxml_file_names = helper.get_list_of_files_in_directory_without_extension(config.input_paths(0).inputdir)
 
-        df1 = list_of_dfs_with_same_mz_rt[0]
-        df2 = list_of_dfs_with_same_mz_rt[1]
-        number_r2 = 0
-        for i in xrange(len_of_df):
-            df_1 = list_of_dfs_with_same_mz_rt[0].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
-            df_2 = list_of_dfs_with_same_mz_rt[1].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
-            df_1 = [float(i) for i in df_1]
-            df_2 = [float(i) for i in df_2]
-            slope, intercept, r_value, p_value, std_err = stats.linregress(df_1,df_2)
-            r2_value = round(r_value ** 2,3)
-            if r2_value > 0.5:
-                number_r2 += 1
-            list_of_r2_values.append(r2_value)
+                len_of_df = len(list_of_dfs_with_same_mz_rt[0])
 
+                list_of_r2_values = []
 
-        df1 = df1[['compound', 'medMz', 'medRt']]
-        df2 = df2[['compound', 'medMz', 'medRt']]
-        df1.columns = ['compound_1', 'medMz_1', 'medRt_1']
-        df2.columns = ['compound_2', 'medMz_2', 'medRt_2']
-
-        index_df1 = df1.index.values
-        index_df2 = df2.index.values
-
-        original_df1 = list_of_dfs[0]
-        original_df2 = list_of_dfs[1]
-
-        original_df1 = original_df1.drop(original_df1.index[index_df1])
-        original_df2 = original_df2.drop(original_df2.index[index_df2])
-
-        build_df1_list = [list_builds[0]] * len(original_df1.index)
-        build_df2_list = [list_builds[1]] * len(original_df2.index)
-
-        build_df_list = (build_df1_list + build_df2_list)
-
-        ser = pd.Series(build_df_list)
-        df_with_diff_rt_mz = pd.concat([original_df1, original_df2], ignore_index = True)[['compound', 'medMz', 'medRt']]
-        df_with_diff_rt_mz['build'] = ser.values
-        df_with_diff_rt_mz.to_csv(config.variables.path_csv_with_diff_rt_mz)
-        df1 = df1.reset_index()
-        df2 = df2.reset_index()
-
-        r2_df = pd.concat([df1, df2], axis=1)
-
-        se = pd.Series(list_of_r2_values)
-        r2_df['r2'] = se.values
-        r2_df.to_csv(config.variables.path_r2_values_csv)
+                df1 = list_of_dfs_with_same_mz_rt[0]
+                df2 = list_of_dfs_with_same_mz_rt[1]
+                number_r2 = 0
+                for i in xrange(len_of_df):
+                    df_1 = list_of_dfs_with_same_mz_rt[0].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
+                    df_2 = list_of_dfs_with_same_mz_rt[1].iloc[[i]][list_mzxml_file_names].values.tolist()[0]
+                    df_1 = [float(i) for i in df_1]
+                    df_2 = [float(i) for i in df_2]
+                    slope, intercept, r_value, p_value, std_err = stats.linregress(df_1,df_2)
+                    r2_value = round(r_value ** 2,3)
+                    if r2_value > 0.5:
+                        number_r2 += 1
+                    list_of_r2_values.append(r2_value)
 
 
-        summary = self.generate_summary(list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2)
-        helper.export_file(summary, config.variables.path_summary_of_results)
+                df1 = df1[['compound', 'medMz', 'medRt']]
+                df2 = df2[['compound', 'medMz', 'medRt']]
+                df1.columns = ['compound_1', 'medMz_1', 'medRt_1']
+                df2.columns = ['compound_2', 'medMz_2', 'medRt_2']
+
+                index_df1 = df1.index.values
+                index_df2 = df2.index.values
+
+                original_df1 = list_of_dfs[0]
+                original_df2 = list_of_dfs[1]
+
+                original_df1 = original_df1.drop(original_df1.index[index_df1])
+                original_df2 = original_df2.drop(original_df2.index[index_df2])
+
+                build_df1_list = [list_builds[0]] * len(original_df1.index)
+                build_df2_list = [list_builds[1]] * len(original_df2.index)
+
+                build_df_list = (build_df1_list + build_df2_list)
+
+                ser = pd.Series(build_df_list)
+                df_with_diff_rt_mz = pd.concat([original_df1, original_df2], ignore_index = True)[['compound', 'medMz', 'medRt']]
+                df_with_diff_rt_mz['build'] = ser.values
+                if os.path.isdir(join(config.variables.csv_compare_output, self.st, self.append_path)):
+                    pass
+                else:
+                    os.makedirs(join(config.variables.csv_compare_output, self.st, self.append_path))
+                df_with_diff_rt_mz.to_csv(join(config.variables.csv_compare_output, self.st, self.append_path, config.variables.csv_with_diff_rt_mz))
+                df1 = df1.reset_index()
+                df2 = df2.reset_index()
+
+                r2_df = pd.concat([df1, df2], axis=1)
+
+                se = pd.Series(list_of_r2_values)
+                r2_df['r2'] = se.values
+                if os.path.isdir(join(config.variables.csv_compare_output, self.st, self.append_path)):
+                    pass
+                else:
+                    os.makedirs(join(config.variables.csv_compare_output, self.st, self.append_path))
+                r2_df.to_csv(join(config.variables.csv_compare_output, self.st, self.append_path, config.variables.csv_r2_values))
+
+
+                summary = self.generate_summary(list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2)
+                
+                if os.path.isdir(join(config.variables.csv_compare_output, self.st, self.append_path)):
+                    pass
+                else:
+                    os.makedirs(join(config.variables.csv_compare_output, self.st, self.append_path))
+                helper.export_file(summary, str(join(config.variables.csv_compare_output, self.st, self.append_path, config.variables.csv_summary_of_results)))
 
 
     def get_list_of_dfs(self, list_builds):
 
         list_of_dfs = []
         for build_maven in list_builds:
-            paths = config.paths(build_maven)
+            paths = config.input_paths(build_maven)
             df = helper.read_csv_pandas(join(paths.outputdir, 'compounds.csv'))
             list_of_dfs.append(df)
         
@@ -186,9 +216,12 @@ class compare_output():
             if not(i in b):
                 csv_output += "Not Present"
             csv_output += '\n'
+        if os.path.isdir(join(config.variables.csv_compare_output, self.st, self.append_path)):
+            pass
+        else:
+            os.makedirs(join(config.variables.csv_compare_output, self.st, self.append_path))
+        helper.export_file(csv_output, join(config.variables.csv_compare_output, self.st, self.append_path, config.variables.csv_compare_compounds))
 
-        helper.export_file(csv_output, config.variables.path_compare_compounds_csv)
-    
     def check_input_conditions(self, list_builds):
 
         if len(list_builds) < 2:
