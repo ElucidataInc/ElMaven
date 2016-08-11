@@ -7,6 +7,9 @@
 #include <fstream>
 #include <string.h>
 #include "common.h"
+#include "../libmaven/mzSample.h"
+#include "../libmaven/csvreports.h"
+
 
 class TestCSVReports : public QObject {
     Q_OBJECT
@@ -14,7 +17,12 @@ class TestCSVReports : public QObject {
     public:
         TestCSVReports();
     private:
-        
+
+        mzSample* mzsample1;
+        mzSample* mzsample2;
+        vector<mzSample*> mzsamples;
+
+
 
         string outputfile;
 
@@ -30,6 +38,7 @@ class TestCSVReports : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testopenGroupReport();
+        void testopenPeakReport();
         
 };
 
