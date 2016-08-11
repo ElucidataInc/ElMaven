@@ -4,8 +4,6 @@ that script"""
 
 import os
 import sys
-import time
-import datetime
 from os.path import join
 from helper import helper
 from config import config
@@ -13,11 +11,12 @@ from config import config
 class run_peakdetector():
 
     def __init__(self):
-        ts = time.time()
-        self.st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-        self.dict_of_lists_dict_of_argu = {}
+
+        self.dict_of_scripts = {}
         self.build_maven = None
-        
+        self.input_paths = ''
+        self.arguments = ''
+
     def run(self, list_of_builds):
 
         for self.build_maven in list_of_builds:
@@ -25,39 +24,41 @@ class run_peakdetector():
 
     def run_build(self, build_maven):
 
-        input_paths = config.input_paths(build_maven)
-        arguments = config.arguments(build_maven)
+        self.input_paths = config.input_paths(build_maven)
+        self.arguments = config.arguments(build_maven)
 
-        list_of_CL_scripts = self.get_list_of_CL_scripts(input_paths, arguments)
-        
-        for CL_script in list_of_CL_scripts:
+        self.dict_of_scripts[build_maven] = \
+        self.get_dict_of_build()
+        dict_of_build = self.dict_of_scripts[build_maven]
+        self.parse_and_run(dict_of_build)
+
+    def parse_and_run(self, dict_of_build):
+
+        script_exec = self.add_path_exec_script()
+        script_inps = self.add_input_files_script()
+
+        for key, value in dict_of_build.iteritems():
+            script_argu = self.add_arguments_script(value)
+            CL_script = script_exec + script_argu + script_inps
             helper.run_command(CL_script)
 
-    def get_list_of_CL_scripts(self, input_paths, arguments):
+    def get_dict_of_build(self):
 
-        script_exec = self.add_path_exec_script(input_paths)
-        script_inps = self.add_input_files_script(input_paths)
 
-        list_of_dict_of_argu = self.get_list_of_dict_of_argu(arguments)
-        if not list_of_dict_of_argu:
-            dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
-            os.makedirs(str(join(dict_of_arguments['outputdir'], self.st)))
-            dict_of_arguments['outputdir'] = str(join(dict_of_arguments['outputdir'], self.st))
-            list_of_dict_of_argu.append(dict_of_arguments)
+        dict_of_arguments = helper.get_dict_of_attributes_in_class(self.arguments)
 
-        list_of_CL_scripts = []
-        self.dict_of_lists_dict_of_argu[self.build_maven] = list_of_dict_of_argu
-        for dict_of_arguments in list_of_dict_of_argu:
+        dict_of_dicts_of_argu = self.get_dict_of_dicts_of_argu(dict_of_arguments)
 
-            script_argu = self.add_arguments_script(dict_of_arguments)
-            CL_script = script_exec + script_argu + script_inps
-            list_of_CL_scripts.append(CL_script)
-        return list_of_CL_scripts
+        if not dict_of_dicts_of_argu:
+            os.makedirs(str(join(dict_of_arguments['outputdir'], config.variables.st)))
+            dict_of_arguments['outputdir'] = str(join(dict_of_arguments['outputdir'], config.variables.st))
+            dict_of_dicts_of_argu[''] = dict_of_arguments
 
-    def get_list_of_dict_of_argu(self, arguments):
+        return dict_of_dicts_of_argu
 
-        list_of_dict_of_argu = []        
-        dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
+    def get_dict_of_dicts_of_argu(self, dict_of_arguments):
+
+        dict_of_dicts_of_argu = {}
 
         list_of_tuples = self.get_tuple_if_value_list(dict_of_arguments)
         dict_of_arguments = self.del_key_if_in_tuple(dict_of_arguments, list_of_tuples)
@@ -67,13 +68,13 @@ class run_peakdetector():
 
             del dict_of_arguments[key_value_tuple[0]]
             del dict_of_arguments['outputdir']
-            os.makedirs(str(join(path, self.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1])))))
-            dict_of_arguments['outputdir'] = str(join(path, self.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1]))))
+            os.makedirs(str(join(path, config.variables.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1])))))
+            dict_of_arguments['outputdir'] = str(join(path, config.variables.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1]))))
 
             dict_of_arguments[key_value_tuple[0]] = key_value_tuple[1]
-            list_of_dict_of_argu.append(dict_of_arguments.copy())
+            dict_of_dicts_of_argu[(key_value_tuple[0] + '_' + str(key_value_tuple[1]))] = dict_of_arguments.copy()
 
-        return list_of_dict_of_argu
+        return dict_of_dicts_of_argu
     
     def get_tuple_if_value_list(self, dict_of_arguments):
 
@@ -92,9 +93,9 @@ class run_peakdetector():
                 dict_of_arguments[key_value_tuple[0]] = key_value_tuple[1]
         return dict_of_arguments
 
-    def add_path_exec_script(self, input_paths):
+    def add_path_exec_script(self):
 
-        script_exec = input_paths.path_peakdetector
+        script_exec = self.input_paths.path_peakdetector
         return script_exec
 
     def add_arguments_script(self, dict_of_arguments):
@@ -103,10 +104,10 @@ class run_peakdetector():
         script_argu = helper.convert_dict_to_CL_arguments(dict_of_arguments)
         return script_argu
 
-    def add_input_files_script(self, input_paths):
+    def add_input_files_script(self):
 
         list_of_mzxmls = \
-        helper.get_list_of_files_in_directory_with_full_path(input_paths.inputdir, '.mzxml')
+        helper.get_list_of_files_in_directory_with_full_path(self.input_paths.inputdir, '.mzxml')
 
         script_inps = ''
 
