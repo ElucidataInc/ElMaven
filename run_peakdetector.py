@@ -4,13 +4,17 @@ that script"""
 
 import os
 import sys
+import time
+import datetime
+from os.path import join
 from helper import helper
 from config import config
 
 class run_peakdetector():
 
     def __init__(self):
-        pass
+        ts = time.time()
+        self.st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
 
     def run(self, list_of_builds):
 
@@ -32,7 +36,7 @@ class run_peakdetector():
         script_exec = self.add_path_exec_script(input_paths)
         script_inps = self.add_input_files_script(input_paths)
 
-        list_of_dict_of_argu = self.list_of_dict_of_argu(arguments)
+        list_of_dict_of_argu = self.get_list_of_dict_of_argu(arguments)
 
         list_of_CL_scripts = []
         for dict_of_arguments in list_of_dict_of_argu:
@@ -42,13 +46,43 @@ class run_peakdetector():
             list_of_CL_scripts.append(CL_script)
         return list_of_CL_scripts
 
-    def list_of_dict_of_argu(self, arguments):
+    def get_list_of_dict_of_argu(self, arguments):
 
         list_of_dict_of_argu = []
         dict_of_arguments = helper.get_dict_of_attributes_in_class(arguments)
-        list_of_dict_of_argu.append(dict_of_arguments)
 
-        return list_of_dict_of_argu        
+        list_of_tuples = self.get_tuple_if_value_list(dict_of_arguments)
+        dict_of_arguments = self.del_key_if_in_tuple(dict_of_arguments, list_of_tuples)
+
+        path = dict_of_arguments['outputdir']
+        for key_value_tuple in list_of_tuples:
+
+            del dict_of_arguments[key_value_tuple[0]]
+            del dict_of_arguments['outputdir']
+            os.makedirs(str(join(path, self.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1])))))
+            dict_of_arguments['outputdir'] = str(join(path, self.st, (key_value_tuple[0] + '_' + str(key_value_tuple[1]))))
+
+            dict_of_arguments[key_value_tuple[0]] = key_value_tuple[1]
+            list_of_dict_of_argu.append(dict_of_arguments.copy())
+        print list_of_dict_of_argu
+        return list_of_dict_of_argu
+    
+    def get_tuple_if_value_list(self, dict_of_arguments):
+
+        list_of_tuples = []
+        for key, value in dict_of_arguments.iteritems():
+            dict_of_argu = {}
+            if isinstance(value, list):
+                for val in value:
+                    list_of_tuples.append((key, val))
+        return list_of_tuples
+
+    def del_key_if_in_tuple(self, dict_of_arguments, list_of_tuples):
+
+        for key_value_tuple in list_of_tuples:
+            if key_value_tuple[0] in dict_of_arguments:
+                dict_of_arguments[key_value_tuple[0]] = key_value_tuple[1]
+        return dict_of_arguments
 
     def add_path_exec_script(self, input_paths):
 
