@@ -46,6 +46,14 @@ private:
     void openPeakReportCSVFile(string outputfile);
     void insertGroupReportColumnNamesintoCSVFile();
     void insertPeakReportColumnNamesintoCSVFile();
+    void insertPeakInformationIntoCSVFile(PeakGroup* group);
+    void insertGroupInformationIntoCSVFile (PeakGroup* group);
+    int getIonisationMode();
+    vector<Isotope> computeIsotopes (PeakGroup* group, int ionizationMode);
+    void insertIsotopes (PeakGroup* group, vector<Isotope> masslist);
+    void insertUserSelectedIsotopes(PeakGroup* group, string isotopeName);
+    int insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k);
+    void insertIsotpesNotFoundInSamples (PeakGroup* group, string isotopeName);
 
 
     int groupId;	//sequential group numbering
