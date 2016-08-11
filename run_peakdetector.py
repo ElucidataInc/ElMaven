@@ -15,7 +15,7 @@ class run_peakdetector():
     def __init__(self):
         ts = time.time()
         self.st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-        self.list_of_lists_dict_of_argu = {}
+        self.dict_of_lists_dict_of_argu = {}
         self.build_maven = None
         
     def run(self, list_of_builds):
@@ -46,7 +46,7 @@ class run_peakdetector():
             list_of_dict_of_argu.append(dict_of_arguments)
 
         list_of_CL_scripts = []
-        self.list_of_lists_dict_of_argu[self.build_maven] = list_of_dict_of_argu
+        self.dict_of_lists_dict_of_argu[self.build_maven] = list_of_dict_of_argu
         for dict_of_arguments in list_of_dict_of_argu:
 
             script_argu = self.add_arguments_script(dict_of_arguments)
