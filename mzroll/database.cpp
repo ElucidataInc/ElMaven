@@ -455,7 +455,6 @@ int Database::loadCompoundCSVFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    MassCalculator mcalc;
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
     char sep='\t';
@@ -467,6 +466,7 @@ int Database::loadCompoundCSVFile(string filename){
         //trim spaces on the left
         line.erase(line.find_last_not_of(" \n\r\t")+1);
         lineCount++;
+
         vector<string>fields;
         mzUtils::split(line, sep, fields);
 
@@ -499,10 +499,12 @@ int Database::loadCompoundCSVFile(string filename){
         int N=fields.size();
         vector<string>categorylist;
 
+
         if ( header.count("mz") && header["mz"]<N)  mz = string2float(fields[ header["mz"]]);
         if ( header.count("rt") && header["rt"]<N)  rt = string2float(fields[ header["rt"]]);
         if ( header.count("expectedrt") && header["expectedrt"]<N) rt = string2float(fields[ header["expectedrt"]]);
         if ( header.count("charge")&& header["charge"]<N) charge = string2float(fields[ header["charge"]]);
+        
         if ( header.count("formula")&& header["formala"]<N) formula = fields[ header["formula"] ];
         if ( header.count("id")&& header["id"]<N) 	 id = fields[ header["id"] ];
         if ( header.count("name")&& header["name"]<N) 	 name = fields[ header["name"] ];
@@ -520,7 +522,7 @@ int Database::loadCompoundCSVFile(string filename){
         //for(int i=0; i<headers.size(); i++) cerr << headers[i] << ", ";
         //cerr << "   -> category=" << header.count("category") << endl;
         if ( header.count("category") && header["category"]<N) {
-            string catstring=fields[header["category"]];
+            string catstring = fields[header["category"]];
             if (!catstring.empty()) {
                 mzUtils::split(catstring,';', categorylist);
                 if(categorylist.size() == 0) categorylist.push_back(catstring);
@@ -552,8 +554,12 @@ int Database::loadCompoundCSVFile(string filename){
             Compound* compound = new Compound(id,name,formula,charge);
 
             compound->expectedRt = rt;
-            if (mz == 0) mz = mcalc.computeMass(formula,charge);
+
+            if (mz == 0) mz = MassCalculator::computeMass(formula,charge);
             compound->mass = mz;
+
+
+
             compound->db = dbname;
             compound->expectedRt=rt;
             compound->precursorMz=precursormz;
