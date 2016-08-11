@@ -27,7 +27,7 @@ bool common::compareMaps(const map<string,int> & l, const map<string,int> & k) {
 
 vector<Compound*> common::getCompoudDataBaseWithRT() {
     const char* loadCompoundDB = \
-    "/home/rajat/elucidata/maven/maven_opensource/bin/methods/qe3_v11_2016_04_29.csv";;
+    "bin/methods/qe3_v11_2016_04_29.csv";;
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
@@ -37,7 +37,7 @@ vector<Compound*> common::getCompoudDataBaseWithRT() {
 
 vector<Compound*> common::getCompoudDataBaseWithNORT() {
     const char* loadCompoundDB = \
-    "/home/rajat/elucidata/maven/maven_opensource/bin/methods/KNOWNS.csv";;
+    "bin/methods/KNOWNS.csv";;
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
@@ -47,7 +47,7 @@ vector<Compound*> common::getCompoudDataBaseWithNORT() {
 
 vector<Compound*> common::getFaltyCompoudDataBase() {
     const char* loadCompoundDB = \
-    "/home/rajat/elucidata/maven/maven_opensource/bin/methods/compoundlist.csv";
+    "bin/methods/compoundlist.csv";
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = DBS.getCopoundsSubset("compoundlist");

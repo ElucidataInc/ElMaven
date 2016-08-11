@@ -1,7 +1,7 @@
 #include "testPeakDetection.h"
 
 TestPeakDetection::TestPeakDetection() {
-    loadCompoundDB = "/home/rajat/elucidata/maven/maven_opensource/bin/methods/qe3_v11_2016_04_29.csv";
+    loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
 
 }
 
