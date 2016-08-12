@@ -14,6 +14,7 @@ class compare_output():
         self.st = config.variables.st
         self.append_path = ''
         self.dict_of_changes = {}
+        self.dict_of_dfs = {}
 
     def compare(self, list_builds):
 
@@ -42,6 +43,8 @@ class compare_output():
 
                 list_of_intersected_dfs = self.get_list_of_intersected_dfs(list_of_dfs, unique_list_of_compounds)
                 list_of_dfs_with_same_mz_rt = self.get_list_of_dfs_with_same_mz_rt(list_of_intersected_dfs, unique_list_of_compounds)
+
+                self.dict_of_dfs[key] = list_of_dfs_with_same_mz_rt
 
                 list_mzxml_file_names = helper.get_list_of_files_in_directory_without_extension(config.input_paths(0).inputdir)
 
