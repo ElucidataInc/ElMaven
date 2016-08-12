@@ -72,6 +72,7 @@ inline float round(float val) {
 	return (floor(val));
 }
 
+void removeSpecialcharFromStartEnd(vector<string>& fields);
 /**
  * [spline fitting]
  * @method spline_eval

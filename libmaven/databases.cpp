@@ -6,9 +6,7 @@ int Databases::loadCompoundCSVFile(string filename) {
     if (! myfile.is_open()) return 0;
 
     string line;
-    string dbname = mzUtils::cleanFilename(filename);
-    int loadCount=0;
-    int lineCount=0;
+    int loadCount = 0, lineCount = 0;
     map<string, int> header;
     vector<string> headers;
 
@@ -16,8 +14,10 @@ int Databases::loadCompoundCSVFile(string filename) {
     char sep='\t';
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=',';
 
-    while ( getline(myfile,line) ) {
+    while (getline(myfile,line)) {
+        //This is used to write commands
         if (!line.empty() && line[0] == '#') continue;
+        
         //trim spaces on the left
         line.erase(line.find_last_not_of(" \n\r\t")+1);
         lineCount++;
@@ -25,94 +25,21 @@ int Databases::loadCompoundCSVFile(string filename) {
         vector<string> fields;
         mzUtils::split(line, sep, fields);
 
-        for(unsigned int i=0; i < fields.size(); i++ ) {
-            int n = fields[i].length();
-            if (n>2 && fields[i][0] == '"' && fields[i][n-1] == '"') {
-                fields[i]= fields[i].substr(1,n-2);
-            }
-            if (n>2 && fields[i][0] == '\'' && fields[i][n-1] == '\'') {
-                fields[i]= fields[i].substr(1,n-2);
-            }
-        }
+        mzUtils::removeSpecialcharFromStartEnd(fields);
 
-        if (lineCount==1) {
+        //Getting the heading from the csv File
+        if (lineCount == 1) {
             headers = fields;
-            for(unsigned int i=0; i < fields.size(); i++ ) {
-                fields[i]=makeLowerCase(fields[i]);
+            for(unsigned int i = 0; i < fields.size(); i++ ) {
+                fields[i] = makeLowerCase(fields[i]);
                 header[ fields[i] ] = i;
             }
             continue;
         }
 
-        string id, name, formula;
-        float rt=0;
-        float mz=0;
-        float charge=0;
-        float collisionenergy=0;
-        float precursormz=0;
-        float productmz=0;
-        int N=fields.size();
-        vector<string>categorylist;
+        Compound* compound = extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-
-        if ( header.count("mz") && header["mz"]<N)  mz = string2float(fields[ header["mz"]]);
-        if ( header.count("rt") && header["rt"]<N)  rt = string2float(fields[ header["rt"]]);
-        if ( header.count("expectedrt") && header["expectedrt"]<N) rt = string2float(fields[ header["expectedrt"]]);
-        if ( header.count("charge")&& header["charge"]<N) charge = string2float(fields[ header["charge"]]);
-        
-        if ( header.count("formula")&& header["formala"]<N) formula = fields[ header["formula"] ];
-        if ( header.count("id")&& header["id"]<N) 	 id = fields[ header["id"] ];
-        if ( header.count("name")&& header["name"]<N) 	 name = fields[ header["name"] ];
-        if ( header.count("compound")&& header["compound"]<N) 	 name = fields[ header["compound"] ];
-
-        if ( header.count("precursormz") && header["precursormz"]<N) precursormz=string2float(fields[ header["precursormz"]]);
-        if ( header.count("productmz") && header["productmz"]<N)  productmz = string2float(fields[header["productmz"]]);
-        if ( header.count("collisionenergy") && header["collisionenergy"]<N) collisionenergy=string2float(fields[ header["collisionenergy"]]);
-
-        if ( header.count("Q1") && header["Q1"]<N) precursormz=string2float(fields[ header["Q1"]]);
-        if ( header.count("Q3") && header["Q3"]<N)  productmz = string2float(fields[header["Q3"]]);
-        if ( header.count("CE") && header["CE"]<N) collisionenergy=string2float(fields[ header["CE"]]);
-
-        if ( header.count("category") && header["category"]<N) {
-            string catstring = fields[header["category"]];
-            if (!catstring.empty()) {
-                mzUtils::split(catstring,';', categorylist);
-                if(categorylist.size() == 0) categorylist.push_back(catstring);
-            }
-         }
-
-        if ( header.count("polarity") && header["polarity"] <N)  {
-            string x = fields[ header["polarity"]];
-            if ( x == "+" ) {
-                charge = 1;
-            } else if ( x == "-" ) {
-                charge = -1;
-            } else  {
-                charge = string2float(x);
-            }
-
-        }
-
-        if (mz == 0) mz=precursormz;
-        if (id.empty()&& !name.empty()) id=name;
-        if (id.empty() && name.empty()) id="cmpd:" + integer2string(loadCount);
-
-        if ( mz > 0 || ! formula.empty() ) {
-            Compound* compound = new Compound(id,name,formula,charge);
-
-            compound->expectedRt = rt;
-
-            if (mz == 0) mz = MassCalculator::computeMass(formula,charge);
-            compound->mass = mz;
-
-
-            
-            compound->db = dbname;
-            compound->expectedRt=rt;
-            compound->precursorMz=precursormz;
-            compound->productMz=productmz;
-            compound->collisionEnergy=collisionenergy;
-            for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
+        if (compound) {
             addCompound(compound);
             loadCount++;
         }
@@ -122,6 +49,133 @@ int Databases::loadCompoundCSVFile(string filename) {
     return loadCount;
 }
 
+Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<string, int> & header, int loadCount, string filename) {
+    string id, name, formula, polarityString;
+    float rt = 0, mz = 0, charge = 0, collisionenergy = 0, precursormz = 0, productmz = 0;
+    int NumOfFields = fields.size();
+    vector<string> categorylist;
+
+    string dbname = mzUtils::cleanFilename(filename);
+
+    if (header.count("mz") && header["mz"] < NumOfFields)  
+        mz = string2float(fields[header["mz"]]);
+
+    //Expected RT is given importance over RT. So if Expected RT is
+    //present in the DB that will be taken to the RT field in compounds
+    if (header.count("rt") && header["rt"] < NumOfFields)  
+        rt = string2float(fields[header["rt"]]);
+
+    if (header.count("expectedrt") && header["expectedrt"] < NumOfFields) 
+        rt = string2float(fields[header["expectedrt"]]);
+    
+    if (header.count("formula") && header["formala"] < NumOfFields)
+        formula = fields[header["formula"]];
+    
+    if (header.count("id") && header["id"] < NumOfFields)
+        id = fields[header["id"]];
+    
+    // Compound Field is given importance than the names field
+    // compound is a better field to keep
+    if (header.count("name") && header["name"] < NumOfFields)
+        name = fields[header["name"]];
+
+    if (header.count("compound") && header["compound"] < NumOfFields)
+        name = fields[header["compound"]];
+
+    if (header.count("precursormz") && header["precursormz"] < NumOfFields)
+        precursormz = string2float(fields[ header["precursormz"]]);
+
+    if (header.count("productmz") && header["productmz"] < NumOfFields)  
+        productmz = string2float(fields[header["productmz"]]);
+
+    if (header.count("collisionenergy") && header["collisionenergy"] < NumOfFields)
+        collisionenergy = string2float(fields[ header["collisionenergy"]]);
+
+    if (header.count("Q1") && header["Q1"] < NumOfFields) 
+        precursormz = string2float(fields[ header["Q1"]]);
+
+    if (header.count("Q3") && header["Q3"] < NumOfFields)  
+        productmz = string2float(fields[header["Q3"]]);
+
+    if (header.count("CE") && header["CE"] < NumOfFields) 
+        collisionenergy=string2float(fields[header["CE"]]);
+
+    categorylist = getCategoryFromDB(fields, header);
+
+    charge = getChargeFromDB(fields, header);
+    //If Some of the imp fields are not present here is th way it will be
+    //assigned
+    if (mz == 0) 
+        mz = precursormz;
+
+    if (id.empty() && !name.empty()) 
+        id = name;
+
+    if (id.empty() && name.empty()) 
+        id = "cmpd:" + integer2string(loadCount);
+
+    //The compound should atleast have formula so that
+    //mass can be calculated from the formula
+    if ( mz > 0 || !formula.empty() ) {
+        Compound* compound = new Compound(id,name,formula,charge);
+
+        compound->expectedRt = rt;
+
+        if (mz == 0)
+            mz = MassCalculator::computeMass(formula, charge);
+        
+        
+        compound->mass = mz;
+        compound->db = dbname;
+        compound->expectedRt = rt;
+        compound->precursorMz = precursormz;
+        compound->productMz = productmz;
+        compound->collisionEnergy = collisionenergy;
+
+        for(int i=0; i < categorylist.size(); i++) 
+            compound->category.push_back(categorylist[i]);
+        
+        return compound;
+    }
+
+    return NULL;
+    
+}
+
+float Databases::getChargeFromDB(vector<string>& fields, map<string, int> & header) {
+    float charge = 0;
+    int NumOfFields = fields.size();
+    if (header.count("charge") && header["charge"] < NumOfFields)
+        charge = string2float(fields[header["charge"]]);
+
+    if ( header.count("polarity") && header["polarity"] < NumOfFields) {
+        string polarityString = fields[header["polarity"]];
+        if ( polarityString == "+" ) {
+            charge = 1;
+        } else if ( polarityString == "-" ) {
+            charge = -1;
+        } else  {
+            charge = string2float(polarityString);
+        }
+    }
+    return charge;
+}
+
+vector<string> Databases::getCategoryFromDB(vector<string>& fields, map<string, int> & header) {
+    vector<string> categorylist;
+    int NumOfFields = fields.size();
+    //What is category?
+    if ( header.count("category") && header["category"] < NumOfFields) {
+        string catstring = fields[header["category"]];
+        if (!catstring.empty()) {
+            mzUtils::split(catstring,';', categorylist);
+            if(categorylist.size() == 0) categorylist.push_back(catstring);
+        }
+    }
+    return categorylist;
+}
+
+
 void Databases::addCompound(Compound* c) {
     if(c == NULL) return;
 
@@ -129,14 +183,15 @@ void Databases::addCompound(Compound* c) {
     if (!compoundIdMap.count(c->id)) {
         compoundIdMap[c->id] = c;
         compoundsDB.push_back(c);
-    } else { //compound exists with the same name, match database
-        bool matched=false;
-        for(int i=0; i < compoundsDB.size();i++) {
+    } else { 
+        //compound exists with the same name, match database
+        bool matched = false;
+        for(int i = 0; i < compoundsDB.size(); i++) {
             Compound* currentCompound = compoundsDB[i];
-            if ( currentCompound->db == c->db && currentCompound->id==c->id) { 
+            if ( currentCompound->db == c->db && currentCompound->id == c->id) { 
                 //compound from the same database
-                currentCompound->id=c->id;
-                currentCompound->name=c->name;
+                currentCompound->id = c->id;
+                currentCompound->name = c->name;
                 currentCompound->formula = c->formula;
                 currentCompound->srmId = c->srmId;
                 currentCompound->expectedRt = c->expectedRt;
@@ -146,10 +201,12 @@ void Databases::addCompound(Compound* c) {
                 currentCompound->productMz = c->productMz;
                 currentCompound->collisionEnergy = c->collisionEnergy;
                 currentCompound->category = c->category;
-                matched=true;
+                matched = true;
             }
         }
-        if(!matched) compoundsDB.push_back(c);
+
+        if(!matched)
+            compoundsDB.push_back(c);
     }
 }
 
