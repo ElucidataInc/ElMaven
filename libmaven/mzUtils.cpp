@@ -44,6 +44,17 @@ void splitNew(const string& s, const string& c, vector<string>& v){
     }
 }
 
+void removeSpecialcharFromStartEnd(vector<string>& fields) {
+    for(unsigned int i=0; i < fields.size(); i++ ) {
+        int n = fields[i].length();
+        if (n > 2 && fields[i][0] == '"' && fields[i][n - 1] == '"') {
+            fields[i] = fields[i].substr(1, n - 2);
+        }
+        if (n > 2 && fields[i][0] == '\'' && fields[i][n - 1] == '\'') {
+            fields[i] = fields[i].substr(1, n - 2);
+        }
+    }
+}
 
 char *mystrcasestr(const char *s1, const char *s2) {
 	register const char *s = s1;
