@@ -1,4 +1,4 @@
-#include "mzSample.h"
+#include "EIC.h"
 /**
 * @file EIC.cpp
 * @author Sabu George
@@ -6,10 +6,23 @@
 * @author Sahil
 * @version 769
 */
+EIC::EIC() {
+    sample = NULL;
+    spline = NULL;
+    baseline = NULL;
+    mzmin = mzmax = rtmin = rtmax = 0;
+    maxIntensity=totalIntensity = 0;
+    eic_noNoiseObs = 0;
+    smootherType = GAUSSIAN;
+    baselineSmoothingWindow = 5;
+    baselineDropTopX = 60;
+    for(unsigned int i = 0; i < 4;i++) color[i]=0;
+}
+
 EIC::~EIC() {
-        if(spline != NULL) delete[] spline; spline=NULL;
-        if(baseline != NULL) delete[] baseline; baseline=NULL;
-        peaks.clear();
+    if(spline != NULL) delete[] spline; spline=NULL;
+    if(baseline != NULL) delete[] baseline; baseline=NULL;
+    peaks.clear();
 }
 
 EIC* EIC::eicMerge(const vector<EIC*>& eics) {

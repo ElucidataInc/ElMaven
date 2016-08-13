@@ -64,6 +64,7 @@ HEADERS += 		base64.h \
                 comparesampleslogic.h \
                 isotopelogic.h \
                 eiclogic.h \
+                EIC.h \
                 databases.h
 
 message($$LIBS)
