@@ -1067,8 +1067,12 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
         int estimatedScans = scans.size();
 
         //TODO: why is 10 added?
-        if (this->maxRt-this->minRt > 0 && (rtmax-rtmin)/(this->maxRt-this->minRt) <= 1 ) {
-                estimatedScans=float (rtmax-rtmin)/(this->maxRt-this->minRt)*scans.size()+10;
+        if (this->maxRt - this->minRt > 0
+            && (rtmax-rtmin) / (this->maxRt - this->minRt) <= 1 ) {
+                    
+                estimatedScans = float(rtmax - rtmin) 
+                                / (this->maxRt-this->minRt) 
+                                * scans.size() + 10;
         }
 
         e->scannum.reserve(estimatedScans);
@@ -1076,7 +1080,7 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
         e->intensity.reserve(estimatedScans);
         e->mz.reserve(estimatedScans);
 
-        int scanNum=scanItr-scans.begin()-1;
+        int scanNum = scanItr-scans.begin()-1;
         for(; scanItr != scans.end(); scanItr++ ) {
                 Scan* scan = *(scanItr);
                 scanNum++;
@@ -1085,44 +1089,14 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
                 if (scan->rt < rtmin) continue;
                 if (scan->rt > rtmax) break;
 
-                float __maxMz=0;
-                float __maxIntensity=0;
-
-                //binary search
-                mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
-                int lb = mzItr-scan->mz.begin();
-
-                for(unsigned int k=lb; k < scan->nobs(); k++ ) {
-                        if (scan->mz[k] < mzmin) continue;
-                        if (scan->mz[k] > mzmax) break;
-                        if (scan->intensity[k] > __maxIntensity ) {
-                                __maxIntensity=scan->intensity[k];
-                                __maxMz = scan->mz[k];
-                        }
-                }
-
-                e->scannum.push_back(scanNum);
-                e->rt.push_back(scan->rt);
-                e->intensity.push_back(__maxIntensity);
-                e->mz.push_back(__maxMz);
-                e->totalIntensity += __maxIntensity;
-                if (__maxIntensity>e->maxIntensity) e->maxIntensity = __maxIntensity;
-
+                e->getEICPerScan(scan, scanNum, mzmin, mzmax);
         }
 
-        //cerr << "estimatedScans=" << estimatedScans << " actul=" << e->scannum.size() << endl;
-        if ( e->rt.size() > 0 ) {
-                e->rtmin = e->rt[0];
-                e->rtmax = e->rt[ e->size()-1];
-                //cerr << "getEIC()" << e->scannum[0] << " " << e->scannum[e->scannum.size()-1] << " " << scans.size() << endl;
-        }
+        e->getRTMinMaxPerScan();
 
         //scale EIC by normalization constant
         float scale = getNormalizationConstant();
-        if(scale != 1.0) for (unsigned int j=0; j < e->size(); j++) { e->intensity[j] *= scale; }
-
-        //cerr << "getEIC: maxIntensity=" << e->maxIntensity << endl;
-        //e->summary();
+        e->normalizeIntensityPerScan(scale);
 
         if(e->size() == 0) cerr << "getEIC(mzrange,rtrange,mslevel): is empty" << mzmin << " " << mzmax << " " << rtmin << " " << rtmax << endl;
 

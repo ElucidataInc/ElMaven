@@ -1054,6 +1054,12 @@ class EIC {
 				 */
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
 
+		void getEICPerScan(Scan* scan,int scanNum, float mzmin,float mzmax);
+
+		void getRTMinMaxPerScan();
+
+		void normalizeIntensityPerScan(float scale);
+
 				/**
 				 * [size ]
 				 * @method size

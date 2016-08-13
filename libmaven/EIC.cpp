@@ -582,3 +582,45 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
         if(m) delete(m);
         return(pgroups);
 }
+
+void EIC::getRTMinMaxPerScan() {
+    if ( this->rt.size() > 0 ) {
+        this->rtmin = this->rt[0];
+        this->rtmax = this->rt[ this->size() - 1];
+    }
+} 
+
+void EIC::getEICPerScan(Scan* scan,int scanNum, float mzmin,float mzmax) {
+    float maxMz = 0, maxIntensity = 0;
+    int lb;
+    vector<float>::iterator mzItr;
+
+    //binary search
+    mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
+    lb = mzItr - scan->mz.begin();
+
+    for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+        if (scan->mz[scanIdx] < mzmin) continue;
+        if (scan->mz[scanIdx] > mzmax) break;
+        if (scan->intensity[scanIdx] > maxIntensity ) {
+            maxIntensity = scan->intensity[scanIdx];
+            maxMz = scan->mz[scanIdx];
+        }
+    }
+
+    this->scannum.push_back(scanNum);
+    this->rt.push_back(scan->rt);
+    this->intensity.push_back(maxIntensity);
+    this->mz.push_back(maxMz);
+    this->totalIntensity += maxIntensity;
+    if (maxIntensity > this->maxIntensity) this->maxIntensity = maxIntensity;
+}
+
+void EIC::normalizeIntensityPerScan(float scale) {
+    if(scale != 1.0) {
+        for (unsigned int j = 0; j < this->size(); j++) {
+            this->intensity[j] *= scale;
+        }
+    }
+
+}
