@@ -35,6 +35,8 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
         // single threaded version - getting EICs of selected samples.
         #pragma omp parallel for ordered
         for (unsigned int i = 0; i < vsamples.size(); i++) {
+            #pragma omp ordered 
+            {
             //Samples been selected
             mzSample* sample = vsamples[i];
             //getting the slice with which EIC has to be pulled
@@ -42,34 +44,30 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
             //Init EIC by pointing it to NULL
             EIC* e = NULL;
-
             //TODO: what is SRM again going here?
             if (!slice->srmId.empty()) {
                 //if srmId of the slice is present, get EICs on the basis of srmId
                 cout << "computeEIC srm:" << slice->srmId << endl;
 
-                #pragma omp ordered {
+                
                     e = sample->getEIC(slice->srmId);
-                }
+                
                 //TODO this is for MS/MS?
             } else if (c && c->precursorMz > 0 && c->productMz > 0) {
                 //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
                 cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
                         << endl;
 
-                #pragma omp ordered {
                     e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
                                     amuQ1, amuQ3);
-                }
 
             } else {
                 //This is the usual case where we are going peakpicking
                 //with DB. This is a general enough senerio
-                #pragma omp ordered {
                     e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
                                     slice->rtmax, 1);
-                }
             }
+        
 
             if (e) {
                 //if eic exists, perform smoothing
@@ -84,8 +82,9 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 //push eic to all eics vector
                 eics.push_back(e);
             }
-        }
-        return eics;
+            }
+    }
+    return eics;
 }
 
 void PeakDetector::processSlices() {
