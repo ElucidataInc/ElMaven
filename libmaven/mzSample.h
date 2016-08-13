@@ -903,7 +903,10 @@ public:
 class EIC {
 
 	public:
-
+	///A constructor
+	/**
+	 *
+	 */
     EIC() {
         sample=NULL;
         spline=NULL;
@@ -918,7 +921,10 @@ class EIC {
     };
 
 		~EIC();
-
+		///An enum
+		/**
+		 * enum dicription
+		 */
         enum SmootherType { GAUSSIAN=0, AVG=1, SAVGOL=2 };
         vector <int> scannum;
 		vector <float> rt;

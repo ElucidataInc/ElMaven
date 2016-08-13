@@ -1,5 +1,11 @@
 #include "mzSample.h"
-
+/**
+* @file EIC.cpp
+* @author Sabu George
+* @author Kiran
+* @author Sahil
+* @version 769
+*/
 EIC::~EIC() {
         if(spline != NULL) delete[] spline; spline=NULL;
         if(baseline != NULL) delete[] baseline; baseline=NULL;
@@ -589,8 +595,14 @@ void EIC::getRTMinMaxPerScan() {
         this->rtmax = this->rt[ this->size() - 1];
     }
 } 
-
-void EIC::getEICPerScan(Scan* scan,int scanNum, float mzmin,float mzmax) {
+/**
+* This is the functon which gets the EIC of the given scan for the
+* given mzmin and mzmax. This function will go through the each scan
+* and find the the max intensity and mz corresponding to that max intensity.
+* Total intensity is calculated by adding the maxintensity from each scan.
+* @param[in] scan This is the 
+*/
+void EIC::getEICPerScan(Scan* scan, int scanNum, float mzmin,float mzmax) {
     float maxMz = 0, maxIntensity = 0;
     int lb;
     vector<float>::iterator mzItr;
