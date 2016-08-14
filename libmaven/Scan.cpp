@@ -309,6 +309,8 @@ vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff) {
 
     vector< pair<float,float> > selected;
     sort(mzarray.begin(), mzarray.end());
+    //TODO: why does i not go down to 0? is it beacuse, when sorted it gives the smallest value?
+    //Does that mean the values doesnt have to be pushed in selected?
     for(int i=mzarray.size()-1; i > 0; i-- ) {
         if (mzarray[i].first/maxI > minFracCutoff) {
             mzarray[i].first = (mzarray[i].first/maxI)*100;
