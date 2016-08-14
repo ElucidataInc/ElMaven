@@ -224,6 +224,7 @@ void TestScan::testdeconvolute() {
     QVERIFY(x->maxZ == 99);
     QVERIFY(x->upCount == 9);
     QVERIFY(x->downCount == 9);
+    cerr<<precision(15)<<x->qscore;
     QVERIFY(common::floatCompare(x->qscore, 120065592));
     QVERIFY(common::floatCompare(x->error, 454.473785400391));
     QVERIFY(x->observedCharges.size()==18);
