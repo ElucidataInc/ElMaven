@@ -171,7 +171,7 @@ class EIC {
         */
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
 
-        void getEICPerScan(Scan* scan,int scanNum, float mzmin,float mzmax);
+        bool makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel);
 
         void getRTMinMaxPerScan();
 

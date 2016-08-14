@@ -1051,45 +1051,14 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
         if ( scanCount == 0 ) return e;
 
         if ( mzmin < minMz && mzmax < maxMz ) {
-                cerr << "getEIC(): mzmin and mzmax are out of range" << endl;
-                return e;
+            cerr << "getEIC(): mzmin and mzmax are out of range" << endl;
+            return e;
         }
 
-        //binary search mz  domain iterator
-        vector<float>::iterator mzItr;
+        bool success = e->makeEICSlice(this,  mzmin, mzmax, rtmin, rtmax, mslevel);
 
-        //binary search rt domain iterator TODO: this gives me the lower bound in the rt Domain ?
-        Scan tmpScan(this,0,1,rtmin-0.1,0,-1);
-        deque<Scan*>::iterator scanItr = lower_bound(scans.begin(), scans.end(),&tmpScan, Scan::compRt);
-        if (scanItr >= scans.end() ) { return e; }
-
-        //preallocated memory for arrays [ this should really be corrected for mslevel type ]
-        int estimatedScans = scans.size();
-
-        //TODO: why is 10 added?
-        if (this->maxRt - this->minRt > 0
-            && (rtmax-rtmin) / (this->maxRt - this->minRt) <= 1 ) {
-                    
-                estimatedScans = float(rtmax - rtmin) 
-                                / (this->maxRt-this->minRt) 
-                                * scans.size() + 10;
-        }
-
-        e->scannum.reserve(estimatedScans);
-        e->rt.reserve(estimatedScans);
-        e->intensity.reserve(estimatedScans);
-        e->mz.reserve(estimatedScans);
-
-        int scanNum = scanItr-scans.begin()-1;
-        for(; scanItr != scans.end(); scanItr++ ) {
-                Scan* scan = *(scanItr);
-                scanNum++;
-
-                if (scan->mslevel != mslevel) continue;
-                if (scan->rt < rtmin) continue;
-                if (scan->rt > rtmax) break;
-
-                e->getEICPerScan(scan, scanNum, mzmin, mzmax);
+        if(!success) {
+            return e;
         }
 
         e->getRTMinMaxPerScan();

@@ -607,7 +607,8 @@ void EIC::getRTMinMaxPerScan() {
         this->rtmin = this->rt[0];
         this->rtmax = this->rt[ this->size() - 1];
     }
-} 
+}
+
 /**
 * This is the functon which gets the EIC of the given scan for the
 * given mzmin and mzmax. This function will go through the each scan
@@ -615,30 +616,71 @@ void EIC::getRTMinMaxPerScan() {
 * Total intensity is calculated by adding the maxintensity from each scan.
 * @param[in] scan This is the 
 */
-void EIC::getEICPerScan(Scan* scan, int scanNum, float mzmin,float mzmax) {
+bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel) {
     float maxMz = 0, maxIntensity = 0;
-    int lb;
+    int lb, scanNum;
     vector<float>::iterator mzItr;
+    deque<Scan*>::iterator scanItr;
+    deque <Scan*> scans;
 
-    //binary search
-    mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
-    lb = mzItr - scan->mz.begin();
+    scans = sample->scans;
+    //binary search rt domain iterator
+    Scan tmpScan(sample, 0, 1, rtmin - 0.1, 0, -1);
+    scanItr = lower_bound(scans.begin(), scans.end(), &tmpScan, Scan::compRt);
+    if (scanItr >= scans.end() ) { return false;}
 
-    for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
-        if (scan->mz[scanIdx] < mzmin) continue;
-        if (scan->mz[scanIdx] > mzmax) break;
-        if (scan->intensity[scanIdx] > maxIntensity ) {
-            maxIntensity = scan->intensity[scanIdx];
-            maxMz = scan->mz[scanIdx];
-        }
+    int estimatedScans = scans.size();
+
+    //TODO: why is 10 added?
+    if (sample->maxRt - sample->minRt > 0
+        && (rtmax-rtmin) / (sample->maxRt - sample->minRt) <= 1 ) {
+
+            estimatedScans = float(rtmax - rtmin) 
+                            / (sample->maxRt-sample->minRt) 
+                            * scans.size() + 10;
     }
 
-    this->scannum.push_back(scanNum);
-    this->rt.push_back(scan->rt);
-    this->intensity.push_back(maxIntensity);
-    this->mz.push_back(maxMz);
-    this->totalIntensity += maxIntensity;
-    if (maxIntensity > this->maxIntensity) this->maxIntensity = maxIntensity;
+    this->scannum.reserve(estimatedScans);
+    this->rt.reserve(estimatedScans);
+    this->intensity.reserve(estimatedScans);
+    this->mz.reserve(estimatedScans);
+
+    scanNum = scanItr - scans.begin() - 1;
+
+    for(; scanItr != scans.end(); scanItr++ ) {
+        Scan* scan = *(scanItr);
+        scanNum++;
+
+        if (scan->mslevel != mslevel) continue;
+        if (scan->rt < rtmin) continue;
+        if (scan->rt > rtmax) break;
+
+        maxMz = 0;
+        maxIntensity = 0;
+
+        //binary search
+        mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
+        lb = mzItr - scan->mz.begin();
+
+        for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+            if (scan->mz[scanIdx] < mzmin) continue;
+            if (scan->mz[scanIdx] > mzmax) break;
+
+            if (scan->intensity[scanIdx] > maxIntensity ) {
+                maxIntensity = scan->intensity[scanIdx];
+                maxMz = scan->mz[scanIdx];
+            }
+        }
+
+        this->scannum.push_back(scanNum);
+        this->rt.push_back(scan->rt);
+        this->intensity.push_back(maxIntensity);
+        this->mz.push_back(maxMz);
+        this->totalIntensity += maxIntensity;
+        if (maxIntensity > this->maxIntensity) this->maxIntensity = maxIntensity;
+    }
+
+    return true;
 }
 
 void EIC::normalizeIntensityPerScan(float scale) {
