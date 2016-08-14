@@ -1,3 +1,26 @@
+/** @mainpage Project: Maven opensource 
+*   @par MAVEN is an open source cross platform metabolomics data analyser.
+*   The aim of this software packages is to reduce complexity of metabolomics 
+*   analysis by developing a highly intitute interface for exploring and validating 
+*   metabolomics data. The program features multi-file chromatographic aligner, 
+*   peak-feature detector, isotope and adduct calculator, formula predictor, pathway
+*   visualizer, and isotopic flux animator. Data from both triple quadropole and full
+*   spectrum instruments is supported.
+*
+*   @par The project will not focus on developing or adding new features to the versions 
+*   775 of MAVEN that is being currently in use by scientists at Agios. This version has 
+*   numerous implementations of many features which enhance the utility of MAVEN.
+*   Specifically, it allows for processing of many more samples (~100) for entire KEGG database 
+*   (~1000 metabolites) for full scan high resolution data from QExactive
+*/
+/**
+* @file main.cpp
+*/
+
+
+
+
+
 #include "stable.h"
 #include "globals.h"
 #include "mainwindow.h"

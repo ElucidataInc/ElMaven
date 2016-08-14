@@ -1,6 +1,6 @@
 #include <QtTest>
 #include <QApplication>
-#include "testEIC.h"
+#include "testLoadSamples.h"
 #include "testMassCalculator.h"
 #include "testCSVReports.h"
 #include "testPeakDetection.h"
@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     int result = 0;
 
     freopen("test1.xml", "w", stdout);
-    result |= QTest::qExec(new TestEIC, argc, argv);
+    result |= QTest::qExec(new TestLoadSamples, argc, argv);
 
     freopen("test2.xml",  "w", stdout);
     result |= QTest::qExec(new TestMassCalculator, argc, argv);

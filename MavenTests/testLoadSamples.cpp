@@ -1,45 +1,45 @@
-#include "testEIC.h"
+#include "testLoadSamples.h"
 #include "../libmaven/mavenparameters.h"
 #include "../libmaven/mzSample.h"
 
-TestEIC::TestEIC() {
+TestLoadSamples::TestLoadSamples() {
     loadFile = "bin/methods/bk_#sucyxpe_1_9.mzxml";
     blankSample = "bin/methods/blan_#sucyxpe_2_4.mzxml";
 }
 
-void TestEIC::initTestCase() {
+void TestLoadSamples::initTestCase() {
     // This function is being executed at the beginning of each test suite
     // That is - before other tests from this class run
     //MavenParameters* mavenparemeters = new MavenParameters();
     //mavenparemeters->printSettings();
 }
 
-void TestEIC::cleanupTestCase() {
+void TestLoadSamples::cleanupTestCase() {
     // Similarly to initTestCase(), this function is executed at the end of test suite
 }
 
-void TestEIC::init() {
+void TestLoadSamples::init() {
     // This function is executed before each test
 }
 
-void TestEIC::cleanup() {
+void TestLoadSamples::cleanup() {
     // This function is executed after each test
 }
 
-void TestEIC::testFileLoad() {
+void TestLoadSamples::testFileLoad() {
     mzSample mzsample;
     mzsample.loadSample(loadFile);
     QVERIFY(true);
 }
 
-void TestEIC:: testIsAllScansParsed() {
+void TestLoadSamples:: testIsAllScansParsed() {
     mzSample mzsample;
     unsigned int numberOfScans = 1603;
     mzsample.parseMzXML(loadFile);
     QVERIFY(mzsample.scanCount() == numberOfScans);
 }
 
-void TestEIC:: testScanParsing() {
+void TestLoadSamples:: testScanParsing() {
     mzSample mzsample;
     unsigned int scanNum = 1;
     int scannum = 1;
@@ -83,7 +83,7 @@ void TestEIC:: testScanParsing() {
     
 }
 
-void TestEIC:: testSrmScan() {
+void TestLoadSamples:: testSrmScan() {
     mzSample mzsample;
     unsigned int numberOfScans = 1603;
     mzsample.loadSample(loadFile);
@@ -97,7 +97,7 @@ void TestEIC:: testSrmScan() {
     QVERIFY(k == numberOfScans);
 }
 
-void TestEIC:: testMinMaxMz() {
+void TestLoadSamples:: testMinMaxMz() {
     mzSample mzsample;
     float minMz = 70.0012;
     float maxMz = 769.953;
@@ -109,7 +109,7 @@ void TestEIC:: testMinMaxMz() {
 
 }
 
-void TestEIC:: testMinMaxRT() {
+void TestLoadSamples:: testMinMaxRT() {
     mzSample mzsample;
     float minRT = 0.00201776666;
     float maxRT = 7.20475;
@@ -121,7 +121,7 @@ void TestEIC:: testMinMaxRT() {
 
 }
 
-void TestEIC:: testSampleName() {
+void TestLoadSamples:: testSampleName() {
     mzSample mzsample;
     string sampleName = "bk_#sucyxpe_1_9";
     mzsample.loadSample(loadFile);
@@ -129,7 +129,7 @@ void TestEIC:: testSampleName() {
     QVERIFY(sampleName.compare(mzsample.sampleName) == 0);
 }
 
-void TestEIC:: testBlankSample() {
+void TestLoadSamples:: testBlankSample() {
     mzSample mzsample;
     mzsample.loadSample(blankSample);
     QVERIFY(mzsample.isBlank);

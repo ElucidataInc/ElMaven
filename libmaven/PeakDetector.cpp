@@ -10,9 +10,15 @@ PeakDetector::PeakDetector(MavenParameters* mp) {
  * TODO
  */
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
-                                    std::vector<mzSample*>&samples, int peakDetect, int smoothingWindow,
-                                    int smoothingAlgorithm, float amuQ1, float amuQ3,
-                                    int baseline_smoothingWindow, int baseline_dropTopX) {
+                                    std::vector<mzSample*>&samples,
+                                    int peakDetect, 
+                                    int smoothingWindow,
+                                    int smoothingAlgorithm, 
+                                    float amuQ1, 
+                                    float amuQ3,
+                                    int baseline_smoothingWindow,
+                                    int baseline_dropTopX) 
+{
 
         vector<EIC*> eics;
         vector<mzSample*> vsamples;
@@ -26,81 +32,59 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 vsamples.push_back(samples[i]);
         }
 
-        if (vsamples.size()) {
-                /*EicLoader::PeakDetectionFlag pdetect = (EicLoader::PeakDetectionFlag) peakDetect;
-                   QFuture<EIC*>future = QtConcurrent::mapped(vsamples, EicLoader(slice, pdetect,smoothingWindow, smoothingAlgorithm, amuQ1,amuQ3));
-
-                   //wait for async operations to finish
-                   future.waitForFinished();
-
-                   QFutureIterator<EIC*> itr(future);
-
-                   while(itr.hasNext()) {
-                   EIC* eic = itr.next();
-                   if ( eic && eic->size() > 0) eics.push_back(eic);
-                   }
-                 */
-
-                /*
-                   QList<EIC*> _eics = result.results();
-                   for(int i=0; i < _eics.size(); i++ )	{
-                   if ( _eics[i] && _eics[i]->size() > 0) {
-                   eics.push_back(_eics[i]);
-                   }
-                   }*/
-        }
-
         // single threaded version - getting EICs of selected samples.
-  #pragma omp parallel for ordered
+        #pragma omp parallel for ordered
         for (unsigned int i = 0; i < vsamples.size(); i++) {
-                //Samples been selected
-                mzSample* sample = vsamples[i];
-                //getting the slice with which EIC has to be pulled
-                Compound* c = slice->compound;
+            #pragma omp ordered 
+            {
+            //Samples been selected
+            mzSample* sample = vsamples[i];
+            //getting the slice with which EIC has to be pulled
+            Compound* c = slice->compound;
 
-                //Init EIC by pointing it to NULL
-                EIC* e = NULL;
+            //Init EIC by pointing it to NULL
+            EIC* e = NULL;
+            //TODO: what is SRM again going here?
+            if (!slice->srmId.empty()) {
+                //if srmId of the slice is present, get EICs on the basis of srmId
+                cout << "computeEIC srm:" << slice->srmId << endl;
 
-                //TODO: what is SRM again going here?
-                if (!slice->srmId.empty()) {
-                        //if srmId of the slice is present, get EICs on the basis of srmId
-                        cout << "computeEIC srm:" << slice->srmId << endl;
+                
+                    e = sample->getEIC(slice->srmId);
+                
+                //TODO this is for MS/MS?
+            } else if (c && c->precursorMz > 0 && c->productMz > 0) {
+                //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
+                cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
+                        << endl;
 
-      #pragma omp ordered
-                        e = sample->getEIC(slice->srmId);
-                        //TODO this is for MS/MS?
-                } else if (c && c->precursorMz > 0 && c->productMz > 0) {
-                        //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
-                        cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
-                             << endl;
+                    e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
+                                    amuQ1, amuQ3);
 
-      #pragma omp ordered
-                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
-                                           amuQ1, amuQ3);
+            } else {
+                //This is the usual case where we are going peakpicking
+                //with DB. This is a general enough senerio
+                    e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
+                                    slice->rtmax, 1);
+            }
+        
 
-                } else {
-                        //This is the usual case where we are going peakpicking
-                        //with DB. This is a general enough senerio
-      #pragma omp ordered
-                        e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-                                           slice->rtmax, 1);
-                }
+            if (e) {
+                //if eic exists, perform smoothing
+                EIC::SmootherType smootherType =
+                        (EIC::SmootherType) smoothingAlgorithm;
+                e->setSmootherType(smootherType);
+                e->setBaselineSmoothingWindow(baseline_smoothingWindow);
+                e->setBaselineDropTopX(baseline_dropTopX);
+                e->getPeakPositions(smoothingWindow);
+                //smoohing over
 
-                if (e) {
-                        //if eic exists, perform smoothing
-                        EIC::SmootherType smootherType =
-                                (EIC::SmootherType) smoothingAlgorithm;
-                        e->setSmootherType(smootherType);
-                        e->setBaselineSmoothingWindow(baseline_smoothingWindow);
-                        e->setBaselineDropTopX(baseline_dropTopX);
-                        e->getPeakPositions(smoothingWindow);
-                        //smoohing over
-
-                        //push eic to all eics vector
-                        eics.push_back(e);
-                }
-        }
-        return eics;
+                //push eic to all eics vector
+                eics.push_back(e);
+            }
+            }
+    }
+    return eics;
 }
 
 void PeakDetector::processSlices() {
@@ -441,10 +425,6 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
         #pragma omp parallel for ordered
         for (unsigned int s = 0; s < slices.size(); s++) {
                 mzSlice* slice = slices[s];
-                double mzmin = slice->mzmin;
-                double mzmax = slice->mzmax;
-                double rtmin = slice->rtmin;
-                double rtmax = slice->rtmax;
 
                 Compound* compound = slice->compound;
 

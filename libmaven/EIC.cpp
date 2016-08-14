@@ -1,9 +1,28 @@
-#include "mzSample.h"
+#include "EIC.h"
+/**
+* @file EIC.cpp
+* @author Sabu George
+* @author Kiran
+* @author Sahil
+* @version 769
+*/
+EIC::EIC() {
+    sample = NULL;
+    spline = NULL;
+    baseline = NULL;
+    mzmin = mzmax = rtmin = rtmax = 0;
+    maxIntensity=totalIntensity = 0;
+    eic_noNoiseObs = 0;
+    smootherType = GAUSSIAN;
+    baselineSmoothingWindow = 5;
+    baselineDropTopX = 60;
+    for(unsigned int i = 0; i < 4;i++) color[i]=0;
+}
 
 EIC::~EIC() {
-        if(spline != NULL) delete[] spline; spline=NULL;
-        if(baseline != NULL) delete[] baseline; baseline=NULL;
-        peaks.clear();
+    if(spline != NULL) delete[] spline; spline=NULL;
+    if(baseline != NULL) delete[] baseline; baseline=NULL;
+    peaks.clear();
 }
 
 EIC* EIC::eicMerge(const vector<EIC*>& eics) {
@@ -581,4 +600,94 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
 
         if(m) delete(m);
         return(pgroups);
+}
+
+void EIC::getRTMinMaxPerScan() {
+    if ( this->rt.size() > 0 ) {
+        this->rtmin = this->rt[0];
+        this->rtmax = this->rt[ this->size() - 1];
+    }
+}
+
+/**
+* This is the functon which gets the EIC of the given scan for the
+* given mzmin and mzmax. This function will go through the each scan
+* and find the the max intensity and mz corresponding to that max intensity.
+* Total intensity is calculated by adding the maxintensity from each scan.
+* @param[in] scan This is the 
+*/
+bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel) {
+    float maxMz = 0, maxIntensity = 0;
+    int lb, scanNum;
+    vector<float>::iterator mzItr;
+    deque<Scan*>::iterator scanItr;
+    deque <Scan*> scans;
+
+    scans = sample->scans;
+    //binary search rt domain iterator
+    Scan tmpScan(sample, 0, 1, rtmin - 0.1, 0, -1);
+    scanItr = lower_bound(scans.begin(), scans.end(), &tmpScan, Scan::compRt);
+    if (scanItr >= scans.end() ) { return false;}
+
+    int estimatedScans = scans.size();
+
+    //TODO: why is 10 added?
+    if (sample->maxRt - sample->minRt > 0
+        && (rtmax-rtmin) / (sample->maxRt - sample->minRt) <= 1 ) {
+
+            estimatedScans = float(rtmax - rtmin) 
+                            / (sample->maxRt-sample->minRt) 
+                            * scans.size() + 10;
+    }
+
+    this->scannum.reserve(estimatedScans);
+    this->rt.reserve(estimatedScans);
+    this->intensity.reserve(estimatedScans);
+    this->mz.reserve(estimatedScans);
+
+    scanNum = scanItr - scans.begin() - 1;
+
+    for(; scanItr != scans.end(); scanItr++ ) {
+        Scan* scan = *(scanItr);
+        scanNum++;
+
+        if (scan->mslevel != mslevel) continue;
+        if (scan->rt < rtmin) continue;
+        if (scan->rt > rtmax) break;
+
+        maxMz = 0;
+        maxIntensity = 0;
+
+        //binary search
+        mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
+        lb = mzItr - scan->mz.begin();
+
+        for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+            if (scan->mz[scanIdx] < mzmin) continue;
+            if (scan->mz[scanIdx] > mzmax) break;
+
+            if (scan->intensity[scanIdx] > maxIntensity ) {
+                maxIntensity = scan->intensity[scanIdx];
+                maxMz = scan->mz[scanIdx];
+            }
+        }
+
+        this->scannum.push_back(scanNum);
+        this->rt.push_back(scan->rt);
+        this->intensity.push_back(maxIntensity);
+        this->mz.push_back(maxMz);
+        this->totalIntensity += maxIntensity;
+        if (maxIntensity > this->maxIntensity) this->maxIntensity = maxIntensity;
+    }
+
+    return true;
+}
+
+void EIC::normalizeIntensityPerScan(float scale) {
+    if(scale != 1.0) {
+        for (unsigned int j = 0; j < this->size(); j++) {
+            this->intensity[j] *= scale;
+        }
+    }
+
 }

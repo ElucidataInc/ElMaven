@@ -1,16 +1,16 @@
-#ifndef TESTEIC_H
-#define TESTEIC_H
+#ifndef TESTLOADSAMPLES_H
+#define TESTLOADSAMPLES_H
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
 #include "common.h"
 
-class TestEIC : public QObject {
+class TestLoadSamples : public QObject {
     Q_OBJECT
 
     public:
-        TestEIC();
+        TestLoadSamples();
     private:
         const char* loadFile;
         const char* blankSample;
@@ -36,4 +36,4 @@ class TestEIC : public QObject {
         void testBlankSample();
 };
 
-#endif // TESTEIC_H
+#endif // TESTLOADSAMPLES_H

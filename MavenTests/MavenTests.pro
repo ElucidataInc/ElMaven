@@ -22,7 +22,7 @@ QMAKE_LFLAGS_DEBUG -= -pg
 # Input
 HEADERS += \
     common.h \
-    testEIC.h \
+    testLoadSamples.h \
     testMassCalculator.h \
     testCSVReports.h \
     testMzSlice.h \
@@ -32,7 +32,7 @@ HEADERS += \
 
 SOURCES += \
     common.cpp \
-    testEIC.cpp \
+    testLoadSamples.cpp \
     testMassCalculator.cpp \
     testCSVReports.cpp \
     testPeakDetection.cpp \
