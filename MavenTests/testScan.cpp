@@ -203,10 +203,10 @@ void TestScan::testdeconvolute() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);
     initScan (scan);
 
-    float intensityarr[34]={131825.3,1902060,183417.5,0,93979.5,62351.94,65614.81,0,0,238641,
-                            529399.9,337128.4,188587.9,42605.88,128301.7,89723.02,145668.700,
-                            145668.700,145668.700,134054.1,920588.9,151300.9,10949580,86719.1,
-                            0,0,0,0,0,134054.1,920588.9,151300.9,10949580,86719.1};
+    float intensityarr[34]={131.825,190.206,183.417,0,93.979,62.354,65.6181,0,0,23.841,
+                            52.939,33.7124,18.8579,42.6058,12.807,89.702,14.8700,
+                            14.56700,14.58700,13.4041,9.2089,15.139,10.980,86.791,
+                            0,0,0,0,0,13.401,92.589,15.139,10.950,86.11};
     scan->intensity.assign(intensityarr,intensityarr+34);
     float mzarr[34]={86.06158,86.06161,86.06158,86.06159,86.06158,86.06161,86.06163,
                      86.06163,87.00926,87.00927,87.00927,87.00926,87.00926,87.00926,
@@ -215,18 +215,16 @@ void TestScan::testdeconvolute() {
                      88.04099,88.04099,88.04099,88.04099,88.04096,88.04095};
     scan->mz.assign(mzarr,mzarr+34);
 
-    ChargedSpecies* x=scan->deconvolute(87,1,100000,2,3,100,500,2e5,3);
+    ChargedSpecies* x=scan->deconvolute(87,4,100000,2,3,100,500,2e5,3);
     ChargedSpecies* x1=scan->deconvolute(87,1,10000,2,3,100,500,2e5,3);
 
-    QVERIFY(common::floatCompare(x->totalIntensity, 197092480));
-    QVERIFY(x->countMatches == 18);
-    QVERIFY(x->minZ == 82);
-    QVERIFY(x->maxZ == 99);
-    QVERIFY(x->upCount == 9);
-    QVERIFY(x->downCount == 9);
-    cerr<<precision(15)<<x->qscore;
-    QVERIFY(common::floatCompare(x->qscore, 120065592));
-    QVERIFY(common::floatCompare(x->error, 454.473785400391));
+    QVERIFY(common::floatCompare(x->totalIntensity, 3423.70849609375));
+    QVERIFY(x->countMatches==18);
+    QVERIFY(x->minZ==82);
+    QVERIFY(x->maxZ==99);
+    QVERIFY(x->upCount==11);
+    QVERIFY(x->downCount==7);
+    QVERIFY(common::floatCompare(x->qscore, 515.369812011719));
     QVERIFY(x->observedCharges.size()==18);
     QVERIFY(x->observedMzs.size()==18);
     QVERIFY(x->observedIntensities.size()==18);
@@ -248,43 +246,43 @@ void TestScan::testdeconvolute() {
     QVERIFY(common::floatCompare(x->observedCharges[15], 97));
     QVERIFY(common::floatCompare(x->observedCharges[16], 98));
     QVERIFY(common::floatCompare(x->observedCharges[17], 99));
-    QVERIFY(common::floatCompare(x->observedMzs[0], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[1], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[2], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[3], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[4], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[5], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[6], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[7], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[8], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[9], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[10], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[11], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[12], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[13], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[14], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[15], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[16], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedMzs[17], 88.0409622192383));
-    QVERIFY(common::floatCompare(x->observedIntensities[0], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[1], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[2], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[3], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[4], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[5], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[6], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[7], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[8], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[9], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[10], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[11], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[12], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[13], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[14], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[15], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[16], 10949580));
-    QVERIFY(common::floatCompare(x->observedIntensities[17], 10949580));
-
+    QVERIFY(common::floatCompare(x->observedMzs[0], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[1], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[2], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[3], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[4], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[5], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[6], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[7], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[8], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[9], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[10], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[11], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[12], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[13], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[14], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[15], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[16], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedMzs[17], 86.0616073608398));
+    QVERIFY(common::floatCompare(x->observedIntensities[0], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[1], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[2], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[3], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[4], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[5], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[6], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[7], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[8], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[9], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[10], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[11], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[12], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[13], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[14], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[15], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[16], 190.205993652344));
+    QVERIFY(common::floatCompare(x->observedIntensities[17], 190.205993652344));
+    QVERIFY(common::floatCompare(x->error, 443.505981445312));
     QVERIFY(x1==NULL);
 
 
