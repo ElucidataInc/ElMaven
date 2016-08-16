@@ -313,6 +313,7 @@ class Scan {
 
 private:
 
+
 	struct ParentData {
 		float parentPeakIntensity;
 		bool flag;
@@ -330,13 +331,18 @@ private:
         int maxZ;
 	};
 
+    ofstream file;
 	BrotherData *brotherdata,b;
-	void initaliseBrotherData(int z, float mzfocus);
-	bool updateBrotherDataIfPeakFound(ChargedSpecies* x, int ii, bool lastMatched, float lastIntensity, float mzfocus, float noiseLevel, float ppmMerge);
-	void findError(ChargedSpecies* x);
-	void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
-	void findBrotherPeaks(ChargedSpecies* x, int z, float mzfocus, float noiseLevel, float ppmMerge, int minDeconvolutionCharge, int maxDeconvolutionCharge);
+    void initialiseBrotherData(int z, float mzfocus);
+    void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, float ppmMerge);
+    void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
+    void findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, float ppmMerge,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
+    bool setParentPeakData(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio);
+    void findError(ChargedSpecies* x);
 
+    vector<float> smoothenIntensitites();
+    void findLocalMaximaInIntensitySpace(int vsize, vector<float> *cMz, vector<float> *cIntensity, vector<float> *spline);
+    void updateIntensityWithTheLocalMaximas(vector<float> *cMz, vector<float> *cIntensity);
 };
 
 
