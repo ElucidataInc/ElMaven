@@ -15,6 +15,7 @@ class compare_output():
         self.append_path = ''
         self.dict_of_changes = {}
         self.dict_of_dfs = {}
+        self.validity_builds = {}
 
     def compare(self, list_builds):
 
@@ -62,7 +63,7 @@ class compare_output():
                     df_2 = [float(i) for i in df_2]
                     slope, intercept, r_value, p_value, std_err = stats.linregress(df_1,df_2)
                     r2_value = round(r_value ** 2,3)
-                    if r2_value > 0.5:
+                    if r2_value > 0.9:
                         number_r2 += 1
                     list_of_r2_values.append(r2_value)
 
@@ -109,6 +110,8 @@ class compare_output():
 
 
                 summary = self.generate_summary(list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2)
+
+                self.check_equality_builds(list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2)
                 
                 if os.path.isdir(join(config.variables.csv_compare_output, self.st, self.append_path)):
                     pass
@@ -124,7 +127,7 @@ class compare_output():
             paths = config.input_paths(build_maven)
             df = helper.read_csv_pandas(join(paths.outputdir, 'compounds.csv'))
             list_of_dfs.append(df)
-        
+
         return list_of_dfs
 
     def get_lists_of_compounds(self, list_of_dfs):
@@ -243,8 +246,33 @@ class compare_output():
 
         summary += '2. Out of the total %d compounds found by both the versions, v769 found %d compounds and v776 found %d compounds\n' %(len(c), len(a), len(b))
         summary += '3. The total numer of peaks with same mz & rt are %d\n' %(len(list_of_r2_values))
-        summary += '4. Out of this %d peaks, %d number of peaks has r-square greater than 0.5\n' %(len(list_of_r2_values), number_r2)
+        summary += '4. Out of this %d peaks, %d number of peaks has r-square greater than 0.9\n' %(len(list_of_r2_values), number_r2)
 
         return summary
+
+    def check_equality_builds(self, list_of_dfs, lists_of_compounds, list_of_r2_values, number_r2):
+
+        test_function = self.get_test_func_from_run_function()
+
+        self.validity_builds[test_function] = True
+
+        a = lists_of_compounds[0]
+        b = lists_of_compounds[1]
+
+        intersection_list = set(a) & set(b)
+
+        if not float(len(intersection_list))/len(a) > 0.95:
+            self.validity_builds[test_function] = False
+
+        if not float(number_r2)/(len(list_of_r2_values)) > 0.9:
+            self.validity_builds[test_function] = False
+
+
+    def get_test_func_from_run_function(self):
+
+        if config.variables.run_function == 1:
+            return "compoundDatabaseSearch"
+
+
 
 compare_output = compare_output()
