@@ -35,13 +35,13 @@ class arguments():
 		self.db = '/home/sahil/code/qe/maven_data/CDatabases/qe3_v11_2016_04_13.tab.txt'
 		self.model = '/home/sahil/code/qe/maven_data/Models/default.model'
 		self.eicMaxGroups = 5	
-		self.savemzroll = [0,1]
+		self.savemzroll = 1
 		self.minQuality = 0.5
 		self.ppmMerge = 10
 		self.minSignalBaseLineRatio = 2
 		self.grouping_maxRtWindow = 0.5
 		self.alignSamples = 0
-		self.minGroupIntensity = [10000, 5000]
+		self.minGroupIntensity = 100000
 		self.matchRtFlag = 0
 		self.minPeakWidth = 5
 		self.minGoodGroupCount = 3
@@ -70,5 +70,7 @@ class variables():
 		self.csv_with_diff_rt_mz = 'diff_rt_mz_values.csv'
 		self.csv_summary_of_results = 'summary_of_results.docx'
 		self.plots_comparison = '/home/sahil/Desktop/plots'
+
+		self.test_func_list = ['compoundDatabaseSearch']
 
 variables = variables()
