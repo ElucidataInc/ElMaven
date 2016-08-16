@@ -27,6 +27,7 @@ HEADERS += \
     testCSVReports.h \
     testMzSlice.h \
     testLoadDB.h \
+    testEIC.h \
     testPeakDetection.h
 
 
@@ -38,6 +39,7 @@ SOURCES += \
     testPeakDetection.cpp \
     testMzSlice.cpp \
     testLoadDB.cpp \
+    testEIC.cpp \
     main.cpp
 
     
