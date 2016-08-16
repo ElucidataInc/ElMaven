@@ -4,6 +4,7 @@
 
 TestEIC::TestEIC() {
     loadFile = "bin/methods/bk_#sucyxpe_1_9.mzxml";
+    loadGoodSample = "bin/methods/sample_#sucyxpe_2_5.mzxml";
 
 }
 
@@ -35,3 +36,51 @@ void TestEIC::testgetEIC() {
     bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1);
     QVERIFY(e.intensity.size() == numberOfScans && status);
 }
+
+void TestEIC::testcomputeSpline() {
+    mzSample* mzsample = new mzSample();
+    EIC* e = NULL;
+
+    mzsample->loadSample(loadGoodSample);
+    e = mzsample->getEIC(402.9929, 402.9969, 12, 16, 1);
+    
+    //if eic exists, perform smoothing
+    EIC::SmootherType smootherType = 
+        (EIC::SmootherType) 1;
+
+    e->setSmootherType(smootherType);
+    e->computeSpline(10);
+    QVERIFY(true);
+}
+
+void TestEIC::testgetPeakPositions() {
+    mzSample* mzsample = new mzSample();
+    EIC* e = NULL;
+
+    mzsample->loadSample(loadGoodSample);
+    e = mzsample->getEIC(402.9929, 402.9969, 12, 16, 1);
+    
+    EIC::SmootherType smootherType =
+            (EIC::SmootherType) 1;
+    e->setSmootherType(smootherType);
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(80);
+    e->getPeakPositions(10);
+    QVERIFY(true);
+}
+
+void TestEIC::testcomputeBaseLine() {
+    mzSample* mzsample = new mzSample();
+    EIC* e = NULL;
+    mzsample->loadSample(loadGoodSample);
+    e = mzsample->getEIC(402.9929, 402.9969, 12, 16, 1);
+    
+    EIC::SmootherType smootherType =
+            (EIC::SmootherType) 1;
+    e->setSmootherType(smootherType);
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(60);
+    e->computeBaseLine(5, 60);
+    QVERIFY(true);
+}
+

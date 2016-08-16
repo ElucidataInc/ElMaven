@@ -134,6 +134,8 @@ class EIC {
         */
         void getPeakStatistics();
 
+        void findPeaks();
+
         /**
         * [check Gaussian Fit]
         * @method checkGaussianFit
