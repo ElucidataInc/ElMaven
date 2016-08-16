@@ -310,6 +310,33 @@ class Scan {
     bool operator< (const Scan& b) { return rt < b.rt; }
 
     int polarity;
+
+private:
+
+	struct ParentData {
+		float parentPeakIntensity;
+		bool flag;
+	};
+
+	ParentData *parentdata,p;
+
+	struct BrotherData {
+		float expectedMass;    
+        int countMatches;
+        float totalIntensity;
+        int upCount;
+        int downCount;
+        int minZ;
+        int maxZ;
+	};
+
+	BrotherData *brotherdata,b;
+	void initaliseBrotherData(int z, float mzfocus);
+	bool updateBrotherDataIfPeakFound(ChargedSpecies* x, int ii, bool lastMatched, float lastIntensity, float mzfocus, float noiseLevel, float ppmMerge);
+	void findError(ChargedSpecies* x);
+	void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
+	void findBrotherPeaks(ChargedSpecies* x, int z, float mzfocus, float noiseLevel, float ppmMerge, int minDeconvolutionCharge, int maxDeconvolutionCharge);
+
 };
 
 
