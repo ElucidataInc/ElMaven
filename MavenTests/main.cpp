@@ -7,6 +7,7 @@
 #include "testMzSlice.h"
 #include "testLoadDB.h"
 #include "testScan.h"
+#include "testbase64.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
@@ -16,8 +17,8 @@ int main(int argc, char** argv) {
 
     int result = 0;
 
-    freopen("test1.xml", "w", stdout);
-    result |= QTest::qExec(new TestLoadSamples, argc, argv);
+//    freopen("test1.xml", "w", stdout);
+//    result |= QTest::qExec(new TestLoadSamples, argc, argv);
 
     freopen("test2.xml",  "w", stdout);
     result |= QTest::qExec(new TestMassCalculator, argc, argv);
@@ -36,6 +37,9 @@ int main(int argc, char** argv) {
 
     freopen("test7.xml",  "w", stdout);
     result |= QTest::qExec(new TestScan, argc, argv);
+
+    freopen("test8.xml",  "w", stdout);
+    result |= QTest::qExec(new Testbase64, argc, argv);
 
     return result;
 }

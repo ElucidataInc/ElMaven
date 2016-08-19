@@ -28,7 +28,8 @@ HEADERS += \
     testMzSlice.h \
     testLoadDB.h \
     testPeakDetection.h \
-    testScan.h
+    testScan.h \
+    testbase64.h
 
 
 SOURCES += \
@@ -40,6 +41,7 @@ SOURCES += \
     testMzSlice.cpp \
     testLoadDB.cpp \
     testScan.cpp \
+    testbase64.cpp \
     main.cpp
 
     

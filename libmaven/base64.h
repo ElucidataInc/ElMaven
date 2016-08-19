@@ -75,5 +75,10 @@ namespace base64 {
 				return ((((uint64_t)swapbytes((uint32_t)(x & 0xffffffffU)) << 32) |
 										(uint64_t)swapbytes((uint32_t)(x >> 32))));
 		}
+
+        unsigned char* decodeString(const string& src,int *float_size, int *size);
+        vector<float> convertDecodedDataBackToFloat(unsigned char *dest, int float_size, bool neworkorder,int size);
+        unsigned char* convertFromFloatToCharacter(float* srcF, const vector<float>& farray);
+        unsigned char* encodeString(unsigned char* src, int size);
 }
 #endif
