@@ -28,7 +28,7 @@ int is_base64(char c) {
         return false;
 }
 
-vector<float> decode_base64(const string& src, int float_size, bool neworkorder) {
+unsigned char* decodeString(const string& src,int *float_size, int *size) {
 
         int k, l= src.length();
 
@@ -61,16 +61,15 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
 
                 if(c3 != '=') *p++=(((b2&0xf)<<4)|(b3>>2) );
                 if(c4 != '=') *p++=(((b3&0x3)<<6)|b4 );
+
+
         }
+        *size = 1+(src.length() * 3/4 - 4)/(*float_size);
+        free(buf);
+        return dest;
+}
 
-        int size = 1+(src.length() * 3/4 - 4)/float_size;
-
-        /*
-           cout << "Dest=" << dest << endl;
-           cout << "src.length()=" << src.length() << endl;
-           cout << "size=" << size << endl;
-         */
-
+vector<float> convertDecodedDataBackToFloat(unsigned char *dest, int float_size, bool neworkorder,int size){
 #if (LITTLE_ENDIAN == 1)
         cerr << "WARNING: LITTLE_ENDIAN.. Inverted network order";
         neworkorder=!neworkorder;
@@ -107,64 +106,85 @@ vector<float> decode_base64(const string& src, int float_size, bool neworkorder)
                 }
         }
 
-        //for debuging
-        //for(int i=0; i < size; i++ ) { cout << "\tok.." << i << " " << size <<" " << decodedArray[i] << endl; }
-
-        free(buf);
         free(dest);
         return decodedArray;
 }
 
+vector<float> decode_base64(const string& src, int float_size, bool neworkorder) {
+
+        int size;
+
+        unsigned char *dest= decodeString(src,&float_size,&size);
+
+        vector<float> decodedArray=convertDecodedDataBackToFloat(dest,float_size,neworkorder,size);
+
+        return decodedArray;
+
+}
+
+unsigned char* convertFromFloatToCharacter(float* srcF, const vector<float>& farray) {
+
+    int i;
+    int sizeF = farray.size();
+
+    //copy vector to C array
+    for(i=0; i<sizeF; i++ ) { srcF[i]=farray[i]; }
+
+    unsigned char *src = (unsigned char*) srcF;
+    return src;
+
+}
+
+unsigned char* encodeString(unsigned char* src, int size) {
+    unsigned char* out= (unsigned char*) calloc(sizeof(char), size*4/3+4);
+    unsigned char *p= out;
+    int i;
+    for(i=0; i<size; i+=3) {
+
+            unsigned char b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, b7=0;
+
+            b1 = src[i];
+
+            if(i+1<size)
+                    b2 = src[i+1];
+
+            if(i+2<size)
+                    b3 = src[i+2];
+
+            b4= b1>>2;
+            b5= ((b1&0x3)<<4)|(b2>>4);
+            b6= ((b2&0xf)<<2)|(b3>>6);
+            b7= b3&0x3f;
+
+            *p++= encode(b4);
+            *p++= encode(b5);
+
+            if(i+1<size) {
+                    *p++= encode(b6);
+            } else {
+                    *p++= '=';
+            }
+
+            if(i+2<size) {
+                    *p++= encode(b7);
+            } else {
+                    *p++= '=';
+            }
+
+    }
+    return out;
+}
+
 unsigned char *encode_base64(const vector<float>& farray) {
 
-
-        int i;
-        unsigned char *p;
-
-        //copy vector to C array
         int sizeF = farray.size();
         float* srcF= (float*) calloc(sizeof(float), sizeF);
-        for(i=0; i<sizeF; i++ ) { srcF[i]=farray[i]; }
+        int size=sizeF*4;
 
-        int size = sizeF*4;
-        unsigned char *src = (unsigned char*) srcF;
-        unsigned char* out= (unsigned char*) calloc(sizeof(char), size*4/3+4);
-        p= out;
+        unsigned char *src = convertFromFloatToCharacter(srcF, farray);
 
+        unsigned char* out=encodeString(src, size);
 
-        for(i=0; i<size; i+=3) {
-
-                unsigned char b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, b7=0;
-
-                b1 = src[i];
-
-                if(i+1<size)
-                        b2 = src[i+1];
-
-                if(i+2<size)
-                        b3 = src[i+2];
-
-                b4= b1>>2;
-                b5= ((b1&0x3)<<4)|(b2>>4);
-                b6= ((b2&0xf)<<2)|(b3>>6);
-                b7= b3&0x3f;
-
-                *p++= encode(b4);
-                *p++= encode(b5);
-
-                if(i+1<size) {
-                        *p++= encode(b6);
-                } else {
-                        *p++= '=';
-                }
-
-                if(i+2<size) {
-                        *p++= encode(b7);
-                } else {
-                        *p++= '=';
-                }
-
-        }
         free(srcF);
         return out;
 }

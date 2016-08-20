@@ -30,7 +30,8 @@ HEADERS += \
     testPeakDetection.h \
     testScan.h \
     testEIC.h \
-    testPeakDetection.h
+    testPeakDetection.h \
+    testbase64.h
 
 
 SOURCES += \
@@ -43,6 +44,7 @@ SOURCES += \
     testLoadDB.cpp \
     testScan.cpp \
     testEIC.cpp \
+    testbase64.cpp \
     main.cpp
 
     

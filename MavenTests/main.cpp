@@ -8,6 +8,7 @@
 #include "testLoadDB.h"
 #include "testScan.h"
 #include "testEIC.cpp"
+#include "testbase64.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
@@ -40,6 +41,9 @@ int main(int argc, char** argv) {
 
     freopen("testEIC.xml",  "w", stdout);
     result |= QTest::qExec(new TestEIC, argc, argv);
+
+    freopen("test8.xml",  "w", stdout);
+    result |= QTest::qExec(new Testbase64, argc, argv);
 
     return result;
 }
