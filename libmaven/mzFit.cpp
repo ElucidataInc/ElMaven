@@ -62,6 +62,7 @@ void gauss(int n, double *a, int adim, double *b, double *x)
 
 */
 
+//kiran TODO:function not used
 int linear_regression(int n, double *x, double *y, double *fitted)
 {
     double xbar, ybar;		/* sample means */
@@ -270,6 +271,7 @@ double leasev(double *c, int degree, double x)
 /*
 	curve fitting
 */
+//kiran TODO:function not used
 void fitcurve(double *x, double *y, int n, int ideg, double *fitted)
 {
     int i, ifail;
@@ -296,6 +298,7 @@ void fitcurve(double *x, double *y, int n, int ideg, double *fitted)
 /*
 	compute a running average
 */
+//kiran TODO:function not used
 void runavg(double *x, double *y, double *ax, double *ay, int n, int ilen)
 {
     int i;
@@ -319,6 +322,7 @@ void runavg(double *x, double *y, double *ax, double *ay, int n, int ilen)
 /*
 	compute a running standard deviation
 */
+//kiran TODO:function not used
 void runstddev(double *x, double *y, double *ax, double *ay, int n, int ilen)
 {
     int i;
@@ -342,6 +346,7 @@ void runstddev(double *x, double *y, double *ax, double *ay, int n, int ilen)
 /*
 	compute a running median
 */
+//kiran TODO:function not used
 void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
 {
     int i, j, nlen = n - ilen + 1;
@@ -380,6 +385,7 @@ void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
 /*
 	compute a running minimum or maximum
 */
+//kiran TODO:function not used
 void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, int type)
 {
     int i, j;
@@ -427,6 +433,7 @@ void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, in
 	of length n with the results going to resx, resy.
 	the length of the result is set by the caller
 */
+//kiran TODO:function not used
 void filterser(int n, double *x, double *y, double *resx, double *resy, double *h, int len)
 {
     int i, j, outlen, eo, ld2;
@@ -452,6 +459,7 @@ void filterser(int n, double *x, double *y, double *resx, double *resy, double *
 	linear convolution of set x (length n) with h (length m) and
 	result to y. the length of y is set by the caller
 */
+//kiran TODO:function not used
 void linearconv(double *x, double *h, double *y, int n, int m)
 {
     int i, j, itmp;
@@ -469,6 +477,7 @@ void linearconv(double *x, double *h, double *y, int n, int m)
 /*
  * cross correlation
  */
+//kiran TODO:function not used
 int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, double *xcor)
 {
     double xbar, xsd;
@@ -502,6 +511,7 @@ int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, doub
 	a literal translation of the spline routine in
 	Forsyth, Malcolm, and Moler
 */
+//kiran TODO:function not used
 void spline(int n, double *x, double *y, double *b, double *c, double *d)
 {
 /*
@@ -635,6 +645,7 @@ l50:;
     return;
 }
 
+//kiran TODO:function not used
 double seval(int n, double u, double *x, double *y, double *b, double *c, double *d)
 {
 /*
@@ -696,6 +707,7 @@ c
 /*
  * compute ntiles
  */
+//kiran TODO:function not used
 void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
 {
     int i, j = 0;
