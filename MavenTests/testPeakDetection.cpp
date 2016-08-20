@@ -2,6 +2,7 @@
 
 TestPeakDetection::TestPeakDetection() {
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+    files << "bin/methods/sample_#sucyxpe_2_5.mzxml" << "bin/methods/sample_#sucyxpe_2_6.mzxml";
 
 }
 
@@ -40,5 +41,43 @@ void TestPeakDetection::testProcessCompound() {
 
     QVERIFY(true);
 
+}
+
+void TestPeakDetection::testPullEICs() {
+    bool matchRtFlag = true;
+    float compoundRTWindow = 2;
+    float compoundPPMWindow = 10;
+    int ionizationMode = +1;
+
+    vector<mzSample*> samplesToLoad;
+
+    for (int i = 0; i <  files.size(); ++i) {
+        mzSample* mzsample = new mzSample();
+        mzsample->loadSample(files.at(i).toLatin1().data());
+        samplesToLoad.push_back(mzsample);
+    }
+
+    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    mzSlice* slice = new mzSlice();
+    slice->compound = compounds[2];
+    slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
+    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->samples = samplesToLoad;
+    mavenparameters->eic_smoothingWindow = 10;
+    mavenparameters->eic_smoothingAlgorithm = 1;
+    mavenparameters->amuQ1 = 0.25;
+    mavenparameters->amuQ3 = 0.30;
+    mavenparameters->baseline_smoothingWindow = 5;
+    mavenparameters->baseline_dropTopX = 80;
+
+    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
+                                    1, mavenparameters->eic_smoothingWindow,
+                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
+                                    mavenparameters->amuQ3,
+                                    mavenparameters->baseline_smoothingWindow,
+                                    mavenparameters->baseline_dropTopX);
+    QVERIFY(eics.size() == 2); 
 }
 

@@ -8,6 +8,8 @@
 #include "../libmaven/mzSample.h"
 #include "../libmaven/PeakDetector.h"
 #include "../libmaven/mavenparameters.h"
+#include "../libmaven/EIC.h"
+#include "../libmaven/mavenparameters.h"
 
 class TestPeakDetection : public QObject {
     Q_OBJECT
@@ -16,6 +18,7 @@ class TestPeakDetection : public QObject {
         TestPeakDetection();
     private:
         const char* loadCompoundDB;
+        QStringList files;
 
     private slots:
         // functions executed by QtTest before and after test suite
@@ -29,6 +32,7 @@ class TestPeakDetection : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testProcessCompound();
+        void testPullEICs();
 };
 
 #endif // TESTPEAKDETECTION_H

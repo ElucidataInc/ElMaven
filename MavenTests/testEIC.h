@@ -7,6 +7,10 @@
 #include <fstream>
 #include "common.h"
 #include "../libmaven/EIC.h"
+#include "../libmaven/PeakDetector.h"
+#include "../libmaven/mavenparameters.h"
+#include "../libmaven/mzMassCalculator.h"
+#include "../libmaven/mzSample.h"
 
 class TestEIC : public QObject {
     Q_OBJECT
@@ -16,6 +20,7 @@ class TestEIC : public QObject {
     private:
         const char* loadFile;
         const char* loadGoodSample;
+        QStringList files;
 
     private slots:
         // functions executed by QtTest before and after test suite
@@ -32,6 +37,10 @@ class TestEIC : public QObject {
         void testcomputeSpline();
         void testgetPeakPositions();
         void testcomputeBaseLine();
+        void testfindPeakBounds();
+        void testGetPeakDetails();
+        void testgroupPeaks();
+        void testeicMerge();
 };
 
 #endif // TESTEIC_H

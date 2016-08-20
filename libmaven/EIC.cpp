@@ -187,20 +187,7 @@ void EIC::getPeakPositions(int smoothWindow) {
         computeSpline(smoothWindow);
         if (spline == NULL ) return;
 
-        for (unsigned int i=1; i < N-1; i++ ) {
-                if ( spline[i] > spline[i-1] && spline[i] > spline[i+1]) {
-                        addPeak(i);
-                } else if ( spline[i] > spline[i-1] && spline[i] == spline[i+1] ) {
-                        float highpoint = spline[i];
-                        while(i<N-1) {
-                                i++;
-                                if ( spline[i+1] == highpoint) continue;
-                                if ( spline[i+1] > highpoint) break;
-                                if ( spline[i+1] < highpoint) { addPeak(i); break; }
-                        }
-                }
-        }
-        //void findPeaks();
+        findPeaks();
 
         computeBaseLine(baselineSmoothingWindow, baselineDropTopX);
         getPeakStatistics();
