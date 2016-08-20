@@ -9,6 +9,7 @@
 #include "testScan.h"
 #include "testEIC.cpp"
 #include "testbase64.h"
+#include "testMzFit.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
@@ -44,6 +45,9 @@ int main(int argc, char** argv) {
 
     freopen("test8.xml",  "w", stdout);
     result |= QTest::qExec(new Testbase64, argc, argv);
+
+    freopen("test9.xml",  "w", stdout);
+    result |= QTest::qExec(new TestMzFit, argc, argv);
 
     return result;
 }

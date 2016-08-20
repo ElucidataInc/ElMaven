@@ -31,7 +31,8 @@ HEADERS += \
     testScan.h \
     testEIC.h \
     testPeakDetection.h \
-    testbase64.h
+    testbase64.h \
+    testMzFit.h
 
 
 SOURCES += \
@@ -45,6 +46,8 @@ SOURCES += \
     testScan.cpp \
     testEIC.cpp \
     testbase64.cpp \
+    testMzFit.cpp \
     main.cpp
+
 
     
