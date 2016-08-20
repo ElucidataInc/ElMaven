@@ -19,34 +19,34 @@ int main(int argc, char** argv) {
 
     int result = 0;
 
-    freopen("test1.xml", "w", stdout);
+    freopen("testLoadSamples.xml", "w", stdout);
     result |= QTest::qExec(new TestLoadSamples, argc, argv);
 
-    freopen("test2.xml",  "w", stdout);
+    freopen("testMassCalculator.xml",  "w", stdout);
     result |= QTest::qExec(new TestMassCalculator, argc, argv);
     
-    freopen("test3.xml",  "w", stdout);
+    freopen("testCSVReports.xml",  "w", stdout);
     result |= QTest::qExec(new TestCSVReports, argc, argv);
 
-    freopen("test4.xml",  "w", stdout);
+    freopen("testPeakDetection.xml",  "w", stdout);
     result |= QTest::qExec(new TestPeakDetection, argc, argv);
 
-    freopen("test5.xml",  "w", stdout);
+    freopen("testLoadDB.xml",  "w", stdout);
     result |= QTest::qExec(new TestLoadDB, argc, argv);
 
-    freopen("test6.xml",  "w", stdout);
+    freopen("testMzSlice.xml",  "w", stdout);
     result |= QTest::qExec(new TestMzSlice, argc, argv);
 
-    freopen("test7.xml",  "w", stdout);
+    freopen("testScan.xml",  "w", stdout);
     result |= QTest::qExec(new TestScan, argc, argv);
 
     freopen("testEIC.xml",  "w", stdout);
     result |= QTest::qExec(new TestEIC, argc, argv);
 
-    freopen("test8.xml",  "w", stdout);
+    freopen("testbase64.xml",  "w", stdout);
     result |= QTest::qExec(new Testbase64, argc, argv);
 
-    freopen("test9.xml",  "w", stdout);
+    freopen("testMzFit.xml",  "w", stdout);
     result |= QTest::qExec(new TestMzFit, argc, argv);
 
     return result;
