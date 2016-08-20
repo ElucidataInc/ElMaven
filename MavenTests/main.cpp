@@ -17,8 +17,8 @@ int main(int argc, char** argv) {
 
     int result = 0;
 
-//    freopen("test1.xml", "w", stdout);
-//    result |= QTest::qExec(new TestLoadSamples, argc, argv);
+    freopen("test1.xml", "w", stdout);
+    result |= QTest::qExec(new TestLoadSamples, argc, argv);
 
     freopen("test2.xml",  "w", stdout);
     result |= QTest::qExec(new TestMassCalculator, argc, argv);
