@@ -310,6 +310,39 @@ class Scan {
     bool operator< (const Scan& b) { return rt < b.rt; }
 
     int polarity;
+
+private:
+
+
+	struct ParentData {
+		float parentPeakIntensity;
+		bool flag;
+	};
+
+	ParentData *parentdata,p;
+
+	struct BrotherData {
+		float expectedMass;    
+        int countMatches;
+        float totalIntensity;
+        int upCount;
+        int downCount;
+        int minZ;
+        int maxZ;
+	};
+
+    ofstream file;
+	BrotherData *brotherdata,b;
+    void initialiseBrotherData(int z, float mzfocus);
+    void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, float ppmMerge);
+    void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
+    void findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, float ppmMerge,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
+    bool setParentPeakData(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio);
+    void findError(ChargedSpecies* x);
+
+    vector<float> smoothenIntensitites();
+    void findLocalMaximaInIntensitySpace(int vsize, vector<float> *cMz, vector<float> *cIntensity, vector<float> *spline);
+    void updateIntensityWithTheLocalMaximas(vector<float> *cMz, vector<float> *cIntensity);
 };
 
 
