@@ -63,6 +63,8 @@ docs/html
 html
 docs/latex
 /Release/
+bin/methods/baeseline.csv
+bin/methods/smoothing.csv
 
 *.user
 
