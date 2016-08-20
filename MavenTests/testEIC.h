@@ -1,23 +1,25 @@
-#ifndef TESTPEAKDETECTION_H
-#define TESTPEAKDETECTION_H
+#ifndef TESTEIC_H
+#define TESTEIC_H
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include "common.h"
-#include "../libmaven/mzSample.h"
+#include "../libmaven/EIC.h"
 #include "../libmaven/PeakDetector.h"
 #include "../libmaven/mavenparameters.h"
-#include "../libmaven/EIC.h"
-#include "../libmaven/mavenparameters.h"
+#include "../libmaven/mzMassCalculator.h"
+#include "../libmaven/mzSample.h"
 
-class TestPeakDetection : public QObject {
+class TestEIC : public QObject {
     Q_OBJECT
 
     public:
-        TestPeakDetection();
+        TestEIC();
     private:
-        const char* loadCompoundDB;
+        const char* loadFile;
+        const char* loadGoodSample;
         QStringList files;
 
     private slots:
@@ -31,9 +33,14 @@ class TestPeakDetection : public QObject {
 
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testProcessCompound();
-        void testPullEICs();
-        void testprocessSlices();
+        void testgetEIC();
+        void testcomputeSpline();
+        void testgetPeakPositions();
+        void testcomputeBaseLine();
+        void testfindPeakBounds();
+        void testGetPeakDetails();
+        void testgroupPeaks();
+        void testeicMerge();
 };
 
-#endif // TESTPEAKDETECTION_H
+#endif // TESTEIC_H

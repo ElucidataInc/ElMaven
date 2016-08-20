@@ -28,7 +28,9 @@ HEADERS += \
     testMzSlice.h \
     testLoadDB.h \
     testPeakDetection.h \
-    testScan.h
+    testScan.h \
+    testEIC.h \
+    testPeakDetection.h
 
 
 SOURCES += \
@@ -40,6 +42,7 @@ SOURCES += \
     testMzSlice.cpp \
     testLoadDB.cpp \
     testScan.cpp \
+    testEIC.cpp \
     main.cpp
 
     

@@ -160,7 +160,7 @@ void EIC::computeSpline(int smoothWindow) {
                 mzUtils::SavGolSmoother smoother(smoothWindow,smoothWindow,4);
                 vector<float>smoothed = smoother.Smooth(intensity);
                 for(int i=0; i<n; i++) spline[i] = smoothed[i];
-        } else if (smootherType==GAUSSIAN) { //GAUSSIAN SMOOTHER
+        } else if (smootherType == GAUSSIAN) { //GAUSSIAN SMOOTHER
                 gaussian1d_smoothing(n,smoothWindow,spline);
         } else if ( smootherType == AVG) {
                 float* y  = new float[n];
@@ -168,30 +168,6 @@ void EIC::computeSpline(int smoothWindow) {
                 smoothAverage(y,spline,smoothWindow,n);
                 delete[] y;
         }
-
-        /*
-           float* x = new float[n];
-           float* f = new float[n];
-           float* b = new float[n];
-           float* c = new float[n];
-           float* d = new float[n];
-
-           for(int i=0; i<n; i++) { f[i] = intensity[i]; x[i] = rt[i]; b[i]=c[i]=d[i]=0; }
-           mzUtils::cubic_nak(n,x,f,b,c,d);
-           for(int i=1; i<n; i++) {
-            float dt=0.05;
-            spline[i] = f[i-1] + (dt) * ( b[i-1] + ( dt ) * ( c[i-1] + (dt ) * d[i-1] ) );
-            //spline[i] = mzUtils::spline_eval(n,x,f,b,c,d,x[i]);
-            //cerr << x[i] << " " << f[i] << " " << b[i] << " " << spline[i] << endl;
-           }
-
-           delete[] x;
-           delete[] f;
-           delete[] b;
-           delete[] c;
-           delete[] d;
-         */
-
 
 }
 
@@ -211,22 +187,29 @@ void EIC::getPeakPositions(int smoothWindow) {
         computeSpline(smoothWindow);
         if (spline == NULL ) return;
 
-        for (unsigned int i=1; i < N-1; i++ ) {
-                if ( spline[i] > spline[i-1] && spline[i] > spline[i+1]) {
-                        addPeak(i);
-                } else if ( spline[i] > spline[i-1] && spline[i] == spline[i+1] ) {
-                        float highpoint = spline[i];
-                        while(i<N-1) {
-                                i++;
-                                if ( spline[i+1] == highpoint) continue;
-                                if ( spline[i+1] > highpoint) break;
-                                if ( spline[i+1] < highpoint) { addPeak(i); break; }
-                        }
-                }
-        }
+        findPeaks();
 
         computeBaseLine(baselineSmoothingWindow, baselineDropTopX);
         getPeakStatistics();
+}
+
+
+void EIC::findPeaks() {
+    unsigned int N = intensity.size();
+
+    for (unsigned int i=1; i < N-1; i++ ) {
+        if ( spline[i] > spline[i-1] && spline[i] > spline[i+1]) {
+                addPeak(i);
+        } else if ( spline[i] > spline[i-1] && spline[i] == spline[i+1] ) {
+            float highpoint = spline[i];
+            while(i<N-1) {
+                i++;
+                if ( spline[i+1] == highpoint) continue;
+                if ( spline[i+1] > highpoint) break;
+                if ( spline[i+1] < highpoint) { addPeak(i); break; }
+            }
+        }
+    }   
 }
 
 void EIC::findPeakBounds(Peak& peak) {

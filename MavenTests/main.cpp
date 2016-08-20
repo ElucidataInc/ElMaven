@@ -7,6 +7,7 @@
 #include "testMzSlice.h"
 #include "testLoadDB.h"
 #include "testScan.h"
+#include "testEIC.cpp"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
@@ -36,6 +37,9 @@ int main(int argc, char** argv) {
 
     freopen("test7.xml",  "w", stdout);
     result |= QTest::qExec(new TestScan, argc, argv);
+
+    freopen("testEIC.xml",  "w", stdout);
+    result |= QTest::qExec(new TestEIC, argc, argv);
 
     return result;
 }
