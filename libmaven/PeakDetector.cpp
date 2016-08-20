@@ -543,9 +543,10 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         PeakGroup* group = groupsToAppend[j];
                         bool ok = addPeakGroup(*group);
 
-                        //force insert when processing compounds.. even if duplicated
-                        if (ok == false && compound != NULL)
-                                mavenParameters->allgroups.push_back(*group);
+                        //TODO: commended by sabu
+                        // //force insert when processing compounds.. even if duplicated
+                        // if (ok == false && compound != NULL)
+                        //         mavenParameters->allgroups.push_back(*group);
                 }
 
                 //cleanup

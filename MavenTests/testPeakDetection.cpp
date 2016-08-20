@@ -80,4 +80,37 @@ void TestPeakDetection::testPullEICs() {
                                     mavenparameters->baseline_dropTopX);
     QVERIFY(eics.size() == 2); 
 }
+void TestPeakDetection::testprocessSlices() {
+
+    DBS.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<mzSample*> samplesToLoad;
+
+    for (int i = 0; i <  files.size(); ++i) {
+        mzSample* mzsample = new mzSample();
+        mzsample->loadSample(files.at(i).toLatin1().data());
+        samplesToLoad.push_back(mzsample);
+    }
+
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundPPMWindow = 10;
+    mavenparameters->ionizationMode = +1;
+    mavenparameters->matchRtFlag = true;
+    mavenparameters->compoundRTWindow = 2;
+    mavenparameters->samples = samplesToLoad;
+    mavenparameters->eic_smoothingWindow = 10;
+    mavenparameters->eic_smoothingAlgorithm = 1;
+    mavenparameters->amuQ1 = 0.25;
+    mavenparameters->amuQ3 = 0.30;
+    mavenparameters->baseline_smoothingWindow = 5;
+    mavenparameters->baseline_dropTopX = 80;
+
+    PeakDetector peakDetector;
+    peakDetector.setMavenParameters(mavenparameters);
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processSlices();
+    QVERIFY(true);
+
+}
+
 

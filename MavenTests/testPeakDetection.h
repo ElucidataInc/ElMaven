@@ -33,6 +33,7 @@ class TestPeakDetection : public QObject {
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testProcessCompound();
         void testPullEICs();
+        void testprocessSlices();
 };
 
 #endif // TESTPEAKDETECTION_H
