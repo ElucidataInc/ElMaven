@@ -107,10 +107,10 @@ double MassCalculator::adjustMass(double mass, int charge) {
 	}
 
 	if (charge < 0) {
-		return ((mass - -charge * H2_MASS + -charge * ELECTRON_MASS) /
+		return ((mass - -charge * H_MASS + -charge * ELECTRON_MASS) /
 			-charge);  //-nH + nelectron
 	} else if (charge > 0) {
-		return ((mass + charge * H2_MASS - charge * ELECTRON_MASS) /
+		return ((mass + charge * H_MASS - charge * ELECTRON_MASS) /
 			charge);  // +nH - nelectron
 	} else {
 		return mass;
@@ -208,9 +208,9 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge) {
 void MassCalculator::enumerateMasses(double inputMass, double charge,
 				     double maxdiff, vector<Match*>& matches) {
 	if (charge > 0)
-		inputMass = inputMass * abs(charge) - H2_MASS * abs(charge);
+		inputMass = inputMass * abs(charge) - H_MASS * abs(charge);
 	if (charge < 0)
-		inputMass = inputMass * abs(charge) + H2_MASS * abs(charge);
+		inputMass = inputMass * abs(charge) + H_MASS * abs(charge);
 
 	for (int c = 0; c < 30; c++) {  // C
 		if (c * 12 > inputMass) break;
