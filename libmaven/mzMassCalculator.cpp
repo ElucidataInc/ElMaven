@@ -13,37 +13,37 @@ double MassCalculator::getElementMass(string elmnt) {
 	double val_atome(0);
 
 	/* Check for atoms */
-	if (elmnt == "H") {
+	if (elmnt == H_STRING_ID) {
 		val_atome = H_MASS;
-	} else if (elmnt == "D") {
+	} else if (elmnt == H2_STRING_ID) {
 		val_atome = H2_MASS;
-	} else if (elmnt == "C") {
+	} else if (elmnt == C_STRING_ID) {
 		val_atome = C12_MASS;
-	} else if (elmnt == "N") {
+	} else if (elmnt == N_STRING_ID) {
 		val_atome = N14_MASS;
-	} else if (elmnt == "O") {
+	} else if (elmnt == O_STRING_ID) {
 		val_atome = O16_MASS;
-	} else if (elmnt == "S") {
+	} else if (elmnt == S_STRING_ID) {
 		val_atome = S32_MASS;
-	} else if (elmnt == "P") {
+	} else if (elmnt == P_STRING_ID) {
 		val_atome = P31_MASS;
-	} else if (elmnt == "F") {
+	} else if (elmnt == F_STRING_ID) {
 		val_atome = F19_MASS;
-	} else if (elmnt == "Na") {
+	} else if (elmnt == NA_STRING_ID) {
 		val_atome = NA23_MASS;
-	} else if (elmnt == "Mg") {
+	} else if (elmnt == MG_STRING_ID) {
 		val_atome = MG25_MASS;
-	} else if (elmnt == "Cl") {
+	} else if (elmnt == CL_STRING_ID) {
 		val_atome = CL35_MASS;
-	} else if (elmnt == "K") {
+	} else if (elmnt == K_STRING_ID) {
 		val_atome = K39_MASS;
-	} else if (elmnt == "Ca") {
+	} else if (elmnt == CA_STRING_ID) {
 		val_atome = CA40_MASS;
-	} else if (elmnt == "Se") {
+	} else if (elmnt == SE_STRING_ID) {
 		val_atome = SE80_MASS;
-	} else if (elmnt == "As") {
+	} else if (elmnt == AS_STRING_ID) {
 		val_atome = AS75_MASS;
-	} else if (elmnt == "Si") {
+	} else if (elmnt == SI_STRING_ID) {
 		val_atome = SI28_MASS;
 	}
 	return (val_atome);
@@ -124,10 +124,10 @@ double MassCalculator::computeMass(string formula, int charge) {
 
 vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge) {
 	map<string, int> atoms = getComposition(formula);
-	int CatomCount = atoms["C"];
-	int NatomCount = atoms["N"];
-	int SatomCount = atoms["S"];
-	int HatomCount = atoms["H"];
+	int CatomCount = atoms[C_STRING_ID];
+	int NatomCount = atoms[N_STRING_ID];
+	int SatomCount = atoms[S_STRING_ID];
+	int HatomCount = atoms[H_STRING_ID];
 
 	double parentMass = computeMass(formula, charge);
 	charge = abs(charge);

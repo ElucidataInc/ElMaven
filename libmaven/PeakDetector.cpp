@@ -55,8 +55,6 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 //TODO this is for MS/MS?
             } else if (c && c->precursorMz > 0 && c->productMz > 0) {
                 //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
-                cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz
-                        << endl;
 
                     e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
                                     amuQ1, amuQ3);
@@ -197,22 +195,25 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                 return;
 
         //init
-        float ppm = mavenParameters->compoundPPMWindow;
-        double maxIsotopeScanDiff = 10;
-        double maxNaturalAbundanceErr = 100;
-        double minIsotopicCorrelation = 0;
-        bool C13Labeled = false;
-        bool N15Labeled = false;
-        bool S34Labeled = false;
-        bool D2Labeled = false;
-        int eic_smoothingAlgorithm = 0;
+	double maxNaturalAbundanceErr = 100;
+	// mavenParameters->maxNaturalAbundanceErr;
+	bool C13Labeled = false;
+	// mavenParameters->C13Labeled;
+	bool N15Labeled = false;
+	// mavenParameters->N15Labeled;
+	bool S34Labeled = false;
+	// mavenParameters->S34Labeled;
+	bool D2Labeled = false;
+	// mavenParameters->D2Labeled;
+	int eic_smoothingAlgorithm = 0;
+	// mavenParameters->eic_smoothingAlgorithm;
 
-        string formula = parentgroup->compound->formula; //parent formula
+	string formula = parentgroup->compound->formula; //parent formula
         //generate isotope list for parent mass
-        vector<Isotope> masslist = MassCalculator::computeIsotopes(formula,
-                                                                          mavenParameters->ionizationMode);
+	vector<Isotope> masslist = MassCalculator::computeIsotopes(
+	    formula, mavenParameters->ionizationMode);
 
-        //iterate over samples to find properties for parent's isotopes.
+	//iterate over samples to find properties for parent's isotopes.
         map<string, PeakGroup> isotopes;
         map<string, PeakGroup>::iterator itr2;
 
@@ -227,10 +228,14 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                         double isotopeMass = x.mass;
                         double expectedAbundance = x.abundance;
 
-                        float mzmin = isotopeMass - isotopeMass / 1e6 * ppm;
-                        float mzmax = isotopeMass + isotopeMass / 1e6 * ppm;
+			float mzmin = isotopeMass -
+				      isotopeMass / 1e6 *
+					  mavenParameters->compoundPPMWindow;
+			float mzmax = isotopeMass +
+				      isotopeMass / 1e6 *
+					  mavenParameters->compoundPPMWindow;
 
-                        float rt = parentgroup->medianRt();
+			float rt = parentgroup->medianRt();
                         float rtmin = parentgroup->minRt;
                         float rtmax = parentgroup->maxRt;
 
@@ -289,15 +294,18 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                                 //cerr << " Observed isotopeAbundance=" << observedAbundance;
                                 //cerr << " Error="		 << naturalAbundanceError << endl;
 
-                                if (naturalAbundanceError > maxNaturalAbundanceErr)
-                                        continue;
+				if (naturalAbundanceError >
+				    mavenParameters->maxNaturalAbundanceErr)
+					continue;
                         }
 
                         float w = mavenParameters->maxIsotopeScanDiff
                                   * mavenParameters->avgScanTime;
-                        double c = sample->correlation(isotopeMass, parentgroup->meanMz,
-                                                       ppm, rtmin - w, rtmax + w); //find correlation for isotopes
-                        if (c < mavenParameters->minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
+			double c = sample->correlation(
+			    isotopeMass, parentgroup->meanMz,
+			    mavenParameters->compoundPPMWindow, rtmin - w,
+			    rtmax + w);  // find correlation for isotopes
+			if (c < mavenParameters->minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
                                 continue;
 
                         //cerr << "pullIsotopes: " << isotopeMass << " " << rtmin-w << " " <<	rtmin+w << " c=" << c << endl;
@@ -404,10 +412,10 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                 return;
         mavenParameters->allgroups.clear();
 
-        //TODO: All the ion counts are 0 there is no use in sorting
+	//TODO: All the ion counts are 0 there is no use in sorting
         sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
-        //process KNOWNS
+	//process KNOWNS
         QTime timer;
         timer.start();
         // qDebug() << "Proessing slices: setName=" << setName.c_str() << " slices="
@@ -461,7 +469,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->baseline_smoothingWindow,
                                 mavenParameters->baseline_dropTopX);
 
-                float eicMaxIntensity = 0;
+		float eicMaxIntensity = 0;
 
                 for (unsigned int j = 0; j < eics.size(); j++) {
                         eicCount++;
@@ -478,17 +486,17 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                                                mavenParameters->eic_smoothingWindow,
                                                                mavenParameters->grouping_maxRtWindow);
 
-                //score quality of each group using classifier
+		//score quality of each group using classifier
                 vector<PeakGroup*> groupsToAppend;
                 for (int j = 0; j < peakgroups.size(); j++) {
-                        PeakGroup& group = peakgroups[j];
+			PeakGroup& group = peakgroups[j];
                         group.computeAvgBlankArea(eics);
                         group.groupStatistics();
                         groupCount++;
                         peakCount += group.peakCount();
 
-                        if (mavenParameters->clsf->hasModel()) {
-                                mavenParameters->clsf->classify(&group);
+			if (mavenParameters->clsf->hasModel()) {
+				mavenParameters->clsf->classify(&group);
                                 group.groupStatistics();
                         }
                         if (mavenParameters->clsf->hasModel()
@@ -513,25 +521,25 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 group.compound = compound;
                         if (!slice->srmId.empty())
                                 group.srmId = slice->srmId;
-
-                        //update peak group rank using rt difference b/w compound's expectedRt and peak groups's RT
-                        if (mavenParameters->matchRtFlag && compound != NULL
-                            && compound->expectedRt > 0) {
-                                float rtDiff = abs(compound->expectedRt - (group.meanRt));
+			// update peak group rank using rt difference b/w
+			// compound's expectedRt and peak groups's RT
+			if (mavenParameters->matchRtFlag && compound != NULL &&
+			    compound->expectedRt > 0) {
+				float rtDiff = abs(compound->expectedRt - (group.meanRt));
                                 group.expectedRtDiff = rtDiff;
-                                group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
+				group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
                                                   * (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
                                 if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
                                         continue;
                         } else {
-                                group.groupRank = (1.1 - group.maxQuality)
+				group.groupRank = (1.1 - group.maxQuality)
                                                   * (1 / log(group.maxIntensity + 1));
                         }
 
-                        groupsToAppend.push_back(&group);
+			groupsToAppend.push_back(&group);
                 }
 
-                //sort groups according to their rank
+		//sort groups according to their rank
                 std::sort(groupsToAppend.begin(), groupsToAppend.end(),
                           PeakGroup::compRankPtr);
 
@@ -575,11 +583,6 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                 }
         }
 
-        qDebug() << "processSlices() Slices=" << slices.size();
-        qDebug() << "processSlices() EICs=" << eicCount;
-        qDebug() << "processSlices() Groups=" << groupCount;
-        qDebug() << "processSlices() Peaks=" << peakCount;
-        qDebug() << "processSlices() done. " << timer.elapsed() << " sec.";
         //cleanup();
 }
 
