@@ -10,6 +10,7 @@
 #include "../libmaven/mavenparameters.h"
 #include "../libmaven/EIC.h"
 #include "../libmaven/mavenparameters.h"
+#include "../libmaven/classifierNeuralNet.h"
 
 class TestPeakDetection : public QObject {
     Q_OBJECT
@@ -21,7 +22,7 @@ class TestPeakDetection : public QObject {
         QStringList files;
 
     private slots:
-        // functions executed by QtTest before and after test suite
+        // functions executed by QtTest before and after tuest suite
         void initTestCase();
         void cleanupTestCase();
 
@@ -34,6 +35,7 @@ class TestPeakDetection : public QObject {
         void testProcessCompound();
         void testPullEICs();
         void testprocessSlices();
+	void testpullIsotopes();
 };
 
 #endif // TESTPEAKDETECTION_H

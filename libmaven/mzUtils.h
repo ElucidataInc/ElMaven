@@ -1,25 +1,25 @@
 #ifndef UTILS_INCLUDED
 #define UTILS_INCLUDED
 
+#include <fcntl.h>
+#include <float.h>
+#include <math.h>
 #include <stdio.h>
-#include <string>
-#include <vector>
-#include <deque>
-#include <cmath>
-#include <algorithm>
-#include <sstream>
-#include <iostream>
-#include <stdexcept>
-#include <iomanip>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <fcntl.h>
-#include "statistics.h"
+#include <algorithm>
+#include <cmath>
+#include <deque>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 #include "SavGolSmoother.h"
 #include "csvparser.h"
+#include "statistics.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -29,31 +29,28 @@
 #include <io.h>
 #endif
 
-#define POW2(x) ((x)*(x))
-#define MAX(x,y) ((x)>(y)) ? (x) : (y)
-#define MIN(x,y) ((x)<(y)) ? (x) : (y)
+#define POW2(x) ((x) * (x))
+#define MAX(x, y) ((x) > (y)) ? (x) : (y)
+#define MIN(x, y) ((x) < (y)) ? (x) : (y)
 #define SIGN(x) ((x < 0) ? -1 : 1)
 #define ISINF(x) (!isnan(x) && (x >= FLT_MAX || x <= FLT_MIN))
-#define FLOATROUND(x,sd)(int(x*sd+0.5)/sd)
+#define FLOATROUND(x, sd) (int(x * sd + 0.5) / sd)
 
-#define C13_MASS	 13.0033548378
-#define HMASS  		 1.007825032
-#define EMASS 		 0.00054857971 //(6.022141×10^23 ⋅ 9.10938×10^-28 )
 #if defined _WIN32 && !defined __CYGWIN__
 /* Use Windows separators on all _WIN32 defining
  *       environments, except Cygwin. */
-#  define DIR_SEPARATOR_CHAR		'\\'
-#  define DIR_SEPARATOR_STR		"\\"
-#  define PATH_SEPARATOR_CHAR		';'
-#  define PATH_SEPARATOR_STR		";"
+#define DIR_SEPARATOR_CHAR '\\'
+#define DIR_SEPARATOR_STR "\\"
+#define PATH_SEPARATOR_CHAR ';'
+#define PATH_SEPARATOR_STR ";"
 #endif
 #ifndef DIR_SEPARATOR_CHAR
 /* Assume that not having this is an indicator that all
  *       are missing. */
-#  define DIR_SEPARATOR_CHAR		'/'
-#  define DIR_SEPARATOR_STR		"/"
-#  define PATH_SEPARATOR_CHAR		':'
-#  define PATH_SEPARATOR_STR		":"
+#define DIR_SEPARATOR_CHAR '/'
+#define DIR_SEPARATOR_STR "/"
+#define PATH_SEPARATOR_CHAR ':'
+#define PATH_SEPARATOR_STR ":"
 #endif /* !DIR_SEPARATOR_CHAR */
 
 using namespace std;
@@ -67,8 +64,7 @@ namespace mzUtils {
  * @return       []
  */
 inline float round(float val) {
-	if (val - long(val) >= 0.5)
-		return (ceil(val));
+	if (val - long(val) >= 0.5) return (ceil(val));
 	return (floor(val));
 }
 
@@ -85,8 +81,8 @@ void removeSpecialcharFromStartEnd(vector<string>& fields);
  * @param  t           []
  * @return             []
  */
-float spline_eval(int n, float *x, float *f, float *b, float *c, float *d,
-		float t);
+float spline_eval(int n, float* x, float* f, float* b, float* c, float* d,
+		  float t);
 
 /**
  * [tridiagonal  ]
@@ -97,7 +93,7 @@ float spline_eval(int n, float *x, float *f, float *b, float *c, float *d,
  * @param  b           []
  * @param  r           []
  */
-void tridiagonal(int n, float *c, float *a, float *b, float *r);
+void tridiagonal(int n, float* c, float* a, float* b, float* r);
 
 /**
  * [cubic_nak    ]
@@ -109,7 +105,7 @@ void tridiagonal(int n, float *c, float *a, float *b, float *r);
  * @param  c         []
  * @param  d         []
  */
-void cubic_nak(int n, float *x, float *f, float *b, float *c, float *d);
+void cubic_nak(int n, float* x, float* f, float* b, float* c, float* d);
 
 /*smoothing functions */
 
@@ -120,7 +116,7 @@ void cubic_nak(int n, float *x, float *f, float *b, float *c, float *d);
  * @param  nsr                  []
  * @param  data                 []
  */
-void gaussian1d_smoothing(int ns, int nsr, float *data);
+void gaussian1d_smoothing(int ns, int nsr, float* data);
 
 /**
  * [smoothAverage ]
@@ -130,7 +126,7 @@ void gaussian1d_smoothing(int ns, int nsr, float *data);
  * @param  points        []
  * @param  n             []
  */
-void smoothAverage(float *y, float* s, int points, int n);
+void smoothAverage(float* y, float* s, int points, int n);
 
 /**
  * [conv ]
@@ -145,8 +141,8 @@ void smoothAverage(float *y, float* s, int points, int n);
  * @param  ifz  []
  * @param  z    []
  */
-void conv(int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz,
-		float *z);	//convolutio
+void conv(int lx, int ifx, float* x, int ly, int ify, float* y, int lz, int ifz,
+	  float* z);  // convolutio
 
 /*statistical functions*/
 /**
@@ -191,7 +187,7 @@ float kth_smallest(float a[], int n, int k);
  * @param  m             []
  * @return               []
  */
-float torben_median(const vector<float> &m);
+float torben_median(const vector<float>& m);
 
 vector<float> quantileDistribution(vector<float> y);
 
@@ -211,7 +207,7 @@ int countBelow(vector<float>& y, float ymax);
  * @param  b           []
  * @return             []
  */
-float correlation(const vector<float>&a, const vector<float>&b);
+float correlation(const vector<float>& a, const vector<float>& b);
 
 /**
  * [gaussFit ]
@@ -322,7 +318,7 @@ string float2string(float f, int p);
  * @param  s             []
  * @return []
  */
-string makeLowerCase(string &s);
+string makeLowerCase(string& s);
 
 /**
  * [split ]
@@ -342,7 +338,7 @@ void splitNew(const string& s, const string& c, vector<string>& v);
  * @param  s2           []
  * @return []
  */
-char *mystrcasestr(const char *s1, const char *s2);
+char* mystrcasestr(const char* s1, const char* s2);
 
 /**
  * [strincmp ]
@@ -352,7 +348,7 @@ char *mystrcasestr(const char *s1, const char *s2);
  * @param  n        []
  * @return []
  */
-int strincmp(char *s1, char* s2, int n);
+int strincmp(char* s1, char* s2, int n);
 
 /**
  * [cleanFilename ]
@@ -371,7 +367,7 @@ string cleanFilename(const string& s);
  * @return []
  */
 string substituteInQuotedString(const string& s, const string& chars,
-		const string& substitutions);
+				const string& substitutions);
 
 /**
  * [gzipInflate ]
@@ -381,7 +377,7 @@ string substituteInQuotedString(const string& s, const string& chars,
  * @return []
  */
 bool gzipInflate(const std::string& compressedBytes,
-		std::string& uncompressedBytes);
+		 std::string& uncompressedBytes);
 
 /**
  * [decompress_string ]
@@ -472,19 +468,16 @@ int isDir(const char* path);
  * @return []
  */
 inline float checkOverlap(float a, float b, float c, float d) {
-	if ((a < c && b < c) || (d < a && d < b))
-		return (0.0);  //no overalp
+	if ((a < c && b < c) || (d < a && d < b)) return (0.0);  // no overalp
 	if ((c <= a && b <= d) || (a <= c && d <= b))
-		return (1.0); //100% overlap
-	if (c <= a)
-		return (1 / abs((c - b) / (d - a)));
-	if (a <= c)
-		return (abs((c - b) / (d - a)));
+		return (1.0);  // 100% overlap
+	if (c <= a) return (1 / abs((c - b) / (d - a)));
+	if (a <= c) return (abs((c - b) / (d - a)));
 	return 0.0;
 }
 
-//print vector
-template<typename T>
+// print vector
+template <typename T>
 
 /**
  * [shuffle ]
@@ -493,19 +486,17 @@ template<typename T>
  */
 void shuffle(vector<T>& my_vector) {
 	int N = my_vector.size() - 1;
-	if (N <= 0)
-		return;
+	if (N <= 0) return;
 	for (unsigned int i = 0; i < my_vector.size(); i++) {
-		int j = ((double) rand() / RAND_MAX) * N;
-		if (i == j)
-			continue;
+		int j = ((double)rand() / RAND_MAX) * N;
+		if (i == j) continue;
 		T tmp = my_vector[i];
 		my_vector[i] = my_vector[j];
 		my_vector[j] = tmp;
 	}
 }
 
-template<typename T>
+template <typename T>
 
 /**
  * [print vector]
@@ -519,7 +510,7 @@ void printF(vector<T>& my_vector) {
 	cerr << endl;
 }
 
-template<typename T>
+template <typename T>
 
 /**
  * [delete_all deallocated elements fo array from memory]
@@ -527,8 +518,7 @@ template<typename T>
  * @param  my_vector  []
  */
 void delete_all(vector<T>& my_vector) {
-	if (my_vector.empty())
-		return;
+	if (my_vector.empty()) return;
 	for (unsigned int i = 0; i < my_vector.size(); i++) {
 		if (my_vector[i] != NULL) {
 			try {
@@ -546,7 +536,7 @@ void delete_all(vector<T>& my_vector) {
 	//	my_vector.shrink_to_fit();
 }
 
-template<typename T>
+template <typename T>
 
 /**
  * [deallocated elements fo array from memory]
@@ -554,9 +544,7 @@ template<typename T>
  * @param  my_vector  []
  */
 inline void delete_all(deque<T>& my_vector) {
-
-	if (my_vector.empty())
-		return;
+	if (my_vector.empty()) return;
 	for (unsigned int i = 0; i < my_vector.size(); i++) {
 		if (my_vector[i] != NULL) {
 			try {
@@ -572,10 +560,9 @@ inline void delete_all(deque<T>& my_vector) {
 	//	my_vector.clear();
 	//	my_vector.shrink_to_fit();
 }
-
 }
 
-template<typename T>
+template <typename T>
 
 /**
  * [deallocated single element]
@@ -583,31 +570,25 @@ template<typename T>
  * @param  my_vector  []
  * @param  idx        []
  */
-void delete_one(vector<T> & my_vector, unsigned int idx) {
-	if (my_vector.size() == 0)
-		return;
-	if (idx < 0 || idx > my_vector.size() - 1)
-		return;
-	if (my_vector[idx] != NULL)
-		delete (my_vector[idx]);
+void delete_one(vector<T>& my_vector, unsigned int idx) {
+	if (my_vector.size() == 0) return;
+	if (idx < 0 || idx > my_vector.size() - 1) return;
+	if (my_vector[idx] != NULL) delete (my_vector[idx]);
 	my_vector[idx] = NULL;
 	my_vector.erase(my_vector.begin() + idx);
 }
 
-template<typename T>
+template <typename T>
 /**
  * [deallocated single element]
  * @method delete_one
  * @param  my_vector  []
  * @param  idx        []
  */
-void delete_one(deque<T> & my_vector, unsigned int idx) {
-	if (my_vector.size() == 0)
-		return;
-	if (idx > my_vector.size() - 1)
-		return;
-	if (my_vector[idx] != NULL)
-		delete (my_vector[idx]);
+void delete_one(deque<T>& my_vector, unsigned int idx) {
+	if (my_vector.size() == 0) return;
+	if (idx > my_vector.size() - 1) return;
+	if (my_vector[idx] != NULL) delete (my_vector[idx]);
 	my_vector[idx] = NULL;
 	my_vector.erase(my_vector.begin() + idx);
 }

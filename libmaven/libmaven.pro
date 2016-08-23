@@ -20,7 +20,7 @@ LIBS += -L. -lcsvparser
 
 INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/ ../libcsvparser
 
-SOURCES = 		base64.cpp \
+SOURCES = 	base64.cpp \
                 mzMassCalculator.cpp \
                 mzSample.cpp \
                 mzUtils.cpp \
@@ -28,13 +28,13 @@ SOURCES = 		base64.cpp \
                 mzFit.cpp \
                 mzAligner.cpp \
                 mzMassSlicer.cpp \
-	       		PeakGroup.cpp \
-	       		EIC.cpp \
-	       		Scan.cpp \
-	       		Peak.cpp  \
-	       		Compound.cpp \
-	       		savgol.cpp \
-       			SavGolSmoother.cpp \
+	        PeakGroup.cpp \
+	        EIC.cpp \
+	        Scan.cpp \
+	        Peak.cpp  \
+	        Compound.cpp \
+	        savgol.cpp \
+       	        SavGolSmoother.cpp \
                 PeakDetector.cpp \
                 mavenparameters.cpp \
                 classifier.cpp \
@@ -46,7 +46,8 @@ SOURCES = 		base64.cpp \
                 eiclogic.cpp \
                 databases.cpp
 
-HEADERS += 		base64.h \
+HEADERS += 	constants.h \
+		base64.h \
                 mzFit.h \
                 mzMassSlicer.h \
                 mzSample.h \

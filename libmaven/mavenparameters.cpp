@@ -1,10 +1,8 @@
 #include "mavenparameters.h"
 
 MavenParameters::MavenParameters() {
-
-        clsf = NULL; //initially classifier is not loaded
-
-        alignSamplesFlag = false;
+	clsf = NULL;
+	alignSamplesFlag = false;
         processAllSlices = false;
         pullIsotopesFlag = false;
         matchRtFlag = false;
