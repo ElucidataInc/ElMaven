@@ -2,8 +2,16 @@
 
 TestMzAligner::TestMzAligner() {
 
-    files << "bin/methods/sample_#sucyxpe_2_5.mzxml"
-          << "bin/methods/sample_#sucyxpe_2_6.mzxml";
+    files << "bin/methods/Alignment/SAMPLE_#SPGDYAF_3_3.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SPGDYAF_3_6.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SPGDYAF_4_7.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SQLDY72_3_7.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_2_7.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_3_5.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_3_7.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_4_6.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SRCLG3V_4_3.mzxml"
+          << "bin/methods/Alignment/SAMPLE_#SSSLMX8_4_6.mzxml";
 }
 
 void TestMzAligner::initTestCase() {
@@ -23,7 +31,7 @@ void TestMzAligner::cleanup() {
     // This function is executed after each test
 }
 
-void TestMzAligner::testSamplesFromGroups() {
+void TestMzAligner::testInputGroups() {
 
     vector<mzSample*> samplesToLoad;
     for (int i = 0; i <  files.size(); ++i) {
@@ -31,8 +39,6 @@ void TestMzAligner::testSamplesFromGroups() {
         sample->loadSample(files.at(i).toLatin1().data());
         samplesToLoad.push_back(sample);
     }
-
-    MavenParameters* mavenparameters = new MavenParameters();
 
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/methods/default.model";
@@ -50,5 +56,5 @@ void TestMzAligner::testSamplesFromGroups() {
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
     peakDetector.processMassSlices();
-    QVERIFY(true);
+    QVERIFY(mavenparameters->allgroups.size());
 }
