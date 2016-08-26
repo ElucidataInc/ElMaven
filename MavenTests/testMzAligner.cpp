@@ -69,3 +69,20 @@ void TestMzAligner::testDoAlignment() {
     aligner.doAlignment(peakgroups);
     QVERIFY(true);
 }
+
+void TestMzAligner::testSaveFit(){
+
+    vector<mzSample*> samplesToLoad;
+    for (int i = 0; i <  files.size(); ++i) {
+        mzSample* sample = new mzSample();
+        sample->loadSample(files.at(i).toLatin1().data());
+        samplesToLoad.push_back(sample);
+    }
+
+    Aligner aligner;
+    aligner.samples = samplesToLoad;
+    aligner.saveFit();
+    cerr << aligner.fit.size();
+    QVERIFY(aligner.fit.size());
+
+}

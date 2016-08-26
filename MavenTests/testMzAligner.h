@@ -34,7 +34,7 @@ class TestMzAligner : public QObject {
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testInputGroups();
         void testDoAlignment();
-
+        void testSaveFit();
 
 };
 

@@ -1761,9 +1761,10 @@ class Aligner {
 		void restoreFit();
 		void setMaxItterations(int x) { maxItterations=x; }
 		void setPolymialDegree(int x) { polynomialDegree=x; }
-	private:
+
 		vector< vector<float> > fit;
 		vector<mzSample*> samples;
+	private:
 		vector<PeakGroup*> allgroups;
 		int maxItterations;
 		int polynomialDegree;
