@@ -99,3 +99,8 @@ MavenTests/MavenTests
 *.log
 *.LOG
 *.Log
+
+#model Files
+*.model
+*.MODEL
+*.Model

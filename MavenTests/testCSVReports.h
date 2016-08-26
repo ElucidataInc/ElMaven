@@ -9,6 +9,10 @@
 #include "common.h"
 #include "../libmaven/mzSample.h"
 #include "../libmaven/csvreports.h"
+#include "../libmaven/mavenparameters.h"
+#include "../libmaven/PeakDetector.h"
+#include "../libmaven/EIC.h"
+#include "../libmaven/classifierNeuralNet.h"
 
 
 class TestCSVReports : public QObject {
@@ -39,7 +43,7 @@ class TestCSVReports : public QObject {
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testopenGroupReport();
         void testopenPeakReport();
-        
+        void testaddGroups();
 };
 
 #endif // TESTCSVREPORTS_H
