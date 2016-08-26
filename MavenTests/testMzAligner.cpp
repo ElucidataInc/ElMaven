@@ -58,3 +58,14 @@ void TestMzAligner::testInputGroups() {
     peakDetector.processMassSlices();
     QVERIFY(mavenparameters->allgroups.size());
 }
+
+void TestMzAligner::testDoAlignment() {
+
+    vector<PeakGroup*> peakgroups(mavenparameters->allgroups.size());
+    for (unsigned int i = 0; i < mavenparameters->allgroups.size(); i++)
+            peakgroups[i] = &mavenparameters->allgroups[i];
+
+    Aligner aligner;
+    aligner.doAlignment(peakgroups);
+    QVERIFY(true);
+}

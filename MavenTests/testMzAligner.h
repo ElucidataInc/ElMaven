@@ -33,6 +33,7 @@ class TestMzAligner : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testInputGroups();
+        void testDoAlignment();
 
 
 };
