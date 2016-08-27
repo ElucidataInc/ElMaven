@@ -81,7 +81,6 @@ maven_opensource.kdev4
 *.browse.VC.db-shm
 *.browse.VC.db-wal
 *.vscode
-MavenTests/MavenTests
 
 #Mzxml Files
 *.mzXML
@@ -98,4 +97,3 @@ MavenTests/MavenTests
 #log Files
 *.log
 *.LOG
-*.Log
