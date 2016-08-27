@@ -24,7 +24,8 @@ mzSample::mzSample()
         _N15Labeled=false;
         _S34Labeled=false; //Feng note: added to track S34 labeling state
         _D2Labeled=false; //Feng note: added to track D2 labeling state
-        // _setName =  "A";
+        // _setName =  "A"; //naman     Variable '_setName' is assigned in constructor body. 
+                            // Consider performing initialization in initialization list.
         color[0]=color[1]=color[2]=0;
         color[3]=1.0;
 }
