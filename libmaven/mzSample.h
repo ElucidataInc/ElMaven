@@ -1264,7 +1264,7 @@ class PeakGroup {
 		 * @method getSrmId
 		 * @return []
 		 */
-		inline  string getSrmId() { return srmId; }
+		inline  string getSrmId() const { return srmId; }
 
 
 		/**
@@ -1644,7 +1644,7 @@ class Compound {
 			bool hasGroup()  const   { if(_group.meanMz != 0 ) return true; return false; }
 			void clearGroup()  { _group.clear(); }
 			void unlinkGroup() { _group.clear(); _groupUnlinked = true; }
-			bool groupUnlinked() { return _groupUnlinked; }
+			bool groupUnlinked() const { return _groupUnlinked; }
 
             vector<Reaction*>reactions;
             string id;
