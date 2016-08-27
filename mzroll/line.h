@@ -28,8 +28,9 @@ public:
 protected:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void hoverEnterEvent (QGraphicsSceneHoverEvent*event );
-    void hoverLeaveEvent (QGraphicsSceneHoverEvent*event );
+    // redundant - Kiran
+    // void hoverEnterEvent (QGraphicsSceneHoverEvent*event );
+    // void hoverLeaveEvent (QGraphicsSceneHoverEvent*event );
     
     
 private:
