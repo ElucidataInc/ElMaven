@@ -3,10 +3,13 @@
 EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent,scene)
 {
     setHighlighted(false);
-   setAcceptsHoverEvents(false);
+    // Obselete Function -Kiran
+    // setAcceptsHoverEvents(false);
     _endsFixed=false;
     _fillPath=false;
     _closePath=true;
+    //Unintialised Value - Kiran
+    _eic=NULL;
 }
 
 QRectF EicLine::boundingRect() const
@@ -29,9 +32,17 @@ void EicLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     	painter->setPen(pen);
     }
 
-    if (_fillPath) painter->drawPolygon(_line);
+    if (_fillPath)
+        painter->drawPolygon(_line);
+    //Draw piece by piece line - Kiran
+    else {
+        for(int i=0; i <_line.size()-2;i+=2) {
+            painter->drawLine(_line[i],_line[i+1]);
+        }
+    }
     //else painter->drawPolyline(_line);
-    else painter->drawLines(_line);
+    //Replaced above - Kiran
+    //else painter->drawLines(_line);
 
 }
 
@@ -42,32 +53,41 @@ QPainterPath EicLine::shape() const
    return path;
 }
 
-void EicLine::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
-    qDebug() << "EicLine:: HoverEntered..";
-    QGraphicsItem::hoverEnterEvent(event);
-    setHighlighted(true);
-    setZValue(zValue()+1);
-    scene()->update();
-}
+// redundant - Kiran
+// void EicLine::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
+//     qDebug() << "EicLine:: HoverEntered..";
+//     QGraphicsItem::hoverEnterEvent(event);
+//     setHighlighted(true);
+//     setZValue(zValue()+1);
+//     scene()->update();
+// }
 
 
-void EicLine::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
-    setHighlighted(false);
-    setZValue(zValue()-1);
-    scene()->update();
-}
+// void EicLine::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
+//     setHighlighted(false);
+//     setZValue(zValue()-1);
+//     scene()->update();
+// }
 
 
 void EicLine::fixEnds() { 
 
-    if(_line.size() < 1) return;
     if (! scene()) return;
-    QPointF p1 = _line[0];
-    QPointF p2 = _line[_line.size()-1];
-    QPointF a(p2.x(),scene()->height());
-    QPointF b(p1.x(),scene()->height());
-    _line.append(a);
-    _line.append(b);
-    _line.append(p1);
+    // if the ends are already fixed - return; - Kiran
+    if(_line.size() < 1 or _endsFixed == true) return;
+
+    cerr << this << "Fix ends.." << endl;
+
+   // Made more readable - Kiran
+    QPointF first = _line.first();
+    QPointF last =  _line.last();
+
+    QPointF a(last.x(),scene()->height());    //last point x,0
+    QPointF b(first.x(),scene()->height());    //fist point 0,0
+    _line.append(a);        //drop to baseline
+    _line.append(b);        //move along baseline to origin
+    _line.append(first);    //close path
+
+    qDebug() << last << a << b << first;
     _endsFixed=true;
 } 
