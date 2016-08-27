@@ -805,6 +805,8 @@ void mzSample::calculateMzRtRange() {
 }
 
 mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
+        //TODO naman unused function
+    
         mzSlice d;
         d.rtmin=0;
         d.rtmax=0;
@@ -884,6 +886,7 @@ void mzSlice::setSRMId() {
 }
 
 float mzSample::getMaxRt(const vector<mzSample*>&samples) {
+    //TODO naman unused function
         float maxRt=0;
         for(unsigned int i=0; i < samples.size(); i++ )
                 if (samples[i]->maxRt > maxRt)
@@ -1089,7 +1092,8 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
 
 
 EIC* mzSample::getTIC(float rtmin, float rtmax, int mslevel) {
-
+    //TODO naman unused function
+    
         //ajust EIC retention time window to match sample retentention times
         if (rtmin < this->minRt ) rtmin =this->minRt;
         if (rtmax > this->maxRt ) rtmax =this->maxRt;
@@ -1153,12 +1157,12 @@ static int mzSample::parseCDF (const char* filename, int is_verbose)
         static MS_Admin_Data admin_data;
         static MS_Sample_Data sample_data;
         static MS_Test_Data test_data;
-        static MS_Instrument_Data inst_data;
+        // static MS_Instrument_Data inst_data; //naman unused
         static MS_Raw_Data_Global raw_global_data;
         static MS_Raw_Per_Scan raw_data;
-        double mass_pt=0;
-        double inty_pt=0;
-        double inty=0;
+        // double mass_pt=0;
+        // double inty_pt=0;
+        // double inty=0;
 
         cdf = ms_open_read( filename );
         if ( -1 == cdf )
@@ -1252,12 +1256,12 @@ static int mzSample::parseCDF (const char* filename, int is_verbose)
                 /* this bug is frequently observed with files from HP/Agilent ChemStation */
                 fprintf (stderr, "\n*** WARNING: Negative mass reported! Use '-v' for details.\n\n");
         }
-
+   
         for (int scan = 0; scan < nscans; scan++)
         {
                 ms_init_per_scan(FALSE, &raw_data, NULL);
                 raw_data.scan_no = (long) scan;
-                mass_pt = inty_pt = inty = 0.0;             /* init */
+                double mass_pt, inty_pt = 0.0;             /* init */ //naman The scope can be reduced.
 
                 if (MS_ERROR == ms_read_per_scan(cdf, &raw_data, NULL))
                 {       /* free allocated memory before leaving */
@@ -1353,7 +1357,8 @@ static int mzSample::parseCDF (const char* filename, int is_verbose)
 }
 
 Scan* mzSample::getAverageScan(float rtmin, float rtmax, int mslevel, int polarity, float sd ) {
-
+    //TODO naman unused function
+    
         float rt=rtmin + (rtmax-rtmin)/2;
         int scanCount=0;
         int scannum=0;
@@ -1403,6 +1408,8 @@ void mzSample::saveOriginalRetentionTimes() {
 }
 
 void mzSample::restoreOriginalRetentionTimes() {
+        //TODO naman unused function
+    
         if ( originalRetentionTimes.size() == 0 ) return;
 
         for(unsigned int ii=0; ii < scans.size(); ii++ ) {
