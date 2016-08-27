@@ -101,7 +101,7 @@ void TestCSVReports::testaddGroups() {
 
     MavenParameters* mavenparameters = new MavenParameters();
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/methods/default.model";
+    string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
     mavenparameters->compoundPPMWindow = 10;
