@@ -8,7 +8,9 @@ int mzSample::filter_polarity=0;
 int mzSample::filter_mslevel=0;
 
 
-mzSample::mzSample() {
+mzSample::mzSample() 
+        : _setName("A")
+{
         maxMz = maxRt = 0;
         minMz = minRt = 0;
         isBlank = false;
@@ -22,7 +24,7 @@ mzSample::mzSample() {
         _N15Labeled=false;
         _S34Labeled=false; //Feng note: added to track S34 labeling state
         _D2Labeled=false; //Feng note: added to track D2 labeling state
-        _setName =  "A";
+        // _setName =  "A";
         color[0]=color[1]=color[2]=0;
         color[3]=1.0;
 }
@@ -67,7 +69,7 @@ void mzSample::addScan(Scan*s ) {
         s->scannum=scans.size()-1;
 }
 
-string mzSample::getFileName(const string& filename) {
+static string mzSample::getFileName(const string& filename) {
         
         char sep = '/';
         #ifdef _WIN32
@@ -201,7 +203,7 @@ void mzSample::parseMzCSV(const char* filename) {
 }
 
 
-void mzSample::writeMzCSV(const char* filename) {
+void mzSample::writeMzCSV(const char* filename) const {
         ofstream mzCSV;
         mzCSV.open(filename);
         if (!mzCSV.is_open()) { cerr << "Unable to write to a file" << filename; return; }
@@ -257,7 +259,7 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
                 string productMzStr = chromatogram.first_element_by_path("product/isolationWindow/cvParam").attribute("value").value();
                 float precursorMz = string2float(precursorMzStr);
                 float productMz = string2float(productMzStr);
-                int mslevel=2;
+                // int mslevel=2;
 
                 for( xml_node binaryDataArray= binaryDataArrayList.child("binaryDataArray");
                      binaryDataArray; binaryDataArray=binaryDataArray.next_sibling("binaryDataArray")) {
@@ -279,7 +281,9 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
                 cerr << timeVector.size()  << " ints=" << intsVector.size() << endl;
                 cerr << "pre: " << precursorMz  << " prod=" << productMz << endl;
 
-                if (precursorMz and precursorMz ) {
+                // if (precursorMz and precursorMz ) {
+                    if (precursorMz) { //naman Same expression on both sides of '&&'.
+                        int mslevel=2; //naman The scope of the variable 'mslevel' can be reduced.
                         for(unsigned int i=0; i < timeVector.size(); i++ ) {
                                 Scan* scan = new Scan(this,scannum++,mslevel,timeVector[i],precursorMz,-1);
                                 scan->productMz=productMz;
@@ -373,7 +377,7 @@ void mzSample::parseMzMLSpectrumList(xml_node spectrumList) {
         }
 }
 
-map<string,string> mzSample::mzML_cvParams(xml_node node) {
+static map<string,string> mzSample::mzML_cvParams(xml_node node) {
         map<string,string>attr;
         if(!node || node.empty()) return attr;
         for (xml_node cv = node.child("cvParam"); cv; cv = cv.next_sibling("cvParam")) {
@@ -570,7 +574,7 @@ float mzSample::parseRTFromMzXML(xml_attribute & attr) {
     return rt;
 }
 
-int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
+static int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
     char p = attr.value()[0];
     //For polarity 0 is the default value
     int scanpolarity = 0; 
@@ -585,7 +589,7 @@ int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
     return scanpolarity;
 }
 
-int mzSample::getPolarityFromfilterLine(string filterLine) {
+static int mzSample::getPolarityFromfilterLine(string filterLine) {
     int MIN_FILTER_LINE_LENGTH = 13;
     int scanpolarity = 0;
 
@@ -601,10 +605,9 @@ int mzSample::getPolarityFromfilterLine(string filterLine) {
     return scanpolarity;
 }
 
-vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
+static vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
     xml_node peaks =  scan.child("peaks");
-    bool networkorder = false;
-    int precision = 32;
+    // bool networkorder = false;
     vector<float> mzint;
 
     if ( !peaks.empty() ) {
@@ -636,11 +639,14 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
             }
         #endif
 
+        bool networkorder = false; //naman The scope of the variable 'networkorder' can be reduced.
+   
         if (peaks.attribute("byteOrder").empty() || strncasecmp(peaks.attribute("byteOrder").value(),"network",5) == 0 ) {
             networkorder = true;
         }
 
-                
+        int precision = 32; //naman The scope of the variable 'precision' can be reduced.
+       
         if (!peaks.attribute("precision").empty()) { 
             precision = peaks.attribute("precision").as_int();
         }
@@ -656,7 +662,7 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
     return mzint;
 }
 
-void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
+static void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
     int j = 0, count = 0, size = mzint.size() / 2;
 
     // sizing the mz variable and the intensity variable
@@ -678,7 +684,7 @@ void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
     _scan->intensity.resize(count);
 }
 
-void mzSample::populateFilterline(string filterLine,  Scan* _scan) {
+static void mzSample::populateFilterline(string filterLine,  Scan* _scan) {
 
     if (!filterLine.empty()) _scan->filterLine = filterLine;
 
@@ -738,7 +744,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
     //TODO: What is this for this is zero
     precursorMz = string2float(string(scan.child_value("precursorMz")));
 
-    string b64String;
+    // string b64String; naman Unused variable: b64String
 
     //no m/z intensity values
     mzint = parsePeaksFromMzXML(scan);
@@ -759,7 +765,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
     addScan(_scan);
 }
 
-void mzSample::summary() {
+void mzSample::summary() const {
         cerr << "Num of obs:" << this->scans.size() << endl;
         cerr << "Rt range:" << this->minRt  << " " << this->maxRt << endl;
         cerr << "Mz range:" << this->minMz  << " " << this->maxMz << endl;
@@ -885,7 +891,7 @@ float mzSample::getMaxRt(const vector<mzSample*>&samples) {
         return maxRt;
 }
 
-float mzSample::getAverageFullScanTime() {
+float mzSample::getAverageFullScanTime() const {
         float s=0;
         int n=0;
         Scan* lscan = NULL;
@@ -983,7 +989,15 @@ EIC* mzSample::getEIC(string srm) {
         e->mzmin = 0;
         e->mzmax = 0;
 
-        if (srmScans.size() == 0 ) enumerateSRMScans();
+        // if (srmScans.size() == 0 ) 
+        
+        // naman Checking for ‘List’ emptiness might be inefficient. Using List.empty() instead of List.size() 
+        // can be faster. List.size() can take linear time but List.empty() is guaranteed to take constant time. 
+        // src: https://kmdarshan.wordpress.com/2011/08/15/static-analysis-of-cc-code-using-cppcheck/
+        if (srmScans.empty())
+        {
+            enumerateSRMScans();
+        }
 
         if (srmScans.count(srm) > 0 ) {
                 vector<int> srmscans = srmScans[srm];
@@ -1124,7 +1138,7 @@ float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float r
 }
 
 
-int mzSample::parseCDF (const char* filename, int is_verbose)
+static int mzSample::parseCDF (const char* filename, int is_verbose)
 {
     #ifdef CDFPARSER
         int cdf=0;
@@ -1420,8 +1434,14 @@ mzLink::mzLink(){
 }
 
 mzLink::mzLink(int a, int b, string n): value1(a), value2(b), note(n){ 
-    correlation = 0; 
+    mz1 = mz2 = 0.0; 
+    value1 = value2 = 0.0; 
+    data1 = data2 = NULL; 
+    correlation = 0;
 }
 mzLink::mzLink(float a,float b, string n): mz1(a), mz2(b), note(n){
+    mz1 = mz2 = 0.0; 
+    value1 = value2 = 0.0; 
+    data1 = data2 = NULL; 
     correlation = 0;
 }
