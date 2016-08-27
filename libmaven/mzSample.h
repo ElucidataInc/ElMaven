@@ -142,7 +142,7 @@ class Scan {
 		 * @method nobs
 		 * @return [number of observations]
 		 */
-    inline unsigned int nobs() { return mz.size(); }
+    inline unsigned int nobs() const { return mz.size(); }
 
 		/**
 		 * [get samples]
@@ -181,14 +181,14 @@ class Scan {
 		 * @method isCentroided
 		 * @return [return true if data is centroided else false]
 		 */
-    bool isCentroided() { return centroided; }
+    bool isCentroided() const { return centroided; }
 
     /**
      * [Checks if the data is not centroided]
      * @method isProfile
      * @return [returns true if data is not centroided else false]
      */
-    bool isProfile()    { return !centroided; }
+    bool isProfile()   const  { return !centroided; }
 
     /**
  * [Gets the polarity of the scan]
@@ -196,7 +196,7 @@ class Scan {
  * @return [Returns the polarity of the scan (+1 for positive, -1 for
  * negative and 0 for neutral)]
      */
-    inline int getPolarity() { return polarity; }
+    inline int getPolarity() const { return polarity; }
 
     /**
  * [Sets the polarity of a scan]
@@ -211,7 +211,7 @@ class Scan {
      * @method totalIntensity
      * @return [returns the sum of all the intensities for a scan]
      */
-    int totalIntensity(){ int sum=0; for(unsigned int i=0;i<intensity.size();i++) sum += intensity[i]; return sum; }
+    int totalIntensity() const { int sum=0; for(unsigned int i=0;i<intensity.size();i++) sum += intensity[i]; return sum; }
 
 		/**
  		 * [return pairing of m/z, intensity values for top intensities.
@@ -307,7 +307,7 @@ class Scan {
 		/**
 		 * [default comparision operation]
 		 */
-    bool operator< (const Scan& b) { return rt < b.rt; }
+    bool operator< (const Scan& b) const { return rt < b.rt; }
 
     int polarity;
 
@@ -355,15 +355,27 @@ private:
 class mzSlice {
     public:
 
-        mzSlice(float a, float b, float c, float d) { mzmin= a; mzmax=b; rtmin=c; rtmax=d; mz=a+(b-a)/2; rt=c+(d-c)/2; compound=NULL; ionCount=0; }
-				mzSlice(float a, float b, float c ) {  mz=mzmin=mzmax=a; rt=rtmin=rtmax=b; ionCount=c;  compound=NULL; ionCount=0;}
-	mzSlice(string filterLine) { mzmin=mzmax=rtmin=rtmax=mz=rt=ionCount=0; compound=NULL; srmId=filterLine; }
-        mzSlice() { mzmin=mzmax=rtmin=rtmax=mz=rt=ionCount=0; compound=NULL; }
-	mzSlice(const mzSlice& b) { mzmin=b.mzmin; mzmax=b.mzmax; rtmin=b.rtmin; rtmax=b.rtmax; ionCount=b.ionCount; mz=b.mz; rt=b.rt; compound=b.compound; srmId=b.srmId; }
-	mzSlice& operator= (const mzSlice& b) { mzmin=b.mzmin; mzmax=b.mzmax; rtmin=b.rtmin; rtmax=b.rtmax; ionCount=b.ionCount;
-				compound=b.compound; srmId=b.srmId; mz=b.mz; rt=b.rt; return *this; }
+    	mzSlice(float a, float b, float c, float d) { mzmin= a; mzmax=b; rtmin=c; rtmax=d; mz=a+(b-a)/2; rt=c+(d-c)/2; compound=NULL; ionCount=0; }
+    	mzSlice(float a, float b, float c ) {  
+    		mz=mzmin=mzmax=a; 
+    		rt=rtmin=rtmax=b; 
+					// ionCount=c;  Naman: reassigned below with 0
+    		compound=NULL; 
+    		ionCount=0;
+    	}
+    	mzSlice(string filterLine) { 
+    		mzmin=mzmax=rtmin=rtmax=mz=rt=ionCount=0; 
+    		compound=NULL; 
+			srmId=filterLine; //naman: Consider performing initialization in initialization list. 
+		}
+		mzSlice() { mzmin=mzmax=rtmin=rtmax=mz=rt=ionCount=0; compound=NULL; }
+		mzSlice(const mzSlice& b) { mzmin=b.mzmin; mzmax=b.mzmax; rtmin=b.rtmin; rtmax=b.rtmax; ionCount=b.ionCount; mz=b.mz; rt=b.rt; compound=b.compound; srmId=b.srmId; }
+		mzSlice& operator= (const mzSlice& b) { mzmin=b.mzmin; mzmax=b.mzmax; rtmin=b.rtmin; rtmax=b.rtmax; ionCount=b.ionCount;
+			compound=b.compound; 
+			srmId=b.srmId; //naman: Consider performing initialization in initialization list.
+			mz=b.mz; rt=b.rt; return *this; }
 
-        float mzmin;
+		float mzmin;
         float mzmax;
         float rtmin;
         float rtmax;
@@ -399,7 +411,7 @@ class mzSlice {
 	 * @return [True if Scan 1 has lower retention time than Scan b, else false]
 	 */
 	static bool compRt(const mzSlice* a, const mzSlice* b ) { return a->rt < b->rt; }
-	bool operator< (const mzSlice* b) { return mz < b->mz; }
+	bool operator< (const mzSlice* b) const { return mz < b->mz; }
 
 
 	bool calculateMzMinMax(float CompoundppmWindow, int ionizationMode);
@@ -620,7 +632,7 @@ public:
 		 * @method getNormalizationConstant
 		 * @return [normalization constant]
 		 */
-		float getNormalizationConstant() { return _normalizationConstant; }
+		float getNormalizationConstant() const { return _normalizationConstant; }
 
 		/**
 		 * [set Normalization Constant]
@@ -763,14 +775,14 @@ public:
 		 * @method scanCount
 		 * @return [scan count]
 		 */
-    inline unsigned int   scanCount() { return(scans.size()); }
+    inline unsigned int   scanCount() const { return(scans.size()); }
 
 		/**
 		 * [get Sample Name]
 		 * @method getSampleName
 		 * @return [name of the sample]
 		 */
-    inline string getSampleName() { return sampleName; }
+    inline string getSampleName() const { return sampleName; }
 
 		/**
 		 * [set Sample Order]
@@ -784,14 +796,14 @@ public:
 		 * @method getSampleOrder
 		 * @return [sample order]
 		 */
-    inline int	  getSampleOrder() { return _sampleOrder; }
+    inline int	  getSampleOrder() const { return _sampleOrder; }
 
 		/**
 		 * [get Set Name]
 		 * @method getSetName
 		 * @return [set name]
 		 */
-    inline string  getSetName()  { return _setName; }
+    inline string  getSetName()  const { return _setName; }
 
 		/**
 		 * [set set Name]
@@ -820,14 +832,14 @@ public:
 		 * @method C13Labeled
 		 * @return [true or false]
 		 */
-    bool C13Labeled(){ return _C13Labeled; }
+    bool C13Labeled() const { return _C13Labeled; }
 
 		/**
 		 * [N15Labeled]
 		 * @method N15Labeled
 		 * @return [true or false]
 		 */
-    bool N15Labeled(){ return _N15Labeled; }
+    bool N15Labeled() const { return _N15Labeled; }
 
 		/**
 		 * [compare Sample Order]
@@ -1029,7 +1041,7 @@ class Peak {
 		 * @method hasEIC
 		 * @return []
 		 */
-		inline bool hasEIC() { return eic != NULL; }
+		inline bool hasEIC() const { return eic != NULL; }
 
 		/**
 		 * [getScan ]
@@ -1058,7 +1070,7 @@ class Peak {
 		 * @method hasSample
 		 * @return []
 		 */
-		inline bool hasSample() 	{  return sample != NULL; }
+		inline bool hasSample() const 	{  return sample != NULL; }
 
 		/**
 		 * [setLabel ]
@@ -1072,7 +1084,7 @@ class Peak {
 		 * @method getLabel
 		 * @return []
 		 */
-		inline char getLabel() { return label;}
+		inline char getLabel() const { return label;}
 
 
 /**
@@ -1237,7 +1249,7 @@ class PeakGroup {
 		 * @method hasSrmId
 		 * @return []
 		 */
-		bool  	hasSrmId()  { return srmId.empty(); }
+		bool  	hasSrmId() const   { return srmId.empty(); }
 
 		/**
 		 * [setSrmId ]
@@ -1267,28 +1279,28 @@ class PeakGroup {
 		  * @method hasCompoundLink
 		  * @return []
 		  */
-		inline bool hasCompoundLink()  { if(compound != NULL) return true ; return false; }
+		inline bool hasCompoundLink() const  { if(compound != NULL) return true ; return false; }
 
 /**
  * [isEmpty ]
  * @method isEmpty
  * @return []
  */
-	inline bool isEmpty()   { if(peaks.size() == 0) return true; return false; }
+	inline bool isEmpty() const   { if(peaks.size() == 0) return true; return false; }
 
 		/**
 		 * [peakCount ]
 		 * @method peakCount
 		 * @return []
 		 */
-	inline unsigned int peakCount()  { return peaks.size(); 	  }
+	inline unsigned int peakCount()  const { return peaks.size(); 	  }
 
 		/**
 		 * [childCount ]
 		 * @method childCount
 		 * @return []
 		 */
-	inline unsigned int childCount() { return children.size(); }
+	inline unsigned int childCount() const { return children.size(); }
 
 	/**
 	 * [getCompound ]
@@ -1362,7 +1374,7 @@ class PeakGroup {
  * @method type
  * @return []
  */
-		inline GroupType type() { return _type; }
+		inline GroupType type() const { return _type; }
 /**
  * [setType ]
  * @method setType
@@ -1375,21 +1387,21 @@ class PeakGroup {
  * @method isIsotope
  * @return []
  */
-	inline bool isIsotope() { return _type == Isotope; }
+	inline bool isIsotope() const { return _type == Isotope; }
 
 /**
  * [isFragment ]
  * @method isFragment
  * @return []
  */
-		inline bool isFragment() { return _type == Fragment; }
+		inline bool isFragment() const { return _type == Fragment; }
 
 		/**
 		 * [isAdduct ]
 		 * @method isAdduct
 		 * @return []
 		 */
-	inline bool isAdduct() {  return _type == Adduct; }
+	inline bool isAdduct() const {  return _type == Adduct; }
 
 	/**
 	 * [summary ]
@@ -1613,7 +1625,7 @@ class PeakGroup {
  * @return []
  */
 								static bool compMetaGroup(const PeakGroup& a, const PeakGroup& b) { return(a.metaGroupId < b.metaGroupId); }
-                bool operator< (const PeakGroup* b) { return this->maxIntensity < b->maxIntensity; }
+                bool operator< (const PeakGroup* b) const { return this->maxIntensity < b->maxIntensity; }
 };
 
 class Compound {
@@ -1629,7 +1641,7 @@ class Compound {
 
             PeakGroup* getPeakGroup() { return &_group; }
 			void setPeakGroup(const PeakGroup& group ) { _group = group; _group.compound = this; }
-			bool hasGroup()    { if(_group.meanMz != 0 ) return true; return false; }
+			bool hasGroup()  const   { if(_group.meanMz != 0 ) return true; return false; }
 			void clearGroup()  { _group.clear(); }
 			void unlinkGroup() { _group.clear(); _groupUnlinked = true; }
 			bool groupUnlinked() { return _groupUnlinked; }
@@ -1695,6 +1707,7 @@ public:
     Isotope(string name, float mass, int c=0, int n=0, int s=0, int h=0) {
         this->mass=mass; this->name=name;
         C13=c; N15=n; S34=s; H2=h;
+        abundance=0; //naman: was unintialized
     }
 
     Isotope() {
@@ -1702,7 +1715,7 @@ public:
     }
 
     Isotope(const Isotope& b) {
-        name=b.name;
+        name=b.name; //naman: Consider performing initialization in initialization list.
         mass=b.mass;
         abundance=b.abundance;
         N15=b.N15; S34=b.S34; C13=b.C13; H2=b.H2;
