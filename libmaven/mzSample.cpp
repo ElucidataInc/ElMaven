@@ -205,6 +205,8 @@ void mzSample::parseMzCSV(const char* filename) {
 
 
 void mzSample::writeMzCSV(const char* filename) const {
+  //TODO naman unused function
+  
         ofstream mzCSV;
         mzCSV.open(filename);
         if (!mzCSV.is_open()) { cerr << "Unable to write to a file" << filename; return; }
