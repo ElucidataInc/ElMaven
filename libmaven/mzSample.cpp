@@ -267,7 +267,8 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
                         if(attr.count("32-bit float")) precision=32;
 
                         string binaryDataStr = binaryDataArray.child("binary").child_value();
-                        vector<float>binaryData = base64::decode_base64(binaryDataStr,precision/8,false);
+                        vector<float> binaryData = base64::decode_base64(
+                            binaryDataStr, precision / 8, false, false);
 
                         if(attr.count("time array")) { timeVector = binaryData; }
                         if(attr.count("intensity array")) { intsVector = binaryData; }
@@ -357,8 +358,10 @@ void mzSample::parseMzMLSpectrumList(xml_node spectrumList) {
 
                         string binaryDataStr = binaryDataArray.child("binary").child_value();
                         if (!binaryDataStr.empty()) {
-                                vector<float>binaryData = base64::decode_base64(binaryDataStr,precision/8,false);
-                                if(attr.count("m/z array")) { mzVector = binaryData; }
+                            vector<float> binaryData = base64::decode_base64(
+                                binaryDataStr, precision / 8, false, false);
+                            if (attr.count("m/z array")) {
+                                mzVector = binaryData; }
                                 if(attr.count("intensity array")) { intsVector = binaryData; }
                         }
                 }
@@ -445,12 +448,18 @@ void mzSample::parseMzData(const char* filename) {
 
                 int precision1 = spectrum.child("intenArrayBinary").child("data").attribute("precision").as_int();
                 string b64intensity = spectrum.child("intenArrayBinary").child("data").child_value();
-                scan->intensity = base64::decode_base64(b64intensity,precision1/8,false);
+                scan->intensity = base64::decode_base64(
+                    b64intensity, precision1 / 8, false, false);
 
-                //cout << "mz" << endl;
-                int precision2 = spectrum.child("mzArrayBinary").child("data").attribute("precision").as_int();
-                string b64mz = spectrum.child("mzArrayBinary").child("data").child_value();
-                scan->mz = base64::decode_base64(b64mz,precision2/8,false);
+                // cout << "mz" << endl;
+                int precision2 = spectrum.child("mzArrayBinary")
+                                     .child("data")
+                                     .attribute("precision")
+                                     .as_int();
+                string b64mz =
+                    spectrum.child("mzArrayBinary").child("data").child_value();
+                scan->mz =
+                    base64::decode_base64(b64mz, precision2 / 8, false, false);
 
                 //cout << "spectrum " << spectrum.attribute("title").value() << endl;
         }
@@ -604,6 +613,7 @@ int mzSample::getPolarityFromfilterLine(string filterLine) {
 vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
     xml_node peaks =  scan.child("peaks");
     bool networkorder = false;
+    bool decompress = false; 
     int precision = 32;
     vector<float> mzint;
 
@@ -618,22 +628,8 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
         //if the data is been compressed in zlib format this part will 
         //take care. 
         if(strncasecmp(peaks.attribute("compressionType").value(),"zlib",4) == 0) {
-            /*
-                const char* sampleEncoded32LittleZlib_ = "eJzjYfBwZgACGSitA6VtoLSTtCeYDoLSSVC6CEo3AenL2skuk4D0PI95LouA9CrnuS6bgPRxoxCXQ1B1l6D0IyjNADWfgWEakG6wZ2A4AaQVHBkYfgHpE04MDGIuDAxVLgB7LB3q";
-                const char* sampleEncoded32BigZlib_ = "eJxz9mDgYQACZw8GGSitA6VtwLSntBOUDoLSSVC6CEo3uSRrXwbSk1zmecwD0otc5jqvAtKbXEKMjgPpQ1B1l6D0I6j5YOA8jYHBvgFIn2BgcFQA0r8YGJyAbBcxIK5iYAAAfLkd6g==";
-                const char* sampleEncoded64LittleZlib_ = "eJz7Lz63i5Eh04EBClora9uYkfhLtOOaWJH48Xr2dexI/HXsZqYZygj+6j07zLKQ+HMOW1vkIPGbZPZb5iHxo447WRdA+AlVqT0OqkeO2RRB+AeET052eCrkbVcC4TuUrpjsMGPzefsyCP9BRFuXg/2yEMcKJPNuv7rpVIXEz2yMd6lB4kNFUfkHiqD8D/YQuhLKV4HQDvVQfiSEPtAEFe93AACmsz1+";
-                const char* sampleEncoded64BigZlib_ = "eJxzyGRg7Jor/p8BChwyGZjbaitbkfisTXHaS5D47HX2evEIvnKGqRn7OiR+ltmOPauR+DkW1ofnIPHzLPfLNCHxC6ydjkc59KRWJUD4RTbHjqg6TD4pfADCL7HzFnrqMHlFqQOEX2Z/fvMMh662iAcQfoVjyDJ7JPOqnG6+uo3Er3GJb8xEcj8KcCg6AKbtP0D5lVBaBUrXO0DoSCi/CaLeoR8iDgC0Qj1+";
-
-                string testStr(sampleEncoded64LittleZlib_);
-
-                string uncompressed;
-                //gzipInflate( testStr, uncompressed );
-                uncompressed = mzUtils::decompress_string(testStr);
-                //b64String = uncompressed;
-
-                cerr << "Uncompressed : " << uncompressed << endl;
-                */
-            }
+            decompress = true;
+        }
         #endif
 
         if (peaks.attribute("byteOrder").empty() || strncasecmp(peaks.attribute("byteOrder").value(),"network",5) == 0 ) {
@@ -648,7 +644,8 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
         // cerr << "new scan=" << scannum << " msL=" << msLevel << " rt=" << rt << " precMz=" << precursorMz << " polar=" << scanpolarity
         //    << " prec=" << precision << endl;
 
-        mzint = base64::decode_base64(b64String, precision / 8, networkorder);
+        mzint = base64::decode_base64(b64String, precision / 8, networkorder,
+                                      decompress);
 
         return mzint;
     }
