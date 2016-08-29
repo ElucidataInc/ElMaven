@@ -487,15 +487,15 @@ private:
 
 	void setInstrumentSettigs(xml_document & doc,xml_node spectrumstore);
 
-	void parseMzXMLData(xml_document & doc,xml_node spectrumstore);
+	void parseMzXMLData(xml_document & staticdoc,xml_node spectrumstore);
 
 	xml_node getmzXMLSpectrumData(xml_document & doc,const char* filename);
 
 	float parseRTFromMzXML(xml_attribute & attr);
 
-	int parsePolarityFromMzXML(xml_attribute & attr);
+	static int parsePolarityFromMzXML(xml_attribute & attr);
 
-	int getPolarityFromfilterLine(string filterLine);
+	static int getPolarityFromfilterLine(string filterLine);
 
 	vector<float> parsePeaksFromMzXML(const xml_node& scan);
 
@@ -506,7 +506,7 @@ private:
 	void loadAnySample(const char* filename);
 
 	//TODO: This should be moved 
-	string getFileName(const string& filename);
+	static string getFileName(const string& filename);
 
 
 public:
@@ -571,10 +571,10 @@ public:
 		 * @method writeMzCSV
 		 * @param  char*           [character pointer]
 		 */
-    void writeMzCSV(const char*);
+    void writeMzCSV (const char*);
 
 
-    map<string,string> mzML_cvParams(xml_node node);
+    static map<string,string> mzML_cvParams(xml_node node);
 
 		/**
 		 * [parse MzML Chromatogrom List]

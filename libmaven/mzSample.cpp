@@ -70,7 +70,7 @@ void mzSample::addScan(Scan*s ) {
         s->scannum=scans.size()-1;
 }
 
-static string mzSample::getFileName(const string& filename) {
+string mzSample::getFileName(const string& filename) {
         
         char sep = '/';
         #ifdef _WIN32
@@ -204,7 +204,8 @@ void mzSample::parseMzCSV(const char* filename) {
 }
 
 
-void mzSample::writeMzCSV(const char* filename) const {
+// void mzSample::writeMzCSV(const char* filename) const {
+void mzSample::writeMzCSV(const char* filename) {
   //TODO naman unused function
   
         ofstream mzCSV;
@@ -380,7 +381,7 @@ void mzSample::parseMzMLSpectrumList(xml_node spectrumList) {
         }
 }
 
-static map<string,string> mzSample::mzML_cvParams(xml_node node) {
+map<string,string> mzSample::mzML_cvParams(xml_node node) {
         map<string,string>attr;
         if(!node || node.empty()) return attr;
         for (xml_node cv = node.child("cvParam"); cv; cv = cv.next_sibling("cvParam")) {
@@ -577,7 +578,7 @@ float mzSample::parseRTFromMzXML(xml_attribute & attr) {
     return rt;
 }
 
-static int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
+int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
     char p = attr.value()[0];
     //For polarity 0 is the default value
     int scanpolarity = 0; 
@@ -592,7 +593,7 @@ static int mzSample::parsePolarityFromMzXML(xml_attribute & attr) {
     return scanpolarity;
 }
 
-static int mzSample::getPolarityFromfilterLine(string filterLine) {
+int mzSample::getPolarityFromfilterLine(string filterLine) {
     int MIN_FILTER_LINE_LENGTH = 13;
     int scanpolarity = 0;
 
@@ -608,7 +609,7 @@ static int mzSample::getPolarityFromfilterLine(string filterLine) {
     return scanpolarity;
 }
 
-static vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
+vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
     xml_node peaks =  scan.child("peaks");
     // bool networkorder = false;
     vector<float> mzint;
@@ -665,7 +666,7 @@ static vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan) {
     return mzint;
 }
 
-static void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
+void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
     int j = 0, count = 0, size = mzint.size() / 2;
 
     // sizing the mz variable and the intensity variable
@@ -687,7 +688,7 @@ static void mzSample::populateMzAndIntensity(vector<float> mzint, Scan* _scan) {
     _scan->intensity.resize(count);
 }
 
-static void mzSample::populateFilterline(string filterLine,  Scan* _scan) {
+void mzSample::populateFilterline(string filterLine,  Scan* _scan) {
 
     if (!filterLine.empty()) _scan->filterLine = filterLine;
 
@@ -768,7 +769,8 @@ void mzSample::parseMzXMLScan(const xml_node& scan, int scannum) {
     addScan(_scan);
 }
 
-void mzSample::summary() const {
+void mzSample::summary() {
+// void mzSample::summary() const {
         cerr << "Num of obs:" << this->scans.size() << endl;
         cerr << "Rt range:" << this->minRt  << " " << this->maxRt << endl;
         cerr << "Mz range:" << this->minMz  << " " << this->maxMz << endl;
@@ -897,7 +899,8 @@ float mzSample::getMaxRt(const vector<mzSample*>&samples) {
         return maxRt;
 }
 
-float mzSample::getAverageFullScanTime() const {
+float mzSample::getAverageFullScanTime() {
+// float mzSample::getAverageFullScanTime() const {
         float s=0;
         int n=0;
         Scan* lscan = NULL;
@@ -1145,7 +1148,7 @@ float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float r
 }
 
 
-static int mzSample::parseCDF (const char* filename, int is_verbose)
+int mzSample::parseCDF (const char* filename, int is_verbose)
 {
     #ifdef CDFPARSER
         int cdf=0;
