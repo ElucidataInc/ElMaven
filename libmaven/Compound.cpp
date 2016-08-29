@@ -6,7 +6,6 @@ Compound::Compound(string id, string name, string formula, int charge ) {
 		this->formula = formula;
 		this->charge = charge;
         this->mass =  MassCalculator::computeNeutralMass(formula);
-		this->massDelta = FLT_MAX;
 		this->expectedRt = -1;
 
 		precursorMz=0;
