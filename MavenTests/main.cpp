@@ -10,6 +10,7 @@
 #include "testEIC.cpp"
 #include "testbase64.h"
 #include "testMzFit.h"
+#include "testMzAligner.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
@@ -48,6 +49,9 @@ int main(int argc, char** argv) {
 
     freopen("testMzFit.xml",  "w", stdout);
     result |= QTest::qExec(new TestMzFit, argc, argv);
+
+    freopen("testMzAligner.xml",  "w", stdout);
+    result |= QTest::qExec(new TestMzAligner, argc, argv);
 
     return result;
 }
