@@ -31,39 +31,13 @@ void TestMzAligner::cleanup() {
     // This function is executed after each test
 }
 
-void TestMzAligner::testInputGroups() {
-
-    vector<mzSample*> samplesToLoad;
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* sample = new mzSample();
-        sample->loadSample(files.at(i).toLatin1().data());
-        samplesToLoad.push_back(sample);
-    }
-
-    ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/methods/default.model";
-    clsf->loadModel(loadmodel);
-    mavenparameters->clsf = clsf;
-    mavenparameters->alignSamplesFlag = true;
-    mavenparameters->processAllSlices = true;
-    mavenparameters->showProgressFlag = false;
-    mavenparameters->ionizationMode = +1;
-    mavenparameters->eic_smoothingAlgorithm = 1;
-    mavenparameters->baseline_dropTopX = 80;
-    mavenparameters->minGroupIntensity = 100000;
-    mavenparameters->samples = samplesToLoad;
-
-    PeakDetector peakDetector;
-    peakDetector.setMavenParameters(mavenparameters);
-    peakDetector.processMassSlices();
-    QVERIFY(mavenparameters->allgroups.size());
-}
-
 void TestMzAligner::testDoAlignment() {
 
-    vector<PeakGroup*> peakgroups(mavenparameters->allgroups.size());
-    for (unsigned int i = 0; i < mavenparameters->allgroups.size(); i++)
-            peakgroups[i] = &mavenparameters->allgroups[i];
+    vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
+
+    vector<PeakGroup*> peakgroups(allgroups.size());
+    for (unsigned int i = 0; i < allgroups.size(); i++)
+            peakgroups[i] = &allgroups[i];
 
     Aligner aligner;
     aligner.doAlignment(peakgroups);

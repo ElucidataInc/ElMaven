@@ -9,7 +9,6 @@
 #include "../libmaven/PeakDetector.h"
 #include "../libmaven/mavenparameters.h"
 #include "../libmaven/EIC.h"
-#include "../libmaven/mavenparameters.h"
 #include "../libmaven/classifierNeuralNet.h"
 
 class TestPeakDetection : public QObject {
