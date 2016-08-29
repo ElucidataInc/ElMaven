@@ -19,7 +19,7 @@ BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 }
 
 void BarPlot::switchQValue() {  
-    //updated equation - Kiran
+    //ToDo: updated equation, didn't understand why - Kiran
     BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
 	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
