@@ -53,7 +53,7 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
 	for(int i=0; i < vsamples.size(); i++ ) {
 		mzSample* sample = vsamples[i];
         QColor color = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2],sample->color[3]);
-		// uddated reg expression - Kiran
+		// TODO: uddated reg expression, didn't understand why - Kiran
         QRegExp splitStr(";");
 		QString qname( sample->getSetName().c_str());
 		qname=qname.simplified();
