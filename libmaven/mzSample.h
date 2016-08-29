@@ -1649,7 +1649,6 @@ class Compound {
 
             int charge;
             float mass;
-            float massDelta;
 
             //QQQ mapping
             string method_id;
