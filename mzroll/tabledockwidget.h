@@ -77,6 +77,8 @@ public slots:
 	  void showScatterPlot();
 	  void setClipboard();
 	  void deleteGroup();
+	  // merged with maven776 - Kiran
+	  void deleteGroup(PeakGroup* groupX);
 	  void sortBy(int);
 	  void align();
 	  void deleteAll();

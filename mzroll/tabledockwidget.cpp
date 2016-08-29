@@ -681,6 +681,40 @@ void TableDockWidget::setGroupLabel(char label) {
     updateStatus();
 }
 
+// merged with maven776 - Kiran
+void TableDockWidget::deleteGroup(PeakGroup *groupX) {
+    qDebug() << "TableDockWidget::deleteGroup()";
+    if(!groupX) return;
+
+    int pos=-1;
+    for(int i=0; i < allgroups.size(); i++) {
+        if ( &allgroups[i] == groupX ) {
+            pos=i; break;
+        }
+    }
+    if (pos == -1) return;
+
+    qDebug() << "Delete pos=" << pos;
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        if (item->isHidden()) { ++it; continue; }
+        QVariant v = item->data(0,Qt::UserRole);
+        PeakGroup*  group =  v.value<PeakGroup*>();
+        if ( group != NULL and group == groupX) {
+            item->setHidden(true);
+
+            //Deleteing
+            allgroups.erase(allgroups.begin()+pos);
+            int posTree = treeWidget->indexOfTopLevelItem(item);
+            if (posTree != -1) treeWidget->takeTopLevelItem(posTree);
+            break;
+        }
+        ++it;
+    }
+    qDebug() << "Delete done..";
+}
+
 void TableDockWidget::deleteGroup() {
 
     QTreeWidgetItem *item = treeWidget->currentItem();
