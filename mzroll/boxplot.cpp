@@ -12,7 +12,7 @@ BoxPlot::BoxPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 }
 
 void BoxPlot::switchQValue() {  
-	// updated equation - Kiran
+	// TODO: updated equation, didn't understand why - Kiran
     BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
 	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
