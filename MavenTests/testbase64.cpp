@@ -3,7 +3,7 @@
 
 
 Testbase64::Testbase64() {
-    
+
 }
 
 void Testbase64::initTestCase() {
@@ -28,7 +28,8 @@ void Testbase64::cleanup() {
 void Testbase64::testdecode_base64() {
 
     string b64String="Qowh+kUQcBVCjCYG";
-    vector<float> decodedArray=base64::decode_base64(b64String,4,true);
+    vector<float> decodedArray =
+        base64::decode_base64(b64String, 4, true, false);
 
     QVERIFY(decodedArray.size()==3);
     QVERIFY(common::floatCompare(decodedArray[0],70.0663604736328));
@@ -66,59 +67,57 @@ void Testbase64::testencode_base64() {
 
 void Testbase64::testdecodeString() {
 
-string b64String="bWF2ZW4gaXMgYXdlc29tZQ==";
-int size = 0;
-int float_size=4;
+    string b64String="bWF2ZW4gaXMgYXdlc29tZQ==";
 
-unsigned char *dest=base64::decodeString(b64String,&float_size,&size);
+    char *dest = base64::decodeString(b64String);
 
-QVERIFY((unsigned char)dest[0]=='m');
-QVERIFY((unsigned char)dest[1]=='a');
-QVERIFY((unsigned char)dest[2]=='v');
-QVERIFY((unsigned char)dest[3]=='e');
-QVERIFY((unsigned char)dest[4]=='n');
-QVERIFY((unsigned char)dest[5]==' ');
-QVERIFY((unsigned char)dest[6]=='i');
-QVERIFY((unsigned char)dest[7]=='s');
-QVERIFY((unsigned char)dest[8]==' ');
-QVERIFY((unsigned char)dest[9]=='a');
-QVERIFY((unsigned char)dest[10]=='w');
-QVERIFY((unsigned char)dest[11]=='e');
-QVERIFY((unsigned char)dest[12]=='s');
-QVERIFY((unsigned char)dest[13]=='o');
-QVERIFY((unsigned char)dest[14]=='m');
-QVERIFY((unsigned char)dest[15]=='e');
+    QVERIFY((unsigned char)dest[0]=='m');
+    QVERIFY((unsigned char)dest[1]=='a');
+    QVERIFY((unsigned char)dest[2]=='v');
+    QVERIFY((unsigned char)dest[3]=='e');
+    QVERIFY((unsigned char)dest[4]=='n');
+    QVERIFY((unsigned char)dest[5]==' ');
+    QVERIFY((unsigned char)dest[6]=='i');
+    QVERIFY((unsigned char)dest[7]=='s');
+    QVERIFY((unsigned char)dest[8]==' ');
+    QVERIFY((unsigned char)dest[9]=='a');
+    QVERIFY((unsigned char)dest[10]=='w');
+    QVERIFY((unsigned char)dest[11]=='e');
+    QVERIFY((unsigned char)dest[12]=='s');
+    QVERIFY((unsigned char)dest[13]=='o');
+    QVERIFY((unsigned char)dest[14]=='m');
+    QVERIFY((unsigned char)dest[15]=='e');
 
 }
 
 void Testbase64::testencodeString() {
 
-unsigned char arr[17]={'m','a','v','e','n',' ','i','s',' ','a','w','e','s','o','m','e'};
-unsigned char *src=arr;
+    unsigned char arr[17]={'m','a','v','e','n',' ','i','s',' ','a','w','e','s','o','m','e'};
+    unsigned char *src=arr;
 
-unsigned char *dest=base64::encodeString(src,16);
+    unsigned char *dest=base64::encodeString(src,16);
 
-QVERIFY((unsigned char)dest[0]=='b');
-QVERIFY((unsigned char)dest[1]=='W');
-QVERIFY((unsigned char)dest[2]=='F');
-QVERIFY((unsigned char)dest[3]=='2');
-QVERIFY((unsigned char)dest[4]=='Z');
-QVERIFY((unsigned char)dest[5]=='W');
-QVERIFY((unsigned char)dest[6]=='4');
-QVERIFY((unsigned char)dest[7]=='g');
-QVERIFY((unsigned char)dest[8]=='a');
-QVERIFY((unsigned char)dest[9]=='X');
-QVERIFY((unsigned char)dest[10]=='M');
-QVERIFY((unsigned char)dest[11]=='g');
-QVERIFY((unsigned char)dest[12]=='Y');
-QVERIFY((unsigned char)dest[13]=='X');
-QVERIFY((unsigned char)dest[14]=='d');
-QVERIFY((unsigned char)dest[15]=='l');
-QVERIFY((unsigned char)dest[16]=='c');
-QVERIFY((unsigned char)dest[17]=='2');
-QVERIFY((unsigned char)dest[18]=='9');
-QVERIFY((unsigned char)dest[19]=='t');
-QVERIFY((unsigned char)dest[20]=='Z');
-QVERIFY((unsigned char)dest[21]=='Q');
+    QVERIFY((unsigned char)dest[0]=='b');
+    QVERIFY((unsigned char)dest[1]=='W');
+    QVERIFY((unsigned char)dest[2]=='F');
+    QVERIFY((unsigned char)dest[3]=='2');
+    QVERIFY((unsigned char)dest[4]=='Z');
+    QVERIFY((unsigned char)dest[5]=='W');
+    QVERIFY((unsigned char)dest[6]=='4');
+    QVERIFY((unsigned char)dest[7]=='g');
+    QVERIFY((unsigned char)dest[8]=='a');
+    QVERIFY((unsigned char)dest[9]=='X');
+    QVERIFY((unsigned char)dest[10]=='M');
+    QVERIFY((unsigned char)dest[11]=='g');
+    QVERIFY((unsigned char)dest[12]=='Y');
+    QVERIFY((unsigned char)dest[13]=='X');
+    QVERIFY((unsigned char)dest[14]=='d');
+    QVERIFY((unsigned char)dest[15]=='l');
+    QVERIFY((unsigned char)dest[16]=='c');
+    QVERIFY((unsigned char)dest[17]=='2');
+    QVERIFY((unsigned char)dest[18]=='9');
+    QVERIFY((unsigned char)dest[19]=='t');
+    QVERIFY((unsigned char)dest[20]=='Z');
+    QVERIFY((unsigned char)dest[21]=='Q');
 
 }
