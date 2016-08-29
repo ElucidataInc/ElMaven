@@ -53,22 +53,24 @@ QPainterPath EicLine::shape() const
    return path;
 }
 
-// redundant - Kiran
-// void EicLine::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
-//     qDebug() << "EicLine:: HoverEntered..";
-//     QGraphicsItem::hoverEnterEvent(event);
-//     setHighlighted(true);
-//     setZValue(zValue()+1);
-//     scene()->update();
-// }
+/*
+ * Merged with Maven776 - Kiran
+
+ void EicLine::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
+     qDebug() << "EicLine:: HoverEntered..";
+     QGraphicsItem::hoverEnterEvent(event);
+     setHighlighted(true);
+     setZValue(zValue()+1);
+     scene()->update();
+ }
 
 
-// void EicLine::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
-//     setHighlighted(false);
-//     setZValue(zValue()-1);
-//     scene()->update();
-// }
-
+ void EicLine::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
+     setHighlighted(false);
+     setZValue(zValue()-1);
+     scene()->update();
+ }
+*/
 
 void EicLine::fixEnds() { 
 
