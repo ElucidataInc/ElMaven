@@ -122,11 +122,14 @@ void CompareSamplesLogic::computeStats(PeakGroup* group,
 //skip empty
 	float meanA = abs(groupA.mean());
 	float meanB = abs(groupB.mean());
-	if (meanA == 0)
+
+    //TODO: Not changed as it is related to the below calculation -Kiran
+    if (meanA == 0)
 		meanA = 1;
 	if (meanB == 0)
 		meanB = 1;
 
+    //TODO: When this is changed, scatter plot stops working -Kiran
 	group->changeFoldRatio = meanA > meanB ? meanA / meanB : -meanB / meanA;
 	group->changePValue = abs(mzUtils::ttest(groupA, groupB));
 	shuffle(groupA, groupB);
