@@ -1,6 +1,7 @@
 #include "PeakDetector.h"
 
 PeakDetector::PeakDetector() {
+    mavenParameters = NULL; //naman: wasn't initialized
 }
 PeakDetector::PeakDetector(MavenParameters* mp) {
         mavenParameters = mp;
@@ -195,7 +196,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                 return;
 
         //init
-	double maxNaturalAbundanceErr = 100;
+	// double maxNaturalAbundanceErr = 100; //naman: unused param.
 	// mavenParameters->maxNaturalAbundanceErr;
 	bool C13Labeled = false;
 	// mavenParameters->C13Labeled;
@@ -205,7 +206,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 	// mavenParameters->S34Labeled;
 	bool D2Labeled = false;
 	// mavenParameters->D2Labeled;
-	int eic_smoothingAlgorithm = 0;
+	// int eic_smoothingAlgorithm = 0; //naman: unused
 	// mavenParameters->eic_smoothingAlgorithm;
 
 	string formula = parentgroup->compound->formula; //parent formula
@@ -363,7 +364,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         // peak group list would be filled with the parent group, with its isotopes as children
         // click on + to see children == isotopes
         parentgroup->children.clear();
-        for (itr2 = isotopes.begin(); itr2 != isotopes.end(); itr2++) {
+        // for (itr2 = isotopes.begin(); itr2 != isotopes.end(); itr2++) {
+        for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
                 string isotopeName = (*itr2).first;
                 PeakGroup& child = (*itr2).second;
                 child.tagString = isotopeName;
@@ -426,7 +428,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
         int eicCount = 0;
         int groupCount = 0;
-        int peakCount = 0;
+        // int peakCount = 0; //naman: not being used anywhere TODO comment it out 
 
         // for all the slies, find EICs and score quality and rank ofpeaks in the EICs
         // using the classifier
@@ -493,7 +495,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         group.computeAvgBlankArea(eics);
                         group.groupStatistics();
                         groupCount++;
-                        peakCount += group.peakCount();
+                        // peakCount += group.peakCount(); //naman: not being used anywhere TODO comment it out 
 
 			if (mavenParameters->clsf->hasModel()) {
 				mavenParameters->clsf->classify(&group);
@@ -549,7 +551,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 break;
 
                         PeakGroup* group = groupsToAppend[j];
-                        bool ok = addPeakGroup(*group);
+                        // bool ok = addPeakGroup(*group); //naman: unused, maybe used below.
+                        addPeakGroup(*group); //naman: unused, maybe used below.
 
                         //TODO: commended by sabu
                         // //force insert when processing compounds.. even if duplicated
