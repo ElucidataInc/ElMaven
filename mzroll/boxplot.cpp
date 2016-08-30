@@ -4,13 +4,16 @@ PeakGroup::QType BoxPlot::qtype = PeakGroup::AreaTop;
 
 BoxPlot::BoxPlot(QGraphicsItem* parent, QGraphicsScene *scene)
     :QGraphicsItem(parent, scene) {
+	// uninitialised variable - Kiran
+	_mw=NULL;
     _width = 0;
     _height = 0;
     _barwidth=10;
 }
 
-void BoxPlot::switchQValue() {
-	BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6);
+void BoxPlot::switchQValue() {  
+	// TODO: updated equation, didn't understand why - Kiran
+    BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
 	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
 	if ( g != NULL ) {
@@ -50,7 +53,8 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
 	for(int i=0; i < vsamples.size(); i++ ) {
 		mzSample* sample = vsamples[i];
         QColor color = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2],sample->color[3]);
-		QRegExp splitStr("[\\t*|\\s*|,|;]");
+		// TODO: uddated reg expression, didn't understand why - Kiran
+        QRegExp splitStr(";");
 		QString qname( sample->getSetName().c_str());
 		qname=qname.simplified();
 		QList<QString> names = qname.split(splitStr);
