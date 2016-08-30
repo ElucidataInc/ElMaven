@@ -24,7 +24,7 @@ class mzPattern {
             findNonZeroBounds();
         }
 
-        int countItems(char c) {
+        int countItems(char c) const {
             int count=0;
             for(unsigned int i=0; i < pattern.length(); i++) {
                 if (pattern[i] == c ) count++;
@@ -32,7 +32,7 @@ class mzPattern {
             return count;
         }
 
-        int longestStratch(char c) {
+        int longestStratch(char c) const {
             int stretch=0;
             int longest=0;
             for(unsigned int i=0; i < pattern.length(); i++ ) {
@@ -47,7 +47,7 @@ class mzPattern {
              return longest;
         }
 
-        int countCharSwitches(char x, char y) {
+        int countCharSwitches(char x, char y) const {
             int count=0;
             for(unsigned int i=0; i < pattern.length()-1; i++ ) {
                 if (pattern[i] == x && pattern[i+1] == y) {
@@ -57,22 +57,32 @@ class mzPattern {
             return count;
         }
 
-        int longestSymmetry(char x, char y) {
+        int longestSymmetry(char x, char y) const  {
             int longest=0;
             for(unsigned int i=0; i < pattern.length()-1; i++ ) {
-                int xcount=0;
-                int ycount=0;
-                if (pattern[i] == x && pattern[i+1] == y) {
-                    for(int j=i;j>=0;j--) if (pattern[j]==x)  xcount++; else break;
-                    for(unsigned int j=i+1;j<pattern.length();j++) if (pattern[j]==y)  ycount++; else break;
-                    int sym = xcount+ycount-abs(xcount-ycount);
-                    if ( sym > longest) longest = sym;
-                }
+            int xcount = 0; //naman scope can't be reduced, will change the logic.
+            int ycount = 0; //naman scope can't be reduced, will change the logic.
+            if (pattern[i] == x && pattern[i + 1] == y) {
+                    //naman reformatted 
+                    for (int j = i; j >= 0; j--) 
+                        if (pattern[j] == x)  
+                            xcount++; 
+                        else 
+                            break;
+                    
+                    for (unsigned int j = i + 1; j < pattern.length(); j++) 
+                        if (pattern[j] == y)  
+                            ycount++; 
+                        else 
+                            break;
+                int sym = xcount + ycount - abs(xcount - ycount);
+                if ( sym > longest) longest = sym;
+            }
             }
             return longest;
         }
 
-        int countAllSwitches() {
+        int countAllSwitches() const {
             int count=0;
             for(unsigned int i=0; i < pattern.length()-1; i++ ) {
                 if (pattern[i] != pattern[i+1]) {
@@ -82,7 +92,7 @@ class mzPattern {
             return count;
         }
 
-        int countSwitchesFrom(char x) {
+        int countSwitchesFrom(char x) const {
             int count=0;
             for(unsigned int i=0; i < pattern.length()-1; i++ ) {
                 if (pattern[i] == x && pattern[i+1] != x) count++;
@@ -107,7 +117,7 @@ class mzPattern {
             return(rb-lb);
         }
 
-        float noiseness(){
+        float noiseness() const {
 			int length=0;
 			int count=0;
 			for(int i=lb; i<rb; i++ ) {
