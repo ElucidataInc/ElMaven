@@ -99,9 +99,9 @@ void Aligner::Fit() {
 
 	double* x  = new double[allgroups.size()];
 	double* ref =  new double[allgroups.size()];
-	double* b =  new double[allgroups.size()];
-	double* c =  new double[allgroups.size()];
-	double* d =  new double[allgroups.size()];
+	// double* b =  new double[allgroups.size()]; naman: unused
+	// double* c =  new double[allgroups.size()]; naman: unused
+	// double* d =  new double[allgroups.size()]; naman: unused
 
 //	ofstream temp;
 //	temp.open("/tmp/fit.csv");
@@ -237,7 +237,7 @@ void Aligner::Fit() {
 	delete[] x;
 	delete[] ref;
 	//temp.close();
-	delete[] b;
-	delete[] c;
-	delete[] d;
+	// delete[] b;
+	// delete[] c;
+	// delete[] d; naman: unused
 }
