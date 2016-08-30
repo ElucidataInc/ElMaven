@@ -25,6 +25,11 @@ class GalleryWidget : public QGraphicsView
 			void addEicPlots(std::vector<mzLink>&links);
             void addIdividualEicPlots(std::vector<EIC*>& eics,PeakGroup* grp);
 			void fileGallery(const QString& dir);
+
+			// new features added - kiran
+			void print();
+            void copyImageToClipboard();
+			
 		private:
 				MainWindow* mainwindow;
 				QList<QGraphicsItem*> plotitems;
@@ -43,6 +48,9 @@ class GalleryWidget : public QGraphicsView
                 void mousePressEvent(QMouseEvent *event);
 				void keyPressEvent(QKeyEvent *event);
 				bool recursionCheck;
+
+				// new features added - kiran
+				void contextMenuEvent(QContextMenuEvent * event);
 
 };
 

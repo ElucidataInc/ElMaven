@@ -422,3 +422,48 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
 		}
 	scene()->update();
 }
+
+// new features added - Kiran
+void GalleryWidget::print() {
+    QPrinter printer;
+    QPrintDialog dialog(&printer);
+
+    if ( dialog.exec() ) {
+        printer.setOrientation(QPrinter::Landscape);;
+        QPainter painter;
+        if (! painter.begin(&printer)) { // failed to open file
+            qWarning("failed to open file, is it writable?");
+            return;
+        }
+        render(&painter);
+        painter.end();
+    }
+}
+
+// new features added - Kiran
+void GalleryWidget::copyImageToClipboard() {
+    QPixmap image(this->width(),this->height());
+    image.fill(Qt::white);
+    QPainter painter;
+    painter.begin(&image);
+    render(&painter);
+    painter.end();
+    QApplication::clipboard()->setPixmap(image);
+}
+
+// new features added - Kiran
+void GalleryWidget::contextMenuEvent(QContextMenuEvent * event) {
+ //qDebug <<"EicWidget::contextMenuEvent(QContextMenuEvent * event) ";
+
+    event->ignore();
+    QMenu menu;
+
+    QAction* copyImage = menu.addAction("Copy Image to Clipboard");
+    connect(copyImage, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
+
+    QAction* print = menu.addAction("Print");
+    connect(print, SIGNAL(triggered()), SLOT(print()));
+
+    QAction *selectedAction = menu.exec(event->globalPos());
+    scene()->update();
+}
