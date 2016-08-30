@@ -3,14 +3,15 @@
 
 #include "plotdock.h"
 #include "comparesamplesdialog.h"
+#include "tabledockwidget.h"
 
 class CompareSamplesDialog;
 class MainWindow;
 
 class ScatterPlot: public PlotDockWidget  {
     Q_OBJECT
-
-        enum  plotTypeEnum { scatter=0, flower=1 };
+        // updated enum values - Kiran
+        enum  plotTypeEnum { SCATTERPLOT=0, FLOWRPLOT=1, PLSPLOT=2 };
 
 		public:
 				ScatterPlot(QWidget* w);
@@ -21,9 +22,14 @@ class ScatterPlot: public PlotDockWidget  {
 		public slots:
 				void contrastGroups();
 				void showSelectedGroups(QPointF a, QPointF b);
-                void setPlotTypeScatter() { plotType=scatter;  draw(); }
-                void setPlotTypeFlower() { plotType=flower;    draw(); }
+                //New funtions defined - Kiran                
+		void showSelectedGroupGallery(QPointF from, QPointF to);
+                void setPlotTypeScatter() { plotType=SCATTERPLOT;  draw(); }
+                void setPlotTypeFlower() { plotType=FLOWRPLOT;    draw(); }
+                void setPlotTypePLS() { plotType=PLSPLOT;    draw(); }
                 void showSimilarOnClick(bool t) { showSimilarFlag=t; }
+
+
 
 
 
@@ -31,7 +37,13 @@ class ScatterPlot: public PlotDockWidget  {
 				void draw();
 				void drawScatter(StatisticsVector<float>vecB,StatisticsVector<float>vecY, vector<PeakGroup*>groups);
                 void drawFlower(vector<PeakGroup*>groups);
+                //New funtions defined - Kiran   
+                void drawPLS(vector<PeakGroup*>groups);
                 void setupToolBar();
+                //New funtions defined - Kiran   
+                void deleteGroup();
+                void keyPressEvent( QKeyEvent *e );
+                QSet<PeakGroup*> getGroupsInRect(QPointF from, QPointF to);
 
 		private:
 				QAction* showSimilarOptions;

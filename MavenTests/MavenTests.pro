@@ -8,9 +8,9 @@ DESTDIR = ../bin
 QT += testlib core
 CONFIG += qtestlib
 
-INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser
+INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls
 
-LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
 
 QMAKE_CXXFLAGS_RELEASE -= -O3 -Wall -Wno-sign-compare
 QMAKE_CXXFLAGS_DEBUG   -= -O2 -g -Wall -Wno-sign-compare

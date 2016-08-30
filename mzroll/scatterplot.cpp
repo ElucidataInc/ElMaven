@@ -1,4 +1,6 @@
 #include "scatterplot.h"
+#include "pls.h"
+#include "plsutility.h"
 
 ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) { 
 
@@ -18,7 +20,8 @@ ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) {
 	setWindowTitle("Scatter Plot");
 
     showSimilarFlag = false;
-    plotType = scatter;
+    // updated new emun value -Kiran
+    plotType = SCATTERPLOT;
 
     setupToolBar();
 	setTable(NULL);
@@ -46,12 +49,25 @@ void ScatterPlot::setupToolBar() {
     btnFlower->setToolTip("Flower Plot");
     connect(btnFlower,SIGNAL(clicked()),this,SLOT(setPlotTypeFlower()));
 
-    QToolButton *btnCovariants = new QToolButton(toolBar);
+    // new feature added - Kiran
+    QToolButton *btnPLS = new QToolButton(toolBar);
+    btnPLS->setIcon(QIcon(rsrcPath + "/cluster.png"));
+    btnPLS->setToolTip("PLS Plot");
+    connect(btnPLS,SIGNAL(clicked()),this,SLOT(setPlotTypePLS()));
+
+    // new feature added - Kiran
+    QToolButton *btnDelete = new QToolButton(toolBar);
+    btnDelete->setIcon(QIcon(rsrcPath + "/delete.png"));
+    btnDelete->setToolTip("Delete Selected Groups");
+    connect(btnDelete,SIGNAL(clicked()),this,SLOT(deleteGroup()));
+
+    // merged with maven776 - Kiran
+   /* QToolButton *btnCovariants = new QToolButton(toolBar);
 	btnCovariants->setIcon(QIcon(rsrcPath + "/covariants.png"));
 	btnCovariants->setToolTip("Highlight Covariants on Click");
     btnCovariants->setCheckable(true); btnCovariants->setChecked(false);
     connect(btnCovariants, SIGNAL(toggled(bool)),this,SLOT(showSimilarOnClick(bool)));
-
+*/
 	QToolButton *btnF = new QToolButton(toolBar);
 	btnF->setIcon(QIcon(rsrcPath + "/contrast.png"));
 	btnF->setToolTip("Show Contrast Groups Dialog");
@@ -61,7 +77,12 @@ void ScatterPlot::setupToolBar() {
     toolBar->addWidget(btnF);
     toolBar->addWidget(btnScatter);
     toolBar->addWidget(btnFlower);
-    toolBar->addWidget(btnCovariants);
+    // new feature added - Kiran
+    toolBar->addWidget(btnPLS);
+    // new feature added - Kiran
+    toolBar->addWidget(btnDelete);
+    // merged with maven776 - Kiran
+    //  toolBar->addWidget(btnCovariants);
 
     setTitleBarWidget(toolBar);
 
@@ -76,41 +97,61 @@ void ScatterPlot::setTable(TableDockWidget* t) {
 	compareSamplesDialog->setTableWidget(t); 
 }
 
+QSet<PeakGroup*> ScatterPlot::getGroupsInRect(QPointF from, QPointF to) {
+    // merged with maven776 - Kiran
+    QRectF rect(from,to);
+    QPainterPath path; path.addRect(rect);
+    scene()->setSelectionArea(path);
+
+    QSet<PeakGroup*>selected;
+    foreach(QGraphicsItem* item, scene()->selectedItems() ) {
+            if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
+            QVariant v = circle->data(0);
+            PeakGroup*  groupX =  v.value<PeakGroup*>();
+            selected.insert(groupX);
+
+        }
+    }
+    return selected;
+}
+
+
 void ScatterPlot::showSelectedGroups(QPointF from, QPointF to) { 
-		QRectF rect(from,to);
-		QPainterPath path; path.addRect(rect);
-		scene()->setSelectionArea(path);
-		qDebug() << "selectArea " << rect << " " << scene()->selectedItems().size();
+    // merged with maven776 - Kiran
 
-                if(_table) _table->clearFocusedGroups();
+        QSet<PeakGroup*>similar = getGroupsInRect(from,to);
 
-		QSet<PeakGroup*>similar;
-		foreach(QGraphicsItem* item, scene()->selectedItems() ) { 
-                        if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
-				QVariant v = circle->data(0);
-				PeakGroup*  groupX =  v.value<PeakGroup*>();
-                                groupX->isFocused=true;
-				similar.insert(groupX);
+        if (similar.size()>0) {
+            if(_table) _table->clearFocusedGroups();
 
-			}
-		}
+            QSetIterator<PeakGroup*> i(similar);
+            while (i.hasNext())  {
+                PeakGroup* groupX = i.next();
+                groupX->isFocused=true;
+            }
+            if(_table )_table->showFocusedGroups();
+        }
 
-                if(_table && similar.size()>0) _table->showFocusedGroups();
 
-		if (similar.size() > 0 ) {
-				vector<mzSlice*>_similar;
-				QSetIterator<PeakGroup*> i(similar);
-				while (i.hasNext())  {
-						PeakGroup* groupX = i.next();
-						mzSlice* slice = new mzSlice(groupX->minMz, groupX->maxMz, groupX->minRt-2, groupX->maxRt+2);
-						_similar.push_back(slice);
-				}
+}
 
-                                MainWindow* mw = (MainWindow*) parent();
-				mw->galleryWidget->clear();
-				mw->galleryWidget->addEicPlots(_similar);
-				delete_all(_similar);
-		}
+void ScatterPlot::showSelectedGroupGallery(QPointF from, QPointF to) {
+    // merged with maven776 - Kiran
+
+    QSet<PeakGroup*>similar = getGroupsInRect(from,to);
+    if (similar.size() > 0 ) {
+            vector<mzSlice*>slices;
+            QSetIterator<PeakGroup*> i(similar);
+            while (i.hasNext())  {
+                    PeakGroup* groupX = i.next();
+                    mzSlice* slice = new mzSlice(groupX->minMz, groupX->maxMz, groupX->minRt-2, groupX->maxRt+2);
+                    slices.push_back(slice);
+            }
+            MainWindow* mw = (MainWindow*) parent();
+            mw->galleryWidget->clear();
+            mw->galleryWidget->addEicPlots(slices);
+            delete_all(slices);
+    }
 }
 
 
@@ -199,7 +240,175 @@ void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float
 	 }
 }
 
+void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
+        // new feature added - Kiran
+        qDebug() << "ScatterPlot::drawPLS()";
+        sort(groups.begin(), groups.end());
+        StatisticsVector<float>foldChanges;
+        StatisticsVector<float>pValues;
 
+		MainWindow* mw = (MainWindow*) parent();
+		PeakGroup::QType qtype = mw->getUserQuantType();
+		vector<mzSample*> vsamples = mw->getVisibleSamples();
+
+		QMap<QString,int>setNumericIds;
+		QMultiMap<mzSample*,QString>sampleSetnameMap;
+		for(unsigned int i=0; i < vsamples.size(); i++ ) {
+			mzSample* sample = vsamples[i];
+            QRegExp splitStr(";");
+			QString qname( sample->getSetName().c_str());
+			qname=qname.simplified();
+			QList<QString> names = qname.split(splitStr);
+			foreach(QString name, names) { 
+				name=name.simplified(); 
+				if (name.isEmpty()) continue;
+				sampleSetnameMap.insert(sample,name);
+                if (!setNumericIds.contains(name)) setNumericIds[name] = setNumericIds.size()-1;
+			}
+		}
+
+        qDebug() << setNumericIds;
+
+		if (setNumericIds.size() == 0 ) return;
+        int nSets = setNumericIds.size();
+
+        Mat2D X; X = Mat2D::Zero(groups.size(),vsamples.size());
+        Mat2D Y; Y=  Mat2D::Zero(groups.size(),setNumericIds.size());
+
+		for(int i=0; i < groups.size(); i++ ) {
+        	 vector<float>values=groups[i]->getOrderedIntensityVector(vsamples,qtype);
+             float sum=0;
+             for(int j=0; j < values.size(); j++ ) {  sum += values[j]; }
+             if(sum==0) continue;
+             float meanValue=sum/values.size();
+
+             for(int j=0; j < values.size(); j++ ) {  X(i,j)=(values[j]/sum)-(meanValue/sum);}
+
+             for(int j=0; j < values.size(); j++ ) {
+                    mzSample* sample = vsamples[j];
+					QList<QString>setnames = sampleSetnameMap.values(sample);
+					foreach(QString setname, setnames ) { 
+							int setNumber = setNumericIds[setname];
+                            Y(i,setNumber) += (values[j]/sum)-(1.0f/nSets);
+					}	
+			 }
+        }
+
+        //cerr << Y;
+
+        //X = colwise_z_scores( X );
+        //Y = colwise_z_scores( X );
+
+        PLS_Model plsm;
+        int nobj  = X.rows();
+        int npred = X.cols();
+        int nresp = Y.cols();
+        int ncomp = 3;
+        plsm.initialize(npred, nresp, ncomp);
+        plsm.plsr(X,Y, plsm, PLS_KERNEL_TYPE1);
+
+        // A is number of components to use
+        for (int A = 1; A<=ncomp; A++) {
+            // How well did we do with this many components?
+            cerr << A << " components\t";
+            cerr << "explained variance: " << plsm.explained_variance(X, Y, A);
+            //cerr << "root mean squared error of prediction (RMSEP):" << plsm.rmsep(X, Y, A) << endl;
+            cerr << " SSE: " << plsm.SSE(X,Y,A) <<  endl;
+        }
+
+
+        cerr << "Validation (PRESS):\n";
+        cerr << plsm.loo_validation(X, Y, PRESS) << endl;
+
+        cerr << "Optimal number of components:\t" << plsm.optimal_num_components(X,Y) << endl;
+
+        cerr << "Fitted Values:\n";
+        //cerr << plsm.fitted_values(X,ncomp);
+
+        cerr << "Regression coeeffientss:\n";
+        cerr << plsm.coefficients(ncomp).transpose();
+        cout << plsm.T;
+
+        //convert to reals
+        Mat2D T = plsm.T.real();
+
+
+        foldChanges = vector<float>(groups.size(),0);
+        pValues = vector<float>(groups.size(),0);
+
+        for(unsigned int i=0; i < groups.size(); i++) {
+            foldChanges[i]=(float) T(i,0);
+            pValues[i]=(float) T(i,1);
+        }
+
+        //get data minimum and mazimum values
+        float minX = foldChanges.minimum();
+        float maxX = foldChanges.maximum();
+         scene()->setXDim(minX*0.8,maxX*1.1);
+
+        float minY = pValues.minimum();
+        float maxY = pValues.maximum();
+        scene()->setYDim(minY*0.8,maxY*1.1);
+
+        //reset zoom if no zoom history is present
+        if (zoomHistory.isEmpty()) { scene()->resetZoom(); }
+
+        // plot is in log scale
+        scene()->setLogTransformed(false,false);
+
+        //draw x and y axes
+        drawAxes();
+        scene()->showVLine(true);
+        scene()->showHLine(true);
+        scene()->showXLabel("Fold Change");
+        scene()->showYLabel("Significance");
+
+        QPen pen(Qt::black);
+        QBrush brush(QColor::fromRgbF(0.9,0,0,0.3));
+
+        //get a visible limits of the plot
+        QPointF xlimits = scene()->getZoomXDim();
+        QPointF ylimits = scene()->getZoomYDim();
+
+    //qDebug() << " drawScatter: " << xlimits << " " << ylimits << endl;
+
+        for (int i=0; i<groups.size(); i++ ) {
+                float x = foldChanges[i];
+                float y = pValues[i];
+                if (x < xlimits.x() || x > xlimits.y() ) continue;
+                if (y < ylimits.x() || y > ylimits.y() ) continue;
+
+                PeakGroup* group=NULL;
+                if (i < groups.size()) group=groups[i];
+
+                double r=1.0;
+                if (group) r = group->changePValue;
+                if (r<=0) r=0.001;
+                if (r> 1) r=1;
+                float alpha = 1-pow(r,0.2); //pvalue^0.2
+
+                if (foldChanges[i] >0 )  {
+                        brush = QBrush(QColor::fromRgbF(alpha,0,0,alpha));
+                }  else if (foldChanges[i]<0 ) {
+                        brush = QBrush(QColor::fromRgbF(0.0,0,alpha,alpha));
+                }
+
+                QPointF pos = scene()->plotToMap(x,y);
+
+                //radius
+                float R=1.0-(((float)i)/groups.size());
+                R = (R+0.25)*10;
+
+                QGraphicsItem* item = scene()->addEllipse(pos.x()-R/2,pos.y()-R/2,R,R,pen,brush);
+                item->setFlag(QGraphicsItem::ItemIsSelectable);
+                item->setToolTip( tr("%1,%2,%3").arg(x).arg(y) );
+
+                if(group) {
+                    item->setData(0, QVariant::fromValue(group));
+                    item->setToolTip( tr("m/z:%1 rt:%2 pvalue:%3").arg(group->meanMz).arg(group->meanRt).arg(group->changePValue));
+                }
+         }
+}
 
 void ScatterPlot::drawFlower(vector<PeakGroup*>groups) {
 
@@ -356,7 +565,8 @@ void ScatterPlot::draw() {
 		PeakGroup* group = allgroups[i];
 		if(group->changePValue > _maxPvalue) continue;
 		if(group->maxIntensity < _minIntensity ) continue;
-		if(abs(group->changeFoldRatio) < _minRatio ) continue;
+		// updated abs to fabs  - Kiran
+                if(fabs(group->changeFoldRatio) < _minRatio ) continue;
 		if(group->goodPeakCount < _minGoodSamples ) continue;
 		
 		StatisticsVector<float>groupA;
@@ -385,9 +595,10 @@ void ScatterPlot::draw() {
 		meanB.push_back(mB);
 		goodgroups.push_back(group);
 	}
-
-        if(plotType == flower) drawFlower(goodgroups);
-        else if(plotType == scatter) drawScatter(meanA,meanB,goodgroups);
+        // Updated with new enum values  - Kiran
+        if(plotType == FLOWRPLOT) drawFlower(goodgroups);
+        else if(plotType == PLSPLOT) drawPLS(goodgroups);
+        else if(plotType == SCATTERPLOT) drawScatter(meanA,meanB,goodgroups);
 }
 
 void ScatterPlot::showSimilar(PeakGroup* group) {
@@ -438,5 +649,32 @@ void ScatterPlot::contrastGroups() {
      compareSamplesDialog->show();
      mw->scatterDockWidget->setVisible(true);
      mw->scatterDockWidget->raise();
+}
+
+// new Feature added - Kiran
+void ScatterPlot::keyPressEvent(QKeyEvent *e ) {
+    qDebug() << "ScatterPlot:keypressed";
+
+   if (e->key() == Qt::Key_Delete ) {
+        deleteGroup();
+    }
+    PlotDockWidget::keyPressEvent(e);
+}
+
+void ScatterPlot::deleteGroup() {
+    qDebug() << "ScatterPlot:deleteGroup()";
+    foreach(QGraphicsItem* item, scene()->selectedItems() ) {
+            if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
+            QVariant v = circle->data(0);
+            PeakGroup*  groupX =  v.value<PeakGroup*>();
+            if (groupX and _table) {
+                _table->deleteGroup(groupX);
+                 circle->hide();
+            }
+        }
+    }
+
+   MainWindow* mw = (MainWindow*) parent();
+   mw->getEicWidget()->replotForced();
 }
 
