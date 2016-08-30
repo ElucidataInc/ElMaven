@@ -4,6 +4,8 @@ PeakGroup::QType BarPlot::qtype = PeakGroup::AreaTop;
 
 BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
     :QGraphicsItem(parent, scene) {
+    // uninitialised variable - Kiran
+    _mw=NULL;
     _width = 0;
     _height = 0;
     _barwidth=10;
@@ -16,8 +18,9 @@ BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 
 }
 
-void BarPlot::switchQValue() {
-	BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 6);
+void BarPlot::switchQValue() {  
+    //TODO: updated equation, didn't understand why - Kiran
+    BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
 	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
 	if ( g != NULL ) {
@@ -120,6 +123,8 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     switch (qtype ) {
     case PeakGroup::AreaTop: title = "Peak AreaTop"; break;
     case PeakGroup::Area: title = "Peak Area"; break;
+    // new feature - Kiran
+    case PeakGroup::AreaNotCorrected: title = "Peak Area Not Corrected"; break;
     case PeakGroup::Height: title = "Peak Height"; break;
     case PeakGroup::Quality: title = "Peak Quality"; break;
     case PeakGroup::RetentionTime: title = "RetentionTime"; break;
