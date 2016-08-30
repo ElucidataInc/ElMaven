@@ -1072,69 +1072,70 @@ class Peak {
          */
         inline char getLabel() const { return label;}
 
-
+        static bool compRtMin(const Peak& a, const Peak& b ) { return a.rtmin < b.rtmin; }
         /**
-         * [compRt ]
-         * @method compRt
-         * @param  a      []
-         * @param  b      []
-         * @return []
-         */
-        static bool compRt(const Peak& a, const Peak& b ) { return a.rt < b.rt; }
+ * [compRt ]
+ * @method compRt
+ * @param  a      []
+ * @param  b      []
+ * @return []
+ */
+		static bool compRt(const Peak& a, const Peak& b ) { return a.rt < b.rt; }
 
-        /**
-         * [compIntensity ]
-         * @method compIntensity
-         * @param  a             []
-         * @param  b             []
-         * @return []
-         */
-        static bool compIntensity(const Peak& a, const Peak& b ) { return b.peakIntensity < a.peakIntensity; }
+		/**
+		 * [compIntensity ]
+		 * @method compIntensity
+		 * @param  a             []
+		 * @param  b             []
+		 * @return []
+		 */
+		static bool compIntensity(const Peak& a, const Peak& b ) { return b.peakIntensity < a.peakIntensity; }
 
-        /**
-         * [compArea ]
-         * @method compArea
-         * @param  a        []
-         * @param  b        []
-         * @return []
-         */
-        static bool compArea(const Peak& a, const Peak& b ) { return b.peakAreaFractional < a.peakAreaFractional; }
+		/**
+		 * [compArea ]
+		 * @method compArea
+		 * @param  a        []
+		 * @param  b        []
+		 * @return []
+		 */
+		static bool compArea(const Peak& a, const Peak& b ) { return b.peakAreaFractional < a.peakAreaFractional; }
 
-        /**
-         * [compMz ]
-         * @method compMz
-         * @param  a      []
-         * @param  b      []
-         * @return []
-         */
-        static bool compMz(const Peak& a, const Peak& b ) { return a.peakMz < b.peakMz; }
+		/**
+		 * [compMz ]
+		 * @method compMz
+		 * @param  a      []
+		 * @param  b      []
+		 * @return []
+		 */
+		static bool compMz(const Peak& a, const Peak& b ) { return a.peakMz < b.peakMz; }
 
-        /**
-         * [compSampleName ]
-         * @method compSampleName
-         * @param  a              []
-         * @param  b              []
-         * @return []
-         */
-        static bool compSampleName(const Peak& a, const Peak& b ) { return a.sample->getSampleName() < b.sample->getSampleName(); }
+		/**
+		 * [compSampleName ]
+		 * @method compSampleName
+		 * @param  a              []
+		 * @param  b              []
+		 * @return []
+		 */
+		static bool compSampleName(const Peak& a, const Peak& b ) { return a.sample->getSampleName() < b.sample->getSampleName(); }
 
-        /**
-         * [compSampleOrder ]
-         * @method compSampleOrder
-         * @param  a               []
-         * @param  b               []
-         * @return []
-         */
-        static bool compSampleOrder(const Peak& a, const Peak& b ) { return a.sample->getSampleOrder() < b.sample->getSampleOrder(); }
+		/**
+		 * [compSampleOrder ]
+		 * @method compSampleOrder
+		 * @param  a               []
+		 * @param  b               []
+		 * @return []
+		 */
+		static bool compSampleOrder(const Peak& a, const Peak& b ) { return a.sample->getSampleOrder() < b.sample->getSampleOrder(); }
 
-        /**
-         * [overlap ]
-         * @method overlap
-         * @param  a       []
-         * @param  b       []
-         * @return []
-         */
-        inline static float overlap(const Peak& a, const Peak& b) {	return( checkOverlap(a.rtmin, a.rtmax, b.rtmin, b.rtmax)); }
+		/**
+		 * [overlap ]
+		 * @method overlap
+		 * @param  a       []
+		 * @param  b       []
+		 * @return []
+		 */
+		inline static float overlap(const Peak& a, const Peak& b) {	return( checkOverlap(a.rtmin, a.rtmax, b.rtmin, b.rtmax)); }
+        
         vector<mzLink> findCovariants();
 };
 
