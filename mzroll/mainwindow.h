@@ -206,9 +206,11 @@ public slots:
 	void setPathwayFocus(Pathway* p);
 	void showFragmentationScans(float pmz);
 	QString groupTextExport(PeakGroup* group);
-	void bookmarkPeakGroup(PeakGroup* group);
+	// void bookmarkPeakGroup(PeakGroup* group); //TODO: Sahil Changed the structure of function
+	PeakGroup* bookmarkPeakGroup(PeakGroup* group);
 	void setClipboardToGroup(PeakGroup* group);
-	void bookmarkPeakGroup();
+	// void bookmarkPeakGroup();
+    PeakGroup* bookmarkPeakGroup();
 	void reorderSamples(PeakGroup* group);
 	void findCovariants(Peak* _peak);
 	void reportBugs();
