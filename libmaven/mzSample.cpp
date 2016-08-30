@@ -1109,6 +1109,50 @@ EIC* mzSample::getTIC(float rtmin, float rtmax, int mslevel) {
         return(e);
 }
 
+// TODO: Sahil Added this function because of merging of eicwidget
+EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel) { 
+
+    //ajust EIC retention time window to match sample retentention times
+    if (rtmin < this->minRt ) rtmin =this->minRt;
+    if (rtmax > this->maxRt ) rtmax =this->maxRt;
+
+    //cerr << "getEIC()" << setprecision(7) << mzmin << " " << mzmax << " " << rtmin << " " << rtmax << endl;
+
+    EIC* e = new EIC();
+    e->sampleName = sampleName;
+    e->sample = this;
+    e->mzmin = 0;
+    e->mzmax = 0;
+    e->totalIntensity=0;
+    e->maxIntensity = 0;
+
+    int scanCount = scans.size();
+    if ( scanCount == 0 ) return e;
+
+    for(int i=0;  i < scanCount; i++)
+    {
+        if (scans[i]->mslevel == mslevel) {
+            Scan* scan = scans[i];
+			float maxMz=0;
+			float maxIntensity=0;
+    		for(unsigned int i=0;i<scan->intensity.size();i++)  {
+					if(scan->intensity[i] >maxIntensity) { maxIntensity=scan->intensity[i]; maxMz=scan->mz[i] ; }
+			}
+            e->mz.push_back(maxMz);
+            e->scannum.push_back(i);
+            e->rt.push_back(scan->rt);
+            e->intensity.push_back(maxIntensity);
+            e->totalIntensity += maxIntensity;
+            if (maxIntensity>e->maxIntensity) e->maxIntensity=maxIntensity;
+        }
+    }
+    if ( e->rt.size() > 0 ) {
+        e->rtmin = e->rt[0];
+        e->rtmax = e->rt[ e->size()-1];
+    }
+    return(e);
+}
+
 //compute correlation between two mzs within some retention time window
 float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 ) {
 

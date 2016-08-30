@@ -689,6 +689,8 @@ public:
 		 * @return         [pointer to the EIC]
 		 */
 		EIC* getTIC(float rtmin, float rtmax, int mslevel);
+		//TODO: Sahil Added this function while mergin eicwidget
+	    EIC* getBIC(float,float,int);		//get Base Peak Chromatogram
 
     deque <Scan*> scans;
     string sampleName;
