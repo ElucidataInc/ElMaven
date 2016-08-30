@@ -6,6 +6,9 @@
 #include <sstream>
 #include "../libmaven/databases.h"
 #include "../libmaven/mzSample.h"
+#include "../libmaven/mavenparameters.h"
+#include "../libmaven/classifierNeuralNet.h"
+#include "../libmaven/PeakDetector.h"
 
 extern Databases DBS;
 
@@ -22,6 +25,7 @@ class common {
         static vector<Compound*> getCompoudDataBaseWithRT();
         static vector<Compound*> getCompoudDataBaseWithNORT();
         static vector<Compound*> getFaltyCompoudDataBase();
+        static vector<PeakGroup> getGroupsFromProcessCompounds();
 };
 
 #endif // COMMON_H

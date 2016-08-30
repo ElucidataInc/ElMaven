@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include "common.h"
 #include "../libmaven/mzSample.h"
 #include "../libmaven/PeakDetector.h"
 #include "../libmaven/mavenparameters.h"
@@ -16,7 +17,6 @@ class TestMzAligner : public QObject {
 
     public:
         TestMzAligner();
-        MavenParameters* mavenparameters = new MavenParameters();
 
     private:
         QStringList files;
@@ -32,7 +32,6 @@ class TestMzAligner : public QObject {
 
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testInputGroups();
         void testDoAlignment();
         void testSaveFit();
 
