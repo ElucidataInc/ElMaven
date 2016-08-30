@@ -4,6 +4,40 @@ Peak::Peak() {
 	pos = 0;
 	eic = NULL;
 	sample = NULL;
+	baseMz = 0;
+	fromBlankSample = false;
+	groupOverlap = 0;
+	groupNum = 0;
+	groupOverlapFrac = 0;
+	label = 0;
+	localMaxFlag = 0;
+	maxpos = pos;
+	maxscan = 0;
+	medianMz = 0;
+	minpos = pos;
+	minscan = 0;
+	mzmax = 0;
+	mzmin = 0;
+	noNoiseObs = 0;
+	noNoiseFraction = 0;
+	peakArea = 0;
+	peakAreaCorrected = 0;
+	peakAreaFractional = 0;
+	peakAreaTop = 0;
+	peakIntensity = 0;
+	peakMz = 0;
+	peakBaseLineLevel = 0;
+	quality = 0;
+	rt = 0;
+	rtmax = 0;
+	rtmin = 0;
+	scan = 0;
+	signalBaselineRatio = 0;
+	symmetry = 0;
+	width = 0;
+	gaussFitSigma = 10;
+	gaussFitR2 = FLT_MAX;
+	peakRank = INT_MAX;
 }
 
 Peak::Peak(EIC* e, int p) { 
@@ -128,7 +162,8 @@ vector<mzLink> Peak::findCovariants() {
 
 		//merge ajacent slices
 		int lastMz=0;
-		for(itr = M.begin(); itr != M.end(); itr++) {
+		// for(itr = M.begin(); itr != M.end(); itr++) {
+		for(itr = M.begin(); itr != M.end(); ++itr) { //naman: Prefer prefix ++/-- operators for non-primitive types. 
 				float rmz = (*itr).first;
 				if ( lastMz != 0 && rmz-lastMz < 2 ) {//merge
 						for (int j=0; j < scanCount; j++ ) { 
@@ -157,7 +192,8 @@ vector<mzLink> Peak::findCovariants() {
 		cerr << "Reference" << endl;
 		for (int j=0; j<scanCount; j++ ) cerr << yref[j]; cerr << endl;
 
-		for(itr = M.begin(); itr != M.end(); itr++) { 
+		// for(itr = M.begin(); itr != M.end(); itr++) { 
+		for(itr = M.begin(); itr != M.end(); ++itr) { //naman: Prefer prefix ++/-- operators for non-primitive types. 
 				int rmz = (*itr).first;
 				vector<float> y =  (*itr).second;
 				//float score=matchScore(yref, y );
