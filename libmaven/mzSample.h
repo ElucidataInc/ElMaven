@@ -1075,6 +1075,7 @@ class Peak {
 		inline char getLabel() { return label;}
 
 
+        static bool compRtMin(const Peak& a, const Peak& b ) { return a.rtmin < b.rtmin; }
 /**
  * [compRt ]
  * @method compRt

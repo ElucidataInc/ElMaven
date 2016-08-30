@@ -28,7 +28,7 @@ EIC::~EIC() {
 }
 
 EIC* EIC::eicMerge(const vector<EIC*>& eics) {
-
+    // Merge to 776
     EIC* meic = new EIC();
 
     unsigned int maxlen = 0;
@@ -98,11 +98,11 @@ EIC* EIC::eicMerge(const vector<EIC*>& eics) {
 }
 
 void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
-
+    //Merged to 776
     if (baseline != NULL ) { //delete previous baseline if exists
         delete[] baseline;
-        baseline=NULL;
-        eic_noNoiseObs=0;
+        baseline = NULL;
+        eic_noNoiseObs = 0;
     }
 
     int n = intensity.size();
@@ -122,15 +122,15 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
     //compute maximum intensity of baseline, any point above this value will
     // be dropped. User specifies quantile of points to keep, for example
     //drop 60% of highest intensities = cut at 40% value;
-    float cutvalueF = (100.0-(float) dropTopX)/101;
+    float cutvalueF = (100.0 - (float) dropTopX) / 101;
     unsigned int pos = tmpv.size() * cutvalueF;
-    float qcut=0;
+    float qcut = 0;
     pos < tmpv.size() ? qcut = tmpv[pos] : qcut = tmpv.back();
 
     //drop all points above maximum baseline value
-    for(int i=0; i<n; i++ ) {
+    for(int i = 0; i < n; i++ ) {
         if ( intensity[i] > qcut) {
-            baseline[i]=qcut;
+            baseline[i] = qcut;
         } else {
             baseline[i] = intensity[i];
         }
@@ -140,54 +140,83 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
     gaussian1d_smoothing(n,smoothing_window,baseline);
 
     //count number of observation in EIC above baseline
-    for(int i=0; i<n; i++) {
-        if(intensity[i]>baseline[i]) eic_noNoiseObs++;
+    for (int i = 0; i < n; i++) {
+        if (intensity[i] > baseline[i]) eic_noNoiseObs++;
+    }
+}
+
+void EIC::subtractBaseLine() {
+    // Merged to 776
+    if (baseline == NULL) {
+        cerr << "subtractBaseLine() failed. empty baseline vector\n";
+        return;
+    }
+
+    eic_noNoiseObs = 0;
+    for (int i = 0; i < intensity.size(); i++) {
+        intensity[i] -= baseline[i];
+        if (intensity[i] < 0) intensity[i] = 0;
+        if (intensity[i] > 0) eic_noNoiseObs++;
     }
 }
 
 void EIC::computeSpline(int smoothWindow) {
+    // Merged to 776
     int n = intensity.size();
 
     if (n == 0) return;
-    if ( this->spline != NULL ) { delete[] spline; spline=NULL; }
+    if (this->spline != NULL) {
+        delete[] spline;
+        spline = NULL;
+    }
 
     try {
         this->spline = new float[n];
-        for(int i=0; i<n; i++) spline[i] = 0;
+        for(int i = 0; i < n; i++) spline[i] = 0;
     }  catch(...) {
         cerr << "Exception caught while allocating memory " << n << "floats " << endl;
     }
 
     //initalize spline, set to intensity vector
-    for(int i=0; i<n; i++) spline[i] = intensity[i];
+    for(int i = 0; i < n; i++) spline[i] = intensity[i];
 
-    if (smoothWindow > n/3 ) smoothWindow=n/3;  //smoothing window is too large
+    if (smoothWindow > n/3 ) smoothWindow = n/3;  //smoothing window is too large
     if (smoothWindow <= 1) return;  //nothing to smooth get out
 
-    if( smootherType==SAVGOL) { //SAVGOL SMOOTHER
-        mzUtils::SavGolSmoother smoother(smoothWindow,smoothWindow,4);
+    if( smootherType == SAVGOL) { //SAVGOL SMOOTHER
+        mzUtils::SavGolSmoother smoother(smoothWindow, smoothWindow, 4);
         vector<float>smoothed = smoother.Smooth(intensity);
-        for(int i=0; i<n; i++) spline[i] = smoothed[i];
+        for(int i = 0; i < n; i++) spline[i] = smoothed[i];
     } else if (smootherType == GAUSSIAN) { //GAUSSIAN SMOOTHER
         gaussian1d_smoothing(n,smoothWindow,spline);
     } else if ( smootherType == AVG) {
         float* y  = new float[n];
-        for(int i=0; i<n; i++) y[i] = intensity[i];
-        smoothAverage(y,spline,smoothWindow,n);
+        for(int i = 0; i < n; i++) y[i] = intensity[i];
+        smoothAverage(y, spline, smoothWindow, n);
         delete[] y;
     }
 
 }
 
+// TODO: This function might not be used
+void EIC::clearEICContents() {
+    // Merged to 776
+    peaks.clear();
+    std::vector<float>().swap(rt);
+    std::vector<float>().swap(mz);
+    std::vector<float>().swap(intensity);
+}
 
 Peak* EIC::addPeak(int peakPos) {
-    peaks.push_back(Peak(this,peakPos));
-    return &peaks[peaks.size()-1];
+    // Merged to 776
+    peaks.push_back(Peak(this, peakPos));
+    return &peaks[peaks.size() - 1];
 }
 
 void EIC::getPeakPositions(int smoothWindow) {
-
-    //cerr << "getPeakPositions() " << " sWindow=" << smoothWindow << " sType=" << smootherType << endl;
+    // Merged to 776
+    // cerr << "getPeakPositions() " << " sWindow=" << smoothWindow << " sType="
+    // << smootherType << endl;
 
     unsigned int N = intensity.size();
     if ( N == 0 ) return;
@@ -203,24 +232,29 @@ void EIC::getPeakPositions(int smoothWindow) {
 
 
 void EIC::findPeaks() {
+    // Merged to 776
     unsigned int N = intensity.size();
 
-    for (unsigned int i=1; i < N-1; i++ ) {
-        if ( spline[i] > spline[i-1] && spline[i] > spline[i+1]) {
+    for (unsigned int i = 1; i < N - 1; i++) {
+        if (spline[i] > spline[i - 1] && spline[i] > spline[i + 1]) {
             addPeak(i);
-        } else if ( spline[i] > spline[i-1] && spline[i] == spline[i+1] ) {
+        } else if (spline[i] > spline[i - 1] && spline[i] == spline[i + 1]) {
             float highpoint = spline[i];
-            while(i<N-1) {
+            while (i < N - 1) {
                 i++;
-                if ( spline[i+1] == highpoint) continue;
-                if ( spline[i+1] > highpoint) break;
-                if ( spline[i+1] < highpoint) { addPeak(i); break; }
+                if (spline[i + 1] == highpoint) continue;
+                if (spline[i + 1] > highpoint) break;
+                if (spline[i + 1] < highpoint) {
+                    addPeak(i);
+                    break;
+                }
             }
         }
-    }   
+    }
 }
 
 void EIC::findPeakBounds(Peak& peak) {
+    // Merged to 776
     int apex = peak.pos;
 
     int ii = apex-1;
@@ -295,6 +329,7 @@ void EIC::findPeakBounds(Peak& peak) {
 }
 
 void EIC::getPeakDetails(Peak& peak) {
+    // Merged to 776
     unsigned int N = intensity.size();
 
     if (N == 0) return;
@@ -361,8 +396,14 @@ void EIC::getPeakDetails(Peak& peak) {
 
     int n =1;
     peak.peakAreaTop = intensity[peak.pos];
-    if (peak.pos-1 >= 0 && peak.pos-1 < N)   { peak.peakAreaTop += intensity[peak.pos-1]; n++; }
-    if (peak.pos+1 >= 0 && peak.pos+1 < N)   { peak.peakAreaTop += intensity[peak.pos+1]; n++; }
+    if (peak.pos - 1 < N) {
+        peak.peakAreaTop += intensity[peak.pos - 1];
+        n++;
+    }
+    if (peak.pos + 1 < N) {
+        peak.peakAreaTop += intensity[peak.pos + 1];
+        n++;
+    }
 
     float maxBaseLine = MAX(MAX(baseline[peak.pos],10), MAX(intensity[peak.minpos], intensity[peak.maxpos]));
     peak.peakMz = mz[ peak.pos ];
@@ -389,10 +430,8 @@ void EIC::getPeakDetails(Peak& peak) {
     checkGaussianFit(peak);
 }
 
-
-
 void EIC::getPeakWidth(Peak& peak) {
-
+    // Merged to 776
     int width=1;
     int left=0;
     int right=0;
@@ -410,6 +449,7 @@ void EIC::getPeakWidth(Peak& peak) {
 }
 
 vector<mzPoint> EIC::getIntensityVector(Peak& peak) {
+    // Merged to 776
     vector<mzPoint>y;
 
     if (intensity.size()>0 ) {
@@ -430,7 +470,7 @@ vector<mzPoint> EIC::getIntensityVector(Peak& peak) {
 
 
 void EIC::checkGaussianFit(Peak& peak) {
-
+    // Merged to 776
     peak.gaussFitSigma=0;
     peak.gaussFitR2 =  0.03;
     int left =  peak.pos - peak.minpos;
@@ -455,7 +495,7 @@ void EIC::checkGaussianFit(Peak& peak) {
 
 
 void EIC::getPeakStatistics() {
-
+    // Merged to 776
     for(unsigned int i=0; i<peaks.size(); i++) {
         findPeakBounds(peaks[i]);
         getPeakDetails(peaks[i]);
@@ -467,18 +507,21 @@ void EIC::getPeakStatistics() {
 }
 
 void EIC::deletePeak(unsigned int i) {
+    // Merged to 776
     if (i<peaks.size()) {
         peaks.erase( peaks.begin()+i );
     }
 }
 
 void EIC::summary() {
+    // Merged to 776
     cerr << "EIC: mz=" << mzmin <<  "-" << mzmax << " rt=" << rtmin << "-" << rtmax << endl;
     cerr << "   : maxIntensity=" << maxIntensity << endl;
     cerr << "   : peaks=" << peaks.size() << endl;
 }
 
 void EIC::removeLowRankGroups( vector<PeakGroup>& groups, unsigned int rankLimit ) {
+    // Merged to 776
     if (groups.size() < rankLimit ) return;
     std::sort(groups.begin(), groups.end(), PeakGroup::compIntensity);
     for(unsigned int i=0; i < groups.size(); i++ ) {
@@ -490,7 +533,7 @@ void EIC::removeLowRankGroups( vector<PeakGroup>& groups, unsigned int rankLimit
 
 
 vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float maxRtDiff) {
-    //cerr << "EIC::groupPeaks()" << endl;
+    // Merged to 776
 
     //list filled and return by this function
     vector<PeakGroup> pgroups;
@@ -514,13 +557,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
 
     //find peaks in merged eic
     m->getPeakPositions(smoothingWindow);
-
-    /*
-       cerr << "Peak List" << endl;
-       for(unsigned int i=0; i< m->peaks.size(); i++ ) {
-       cerr << m->peaks[i]->rtmin << " " << m->peaks[i]->rtmax << " " << m->peaks[i]->peakIntensity << endl;
-       }
-       */
+    sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
     for(unsigned int i=0; i< m->peaks.size(); i++ ) {
         PeakGroup grp;
@@ -536,12 +573,21 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
             b.groupNum=-1;
             b.groupOverlap=FLT_MIN;
 
+            vector<Peak>::iterator itr = lower_bound(m->peaks.begin(), m->peaks.end(), b, Peak::compRtMin);
+            int lb = (itr-(m->peaks.begin()))-1; if (lb < 0) lb=0;
+            //cerr << "\tb=" << b.rtmin << "<=>" << b.rtmax << " lb=" << lb << endl;
+
+
             //Find best matching group
             for(unsigned int k=0; k< m->peaks.size(); k++ ) {
                 Peak& a = m->peaks[k];
 
-                float distx = abs(b.rt-a.rt);
                 float overlap = checkOverlap(a.rtmin,a.rtmax,b.rtmin,b.rtmax); //check for overlap
+
+                if (overlap == 0 and a.rtmax < b.rtmin) continue;
+                if (overlap == 0 and a.rtmin > b.rtmax) break;
+
+                float distx = abs(b.rt-a.rt);
                 if ( distx > maxRtDiff && overlap < 0.2 ) continue;
 
                 float disty = abs(b.peakIntensity-a.peakIntensity);
@@ -591,6 +637,46 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
 
     if(m) delete(m);
     return(pgroups);
+}
+
+void EIC::interpolate() {
+    // Merged to 776
+    unsigned int lastNonZero=0;
+    for(unsigned int posi=0; posi < intensity.size(); posi++ ) {
+
+        if (intensity[posi] != 0 ) {
+            lastNonZero=posi;  //if this position has nonzero intensity, mark it as lastNonZero position
+        }
+
+        if (intensity[posi] == 0  and lastNonZero > 0) { //interplate
+            unsigned int nextNonZero=0;
+            for(unsigned int j=posi; j<intensity.size();j++) { if (intensity[j] != 0 ) { nextNonZero=j; }}
+            if( nextNonZero == 0) continue;
+
+            //start at first empty position and until next non empty
+            for(unsigned int j=posi; j<nextNonZero; j++)  {
+                float fracDist = (j-lastNonZero)/ (float) (nextNonZero-lastNonZero);
+                float newIntensity = intensity[lastNonZero] + fracDist*intensity[nextNonZero];
+                intensity[j] = newIntensity;
+                lastNonZero=j; posi++;
+            }
+        }
+    }
+}
+
+vector<Scan*> EIC::getFragmenationEvents() {
+    // Merged to 776
+    vector<Scan*> matchedscans;
+    for (unsigned int j = 0; j < sample->scans.size(); j++) {
+        Scan* scan = sample->scans[j];
+        if (scan->mslevel <= 1) continue;  // skip ms1 events
+        if (scan->rt < rtmin) continue;
+        if (scan->rt > rtmax) break;
+        if (scan->precursorMz >= mzmin and scan->precursorMz <= mzmax) {
+            matchedscans.push_back(scan);
+        }
+    }
+    return matchedscans;
 }
 
 void EIC::getRTMinMaxPerScan() {
