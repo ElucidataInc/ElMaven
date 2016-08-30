@@ -87,7 +87,8 @@ void CompareSamplesDialog::showEvent(QShowEvent *) {
 	filelist2->clear();
 
 	QSet<QString> setnames;
-	QRegExp splitStr("[\\t*|\\s*|,|;]");
+    //TODO: Expression updated to ";", don't know why - Kiran
+	QRegExp splitStr(";");
 
 	foreach(mzSample* sample, samples ){
 	QString qname( sample->getSetName().c_str());
