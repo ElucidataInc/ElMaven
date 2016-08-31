@@ -41,6 +41,8 @@ class PlotScene : public QGraphicsScene
 	void showHLine( bool flag) { if(hline) { addItem(hline); hline->setVisible(flag);  }}
 	void showXLabel( QString text ); 
 	void showYLabel( QString text );
+	// New Funtion - Kiran
+    void setLogBase( double x ) { logBase=x; }
 
 
 	void clear();
@@ -61,16 +63,18 @@ class PlotScene : public QGraphicsScene
 	private:
 	QPointF down;
 	QPointF up;
-        QRectF plotRect;
+    QRectF plotRect;
 
-        bool logX;
-        bool logY;
+    bool logX;
+    bool logY;
+	// New Variable for New Funtion - Kiran
+    double logBase;
 
-        QPointF xDim;
-        QPointF yDim;
+    QPointF xDim;
+    QPointF yDim;
 
-        QPointF zoomXDim;
-        QPointF zoomYDim;
+    QPointF zoomXDim;
+    QPointF zoomYDim;
 
 	QGraphicsRectItem *selectionRect;
 	QGraphicsLineItem* vline;
@@ -113,44 +117,44 @@ private:
 
 
 class PlotDockWidget: public QDockWidget {
-		Q_OBJECT
+Q_OBJECT
 
-		public:
-                 PlotDockWidget(QWidget * parent, Qt::WindowFlags flags);
-                ~PlotDockWidget();
+public:
+			PlotDockWidget(QWidget * parent, Qt::WindowFlags flags);
+		~PlotDockWidget();
 
-		public slots: 
-                                void replot();
-				void selectionChanged();
-				void exportPDF();
-                                void resetZoom();
-                                void zoomArea(QPointF from, QPointF to);
+public slots: 
+						void replot();
+		void selectionChanged();
+		void exportPDF();
+						void resetZoom();
+						void zoomArea(QPointF from, QPointF to);
 
-		signals:
-				void groupSelected(PeakGroup*);
-				void peakSelected(Peak*);
-				void scanSelected(Scan*);
+signals:
+		void groupSelected(PeakGroup*);
+		void peakSelected(Peak*);
+		void scanSelected(Scan*);
 
-		protected:
-				virtual void draw();
-                                virtual void draw(QPointF a, QPointF b);
-                                void contextMenuEvent(QContextMenuEvent * event);
+protected:
+		virtual void draw();
+						virtual void draw(QPointF a, QPointF b);
+						void contextMenuEvent(QContextMenuEvent * event);
 
-				void drawAxes();
-				void resizeEvent ( QResizeEvent *event );
-                                // void mousePressEvent(QMouseEvent *event);
-				void keyPressEvent(QKeyEvent *event);
+		void drawAxes();
+		void resizeEvent ( QResizeEvent *event );
+						// void mousePressEvent(QMouseEvent *event);
+		void keyPressEvent(QKeyEvent *event);
 
-				inline PlotScene* scene() { return myScene; }
-				inline QGraphicsView* view()   { return myView; }
-				void   addToolBar();
+		inline PlotScene* scene() { return myScene; }
+		inline QGraphicsView* view()   { return myView; }
+		void   addToolBar();
 
-                                QStack<QRectF> zoomHistory;
-				QWidget* mainWidget;
-				QGraphicsView *myView;
-				PlotScene *myScene;
-				QToolBar*	toolBar;
-				QMenu*	    contextMenu;
+						QStack<QRectF> zoomHistory;
+		QWidget* mainWidget;
+		QGraphicsView *myView;
+		PlotScene *myScene;
+		QToolBar*	toolBar;
+		QMenu*	    contextMenu;
 
 };
 

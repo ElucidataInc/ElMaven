@@ -8,7 +8,10 @@ PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {
 	xlabel = new QGraphicsTextItem(); xlabel->hide(); xlabel->setFont(QFont("Helvetica",10));
 	xValueLabel   = new Note("", hline, this);  xValueLabel->setExpanded(true); xValueLabel->hide();
 	yValueLabel   = new Note("", vline, this);  yValueLabel->setExpanded(true); yValueLabel->hide();
-
+    // New Variables Initialisation - Kiran
+	logBase=10;
+    logX=false;
+    logY=false;
 	
 	_mousePressed=false;
 	_mouseReleased=true;
@@ -151,11 +154,19 @@ QPointF PlotScene::mapToPlot(float px,float py) {
 
     float X0 = zoomXDim.x();
     float X1 = zoomXDim.y();
-    if (logX) { X0>0 ? X0=log10(X0): X0=1; X1>0 ? X1=log10(X1) : X1=1; } 
+    if (logX) {
+		//TODO: Equations updated, don't know why - Kiran
+        X0>0 ? X0=log(X0)/log(logBase): X0=1.001;
+        X1>0 ? X1=log(X1)/log(logBase): X1=1.001;
+    }
 
     float Y0 = zoomYDim.x();
     float Y1 = zoomYDim.y();
-    if (logY) { Y0>0 ? Y0=log10(Y0): Y0=1; Y1>0 ? Y1=log10(Y1) : Y1=1; }
+    if (logY) { 
+		//TODO: Equations updated, don't know why - Kiran
+		Y0>0 ? Y0=log(Y0)/log(logBase): Y0=1.0001;
+        Y1>0 ? Y1=log(Y1)/log(logBase): Y1=1.0001;
+    }
 
 	float fx = (px-xorigin)/W;
 	float fy = (py-yorigin)/H*-1;
@@ -163,8 +174,9 @@ QPointF PlotScene::mapToPlot(float px,float py) {
 
     float x =  fx*(X1-X0)+X0;
     float y =  fy*(Y1-Y0)+Y0;
-	if (logX) x = pow(10,x); //10^x
-	if (logY) y = pow(10,y); //10^y
+	//TODO: Equations updated, don't know why - Kiran
+    if (logX) x = pow((double) logBase,(double) x); //10^x
+    if (logY) y = pow((double) logBase,(double) y); //10^y
 
     return QPointF(x,y);
 }
@@ -185,11 +197,14 @@ QPointF PlotScene::plotToMap(float x,float y) {
     float X0 = zoomXDim.x();
     float X1 = zoomXDim.y();
 
-    if (logX) { x > 0 ?  x=log10(x): x=0;  X0>0 ? X0=log10(X0): X0=1; X1>0 ? X1=log10(X1) : X1=1; } 
+    if (logX) {
+	//TODO: Equations updated, don't know why - Kiran
+     x > 0 ?  x=log(x)/log(logBase): x=0;  X0>0 ? X0=log(X0)/log(logBase): X0=1.0001; X1>0 ? X1=log(X1)/log(logBase) : X1=1.0001; }
 
     float Y0 = zoomYDim.x();
     float Y1 = zoomYDim.y();
-    if (logY) { y > 0 ?  y=log10(y): y=0;  Y0>0 ? Y0=log10(Y0): Y0=1; Y1>0 ? Y1=log10(Y1) : Y1=1; }
+    //TODO: Equations updated, don't know why - Kiran
+    if (logY) { y > 0 ?  y=log(y)/log(logBase): y=0;  Y0>0 ? Y0=log(Y0)/log(logBase): Y0=1.00001; Y1>0 ? Y1=log(Y1)/log(logBase) : Y1=1.0001; }
 
 	float fx= X1-X0 != 0 ? (x-X0)/(X1-X0) : 0;
 	float fy= Y1-Y0 != 0 ? (y-Y0)/(Y1-Y0) : 0;
@@ -403,8 +418,8 @@ void PlotAxes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 	QPen pen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 	painter->setPen(pen);
 
-    float fontsize = 8;
-	QFont font("Helvetica",8);
+    int fontsize = 8;
+    QFont font("Helvetica",fontsize);
 	painter->setFont(font);
 
     if (nticks == 0 ) nticks = 2;
@@ -434,7 +449,8 @@ void PlotAxes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 
         for (int i=0; i <= ticks; i++ ) {
              float tickX = myscene->mapToPlot(x0+ix*i,y0+10).x();
-             QString label= QString::number(tickX,'f',0);
+			 // made precsion 1 - Kiran
+             QString label= QString::number(tickX,'f',1);
              painter->drawText(x0+ix*i,y0+10,label);
         }
 
@@ -445,7 +461,8 @@ void PlotAxes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 
         for (int i=0; i <= ticks; i++ ) { 
              float tickY = myscene->mapToPlot(x0+2,y0+iy*i).y();
-             QString label= QString::number(tickY,'f',0);
+			 //made precision 1 - Kiran
+             QString label= QString::number(tickY,'f',1);
              painter->drawText(x0+2,y0+iy*i,label);
 		}
 
