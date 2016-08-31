@@ -156,6 +156,7 @@ public:
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
 
+    mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	mzSample* getSample(int i) {
 		assert(i < samples.size());
 		return (samples[i]);

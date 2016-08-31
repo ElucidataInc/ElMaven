@@ -2264,6 +2264,30 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	}
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added this while mergin mzfileio
+mzSample* MainWindow::getSampleByName(QString name) {
+
+    //perfect matching
+    for(int i=0; i < samples.size(); i++) {
+        if (samples[i] == NULL) continue;
+        if (samples[i]->sampleName == name.toStdString()) {
+            return samples[i];
+        }
+    }
+
+    //non perfect matching
+    for(int i=0; i < samples.size(); i++) {
+        if (samples[i] == NULL) continue;
+        if (samples[i]->sampleName == name.toStdString()) {
+            return samples[i];
+        }
+    }
+    return NULL;
+}
+
 bool MainWindow::isSampleFileType(QString filename) {
 	if (filename.endsWith("mzXML", Qt::CaseInsensitive)) {
 		return 1;
