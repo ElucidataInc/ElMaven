@@ -20,6 +20,8 @@ class EicPoint : public QObject, public QGraphicsItem {
 
 
 public:
+    //TODO: Sahil Added while merging eicwidget
+    enum POINTSHAPE { CIRCLE, SQUARE, TRIANGLE_UP, TRIANGLE_DOWN };
     EicPoint(QObject *parent = 0);
     EicPoint(float x, float y, Peak* peak, MainWindow* mw);
         ~EicPoint();
@@ -27,8 +29,14 @@ public:
     void setPen(QPen &p)  { _pen = p;  }
     void setBrush(QBrush &b)  { _brush = b; }
     void setPeakGroup(PeakGroup* g) { _group = g; } 
+    //TODO: Sahil Added while merging eicwidget
+    void setScan(Scan* x) { _scan=x; }
     Peak* getPeak() { return _peak; }
     PeakGroup* getPeakGroup() { return _group; }
+    //TODO: Sahil Added 3 below functions while merging eicwidget
+    void setPointShape(POINTSHAPE shape) { pointShape=shape; }
+    void forceFillColor(bool flag) { _forceFill = flag; }
+    void setSize(float size) { _cSize=size; }
 
 protected:
     QRectF boundingRect() const;
@@ -43,12 +51,17 @@ protected:
 private:
     float _x;
     float _y;
+    //TODO: sahil merging eicwidget
+    Scan* _scan;
     Peak* _peak;
     PeakGroup* _group;
     MainWindow* _mw;
     QColor _color;
     QPen _pen;
     QBrush _brush;       
+    POINTSHAPE pointShape;     //TODO: sahil merging eicwidget
+    bool _forceFill;     //TODO: sahil merging eicwidget
+    float _cSize;    //TODO: sahil merging eicwidget
 
 private slots:
 	void bookmark();

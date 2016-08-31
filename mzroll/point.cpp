@@ -10,6 +10,9 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _mw = mw;
     _peak = peak;
 
+    setPointShape(CIRCLE); // TODO: Sahil Added the change while merging eicwidget
+    forceFillColor(false); // TODO: Sahil Added the change while merging eicwidget
+
 	//mouse press events
     connect(this, SIGNAL(peakSelected(Peak*)), mw, SLOT(showPeakInfo(Peak*)));
     connect(this, SIGNAL(peakSelected(Peak*)), mw->getEicWidget(), SLOT(showPeakArea(Peak*)));

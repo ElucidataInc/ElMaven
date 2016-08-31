@@ -1,3 +1,7 @@
+/*
+@author: Sahil
+*/
+
 #ifndef PLOT_WIDGET_H
 #define PLOT_WIDGET_H
 
@@ -29,6 +33,7 @@ public:
 	EICLogic* getParameters() {
 		return eicParameters;
 	}
+	QString eicToTextBuffer(); //TODO: Sahil Added while merging eicwidget
 
 public slots:
 	void setMzSlice(float mz);
@@ -44,7 +49,9 @@ public slots:
 	void setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
 	void addEICLines(bool showSpline);
+    void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
+    void addBaseline(PeakGroup* group); //TODOL Sahil Added while mergin eicWidget
 	void addTicLine();
 	void addMergedEIC();
 	void setFocusLine(float rt);
@@ -54,6 +61,7 @@ public slots:
 	void addBoxPlot(PeakGroup*);
 	void addIsotopicPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
+    void addMS2Events(float mzmin, float mzmax); //TODO: Sahil Added while merging eicWidget
 	void integrateRegion(float rtmin, float rtmax);
 	void recompute();
 	void replot(PeakGroup*);
@@ -67,7 +75,7 @@ public slots:
 	void updateNote(Note*);
 	void saveRetentionTime();
 	void setGallaryToEics();
-	void align();
+	// void align(); //TODO: Sahil Removed while merging the eicWidget
 
 	void selectGroupNearRt(float rt);
 	void eicToClipboard();
@@ -81,11 +89,26 @@ public slots:
 	void showTicLine(bool f) {
 		_showTicLine = f;
 	}
+    void showBicLine(bool f) { //TODO: Sahil Added while mergin eicWidget
+		_showBicLine=f; 
+	}
 	void showBaseLine(bool f) {
 		_showBaseline = f;
 	}
 	void showNotes(bool f) {
 		_showNotes = f;
+	}
+    void showMergedEIC(bool f) { //TODO: Sahil Added while mergin eicWidget
+		_showMergedEIC=f; 
+	}
+    void showEICLines(bool f) { //TODO: Sahil Added while mergin eicWidget
+		_showEICLines=f; 
+	}
+    void automaticPeakGrouping(bool f) { //TODO: Sahil Added while mergin eicWidget
+		_groupPeaks=f;
+	}
+    void showMS2Events(bool f) { //TODO: Sahil Added while mergin eicWidget
+		_showMS2Events=f;
 	}
 
 	void startAreaIntegration() {
@@ -149,6 +172,7 @@ protected:
 
 signals:
 	void viewSet(float, float, float, float);
+    void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 
 private:
 	EICLogic* eicParameters;
@@ -172,10 +196,14 @@ private:
 	bool _showSpline;
 	bool _showBaseline;
 	bool _showTicLine;
+    bool _showBicLine; //TODO: Sahil Added while mergin eicWidget
 	bool _showMergedEIC;
 	bool _showNotes;
 	bool _showPeaks;
+    bool _showEICLines; //TODO: Sahil Added while mergin eicWidget
 	bool _autoZoom;
+    bool _groupPeaks; //TODO: Sahil Added while mergin eicWidget
+    bool _showMS2Events; //TODO: Sahil Added while mergin eicWidget
 
 	bool _areaIntegration;
 	bool _spectraAveraging;

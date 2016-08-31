@@ -695,6 +695,9 @@ class mzLink {
              */
             EIC* getTIC(float rtmin, float rtmax, int mslevel);
 
+            // TODO: Sahil this change is made from merging EIC wisget
+            EIC* getBIC(float, float, int);  // Base peak chromatogram
+
             deque <Scan*> scans;
             string sampleName;
             string fileName;
@@ -1762,7 +1765,7 @@ class Aligner {
         void doAlignment(vector<PeakGroup*>& peakgroups);
         vector<double> groupMeanRt();
         double checkFit();
-        void Fit();
+        void Fit(int ideg);
         void saveFit();
         void restoreFit();
         void setMaxItterations(int x) { maxItterations=x; }

@@ -504,28 +504,54 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	}
 	return vsamples;
 }
+//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
+// void MainWindow::bookmarkPeakGroup() {
+// 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
+// 	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
+// 	if (eicWidget)
+// 		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
+// }
 
-void MainWindow::bookmarkPeakGroup() {
-	//qDebug() << "MainWindow::bookmarkPeakGroup()";
-	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
-	if (eicWidget)
-		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
+PeakGroup* MainWindow::bookmarkPeakGroup() {
+    //qDebug() << "MainWindow::bookmarkPeakGroup()";
+    if ( eicWidget ) {
+       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
+    }
 }
 
-void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
+//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
+// void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
-	if (bookmarkedPeaks == NULL)
-		return;
+// 	if (bookmarkedPeaks == NULL)
+// 		return;
 
-	if (bookmarkedPeaks->isVisible() == false) {
-		bookmarkedPeaks->setVisible(true);
-	}
+// 	if (bookmarkedPeaks->isVisible() == false) {
+// 		bookmarkedPeaks->setVisible(true);
+// 	}
 
-	if (bookmarkedPeaks->hasPeakGroup(group) == false) {
-		bookmarkedPeaks->addPeakGroup(group);
-		bookmarkedPeaks->showAllGroups();
-	}
-	bookmarkedPeaks->updateTable();
+// 	if (bookmarkedPeaks->hasPeakGroup(group) == false) {
+// 		bookmarkedPeaks->addPeakGroup(group);
+// 		bookmarkedPeaks->showAllGroups();
+// 	}
+// 	bookmarkedPeaks->updateTable();
+// }
+
+
+PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
+
+    if ( bookmarkedPeaks == NULL ) return NULL;
+
+    if ( bookmarkedPeaks->isVisible() == false ) {
+        bookmarkedPeaks->setVisible(true);
+    }
+
+    PeakGroup* bookmarkedGroup=NULL;
+    if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
+        bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
+        bookmarkedPeaks->showAllGroups();
+    }
+    bookmarkedPeaks->updateTable();
+    return bookmarkedGroup;
 }
 
 void MainWindow::setFormulaFocus(QString formula) {
