@@ -29,6 +29,7 @@ SOURCES = 	base64.cpp \
                 mzAligner.cpp \
                 mzMassSlicer.cpp \
 	        PeakGroup.cpp \
+            Fragment.cpp \
 	        EIC.cpp \
 	        Scan.cpp \
 	        Peak.cpp  \
@@ -51,6 +52,8 @@ HEADERS += 	constants.h \
                 mzFit.h \
                 mzMassSlicer.h \
                 mzSample.h \
+                PeptideRecord.h \
+                Fragment.h \
                 mzMassCalculator.h \
                 mzPatterns.h \
                 mzUtils.h \

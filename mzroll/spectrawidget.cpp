@@ -857,7 +857,7 @@ void SpectraWidget::spectraToClipboard() {
 
 void SpectraWidget::spectraToClipboardTop() {
     if(!_currentScan) return;
-    vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05);
+    vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05, 3.0,40);
 
     QStringList clipboardText;
     for(int i=0; i < mzarray.size(); i++ ) {
@@ -971,7 +971,7 @@ void SpectraWidget::constructAverageScan(float rtmin, float rtmax) {
 
 void SpectraWidget::findSimilarScans() {
     if(!_currentScan) return;
-    vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05);
+    vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05, 1.0,40);
 
     QStringList clipboardText;
     for(int i=0; i < mzarray.size(); i++ ) {

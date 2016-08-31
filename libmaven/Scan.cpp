@@ -357,26 +357,41 @@ void Scan::findError(ChargedSpecies* x) {
             x->error = sqrt(totalError/x->countMatches);
             //cout << "-------- total Error= " << sqrt(totalError/x->countMatches) << " total Intensity=" << totalIntensity << endl;
 }
-
-vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff) {
-    vector<pair<float,float> > mzarray(nobs());
-    float maxI = 0;
-    for(unsigned int i=0; i < nobs(); i++ ) {
-        mzarray[i] = make_pair(intensity[i], mz[i]);
-        if(intensity[i] > maxI) maxI=intensity[i];
+vector<int> Scan::intensityOrderDesc() {
+    vector<pair<float,int> > mzarray(nobs());
+    vector<int>position(nobs());
+    for(unsigned int pos=0; pos < nobs(); pos++ ) {
+        mzarray[pos] = make_pair(intensity[pos],pos);
     }
+
+   //reverse sort first key [ ie intensity ]
+   sort(mzarray.rbegin(), mzarray.rend());
+
+   //return positions in order from highest to lowest intenisty
+   for(unsigned int i=0; i < mzarray.size(); i++) { position[i] = mzarray[i].second; }
+   return position;
+}
+
+vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff,float minSNRatio=3,int dropTopX=40) {
+	unsigned int N = nobs();
 
     vector< pair<float,float> > selected;
-    sort(mzarray.begin(), mzarray.end());
-    //TODO: why does i not go down to 0? is it beacuse, when sorted it gives the smallest value?
-    //Does that mean the values doesnt have to be pushed in selected?
-    for(int i=mzarray.size()-1; i > 0; i-- ) {
-        if (mzarray[i].first/maxI > minFracCutoff) {
-            mzarray[i].first = (mzarray[i].first/maxI)*100;
-            selected.push_back(mzarray[i]);
-        } else {
-            break;
-        }
-    }
+	vector<int> positions = this->intensityOrderDesc();
+	float maxI = intensity[positions[0]];
+
+   //compute baseline intensity.. 
+   float cutvalueF = (100.0-(float) dropTopX)/101;
+   float baseline=1; 
+   unsigned int mid = N * cutvalueF;
+   if(mid < N) baseline = intensity[positions[mid]];
+
+   for(unsigned int i=0; i<N; i++) {
+		   int pos = positions[i];
+		   if (intensity[pos]/baseline > minSNRatio && intensity[pos]/maxI > minFracCutoff) {
+				   selected.push_back( make_pair(intensity[pos], mz[pos]));
+		   } else {
+				   break;
+		   }
+   }
     return selected;
 }

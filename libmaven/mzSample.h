@@ -220,7 +220,7 @@ class Scan {
          * 0.05, filters out all intensites below 5% of maxium scan intensity]
          * @return
          */
-        vector<pair<float,float> > getTopPeaks(float minFracCutoff);
+        vector<pair<float,float> > getTopPeaks(float minFracCutoff,float minSigNoiseRatio,int dropTopX);
 
         /**
          * [generate multi charges series..endingin in change Zx,Mx]
@@ -245,6 +245,7 @@ class Scan {
          */
         ChargedSpecies* deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates );
         //TODO deconvolute
+        vector<int> intensityOrderDesc();
 
         /**
          * [centroid the data]
@@ -272,13 +273,19 @@ class Scan {
          */
         void  summary();
 
-        float rt;
-        int   scannum;
-        float precursorMz;
-        float productMz;
-        float collisionEnergy;
         int mslevel;
         bool centroided;
+        float rt;
+        int   scannum;
+
+        float precursorMz;
+        float precursorIntensity;
+        int precursorCharge;
+        string activationMethod;
+        int precursorScanNum;
+        float productMz;
+        float collisionEnergy;
+        
 
         vector <float> intensity;
         vector <float> mz;
