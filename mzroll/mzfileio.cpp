@@ -5,6 +5,7 @@
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
     _stopped = true;
+    process = NULL;
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
@@ -15,10 +16,11 @@ void mzFileIO::setMainWindow(MainWindow* mw) {
     connect(this,SIGNAL(finished()),_mainwindow,SLOT(showSRMList()));
 }
 
-
-void mzFileIO::loadSamples(QStringList& filenames) {
-    setFileList(filenames);
-    start();
+void mzFileIO::loadSamples(QStringList& files) {
+	foreach(QString file, files){ addFileToQueue(file); } //TODO: Sahil, addeed this part while merging mzfile
+	if (filelist.size() > 0) start(); //TODO: Sahil, addeed this part while merging mzfile
+    //setFileList(filenames); //TODO: Sahil, commented this part while merging mzfile
+    //start(); //TODO: Sahil, commented this part while merging mzfile
 }
 
 mzSample* mzFileIO::loadSample(QString filename){
@@ -28,8 +30,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
     if (!file.exists() ) { 	//couldn't fine this file.. check local directory
-        qDebug() << "Can't find file " << filename;
-        return NULL;
+        qDebug() << "Can't find file " << filename; return 0;
     }
 
     sampleName.replace(QRegExp(".*/"),"");
@@ -48,28 +49,163 @@ mzSample* mzFileIO::loadSample(QString filename){
     QTime timer; timer.start();
 
     try {
-        if (filename.contains("pepxml",Qt::CaseInsensitive)) {
-           	mzFileIO::loadPepXML(filename);
-        } else  if (filename.contains("mzdata",Qt::CaseInsensitive)) {
+        if (filename.contains("mzdata",Qt::CaseInsensitive)) {            
+            // mzFileIO::loadPepXML(filename);
             sample = mzFileIO::parseMzData(filename);
+        } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
+            mzFileIO::ThermoRawFileImport(filename);
         } else {
             sample = new mzSample();
             sample->loadSample( filename.toLatin1().data() );
             if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
         }
     } catch(...) {
-        qDebug() << "loadSample() " << filename << " failed..";
+        qDebug() << "mzFileIO::loadSample() " << filename << " failed..";
     }
 
-    qDebug() << "loadSample time (msec) = " << timer.elapsed();
+    qDebug() << "mzFileIO::loadSample time (msec) = " << timer.elapsed();
 
     if ( sample && sample->scans.size() > 0 ) {
+        sample->sampleName = string( sampleName.toLatin1().data() );
+        sample->enumerateSRMScans();
+
+        //set min and max values for rt
+        sample->calculateMzRtRange();
+
+        //set file path
+        sample->fileName = filename.toStdString();
+
+        if (filename.contains("blan",Qt::CaseInsensitive)) sample->isBlank = true;
         return sample;
     }
+
 
     return NULL;
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, addeed this part while merging mzfileio
+int mzFileIO::loadMassBankLibrary(QString fileName) {
+    qDebug() << "Loading Nist Libary: " << fileName;
+    QFile data(fileName);
+
+    if (!data.open(QFile::ReadOnly) ) {
+        qDebug() << "Can't open " << fileName; 
+        return 0;
+    }
+
+    string dbfilename = fileName.toStdString();
+    string dbname = mzUtils::cleanFilename(dbfilename);
+
+   QTextStream stream(&data);
+
+   /* sample
+ACCESSION: PR100458
+RECORD_TITLE: Cyanidin-3-O-(2''-O-beta-glucopyranosyl-beta-glucopyranoside); LC-ESI-QTOF; MS2; CE:Ramp 5-60 V; [M]+
+CH$NAME: Cyanidin-3-O-(2''-O-beta-glucopyranosyl-beta-glucopyranoside)
+CH$NAME: Cy 3-Soph
+CH$NAME: cyanidin-3-sophoroside
+CH$COMPOUND_CLASS: Anthocyanidin
+CH$FORMULA: C27H31O16
+CH$EXACT_MASS: 611.16121
+CH$SMILES: c(c(c([o+1]4)c(cc(c(O)5)c(cc(O)c5)4)OC(O2)C(OC(O3)C(C(C(C3CO)O)O)O)C(C(C2CO)O)O)1)c(O)c(O)cc1
+CH$IUPAC: InChI=1S/C27H30O16/c28-7-17-19(34)21(36)23(38)26(41-17)43-25-22(37)20(35)18(8-29)42-27(25)40-16-6-11-13(32)4-10(30)5-15(11)39-24(16)9-1-2-12(31)14(33)3-9/h1-6,17-23,25-29,34-38H,7-8H2,(H3-,30,31,32,33)/p+1/t17-,18-,19-,20-,21+,22+,23-,25-,26+,27-/m1/s1
+CH$LINK: CAS 38820-68-7
+CH$LINK: CHEMSPIDER 9344547
+CH$LINK: KEGG C16306
+CH$LINK: KNAPSACK C00006658
+CH$LINK: PUBCHEM CID:11169452
+PK$NUM_PEAK: 4
+PK$PEAK: m/z int. rel.int.
+  213.0567 47.98 11
+  287.0564 4418 999
+  288.0616 60.38 14
+  611.1612 927.9 210
+//
+   */
+
+   QRegExp whiteSpace("\\s+");
+   QRegExp formulaMatch("(C\\d+H\\d+\\S*)");
+
+   int charge=0;
+   QString line;
+   QString id,name, comment,formula,title;
+   QStringList compound_class;
+   QStringList alias;
+   double mw=0;
+   double precursor=0;
+   int peaks=0;
+   vector<float>mzs;
+   vector<float>intest;
+
+   int compoundCount=0;
+
+    do {
+        line = stream.readLine();
+
+        if(line.startsWith("//",Qt::CaseInsensitive) && !name.isEmpty()) {
+            if (!name.isEmpty()) { //insert new compound
+               Compound* cpd = new Compound( id.toStdString(), name.toStdString(), formula.toStdString(), charge);
+               cpd->precursorMz=precursor;
+               cpd->db=dbname;
+               cpd->fragment_mzs = mzs;
+               cpd->fragment_intensity = intest;
+			   foreach (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
+               DB.addCompound(cpd);
+               compoundCount++;
+            }
+
+            //reset for the next record
+           name = comment = formula = title=QString();
+		   compound_class = alias = QStringList();
+           mw=precursor=0;
+           peaks=0;
+           mzs.clear();
+           intest.clear();
+        }
+
+         if(line.startsWith("ACCESSION:",Qt::CaseInsensitive)) {
+             id = line.mid(10,line.length()).simplified();
+			 //qDebug() << "ID=" << id;
+         } else if (line.startsWith("CH$NAME:",Qt::CaseInsensitive)) {
+             QString aliasname = line.mid(9,line.length()).simplified();
+			 alias << aliasname;
+			 if (name.isEmpty() ) name = aliasname;
+			 //qDebug() << "NAME=" << name;
+         } else if (line.startsWith("CH$COMPOUND_CLASS:",Qt::CaseInsensitive)) {
+             QString comp_class = line.mid(19,line.length()).simplified();
+			 compound_class << comp_class;
+         } else if (line.startsWith("CH$EXACT_MASS:",Qt::CaseInsensitive)) {
+             precursor = line.mid(14,line.length()).simplified().toDouble();
+			 //qDebug() << "PRECURSOR=" << precursor;
+         } else if (line.startsWith("CH$FORMULA:",Qt::CaseInsensitive)) {
+            formula = line.mid(12,line.length()).simplified();
+			 //qDebug() << "FORMULA=" << formula;
+         } else if (line.startsWith("PK$NUM_PEAK:",Qt::CaseInsensitive)) {
+             peaks = line.mid(12,line.length()).simplified().toInt();
+			 //qDebug() << "NUM_PEAK=" << peaks;
+         } else if (line.startsWith("RECORD_TITLE:",Qt::CaseInsensitive)) {
+             title = line.mid(13,line.length()).simplified();
+         } else if (line.startsWith("PK$PEAK:",Qt::CaseInsensitive)) {
+			 continue;
+         } else if ( peaks != 0 ) {
+			 line = line.simplified();
+             QStringList mzintpair = line.split(whiteSpace);
+             if( mzintpair.size() >=2 ) {
+                 bool ok=false; bool ook=false;
+                 float mz = mzintpair.at(0).toDouble(&ok);
+                 float ints = mzintpair.at(1).toDouble(&ook);
+                 if (ok && ook && mz >= 0 && ints >= 0) {
+                     mzs.push_back(mz); intest.push_back(ints);
+			 		 //qDebug() << "PEAK=" << mz << ints;
+                 }
+             }
+         }
+    } while (!line.isNull());
+    return compoundCount;
+}
 //TODO: Shouldnot be here
 int mzFileIO::loadNISTLibrary(QString fileName) {
     qDebug() << "Loading Nist Libary: " << fileName;
@@ -96,11 +232,13 @@ int mzFileIO::loadNISTLibrary(QString fileName) {
    */
 
    QRegExp whiteSpace("\\s+");
-   QRegExp formulaMatch("(C\\d+H\\d+\\S*)");
+   QRegExp formulaMatch("Formula\\=(C\\d+H\\d+\\S*)");
+   QRegExp retentionTimeMatch("AvgRt\\=(\\S+)");
 
    int charge=0;
    QString line;
    QString name, comment,formula;
+   double retentionTime;
    double mw=0;
    double precursor=0;
    int peaks=0;
@@ -120,12 +258,14 @@ int mzFileIO::loadNISTLibrary(QString fileName) {
                            name.toStdString(),
                            formula.toStdString(),
                            charge);
-
-               cpd->mass=mw;
-               cpd->precursorMz=mw;
+			   if (precursor and mw) { cpd->mass=precursor; cpd->precursorMz=precursor; }
+			   else if (mw) { cpd->mass=mw; cpd->precursorMz=precursor; }
+               //cpd->mass=mw;
+               //cpd->precursorMz=mw;
                cpd->db=dbname;
                cpd->fragment_mzs = mzs;
                cpd->fragment_intensity = intest;
+			   cpd->expectedRt=retentionTime;
                DB.addCompound(cpd);
                compoundCount++;
             }
@@ -133,6 +273,7 @@ int mzFileIO::loadNISTLibrary(QString fileName) {
             //reset for the next record
            name = comment = formula = QString();
            mw=precursor=0;
+		   retentionTime=0;
            peaks=0;
            mzs.clear();
            intest.clear();
@@ -147,12 +288,17 @@ int mzFileIO::loadNISTLibrary(QString fileName) {
          } else if (line.startsWith("Comment:",Qt::CaseInsensitive)) {
              comment = line.mid(8,line.length()).simplified();
              if (comment.contains(formulaMatch)){
-                 formula=formulaMatch.capturedTexts().at(0);
+                 formula=formulaMatch.capturedTexts().at(1);
                  qDebug() << "Formula=" << formula;
              }
+			if (comment.contains(retentionTimeMatch)){
+                 retentionTime=retentionTimeMatch.capturedTexts().at(1).simplified().toDouble();
+                 //qDebug() << "retentionTime=" << retentionTimeString;
+             }
          } else if (line.startsWith("Num Peaks:",Qt::CaseInsensitive) || line.startsWith("NumPeaks:",Qt::CaseInsensitive)) {
-             peaks = line.mid(11,line.length()).simplified().toInt();
-         } else if ( peaks != 0 ) {
+            //  peaks = line.mid(11,line.length()).simplified().toInt();
+             peaks = 1;
+         } else if ( peaks ) {
              QStringList mzintpair = line.split(whiteSpace);
              if( mzintpair.size() >=2 ) {
                  bool ok=false; bool ook=false;
@@ -290,6 +436,15 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
                             currentScan->setPolarity(-1);
                         }
                     }
+
+                    if (_name.contains("MassToChargeRatio",Qt::CaseInsensitive)) {
+                        currentScan->precursorMz = _value.toFloat();
+                    }
+
+                    if (_name.contains("CollisionEnergy",Qt::CaseInsensitive)) {
+                        currentScan->collisionEnergy = _value.toFloat();
+                    }
+
                 } else if (xml.name() == "spectrumInstrument" && currentScan) {
                     currentScan->mslevel = xml.attributes().value("msLevel").toString().toInt();
                     if (currentScan->mslevel <= 0 ) currentScan->mslevel=1;
@@ -298,15 +453,13 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 
 
                      if (taglist.at(taglist.size()-2) == "mzArrayBinary") {
-                         currentScan->mz = base64::decode_base64(
-                             xml.readElementText().toStdString(), precision / 8,
-                             false, false);
+                      currentScan->mz=
+                               base64::decode_base64(xml.readElementText().toStdString(),precision/8,false,false);
                      }
 
                      if (taglist.at(taglist.size()-2) == "intenArrayBinary") {
-                         currentScan->intensity = base64::decode_base64(
-                             xml.readElementText().toStdString(), precision / 8,
-                             false, false);
+                        currentScan->intensity =
+                                base64::decode_base64(xml.readElementText().toStdString(),precision/8,false,false);
                      }
                 }
 
@@ -323,25 +476,213 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
     return currentSample;
 }
 
-void mzFileIO::run(void) { fileImport(); quit(); }
-
-void mzFileIO::fileImport(void) {
-    if ( filelist.size() == 0 ) return;
-    emit (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
-
-    #pragma omp parallel for ordered
-    for (int i = 0; i < filelist.size(); i++) {
-       
-        QString filename = filelist.at(i);
-        #pragma omp ordered
-        emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
-	
-        if(_mainwindow) {
-            qDebug() << "Loading sample:" << filename;
-            mzSample* sample = loadSample(filename);
-            _mainwindow->addSample(sample);
-        }
-    }
-   emit (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
+void mzFileIO::run(void) {
+    qDebug() << "mzFileIO::run() filelist=" << filelist;
+    fileImport();
+    quit();
+    qDebug() << "mzFileIO::done() filelist=" << filelist;
 }
 
+void mzFileIO::fileImport(void) {
+//     if ( filelist.size() == 0 ) return;
+//     emit (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
+
+//     #pragma omp parallel for ordered
+//     for (int i = 0; i < filelist.size(); i++) {
+       
+//         QString filename = filelist.at(i);
+//         #pragma omp ordered
+//         emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
+	
+//         if(_mainwindow) {
+//             qDebug() << "Loading sample:" << filename;
+//             mzSample* sample = loadSample(filename);
+//             _mainwindow->addSample(sample);
+//         }
+//     }
+//    emit (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
+
+    if ( filelist.size() == 0 ) return;
+    emit (updateProgressBar( "Importing files", 0, filelist.size()));
+
+    QStringList samples;
+    QStringList peaks;
+    QStringList projects;
+    QStringList spectralhits;
+
+    foreach(QString filename, filelist ) {
+        QFileInfo fileInfo(filename);
+        if (!fileInfo.exists()) continue;
+        qDebug() << "fileImport:" << filename;
+
+        if (isSampleFileType(filename)) {
+            samples << filename;
+        } else if (isProjectFileType(filename)) {
+            projects << filename;
+        } else if (isPeakListType(filename)) {
+            peaks << filename;
+        } else if (isSpectralHitType(filename)) {
+            spectralhits << filename;
+        }
+    }
+
+    foreach(QString filename, projects ) {
+        qDebug() << "fileImport: loadProject:" << filename;
+        _mainwindow->projectDockWidget->loadProject(filename);
+        _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+    }
+
+    foreach(QString filename, peaks ) {
+        qDebug() << "fileImport: loadPeaks:" << filename;
+        QFileInfo fileInfo(filename);
+        TableDockWidget* tableX = _mainwindow->addPeaksTable("Group Set " + fileInfo.fileName());
+        tableX->loadPeakTable(filename);
+    }
+
+
+    for (int i = 0; i < samples.size(); i++) {
+        QString filename = samples.at(i);
+        qDebug() << "fileImport: loadSamples:" << filename;
+        emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, samples.size()));
+
+		mzSample* sample = loadSample(filename);
+		if (sample) {
+				sample->enumerateSRMScans();
+				sample->calculateMzRtRange();    //set min and max values for rt
+				sample->fileName = filename.toStdString();
+
+				if ( filename.contains("blan",Qt::CaseInsensitive))
+						sample->isBlank = true;   //check if this is a blank sample
+
+				if (sample->scans.size()>0)
+						_mainwindow->addSample(sample);
+
+		}
+	}
+
+    foreach(QString filename, spectralhits ) {
+        if (filename.contains("pepXML",Qt::CaseInsensitive)) {
+            _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        }
+        else if (filename.contains("pep.xml",Qt::CaseInsensitive)) {
+             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        }
+        else if (filename.contains("idpDB",Qt::CaseInsensitive)) {
+             _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
+        }
+   }
+
+    //done..
+    emit (updateProgressBar( "Done importing", samples.size(), samples.size()));
+    if (samples.size() > 0)       emit(sampleLoaded());
+    if (spectralhits.size() >0)   emit(spectraLoaded());
+    if (projects.size() >0)       emit(projectLoaded());
+    if (peaks.size() > 0)    	  emit(peaklistLoaded());
+    filelist.clear(); //empty queue
+}
+
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+bool mzFileIO::isKnownFileType(QString filename) {
+    if (isSampleFileType(filename))  return true;
+    if (isProjectFileType(filename)) return true;
+    if (isSpectralHitType(filename)) return true;
+    if (isPeakListType(filename)) return true;
+    return false;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+bool mzFileIO::isSampleFileType(QString filename) {
+    QStringList extList;
+    extList << "mzXML" << "cdf" << "nc" << "mzML" << "mzData" << "mzML";
+    foreach (QString suffix, extList) {
+        if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
+    }
+    return false;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+bool mzFileIO::isProjectFileType(QString filename) {
+    if (filename.endsWith("mzroll",Qt::CaseInsensitive)) return true;
+    return false;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+bool mzFileIO::isSpectralHitType(QString filename) {
+    QStringList extList;
+    extList << "pep.xml" << "pepXML" << "idpDB";
+    foreach (QString suffix, extList) {
+        if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
+    }
+    return false;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+bool mzFileIO::isPeakListType(QString filename) {
+    QStringList extList;
+    extList << "mzPeaks";
+    foreach (QString suffix, extList) {
+        if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
+    }
+    return false;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void mzFileIO::readThermoRawFileImport() {
+    if(process) {
+        QByteArray data = process->readAllStandardOutput();
+        qDebug() << "Captured:" << data;
+    }
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void mzFileIO::addFileToQueue(QString f)
+{
+    if (isKnownFileType(f)) filelist << f;
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+int mzFileIO::ThermoRawFileImport(QString fileName) {
+
+    if (process->pid()){
+           process->terminate();
+           qDebug()  <<  "Killing process..\n";
+           return -1;
+    }
+
+   QString rawExtractExe = _mainwindow->getSettings()->value("RawExtractProgram").toString();
+    if(!QFile::exists(rawExtractExe)) {
+        qDebug() << "Can't find " + rawExtractExe;
+        return -1;
+    }
+
+    //start process
+    QStringList arguments; arguments  << fileName;
+    qDebug() << "Running:" << rawExtractExe << arguments;
+
+    process->start(rawExtractExe, arguments);
+}
