@@ -105,13 +105,20 @@ void CompareSamplesLogic::computeStats(PeakGroup* group,
 	group->changeFoldRatio = 0;		//TODO why?
 	group->changePValue = 1;		//TODO why?
 
-//group->groupStatistics();
+    //group->groupStatistics();
 	vector<float> yvalues = group->getOrderedIntensityVector(sampleSet,
 			PeakGroup::AreaTop);
 
 	StatisticsVector<float> groupA(sset1.size());
 	StatisticsVector<float> groupB(sset2.size());
 
+	// Was missing - Kiran
+	// TODO: misingSet1 and 2 is not used anywhere - Kiran
+    int missingSet1=0;
+	int missingSet2=0;
+	for(int i=0; i < sset1.size(); i++ ) { groupA[i]=yvalues[i]; if (groupA[i] == 0) missingSet1++; }
+	for(int i=0; i < sset2.size(); i++ ) { groupB[i]=yvalues[ sset1.size()+i ]; if (groupB[i] ==0 ) missingSet2++; }
+	
 	for (int i = 0; i < groupA.size(); i++)
 		if (groupA[i] < _missingValue)
 			groupA[i] = _missingValue;
@@ -119,18 +126,18 @@ void CompareSamplesLogic::computeStats(PeakGroup* group,
 		if (groupB[i] < _missingValue)
 			groupB[i] = _missingValue;
 
-//skip empty
+    //skip empty
 	float meanA = abs(groupA.mean());
 	float meanB = abs(groupB.mean());
 
-    //TODO: Not changed as it is related to the below calculation -Kiran
-    if (meanA == 0)
+    //Equation Updated -Kiran
+    if (meanA <= 0)
 		meanA = 1;
-	if (meanB == 0)
+	if (meanB <= 0)
 		meanB = 1;
 
-    //TODO: When this is changed, scatter plot stops working -Kiran
-	group->changeFoldRatio = meanA > meanB ? meanA / meanB : -meanB / meanA;
+    //Equation Updated -Kiran
+    group->changeFoldRatio = log2(meanA/meanB);
 	group->changePValue = abs(mzUtils::ttest(groupA, groupB));
 	shuffle(groupA, groupB);
 }
