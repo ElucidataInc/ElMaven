@@ -1,6 +1,25 @@
 #ifndef SPECTRALHIT
 #define SPECTRALHIT
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+class ProteinHit {
+    public:
+        int id;
+        QString accession;
+        bool isDecoy;
+        int cluster;
+        int proteinGroup;
+        int length;
+        QString description;
+        QString sequence;
+        QString geneSymbol;
+
+        ProteinHit() {  id=-1; isDecoy=false; cluster=-1; proteinGroup=-1; length=-1;}
+};
+
 class SpectralHit {
 
 	public: 
@@ -19,8 +38,14 @@ class SpectralHit {
 		int charge;
 		int massdiff;
  		int scannum;
+		QString unmodPeptideSeq; //TODO: Sahil, Added while merging mzfileio
+        bool isFocused; //TODO: Sahil, Added while merging mzfileio
+        float rt; //TODO: Sahil, Added while merging mzfileio
+        int id; //TODO: Sahil, Added while merging mzfileio
 		QString compoundId;
 		QString fragmentId;
+		QMap<QString,int>proteins; //TODO: Sahil, Added while merging mzfileio
+        QMap<int,float> mods; //TODO: Sahil, Added while merging mzfileio
 
 
 	SpectralHit() { 
@@ -36,6 +61,9 @@ class SpectralHit {
 		decoy=false;
 		charge=0;
 		int scannum;
+        isFocused=false; //TODO: Sahil, Added while merging mzfileio
+        rt=0; //TODO: Sahil, Added while merging mzfileio
+        id=0; //TODO: Sahil, Added while merging mzfileio
 	}
 
         double getMaxIntensity() { 
@@ -54,6 +82,25 @@ class SpectralHit {
             double max = mzList.last();
             foreach(double x, mzList)  if(x>max) max=x;
             return max;
+        }
+
+        /*
+        @author: Sahil
+        */
+        //TODO: Sahil, Added while merging mzfileio
+        QString getModPeptideString() {
+            QString peptide = this->unmodPeptideSeq;
+            QString modPeptideSeq;
+            for(int i=0; i < peptide.length(); i++ ) {
+                modPeptideSeq += peptide[i];
+                QString sign;
+                if(mods.count(i))  {
+                   if(mods[i]>0) sign="+";
+                   modPeptideSeq += ("[" + sign + QString::number(mzUtils::round(mods[i])) + "]");
+                }
+            }
+            modPeptideSeq = modPeptideSeq + "/" + QString::number(this->charge);
+            return modPeptideSeq;
         }
 
 	static bool compScan(SpectralHit* a, SpectralHit* b ) { return a->scan < b->scan; }

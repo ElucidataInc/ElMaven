@@ -53,14 +53,28 @@ Q_OBJECT
          * @param  filename [name of the file]
          * @return          [int]
          */
-        int loadNISTLibrary(QString filename);
-
+        int loadNISTLibrary(QString filename);        
+        int loadMassBankLibrary(QString filename); //TODO: Sahil, Added while merging mzfileio
         /**
          * [load Pep XML]
          * @param  filename [name of the file]
          * @return          [int]
          */
         int loadPepXML(QString filename);
+        int ThermoRawFileImport(QString fileName); //TODO: Sahil, Added while merging mzfileio
+
+        bool isKnownFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
+        bool isSampleFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
+        bool isProjectFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
+        bool isSpectralHitType(QString filename); //TODO: Sahil, Added while merging mzfileio
+        bool isPeakListType(QString filename); //TODO: Sahil, Added while merging mzfileio
+
+
+
+
+    public slots:
+        void readThermoRawFileImport(); //TODO: Sahil, Added while merging mzfileio
+        void addFileToQueue(QString f); //TODO: Sahil, Added while merging mzfileio
 
     signals:
 
@@ -71,6 +85,10 @@ Q_OBJECT
      * @param int     [total value]
      */
      void updateProgressBar(QString,int,int);
+     void sampleLoaded(); //TODO: Sahil, Added while merging mzfileio
+     void spectraLoaded(); //TODO: Sahil, Added while merging mzfileio
+     void projectLoaded(); //TODO: Sahil, Added while merging mzfileio
+     void peaklistLoaded(); //TODO: Sahil, Added while merging mzfileio
 
     protected:
       /**
@@ -87,6 +105,9 @@ Q_OBJECT
          QStringList filelist;
          MainWindow* _mainwindow;
          bool _stopped;
+         QProcess* process; //TODO: Sahil, Added while merging mzfileio
+
+
 };
 
 #endif // MZFILEIO_H

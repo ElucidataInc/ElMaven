@@ -155,6 +155,24 @@ bool SpectralHitsDockWidget::hasSpectralHit(SpectralHit* group) {
     return false;
 }
 
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::limitPrecursorMz(float pMZ) {
+    float ppm = _mainwindow->getUserPPM();
+    for(int i=0; i < allhits.size(); i++ ) {
+        if (mzUtils::withinXppm(pMZ,allhits[i]->precursorMz,ppm) ) {
+            allhits[i]->isFocused=true;
+        } else {
+            allhits[i]->isFocused=false;
+        }
+    }
+
+    showFocusedGroups();
+}
+
 SpectralHit* SpectralHitsDockWidget::addSpectralHit(SpectralHit* hit) {
     if (hit) { allhits.push_back(hit); return hit; }
     return NULL;
@@ -940,6 +958,22 @@ void SpectralHitsDockWidget::clearFocusedHits() {
   //  for(int i=0; i< allhits.size();i++) { allhits[i].isFocused=false; }
 }
 
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::showFocusedGroups() {
+    int N=treeWidget->topLevelItemCount();
+    for(int i=0; i < N; i++ ) {
+        QTreeWidgetItem* item = treeWidget->topLevelItem(i);
+        QVariant v = item->data(0,Qt::UserRole);
+        SpectralHit*  group =  v.value<SpectralHit*>();
+        if (group && group->isFocused) item->setHidden(false); else item->setHidden(true);
+    }
+}
+
+
 void SpectralHitsDockWidget::unhideFocusedHits() {
    // clearFocusedHits();
     //QTreeWidgetItemIterator it(treeWidget);
@@ -948,6 +982,222 @@ void SpectralHitsDockWidget::unhideFocusedHits() {
      //   ++it;
     //}
 }
+
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::loadIdPickerDB(QString fileName) {
+    qDebug()  << "loadIdPickerDB() " << fileName << endl;
+    this->idpickerDB = QSqlDatabase::addDatabase("QSQLITE", "idpickerDB");
+    this->idpickerDB.setDatabaseName(fileName);
+    this->idpickerDB.open();
+
+    if (not this->idpickerDB.isOpen()) {
+        qDebug()  << "Failed to open " + fileName;
+    }
+
+    queryIdPickerProteins();
+    queryIdPickerPrecursors(0.02);
+    getRetentionTimes();
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::queryIdPickerPrecursors(float qValue) {
+    if ( not idpickerDB.isOpen()) return;
+
+    qDebug() << "Loading peptides matched with qvalue < " << qValue;
+
+    QRegExp scanNumber("scan=(\\d+)");
+
+    QString querySQL = QString("SELECT \
+                     PSM.Id, \
+                     substr(Prot.Sequence,PI.Offset+1,PI.Length) as peptideSeq, \
+                     Pep.MonoisotopicMass, \
+                     Spectrum.NativeID,\
+                     Spectrum.precursorMZ, \
+                     PSM.charge,\
+                     Spectrum.ScanTimeInSeconds, \
+                     Spectrum.NativeID,  \
+                     PSM.QValue,  \
+                     Protein.Accession, \
+                     Protein.IsDecoy, \
+                     SpectrumSource.Name as sampleName,\
+                     PSM.rank, \
+                     PI.Offset+1 \
+                     FROM \
+                     peptideSpectrumMatch PSM, peptideInstance PI, ProteinData Prot, Peptide Pep, Protein, Spectrum, SpectrumSource \
+                     where QValue < ? and \
+                     Protein.IsDecoy = 0 and \
+                     PSM.Peptide = Pep.Id and  \
+                     Pep.Id = PI.Peptide  and  \
+                     PI.Protein  = Prot.Id and  \
+                     Prot.Id = Protein.Id and  \
+                     SpectrumSource.Id = Spectrum.Source and\
+                     Spectrum.Id = PSM.Spectrum");
+
+
+    QString sqlQueryPSM(querySQL);
+    QSqlQuery query(idpickerDB);
+    query.prepare(sqlQueryPSM);
+    query.addBindValue(QString::number(qValue,'f',6));
+
+    if (!query.exec())   qDebug() << query.lastError();
+
+    QVector<SpectralHit*> hitlist;
+    QMap<int,SpectralHit*> hitIdMap;
+
+
+    int hitCount=0;
+    while (query.next()) {
+      int hitId = query.value(0).toInt();
+      hitCount++;
+
+      QString proteinId = query.value(9).toString();
+
+      int proteinPos  = query.value(13).toInt();
+
+      SpectralHit* hit = NULL;
+      if (! hitIdMap.count(hitId)) {
+          hit = new SpectralHit();
+          hit->id = query.value(0).toInt();
+          hit->unmodPeptideSeq  = query.value(1).toString();
+          hit->precursorMz = query.value(4).toDouble();
+          hit->charge = query.value(5).toInt();
+          hit->rt = query.value(6).toDouble()/60;
+          hit->score = query.value(8).toDouble();	//qvalue
+          hit->decoy = query.value(10).toInt();
+          hit->sampleName = query.value(11).toString();
+          hit->rank = query.value(12).toInt();
+          //hit->matchCount = num_matched_ions;
+          //hit->massdiff = massdiff;
+          //hit->sampleName = dbname;
+
+          if ( query.value(3).toString().contains(scanNumber)) {
+              int scannum = scanNumber.capturedTexts().at(1).toInt();
+              hit->scannum=scannum;
+          }
+            hitlist << hit;
+            hitIdMap[hit->id]=hit;
+            hit->proteins[proteinId]=proteinPos;
+      } else {
+            hit = hitIdMap[hitId];
+            hit->proteins[proteinId]=proteinPos;
+      }
+
+      if (hit) allhits.push_back(hit);
+      if(hitCount and hitCount % 1000 == 0) { qDebug() << "PSMS=" << hitCount << "  Peptides=" << hitIdMap.size(); }
+    } //end all spectral hits
+
+    //get modificaitons
+    qDebug() << "\t getting modifications";
+    QSqlQuery queryMods(idpickerDB);
+    QString sqlQueryMods = "SELECT PeptideSpectrumMatch, Offset, MonoMassDelta from PeptideModification A ,Modification B where A.Modification = B.Id";
+    queryMods.prepare(sqlQueryMods);
+    if (!queryMods.exec())   qDebug() << queryMods.lastError();
+
+    while (queryMods.next()) {
+        int hitId = queryMods.value(0).toInt();
+        int pos = queryMods.value(1).toInt();
+        float massShift = queryMods.value(2).toFloat();
+
+        if(hitIdMap.contains(hitId)) {
+            SpectralHit* hit = hitIdMap[hitId];
+            hit->mods[pos]=massShift;
+        }
+    }
+
+    qDebug() << "\t checking precurursor";
+    foreach(SpectralHit* hit, hitlist) {
+        hit->fragmentId=hit->getModPeptideString();
+        //qDebug() << hit->fragmentId << " " << confirmMods(hit);
+
+        Peptide record(hit->fragmentId.toStdString(),hit->charge);
+        float theoryMz = record.monoisotopicMZ();
+        if ( abs(theoryMz - hit->precursorMz ) > 0.05 ) {
+            qDebug() << "CHECK: id=" << hit->id << " mods=" << hit->mods.size() << " " << hit->fragmentId << " pull:" << hit->precursorMz << " theory:" << theoryMz;
+        }
+        //hit->precursorMz = theoryMz;
+        //hit->precursorMz = theoryMz;
+    }
+
+    qDebug() << "queryIdPickerPrecursors() loaded " << allhits.size();
+    //exit(-1);
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::queryIdPickerProteins() {
+    if ( not idpickerDB.isOpen()) return;
+
+    QSqlQuery query(idpickerDB);
+    QString querySQL("select A.Id, Accession, isDecoy, Cluster,ProteinGroup,Length,Description,Sequence from Protein A, ProteinMetadata B, ProteinData D where A.id = B.id and  B.id=D.id");
+    query.prepare(querySQL);
+    qDebug() << "QUERY:" << querySQL;
+    if (!query.exec())   qDebug() << query.lastError();
+
+
+    QRegExp geneSymbol("Gene_Symbol=(\\S+)");
+    int rowCount=query.size(); int rowCounter=0;
+    while (query.next()) {
+      rowCounter++;
+      ProteinHit* protein = new ProteinHit();
+      //hit->scannum = scannum;
+      protein->id = query.value(0).toInt();
+      protein->accession=query.value(1).toString();
+      protein->isDecoy = query.value(2).toInt();
+      protein->cluster = query.value(3).toInt();
+      protein->proteinGroup = query.value(4).toInt();
+      protein->length = query.value(5).toInt();
+      protein->description = query.value(6).toString();
+      protein->sequence = query.value(7).toString();
+
+      if(protein->description.contains(geneSymbol)) {
+          protein->geneSymbol=geneSymbol.capturedTexts().at(1);
+      }
+
+      proteinAccessionMap[protein->accession] = protein;
+      if (proteinAccessionMap.size() % 10 == 0) {
+        //   emit(updateProgressBar("Loading Protein Sequences", rowCounter,rowCount));
+      }
+    }
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging mzfileio
+void SpectralHitsDockWidget::getRetentionTimes() {
+    qDebug() << "getRetentionTimes()";
+    foreach(SpectralHit* hit, allhits)
+    {
+        if(hit->rt > 0) continue;
+        if(hit->scannum == 0) continue;
+
+        mzSample* sample = _mainwindow->getSampleByName(hit->sampleName);
+        if(!sample) _mainwindow->getSampleByName(hit->sampleName + ".mzXML");
+
+        if(!sample) {
+           // qDebug() << "Can't find scan data for sample " << hit->sampleName;
+            continue;
+        }
+
+
+        Scan* scan = sample->getScan(hit->scannum);
+        if (scan) {
+           // qDebug() << hit->sampleName << " " << hit->scan << " rt=" << scan->rt;
+            hit->rt = scan->rt;
+            hit->scan  = scan;
+        }
+    }
+}
+
 
 
 void SpectralHitsDockWidget::dragEnterEvent(QDragEnterEvent *event)

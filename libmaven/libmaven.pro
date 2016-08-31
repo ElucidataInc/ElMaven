@@ -45,7 +45,8 @@ SOURCES = 	base64.cpp \
                 comparesampleslogic.cpp \
                 isotopelogic.cpp \
                 eiclogic.cpp \
-                databases.cpp
+                databases.cpp \
+                Peptide.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -69,6 +70,8 @@ HEADERS += 	constants.h \
                 isotopelogic.h \
                 eiclogic.h \
                 EIC.h \
-                databases.h
+                databases.h \
+                Peptide.hpp \
+                PeptideRecord.h
 
 message($$LIBS)
