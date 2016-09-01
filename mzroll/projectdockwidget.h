@@ -26,6 +26,8 @@ public slots:
     void saveProject();
     void loadProject(QString filename);
     void saveProject(QString filename, TableDockWidget* peakTable = 0);
+    void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
+    void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
 
 protected slots:
       void keyPressEvent( QKeyEvent *e );
@@ -39,9 +41,11 @@ private slots:
     void changeSampleSet(QTreeWidgetItem* item, int col);
     void selectSample(QTreeWidgetItem* item, int col);
     void changeColors();
+    void checkUncheck(); //TODO: Sahil, Added while merging projectdockwidget
     void setSampleColor(QTreeWidgetItem* item, QColor color);
     void dropEvent (QDropEvent*event);
-    void unloadSample();
+    // void unloadSample(); //TODO: Sahil, Removed while merging projectdockwidget
+    void unloadSample(mzSample* sample); //TODO: Sahil, Added while merging projectdockwidget
     void filterTreeItems(QString filterString);
 
 private:

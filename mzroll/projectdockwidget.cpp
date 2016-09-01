@@ -57,19 +57,41 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     colorButton->setToolTip("Change Sample Color");
     connect(colorButton,SIGNAL(clicked()), SLOT(changeColors()));
 
-    QLineEdit*  filterEditor = new QLineEdit(toolBar);
-    filterEditor->setMinimumWidth(10);
-    //filterEditor->setPlaceholderText("Sample name filter"); -- support in qt4.7+  
-    connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(filterTreeItems(QString)));
+    //TODO: Sahil, Added this button while merging projectDockWidget
+    QToolButton* removeSamples = new QToolButton(toolBar);
+    removeSamples->setIcon(QIcon(rsrcPath + "/delete.png"));
+    removeSamples->setToolTip("Remove Samples");
+    connect(removeSamples,SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
+
+    //TODO: Sahil, Added this button while merging projectDockWidget
+    QToolButton* checkUncheck = new QToolButton(toolBar);
+    checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
+    checkUncheck->setToolTip("Show / Hide Selected Samples");
+    connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
+
     //toolBar->addWidget(new QLabel("Compounds: "));
     //toolBar->addWidget(databaseSelect);
-    toolBar->addWidget(filterEditor);
-    toolBar->addWidget(colorButton);
     toolBar->addWidget(loadButton);
     toolBar->addWidget(saveButton);
+    toolBar->addWidget(colorButton);
+    toolBar->addWidget(removeSamples);
+    toolBar->addWidget(checkUncheck);
+    //QLineEdit*  filterEditor = new QLineEdit(toolBar);
+    QLineEdit*  filterEditor = new QLineEdit(this);
+    filterEditor->setPlaceholderText("Sample name filter");
+    //filterEditor->setMinimumWidth(10);
+    //filterEditor->setPlaceholderText("Sample name filter"); -- support in qt4.7+  
+    connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(filterTreeItems(QString)));
+
+    QWidget *window = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setSpacing(0);
+    layout->addWidget(filterEditor);
+    layout->addWidget(_treeWidget);
+    window->setLayout(layout);
 
     setTitleBarWidget(toolBar);
-    setWidget(_treeWidget);
+    setWidget(window);
 }
 
 QString ProjectDockWidget::getProjectDescription() {
@@ -230,20 +252,59 @@ void ProjectDockWidget::changeColors() {
       _mainwindow->getEicWidget()->replot();
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging projectdockwidget
+void ProjectDockWidget::checkUncheck() {
+
+      //get selected items
+      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
+      if(selected.size() == 0) return;
+
+      qDebug() << "checkUncheck()" << selected.size();
+      foreach (QTreeWidgetItem* item, selected) {
+          if (item->type() == SampleType) {
+              QVariant v = item->data(0,Qt::UserRole);
+              mzSample*  sample =  v.value<mzSample*>();
+              sample->isSelected  ? item->setCheckState(0,Qt::Unchecked) : item->setCheckState(0,Qt::Checked);
+          }
+      }
+     _treeWidget->update();
+      _mainwindow->getEicWidget()->replot();
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging projectdockwidget
+void ProjectDockWidget::unloadSelectedSamples() {
+      //get selected items
+      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
+      if(selected.size() == 0) return;
+
+      foreach (QTreeWidgetItem* item, selected) {
+          if (item->type() == SampleType) {
+              QVariant v = item->data(0,Qt::UserRole);
+              mzSample*  sample =  v.value<mzSample*>();
+              item->setHidden(true);
+              unloadSample(sample);
+           }
+      }
+     _treeWidget->update();
+      _mainwindow->getEicWidget()->replotForced();
+}
+
+
 void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
     if (item == NULL) return;
     if (!color.isValid()) return;
-
-
 
     QVariant v = item->data(0,Qt::UserRole);
     mzSample*  sample =  v.value<mzSample*>();
     if ( sample == NULL) return;
 
-    sample->color[0] = color.redF();
-    sample->color[1] = color.greenF();
-    sample->color[2] = color.blueF();
-    sample->color[3] = color.alphaF();
+    setSampleColor(sample,color);
 
     color.setAlphaF(0.7);
     QPixmap pixmap = QPixmap(20,20); pixmap.fill(color);
@@ -252,6 +313,21 @@ void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
     item->setBackgroundColor(0,color);
     item->setBackgroundColor(1,color);
 }
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging projectdockwidget
+void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color) {
+    if (!color.isValid()) return;
+    if ( sample == NULL) return;
+
+    sample->color[0] = color.redF();
+    sample->color[1] = color.greenF();
+    sample->color[2] = color.blueF();
+    sample->color[3] = color.alphaF();
+}
+
 
 void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
@@ -375,13 +451,12 @@ void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col) {
         sample->getPolarity() < 0 ? ionizationMode="Negative" :  ionizationMode="Positive";
 
         if (sample)  {
-            this->setToolTip(tr("m/z Range: %1-%2<br> rt Range: %3-%4<br> Scan#: %5 <br> MRMs #: %6<br> Ionization: %7<br> Filename: %8").
+            this->setToolTip(tr("m/z Range: %1-%2<br> rt Range: %3-%4<br> Scan#: %5 <br> Ionization: %6<br> Filename: %7").
                    arg(sample->minMz).
                    arg(sample->maxMz).
                    arg(sample->minRt).
                    arg(sample->maxRt).
                    arg(sample->scanCount()).
-                   arg(sample->srmScans.size()).
                    arg(ionizationMode).
                    arg(sample->fileName.c_str()));
         }
@@ -457,7 +532,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QString projectDescription;
     QStringRef currentXmlElement;
 
-    int currentSampleCount=0;
+    //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
 
     while (!xml.atEnd()) {
         xml.readNext();
@@ -471,8 +546,8 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 QString setname   = xml.attributes().value("setName").toString();
                 QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
                 QString isSelected   = xml.attributes().value("isSelected").toString();
-                _mainwindow->setStatusText(tr("Loading sample: %1").arg(sname));
-                _mainwindow->setProgressBar(tr("Loading Sample Number %1").arg(++currentSampleCount),currentSampleCount,currentSampleCount+1);
+                //_mainwindow->setStatusText(tr("Loading sample: %1").arg(sname));
+                //_mainwindow->setProgressBar(tr("Loading Sample Number %1").arg(++currentSampleCount),currentSampleCount,currentSampleCount+1);
 
                 bool checkLoaded=false;
                 foreach(mzSample* loadedFile, _mainwindow->getSamples()) {
@@ -480,7 +555,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 }
 
                 if(checkLoaded == true) continue;  // skip files that have been loaded already
-
 
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
@@ -493,11 +567,12 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 }
 
                 if ( !fname.isEmpty() ) {
-                    mzFileIO* fileLoader = new mzFileIO(this);
-                    fileLoader->setMainWindow(_mainwindow);
-                    mzSample* sample = fileLoader->loadSample(fname);
-                    delete(fileLoader);
+                    // mzFileIO* fileLoader = new mzFileIO(this);
+                    // fileLoader->setMainWindow(_mainwindow);
+                    // mzSample* sample = fileLoader->loadSample(fname);
+                    // delete(fileLoader);
 
+                    mzSample* sample = _mainwindow->fileLoader->loadSample(fname);
                     if (sample) {
                         _mainwindow->addSample(sample);
                         currentSample=sample;
@@ -511,6 +586,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 }
             }
 
+			//change sample color
             if (xml.name() == "color" && currentSample) {
                 currentSample->color[0]   = xml.attributes().value("red").toString().toDouble();
                 currentSample->color[1]   = xml.attributes().value("blue").toString().toDouble();
@@ -518,7 +594,18 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 currentSample->color[3]  = xml.attributes().value("alpha").toString().toDouble();
             }
 
-
+			//polynomialAlignmentTransformation vector
+            if (xml.name() == "polynomialAlignmentTransformation" && currentSample) {
+				vector<double>transform;
+				foreach(QXmlStreamAttribute coef, xml.attributes() ) {
+					double coefValue =coef.value().toString().toDouble();
+					transform.push_back(coefValue);
+				}
+				qDebug() << "polynomialAlignmentTransformation: "; printF(transform);
+				currentSample->polynomialAlignmentTransformation = transform;
+				currentSample->saveOriginalRetentionTimes();
+				currentSample->applyPolynomialTransform();
+			}
         }
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
             projectDescription.append( xml.text() );
@@ -526,15 +613,15 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
     data.close();
 
-    setProjectDescription(projectDescription);
+    //setProjectDescription(projectDescription);
 
-    // update other widget
-    vector<mzSample*> samples = _mainwindow->getSamples();
-    int sampleCount = _mainwindow->sampleCount();
-    updateSampleList();
-    if(_mainwindow->srmDockWidget->isVisible()) _mainwindow->showSRMList();
-    if(_mainwindow->bookmarkedPeaks) _mainwindow->bookmarkedPeaks->loadPeakTable(fileName);
-    if(_mainwindow->spectraWidget && sampleCount) _mainwindow->spectraWidget->setScan(samples[0]->getScan(0));
+// // update other widget
+//     vector<mzSample*> samples = _mainwindow->getSamples();
+//     int sampleCount = _mainwindow->sampleCount();
+//     updateSampleList();
+//     if(_mainwindow->srmDockWidget->isVisible()) _mainwindow->showSRMList();
+//     if(_mainwindow->bookmarkedPeaks) _mainwindow->bookmarkedPeaks->loadPeakTable(fileName);
+//     if(_mainwindow->spectraWidget && sampleCount) _mainwindow->spectraWidget->setScan(samples[0]->getScan(0));
     lastOpennedProject = fileName;
 }
 
@@ -596,12 +683,14 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
 void ProjectDockWidget::contextMenuEvent ( QContextMenuEvent * event )
 {
+    /*
     QMenu menu;
 
     QAction* z0 = menu.addAction("Unload Selected Sample");
     connect(z0, SIGNAL(triggered()), this ,SLOT(unloadSample()));
 
     QAction *selectedAction = menu.exec(event->globalPos());
+    */
 }
 
 void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {
@@ -609,12 +698,13 @@ void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {
 
     QTreeWidgetItem *item = _treeWidget->currentItem();
     if (e->key() == Qt::Key_Delete ) {
-        unloadSample();
+        unloadSelectedSamples();
     }
 
     QDockWidget::keyPressEvent(e);
 }
 
+/*
 void ProjectDockWidget::unloadSample() {
     QTreeWidgetItem *item = _treeWidget->currentItem();
     if (item) {
@@ -646,5 +736,26 @@ void ProjectDockWidget::unloadSample() {
 
     if ( _mainwindow->getEicWidget() ) {
         _mainwindow->getEicWidget()->replotForced();
+    }
+}
+*/
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added this while merging projectdockwidget
+void ProjectDockWidget::unloadSample(mzSample* sample) {
+    if ( sample == NULL) return;
+
+    //mark sample as unselected
+    sample->isSelected=false;
+    delete_all(sample->scans);
+
+    //remove sample from sample list
+    for(unsigned int i=0; i<_mainwindow->samples.size(); i++) {
+        if (_mainwindow->samples[i] == sample) {
+            _mainwindow->samples.erase( _mainwindow->samples.begin()+i);
+            break;
+        }
     }
 }

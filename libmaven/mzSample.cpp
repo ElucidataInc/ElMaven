@@ -1479,6 +1479,21 @@ vector<float> mzSample::getIntensityDistribution(int mslevel) {
         return(quantileDistribution(allintensities));
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging projectdockwidget
+void mzSample::applyPolynomialTransform() { 
+	int poly_align_degree = polynomialAlignmentTransformation.size()-1;
+	if (poly_align_degree <= 0) return;
+
+	double* transform = &polynomialAlignmentTransformation.front();
+	for(int i=0; i<scans.size(); i++ ) {
+		float newrt = leasev(transform, poly_align_degree, scans[i]->rt);
+		//cerr << "applyPolynomialTransform() " << scans[i]->rt << "\t" << newrt << endl;
+		scans[i]->rt = newrt;
+	}
+}
 
 mzLink::mzLink(){ 
     mz1 = mz2 = 0.0; 
