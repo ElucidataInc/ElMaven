@@ -22,7 +22,7 @@ public:
 	void saveModel(string filename);
 	void loadModel(string filename);
 	bool hasModel();
-
+	float scorePeak(Peak& p);
 private:
 	vector<float> getFeatures(Peak& p);
 

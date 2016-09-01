@@ -56,9 +56,8 @@ vector<float> ClassifierNeuralNet::getFeatures(Peak& p) {
 		set[2] = p.symmetry / (p.width + 1) * log2(p.width + 1);
 		set[3] = p.groupOverlapFrac;
 		set[4] = p.gaussFitR2 * 100.0;
-		set[5] =
-				p.signalBaselineRatio > 0 ?
-						log2(p.signalBaselineRatio) / 10.0 : 0;
+		
+        set[5] = p.signalBaselineRatio > 0 ? log2(p.signalBaselineRatio) / 10.0 : 0;
 		set[6] = p.peakRank / 10.0;
 		set[7] = p.peakIntensity > 0 ? log10(p.peakIntensity) : 0;
 		set[8] = p.width <= 3 && p.signalBaselineRatio >= 3.0 ? 1 : 0;
@@ -72,19 +71,27 @@ vector<float> ClassifierNeuralNet::getFeatures(Peak& p) {
 }
 
 void ClassifierNeuralNet::classify(PeakGroup* grp) {
+    //Merged with Maven776 - Kiran
 	if (brain == NULL)
 		return;
 
-	float result[2] = { 0.1, 0.1 };
-	for (unsigned int j = 0; j < grp->peaks.size(); j++) {
-		float fts[1000];
-		vector<float> features = getFeatures(grp->peaks[j]);
-		for (int k = 0; k < num_features; k++)
-			fts[k] = features[k];
-		brain->run(fts, result);
-		grp->peaks[j].quality = result[0];
+    for (unsigned int j=0; j < grp->peaks.size(); j++ ) {
+        grp->peaks[j].quality=scorePeak(grp->peaks[j]);
 	}
 }
+
+
+float ClassifierNeuralNet::scorePeak(Peak& p) {
+   //Merged with Maven776 - Kiran
+    float fts[1000];
+    float result[2] = {0.1,0.1};
+    vector<float> features = getFeatures(p);
+    for(int k=0;k<num_features;k++) 
+	fts[k]=features[k];
+    brain->run(fts, result);
+    return result[0];
+}
+
 
 void ClassifierNeuralNet::refineModel(PeakGroup* grp) {
 	if (grp == NULL)
