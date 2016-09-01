@@ -243,13 +243,16 @@ void RconsoleWidget::exportGroupsToTable() {
 
     //prepare data
     QFile peaks(groupsTableFile);
+	//Added to pass into csvreports file when merged with Maven776 - Kiran
+    bool includeSetNames=false;
     if(peaks.open(QFile::WriteOnly | QFile::Truncate)) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
         CSVReports* csvreports = new CSVReports(vsamples);
         csvreports->setTabDelimited();
         csvreports->setUserQuantType( _mainwindow->getUserQuantType());
-        csvreports->openGroupReport(groupsTableFile.toStdString());
+		//Updated when csvreports file was merged with Maven776 - Kiran
+        csvreports->openGroupReport(groupsTableFile.toStdString(),includeSetNames);
         for(int i=0; i<groups.size(); i++ ) {
             csvreports->addGroup(groups[i]);
         }

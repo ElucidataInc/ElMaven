@@ -65,10 +65,13 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
         //write reports
         CSVReports* csvreports = NULL;
         if (mavenParameters->writeCSVFlag) {
+                //Added to pass into csvreports file when merged with Maven776 - Kiran
+                bool includeSetNamesLine=true;
                 string groupfilename = mavenParameters->outputdir + setName + ".csv";
                 csvreports = new CSVReports(mavenParameters->samples);
                 csvreports->setUserQuantType(mainwindow->getUserQuantType());
-                csvreports->openGroupReport(groupfilename);
+                //Added to pass into csvreports file when merged with Maven776 - Kiran
+                csvreports->openGroupReport(groupfilename,includeSetNamesLine);
         }
 
         for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
