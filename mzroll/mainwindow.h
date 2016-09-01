@@ -124,6 +124,7 @@ public:
 	PeakDetectionDialog *peakDetectionDialog;
 	AlignmentDialog* alignmentDialog;
 	RconsoleWidget* rconsoleDockWidget;
+	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
 
 	QProgressBar *progressBar;
 
