@@ -40,7 +40,7 @@ void TestCSVReports::testopenGroupReport() {
 
     CSVReports* csvreports =  new CSVReports(mzsamples);
 
-    csvreports->openGroupReport(outputfile);
+    csvreports->openGroupReport(outputfile,false);
 
     ifstream ifile(outputfile.c_str());
     string temp;
@@ -125,7 +125,7 @@ void TestCSVReports::testaddGroups() {
     peakDetector.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
-    csvreports->openGroupReport(outputfile);
+    csvreports->openGroupReport(outputfile,false);
     csvreports->addGroup(&(parent));
 
     ifstream ifile(outputfile.c_str());

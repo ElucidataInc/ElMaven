@@ -19,7 +19,8 @@ public:
     CSVReports();
     CSVReports(vector<mzSample*>& insamples);
     ~CSVReports();
-    void openGroupReport(string filename);
+    //TODO: updated when merged with Maven776 - Kiran
+    void openGroupReport(string filename,bool includeSetNamesLine);
     void openPeakReport(string filename);
     void addGroup(PeakGroup* group);
     void closeFiles();
@@ -35,6 +36,8 @@ public:
     void setCommaDelimited() {
         SEP = ",";
     }
+    //TODO: added when merged with Maven776 - Kiran
+    QString sanitizeString(const char* s);
     ofstream groupReport;
     ofstream peakReport;
 
@@ -44,7 +47,7 @@ private:
     void initialCheck(string outputfile);
     void openGroupReportCSVFile(string outputfile);
     void openPeakReportCSVFile(string outputfile);
-    void insertGroupReportColumnNamesintoCSVFile();
+    void insertGroupReportColumnNamesintoCSVFile(string outputfile, bool includeSetNamesLine);
     void insertPeakReportColumnNamesintoCSVFile();
     void insertPeakInformationIntoCSVFile(PeakGroup* group);
     void insertGroupInformationIntoCSVFile (PeakGroup* group);
@@ -53,7 +56,8 @@ private:
     void insertIsotopes (PeakGroup* group, vector<Isotope> masslist);
     void insertUserSelectedIsotopes(PeakGroup* group, string isotopeName);
     int insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k);
-    void insertIsotpesNotFoundInSamples (PeakGroup* group, string isotopeName);
+    // Not Required after Merging with Maven776 - Kiran
+    // void insertIsotpesNotFoundInSamples (PeakGroup* group, string isotopeName);
 
 
     int groupId;	//sequential group numbering

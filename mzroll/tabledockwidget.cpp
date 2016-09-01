@@ -539,15 +539,25 @@ void TableDockWidget::exportSelectedGroupsToSpreadsheet() {
 	CSVReports* csvreports = new CSVReports(samples);
 	csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
+    //TODO: Not sure if ti has to be set as true or false - Kiran
+    bool includeSetNamesLines=true;
+
 	if (sFilterSel == groupsCSV) {
-		csvreports->openGroupReport(fileName.toStdString());
+        //Updated when csvreports file was merged with Maven776 - Kiran
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
 	} else if (sFilterSel == groupsTAB) {
-		csvreports->openGroupReport(fileName.toStdString());
+        //Updated when csvreports file was merged with Maven776 - Kiran
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
 	} else if (sFilterSel == peaksCSV) {
 		csvreports->openPeakReport(fileName.toStdString());
 	} else if (sFilterSel == peaksTAB) {
 		csvreports->openPeakReport(fileName.toStdString());
-	}
+    } else { 	//default to group summary
+        //Updated when csvreports file was merged with Maven776 - Kiran
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
+    }
+
 
 	for (int i = 0; i < groups.size(); i++) {
 		PeakGroup* group = groups[i];
@@ -597,14 +607,20 @@ void TableDockWidget::exportAllGroupsToSpreadsheet() {
     CSVReports* csvreports = new CSVReports(samples);
     csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
 
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
+    bool includeSetNamesLines=true;
+
     if (sFilterSel == groupsCSV) {
-        csvreports->openGroupReport(fileName.toStdString());
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     } else if (sFilterSel == groupsTAB )  {
-        csvreports->openGroupReport(fileName.toStdString());
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     } else if (sFilterSel == peaksCSV )  {
         csvreports->openPeakReport(fileName.toStdString());
     } else if (sFilterSel == peaksTAB )  {
         csvreports->openPeakReport(fileName.toStdString());
+    } else { 	//default to group summary
+        //Updated when csvreports file was merged with Maven776 - Kiran
+        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     }
 
     for(int i=0; i<allgroups.size(); i++ ) {

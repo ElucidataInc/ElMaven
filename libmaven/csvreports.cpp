@@ -12,11 +12,21 @@ CSVReports::~CSVReports() {
     closeFiles();
 }
 
-void CSVReports::openGroupReport(string outputfile) {
+QString CSVReports::sanitizeString(const char* s) {
+    //Merged with Maven776 - Kiran
+    QString out=s;
+    out.replace(QString("\""),QString("\"\""));
+    if(out.contains(SEP.c_str())){
+        out="\""+out+"\"";
+    }
+    return out;
+}
+
+void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine = false) {
 
     initialCheck(outputfile);
     openGroupReportCSVFile(outputfile);
-    insertGroupReportColumnNamesintoCSVFile();
+    insertGroupReportColumnNamesintoCSVFile(outputfile, includeSetNamesLine);
 
 }
 
@@ -46,20 +56,28 @@ void CSVReports::openPeakReportCSVFile(string outputfile) {
      peakReport.open(outputfile.c_str());
 }
 
-void CSVReports::insertGroupReportColumnNamesintoCSVFile(){
+void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool includeSetNamesLine){
 
     if (groupReport.is_open()) {
         QStringList groupReportcolnames;
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
-                << "compoundId" << "expectedRtDiff" << "ppmDiff" << "parent";
+                << "compoundId" << "category"<<"expectedRtDiff" << "ppmDiff" << "parent";
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
-            groupReport << SEP << samples[i]->sampleName;
+            groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
-     }
+        if (includeSetNamesLine){
+             for(unsigned int i=0; i < 13; i++) { groupReport << SEP; }
+             for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
+             groupReport << endl;
+         }
+    }
+    else {
+         cerr << "Error: Can't write to: " << outputfile << endl;
+    }
 }
 
 void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
@@ -165,11 +183,13 @@ void CSVReports::insertUserSelectedIsotopes(PeakGroup* group, string isotopeName
           //output non-zero-intensity peaks
           counter = insertIsotpesFoundInSamples(group, isotopeName, counter, k);
       }
-
+      /*
+       * Commented out in Maven776 - Kiran
       if (counter == 0) {
           //output zero-intensity peaks
           insertIsotpesNotFoundInSamples(group, isotopeName);
       }
+      */
 }
 
 int CSVReports::insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k) {
@@ -183,6 +203,8 @@ int CSVReports::insertIsotpesFoundInSamples (PeakGroup* group, string isotopeNam
       return counter;
 }
 
+/*
+ * Merged with Maven776 - Kiran
 void CSVReports::insertIsotpesNotFoundInSamples (PeakGroup* group, string isotopeName) {
 
       groupReport << "No peak" << SEP << setprecision(7)
@@ -202,7 +224,7 @@ void CSVReports::insertIsotpesNotFoundInSamples (PeakGroup* group, string isotop
        groupReport << endl;
 
 }
-
+*/
 /*
  void CSVReports::addGroup(PeakGroup* group) {
  writeGroupInfo(group);
@@ -225,7 +247,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
-    tagString = mzUtils::substituteInQuotedString(tagString, "\",'", "---");
+    // using the new funtionality added - Kiran
+    tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
 
@@ -236,20 +259,30 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
     string compoundName;
     string compoundID;
+    // TODO: Added this while merging this file
+    string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
 
     if (group->compound != NULL) {
-        compoundName = mzUtils::substituteInQuotedString(group->compound->name,
-                "\",'", "---");
-        compoundID = group->compound->id;
+        // TODO: Added this while merging this file
+        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+        // TODO: Added this while merging this file
+        compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         ppmDist = mzUtils::ppmDist((double) group->compound->mass,
                 (double) group->meanMz);
         expectedRtDiff = group->expectedRtDiff;
+
+        // TODO: Added this while merging this file
+        for(int i=0;i<group->compound->category.size(); i++) {
+                    categoryString += group->compound->category[i] + ";";
+        }
+        categoryString=sanitizeString(categoryString.c_str()).toStdString();
     }
 
     groupReport << SEP << compoundName;
     groupReport << SEP << compoundID;
+    groupReport << SEP << categoryString;
     groupReport << SEP << expectedRtDiff;
     groupReport << SEP << ppmDist;
 
@@ -278,9 +311,9 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundID = "";
 
     if (group->compound != NULL) {
-        compoundName = mzUtils::substituteInQuotedString(group->compound->name,
-                "\",'", "---");
-        compoundID = group->compound->id;
+        // TODO: Added this while merging this file
+        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+        compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
     }
 
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
@@ -288,7 +321,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         mzSample* sample = peak.getSample();
         string sampleName;
         if (sample != NULL)
-            sampleName = sample->sampleName;
+            sampleName = sanitizeString(sample->sampleName.c_str()).toStdString();;
 
         peakReport << setprecision(8) << groupId << SEP << compoundName << SEP
                 << compoundID << SEP << sampleName << SEP << peak.peakMz << SEP
