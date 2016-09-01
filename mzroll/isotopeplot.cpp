@@ -7,7 +7,10 @@ using namespace Eigen;
 
 IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
     :QGraphicsItem(parent, scene) {
-
+	// Initialised existing values - Kiran
+	_barwidth=10;
+	_mw=NULL;
+	_group=NULL;
     if ( scene != NULL ) {
         _width = scene->width()*0.25;
         _height = 10;
