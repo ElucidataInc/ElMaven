@@ -738,6 +738,8 @@ class mzLink {
             /** saved retention times prior to alignment */
             vector<float>originalRetentionTimes;
 
+            vector<double>polynomialAlignmentTransformation;		//parameters for polynomial transform
+
             /**
              * [save Original Retention Times]
              * @method saveOriginalRetentionTimes
@@ -749,6 +751,8 @@ class mzLink {
              * @method restoreOriginalRetentionTimes
              */
             void restoreOriginalRetentionTimes();
+
+            void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
 
             //class functions
 
