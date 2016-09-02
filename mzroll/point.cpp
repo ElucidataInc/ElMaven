@@ -9,16 +9,26 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _y = y;
     _mw = mw;
     _peak = peak;
+    _group = NULL;
+    _scan = NULL;
+    _cSize = 10;
+    _color=QColor(Qt::black);
+    _pen=QPen(_color);
+    _brush=QBrush(_color);
 
     setPointShape(CIRCLE); // TODO: Sahil Added the change while merging eicwidget
     forceFillColor(false); // TODO: Sahil Added the change while merging eicwidget
 
-	//mouse press events
-    connect(this, SIGNAL(peakSelected(Peak*)), mw, SLOT(showPeakInfo(Peak*)));
-    connect(this, SIGNAL(peakSelected(Peak*)), mw->getEicWidget(), SLOT(showPeakArea(Peak*)));
-	//mouse hover events
-    connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
-    connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
+    if (_peak) {
+        _cSize += 20*(_peak->quality);
+        //mouse press events
+         connect(this, SIGNAL(peakSelected(Peak*)), mw, SLOT(showPeakInfo(Peak*)));
+         connect(this, SIGNAL(peakSelected(Peak*)), mw->getEicWidget(), SLOT(showPeakArea(Peak*)));
+
+         //mouse hover events
+         connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
+         connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
+    }
 
 
 }
@@ -27,68 +37,86 @@ EicPoint::~EicPoint() {}
 
 QRectF EicPoint::boundingRect() const
 {
-	float cSize = 10 + 30*(_peak->quality);
-	return(QRectF(_x-cSize/2,_y-cSize/2,cSize,cSize));
+	//float cSize = 10 + 30*(_peak->quality);
+    return(QRectF(_x-_cSize/2,_y-_cSize/2,_cSize,_cSize));
 }
 
 void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 	this->setFocus(Qt::MouseFocusReason);
 
 	//update colors of all peaks belonging to this group
-       foreach (QGraphicsItem *item, scene()->items()) {
-       if (_group && qgraphicsitem_cast<EicPoint *>(item)) {
-           if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
-       }
-    }
+	if(_group) { 
+		foreach (QGraphicsItem *item, scene()->items()) {
+			if (qgraphicsitem_cast<EicPoint *>(item)) {
+				if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
+			}
+		}
+	}
 
 	string sampleName;
-    if (_peak && _peak->getSample() ) { sampleName = _peak->getSample()->sampleName; }
-	setToolTip( 		"<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
-						"<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
-						"<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
-						"<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
-						"<br> <b>scan#: </b>" +   QString::number(_peak->scan ) +
-						"<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
-						/*
-						"<br> <b>quality:  </b>"  + QString::number(_peak->quality, 'f', 2) +
-						"<br> <b>sigma:  </b>"  + QString::number(_peak->gaussFitSigma, 'f', 2) +
-						"<br> <b>fitR2:  </b>"  + QString::number(_peak->gaussFitR2*100, 'f', 2)
-						"<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac)
-						"<br> <b>peakAreaFractional: </b>" + QString::number(_peak->peakAreaFractional) +
-						"<br> <b>noNoiseFraction: </b>" + QString::number(_peak->noNoiseFraction) +
-						"<br> <b>symmetry: </b>" + QString::number(_peak->symmetry) +
-						"<br> <b>sigma: </b>" + QString::number(_peak->gaussFitSigma) +
-						"<br> <b>r2: </b>" + QString::number(_peak->gaussFitR2) +
-						"<br> <b>angle: </b>" + QString::number(_peak->angle) +
-						"<br> <b>rank: </b>" + QString::number(_peak->peakRank) +
-						"<br> <b>S/N: </b>" + QString::number(_peak->signalBaselineRatio, 'f', 4) +
-						"<br> <b>Width: </b>" + QString::number(_peak->width) +
-						"<br> <b>No NoiseObs: </b>" + QString::number(_peak->noNoiseObs) +
-						"<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac) +
-						*/
-		);
-	update();
+    if (_peak && _peak->getSample() ) {
+        sampleName = _peak->getSample()->sampleName;
 
-	if( _group != NULL) { _group->isFocused = true; emit(peakGroupFocus(_group)); }
+        setToolTip( "<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
+                          "<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
+                            "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
+                            "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
+                            "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) + 
+                            "<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
+							);
+
+		update();
+		/*
+		   "<br> <b>quality:  </b>"  + QString::number(_peak->quality, 'f', 2) +
+		   "<br> <b>sigma:  </b>"  + QString::number(_peak->gaussFitSigma, 'f', 2) +
+		   "<br> <b>fitR2:  </b>"  + QString::number(_peak->gaussFitR2*100, 'f', 2)
+		   "<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac)
+		   "<br> <b>peakAreaFractional: </b>" + QString::number(_peak->peakAreaFractional) +
+		   "<br> <b>noNoiseFraction: </b>" + QString::number(_peak->noNoiseFraction) +
+		   "<br> <b>symmetry: </b>" + QString::number(_peak->symmetry) +
+		   "<br> <b>sigma: </b>" + QString::number(_peak->gaussFitSigma) +
+		   "<br> <b>r2: </b>" + QString::number(_peak->gaussFitR2) +
+		   "<br> <b>angle: </b>" + QString::number(_peak->angle) +
+		   "<br> <b>rank: </b>" + QString::number(_peak->peakRank) +
+		   "<br> <b>S/N: </b>" + QString::number(_peak->signalBaselineRatio, 'f', 4) +
+		   "<br> <b>Width: </b>" + QString::number(_peak->width) +
+		   "<br> <b>No NoiseObs: </b>" + QString::number(_peak->noNoiseObs) +
+		   "<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac) +
+		 */
+	} else if (_scan) { 
+		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
+					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
+					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
+					"<br> <b>PrecursorMz: </b>" +   QString::number(_scan->precursorMz, 'f', 2 )
+		);
+	}
+
+
+
+    if(_group) {
+        _group->isFocused = true;
+        emit(peakGroupFocus(_group));
+    }
 }
 
 void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
-	 clearFocus();
-	 if (_group) _group->isFocused = false;
+    clearFocus();
 
-    foreach (QGraphicsItem *item, scene()->items()) {
-       if (qgraphicsitem_cast<EicPoint *>(item)) {
-           if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
-       }
+    if (_group) {
+        _group->isFocused = false;
+
+        foreach (QGraphicsItem *item, scene()->items()) {
+            if (qgraphicsitem_cast<EicPoint *>(item)) {
+                if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
+            }
+        }
     }
-    update();
+    update(); 
 }
 
 void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
    bookmark();
 }
-
-
 void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     //if (_group) _group->groupOveralMatrix();
 
@@ -98,11 +126,20 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     setZValue(10);
+
     if (_group) emit peakGroupSelected(_group);
-    if( _peak)  emit peakSelected(_peak);
+    if (_peak)  emit peakSelected(_peak);
 
     if ( _group && _group->isIsotope() == false ) {
         _mw->isotopeWidget->setPeakGroup(_group);
+    }
+
+    if(_scan) {
+        if (_mw->spectraWidget->isVisible())
+            _mw->spectraWidget->setScan(_scan);
+            _mw->peptideFragmentation->setScan(_scan);
+            if(_scan->mslevel >= 2)  _mw->spectralHitsDockWidget->limitPrecursorMz(_scan->precursorMz);
+
     }
 
     //if (_peak && _mw->spectraWidget->isVisible()) {
@@ -117,7 +154,7 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
         _mw->adductWidget->setPeak(_peak);
     }
 
-    scene()->update();
+    //scene()->update();
 }
 
 
@@ -127,9 +164,13 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     QPen pen = _pen;
     QBrush brush = _brush;
 
-    int maxRadius = scene()->height()*0.05;
-    if (maxRadius > 30) maxRadius = 30;
-    if (maxRadius < 5) maxRadius=5;
+    float scale = min(scene()->height(),scene()->width())/500;
+    float paintDiameter = _cSize*scale;  
+    if (paintDiameter<5) paintDiameter=5; if (paintDiameter>30) paintDiameter=30;
+
+    //int maxRadius = scene()->height()*0.05;
+    //if (maxRadius > 30) maxRadius = 30;
+    //if (maxRadius < 5) maxRadius=5;
 
     PeakGroup* selGroup = _mw->getEicWidget()->getParameters()->getSelectedGroup();
 
@@ -141,29 +182,44 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         brush.setStyle(Qt::NoBrush);
     }
 
+    if (_forceFill) {
+        brush.setStyle(Qt::SolidPattern);
+    }
+
     painter->setPen(pen);
     painter->setBrush(brush);
-    float cSize = 6 + maxRadius*(_peak->quality);
-    painter->drawEllipse(_x-cSize/2, _y-cSize/2, cSize,cSize);
+    //float cSize = 6 + maxRadius*(_peak->quality);
+    //painter->drawEllipse(_x-cSize/2, _y-cSize/2, cSize,cSize);
+
+    if(pointShape == CIRCLE ) {
+        painter->drawEllipse(_x-paintDiameter/2, _y-paintDiameter/2, paintDiameter,paintDiameter);
+    } else if (pointShape == SQUARE) {
+        painter->drawRect(_x-paintDiameter/2, _y-paintDiameter/2, paintDiameter,paintDiameter);
+    } else if (pointShape == TRIANGLE_DOWN ) {
+        painter->drawPie(_x-paintDiameter/2,_y-paintDiameter/2,paintDiameter,paintDiameter,30*16,120*16);
+    } else if (pointShape == TRIANGLE_UP ) {
+        painter->drawPie(_x-paintDiameter/2,_y-paintDiameter/2,paintDiameter,paintDiameter,260*16,20*16);
+    }
 }
 
-
-void EicPoint::setClipboardToGroup() { _mw->setClipboardToGroup(_group); }
-void EicPoint::bookmark() { _mw->bookmarkPeakGroup(_group); }
+//TODO: Sahil, Added while merging point
+void EicPoint::setClipboardToGroup() { if(_group) _mw->setClipboardToGroup(_group); }
+//TODO: Sahil, Added while merging point
+void EicPoint::bookmark() { if(_group) _mw->bookmarkPeakGroup(_group); }
 
 void EicPoint::setClipboardToIsotopes() {
-    if (_group != NULL &&_group->compound != NULL && ! _group->compound->formula.empty() )  {
+    if (_group &&_group->compound != NULL && ! _group->compound->formula.empty() )  {
         _mw->isotopeWidget->setPeakGroup(_group);
     }
 }
 
 void EicPoint::linkCompound() {
-	if (_group != NULL &&_group->compound != NULL )  {
+    if (_group &&_group->compound != NULL )  {
             //link group to compound
             _group->compound->setPeakGroup(*_group);
 
             //update compound retention time
-            _group->compound->expectedRt=_peak->rt;
+            if (_peak) _group->compound->expectedRt=_peak->rt;
 
             //log information about retention time change
            // _mw->getEicWidget()->addNote(_peak->peakMz,_peak->peakIntensity, "Compound Link");
@@ -180,15 +236,10 @@ void EicPoint::linkCompound() {
 	}
 }
 
-
-
-
 void EicPoint::reorderSamples() { if (_mw && _group ) _mw->reorderSamples(_group ); }
 
 void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
     QMenu menu;
-
-
 
     QAction* c1 = menu.addAction("Copy Details to Clipboard");
     c1->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
