@@ -28,6 +28,7 @@ class SpectralHit {
 		QString sampleName;
 		QVector<double>mzList;
 		QVector<double>intensityList;
+        QVector<QString>annotations; //TODO: Sahil, Added whiler merging point
 		float productPPM;
 		int matchCount;
 		float precursorMz;
