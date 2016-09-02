@@ -8,6 +8,7 @@
 #include <map>
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "Peptide.hpp"
 
 class Compound;
 class Isotope;
@@ -115,6 +116,8 @@ class MassCalculator {
      * @return          []
      */
     static bool compDiff(const Match* a, const Match* b ) { return a->diff < b->diff; }
+
+    string peptideFormula(const string& peptideSeq); //TODO: Sahil, Added while merging point
 
 
     private:

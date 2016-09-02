@@ -320,3 +320,62 @@ std::string MassCalculator::prettyName(int c, int h, int n, int o, int p,
 	}
 	return name;
 }
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging point
+string MassCalculator::peptideFormula(const string& peptideSeq) {
+    int C=0; int H=0; int O=0; int N=0; int S=0; int P=0;
+    bool noCmod=true;
+    bool noNmod=true;
+
+    for(int i=0; i<peptideSeq.length(); i++ ) {
+            char aa = peptideSeq[i];
+            switch (aa)  {
+                case 'A': C+=3; H+=5;  N+=1;  O+=1; break;
+                case 'R': C+=6; H+=12; N+=4;  O+=1; break;
+                case 'N': C+=4; H+=6;  N+=2;  O+=2; break;
+                case 'D': C+=4; H+=5;  N+=1;  O+=3; break;
+                case 'C': C+=3; H+=5;  N+=1;  O+=1;  S+=1; break;
+                case 'Q': C+=5; H+=8;  N+=2;  O+=2; break;
+                case 'E': C+=5; H+=7;  N+=1;  O+=3; break;
+                case 'G': C+=2; H+=3;  N+=1;  O+=1; break;
+                case 'H': C+=6; H+=7;  N+=3;  O+=1; break;
+                case 'I': C+=6; H+=11; N+=1;  O+=1; break;
+                case 'L': C+=6; H+=11; N+=1;  O+=1; break;
+                case 'K': C+=6; H+=12; N+=2;  O+=1; break;
+                case 'M': C+=5; H+=9;  N+=1;  O+=1; S+=1 ;break;
+                case 'F': C+=9; H+=9;  N+=1;  O+=1; break;
+                case 'P': C+=5; H+=7;  N+=1;  O+=1; break;
+                case 'S': C+=3; H+=5;  N+=1;  O+=2; break;
+                case 'T': C+=4; H+=7;  N+=1;  O+=2; break;
+                case 'W': C+=11; H+=10;  N+=2;  O+=1; break;
+                case 'Y': C+=9; H+=9;  N+=1;  O+=2; break;
+                case 'V': C+=5; H+=9;  N+=1;  O+=1; break;
+                default: cerr << "peptideComposition() unknown aa: " << aa << endl;
+            }
+    }
+
+    Peptide pept(peptideSeq,0,"");
+    map<string, unsigned int> presentModTypes;
+    pept.getAllPresentModTypes(presentModTypes);
+
+    map<string, unsigned int>::iterator itr;
+    for(itr =presentModTypes.begin(); itr != presentModTypes.end(); itr++ ){
+        unsigned int c= itr->second;
+        if ( itr->first  == "C,Carbamidomethyl" ) {
+             C+=(2*c); H+=(3*c); N+=(1*c); O+=(1*c);
+        } else if ( itr->first.find("Oxidation") != string::npos)  {
+            O+=c;
+        } else if ( itr->first.find("Phospho") != string::npos )  {
+            P+=c; O+=(3*c); H+=(1*c);
+        } else {
+            cerr << "Unknown formulat for modification: " << itr->first;
+        }
+    }
+    if(C and noNmod and noCmod) { H+=2; O+=1;}
+
+    //cerr << "prettyName=" << prettyName(C,H,N,O,P,S) << endl;
+    return prettyName(C,H,N,O,P,S);
+}
