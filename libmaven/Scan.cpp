@@ -54,6 +54,36 @@ int Scan::findHighestIntensityPos(float _mz, float ppm) {
         return bestPos;
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging point
+int Scan::findClosestHighestIntensityPos(float _mz, float tolr) {
+			float mzmin = _mz - tolr-0.001;
+			float mzmax = _mz + tolr+0.001;
+
+			vector<float>::iterator itr = lower_bound(mz.begin(), mz.end(), mzmin-0.1);
+			int lb = itr-mz.begin();
+			float highestIntensity=0; 
+			for(unsigned int k=lb; k < mz.size(); k++ ) {
+				if (mz[k] < mzmin) continue; 
+				if (mz[k] > mzmax) break;
+				if (intensity[k] > highestIntensity) highestIntensity=intensity[k];
+			}
+				
+			int bestPos=-1; float bestScore=0;
+			for(unsigned int k=lb; k < mz.size(); k++ ) {
+				if (mz[k] < mzmin) continue; 
+				if (mz[k] > mzmax) break;
+				float deltaMz = (mz[k]-_mz); 
+				float alignScore = sqrt(intensity[k] / highestIntensity)-(deltaMz*deltaMz);
+			//	cerr << _mz << "\t" << k << "\t" << deltaMz << " " << alignScore << endl;
+				if (bestScore < alignScore) { bestScore=alignScore; bestPos=k; }
+			}
+			//if(bestPos>=0) cerr << "best=" << bestPos << endl;
+			return bestPos;
+}
+
 vector<int> Scan::findMatchingMzs(float mzmin, float mzmax) {
 	vector<int>matches;
 	vector<float>::iterator itr = lower_bound(mz.begin(), mz.end(), mzmin-1);
