@@ -143,6 +143,46 @@ void SpectraWidget::setScan(Peak* peak) {
     repaint();
 }
 
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging point
+void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,float productAmuToll) {
+    qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productAmuToll << endl;
+    if(!_currentScan) return;
+	if(peptideSeq.isEmpty()) return;
+
+    Peptide record(peptideSeq.toStdString(),0,"");
+	vector<FragmentIon*>ions;
+    record.generateFragmentIons(ions,"CID");
+
+	SpectralHit hit;
+	hit.score = 0;
+	hit.matchCount=0;
+	hit.sampleName="";
+    hit.productPPM=1;
+    hit.precursorMz=record.monoisotopicMZ();
+	hit.scan = _currentScan;
+	
+    vector<bool>seen(_currentScan->nobs(),false);
+	for(unsigned int i=0; i < ions.size(); i++) {
+		FragmentIon* ion = ions[i];
+        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz,productAmuToll);
+        if(pos != -1 and seen[pos] == false) {
+            ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
+            qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
+
+            hit.mzList << _currentScan->mz[pos];
+            hit.intensityList << _currentScan->intensity[pos];
+            hit.annotations << ion->m_ion.c_str();
+            seen[pos]=true;
+		}
+	}
+
+	delete_all(ions);
+    overlaySpectralHit(hit);
+}
+
 void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         _spectralHit = hit;//copy hit
 

@@ -29,6 +29,7 @@ public:
                     void replot();
                     void spectraToClipboard();
                     void spectraToClipboardTop();
+                    void overlayPeptideFragmentation(QString proteinSeq,float productAmuTolr); //TODO: Sahil, Added while merging point
                     void overlaySpectralHit(SpectralHit& hit);
                     void overlaySpectra(QVector<double> mzs, QVector<double> intensities);
                     void resetZoom();
