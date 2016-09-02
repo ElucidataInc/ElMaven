@@ -52,7 +52,8 @@ FORMS = forms/settingsform.ui  \
         forms/noteswidget.ui   \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
-        forms/spectramatching.ui
+        forms/spectramatching.ui\
+        forms/peptidefragmentation.ui //TODO: Sahil, Added while merging point
 
 HEADERS +=  stable.h \
             globals.h \
@@ -106,7 +107,8 @@ HEADERS +=  stable.h \
                     logwidget.h \
                     spectralhit.h \
                    spectralhitstable.h\
-                    clusterdialog.h 
+                    clusterdialog.h \
+                    peptidefragmentation.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -159,7 +161,8 @@ database.cpp \
  spectramatching.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
- logwidget.cpp 
+ logwidget.cpp \ 
+ peptidefragmentation.cpp
 
 
 sources.files =  $$HEADERS \
