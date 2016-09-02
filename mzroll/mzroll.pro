@@ -53,7 +53,7 @@ FORMS = forms/settingsform.ui  \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/spectramatching.ui\
-        forms/peptidefragmentation.ui //TODO: Sahil, Added while merging point
+        forms/peptidefragmentation.ui 
 
 HEADERS +=  stable.h \
             globals.h \

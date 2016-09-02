@@ -15,7 +15,7 @@ class EicPoint : public QObject, public QGraphicsItem {
     Q_OBJECT
 //#if QT_VERSION >= 0x040600    
     Q_INTERFACES( QGraphicsItem )
-#endif
+//#endif
 
 public:
     //TODO: Sahil Added while merging eicwidget
