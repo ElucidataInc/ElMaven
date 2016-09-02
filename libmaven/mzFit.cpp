@@ -63,97 +63,91 @@ void gauss(int n, double *a, int adim, double *b, double *x)
 */
 
 //kiran TODO:function not used
-int linear_regression(int n, double *x, double *y, double *fitted)
-{
-    double xbar, ybar;		/* sample means */
-    double sdx, sdy;		/* sample standard deviations */
-   // double sxy;		/* sample covariance and sample correlation */
-    double SXX, SYY, SXY;	/* sums of squares */
-    //double RSS;			/* residual sum of squares */
-    //double rms;			/* residual mean square */
-    //double sereg;		/* standard error of regression */
-    //double seslope;
-    double slope, intercept;	/* */
-    //double SSreg;
-    int i;
-
-    if (n <= 3) {
-	return 1;
-    }
-    xbar = ybar = 0.0;
-    SXX = SYY = SXY = 0.0;
-    for (i = 0; i < n; i++) {
-	xbar = xbar + x[i];
-	ybar = ybar + y[i];
-    }
-    xbar = xbar / n;
-    ybar = ybar / n;
-    for (i = 0; i < n; i++) {
-	SXX = SXX + (x[i] - xbar) * (x[i] - xbar);
-	SYY = SYY + (y[i] - ybar) * (y[i] - ybar);
-	SXY = SXY + (x[i] - xbar) * (y[i] - ybar);
-    }
-    sdx = sqrt(SXX / (n - 1));
-    sdy = sqrt(SYY / (n - 1));
-    if (sdx == 0.0) {
-	return 2;
-    }
-    if (sdy == 0.0) {
-	return 2;
-    }
-    //sxy = SXY / (n - 1);
-    //rxy = sxy / (sdx * sdy);
-    slope = SXY / SXX;
-    intercept = ybar - slope * xbar;
-    //RSS = SYY - slope * SXY;
-    //rms = RSS / (n - 2);
-    //sereg = sqrt(RSS / (n - 2));
-    //seintercept = sqrt(rms * (1.0 / n + xbar * xbar / SXX));
-    //seslope = sqrt(rms / SXX);
-    //SSreg = SYY - RSS;
-    //F = SSreg / rms;
-    //R2 = SSreg / SYY;
-    //sprintf(buf, "Number of observations\t\t\t = %d\n", n);
-    ////stufftext(buf, 0);
-    //sprintf(buf, "Mean of independent variable\t\t = %.7g\n", xbar);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Mean of dependent variable\t\t = %.7g\n", ybar);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Standard dev. of ind. variable\t\t = %.7g\n", sdx);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Standard dev. of dep. variable\t\t = %.7g\n", sdy);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Correlation coefficient\t\t\t = %.7g\n", rxy);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Regression coefficient (SLOPE)\t\t = %.7g\n", slope);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Standard error of coefficient\t\t = %.7g\n", seslope);
-    //stufftext(buf, 0);
-    //sprintf(buf, "t - value for coefficient\t\t = %.7g\n", slope / seslope);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Regression constant (INTERCEPT)\t\t = %.7g\n", intercept);
-    //stufftext(buf, 0);
-   // nonl_parms[0] = intercept;
-   // nonl_parms[1] = slope;
-    //sprintf(buf, "Standard error of constant\t\t = %.7g\n", seintercept);
-    //stufftext(buf, 0);
-    //sprintf(buf, "t - value for constant\t\t\t = %.7g\n", intercept / seintercept);
-    //stufftext(buf, 0);
-    //sprintf(buf, "\nAnalysis of variance\n");
-    //stufftext(buf, 0);
-    //sprintf(buf, "Source\t\t d.f\t Sum of squares\t Mean Square\t F\n");
-    //stufftext(buf, 0);
-    //sprintf(buf, "Regression\t   1\t%.7g\t%.7g\t%.7g\n", SSreg, SSreg, F);
-    //stufftext(buf, 0);
-    //sprintf(buf, "Residual\t%5d\t%.7g\t%.7g\n", n - 2, RSS, RSS / (n - 2));
-    //stufftext(buf, 0);
-    //sprintf(buf, "Total\t\t%5d\t%.7g\n\n", n - 1, SYY);
-    //stufftext(buf, 2);
-    for (i = 0; i < n; i++) {
-	fitted[i] = slope * x[i] + intercept;
-    }
-    return 0;
-}
+//int linear_regression(int n, double *x, double *y, double *fitted)
+//{
+//    double xbar, ybar;
+//    double sdx, sdy;
+//    double SXX, SYY, SXY;
+//    double slope, intercept; 
+//    int i;
+//
+//    if (n <= 3) {
+//	return 1;
+//    }
+//    xbar = ybar = 0.0;
+//    SXX = SYY = SXY = 0.0;
+//    for (i = 0; i < n; i++) {
+//	xbar = xbar + x[i];
+//	ybar = ybar + y[i];
+//    }
+//    xbar = xbar / n;
+//    ybar = ybar / n;
+//    for (i = 0; i < n; i++) {
+//	SXX = SXX + (x[i] - xbar) * (x[i] - xbar);
+//	SYY = SYY + (y[i] - ybar) * (y[i] - ybar);
+//	SXY = SXY + (x[i] - xbar) * (y[i] - ybar);
+//    }
+//    sdx = sqrt(SXX / (n - 1));
+//    sdy = sqrt(SYY / (n - 1));
+//    if (sdx == 0.0) {
+//	return 2;
+//    }
+//    if (sdy == 0.0) {
+//	return 2;
+//    }
+//    //sxy = SXY / (n - 1);
+//    //rxy = sxy / (sdx * sdy);
+//    slope = SXY / SXX;
+//    intercept = ybar - slope * xbar;
+//    //RSS = SYY - slope * SXY;
+//    //rms = RSS / (n - 2);
+//    //sereg = sqrt(RSS / (n - 2));
+//    //seintercept = sqrt(rms * (1.0 / n + xbar * xbar / SXX));
+//    //seslope = sqrt(rms / SXX);
+//    //SSreg = SYY - RSS;
+//    //F = SSreg / rms;
+//    //R2 = SSreg / SYY;
+//    //sprintf(buf, "Number of observations\t\t\t = %d\n", n);
+//    ////stufftext(buf, 0);
+//    //sprintf(buf, "Mean of independent variable\t\t = %.7g\n", xbar);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Mean of dependent variable\t\t = %.7g\n", ybar);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Standard dev. of ind. variable\t\t = %.7g\n", sdx);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Standard dev. of dep. variable\t\t = %.7g\n", sdy);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Correlation coefficient\t\t\t = %.7g\n", rxy);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Regression coefficient (SLOPE)\t\t = %.7g\n", slope);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Standard error of coefficient\t\t = %.7g\n", seslope);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "t - value for coefficient\t\t = %.7g\n", slope / seslope);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Regression constant (INTERCEPT)\t\t = %.7g\n", intercept);
+//    //stufftext(buf, 0);
+//   // nonl_parms[0] = intercept;
+//   // nonl_parms[1] = slope;
+//    //sprintf(buf, "Standard error of constant\t\t = %.7g\n", seintercept);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "t - value for constant\t\t\t = %.7g\n", intercept / seintercept);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "\nAnalysis of variance\n");
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Source\t\t d.f\t Sum of squares\t Mean Square\t F\n");
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Regression\t   1\t%.7g\t%.7g\t%.7g\n", SSreg, SSreg, F);
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Residual\t%5d\t%.7g\t%.7g\n", n - 2, RSS, RSS / (n - 2));
+//    //stufftext(buf, 0);
+//    //sprintf(buf, "Total\t\t%5d\t%.7g\n\n", n - 1, SYY);
+//    //stufftext(buf, 2);
+//    for (i = 0; i < n; i++) {
+//	fitted[i] = slope * x[i] + intercept;
+//    }
+//    return 0;
+//}
 
 
 /*
@@ -272,161 +266,161 @@ double leasev(double *c, int degree, double x)
 	curve fitting
 */
 //kiran TODO:function not used
-void fitcurve(double *x, double *y, int n, int ideg, double *fitted)
-{
-    int i, ifail;
-    double result[20], w[MAXFIT * MAXFIT], leasev(double *c, int degree, double x);
-
-
-    ifail = 1;
-    if (ideg > 1) {
-	leasqu(n, x, y, ideg, w, MAXFIT, result);
-	for (i = 0; i < n; i++) {
-	    fitted[i] = leasev(result, ideg, x[i]);
-	}
-	ifail = 0;
-    } else {
-	ifail = linear_regression(n, x, y, fitted);
-	if (ifail == 1) {
-	    //errwin("Linear_regression entered with N <= 3");
-	} else if (ifail == 2) {
-	    //errwin("Linear_regression - all values of x or y are the same");
-	}
-    }
-}
+//void fitcurve(double *x, double *y, int n, int ideg, double *fitted)
+//{
+//    int i, ifail;
+//    double result[20], w[MAXFIT * MAXFIT], leasev(double *c, int degree, double x);
+//
+//
+//    ifail = 1;
+//    if (ideg > 1) {
+//	leasqu(n, x, y, ideg, w, MAXFIT, result);
+//	for (i = 0; i < n; i++) {
+//	    fitted[i] = leasev(result, ideg, x[i]);
+//	}
+//	ifail = 0;
+//    } else {
+//	ifail = linear_regression(n, x, y, fitted);
+//	if (ifail == 1) {
+//	    //errwin("Linear_regression entered with N <= 3");
+//	} else if (ifail == 2) {
+//	    //errwin("Linear_regression - all values of x or y are the same");
+//	}
+//    }
+//}
 
 /*
 	compute a running average
 */
 //kiran TODO:function not used
-void runavg(double *x, double *y, double *ax, double *ay, int n, int ilen)
-{
-    int i;
-    double sumy = 0.0;
-    double sumx = 0.0;
-
-    for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
-	sumy = sumy + y[i];
-    }
-    ax[0] = sumx / ilen;
-    ay[0] = sumy / ilen;
-    for (i = 1; i < (n - ilen + 1); i++) {
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	sumy = y[i + ilen - 1] - y[i - 1] + sumy;
-	ay[i] = sumy / ilen;
-    }
-}
+//void runavg(double *x, double *y, double *ax, double *ay, int n, int ilen)
+//{
+//    int i;
+//    double sumy = 0.0;
+//    double sumx = 0.0;
+//
+//    for (i = 0; i < ilen; i++) {
+//	sumx = sumx + x[i];
+//	sumy = sumy + y[i];
+//    }
+//    ax[0] = sumx / ilen;
+//    ay[0] = sumy / ilen;
+//    for (i = 1; i < (n - ilen + 1); i++) {
+//	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+//	ax[i] = sumx / ilen;
+//	sumy = y[i + ilen - 1] - y[i - 1] + sumy;
+//	ay[i] = sumy / ilen;
+//    }
+//}
 
 /*
 	compute a running standard deviation
 */
 //kiran TODO:function not used
-void runstddev(double *x, double *y, double *ax, double *ay, int n, int ilen)
-{
-    int i;
-    double ybar, ysd;
-    double sumx = 0.0;
-
-    for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
-    }
-    ax[0] = sumx / ilen;
-    stasum(y, ilen, &ybar, &ysd, 0);
-    ay[0] = ysd;
-    for (i = 1; i < (n - ilen + 1); i++) {
-	stasum(y + i, ilen, &ybar, &ysd, 0);
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	ay[i] = ysd;
-    }
-}
+//void runstddev(double *x, double *y, double *ax, double *ay, int n, int ilen)
+//{
+//    int i;
+//    double ybar, ysd;
+//    double sumx = 0.0;
+//
+//    for (i = 0; i < ilen; i++) {
+//	sumx = sumx + x[i];
+//    }
+//    ax[0] = sumx / ilen;
+//    stasum(y, ilen, &ybar, &ysd, 0);
+//    ay[0] = ysd;
+//    for (i = 1; i < (n - ilen + 1); i++) {
+//	stasum(y + i, ilen, &ybar, &ysd, 0);
+//	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+//	ax[i] = sumx / ilen;
+//	ay[i] = ysd;
+//    }
+//}
 
 /*
 	compute a running median
 */
 //kiran TODO:function not used
-void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
-{
-    int i, j, nlen = n - ilen + 1;
-    double *tmpx, *tmpy;
-
-    tmpx = (double *) calloc(ilen, sizeof(double));
-    if (tmpx == NULL) {
-	errwin("Can't calloc tmpx in runmedian");
-	return;
-    }
-    tmpy = (double *) calloc(ilen, sizeof(double));
-    if (tmpy == NULL) {
-	errwin("Can't calloc tmpy in runmedian");
-	cxfree(tmpx);
-	return;
-    }
-    for (i = 0; i < nlen; i++) {
-	for (j = 0; j < ilen; j++) {
-	    tmpx[j] = x[j + i];
-	    tmpy[j] = y[j + i];
-	}
-	sort_xy(tmpx, tmpy, ilen, 1, 0);
-
-	if (ilen % 2) {
-	    ax[i] = x[i + (ilen / 2)];
-	    ay[i] = tmpy[ilen / 2];
-	} else {
-	    ax[i] = (x[i + ilen / 2] + x[i + (ilen - 1) / 2]) * 0.5;
-	    ay[i] = (tmpy[ilen / 2] + tmpy[(ilen - 1) / 2]) * 0.5;
-	}
-    }
-    cxfree(tmpx);
-    cxfree(tmpy);
-}
+//void runmedian(double *x, double *y, double *ax, double *ay, int n, int ilen)
+//{
+//    int i, j, nlen = n - ilen + 1;
+//    double *tmpx, *tmpy;
+//
+//    tmpx = (double *) calloc(ilen, sizeof(double));
+//    if (tmpx == NULL) {
+//	errwin("Can't calloc tmpx in runmedian");
+//	return;
+//    }
+//    tmpy = (double *) calloc(ilen, sizeof(double));
+//    if (tmpy == NULL) {
+//	errwin("Can't calloc tmpy in runmedian");
+//	cxfree(tmpx);
+//	return;
+//    }
+//    for (i = 0; i < nlen; i++) {
+//	for (j = 0; j < ilen; j++) {
+//	    tmpx[j] = x[j + i];
+//	    tmpy[j] = y[j + i];
+//	}
+//	sort_xy(tmpx, tmpy, ilen, 1, 0);
+//
+//	if (ilen % 2) {
+//	    ax[i] = x[i + (ilen / 2)];
+//	    ay[i] = tmpy[ilen / 2];
+//	} else {
+//	    ax[i] = (x[i + ilen / 2] + x[i + (ilen - 1) / 2]) * 0.5;
+//	    ay[i] = (tmpy[ilen / 2] + tmpy[(ilen - 1) / 2]) * 0.5;
+//	}
+//    }
+//    cxfree(tmpx);
+//    cxfree(tmpy);
+//}
 
 /*
 	compute a running minimum or maximum
 */
 //kiran TODO:function not used
-void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, int type)
-{
-    int i, j;
-    double min, max;
-    double sumx = 0.0;
-
-    min = max = y[0];
-    for (i = 0; i < ilen; i++) {
-	sumx = sumx + x[i];
-	if (min > y[i])
-	    min = y[i];
-	if (max < y[i])
-	    max = y[i];
-    }
-    ax[0] = sumx / ilen;
-    if (type == 0) {
-	ay[0] = min;
-    } else if (type == 1) {
-	ay[0] = max;
-    } else {
-	errwin("Unknown type in runminmax, setting type = min");
-	type = 0;
-    }
-    for (i = 1; i < (n - ilen + 1); i++) {
-	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
-	ax[i] = sumx / ilen;
-	min = y[i];
-	max = y[i];
-	for (j = 0; j < ilen; j++) {
-	    if (min > y[i + j])
-		min = y[i + j];
-	    if (max < y[i + j])
-		max = y[i + j];
-	}
-	if (type == 0) {
-	    ay[i] = min;
-	} else if (type == 1) {
-	    ay[i] = max;
-	}
-    }
-}
+//void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, int type)
+//{
+//    int i, j;
+//    double min, max;
+//    double sumx = 0.0;
+//
+//    min = max = y[0];
+//    for (i = 0; i < ilen; i++) {
+//	sumx = sumx + x[i];
+//	if (min > y[i])
+//	    min = y[i];
+//	if (max < y[i])
+//	    max = y[i];
+//    }
+//    ax[0] = sumx / ilen;
+//    if (type == 0) {
+//	ay[0] = min;
+//    } else if (type == 1) {
+//	ay[0] = max;
+//    } else {
+//	errwin("Unknown type in runminmax, setting type = min");
+//	type = 0;
+//    }
+//    for (i = 1; i < (n - ilen + 1); i++) {
+//	sumx = x[i + ilen - 1] - x[i - 1] + sumx;
+//	ax[i] = sumx / ilen;
+//	min = y[i];
+//	max = y[i];
+//	for (j = 0; j < ilen; j++) {
+//	    if (min > y[i + j])
+//		min = y[i + j];
+//	    if (max < y[i + j])
+//		max = y[i + j];
+//	}
+//	if (type == 0) {
+//	    ay[i] = min;
+//	} else if (type == 1) {
+//	    ay[i] = max;
+//	}
+//    }
+//}
 
 /*
 	Apply a digital filter of length len to a set in x, y,
@@ -434,310 +428,310 @@ void runminmax(double *x, double *y, double *ax, double *ay, int n, int ilen, in
 	the length of the result is set by the caller
 */
 //kiran TODO:function not used
-void filterser(int n, double *x, double *y, double *resx, double *resy, double *h, int len)
-{
-    int i, j, outlen, eo, ld2;
-    double sum;
-
-    outlen = n - len + 1;
-    eo = len % 2;
-    ld2 = len / 2;
-    for (i = 0; i < outlen; i++) {
-	sum = 0.0;
-	for (j = 0; j < len; j++) {
-	    sum = sum + h[j] * y[j + i];
-	}
-	resy[i] = sum;
-	if (eo)
-	    resx[i] = x[i + ld2];
-	else
-	    resx[i] = (x[i + ld2] + x[i + ld2 - 1]) / 2.0;
-    }
-}
+//void filterser(int n, double *x, double *y, double *resx, double *resy, double *h, int len)
+//{
+//    int i, j, outlen, eo, ld2;
+//    double sum;
+//
+//    outlen = n - len + 1;
+//    eo = len % 2;
+//    ld2 = len / 2;
+//    for (i = 0; i < outlen; i++) {
+//	sum = 0.0;
+//	for (j = 0; j < len; j++) {
+//	    sum = sum + h[j] * y[j + i];
+//	}
+//	resy[i] = sum;
+//	if (eo)
+//	    resx[i] = x[i + ld2];
+//	else
+//	    resx[i] = (x[i + ld2] + x[i + ld2 - 1]) / 2.0;
+//    }
+//}
 
 /*
 	linear convolution of set x (length n) with h (length m) and
 	result to y. the length of y is set by the caller
 */
 //kiran TODO:function not used
-void linearconv(double *x, double *h, double *y, int n, int m)
-{
-    int i, j, itmp;
-
-    for (i = 0; i < n + m - 1; i++) {
-	for (j = 0; j < m; j++) {
-	    itmp = i - j;
-	    if ((itmp >= 0) && (itmp < n)) {
-		y[i] = y[i] + h[j] * x[itmp];
-	    }
-	}
-    }
-}
+//void linearconv(double *x, double *h, double *y, int n, int m)
+//{
+//    int i, j, itmp;
+//
+//    for (i = 0; i < n + m - 1; i++) {
+//	for (j = 0; j < m; j++) {
+//	    itmp = i - j;
+//	    if ((itmp >= 0) && (itmp < n)) {
+//		y[i] = y[i] + h[j] * x[itmp];
+//	    }
+//	}
+//    }
+//}
 
 /*
  * cross correlation
  */
 //kiran TODO:function not used
-int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, double *xcor)
-{
-    double xbar, xsd;
-    double ybar, ysd;
-    int i, j;
-
-    if (lag >= n)
-	return 1;
-    stasum(x, n, &xbar, &xsd, 0);
-    if (xsd == 0.0)
-	return 2;
-    stasum(y, n, &ybar, &ysd, 0);
-    if (ysd == 0.0)
-	return 3;
-    for (i = 0; i < lag; i++) {
-	xcor[i] = 0.0;
-	xcov[i] = 0.0;
-	for (j = 0; j < n - i; j++) {
-	    xcov[i] = xcov[i] + (y[j] - ybar) * (x[j + i] - xbar);
-	}
-	if (meth)
-	    xcov[i] = xcov[i] / (n - i);
-	else
-	    xcov[i] = xcov[i] / n;
-
-	xcor[i] = xcov[i] / (xsd * ysd);
-    }
-    return 0;
-}
+//int crosscorr(double *x, double *y, int n, int lag, int meth, double *xcov, double *xcor)
+//{
+//    double xbar, xsd;
+//    double ybar, ysd;
+//    int i, j;
+//
+//    if (lag >= n)
+//	return 1;
+//    stasum(x, n, &xbar, &xsd, 0);
+//    if (xsd == 0.0)
+//	return 2;
+//    stasum(y, n, &ybar, &ysd, 0);
+//    if (ysd == 0.0)
+//	return 3;
+//    for (i = 0; i < lag; i++) {
+//	xcor[i] = 0.0;
+//	xcov[i] = 0.0;
+//	for (j = 0; j < n - i; j++) {
+//	    xcov[i] = xcov[i] + (y[j] - ybar) * (x[j + i] - xbar);
+//	}
+//	if (meth)
+//	    xcov[i] = xcov[i] / (n - i);
+//	else
+//	    xcov[i] = xcov[i] / n;
+//
+//	xcor[i] = xcov[i] / (xsd * ysd);
+//    }
+//    return 0;
+//}
 /*
 	a literal translation of the spline routine in
 	Forsyth, Malcolm, and Moler
 */
 //kiran TODO:function not used
-void spline(int n, double *x, double *y, double *b, double *c, double *d)
-{
-/*
-c
-c  the coefficients b(i), c(i), and d(i), i=1,2,...,n are computed
-c  for a cubic interpolating spline
-c
-c    s(x) = y(i) + b(i)*(x-x(i)) + c(i)*(x-x(i))**2 + d(i)*(x-x(i))**3
-c
-c    for  x(i) .le. x .le. x(i+1)
-c
-c  input..
-c
-c    n = the number of data points or knots (n.ge.2)
-c    x = the abscissas of the knots in strictly increasing order
-c    y = the ordinates of the knots
-c
-c  output..
-c
-c    b, c, d  = arrays of spline coefficients as defined above.
-c
-c  using  p  to denote differentiation,
-c
-c    y(i) = s(x(i))
-c    b(i) = sp(x(i))
-c    c(i) = spp(x(i))/2
-c    d(i) = sppp(x(i))/6  (derivative from the right)
-c
-c  the accompanying function subprogram  seval	can be used
-c  to evaluate the spline.
-c
-c
-*/
-
-    int nm1, ib, i;
-    double t;
-
-/*
-Gack!
-*/
-    x--;
-    y--;
-    b--;
-    c--;
-    d--;
-
-/*
-Fortran 66
-*/
-    nm1 = n - 1;
-    if (n < 2)
-	return;
-    if (n < 3)
-	goto l50;
-/*
-c
-c  set up tridiagonal system
-c
-c  b = diagonal, d = offdiagonal, c = right hand side.
-c
-*/
-    d[1] = x[2] - x[1];
-    c[2] = (y[2] - y[1]) / d[1];
-    for (i = 2; i <= nm1; i++) {
-	d[i] = x[i + 1] - x[i];
-	b[i] = 2.0 * (d[i - 1] + d[i]);
-	c[i + 1] = (y[i + 1] - y[i]) / d[i];
-	c[i] = c[i + 1] - c[i];
-    }
-/*
-c
-c  end conditions.  third derivatives at  x(1)	and  x(n)
-c  obtained from divided differences
-c
-*/
-    b[1] = -d[1];
-    b[n] = -d[n - 1];
-    c[1] = 0.0;
-    c[n] = 0.0;
-    if (n == 3)
-	goto l15;
-    c[1] = c[3] / (x[4] - x[2]) - c[2] / (x[3] - x[1]);
-    c[n] = c[n - 1] / (x[n] - x[n - 2]) - c[n - 2] / (x[n - 1] - x[n - 3]);
-    c[1] = c[1] * d[1] * d[1] / (x[4] - x[1]);
-    c[n] = -c[n] * d[n - 1] * d[n - 1] / (x[n] - x[n - 3]);
-/*
-c
-c  forward elimination
-c
-*/
-l15:;
-    for (i = 2; i <= n; i++) {
-	t = d[i - 1] / b[i - 1];
-	b[i] = b[i] - t * d[i - 1];
-	c[i] = c[i] - t * c[i - 1];
-    }
-/*
-c
-c  back substitution
-c
-*/
-    c[n] = c[n] / b[n];
-    for (ib = 1; ib <= nm1; ib++) {
-	i = n - ib;
-	c[i] = (c[i] - d[i] * c[i + 1]) / b[i];
-    }
-/*
-c
-c  c(i) is now the sigma(i) of the text
-c
-c  compute polynomial coefficients
-c
-*/
-    b[n] = (y[n] - y[nm1]) / d[nm1] + d[nm1] * (c[nm1] + 2.0 * c[n]);
-    for (i = 1; i <= nm1; i++) {
-	b[i] = (y[i + 1] - y[i]) / d[i] - d[i] * (c[i + 1] + 2.0 * c[i]);
-	d[i] = (c[i + 1] - c[i]) / d[i];
-	c[i] = 3.0 * c[i];
-    }
-    c[n] = 3.0 * c[n];
-    d[n] = d[n - 1];
-    return;
-
-l50:;
-    b[1] = (y[2] - y[1]) / (x[2] - x[1]);
-    c[1] = 0.0;
-    d[1] = 0.0;
-    b[2] = b[1];
-    c[2] = 0.0;
-    d[2] = 0.0;
-    return;
-}
+//void spline(int n, double *x, double *y, double *b, double *c, double *d)
+////{
+///*
+//c
+//c  the coefficients b(i), c(i), and d(i), i=1,2,...,n are computed
+//c  for a cubic interpolating spline
+//c
+//c    s(x) = y(i) + b(i)*(x-x(i)) + c(i)*(x-x(i))**2 + d(i)*(x-x(i))**3
+//c
+//c    for  x(i) .le. x .le. x(i+1)
+//c
+//c  input..
+//c
+//c    n = the number of data points or knots (n.ge.2)
+//c    x = the abscissas of the knots in strictly increasing order
+//c    y = the ordinates of the knots
+//c
+//c  output..
+//c
+//c    b, c, d  = arrays of spline coefficients as defined above.
+//c
+//c  using  p  to denote differentiation,
+//c
+//c    y(i) = s(x(i))
+//c    b(i) = sp(x(i))
+//c    c(i) = spp(x(i))/2
+//c    d(i) = sppp(x(i))/6  (derivative from the right)
+//c
+//c  the accompanying function subprogram  seval	can be used
+//c  to evaluate the spline.
+//c
+//c
+//*/
+//
+//    int nm1, ib, i;
+//    double t;
+//
+///*
+//Gack!
+//*/
+//    x--;
+//    y--;
+//    b--;
+//    c--;
+//    d--;
+//
+///*
+//Fortran 66
+//*/
+//    nm1 = n - 1;
+//    if (n < 2)
+//	return;
+//    if (n < 3)
+//	goto l50;
+///*
+//c
+//c  set up tridiagonal system
+//c
+//c  b = diagonal, d = offdiagonal, c = right hand side.
+//c
+//*/
+//    d[1] = x[2] - x[1];
+//    c[2] = (y[2] - y[1]) / d[1];
+//    for (i = 2; i <= nm1; i++) {
+//	d[i] = x[i + 1] - x[i];
+//	b[i] = 2.0 * (d[i - 1] + d[i]);
+//	c[i + 1] = (y[i + 1] - y[i]) / d[i];
+//	c[i] = c[i + 1] - c[i];
+//    }
+///*
+//c
+//c  end conditions.  third derivatives at  x(1)	and  x(n)
+//c  obtained from divided differences
+//c
+//*/
+//    b[1] = -d[1];
+//    b[n] = -d[n - 1];
+//    c[1] = 0.0;
+//    c[n] = 0.0;
+//    if (n == 3)
+//	goto l15;
+//    c[1] = c[3] / (x[4] - x[2]) - c[2] / (x[3] - x[1]);
+//    c[n] = c[n - 1] / (x[n] - x[n - 2]) - c[n - 2] / (x[n - 1] - x[n - 3]);
+//    c[1] = c[1] * d[1] * d[1] / (x[4] - x[1]);
+//    c[n] = -c[n] * d[n - 1] * d[n - 1] / (x[n] - x[n - 3]);
+///*
+//c
+//c  forward elimination
+//c
+//*/
+//l15:;
+//    for (i = 2; i <= n; i++) {
+//	t = d[i - 1] / b[i - 1];
+//	b[i] = b[i] - t * d[i - 1];
+//	c[i] = c[i] - t * c[i - 1];
+//    }
+///*
+//c
+//c  back substitution
+//c
+//*/
+//    c[n] = c[n] / b[n];
+//    for (ib = 1; ib <= nm1; ib++) {
+//	i = n - ib;
+//	c[i] = (c[i] - d[i] * c[i + 1]) / b[i];
+//    }
+///*
+//c
+//c  c(i) is now the sigma(i) of the text
+//c
+//c  compute polynomial coefficients
+//c
+//*/
+//    b[n] = (y[n] - y[nm1]) / d[nm1] + d[nm1] * (c[nm1] + 2.0 * c[n]);
+//    for (i = 1; i <= nm1; i++) {
+//	b[i] = (y[i + 1] - y[i]) / d[i] - d[i] * (c[i + 1] + 2.0 * c[i]);
+//	d[i] = (c[i + 1] - c[i]) / d[i];
+//	c[i] = 3.0 * c[i];
+//    }
+//    c[n] = 3.0 * c[n];
+//    d[n] = d[n - 1];
+//    return;
+//
+//l50:;
+//    b[1] = (y[2] - y[1]) / (x[2] - x[1]);
+//    c[1] = 0.0;
+//    d[1] = 0.0;
+//    b[2] = b[1];
+//    c[2] = 0.0;
+//    d[2] = 0.0;
+//    return;
+//}
 
 //kiran TODO:function not used
-double seval(int n, double u, double *x, double *y, double *b, double *c, double *d)
-{
-/*
-c
-c  this subroutine evaluates the cubic spline function
-c
-c    seval = y(i) + b(i)*(u-x(i)) + c(i)*(u-x(i))**2 + d(i)*(u-x(i))**3
-c
-c    where  x(i) .lt. u .lt. x(i+1), using horner's rule
-c
-c  if  u .lt. x(1) then  i = 1	is used.
-c  if  u .ge. x(n) then  i = n	is used.
-c
-c  input..
-c
-c    n = the number of data points
-c    u = the abscissa at which the spline is to be evaluated
-c    x,y = the arrays of data abscissas and ordinates
-c    b,c,d = arrays of spline coefficients computed by spline
-c
-c  if  u  is not in the same interval as the previous call, then a
-c  binary search is performed to determine the proper interval.
-c
-*/
-    int j, k;
-    double dx;
-    int i;
-
-/*
-c
-c  binary search
-c
-*/
-    if (u < x[0]) {
-	i = 0;
-    } else if (u >= x[n - 1]) {
-	i = n - 1;
-    } else {
-	i = 0;
-	j = n;
-l20:	;
-	k = (i + j) / 2;
-	if (u < x[k])
-	    j = k;
-	if (u >= x[k])
-	    i = k;
-	if (j > i + 1)
-	    goto l20;
-    }
-/*
-c
-c  evaluate spline
-c
-*/
-    dx = u - x[i];
-    return (y[i] + dx * (b[i] + dx * (c[i] + dx * d[i])));
-}
+//double seval(int n, double u, double *x, double *y, double *b, double *c, double *d)
+//{
+///*
+//c
+//c  this subroutine evaluates the cubic spline function
+//c
+//c    seval = y(i) + b(i)*(u-x(i)) + c(i)*(u-x(i))**2 + d(i)*(u-x(i))**3
+//c
+//c    where  x(i) .lt. u .lt. x(i+1), using horner's rule
+//c
+//c  if  u .lt. x(1) then  i = 1	is used.
+//c  if  u .ge. x(n) then  i = n	is used.
+//c
+//c  input..
+//c
+//c    n = the number of data points
+//c    u = the abscissa at which the spline is to be evaluated
+//c    x,y = the arrays of data abscissas and ordinates
+//c    b,c,d = arrays of spline coefficients computed by spline
+//c
+//c  if  u  is not in the same interval as the previous call, then a
+//c  binary search is performed to determine the proper interval.
+//c
+//*/
+//    int j, k;
+//    double dx;
+//    int i;
+//
+///*
+//c
+//c  binary search
+//c
+//*/
+//    if (u < x[0]) {
+//	i = 0;
+//    } else if (u >= x[n - 1]) {
+//	i = n - 1;
+//    } else {
+//	i = 0;
+//	j = n;
+//l20:	;
+//	k = (i + j) / 2;
+//	if (u < x[k])
+//	    j = k;
+//	if (u >= x[k])
+//	    i = k;
+//	if (j > i + 1)
+//	    goto l20;
+//    }
+///*
+//c
+//c  evaluate spline
+//c
+//*/
+//    dx = u - x[i];
+//    return (y[i] + dx * (b[i] + dx * (c[i] + dx * d[i])));
+//}
 
 /*
  * compute ntiles
  */
 //kiran TODO:function not used
-void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
-{
-    int i, j = 0;
-    double *tmpx, *tmpy, div;
-
-    tmpx = (double *) calloc(n, sizeof(double));
-    if (tmpx == NULL) {
-	errwin("Can't calloc tmpx in percentiles");
-	return;
-    }
-    tmpy = (double *) calloc(n, sizeof(double));
-    if (tmpy == NULL) {
-	errwin("Can't calloc tmpy in percentiles");
-	cxfree(tmpx);
-	return;
-    }
-    for (i = 0; i < n; i++) {
-	tmpx[i] = x[i];
-	tmpy[i] = y[i];
-    }
-    sort_xy(tmpx, tmpy, n, 1, 0);
-    for (i = 0; i < nt; i++) {
-	div = 1.0 / nt;
-	resx[j] = (i + 1) * n * div;
-	resy[j] = tmpy[(i * n) / nt];
-	j++;
-    }
-    cxfree(tmpx);
-    cxfree(tmpy);
-}
+//void ntiles(double *x, double *y, int n, int nt, double *resx, double *resy)
+//{
+//    int i, j = 0;
+//    double *tmpx, *tmpy, div;
+//
+//    tmpx = (double *) calloc(n, sizeof(double));
+//    if (tmpx == NULL) {
+//	errwin("Can't calloc tmpx in percentiles");
+//	return;
+//    }
+//    tmpy = (double *) calloc(n, sizeof(double));
+//    if (tmpy == NULL) {
+//	errwin("Can't calloc tmpy in percentiles");
+//	cxfree(tmpx);
+//	return;
+//    }
+//    for (i = 0; i < n; i++) {
+//	tmpx[i] = x[i];
+//	tmpy[i] = y[i];
+//    }
+//    sort_xy(tmpx, tmpy, n, 1, 0);
+//    for (i = 0; i < nt; i++) {
+//	div = 1.0 / nt;
+//	resx[j] = (i + 1) * n * div;
+//	resy[j] = tmpy[(i * n) / nt];
+//	j++;
+//    }
+//    cxfree(tmpx);
+//    cxfree(tmpy);
+//}
 /*
  * interpolate (xr, yr) using x from (x, y)
  *
@@ -803,4 +797,3 @@ void cxfree(void *ptr)
 	free(ptr);
     }
 }
-
