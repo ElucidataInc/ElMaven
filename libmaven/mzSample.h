@@ -168,6 +168,15 @@ class Scan {
         int findHighestIntensityPos(float mz, float ppm);
 
         /**
+         * [highest intensity pos nearest to the cente mz]
+         * @method findClosestHighestIntensityPos
+         * @param  mz                      [m/z value]
+         * @param  ppm                     [ppm window]
+         * @return [highest intensity pos nearest to an m/z with a ppm window]
+         */
+        int findClosestHighestIntensityPos(float mz, float ppm); //TODO: Sahil, Added while merging point
+
+        /**
          * [checks if an input m/z value is in the m/z total list]
          * @method hasMz
          * @param  mz    [input m/z value]
@@ -212,6 +221,9 @@ class Scan {
          * @return [returns the sum of all the intensities for a scan]
          */
         int totalIntensity() const { int sum=0; for(unsigned int i=0;i<intensity.size();i++) sum += intensity[i]; return sum; }
+
+        //TODO: Sahil, Added while merging point
+        float maxIntensity()  { float max=0; for(unsigned int i=0;i<intensity.size();i++) if(intensity[i] > max) max=intensity[i]; return max; }
 
         /**
          * [return pairing of m/z, intensity values for top intensities.
