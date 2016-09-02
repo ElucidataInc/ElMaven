@@ -45,10 +45,10 @@ private slots:
 
 private:
 	IsotopeLogic* isotopeParameters;
-	MainWindow* _mw;
-	BackgroundPeakUpdate* workerThread;
+      MainWindow* _mw;
+	  BackgroundPeakUpdate* workerThread;
 
-	QString groupIsotopeMatrixExport(PeakGroup* group);
+     QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
 
 };
 
