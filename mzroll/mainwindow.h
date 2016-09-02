@@ -35,6 +35,7 @@
 #include "spectralhit.h"
 #include "rconsolewidget.h"
 #include "spectralhitstable.h"
+#include "peptidefragmentation.h"
 
 class SettingsForm;
 class EicWidget;
@@ -69,6 +70,7 @@ class LogWidget;
 class RconsoleWidget;
 class SpectralHit;
 class SpectralHitsDockWidget;
+class PeptideFragmentationWidget;
 
 extern Database DB;
 
@@ -111,6 +113,7 @@ public:
 	NotesWidget *notesDockWidget;
 	ProjectDockWidget *projectDockWidget;
 	SpectraMatching *spectraMatchingForm;
+	PeptideFragmentationWidget *peptideFragmentation;
 
 	TableDockWidget *bookmarkedPeaks;
 	SuggestPopup *suggestPopup;
@@ -217,6 +220,7 @@ public slots:
 	void findCovariants(Peak* _peak);
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
+    bool setPeptideSequence(QString peptideSeq); //TODO: Sahil, Added while merging point
 	vector<mzSlice*> getSrmSlices();
 
 	void open();

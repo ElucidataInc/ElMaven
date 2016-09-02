@@ -196,7 +196,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	logWidget = new LogWidget(this, std::cout);
 	rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
-
+    peptideFragmentation = new PeptideFragmentationWidget(this);
 
 
 	ligandWidget->setVisible(false);
@@ -217,6 +217,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	logWidget->setVisible(false);
 	rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
+    peptideFragmentation->setVisible(false);
 	//treemap->setVisible(false);
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
@@ -271,6 +272,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, spectralHitsDockWidget,
 			Qt::Horizontal);
+    addDockWidget(Qt::BottomDockWidgetArea,peptideFragmentation,Qt::Horizontal);
 
 	//addDockWidget(Qt::BottomDockWidgetArea,peaksPanel,Qt::Horizontal);
 	//addDockWidget(Qt::BottomDockWidgetArea,treeMapDockWidget,Qt::Horizontal);
@@ -289,6 +291,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(spectraDockWidget, galleryDockWidget);
 	tabifyDockWidget(spectraDockWidget, logWidget);
 	tabifyDockWidget(rconsoleDockWidget, logWidget);
+    tabifyDockWidget(peptideFragmentation,logWidget);
 
 	setContextMenuPolicy(Qt::NoContextMenu);
 	pathwayPanel->setInfo(DB.pathwayDB);
@@ -301,6 +304,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		restoreGeometry(settings->value("geometry").toByteArray());
 	}
 
+    peptideFragmentation->hide();
 	projectDockWidget->show();
 	scatterDockWidget->hide();
 	fragPanel->hide();
@@ -604,6 +608,12 @@ void MainWindow::setCompoundFocus(Compound*c) {
 		eicWidget->setCompound(c);
 	}
 
+    if(fragPanel->isVisible()   )
+        showFragmentationScans(mz);
+
+    QString compoundName(c->name.c_str());
+    setPeptideSequence(compoundName);
+
 	/*
 	 if( peaksPanel->isVisible() && c->hasGroup() ) {
 	 peaksPanel->setInfo(c->getPeakGroup());
@@ -612,6 +622,43 @@ void MainWindow::setCompoundFocus(Compound*c) {
 
 	if (c)
 		setUrl(c);
+}
+
+/*
+@author: Sahil
+*/
+//TODO: Sahil, Added while merging point
+bool MainWindow::setPeptideSequence(QString peptideSeq) {
+    //return false;
+    peptideSeq = peptideSeq.simplified();
+    QRegExp peptideRegExp("\\/\\d$",Qt::CaseSensitive,QRegExp::RegExp);
+
+    if (peptideSeq.contains(peptideRegExp)) {
+        Peptide pept(peptideSeq.toStdString(),0,"");
+        if (pept.isGood()) {
+            float peptideMz = pept.monoisotopicMZ();
+            qDebug() << "setPeptideSequence: " << peptideSeq << " " << peptideMz;
+
+            eicWidget->showMS2Events(true);
+            setMzValue(peptideMz);
+            peptideFragmentation->show();
+
+            if(isotopeWidget->isVisible()) {
+                MassCalculator mwcalc;
+                string formula=mwcalc.peptideFormula(peptideSeq.toStdString());
+                isotopeWidget->setFormula(QString(formula.c_str()));
+                isotopeWidget->setCharge(pept.charge);
+            }
+
+            if ( peptideFragmentation->isVisible()) {
+                peptideFragmentation->setPeptideSequence(peptideSeq);
+                peptideFragmentation->setCharge(pept.charge);
+            }
+            return true;
+         }
+    }
+
+    return false;
 }
 
 void MainWindow::hideDockWidgets() {
@@ -640,6 +687,10 @@ void MainWindow::doSearch(QString needle) {
 	QRegExp words("[a-z][A-Z]", Qt::CaseInsensitive, QRegExp::RegExp);
 	QRegExp formula("C[1-9].*(H[1-9]+|O[1-9]+|N[1-9]+)", Qt::CaseInsensitive,
 			QRegExp::RegExp);
+
+    if (setPeptideSequence(needle) ) {
+        return;
+    }
 
 	if (needle.contains(words) || needle.isEmpty()) {
 		ligandWidget->setFilterString(needle);
@@ -717,6 +768,8 @@ void MainWindow::open() {
 							+ tr("NetCDF Format(*.cdf *.nc);;")
 							+ tr("Maven Project File (*.mzroll);;")
 							+ tr("Maven Peaks File (*.mzPeaks);;")
+							+ tr("Peptide XML(*.pep.xml *.pepXML);;")
+							+ tr("Peptide idpDB(*.idpDB);;")
 							+ tr("All Files(*.*)"));
 
 	if (filelist.size() == 0)
@@ -1132,6 +1185,10 @@ void MainWindow::createMenus() {
 	aj->setCheckable(true);
 	aj->setChecked(false);
 	connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
+
+    QAction* al = widgetsMenu->addAction("Peptide Fragmenation");
+    al->setCheckable(true);  al->setChecked(false);
+    connect(al,SIGNAL(toggled(bool)),peptideFragmentation,SLOT(setVisible(bool)));
 
 	menuBar()->show();
 }
