@@ -234,6 +234,8 @@ class Scan {
          */
         vector<pair<float,float> > getTopPeaks(float minFracCutoff,float minSigNoiseRatio,int dropTopX);
 
+        vector<int>assignCharges(float ppmTolr); //TODO: Sahil, Added while merging spectrawidget
+
         /**
          * [generate multi charges series..endingin in change Zx,Mx]
          * @param Mx []
@@ -1334,6 +1336,10 @@ class PeakGroup {
 
 
         inline deque<PeakGroup>& getChildren()  { return children; }
+
+        vector<Scan*> getFragmenationEvents();
+
+        Scan* getAverageFragmenationScan(float resolution);
 
         /**
          * [setParent ]
