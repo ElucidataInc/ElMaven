@@ -12,6 +12,7 @@ const double H2_ABUNDANCE = 0.000115;
 const double ELECTRON_MASS = 0.00054857971;
 const double H2_MASS = 2.014101778;
 const double H_MASS = 1.0078250321;
+const double PROTON_MASS = H_MASS - ELECTRON_MASS;
 const double C13_MASS = 13.0033548378;
 const double C12_MASS = 12.00000000;
 const double N15_MASS = 15.0001088984;

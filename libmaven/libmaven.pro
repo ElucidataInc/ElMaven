@@ -25,6 +25,7 @@ SOURCES = 	base64.cpp \
                 mzSample.cpp \
                 mzUtils.cpp \
                 statistics.cpp \
+                elementMass.cpp \
                 mzFit.cpp \
                 mzAligner.cpp \
                 mzMassSlicer.cpp \
@@ -55,6 +56,7 @@ HEADERS += 	constants.h \
                 mzSample.h \
                 PeptideRecord.h \
                 Fragment.h \
+                elementMass.h \
                 mzMassCalculator.h \
                 mzPatterns.h \
                 mzUtils.h \

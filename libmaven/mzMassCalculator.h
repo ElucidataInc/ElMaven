@@ -9,6 +9,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "Peptide.hpp"
+#include "elementMass.h"
 
 class Compound;
 class Isotope;
@@ -35,89 +36,87 @@ class MassCalculator {
 
     public:
         enum IonizationType { ESI=0, EI=1};
-
         static IonizationType ionizationType;
 
-    typedef struct {
-        std::string name;
-        double mass;
-        double diff;
-		Compound* compoundLink;
-    } Match;
-
-    MassCalculator(){};
-
-    /**
-     * [computeNeutralMass ]
-     * @method computeNeutralMass
-     * @param  formula            []
-     * @return                    []
-     */
-    static double computeNeutralMass(string formula);
-
-    /**
-     * [input is neutral formala with all the hydrogens and charge state of molecule.]
-     * @method computeMass
-     * @param  formula     []
-     * @param  polarity    []
-     * @return             [expected mass of the molecule after loss/gain of protons]
-     */
-    static double computeMass(string formula, int polarity);
-
-    /**
-     * [getComposition parsing function]
-     * @method getComposition
-     * @param  elmnt          string formula
-     * @return                map of string and int.
-     */
-    static map<string,int> getComposition(string formula);
+        typedef struct {
+            std::string name;
+            double mass;
+            double diff;
+            Compound* compoundLink;
+        } Match;
 
 
-    /**
-     * [prettyName ]
-     * @method prettyName
-     * @param  c          []
-     * @param  h          []
-     * @param  n          []
-     * @param  o          []
-     * @param  p          []
-     * @param  s          []
-     * @return            []
-     */
-    static string prettyName(int c, int h, int n, int o, int p, int s);
+        /**
+         * [computeNeutralMass ]
+         * @method computeNeutralMass
+         * @param  formula            []
+         * @return                    []
+         */
+        static double computeNeutralMass(string formula);
 
-    /**
-     * [enumerateMasses ]
-     * @method enumerateMasses
-     * @param  inputMass       []
-     * @param  charge          []
-     * @param  maxdiff         []
-     * @param  matches         []
-     */
-    void enumerateMasses(double inputMass, double charge, double maxdiff, vector<Match*>& matches);
+        /**
+         * [input is neutral formala with all the hydrogens and charge state of molecule.]
+         * @method computeMass
+         * @param  formula     []
+         * @param  polarity    []
+         * @return             [expected mass of the molecule after loss/gain of protons]
+         */
+        static double computeMass(string formula, int polarity);
+
+        /**
+         * [getComposition parsing function]
+         * @method getComposition
+         * @param  elmnt          string formula
+         * @return                map of string and int.
+         */
+        static map<string,int> getComposition(string formula);
 
 
-    static vector<Isotope> computeIsotopes(string formula, int polarity);
+        /**
+         * [prettyName ]
+         * @method prettyName
+         * @param  c          []
+         * @param  h          []
+         * @param  n          []
+         * @param  o          []
+         * @param  p          []
+         * @param  s          []
+         * @return            []
+         */
+        static string prettyName(int c, int h, int n, int o, int p, int s);
 
-    /**
-     * [adjustMass ]
-     * @method adjustMass
-     * @param  mass       []
-     * @param  charge     []
-     * @return            []
-     */
-    static double adjustMass(double mass,int charge);
+        /**
+         * [enumerateMasses ]
+         * @method enumerateMasses
+         * @param  inputMass       []
+         * @param  charge          []
+         * @param  maxdiff         []
+         * @param  matches         []
+         */
+        void enumerateMasses(double inputMass, double charge, double maxdiff, vector<Match*>& matches);
 
-    /**
-     * [compDiff ]
-     * @method compDiff
-     * @param  a        []
-     * @param  b        []
-     * @return          []
-     */
-    static bool compDiff(const Match* a, const Match* b ) { return a->diff < b->diff; }
 
-    string peptideFormula(const string& peptideSeq); //TODO: Sahil, Added while merging point
+        static vector<Isotope> computeIsotopes(string formula, int polarity);
+
+        /**
+         * [adjustMass ]
+         * @method adjustMass
+         * @param  mass       []
+         * @param  charge     []
+         * @return            []
+         */
+        static double adjustMass(double mass,int charge);
+
+        /**
+         * [compDiff ]
+         * @method compDiff
+         * @param  a        []
+         * @param  b        []
+         * @return          []
+         */
+        static bool compDiff(const Match* a, const Match* b ) { return a->diff < b->diff; }
+
+        string peptideFormula(const string& peptideSeq); //TODO: Sahil, Added while merging point
 
 
     private:
@@ -127,7 +126,9 @@ class MassCalculator {
          * @param  elmnt          string element
          * @return                double mass of element.
          */
+        static ElementMass elementMass;
         static double getElementMass(string elmnt);
+        static void generateElementMassMap(string filename);
 
 };
 
