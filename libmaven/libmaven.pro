@@ -22,6 +22,7 @@ INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/ 
 
 SOURCES = 	base64.cpp \
                 mzMassCalculator.cpp \
+                mzPatterns.cpp \
                 mzSample.cpp \
                 mzUtils.cpp \
                 statistics.cpp \
