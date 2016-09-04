@@ -593,6 +593,11 @@ void delete_one(deque<T>& my_vector, unsigned int idx) {
 	my_vector.erase(my_vector.begin() + idx);
 }
 
+template <typename T>
+bool isBetweenInclusive(T x, T lb, T ub) {
+    return (x>=lb && x<=ub) || (x>=ub && x <=lb);
+}
+
 // template<typename vector>
 // /**
 //  * [resize vector in order to free up memory]
