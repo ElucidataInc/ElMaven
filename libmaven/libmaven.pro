@@ -53,6 +53,7 @@ SOURCES = 	base64.cpp \
 HEADERS += 	constants.h \
 		base64.h \
                 mzFit.h \
+                Peak.h \
                 mzMassSlicer.h \
                 mzSample.h \
                 PeptideRecord.h \

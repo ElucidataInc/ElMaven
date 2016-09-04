@@ -6,8 +6,8 @@
  */
 #ifndef MZEIC_H
 #define MZEIC_H
-#include <mzSample.h>
-
+#include "Peak.h"
+#include "mzSample.h"
 class Peak;
 class PeakGroup;
 class mzSample;
