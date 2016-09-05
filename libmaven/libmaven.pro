@@ -54,6 +54,7 @@ HEADERS += 	constants.h \
 		base64.h \
                 mzFit.h \
                 Peak.h \
+                mzAligner.h \
                 mzMassSlicer.h \
                 mzSample.h \
                 PeptideRecord.h \

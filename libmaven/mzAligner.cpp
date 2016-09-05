@@ -1,7 +1,6 @@
-#include "mzSample.h"
+#include "mzAligner.h"
 #include "mzMassSlicer.h"
-#include <cmath>
-
+#include "mzSample.h"
 
 Aligner::Aligner() {
 	maxItterations=10;

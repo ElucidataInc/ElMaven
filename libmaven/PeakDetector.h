@@ -16,14 +16,14 @@
 #include <map>
 #include <utility>
 
-#include "mavenparameters.h"
-#include "mzSample.h"
+#include <omp.h>
 #include "classifier.h"
+#include "mavenparameters.h"
+#include "mzAligner.h"
 #include "mzMassCalculator.h"
 #include "mzMassSlicer.h"
+#include "mzSample.h"
 #include "mzUtils.h"
-
-#include <omp.h>
 
 /**
  * @class PeakDetector
