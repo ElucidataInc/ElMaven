@@ -17,6 +17,7 @@
 #include <utility>
 
 #include <omp.h>
+#include "Compound.h"
 #include "classifier.h"
 #include "mavenparameters.h"
 #include "mzAligner.h"

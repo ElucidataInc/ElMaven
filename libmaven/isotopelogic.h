@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "Compound.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
-
 class MainWindow;
 
 class IsotopeLogic {

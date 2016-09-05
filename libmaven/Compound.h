@@ -1,9 +1,9 @@
 #ifndef COMPOUND_H
 #define COMPOUND_H
 
+#include <string>
 #include <vector>
 #include "PeakGroup.h"
-
 class Reaction;
 class PeakGroup;
 using namespace std;

@@ -2,7 +2,7 @@
 #define FRAGMENT_H
 #include <vector>
 #include "Peptide.hpp"
-
+#include "Scan.h"
 class PeptideRecord;
 class Scan;
 

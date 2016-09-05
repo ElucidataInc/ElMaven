@@ -6,7 +6,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "Compound.h"
 #include "Peptide.hpp"
 #include "elementMass.h"
 #include "mzSample.h"

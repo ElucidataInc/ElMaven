@@ -1,3 +1,4 @@
+#include "Scan.h"
 #include "mzSample.h"
 #include "constants.h"
 
@@ -11,8 +12,8 @@ Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursor
     this->productMz=0;
     this->collisionEnergy=0;
     this->centroided=0;
-    parentdata=&p;
-    brotherdata=&b;
+	this->precursorCharge=0;
+	this->precursorIntensity=0;
 
     /*if ( polarity != 1 && polarity != -1 ) {
         cerr << "Warning: polarity of scan is not 1 or -1 " << polarity << endl;
@@ -24,6 +25,8 @@ void Scan::deepcopy(Scan* b) {
     this->rt = b->rt;
     this->scannum = b->scannum;
     this->precursorMz = b->precursorMz;
+    this->precursorIntensity= b->precursorIntensity;
+    this->precursorCharge= b->precursorCharge;
     this->mslevel = b->mslevel;
     this->polarity = b->polarity;
     this->productMz= b->productMz;
@@ -137,6 +140,24 @@ void Scan::intensityFilter(int minIntensity) {
         intensity.swap(cIntensity);
 }
 
+void Scan::simpleCentroid() {
+
+        if (intensity.size() < 5 ) return;
+
+        vector<float> spline=smoothenIntensitites();
+
+        //find local maxima in intensity space
+        int vsize=spline.size();
+        vector<float>cMz;
+        vector<float>cIntensity;
+
+        findLocalMaximaInIntensitySpace(vsize, &cMz, &cIntensity, &spline);
+
+        updateIntensityWithTheLocalMaximas(&cMz, &cIntensity);
+
+        centroided = true;
+}
+
 vector<float> Scan::smoothenIntensitites() {
     //pass zero smooth..
     int smoothWindow = intensity.size() / 20;
@@ -176,25 +197,6 @@ void Scan::updateIntensityWithTheLocalMaximas(vector<float> *cMz, vector<float> 
     vector<float>(*cIntensity).swap(*cIntensity);
     mz.swap(*cMz);
     intensity.swap(*cIntensity);
-}
-
-
-void Scan::simpleCentroid() {
-
-        if (intensity.size() < 5 ) return;
-
-        vector<float> spline=smoothenIntensitites();
-
-        //find local maxima in intensity space
-        int vsize=spline.size();
-        vector<float>cMz;
-        vector<float>cIntensity;
-
-        findLocalMaximaInIntensitySpace(vsize, &cMz, &cIntensity, &spline);
-
-        updateIntensityWithTheLocalMaximas(&cMz, &cIntensity);
-
-        centroided = true;
 }
 
 bool Scan::hasMz(float _mz, float ppm) {

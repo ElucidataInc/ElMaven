@@ -76,6 +76,7 @@ HEADERS += 	constants.h \
                 isotopelogic.h \
                 eiclogic.h \
                 EIC.h \
+	            Scan.h \
                 databases.h \
                 Peptide.hpp \
                 PeptideRecord.h

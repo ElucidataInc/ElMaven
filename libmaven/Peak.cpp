@@ -1,6 +1,4 @@
 #include "Peak.h"
-#include "EIC.h"
-#include "mzSample.h"
 
 Peak::Peak() {
     pos = 0;

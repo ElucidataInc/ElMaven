@@ -1,9 +1,12 @@
 #ifndef PEAK_H
 #define PEAK_H
-#include <cstddef>
 #include <float.h>
-#include <limits>
 #include <climits>
+#include <cstddef>
+#include <limits>
+#include "EIC.h"
+#include "Scan.h"
+#include "mzSample.h"
 #include "mzUtils.h"
 
 class mzSample;

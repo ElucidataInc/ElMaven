@@ -1,5 +1,6 @@
 #include "mzMassCalculator.h"
 #include "constants.h"
+#include "Compound.h"
 
 using namespace mzUtils;
 using namespace std;

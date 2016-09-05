@@ -1,4 +1,5 @@
 #include "mzSample.h"
+#include "Compound.h"
 
 //global options
 int mzSample::filter_minIntensity = -1;
@@ -228,6 +229,10 @@ void mzSample::writeMzCSV(const char* filename) {
         }
 }
 
+int mzSample::getPolarity() {
+    if (scans.size() > 0) return scans[0]->getPolarity();
+    return 0;
+}
 void mzSample::parseMzML(const char* filename) {
         xml_document doc;
 

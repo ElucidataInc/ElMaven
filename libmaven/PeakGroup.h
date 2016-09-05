@@ -1,12 +1,19 @@
 #ifndef PEAKGROUP_H
 #define PEAKGROUP_H
-#include <cstddef>
 #include <float.h>
-#include <limits>
 #include <climits>
+#include <cstddef>
+#include <limits>
 #include <map>
+#include "EIC.h"
 #include "Peak.h"
+#include "Scan.h"
+#include "mzSample.h"
+class mzSample;
 class Compound;
+class Peak;
+class Scan;
+class EIC;
 
 using namespace std;
 

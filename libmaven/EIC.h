@@ -7,6 +7,7 @@
 #ifndef MZEIC_H
 #define MZEIC_H
 #include "Peak.h"
+#include "PeakGroup.h"
 #include "mzSample.h"
 class Peak;
 class PeakGroup;

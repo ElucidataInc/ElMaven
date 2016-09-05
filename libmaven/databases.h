@@ -1,6 +1,7 @@
 #ifndef DATABASES_H
 #define DATABASES_H
 
+#include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 

@@ -1,7 +1,6 @@
 #include "Fragment.h"
 
 #include "PeptideRecord.h"
-#include "mzSample.h"
 
 Fragment::Fragment() {
     precursorMz = 0;

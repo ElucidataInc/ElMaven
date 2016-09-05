@@ -1,10 +1,11 @@
 #ifndef CSVREPORT_H
 #define CSVREPORT_H
 
-#include "mzUtils.h"
-#include "mzSample.h"
 #include <QString>
 #include <QStringList>
+#include "Compound.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 
 using namespace std;
 using namespace mzUtils;
