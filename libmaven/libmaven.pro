@@ -56,6 +56,7 @@ HEADERS += 	constants.h \
                 Peak.h \
                 mzAligner.h \
                 mzMassSlicer.h \
+	            PeakGroup.h \
                 mzSample.h \
                 PeptideRecord.h \
                 Fragment.h \

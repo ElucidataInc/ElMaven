@@ -2,14 +2,15 @@
 #define MASSCALC_H
 
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <stdexcept>
 #include <map>
-#include "mzSample.h"
-#include "mzUtils.h"
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include "Compound.h"
 #include "Peptide.hpp"
 #include "elementMass.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 
 class Compound;
 class Isotope;
