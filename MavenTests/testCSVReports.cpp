@@ -40,21 +40,29 @@ void TestCSVReports::testopenGroupReport() {
 
     CSVReports* csvreports =  new CSVReports(mzsamples);
 
-    csvreports->openGroupReport(outputfile,false);
+    csvreports->openGroupReport(outputfile,true);
 
     ifstream ifile(outputfile.c_str());
     string temp;
     getline(ifile, temp);
-    remove(outputfile.c_str());
+    
     
 
     QStringList colnames;
     colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
-                << "compoundId" << "expectedRtDiff" << "ppmDiff" << "parent"
-                <<"bk_#sucyxpe_1_9"<<"bk_#sucyxpe_1_10";
+                << "compoundId" << "category"<<"expectedRtDiff" << "ppmDiff" 
+                << "parent"<<"bk_#sucyxpe_1_9"<<"bk_#sucyxpe_1_10";
 
     QString header = colnames.join(",");
+    QVERIFY(header.toStdString()==temp);
+
+    colnames.clear();
+    getline(ifile, temp);
+    remove(outputfile.c_str());
+    for(unsigned int i=0; i < 13; i++) { colnames << ","; }
+             for(unsigned int i=0; i< 2; i++) { colnames << "," << "A"; }
+    header = colnames.join("");
     QVERIFY(header.toStdString()==temp);
 }
 
@@ -78,7 +86,7 @@ void TestCSVReports::testopenPeakReport() {
              << "fromBlankSample";
 
     QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);
+    QVERIFY(header.toStdString()==temp);     
 }
 
 void TestCSVReports::testaddGroups() {
@@ -125,11 +133,12 @@ void TestCSVReports::testaddGroups() {
     peakDetector.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
-    csvreports->openGroupReport(outputfile,false);
+    csvreports->openGroupReport(outputfile,true);
     csvreports->addGroup(&(parent));
 
     ifstream ifile(outputfile.c_str());
     string temp;
+    getline(ifile, temp);
     getline(ifile, temp);
     getline(ifile, temp);
     remove(outputfile.c_str());
@@ -137,7 +146,7 @@ void TestCSVReports::testaddGroups() {
     QStringList colnames;
     colnames << "" << "0" << "1" << "0" << "786.1589"
              <<"14.93828"<<"0.06841305"<<"C12 PARENT"<<"FAD"
-             <<"HMDB01248"<<"-1"<<"2562.053"<<"786.1589"
+             <<"HMDB01248"<<""<<"-1"<<"2562.053"<<"786.1589"
              <<"12744.6"<<"5440.218";
 
     QString header = colnames.join(",");
