@@ -238,13 +238,13 @@ vector<float> Scan::chargeSeries(float Mx, unsigned int Zx) {
 
 
 bool Scan::setParentPeakData(float mzfocus, float ppmMerge, float noiseLevel, float minSigNoiseRatio) {
-    parentdata->flag=1;
+    bool flag=true;
     int mzfocus_pos = this->findHighestIntensityPos(mzfocus,ppmMerge);
-    if (mzfocus_pos < 0 ) { cout << "ERROR: Can't find parent " << mzfocus << endl; parentdata->flag=0; return parentdata->flag; }
-    parentdata->parentPeakIntensity=this->intensity[mzfocus_pos];
-    float parentPeakSN=parentdata->parentPeakIntensity/noiseLevel;
-    if(parentPeakSN <=minSigNoiseRatio){ parentdata->flag=0; return parentdata->flag;}
-    return parentdata->flag;
+    if (mzfocus_pos < 0 ) { cout << "ERROR: Can't find parent " << mzfocus << endl; flag=false; return flag; }
+    parentPeakIntensity=this->intensity[mzfocus_pos];
+    float parentPeakSN=parentPeakIntensity/noiseLevel;
+    if(parentPeakSN <=minSigNoiseRatio){ flag=false; return flag;}
+    return flag;
 }
 
 void Scan::initialiseBrotherData(int z, float mzfocus) {
@@ -295,7 +295,7 @@ void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel,
         bool lastMatched=false;
         int loopdirection;
         loopdirection=1;
-        float lastIntensity=parentdata->parentPeakIntensity;
+        float lastIntensity=parentPeakIntensity;
         for(int ii=z; ii < z+50 && ii<maxDeconvolutionCharge; ii++ ) {
             updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,ppmMerge);
             if (flag==false)
@@ -305,7 +305,7 @@ void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel,
         flag=true;
         lastMatched = false;
         loopdirection=-1;
-        lastIntensity=parentdata->parentPeakIntensity;
+        lastIntensity=parentPeakIntensity;
         for(int ii=z-1; ii > z-50 && ii>minDeconvolutionCharge; ii--) {
              updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,ppmMerge);
              if (flag==false)
@@ -353,11 +353,10 @@ void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float 
 
 ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
 
-    parentdata=&p;
 
     bool flag=setParentPeakData(mzfocus,ppmMerge,noiseLevel,minSigNoiseRatio);
 
-        if (flag==0)
+        if (flag==false)
             return NULL;
     //cout << "Deconvolution of " << mzfocus << " pSN=" << parentPeakSN << endl;
 

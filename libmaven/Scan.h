@@ -220,14 +220,7 @@ class Scan{
         int polarity;
 
     private:
-
-
-        struct ParentData {
-            float parentPeakIntensity;
-            bool flag;
-        };
-
-        ParentData *parentdata,p;
+        float parentPeakIntensity;
 
         struct BrotherData {
             float expectedMass;    
