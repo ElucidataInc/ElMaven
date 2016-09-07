@@ -293,11 +293,11 @@ void TestScan::testgetTopPeaks() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);
     initScan (scan);
 
-    vector<pair<float, float> > selected = scan->getTopPeaks(0.05, 3.0,40);
+    vector<pair<float, float> > selected = scan->getTopPeaks(0.05, 1.5,.9);
 
     QVERIFY(selected.size()==2);
-    QVERIFY(common::floatCompare(selected[0].first, 100));
-    QVERIFY(common::floatCompare(selected[1].first, 88.8889));
-    QVERIFY(common::floatCompare(selected[0].second, 2.07));
-    QVERIFY(common::floatCompare(selected[1].second, 8.8));
+    QVERIFY(common::floatCompare(selected[0].first,(float) 9.8999996));
+    QVERIFY(common::floatCompare(selected[1].first,(float) 8.8000001907));
+    QVERIFY(common::floatCompare(selected[0].second,(float) 2.06999993));
+    QVERIFY(common::floatCompare(selected[1].second,(float) 8.8000001));
 }
