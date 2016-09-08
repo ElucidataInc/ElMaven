@@ -17,6 +17,7 @@ PRECOMPILED_HEADER  = stable.h
 VERSION="769"
 DEFINES += "MAVEN_VERSION=$$VERSION"
 DEFINES += "PLATFORM=\"$$QMAKE_HOST.os\""
+DEFINES += EMBEDHTTPSERVER
 
 TARGET = maven_dev_$$VERSION
 macx:TARGET=Maven
@@ -31,7 +32,7 @@ QT += sql network xml svg
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
 INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
-INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../libcsvparser ../libpls
+INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser 
 
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls                   #64bit
 
@@ -163,6 +164,13 @@ database.cpp \
  spectralhitstable.cpp \
  logwidget.cpp \ 
  peptidefragmentation.cpp
+
+contains (DEFINES,EMBEDHTTPSERVER) {
+    SOURCES += remotespectrahandler.cpp
+    HEADERS += remotespectrahandler.h
+    INCLUDEPATH += ../libpillow
+    LIBS += -lpillowcore
+}
 
 
 sources.files =  $$HEADERS \

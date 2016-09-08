@@ -142,6 +142,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+	//settings dialog
+	// Moved when merged with Maven776 - Kiran
+	settingsForm = new SettingsForm(settings, this);
 
 	//progress Bar on the bottom of the page
 	statusText = new QLabel(this);
@@ -241,8 +244,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	//rconsole dialog
 	//rconsoleDialog	 =  new RConsoleDialog(this);
 
-	//settings dialog
-	settingsForm = new SettingsForm(settings, this);
 
 	spectraMatchingForm = new SpectraMatching(this);
 
@@ -366,6 +367,11 @@ MainWindow::MainWindow(QWidget *parent) :
 				dockWidgets[i]->features() ^ QDockWidget::DockWidgetClosable);
 	}
 
+	//Starting server to fetch remote data - Kiran
+	//Added when merged with Maven776
+    if ( settings->value("embeded_http_server_autostart").value<bool>() == true) {
+         startEmbededHttpServer();
+    }
 	//check if program exited correctly last time
 	if (settings->contains("closeEvent")
 			and settings->value("closeEvent").toInt() == 0) {
@@ -1081,6 +1087,18 @@ void MainWindow::readSettings() {
         settings->setValue("eicMaxGroups", 10);
     if (!settings->contains("rtStepSize"))
         settings->setValue("rtStepSize", 10);
+	//Added when merged with Maven776 - Kiran
+    if (!settings->contains("embeded_http_server_autostart")) {
+        settings->setValue("embeded_http_server_autostart", true);
+    }
+
+    if (!settings->contains("embeded_http_server_port")) {
+         settings->setValue("embeded_http_server_port", 45678);
+    }
+
+    if (!settings->contains("embeded_http_server_address")) {
+        settings->setValue("embeded_http_server_address", "127.0.0.1");
+    }
 
 	resize(size);
 	move(pos);
@@ -2343,6 +2361,24 @@ mzSample* MainWindow::getSampleByName(QString name) {
         }
     }
     return NULL;
+}
+
+
+
+void MainWindow::startEmbededHttpServer() {
+	//Merged with Maven 776 - Kiran
+#ifdef EMBEDHTTPSERVER
+    QString address = settings->value("embeded_http_server_address").value<QString>();
+    int port = settings->value("embeded_http_server_port").value<int>();
+    embededhttpserver = new Pillow::HttpServer(QHostAddress(address), port);
+
+    RemoteSpectraHandler* handler = new RemoteSpectraHandler(embededhttpserver);
+
+    handler->setMainWindow(this);
+    connect(embededhttpserver, SIGNAL(requestReady(Pillow::HttpConnection*)), handler,
+                    SLOT(handleRequest(Pillow::HttpConnection*)));
+
+#endif
 }
 
 bool MainWindow::isSampleFileType(QString filename) {

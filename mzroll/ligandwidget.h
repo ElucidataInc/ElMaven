@@ -27,6 +27,10 @@
 #include "mainwindow.h"
 #include "numeric_treewidgetitem.h"
 
+//Added when merged with Maven776
+#include <QtNetwork>
+#include <QNetworkReply>
+
 class QAction;
 class QMenu;
 class QTextEdit;
@@ -47,19 +51,24 @@ public:
     void setDatabaseNames();
     QString getDatabaseName();
     void clear() { treeWidget->clear(); }
-    void showMatches(QString needle);
     void showNext();
     void showLast();
     void setDatabaseAltered(QString dbame,bool altered);
+    //Added when merged with Maven776 - Kiran
+	Compound* getSelectedCompound();
 
 public slots: 
     void setCompoundFocus(Compound* c);
     void setDatabase(QString dbname);
     void setFilterString(QString s);
+    //Moved when merged with Maven776- Kiran
+    void showMatches(QString needle);
     void showGallery();
     void saveCompoundList();
     void updateTable() { showTable(); }
     void updateCurrentItemData();
+    //Added when merged with Maven776- Kiran
+	void matchFragmentation();
 
 
 signals:
@@ -68,13 +77,13 @@ signals:
     void databaseChanged(QString dbname);
 
 private slots:
-      void showLigand();
-      void showTable();
-      void databaseChanged(int index);
-      void readRemoteData(const QHttpResponseHeader &);
-      void fetchRemoteCompounds();
-      QList<Compound*> parseXMLRemoteCompounds();
-
+    void showLigand();
+    void showTable();
+    void databaseChanged(int index);
+    //Added when merged with Maven776- Kiran
+    void readRemoteData(QNetworkReply* reply);
+    void fetchRemoteCompounds();
+    QList<Compound*> parseXMLRemoteCompounds();
 
 private:
 
@@ -83,6 +92,8 @@ private:
     QToolButton *galleryButton;
     QToolButton *saveButton;
     QToolButton *loadButton;
+    //Added when merged with Maven776- Kiran
+    QLineEdit*  filterEditor;
     QPoint dragStartPosition;
 
     QHash<QString,bool>alteredDatabases;
@@ -93,6 +104,9 @@ private:
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
 
     //fetching of compounds from remote database
+    //Added when merged with Maven776- Kiran
+    QNetworkAccessManager* m_manager;
+
     int connectionId;
     QHttp http;
     QXmlStreamReader xml;

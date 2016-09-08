@@ -1,10 +1,10 @@
 #include "settingsform.h"
 
-SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
+SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
     setupUi(this);
     settings = s;
     mainwindow = w;
-    setFormValues();
+    updateSettingFormGUI();
 
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
@@ -38,15 +38,18 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(pathwaysFolderSelect, SIGNAL(clicked()), SLOT(selectPathwaysFolder()));
     connect(methodsFolderSelect, SIGNAL(clicked()), SLOT(selectMethodsFolder()));
     connect(RProgramSelect, SIGNAL(clicked()), SLOT(selectRProgram()));
+    //connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
+
 
     connect(centroid_scan_flag,SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(scan_filter_min_quantile, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
 
+
 }
 
-void SettingsForm::recomputeIsotopes() {
+void SettingsForm::recomputeIsotopes() { 
     getFormValues();
     if (!mainwindow) return;
 
@@ -65,7 +68,7 @@ void SettingsForm::recomputeIsotopes() {
     }
 }
 
-void SettingsForm::recomputeEIC() {
+void SettingsForm::recomputeEIC() { 
     getFormValues();
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();
@@ -80,8 +83,8 @@ void SettingsForm::updateSmoothingWindowValue(double value) {
 }
 
 
-void SettingsForm::setFormValues() {
-   // qDebug() << "SettingsForm::setFormValues()";
+void SettingsForm::updateSettingFormGUI() {
+   // qDebug() << "SettingsForm::updateSettingFormGUI()";
 
     if (settings == NULL) return;
     eic_smoothingAlgorithm->setCurrentIndex(settings->value("eic_smoothingAlgorithm").toInt());
@@ -104,18 +107,16 @@ void SettingsForm::setFormValues() {
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
 
-
-
-   QStringList folders;       folders << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram";
-   QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram;
+    QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram;
+    QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram";
 
    unsigned int itemCount=0;
-    foreach(QString itemName, folders) {
+    foreach(QString itemName, pathlist) {
         if(settings->contains(itemName)) items[itemCount]->setText( settings->value(itemName).toString());
         itemCount++;
     }
 
-    if(settings->contains("remote_server_url"))
+    if(settings->contains("data_server_url"))
         data_server_url->setText( settings->value("data_server_url").toString());
 
     if(settings->contains("centroid_scan_flag"))
@@ -202,7 +203,7 @@ void SettingsForm::selectFolder(QString key) {
     QString newFolder = QFileDialog::getExistingDirectory(this,oFolder);
     if (! newFolder.isEmpty()) {
         settings->setValue(key,newFolder);
-        setFormValues();
+        updateSettingFormGUI();
     }
 }
 
@@ -210,8 +211,19 @@ void SettingsForm::selectFile(QString key) {
     QString oFile = ".";
     if(settings->contains(key)) oFile =  settings->value(key).toString();
     QString newFile = QFileDialog::getOpenFileName(this,"Select file",".","*.exe");
-    if (! newFile.isEmpty()) {
+    if (!newFile.isEmpty()) {
         settings->setValue(key,newFile);
-        setFormValues();
+        updateSettingFormGUI();
     }
 }
+
+void SettingsForm::setNumericValue(QString key, double value) {
+    if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
+     settings->setValue(key,value);
+}
+
+void SettingsForm::setStringValue(QString key, QString value) {
+      if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
+     settings->setValue(key,value);
+}
+

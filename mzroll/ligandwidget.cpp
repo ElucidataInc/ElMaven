@@ -53,22 +53,43 @@ LigandWidget::LigandWidget(MainWindow* mw) {
 
   saveButton->setEnabled(false);
 
-  //toolBar->addWidget(new QLabel("Compounds: "));
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(loadButton);
   toolBar->addWidget(saveButton);
   toolBar->addWidget(galleryButton);
 
+  //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
+  filterEditor = new QLineEdit(toolBar);
+  filterEditor->setPlaceholderText("Compound Name Filter");
+  connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(showMatches(QString)));
 
-  setWidget(treeWidget);
+  QWidget *window = new QWidget;
+  QVBoxLayout *layout = new QVBoxLayout;
+  layout->setSpacing(0);
+  layout->addWidget(filterEditor);
+  layout->addWidget(treeWidget);
+  window->setLayout(layout);
+
+  setWidget(window);
   setTitleBarWidget(toolBar);
   setWindowTitle("Compounds");
 
 
 
-  connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)), this,
-          SLOT(readRemoteData(const QHttpResponseHeader &)));
 
+
+  //disconnect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)));
+  //connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)), SLOT(readRemoteData(const QHttpResponseHeader &)));
+  
+  // Fetches and reads compounds from a remote location when fetch button is clicked - Kiran
+  disconnect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()));
+  connect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()),this,SLOT(fetchRemoteCompounds()));
+
+  m_manager = new QNetworkAccessManager(this);
+  connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
+
+  //get list of methods from central database
+  //http://data_server_url?action=fetchcompounds&format=xml
   //fetchRemoteCompounds();
 
 }
@@ -153,8 +174,8 @@ void LigandWidget::setCompoundFocus(Compound* c) {
 void LigandWidget::setFilterString(QString s) { 
 	if(s != filterString) { 
 		filterString=s; 
-		setWindowTitle("Compounds: " + filterString);
-        showMatches(s);
+        filterEditor->setText(filterString);
+        //showMatches(s);
 	} 
     //if (s.length() >= 4 ) { showMatches(s); }
 }
@@ -308,6 +329,9 @@ void LigandWidget::saveCompoundList(){
         //header
         out << "polarity" << SEP;
         out << "compound" << SEP;
+        //Addiditional headers added when merging with Maven776 - Kiran
+        out << "mz" << SEP;
+        out << "charge" << SEP;
         out << "precursorMz" << SEP;
         out << "collisionEnergy" << SEP;
         out << "productMz" << SEP;
@@ -333,6 +357,8 @@ void LigandWidget::saveCompoundList(){
 
             out << charpolarity << SEP;
             out << QString(compound->name.c_str()) << SEP;
+            out << compound->mass << SEP;
+            out << compound->charge << SEP;
             out << compound->precursorMz  << SEP;
             out << compound->collisionEnergy << SEP;
             out << compound->productMz    << SEP;
@@ -342,7 +368,6 @@ void LigandWidget::saveCompoundList(){
             out << compound->srmId.c_str() << SEP;
             out << category.join(";") << SEP;
             out << "\n";
-            // out << QString(compound->category)
         }
         setDatabaseAltered(databaseSelect->currentText(),false);
     }
@@ -392,17 +417,9 @@ void LigandWidget::showLigand() {
             QVariant v = item->data(0,Qt::UserRole);
             Compound*  c =  v.value<Compound*>();
             if (c)  _mw->setCompoundFocus(c);
+			if (c)   matchFragmentation();
 
     }
-            //} else {
-                //if ( itemType == PathwayType ) {
-                //	_mw->pathwayDockWidget->setVisible(true);
-                //	_mw->getPathwayWidget()->setPathway(text);
-                //	//qDebug() << "SETPATHWAY=" << text;
-                //}
-            //}
-
-
 }
 
 void LigandWidget::fetchRemoteCompounds()
@@ -415,108 +432,176 @@ void LigandWidget::fetchRemoteCompounds()
         QUrl url(settings->value("data_server_url").toString());
         url.addQueryItem("action", "fetchcompounds");
         url.addQueryItem("format", "xml");
-        http.setHost(url.host());
-        connectionId = http.get(url.toEncoded());
-       // qDebug() << " ConnectionId=" << connectionId;
-    }
+        //Merged with Maven776 - Fetching compounds from a remote - Kiran
+        QNetworkRequest request;
+        request.setUrl(url);
+
+        QNetworkReply *reply = m_manager->get(request);
+        qDebug() << url.toEncoded();
+   }
 }
 
-void LigandWidget::readRemoteData(const QHttpResponseHeader &resp)
-{
+void LigandWidget::readRemoteData(QNetworkReply* reply)
+{   //Merged with Maven 776 - Reading the compounds- Kiran
     //qDebug() << "readRemoteData() << " << resp.statusCode();
 
-    if (resp.statusCode() == 302 || resp.statusCode() == 200 ) { //redirect
-        xml.addData(http.readAll());
-        parseXMLRemoteCompounds();
-        setDatabaseNames();
+    if (reply) { //redirect
+        xml.addData(reply->readAll());
     } else {
         http.abort();
     }
+
+    parseXMLRemoteCompounds();
+    setDatabaseNames();
 }
 
 QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
 {
-    //qDebug() << "LigandWidget::parseXMLRemoteCompounds()";
+    //Merged with Maven776 - Kiran
+    qDebug() << "LigandWidget::parseXMLRemoteCompounds()";
     Compound *remoteCompound=NULL;
     QString currentTag;
     QList<Compound*>remoteCompounds;
+    int itemCount=0;
 
+    //remote databases will have the following prefix appended
+    //to the name of the database to indicate that they were fetched.
+    std::string remoteDBPrefix="REMOTE:";
 
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
-            if (xml.name() == "item"){
+            currentTag = xml.name().toString().toLower();
+            if (currentTag == "item"){
+                itemCount++;
+                //qDebug() << "new item:" << itemCount;
                 remoteCompound = new Compound("Unknown","Unknown","",0);
             }
-            currentTag = xml.name().toString().toLower();
         } else if (xml.isEndElement()) {
-            if (xml.name() == "item") {
+            currentTag = xml.name().toString().toLower();
+            if (currentTag == "item") {
                 if (remoteCompound !=NULL) {
-                    if (!remoteCompound->formula.empty())
-                        remoteCompound->mass=remoteCompound->ajustedMass(0);
 
-                    if (!remoteCompound->id.empty()) {
-                         DB.addCompound(remoteCompound);
-                         qDebug() << "new remote compound..: " << remoteCompound->id.c_str();
+                    if (!remoteCompound->formula.empty()) {
+                        remoteCompound->mass=remoteCompound->ajustedMass(0);
                     }
+
+					if (remoteCompound->name == "Unknown") {
+                        remoteCompound->name = remoteCompound->id;
+					}
+
+                    DB.addCompound(remoteCompound);
+                    remoteCompounds << remoteCompound;
+                    //qDebug() << "new remote compound..: " << remoteCompound->id.c_str();
+                    remoteCompound = NULL;
+
                 }
          }
-
-        }  else if (xml.isCharacters() && !xml.isWhitespace()) {
+        }  else {
+            QString xmltext =xml.text().toString().simplified();
+            //qDebug() << xmltext;
+            if (xmltext.length() == 0 ) continue;
 
             if (remoteCompound == NULL ){
-                qDebug() << "Parse Error: " << currentTag; continue;
-                //return remoteCompounds;
-            } else if (currentTag == "metabolite_id")
-                remoteCompound->id = xml.text().toString().toStdString();
+                qDebug() << "Parse Error: " << currentTag << " XML: " << xmltext;
+                continue;
+            } else if (currentTag == "metabolite_id") {
+                remoteCompound->id = xmltext.toStdString();
+                qDebug() << "ID: " << xmltext;
+            }
 
             else if (currentTag == "metabolite_name")
-                remoteCompound->name = xml.text().toString().toStdString();
+                remoteCompound->name = xmltext.toStdString();
 
             else if (currentTag == "formula")
-                remoteCompound->formula = xml.text().toString().toStdString();
+                remoteCompound->formula = xmltext.toStdString();
 
             else if (currentTag == "kegg_id")
-                remoteCompound->kegg_id = xml.text().toString().toStdString();
+                remoteCompound->kegg_id = xmltext.toStdString();
 
             else if (currentTag == "pubmed_id")
-                remoteCompound->pubchem_id = xml.text().toString().toStdString();
+                remoteCompound->pubchem_id = xmltext.toStdString();
 
             else if (currentTag == "hmdb_id")
-                remoteCompound->hmdb_id = xml.text().toString().toStdString();
+                remoteCompound->hmdb_id = xmltext.toStdString();
 
             else if (currentTag == "precursormz") {
-                remoteCompound->precursorMz = xml.text().toString().toDouble();
+                remoteCompound->precursorMz = xmltext.toDouble();
                 remoteCompound->mass = remoteCompound->precursorMz;
             }
             else if (currentTag == "productmz")
-                remoteCompound->productMz = xml.text().toString().toDouble();
+                remoteCompound->productMz = xmltext.toDouble();
 
             else if (currentTag == "ce")
-                remoteCompound->collisionEnergy = xml.text().toString().toDouble();
+                remoteCompound->collisionEnergy = xmltext.toDouble();
 
             else if (currentTag == "retentiontime")
-                remoteCompound->expectedRt = xml.text().toString().toDouble();
+                remoteCompound->expectedRt = xmltext.toDouble();
 
             else if (currentTag == "method_id") {
-                remoteCompound->db = xml.text().toString().toStdString();
-                remoteCompound->method_id = xml.text().toString().toStdString();
+                remoteCompound->db = remoteDBPrefix + xmltext.toStdString();
+                remoteCompound->method_id = xmltext.toStdString();
 
             } else if (currentTag == "transition_id")
-                remoteCompound->transition_id = xml.text().toString().toInt();
-
+                remoteCompound->transition_id = xmltext.toInt();
         }
     }
 
-    if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
-        http.abort();
+    if (xml.error()) {
+        if ( xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
+            qWarning() << "XML ERROR: BAD END TO DOCUMENT" << xml.lineNumber() << ": " << xml.errorString();
+            http.abort();
+        } else {
+            qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
+        }
     }
 
+    qDebug() << "Done! remoteCompoundFetch() Found=" << remoteCompounds.size();
 
     return remoteCompounds;
 }
 
+Compound* LigandWidget::getSelectedCompound() { 
+    //Merged with Maven776
+	//get current compound
+    QTreeWidgetItem* item = treeWidget->selectedItems().first();
+    if (!item) return NULL;
+
+    QVariant v = item->data(0,Qt::UserRole);
+    Compound* c =  v.value<Compound*>();
+	if (!c) return NULL;
+
+	return c;
+}
 
 
+void LigandWidget::matchFragmentation() {
+    // New feature added - Merged with Maven776 - Kiran
+	Compound* c = getSelectedCompound();
+	if (!c or c->fragment_mzs.size() == 0) return;
 
+    QStringList searchText;
+	int mzCount = c->fragment_mzs.size();
+	int intsCount = c->fragment_intensity.size(); 
+
+    int charge = _mw->getIonizationMode(); //user specified ionization mode
+	float precursorMz = c->precursorMz;
+    if (!c->formula.empty() && charge) precursorMz = c->ajustedMass(charge);
+
+    for(int i=0; i < mzCount; i++ ) {
+			float mz = c->fragment_mzs[i];
+			float ints = 0; 
+			if (i < intsCount) ints = c->fragment_intensity[i];
+
+            searchText  << tr("%1\t%2")
+                .arg(QString::number(mz,'f', 5))
+                .arg(QString::number(ints, 'f', 2));
+    }
+
+	qDebug() << "Search: " << searchText << endl;
+
+	_mw->spectraMatchingForm->fragmentsText->setPlainText(searchText.join("\n"));
+	_mw->spectraMatchingForm->precursorMz->setText(QString::number(precursorMz,'f',6));
+
+//	_mw->spectraMatchingForm->show();
+}

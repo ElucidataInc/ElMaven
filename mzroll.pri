@@ -20,7 +20,7 @@ QMAKE_LFLAGS_DEBUG += -pg
 
 
 QT += core
-CONFIG += silent exceptions debug
+CONFIG += silent exceptions
 OBJECTS_DIR = tmp
 MOC_DIR = tmp
 UI_DIR   =  tmp
@@ -53,7 +53,7 @@ unix {
  #  DEFINES += CDFPARSER
  #  LIBS += -lcdfread -lnetcdf
  #  DEFINES += ZLIB
- #  LIBS += -lz -lcdfread -lnetcdf
+ #  LIBS += -lz -lcdfread -lnetcdf 
 }
 
 

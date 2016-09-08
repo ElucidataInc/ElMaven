@@ -36,6 +36,9 @@
 #include "rconsolewidget.h"
 #include "spectralhitstable.h"
 #include "peptidefragmentation.h"
+//Added when merged with Maven776 - Kiran
+#include "remotespectrahandler.h"
+
 
 class SettingsForm;
 class EicWidget;
@@ -73,6 +76,8 @@ class SpectralHitsDockWidget;
 class PeptideFragmentationWidget;
 
 extern Database DB;
+//Added when merged with Maven776 - Kiran
+class RemoteSpectraHandler;
 
 class MainWindow: public QMainWindow {
 Q_OBJECT
@@ -128,7 +133,8 @@ public:
 	AlignmentDialog* alignmentDialog;
 	RconsoleWidget* rconsoleDockWidget;
 	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
-
+    //Added when merged with Maven776 - Kiran
+    Pillow::HttpServer*	  embededhttpserver;
 	QProgressBar *progressBar;
 
 	int sampleCount() {
@@ -240,6 +246,8 @@ public slots:
 	void historyLast();
 	void getLinks(Peak* peak);
 	void markGroup(PeakGroup* group, char label);
+    //Added when merged with Maven776 - Kiran
+    void startEmbededHttpServer();
 
 	void setIonizationMode(int x);
 	int getIonizationMode() {
@@ -250,7 +258,9 @@ public slots:
 	double getUserPPM() {
 		return _ppmWindow;
 	}
-
+    
+    //Added when merged with Maven776 - Kiran
+	SettingsForm* getSettingsForm() { return settingsForm; }
 	TableDockWidget* addPeaksTable(QString title);
 	SpectralHitsDockWidget* addSpectralHitsTable(QString title);
 	BackgroundPeakUpdate* newWorkerThread(QString funcName);

@@ -10,6 +10,7 @@ SUBDIRS +=	\
 		libcsvparser\
 		pugixml/src \
 		libmaven \
+        libpillow\
         libpls \
     	mzroll \
         peakdetector \
