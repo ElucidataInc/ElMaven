@@ -68,12 +68,15 @@ public slots:
 	  void markGroupGood();
 	  void markGroupIgnored();
           void showAllHits();
+      void showSpectralHits();
+      void showSpectralCounts();
 	  void showGallery();
           void showTreeMap();
 	  void showScatterPlot();
 	  void setClipboard();
 	  void deleteGroup();
 	  void deleteAll();
+      QStringList uniqGeneList(SpectralHit* hit);
       void showFocusedGroups(); //TODO: Sahil, Added while merging mzfileio
           int loadSpreadsheet(QString fileName);
           int loadCSVFile(QString filename, QString sep);

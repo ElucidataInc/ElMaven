@@ -428,6 +428,22 @@ vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff,float minSNRat
     return selected;
 }
 
+string Scan::toMGF() { 
+    //Merged with Maven776 - Kiran
+    std::stringstream buffer;
+    buffer << "BEGIN IONS" << endl;
+    if (sample) { buffer << "TITLE=" <<  sample->sampleName << "." << scannum << "." << scannum << "." << precursorCharge << endl; }
+    buffer << "PEPMASS=" << setprecision(8) << precursorMz << " " << setprecision(3) << precursorIntensity << endl;
+    buffer << "RTINSECONDS=" << setprecision(9) << rt*60 << "\n";
+    buffer << "CHARGE=" << precursorCharge; if(polarity < 0) buffer << "-"; else buffer << "+"; buffer << endl;
+    for(unsigned int i=0; i < mz.size(); i++) {
+        buffer << setprecision(8) << mz[i] << " " << setprecision(3) << intensity[i] << endl;
+    }
+    buffer << "END IONS" << endl;
+    //cout << buffer;
+    return buffer.str();
+}
+
 vector<int> Scan::assignCharges(float ppmTolr) {
     if ( nobs() == 0) {
         vector<int>empty;

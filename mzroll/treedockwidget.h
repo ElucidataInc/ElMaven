@@ -18,6 +18,8 @@ public:
     QTreeWidget *treeWidget;
 
     TreeDockWidget(MainWindow*, QString title, int numColms);
+    //Added while merging with Maven776 - Kiran
+    void setQQQToolBar();
 
 
 public slots: 
@@ -57,6 +59,8 @@ public slots:
       void unlinkGroup();
 
     private:
+      //Added while merging with Maven776 - Kiran
+      MainWindow* _mainWindow;
       void itemToClipboard(QTreeWidgetItem* item, QString& clipboardtext);
 };
 

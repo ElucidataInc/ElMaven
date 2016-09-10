@@ -189,15 +189,74 @@ void SpectralHitsDockWidget::deleteAll() {
 
 
 void SpectralHitsDockWidget::showAllHits() {
+    //Merged with Maven776 - Kiran
+    if (viewType == hitView) {
+        showSpectralHits();
+    } else {
+        showSpectralCounts();
+    }
+}
+
+void SpectralHitsDockWidget::showSpectralCounts() {
+
     treeWidget->clear();
-    if (allhits.size() == 0 ) return;
+
+    QMap<QString, QMap<QString,float> >pivitTable;
+    QSet<QString>colNames;
+    QMap<QString,SpectralHit*> bestHit;
+
+    foreach(SpectralHit* hit, allhits) {
+        QString rowId = hit->fragmentId;
+        QString colId = hit->sampleName;
+
+        if(!pivitTable.contains(rowId)) {
+            pivitTable[rowId][colId]=1;
+        } else {
+            pivitTable[rowId][colId]++;
+        }
+
+        if(bestHit.count(rowId)==0 or bestHit[rowId]->score > hit->score) bestHit[rowId]=hit;
+        colNames << colId;
+   }
+
+    QStringList rowNames = pivitTable.keys();
+
+    QStringList headerNames;
+    headerNames << "Peptide" << "Protein" << "GeneSymbol" << "rt" << "preMz" << colNames.toList();
+    treeWidget->setColumnCount(headerNames.size());
+    treeWidget->setHeaderLabels(headerNames);
+    //treeWidget->header()->setResizeMode(QHeaderView::Interactive);
+    //treeWidget->header()->adjustSize();
     treeWidget->setSortingEnabled(false);
 
-    qSort(allhits.begin(),allhits.end(),SpectralHit::compScore);
-    for(int i=0; i < allhits.size() && i < 1000 ; i++ ) { 
-	    if(allhits[i]) addRow(allhits[i], NULL);
-    }
+    QColor color = Qt::white;
 
+
+    foreach(QString rowId, rowNames) {
+            NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,0);
+            SpectralHit* hit = bestHit[rowId];
+
+            item->setText(0,rowId);
+            if(hit->getProteins().size()>0) {
+                item->setText(1,hit->getProteinIds());
+                item->setText(2,uniqGeneList(hit).join(";"));
+            }
+            item->setText(3,QString::number(hit->rt, 'f', 2));
+            item->setText(4,QString::number(hit->precursorMz, 'f', 4));
+
+
+            item->setData(0,Qt::UserRole,QVariant::fromValue(hit));
+            for(int i=5; i < 5+colNames.size(); i++) {
+                QString colId = headerNames[i];
+                float value = pivitTable[rowId][colId];
+                float prob =  1.0 - 1.2*exp(-0.5*value);
+                if(prob < 0 ) prob=0;
+                color.setHsvF(0.4+prob/5,prob,1,1);
+                item->setText(i,QString::number(value, 'f', 0));
+                item->setBackgroundColor(i,color);
+           }
+
+    }
 
     QScrollBar* vScroll = treeWidget->verticalScrollBar();
     if ( vScroll ) { vScroll->setSliderPosition(vScroll->maximum()); }
@@ -263,6 +322,32 @@ void SpectralHitsDockWidget::exportHitsToSpreadsheet() {
 */
 }
 
+void SpectralHitsDockWidget::showSpectralHits() {
+    //Merged with Maven776 - Kiran
+    treeWidget->clear();
+    if (allhits.size() == 0 ) return;
+    treeWidget->setSortingEnabled(false);
+
+    QStringList colNames;
+    colNames << "Sample" << "Protein" << "Peptide" << "rt" << "Precursor MZ" << "Charge" << "Scan Number" << "Score" << "matchCount"  << "Hit Rank";
+    treeWidget->setColumnCount(colNames.size());
+    treeWidget->setHeaderLabels(colNames);
+    //treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
+    //treeWidget->header()->adjustSize();
+    treeWidget->setSortingEnabled(false);
+
+
+    qSort(allhits.begin(),allhits.end(),SpectralHit::compScore);
+    for(int i=0; i < allhits.size(); i++ ) {
+	    if(allhits[i]) addRow(allhits[i], NULL);
+    }
+
+
+    QScrollBar* vScroll = treeWidget->verticalScrollBar();
+    if ( vScroll ) { vScroll->setSliderPosition(vScroll->maximum()); }
+    treeWidget->verticalScrollBar()->setEnabled(true);
+    treeWidget->setSortingEnabled(true);
+}
 
 void SpectralHitsDockWidget::showSelectedGroup() { 
     QTreeWidgetItem *item = treeWidget->currentItem();
@@ -1320,4 +1405,16 @@ void SpectralHitsDockWidget::switchTableView() {
     showAllHits();
     updateTable();
 */
+}
+
+QStringList SpectralHitsDockWidget::uniqGeneList(SpectralHit* hit) {
+    QStringList proteinList = hit->getProteins();
+    QSet<QString> geneSymbols;
+
+    foreach (QString protein, proteinList ) {
+        ProteinHit* prot = proteinAccessionMap[protein];
+        if (prot) geneSymbols << prot->geneSymbol;
+    }
+    QStringList uniqGeneList = geneSymbols.toList();
+    return uniqGeneList;
 }

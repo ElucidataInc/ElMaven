@@ -145,6 +145,8 @@ class Scan{
          * @return []
          */
         ChargedSpecies* deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates );
+        //Added while merging to Maven776
+        string toMGF();
         //TODO deconvolute
         vector<int> intensityOrderDesc();
 

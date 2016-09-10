@@ -9,11 +9,17 @@ mzFileIO::mzFileIO(QWidget*) {
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
+    //Merged with Maven776 - Kiran
     _mainwindow=mw;
-    connect(this,SIGNAL(updateProgressBar(QString,int,int)), _mainwindow, SLOT(setProgressBar(QString, int,int)));
-    connect(this,SIGNAL(finished()),_mainwindow,SLOT(setupSampleColors()));
-    connect(this,SIGNAL(finished()),_mainwindow->projectDockWidget,SLOT(updateSampleList()));
-    connect(this,SIGNAL(finished()),_mainwindow,SLOT(showSRMList()));
+    //connect(this,SIGNAL(finished()),_mainwindow,SLOT(setupSampleColors()));
+    //connect(this,SIGNAL(finished()),_mainwindow->projectDockWidget,SLOT(updateSampleList()));
+   
+	//if ( mw->srmDockWidget->isVisible()) connect(this,SIGNAL(finished()),_mainwindow,SLOT(showSRMList()));
+    
+	//process = new QProcess();
+ 	//connect(process, SIGNAL(finished(int)), this, SLOT(readProcessOutput(int)));
+    //connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readThermoRawFileImport()));
+
 }
 
 void mzFileIO::loadSamples(QStringList& files) {

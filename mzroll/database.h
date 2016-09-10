@@ -53,7 +53,8 @@ class Database {
 	map<string, int> getChromotographyMethods();
 
 	Molecule2D* getMolecularCoordinates(QString id);
-	Compound* findSpeciesById(string id);
+    //Added while merging with Maven776 - Kiran
+	Compound* findSpeciesById(string id, string dbName);
 	Compound* findSpeciesByPrecursor(float precursorMz, float productMz,
 					 int polarity, double amuQ1,
 					 double amuQ3);
@@ -77,7 +78,8 @@ class Database {
 	map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
-
+    //Added while merging with Maven776 - Kiran
+    const std::string ANYDATABASE;
        private:
 	QSqlDatabase ligandDB;
 	bool _connected;

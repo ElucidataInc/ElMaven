@@ -50,9 +50,11 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
     QAction* exportSelected = btnGroupCSV->menu()->addAction(tr("Export Selected"));
     QAction* exportAll = btnGroupCSV->menu()->addAction(tr("Export All Groups"));
-    connect(exportSelected, SIGNAL(triggered()), SLOT(exportSelectedGroupsToSpreadsheet()));
+    //updated when Merging with Maven776 - Kiran
+    connect(exportSelected, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
     connect(exportAll, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    connect(exportAll, SIGNAL(triggered()), SLOT(exportAllGroupsToSpreadsheet()));
+    //Updated when Merging with Maven776 - Kiran
+    connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
     //QToolButton *btnHeatmap = new QToolButton(toolBar);
@@ -186,6 +188,9 @@ void TableDockWidget::sortBy(int col) {
 void TableDockWidget::setupPeakTable() {
 
     QStringList colNames;
+    //Added when Merging to Maven776 - Kiran
+    //Add a coulmn to the Peaks Table
+    colNames << "#";
     colNames << "ID";
     colNames << "m/z";
     colNames << "rt";
@@ -206,12 +211,18 @@ void TableDockWidget::setupPeakTable() {
 		*/
 
     if (viewType == groupView) {
+        //Added when Merging to Maven776 - Kiran
+       //Add a coulmn to the Peaks Table
+       colNames << "rt delta";
         colNames << "#peaks";
         colNames << "#good";
         colNames << "Max Width";
         colNames << "Max Intensity";
         colNames << "Max S/N";
         colNames << "Max Quality";
+        //Added when Merging to Maven776 - Kiran
+        //Add a coulmn to the Peaks Table
+        colNames << "Rank";
         colNames << "Ratio Change";
         colNames << "P-value";
     } else if (viewType == peakView) {
@@ -253,13 +264,15 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
     if (clsf != NULL) {
         clsf->classify(group);
         group->updateQuality();
-        if(viewType == groupView) item->setText(8,QString::number(group->maxQuality,'f',2));
-        item->setText(0,groupTagString(group));
+        //Added when Merging to Maven776 - Kiran
+        if(viewType == groupView) item->setText(10,QString::number(group->maxQuality,'f',2));
+        item->setText(1,groupTagString(group));
     }
 
-    if ( viewType == groupView && group->changeFoldRatio >= 0 ) {
-        item->setText(9,QString::number(group->changeFoldRatio, 'f', 3));
-        item->setText(10,QString::number(group->changePValue,    'f', 6));
+    //Added when Merging to Maven776 - Kiran
+    if ( viewType == groupView && fabs(group->changeFoldRatio) >= 0 ) {
+        item->setText(12,QString::number(group->changeFoldRatio, 'f', 3));
+        item->setText(13,QString::number(group->changePValue,    'f', 6));
     }
 
     int good=0; int bad=0;
@@ -292,11 +305,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         }
     }
 }
-
 void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
     if(viewType != peakView) return;
 
-    int firstColumn=3;
+    //Added when Merging to Maven776 - Kiran
+    int firstColumn=4;
     StatisticsVector<float>values; float sum=0;
     for(unsigned int i=firstColumn; i< item->columnCount(); i++) {
           values.push_back(item->text(i).toFloat());
@@ -306,31 +319,32 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
         //normalize
         float mean = values.mean();
         float sd  = values.stddev();
+        //Added when Merging to Maven776 - Kiran
+        float max = values.maximum();
+        float min = values.minimum();
+        float range = max-min;
 
         for(int i=0; i<values.size();i++) {
-            values[i] = (values[i]-mean)/sd; //Z-score
+            if(max!=0) values[i] = abs((max-values[i])/max); //Z-score
         }
 
-        float maxValue=max(std::fabs(values.maximum()),fabs(values.minimum()));
+        //float maxValue=max(std::fabs(values.maximum()),fabs(values.minimum()));
+        QColor color = Qt::white;
 
         float colorramp=0.5;
-
+        //Updated when Merging to Maven776 - Kiran
         for(int i=0; i<values.size();i++) {
-            float cellValue=values[i];
-            QColor color = Qt::white;
+           float value=values[i];
+           float prob = value;
+           if(prob < 0 ) prob=0;
+           color.setHsvF(0.0,prob,1,1);
+           //qDebug() << value << " " << prob;
 
+           //float S=abs(cellValue/maxValue);
+           //if (S > 1) S=1;
+           //float H=0.67; if(cellValue<0) H=0;
+           // color.setHsvF(H,S,1,1);
 
-            if (cellValue<0)  {
-                float intensity=pow(abs(cellValue/maxValue),colorramp);
-                if (intensity > 1 ) intensity=1;
-                color.setHsvF(0.6,intensity,intensity,0.5);
-            }
-
-            if (cellValue>0 )  {
-                float intensity=pow(abs(cellValue/maxValue),colorramp);
-                if (intensity > 1 ) intensity=1;
-                color.setHsvF(0.1,intensity,intensity,0.5);
-            }
             //item->setText(firstColumn+i,QString::number(values[i])) ;
             item->setBackgroundColor(firstColumn+i,color);
        }
@@ -342,10 +356,15 @@ QString TableDockWidget::groupTagString(PeakGroup* group){
     if (!group) return QString();
 	QString tag(group->tagString.c_str());
     if (group->compound) tag = QString(group->compound->name.c_str());
-    if (! group->tagString.empty()) tag += " | " + QString(group->tagString.c_str());
+    //Added when Merging to Maven776 - Kiran
+    if (! group->tagString.empty() and tag.toStdString() != group->tagString) tag += " | " + QString(group->tagString.c_str());
     if (! group->srmId.empty()) tag +=  " | " + QString(group->srmId.c_str());
-    if ( tag.isEmpty() ) tag = QString::number(group->groupId);
+    //Added when Merging to Maven776 - Kiran
+    if ( tag.isEmpty() && group->meanMz > 0) tag = QString::number(group->meanMz,'f',6) + "@" + QString::number(group->meanRt,'f',2);
+    if ( tag.isEmpty() ) tag = QString::number(group->groupId);     
     return tag;
+
+    qDebug() << "groupTagString() tagString:" << tag;
 }
 
 void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) { 
@@ -358,37 +377,31 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setFlags(Qt::ItemIsSelectable |  Qt::ItemIsEnabled | Qt::ItemIsDragEnabled);
     item->setData(0,Qt::UserRole,QVariant::fromValue(group));
 
-    item->setText(0,groupTagString(group));
-    item->setText(1,QString::number(group->meanMz, 'f', 4));
-    item->setText(2,QString::number(group->meanRt, 'f', 2));
+
+    //Updated when Merging to Maven776 - Kiran
+    item->setText(0,QString::number(group->groupId));
+    item->setText(1,groupTagString(group));
+    item->setText(2,QString::number(group->meanMz, 'f', 4));
+    item->setText(3,QString::number(group->meanRt, 'f', 2));
 
     if (group->label == 'g' ) item->setIcon(0,QIcon(":/images/good.png"));
     if (group->label == 'b' ) item->setIcon(0,QIcon(":/images/bad.png"));
-    /*
-	item->setText(4,QString::number(p.peakAreaFractional, 'f', 2));
-	item->setText(5,QString::number(p.noNoiseFraction, 'f', 2));
-	item->setText(6,QString::number(p.symmetry));
-	item->setText(7,QString::number(p.width));
-	item->setText(8,QString::number(p.symmetry/(p.width+1)*log2(p.width+1),'f',2));
-	item->setText(9,QString::number(p.signalBaselineRatio, 'f', 3));
-	item->setText(10,QString::number(p.groupOverlapFrac, 'f', 2));
-	item->setText(11,QString::number(p.gaussFitR2*100, 'f', 2));
-        item->setText(12,QString::number(p.quality, 'f', 2));
-	item->setText(13,QString(group->label));
-	item->setText(14,QString::number(group->changeFoldRatio, 'f', 2));
-	*/
 
     if (viewType == groupView) {
-        item->setText(3,QString::number(group->sampleCount));
-        item->setText(4,QString::number(group->goodPeakCount));
-        item->setText(5,QString::number(group->maxNoNoiseObs));
-        item->setText(6,QString::number(group->maxIntensity,'g',2));
-        item->setText(7,QString::number(group->maxSignalBaselineRatio,'f',0));
-        item->setText(8,QString::number(group->maxQuality,'f',2));
+        //Updated when Merging to Maven776 - Kiran
+        item->setText(4,QString::number(group->expectedRtDiff,'f',2));
+        item->setText(5,QString::number(group->sampleCount));
+        item->setText(6,QString::number(group->goodPeakCount));
+        item->setText(7,QString::number(group->maxNoNoiseObs));
+        item->setText(8,QString::number(group->maxIntensity,'g',2));
+        item->setText(9,QString::number(group->maxSignalBaselineRatio,'f',0));
+        item->setText(10,QString::number(group->maxQuality,'f',2));
+        item->setText(11,QString::number(group->groupRank,'f',2));
 
         if ( group->changeFoldRatio != 0 ) {
-            item->setText(9,QString::number(group->changeFoldRatio, 'f', 2));
-            item->setText(10,QString::number(group->changePValue,    'e', 4));
+            //Updated when Merging to Maven776 - Kiran
+            item->setText(12,QString::number(group->changeFoldRatio, 'f', 2));
+            item->setText(13,QString::number(group->changePValue,    'e', 4));
         }
 
     } else if ( viewType == peakView) {
@@ -396,7 +409,8 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
         vector<float>yvalues = group->getOrderedIntensityVector(vsamples,_mainwindow->getUserQuantType());
         for(unsigned int i=0; i<yvalues.size(); i++ ) {
-         item->setText(3+i,QString::number(yvalues[i]));
+         //Updated when Merging to Maven776 - Kiran
+         item->setText(4+i,QString::number(yvalues[i]));
         }
         heatmapBackground(item);
     }
@@ -445,7 +459,11 @@ QList<PeakGroup*> TableDockWidget::getGroups() {
 void TableDockWidget::deleteAll() {
     treeWidget->clear();
     allgroups.clear();
+     //Added when Merging to Maven776 - Kiran
+    _mainwindow->removePeaksTable(this);
     _mainwindow->getEicWidget()->replotForced();
+     //Added when Merging to Maven776 - Kiran
+    this->hide();
 
     if ( _mainwindow->heatmap ) {
         HeatMap* _heatmap = _mainwindow->heatmap;
@@ -460,6 +478,8 @@ void TableDockWidget::showAllGroups() {
     if (allgroups.size() == 0 ) return;
 
     treeWidget->setSortingEnabled(false);
+     //Added when Merging to Maven776 - Kiran
+    setupPeakTable();
 
     QMap<int,QTreeWidgetItem*> parents;
     for(int i=0; i < allgroups.size(); i++ ) { 
@@ -468,7 +488,7 @@ void TableDockWidget::showAllGroups() {
             if (!parents.contains(metaGroupId)) {
                 parents[metaGroupId]= new QTreeWidgetItem(treeWidget);
                 parents[metaGroupId]->setText(0,QString("Cluster ") + QString::number(metaGroupId));
-                parents[metaGroupId]->setText(3,QString::number(allgroups[i].meanRt,'f',2));
+                parents[metaGroupId]->setText(4,QString::number(allgroups[i].meanRt,'f',2));
                 parents[metaGroupId]->setExpanded(true);
             }
             QTreeWidgetItem* parent = parents[ metaGroupId ];
@@ -492,82 +512,8 @@ void TableDockWidget::showAllGroups() {
 	(*/
 }
 
-void TableDockWidget::exportSelectedGroupsToSpreadsheet() {
-
-	QList<PeakGroup*> groups = getSelectedGroups();
-
-	if (groups.size() == 0) {
-		QString msg = "Peaks Table is Empty";
-		QMessageBox::warning(this, tr("Error"), msg);
-		return;
-	}
-
-	QString dir = ".";
-	QSettings* settings = _mainwindow->getSettings();
-
-	if (settings->contains("lastDir"))
-		dir = settings->value("lastDir").value<QString>();
-
-	QString groupsTAB = "Groups  Summary Matrix Format (*.tab)";
-	QString peaksTAB = "Peaks   Detailed Format   (*.tab)";
-	QString groupsCSV = "Groups  Summary Matrix Format Comma Delimited (*.csv)";
-	QString peaksCSV = "Peaks   Detailed Format Comma Delimited  (*.csv)";
-
-	QString sFilterSel;
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Export Groups"),
-			dir,
-			groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV,
-			&sFilterSel);
-
-	if (fileName.isEmpty())
-		return;
-
-	if (sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
-		if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
-			fileName = fileName + ".csv";
-	}
-
-	if (sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
-		if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
-			fileName = fileName + ".tab";
-	}
-
-	vector<mzSample*> samples = _mainwindow->getSamples();
-	if (samples.size() == 0)
-		return;
-
-	CSVReports* csvreports = new CSVReports(samples);
-	csvreports->setUserQuantType(_mainwindow->getUserQuantType());
-
-    //Added to pass into csvreports file when merged with Maven776 - Kiran
-    //TODO: Not sure if ti has to be set as true or false - Kiran
-    bool includeSetNamesLines=true;
-
-	if (sFilterSel == groupsCSV) {
-        //Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-	} else if (sFilterSel == groupsTAB) {
-        //Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-	} else if (sFilterSel == peaksCSV) {
-		csvreports->openPeakReport(fileName.toStdString());
-	} else if (sFilterSel == peaksTAB) {
-		csvreports->openPeakReport(fileName.toStdString());
-    } else { 	//default to group summary
-        //Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    }
-
-
-	for (int i = 0; i < groups.size(); i++) {
-		PeakGroup* group = groups[i];
-		csvreports->addGroup(group);
-	}
-	csvreports->closeFiles();
-}
-
-
-void TableDockWidget::exportAllGroupsToSpreadsheet() {
+void TableDockWidget::exportGroupsToSpreadsheet() {
+    //Merged to Maven776 - Kiran
 
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
@@ -584,11 +530,14 @@ void TableDockWidget::exportAllGroupsToSpreadsheet() {
     QString peaksTAB =  "Peaks   Detailed Format   (*.tab)";
     QString groupsCSV = "Groups  Summary Matrix Format Comma Delimited (*.csv)";
     QString peaksCSV =  "Peaks   Detailed Format Comma Delimited  (*.csv)";
+    //Added when Merging to Maven776 - Kiran
+    QString peaksListQE= "Inclusion List QE (*.csv)";
+    QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
 
     QString sFilterSel;
     QString fileName = QFileDialog::getSaveFileName(this, 
             tr("Export Groups"), dir, 
-            groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV,
+            groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
             &sFilterSel);
 
     if(fileName.isEmpty()) return;
@@ -603,6 +552,15 @@ void TableDockWidget::exportAllGroupsToSpreadsheet() {
 
     vector<mzSample*> samples = _mainwindow->getSamples();
     if ( samples.size() == 0) return;
+
+    //Added when Merging to Maven776 - Kiran
+	if (sFilterSel == peaksListQE ) { 
+		writeQEInclusionList(fileName); 
+		return;
+    } else if (sFilterSel == mascotMGF ) {
+        writeMascotGeneric(fileName);
+        return;
+    }
 
     CSVReports* csvreports = new CSVReports(samples);
     csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
@@ -734,6 +692,9 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 void TableDockWidget::deleteGroup() {
 
     QTreeWidgetItem *item = treeWidget->currentItem();
+    //Added when Merging to Maven776 - Kiran
+    QTreeWidgetItem* nextItem = treeWidget->itemBelow(item);
+
     if ( item == NULL ) return;
 
     PeakGroup* group = getSelectedGroup();
@@ -742,23 +703,20 @@ void TableDockWidget::deleteGroup() {
     PeakGroup* parentGroup = group->parent;
 
     if ( parentGroup == NULL ) { //top level item
-        for(int i=0; i < allgroups.size(); i++) {
-            if ( &allgroups[i] == group ) {
-                treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(item));
-                treeWidget->update();
-                delete(item);
-                allgroups.erase(allgroups.begin()+i);
-                break;
-            }
-        }
+        //Updated when Merging to Maven776 - Kiran
+        deleteGroup(group);
     } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
         if ( parentGroup->deleteChild(group) ) {
             QTreeWidgetItem* parentItem = item->parent();
-            if ( parentItem ) { parentItem->removeChild(item); delete(item); }
-            treeWidget->update();
+            if ( parentItem ) {
+                parentItem->removeChild(item);
+                delete(item);
+            }
         }
     }
-    _mainwindow->getEicWidget()->replotForced();
+    //show NextItem
+    if(nextItem) treeWidget->setCurrentItem(nextItem,0);
+   // _mainwindow->getEicWidget()->replotForced();
     return;
 }
 
@@ -768,6 +726,16 @@ void TableDockWidget::setClipboard() {
         _mainwindow->isotopeWidget->setClipboard(groups);
     }
 }
+
+
+void TableDockWidget::showConsensusSpectra() {
+    //Merged with Maven776 - Kiran
+    QList<PeakGroup*>groups = getSelectedGroups();
+    if (groups.size() >0) {
+        _mainwindow->spectraWidget->showConsensusSpectra(groups[groups.size()-1]);
+    }
+}
+
 
 void TableDockWidget::markGroupGood() { 
     setGroupLabel('g');
@@ -1049,18 +1017,11 @@ void TableDockWidget::contextMenuEvent ( QContextMenuEvent * event )
     QAction* z6 = menu.addAction("Show Hidden Groups");
     connect(z6, SIGNAL(triggered()), SLOT(unhideFocusedGroups()));
 
+    //Added when Merging to Maven776 - Kiran
+    QAction* z7 = menu.addAction("Show Consensus Spectra");
+    connect(z7, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
+
     QAction *selectedAction = menu.exec(event->globalPos());
-
-
-    QMenu analysis("Cluster Analysis");
-    QAction* zz0 = analysis.addAction("Cluster Groups by Retention Time");
-    connect(zz0, SIGNAL(triggered()), this ,SLOT(clusterGroups()));
-    QAction* zz1 = analysis.addAction("Collapse All");
-    connect(zz1, SIGNAL(triggered()), treeWidget,SLOT(collapseAll()));
-    QAction* zz2 = analysis.addAction("Expand All");
-    connect(zz2, SIGNAL(triggered()), treeWidget,SLOT(expandAll()));
-
-    menu.addMenu(&analysis);
 }
 
 
@@ -1094,10 +1055,71 @@ void TableDockWidget::findMatchingCompounds() {
         PeakGroup& g = allgroups[i];
         QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, ionizationMode);
         if (compounds.size() > 0 ) foreach( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
-        cerr << g.meanMz << " " << compounds.size() << endl;
+        //cerr << g.meanMz << " " << compounds.size() << endl;
     }
     updateTable();
 }
+
+void TableDockWidget::writeQEInclusionList(QString filename) { 
+    //Merged with Maven776 - Kiran
+	QFile file(filename);
+    if ( !file.open(QFile::WriteOnly) ) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return; //error
+    }
+
+    QList<PeakGroup*>selected = getSelectedGroups();
+
+	float window=1.5;
+	int polarity = _mainwindow->getIonizationMode();
+	QTextStream out(&file);
+	for(int i=0; i < selected.size(); i++ ) { 
+        PeakGroup* g = selected[i];
+        out << g->meanMz << ",";
+		polarity > 0 ? out << "Positive," : out << "Negative,";
+		out << g->meanRt-window << ",";
+		out << g->meanRt+window << ",";
+		out << 25 << ",";     //default CE set to 25
+		out << 2  << ",";
+		out << groupTagString(g);
+		out << endl;
+	}
+    file.close();
+}
+
+void TableDockWidget::writeMascotGeneric(QString filename) {
+    QFile file(filename);
+    if ( !file.open(QFile::WriteOnly) ) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return; //error
+    }
+
+    QList<PeakGroup*>selected = getSelectedGroups();
+    QTextStream out(&file);
+    for(int i=0; i < selected.size(); i++ ) {
+        PeakGroup* g = selected[i];
+        Scan* cons = g->getAverageFragmenationScan(0.01);
+
+        if (cons) {
+            string scandata = cons->toMGF();
+            out << scandata.c_str();
+        }
+
+        /*
+        vector<Scan*> scans = g->getFragmenationEvents();
+        if (scans.size() > 0) {
+            for(int j=0; j< scans.size(); j++) {
+                string scandata = scans[j]->toMGF();
+                out << scandata.c_str();
+            }
+        }
+        */
+    }
+    file.close();
+}
+
 
 void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) { 
     if (!g)return;
@@ -1205,12 +1227,14 @@ PeakGroup* TableDockWidget::readGroupXML(QXmlStreamReader& xml,PeakGroup* parent
     g.groupId = xml.attributes().value("groupId").toString().toInt();
     g.tagString = xml.attributes().value("tagString").toString().toStdString();
     g.metaGroupId = xml.attributes().value("metaGroupId").toString().toInt();
-    g.expectedRtDiff = xml.attributes().value("expectedRtDiff").toString().toDouble();
-    g.groupRank = xml.attributes().value("grouRank").toString().toInt();
+    //Updated when Merging to Maven776 - Kiran
+    g.expectedRtDiff = xml.attributes().value("expectedRtDiff").toString().toFloat();
+    g.groupRank = xml.attributes().value("grouRank").toString().toFloat();
     g.label     =  xml.attributes().value("label").toString().toInt();
     g.setType( (PeakGroup::GroupType) xml.attributes().value("type").toString().toInt());
-    g.changeFoldRatio = xml.attributes().value("changeFoldRatio").toString().toDouble();
-    g.changePValue = xml.attributes().value("changePValue").toString().toDouble();
+    //Updated when Merging to Maven776 - Kiran
+    g.changeFoldRatio = xml.attributes().value("changeFoldRatio").toString().toFloat();
+    g.changePValue = xml.attributes().value("changePValue").toString().toFloat();
 
     string compoundId = xml.attributes().value("compoundId").toString().toStdString();
     string compoundDB = xml.attributes().value("compoundDB").toString().toStdString();
@@ -1219,13 +1243,19 @@ PeakGroup* TableDockWidget::readGroupXML(QXmlStreamReader& xml,PeakGroup* parent
     string srmId = xml.attributes().value("srmId").toString().toStdString();
     if (!srmId.empty()) g.setSrmId(srmId);
 
-	if (!compoundId.empty()){
-        Compound* c = DB.findSpeciesById(compoundId);
-		if (c) g.compound = c;
-	} else if (!compoundName.empty() && !compoundDB.empty()) {
+    //Updated when Merging to Maven776 - Kiran
+    if (!compoundName.empty() && !compoundDB.empty()) {
 		vector<Compound*>matches = DB.findSpeciesByName(compoundName,compoundDB);
 		if (matches.size()>0) g.compound = matches[0];
-	}
+    } else if (!compoundId.empty()){
+          Compound* c = DB.findSpeciesById(compoundId,DB.ANYDATABASE);
+         if (c) g.compound = c;
+    }
+
+    if (!g.compound) {
+        if (!compoundId.empty()) g.tagString=compoundId;
+        else if (!compoundName.empty()) g.tagString=compoundName;
+    }
 
 
     if (parent) {
@@ -1349,6 +1379,8 @@ void TableDockWidget::loadPeakTable() {
     } else {
         loadPeakTable(fileName);
     }
+    //Added when Merging to Maven776 - Kiran
+	showAllGroups();
 }
 
 void TableDockWidget::runScript() {
@@ -1403,7 +1435,6 @@ void TableDockWidget::loadPeakTable(QString fileName) {
         }
     }
     for(int i=0; i < allgroups.size(); i++ ) allgroups[i].groupStatistics();
-    showAllGroups();
 }
 
 void TableDockWidget::clearClusters() {
@@ -1641,7 +1672,7 @@ int TableDockWidget::loadCSVFile(QString filename, QString sep="\t"){
              if (headerMap.contains("fold")) g->changeFoldRatio= fields[ headerMap["fold"]].toFloat();
              if (headerMap.contains("pvalue")) g->changePValue= fields[ headerMap["pvalue"]].toFloat();
 
-            qDebug() << headerMap["mz"] << " " << g->meanRt;
+            //qDebug() << headerMap["mz"] << " " << g->meanRt;
 
 
             for(unsigned int i=14; i<header.size();i++) {
@@ -1672,3 +1703,22 @@ void TableDockWidget::switchTableView() {
     showAllGroups();
     updateTable();
 }
+
+MatrixXf TableDockWidget::getGroupMatrix() {
+    //Merged with Maven776 - Kiran
+    vector<mzSample*>vsamples = _mainwindow->getVisibleSamples();
+    return getGroupMatrix(vsamples,_mainwindow->getUserQuantType());
+}
+
+MatrixXf TableDockWidget::getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype) {
+    //Merged with Maven776 - Kiran
+    MatrixXf X;  //matrix of floats
+    X = MatrixXf::Zero(allgroups.size(),samples.size());
+    for(int i=0; i < allgroups.size(); i++ ) {
+            vector<float>values=allgroups[i].getOrderedIntensityVector(samples,qtype);
+            for(int j=0; j < values.size(); j++ ) {  X(i,j)=values[j];
+            }
+    }
+    return X;
+}
+

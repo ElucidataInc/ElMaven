@@ -85,7 +85,9 @@ class SpectralHit {
             return max;
         }
 
-        /*
+        QString getProteinIds() { QStringList ids = proteins.uniqueKeys(); return(ids.join(";")); }
+		QStringList getProteins() { return proteins.uniqueKeys(); } 
+		/*
         @author: Sahil
         */
         //TODO: Sahil, Added while merging mzfileio

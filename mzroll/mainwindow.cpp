@@ -146,6 +146,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Moved when merged with Maven776 - Kiran
 	settingsForm = new SettingsForm(settings, this);
 
+    //added while merging with Maven776 - Kiran
+	//fileLoader
+    fileLoader = new mzFileIO(this);
+    fileLoader->setMainWindow(this);
+
+	//settings dialog
+	settingsForm = new SettingsForm(settings, this);
 	//progress Bar on the bottom of the page
 	statusText = new QLabel(this);
 	statusText->setOpenExternalLinks(true);
@@ -225,8 +232,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
 
-
-
+    //added while merging with Maven776 - Kiran
+    //create toolbar for SRM dock widget
+    srmDockWidget->setQQQToolBar();
 
 	//
 	//DIALOGS
@@ -294,8 +302,26 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
-	setContextMenuPolicy(Qt::NoContextMenu);
-	pathwayPanel->setInfo(DB.pathwayDB);
+
+    //added while merging with Maven776 - Kiran
+    connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+    connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
+
+    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
+    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
+    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
+
+
+    connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
+    connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
+    connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
+
+    connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+    connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
+
+
+    setContextMenuPolicy(Qt::NoContextMenu);
+    pathwayPanel->setInfo(DB.pathwayDB);
 
 	if (settings->contains("windowState")) {
 		restoreState(settings->value("windowState").toByteArray());
@@ -305,10 +331,13 @@ MainWindow::MainWindow(QWidget *parent) :
 		restoreGeometry(settings->value("geometry").toByteArray());
 	}
 
+
+    scatterDockWidget->hide();
+    spectralHitsDockWidget->hide();
     peptideFragmentation->hide();
-	projectDockWidget->show();
-	scatterDockWidget->hide();
-	fragPanel->hide();
+    fragPanel->hide();
+    projectDockWidget->raise();
+    spectraDockWidget->raise();
 
 	setIonizationMode(0);
 	if (settings->contains("ionizationMode")) {
@@ -472,6 +501,12 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
 	}
 
 	return panel;
+}
+
+void MainWindow::removePeaksTable(TableDockWidget* panel) {
+	//Merged with Maven776 - Kiran
+    if (groupTablesButtons.contains(panel))
+        sideBar->removeAction(groupTablesButtons[panel]);
 }
 
 SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
@@ -793,42 +828,9 @@ void MainWindow::open() {
 	setWindowTitle(
 			programName + "_" + QString::number(MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
-
-  	QStringList samples;
-  	QStringList peaks;
-  	QStringList projects;
-  	foreach(QString filename, filelist ){
-  	QFileInfo fileInfo(filename);
-  	if (!fileInfo.exists()) continue;
-
-  	if (isSampleFileType(filename)) {
-  		samples << filename;
-  	} else if (isProjectFileType(filename)) {
-  		projects << filename;
-  	} else if (filename.endsWith("mzpeaks",Qt::CaseInsensitive)) {
-  		peaks << filename;
-  	}
-  }
-
-	if (projects.size() > 0) {
-		projectDockWidget->loadProject(projects[0]);
-		return;
-	}
-
-	if (peaks.size() > 0) {
-		foreach(QString filename, peaks ){
-		QFileInfo fileInfo(filename);
-		TableDockWidget* tableX = addPeaksTable("Group Set " + fileInfo.fileName());
-		tableX->loadPeakTable(filename);
-	}
-}
-
-	if (samples.size() > 0) {
-		mzFileIO* fileLoader = new mzFileIO(this);
-		fileLoader->setMainWindow(this);
-		fileLoader->loadSamples(samples);
-		//fileLoader->start();
-	}
+    //updated while merging with Maven776 - Kiran
+    foreach (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    fileLoader->start();
 }
 
 void MainWindow::loadModel() {
@@ -844,17 +846,16 @@ void MainWindow::loadCompoundsFile(QString filename) {
 	string dbname = mzUtils::cleanFilename(dbfilename);
 	int compoundCount = 0;
 
-	if (filename.endsWith("pepXML", Qt::CaseInsensitive)) {
-		mzFileIO fileLoader(this);
-		compoundCount = fileLoader.loadPepXML(filename);
-	} else if (filename.endsWith("msp", Qt::CaseInsensitive)
-			|| filename.endsWith("sptxt", Qt::CaseInsensitive)) {
-		mzFileIO fileLoader(this);
-		compoundCount = fileLoader.loadNISTLibrary(filename);
-	} else {
-		cerr << dbfilename <<"<<<<<<";
-		compoundCount = DB.loadCompoundCSVFile(dbfilename);
-	}
+    //added while merging with Maven776 - Kiran
+    if ( filename.endsWith("pepXML",Qt::CaseInsensitive)) {
+       // compoundCount=fileLoader->loadPepXML(filename);
+    } else if ( filename.endsWith("msp",Qt::CaseInsensitive) || filename.endsWith("sptxt",Qt::CaseInsensitive)) {
+        compoundCount=fileLoader->loadNISTLibrary(filename);
+    } else if ( filename.endsWith("massbank",Qt::CaseInsensitive)) { 
+        compoundCount=fileLoader->loadMassBankLibrary(filename);
+    } else {
+        compoundCount = DB.loadCompoundCSVFile(dbfilename);
+    }
 
 	if (compoundCount > 0 && ligandWidget) {
 		ligandWidget->setDatabaseNames();
@@ -1466,14 +1467,17 @@ void MainWindow::compoundDatabaseSearch() {
 }
 
 void MainWindow::showSRMList() {
-	vector<mzSlice*> slices = getSrmSlices();
-	if (slices.size() == 0)
-		return;
-	srmDockWidget->setInfo(slices);
-	delete_all(slices);
 
-	//peakDetectionDialog->setFeatureDetection(PeakDetectionDialog::QQQ);
-	//peakDetectionDialog->show();
+     //added while merging with Maven776 - Kiran
+     if (srmDockWidget->isVisible()) {
+        double amuQ1 = getSettings()->value("amuQ1").toDouble();
+        double amuQ3 = getSettings()->value("amuQ3").toDouble();
+        bool associateCompoundNames=true;
+        vector<mzSlice*>slices = getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
+        if (slices.size() ==  0 ) return;
+        srmDockWidget->setInfo(slices);
+        delete_all(slices);
+     }
 }
 
 void MainWindow::setPeakGroup(PeakGroup* group) {
@@ -1547,90 +1551,77 @@ void MainWindow::UndoAlignment() {
 	getEicWidget()->replotForced();
 }
 
-vector<mzSlice*> MainWindow::getSrmSlices() {
-	QSet<QString> srms;
-	//+118.001@cid34.00 [57.500-58.500]
-	//+ c ESI SRM ms2 102.000@cid19.00 [57.500-58.500]
-	//-87.000 [42.500-43.500]
-	//- c ESI SRM ms2 159.000 [113.500-114.500]
+vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool associateCompoundNames) {
+	//Merged with Maven776 - Kiran
+    qDebug() << "getSrmSlices() Q1=" << amuQ1 << " Q3=" << amuQ3;
+    QSet<QString>seenMRMS;
+    //+118.001@cid34.00 [57.500-58.500]
+    //+ c ESI SRM ms2 102.000@cid19.00 [57.500-58.500]
+    //-87.000 [42.500-43.500]
+    //- c ESI SRM ms2 159.000 [113.500-114.500]
 
-	QRegExp rx1a("[+/-](\\d+\\.\\d+)");
-	QRegExp rx1b("ms2\\s*(\\d+\\.\\d+)");
-	QRegExp rx2("(\\d+\\.\\d+)-(\\d+\\.\\d+)");
-	int countMatches = 0;
+    QRegExp rx1a("[+/-](\\d+\\.\\d+)");
+    QRegExp rx1b("ms2\\s*(\\d+\\.\\d+)");
+    QRegExp rx2("(\\d+\\.\\d+)-(\\d+\\.\\d+)");
+    int countMatches=0;
 
-	double amuQ1 = getSettings()->value("amuQ1").toDouble();
-	double amuQ3 = getSettings()->value("amuQ3").toDouble();
+    vector<mzSlice*>slices;
+    for(int i=0; i < samples.size(); i++ ) {
+    	mzSample* sample = samples[i];
+        for( int j=0; j < sample->scans.size(); j++ ) {
+            Scan* scan = sample->getScan(j);
+            if (!scan) continue;
 
-	vector<mzSlice*> slices;
-	for (int i = 0; i < samples.size(); i++) {
-		mzSample* sample = samples[i];
-		for (int j = 0; j < sample->scans.size(); j++) {
-			Scan* scan = sample->getScan(j);
-			if (!scan)
-				continue;
+            QString filterLine(scan->filterLine.c_str());            
 
-			QString filterLine(scan->filterLine.c_str());
-			if (filterLine.isEmpty())
-				continue;
+            if (filterLine.isEmpty() or seenMRMS.contains(filterLine)) continue;
+            seenMRMS.insert(filterLine);
 
-			if (srms.contains(filterLine))
-				continue;
-			srms.insert(filterLine);
 
-			mzSlice* s = new mzSlice(0, 0, 0, 0);
-			s->srmId = scan->filterLine.c_str();
-			slices.push_back(s);
+            mzSlice* s = new mzSlice(0,0,0,0);
+            s->srmId = scan->filterLine.c_str();
+            slices.push_back(s);
 
-			//match compounds
-			Compound* compound = NULL;
-			float precursorMz = scan->precursorMz;
-			float productMz = scan->productMz;
-			int polarity = scan->getPolarity();
-			if (polarity == 0)
-				filterLine[0] == '+' ? polarity = 1 : polarity = -1;
-			if (getIonizationMode())
-				polarity = getIonizationMode(); //user specified ionization mode
+            if (associateCompoundNames) {
+                //match compounds
+                Compound* compound = NULL;
+                float precursorMz = scan->precursorMz;
+                float productMz   = scan->productMz;
+                int   polarity= scan->getPolarity();
+                if (polarity==0) filterLine[0] == '+' ? polarity=1 : polarity =-1;
+                if (getIonizationMode()) polarity=getIonizationMode();  //user specified ionization mode
 
-			if (precursorMz == 0) {
-				if (rx1a.indexIn(filterLine) != -1) {
-					precursorMz = rx1a.capturedTexts()[1].toDouble();
-				} else if (rx1b.indexIn(filterLine) != -1) {
-					precursorMz = rx1b.capturedTexts()[1].toDouble();
-				}
-			}
+                if ( precursorMz == 0 ) {
+                    if( rx1a.indexIn(filterLine) != -1 ) {
+                        precursorMz = rx1a.capturedTexts()[1].toDouble();
+                    } else if ( rx1b.indexIn(filterLine) != -1 ) {
+                        precursorMz = rx1b.capturedTexts()[1].toDouble();
+                    }
+                }
 
-			if (productMz == 0) {
-				if (rx2.indexIn(filterLine) != -1) {
-					float lb = rx2.capturedTexts()[1].toDouble();
-					float ub = rx2.capturedTexts()[2].toDouble();
-					productMz = lb + (ub - lb) / 2;
-				}
-			}
+                if (productMz == 0) {
+                    if ( rx2.indexIn(filterLine) != -1 ) {
+                        float lb = rx2.capturedTexts()[1].toDouble();
+                        float ub = rx2.capturedTexts()[2].toDouble();
+                        productMz = lb+(ub-lb)/2;
+                    }
+                }
 
-			if (precursorMz != 0 && productMz != 0) {
-				compound = DB.findSpeciesByPrecursor(precursorMz, productMz,
-						polarity, amuQ1, amuQ3);
-			}
+                if (precursorMz != 0 && productMz != 0 ) {
+                    compound = DB.findSpeciesByPrecursor(precursorMz,productMz,polarity,amuQ1,amuQ3);
+                }
 
-			/*
-			 if(!compound) {
-			 qDebug() <<  "Matching failed: precursorMz=" << precursorMz
-			 << " productMz=" << productMz
-			 << " polarity=" << polarity;
-			 }
-			 */
-
-			if (compound) {
-				compound->srmId = filterLine.toStdString();
-				s->compound = compound;
-				s->rt = compound->expectedRt;
-				countMatches++;
-			}
-		}
-		//qDebug() << "SRM mapping: " << countMatches << " compounds mapped out of " << srms.size();
-	}
-	return slices;
+                if (compound) {
+                    compound->srmId = filterLine.toStdString();
+                    s->compound = compound;
+                    s->rt = compound->expectedRt;
+                    countMatches++;
+                }
+            }
+        }
+        qDebug() << "SRM mapping: " << countMatches << " compounds mapped out of " << seenMRMS.size();
+    }
+    return slices;
 }
 
 void MainWindow::showPeakInfo(Peak* _peak) {
@@ -2298,46 +2289,30 @@ void MainWindow::updateEicSmoothingWindow(int value) {
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
-	foreach (QUrl url, event->mimeData()->urls() ){
-	if (isSampleFileType(url.toString())) {
-		event->acceptProposedAction();
-		return;
-	} else if ( isProjectFileType(url.toString())) {
-		event->acceptProposedAction();
-		return;
-	}
-}
+	//Merged with Maven776 - Kiran
+    if(fileLoader->isRunning()) return;
+    foreach (QUrl url, event->mimeData()->urls() ) {
+        if (fileLoader->isKnownFileType(url.toString())) {
+            event->acceptProposedAction();
+            return;
+        }
+    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event) {
+		//Merged with Maven776 - Kiran
 
-	QStringList samples;
-	QStringList projects;
+    if(fileLoader->isRunning()) return;
+     foreach (QUrl url, event->mimeData()->urls() ) {
+        QString filename = url.toString();
+        filename.replace("file:///","");
+        filename.replace("file://","");
+        fileLoader->addFileToQueue(filename);
+    }
+     qDebug() << "MainWindow::dropEvent() fileLoader->start() ";
+    fileLoader->start();
+ }
 
-	foreach (QUrl url, event->mimeData()->urls() ){
-	QString filename = url.toString();
-	filename.replace("file:///","");
-	if (isSampleFileType(filename)) {
-		samples << filename;
-		qDebug() << filename;
-	} else if ( isProjectFileType(filename)) {
-		projects << filename;
-		qDebug() << filename;
-	}
-}
-
-	if (projects.size() > 0) {
-		projectDockWidget->loadProject(projects[0]);
-		return;
-	}
-
-	if (samples.size() > 0) {
-		mzFileIO* fileLoader = new mzFileIO(this);
-		fileLoader->setMainWindow(this);
-		fileLoader->loadSamples(samples);
-		fileLoader->start();
-	}
-}
 
 /*
 @author: Sahil

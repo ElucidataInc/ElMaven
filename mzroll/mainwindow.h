@@ -227,7 +227,8 @@ public slots:
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq); //TODO: Sahil, Added while merging point
-	vector<mzSlice*> getSrmSlices();
+	//Added when merging with Maven776 - Kiran
+	vector<mzSlice*> getSrmSlices(double q1tol, double q3tol, bool associateCompoundNames);
 
 	void open();
 	void print();
@@ -258,11 +259,12 @@ public slots:
 	double getUserPPM() {
 		return _ppmWindow;
 	}
-    
-    //Added when merged with Maven776 - Kiran
-	SettingsForm* getSettingsForm() { return settingsForm; }
+	//Added when merging with Maven776 - Kiran
+    SettingsForm* getSettingsForm() { return settingsForm; }
 	TableDockWidget* addPeaksTable(QString title);
 	SpectralHitsDockWidget* addSpectralHitsTable(QString title);
+	//Added when merging with Maven776 - Kiran
+    void removePeaksTable(TableDockWidget*);
 	BackgroundPeakUpdate* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
@@ -277,6 +279,8 @@ private:
 	QSettings* settings;
 	Classifier* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;
+	//Added when merging with Maven776 - Kiran
+    QMap< QPointer<TableDockWidget>, QAction*> groupTablesButtons;
 	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 

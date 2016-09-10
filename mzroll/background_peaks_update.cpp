@@ -235,11 +235,15 @@ void BackgroundPeakUpdate::computePeaks() {
 }
 
 void BackgroundPeakUpdate::findPeaksQQQ() {
-        if (mainwindow == NULL)
-                return;
-        vector<mzSlice*> slices = mainwindow->getSrmSlices();
-        processSlices(slices, "QQQ Peaks");
-        delete_all(slices);
+        //Merged with Maven776 - Kiran
+	if(mainwindow == NULL) return;
+        double amuQ1 = mainwindow->getSettings()->value("amuQ1").toDouble();
+        double amuQ3 = mainwindow->getSettings()->value("amuQ3").toDouble();
+        bool associateCompoundNames=false;
+        vector<mzSlice*>slices = mainwindow->getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
+	processSlices(slices,"QQQ Peaks");
+	delete_all(slices);
+	slices.clear();
 }
 
 /**

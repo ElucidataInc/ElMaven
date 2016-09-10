@@ -1005,7 +1005,8 @@ void PathwayWidget::loadModelFile(QString filename) {
 						xml.attributes().value("visible").toString().toInt();
 				if (name.isEmpty())
 					name = id;
-				Compound* c = DB.findSpeciesById(id.toStdString());
+                //Updated when Merging with Maven776 - Kiran
+				Compound* c = DB.findSpeciesById(id.toStdString(),DB.ANYDATABASE);
 				if (!c) {
 					c = new Compound(id.toStdString(), name.toStdString(),
 							formula.toStdString(), charge);

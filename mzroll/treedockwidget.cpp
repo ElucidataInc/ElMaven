@@ -2,7 +2,8 @@
 
 
 
-TreeDockWidget::TreeDockWidget(MainWindow*, QString title, int numColms) {
+//Updated when Merging to Maven776 - Kiran
+TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {
 		treeWidget=new QTreeWidget(this);
 		treeWidget->setColumnCount(numColms);
 		treeWidget->setObjectName(title);
@@ -18,6 +19,8 @@ TreeDockWidget::TreeDockWidget(MainWindow*, QString title, int numColms) {
 		setWidget(treeWidget);
 		setWindowTitle(title);
 		setObjectName(title);
+        //Added when Merging to Maven776 - Kiran
+        _mainWindow=mw;
 }
 
 
@@ -394,3 +397,45 @@ void TreeDockWidget::itemToClipboard(QTreeWidgetItem* item, QString& clipboardte
 }           
 
 
+void TreeDockWidget::setQQQToolBar() {
+    //Merged with Maven776 - Kiran
+
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
+
+    QDoubleSpinBox* amuQ1 = new QDoubleSpinBox(toolBar);
+    amuQ1->setRange(0.001, 2.0);
+    amuQ1->setValue(_mainWindow->getSettings()->value("amuQ1").toDouble());
+    amuQ1->setSingleStep(0.1);	//amu step
+    amuQ1->setToolTip("PrecursorMz Tollarance");
+    amuQ1->setSuffix(" amu");
+    amuQ1->setMinimumWidth(20);
+
+    connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ1Tollrance(double)));
+    connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
+
+    QDoubleSpinBox* amuQ3 = new QDoubleSpinBox(toolBar);
+    amuQ3->setRange(0.001, 2.0);
+    amuQ3->setValue(_mainWindow->getSettings()->value("amuQ3").toDouble());
+    amuQ3->setSingleStep(0.1);	//amu step
+    amuQ3->setToolTip("ProductMz Tollarance");
+    amuQ3->setSuffix(" amu");
+    amuQ3->setMinimumWidth(20);
+    connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
+    connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
+
+    QToolButton* associateCompounds = new QToolButton(toolBar);
+    associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
+    associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
+    connect(associateCompounds,SIGNAL(clicked()),_mainWindow,SLOT(showSRMList()));
+
+    toolBar->addWidget(new QLabel("Q1"));
+    toolBar->addWidget(amuQ1);
+    toolBar->addWidget(new QLabel("Q3"));
+    toolBar->addWidget(amuQ3);
+    toolBar->addWidget(associateCompounds);
+
+    setTitleBarWidget(toolBar);
+
+}

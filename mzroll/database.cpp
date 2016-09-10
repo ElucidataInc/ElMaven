@@ -44,7 +44,8 @@ multimap<string,Compound*> Database::keywordSearch(string needle) {
     while (query.next()) {
         std::string id  = query.value(0).toString().toStdString();
         std::string keyword  = query.value(1).toString().toStdString();
-        Compound* cmpd = findSpeciesById(id);
+        //Updated while merging with Maven776 - Kiran
+        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
         if (cmpd != NULL ) matches.insert(pair<string,Compound*>(keyword,cmpd));
     }
 	return matches;
@@ -58,7 +59,8 @@ void Database::loadCategories() {
     while (query.next()) {
         std::string keyword  = query.value(0).toString().toStdString();
         std::string id  = query.value(1).toString().toStdString();
-        Compound* cmpd = findSpeciesById(id);
+        //Updated while merging with Maven776 - Kiran
+        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
         if (cmpd != NULL ) {
          //   cmpd->category.push_back(keyword);
         }
@@ -70,7 +72,8 @@ void Database::loadCategories() {
     while (query.next()) {
         std::string keyword  = query.value(0).toString().toStdString();
         std::string id  = query.value(1).toString().toStdString();
-        Compound* cmpd = findSpeciesById(id);
+        //Updated while merging with Maven776 - Kiran
+        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
         if (cmpd != NULL ) {
          //   cmpd->category.push_back(keyword);
         }
@@ -151,12 +154,15 @@ set<Compound*> Database::findSpeciesByMass(float mz, float ppm) {
     return uniqset;
 }
 
-Compound* Database::findSpeciesById(string id) {
+        //Updated while merging with Maven776 - Kiran
+Compound* Database::findSpeciesById(string id, string dbName) {
     if ( compoundIdMap.count(id) ) return compoundIdMap[id];
     return NULL;
 
     Compound* c = NULL;
     for(int i=0; i < compoundsDB.size(); i++ ) {
+        //Updated while merging with Maven776 - Kiran
+        if (!dbName.empty() and compoundsDB[i]->db != dbName) continue;
         if (compoundsDB[i]->id == id ) { c = compoundsDB[i]; break; }
     }
     return c;
@@ -245,7 +251,8 @@ void Database::loadReactions(string db) {
 			}
 
 			//cerr << id << " " << species << " " << species_type << endl;
-            Compound* c = findSpeciesById(species_id);
+            //Updated while merging with Maven776 - Kiran
+            Compound* c = findSpeciesById(species_id,ANYDATABASE);
 
 			if ( c != NULL && r != NULL && seenSpeciesReactions.count(c->id + r->id) == 0 ) {
 				seenSpeciesReactions[ c->id + r->id ]=true;
@@ -314,7 +321,8 @@ void Database::loadRetentionTimes(QString method) {
     while (query.next()) {
 		std::string cid = query.value(0).toString().toStdString();
 		float rt = query.value(1).toDouble();
-		Compound* c = findSpeciesById(cid);
+        //Updated while merging with Maven776 - Kiran
+        Compound* c = findSpeciesById(cid,ANYDATABASE);
 		if (c) c->expectedRt = rt;
 	}
 }

@@ -22,6 +22,8 @@ public:
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
+    //Added when Merging to Maven776 - Kiran
+    enum tableViewType{ groupView=0, peakView=1 };
 
     TableDockWidget(MainWindow* mw, QString title, int numColms);
 	~TableDockWidget();
@@ -29,6 +31,9 @@ public:
 	int  groupCount() { return allgroups.size(); }
 	bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
+    //Added when Merging to Maven776 - Kiran
+    MatrixXf getGroupMatrix();
+    MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
 
 public slots: 
 	  //void showInfo(PeakGroup* group);
@@ -50,9 +55,8 @@ public slots:
 	  void writePeakTableXML(QXmlStreamWriter& stream);
 
       //output to csv file
-
-	  void exportSelectedGroupsToSpreadsheet();
-	  void exportAllGroupsToSpreadsheet();
+      //Added when Merging to Maven776 - Kiran
+      void exportGroupsToSpreadsheet();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
@@ -76,6 +80,8 @@ public slots:
           void showTreeMap();
 	  void showScatterPlot();
 	  void setClipboard();
+      //Added when Merging to Maven776 - Kiran
+      void showConsensusSpectra();
 	  void deleteGroup();
 	  // merged with maven776 - Kiran
 	  void deleteGroup(PeakGroup* groupX);
@@ -84,13 +90,17 @@ public slots:
 	  void deleteAll();
           void clusterGroups();
 	  void findMatchingCompounds();
-	  void showFiltersDialog();
-	  void filterPeakTable();
-          int loadSpreadsheet(QString fileName);
-          int loadCSVFile(QString filename, QString sep);
-          void switchTableView();
-          void clearClusters();
-
+      void showFiltersDialog();
+      void filterPeakTable();
+      int loadSpreadsheet(QString fileName);
+      int loadCSVFile(QString filename, QString sep);
+      void switchTableView();
+     //Added when Merging to Maven776 - Kiran
+      void setTableView(tableViewType t) {viewType=t; }
+      void clearClusters();
+      //Added when Merging to Maven776 - Kiran
+      void writeQEInclusionList(QString fileName);
+      void writeMascotGeneric(QString fileName);
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
@@ -117,7 +127,6 @@ private:
           QDialog* 	 filtersDialog;
           QMap<QString, QHistogramSlider*> sliders;
 
-          enum tableViewType{ groupView=0, peakView=1 };
           tableViewType viewType;
 };
 
