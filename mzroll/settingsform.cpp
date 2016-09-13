@@ -38,7 +38,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(pathwaysFolderSelect, SIGNAL(clicked()), SLOT(selectPathwaysFolder()));
     connect(methodsFolderSelect, SIGNAL(clicked()), SLOT(selectMethodsFolder()));
     connect(RProgramSelect, SIGNAL(clicked()), SLOT(selectRProgram()));
-    //connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
+    connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
 
 
     connect(centroid_scan_flag,SIGNAL(toggled(bool)), SLOT(getFormValues()));
@@ -107,8 +107,8 @@ void SettingsForm::updateSettingFormGUI() {
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
 
-    QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram;
-    QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram";
+    QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram << RawExtractProgram;
+    QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram" << "RawExtractProgram";
 
    unsigned int itemCount=0;
     foreach(QString itemName, pathlist) {

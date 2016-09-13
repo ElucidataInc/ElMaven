@@ -23,7 +23,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>5</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="instrumentationOptions">
       <attribute name="title">
@@ -684,14 +684,7 @@
        <string>External Programs</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_24">
-         <property name="text">
-          <string>R Executable </string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
+       <item row="1" column="5">
         <widget class="QLineEdit" name="Rprogram">
          <property name="inputMask">
           <string/>
@@ -701,7 +694,39 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="5">
+        <widget class="QLineEdit" name="RawExtractProgram">
+         <property name="text">
+          <string>msconvert.exe</string>
+         </property>
+         <property name="placeholderText">
+          <string>rawExtractor.exe</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_25">
+         <property name="text">
+          <string>ProteoWizzard</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>R Executable </string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="4">
+        <widget class="QPushButton" name="rawExtractSelect">
+         <property name="icon">
+          <iconset resource="../mzroll.qrc">
+           <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
         <widget class="QPushButton" name="RProgramSelect">
          <property name="icon">
           <iconset resource="../mzroll.qrc">
