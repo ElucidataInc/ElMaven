@@ -20,7 +20,7 @@ QMAKE_LFLAGS_DEBUG += -pg
 
 
 QT += core
-CONFIG += silent exceptions
+CONFIG += silent exceptions debug
 OBJECTS_DIR = tmp
 MOC_DIR = tmp
 UI_DIR   =  tmp
