@@ -22,9 +22,10 @@ public:
 	void saveModel(string filename);
 	void loadModel(string filename);
 	bool hasModel();
+    vector<float> getFeatures(Peak& p);
 	float scorePeak(Peak& p);
 private:
-	vector<float> getFeatures(Peak& p);
+	
 
 	//neural net specific features
 	nnwork* brain;
