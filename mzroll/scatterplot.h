@@ -3,7 +3,6 @@
 
 #include "plotdock.h"
 #include "comparesamplesdialog.h"
-#include "tabledockwidget.h"
 
 class CompareSamplesDialog;
 class MainWindow;
