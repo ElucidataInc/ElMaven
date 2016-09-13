@@ -23,7 +23,9 @@ public:
 	void setMargin(int m) { margin=m; }
 	void setOffset(int o ) { offset=o;  }
 	void showTicLines(bool f) { tickLinesFlag=f; }
-	
+    void setFractional(bool f) { fractionalFlag=f; }
+    void setAbsMax(float v) { absMax=v; }
+
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     
@@ -31,6 +33,8 @@ private:
    int type;
    float min;
    float max;
+   float absMax;
+
    int nticks;
    int nticksPref;
    int margin;
@@ -38,6 +42,7 @@ private:
    bool force_nticks;
    bool intLabels;
    bool tickLinesFlag;
+   bool fractionalFlag;
    QString label;
    QString title;
 };
