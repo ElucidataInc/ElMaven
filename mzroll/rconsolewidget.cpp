@@ -26,8 +26,8 @@ RconsoleWidget::RconsoleWidget(QWidget *parent): QDockWidget(parent)
     process->setStandardOutputFile(processOutFile);
     process->setStandardErrorFile(processErrorFile);
     connect(process, SIGNAL(finished(int)), this, SLOT(readProcessOutput(int)));
-    connect(process, SIGNAL(readyReadStandardError()), this, SLOT(readStdOut()));
-    connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdErr()));
+    connect(process, SIGNAL(readyReadStandardError()), this, SLOT(readStdErr()));
+    connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
     this->setVisible(false);
     this->setWindowTitle("R Console");
 
@@ -142,6 +142,8 @@ void RconsoleWidget::runAnalysis() {
 
     // exec R
     QString Rexe = _settings->value("Rprogram").toString();
+    Rexe.replace(' ',"\\ ");
+
     if(!QFile::exists(Rexe)) {
         errorLog->appendPlainText("Can't find " + Rexe);
         return;
@@ -260,5 +262,25 @@ void RconsoleWidget::exportGroupsToTable() {
         peaks.close();
     } else {
        errorLog->appendPlainText("Can't write to " + groupsTableFile);
+    }
+
+    //prepare data
+    QFile sampleInfo(groupsTableFile+".info");
+    if(sampleInfo.open(QFile::WriteOnly | QFile::Truncate)) {
+        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
+        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+        QTextStream stream(&sampleInfo);
+        stream << "sampleName" << "\t" << "setName" << "\t" << "sampleColor" << endl;
+        for(int i=0; i < vsamples.size(); i++) {
+            mzSample* sample = vsamples[i];
+            QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
+            stream << QString(vsamples[i]->sampleName.c_str())
+                   << "\t" << QString(vsamples[i]->_setName.c_str())
+                   << "\t" << color.name()
+                   << endl;
+        }
+        sampleInfo.close();
+    } else {
+       errorLog->appendPlainText("Can't write sample info " + groupsTableFile);
     }
 }
