@@ -130,14 +130,16 @@ void SpectralHitsDockWidget::addRow(SpectralHit* hit, QTreeWidgetItem* root) {
     NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,0);
 
     item->setData(0,Qt::UserRole,QVariant::fromValue(hit));
-    item->setText(0,QString::number(hit->precursorMz, 'f', 4));
-    item->setText(1,QString::number(hit->charge));
-    item->setText(2,QString::number(hit->scannum));
-    item->setText(3,QString::number(hit->score, 'f', 2));
-    item->setText(4,QString::number(hit->matchCount));
-    item->setText(5,hit->compoundId);
-    item->setText(6,hit->fragmentId);
-    item->setText(7,QString::number(hit->rank));
+    item->setText(0,hit->sampleName);
+    item->setText(1,hit->getProteinIds());
+    item->setText(2,hit->fragmentId);
+    item->setText(3,QString::number(hit->rt, 'f', 2));
+    item->setText(4,QString::number(hit->precursorMz, 'f', 4));
+    item->setText(5,QString::number(hit->charge));
+    item->setText(6,QString::number(hit->scannum));
+    item->setText(7,QString::number(hit->score, 'f', 2));
+    item->setText(8,QString::number(hit->matchCount));
+    item->setText(9,QString::number(hit->rank));
     item->setFlags(Qt::ItemIsSelectable |  Qt::ItemIsEnabled );
     if(hit->decoy) item->setBackground(0,QBrush(Qt::red));
  //  for( int i=0; i < group->childCount(); i++ ) addRow(&(group->children[i]), item);
@@ -971,9 +973,10 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
 			    hit->decoy = decoy;
 			    hit->rank = hit_rank;
 			    hit->matchCount = num_matched_ions;
-			    hit->compoundId = protein;
-			    hit->fragmentId  = peptide;
-			    hit->massdiff = massdiff;
+			    //hit->compoundId = protein;
+			    //hit->fragmentId  = peptide;
+			    hit->unmodPeptideSeq  = peptide;
+				hit->massdiff = massdiff;
 			    hit->sampleName = dbname;
 			    addSpectralHit(hit);
 			    lasthit = hit;
