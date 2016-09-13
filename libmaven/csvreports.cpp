@@ -62,7 +62,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         QStringList groupReportcolnames;
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
-                << "compoundId" << "category"<<"expectedRtDiff" << "ppmDiff" << "parent";
+                << "compoundId" << "expectedRtDiff" << "ppmDiff" << "parent";
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
@@ -70,7 +70,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         }
         groupReport << endl;
         if (includeSetNamesLine){
-             for(unsigned int i=0; i < 13; i++) { groupReport << SEP; }
+             for(unsigned int i=0; i < 12; i++) { groupReport << SEP; }
              for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
              groupReport << endl;
          }
@@ -100,6 +100,10 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
 void CSVReports::addGroup (PeakGroup* group) {
 
       insertPeakInformationIntoCSVFile(group);
+
+      if(!groupReport.is_open()) {
+		return;
+	  }
       //get ionization mode
       insertGroupInformationIntoCSVFile(group);
 
@@ -169,7 +173,7 @@ void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
                                 && samples[0]->_N15Labeled == true)
                         || (isotopeName.find("S34-label") != string::npos
                                 && samples[0]->_S34Labeled == true)
-                        || (isotopeName.find("D-label") != string::npos
+                        || (isotopeName.find("D2-label") != string::npos
                                 && samples[0]->_D2Labeled == true)) {
                     insertUserSelectedIsotopes(group,isotopeName);
                 }
@@ -274,15 +278,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         expectedRtDiff = group->expectedRtDiff;
 
         // TODO: Added this while merging this file
-        for(int i=0;i<group->compound->category.size(); i++) {
-                    categoryString += group->compound->category[i] + ";";
-        }
-        categoryString=sanitizeString(categoryString.c_str()).toStdString();
+        //for(int i=0;i<group->compound->category.size(); i++) {
+        //    categoryString += group->compound->category[i] + ";";
+        //}
+        //categoryString=sanitizeString(categoryString.c_str()).toStdString();
+
     }
 
     groupReport << SEP << compoundName;
     groupReport << SEP << compoundID;
-    groupReport << SEP << categoryString;
+    //groupReport << SEP << categoryString;
     groupReport << SEP << expectedRtDiff;
     groupReport << SEP << ppmDist;
 
@@ -323,15 +328,27 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         if (sample != NULL)
             sampleName = sanitizeString(sample->sampleName.c_str()).toStdString();;
 
-        peakReport << setprecision(8) << groupId << SEP << compoundName << SEP
-                << compoundID << SEP << sampleName << SEP << peak.peakMz << SEP
-                << peak.medianMz << SEP << peak.baseMz << SEP << setprecision(3)
-                << peak.rt << SEP << peak.rtmin << SEP << peak.rtmax << SEP
-                << peak.quality << SEP << peak.peakIntensity << SEP
-                << peak.peakArea << SEP << peak.peakAreaTop << SEP
-                << peak.peakAreaCorrected << SEP << peak.noNoiseObs << SEP
-                << peak.signalBaselineRatio << SEP << peak.fromBlankSample
-                << SEP << endl;
+        peakReport << setprecision(8)
+                << groupId << SEP
+                << compoundName << SEP
+                << compoundID << SEP
+                << sampleName << SEP
+                << peak.peakMz <<  SEP
+                << peak.medianMz <<  SEP
+                << peak.baseMz <<  SEP
+                << setprecision(3)
+                << peak.rt <<  SEP
+                << peak.rtmin <<  SEP
+                << peak.rtmax <<  SEP
+                << peak.quality << SEP
+                << peak.peakIntensity << SEP
+                << peak.peakArea <<  SEP
+                << peak.peakAreaTop <<  SEP
+                << peak.peakAreaCorrected <<  SEP
+                << peak.noNoiseObs <<  SEP
+                << peak.signalBaselineRatio <<  SEP
+                << peak.fromBlankSample << SEP
+                << endl;
     }
 }
 
