@@ -33,7 +33,6 @@ public slots:
 	  void setInfo(PeakGroup* group);
 	  void setInfo(Compound* c);
 	  void setInfo(vector<Compound*>&compounds);
-
 	  void setInfo(vector<mzLink>&links);
 	  void setInfo(vector<mzSlice*>&slices);
 	  void setInfo(deque<Pathway*>&pathways);
@@ -46,8 +45,8 @@ public slots:
       bool hasPeakGroup(PeakGroup* group);
 
       protected slots:
-          void keyPressEvent(QKeyEvent *e );
-      void contextMenuEvent ( QContextMenuEvent *e );
+      	void keyPressEvent(QKeyEvent *e );
+      	void contextMenuEvent ( QContextMenuEvent *e );
 
       private slots:
       QTreeWidgetItem* addPeakGroup(PeakGroup* group, QTreeWidgetItem* parent);
@@ -62,6 +61,7 @@ public slots:
       //Added while merging with Maven776 - Kiran
       MainWindow* _mainWindow;
       void itemToClipboard(QTreeWidgetItem* item, QString& clipboardtext);
+
 };
 
 #endif

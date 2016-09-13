@@ -89,10 +89,13 @@ void TreeDockWidget::showInfo() {
                                 if (group) mainwindow->setPeakGroup(group);
                         } else if ( itemType == ScanType ) {
                                 Scan*  scan =  v.value<Scan*>();
-                                if (scan) { 
-					mainwindow->getSpectraWidget()->setScan(scan);
-					mainwindow->getEicWidget()->setFocusLine(scan->rt);
-				}
+                                if (scan) {
+                                    mainwindow->getSpectraWidget()->setScan(scan);
+                                    mainwindow->getEicWidget()->setFocusLine(scan->rt);
+                                    if (scan->mslevel > 1) {
+                                     mainwindow->peptideFragmentation->setScan(scan);
+                                    }
+                                }
 				
                         } else if (itemType == EICType ) {
                                 mainwindow->getEicWidget()->setSrmId(text.toStdString());
