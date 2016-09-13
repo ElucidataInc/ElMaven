@@ -37,14 +37,16 @@ class SpectralHit {
 		int rank;
 		bool decoy;
 		int charge;
-		int massdiff;
+		double massdiff;
  		int scannum;
-		QString unmodPeptideSeq; //TODO: Sahil, Added while merging mzfileio
+		//QString compoundId;
+		QString fragmentId;
+        QString unmodPeptideSeq;
+        QString geneId;
         bool isFocused; //TODO: Sahil, Added while merging mzfileio
         float rt; //TODO: Sahil, Added while merging mzfileio
         int id; //TODO: Sahil, Added while merging mzfileio
-		QString compoundId;
-		QString fragmentId;
+
 		QMap<QString,int>proteins; //TODO: Sahil, Added while merging mzfileio
         QMap<int,float> mods; //TODO: Sahil, Added while merging mzfileio
 
@@ -61,7 +63,7 @@ class SpectralHit {
 		rank=0; 
 		decoy=false;
 		charge=0;
-		int scannum;
+		scannum=0;
         isFocused=false; //TODO: Sahil, Added while merging mzfileio
         rt=0; //TODO: Sahil, Added while merging mzfileio
         id=0; //TODO: Sahil, Added while merging mzfileio
@@ -87,6 +89,16 @@ class SpectralHit {
 
         QString getProteinIds() { QStringList ids = proteins.uniqueKeys(); return(ids.join(";")); }
 		QStringList getProteins() { return proteins.uniqueKeys(); } 
+
+		QString getUnchargedPeptideString() { 
+			int slashIndx =  fragmentId.lastIndexOf('/');
+			if(slashIndx != 0 ) {
+				return fragmentId.left(slashIndx);
+			} else {
+				return fragmentId;
+			}
+		}
+
 		/*
         @author: Sahil
         */
@@ -113,4 +125,6 @@ class SpectralHit {
 
 };
 Q_DECLARE_METATYPE(SpectralHit*);
+Q_DECLARE_METATYPE(ProteinHit*);
+
 #endif
