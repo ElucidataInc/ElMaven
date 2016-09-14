@@ -4,9 +4,11 @@ SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
+    filterDialog=new QDialog();
     setObjectName(title);
 
-    viewType = hitView;
+    // viewType = hitView
+    viewType = peakView;
     treeWidget=new QTreeWidget(this);
     treeWidget->setSortingEnabled(false);
     treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
@@ -19,7 +21,7 @@ SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
 
     setWidget(treeWidget);
     setWindowTitle(title);
-    setupPeakTable();
+    // setupPeakTable();
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
@@ -30,6 +32,41 @@ SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
     btnLoad->setToolTip("Load Peaks");
     connect(btnLoad, SIGNAL(clicked()), SLOT(loadSpectralHitsTable()));
 
+
+    /*
+    @author: Kiran - Sahil
+    */
+    //TODO: Added while merging spectralhitstable
+    QToolButton *btnFilter = new QToolButton(toolBar);
+    btnFilter->setIcon(QIcon(rsrcPath + "/filter.png"));
+    btnFilter->setToolTip("Load Peaks");
+    btnFilter->setCheckable(true);
+    btnFilter->setChecked(false);
+    //connect(btnFilter, SIGNAL(clicked(bool)), SLOT(unhideFocusedHits()));
+    connect(btnFilter, SIGNAL(clicked()), SLOT(showFiltersDialog()));
+
+    /*
+    @author: Kiran - Sahil
+    */
+    //TODO: Added while merging spectralhitstable
+    QToolButton *btnIntegrate = new QToolButton(toolBar);
+    btnIntegrate->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
+    btnIntegrate->setToolTip("Integrate MS1 Events");
+    btnIntegrate->setChecked(false);
+    connect(btnIntegrate, SIGNAL(clicked()), SLOT(integrateMS1()));
+
+
+    /*
+    @author: Kiran - Sahil
+    */
+    //TODO: Added while merging spectralhitstable
+    QToolButton *btnExportTSV = new QToolButton(toolBar);
+    btnExportTSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
+    btnExportTSV->setToolTip("Export to TSV");
+    btnExportTSV->setCheckable(false);
+    connect(btnExportTSV, SIGNAL(clicked()), SLOT(exportToTSV()));
+
+
     QToolButton *btnX = new QToolButton(toolBar);
     btnX->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
     connect(btnX, SIGNAL(clicked()),SLOT(hide()));
@@ -37,13 +74,14 @@ SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     toolBar->addWidget(btnLoad);
+    toolBar->addWidget(btnFilter); //TODO: Kiran-Sahil, Added while merging spectralhitstable
+    toolBar->addWidget(btnIntegrate); //TODO: Kiran-Sahil, Added while merging spectralhitstable
+    toolBar->addWidget(btnExportTSV); //TODO: Kiran-Sahil, Added while merging spectralhitstable
+
     toolBar->addWidget(btnX);
     setTitleBarWidget(toolBar);
     setAcceptDrops(true);
 
-}
-
-SpectralHitsDockWidget::~SpectralHitsDockWidget() { 
 }
 
 void SpectralHitsDockWidget::updateTable() {
@@ -62,73 +100,10 @@ void SpectralHitsDockWidget::updateItem(QTreeWidgetItem* item) {
     //heatmapBackground(item);
 }
 
-void SpectralHitsDockWidget::heatmapBackground(QTreeWidgetItem* item) {
-    if(viewType != peakView) return;
-
-    int firstColumn=3;
-    StatisticsVector<float>values; float sum=0;
-    for(unsigned int i=firstColumn; i< item->columnCount(); i++) {
-          values.push_back(item->text(i).toFloat());
-    }
-
-    if (values.size()) {
-        //normalize
-        float mean = values.mean();
-        float sd  = values.stddev();
-
-        for(int i=0; i<values.size();i++) {
-            values[i] = (values[i]-mean)/sd; //Z-score
-        }
-
-        float maxValue=max(std::fabs(values.maximum()),fabs(values.minimum()));
-
-        float colorramp=0.5;
-
-        for(int i=0; i<values.size();i++) {
-            float cellValue=values[i];
-            QColor color = Qt::white;
-
-
-            if (cellValue<0)  {
-                float intensity=pow(abs(cellValue/maxValue),colorramp);
-                if (intensity > 1 ) intensity=1;
-                color.setHsvF(0.6,intensity,intensity,0.5);
-            }
-
-            if (cellValue>0 )  {
-                float intensity=pow(abs(cellValue/maxValue),colorramp);
-                if (intensity > 1 ) intensity=1;
-                color.setHsvF(0.1,intensity,intensity,0.5);
-            }
-            //item->setText(firstColumn+i,QString::number(values[i])) ;
-            item->setBackgroundColor(firstColumn+i,color);
-       }
-    }
-}
-
-void SpectralHitsDockWidget::setupPeakTable() {
-
-    QStringList colNames;
-    colNames << "precursorMz" << "charge" << "scannum" << "score" << "matchCount" << "compoundId" << "fragmentId" << "rank";
-    treeWidget->setColumnCount(colNames.size());
-    treeWidget->setHeaderLabels(colNames);
-    treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
-    treeWidget->header()->adjustSize();
-    treeWidget->setSortingEnabled(false);
-}
-
 
 void SpectralHitsDockWidget::addRow(SpectralHit* hit, QTreeWidgetItem* root) {
-
     if (hit == NULL) return;
-    //if (hit->precursorMz <= 0 ) return;
-    //if(hit->scan) scanNum = hit->scan->scannum;
-    //
-    //NumericTreeWidgetItem *item = NULL;
-    //root ? item = new NumericTreeWidgetItem(root,0): item = new NumericTreeWidgetItem(treeWidget,0);
-    
     NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,0);
-
     item->setData(0,Qt::UserRole,QVariant::fromValue(hit));
     item->setText(0,hit->sampleName);
     item->setText(1,hit->getProteinIds());
@@ -142,9 +117,6 @@ void SpectralHitsDockWidget::addRow(SpectralHit* hit, QTreeWidgetItem* root) {
     item->setText(9,QString::number(hit->rank));
     item->setFlags(Qt::ItemIsSelectable |  Qt::ItemIsEnabled );
     if(hit->decoy) item->setBackground(0,QBrush(Qt::red));
- //  for( int i=0; i < group->childCount(); i++ ) addRow(&(group->children[i]), item);
- //
- 
 }
 
 bool SpectralHitsDockWidget::hasSpectralHit(SpectralHit* group) {
@@ -264,9 +236,11 @@ void SpectralHitsDockWidget::showSpectralCounts() {
     if ( vScroll ) { vScroll->setSliderPosition(vScroll->maximum()); }
     treeWidget->verticalScrollBar()->setEnabled(true);
     treeWidget->setSortingEnabled(true);
+
 }
 
-void SpectralHitsDockWidget::exportHitsToSpreadsheet() {
+//TODO: Kiran-Sahil, replacement of function exportHItsToSpreadSheet 
+void SpectralHitsDockWidget::exportToTSV(){
 
     if (allhits.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
@@ -279,49 +253,42 @@ void SpectralHitsDockWidget::exportHitsToSpreadsheet() {
 
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
-    QString groupsTAB = "Hits  Summary Matrix Format (*.tab)";
-    QString peaksTAB =  "Peaks   Detailed Format   (*.tab)";
-    QString groupsCSV = "Hits  Summary Matrix Format Comma Delimited (*.csv)";
-    QString peaksCSV =  "Peaks   Detailed Format Comma Delimited  (*.csv)";
-/*
+    QString groupsTAB = "Peptide Summary Matrix Format (*.tab)";
     QString sFilterSel;
-    QString fileName = QFileDialog::getSaveFileName(this, 
-            tr("Export Hits"), dir, 
-            groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV,
-            &sFilterSel);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export Groups"), dir, groupsTAB, &sFilterSel);
 
     if(fileName.isEmpty()) return;
 
-    if ( sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
-        if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
-    }
-
-    if ( sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
+    if ( sFilterSel == groupsTAB) {
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
     }
 
-    vector<mzSample*> samples = _mainwindow->getSamples();
-    if ( samples.size() == 0) return;
+     QFile file(fileName);
+     if ( !file.open(QFile::WriteOnly) ) {
+         QErrorMessage errDialog(this);
+         errDialog.showMessage("File open " + fileName + " failed");
+         return; //error
+     }
 
-    CSVReports* csvreports = new CSVReports(samples);
-    csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
+     QTextStream out(&file);
+     QTreeWidgetItemIterator it(treeWidget);
+     int colmCount=treeWidget->columnCount();
+     for(unsigned int i=0; i<colmCount;i++) {
+         out << treeWidget->headerItem()->text(i) << "\t";
+     }
+     out << endl;
 
-    if (sFilterSel == groupsCSV) {
-        csvreports->openGroupReport(fileName.toStdString());
-    } else if (sFilterSel == groupsTAB )  {
-        csvreports->openGroupReport(fileName.toStdString());
-    } else if (sFilterSel == peaksCSV )  {
-        csvreports->openPeakReport(fileName.toStdString());
-    } else if (sFilterSel == peaksTAB )  {
-        csvreports->openPeakReport(fileName.toStdString());
-    }
+     while (*it) {
+         QTreeWidgetItem* item = (*it);
+         if(!item) continue;
 
-    for(int i=0; i<allhits.size(); i++ ) {
-        SpectralHit& group = allhits[i];
-        csvreports->addGroup(&group);
-    }
-    csvreports->closeFiles();
-*/
+         for(unsigned int i=0; i< colmCount;i++) {
+             out <<  item->text(i) << "\t";
+         }
+         out << endl;
+         ++it;
+     }
+     file.close();
 }
 
 void SpectralHitsDockWidget::showSpectralHits() {
@@ -354,36 +321,44 @@ void SpectralHitsDockWidget::showSpectralHits() {
 void SpectralHitsDockWidget::showSelectedGroup() { 
     QTreeWidgetItem *item = treeWidget->currentItem();
     if (!item) return;
+    if(!_mainwindow) return;
 
     QVariant v = item->data(0,Qt::UserRole);
     SpectralHit*  hit =  v.value<SpectralHit*>();
+    if(!hit) return;
 
-    if ( hit != NULL && _mainwindow != NULL) {
-        _mainwindow->getEicWidget()->setMzSlice(hit->precursorMz);
-        if(_mainwindow->fragPanel->isVisible()) _mainwindow->showFragmentationScans(hit->precursorMz);
 
-	//get sample by samplename
-	vector<mzSample*>samples = _mainwindow->getVisibleSamples(); 
-	for(int i=0; i<samples.size(); i++) {
-		qDebug() << samples[i]->sampleName.c_str() << " <-- " << hit->sampleName;
-		if(samples[i]->sampleName == hit->sampleName.toStdString() ) {
-			Scan* scan =  samples[i]->getScan( hit->scannum-1 );
-        		if(scan) _mainwindow->getSpectraWidget()->setScan(scan);
-			break;
-		}
-	}
-    }
-/*
-    if ( item->childCount() > 0 ) {
-        vector<SpectralHit*>children;
-        for(int i=0; i < item->childCount(); i++ ) {
-            QTreeWidgetItem* child = item->child(i);
-            QVariant data = child->data(0,Qt::UserRole);
-            SpectralHit*  group =  data.value<SpectralHit*>();
-            if(group) children.push_back(group);
+    _mainwindow->setUrl("http://idms.pfizer.com/idms/target_search_view.php?ipi=" + hit->getProteins().first(), hit->getProteins().first());
+
+        /*
+        if (hit->rt > 0) {
+            _mainwindow->getEicWidget()->setFocusLine(hit->rt);
         }
-    }
-*/
+        _mainwindow->getEicWidget()->setMzSlice(hit->precursorMz);
+        */
+
+        //(if (!ok) {
+        //  _mainwindow->getEicWidget()->setMzSlice(hit->precursorMz);
+        //}
+
+        _mainwindow->setPeptideSequence( hit->getModPeptideString() );
+
+        float ppmWindow=hit->precursorMz/1e6*_mainwindow->getUserPPM();
+        float mzmin = hit->precursorMz -ppmWindow;
+        float mzmax = hit->precursorMz +ppmWindow;
+
+        if(hit->rt > 0) {
+             mzSlice slice(mzmin,mzmax,hit->rt-3,hit->rt+3);
+             //if(peptideCompoundMap[hit->fragmentId]) slice.compound=peptideCompoundMap[hit->fragmentId];
+            _mainwindow->getEicWidget()->setMzSlice(slice);
+            _mainwindow->getEicWidget()->setFocusLine(hit->rt);
+        } else {
+            _mainwindow->getEicWidget()->setMzSlice(hit->precursorMz);
+        }
+
+        if(hit->scan)
+            _mainwindow->getSpectraWidget()->setScan(hit->scan);
+
 }
 
 QList<SpectralHit*> SpectralHitsDockWidget::getSelectedHits() {
@@ -405,129 +380,6 @@ SpectralHit* SpectralHitsDockWidget::getSelectedGroup() {
     SpectralHit*  group =  v.value<SpectralHit*>();
     if ( group != NULL ) { return group; }
     return NULL;
-}
-
-void SpectralHitsDockWidget::setGroupLabel(char label) {
-/*
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
-        if (item) {
-            QVariant v = item->data(0,Qt::UserRole);
-            SpectralHit*  group =  v.value<SpectralHit*>();
-            if ( group != NULL ) {
-                 group->setLabel(label);
-            }
-            updateItem(item);
-        }
-    }
-    updateStatus();
-*/
-}
-
-void SpectralHitsDockWidget::deleteGroup() {
-/*
-    QTreeWidgetItem *item = treeWidget->currentItem();
-    if ( item == NULL ) return;
-
-    SpectralHit* group = getSelectedGroup();
-    if ( group == NULL ) return;
-
-    SpectralHit* parentGroup = group->parent;
-
-    if ( parentGroup == NULL ) { //top level item
-        for(int i=0; i < allhits.size(); i++) {
-            if ( &allhits[i] == group ) {
-                treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(item));
-                treeWidget->update();
-                delete(item);
-                allhits.erase(allhits.begin()+i);
-                break;
-            }
-        }
-    } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
-        if ( parentGroup->deleteChild(group) ) {
-            QTreeWidgetItem* parentItem = item->parent();
-            if ( parentItem ) { parentItem->removeChild(item); delete(item); }
-            treeWidget->update();
-        }
-    }
-    _mainwindow->getEicWidget()->replotForced();
-    return;
-*/
-}
-
-void SpectralHitsDockWidget::setClipboard() { 
-/*
-    QList<SpectralHit*>groups = getSelectedHits();
-    if (groups.size() >0) {
-        _mainwindow->isotopeWidget->setClipboard(groups);
-    }
-*/
-}
-
-void SpectralHitsDockWidget::markGroupGood() { 
- //   setGroupLabel('g');
-  //  showNextGroup();
-}
-
-void SpectralHitsDockWidget::markGroupBad() { 
-   // setGroupLabel('b');
-    //showNextGroup();
-}
-
-void SpectralHitsDockWidget::markGroupIgnored() { 
-    //setGroupLabel('i');
-    //showNextGroup();
-}
-
-void SpectralHitsDockWidget::showSpectralHit(int row) {
-/*
-    QTreeWidgetItem *item = treeWidget->itemAt(row,0);
-    if ( item == NULL) return;
-
-    QVariant v = item->data(0,Qt::UserRole);
-    SpectralHit*  group =  v.value<SpectralHit*>();
-
-    if ( group != NULL ) {
-        treeWidget->setCurrentItem(item);
-        _mainwindow->setSpectralHit(group);
-    }
-*/
-}
-
-void SpectralHitsDockWidget::showLastGroup() {
-/*
-    QTreeWidgetItem *item= treeWidget->currentItem();
-    if ( item != NULL )  {
-        treeWidget->setCurrentItem(treeWidget->itemAbove(item));
-    }
-*/
-}
-
-void SpectralHitsDockWidget::showNextGroup() {
-/*
-    QTreeWidgetItem *item= treeWidget->currentItem();
-    if ( item == NULL ) return;
-
-    QTreeWidgetItem* nextitem = treeWidget->itemBelow(item); //get next item
-    if ( nextitem != NULL )  treeWidget->setCurrentItem(nextitem);
-*/
-}
-
-
-void SpectralHitsDockWidget::keyPressEvent(QKeyEvent *e ) {
-    //cerr << "SpectralHitsDockWidget::keyPressEvent()" << e->key() << endl;
-/*
-    QTreeWidgetItem *item = treeWidget->currentItem();
-    if (e->key() == Qt::Key_Delete ) {
-        deleteGroup();
-    } else if ( e->key() == Qt::Key_G ) {
-        markGroupGood();
-    } else if ( e->key() == Qt::Key_B ) {
-        markGroupBad();
-    }
-    QDockWidget::keyPressEvent(e);
-    updateStatus();
-*/
 }
 
 void SpectralHitsDockWidget::updateStatus() {
@@ -554,369 +406,41 @@ void SpectralHitsDockWidget::updateStatus() {
 */
 }
 
-
-void SpectralHitsDockWidget::showScatterPlot() { 
-/*
-    if (groupCount() == 0 ) return;
-    _mainwindow->scatterDockWidget->setVisible(true);
-    ((ScatterPlot*) _mainwindow->scatterDockWidget)->setTable(this);
-    ((ScatterPlot*) _mainwindow->scatterDockWidget)->replot();
-    ((ScatterPlot*) _mainwindow->scatterDockWidget)->contrastHits();
-*/
-}
-
-
-void SpectralHitsDockWidget::printPdfReport() {
-/*
-    QString dir = ".";
-    QSettings* settings = _mainwindow->getSettings();
-    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Group Report a PDF File"),dir,tr("*.pdf"));
-    if (fileName.isEmpty()) return;
-    if(!fileName.endsWith(".pdf",Qt::CaseInsensitive)) fileName = fileName + ".pdf";
-
-    QPrinter printer;
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOrientation(QPrinter::Landscape);
-    //printer.setResolution(QPrinter::HighResolution);
-    printer.setCreator("MAVEN Metabolics Analyzer");
-    printer.setOutputFileName(fileName);
-
-    QPainter painter;
-
-    if (! painter.begin(&printer)) { // failed to open file
-        qWarning("failed to open file, is it writable?");
-        return;
-    }
-
-    if(printer.printerState() != QPrinter::Active) {
-        qDebug() << "PrinterState:" << printer.printerState();
-    }
-
-    //PDF report only for selected groups
-    QList<SpectralHit*>selected = getSelectedHits();
-
-    for(int i=0; i <selected.size(); i++ ) {
-        SpectralHit* grp = selected[i];
-        _mainwindow->getEicWidget()->setSpectralHit(grp);
-        _mainwindow->getEicWidget()->render(&painter);
-
-        if (! printer.newPage()) {
-            qWarning("failed in flushing page to disk, disk full?");
-            return;
-        }
-    }
-    painter.end();
-*/
- }
-
-
-void SpectralHitsDockWidget::showGallery() { 
-/*
-    if ( _mainwindow->galleryWidget ) {
-        _mainwindow->galleryDockWidget->setVisible(true);
-        QList<SpectralHit*>selected = getSelectedHits();
-        vector<SpectralHit*>groups(selected.size());
-        for(int i=0; i<selected.size(); i++) { groups[i]=selected[i]; }
-        _mainwindow->galleryWidget->clear();
-        _mainwindow->galleryWidget->addEicPlots(groups);
-    }
-*/
-}
-
-
-void SpectralHitsDockWidget::showTreeMap() { 
-
-    /*
-	_mainwindow->treeMapDockWidget->setVisible(true);
-	TreeMap* _treemap = _mainwindow->treemap;
-	if ( _treemap ) {
-			_treemap->setTable(this);
-			_treemap->replot();
-	}
-	*/
-}
-
-void SpectralHitsDockWidget::contextMenuEvent ( QContextMenuEvent * event ) 
-{
-    QMenu menu;
-/*
-    QAction* z0 = menu.addAction("Copy to Clipboard");
-    connect(z0, SIGNAL(triggered()), this ,SLOT(setClipboard()));
-
-    QAction* z3 = menu.addAction("Align Hits");
-    connect(z3, SIGNAL(triggered()), SLOT(align()));
-
-    QAction* z4 = menu.addAction("Find Matching Compound");
-    connect(z4, SIGNAL(triggered()), SLOT(findMatchingCompounds()));
-
-    QAction* z5 = menu.addAction("Delete All Hits");
-    connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
-
-    QAction* z6 = menu.addAction("Show Hidden Hits");
-    connect(z6, SIGNAL(triggered()), SLOT(unhideFocusedHits()));
-
-    QAction *selectedAction = menu.exec(event->globalPos());
-
-
-    QMenu analysis("Cluster Analysis");
-    QAction* zz1 = analysis.addAction("Collapse All");
-    connect(zz1, SIGNAL(triggered()), treeWidget,SLOT(collapseAll()));
-    QAction* zz2 = analysis.addAction("Expand All");
-    connect(zz2, SIGNAL(triggered()), treeWidget,SLOT(expandAll()));
-
-    menu.addMenu(&analysis);
-*/
-}
-
-
-
-void SpectralHitsDockWidget::writeGroupXML(QXmlStreamWriter& stream, SpectralHit* g) { 
-/*
-    if (!g)return;
-
-    stream.writeStartElement("SpectralHit");
-    stream.writeAttribute("groupId",  QString::number(g->groupId) );
-    stream.writeAttribute("tagString",  QString(g->tagString.c_str()) );
-    stream.writeAttribute("metaGroupId",  QString::number(g->metaGroupId) );
-    stream.writeAttribute("expectedRtDiff",  QString::number(g->expectedRtDiff,'f',4) );
-    stream.writeAttribute("groupRank",  QString::number(g->groupRank,'f',4) );
-    stream.writeAttribute("label",  QString::number(g->label ));
-    stream.writeAttribute("type",  QString::number((int)g->type()));
-    stream.writeAttribute("changeFoldRatio",  QString::number(g->changeFoldRatio,'f',4 ));
-    stream.writeAttribute("changePValue",  QString::number(g->changePValue,'e',6 ));
-    if(g->srmId.length())	stream.writeAttribute("srmId",  QString(g->srmId.c_str()));
-
-    //for sample contrasts  ratio and pvalue
-    if ( g->hasCompoundLink() ) {
-        Compound* c = g->compound;
-		stream.writeAttribute("compoundId",  QString(c->id.c_str()));
-        stream.writeAttribute("compoundDB",  QString(c->db.c_str()) );
-		stream.writeAttribute("compoundName",  QString(c->name.c_str()));
-    }
-
-    for(int j=0; j < g->peaks.size(); j++ ) {
-        Peak& p = g->peaks[j];
-        stream.writeStartElement("Peak");
-        stream.writeAttribute("pos",  QString::number(p.pos));
-        stream.writeAttribute("minpos",  QString::number(p.minpos));
-        stream.writeAttribute("maxpos",  QString::number(p.maxpos));
-        stream.writeAttribute("rt",  QString::number(p.rt,'f',4));
-        stream.writeAttribute("rtmin",  QString::number(p.rtmin,'f',4));
-        stream.writeAttribute("rtmax",  QString::number(p.rtmax,'f',4));
-        stream.writeAttribute("mzmin",  QString::number(p.mzmin,'f',4));
-        stream.writeAttribute("mzmax",  QString::number(p.mzmax,'f',4));
-        stream.writeAttribute("scan",   QString::number(p.scan));
-        stream.writeAttribute("minscan",   QString::number(p.minscan));
-        stream.writeAttribute("maxscan",   QString::number(p.maxscan));
-        stream.writeAttribute("peakArea",  QString::number(p.peakArea,'f',4));
-        stream.writeAttribute("peakAreaCorrected",  QString::number(p.peakAreaCorrected,'f',4));
-        stream.writeAttribute("peakAreaTop",  QString::number(p.peakAreaTop,'f',4));
-        stream.writeAttribute("peakAreaFractional",  QString::number(p.peakAreaFractional,'f',4));
-        stream.writeAttribute("peakRank",  QString::number(p.peakRank,'f',4));
-        stream.writeAttribute("peakIntensity",  QString::number(p.peakIntensity,'f',4));
-        stream.writeAttribute("peakBaseLineLevel",  QString::number(p.peakBaseLineLevel,'f',4));
-        stream.writeAttribute("peakMz",  QString::number(p.peakMz,'f',4));
-        stream.writeAttribute("medianMz",  QString::number(p.medianMz,'f',4));
-        stream.writeAttribute("baseMz",  QString::number(p.baseMz,'f',4));
-        stream.writeAttribute("quality",  QString::number(p.quality,'f',4));
-        stream.writeAttribute("width",  QString::number(p.width));
-        stream.writeAttribute("gaussFitSigma",  QString::number(p.gaussFitSigma,'f',4));
-        stream.writeAttribute("gaussFitR2",  QString::number(p.gaussFitR2,'f',4));
-        stream.writeAttribute("groupNum",  QString::number(p.groupNum));
-        stream.writeAttribute("noNoiseObs",  QString::number(p.noNoiseObs));
-        stream.writeAttribute("noNoiseFraction",  QString::number(p.noNoiseFraction,'f',4));
-        stream.writeAttribute("symmetry",  QString::number(p.symmetry,'f',4));
-        stream.writeAttribute("signalBaselineRatio",  QString::number(p.signalBaselineRatio, 'f', 4));
-        stream.writeAttribute("groupOverlap",  QString::number(p.groupOverlap,'f',4));
-        stream.writeAttribute("groupOverlapFrac",  QString::number(p.groupOverlapFrac,'f',4));
-        stream.writeAttribute("localMaxFlag",  QString::number(p.localMaxFlag));
-        stream.writeAttribute("fromBlankSample",  QString::number(p.fromBlankSample));
-        stream.writeAttribute("label",  QString::number(p.label));
-        stream.writeAttribute("sample",  QString(p.getSample()->sampleName.c_str()));
-        stream.writeEndElement();
-    }
-
-    if ( g->childCount() ) {
-        stream.writeStartElement("children");
-        for(int i=0; i < g->children.size(); i++ ) {
-            SpectralHit* child = &(g->children[i]);
-            writeGroupXML(stream,child);
-        }
-        stream.writeEndElement();
-    }
-    stream.writeEndElement();
-*/
-}
-
-void SpectralHitsDockWidget::writePeakTableXML(QXmlStreamWriter& stream) {
-/*
-    if (allhits.size() ) {
-        stream.writeStartElement("PeakHits");
-        for(int i=0; i < allhits.size(); i++ ) writeGroupXML(stream,&allhits[i]);
-        stream.writeEndElement();
-    }
-*/
-}
-
-SpectralHit* SpectralHitsDockWidget::readGroupXML(QXmlStreamReader& xml,SpectralHit* parent) {
-/*
-    SpectralHit g;
-    SpectralHit* gp=NULL;
-
-    g.groupId = xml.attributes().value("groupId").toString().toInt();
-    g.tagString = xml.attributes().value("tagString").toString().toStdString();
-    g.metaGroupId = xml.attributes().value("metaGroupId").toString().toInt();
-    g.expectedRtDiff = xml.attributes().value("expectedRtDiff").toString().toDouble();
-    g.groupRank = xml.attributes().value("grouRank").toString().toInt();
-    g.label     =  xml.attributes().value("label").toString().toInt();
-    g.setType( (SpectralHit::GroupType) xml.attributes().value("type").toString().toInt());
-    g.changeFoldRatio = xml.attributes().value("changeFoldRatio").toString().toDouble();
-    g.changePValue = xml.attributes().value("changePValue").toString().toDouble();
-
-    string compoundId = xml.attributes().value("compoundId").toString().toStdString();
-    string compoundDB = xml.attributes().value("compoundDB").toString().toStdString();
-	string compoundName = xml.attributes().value("compoundName").toString().toStdString();
-
-    string srmId = xml.attributes().value("srmId").toString().toStdString();
-    if (!srmId.empty()) g.setSrmId(srmId);
-
-	if (!compoundId.empty()){
-        Compound* c = DB.findSpeciesById(compoundId);
-		if (c) g.compound = c;
-	} else if (!compoundName.empty() && !compoundDB.empty()) {
-		vector<Compound*>matches = DB.findSpeciesByName(compoundName,compoundDB);
-		if (matches.size()>0) g.compound = matches[0];
-	}
-
-
-    if (parent) {
-        parent->addChild(g);
-        if (parent->children.size() > 0 ) {
-            gp = &(parent->children[ parent->children.size()-1]);
-            //cerr << parent << "\t addChild() " << gp << endl;
-        }
-    } else {
-        gp = addSpectralHit(&g);
-        //cerr << "addParent() " << gp << endl;
-    }
-
-    return gp;
-*/
-}
-
-void SpectralHitsDockWidget::readPeakXML(QXmlStreamReader& xml,SpectralHit* parent) {
-/*
-    Peak p;
-    p.pos = xml.attributes().value("pos").toString().toInt();
-    p.minpos = xml.attributes().value("minpos").toString().toInt();
-    p.maxpos = xml.attributes().value("maxpos").toString().toInt();
-    p.rt = xml.attributes().value("rt").toString().toDouble();
-    p.rtmin = xml.attributes().value("rtmin").toString().toDouble();
-    p.rtmax = xml.attributes().value("rtmax").toString().toDouble();
-    p.mzmin = xml.attributes().value("mzmin").toString().toDouble();
-    p.mzmax = xml.attributes().value("mzmax").toString().toDouble();
-    p.scan = xml.attributes().value("scan").toString().toInt();
-    p.minscan = xml.attributes().value("minscan").toString().toInt();
-    p.maxscan = xml.attributes().value("maxscan").toString().toInt();
-    p.peakArea = xml.attributes().value("peakArea").toString().toDouble();
-    p.peakAreaCorrected = xml.attributes().value("peakAreaCorrected").toString().toDouble();
-    p.peakAreaTop = xml.attributes().value("peakAreaTop").toString().toDouble();
-    p.peakAreaFractional = xml.attributes().value("peakAreaFractional").toString().toDouble();
-    p.peakRank = xml.attributes().value("peakRank").toString().toDouble();
-    p.peakIntensity = xml.attributes().value("peakIntensity").toString().toDouble();
-    p.peakBaseLineLevel = xml.attributes().value("peakBaseLineLevel").toString().toDouble();
-    p.peakMz = xml.attributes().value("peakMz").toString().toDouble();
-    p.medianMz = xml.attributes().value("medianMz").toString().toDouble();
-    p.baseMz = xml.attributes().value("baseMz").toString().toDouble();
-    p.quality = xml.attributes().value("quality").toString().toDouble();
-    p.width = xml.attributes().value("width").toString().toInt();
-    p.gaussFitSigma = xml.attributes().value("gaussFitSigma").toString().toDouble();
-    p.gaussFitR2 = xml.attributes().value("gaussFitR2").toString().toDouble();
-    p.groupNum = xml.attributes().value("groupNum").toString().toInt();
-    p.noNoiseObs = xml.attributes().value("noNoiseObs").toString().toInt();
-    p.noNoiseFraction = xml.attributes().value("noNoiseFraction").toString().toDouble();
-    p.symmetry = xml.attributes().value("symmetry").toString().toDouble();
-    p.signalBaselineRatio = xml.attributes().value("signalBaselineRatio").toString().toDouble();
-    p.groupOverlap = xml.attributes().value("groupOverlap").toString().toDouble();
-    p.groupOverlapFrac = xml.attributes().value("groupOverlapFrac").toString().toDouble();
-    p.localMaxFlag = xml.attributes().value("localMaxFlag").toString().toInt();
-    p.fromBlankSample = xml.attributes().value("fromBlankSample").toString().toInt();
-    p.label = xml.attributes().value("label").toString().toInt();
-    string sampleName = xml.attributes().value("sample").toString().toStdString();
-    vector<mzSample*> samples = _mainwindow->getSamples();
-    for(int i=0; i< samples.size(); i++ ) {
-        if ( samples[i]->sampleName == sampleName ) { p.setSample(samples[i]); break;}
-    }
-
-    //cerr << "\t\t\t" << p.getSample() << " " << p.rt << endl;
-    parent->addPeak(p);
-*/
-}
-
-void SpectralHitsDockWidget::savePeakTable() {
-/*
-    if (allhits.size() == 0 ) { 
-        QString msg = "Peaks Table is Empty";
-        QMessageBox::warning(this, tr("Error"), msg);
-        return;
-    }
-
-    QString dir = ".";
-    QSettings* settings = _mainwindow->getSettings();
-    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save to Project File"),dir,
-            "Maven Project File(*.mzroll)");
-    if (fileName.isEmpty()) return;
-    if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
-
-    _mainwindow->getProjectWidget()->saveProject(fileName,this);
-
-    //savePeakTable(fileName);
-*/
-}
-
-void SpectralHitsDockWidget::savePeakTable(QString fileName) {
-/*
-    QFile file(fileName);
-    if ( !file.open(QFile::WriteOnly) ) {
-        QErrorMessage errDialog(this);
-        errDialog.showMessage("File open " + fileName + " failed");
-        return; //error
-    }
-
-    QXmlStreamWriter stream(&file);
-    stream.setAutoFormatting(true);
-    writePeakTableXML(stream);
-    file.close();
-*/
-}
-
 void SpectralHitsDockWidget::loadSpectralHitsTable() {
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
+
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
     QString selFilter;
     QStringList filters;
-    filters << "pepXML File (*.pepXML)";
+    filters << "All Known Formats (*.pepXML *.pep.xml *.idpDB)" << "pepXML File (*.pepXML *.pep.xml)" << "IdPicker DB (*.idpDB)";
 
-    QString fileName = QFileDialog::getOpenFileName(this,
+    QStringList filelist = QFileDialog::getOpenFileNames (this,
                                                     "Load Spectral Hits",
                                                     dir,
                                                     filters.join(";;"),
                                                     &selFilter);
-    if (fileName.isEmpty()) return;
-    if (selFilter == filters[0]) {
-        loadPepXML(fileName);
+
+    foreach(QString fileName, filelist ) {
+        if (fileName.isEmpty()) continue;
+
+        if (fileName.endsWith("pepXML",Qt::CaseInsensitive)) {
+            loadPepXML(fileName);
+        }
+        else if (fileName.endsWith("pep.xml",Qt::CaseInsensitive)) {
+            loadPepXML(fileName);
+        }
+        else if (fileName.endsWith("idpDB",Qt::CaseInsensitive)) {
+            loadIdPickerDB(fileName);
+        }
     }
+
     showAllHits();
 }
 
 void SpectralHitsDockWidget::loadPepXML(QString fileName) {
 
-    qDebug() << "Loading pepXML sample: " << fileName;
+    qDebug() << "loadPepXML(): " << fileName;
     QFile data(fileName);
     QString dbname = QString( mzUtils::cleanFilename(fileName.toStdString()).c_str() );
 
@@ -943,8 +467,11 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
     int   charge=0;
     float precursorMz=0;
     int   scannum=0;
-    SpectralHit* lasthit=NULL;
+	float scanRetentionTime=0;
 
+    SpectralHit* lasthit=NULL;
+    map<int,float> mods;
+    double PROTON = HMASS-EMASS;
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
@@ -953,99 +480,197 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
                     scannum = xml.attributes().value("start_scan").toString().toInt();
                     charge = xml.attributes().value("assumed_charge").toString().toInt();
                     precursorMz = xml.attributes().value("precursor_neutral_mass").toString().toDouble();
-		    if (charge) { precursorMz = (precursorMz+charge)/charge; }
+                    scanRetentionTime = xml.attributes().value("retention_time_sec").toString().toDouble()/60;
+
+
                 } else if (xml.name() == "search_hit") {
-		    hitCount++;
                     int hit_rank = xml.attributes().value("hit_rank").toString().toInt();
                     int num_matched_ions = xml.attributes().value("num_matched_ions").toString().toInt();
                     double massdiff = xml.attributes().value("massdiff").toString().toInt();
                     QString peptide = xml.attributes().value("peptide").toString();
                     QString protein = xml.attributes().value("protein").toString();
+                    mods.clear();;
 
-		    bool decoy = false;
-		    if (protein.startsWith("r-") or protein.startsWith("DECOY")) decoy=true;
+                    bool decoy = false;
+                    if (protein.startsWith("r-") or protein.startsWith("DECOY")) decoy=true;
 
-		    if(precursorMz and hit_rank < 2) {
-			    SpectralHit* hit = new SpectralHit();
-			    hit->scannum = scannum;
-			    hit->precursorMz = precursorMz;
-			    hit->charge = charge;
-			    hit->decoy = decoy;
-			    hit->rank = hit_rank;
-			    hit->matchCount = num_matched_ions;
-			    //hit->compoundId = protein;
-			    //hit->fragmentId  = peptide;
-			    hit->unmodPeptideSeq  = peptide;
-				hit->massdiff = massdiff;
-			    hit->sampleName = dbname;
-			    addSpectralHit(hit);
-			    lasthit = hit;
-		    } else {
-			   lasthit = NULL;
-		    }
-
+                    if(precursorMz and hit_rank < 2 and !decoy) {
+                        SpectralHit* hit = new SpectralHit();
+                        hit->scannum = scannum;
+                        hit->precursorMz = precursorMz; if (charge) hit->precursorMz = (precursorMz+charge*PROTON)/charge;
+                        hit->charge = charge;
+                        hit->decoy = decoy;
+                        hit->rank = hit_rank;
+                        hit->matchCount = num_matched_ions;
+                        hit->unmodPeptideSeq  = peptide;
+                        hit->massdiff = massdiff;
+                        hit->sampleName = dbname;
+                        addSpectralHit(hit);
+                        lasthit = hit;
+                    } else {
+                        lasthit = NULL;
+                    }
                 } else if (xml.name() == "mod_aminoacid_mass" ) {
                     int pos =          xml.attributes().value("position").toString().toInt();
-		    double massshift = xml.attributes().value("mass").toString().toDouble();
+                    double massshift = xml.attributes().value("mass").toString().toDouble();
+                    if(lasthit) lasthit->mods[pos] += massshift;
                 } else if (xml.name() == "search_score" ) {
                     QString name = xml.attributes().value("name").toString();
                     QString value = xml.attributes().value("value").toString();
-		    if(lasthit and name == "mvh")   {  lasthit->mvh = value.toDouble();  lasthit->score=value.toDouble(); }
-		    if(lasthit and name == "xcorr") {  lasthit->xcorr = value.toDouble(); }
+                    if(lasthit and name == "mvh")   {  lasthit->mvh = value.toDouble();  lasthit->score=value.toDouble(); }
+                    if(lasthit and name == "xcorr") {  lasthit->xcorr = value.toDouble(); }
+
                 }
         } else if (xml.isEndElement()) {
-               if (!taglist.isEmpty()) taglist.pop_back();
+            if (xml.name() == "search_hit") {
+
+                if (hitCount++ % 1000 == 0) {
+                    _mainwindow->setProgressBar("Parsing " + fileName + "hits:" + QString::number(hitCount), hitCount % 1000, 10000);
+                     QApplication::processEvents();
+                }
+                if (lasthit) lasthit->fragmentId = lasthit->getModPeptideString();
+
+            }
+            if (!taglist.isEmpty()) taglist.pop_back();
         }
     }
     data.close();
 }
 
-
-void SpectralHitsDockWidget::runScript() {
 /*
-    QString dir = ".";
-    QSettings* settings = _mainwindow->getSettings();
-
-    treeWidget->selectAll();
-    _mainwindow->getRconsoleWidget()->linkTable(this);
-    _mainwindow->getRconsoleWidget()->updateStatus();
-    _mainwindow->getRconsoleWidget()->show();
-    _mainwindow->getRconsoleWidget()->raise();
-
-    //find R executable
-    QString Rprogram = "R.exe";
-    if (settings->contains("Rprogram") ) Rprogram = settings->value("Rprogram").value<QString>();
-    if (!QFile::exists( Rprogram)) { QErrorMessage dialog(this); dialog.showMessage("Can't find R executable"); return; }
-
+@author: Kiran - Sahil
 */
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::setupFiltersDialog() {
+    if(filterDialog) { delete(filterDialog); filterDialog=NULL; }
+    if(!treeWidget) return;
+
+    filterDialog = new QDialog(this);
+
+    int fieldCount=treeWidget->headerItem()->columnCount();
+    int rowCount=treeWidget->topLevelItemCount();
+    if (rowCount == 0) return;
+
+    QGridLayout *layout = new QGridLayout(filterDialog);
+    QTreeWidgetItem* firstItem = treeWidget->topLevelItem(0);
+
+    for(int i=0; i < fieldCount; i++ ) {
+        QString colmName = treeWidget->headerItem()->text(i);
+        bool isNumeric=false; firstItem->text(i).toFloat(&isNumeric);
+
+        if(isNumeric) {
+            QDoubleSpinBox* min = new QDoubleSpinBox(filterDialog);
+            min->setRange(-1e24,+1e24);
+            min->setObjectName("min_" + QString::number(i));
+
+            QDoubleSpinBox* max = new QDoubleSpinBox(filterDialog);
+            max->setObjectName("max_" + QString::number(i));
+            max->setRange(-1e24,+1e24);
+
+            QLabel* l = new QLabel(colmName);
+
+            layout->addWidget(l,i,0);
+            layout->addWidget(min,i,1);
+            layout->addWidget(max,i,2);
+            connect(min,SIGNAL(valueChanged(QString)),this,SLOT(addFilter(QString)));
+            connect(max,SIGNAL(valueChanged(QString)),this,SLOT(addFilter(QString)));
+        } else {
+            QLineEdit* x = new QLineEdit(filterDialog);
+            x->setObjectName("filter_" + QString::number(i));
+            QLabel* l = new QLabel(colmName);
+            layout->addWidget(l,i,0);
+            layout->addWidget(x,i,1,1,2);
+            connect(x,SIGNAL(textChanged(QString)),this,SLOT(addFilter(QString)));
+        }
+
+    }
+
+    QPushButton *ok = new QPushButton("Apply Filters",filterDialog);
+    layout->addWidget(ok,fieldCount+2,0);
+    connect(ok,SIGNAL(clicked()),SLOT(applyAllFilters()));
+
+    QPushButton *clear = new QPushButton("Clear Filters",filterDialog);
+    layout->addWidget(clear,fieldCount+2,1);
+    connect(clear,SIGNAL(clicked()),SLOT(unhideFocusedHits()));
+
+
+    filterDialog->setLayout(layout);
 }
 
-void SpectralHitsDockWidget::showFocusedHits() {
 /*
+@author: Kiran - Sahil
+*/
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::showFiltersDialog() {
+    setupFiltersDialog();
+    if(!filterDialog) return;
+    filterDialog->setVisible(! filterDialog->isVisible() );
+    if (filterDialog->isVisible() == false) return;
+}
+
+/*
+@author: Kiran - Sahil
+*/
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::addFilter(QString value) {
+    QObject* x = sender();
+    if (x) {
+       QString objName = x->objectName();
+       setFilters[objName]=value;
+    }
+}
+
+/*
+@author: Kiran - Sahil
+*/
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::applyAllFilters() {
     int N=treeWidget->topLevelItemCount();
-    for(int i=0; i < N; i++ ) {
-        QTreeWidgetItem* item = treeWidget->topLevelItem(i);
-        QVariant v = item->data(0,Qt::UserRole);
-        SpectralHit*  group =  v.value<SpectralHit*>();
-        if (group && group->isFocused) item->setHidden(false); else item->setHidden(true);
-       
-        if ( item->text(0).startsWith("Cluster") ) {
-            bool showParentFlag=false;
-            for(int j=0; j<item->childCount();j++) {
-                QVariant v = (item->child(j))->data(0,Qt::UserRole);
-                SpectralHit*  group =  v.value<SpectralHit*>();
-                if (group && group->isFocused) { item->setHidden(false); showParentFlag=true; } else item->setHidden(true);
+
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) { (*it)->setHidden(false);  ++it; }; //unhide all rows
+
+    //apply filters sequentially
+    foreach( QString filter_column, setFilters.keys()) {
+        applyFilter(filter_column,setFilters[filter_column]);
+    }
+
+    updateTable();
+}
+
+/*
+@author: Kiran - Sahil
+*/
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::applyFilter(QString filter_column, QString value) {
+    QStringList fields = filter_column.split("_");
+    if(fields.size() == 2 ) {
+        QString filterType = fields[0];
+        int columnNum = fields[1].toInt();
+        double fValue = value.toDouble();
+        qDebug() << "applyFilter: type=" << filterType << " colm=" << columnNum << " value=" << value;
+
+        int N=treeWidget->topLevelItemCount();
+        for(int i=0; i < N; i++ ) {
+            QTreeWidgetItem* item = treeWidget->topLevelItem(i);
+            if(!item or item->isHidden()) continue;
+            QString itemValue = item->text(columnNum);
+          //  qDebug() << itemValue << " " << itemValue.toDouble();
+
+            if( filterType == "max" and itemValue.toDouble() > fValue) {
+                item->setHidden(true);
             }
-            if (showParentFlag) item->setHidden(false);
+
+            else if( filterType == "min" and itemValue.toDouble() < fValue) {
+                item->setHidden(true);
+            }
+
+            else if( filterType == "filter" and not itemValue.contains(value,Qt::CaseInsensitive)) {
+                item->setHidden(true);
+            }
         }
     }
-*/
 }
-
-void SpectralHitsDockWidget::clearFocusedHits() {
-  //  for(int i=0; i< allhits.size();i++) { allhits[i].isFocused=false; }
-}
-
 
 /*
 @author: Sahil
@@ -1061,16 +686,17 @@ void SpectralHitsDockWidget::showFocusedGroups() {
     }
 }
 
-
 void SpectralHitsDockWidget::unhideFocusedHits() {
-   // clearFocusedHits();
-    //QTreeWidgetItemIterator it(treeWidget);
-   // while (*it) {
-    //    (*it)->setHidden(false);
-     //   ++it;
-    //}
-}
 
+    setFilters.clear();
+    for(int i=0; i< allhits.size();i++)   allhits[i]->isFocused=false;
+
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        (*it)->setHidden(false);
+        ++it;
+    }
+}
 
 /*
 @author: Sahil
@@ -1287,128 +913,126 @@ void SpectralHitsDockWidget::getRetentionTimes() {
 }
 
 
-
-void SpectralHitsDockWidget::dragEnterEvent(QDragEnterEvent *event)
-{
 /*
-    foreach (QUrl url, event->mimeData()->urls() ) {
-        std::cerr << "dragEnterEvent:" << url.toString().toStdString() << endl;
-        if (url.toString() == "ok") {
-            event->acceptProposedAction();
-            return;
-        } else {
-            return;
-        }
-    }
+@author: Kiran - Sahil
 */
+//TODO: Kiran-Sahil, Added while merging spectralhitstable
+void SpectralHitsDockWidget::integrateMS1() {
+    emit(updateProgressBar("Starting Integration",0,0));
+
+    vector <mzSample*> samples = _mainwindow->getVisibleSamples();
+    if (samples.size() == 0) return;
+
+   float ppm = _mainwindow->getUserPPM();
+   float rtWinMin = 3;
+
+   QSettings *settings 		= _mainwindow->getSettings();
+   float eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+   int   eic_smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
+   float amuQ1 = settings->value("amuQ1").toDouble();
+   float amuQ3 = settings->value("amuQ3").toDouble();
+   int baseline_smoothing = settings->value("baseline_smoothing").toInt();
+   int baseline_quantile =  settings->value("baseline_quantile").toInt();
+   float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
+
+
+   QMap<QString,mzSlice>  peptideMap;
+
+   foreach(SpectralHit* hit, allhits) {
+       QString peptideId = hit->fragmentId;
+
+       if(! peptideMap.count(peptideId)) {
+           float amuTol = hit->precursorMz/1e6*ppm;
+           mzSlice slice(hit->precursorMz-amuTol,hit->precursorMz+amuTol, hit->rt-rtWinMin, hit->rt+rtWinMin);
+           slice.rt = hit->rt;
+           slice.ionCount = 1;
+
+           qDebug() << peptideId;
+           if(peptideCompoundMap.count(peptideId)==0) {
+               Compound* cpd = new Compound(peptideId.toStdString(),hit->getProteinIds().toStdString(),string(),hit->charge);
+               cpd->expectedRt=hit->rt;
+               cpd->precursorMz = hit->precursorMz;
+               cpd->mass=hit->precursorMz;
+               peptideCompoundMap[peptideId]=cpd;
+           }
+           peptideMap[peptideId] = slice;
+       } else {
+           mzSlice* slice = &peptideMap[peptideId];
+           slice->rt += hit->rt;
+           slice->ionCount++;
+           if (slice->rtmin > hit->rt-0.5) slice->rtmin = hit->rt-0.5;
+           if (slice->rtmax < hit->rt+0.5) slice->rtmax = hit->rt+0.5;
+           if (slice->mz-hit->precursorMz > 0.5) {
+               qDebug() << "Check peptide mz: " << slice->mz << " " << hit->precursorMz;
+           }
+       }
+   }
+
+
+   foreach(QString peptide, peptideMap.keys()) {
+        mzSlice* slice = &peptideMap[peptide];
+        slice->rt = slice->rt/slice->ionCount;
+        if(slice->rtmin < 0) slice->rtmin=0;
+        if(slice->rtmax < 0) slice->rtmax=0;
+
+       //qDebug() << "group: " << peptide << " rt=" << slice->rt;
+
+       vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                                    samples,
+                                                    EicLoader::PeakDetection,
+                                                    eic_smoothingWindow,
+                                                    eic_smoothingAlgorithm,
+                                                    amuQ1,
+                                                    amuQ3,
+                                                    baseline_smoothing,
+                                                    baseline_quantile);
+
+       //qDebug() << "here.. .here.. here " << eics.size();
+
+       vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,eic_smoothingWindow,grouping_maxRtWindow);
+
+       PeakGroup* nearestGrp = NULL;
+       for(int i=0; i < peakgroups.size();i++ ) {
+           PeakGroup* grp = &peakgroups[i];
+           float deltaRt = abs(grp->meanRt - slice->rt);
+           if (! nearestGrp or deltaRt < abs(nearestGrp->meanRt - slice->rt) ) nearestGrp = grp;
+       }
+
+       //qDebug() << " \t nearestGrp=" << nearestGrp;
+
+       if (nearestGrp) {
+           //qDebug() << nearestGrp->meanRt << " " << nearestGrp->maxIntensity;
+           nearestGrp->tagString = peptide.toStdString();
+
+           if(peptideCompoundMap.count(peptide)) {
+               Compound* cpd = peptideCompoundMap[peptide];
+               nearestGrp->compound = cpd;
+               nearestGrp->compound->expectedRt = slice->rt;
+
+               if(proteinAccessionMap.contains(cpd->name.c_str())) {
+                   ProteinHit* prot = proteinAccessionMap[cpd->name.c_str()];
+                   if (prot) {
+                        nearestGrp->tagString=prot->geneSymbol.toStdString();
+                        nearestGrp->metaGroupId=prot->proteinGroup;
+                   }
+               }
+           }
+           //qDebug() << "\t bookmarking..";
+           _mainwindow->getBookmarkedPeaks()->addPeakGroup(nearestGrp);
+       }
+       delete_all(eics);
+
+   }
+
+   _mainwindow->getBookmarkedPeaks()->align();
+   _mainwindow->getBookmarkedPeaks()->setTableView(TableDockWidget::peakView);
+   _mainwindow->getBookmarkedPeaks()->showAllGroups();
+   _mainwindow->getBookmarkedPeaks()->show();
+   _mainwindow->getBookmarkedPeaks()->raise();
+
+   qDebug() << "integrateMS1() done.";
 }
 
-void SpectralHitsDockWidget::dropEvent(QDropEvent *event)
- {
-/*
-    foreach (QUrl url, event->mimeData()->urls() ) {
-         std::cerr << "dropEvent:" << url.toString().toStdString() << endl;
-    }
-*/
- }
-
-
-
-int SpectralHitsDockWidget::loadSpreadsheet(QString fileName){
-/*
-     qDebug() << "Loading SpreadSheet   : " << fileName;
-
-     if( fileName.endsWith(".txt",Qt::CaseInsensitive)) {
-       loadCSVFile(fileName,"\t");
-    } else if( fileName.endsWith(".csv",Qt::CaseInsensitive)) {
-        loadCSVFile(fileName,",");
-    } else if( fileName.endsWith(".tsv",Qt::CaseInsensitive)) {
-        loadCSVFile(fileName,"\t");
-    } else if( fileName.endsWith(".tab",Qt::CaseInsensitive)) {
-        loadCSVFile(fileName,"\t");
-    }
-*/
-}
-
-int SpectralHitsDockWidget::loadCSVFile(QString filename, QString sep="\t"){
-
-    if(filename.isEmpty()) return 0;
-
-    QFile myfile(filename);
-    if(!myfile.open(QIODevice::ReadOnly | QIODevice::Text)) return 0;
-
-    QTextStream stream(&myfile);
-    if (stream.atEnd()) return 0;
-
-    QString line;
-    int lineCount=0;
-    QMap<QString, int>headerMap;
-    QStringList header;
-
-/*
-    do {
-         line = stream.readLine();
-         if (line.isEmpty() || line[0] == '#') continue;
-         QStringList fields = line.split(sep);
-        lineCount++;
-         if (lineCount==1) { //header line
-             for(int i=0; i < fields.size(); i++ ) {
-                 fields[i] = fields[i].toLower();
-                 fields[i].replace("\"","");
-                 headerMap[ fields[i] ] = i;
-                 header << fields[i];
-             }
-             qDebug() << header  << endl;
-         } else {
-            SpectralHit* g = new SpectralHit();
-            if (headerMap.contains("name")) g->tagString= fields[ headerMap["name"]].toStdString();
-            if (headerMap.contains("mz"))   g->meanMz= fields[ headerMap["mz"]].toFloat();
-            if (headerMap.contains("mzmed")) g->meanMz= fields[ headerMap["mzmed"]].toFloat();
-            if (headerMap.contains("mzmin")) g->minMz= fields[ headerMap["mzmin"]].toFloat();
-            if (headerMap.contains("mzmax")) g->maxMz= fields[ headerMap["mzmax"]].toFloat();
-
-            if (headerMap.contains("rt")) g->meanRt= fields[ headerMap["rt"]].toFloat()/60;
-            if (headerMap.contains("rtmed")) g->meanRt= fields[ headerMap["rtmed"]].toFloat()/60;
-            if (headerMap.contains("rtmin")) g->minRt= fields[ headerMap["rtmin"]].toFloat()/60;
-            if (headerMap.contains("rtmax")) g->maxRt= fields[ headerMap["rtmax"]].toFloat()/60;
-
-             if (headerMap.contains("fold")) g->changeFoldRatio= fields[ headerMap["fold"]].toFloat();
-             if (headerMap.contains("pvalue")) g->changePValue= fields[ headerMap["pvalue"]].toFloat();
-
-            qDebug() << headerMap["mz"] << " " << g->meanRt;
-
-
-            for(unsigned int i=14; i<header.size();i++) {
-                Peak p;
-                p.peakIntensity = fields[i].toInt();
-                p.rt = g->meanRt; p.rtmin = g->minRt; p.rtmax=g->maxRt;
-                p.peakMz = g->meanMz; p.mzmin = g->minMz; p.mzmax=g->maxMz;
-
-                g->addPeak(p);
-            }
-
-
-            if (g->meanMz > 0) {
-                addSpectralHit(g);
-            }
-            delete(g);
-         }
-     } while (!line.isNull());
-
-    showAllHits();
-    */
-    return lineCount;
-}
-
-
-void SpectralHitsDockWidget::switchTableView() {
-/*
-    viewType == groupView ? viewType=peakView: viewType=groupView;
-    setupPeakTable();
-    showAllHits();
-    updateTable();
-*/
-}
 
 QStringList SpectralHitsDockWidget::uniqGeneList(SpectralHit* hit) {
     QStringList proteinList = hit->getProteins();
