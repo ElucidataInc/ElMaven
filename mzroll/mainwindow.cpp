@@ -98,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	QList<QString> dirs;
 	dirs << dataDir << QApplication::applicationDirPath()
-			<< QApplication::applicationDirPath() + "/../Resources/";
+		 << QApplication::applicationDirPath() + "/../Resources/";
 
 	//find location of DATA
 	foreach (QString d, dirs){ qDebug() << "Checking dir: " + d;
@@ -142,9 +142,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-	//settings dialog
-	// Moved when merged with Maven776 - Kiran
-	settingsForm = new SettingsForm(settings, this);
 
     //added while merging with Maven776 - Kiran
 	//fileLoader
@@ -410,7 +407,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	logWidget->append("Initiaalization complete..\n");
-	versionCheck();
+	//versionCheck(); //TODO: Sahil-Kiran, Removed while merging mainwindow
 
 	settings->setValue("closeEvent", 0);
 }
@@ -486,18 +483,20 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
 	QPointer<TableDockWidget> panel = new TableDockWidget(this,
 			"Bookmarked Groups", 0);
 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-	groupTables.push_back(panel);
+    groupTables.push_back(panel);
+    panel->setObjectName(tr("PeakTable: %1").arg(groupTables.size())); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	if (sideBar) {
-		QToolButton *btnTable = new QToolButton(sideBar);
+        QAction *btnTable = new QAction(sideBar);
+        groupTablesButtons[panel]=btnTable;
 		btnTable->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
 		btnTable->setChecked(panel->isVisible());
 		btnTable->setCheckable(true);
 		btnTable->setToolTip(title);
-		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
+		connect(btnTable, SIGNAL(toggled(bool)), panel, SLOT(setVisible(bool)));
 		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
 				SLOT(setChecked(bool)));
-		sideBar->addWidget(btnTable);
+		sideBar->addAction(btnTable);
 	}
 
 	return panel;
@@ -509,25 +508,25 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
         sideBar->removeAction(groupTablesButtons[panel]);
 }
 
-SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
-	QPointer<SpectralHitsDockWidget> panel = new SpectralHitsDockWidget(this,
-			"Spectral Hits Table");
-	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-	//groupTables.push_back(panel);
+// SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
+// 	QPointer<SpectralHitsDockWidget> panel = new SpectralHitsDockWidget(this,
+// 			"Spectral Hits Table");
+// 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
+// 	//groupTables.push_back(panel);
 
-	if (sideBar) {
-		QToolButton *btnTable = new QToolButton(sideBar);
-		btnTable->setIcon(QIcon(rsrcPath + "/spreadsheet.png"));
-		btnTable->setChecked(panel->isVisible());
-		btnTable->setCheckable(true);
-		btnTable->setToolTip(title);
-		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
-		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
-				SLOT(setChecked(bool)));
-		sideBar->addWidget(btnTable);
-	}
-	return panel;
-}
+// 	if (sideBar) {
+// 		QToolButton *btnTable = new QToolButton(sideBar);
+// 		btnTable->setIcon(QIcon(rsrcPath + "/spreadsheet.png"));
+// 		btnTable->setChecked(panel->isVisible());
+// 		btnTable->setCheckable(true);
+// 		btnTable->setToolTip(title);
+// 		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
+// 		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
+// 				SLOT(setChecked(bool)));
+// 		sideBar->addWidget(btnTable);
+// 	}
+// 	return panel;
+// }
 
 void MainWindow::setUserPPM(double x) {
 	_ppmWindow = x;
@@ -604,7 +603,7 @@ void MainWindow::setFormulaFocus(QString formula) {
 	if (getIonizationMode())
 		charge = getIonizationMode(); //user specified ionization mode
 
-	MassCalculator mcalc;
+	// MassCalculator mcalc;
 	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
 	if (eicWidget->isVisible())
 		eicWidget->setMzSlice(parentMass);
@@ -647,6 +646,11 @@ void MainWindow::setCompoundFocus(Compound*c) {
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
 		eicWidget->setCompound(c);
+    }
+
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    if ( spectraDockWidget->isVisible()) {
+			spectraWidget->overlayCompoundFragmentation(c);
 	}
 
     if(fragPanel->isVisible()   )
@@ -734,7 +738,7 @@ void MainWindow::doSearch(QString needle) {
     }
 
 	if (needle.contains(words) || needle.isEmpty()) {
-		ligandWidget->setFilterString(needle);
+		//ligandWidget->setFilterString(needle);  //TODO: Sahil-Kiran, Removed while merging mainwindow
 		pathwayPanel->filterTree(needle);
 	}
 
@@ -807,6 +811,7 @@ void MainWindow::open() {
 									"mzData Format(*.mzdata *.mzData *.mzData.xml);;")
 							+ tr("mzML Format(*.mzml *.mzML);;")
 							+ tr("NetCDF Format(*.cdf *.nc);;")
+							+ tr("Thermo (*.raw);;") //TODO: Sahil-Kiran, Added while merging mainwindow
 							+ tr("Maven Project File (*.mzroll);;")
 							+ tr("Maven Peaks File (*.mzPeaks);;")
 							+ tr("Peptide XML(*.pep.xml *.pepXML);;")
@@ -870,14 +875,13 @@ void MainWindow::loadCompoundsFile(QString filename) {
 }
 
 void MainWindow::loadCompoundsFile() {
-	QString fileName =
-			QFileDialog::getOpenFileName(this, "Select Compounds File To Load",
+	QStringList filelist =
+			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
 					".",
-					"All Known Formats(*.csv *.tab *.msp *.sptxt *.pepXML);;Tab Delimited(*.tab);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt) pepXML(*.pepXML)");
+					"All Known Formats(*.csv *.tab *.msp *.sptxt *.pepXML *.massbank);;Tab Delimited(*.tab);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*.massbank");
 
-	if (fileName.size() == 0)
-		return;
-	loadCompoundsFile(fileName);
+    if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
+    loadCompoundsFile(filelist[0]);
 }
 
 void MainWindow::loadMethodsFolder(QString& methodsFolder) {
@@ -1064,6 +1068,10 @@ void MainWindow::readSettings() {
         settings->setValue("baseline_smoothingWindow", 5);
     if (!settings->contains("baseline_dropTopX"))
         settings->setValue("baseline_dropTopX", 80);
+    if (!settings->contains("baseline_quantile")) //TODO: Sahil-Kiran, Added while merging mainwindow
+         settings->setValue("baseline_quantile", 50);
+    if (!settings->contains("baseline_smoothing")) //TODO: Sahil-Kiran, Added while merging mainwindow
+         settings->setValue("baseline_smoothing", 5);
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
     if (!settings->contains("minGoodGroupCount"))
@@ -1200,10 +1208,10 @@ void MainWindow::createMenus() {
 	connect(ak, SIGNAL(toggled(bool)), spectralHitsDockWidget,
 			SLOT(setVisible(bool)));
 
-	QAction* aj = widgetsMenu->addAction("Fragmentation");
-	aj->setCheckable(true);
+    QAction* aj = widgetsMenu->addAction("MS2 Events");
+    aj->setCheckable(true); 
 	aj->setChecked(false);
-	connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
+    connect(aj,SIGNAL(toggled(bool)),fragPanel,SLOT(setVisible(bool)));
 
     QAction* al = widgetsMenu->addAction("Peptide Fragmenation");
     al->setCheckable(true);  al->setChecked(false);
@@ -1246,11 +1254,12 @@ void MainWindow::createToolBars() {
 	btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnAlign->setToolTip(tr("Align Samples"));
 
-	QToolButton *btnDbSearch = new QToolButton(toolBar);
-	btnDbSearch->setText("Databases");
-	btnDbSearch->setIcon(QIcon(rsrcPath + "/dbsearch.png"));
-	btnDbSearch->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnDbSearch->setToolTip(tr("Database Search"));
+	//TODO: Sahil-Kiran, Removed while merging mainwindow
+	//QToolButton *btnDbSearch = new QToolButton(toolBar);
+	//btnDbSearch->setText("Databases");
+	//btnDbSearch->setIcon(QIcon(rsrcPath + "/dbsearch.png"));
+	//btnDbSearch->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	//btnDbSearch->setToolTip(tr("Database Search"));
 
 	QToolButton *btnFeatureDetect = new QToolButton(toolBar);
 	btnFeatureDetect->setText("Peaks");
@@ -1273,15 +1282,15 @@ void MainWindow::createToolBars() {
 
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
-	connect(btnDbSearch, SIGNAL(clicked()), SLOT(compoundDatabaseSearch()));
-	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showMassSlices()));
+	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
+	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnSettings, SIGNAL(clicked()), settingsForm, SLOT(show()));
 	connect(btnSpectraMatching, SIGNAL(clicked()), spectraMatchingForm,
 			SLOT(show()));
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
-	toolBar->addWidget(btnDbSearch);
+	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	toolBar->addWidget(btnFeatureDetect);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
@@ -1304,15 +1313,14 @@ void MainWindow::createToolBars() {
 	connect(ppmWindowBox, SIGNAL(valueChanged(double)), eicWidget,
 			SLOT(setPPM(double)));
 
-	searchText = new QLineEdit(hBox);
-	searchText->setMinimumWidth(200);
-	searchText->setToolTip(
-			"<b>Text Search</b> <br> Compound Names: <b>ATP</b>,<br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
-	searchText->setObjectName(QString::fromUtf8("searchText"));
-	searchText->setShortcutEnabled(true);
-	connect(searchText, SIGNAL(textEdited(QString)), this,
-			SLOT(doSearch(QString)));
-	connect(searchText, SIGNAL(returnPressed()), SLOT(setMzValue()));
+    searchText = new QLineEdit(hBox);
+    searchText->setMinimumWidth(200);
+    searchText->setPlaceholderText("MW / Compound");   
+    searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b>,<br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
+    searchText->setObjectName(QString::fromUtf8("searchText"));
+    searchText->setShortcutEnabled(true);
+    connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
+    connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));
 
 	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
 			this);
@@ -1343,7 +1351,8 @@ void MainWindow::createToolBars() {
 	quantType = new QComboBox(hBox);
 	quantType->addItem("AreaTop");
 	quantType->addItem("Area");
-	quantType->addItem("Height");
+    quantType->addItem("Height");
+    quantType->addItem("AreaNotCorrected"); //TODO: Sahil-Kiran, Added while merging mainwindow
 	quantType->addItem("Retention Time");
 	quantType->addItem("Quality");
 	quantType->setToolTip("Peak Quntitation Type");
@@ -1363,33 +1372,22 @@ void MainWindow::createToolBars() {
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
 
-	QToolButton* btnSamples = addDockWidgetButton(sideBar, projectDockWidget,
-			QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
-	QToolButton* btnLigands = addDockWidgetButton(sideBar, ligandWidget,
-			QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
-	QToolButton* btnSpectra = addDockWidgetButton(sideBar, spectraDockWidget,
-			QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
-	QToolButton* btnIsotopes = addDockWidgetButton(sideBar, isotopeWidget,
-			QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
-	QToolButton* btnFindCompound = addDockWidgetButton(sideBar, massCalcWidget,
-			QIcon(rsrcPath + "/findcompound.png"),
-			"Show Match Compound Widget (F6)");
-	QToolButton* btnCovariants = addDockWidgetButton(sideBar, covariantsPanel,
-			QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
-	QToolButton* btnPathways = addDockWidgetButton(sideBar, pathwayDockWidget,
-			QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
-	QToolButton* btnNotes = addDockWidgetButton(sideBar, notesDockWidget,
-			QIcon(rsrcPath + "/note.png"), "Show Notes Widget (F9)");
-	QToolButton* btnBookmarks = addDockWidgetButton(sideBar, bookmarkedPeaks,
-			QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
-	QToolButton* btnGallery = addDockWidgetButton(sideBar, galleryDockWidget,
-			QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
-	QToolButton* btnScatter = addDockWidgetButton(sideBar, scatterDockWidget,
-			QIcon(rsrcPath + "/scatterplot.png"), "Show Scatter Plot Widget");
-	QToolButton* btnSRM = addDockWidgetButton(sideBar, srmDockWidget,
-			QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
-	QToolButton* btnRconsole = addDockWidgetButton(sideBar, rconsoleDockWidget,
-			QIcon(rsrcPath + "/R.png"), "Show R Console");
+
+    QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
+    QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
+    QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
+    QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
+    QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
+    QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
+    QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
+    QToolButton* btnNotes = addDockWidgetButton(sideBar,notesDockWidget,QIcon(rsrcPath + "/note.png"), "Show Notes Widget (F9)");
+    QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
+    QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
+    QToolButton* btnScatter = addDockWidgetButton(sideBar,scatterDockWidget,QIcon(rsrcPath + "/scatterplot.png"), "Show Scatter Plot Widget");
+    QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
+    QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
+
+
 
 	//btnSamples->setShortcut(Qt::Key_F2);
 	btnLigands->setShortcut(Qt::Key_F3);
@@ -1458,12 +1456,23 @@ bool MainWindow::addSample(mzSample* sample) {
 	}
 }
 
-void MainWindow::showMassSlices() {
-    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::FullSpectrum);
+/*
+@author: Sahil-Kiran\
+*/
+//TODO: Sahil-Kiran, Added while merging mainwindow
+void MainWindow::showPeakdetectionDialog() {
+    peakDetectionDialog->show();   
+   
+}
+
+void MainWindow::showMassSlices() { 
+    peakDetectionDialog->initPeakDetectionDialogWindow( PeakDetectionDialog::FullSpectrum );
+    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging mainwindow
 }
 
 void MainWindow::compoundDatabaseSearch() {
     peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::CompoundDB);
+    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging mainwindow
 }
 
 void MainWindow::showSRMList() {
@@ -1481,6 +1490,7 @@ void MainWindow::showSRMList() {
 }
 
 void MainWindow::setPeakGroup(PeakGroup* group) {
+    qDebug() << "setPeakgroup(group)" << endl;
 	if (group == NULL)
 		return;
 
@@ -1494,17 +1504,33 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		isotopeWidget->setCompound(group->compound);
 	}
 
-	if (group->compound != NULL) {
-		setUrl(group->compound);
-	}
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    if ( group->compound != NULL) {
+        QString compoundName(group->compound->name.c_str());
+        if (! setPeptideSequence(compoundName)) {
+            setUrl(group->compound);
+            if ( spectraDockWidget->isVisible()  ) {
+                //spectraWidget->showConsensusSpectra(group);
+                //spectraWidget->overlayCompoundFragmentation(group->compound);
+            }
+        }
+    }
 
 	if (scatterDockWidget->isVisible()) {
 		((ScatterPlot*) scatterDockWidget)->showSimilar(group);
 	}
 
-	if (group->peaks.size() > 0) {
-		showPeakInfo(&(group->peaks[0]));
-	}
+    if (group->peaks.size() > 0) {
+        showPeakInfo(&(group->peaks[0]));
+        vector<Scan*>scanset = group->getRepresentativeFullScans(); //TODO: Sahil-Kiran, Added while merging mainwindow
+        spectraWidget->setScanSet(scanset); //TODO: Sahil-Kiran, Added while merging mainwindow
+        spectraWidget->replot(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    }
+
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    if (spectralHitsDockWidget->isVisible()) {
+        spectralHitsDockWidget->limitPrecursorMz(group->meanMz);
+    }
 }
 
 void MainWindow::Align() {
@@ -1516,11 +1542,14 @@ void MainWindow::Align() {
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
 
 	if (settings != NULL) {
-		mavenParameters->eic_ppmWindow =
-				settings->value("eic_ppmWindow").toDouble();
+		//TODO: Sahil-Kiran, Removed while merging mainwindow
+		// mavenParameters->eic_ppmWindow =
+		// 		settings->value("eic_ppmWindow").toDouble();
 		mavenParameters->eic_smoothingAlgorithm = settings->value(
 				"eic_smoothingWindow").toInt();
 	}
+
+	mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();
@@ -1528,17 +1557,34 @@ void MainWindow::Align() {
 			alignmentDialog->limitGroupCount->value();
 	mavenParameters->minGroupIntensity =
 			alignmentDialog->minGroupIntensity->value();
+
+	//TODO: Sahil Re-verify this two parameters. Values are same
 	mavenParameters->eic_smoothingWindow =
-			alignmentDialog->groupingWindow->value();
+			alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+	mavenParameters->rtStepSize =
+			alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minSignalBaseLineRatio = alignmentDialog->minSN->value();
 	mavenParameters->minNoNoiseObs = alignmentDialog->minPeakWidth->value();
+
+
+    mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
+    mavenParameters->alignMaxItterations = alignmentDialog->maxItterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+
+    mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
 	mavenParameters->alignSamplesFlag = true;
-	mavenParameters->keepFoundGroups = false;
+	mavenParameters->keepFoundGroups = true;
 	mavenParameters->eicMaxGroups = 5;
 
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
+
+    //connect new connections
+    connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(workerThread, SIGNAL(finished()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(workerThread, SIGNAL(terminated()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
+
 
 	workerThread->start();
 }
@@ -1658,6 +1704,10 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 	if (fragPanel->isVisible()) {
 		showFragmentationScans(_peak->peakMz);
 	}
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    if (spectralHitsDockWidget->isVisible() && scan) {
+        spectralHitsDockWidget->limitPrecursorMz(_peak->peakMz);
+    }
 }
 
 void MainWindow::spectaFocused(Peak* _peak) {
@@ -1680,6 +1730,10 @@ void MainWindow::spectaFocused(Peak* _peak) {
 		spectraWidget->setScan(_peak);
 	}
 
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    if (spectralHitsDockWidget->isVisible() && scan) {
+        spectralHitsDockWidget->limitPrecursorMz(_peak->peakMz);
+    }
 	massCalcWidget->setMass(_peak->peakMz);
 
 }
@@ -1932,6 +1986,38 @@ QWidget* MainWindow::eicWidgetController() {
 	btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
 
+
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    QToolButton *btnShowBarplot = new QToolButton(toolBar);
+    btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
+    btnShowBarplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnShowBarplot->setToolTip(tr("Show Barplot"));
+    btnShowBarplot->setCheckable(true);
+    btnShowBarplot->setChecked(true);
+    
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    QToolButton *btnShowBoxplot = new QToolButton(toolBar);
+    btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
+    btnShowBoxplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnShowBoxplot->setToolTip(tr("Show Boxplot"));
+    btnShowBoxplot->setCheckable(true);
+    btnShowBoxplot->setChecked(false);
+    
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    QToolButton *btnShowIsotopeplot = new QToolButton(toolBar);
+    btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
+    btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
+    btnShowIsotopeplot->setCheckable(true);
+    btnShowIsotopeplot->setChecked(true);
+
+	//TODO: Sahil-Kiran, Added while merging mainwindow
+    QToolButton *btnShowSplines = new QToolButton(toolBar);
+    btnShowSplines->setIcon(QIcon(rsrcPath + "/splines.png"));
+    btnShowSplines->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnShowSplines->setToolTip(tr("Show Splines"));
+    btnShowSplines->setCheckable(true);
+    btnShowSplines->setChecked(false);
 	/*
 	 QSpinBox* smoothingWindowBox = new QSpinBox(toolBar);
 	 smoothingWindowBox->setRange(1, 2000);
@@ -1962,7 +2048,12 @@ QWidget* MainWindow::eicWidgetController() {
 
 	toolBar->addWidget(btnAutoZoom);
 	toolBar->addWidget(btnShowTic);
+    toolBar->addSeparator(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
+    toolBar->addWidget(btnShowBarplot); //TODO: Sahil-Kiran, Added while merging mainwindow
+    toolBar->addWidget(btnShowIsotopeplot); //TODO: Sahil-Kiran, Added while merging mainwindow
+    toolBar->addWidget(btnShowBoxplot); //TODO: Sahil-Kiran, Added while merging mainwindow
+    toolBar->addWidget(btnShowSplines); //TODO: Sahil-Kiran, Added while merging mainwindow
 //    toolBar->addWidget(smoothingWindowBox);
 
 	connect(btnLast, SIGNAL(clicked()), SLOT(historyLast()));
@@ -1983,6 +2074,18 @@ QWidget* MainWindow::eicWidgetController() {
 	connect(btnAverageSpectra, SIGNAL(clicked()), eicWidget,
 			SLOT(startSpectralAveraging()));
 
+	
+    connect(btnShowBarplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showBarPlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowBarplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    
+    connect(btnShowBoxplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showBoxPlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowBoxplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+   
+    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopePlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    
+    connect(btnShowSplines,SIGNAL(toggled(bool)),  eicWidget, SLOT(showSpline(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowSplines,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
 	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget,
 			SLOT(showTicLine(bool)));
 	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget, SLOT(replot()));
@@ -2161,6 +2264,9 @@ PeakGroup::QType MainWindow::getUserQuantType() {
 			return PeakGroup::Height;
 		else if (type == "Retention Time")
 			return PeakGroup::RetentionTime;
+		//TODO: Sahil-Kiran, Added while merging mainwindow
+		else if (type  == "AreaNotCorrected") 
+			return PeakGroup::AreaNotCorrected;
 		else if (type == "Quality")
 			return PeakGroup::Quality;
 		else if (type == "S/N Ratio")
@@ -2233,7 +2339,6 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	int numberofCarbons = 0;
 	if (group->compound && !group->compound->formula.empty()) {
-		MassCalculator mcalc;
 		map<string, int> composition = MassCalculator::getComposition(
 				group->compound->formula);
 		numberofCarbons = composition["C"];
@@ -2356,25 +2461,27 @@ void MainWindow::startEmbededHttpServer() {
 #endif
 }
 
-bool MainWindow::isSampleFileType(QString filename) {
-	if (filename.endsWith("mzXML", Qt::CaseInsensitive)) {
-		return 1;
-	} else if (filename.endsWith("cdf", Qt::CaseInsensitive)
-			|| filename.endsWith("nc", Qt::CaseInsensitive)) {
-		return 1;
-	} else if (filename.endsWith("mzCSV", Qt::CaseInsensitive)) {
-		return 1;
-	} else if (filename.contains("mzData", Qt::CaseInsensitive)) {
-		return 1;
-	} else if (filename.contains("mzML", Qt::CaseInsensitive)) {
-		return 1;
-	}
-	return 0;
-}
+//TODO: sahil-Kiran, removed while merging mainwindow
+// bool MainWindow::isSampleFileType(QString filename) {
+// 	if (filename.endsWith("mzXML", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	} else if (filename.endsWith("cdf", Qt::CaseInsensitive)
+// 			|| filename.endsWith("nc", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	} else if (filename.endsWith("mzCSV", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	} else if (filename.contains("mzData", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	} else if (filename.contains("mzML", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	}
+// 	return 0;
+// }
 
-bool MainWindow::isProjectFileType(QString filename) {
-	if (filename.endsWith("mzroll", Qt::CaseInsensitive)) {
-		return 1;
-	}
-	return 0;
-}
+//TODO: sahil-Kiran, removed while merging mainwindow
+// bool MainWindow::isProjectFileType(QString filename) {
+// 	if (filename.endsWith("mzroll", Qt::CaseInsensitive)) {
+// 		return 1;
+// 	}
+// 	return 0;
+// }

@@ -159,6 +159,8 @@ public:
 		return bookmarkedPeaks;
 	}
 
+    QList< QPointer<TableDockWidget> > getPeakTableList() { return groupTables; } //TODO: Sahil - Kiran, Added while merging mainwindow
+	
 	Classifier* getClassifier() {
 		return clsf;
 	}
@@ -167,10 +169,12 @@ public:
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
-	mzSample* getSample(int i) {
-		assert(i < samples.size());
-		return (samples[i]);
-	}
+	
+	//TODO: Sahil - Kiran, Removed while merging mainwindow
+	// mzSample* getSample(int i) {
+	// 	assert(i < samples.size());
+	// 	return (samples[i]);
+	// }
 	inline vector<mzSample*> getSamples() {
 		return samples;
 	}
@@ -178,12 +182,15 @@ public:
 
 	PeakGroup::QType getUserQuantType();
 
-	QSqlDatabase* getLocalDB() {
-		return &localDB;
-	}
+	//TODO: Sahil - Kiran, removed while merging mainwindow
+	// QSqlDatabase* getLocalDB() {
+	// 	return &localDB;
+	// }
 	int versionCheck();
-	bool isSampleFileType(QString filename);
-	bool isProjectFileType(QString filename);
+
+	//TODO: Sahil - Kiran, removed while merging mainwindow
+	// bool isSampleFileType(QString filename);
+	// bool isProjectFileType(QString filename);
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -205,6 +212,7 @@ public slots:
 
 	bool addSample(mzSample* sample);
 	void compoundDatabaseSearch();
+    void showPeakdetectionDialog(); //TODO: Sahil - Kiran, Added while merging mainwindow
 	void setUrl(QString url, QString link = QString::null);
 	void setUrl(Compound*);
 	void setUrl(Reaction*);
@@ -262,7 +270,8 @@ public slots:
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
 	TableDockWidget* addPeaksTable(QString title);
-	SpectralHitsDockWidget* addSpectralHitsTable(QString title);
+	//SpectralHitsDockWidget* addSpectralHitsTable(QString title); //TODO: Sahil - Kiran, Added while merging mainwindow
+	
 	//Added when merging with Maven776 - Kiran
     void removePeaksTable(TableDockWidget*);
 	BackgroundPeakUpdate* newWorkerThread(QString funcName);
