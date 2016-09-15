@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
+    <width>420</width>
     <height>325</height>
    </rect>
   </property>
@@ -24,12 +24,19 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>PrecursorMz</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLineEdit" name="lineEdit"/>
       </item>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QPushButton" name="computeButton">
         <property name="text">
-         <string>m/z</string>
+         <string>Match</string>
         </property>
        </widget>
       </item>
@@ -58,31 +65,37 @@
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+       <bool>false</bool>
+      </attribute>
       <attribute name="horizontalHeaderStretchLastSection">
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderStretchLastSection">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderStretchLastSection">
-       <bool>false</bool>
-      </attribute>
-      <attribute name="verticalHeaderStretchLastSection">
-       <bool>false</bool>
-      </attribute>
       <column>
        <property name="text">
-        <string>Formula/Compound</string>
+        <string>Compound</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Mass</string>
+        <string>m/z</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>ppmDiff</string>
+        <string>PPM Diff</string>
        </property>
       </column>
      </widget>
@@ -95,7 +108,7 @@
          <enum>Qt::RightToLeft</enum>
         </property>
         <property name="text">
-         <string>Ionization Mode</string>
+         <string>Ionization</string>
         </property>
        </widget>
       </item>
@@ -123,13 +136,6 @@
        <widget class="QDoubleSpinBox" name="maxppmdiff">
         <property name="maximum">
          <double>10000.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="computeButton">
-        <property name="text">
-         <string>Compute</string>
         </property>
        </widget>
       </item>
