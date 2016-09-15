@@ -22,6 +22,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 ~PeakDetectionDialog();
 				 void setSettings(QSettings* settings) { this->settings = settings; }
 				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
+                 void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 
 		public slots:
 				 void findPeaks();
@@ -32,6 +33,11 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showInfo(QString text);
 				 void cancel();
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
+				 void showMethodSummary(); //TODO: Sahil - Kiran, Added while merging mainwindow
+                 void saveMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
+                 void loadMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
+                 void updatePeakTableList(); //TODO: Sahil - Kiran, Added while merging mainwindow
+				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 
 		private:
 				QSettings *settings;
@@ -39,7 +45,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
 
-                void displayAppropriatePeakDetectionDialog(FeatureDetectionType type);
+                // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings,vector<mzSample*> samples);
                 void setMavenParameters(MavenParameters* mavenParameters, QSettings *settings);

@@ -11,10 +11,17 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(loadModelButton, SIGNAL(clicked(bool)), SLOT(loadModel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
+        connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
-        _featureDetectionType = CompoundDB;
+        compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
+        reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
+        //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
 
 }
 
@@ -61,8 +68,34 @@ void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(FeatureDetection
                 dbOptions->show();
                 featureOptions->hide();
         }
+
+        tabwidget->setCurrentIndex(0); //TODO: Sahil - Kiran, Added while merging mainwindow
         adjustSize();
 }
+
+/*
+@author: Sahil-Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void PeakDetectionDialog::show() {
+    //Thi is merged to 776    
+    if(mainwindow == NULL) return;
+
+    if ( peakupdater == NULL ) {
+        peakupdater = new BackgroundPeakUpdate(this);
+        if(mainwindow) peakupdater->setMainWindow(mainwindow);
+
+        //connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
+        //        SLOT(setProgressBar(QString, int,int)));
+
+    }
+    
+    //peakupdater->useMainWindowLabelOptions = false;
+    
+    inputInitialValuesPeakDetectionDialog();
+}
+
+
 
 /**
  * PeakDetectionDialog::loadModel This function works in the peakdector window
@@ -79,10 +112,31 @@ void PeakDetectionDialog::loadModel() {
         Classifier* clsf = mainwindow->getClassifier();
 
         //Loading the model to the to the model instance
-        if (clsf) {
-                clsf->loadModel(name.toStdString());
-        }
+        if (clsf ) clsf->loadModel( classificationModelFilename->text().toStdString() );
+
 }
+
+/*
+@author:Sahil-Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void PeakDetectionDialog::loadMethod() {
+    const QString filename = QFileDialog::getOpenFileName(this,
+                "Load Settings",".",tr("Settings File (*.method)"));
+     peakupdater->loadSettings(filename);
+     inputInitialValuesPeakDetectionDialog();
+}
+
+/*
+@author:Sahil-Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void PeakDetectionDialog::saveMethod() {
+    const QString filename = QFileDialog::getSaveFileName(this,
+                "Save Settings", ".", tr("Settings File (*.method)"));
+    peakupdater->saveSettings(filename);
+}
+
 
 /**
  * PeakDetectionDialog::setOutputDir this function sets the directory of the
@@ -117,7 +171,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                         sigBaselineRatio->setValue(settings->value("minSignalBaseLineRatio").toDouble());
                         sigBlankRatio->setValue(settings->value("minSignalBlankRatio").toDouble());
                         minGroupIntensity->setValue(settings->value("minGroupIntensity").toDouble());
-                        reportIsotopes->setChecked(settings->value("pullIsotopesFlag").toBool());
+                        reportIsotopesOptions->setChecked(settings->value("pullIsotopesFlag").toBool());
                         ppmStep->setValue(settings->value("ppmMerge").toDouble());
                         compoundPPMWindow->setValue(settings->value("compoundPPMWindow").toDouble());
                         compoundRTWindow->setValue(settings->value("compoundRTWindow").toDouble());
@@ -166,98 +220,87 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
  *
  * Then the needed algorithm is ran
  */
+
+ //TODO: Sahil. Refactored this whole function. Merged with mainwindow of 776. RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks() {
-        if (mainwindow == NULL)
-                return;
+
+        
+	if (mainwindow == NULL) return;
+        if (peakupdater == NULL) return;
+        if (peakupdater->isRunning() ) cancel();
+        if (peakupdater->isRunning() ) return;
+
 
         //Setting all the samples that are uploaded by the user and if number of
         //samples are zero terminating the peakdetection process
         vector<mzSample*> samples = mainwindow->getSamples();
         if (samples.size() == 0)
                 return;
-
-
-        //Making sure that peak detector is not running
-        //If its running  allowing it to complete so that the new peakdetection
-        //process dosent case any problem to the already running peakdetection
-        //process
-        if (peakupdater != NULL) {
-                if (peakupdater->isRunning())
-                        cancel();
-                if (peakupdater->isRunning())
-                        return;
-        }
-
-        //Making sure that new peakupdater thread that is made is set to NULL
-        //before starting another peak detection process
-        if (peakupdater != NULL) {
-                delete (peakupdater);
-                peakupdater = NULL;
-        }
-
-        //Instance of peakdetector thread
-        peakupdater = new BackgroundPeakUpdate(this);
-        peakupdater->setMainWindow(mainwindow);
-
-        MavenParameters* mavenParameters = mainwindow->mavenParameters;
+	MavenParameters* mavenParameters = mainwindow->mavenParameters;
 
         //populating the maven setting insatnces with with the samples
-        mavenParameters->samples = mainwindow->getSamples();
-
-        connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
-                SLOT(setProgressBar(QString, int,int)));
-
-
-
+        mavenParameters->samples = mainwindow->getSamples();							
         updateQSettingsWithUserInput(settings, samples);
 
         setMavenParameters(mavenParameters, settings);
 
 
-        // Changing the mainwindow title according to the peak detection type
-        QString title;
-        if (_featureDetectionType == FullSpectrum)
-                title = "Detected Features";
-        else if (_featureDetectionType == CompoundDB)
-                title = "DB Search " + compoundDatabase->currentText();
-        else if (_featureDetectionType == QQQ)
-                title = "QQQ DB Search " + compoundDatabase->currentText();
-        //Getting the peak table
-        TableDockWidget* peaksTable = mainwindow->addPeaksTable(title);
-        peaksTable->setWindowTitle(title);
+	QString title;
+	if (_featureDetectionType == FullSpectrum )  title = "Detected Features";
+        else if (_featureDetectionType == CompoundDB ) title = "DB Search " + compoundDatabase->currentText();
+        else if (_featureDetectionType == QQQ ) title = "QQQ DB Search " + compoundDatabase->currentText();
 
-        connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
-                SLOT(addPeakGroup(PeakGroup*)));
+        if (dbOptions->isChecked() && !(featureOptions->isChecked())){
+            _featureDetectionType = CompoundDB;
+        
+        } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())){
+            _featureDetectionType = FullSpectrum;
+        } else if (!(dbOptions->isChecked()) && !(featureOptions->isChecked())){
+            _featureDetectionType = QQQ;
+        } else{
+            _featureDetectionType = FullSpectrum;
+        }
+
+
+
+        TableDockWidget* peaksTable = mainwindow->getBookmarkedPeaks();
+        int peakTableIdx = outputTableComboBox->currentIndex();
+
+
+        if ( peakTableIdx == 0 ) {
+                peaksTable = mainwindow->addPeaksTable(title);
+        } else if (peakTableIdx == 1) {
+                peaksTable = mainwindow->getBookmarkedPeaks();
+        } else if (peakTableIdx >= 2 ) {
+                QList< QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+                if ( peaksTableList.size() >= 1 and peakTableIdx-2 < peaksTableList.size() ) {
+                    peaksTable = peaksTableList[peakTableIdx-2];
+                }
+        }
+
+		peaksTable->setWindowTitle(title);
+
+        //disconnect prvevious connections
+        disconnect(peakupdater,SIGNAL(newPeakGroup(PeakGroup*)),0,0);
+        disconnect(peakupdater,SIGNAL(finished()),0,0);
+        disconnect(peakupdater,SIGNAL(terminated()),0,0);
+
+        //connect new connections
+        connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable, SLOT(addPeakGroup(PeakGroup*)));
         connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
-        connect(peakupdater, SIGNAL(terminated()), peaksTable,
-                SLOT(showAllGroups()));
+        connect(peakupdater, SIGNAL(terminated()), peaksTable, SLOT(showAllGroups()));
         connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
         connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
-
         peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
 
-        //Running the thread
-        if (_featureDetectionType == QQQ) {
-                //TODO: remove this line
-                //peakupdater->setMavenParameters(mavenParameters);
-                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
-
+        //RUN THREAD
+        if ( _featureDetectionType == QQQ ) {
                 runBackgroupJob("findPeaksQQQ");
-        } else if (_featureDetectionType == FullSpectrum) {
-                //TODO: remove this line
-                //peakupdater->setMavenParameters(mavenParameters);
-                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
-
+        } else if ( _featureDetectionType == FullSpectrum ) {
                 runBackgroupJob("processMassSlices");
-        } else {
-                mavenParameters->setCompounds(
-                        DB.getCopoundsSubset(
-                                compoundDatabase->currentText().toStdString()));
-                //TODO: remove this line
-                //peakupdater->setMavenParameters(mavenParameters);
-                //peakupdater->setPeakDetector(new PeakDetector(mavenParameters));
-
-                runBackgroupJob("computePeaks");
+        }  else {
+                mavenParameters->setCompounds( DB.getCopoundsSubset(compoundDatabase->currentText().toStdString()) );
+        runBackgroupJob("computePeaks");
         }
 }
 
@@ -285,7 +328,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings *settings, vect
         //Min. Group Intensity
         settings->setValue("minGroupIntensity",minGroupIntensity->value());
         //Report Isotopic Peaks this is used in finding peaks with DB
-        settings->setValue("pullIsotopesFlag",reportIsotopes->isChecked());
+        settings->setValue("pullIsotopesFlag",reportIsotopesOptions->isChecked());
         //Mass domain Resolution (ppm)
         settings->setValue("ppmMerge",ppmStep->value());
         //EIC Extraction window +/- PPM
@@ -416,4 +459,47 @@ void PeakDetectionDialog::setProgressBar(QString text, int progress,
         showInfo(text);
         progressBar->setRange(0, totalSteps);
         progressBar->setValue(progress);
+}
+
+/*
+@author:Sahil-Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void PeakDetectionDialog::showMethodSummary() {
+    cerr << "PeakDetectionDialog::showMethodSummary()" << endl;
+    if(peakupdater) {
+
+        vector<mzSample*> samples = mainwindow->getSamples();
+        if (samples.size() == 0)
+                return;
+	MavenParameters* mavenParameters = mainwindow->mavenParameters;
+
+        //populating the maven setting insatnces with with the samples
+        mavenParameters->samples = mainwindow->getSamples();							
+        updateQSettingsWithUserInput(settings, samples);
+        setMavenParameters(mavenParameters, settings);
+
+        cerr << "PeakDetectionDialog::showMethodSummary() Inside" << endl;
+        methodSummary->clear();
+        methodSummary->setPlainText(peakupdater->printSettings());
+    }
+}
+
+
+/*
+@author:Sahil-Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void PeakDetectionDialog::updatePeakTableList() {
+    cerr << "PeakDetectionDialog::updatePeakTableList()" << endl;
+    if(mainwindow) {
+        cerr << "PeakDetectionDialog::updatePeakTableList() inside" << endl;
+        QList< QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+        for(int i=0; i < peaksTableList.size();i++) {
+            QString tableName = peaksTableList[i]->objectName();
+            if (outputTableComboBox->findText(tableName) == -1 ) {
+                outputTableComboBox->addItem(tableName);
+            }
+        }
+    }
 }
