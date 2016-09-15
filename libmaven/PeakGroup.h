@@ -181,6 +181,8 @@ class PeakGroup{
 
         inline deque<PeakGroup>& getChildren()  { return children; }
 
+        vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
+
         vector<Scan*> getFragmenationEvents();
 
         Scan* getAverageFragmenationScan(float resolution);

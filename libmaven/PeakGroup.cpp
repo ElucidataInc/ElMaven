@@ -543,6 +543,21 @@ string PeakGroup::getName() {
 }
 
 /*
+@author: Sahil, Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+vector<Scan*> PeakGroup::getRepresentativeFullScans() {
+    vector<Scan*>matchedscans;
+    for(unsigned int i=0; i < peaks.size(); i++ ) {
+        mzSample* sample = peaks[i].getSample();
+        if ( sample == NULL ) continue;
+        Scan* scan = sample->getScan(peaks[i].scan);
+        if (scan and scan->mslevel == 1) matchedscans.push_back(scan);
+    }
+    return matchedscans;
+}
+
+/*
    @author: Sahil
    */ 
 //TODO: Sahil, Added while merging Spectrawidget
