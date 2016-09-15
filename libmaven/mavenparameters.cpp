@@ -54,6 +54,10 @@ MavenParameters::MavenParameters() {
         S34Labeled = false;
         D2Labeled = false;
 
+        alignMaxItterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
+        alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow
+        
+
 }
 
 void MavenParameters::setAverageScanTime() {
