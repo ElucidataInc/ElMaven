@@ -83,6 +83,10 @@ public:
 		return _stopped;
 	}
 
+	void saveSettings(QString filename); //TODO: Sahil - Kiran, Added while merging mainwindow
+  	void loadSettings(QString filename); //TODO: Sahil - Kiran, Added while merging mainwindow
+	QString printSettings(); //TODO: Sahil - Kiran, Added while merging mainwindow
+
 	/**
 	 * [set Main Window]
 	 * @param mw [pointer to MainWindow]

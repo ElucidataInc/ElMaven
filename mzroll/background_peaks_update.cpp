@@ -7,6 +7,206 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         runFunction = "computeKnowsPeaks";
 }
 
+
+/*
+@author: Sahil, Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+QString BackgroundPeakUpdate::printSettings() {
+
+    QString buffer;
+    QTextStream summary( &buffer, QIODevice::ReadWrite);
+    summary << "-------------------SETTINGS-------------------"<< "\n"<< "\n";
+//     summary << "runFunction =" << runFunction<< "\n";
+    summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
+    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
+
+    summary << "--------------------------------MASS SLICING"<< "\n";
+    summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
+    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
+
+//     summary << "minMz=" << minMz<< "\n";
+//     summary << "maxMz=" << maxMz<< "\n";
+
+//     summary << "minRt=" << minRt<< "\n";
+//     summary << "maxRt=" << maxRt<< "\n";
+
+//     summary << "minIntensity=" << minIntensity<< "\n";
+//     summary << "maxIntensity=" << maxIntensity<< "\n";
+
+//     summary << "minCharge=" << minCharge<< "\n";
+//     summary << "maxCharge=" << maxCharge<< "\n";
+    summary << "------------------------------COMPOUND MATCHING"<< "\n";
+
+    summary << "ionizationMode=" << mavenParameters->ionizationMode<< "\n";
+    summary << "matchRtFlag=" << mavenParameters->matchRtFlag<< "\n";
+    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow<< "\n";
+    summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow<< "\n";
+//     summary << "matchFragmentation=" << matchFragmentation<< "\n";
+//     summary << "fragmentMatchPPMTolr=" << fragmentMatchPPMTolr<< "\n";
+
+     summary << "------------------------------EIC CONSTRUCTION"<< "\n";
+     summary << "eic_smoothingWindow=" << mavenParameters->eic_smoothingWindow<< "\n";
+     summary << "eic_smoothingAlgorithm=" << mavenParameters->eic_smoothingAlgorithm<< "\n";
+     summary << "baseline_smoothingWindow=" << mavenParameters->baseline_smoothingWindow<< "\n";
+     summary << "baseline_dropTopX=" << mavenParameters->baseline_dropTopX<< "\n";
+     summary << "------------------------------PEAK GROUPING"<< "\n";
+
+     summary << "grouping_maxRtWindow=" << mavenParameters->grouping_maxRtWindow<< "\n";
+     summary << "eicMaxGroups=" << mavenParameters->eicMaxGroups<< "\n";
+     summary << "------------------------------GROUP FILTERING"<< "\n";
+
+//      summary << "minGoodPeakCount=" << minGoodPeakCount<< "\n";
+     summary << "minSignalBlankRatio=" << mavenParameters->minSignalBlankRatio<< "\n";
+     summary << "minSignalBlankRatio=" << mavenParameters->minSignalBlankRatio<< "\n";
+     summary << "minNoNoiseObs=" << mavenParameters->minNoNoiseObs<< "\n";
+     summary << "minSignalBaseLineRatio=" << mavenParameters->minSignalBaseLineRatio<< "\n";
+     summary << "minGroupIntensity=" << mavenParameters->minGroupIntensity<< "\n";
+
+
+     summary << "-----------------------------------OUTPUT"<< "\n";
+     summary << "outputdir=" << QString::fromStdString(mavenParameters->outputdir)<< "\n";
+     summary << "writeCSVFlag=" << mavenParameters->writeCSVFlag<< "\n";
+     summary << "keepFoundGroups=" << mavenParameters->keepFoundGroups<< "\n";
+     summary << "showProgressFlag=" << mavenParameters->showProgressFlag<< "\n";
+
+     QString x = summary.readAll();
+     qDebug() << x;
+     return x;
+}
+
+
+/*
+@author: Sahil, Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void BackgroundPeakUpdate::saveSettings(QString fileName) {
+    QFile file(fileName);
+    if ( !file.open(QFile::WriteOnly) )return; //error
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartElement("Settings");
+    stream.writeStartElement("PeakDetectionSettings");
+
+//     stream.writeAttribute("runFunction",  mavenParameters->runFunction);
+    stream.writeAttribute( "alignSamplesFlag"  ,   QString::number(mavenParameters->alignSamplesFlag));
+
+    stream.writeAttribute( "rtStepSize" ,QString::number( mavenParameters->rtStepSize));
+    stream.writeAttribute( "ppmMerge" ,QString::number( mavenParameters->ppmMerge));
+    stream.writeAttribute( "limitGroupCount" ,QString::number( mavenParameters->limitGroupCount));
+
+//     stream.writeAttribute( "minMz" ,QString::number( mavenParameters->minMz));
+//     stream.writeAttribute( "maxMz" ,QString::number( mavenParameters->maxMz));
+
+//     stream.writeAttribute( "minRt" ,QString::number( mavenParameters->minRt));
+//     stream.writeAttribute( "maxRt" ,QString::number( mavenParameters->maxRt));
+
+//     stream.writeAttribute( "minIntensity" ,QString::number( mavenParameters->minIntensity));
+//     stream.writeAttribute( "maxIntensity" ,QString::number( mavenParameters->maxIntensity));
+
+//     stream.writeAttribute( "minCharge" ,QString::number(mavenParameters->minCharge));
+//     stream.writeAttribute( "maxCharge" ,QString::number(mavenParameters->maxCharge));
+
+    stream.writeAttribute( "ionizationMode" ,QString::number(mavenParameters->ionizationMode));
+    stream.writeAttribute( "matchRtFlag" ,QString::number( mavenParameters->matchRtFlag));
+    stream.writeAttribute( "compoundPPMWindow" ,QString::number( mavenParameters->compoundPPMWindow));
+    stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
+//     stream.writeAttribute( "matchFragmentation" ,QString::number( mavenParameters->matchFragmentation));
+//     stream.writeAttribute( "fragmentMatchPPMTolr" ,QString::number( mavenParameters->fragmentMatchPPMTolr));
+
+    stream.writeAttribute( "eic_smoothingWindow" ,QString::number( mavenParameters->eic_smoothingWindow));
+    stream.writeAttribute( "eic_smoothingAlgorithm" ,QString::number( mavenParameters->eic_smoothingAlgorithm));
+    stream.writeAttribute( "baseline_smoothingWindow" ,QString::number( mavenParameters->baseline_smoothingWindow));
+    stream.writeAttribute( "baseline_dropTopX" ,QString::number( mavenParameters->baseline_dropTopX));
+
+    stream.writeAttribute( "grouping_maxRtWindow" ,QString::number( mavenParameters->grouping_maxRtWindow));
+    stream.writeAttribute( "eicMaxGroups" ,QString::number( mavenParameters->eicMaxGroups));
+
+//     stream.writeAttribute( "minGoodPeakCount" ,QString::number( mavenParameters->minGoodPeakCount));
+    stream.writeAttribute( "minSignalBlankRatio" ,QString::number( mavenParameters->minSignalBlankRatio));
+    stream.writeAttribute( "minNoNoiseObs" ,QString::number( mavenParameters->minNoNoiseObs));
+    stream.writeAttribute( "minSignalBaseLineRatio" ,QString::number( mavenParameters->minSignalBaseLineRatio));
+    stream.writeAttribute( "minGroupIntensity" ,QString::number( mavenParameters->minGroupIntensity));
+
+    stream.writeAttribute( "outputdir" , QString::fromStdString(mavenParameters->outputdir));
+    stream.writeAttribute( "writeCSVFlag" ,QString::number( mavenParameters->writeCSVFlag));
+    stream.writeAttribute( "keepFoundGroups" ,QString::number( mavenParameters->keepFoundGroups));
+    stream.writeAttribute( "showProgressFlag" ,QString::number( mavenParameters->showProgressFlag));
+
+    stream.writeEndElement();
+    stream.writeEndElement();
+
+    file.close();
+}
+
+
+/*
+@author: Sahil, Kiran
+*/
+//TODO: Sahil - Kiran, Added while merging mainwindow
+void BackgroundPeakUpdate::loadSettings(QString fileName) {
+    QFile file(fileName);
+    if ( !file.open(QFile::ReadOnly) )return; //error
+
+    QXmlStreamReader xml(&file);
+
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            if (xml.name() == "PeakDetectionSettings") {
+                // mavenParameters->runFunction = xml.attributes().value("runFunction").toString();
+                mavenParameters->alignSamplesFlag = xml.attributes().value("alignSamplesFlag").toString().toInt();
+
+                mavenParameters->rtStepSize = xml.attributes().value("rtStepSize").toString().toFloat();
+                mavenParameters->ppmMerge = xml.attributes().value("ppmMerge").toString().toFloat();
+                mavenParameters->limitGroupCount = xml.attributes().value("limitGroupCount").toString().toInt();
+
+                // mavenParameters->minMz = xml.attributes().value("minMz").toString().toFloat();
+                // mavenParameters->maxMz = xml.attributes().value("maxMz").toString().toFloat();
+
+                // mavenParameters->minRt = xml.attributes().value("minRt").toString().toFloat();
+                // mavenParameters->maxRt = xml.attributes().value("maxRt").toString().toFloat();
+
+                // mavenParameters->minIntensity = xml.attributes().value("minIntensity").toString().toFloat();
+                // mavenParameters->maxIntensity = xml.attributes().value("maxIntensity").toString().toFloat();
+
+                // mavenParameters->minCharge = xml.attributes().value("minCharge").toString().toInt();
+                // mavenParameters->maxCharge = xml.attributes().value("maxCharge").toString().toInt();
+
+                mavenParameters->ionizationMode = xml.attributes().value("ionizationMode").toString().toInt();
+                mavenParameters->matchRtFlag = xml.attributes().value("matchRtFlag").toString().toInt();
+                mavenParameters->compoundPPMWindow = xml.attributes().value("compoundPPMWindow").toString().toFloat();
+                mavenParameters->compoundRTWindow = xml.attributes().value("compoundRTWindow").toString().toFloat();
+                // mavenParameters->matchFragmentation = xml.attributes().value("matchFragmentation").toString().toInt();
+                // mavenParameters->fragmentMatchPPMTolr = xml.attributes().value("fragmentMatchPPMTolr").toString().toFloat();
+
+                mavenParameters->eic_smoothingWindow = xml.attributes().value("eic_smoothingWindow").toString().toFloat();
+                mavenParameters->eic_smoothingAlgorithm = xml.attributes().value("eic_smoothingAlgorithm").toString().toInt();
+                mavenParameters->baseline_smoothingWindow = xml.attributes().value("baseline_smoothingWindow").toString().toFloat();
+                mavenParameters->baseline_dropTopX = xml.attributes().value("baseline_dropTopX").toString().toFloat();
+
+                mavenParameters->grouping_maxRtWindow = xml.attributes().value("grouping_maxRtWindow").toString().toFloat();
+                mavenParameters->eicMaxGroups = xml.attributes().value("eicMaxGroups").toString().toInt();
+
+                // mavenParameters->minGoodPeakCount = xml.attributes().value("minGoodPeakCount").toString().toInt();
+                mavenParameters->minSignalBlankRatio = xml.attributes().value("minSignalBlankRatio").toString().toFloat();
+                mavenParameters->minNoNoiseObs = xml.attributes().value("minNoNoiseObs").toString().toInt();
+                mavenParameters->minSignalBaseLineRatio = xml.attributes().value("minSignalBaseLineRatio").toString().toFloat();
+                mavenParameters->minGroupIntensity = xml.attributes().value("minGroupIntensity").toString().toFloat();
+
+                mavenParameters->outputdir = (xml.attributes().value("outputdir").toString()).toStdString();
+                mavenParameters->writeCSVFlag = xml.attributes().value("writeCSVFlag").toString().toInt();
+                mavenParameters->keepFoundGroups = xml.attributes().value("keepFoundGroups").toString().toInt();
+                mavenParameters->showProgressFlag = xml.attributes().value("showProgressFlag").toString().toInt();
+            }
+        }
+    }
+    file.close();
+}
+
 BackgroundPeakUpdate::~BackgroundPeakUpdate() {
         mavenParameters->cleanup(); //remove allgroups
 }
