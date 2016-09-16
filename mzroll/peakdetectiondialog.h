@@ -30,6 +30,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void setOutputDir();
 				 void setProgressBar(QString text, int progress, int totalSteps);
 				 void runBackgroupJob(QString func);
+                 void dbOptionsClicked();
+                 void featureOptionsClicked();
 				 void showInfo(QString text);
 				 void cancel();
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
@@ -47,8 +49,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
-                void updateQSettingsWithUserInput(QSettings *settings,vector<mzSample*> samples);
-                void setMavenParameters(MavenParameters* mavenParameters, QSettings *settings);
+                void updateQSettingsWithUserInput(QSettings *settings);
+                void setMavenParameters(QSettings *settings);
 };
 
 #endif

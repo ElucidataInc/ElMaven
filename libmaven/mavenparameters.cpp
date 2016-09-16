@@ -15,6 +15,7 @@ MavenParameters::MavenParameters() {
         keepFoundGroups = true;
         showProgressFlag = true;
 
+        fragmentMatchPPMTolr = 1000;
         mzBinStep = 0.01;
         rtStepSize = 20;
         ppmMerge = 30;
@@ -22,16 +23,16 @@ MavenParameters::MavenParameters() {
 
         limitGroupCount = INT_MAX;
 
-        //peak detection
+        // peak detection
         eic_smoothingWindow = 10;
         eic_smoothingAlgorithm = 0;
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 40;
 
-        //peak grouping across samples
+        // peak grouping across samples
         grouping_maxRtWindow = 0.5;
 
-        //peak filtering criteria
+        // peak filtering criteria
         minGoodGroupCount = 1;
         minSignalBlankRatio = 2;
         minNoNoiseObs = 1;

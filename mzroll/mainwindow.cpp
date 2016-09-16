@@ -1017,40 +1017,107 @@ void MainWindow::readSettings() {
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 
 	if (!settings->contains("clsfModelFilename"))
-		settings->setValue("clsfModelFilename", QString("default.model"));
+        settings->setValue("clsfModelFilename", QString("default.model"));
 
-	if (!settings->contains("grouping_maxRtWindow"))
-		settings->setValue("grouping_maxRtWindow", 0.5);
+    // EIC Processing: Baseline and calculation
+    if (!settings->contains("eic_smoothingAlgorithm"))
+        settings->setValue("eic_smoothingAlgorithm", 0);
 
-	if (!settings->contains("grouping_maxMzWindow"))
-		settings->setValue("grouping_maxMzWindow", 100);
-
-	if (!settings->contains("eic_smoothingAlgorithm"))
-		settings->setValue("eic_smoothingAlgorithm", 0);
-
-	if (!settings->contains("eic_smoothingWindow"))
+    if (!settings->contains("eic_smoothingWindow"))
 		settings->setValue("eic_smoothingWindow", 5);
 
-	if (!settings->contains("eic_ppmWindow"))
-		settings->setValue("eic_ppmWindow", 100);
+    if (!settings->contains("grouping_maxRtWindow"))
+        settings->setValue("grouping_maxRtWindow", 0.5);
 
-	if (!settings->contains("ppmWindowBox"))
-		settings->setValue("ppmWindowBox", 5);
+    // BaseLine Calculation
+    if (!settings->contains("baseline_smoothingWindow"))
+        settings->setValue("baseline_smoothingWindow", 5);
 
-	if (!settings->contains("mzslice"))
-		settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
+    if (!settings->contains("baseline_dropTopX"))
+        settings->setValue("baseline_dropTopX", 80);
 
-	if (!settings->contains("ionizationMode"))
-		settings->setValue("ionizationMode", -1);
+    // Peak Scoring and Fitering
+    if (!settings->contains("minGoodGroupCount"))
+        settings->setValue("minGoodGroupCount", 1);
 
-	if (!settings->contains("C13Labeled"))
-		settings->setValue("C13Labeled", 2);
+    if (!settings->contains("minNoNoiseObs"))
+        settings->setValue("minNoNoiseObs", 3);
 
-	if (!settings->contains("N15Labeled"))
-		settings->setValue("N15Labeled", 2);
+    if (!settings->contains("minSignalBaseLineRatio"))
+        settings->setValue("minSignalBaseLineRatio", 2);
 
-	if (!settings->contains("isotopeC13Correction"))
-		settings->setValue("isotopeC13Correction", 2);
+    if (!settings->contains("minSignalBlankRatio"))
+        settings->setValue("minSignalBlankRatio", 2);
+
+    if (!settings->contains("minGroupIntensity"))
+        settings->setValue("minGroupIntensity", 5000);
+
+    // Compound DB Search
+    if (!settings->contains("matchRtFlag"))
+        settings->setValue("matchRtFlag", 0);
+
+    if (!settings->contains("compoundPPMWindow"))
+        settings->setValue("compoundPPMWindow", 20);
+
+    if (!settings->contains("compoundRTWindow"))
+        settings->setValue("compoundRTWindow", 2);
+
+    if (!settings->contains("eicMaxGroups"))
+        settings->setValue("eicMaxGroups", 10);
+
+    //Setting to enable or disable compund or Auto Detection 
+    if (!settings->contains("dbOptions"))
+        settings->setValue("dbOptions", 2);
+    
+    if (!settings->contains("featureOptions"))
+        settings->setValue("featureOptions", 0);
+
+    // Automated Peak Detection
+    if (!settings->contains("ppmMerge"))
+        settings->setValue("ppmMerge", 20);
+
+    if (!settings->contains("rtStepSize"))
+        settings->setValue("rtStepSize", 10);
+
+    if(!settings->contains("minRT"))
+        settings->setValue("minRT", 0);
+
+    if(!settings->contains("maxRT"))
+        settings->setValue("maxRT", 0);
+
+    if (!settings->contains("minMz")) settings->setValue("minMz", 0);
+
+    if (!settings->contains("maxMz")) settings->setValue("maxMz", 0);
+
+    if (!settings->contains("minIntensity"))
+        settings->setValue("minIntensity", 0);
+
+    if (!settings->contains("maxIntensity"))
+        settings->setValue("maxIntensity", 0);
+
+    if (!settings->contains("minCharge")) settings->setValue("minCharge", 0);
+
+    if(!settings->contains("maxCharge")) settings->setValue("maxCharge", 0);
+
+    //Isotope Detection in peakDetection Dialogue
+    if (!settings->contains("pullIsotopesFlag"))
+        settings->setValue("pullIsotopesFlag", 0);
+        
+    if (!settings->contains("checkBox"))
+        settings->setValue("checkBox", 0);
+
+    if (!settings->contains("checkBox_2"))
+        settings->setValue("checkBox_2", 0);
+
+    if (!settings->contains("checkBox_3"))
+        settings->setValue("checkBox_3", 0);
+
+    if (!settings->contains("checkBox_4"))
+        settings->setValue("checkBox_4", 0);
+
+    //Pull Isotopes in options
+    if (!settings->contains("isotopeC13Correction"))
+        settings->setValue("isotopeC13Correction", 2);
 
 	if (!settings->contains("maxNaturalAbundanceErr"))
 		settings->setValue("maxNaturalAbundanceErr", 100);
@@ -1061,42 +1128,35 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minIsotopicCorrelation"))
 		settings->setValue("minIsotopicCorrelation", 0.1);
 
+    if (!settings->contains("C13Labeled"))
+        settings->setValue("C13Labeled", 2);
+
+    if (!settings->contains("N15Labeled"))
+        settings->setValue("N15Labeled", 2);
+
+    if (!settings->contains("D2Labeled"))
+        settings->setValue("D2Labeled", 2);
+
+    if (!settings->contains("S34Labeled"))
+        settings->setValue("S34Labeled", 2);
+
+    //Main window right hand top
+    if (!settings->contains("ppmWindowBox"))
+        settings->setValue("ppmWindowBox", 5);
+
+    if (!settings->contains("mzslice"))
+        settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
+
+    //Options tab 
+    if (!settings->contains("ionizationMode"))
+        settings->setValue("ionizationMode", -1);
+
+
     if (settings->contains("lastOpenedProject"))
 		settings->setValue("lastOpenedProject", "");
 
-    if (!settings->contains("baseline_smoothingWindow"))
-        settings->setValue("baseline_smoothingWindow", 5);
-    if (!settings->contains("baseline_dropTopX"))
-        settings->setValue("baseline_dropTopX", 80);
-    if (!settings->contains("baseline_quantile")) //TODO: Sahil-Kiran, Added while merging mainwindow
-         settings->setValue("baseline_quantile", 50);
-    if (!settings->contains("baseline_smoothing")) //TODO: Sahil-Kiran, Added while merging mainwindow
-         settings->setValue("baseline_smoothing", 5);
-    if (!settings->contains("matchRtFlag"))
-        settings->setValue("matchRtFlag", 0);
-    if (!settings->contains("minGoodGroupCount"))
-        settings->setValue("minGoodGroupCount", 1);
-    if (!settings->contains("minNoNoiseObs"))
-        settings->setValue("minNoNoiseObs", 3);
-    if (!settings->contains("minSignalBaseLineRatio"))
-        settings->setValue("minSignalBaseLineRatio", 2);
-    if (!settings->contains("minSignalBlankRatio"))
-        settings->setValue("minSignalBlankRatio", 2);
-    if (!settings->contains("minGroupIntensity"))
-        settings->setValue("minGroupIntensity", 5000);
-    if (!settings->contains("pullIsotopesFlag"))
-        settings->setValue("pullIsotopesFlag", 0);
-    if (!settings->contains("ppmMerge"))
-        settings->setValue("ppmMerge", 20);
-    if (!settings->contains("compoundPPMWindow"))
-        settings->setValue("compoundPPMWindow", 20);
-    if (!settings->contains("compoundRTWindow"))
-        settings->setValue("compoundRTWindow", 2);
-    if (!settings->contains("eicMaxGroups"))
-        settings->setValue("eicMaxGroups", 10);
-    if (!settings->contains("rtStepSize"))
-        settings->setValue("rtStepSize", 10);
-	//Added when merged with Maven776 - Kiran
+
+    //Added when merged with Maven776 - Kiran
     if (!settings->contains("embeded_http_server_autostart")) {
         settings->setValue("embeded_http_server_autostart", true);
     }
@@ -1465,15 +1525,18 @@ void MainWindow::showPeakdetectionDialog() {
    
 }
 
-void MainWindow::showMassSlices() { 
-    peakDetectionDialog->initPeakDetectionDialogWindow( PeakDetectionDialog::FullSpectrum );
-    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging mainwindow
-}
+// void MainWindow::showMassSlices() {
+//    peakDetectionDialog->initPeakDetectionDialogWindow(
+//    PeakDetectionDialog::FullSpectrum );
+//    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging
+//    mainwindow
+//}
 
-void MainWindow::compoundDatabaseSearch() {
-    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::CompoundDB);
-    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging mainwindow
-}
+// void MainWindow::compoundDatabaseSearch() {
+//    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::CompoundDB);
+//    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging
+//    mainwindow
+//}
 
 void MainWindow::showSRMList() {
 
@@ -1542,14 +1605,11 @@ void MainWindow::Align() {
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
 
 	if (settings != NULL) {
-		//TODO: Sahil-Kiran, Removed while merging mainwindow
-		// mavenParameters->eic_ppmWindow =
-		// 		settings->value("eic_ppmWindow").toDouble();
 		mavenParameters->eic_smoothingAlgorithm = settings->value(
 				"eic_smoothingWindow").toInt();
 	}
 
-	mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
+	//mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();

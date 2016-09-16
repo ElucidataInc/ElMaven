@@ -112,7 +112,6 @@ public:
 	 */
 	float eic_smoothingWindow;
 	int eic_smoothingAlgorithm;
-	float eic_ppmWindow;
 	int baseline_smoothingWindow;
 	int baseline_dropTopX;
 
@@ -161,12 +160,20 @@ public:
 	bool N15Labeled;
 	bool S34Labeled;
 	bool D2Labeled;
+    float minRt;
+    float maxRt;
+    float minMz;
+    float maxMz;
+    float minIntensity;
+    float maxIntensity;
+    float minCharge;
+    float maxCharge;
 
-	string outputdir;
+    string outputdir;
 
-	vector<PeakGroup> allgroups;
-	MassCalculator mcalc;
-	Classifier* clsf;
+    vector<PeakGroup> allgroups;
+    MassCalculator mcalc;
+    Classifier* clsf;
 	PeakGroup* _group;
 	vector<mzSample*> samples;
 	vector<Compound*> compounds;
@@ -175,11 +182,14 @@ public:
 	int alignMaxItterations; //TODO: Sahil - Kiran, Added while merging mainwindow
 	int alignPolynomialDegree; //TODO: Sahil - Kiran, Added while merging mainwindow
 
-	/**
-	 * [print parameter Settings]
-	 * @method printSettings
-	 */
-	void printSettings();
+    float minFragmentMatchScore;
+    bool matchFragmentation;
+    float fragmentMatchPPMTolr;
+    /**
+     * [print parameter Settings]
+     * @method printSettings
+     */
+    void printSettings();
 };
 
 #endif // MAVENPARAMETERS_H

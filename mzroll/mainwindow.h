@@ -211,8 +211,9 @@ public slots:
 	void loadPathwaysFolder(QString& pathwaysFolder);
 
 	bool addSample(mzSample* sample);
-	void compoundDatabaseSearch();
-    void showPeakdetectionDialog(); //TODO: Sahil - Kiran, Added while merging mainwindow
+        // void compoundDatabaseSearch();
+        void showPeakdetectionDialog();  // TODO: Sahil - Kiran, Added while
+                                         // merging mainwindow
 	void setUrl(QString url, QString link = QString::null);
 	void setUrl(Compound*);
 	void setUrl(Reaction*);
@@ -248,10 +249,10 @@ public slots:
 	//void terminateTheads();
 	void doSearch(QString needle);
 	void setupSampleColors();
-	void showMassSlices();
-	void showSRMList();
-	void addToHistory(const mzSlice& slice);
-	void historyNext();
+        // void showMassSlices();
+        void showSRMList();
+        void addToHistory(const mzSlice& slice);
+        void historyNext();
 	void historyLast();
 	void getLinks(Peak* peak);
 	void markGroup(PeakGroup* group, char label);

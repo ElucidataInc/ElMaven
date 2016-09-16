@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>828</width>
+    <width>858</width>
     <height>655</height>
    </rect>
   </property>
@@ -438,7 +438,7 @@
           <item row="7" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Min. Good Peak / Group</string>
+             <string>Peak Classifier Model File</string>
             </property>
            </widget>
           </item>
@@ -502,7 +502,7 @@
           <item row="6" column="0">
            <widget class="QLabel" name="label_100">
             <property name="text">
-             <string>Peak Quality Classifier</string>
+             <string>Min. Good Peak / Group</string>
             </property>
            </widget>
           </item>
@@ -525,17 +525,17 @@
           </item>
           <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="minGroupIntensity">
-            <property name="showGroupSeparator" stdset="0">
-             <bool>true</bool>
-            </property>
             <property name="suffix">
-             <string> </string>
+             <string/>
             </property>
             <property name="maximum">
              <double>999999999.000000000000000</double>
             </property>
             <property name="value">
              <double>1000000.000000000000000</double>
+            </property>
+            <property name="showGroupSeparator" stdset="0">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -637,7 +637,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_13">
             <property name="text">
-             <string>EIC Smoothing</string>
+             <string>EIC Smoothing Window</string>
             </property>
            </widget>
           </item>
