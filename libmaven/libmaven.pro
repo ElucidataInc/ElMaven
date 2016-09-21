@@ -15,8 +15,8 @@ QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
 #QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
-#QMAKE_CXXFLAGS += -fopenmp
-#LIBS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
 
 TARGET = maven
 
