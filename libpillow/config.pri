@@ -26,10 +26,7 @@ message($$CONFIG)
 pillow_no_ssl: DEFINES += PILLOW_NO_SSL
 
 PILLOWCORE_LIB_NAME = pillowcore
-CONFIG(debug, debug|release) {
-	TARGET = $${TARGET}d # Append a "d" suffix on debug libs.
-	PILLOWCORE_LIB_NAME = $${PILLOWCORE_LIB_NAME}d
-}
+
 
 contains(QMAKE_CC, cl) {
 	PILLOWCORE_LIB_FILE = $${PILLOWCORE_LIB_NAME}.lib

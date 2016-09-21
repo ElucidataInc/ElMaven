@@ -1,6 +1,7 @@
 #include "mzfileio.h"
 #include <QStringList>
 #include <QTextStream>
+#include <omp.h>
 
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
@@ -545,11 +546,15 @@ void mzFileIO::fileImport(void) {
         tableX->loadPeakTable(filename);
     }
 
-
+    int iter = 0;
+    double start = omp_get_wtime();
+    omp_set_dynamic(0);
+    omp_set_num_threads(3);
+    #pragma omp parallel for shared(iter)
     for (int i = 0; i < samples.size(); i++) {
         QString filename = samples.at(i);
         qDebug() << "fileImport: loadSamples:" << filename;
-        emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, samples.size()));
+
 
 		mzSample* sample = loadSample(filename);
 		if (sample) {
@@ -564,7 +569,15 @@ void mzFileIO::fileImport(void) {
 						_mainwindow->addSample(sample);
 
 		}
+        #pragma omp critical
+        {
+            iter++;
+        }
+
+        emit (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
+
 	}
+    cerr << "Time taken by file import : " << omp_get_wtime() - start;
 
     foreach(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {

@@ -35,8 +35,10 @@
 #endif
 
 #if defined(WIN32) || defined(WIN64)
-#define strncasecmp strnicmp
-#define isnan(x) ((x) = (x))
+    #ifndef strncasecmp
+        #define strncasecmp strnicmp
+    #endif
+    #define isnanwin(x) ((x) = (x))
 #endif /* Def WIN32 or Def WIN64 */
 
 class mzSample;
