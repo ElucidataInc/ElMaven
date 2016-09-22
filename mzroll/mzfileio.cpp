@@ -548,8 +548,7 @@ void mzFileIO::fileImport(void) {
 
     int iter = 0;
     double start = omp_get_wtime();
-    // omp_set_dynamic(0);
-    // omp_set_num_threads(3);
+
     #pragma omp parallel for shared(iter)
     for (int i = 0; i < samples.size(); i++) {
         QString filename = samples.at(i);
@@ -569,11 +568,9 @@ void mzFileIO::fileImport(void) {
 						_mainwindow->addSample(sample);
 
 		}
-        #pragma omp critical
-        {
-            iter++;
-        }
-
+        #pragma omp atomic
+        iter++;
+        
         emit (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
 
 	}
