@@ -31,6 +31,7 @@
 libcdfread/tmp
 libmaven/tmp
 libneural/tmp
+libpillow/tmp
 mzroll/tmp
 mzWatcher/tmp
 peakdetector/tmp
@@ -97,3 +98,7 @@ maven_opensource.kdev4
 #log Files
 *.log
 *.LOG
+
+*.Debug
+*.Release
+*.swp

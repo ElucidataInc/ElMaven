@@ -13,10 +13,7 @@ INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../li
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
 
 QMAKE_CXXFLAGS_RELEASE -= -O3 -Wall -Wno-sign-compare
-QMAKE_CXXFLAGS_DEBUG   -= -O2 -g -Wall -Wno-sign-compare
 
-QMAKE_CXXFLAGS_DEBUG -= -pg
-QMAKE_LFLAGS_DEBUG -= -pg
 
 
 # Input

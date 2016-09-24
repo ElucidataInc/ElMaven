@@ -12,15 +12,12 @@ INSTALL_PREFIX=$$(DESTDIR)$$INSTALL_PREFIX
 DEFINES += INSTALL_LIBDIR=\"\\\"$$INSTALL_LIBDIR\\\"\""
 
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wall -Wno-sign-compare
-QMAKE_CXXFLAGS_DEBUG   += -O2 -g -Wall -Wno-sign-compare
 
-QMAKE_CXXFLAGS_DEBUG += -pg
-QMAKE_LFLAGS_DEBUG += -pg
 
 
 
 QT += core
-CONFIG += silent exceptions debug
+CONFIG += silent exceptions
 OBJECTS_DIR = tmp
 MOC_DIR = tmp
 UI_DIR   =  tmp
@@ -57,7 +54,10 @@ unix {
 }
 
 
-TOPLEVELDIR = $$PWD
-INCLUDEPATH += $$TOPLEVELDIR
+#TOPLEVELDIR = $$PWD
+#INCLUDEPATH += $$TOPLEVELDIR
+
+INCLUDEPATH += $$PWD
+win32:INCLUDEPATH += "C:/msys64/mingw64/lib"
 
 LIBS += -L$$OUTPUT_DIR/lib -L$$OUTPUT_DIR/plugin

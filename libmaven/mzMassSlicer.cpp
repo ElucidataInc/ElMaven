@@ -6,7 +6,7 @@ void MassSlices::algorithmA() {
     cache.clear();
     map< string, int> seen;
 
-#pragma omp parallel for ordered
+//#pragma omp parallel for ordered
     for(unsigned int i=0; i < samples.size(); i++) {
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
             Scan* scan = samples[i]->scans[j];
@@ -39,11 +39,11 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
 
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
-#pragma omp parallel for ordered
+// #pragma omp parallel for ordered
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
-#pragma omp cancel for
+// #pragma omp cancel for
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
             Scan* scan = samples[i]->scans[j];
             if (scan->mslevel != 1 ) continue;
@@ -62,7 +62,7 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
                 float mzmax = mz + mz / 1e6 * _precursorPPM;
                 float mzmin = mz - mz / 1e6 * _precursorPPM;
 
-#pragma omp ordered
+// #pragma omp ordered
                 mzSlice* Z = sliceExists(mz,rt);
 
                 if (Z) {

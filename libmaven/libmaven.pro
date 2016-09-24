@@ -8,11 +8,15 @@ CONFIG += staticlib warn_on console silent
 
 #Faster build + C++11 ++ OpenMP
 
-QMAKE_CFLAGS_RELEASE += -fopenmp
-QMAKE_CFLAGS_DEBUG += -fopenmp
+#QMAKE_CFLAGS_RELEASE += -fopenmp
+#QMAKE_CFLAGS_DEBUG += -fopenmp
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
-QMAKE_CXXFLAGS += -g -DOMP_PARALLEL
+QMAKE_CXXFLAGS += -DOMP_PARALLEL
+
+#QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
 
 TARGET = maven
 

@@ -4,11 +4,12 @@ include(../mzroll.pri)
 CONFIG += qt thread warn_off sql svg console precompile_header
 
 #Faster build + C++11 ++ OpenMP
-QMAKE_CFLAGS_RELEASE += -fopenmp
-QMAKE_CFLAGS_DEBUG += -fopenmp
-QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11 -flto -fwhole-program
-QMAKE_CXXFLAGS += -g -DOMP_PARALLEL -fopenmp
+
+QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -DOMP_PARALLEL
+QMAKE_CXXFLAGS += -fopenmp
 LIBS += -fopenmp
+
 
 QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
