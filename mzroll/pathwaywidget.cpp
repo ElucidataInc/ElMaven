@@ -116,10 +116,10 @@ void PathwayWidget::showTinyPlot(Node* n) {
 
 void PathwayWidget::hideEmpty() {
 
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	if (!n->isEnzyme() || !n->isVisible()) continue;
 	EnzymeNode* enz = (EnzymeNode*) n;
-	foreach(Edge* e, enz->edges() ) {
+	Q_FOREACH(Edge* e, enz->edges() ) {
 		Node* o = e->sourceNode(); if (o == enz) e->destNode();
 		if (o->isMetabolite() ) {
 			Compound* c = ((MetaboliteNode*) o)->getCompound();
@@ -186,7 +186,7 @@ void PathwayWidget::checkCompoundExistance() {
 	}
 
 	vector<Compound*> checkList;
-	foreach(Node* n, nodelist){
+	Q_FOREACH(Node* n, nodelist){
 	if (! n->isMetabolite() || ! n->isVisible() ) continue;
 	Compound* c = ((MetaboliteNode*) n)->getCompound();
 
@@ -247,7 +247,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 			continue;
 
 		if (sn->molClass() == Node::Enzyme) {
-			foreach (Edge *se, sn->edges() ){
+			Q_FOREACH (Edge *se, sn->edges() ){
 			if ( se->sourceNode() && !se->sourceNode()->isVisible() ) {
 				cnodes.insert(se->sourceNode());
 			}
@@ -258,7 +258,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 	}
 
 		if (dn->molClass() == Node::Enzyme) {
-			foreach (Edge *de, dn->edges() ){
+			Q_FOREACH (Edge *de, dn->edges() ){
 			if ( de->sourceNode() && !de->sourceNode()->isVisible() ) {
 				cnodes.insert(de->sourceNode());
 			}
@@ -278,7 +278,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 		edges[i]->setVisible(true);
 	}
 
-	foreach (Node* n, cnodes){
+	Q_FOREACH (Node* n, cnodes){
 	Compound* c=NULL;
 	if ( n->molClass() == Node::Metabolite ) {
 		Compound* c = ((MetaboliteNode*) n)->getCompound();
@@ -312,7 +312,7 @@ void PathwayWidget::setCompound(Compound* c) {
 	}
 
 	//compound already in the pathway view.. ignore..
-	foreach(Node* n, nodelist){
+	Q_FOREACH(Node* n, nodelist){
 	if (n->isMetabolite() && n->isVisible() ) {
 		MetaboliteNode* m = (MetaboliteNode*) n;
 		//cerr << m->getCompound() << " " << c << endl;
@@ -477,7 +477,7 @@ void PathwayWidget::updateCompoundConcentrations() {
 	samples = mw->getVisibleSamples();  	//get list of visibleSamples
 	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
 
-	foreach(Node* n, nodelist){
+	Q_FOREACH(Node* n, nodelist){
 	if (!n->isMetabolite()) continue;
 	MetaboliteNode* m = (MetaboliteNode*) n;
 	if (m->getCompound() == NULL || ! m->getCompound()->hasGroup() ) continue;
@@ -701,7 +701,7 @@ bool PathwayWidget::saveLayout() {
 
 	query.prepare(
 			"insert into pathways_layout(pathway_id,species_id,x,y) values(?,?,?,?)");
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	QString id = n->getNote();
 
 	if ( n->isMetabolite() ) {
@@ -726,7 +726,7 @@ bool PathwayWidget::saveLayout() {
 
 		query.prepare(
 				"insert into pathways(pathway_id,pathway_name,reaction_id,database) values(?,?,?,?)");
-		foreach (Node* n, nodelist ){
+		Q_FOREACH (Node* n, nodelist ){
 		if (n->isEnzyme() ) {
 			Reaction* r = ((EnzymeNode*) n)->getReaction();
 			query.addBindValue(_pathwayId);
@@ -774,10 +774,10 @@ bool PathwayWidget::loadLayout(QString pid) {
 		return false;
 
 	//cerr << "adjust Enzyme Positions" << endl;
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	int xpos=0; int ypos=0; int count=0;
 	if ( n->isEnzyme() && n->pos().x()==0 && n->pos().y()==0 ) {
-		foreach (Edge* e, n->edges() ) {
+		Q_FOREACH (Edge* e, n->edges() ) {
 			Node* other = e->sourceNode();
 			if (e->sourceNode() == n) other=e->destNode();
 			if (!other->isCofactor() && other->pos().x()!=0 && other->pos().y()!=0) {
@@ -811,7 +811,7 @@ void PathwayWidget::addReactions(vector<string>& reactionsIds) {
 		if (locateNode(rxnId.c_str())) {
 			EnzymeNode* enzyme = (EnzymeNode*) nodelist[rxnId.c_str()];
 
-			foreach( Edge* e, enzyme->edges() ){
+			Q_FOREACH( Edge* e, enzyme->edges() ){
 			e->sourceNode()->setVisible(true);
 			e->destNode()->setVisible(true);
 			e->setVisible(true);
@@ -826,11 +826,11 @@ void PathwayWidget::layoutCofactors() {
 	if (!_showCofactorsFlag)
 		return;
 
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	if (n->isCofactor() ) n->setVisible(_showCofactorsFlag);
 }
 
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	if ( n->isEnzyme() ) {((EnzymeNode*) n)->layoutCofactors();}
 }
 }
@@ -1101,28 +1101,28 @@ void PathwayWidget::loadModelFile(QString filename) {
 		qWarning() << "XML ERROR:" << xml.lineNumber() << ": "
 				<< xml.errorString();
 
-	foreach (QString id, concentrations.keys() ){
+	Q_FOREACH (QString id, concentrations.keys() ){
 	QVector<float>v;
 	string cid = id.toStdString();
-	foreach ( QString f, concentrations[id].split(",") ) v << f.toDouble();
+	Q_FOREACH ( QString f, concentrations[id].split(",") ) v << f.toDouble();
 	if ( v.size() > 0 ) {
 		Node* n = locateNode(id); if (n) n->setConcentrations(v);
 	}
 }
 
-	foreach (QString id, concentrationsLabeled.keys() ){
+	Q_FOREACH (QString id, concentrationsLabeled.keys() ){
 	QVector<float>v;
 	string cid = id.toStdString();
-	foreach ( QString f, concentrationsLabeled[id].split(",") ) v << f.toDouble();
+	Q_FOREACH ( QString f, concentrationsLabeled[id].split(",") ) v << f.toDouble();
 	if ( v.size() > 0 ) {
 		Node* n = locateNode(id); if (n) n->setLabeledConcentrations(v);
 	}
 }
 
-	foreach (QString id, fluxes.keys() ){
+	Q_FOREACH (QString id, fluxes.keys() ){
 	QList<float>v;
 	string cid = id.toStdString();
-	foreach ( QString f, fluxes[id].split(",") ) v << f.toDouble();
+	Q_FOREACH ( QString f, fluxes[id].split(",") ) v << f.toDouble();
 	if ( v.size() > 0 ) {
 		EnzymeNode* n = (EnzymeNode*) locateNode(id); if (n) n->setFluxes(v);
 	}
@@ -1150,11 +1150,11 @@ void PathwayWidget::saveModelFile(QString filename) {
 	QList<Node*> metabolites;
 	QList<Node*> enzymes;
 
-	foreach( Node* node, nodelist ){
+	Q_FOREACH( Node* node, nodelist ){
 	if (node->isEnzyme() ) enzymes << node; else metabolites << node;
 }
 
-	foreach( Node* node, metabolites ){
+	Q_FOREACH( Node* node, metabolites ){
 	if ( node->isMetabolite() ) {
 		Compound* c = ((MetaboliteNode*) node)->getCompound();
 		stream.writeStartElement("species");
@@ -1177,7 +1177,7 @@ void PathwayWidget::saveModelFile(QString filename) {
 		QVector<float> concentrations = node->getConcentrations();
 		if (concentrations.size() > 0 ) {
 			QStringList concentrationsList;
-			foreach(float v,concentrations) concentrationsList << QString::number(v,'f',5);
+			Q_FOREACH(float v,concentrations) concentrationsList << QString::number(v,'f',5);
 			stream.writeStartElement("concentration");
 			stream.writeCharacters(concentrationsList.join(","));
 			stream.writeEndElement();
@@ -1186,7 +1186,7 @@ void PathwayWidget::saveModelFile(QString filename) {
 		QVector<float> concentrationsLabeled = node->getLabaledConcentrations();
 		if (concentrationsLabeled.size() > 0 ) {
 			QStringList concentrationsList;
-			foreach(float v,concentrationsLabeled) concentrationsList << QString::number(v,'f',5);
+			Q_FOREACH(float v,concentrationsLabeled) concentrationsList << QString::number(v,'f',5);
 			stream.writeStartElement("concentrationsLabeled");
 			stream.writeCharacters(concentrationsList.join(","));
 			stream.writeEndElement();
@@ -1195,7 +1195,7 @@ void PathwayWidget::saveModelFile(QString filename) {
 	}
 }
 
-	foreach( Node* node, enzymes ){
+	Q_FOREACH( Node* node, enzymes ){
 	if ( node->isEnzyme() ) {
 		Reaction* r = ((EnzymeNode*) node)->getReaction();
 		stream.writeStartElement("reaction");
@@ -1290,7 +1290,7 @@ int PathwayWidget::loadSpreadsheet(QString filename) {
 void PathwayWidget::showEnzymes(bool flag) {
 	_showEnzymesFlag = flag;
 
-	foreach (QGraphicsItem *item, scene()->items()){
+	Q_FOREACH (QGraphicsItem *item, scene()->items()){
 	if (Node *n = qgraphicsitem_cast<Node *>(item)) {
 		if (n->isEnzyme()) {n->showLabel(flag);}
 	}
@@ -1301,7 +1301,7 @@ void PathwayWidget::showEnzymes(bool flag) {
 void PathwayWidget::showCofactors(bool flag) {
 	_showCofactorsFlag = flag;
 
-	foreach (QGraphicsItem *item, scene()->items()){
+	Q_FOREACH (QGraphicsItem *item, scene()->items()){
 	if (Node *n = qgraphicsitem_cast<Node *>(item)) {
 		if (n->isCofactor()) {
 			//               qDebug() << "showCofactors=" << n->getId() << " " << n->getNote();
@@ -1419,7 +1419,7 @@ void PathwayWidget::setupAnimationMatrix() {
 	int animationSteps = 0;
 
 	QList<Node*> metabolites = getNodes(Node::Metabolite);
-	foreach (Node* node, metabolites ){
+	Q_FOREACH (Node* node, metabolites ){
 	if (node->isVisible() ) {
 		visiableNodes << node;
 		int steps = node->getMaxConcentrationSteps();
@@ -1552,7 +1552,7 @@ void PathwayWidget::showAnimationStep(float fraction) {
 		m->setLabeledConcentration(frac);
 
 		//m->update();
-		//foreach (Edge* e, m->edges()) e->update();
+		//Q_FOREACH (Edge* e, m->edges()) e->update();
 	}
 
 	scene()->update();
@@ -1582,7 +1582,7 @@ void PathwayWidget::wheelEvent(QWheelEvent *event) {
 		return;
 	} else {
 		scaleView(pow((double) 2, -event->delta() / 240.0));
-		foreach (QGraphicsItem *item, scene()->selectedItems()){
+		Q_FOREACH (QGraphicsItem *item, scene()->selectedItems()){
 		centerOn(item);
 		translate(item->pos().x(), item->pos().y());
 		break;
@@ -1650,7 +1650,7 @@ void PathwayWidget::cleanTempVideoDir() {
 			videoFilesFilter, QDir::Files, QDir::NoSort);
 	if (filelist.size() == 0)
 		return;
-	foreach (QFileInfo file, filelist ){ QFile::remove(file.absoluteFilePath());}
+	Q_FOREACH (QFileInfo file, filelist ){ QFile::remove(file.absoluteFilePath());}
 }
 
 void PathwayWidget::exportPDF() {
@@ -1696,7 +1696,7 @@ void PathwayWidget::getReactionPairs() {
 
 	//construct list of reaction in current view
 	QStringList reactionsIds;
-	foreach (Node* n, nodelist ){
+	Q_FOREACH (Node* n, nodelist ){
 	if(!n->isEnzyme())continue;
 	EnzymeNode* enzyme = (EnzymeNode*) n;
 	if ( enzyme->getReaction() ) {
@@ -1729,7 +1729,7 @@ void PathwayWidget::getReactionPairs() {
 }
 
 void PathwayWidget::clearSelectedAtoms() {
-	foreach( Node* n, nodelist){
+	Q_FOREACH( Node* n, nodelist){
 	if ((n->isMetabolite() || n->isCofactor()) ) {((MetaboliteNode*) n)->setSelectedAtom(-1);}
 }
 getReactionPairs();
@@ -1747,7 +1747,7 @@ void PathwayWidget::startAtomTransformationAnimation(Compound* c,
 }
 
 void PathwayWidget::showAtomTrasformations() {
-	foreach(Compound* c2, animationQ.keys()){
+	Q_FOREACH(Compound* c2, animationQ.keys()){
 	showAtomTrasformations(c2, animationQ[c2]);
 	animationQ.remove(c2);
 }
@@ -1794,7 +1794,7 @@ void PathwayWidget::showAtomTrasformations(Compound* c, int atomNumber) {
 				swapped = true;
 			}
 
-			foreach(QPoint pair, atompairs){
+			Q_FOREACH(QPoint pair, atompairs){
 			if (swapped == false && pair.x() == atomNumber) {
 				//qDebug() << pair.x() << " => " << pair.y();
 				if (destNode->getSelectedAtom() != pair.y()) {

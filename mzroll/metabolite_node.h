@@ -15,7 +15,7 @@ class MetaboliteNode: public Node
 public:
     MetaboliteNode(QGraphicsItem* parent, QGraphicsScene *scene);
 
-public slots:
+public Q_SLOTS:
     void setCompound(Compound* c) { setDataReference(c); }
     Compound* getCompound() { return (Compound*) getDataReference(); }
 
@@ -29,7 +29,7 @@ public slots:
     bool showBarPlot(bool flag) { _showBarPlot=flag; }
     void addBarPlot();
 
-signals:
+Q_SIGNALS:
     void compoundFocused(Compound*);
     void expandOnCompound(Compound*);
     void compoundHover(Compound*);
@@ -51,7 +51,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
 
 
-private slots:
+private Q_SLOTS:
     void editGroup();
     void expandOnCompound();
 

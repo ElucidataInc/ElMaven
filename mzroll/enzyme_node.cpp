@@ -26,7 +26,7 @@ float EnzymeNode::computeComplexFormation() {
 	_complexConcentration=0;
 	float complexForming=0;
 	float complexBreaking=0;
-	foreach (Edge* e, edges() ) {
+	Q_FOREACH (Edge* e, edges() ) {
 	}
 	_complexConcentration = complexForming - complexBreaking;
 	_freeConcentration    = getInitConcentration()-_complexConcentration;
@@ -66,7 +66,7 @@ float EnzymeNode::getMinRate() {
 	//called with enzyme node
 
 	float minRate=-1;
-	foreach(Edge* e, edges() ) {
+	Q_FOREACH(Edge* e, edges() ) {
 		float x = e->getRateForward();
 		if ( minRate < 0 || x < minRate ) minRate=x;
 	}
@@ -77,7 +77,7 @@ void EnzymeNode::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
 	Reaction* r = getReaction();
 	if (r) r->setReversable( ! r->reversable ); 
 
-	foreach(Edge* e, edges()) {
+	Q_FOREACH(Edge* e, edges()) {
 		e->reverseDirection();
 	}
 }
@@ -91,7 +91,7 @@ void EnzymeNode::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 void EnzymeNode::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 	Reaction* r = getReaction(); 
 	setHighlighted(true);
-	foreach(Edge* e, edges() ) {
+	Q_FOREACH(Edge* e, edges() ) {
 		e->setHighlighted(true);
 		if(e->sourceNode()) { e->sourceNode()->setHighlighted(true); e->sourceNode()->update(); }
 		if(e->destNode())   { e->destNode()->setHighlighted(true); e->destNode()->update(); }
@@ -115,14 +115,14 @@ void EnzymeNode::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 		setToolTip(reaction);
 	}
 
-	//if (r) emit enzymeFocused(r); 
+	//if (r) Q_EMIT enzymeFocused(r); 
     update();
 }
 
 void EnzymeNode::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
 
 	setHighlighted(false);
-	foreach(Edge* e, edges() ) {
+	Q_FOREACH(Edge* e, edges() ) {
 		e->setHighlighted(false);
 		if(e->sourceNode()) { e->sourceNode()->setHighlighted(false); e->sourceNode()->update(); }
 		if(e->destNode())   { e->destNode()->setHighlighted(false); e->destNode()->update(); }
@@ -136,7 +136,7 @@ void EnzymeNode::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     QGraphicsItem::mousePressEvent(event);
 	this->setSelected(true);
 	Reaction* r = getReaction(); 
-	if (r) emit enzymeFocused(r); 
+	if (r) Q_EMIT enzymeFocused(r); 
     update();
 }
 
@@ -150,7 +150,7 @@ void EnzymeNode::layoutCofactors() {
 	double angleFrom=  0;
 	bool hasCofactors=false;
 
-	foreach(Edge* e, edges()) {
+	Q_FOREACH(Edge* e, edges()) {
 		if ( e->sourceNode()->isCofactor() || e->destNode()->isCofactor()) { hasCofactors=true; continue; }
 		if ( e->sourceNode() == this ) { angleFrom = e->angle(); }	//angle from Enzyme
 		if ( e->destNode()   == this ) { angleTo  =  e->angle(); }	//angle to Enzyme
@@ -159,7 +159,7 @@ void EnzymeNode::layoutCofactors() {
 	//cerr << "angle --> E --> =" << angleTo << " " << angleFrom << endl;
 
 	if (hasCofactors==false) return;
-	foreach(Edge* e, edges()) {
+	Q_FOREACH(Edge* e, edges()) {
 		if ( e->sourceNode()->isCofactor() == true) { 
 		  	 angl1 += 0.3;
 			 float newAngle = (angleTo+Pi)+angl1;
@@ -186,7 +186,7 @@ QPointF EnzymeNode::activeSitePosition() {
 	float hH = box.height()/2;
 	QPointF bestPoint = pos();
 	/*
-	foreach(Edge* e, edges()) {
+	Q_FOREACH(Edge* e, edges()) {
 		if ( e->sourceNode()->isCofactor() || e->destNode()->isCofactor()) continue;
 		if ( e->sourceNode() == this ) {  links << e->destNode()->pos(); 	}
 		if ( e->destNode()   == this ) {  links << e->sourceNode()->pos();  }
@@ -195,9 +195,9 @@ QPointF EnzymeNode::activeSitePosition() {
 
 	QPointF bestPoint;
 	float minDist = 100000;
-	foreach( QPointF a, positions ) {
+	Q_FOREACH( QPointF a, positions ) {
 		float totalDist=0;
-		foreach(QPointF b, links ) { 
+		Q_FOREACH(QPointF b, links ) { 
 			totalDist += sqrt(POW2(a.x()-b.x())+POW2(a.y()-b.y()));
 		}
 		if ( totalDist < minDist ) { 

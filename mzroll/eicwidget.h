@@ -35,7 +35,7 @@ public:
 	}
 	QString eicToTextBuffer(); //TODO: Sahil Added while merging eicwidget
 
-public slots:
+public Q_SLOTS:
 	void setMzSlice(float mz);
 	void setPPM(double ppm);
 	void resetZoom();
@@ -170,7 +170,7 @@ protected:
 	void addPeakPositions(PeakGroup* group);
 	void createNotesTable();
 
-signals:
+Q_SIGNALS:
 	void viewSet(float, float, float, float);
     void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 

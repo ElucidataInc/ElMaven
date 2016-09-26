@@ -15,7 +15,7 @@ class TestMzSlice : public QObject {
         TestMzSlice();
     private:
 
-    private slots:
+    private Q_SLOTS:
         // functions executed by QtTest before and after test suite
         void initTestCase();
         void cleanupTestCase();

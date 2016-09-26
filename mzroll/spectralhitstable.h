@@ -24,7 +24,7 @@ public:
 	bool hasSpectralHit(SpectralHit* hit);
 	QList<SpectralHit*> getHits();
 
-public slots: 
+public Q_SLOTS: 
     //void showInfo(SpectralHit* hit);
     SpectralHit* addSpectralHit(SpectralHit* hit);
     //void setupPeakTable();
@@ -93,11 +93,11 @@ public slots:
 //     void dragEnterEvent(QDragEnterEvent *event);
 //     void dropEvent(QDropEvent *event);
 
-// protected slots:
+// protected Q_SLOTS:
 // 	  void keyPressEvent( QKeyEvent *e );
 // 	  void contextMenuEvent ( QContextMenuEvent * event );
 
-signals:
+Q_SIGNALS:
         void updateProgressBar(QString,int,int);
 
 private:

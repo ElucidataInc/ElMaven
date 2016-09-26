@@ -24,7 +24,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 
-		public slots:
+		public Q_SLOTS:
 				 void findPeaks();
 				 void loadModel();
 				 void setOutputDir();

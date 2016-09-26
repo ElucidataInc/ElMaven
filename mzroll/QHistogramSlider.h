@@ -29,10 +29,10 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-signals:
+Q_SIGNALS:
     void valueChanged(double);
 
-public slots:
+public Q_SLOTS:
 	void addDataPoint(QPointF p) { data << p; }
 	void clearData() { data.clear(); }
 	void recalculatePlotBounds();
@@ -44,7 +44,7 @@ public slots:
     void setPrecision(int);
     void setBarColor(QColor);
 
-signals:
+Q_SIGNALS:
 	void minBoundChanged(double);
 	void maxBoundChanged(double);
 	void minValueChanged(double);

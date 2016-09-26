@@ -13,9 +13,9 @@ public:
     explicit ProjectDockWidget(QMainWindow *parent = 0);
 
 
-signals:
+Q_SIGNALS:
 
-public slots:
+public Q_SLOTS:
     void showInfo();
     QString getProjectDescription();
     void setProjectDescription(QString text);
@@ -29,11 +29,11 @@ public slots:
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
 
-protected slots:
+protected Q_SLOTS:
       void keyPressEvent( QKeyEvent *e );
       void contextMenuEvent ( QContextMenuEvent * event );
 
-private slots:
+private Q_SLOTS:
     void showSample(QTreeWidgetItem* item, int col);
     void showSampleInfo(QTreeWidgetItem* item, int col);
     void changeSampleColor(QTreeWidgetItem* item, int col);

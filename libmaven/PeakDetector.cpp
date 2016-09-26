@@ -94,7 +94,7 @@ void PeakDetector::processSlice(mzSlice& slice) {
 }
 
 void PeakDetector::processMassSlices() {
-
+        
         //init
         //TODO: what is this doing?
         //TODO: cant this be in background_peaks_update parameter setting function
@@ -120,7 +120,7 @@ void PeakDetector::processMassSlices() {
              mzSlice::compIntensity);
 
         if (massSlices.slices.size() == 0) {
-                //	emit (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix emit.
+                //	Q_EMIT (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix Q_EMIT.
                 return;
         }
 
@@ -131,7 +131,7 @@ void PeakDetector::processMassSlices() {
         delete_all(massSlices.slices);
 
         qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
-                 << timer.elapsed();
+        << timer.elapsed();
 }
 
 /**
@@ -571,11 +571,13 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
                 if (mavenParameters->showProgressFlag && s % 10 == 0) {
 
-                        QString progressText = "Found "
-                                               + QString::number(mavenParameters->allgroups.size())
+                        string progressText = "Found "
+                                               + to_string(mavenParameters->allgroups.size())
                                                + " groups";
-                        /*TODO: Fix emit update progress of slices.
-                           emit(
+                sendBoostSignal(progressText,s + 1, std::min((int) slices.size(), mavenParameters->limitGroupCount));
+
+                        /*TODO: Fix Q_EMIT update progress of slices.
+                           Q_EMIT(
                            updateProgressBar(progressText, s + 1,
                            std::min((int) slices.size(), limitGroupCount)));
                          */

@@ -46,7 +46,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 
 	//update colors of all peaks belonging to this group
 	if(_group) { 
-		foreach (QGraphicsItem *item, scene()->items()) {
+		Q_FOREACH (QGraphicsItem *item, scene()->items()) {
 			if (qgraphicsitem_cast<EicPoint *>(item)) {
 				if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
 			}
@@ -95,7 +95,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 
     if(_group) {
         _group->isFocused = true;
-        emit(peakGroupFocus(_group));
+        Q_EMIT(peakGroupFocus(_group));
     }
 }
 
@@ -105,7 +105,7 @@ void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
     if (_group) {
         _group->isFocused = false;
 
-        foreach (QGraphicsItem *item, scene()->items()) {
+        Q_FOREACH (QGraphicsItem *item, scene()->items()) {
             if (qgraphicsitem_cast<EicPoint *>(item)) {
                 if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
             }
@@ -127,8 +127,8 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 
     setZValue(10);
 
-    if (_group) emit peakGroupSelected(_group);
-    if (_peak)  emit peakSelected(_peak);
+    if (_group) Q_EMIT peakGroupSelected(_group);
+    if (_peak)  Q_EMIT peakSelected(_peak);
 
     if ( _group && _group->isIsotope() == false ) {
         _mw->isotopeWidget->setPeakGroup(_group);

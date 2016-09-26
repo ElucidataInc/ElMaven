@@ -17,7 +17,7 @@ public:
 	void setSystemCommand(QString cmd) { command = cmd; }
 	void killProcess() { _stopped=true; }
 
-signals:
+Q_SIGNALS:
 	void statusChanged(QString);
 
 protected:
@@ -27,26 +27,26 @@ protected:
 
 		_stopped=false;
 
-		emit statusChanged("Runing " + command);
+		Q_EMIT statusChanged("Runing " + command);
 
 		if (!converter.waitForStarted()) {
-                        emit statusChanged("Command Failed!");
+                        Q_EMIT statusChanged("Command Failed!");
 			converter.kill();
 			return;
 		}
 
 		while (!converter.waitForFinished()) {
-			emit statusChanged("Running conversion");
+			Q_EMIT statusChanged("Running conversion");
 			if (_stopped) {
 				converter.terminate();;
-				emit statusChanged("Job killed");
+				Q_EMIT statusChanged("Job killed");
 				_stopped=false;
 				return;
 			}
 			sleep(1);
 		};
 
-		emit statusChanged("Converstion done!");
+		Q_EMIT statusChanged("Converstion done!");
 	}
 
 private:
@@ -61,7 +61,7 @@ class MainWindow:public QMainWindow {
 		public:
 			MainWindow(QWidget* parent);
 
-		public slots:
+		public Q_SLOTS:
 			void updateFileList();
 			void getFileList(const QString &fromDir);
 			void processChangedFiles();

@@ -108,7 +108,7 @@ void QHistogramSlider::paintBar(Qt::AlignmentFlag flag, float boundVal)
 
 	} 
 
-    //emit valueChanged(BadVal);
+    //Q_EMIT valueChanged(BadVal);
 }
 
 void QHistogramSlider::paintLine()
@@ -132,7 +132,7 @@ void QHistogramSlider::paintLine()
 
 	if (maxY==minY) { minY=0; }
 
-	foreach(QPointF p, data) {
+	Q_FOREACH(QPointF p, data) {
 		float pos=  H+(p.x()-minVal)/(maxVal-minVal)*L;
 		float ht=   barH-barH*(p.y()-minY)/(maxY-minY);
         painter.drawRect(pos,ht,barW,H);
@@ -178,7 +178,7 @@ void QHistogramSlider::setMaxBound(double value)
 	if (value < minBound) maxBound=minBound; 
     if (value > maxVal)  maxBound = maxVal;
     if (value < minVal)  maxBound = minVal;
-	emit(maxBoundChanged(maxBound));
+	Q_EMIT(maxBoundChanged(maxBound));
     update();
 }
 
@@ -188,7 +188,7 @@ void QHistogramSlider::setMinBound(double value)
 	if (value > maxBound) minBound=maxBound; 
     if (value > maxVal)  minBound = maxVal;
     if (value < minVal)  minBound = minVal;
-	emit(minBoundChanged(minBound));
+	Q_EMIT(minBoundChanged(minBound));
     update();
 }
 
@@ -260,7 +260,7 @@ void QHistogramSlider::recalculatePlotBounds() {
 	minVal= maxVal=minBound=maxBound=data[0].x();
 	minY = maxY = data[0].y();
 
-	foreach(QPointF p, data ) {
+	Q_FOREACH(QPointF p, data ) {
 		if (p.x() > maxVal) { maxVal=p.x(); maxBound=p.x(); }
 		if (p.x() < minVal) { minVal=p.x(); minBound=p.x(); }
 		if (p.y() < minY  ) { minY = p.y(); }

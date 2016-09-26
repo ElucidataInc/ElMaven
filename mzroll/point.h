@@ -63,13 +63,13 @@ private:
     bool _forceFill;     //TODO: sahil merging eicwidget
     float _cSize;    //TODO: sahil merging eicwidget
 
-private slots:
+private Q_SLOTS:
 	void bookmark();
 	void linkCompound();
 	void reorderSamples();
 	void setClipboardToGroup();
         void setClipboardToIsotopes();
-signals:
+Q_SIGNALS:
     void peakSelected(Peak*);
     void peakGroupSelected(PeakGroup*);
     void spectaFocused(Peak*);

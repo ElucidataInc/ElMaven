@@ -183,7 +183,7 @@ void SuggestPopup::doSearchHistory(QString needle)  {
 		if (!needle.isEmpty() && !regexp.isValid()) return;
 
 
-		foreach( QString name, searchHistory.keys() ) {
+		Q_FOREACH( QString name, searchHistory.keys() ) {
 				if ( name.length()==0) continue;
 				if ( scores.contains(name) ) continue;
 				if ( name.contains(needle) || name.contains(regexp)){
@@ -224,7 +224,7 @@ void SuggestPopup::doSearch(QString needle)
 
 		 //sort hit list by score
 		 QList< QPair<float,QString> > list;
-		 foreach( QString name, scores.keys() ) { list.append(qMakePair(1/scores[name],name)); }
+		 Q_FOREACH( QString name, scores.keys() ) { list.append(qMakePair(1/scores[name],name)); }
 		 qSort(list);
 
 		//show popup
@@ -305,10 +305,10 @@ void SuggestPopup::doneCompletion()
 		QVariant v = item->data(0,Qt::UserRole);
 		if ( item->type() == CompoundType ) {
         	Compound*  com =  v.value<Compound*>();
-			if(com) emit(compoundSelected(com)); 
+			if(com) Q_EMIT(compoundSelected(com)); 
 		} else if ( item->type() == PathwayType ) {
         	Pathway*  pw =  v.value<Pathway*>();
-			if(pw) emit(pathwaySelected(pw)); 
+			if(pw) Q_EMIT(pathwaySelected(pw)); 
 		} else {
 			QMetaObject::invokeMethod(editor, "returnPressed");
 		}

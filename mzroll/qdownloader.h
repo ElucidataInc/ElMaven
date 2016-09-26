@@ -23,10 +23,10 @@ private:
     QFile *file;
     QByteArray pagedata;
 
-signals:
+Q_SIGNALS:
     void downloadResult(QString);
 
-private slots:
+private Q_SLOTS:
     void onDownloadProgress(qint64,qint64);
 
     void endDataDownload(QNetworkReply*);

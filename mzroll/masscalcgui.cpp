@@ -120,7 +120,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
 
 void MassCalcWidget::getMatches() {
 	QSet<Compound*> compounds = findMathchingCompounds(_mz,_ppm,_charge);
-	foreach(Compound* c, compounds) {
+	Q_FOREACH(Compound* c, compounds) {
           MassCalculator::Match* m = new MassCalculator::Match();
           m->name = c->formula;
           m->mass = MassCalculator::computeMass(c->formula,_charge);

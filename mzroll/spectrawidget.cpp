@@ -538,7 +538,7 @@ void SpectraWidget::drawMzLabels(Scan* scan) {
         _items.push_back(text);
         text->setPos(x-2,y-20);
 
-        foreach(QGraphicsItem* item,  scene()->collidingItems(text) ) {
+        Q_FOREACH(QGraphicsItem* item,  scene()->collidingItems(text) ) {
             if (qgraphicsitem_cast<QGraphicsTextItem *>(item)) {
                 text->hide(); break;
             }

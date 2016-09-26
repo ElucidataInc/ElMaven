@@ -58,7 +58,7 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
 		QString qname( sample->getSetName().c_str());
 		qname=qname.simplified();
 		QList<QString> names = qname.split(splitStr);
-		foreach(QString name, names) {
+		Q_FOREACH(QString name, names) {
 			name=name.simplified();
 			if(!name.isEmpty()) {
 				_labels.push_back(name);
@@ -150,7 +150,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
 
 	//legend
-	foreach (QString setname, setnames.keys()) {
+	Q_FOREACH (QString setname, setnames.keys()) {
 	    int setIndex = setnames[setname];
 	    float posX = legendX;
 	    float posY = legendY + setIndex*_barwidth;
@@ -174,7 +174,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 	}
 
 	//mean values
-	foreach (QString setname, setnames.keys()) {
+	Q_FOREACH (QString setname, setnames.keys()) {
 		int setIndex = setnames[setname];
         	int posX = legendX;
 		int posY = legendY + setIndex*_barwidth;

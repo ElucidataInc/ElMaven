@@ -33,7 +33,7 @@ public:
        void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
        void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
 
-    signals:
+    Q_SIGNALS:
         void zoomArea(QRectF);
         void mousePressed();
         void mouseReleased();
@@ -87,7 +87,7 @@ public:
 
     QList<Node*> getNodes(int type);
 
-public slots:
+public Q_SLOTS:
     void resetZoom();
     void zoomIn() { scale(1.2, 1.2); }
     void zoomOut() { scale(1 / 1.2, 1 / 1.2); }
@@ -126,7 +126,7 @@ public slots:
     void setBackgroundImage(QString filename);
     QString getBackgroundImageFilename() { return _backgroundImageFile; }
 
-signals:
+Q_SIGNALS:
     void titleChanged(QString);
 
 protected:

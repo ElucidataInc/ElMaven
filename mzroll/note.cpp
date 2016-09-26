@@ -173,7 +173,7 @@ void Note::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
 
         if ( ok && !text.isEmpty()) {
             _label->setHtml(text);
-            emit(itemChanged(this));
+            Q_EMIT(itemChanged(this));
         }
         update();
     }
@@ -194,5 +194,5 @@ void Note::timerEvent(QTimerEvent * event) {
 void Note::linkClicked() {
     qDebug() << "Note::linkClicked";
     if(!_link.isEmpty()) QDesktopServices::openUrl(_link);
-   //emit(linkActivated(_link));
+   //Q_EMIT(linkActivated(_link));
 }

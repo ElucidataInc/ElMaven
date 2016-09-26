@@ -39,10 +39,10 @@ public:
 	double rt;
 	double intensity;
 
-public slots:
+public Q_SLOTS:
 	void linkClicked();
 
-signals:
+Q_SIGNALS:
 	void itemChanged(Note*);
 	void linkActivated(const QString& link);
 

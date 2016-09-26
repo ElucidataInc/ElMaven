@@ -61,7 +61,7 @@ void GalleryWidget::fileGallery(const QString &fromDir) {
 		if (list.size() == 0) return;
 		int fileCount=0;
 
-		foreach ( QFileInfo fi, list ) {
+		Q_FOREACH ( QFileInfo fi, list ) {
 				QString filename = fi.fileName();
 				if (filename == "." || filename == "..") continue;
 

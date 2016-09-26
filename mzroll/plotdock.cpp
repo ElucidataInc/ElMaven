@@ -106,7 +106,7 @@ void PlotScene::mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent ) {
 
 	QList<QGraphicsItem*>foundItems = items(downF);
 	if(foundItems.size()>0){
-        foreach(QGraphicsItem* item, foundItems )  item->setSelected(true);
+        Q_FOREACH(QGraphicsItem* item, foundItems )  item->setSelected(true);
 	}
 	qDebug() << "PlotScene::mousePressEvent: " << selectedItems();
     */
@@ -130,10 +130,10 @@ void PlotScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent ) {
 			QPainterPath path; path.addRect(rect);
 			setSelectionArea(path);
 			qDebug() << "selectArea " << rect << " " << selectedItems().size();
-			emit(selectArea(down,up));
+			Q_EMIT(selectArea(down,up));
 		}   else if ( abs(width) > 10 & abs(height) > 0 )  {
 		    cerr <<  "mouseReleaseEvent() zoomArea : " << endl;
-			emit(zoomArea(down,up));
+			Q_EMIT(zoomArea(down,up));
         }
 	
 		QGraphicsScene::mouseReleaseEvent(mouseEvent);
@@ -358,12 +358,12 @@ void PlotDockWidget::draw(QPointF a, QPointF b) {
 
 void PlotDockWidget::selectionChanged() { 
 	cerr << "PlotDockWidget::selectionChanged() " << endl;
-	foreach(QGraphicsItem* item, scene()->selectedItems()) {
+	Q_FOREACH(QGraphicsItem *item, scene()->selectedItems()) {
 		if (item == NULL) continue;
 			QVariant v = item->data(0);
 			PeakGroup*  group =  v.value<PeakGroup*>();
 			if (group != NULL ) {
-				emit groupSelected(group);
+				Q_EMIT groupSelected(group);
 				break;
 			}
 

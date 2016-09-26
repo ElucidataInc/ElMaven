@@ -111,7 +111,7 @@ void SettingsForm::updateSettingFormGUI() {
     QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram" << "RawExtractProgram";
 
    unsigned int itemCount=0;
-    foreach(QString itemName, pathlist) {
+    Q_FOREACH(QString itemName, pathlist) {
         if(settings->contains(itemName)) items[itemCount]->setText( settings->value(itemName).toString());
         itemCount++;
     }

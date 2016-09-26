@@ -101,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		 << QApplication::applicationDirPath() + "/../Resources/";
 
 	//find location of DATA
-	foreach (QString d, dirs){ qDebug() << "Checking dir: " + d;
+	Q_FOREACH (QString d, dirs){ qDebug() << "Checking dir: " + d;
 	QFile test(d+"/ADDUCTS.csv");
 	if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
 }
@@ -834,7 +834,7 @@ void MainWindow::open() {
 			programName + "_" + QString::number(MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
     //updated while merging with Maven776 - Kiran
-    foreach (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
     fileLoader->start();
 }
 
@@ -1187,7 +1187,7 @@ void MainWindow::writeSettings() {
 
 	if (suggestPopup) {
 		QMap<QString, int> history = suggestPopup->getHistory();
-		foreach(QString key, history.keys()){
+		Q_FOREACH(QString key, history.keys()){
 		if ( history[key] > 1 ) {
 			settings->setValue("searchHistory/"+ key, history[key]);
 		}
@@ -1420,7 +1420,7 @@ void MainWindow::createToolBars() {
 
 	settings->beginGroup("searchHistory");
 	QStringList keys = settings->childKeys();
-	foreach(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
+	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
 	settings->endGroup();
 
 	layout->addWidget(quantType, 0);
@@ -2297,7 +2297,7 @@ void MainWindow::getLinks(Peak* peak) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
 				links[i].mz2, ppm, ionizationMode);
 		if (compunds.size() > 0)
-			foreach( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
+			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}
 
 	vector<mzLink> subset;
@@ -2456,7 +2456,7 @@ void MainWindow::updateEicSmoothingWindow(int value) {
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
 	//Merged with Maven776 - Kiran
     if(fileLoader->isRunning()) return;
-    foreach (QUrl url, event->mimeData()->urls() ) {
+    Q_FOREACH (QUrl url, event->mimeData()->urls() ) {
         if (fileLoader->isKnownFileType(url.toString())) {
             event->acceptProposedAction();
             return;
@@ -2468,7 +2468,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		//Merged with Maven776 - Kiran
 
     if(fileLoader->isRunning()) return;
-     foreach (QUrl url, event->mimeData()->urls() ) {
+     Q_FOREACH (QUrl url, event->mimeData()->urls() ) {
         QString filename = url.toString();
         filename.replace("file:///","");
         filename.replace("file://","");

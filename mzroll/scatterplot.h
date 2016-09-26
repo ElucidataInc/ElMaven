@@ -18,7 +18,7 @@ class ScatterPlot: public PlotDockWidget  {
 				void showSimilar(PeakGroup* g);
 				void setTable(TableDockWidget* t);
 
-		public slots:
+		public Q_SLOTS:
 				void contrastGroups();
 				void showSelectedGroups(QPointF a, QPointF b);
                 //New funtions defined - Kiran                

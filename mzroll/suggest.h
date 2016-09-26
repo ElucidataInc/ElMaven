@@ -23,7 +23,7 @@ public:
 	 void addToHistory(QString,int);
 	 QMap<QString,int> getHistory();
 
-public slots:
+public Q_SLOTS:
 	 void doSearch(QString needle);
      void doneCompletion();
      void preventSuggest();
@@ -31,7 +31,7 @@ public slots:
 	 void addToHistory(QString);
 	 void setDatabase(QString db);
 
-signals:
+Q_SIGNALS:
 	 void compoundSelected(Compound*);
 	 void pathwaySelected(Pathway*);
 

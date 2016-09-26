@@ -28,7 +28,7 @@ class IsotopeBar : public QObject, public QGraphicsRectItem
               return QGraphicsRectItem::boundingRect();
         }
 
-	signals:
+	Q_SIGNALS:
 		void groupSelected(PeakGroup* g);
 		void groupUpdated(PeakGroup*  g);
 		void showInfo(QString,int xpos=0, int ypos=0);

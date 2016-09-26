@@ -57,7 +57,7 @@ public:
     //Added when merged with Maven776 - Kiran
 	Compound* getSelectedCompound();
 
-public slots: 
+public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
     void setDatabase(QString dbname);
     void setFilterString(QString s);
@@ -71,12 +71,12 @@ public slots:
 	void matchFragmentation();
 
 
-signals:
+Q_SIGNALS:
     void urlChanged(QString url);
     void compoundFocused(Compound* c);
     void databaseChanged(QString dbname);
 
-private slots:
+private Q_SLOTS:
     void showLigand();
     void showTable();
     void databaseChanged(int index);

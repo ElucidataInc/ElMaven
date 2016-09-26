@@ -22,7 +22,7 @@ public:
     void setQQQToolBar();
 
 
-public slots: 
+public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
 	  QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value,  int type);
       QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value, int type);
@@ -44,11 +44,11 @@ public slots:
 
       bool hasPeakGroup(PeakGroup* group);
 
-      protected slots:
+      protected Q_SLOTS:
       	void keyPressEvent(QKeyEvent *e );
       	void contextMenuEvent ( QContextMenuEvent *e );
 
-      private slots:
+      private Q_SLOTS:
       QTreeWidgetItem* addPeakGroup(PeakGroup* group, QTreeWidgetItem* parent);
       QTreeWidgetItem* addPeak(Peak* peak, QTreeWidgetItem* parent);
       QTreeWidgetItem* addCompound(Compound* c, QTreeWidgetItem* parent);

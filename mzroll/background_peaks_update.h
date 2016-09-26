@@ -28,9 +28,10 @@ Q_OBJECT
 
 public:
 
+
 	BackgroundPeakUpdate(QWidget*);
 	~BackgroundPeakUpdate();
-
+	void qtSlot(const string& progressText, unsigned int completed_slices, int total_slices);
 	/**
 	 * [get Maven Parameters]
 	 * @return [params]
@@ -98,7 +99,7 @@ public:
 	PeakDetector peakDetector;
 	MavenParameters* mavenParameters;
 
-signals:
+Q_SIGNALS:
 
 	/**
 	 * [update ProgressBar]

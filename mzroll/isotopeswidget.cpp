@@ -206,7 +206,7 @@ void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {
 
     unsigned int groupCount=0;
     bool includeSampleHeader=true;
-    foreach(PeakGroup* group, groups) {
+    Q_FOREACH(PeakGroup* group, groups) {
         if(!group) continue;
         if (groupCount>0) includeSampleHeader=false;
          QString infoText = groupIsotopeMatrixExport(group,includeSampleHeader);

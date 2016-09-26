@@ -14,7 +14,7 @@ public:
     SpectraWidget(MainWindow* mw);
     static vector<mzLink> findLinks(float centerMz, Scan* scan, float ppm, int ionizationMode);
 
-        public slots:
+        public Q_SLOTS:
                     void setScan(Scan* s);
                     void setScan(Scan* s, float mzmin, float mzmax );
                     void setScan(Peak* peak);

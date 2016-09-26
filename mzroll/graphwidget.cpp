@@ -4,7 +4,7 @@
 void GraphWidgetScene::mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent ) {
         down =  mouseEvent->buttonDownScenePos(Qt::LeftButton);
         QGraphicsScene::mousePressEvent(mouseEvent);
-        emit(mousePressed());
+        Q_EMIT(mousePressed());
         qDebug() << "mousePressed() ";
 }
 
@@ -36,9 +36,9 @@ void GraphWidgetScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 
     if ( mouseEvent->modifiers() == Qt::ControlModifier ) {
-        emit(zoomArea(area));
+        Q_EMIT(zoomArea(area));
     } else {
-        emit(mouseReleased());
+        Q_EMIT(mouseReleased());
     }
     return;
 };
@@ -104,12 +104,12 @@ Node* GraphWidget::addNode(string id, void* data) {
 Edge* GraphWidget::findEdge(Node* n1, Node* n2) {
 		if (!n1 || !n2 ) return NULL;
 
-		foreach( Edge* e, n1->edges() ) {
+		Q_FOREACH( Edge* e, n1->edges() ) {
 			if (e->sourceNode() == n1 && e->destNode() == n2 ) return e;
 			if (e->sourceNode() == n2 && e->destNode() == n1 ) return e;
 		}
 
-		foreach( Edge* e, n2->edges() ) {
+		Q_FOREACH( Edge* e, n2->edges() ) {
 			if (e->sourceNode() == n1 && e->destNode() == n2 ) return e;
 			if (e->sourceNode() == n2 && e->destNode() == n1 ) return e;
 		}
@@ -137,7 +137,7 @@ void GraphWidget::removeNode(Node* n) {
 	qDebug() << "Removing: " << n->getId() << endl;
 	n->setVisible(false);
 	scene()->removeItem(n);
-	foreach (Edge* e, n->edges() ) {
+	Q_FOREACH (Edge* e, n->edges() ) {
 		e->setVisible(false);
 		scene()->removeItem(e);
 		n->removeEdge(e);
@@ -159,7 +159,7 @@ void GraphWidget::removeNode(Node* n) {
 }
 
 void GraphWidget::removeSelectedNodes() {
-    foreach (QGraphicsItem *item, scene()->selectedItems()) {
+    Q_FOREACH (QGraphicsItem *item, scene()->selectedItems()) {
 		if (Node *node = qgraphicsitem_cast<Node *>(item)) {
 			if (node->isMetabolite() && node->unlinkGroup() ) {
 				continue;
@@ -171,7 +171,7 @@ void GraphWidget::removeSelectedNodes() {
 
 QList<Node*> GraphWidget::getNodes(int type) {
 	QList<Node*>x;
-	foreach(Node* n, nodelist ) if (n->molClass() == type) x<<n; 
+	Q_FOREACH(Node* n, nodelist ) if (n->molClass() == type) x<<n; 
 	return x;
 }
 
@@ -181,7 +181,7 @@ void GraphWidget::itemMoved()
 }
 
 void GraphWidget::randomNodePositions() { 
-    foreach (QGraphicsItem *item, scene()->items()) {
+    Q_FOREACH (QGraphicsItem *item, scene()->items()) {
           if (qgraphicsitem_cast<Node *>(item)) item->setPos(-100 + qrand() % 100, -100 + qrand() % 100);
     }
 }
@@ -233,7 +233,7 @@ void GraphWidget::scaleView(qreal scaleFactor)
 }
 
 void GraphWidget::setTitle(const QString& titleText) { 
-	emit(titleChanged(titleText));
+	Q_EMIT(titleChanged(titleText));
 }
 
 void GraphWidget::updateSceneRect() {
@@ -245,7 +245,7 @@ void GraphWidget::updateSceneRect() {
 	float centerX = 0;
 	float centerY = 0;
 
-	foreach (Node* item, nodelist ) {
+	Q_FOREACH (Node* item, nodelist ) {
 			if (!item->isVisible()) continue;
 			if (item->pos().x() < minX) minX = item->pos().x();
 			if (item->pos().x() > maxX) maxX = item->pos().x();
@@ -260,7 +260,7 @@ void GraphWidget::updateSceneRect() {
 	QPointF center(centerX,centerY);
 
 	//shift nodes to center
-	//foreach (QGraphicsItem *item, scene()->items()) item->setPos(item->pos()+center);
+	//Q_FOREACH (QGraphicsItem *item, scene()->items()) item->setPos(item->pos()+center);
 	//minX += centerX; maxX += centerX;
 	//minY += centerY; maxY += centerY;
 	minX -= 10; maxX += 10; minY -= 10; maxY += 10;
@@ -299,7 +299,7 @@ void GraphWidget::resetZoom() {
 	float centerX = 0;
 	float centerY = 0;
 
-    foreach (QGraphicsItem *item, scene()->items()) {
+    Q_FOREACH (QGraphicsItem *item, scene()->items()) {
 			if ( item->isVisible() ) {
 					if (Node *node = qgraphicsitem_cast<Node *>(item)) {
 					float w =item->boundingRect().width();
@@ -343,7 +343,7 @@ void GraphWidget::resetZoom() {
 	if (W<300) W=300;
 	if (H<300) H=300;
     
-	foreach (QGraphicsItem *item, scene()->items()) {
+	Q_FOREACH (QGraphicsItem *item, scene()->items()) {
 			if ( item->isVisible() ) {
 					if (Node *node = qgraphicsitem_cast<Node *>(item)) {
 						float x = item->pos().x();
@@ -378,8 +378,8 @@ void GraphWidget::updateLayout() {
 	setLayoutAlgorithm(Balloon);
 
     QPointF zero(0,0);
-    foreach(Node* x, nodelist) if(x && x->pos() != zero) x->setFixedPosition(true); 
-    foreach(Node* x, nodelist) if(x && !layoutMap.contains(x)) recursiveDepth(x,0); 
+    Q_FOREACH(Node* x, nodelist) if(x && x->pos() != zero) x->setFixedPosition(true); 
+    Q_FOREACH(Node* x, nodelist) if(x && !layoutMap.contains(x)) recursiveDepth(x,0); 
 
 	if (layoutMap.size() > 0) {
 		for(int i=0; i<layoutTree->topLevelItemCount() ; i++ ) {
@@ -390,19 +390,19 @@ void GraphWidget::updateLayout() {
 		layoutOGDF();
 	}
 
-    foreach(Node* x, nodelist){ if(x) x->setFixedPosition(false); }
+    Q_FOREACH(Node* x, nodelist){ if(x) x->setFixedPosition(false); }
 	adjustEnzymePositions();
 	//updateSceneRect();
 }
 
 void GraphWidget::showEdges(bool flag) {
-    foreach (Node* n, nodelist ) {
-        foreach (Edge* e, n->edges() ) e->setVisible(flag);
+    Q_FOREACH (Node* n, nodelist ) {
+        Q_FOREACH (Edge* e, n->edges() ) e->setVisible(flag);
     }
 }
 
 void GraphWidget::showNodes(bool flag) {
-	foreach (Node* n, nodelist ) { n->setVisible(flag); }
+	Q_FOREACH (Node* n, nodelist ) { n->setVisible(flag); }
 }
 
 void GraphWidget::showLabels() {
@@ -412,11 +412,11 @@ void GraphWidget::showLabels() {
 void GraphWidget::showLabels(bool flag) {
 
     if ( flag == true ) {
-        foreach(Node* x, nodelist) {
+        Q_FOREACH(Node* x, nodelist) {
             if (x->isVisible()) x->drawLabel();
         }
     } else {
-	    foreach (Node* n, nodelist ) { 
+	    Q_FOREACH (Node* n, nodelist ) { 
             n->showLabel(false); 
         }
     }
@@ -427,8 +427,8 @@ void GraphWidget::hideLongEdges() {
 	computeAvgEdgeLength();
 	adjustEnzymePositions();
 
-	foreach (Node* n, nodelist ) {
-		foreach (Edge* e, n->edges() ) {
+	Q_FOREACH (Node* n, nodelist ) {
+		Q_FOREACH (Edge* e, n->edges() ) {
 			if ( e->length() > 2*getAvgEdgeLength() ) e->hide();
 		}
 	}
@@ -437,18 +437,18 @@ void GraphWidget::hideLongEdges() {
 void GraphWidget::adjustLayout(Node* n1) {
 	cerr << "adjustLayout(n1) " << endl;
     if(!n1) return;
-	foreach (Node* n, nodelist) n->setFixedPosition(true);
+	Q_FOREACH (Node* n, nodelist) n->setFixedPosition(true);
 
     n1->setFixedPosition(true);
-    foreach (Edge* e, n1->edges() ) { 
+    Q_FOREACH (Edge* e, n1->edges() ) { 
         if (e->sourceNode() && e->sourceNode() != n1 ) e->sourceNode()->setFixedPosition(false);
         if (e->destNode()   && e->destNode()   != n1 ) e->destNode()->setFixedPosition(false);
     }
     adjustLayout();
-	foreach (Node* n, nodelist) n->setFixedPosition(false);
+	Q_FOREACH (Node* n, nodelist) n->setFixedPosition(false);
             
     /*
-	foreach (Node* n2, nodelist) {
+	Q_FOREACH (Node* n2, nodelist) {
 			if (n1 != n2 && n2->isVisible() && n1->isVisible() && n1->collidesWithItem(n2,Qt::IntersectsItemBoundingRect)) {
 				n2->calculateForces();
 				n2->advance();
@@ -464,7 +464,7 @@ void GraphWidget::clearLayout() {
     layoutMap.clear();
 
     if ( nodelist.size() > 0 )  {
-        foreach(Node* n, nodelist) { n->setDepth(-1); n->setPos(0,0); }
+        Q_FOREACH(Node* n, nodelist) { n->setDepth(-1); n->setPos(0,0); }
     }
 }
 
@@ -472,10 +472,10 @@ void GraphWidget::addToTree(Node* a, Node* b) {
 	//qDebug() << "addToTree: " << a->getNote() << " " << b->getNote();
 
     if(!a) { //missing parent
-       foreach(Node* n, nodelist) {
+       Q_FOREACH(Node* n, nodelist) {
            if(layoutMap.contains(n) ){ 
                QList<Edge*> edges = n->findConnectedEdges(b); 
-               foreach(Edge* e, edges) { 
+               Q_FOREACH(Edge* e, edges) { 
                    if (layoutMap.contains(e->sourceNode())) { a = e->sourceNode(); break; }
                    if (layoutMap.contains(e->destNode()))   { a = e->destNode(); break; }
                }
@@ -501,7 +501,7 @@ void GraphWidget::recursiveDepth(Node* n0,int depth) {
 	if (layoutMap.contains(n0)) { 
         parent=layoutMap[n0];
     } else {
-        foreach(Edge* e, n0->edges() ) {
+        Q_FOREACH(Edge* e, n0->edges() ) {
             Node* other = e->sourceNode();
             if (other == n0 ) other= e->destNode();
             if (other == n0 ) continue;
@@ -521,21 +521,21 @@ void GraphWidget::recursiveDepth(Node* n0,int depth) {
 	for(int i=0; i<depth+1; i++) cerr << " ";
 	//qDebug() << depth << " " << n0->getId() << " " << n0->getDepth() << " " << n0->boundingRect().width();
 	QList<Node*>newnodes;
-    foreach(Edge* e, n0->edgesOut() ) {
+    Q_FOREACH(Edge* e, n0->edgesOut() ) {
         Node* other= e->destNode();
         if (!other || other == n0 || other->isCofactor() || layoutMap.contains(other))  continue;
         addToTree(n0,other); 
         newnodes.push_back(other); 
     }
 
-    foreach(Edge* e, n0->edgesIn() ) {
+    Q_FOREACH(Edge* e, n0->edgesIn() ) {
         Node* other = e->sourceNode();
         if (!other || other == n0 || other->isCofactor() || layoutMap.contains(other))  continue;
         addToTree(n0,other); 
         newnodes.push_back(other); 
     }
 
-	foreach(Node* n, newnodes) { recursiveDepth(n,depth+1); }
+	Q_FOREACH(Node* n, newnodes) { recursiveDepth(n,depth+1); }
 
 	
 }
@@ -547,8 +547,8 @@ void GraphWidget::computeAvgEdgeLength() {
     _averageEdgeSize=50; 
 
 	vector<float>lvector;
-	foreach(Node* n, nodelist) { 
-		foreach (Edge* e, n->edges() ) {
+	Q_FOREACH(Node* n, nodelist) { 
+		Q_FOREACH (Edge* e, n->edges() ) {
            if (e->sourceNode()->isVisible() && e->destNode()->isVisible() ){
                QPointF p1 = e->sourceNode()->pos();
                QPointF p2 = e->destNode()->pos();
@@ -630,15 +630,15 @@ void GraphWidget::layoutOGDF() {
 	QList<Node*>metabolites = getNodes(Node::Metabolite);
 	if(metabolites.size()==0) metabolites = getNodes(Node::Unassigned);
 
-	foreach(Node* n, metabolites) { 
+	Q_FOREACH(Node* n, metabolites) { 
 		if(layoutMap.count(n)) continue;
 		if(n->edgesIn().size()>0 ) continue;
 		recursiveDepth(n,0);
 	}
-	foreach(Node* n, metabolites) { if(layoutMap.count(n)==0) recursiveDepth(n,0); }
+	Q_FOREACH(Node* n, metabolites) { if(layoutMap.count(n)==0) recursiveDepth(n,0); }
 
 	QList<Node*>enzymes = getNodes(Node::Enzyme);
-	foreach(Node* n, enzymes)     { if(layoutMap.count(n)==0) recursiveDepth(n,0); }
+	Q_FOREACH(Node* n, enzymes)     { if(layoutMap.count(n)==0) recursiveDepth(n,0); }
 
 	for(int i=0; i<layoutTree->topLevelItemCount() ; i++ ) {
 		QTreeWidgetItem* x = layoutTree->topLevelItem(i);
@@ -648,14 +648,14 @@ void GraphWidget::layoutOGDF() {
 }
 
 void GraphWidget::dump() {
-	foreach(Node* n, nodelist) { 
+	Q_FOREACH(Node* n, nodelist) { 
 		qDebug() << "Network:" << n->getId(); 
 		if (n->isVisible()) { 
 			qDebug() << "\t Node:" << n->getId(); 
 			qDebug() << "\t Edge: ";
-			foreach(Edge* e, n->edges()) { qDebug() << "\t\t:" << e->destNode()->getId() << " " << e->sourceNode()->getId(); }
-			foreach(Edge* e, n->edgesOut()) { qDebug() << "\t\tout:" << e->destNode()->getId(); }
-			foreach(Edge* e, n->edgesIn())  { qDebug() << "\t\tin:" <<  e->sourceNode()->getId(); }
+			Q_FOREACH(Edge* e, n->edges()) { qDebug() << "\t\t:" << e->destNode()->getId() << " " << e->sourceNode()->getId(); }
+			Q_FOREACH(Edge* e, n->edgesOut()) { qDebug() << "\t\tout:" << e->destNode()->getId(); }
+			Q_FOREACH(Edge* e, n->edgesIn())  { qDebug() << "\t\tin:" <<  e->sourceNode()->getId(); }
 		}
     }
 }
@@ -706,11 +706,11 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
 void GraphWidget::adjustEnzymePositions() {
 	
 		const QPointF origin(0,0);
-		foreach (Node* enz, nodelist ) {
+		Q_FOREACH (Node* enz, nodelist ) {
 			int count=0; float xpos=0; float ypos=0;
 			if ( enz->isEnzyme() ) {
 					//qDebug() << enz->getId();
-					foreach (Edge* e, enz->edges() ) {
+					Q_FOREACH (Edge* e, enz->edges() ) {
 						Node* met=e->sourceNode(); if (met==enz) met=e->destNode();
 						if (met->isCofactor() || met->pos() == origin)  continue;
 						if ( enz == e->destNode() )   { xpos += met->pos().x()*2; ypos += met->pos().y()*2; count +=2; }
@@ -740,12 +740,12 @@ void GraphWidget::adjustLayout() {
     for(int itr=0; itr<rep_max; itr++ ) {
 		//cerr << "Itr=" << itr << endl;
         
-        foreach(Node* n1, nodelist ) {
+        Q_FOREACH(Node* n1, nodelist ) {
             // calculate repulsion
             vector<float> disp(2,0); disp[0]=n1->pos().x(); disp[1]=n1->pos().y();
             newDisp[n1] = disp;
             float rep = 0.0;
-            foreach(Node* n2, nodelist ) {
+            Q_FOREACH(Node* n2, nodelist ) {
                 if (n1 == n2) continue;
                 if (n1->isFixedPosition()) continue;
                 float delta_x = n1->pos().x() - n2->pos().x();
@@ -760,7 +760,7 @@ void GraphWidget::adjustLayout() {
             // calculate attration
             float aX=0; float aY=0;
             float att = 0.0;
-            foreach (Edge* e, n1->edges() ) { 
+            Q_FOREACH (Edge* e, n1->edges() ) { 
                 Node* n2 = e->destNode(); if(n2 == n1) n2 = e->sourceNode();
                 if (newDisp.count(n2) == 0) newDisp[n2] = disp; 
                 float delta_x = n1->pos().x() - n2->pos().x();
@@ -782,7 +782,7 @@ void GraphWidget::adjustLayout() {
 
         }
 
-        foreach(Node* n1, nodelist ) {
+        Q_FOREACH(Node* n1, nodelist ) {
             if (n1 && n1->isFixedPosition()) continue;
             float disp_x = newDisp[n1][0];
             float disp_y = newDisp[n1][1];

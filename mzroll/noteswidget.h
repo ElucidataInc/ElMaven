@@ -14,7 +14,7 @@ public:
     NotesWidget(QWidget *parent = 0);
     ~NotesWidget();
 
-public slots:
+public Q_SLOTS:
          void showNotes();
 	 void showSelectedNote();
  	 void showNote(int noteid);
@@ -23,7 +23,7 @@ public slots:
          QList<UserNote*> getNotes(float mzmin, float mzmax);
          void updateAllNotes();
 
-     private slots:
+     private Q_SLOTS:
          void readRemoteData(const QHttpResponseHeader &);
          QList<UserNote*> getRemoteNotes();
          void editNote();

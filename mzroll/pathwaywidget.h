@@ -43,7 +43,7 @@ public:
 public:
     MainWindow* getMainWindow() { return mw; }
 
-public slots:
+public Q_SLOTS:
     void setCompound(Compound* c);			//clear graph, and expond this compound
     void setCompoundFocus(Compound* c);		//keep graph, and  show information about compound
     void setCompoundSelected(Compound* c);	//keep graph add nodes from from this compound
@@ -98,7 +98,7 @@ public slots:
 
     void loadBackgroundImage();
 
-signals:
+Q_SIGNALS:
     void compoundFocused(Compound*);
     void compoundSelected(Compound*);
     void compoundHover(Compound*);

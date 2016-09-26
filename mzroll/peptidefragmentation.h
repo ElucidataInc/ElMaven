@@ -16,13 +16,13 @@ public:
 protected:
         
 
-public slots: 
+public Q_SLOTS: 
  	  void setPeptideSequence(QString sequence);
 	  void setCharge(float charge);
 	  void setResolution(float resolution);
       void setScan(Scan*);
 
-private slots:
+private Q_SLOTS:
 	  void compute();
       void showTable();
       void focusPrecursorMz();

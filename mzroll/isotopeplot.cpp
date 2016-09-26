@@ -22,7 +22,7 @@ void IsotopePlot::setMainWindow(MainWindow* mw) { _mw = mw; }
 void IsotopePlot::clear() { 
     QList<QGraphicsItem *> mychildren = QGraphicsItem::childItems();
     if (mychildren.size() > 0 ) {
-        foreach (QGraphicsItem *child, mychildren) {
+        Q_FOREACH (QGraphicsItem *child, mychildren) {
             scene()->removeItem(child);
             delete(child);
         }
@@ -163,14 +163,14 @@ void IsotopeBar::hoverEnterEvent (QGraphicsSceneHoverEvent*event) {
     QString htmlNote = note;
     setToolTip(note);
     QPointF posG = mapToScene(event->pos());
-    emit(showInfo(htmlNote, posG.x(), posG.y()+5));
+    Q_EMIT(showInfo(htmlNote, posG.x(), posG.y()+5));
 }
 
 void IsotopeBar::keyPressEvent(QKeyEvent *e) {
     if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace ) {
         QVariant v = data(1);
     	PeakGroup*  g = v.value<PeakGroup*>();
-        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); emit(groupUpdated(g->parent)); }
+        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); Q_EMIT(groupUpdated(g->parent)); }
         IsotopePlot* parent = (IsotopePlot*) parentItem();
         if (parent) parent->showBars();
     }

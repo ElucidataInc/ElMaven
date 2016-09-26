@@ -112,10 +112,10 @@ public:
 
     bool setNewPos(float x, float y);
 
-public slots:
+public Q_SLOTS:
     bool unlinkGroup();
 
-signals:
+Q_SIGNALS:
     void nodeMoved(Node*);
     void nodePressed(Node*);
     void nodeDoubleClicked(Node*);

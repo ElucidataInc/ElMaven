@@ -61,10 +61,10 @@ void QDownloader::endFileWrite(QNetworkReply * reply)
     {
         case QNetworkReply::NoError:
         {
-            emit downloadResult(file->fileName() );
+            Q_EMIT downloadResult(file->fileName() );
         }break;
         default:{
-            emit downloadResult("Download Failed");
+            Q_EMIT downloadResult("Download Failed");
             qDebug(reply->errorString().toLatin1());
         };
     }
@@ -84,10 +84,10 @@ void QDownloader::endDataDownload(QNetworkReply * reply)
         case QNetworkReply::NoError:
         {
             QString pageText(pagedata.constData());
-            emit downloadResult(pageText);
+            Q_EMIT downloadResult(pageText);
         } break;
         default:{
-            emit downloadResult("Download Failed");
+            Q_EMIT downloadResult("Download Failed");
             qDebug(reply->errorString().toLatin1());
             cerr << "DOWNLOAD ERROR: " << reply->errorString().toStdString() << endl;
         };

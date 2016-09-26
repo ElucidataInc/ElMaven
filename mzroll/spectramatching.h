@@ -14,7 +14,7 @@ class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
     public:
         SpectraMatching(MainWindow *w);
 
-        public slots:
+        public Q_SLOTS:
         void getFormValues();
         void findMatches();
         void showScan();

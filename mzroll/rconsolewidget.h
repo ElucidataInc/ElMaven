@@ -17,7 +17,7 @@ public:
     RconsoleWidget(QWidget *parent = 0);
     ~RconsoleWidget();
 
-public slots:
+public Q_SLOTS:
     void openFile();
     void saveFile();
     void runAnalysis();

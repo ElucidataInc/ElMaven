@@ -199,8 +199,8 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 	/*
     //recursive walk
     processedMzs << centerMz;
-    foreach (float mz1, newMzs ) {
-        foreach (float mz2, processedMzs ) if (ppmDist(mz1,mz2) < ppm) continue;
+    Q_FOREACH (float mz1, newMzs ) {
+        Q_FOREACH (float mz2, processedMzs ) if (ppmDist(mz1,mz2) < ppm) continue;
         addLinks(mz1,recursionLevel+1); 
     }
 	*/
@@ -209,7 +209,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 
 
 bool AdductWidget::linkExists(float mz1, float mz2, float ppm) {
-	foreach( mzLink* link, links ) {
+	Q_FOREACH( mzLink* link, links ) {
 		if ( mzUtils::ppmDist(link->mz1,mz1) < ppm  && mzUtils::ppmDist(link->mz2,mz2) < ppm) {
 				return true;
 		}
@@ -314,7 +314,7 @@ void AdductWidget::addLink(mzLink* l) {
 	Node* n1 = NULL;
 	Node* n2 = NULL;
 
-	foreach (Node* item, _graph->getNodes(Node::Unassigned)) {
+	Q_FOREACH (Node* item, _graph->getNodes(Node::Unassigned)) {
 	        QVariant v= item->data(0); float mz = v.toFloat();
             if (n1 && n2) break;
             if ( ppmDist(mz,l->mz1) < 10 ) n1=item;

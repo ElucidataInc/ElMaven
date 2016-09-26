@@ -45,7 +45,7 @@ protected:
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent * event );
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-signals:
+Q_SIGNALS:
 	void enzymeFocused(Reaction*);
 
 

@@ -35,7 +35,7 @@ public:
       AdductWidget(MainWindow*);
       void setPeak(Peak*);
 
-private slots: 
+private Q_SLOTS: 
 		void showGraph();
 		void showLink(Node* n);
 		void expandNode(Node* n);

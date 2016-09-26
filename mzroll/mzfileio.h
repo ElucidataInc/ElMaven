@@ -72,11 +72,11 @@ Q_OBJECT
 
 
 
-    public slots:
+    public Q_SLOTS:
         void readThermoRawFileImport(); //TODO: Sahil, Added while merging mzfileio
         void addFileToQueue(QString f); //TODO: Sahil, Added while merging mzfileio
 
-    signals:
+    Q_SIGNALS:
 
     /**
      * [update ProgressBar]

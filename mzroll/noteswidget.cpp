@@ -65,7 +65,7 @@ void NotesWidget::showNotes() {
 
     qDebug() << "showNotes()";
     treeWidget->clear();
-    foreach(UserNote* usernote, _notes ) {
+    Q_FOREACH(UserNote* usernote, _notes ) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, QString::number(usernote->mz));
         item->setText(1, QString::number(usernote->rt));
@@ -91,7 +91,7 @@ void NotesWidget::updateAllNotes() {
 QList<UserNote*> NotesWidget::getNotes(float mzmin, float mzmax) {
     QList<UserNote*>subset;
 
-    foreach(UserNote* usernote, _notes ) {
+    Q_FOREACH(UserNote* usernote, _notes ) {
         if ( usernote && usernote->mz >= mzmin && usernote->mz <= mzmax)
             subset << usernote;
     }
@@ -196,7 +196,7 @@ void NotesWidget::editRemoteNote() {
     QSettings *settings = _mainwindow->getSettings();
 
     if ( settings->contains("data_server_url")) {
-        foreach( QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+        Q_FOREACH( QTreeWidgetItem* item, treeWidget->selectedItems() ) {
             QVariant v =   item->data(0,Qt::UserRole);
             UserNote* usernote =  v.value<UserNote*>();
 
@@ -216,7 +216,7 @@ void NotesWidget::editRemoteNote() {
 // NOTE DISPLAY
 void NotesWidget::showNote(int noteid) {
   //  qDebug() << "showNote() " << noteid;
-    foreach(UserNote* usernote, _notes ) {
+    Q_FOREACH(UserNote* usernote, _notes ) {
         if (usernote && usernote->noteid == noteid ) {
             qDebug() << "showingNote() " << usernote;
             showNote(usernote);
@@ -248,7 +248,7 @@ void NotesWidget::showNote(UserNote* usernote) {
 
 void NotesWidget::showSelectedNote()
 {
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
 
         QVariant v =   item->data(0,Qt::UserRole);
         UserNote* usernote =  v.value<UserNote*>();

@@ -104,7 +104,7 @@ QSet<PeakGroup*> ScatterPlot::getGroupsInRect(QPointF from, QPointF to) {
     scene()->setSelectionArea(path);
 
     QSet<PeakGroup*>selected;
-    foreach(QGraphicsItem* item, scene()->selectedItems() ) {
+    Q_FOREACH(QGraphicsItem* item, scene()->selectedItems() ) {
             if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
             QVariant v = circle->data(0);
             PeakGroup*  groupX =  v.value<PeakGroup*>();
@@ -259,7 +259,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
 			QString qname( sample->getSetName().c_str());
 			qname=qname.simplified();
 			QList<QString> names = qname.split(splitStr);
-			foreach(QString name, names) { 
+			Q_FOREACH(QString name, names) { 
 				name=name.simplified(); 
 				if (name.isEmpty()) continue;
 				sampleSetnameMap.insert(sample,name);
@@ -287,7 +287,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
              for(int j=0; j < values.size(); j++ ) {
                     mzSample* sample = vsamples[j];
 					QList<QString>setnames = sampleSetnameMap.values(sample);
-					foreach(QString setname, setnames ) { 
+					Q_FOREACH(QString setname, setnames ) { 
 							int setNumber = setNumericIds[setname];
                             Y(i,setNumber) += (values[j]/sum)-(1.0f/nSets);
 					}	
@@ -618,7 +618,7 @@ void ScatterPlot::showSimilar(PeakGroup* group) {
         }
     }
 
-	foreach(QGraphicsItem* item, view()->items() ) {
+	Q_FOREACH(QGraphicsItem* item, view()->items() ) {
 			if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
 					QVariant v = circle->data(0);
 					PeakGroup*  groupX =  v.value<PeakGroup*>();
@@ -663,7 +663,7 @@ void ScatterPlot::keyPressEvent(QKeyEvent *e ) {
 
 void ScatterPlot::deleteGroup() {
     qDebug() << "ScatterPlot:deleteGroup()";
-    foreach(QGraphicsItem* item, scene()->selectedItems() ) {
+    Q_FOREACH(QGraphicsItem* item, scene()->selectedItems() ) {
             if (QGraphicsEllipseItem *circle = qgraphicsitem_cast<QGraphicsEllipseItem *>(item)) {
             QVariant v = circle->data(0);
             PeakGroup*  groupX =  v.value<PeakGroup*>();

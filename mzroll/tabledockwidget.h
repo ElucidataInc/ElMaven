@@ -35,7 +35,7 @@ public:
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
 
-public slots: 
+public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
 	  PeakGroup* addPeakGroup(PeakGroup* group);
 	  void setupPeakTable();
@@ -105,7 +105,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
 
-protected slots:
+protected Q_SLOTS:
 	  void keyPressEvent( QKeyEvent *e );
 	  void contextMenuEvent ( QContextMenuEvent * event );
 

@@ -197,7 +197,7 @@ protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 
-public slots:
+public Q_SLOTS:
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
 	void setProgressBar(QString, int step, int totalSteps);
@@ -279,7 +279,7 @@ public slots:
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
 
-private slots:
+private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
 	void readSettings();

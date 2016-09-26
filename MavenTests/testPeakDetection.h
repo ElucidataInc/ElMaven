@@ -20,7 +20,7 @@ class TestPeakDetection : public QObject {
         const char* loadCompoundDB;
         QStringList files;
 
-    private slots:
+    private Q_SLOTS:
         // functions executed by QtTest before and after tuest suite
         void initTestCase();
         void cleanupTestCase();

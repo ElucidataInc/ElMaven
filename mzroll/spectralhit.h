@@ -71,19 +71,19 @@ class SpectralHit {
 
         double getMaxIntensity() { 
             double maxIntensity=0; 
-            foreach(double x, intensityList) if(x>maxIntensity) maxIntensity=x;
+            Q_FOREACH(double x, intensityList) if(x>maxIntensity) maxIntensity=x;
             return  maxIntensity;
         }
 
         double getMinMz() {
             double min = mzList.first();
-            foreach(double x, mzList)  if(x<min) min=x; 
+            Q_FOREACH(double x, mzList)  if(x<min) min=x; 
             return  min;
         }
 
         double getMaxMz() {
             double max = mzList.last();
-            foreach(double x, mzList)  if(x>max) max=x;
+            Q_FOREACH(double x, mzList)  if(x>max) max=x;
             return max;
         }
 

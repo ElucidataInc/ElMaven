@@ -244,7 +244,7 @@ void MetaboliteNode::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 		qDebug() << "atom=" << coordinates->atoms[_selectedAtom] << " atom# " << _selectedAtom;
 	}
 
-	 if (_selectedAtom >= 0) emit(atomSelected(c,_selectedAtom));
+	 if (_selectedAtom >= 0) Q_EMIT(atomSelected(c,_selectedAtom));
 	//expandOnCompound();
 }
 
@@ -255,8 +255,8 @@ void MetaboliteNode::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	setZValue(zValue()+1);
 	Compound* c = getCompound();
 	if ( c ) {
-    	emit(nodePressed(this));
-		emit compoundFocused(c);
+    	Q_EMIT(nodePressed(this));
+		Q_EMIT compoundFocused(c);
         update();
 	}
 }
@@ -271,7 +271,7 @@ void MetaboliteNode::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
 	setHighlighted(true);
 	Compound* c = getCompound();
 	if (c )  {
-		emit compoundHover( c );
+		Q_EMIT compoundHover( c );
 		QString title(c->name.c_str());
 		if(_graph) _graph->setTitle(title);
 		update(); 
@@ -292,7 +292,7 @@ void MetaboliteNode::editGroup() {
 
 void MetaboliteNode::expandOnCompound() {
    Compound* c = getCompound();
-   if (c!=NULL) emit(expandOnCompound(c));
+   if (c!=NULL) Q_EMIT(expandOnCompound(c));
 }
 
 void MetaboliteNode::contextMenuEvent (QGraphicsSceneContextMenuEvent * event ) {

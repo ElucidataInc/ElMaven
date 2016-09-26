@@ -25,17 +25,41 @@
 #include "mzMassSlicer.h"
 #include "mzSample.h"
 #include "mzUtils.h"
-
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 /**
  * @class PeakDetector
  * @ingroup libmaven
  * @brief all peak detection logic resides here.
  * @author Elucidata
  */
+
 class PeakDetector {
 public:
+    boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
+
 	PeakDetector();
 	PeakDetector(MavenParameters* mp);
+
+
+	//copy constructor	
+	PeakDetector(const PeakDetector &obj) {
+		mavenParameters = obj.mavenParameters; 
+	}
+	
+	//assignment constructor
+	PeakDetector& operator=(const PeakDetector& obj) {
+		mavenParameters = obj.mavenParameters;
+		return *this;
+	}
+
+    
+    void sendBoostSignal( const string& progressText, unsigned int completed_slices, int total_slices)
+    {
+    boostSignal(progressText, completed_slices, total_slices);
+    }
+
+
 
 	/**
 	 * [get Maven Parameters]

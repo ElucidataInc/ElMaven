@@ -156,7 +156,7 @@ void PeptideFragmentationWidget::showTable() {
     hit.scan = _scan;
 */
     int colm=2;
-    foreach (QString ionType, selectedIons ) {
+    Q_FOREACH (QString ionType, selectedIons ) {
         if (ionMap.count(ionType) == 0 ) p->hideColumn(colm);
         else { p->showColumn(colm); p->setColumnWidth(colm,50); }
 

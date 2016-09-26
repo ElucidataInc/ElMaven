@@ -56,7 +56,7 @@ class PlotScene : public QGraphicsScene
 	void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
 	void mouseMoveEvent  ( QGraphicsSceneMouseEvent * mouseEvent );
 
-    signals:
+    Q_SIGNALS:
 	void zoomArea(QPointF from, QPointF to );
 	void selectArea(QPointF from, QPointF to );
 
@@ -123,14 +123,14 @@ public:
 			PlotDockWidget(QWidget * parent, Qt::WindowFlags flags);
 		~PlotDockWidget();
 
-public slots: 
+public Q_SLOTS: 
 						void replot();
 		void selectionChanged();
 		void exportPDF();
 						void resetZoom();
 						void zoomArea(QPointF from, QPointF to);
 
-signals:
+Q_SIGNALS:
 		void groupSelected(PeakGroup*);
 		void peakSelected(Peak*);
 		void scanSelected(Scan*);

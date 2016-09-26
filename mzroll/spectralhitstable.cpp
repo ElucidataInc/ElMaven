@@ -179,7 +179,7 @@ void SpectralHitsDockWidget::showSpectralCounts() {
     QSet<QString>colNames;
     QMap<QString,SpectralHit*> bestHit;
 
-    foreach(SpectralHit* hit, allhits) {
+    Q_FOREACH(SpectralHit* hit, allhits) {
         QString rowId = hit->fragmentId;
         QString colId = hit->sampleName;
 
@@ -206,7 +206,7 @@ void SpectralHitsDockWidget::showSpectralCounts() {
     QColor color = Qt::white;
 
 
-    foreach(QString rowId, rowNames) {
+    Q_FOREACH(QString rowId, rowNames) {
             NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,0);
             SpectralHit* hit = bestHit[rowId];
 
@@ -363,7 +363,7 @@ void SpectralHitsDockWidget::showSelectedGroup() {
 
 QList<SpectralHit*> SpectralHitsDockWidget::getSelectedHits() {
     QList<SpectralHit*> selectedHits;
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             QVariant v = item->data(0,Qt::UserRole);
             SpectralHit*  hit =  v.value<SpectralHit*>();
@@ -421,7 +421,7 @@ void SpectralHitsDockWidget::loadSpectralHitsTable() {
                                                     filters.join(";;"),
                                                     &selFilter);
 
-    foreach(QString fileName, filelist ) {
+    Q_FOREACH(QString fileName, filelist ) {
         if (fileName.isEmpty()) continue;
 
         if (fileName.endsWith("pepXML",Qt::CaseInsensitive)) {
@@ -631,7 +631,7 @@ void SpectralHitsDockWidget::applyAllFilters() {
     while (*it) { (*it)->setHidden(false);  ++it; }; //unhide all rows
 
     //apply filters sequentially
-    foreach( QString filter_column, setFilters.keys()) {
+    Q_FOREACH( QString filter_column, setFilters.keys()) {
         applyFilter(filter_column,setFilters[filter_column]);
     }
 
@@ -826,7 +826,7 @@ void SpectralHitsDockWidget::queryIdPickerPrecursors(float qValue) {
     }
 
     qDebug() << "\t checking precurursor";
-    foreach(SpectralHit* hit, hitlist) {
+    Q_FOREACH(SpectralHit* hit, hitlist) {
         hit->fragmentId=hit->getModPeptideString();
         //qDebug() << hit->fragmentId << " " << confirmMods(hit);
 
@@ -878,7 +878,7 @@ void SpectralHitsDockWidget::queryIdPickerProteins() {
 
       proteinAccessionMap[protein->accession] = protein;
       if (proteinAccessionMap.size() % 10 == 0) {
-        //   emit(updateProgressBar("Loading Protein Sequences", rowCounter,rowCount));
+        //   Q_EMIT(updateProgressBar("Loading Protein Sequences", rowCounter,rowCount));
       }
     }
 }
@@ -889,7 +889,7 @@ void SpectralHitsDockWidget::queryIdPickerProteins() {
 //TODO: Sahil, Added while merging mzfileio
 void SpectralHitsDockWidget::getRetentionTimes() {
     qDebug() << "getRetentionTimes()";
-    foreach(SpectralHit* hit, allhits)
+    Q_FOREACH(SpectralHit* hit, allhits)
     {
         if(hit->rt > 0) continue;
         if(hit->scannum == 0) continue;
@@ -918,7 +918,7 @@ void SpectralHitsDockWidget::getRetentionTimes() {
 */
 //TODO: Kiran-Sahil, Added while merging spectralhitstable
 void SpectralHitsDockWidget::integrateMS1() {
-    emit(updateProgressBar("Starting Integration",0,0));
+    Q_EMIT(updateProgressBar("Starting Integration",0,0));
 
     vector <mzSample*> samples = _mainwindow->getVisibleSamples();
     if (samples.size() == 0) return;
@@ -938,7 +938,7 @@ void SpectralHitsDockWidget::integrateMS1() {
 
    QMap<QString,mzSlice>  peptideMap;
 
-   foreach(SpectralHit* hit, allhits) {
+   Q_FOREACH(SpectralHit* hit, allhits) {
        QString peptideId = hit->fragmentId;
 
        if(! peptideMap.count(peptideId)) {
@@ -969,7 +969,7 @@ void SpectralHitsDockWidget::integrateMS1() {
    }
 
 
-   foreach(QString peptide, peptideMap.keys()) {
+   Q_FOREACH(QString peptide, peptideMap.keys()) {
         mzSlice* slice = &peptideMap[peptide];
         slice->rt = slice->rt/slice->ionCount;
         if(slice->rtmin < 0) slice->rtmin=0;
@@ -1038,7 +1038,7 @@ QStringList SpectralHitsDockWidget::uniqGeneList(SpectralHit* hit) {
     QStringList proteinList = hit->getProteins();
     QSet<QString> geneSymbols;
 
-    foreach (QString protein, proteinList ) {
+    Q_FOREACH (QString protein, proteinList ) {
         ProteinHit* prot = proteinAccessionMap[protein];
         if (prot) geneSymbols << prot->geneSymbol;
     }

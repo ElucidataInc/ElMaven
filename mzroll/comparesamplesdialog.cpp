@@ -43,7 +43,7 @@ void CompareSamplesDialog::setTableWidget(TableDockWidget* w) {
 	table = w;
 	samples.clear();
 	QList<PeakGroup*> allgroups = table->getGroups();
-	foreach (PeakGroup* group, allgroups){
+	Q_FOREACH (PeakGroup* group, allgroups){
 	for(int i=0; i < group->peakCount(); i++ ) {
 		mzSample* sample = group->peaks[i].getSample();
 		if (sample) samples.insert(sample);
@@ -70,7 +70,7 @@ void CompareSamplesDialog::updateSampleList() {
 	 filelist1->clear();
 	 filelist2->clear();
 
-	 foreach(mzSample* sample, samples ) {
+	 Q_FOREACH(mzSample* sample, samples ) {
 	 QString setname(sample->getSetName().c_str());
 	 QString sampleName(sample->sampleName.c_str());
 	 //if( setname.contains(setName1) ) filelist1->addItem(sampleName);
@@ -90,15 +90,15 @@ void CompareSamplesDialog::showEvent(QShowEvent *) {
     //TODO: Expression updated to ";", don't know why - Kiran
 	QRegExp splitStr(";");
 
-	foreach(mzSample* sample, samples ){
+	Q_FOREACH(mzSample* sample, samples ){
 	QString qname( sample->getSetName().c_str());
 	qname=qname.simplified();
 	QList<QString> names = qname.split(splitStr);
 	setnames.insert(qname);
-	foreach(QString name, names) {name=name.simplified(); if(!name.isEmpty()) setnames.insert(name);}
+	Q_FOREACH(QString name, names) {name=name.simplified(); if(!name.isEmpty()) setnames.insert(name);}
 }
 
-	foreach(QString name, setnames ){
+	Q_FOREACH(QString name, setnames ){
 	filelist1->addItem(name);
 	filelist2->addItem(name);
 }
@@ -118,7 +118,7 @@ void CompareSamplesDialog::showEvent(QShowEvent *) {
 vector<mzSample*> CompareSamplesDialog::getSampleSet(QListWidget *set) {
 	vector<mzSample*> subset;
 
-	foreach(mzSample* sample, samples ){
+	Q_FOREACH(mzSample* sample, samples ){
 	QString sampleName( sample->getSetName().c_str());
 
 	for(int j=0; j < set->count(); j++ ) {
@@ -170,7 +170,7 @@ void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
 				_missingValue);
 
 		//qDebug() << "CompareSamplesDialog: " << i << " " << meanA << " " << meanB;
-		emit(setProgressBar("CompareSamples", i + 1, allgroups.size()));
+		Q_EMIT(setProgressBar("CompareSamples", i + 1, allgroups.size()));
 	}
 
 	float alpha = minPValue->value(); //alpha value //TODO: Alpha value is not being used

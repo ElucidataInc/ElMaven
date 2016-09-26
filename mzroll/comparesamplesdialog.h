@@ -16,7 +16,7 @@ public:
 	~CompareSamplesDialog();
 	void setTableWidget(TableDockWidget* w);
 
-public slots:
+public Q_SLOTS:
 	void compareSamples();
 	void resetSamples();
 	void compareSets(vector<mzSample*> sset1, vector<mzSample*> sset2);
@@ -32,10 +32,10 @@ public slots:
 		return getSampleSet(filelist2);
 	}
 
-protected slots:
+protected Q_SLOTS:
 	void showEvent(QShowEvent*);
 
-signals:
+Q_SIGNALS:
 	void setProgressBar(QString, int, int);
 
 private:

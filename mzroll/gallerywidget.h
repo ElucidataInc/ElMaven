@@ -16,7 +16,7 @@ class GalleryWidget : public QGraphicsView
 				GalleryWidget(MainWindow* mw);
                 ~GalleryWidget();
 
-		public slots: 
+		public Q_SLOTS: 
             void replot();
 			void clear() { scene()->clear(); plotitems.clear(); }
 			void addEicPlots(std::vector<PeakGroup*>& groups);

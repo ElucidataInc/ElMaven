@@ -37,7 +37,7 @@ class History: public QObject {
 		  mzSlice next();
 		  mzSlice last();
 
-	public slots:
+	public Q_SLOTS:
       void addToHistory(const mzSlice slice);
 
     private:

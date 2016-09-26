@@ -23,7 +23,7 @@ public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
 
-public slots:
+public Q_SLOTS:
 	void setCharge(double charge);
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
@@ -38,7 +38,7 @@ public slots:
 	void pullIsotopes(PeakGroup* group);
 	Peak* getSamplePeak(PeakGroup* group, mzSample* sample);
 
-private slots:
+private Q_SLOTS:
 	void showInfo();
 	void showTable();
 	QString groupTextEport(PeakGroup* group);

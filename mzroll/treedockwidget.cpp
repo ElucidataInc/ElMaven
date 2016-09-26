@@ -76,7 +76,7 @@ void TreeDockWidget::showInfo() {
     MainWindow* mainwindow = (MainWindow*)parentWidget();
         if ( ! mainwindow ) return;
 
-        foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+        Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
                         QString text = item->text(0);
                         QVariant v =   item->data(0,Qt::UserRole);
                         int itemType = item->type();

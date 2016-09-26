@@ -132,7 +132,7 @@ Highlighter::Highlighter(QTextDocument *parent)
                    <<"->"
                    <<"==";
 
-    foreach (const QString &pattern, keywordPatterns) {
+    Q_FOREACH (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegExp("\\b"+pattern+"");
         rule.format = keywordFormat;
         highlightingRules.append(rule);
@@ -178,7 +178,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    Q_FOREACH (const HighlightingRule &rule, highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {

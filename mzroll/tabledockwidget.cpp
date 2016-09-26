@@ -622,7 +622,7 @@ void TableDockWidget::showSelectedGroup() {
 
 QList<PeakGroup*> TableDockWidget::getSelectedGroups() {
     QList<PeakGroup*> selectedGroups;
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             QVariant v = item->data(0,Qt::UserRole);
             PeakGroup*  group =  v.value<PeakGroup*>();
@@ -642,7 +642,7 @@ PeakGroup* TableDockWidget::getSelectedGroup() {
 }
 
 void TableDockWidget::setGroupLabel(char label) {
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             QVariant v = item->data(0,Qt::UserRole);
             PeakGroup*  group =  v.value<PeakGroup*>();
@@ -1054,7 +1054,7 @@ void TableDockWidget::findMatchingCompounds() {
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& g = allgroups[i];
         QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, ionizationMode);
-        if (compounds.size() > 0 ) foreach( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
+        if (compounds.size() > 0 ) Q_FOREACH( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
         //cerr << g.meanMz << " " << compounds.size() << endl;
     }
     updateTable();
@@ -1529,7 +1529,7 @@ void TableDockWidget::setupFiltersDialog() {
     sliders["S/N Ratio"] =  new QHistogramSlider(this);
     sliders["GoodPeakCount"] =  new QHistogramSlider(this);
 
-    foreach(QHistogramSlider* slider, sliders) {
+    Q_FOREACH(QHistogramSlider* slider, sliders) {
         connect(slider,SIGNAL(minBoundChanged(double)),SLOT(filterPeakTable()));
         connect(slider,SIGNAL(maxBoundChanged(double)),SLOT(filterPeakTable()));
         layout->addWidget(slider);
@@ -1542,13 +1542,13 @@ void TableDockWidget::showFiltersDialog() {
     filtersDialog->setVisible(! filtersDialog->isVisible() );
     if (filtersDialog->isVisible() == false) return;
 
-    foreach(QHistogramSlider* slider, sliders) { slider->clearData(); }
+    Q_FOREACH(QHistogramSlider* slider, sliders) { slider->clearData(); }
 
     for(int i=0; i <100; i++ ) sliders["PeakQuality"]->addDataPoint(QPointF((float)i/100.00,i));
     for(int i=0; i <50; i++ ) sliders["GoodPeakCount"]->addDataPoint(QPointF(i,5));
     for(int i=0; i <100; i++ ) sliders["PeakIntensity"]->addDataPoint(QPointF(i,i));
     sliders["PeakQuality"]->setPrecision(2);
-    foreach(QHistogramSlider* slider, sliders) slider->recalculatePlotBounds();
+    Q_FOREACH(QHistogramSlider* slider, sliders) slider->recalculatePlotBounds();
 }
 
 void TableDockWidget::filterPeakTable() {
@@ -1594,7 +1594,7 @@ void TableDockWidget::unhideFocusedGroups() {
 
 void TableDockWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    foreach (QUrl url, event->mimeData()->urls() ) {
+    Q_FOREACH (QUrl url, event->mimeData()->urls() ) {
         std::cerr << "dragEnterEvent:" << url.toString().toStdString() << endl;
         if (url.toString() == "ok") {
             event->acceptProposedAction();
@@ -1607,7 +1607,7 @@ void TableDockWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void TableDockWidget::dropEvent(QDropEvent *event)
  {
-    foreach (QUrl url, event->mimeData()->urls() ) {
+    Q_FOREACH (QUrl url, event->mimeData()->urls() ) {
          std::cerr << "dropEvent:" << url.toString().toStdString() << endl;
     }
  }

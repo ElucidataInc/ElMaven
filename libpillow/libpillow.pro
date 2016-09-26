@@ -13,6 +13,7 @@ QT       += script
 
 CONFIG += release
 CONFIG += precompile_header
+CONFIG -= no_keywords
 INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/zlib
 LIBS += -lz
 

@@ -291,7 +291,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToSendingHeaders()
 	_responseContentBytesSent = 0; // No content bytes transfered yet.
 	_responseConnectionKeepAlive = true;
 	_responseChunkedTransferEncoding = false;
-	emit q_ptr->requestReady(q_ptr);
+	Q_EMIT q_ptr->requestReady(q_ptr);
 }
 
 inline void Pillow::HttpConnectionPrivate::transitionToSendingContent()
@@ -322,7 +322,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToCompleted()
 		qWarning() << "HttpConnection::transitionToCompleted called while the request is in the closed state.";
 	}
 	_state = Pillow::HttpConnection::Completed;
-	emit q_ptr->requestCompleted(q_ptr);
+	Q_EMIT q_ptr->requestCompleted(q_ptr);
 
 	// Preserve any existing data in the request buffer that did not belong to the completed request.
 	// Reuse the already allocated buffer if it is not too large.
@@ -387,7 +387,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToClosed()
 
 	if (_inputDevice && _inputDevice->isOpen()) _inputDevice->close();
 	if (_outputDevice && (_inputDevice != _outputDevice) && _outputDevice->isOpen()) _outputDevice->close();
-	emit q_ptr->closed(q_ptr);
+	Q_EMIT q_ptr->closed(q_ptr);
 
 	QObject::disconnect(_inputDevice, 0, q_ptr, 0);
 	if (_inputDevice != _outputDevice) QObject::disconnect(_outputDevice, 0, q_ptr, 0);

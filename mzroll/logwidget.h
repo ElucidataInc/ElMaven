@@ -15,7 +15,7 @@ public:
     LogWidget(QMainWindow *parent, std::ostream &stream);
     ~LogWidget();
 
-public slots:
+public Q_SLOTS:
     void clear();
     void append(QString text);
     void append(const char*);

@@ -368,13 +368,13 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
                 if (mavenParameters->keepFoundGroups) {
 
 //			cerr << "GROUPS IS  " << mavenParameters->allgroups.size() << endl;
-                        emit(newPeakGroup(&(mavenParameters->allgroups[j])));
+                        Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
                         QCoreApplication::processEvents();
                 }
 
                 if (mavenParameters->showProgressFlag
                     && mavenParameters->pullIsotopesFlag && j % 10 == 0) {
-                        emit(updateProgressBar("Calculating Isotopes", j,
+                        Q_EMIT(updateProgressBar("Calculating Isotopes", j,
                                                mavenParameters->allgroups.size()));
                 }
         }
@@ -384,7 +384,7 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
                 delete (csvreports);
                 csvreports = NULL;
         }
-        emit(updateProgressBar("Done", 1, 1));
+        Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
 void BackgroundPeakUpdate::getPullIsotopeSettings() {
@@ -448,7 +448,7 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
 
 void BackgroundPeakUpdate::align() {
         if (mavenParameters->alignSamplesFlag) {
-                //		emit(updateProgressBar("Aligning Samples", 1, 100));
+                //		Q_EMIT(updateProgressBar("Aligning Samples", 1, 100));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)
                         groups[i] = &mavenParameters->allgroups[i];
@@ -465,16 +465,24 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
                                          string setName) {
 
         getProcessSlicesSettings();
+        peakDetector.boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
+
         peakDetector.processSlices(slices, setName);
 
         align();
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
-                emit(updateProgressBar("Calculation Isotopes", 1, 100));
+                Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
         }
 
         writeCSVRep(setName);
+}
+
+void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int completed_slices, int total_slices)
+{
+        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_slices, total_slices));
+
 }
 
 void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
@@ -483,13 +491,14 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
         if (set.size() == 0)
                 return;
 
+        Q_EMIT(updateProgressBar("Processing Compounds", 0, 0));
         vector<mzSlice*> slices = peakDetector.processCompounds(set, setName);
         processSlices(slices, setName);
         delete_all(slices);
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
-        emit (updateProgressBar("Computing Mass Slices", 0, 10));
+        Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 10));
         peakDetector.processMassSlices();
         //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
@@ -497,7 +506,7 @@ void BackgroundPeakUpdate::processMassSlices() {
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
-                emit(updateProgressBar("Calculation Isotopes", 1, 100));
+                Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
         }
 
         writeCSVRep("allslices");

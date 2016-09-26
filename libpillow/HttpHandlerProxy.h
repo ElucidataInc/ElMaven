@@ -64,12 +64,12 @@ namespace Pillow
 		Pillow::HttpConnection* request() const { return _request; }
 		QNetworkReply* proxiedReply() const { return _proxiedReply; }
 
-	protected slots:
+	protected Q_SLOTS:
 		virtual void teardown();
 		virtual void sendHeaders();
 		virtual void pump(const QByteArray& data);
 
-	private slots:
+	private Q_SLOTS:
 		void proxiedReply_readyRead();
 		void proxiedReply_finished();
 	};

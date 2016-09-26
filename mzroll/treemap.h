@@ -68,7 +68,7 @@ class TreeMap : public QGraphicsView
 				TreeMap(MainWindow* mw);
                 ~TreeMap();
 
-		public slots: 
+		public Q_SLOTS: 
 			void setTable(TableDockWidget* t);
             void replot();
 

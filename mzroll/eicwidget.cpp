@@ -216,7 +216,7 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 
 	if (selScan != NULL) { 
         setFocusLine(selScan->rt);
-        emit(scanChanged(selScan)); //TODO: Sahil, added while merging eicwidget
+        Q_EMIT(scanChanged(selScan)); //TODO: Sahil, added while merging eicwidget
 	}
 }
 
@@ -1592,7 +1592,7 @@ void EicWidget::getNotes(float mzmin, float mzmax) {
 		return;
 	QList<UserNote*> notes = getMainWindow()->notesDockWidget->getNotes(mzmin,
 			mzmax);
-	foreach( UserNote* usernote, notes ){
+	Q_FOREACH( UserNote* usernote, notes ){
 
 	float xpos = toX(usernote->rt);
 	float ypos = toY(usernote->intensity);

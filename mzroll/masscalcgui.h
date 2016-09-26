@@ -24,14 +24,14 @@ public:
 protected:
         
 
-public slots: 
+public Q_SLOTS: 
  	  void setMass(float mz);
 	  void setCharge(float charge);
 	  void setPPM(float ppm);
       void compute();
 	  QSet<Compound*> findMathchingCompounds(float mz, float ppm, float charge);
 
-private slots:
+private Q_SLOTS:
       void showCellInfo(int row, int col, int lrow, int lcol);
 	  void getMatches();
       void showTable();

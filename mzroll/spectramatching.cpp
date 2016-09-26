@@ -59,7 +59,7 @@ void SpectraMatching::getFormValues() {
    QRegExp COMMA("[;|,|\n|\r]");
    if ( mzpairs.contains(COMMA) ) {
        QStringList mz_ints_pairs = mzpairs.split(COMMA);
-       foreach (QString mzint, mz_ints_pairs) {
+       Q_FOREACH (QString mzint, mz_ints_pairs) {
            mzint = mzint.simplified();
            qDebug() << "Pair:" << mzint;
 
@@ -102,7 +102,7 @@ void SpectraMatching::getFormValues() {
        }
    } else {
        QStringList mzs = mzpairs.split(SPACE);
-       foreach (QString mzstr, mzs) {
+       Q_FOREACH (QString mzstr, mzs) {
            float mz = mzstr.simplified().toDouble();
            if (mz > 0) _mzsList << mz;
        }
@@ -119,7 +119,7 @@ void SpectraMatching::getFormValues() {
 
 void SpectraMatching::showScan() {
     qDebug() << "showScan()";
-    foreach(QTreeWidgetItem* item, resultTable->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, resultTable->selectedItems() ) {
 
         QVariant v =   item->data(0,Qt::UserRole);
         unsigned int hitId=  v.value<int>();

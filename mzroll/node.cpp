@@ -43,13 +43,13 @@ Node::~Node() {
 
 QList<Edge*> Node::edgesIn() { 
 		QList<Edge*>elist;
-		foreach(Edge* e, edgeList) if (e->destNode() == this ) elist << e;
+		Q_FOREACH(Edge* e, edgeList) if (e->destNode() == this ) elist << e;
 		return elist;
 }
 
 QList<Edge*> Node::edgesOut() { 
 		QList<Edge*>elist;
-		foreach(Edge* e, edgeList) if (e->sourceNode() == this ) elist << e;
+		Q_FOREACH(Edge* e, edgeList) if (e->sourceNode() == this ) elist << e;
 		return elist;
 }
 
@@ -59,7 +59,7 @@ void Node::addEdge(Edge *edge) {
 
 QList<Edge*> Node::findConnectedEdges(Node* other) {
 	QList<Edge*>elist;
-	foreach(Edge* e, edgeList) if (e->sourceNode() == other || e->destNode() == other ) elist << e;
+	Q_FOREACH(Edge* e, edgeList) if (e->sourceNode() == other || e->destNode() == other ) elist << e;
     return elist;
 }
 
@@ -286,21 +286,21 @@ void Node::paintLabel(QPainter *painter) {
 
 
 void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
-    emit(nodeDoubleClicked(this));
+    Q_EMIT(nodeDoubleClicked(this));
 }
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 	scene()->clearSelection();
-    emit(nodePressed(this));
+    Q_EMIT(nodePressed(this));
 }
 
 
 void Node::mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) {
     QGraphicsItem::mouseMoveEvent(event);
-    foreach (Edge *edge, edgeList) edge->adjust();
+    Q_FOREACH (Edge *edge, edgeList) edge->adjust();
     scene()->update();
 	setNewPos(pos().x(), pos().y());
-    emit(nodeMoved(this));
+    Q_EMIT(nodeMoved(this));
 }
 
 QVariant Node::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -308,8 +308,8 @@ QVariant Node::itemChange(GraphicsItemChange change, const QVariant &value)
 /*    switch (change) {
     case ItemPositionHasChanged:
         qDebug() << "itemChange:";
-        foreach (Edge *edge, edgeList) edge->adjust();
-        emit(nodeMoved(this));
+        Q_FOREACH (Edge *edge, edgeList) edge->adjust();
+        Q_EMIT(nodeMoved(this));
         break;
     default:
         break;

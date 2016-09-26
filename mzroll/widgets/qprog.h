@@ -68,7 +68,7 @@ public:
 
 	QRectF boundingRect() const;
 
-public slots:
+public Q_SLOTS:
 
     void setValue(double);
     void setMaxValue(double);

@@ -38,7 +38,7 @@ void HeatMap::wheelEvent(QWheelEvent *event) {
 void HeatMap::updateColors() {
 
     cerr << "HeatMap::updateColors()" << endl;
-    foreach (QGraphicsItem *item, scene()->items()) {
+    Q_FOREACH (QGraphicsItem *item, scene()->items()) {
         if (QGraphicsRectItem *rect = qgraphicsitem_cast<QGraphicsRectItem *>(item)) {
            float cellValue = rect->data(1).toDouble();
            QColor color = getColor(cellValue,_heatMin,_heatMax);

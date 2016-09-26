@@ -17,7 +17,7 @@ public:
     HeatMap(MainWindow* mw);
     ~HeatMap();
 
-public slots:
+public Q_SLOTS:
     void setTable(TableDockWidget* t);
     void replot();
     void updateColors();

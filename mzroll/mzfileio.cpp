@@ -24,7 +24,7 @@ void mzFileIO::setMainWindow(MainWindow* mw) {
 }
 
 void mzFileIO::loadSamples(QStringList& files) {
-	foreach(QString file, files){ addFileToQueue(file); } //TODO: Sahil, addeed this part while merging mzfile
+	Q_FOREACH(QString file, files){ addFileToQueue(file); } //TODO: Sahil, addeed this part while merging mzfile
 	if (filelist.size() > 0) start(); //TODO: Sahil, addeed this part while merging mzfile
     //setFileList(filenames); //TODO: Sahil, commented this part while merging mzfile
     //start(); //TODO: Sahil, commented this part while merging mzfile
@@ -159,7 +159,7 @@ PK$PEAK: m/z int. rel.int.
                cpd->db=dbname;
                cpd->fragment_mzs = mzs;
                cpd->fragment_intensity = intest;
-			   foreach (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
+			   Q_FOREACH (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
                DB.addCompound(cpd);
                compoundCount++;
             }
@@ -474,7 +474,7 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
                if (!taglist.isEmpty()) taglist.pop_back();
                if (xml.name() == "spectrum" && currentScan) {
                    currentSample->addScan(currentScan);
-                   emit (updateProgressBar( "FileImport", scannum%100, 110));
+                   Q_EMIT (updateProgressBar( "FileImport", scannum%100, 110));
                }
         }
     }
@@ -492,14 +492,14 @@ void mzFileIO::run(void) {
 
 void mzFileIO::fileImport(void) {
 //     if ( filelist.size() == 0 ) return;
-//     emit (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
+//     Q_EMIT (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
 
 //     #pragma omp parallel for ordered
 //     for (int i = 0; i < filelist.size(); i++) {
        
 //         QString filename = filelist.at(i);
 //         #pragma omp ordered
-//         emit (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
+//         Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
 	
 //         if(_mainwindow) {
 //             qDebug() << "Loading sample:" << filename;
@@ -507,17 +507,17 @@ void mzFileIO::fileImport(void) {
 //             _mainwindow->addSample(sample);
 //         }
 //     }
-//    emit (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
+//    Q_EMIT (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
 
     if ( filelist.size() == 0 ) return;
-    emit (updateProgressBar( "Importing files", 0, filelist.size()));
+    Q_EMIT (updateProgressBar( "Importing files", 0, filelist.size()));
 
     QStringList samples;
     QStringList peaks;
     QStringList projects;
     QStringList spectralhits;
 
-    foreach(QString filename, filelist ) {
+    Q_FOREACH(QString filename, filelist ) {
         QFileInfo fileInfo(filename);
         if (!fileInfo.exists()) continue;
         qDebug() << "fileImport:" << filename;
@@ -533,13 +533,13 @@ void mzFileIO::fileImport(void) {
         }
     }
 
-    foreach(QString filename, projects ) {
+    Q_FOREACH(QString filename, projects ) {
         qDebug() << "fileImport: loadProject:" << filename;
         _mainwindow->projectDockWidget->loadProject(filename);
         _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
     }
 
-    foreach(QString filename, peaks ) {
+    Q_FOREACH(QString filename, peaks ) {
         qDebug() << "fileImport: loadPeaks:" << filename;
         QFileInfo fileInfo(filename);
         TableDockWidget* tableX = _mainwindow->addPeaksTable("Group Set " + fileInfo.fileName());
@@ -571,12 +571,12 @@ void mzFileIO::fileImport(void) {
         #pragma omp atomic
         iter++;
         
-        emit (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
+        Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
 
 	}
     cerr << "Time taken by file import : " << omp_get_wtime() - start;
 
-    foreach(QString filename, spectralhits ) {
+    Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {
             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
         }
@@ -589,11 +589,11 @@ void mzFileIO::fileImport(void) {
    }
 
     //done..
-    emit (updateProgressBar( "Done importing", samples.size(), samples.size()));
-    if (samples.size() > 0)       emit(sampleLoaded());
-    if (spectralhits.size() >0)   emit(spectraLoaded());
-    if (projects.size() >0)       emit(projectLoaded());
-    if (peaks.size() > 0)    	  emit(peaklistLoaded());
+    Q_EMIT (updateProgressBar( "Done importing", samples.size(), samples.size()));
+    if (samples.size() > 0)       Q_EMIT(sampleLoaded());
+    if (spectralhits.size() >0)   Q_EMIT(spectraLoaded());
+    if (projects.size() >0)       Q_EMIT(projectLoaded());
+    if (peaks.size() > 0)    	  Q_EMIT(peaklistLoaded());
     filelist.clear(); //empty queue
 }
 
@@ -617,7 +617,7 @@ bool mzFileIO::isKnownFileType(QString filename) {
 bool mzFileIO::isSampleFileType(QString filename) {
     QStringList extList;
     extList << "mzXML" << "cdf" << "nc" << "mzML" << "mzData" << "mzML";
-    foreach (QString suffix, extList) {
+    Q_FOREACH (QString suffix, extList) {
         if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
     }
     return false;
@@ -639,7 +639,7 @@ bool mzFileIO::isProjectFileType(QString filename) {
 bool mzFileIO::isSpectralHitType(QString filename) {
     QStringList extList;
     extList << "pep.xml" << "pepXML" << "idpDB";
-    foreach (QString suffix, extList) {
+    Q_FOREACH (QString suffix, extList) {
         if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
     }
     return false;
@@ -652,7 +652,7 @@ bool mzFileIO::isSpectralHitType(QString filename) {
 bool mzFileIO::isPeakListType(QString filename) {
     QStringList extList;
     extList << "mzPeaks";
-    foreach (QString suffix, extList) {
+    Q_FOREACH (QString suffix, extList) {
         if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
     }
     return false;

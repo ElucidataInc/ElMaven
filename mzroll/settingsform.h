@@ -17,7 +17,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                     void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
                     void mouseReleaseEvent(QMouseEvent* e) {QDialog::mouseReleaseEvent(e); getFormValues(); }
 
-		public slots:
+		public Q_SLOTS:
                  void updateSettingFormGUI();
 				 void getFormValues();
 				 void recomputeEIC();

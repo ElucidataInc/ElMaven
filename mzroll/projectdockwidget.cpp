@@ -244,7 +244,7 @@ void ProjectDockWidget::changeColors() {
       lastUsedSampleColor = QColorDialog::getColor(lastUsedSampleColor,this,"Select Sample Color",QColorDialog::ShowAlphaChannel);
 
       //change colors of selected items
-      foreach (QTreeWidgetItem* item, selected) {
+      Q_FOREACH (QTreeWidgetItem* item, selected) {
           if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
       }
 
@@ -263,7 +263,7 @@ void ProjectDockWidget::checkUncheck() {
       if(selected.size() == 0) return;
 
       qDebug() << "checkUncheck()" << selected.size();
-      foreach (QTreeWidgetItem* item, selected) {
+      Q_FOREACH (QTreeWidgetItem* item, selected) {
           if (item->type() == SampleType) {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
@@ -283,7 +283,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
       if(selected.size() == 0) return;
 
-      foreach (QTreeWidgetItem* item, selected) {
+      Q_FOREACH (QTreeWidgetItem* item, selected) {
           if (item->type() == SampleType) {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
@@ -550,7 +550,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 //_mainwindow->setProgressBar(tr("Loading Sample Number %1").arg(++currentSampleCount),currentSampleCount,currentSampleCount+1);
 
                 bool checkLoaded=false;
-                foreach(mzSample* loadedFile, _mainwindow->getSamples()) {
+                Q_FOREACH(mzSample* loadedFile, _mainwindow->getSamples()) {
                     if (QString(loadedFile->fileName.c_str())== fname) checkLoaded=true;
                 }
 
@@ -559,7 +559,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
                 if (!sampleFile.exists()) {
-                    foreach(QString path, pathlist) {
+                    Q_FOREACH(QString path, pathlist) {
                         fname= path + QDir::separator() + sampleFile.fileName();
                         qDebug() << "Checking if exists:" << fname;
                         if (sampleFile.exists())  break;
@@ -597,7 +597,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
 			//polynomialAlignmentTransformation vector
             if (xml.name() == "polynomialAlignmentTransformation" && currentSample) {
 				vector<double>transform;
-				foreach(QXmlStreamAttribute coef, xml.attributes() ) {
+				Q_FOREACH(QXmlStreamAttribute coef, xml.attributes() ) {
 					double coefValue =coef.value().toString().toDouble();
 					transform.push_back(coefValue);
 				}

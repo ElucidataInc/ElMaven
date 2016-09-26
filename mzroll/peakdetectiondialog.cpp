@@ -106,9 +106,9 @@ void PeakDetectionDialog::show() {
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
-        // TODO: Update the progress bar
-        // connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
-        //        SLOT(setProgressBar(QString, int,int)));
+        connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
+               SLOT(setProgressBar(QString, int,int)));
+
     }
 
     // peakupdater->useMainWindowLabelOptions = false;

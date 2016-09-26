@@ -136,7 +136,7 @@ void LigandWidget::setDatabase(QString dbname) {
    if (index != -1 ) databaseSelect->setCurrentIndex(index);
 
     _mw->getSettings()->setValue("lastCompoundDatabase", getDatabaseName());
-    emit databaseChanged(getDatabaseName());
+    Q_EMIT databaseChanged(getDatabaseName());
     showTable();
 }
 
@@ -209,7 +209,7 @@ void LigandWidget::showMatches(QString needle) {
                         }
                     }
 
-                    foreach( QString x, stack) {
+                    Q_FOREACH( QString x, stack) {
                         if (x.contains(regexp)) {
                              item->setHidden(false); break;
                         }
@@ -413,7 +413,7 @@ void LigandWidget::showLigand() {
 	if (!_mw) return;
 
     qDebug() << "LigandWidget::showLigand()";
-    foreach(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
             QVariant v = item->data(0,Qt::UserRole);
             Compound*  c =  v.value<Compound*>();
             if (c)  _mw->setCompoundFocus(c);

@@ -211,7 +211,7 @@ void RconsoleWidget::readProcessOutput(int) {
 
    //files tmp remove
    QStringList tmpfiles; tmpfiles << processScriptFile << processErrorFile << processOutFile;
-   foreach(QString filename, tmpfiles) {
+   Q_FOREACH(QString filename, tmpfiles) {
        QFile fileA(filename);
        if(fileA.exists()) fileA.remove();
    }
