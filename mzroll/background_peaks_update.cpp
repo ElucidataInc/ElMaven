@@ -349,7 +349,20 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
                 //Added to pass into csvreports file when merged with Maven776 - Kiran
                 csvreports->openGroupReport(groupfilename,includeSetNamesLine);
         }
+
         peakDetector.pullAllIsotopes();
+
+        for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
+			PeakGroup& group = mavenParameters->allgroups[j];
+
+			if (csvreports != NULL) csvreports->addGroup(&group);
+
+
+			if (mavenParameters->keepFoundGroups) {
+				Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
+				QCoreApplication::processEvents();
+			}
+        }
 
         if (csvreports != NULL) {
                 csvreports->closeFiles();

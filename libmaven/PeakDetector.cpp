@@ -100,7 +100,6 @@ void PeakDetector::pullAllIsotopes() {
 
         if (mavenParameters->pullIsotopesFlag && !group.isIsotope())
             pullIsotopes(&group);
-        // if (csvreports != NULL) csvreports->addGroup(&group);
 
         if (compound) {
             if (!compound->hasGroup() ||
@@ -108,15 +107,10 @@ void PeakDetector::pullAllIsotopes() {
                 compound->setPeakGroup(group);
         }
 
-        if (mavenParameters->keepFoundGroups) {
-            // Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
-            // QCoreApplication::processEvents();
-        }
 
         if (mavenParameters->showProgressFlag &&
             mavenParameters->pullIsotopesFlag && j % 10 == 0) {
-            // Q_EMIT(updateProgressBar("Calculating Isotopes", j,
-            //                         mavenParameters->allgroups.size()));
+			sendBoostSignal("Calculating Isotopes", j, mavenParameters->allgroups.size());
         }
     }
 }
