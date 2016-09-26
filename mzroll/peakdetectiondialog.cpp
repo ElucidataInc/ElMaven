@@ -413,11 +413,10 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("featureOptions",
             featureOptions->isChecked());
     ////////////////////////////////////////////////////////////
-    // Mass domain Resolution (ppm)
     // TODO: what is this?
-    // settings->setValue(
-    //        "avgScanTime",
-    //        samples[0]->getAverageFullScanTime());
+    vector<mzSample*> samples = mainwindow->getSamples();
+    settings->setValue("avgScanTime", 
+            samples[0]->getAverageFullScanTime());
     // Time domain resolution(scans)
 }
 
@@ -501,6 +500,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         mavenParameters->setCompounds(DB.getCopoundsSubset(
             compoundDatabase->currentText().toStdString()));
+
+        mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
 
         mavenParameters->samples = mainwindow->getSamples();
 
