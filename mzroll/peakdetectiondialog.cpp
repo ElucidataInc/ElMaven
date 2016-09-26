@@ -463,6 +463,13 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Isotope detection in peakdetection dialogue box
         mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
+
+        mavenParameters->maxIsotopeScanDiff = settings->value(
+                "maxIsotopeScanDiff").toDouble();
+        mavenParameters->minIsotopicCorrelation = settings->value(
+                "minIsotopicCorrelation").toDouble();
+        mavenParameters->maxNaturalAbundanceErr = settings->value(
+                "maxNaturalAbundanceErr").toDouble();
         mavenParameters->C13Labeled = settings->value("checkBox").toBool();  // C13
         mavenParameters->N15Labeled =
             settings->value("checkBox_2").toBool();                      // N15

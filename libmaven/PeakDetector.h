@@ -88,8 +88,8 @@ public:
 	 * @method processSlices
 	 */
 	void processSlices(void);
-
-	/**
+        void pullAllIsotopes();
+        /**
 	 * [process one Slice]
 	 * @method processSlice
 	 * @param  slice        [pointer to mzSlice]

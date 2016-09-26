@@ -93,45 +93,74 @@ void PeakDetector::processSlice(mzSlice& slice) {
         processSlices(slices, "sliceset");
 }
 
-void PeakDetector::processMassSlices() {
-        
-        //init
-        //TODO: what is this doing?
-        //TODO: cant this be in background_peaks_update parameter setting function
-        mavenParameters->showProgressFlag = true;
-        mavenParameters->checkConvergance = true;
-        QTime timer;
-        timer.start();
+void PeakDetector::pullAllIsotopes() {
+    for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
+        PeakGroup& group = mavenParameters->allgroups[j];
+        Compound* compound = group.compound;
 
-        //TODO: cant this be in background_peaks_update parameter setting function
-        mavenParameters->setAverageScanTime(); //find avgScanTime
+        if (mavenParameters->pullIsotopesFlag && !group.isIsotope())
+            pullIsotopes(&group);
+        // if (csvreports != NULL) csvreports->addGroup(&group);
 
-
-        MassSlices massSlices;
-        massSlices.setSamples(mavenParameters->samples);
-        massSlices.algorithmB(mavenParameters->ppmMerge,
-                              mavenParameters->minGroupIntensity, mavenParameters->rtStepSize); //perform algorithmB for samples
-
-        if (massSlices.slices.size() == 0)
-                massSlices.algorithmA();  //if no slices present, perform algorithmA TODO WHY?!
-
-        //sort the massslices based on their intensities to enurmerate good slices.
-        sort(massSlices.slices.begin(), massSlices.slices.end(),
-             mzSlice::compIntensity);
-
-        if (massSlices.slices.size() == 0) {
-                //	Q_EMIT (updateProgressBar("Quiting! No good mass slices found", 1, 1)); TODO: Fix Q_EMIT.
-                return;
+        if (compound) {
+            if (!compound->hasGroup() ||
+                group.groupRank < compound->getPeakGroup()->groupRank)
+                compound->setPeakGroup(group);
         }
 
-        //process goodslices
-        processSlices(massSlices.slices, "allslices");
+        if (mavenParameters->keepFoundGroups) {
+            // Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
+            // QCoreApplication::processEvents();
+        }
 
-        //cleanup
-        delete_all(massSlices.slices);
+        if (mavenParameters->showProgressFlag &&
+            mavenParameters->pullIsotopesFlag && j % 10 == 0) {
+            // Q_EMIT(updateProgressBar("Calculating Isotopes", j,
+            //                         mavenParameters->allgroups.size()));
+        }
+    }
+}
 
-        qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
-        << timer.elapsed();
+void PeakDetector::processMassSlices() {
+    // init
+    // TODO: what is this doing?
+    // TODO: cant this be in background_peaks_update parameter setting function
+    mavenParameters->showProgressFlag = true;
+    mavenParameters->checkConvergance = true;
+    QTime timer;
+    timer.start();
+
+    // TODO: cant this be in background_peaks_update parameter setting function
+    mavenParameters->setAverageScanTime();  // find avgScanTime
+
+    MassSlices massSlices;
+    massSlices.setSamples(mavenParameters->samples);
+    massSlices.algorithmB(
+        mavenParameters->ppmMerge, mavenParameters->minGroupIntensity,
+        mavenParameters->rtStepSize);  // perform algorithmB for samples
+
+    if (massSlices.slices.size() == 0)
+        massSlices.algorithmA();  // if no slices present, perform algorithmA
+                                  // TODO WHY?!
+
+    // sort the massslices based on their intensities to enurmerate good slices.
+    sort(massSlices.slices.begin(), massSlices.slices.end(),
+         mzSlice::compIntensity);
+
+    if (massSlices.slices.size() == 0) {
+        //	Q_EMIT (updateProgressBar("Quiting! No good mass slices found",
+        //1, 1)); TODO: Fix Q_EMIT.
+        return;
+    }
+
+    // process goodslices
+    processSlices(massSlices.slices, "allslices");
+
+    // cleanup
+    delete_all(massSlices.slices);
+
+    qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
+             << timer.elapsed();
 }
 
 /**
