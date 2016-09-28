@@ -205,207 +205,210 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
 void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
-        // FALSE CONDITIONS
-        if (parentgroup == NULL)
-                return;
-        if (parentgroup->compound == NULL)
-                return;
-        if (parentgroup->compound->formula.empty() == true)
-                return;
-        if (mavenParameters->samples.size() == 0)
-                return;
+    // FALSE CONDITIONS
+    if (parentgroup == NULL)
+        return;
+    if (parentgroup->compound == NULL)
+        return;
+    if (parentgroup->compound->formula.empty() == true)
+        return;
+    if (mavenParameters->samples.size() == 0)
+        return;
 
-        //init
-	// double maxNaturalAbundanceErr = 100; //naman: unused param.
-	// mavenParameters->maxNaturalAbundanceErr;
-	bool C13Labeled = false;
-	// mavenParameters->C13Labeled;
-	bool N15Labeled = false;
-	// mavenParameters->N15Labeled;
-	bool S34Labeled = false;
-	// mavenParameters->S34Labeled;
-	bool D2Labeled = false;
-	// mavenParameters->D2Labeled;
-	// int eic_smoothingAlgorithm = 0; //naman: unused
-	// mavenParameters->eic_smoothingAlgorithm;
+    //init
+    // double maxNaturalAbundanceErr = 100; //naman: unused param.
+    // mavenParameters->maxNaturalAbundanceErr;
+    bool C13Labeled = false;
+    // mavenParameters->C13Labeled;
+    bool N15Labeled = false;
+    // mavenParameters->N15Labeled;
+    bool S34Labeled = false;
+    // mavenParameters->S34Labeled;
+    bool D2Labeled = false;
+    // mavenParameters->D2Labeled;
+    // int eic_smoothingAlgorithm = 0; //naman: unused
+    // mavenParameters->eic_smoothingAlgorithm;
 
-	string formula = parentgroup->compound->formula; //parent formula
-        //generate isotope list for parent mass
-	vector<Isotope> masslist = MassCalculator::computeIsotopes(
-	    formula, mavenParameters->ionizationMode);
+    string formula = parentgroup->compound->formula; //parent formula
+    //generate isotope list for parent mass
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(
+            formula, mavenParameters->ionizationMode);
 
-	//iterate over samples to find properties for parent's isotopes.
-        map<string, PeakGroup> isotopes;
-        map<string, PeakGroup>::iterator itr2;
+    //iterate over samples to find properties for parent's isotopes.
+    map<string, PeakGroup> isotopes;
+    map<string, PeakGroup>::iterator itr2;
 
-//   #pragma omp parallel for ordered
-        for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
-                mzSample* sample = mavenParameters->samples[s];
-                for (int k = 0; k < masslist.size(); k++) {
-//			if (stopped())
-//				break; TODO: stop
-                        Isotope& x = masslist[k];
-                        string isotopeName = x.name;
-                        double isotopeMass = x.mass;
-                        double expectedAbundance = x.abundance;
+    //   #pragma omp parallel for ordered
+    for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
+        mzSample* sample = mavenParameters->samples[s];
+        for (int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
 
-			float mzmin = isotopeMass -
-				      isotopeMass / 1e6 *
-					  mavenParameters->compoundPPMWindow;
-			float mzmax = isotopeMass +
-				      isotopeMass / 1e6 *
-					  mavenParameters->compoundPPMWindow;
+            float mzmin = isotopeMass -
+                isotopeMass / 1e6 *
+                mavenParameters->compoundPPMWindow;
+            float mzmax = isotopeMass +
+                isotopeMass / 1e6 *
+                mavenParameters->compoundPPMWindow;
 
-			float rt = parentgroup->medianRt();
-                        float rtmin = parentgroup->minRt;
-                        float rtmax = parentgroup->maxRt;
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
 
-                        Peak* parentPeak = parentgroup->getPeak(sample);
-                        if (parentPeak)
-                                rt = parentPeak->rt;
-                        if (parentPeak)
-                                rtmin = parentPeak->rtmin;
-                        if (parentPeak)
-                                rtmax = parentPeak->rtmax;
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
 
-                        float isotopePeakIntensity = 0;
-                        float parentPeakIntensity = 0;
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
 
-                        if (parentPeak) {
-                                parentPeakIntensity = parentPeak->peakIntensity;
-                                int scannum = parentPeak->getScan()->scannum;
-                                for (int i = scannum - 3; i < scannum + 3; i++) {
-                                        Scan* s = sample->getScan(i);
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                int scannum = parentPeak->getScan()->scannum;
+                for (int i = scannum - 3; i < scannum + 3; i++) {
+                    Scan* s = sample->getScan(i);
 
-                                        //look for isotopic mass in the same spectrum
-                                        vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
+                    //look for isotopic mass in the same spectrum
+                    vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
 
-                                        for (int i = 0; i < matches.size(); i++) {
-                                                int pos = matches[i];
-                                                if (s->intensity[pos] > isotopePeakIntensity) {
-                                                        isotopePeakIntensity = s->intensity[pos];
-                                                        rt = s->rt;
-                                                }
-                                        }
-                                }
-
+                    for (int i = 0; i < matches.size(); i++) {
+                        int pos = matches[i];
+                        if (s->intensity[pos] > isotopePeakIntensity) {
+                            isotopePeakIntensity = s->intensity[pos];
+                            rt = s->rt;
                         }
-                        //if(isotopePeakIntensity==0) continue;
-
-                        //natural abundance check
-                        if ((x.C13 > 0 && C13Labeled == false) //if isotope is not C13Labeled
-                            || (x.N15 > 0 && N15Labeled == false) //if isotope is not N15 Labeled
-                            || (x.S34 > 0 && S34Labeled == false) //if isotope is not S34 Labeled
-                            || (x.H2 > 0 && D2Labeled == false) //if isotope is not D2 Labeled
-
-                            ) {
-                                if (expectedAbundance < 1e-8)
-                                        continue;
-                                if (expectedAbundance * parentPeakIntensity < 1)
-                                        continue;
-                                float observedAbundance = isotopePeakIntensity
-                                                          / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
-
-                                float naturalAbundanceError = abs(
-                                        observedAbundance - expectedAbundance) //if observedAbundance is significant wrt expectedAbundance
-                                                              / expectedAbundance * 100; // compute natural Abundance Error
-
-                                //cerr << isotopeName << endl;
-                                //cerr << "Expected isotopeAbundance=" << expectedAbundance;
-                                //cerr << " Observed isotopeAbundance=" << observedAbundance;
-                                //cerr << " Error="		 << naturalAbundanceError << endl;
-
-				if (naturalAbundanceError >
-				    mavenParameters->maxNaturalAbundanceErr)
-					continue;
-                        }
-
-                        float w = mavenParameters->maxIsotopeScanDiff
-                                  * mavenParameters->avgScanTime;
-			double c = sample->correlation(
-			    isotopeMass, parentgroup->meanMz,
-			    mavenParameters->compoundPPMWindow, rtmin - w,
-			    rtmax + w);  // find correlation for isotopes
-			if (c < mavenParameters->minIsotopicCorrelation) //if correlation is not less than minimum isotopic correlation STOP
-                                continue;
-
-                        //cerr << "pullIsotopes: " << isotopeMass << " " << rtmin-w << " " <<	rtmin+w << " c=" << c << endl;
-
-                        EIC* eic = NULL; //find EIC for isotopes
-                        for (int i = 0; i < mavenParameters->maxIsotopeScanDiff; i++) {
-                                float window = i * mavenParameters->avgScanTime;
-                                eic = sample->getEIC(mzmin, mzmax, rtmin - window,
-                                                     rtmax + window, 1);
-                                //smooth fond eic TODO: null check for found eic
-                                eic->setSmootherType(
-                                        (EIC::SmootherType) mavenParameters->eic_smoothingAlgorithm);
-                                eic->getPeakPositions(mavenParameters->eic_smoothingWindow); //find peak position inside eic
-                                if (eic->peaks.size() == 0)
-                                        continue;
-                                if (eic->peaks.size() > 1)
-                                        break;
-                        }
-                        if (!eic)
-                                continue;
-
-                        //find nearest peak. compute distance between parent peak and all other peaks
-                        // nearest peak is one with mimimum distance== min RT
-                        Peak* nearestPeak = NULL;
-                        float d = FLT_MAX;
-                        for (int i = 0; i < eic->peaks.size(); i++) {
-                                Peak& x = eic->peaks[i];
-                                float dist = abs(x.rt - rt);
-                                if (dist
-                                    > mavenParameters->maxIsotopeScanDiff
-                                    * mavenParameters->avgScanTime)
-                                        continue;
-                                if (dist < d) {
-                                        d = dist;
-                                        nearestPeak = &x;
-                                }
-                        }
-
-                        if (nearestPeak) { //if nearest peak is present
-                                if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
-                                        PeakGroup g;
-                                        g.meanMz = isotopeMass;
-                                        g.tagString = isotopeName;
-                                        g.expectedAbundance = expectedAbundance;
-                                        g.isotopeC13count = x.C13;
-                                        isotopes[isotopeName] = g;
-                                }
-                                isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
-                        }
-                        delete (eic);
+                    }
                 }
-        }
 
-        //fill peak group list with the compound and it's isotopes.
-        // peak group list would be filled with the parent group, with its isotopes as children
-        // click on + to see children == isotopes
-        parentgroup->children.clear();
-        // for (itr2 = isotopes.begin(); itr2 != isotopes.end(); itr2++) {
-        for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
-                string isotopeName = (*itr2).first;
-                PeakGroup& child = (*itr2).second;
-                child.tagString = isotopeName;
-                child.metaGroupId = parentgroup->metaGroupId;
-                child.groupId = parentgroup->groupId;
-                child.compound = parentgroup->compound;
-                child.parent = parentgroup;
-                child.setType(PeakGroup::Isotope);
-                child.groupStatistics();
-                if (mavenParameters->clsf->hasModel()) {
-                        mavenParameters->clsf->classify(&child);
-                        child.groupStatistics();
+            }
+            //if(isotopePeakIntensity==0) continue;
+
+            //natural abundance check
+            if ((x.C13 > 0 && C13Labeled == false) //if isotope is not C13Labeled
+                    || (x.N15 > 0 && N15Labeled == false) //if isotope is not N15 Labeled
+                    || (x.S34 > 0 && S34Labeled == false) //if isotope is not S34 Labeled
+                    || (x.H2 > 0 && D2Labeled == false) //if isotope is not D2 Labeled
+
+               ) {
+                if (expectedAbundance < 1e-8)
+                    continue;
+                if (expectedAbundance * parentPeakIntensity < 1)
+                    continue;
+                float observedAbundance = isotopePeakIntensity
+                    / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
+
+                float naturalAbundanceError = abs(
+                        observedAbundance - expectedAbundance) //if observedAbundance is significant wrt expectedAbundance
+                    / expectedAbundance * 100; // compute natural Abundance Error
+
+
+                if (naturalAbundanceError >
+                        mavenParameters->maxNaturalAbundanceErr)
+                    continue;
+            }
+
+            float w = mavenParameters->maxIsotopeScanDiff
+                * mavenParameters->avgScanTime;
+            double c = sample->correlation(
+                    isotopeMass, parentgroup->meanMz,
+                    mavenParameters->compoundPPMWindow, rtmin - w,
+                    rtmax + w);  // find correlation for isotopes
+            if (c < mavenParameters->minIsotopicCorrelation)
+                continue;
+
+            vector<Peak> allPeaks;
+            for (int i = 0; i < mavenParameters->maxIsotopeScanDiff;
+                    i++) {
+                float window = i * mavenParameters->avgScanTime;
+                EIC * eic = sample->getEIC(mzmin, mzmax, rtmin - window,
+                        rtmax + window, 1);
+
+                // smooth fond eic TODO: null check for found
+                eic->setSmootherType(
+                        (EIC::SmootherType)
+                        mavenParameters->eic_smoothingAlgorithm);
+                eic->getPeakPositions(
+                        mavenParameters->eic_smoothingWindow);
+                allPeaks = eic->peaks;
+                delete(eic);
+                // find peak position inside eic
+                if (allPeaks.size() == 0){
+                    continue;
                 }
-                parentgroup->addChild(child);
-                //cerr << " add: " << isotopeName << " " <<	child.peaks.size() << " " << isotopes.size() << endl;
+                if (allPeaks.size() > 1) {
+                    break;
+                }
+            }
+
+            if (allPeaks.size() <= 0) {
+                continue;
+            }
+
+            // find nearest peak. compute distance between parent
+            // peak and all other peaks
+            // nearest peak is one with mimimum distance== min RT
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > mavenParameters->maxIsotopeScanDiff *
+                        mavenParameters->avgScanTime)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+
+            //delete (nearestPeak);
+            if (nearestPeak) { //if nearest peak is present
+                if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                    PeakGroup g;
+                    g.meanMz = isotopeMass;
+                    g.tagString = isotopeName;
+                    g.expectedAbundance = expectedAbundance;
+                    g.isotopeC13count = x.C13;
+                    isotopes[isotopeName] = g;
+                }
+                isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+            }
+            vector<Peak>().swap(allPeaks);
         }
-        //cerr << "Done: " << parentgroup->children.size();
-        /*
-           //if ((float) isotope.maxIntensity/parentgroup->maxIntensity > 3*ab[isotopeName]/ab["C12 PARENT"]) continue;
-         */
+    }
+
+    //fill peak group list with the compound and it's isotopes.
+    // peak group list would be filled with the parent group, with its isotopes as children
+    // click on + to see children == isotopes
+    parentgroup->children.clear();
+    for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
+        string isotopeName = (*itr2).first;
+        PeakGroup& child = (*itr2).second;
+        child.tagString = isotopeName;
+        child.metaGroupId = parentgroup->metaGroupId;
+        child.groupId = parentgroup->groupId;
+        child.compound = parentgroup->compound;
+        child.parent = parentgroup;
+        child.setType(PeakGroup::Isotope);
+        child.groupStatistics();
+        if (mavenParameters->clsf->hasModel()) {
+            mavenParameters->clsf->classify(&child);
+            child.groupStatistics();
+        }
+        parentgroup->addChild(child);
+    }
+    /*
+    //if ((float) isotope.maxIntensity/parentgroup->maxIntensity > 3*ab[isotopeName]/ab["C12 PARENT"]) continue;
+    */
 }
 
 void PeakDetector::alignSamples() {

@@ -527,7 +527,7 @@ string cleanSampleName(string sampleName) {
                 <<"\\.mzCSV$"<<"\\.mzdata$"<<"\\.mzXML$"<<"\\.mzML$"<<"\\.mz5$"<<"\\.pepXML$"<<"\\.xml$"<<"\\.cdf$"<<"\\.raw$";
         //copied from maven_stable/mzfileio.cpp
 
-        foreach(const QString &s,fileExtensions) {
+        Q_FOREACH (const QString& s, fileExtensions) {
             out.replace(QRegExp(s,Qt::CaseInsensitive),"");
         }
         return out.toStdString();

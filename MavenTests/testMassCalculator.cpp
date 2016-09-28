@@ -91,8 +91,8 @@ void TestMassCalculator::testComputeIsotopes() {
  
 void TestMassCalculator::testenumerateMasses() {
     //TODO: have to add a test case for ennumurate mass
-    MassCalculator masCal;
-    //masCal.enumerateMasses()
+    // MassCalculator masCal;
+    // masCal.enumerateMasses()
 
     QVERIFY(true);
 }
