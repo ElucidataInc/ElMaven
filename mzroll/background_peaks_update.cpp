@@ -3,7 +3,7 @@
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         mainwindow = NULL;
         _stopped = true;
-        //	setTerminationEnabled(false);
+        setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
 }
 
@@ -495,6 +495,12 @@ void BackgroundPeakUpdate::processMassSlices() {
         }
 
         writeCSVRep("allslices");
+}
+
+void BackgroundPeakUpdate::completeStop() {
+        
+        peakDetector.resetProgressBar();
+        terminate();
 }
 
 void BackgroundPeakUpdate::computePeaks() {
