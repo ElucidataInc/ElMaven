@@ -60,6 +60,7 @@ public:
     }
 
 
+	void resetProgressBar();
 
 	/**
 	 * [get Maven Parameters]
@@ -141,6 +142,7 @@ private:
 	 */
 	bool addPeakGroup(PeakGroup& grp1);
 	MavenParameters* mavenParameters;
+	bool zeroStatus;
 };
 
 /**

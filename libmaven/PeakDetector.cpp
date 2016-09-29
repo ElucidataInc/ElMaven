@@ -4,12 +4,17 @@ PeakDetector::PeakDetector() {
     mavenParameters = NULL; //naman: wasn't initialized
 }
 PeakDetector::PeakDetector(MavenParameters* mp) {
-        mavenParameters = mp;
+	mavenParameters = mp;
 }
 
 /**
  * TODO
  */
+
+void PeakDetector::resetProgressBar() {
+	zeroStatus = true;
+}
+
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     std::vector<mzSample*>&samples,
                                     int peakDetect, 
@@ -204,7 +209,6 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 }
 
 void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
-
     // FALSE CONDITIONS
     if (parentgroup == NULL)
         return;
@@ -592,8 +596,10 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         break;
                 }
 
-                //		if (stopped())
-                //		break;
+                if (zeroStatus){
+					sendBoostSignal("Status", 0 , 1);
+					zeroStatus = false;
+                }
 
                 if (mavenParameters->showProgressFlag && s % 10 == 0) {
 
