@@ -55,7 +55,7 @@ PeakDetectionDialog::~PeakDetectionDialog() {
 void PeakDetectionDialog::cancel() {
     if (peakupdater) {
         if (peakupdater->isRunning()) {
-            peakupdater->stop();
+            peakupdater->completeStop();
             return;
         }
     }
@@ -333,7 +333,7 @@ void PeakDetectionDialog::findPeaks() {
         }
     }
 
-    peaksTable->setWindowTitle(title);
+    peaksTable->setWindowTitle(title); 
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
@@ -342,7 +342,7 @@ void PeakDetectionDialog::findPeaks() {
 
     // connect new connections
     connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
-            SLOT(addPeakGroup(PeakGroup*)));
+           SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
     connect(peakupdater, SIGNAL(terminated()), peaksTable,
             SLOT(showAllGroups()));
