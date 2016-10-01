@@ -617,17 +617,15 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
     }
 
     //clean up peakgroup such that there is only one peak for each sample
+    //does the same funtion of vector::erase(), but much faster
+    pgroups.erase( std::remove_if(pgroups.begin(), pgroups.end(), [](const PeakGroup & grp) { return grp.peaks.size() <= 0; }),pgroups.end());
+    
     for(unsigned int i=0; i< pgroups.size(); i++) {
         PeakGroup& grp = pgroups[i];
-        if (grp.peaks.size() > 0 ) {
             grp.reduce();
             //grp.fillInPeaks(eics);
             //Feng note: fillInPeaks is unecessary
             grp.groupStatistics();
-        } else { //empty group..
-            pgroups.erase(pgroups.begin()+i);
-            i--;
-        }
     }
 
 

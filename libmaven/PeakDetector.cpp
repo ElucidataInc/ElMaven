@@ -28,63 +28,71 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
         vector<EIC*> eics;
         vector<mzSample*> vsamples;
+        #pragma omp parallel default(shared)
+        {
+                //Selecting only the samples that is been selected by the user
+                // double start=omp_get_wtime();
+                #pragma omp for
+                for (unsigned int i = 0; i < samples.size(); i++) {
+                        if (samples[i] == NULL)
+                                continue;
+                        if (samples[i]->isSelected == false)
+                                continue;
+                        #pragma omp critical
+                        vsamples.push_back(samples[i]);
+                }
+                // cerr<<"\n Time take by PeakDetector::pullEICs Loop1: "<<omp_get_wtime()-start<<"\n";
+                // single threaded version - getting EICs of selected samples.
+                // #pragma omp parallel for ordered
+                // start=omp_get_wtime();
+                #pragma omp for 
+                for (unsigned int i = 0; i < vsamples.size(); i++) {
+                //Samples been selected
+                mzSample* sample = vsamples[i];
+                //getting the slice with which EIC has to be pulled
+                Compound* c = slice->compound;
 
-        //Selecting only the samples that is been selected by the user
-        for (unsigned int i = 0; i < samples.size(); i++) {
-                if (samples[i] == NULL)
-                        continue;
-                if (samples[i]->isSelected == false)
-                        continue;
-                vsamples.push_back(samples[i]);
+                //Init EIC by pointing it to NULL
+                EIC* e = NULL;
+                //TODO: what is SRM again going here?
+                if (!slice->srmId.empty()) {
+                        //if srmId of the slice is present, get EICs on the basis of srmId
+                        //cout << "computeEIC srm:" << slice->srmId << endl;
+
+                        
+                        e = sample->getEIC(slice->srmId);
+                        
+                        //TODO this is for MS/MS?
+                } else if (c && c->precursorMz > 0 && c->productMz > 0) {
+                        //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
+
+                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
+                                        amuQ1, amuQ3);
+
+                } else {
+                        //This is the usual case where we are going peakpicking
+                        //with DB. This is a general enough senerio
+                        e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
+                                        slice->rtmax, 1);
+                }
+                
+
+                if (e) {
+                        //if eic exists, perform smoothing
+                        EIC::SmootherType smootherType =
+                                (EIC::SmootherType) smoothingAlgorithm;
+                        e->setSmootherType(smootherType);
+                        e->setBaselineSmoothingWindow(baseline_smoothingWindow);
+                        e->setBaselineDropTopX(baseline_dropTopX);
+                        e->getPeakPositions(smoothingWindow);
+                        //smoohing over
+
+                        //push eic to all eics vector
+                        #pragma omp critical
+                        eics.push_back(e);
+                }
+                }
         }
-
-        // single threaded version - getting EICs of selected samples.
-        // #pragma omp parallel for ordered
-        for (unsigned int i = 0; i < vsamples.size(); i++) {
-            //Samples been selected
-            mzSample* sample = vsamples[i];
-            //getting the slice with which EIC has to be pulled
-            Compound* c = slice->compound;
-
-            //Init EIC by pointing it to NULL
-            EIC* e = NULL;
-            //TODO: what is SRM again going here?
-            if (!slice->srmId.empty()) {
-                //if srmId of the slice is present, get EICs on the basis of srmId
-                cout << "computeEIC srm:" << slice->srmId << endl;
-
-                
-                    e = sample->getEIC(slice->srmId);
-                
-                //TODO this is for MS/MS?
-            } else if (c && c->precursorMz > 0 && c->productMz > 0) {
-                //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
-
-                    e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
-                                    amuQ1, amuQ3);
-
-            } else {
-                //This is the usual case where we are going peakpicking
-                //with DB. This is a general enough senerio
-                    e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-                                    slice->rtmax, 1);
-            }
-        
-
-            if (e) {
-                //if eic exists, perform smoothing
-                EIC::SmootherType smootherType =
-                        (EIC::SmootherType) smoothingAlgorithm;
-                e->setSmootherType(smootherType);
-                e->setBaselineSmoothingWindow(baseline_smoothingWindow);
-                e->setBaselineDropTopX(baseline_dropTopX);
-                e->getPeakPositions(smoothingWindow);
-                //smoohing over
-
-                //push eic to all eics vector
-                eics.push_back(e);
-            }
-            }
     return eics;
 }
 
