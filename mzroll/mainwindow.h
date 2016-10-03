@@ -39,6 +39,11 @@
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
 
+class MyClassv
+{
+    public:
+    static int flag; // declaration
+};
 
 class SettingsForm;
 class EicWidget;

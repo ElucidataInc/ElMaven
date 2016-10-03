@@ -1,4 +1,11 @@
 #include "mainwindow.h"
+#include <QDataStream> //used to take different type of variables - Giridhari
+#include <QMessageBox>
+#include "projectdockwidget.h"
+//#include "mzfileio.h"
+
+// --Giridhari
+int MyClassv::flag = 0;
 
 QDataStream &operator<<(QDataStream &out, const mzSample*) {
 	return out;
@@ -822,7 +829,7 @@ void MainWindow::open() {
 		return;
 
   //Saving the file location into the Qsettings class so that it can be
-  //used yhe next time the user opens
+  //used the next time the user opens
 	QString absoluteFilePath(filelist[0]);
 	QFileInfo fileInfo(absoluteFilePath);
 	QDir tmp = fileInfo.absoluteDir();
@@ -833,9 +840,37 @@ void MainWindow::open() {
 	setWindowTitle(
 			programName + "_" + QString::number(MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
-    //updated while merging with Maven776 - Kiran
-    Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
-    fileLoader->start();
+
+	//--Giridhari 
+	
+	if(MyClassv::flag){
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Show","These files should be added in current analyze",QMessageBox::Yes | QMessageBox::No);
+    	if(reply == QMessageBox::No){
+			// for(unsigned int i=0; i<_mainwindow->samples.size(); i++) 
+           //_mainwindow->samples.erase(_mainwindow->samples.begin()+_mainwindow->samples.size());
+        //	projectDockWidget->unloadSelectedSamples();
+		    projectDockWidget->removesample();
+			//updated while merging with Maven776 - Kiran
+    		Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    		fileLoader->start();
+			MyClassv::flag++;
+    	}
+		else{
+			Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    		fileLoader->start(); MyClassv::flag++;
+		}
+	}
+	else{
+		//updated while merging with Maven776 - Kiran
+    	Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    	fileLoader->start();
+		MyClassv::flag++;
+	}
+	
+
+    // //updated while merging with Maven776 - Kiran
+    // Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    // fileLoader->start();
 }
 
 void MainWindow::loadModel() {
