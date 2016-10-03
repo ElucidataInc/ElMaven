@@ -9,8 +9,8 @@ QT += testlib core
 CONFIG += qtestlib
 
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls
-
-LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -fopenmp
 
 QMAKE_CXXFLAGS_RELEASE -= -O3 -Wall -Wno-sign-compare
 

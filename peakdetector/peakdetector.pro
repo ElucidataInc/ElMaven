@@ -7,7 +7,8 @@ CONFIG += warn_off xml
 
 QT -= network gui opengl 
 CONFIG -= network gui opengl 
-
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/ ../libcsvparser  ../libpls
 
 LDFLAGS     +=  $$OUTPUT_DIR/lib
