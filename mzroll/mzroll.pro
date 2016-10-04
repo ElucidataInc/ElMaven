@@ -15,13 +15,13 @@ QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 
 #add version information during compilation
-VERSION="769"
-DEFINES += "MAVEN_VERSION=$$VERSION"
+VERSION="0.1"
+DEFINES += "EL_MAVEN_VERSION=$$VERSION"
 DEFINES += "PLATFORM=\"$$QMAKE_HOST.os\""
 DEFINES += EMBEDHTTPSERVER
 
-TARGET = maven_dev_$$VERSION
-macx:TARGET=Maven
+TARGET = El_Maven_$$VERSION
+macx:TARGET=El_Maven_$$VERSION
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc

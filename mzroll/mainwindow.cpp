@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
 }
 
-	setWindowTitle(programName + " " + QString::number(MAVEN_VERSION));
+	setWindowTitle(programName + " " + QString::number(EL_MAVEN_VERSION));
 
 	//locations of common files and directories
 	QString methodsFolder = settings->value("methodsFolder").value<QString>();
@@ -831,7 +831,7 @@ void MainWindow::open() {
 
   //Changing the title of the main window aftyer selecting the samples
 	setWindowTitle(
-			programName + "_" + QString::number(MAVEN_VERSION) + " "
+			programName + "_" + QString::number(EL_MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
     //updated while merging with Maven776 - Kiran
     Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
@@ -2354,7 +2354,7 @@ int MainWindow::versionCheck() {
 	QString hostname = "http://genomics-pubs.princeton.edu";
 	QString path = "/mzroll/vercheck.php?";
 	QString os = "os=" + QString(xstr(PLATFORM));
-	//QString ver = "ver=" + QString::number(MAVEN_VERSION);
+	//QString ver = "ver=" + QString::number(EL_MAVEN_VERSION);
 	QString ver = "ver=620";
 	QString query = os + "&" + ver;
 
