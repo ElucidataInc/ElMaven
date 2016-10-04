@@ -483,7 +483,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
-        Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 10));
+        Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
         peakDetector.processMassSlices();
         //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
