@@ -280,7 +280,8 @@ void ProjectDockWidget::checkUncheck() {
 //TODO: Sahil, Added while merging projectdockwidget
 void ProjectDockWidget::unloadSelectedSamples() {
       //get selected items
-      //--Giridhari
+
+      MyClassv::flag = 0;
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
       if(selected.size() == 0) return;
 
@@ -295,10 +296,13 @@ void ProjectDockWidget::unloadSelectedSamples() {
      _treeWidget->update();
       _mainwindow->getEicWidget()->replotForced();
 }
-//--Giridhari
+//TODO: Remove samples from samplelist automatically--@Giridhari
 void ProjectDockWidget::removesample(){
-    while(_mainwindow->samples)
-     _mainwindow->samples.erase(_mainwindow->samples.begin());
+    int samp=_mainwindow->samples.size();
+    while(samp){
+     _mainwindow->samples.erase(_mainwindow->samples.begin());samp--;}
+     _treeWidget->update();
+      _mainwindow->getEicWidget()->replotForced();
 }
 
 void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
@@ -764,3 +768,5 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
         }
     }
 }
+
+

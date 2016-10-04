@@ -38,7 +38,7 @@
 #include "peptidefragmentation.h"
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
-
+// TODO: Variable delcaration to used in removesample() to set Flag --@Giridhari
 class MyClassv
 {
     public:

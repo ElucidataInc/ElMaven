@@ -4,7 +4,7 @@
 #include "projectdockwidget.h"
 //#include "mzfileio.h"
 
-// --Giridhari
+//TODO: Variable used in removesample() to set Flag --@Giridhari
 int MyClassv::flag = 0;
 
 QDataStream &operator<<(QDataStream &out, const mzSample*) {
@@ -841,16 +841,17 @@ void MainWindow::open() {
 			programName + "_" + QString::number(MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
 
-	//--Giridhari 
+	//TODO: To check, if any analysis is going on so new samples should be added 
+	// in current analys or not --@Giridhari
 	
 	if(MyClassv::flag){
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Show","These files should be added in current analyze",QMessageBox::Yes | QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Add file Message","Would you like to add these files to the current project",QMessageBox::Yes | QMessageBox::No);
     	if(reply == QMessageBox::No){
 			// for(unsigned int i=0; i<_mainwindow->samples.size(); i++) 
            //_mainwindow->samples.erase(_mainwindow->samples.begin()+_mainwindow->samples.size());
         //	projectDockWidget->unloadSelectedSamples();
 		    projectDockWidget->removesample();
-			//updated while merging with Maven776 - Kiran
+			
     		Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
     		fileLoader->start();
 			MyClassv::flag++;
@@ -861,16 +862,12 @@ void MainWindow::open() {
 		}
 	}
 	else{
-		//updated while merging with Maven776 - Kiran
+		
     	Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
     	fileLoader->start();
 		MyClassv::flag++;
 	}
 	
-
-    // //updated while merging with Maven776 - Kiran
-    // Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
-    // fileLoader->start();
 }
 
 void MainWindow::loadModel() {
