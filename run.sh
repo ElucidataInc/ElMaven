@@ -1,5 +1,12 @@
 OMP_CANCELLATION=true
-qmake QT_SELECT=qt4 -o Makefile build.pro
+while true; do
+    read -p "Do you wish to install this program in release mode? " yn
+    case $yn in
+        [Yy]* ) qmake CONFIG+=release QT_SELECT=qt4 -o Makefile build.pro; break;;
+        [Nn]* ) qmake CONFIG+=debug QT_SELECT=qt4 -o Makefile build.pro; break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 make -j $(nproc)
 
 
