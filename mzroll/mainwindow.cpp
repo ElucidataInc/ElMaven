@@ -136,8 +136,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 	QString clsfModelFilename = dataDir + "/"
 			+ settings->value("clsfModelFilename").value<QString>();
-	if (QFile::exists(clsfModelFilename))
-		clsf->loadModel(clsfModelFilename.toStdString());
+	if (QFile::exists(clsfModelFilename)) {
+		settings->setValue("clsfModelFilename", clsfModelFilename);
+		clsf->loadModel( clsfModelFilename.toStdString());
+	} else {
+		settings->setValue("clsfModelFilename", QString(""));
+		clsf->loadModel("");
+	}
 
 
 
@@ -1016,8 +1021,8 @@ void MainWindow::readSettings() {
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 
-	if (!settings->contains("clsfModelFilename"))
-        settings->setValue("clsfModelFilename", QString("default.model"));
+	if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0)
+    settings->setValue("clsfModelFilename", QString("default.model"));
 
     // EIC Processing: Baseline and calculation
     if (!settings->contains("eic_smoothingAlgorithm"))

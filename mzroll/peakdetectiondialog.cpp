@@ -224,6 +224,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             intensityMax->setValue(settings->value("maxIntensity").toDouble());
             chargeMin->setValue(settings->value("minCharge").toDouble());
             chargeMax->setValue(settings->value("maxCharge").toDouble());
+            classificationModelFilename->setText(settings->value("clsfModelFilename").toString());
 
             // Isotope detection in peakdetection dialogue box
             reportIsotopesOptions->setChecked(
