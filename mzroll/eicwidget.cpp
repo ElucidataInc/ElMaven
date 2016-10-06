@@ -189,7 +189,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
     }	
 
     this->copyToClipboard();
-    scene()->update();
+    //scene()->update();
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -421,7 +421,7 @@ void EicWidget::replotForced() {
 
 void EicWidget::replot() {
 	//qDebug <<" EicWidget::replot()";
-	if (isVisible()) {
+	if (isVisible()) {	
 		replot(eicParameters->getSelectedGroup());
 	}
 }
@@ -910,7 +910,7 @@ void EicWidget::replot(PeakGroup* group) {
 	//setStatusText("Unknown Expected Retention Time!");
 
 	getMainWindow()->addToHistory(eicParameters->_slice);
-	scene()->update();
+	//scene()->update();
 
 	//qDebug << "\t Number of eics " << eics.size();
 	//qDebug << "\t Number of peakgroups " << peakgroups.size();
@@ -976,7 +976,7 @@ void EicWidget::wheelEvent(QWheelEvent *event) {
 	if (_barplot != NULL && _barplot->isSelected()) {
 		QGraphicsView::wheelEvent(event);
 	}
-
+	eicParameters->selectedGroup = NULL;
 	if (eicParameters->getSelectedGroup()) {
 		event->delta() > 0 ? _zoomFactor *= 2 : _zoomFactor /= 2;
 		zoom(_zoomFactor);
@@ -1259,8 +1259,9 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 		p->setColor(color);
 		p->setBrush(brush);
 		p->setPen(pen);
-		p->setPeakGroup(group);
+	 	p->setPeakGroup(group);
 		//connect(p,SIGNAL(addNote(Peak*)),this,SLOT(addNote(Peak*)));
+		//scene()->addItem(NULL);
 		scene()->addItem(p);
 	}
 }
