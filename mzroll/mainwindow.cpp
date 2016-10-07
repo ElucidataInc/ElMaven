@@ -429,7 +429,7 @@ QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 }
 
 void MainWindow::reportBugs() {
-	QUrl link("http://genomics-pubs.princeton.edu/mzroll/index.php?show=bugs");
+	QUrl link("https://github.com/ElucidataInc/ElMaven/issues");
 	QDesktopServices::openUrl(link);
 
 }
