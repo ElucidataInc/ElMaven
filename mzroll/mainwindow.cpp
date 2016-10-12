@@ -96,16 +96,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	QString dataDir = ".";
 
+	
 	QList<QString> dirs;
 	dirs << dataDir << QApplication::applicationDirPath()
 		 << QApplication::applicationDirPath() + "/../Resources/";
 
 	//find location of DATA
-	Q_FOREACH (QString d, dirs){ qDebug() << "Checking dir: " + d;
-	QFile test(d+"/ADDUCTS.csv");
-	if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
-}
-
+	Q_FOREACH (QString d, dirs){
+		QFile test(d+"/ADDUCTS.csv");
+		if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
+	}
+	
 	setWindowTitle(programName + " " + QString::number(EL_MAVEN_VERSION));
 
 	//locations of common files and directories
@@ -134,14 +135,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
-	QString clsfModelFilename = dataDir + "/"
-			+ settings->value("clsfModelFilename").value<QString>();
+	mavenParameters = new MavenParameters();
+	QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
+
 	if (QFile::exists(clsfModelFilename)) {
 		settings->setValue("clsfModelFilename", clsfModelFilename);
 		clsf->loadModel( clsfModelFilename.toStdString());
+		mavenParameters->clsf = getClassifier();
 	} else {
 		settings->setValue("clsfModelFilename", QString(""));
 		clsf->loadModel("");
+		mavenParameters->clsf = getClassifier();
 	}
 
 
@@ -181,7 +185,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	eicWidget = new EicWidget(this);
 	setCentralWidget(eicWidgetController());
 	spectraWidget = new SpectraWidget(this);
-	mavenParameters = new MavenParameters();
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
@@ -1020,9 +1023,9 @@ void MainWindow::readSettings() {
 
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
-
+			
 	if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0)
-    settings->setValue("clsfModelFilename", QString("default.model"));
+    	settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
 
     // EIC Processing: Baseline and calculation
     if (!settings->contains("eic_smoothingAlgorithm"))

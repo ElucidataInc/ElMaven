@@ -68,7 +68,7 @@ void EicWidget::mousePressEvent(QMouseEvent *event) {
 
 	_lastClickPos = event->pos();
 	QGraphicsView::mousePressEvent(event);
-
+	
 	if (event->button() == Qt::LeftButton) {
 		_mouseStartPos = event->pos();
 	}
@@ -189,7 +189,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
     }	
 
     this->copyToClipboard();
-    //scene()->update();
+    scene()->update();
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -910,7 +910,7 @@ void EicWidget::replot(PeakGroup* group) {
 	//setStatusText("Unknown Expected Retention Time!");
 
 	getMainWindow()->addToHistory(eicParameters->_slice);
-	//scene()->update();
+	scene()->update();
 
 	//qDebug << "\t Number of eics " << eics.size();
 	//qDebug << "\t Number of peakgroups " << peakgroups.size();
