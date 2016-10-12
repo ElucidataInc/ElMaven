@@ -15,7 +15,7 @@ QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 
 #add version information during compilation
-VERSION="0.1"
+VERSION="0.2"
 DEFINES += "EL_MAVEN_VERSION=$$VERSION"
 DEFINES += "PLATFORM=\"$$QMAKE_HOST.os\""
 DEFINES += EMBEDHTTPSERVER
