@@ -87,6 +87,7 @@ void SettingsForm::updateSettingFormGUI() {
    // qDebug() << "SettingsForm::updateSettingFormGUI()";
 
     if (settings == NULL) return;
+    cerr << "UpdateSetting: " <<settings->value("eic_smoothingAlgorithm").toInt();
     eic_smoothingAlgorithm->setCurrentIndex(settings->value("eic_smoothingAlgorithm").toInt());
     eic_smoothingWindow->setValue(settings->value("eic_smoothingWindow").toDouble());
     grouping_maxRtWindow->setValue(settings->value("grouping_maxRtWindow").toDouble());
@@ -225,5 +226,13 @@ void SettingsForm::setNumericValue(QString key, double value) {
 void SettingsForm::setStringValue(QString key, QString value) {
       if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
      settings->setValue(key,value);
+}
+void SettingsForm::Updatevalue(MavenParameters* mavenParameters) {
+
+     if (mavenParameters) {
+            // EIC Processing: Baseline calculation and Smoothing
+             eic_smoothingAlgorithm->setCurrentIndex(
+                 mavenParameters->value("eic_smoothingAlgorithm").toInt());
+     }
 }
 

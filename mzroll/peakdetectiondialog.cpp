@@ -178,10 +178,11 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
     // selected by the user
     if (mainwindow != NULL) {
         QSettings* settings = mainwindow->getSettings();
+        cerr << settings->value("eic_smoothingAlgorithm").toInt();
         if (settings) {
             // EIC Processing: Baseline calculation and Smoothing
-            eic_smoothingAlgorithm->setCurrentIndex(
-                settings->value("eic_smoothingAlgorithm").toInt());
+             eic_smoothingAlgorithm->setCurrentIndex(
+                 settings->value("eic_smoothingAlgorithm").toInt());
             eic_smoothingWindow->setValue(
                 settings->value("eic_smoothingWindow").toDouble());
             grouping_maxRtDiff->setValue(
@@ -295,7 +296,7 @@ void PeakDetectionDialog::findPeaks() {
     if (peakupdater->isRunning()) cancel();
     if (peakupdater->isRunning()) return;
 
-    updateQSettingsWithUserInput(settings);
+    //updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
 
     QString title;
@@ -362,6 +363,9 @@ void PeakDetectionDialog::findPeaks() {
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // EIC Processing: Baseline calculation and Smoothing
+
+     cerr << "Value: "<< eic_smoothingAlgorithm->currentIndex();
+    cerr << "Update Function";
     settings->setValue("eic_smoothingAlgorithm",
                        eic_smoothingAlgorithm->currentIndex());
 
@@ -425,61 +429,55 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
         // EIC Processing: Baseline calculation and Smoothing
-        mavenParameters->eic_smoothingAlgorithm = settings->value(
-                "eic_smoothingAlgorithm").toInt();
-        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+        cerr << "Maven Parameters Function: ";
+        cerr << "a: "<< eic_smoothingAlgorithm->currentIndex();
 
-        mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
+        cerr<< "b: " <<settings->value("eic_smoothingAlgorithm").toDouble();
+        mavenParameters->eic_smoothingAlgorithm = eic_smoothingAlgorithm->currentIndex();
+        mavenParameters->eic_smoothingWindow = eic_smoothingWindow->value();
+        cerr << "c: " << mavenParameters->eic_smoothingAlgorithm ;
+        mavenParameters->grouping_maxRtWindow = grouping_maxRtDiff->value();
         // BaseLine Calculation
-        mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
-        mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
+        mavenParameters->baseline_smoothingWindow = baseline_smoothing->value();
+        mavenParameters->baseline_dropTopX = baseline_quantile->value();
 
         // Peak Scoring and Filtering
-        mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
-        mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
-        mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
-        mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
-        mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
+        mavenParameters->minGoodGroupCount = minGoodGroupCount->value();
+        mavenParameters->minNoNoiseObs = minNoNoiseObs->value();
+        mavenParameters->minSignalBaseLineRatio = sigBaselineRatio->value();
+        mavenParameters->minSignalBlankRatio = sigBlankRatio->value();
+        mavenParameters->minGroupIntensity = minGroupIntensity->value();
 
         // Compound DB search
-        mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow").toDouble();
-        mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
-        mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
+        mavenParameters->matchRtFlag = matchRt->isChecked();
+        mavenParameters->compoundPPMWindow = compoundPPMWindow->value();
+        mavenParameters->compoundRTWindow = compoundRTWindow->value();
+        mavenParameters->eicMaxGroups = eicMaxGroups->value();
 
         // Automated Peak Detection
-        mavenParameters->ppmMerge = settings->value("ppmMerge").toDouble();
-        mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
-        mavenParameters->minRt = settings->value("minRT").toDouble();
-        mavenParameters->maxRt = settings->value("maxRT").toDouble();
-        mavenParameters->minMz = settings->value("minMz").toDouble();
-        mavenParameters->maxMz = settings->value("maxMz").toDouble();
-        mavenParameters->minIntensity =
-            settings->value("minIntensity").toDouble();
-        mavenParameters->maxIntensity =
-            settings->value("maxIntensity").toDouble();
-        mavenParameters->minCharge = settings->value("minCharge").toDouble();
-        mavenParameters->maxCharge = settings->value("maxCharge").toDouble();
+        mavenParameters->ppmMerge = ppmStep->value();
+        mavenParameters->rtStepSize = rtStep->value();
+        mavenParameters->minRt = rtMin->value();
+        mavenParameters->maxRt = rtMax->value();
+        mavenParameters->minMz = mzMin->value();
+        mavenParameters->maxMz = mzMax->value();
+        mavenParameters->minIntensity = intensityMin->value();
+        mavenParameters->maxIntensity = intensityMax->value();
+        mavenParameters->minCharge = chargeMin->value();
+        mavenParameters->maxCharge = chargeMax->value();
 
         // Isotope detection in peakdetection dialogue box
-        mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
+        mavenParameters->pullIsotopesFlag = reportIsotopesOptions->isChecked();
 
-        mavenParameters->maxIsotopeScanDiff = settings->value(
-                "maxIsotopeScanDiff").toDouble();
-        mavenParameters->minIsotopicCorrelation = settings->value(
-                "minIsotopicCorrelation").toDouble();
-        mavenParameters->maxNaturalAbundanceErr = settings->value(
-                "maxNaturalAbundanceErr").toDouble();
-        mavenParameters->C13Labeled = settings->value("checkBox").toBool();  // C13
-        mavenParameters->N15Labeled =
-            settings->value("checkBox_2").toBool();                      // N15
-        mavenParameters->D2Labeled =
-            settings->value("checkBox_3").toBool();                      // D2
-        mavenParameters->S34Labeled =
-            settings->value("checkBox_4").toBool();  // S34
+        // mavenParameters->maxIsotopeScanDiff = maxIsotopeScanDiff->value();
+        // mavenParameters->minIsotopicCorrelation = minIsotopicCorrelation->value();
+        // mavenParameters->maxNaturalAbundanceErr = maxNaturalAbundanceErr->value();
+        mavenParameters->C13Labeled = checkBox->isChecked();  // C13
+        mavenParameters->N15Labeled = checkBox_2->isChecked();                      // N15
+        mavenParameters->D2Labeled = checkBox_3->isChecked();                      // D2
+        mavenParameters->S34Labeled = checkBox_4->isChecked();  // S34
         // Fragment Score
-        mavenParameters->minFragmentMatchScore =
-            settings->value("minFragmentMatchScore").toDouble();
+        mavenParameters->minFragmentMatchScore =  minFragMatchScore->value();
         mavenParameters->minFragmentMatchScore > 0
             ? mavenParameters->matchFragmentation = true
             : mavenParameters->matchFragmentation = false;
@@ -507,13 +505,16 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         mavenParameters->setCompounds(DB.getCopoundsSubset(
             compoundDatabase->currentText().toStdString()));
-
-        mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
-
+            vector<mzSample*> samples = mainwindow->getSamples();
+        mavenParameters->avgScanTime = samples[0]->getAverageFullScanTime();
+        
         mavenParameters->samples = mainwindow->getSamples();
 
         peakupdater->setMavenParameters(mavenParameters);
-
+        settingform->Updatevalue(mavenParameters);
+        settings->setValue("eic_smoothingAlgorithm",
+                       eic_smoothingAlgorithm->currentIndex());
+        cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();
     }
 }
 /**
@@ -572,7 +573,9 @@ void PeakDetectionDialog::setProgressBar(QString text, int progress,
 void PeakDetectionDialog::showMethodSummary() {
     //Merged to 776
     if(peakupdater) {
-        updateQSettingsWithUserInput(settings);
+        cerr << "sShow MEthod";
+      //  setMavenParameters(settings);
+      //  updateQSettingsWithUserInput(settings);
         setMavenParameters(settings);
         methodSummary->clear();
         methodSummary->setPlainText(peakupdater->printSettings());

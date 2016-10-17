@@ -26,7 +26,8 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void selectFile(QString key);
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
-
+                 // --@Giridhari
+                 void Updatevalue(MavenParameters* mavenParameters);
                  void updateSmoothingWindowValue(double value);
                  inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
                  inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }

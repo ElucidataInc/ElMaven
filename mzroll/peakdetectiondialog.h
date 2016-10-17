@@ -44,6 +44,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
+				SettingsForm* settingform;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
 

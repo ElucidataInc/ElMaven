@@ -1553,6 +1553,7 @@ bool MainWindow::addSample(mzSample* sample) {
 */
 //TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
+	cerr << "Giridhari";
     peakDetectionDialog->show();   
    
 }
