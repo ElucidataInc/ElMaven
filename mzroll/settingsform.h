@@ -12,6 +12,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                 Q_OBJECT
 		public:
 				 SettingsForm(QSettings* s, MainWindow *w);
+                 void Updatevalue();
                 protected:
                     void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
                     void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
@@ -27,7 +28,6 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
                  // --@Giridhari
-                 void Updatevalue(MavenParameters* mavenParameters);
                  void updateSmoothingWindowValue(double value);
                  inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
                  inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }

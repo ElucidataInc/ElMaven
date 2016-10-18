@@ -135,7 +135,7 @@ void SettingsForm::getFormValues() {
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
 
-
+    // Updatevalue();
     settings->setValue("eic_smoothingAlgorithm",eic_smoothingAlgorithm->currentIndex());
     settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
     settings->setValue("grouping_maxRtWindow",grouping_maxRtWindow->value());
@@ -227,12 +227,13 @@ void SettingsForm::setStringValue(QString key, QString value) {
       if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
      settings->setValue(key,value);
 }
-void SettingsForm::Updatevalue(MavenParameters* mavenParameters) {
+void SettingsForm::Updatevalue() {
 
-     if (mavenParameters) {
+    //  if (mavenParameters) {
             // EIC Processing: Baseline calculation and Smoothing
              eic_smoothingAlgorithm->setCurrentIndex(
-                 mavenParameters->value("eic_smoothingAlgorithm").toInt());
-     }
+                 settings->value("eic_smoothingAlgorithm").toInt());
+                 cerr << "updatevalue: " << eic_smoothingAlgorithm->currentIndex();
+    // }
 }
 

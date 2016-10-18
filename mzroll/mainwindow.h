@@ -292,6 +292,7 @@ private Q_SLOTS:
 
 private:
 	QSettings* settings;
+	
 	Classifier* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
@@ -305,7 +306,7 @@ private:
 	QToolBar* sideBar;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
-
+    
 };
 
 struct FileLoader {

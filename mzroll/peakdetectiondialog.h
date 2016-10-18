@@ -6,9 +6,11 @@
 #include "database.h"
 #include "mainwindow.h"
 
+
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
+class SettingsForm;
 extern Database DB;
 
 
@@ -44,7 +46,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-				SettingsForm* settingform;
+				SettingsForm *settingsform;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
 

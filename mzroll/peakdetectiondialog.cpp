@@ -112,7 +112,6 @@ void PeakDetectionDialog::show() {
     }
 
     // peakupdater->useMainWindowLabelOptions = false;
-
     inputInitialValuesPeakDetectionDialog();
 }
 
@@ -511,7 +510,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->samples = mainwindow->getSamples();
 
         peakupdater->setMavenParameters(mavenParameters);
-        settingform->Updatevalue(mavenParameters);
+        //settingsform->Updatevalue();
         settings->setValue("eic_smoothingAlgorithm",
                        eic_smoothingAlgorithm->currentIndex());
         cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();
