@@ -431,8 +431,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         // EIC Processing: Baseline calculation and Smoothing
         cerr << "Maven Parameters Function: ";
         cerr << "a: "<< eic_smoothingAlgorithm->currentIndex();
-        // settings->setValue("eic_smoothingAlgorithm",
-        //                eic_smoothingAlgorithm->currentIndex());
+         settings->setValue("eic_smoothingAlgorithm",
+                        eic_smoothingAlgorithm->currentIndex());
         // settingsform->eic_smoothingAlgorithm->setCurrentIndex(
         //           settings->value("eic_smoothingAlgorithm").toInt());
         cerr<< "b: " <<settings->value("eic_smoothingAlgorithm").toDouble();
@@ -518,7 +518,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //                eic_smoothingAlgorithm->currentIndex());
        // int val = eic_smoothingAlgorithm->currentIndex();
         //  settingsform->eic_smoothingAlgorithm->itemData(eic_smoothingAlgorithm->currentIndex());
-        settingsform->eic_smoothingWindow = NULL;
+        //settingsform->eic_smoothingWindow = NULL;
         //  settingsform->eic_smoothingWindow->setValue(eic_smoothingWindow->value());
        // settingsform->Updatevalue(mavenParameters);
         cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();

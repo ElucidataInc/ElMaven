@@ -134,7 +134,7 @@ void SettingsForm::updateSettingFormGUI() {
 void SettingsForm::getFormValues() {
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
-    peakdetectiondialog->eic_smoothingWindow = NULL;
+    //peakdetectiondialog->eic_smoothingWindow = NULL;
    // Updatevalue(settings);    // --@Giridhari
     settings->setValue("eic_smoothingAlgorithm",eic_smoothingAlgorithm->currentIndex());
     settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
@@ -259,7 +259,7 @@ void SettingsForm::initvalue() {
       
 }
 
-void SettingsForm::show() {
+void SettingsForm::showsettings() {
      cerr << "Lal1 ";
     if (mainwindow == NULL) return;
 

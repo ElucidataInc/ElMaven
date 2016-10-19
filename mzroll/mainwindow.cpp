@@ -1562,7 +1562,7 @@ void MainWindow::showPeakdetectionDialog() {
 // --@Giridhari
 void MainWindow::showChangeGlobalValue() {
 	cerr << "Giridhari ";
-    settingsForm->show();   
+    settingsForm->showsettings();   
    
 }
 // void MainWindow::showMassSlices() {
