@@ -189,9 +189,9 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             // BaseLine Calculation
             baseline_smoothing->setValue(
-                settings->value("baseline_smoothingWindow").toInt());
+                settings->value("baseline_smoothing").toInt()); // --@Giridhari
             baseline_quantile->setValue(
-                settings->value("baseline_dropTopX").toInt());
+                settings->value("baseline_quantile").toInt()); // --@Giridhari
 
             // Peak Scoring and Filtering
             minGoodGroupCount->setValue(
