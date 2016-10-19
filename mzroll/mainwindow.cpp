@@ -1376,7 +1376,8 @@ void MainWindow::createToolBars() {
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
-	connect(btnSettings, SIGNAL(clicked()), settingsForm, SLOT(show()));
+	//connect(btnSettings, SIGNAL(clicked()), settingsForm, SLOT(show())); // --@Giridhari
+	 connect(btnSettings, SIGNAL(clicked()), SLOT(showChangeGlobalValue())); 
 	connect(btnSpectraMatching, SIGNAL(clicked()), spectraMatchingForm,
 			SLOT(show()));
 
@@ -1553,11 +1554,17 @@ bool MainWindow::addSample(mzSample* sample) {
 */
 //TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
-	cerr << "Giridhari";
+	//cerr << "Giridhari";
     peakDetectionDialog->show();   
    
 }
 
+// --@Giridhari
+void MainWindow::showChangeGlobalValue() {
+	cerr << "Giridhari ";
+    settingsForm->show();   
+   
+}
 // void MainWindow::showMassSlices() {
 //    peakDetectionDialog->initPeakDetectionDialogWindow(
 //    PeakDetectionDialog::FullSpectrum );

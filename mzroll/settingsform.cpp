@@ -5,7 +5,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     settings = s;
     mainwindow = w;
     updateSettingFormGUI();
-
+ //   Updatevalue(settings);
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
@@ -134,8 +134,8 @@ void SettingsForm::updateSettingFormGUI() {
 void SettingsForm::getFormValues() {
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
-
-    // Updatevalue();
+    peakdetectiondialog->eic_smoothingWindow = NULL;
+   // Updatevalue(settings);    // --@Giridhari
     settings->setValue("eic_smoothingAlgorithm",eic_smoothingAlgorithm->currentIndex());
     settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
     settings->setValue("grouping_maxRtWindow",grouping_maxRtWindow->value());
@@ -227,13 +227,43 @@ void SettingsForm::setStringValue(QString key, QString value) {
       if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
      settings->setValue(key,value);
 }
-void SettingsForm::Updatevalue() {
 
-    //  if (mavenParameters) {
+// --@Giridhari
+void SettingsForm::Updatevalue(MavenParameters* mavenParameters) {
+
+      if (mavenParameters) {
+            // EIC Processing: Baseline calculation and Smoothing
+            //    eic_smoothingAlgorithm->itemData(mavenParameters->eic_smoothingAlgorithm.currentIndex());
+                 // cerr << "updatevalue: " << eic_smoothingAlgorithm->currentIndex();
+     }
+}
+
+void SettingsForm::initvalue() {
+     cerr << "Lal2 ";
+      if (mainwindow != NULL) {
+        QSettings* settings = mainwindow->getSettings();
+        cerr << settings->value("eic_smoothingAlgorithm").toInt();
+        if (settings) {
             // EIC Processing: Baseline calculation and Smoothing
              eic_smoothingAlgorithm->setCurrentIndex(
                  settings->value("eic_smoothingAlgorithm").toInt());
-                 cerr << "updatevalue: " << eic_smoothingAlgorithm->currentIndex();
-    // }
+            eic_smoothingWindow->setValue(
+                settings->value("eic_smoothingWindow").toDouble());
+            // grouping_maxRtDiff->setValue(
+            //     settings->value("grouping_maxRtWindow").toDouble());
+        }
+         cerr << "Lal3 ";
+        QDialog::show();
+        cerr << "Gupta";
+      }
+      
 }
 
+void SettingsForm::show() {
+     cerr << "Lal1 ";
+    if (mainwindow == NULL) return;
+
+
+    initvalue();
+    cerr << "Lal ";
+}

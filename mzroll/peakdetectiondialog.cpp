@@ -113,8 +113,8 @@ void PeakDetectionDialog::show() {
 
     // peakupdater->useMainWindowLabelOptions = false;
     inputInitialValuesPeakDetectionDialog();
+    //settingsform->Updatevalue(settings);
 }
-
 /**
  * PeakDetectionDialog::loadModel This function works in the peakdector window
  * When theuser clicks on the Peak classifier Model file a dialog box appears
@@ -358,6 +358,7 @@ void PeakDetectionDialog::findPeaks() {
     } else {
         runBackgroupJob("computePeaks");
     }
+    //settingsform->Updatevalue(settings);
 }
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
@@ -422,7 +423,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
             samples[0]->getAverageFullScanTime());
     // Time domain resolution(scans)
 }
-
+// --@Giridhari
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
@@ -430,7 +431,10 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         // EIC Processing: Baseline calculation and Smoothing
         cerr << "Maven Parameters Function: ";
         cerr << "a: "<< eic_smoothingAlgorithm->currentIndex();
-
+        // settings->setValue("eic_smoothingAlgorithm",
+        //                eic_smoothingAlgorithm->currentIndex());
+        // settingsform->eic_smoothingAlgorithm->setCurrentIndex(
+        //           settings->value("eic_smoothingAlgorithm").toInt());
         cerr<< "b: " <<settings->value("eic_smoothingAlgorithm").toDouble();
         mavenParameters->eic_smoothingAlgorithm = eic_smoothingAlgorithm->currentIndex();
         mavenParameters->eic_smoothingWindow = eic_smoothingWindow->value();
@@ -510,9 +514,13 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->samples = mainwindow->getSamples();
 
         peakupdater->setMavenParameters(mavenParameters);
-        //settingsform->Updatevalue();
-        settings->setValue("eic_smoothingAlgorithm",
-                       eic_smoothingAlgorithm->currentIndex());
+        // settings->setValue("eic_smoothingAlgorithm",
+        //                eic_smoothingAlgorithm->currentIndex());
+       // int val = eic_smoothingAlgorithm->currentIndex();
+        //  settingsform->eic_smoothingAlgorithm->itemData(eic_smoothingAlgorithm->currentIndex());
+        settingsform->eic_smoothingWindow = NULL;
+        //  settingsform->eic_smoothingWindow->setValue(eic_smoothingWindow->value());
+       // settingsform->Updatevalue(mavenParameters);
         cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();
     }
 }

@@ -38,6 +38,8 @@
 #include "peptidefragmentation.h"
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
+//--@Giridhari
+#include "mavenparameters.h"
 // TODO: Variable delcaration to used in removesample() to set Flag --@Giridhari
 class MyClassv
 {
@@ -219,6 +221,8 @@ public Q_SLOTS:
         // void compoundDatabaseSearch();
         void showPeakdetectionDialog();  // TODO: Sahil - Kiran, Added while
                                          // merging mainwindow
+		void showChangeGlobalValue(); //--@Giridhari
+		
 	void setUrl(QString url, QString link = QString::null);
 	void setUrl(Compound*);
 	void setUrl(Reaction*);

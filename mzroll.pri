@@ -12,7 +12,7 @@ INSTALL_PREFIX=$$(DESTDIR)$$INSTALL_PREFIX
 DEFINES += INSTALL_LIBDIR=\"\\\"$$INSTALL_LIBDIR\\\"\""
 
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wall -Wno-sign-compare
-CONFIG += no_keywords
+CONFIG +=  debug
 unix: INCLUDEPATH += /usr/lib/x86_64-linux-gnu/
 unix: LIBS += -lboost_signals
 win32: LIBS += -lboost_signals-mt

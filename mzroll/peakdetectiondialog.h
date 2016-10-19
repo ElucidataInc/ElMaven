@@ -10,7 +10,7 @@
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
-class SettingsForm;
+class SettingsForm; // --@Giridhari
 extern Database DB;
 
 
@@ -46,14 +46,18 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-				SettingsForm *settingsform;
+				//SettingsForm *settingsform;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
+			public:
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings);
                 void setMavenParameters(QSettings *settings);
+				// --@Giridhari
+			public:
+				SettingsForm *settingsform;
 };
 
 #endif

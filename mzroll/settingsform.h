@@ -4,7 +4,11 @@
 #include "ui_settingsform.h"
 #include "mainwindow.h"
 
-class MainWindow;
+
+class MainWindow; 
+// --@Giridhari
+class PeakDetectionDialog;
+class MavenParameters;
 
 
 class SettingsForm : public QDialog, public Ui_SettingsForm
@@ -12,7 +16,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                 Q_OBJECT
 		public:
 				 SettingsForm(QSettings* s, MainWindow *w);
-                 void Updatevalue();
+                 void Updatevalue(MavenParameters* mavenParameters); // --@Giridhari
                 protected:
                     void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
                     void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
@@ -28,6 +32,9 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
                  // --@Giridhari
+                void initvalue();
+                void show();
+
                  void updateSmoothingWindowValue(double value);
                  inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
                  inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }
@@ -48,6 +55,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
+                PeakDetectionDialog *peakdetectiondialog; 
 };
 
 #endif
