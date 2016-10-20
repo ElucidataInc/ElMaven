@@ -247,10 +247,10 @@ void SettingsForm::initvalue() {
             // EIC Processing: Baseline calculation and Smoothing
             cerr << mavenParameters->eic_smoothingAlgorithm;
              eic_smoothingAlgorithm->setCurrentIndex(mavenParameters->eic_smoothingAlgorithm);
-            eic_smoothingWindow->->setCurrentIndex(mavenParameters->eic_smoothingWindow)
-            grouping_maxRtDiff->setCurrentIndex(mavenParameters->grouping_maxRtWindow);
-            baseline_smoothingWindow->setCurrentIndex(mavenParameters->baseline_smoothingWindow);
-            baseline_quantile->setCurrentIndex(mavenParameters->baseline_dropTopX);
+            eic_smoothingWindow->setValue(mavenParameters->eic_smoothingWindow);
+            grouping_maxRtWindow->setValue(mavenParameters->grouping_maxRtWindow);
+            baseline_smoothing->setValue(mavenParameters->baseline_smoothingWindow);
+            baseline_quantile->setValue(mavenParameters->baseline_dropTopX);
         }
          cerr << "Lal3 ";
         QDialog::show();
