@@ -28,15 +28,8 @@
 *.app
 
 # Project Files
-libcdfread/tmp
-libmaven/tmp
-libneural/tmp
-libpillow/tmp
-mzroll/tmp
-mzWatcher/tmp
-peakdetector/tmp
-pugixml/src/tmp
-MavenTests/tmp/
+*/tmp/
+tmp/
 build
 build.pro.user
 
@@ -58,6 +51,7 @@ bin/maven_dev_769
 bin/mzWatcher
 bin/peakdetector
 bin/MavenTests
+bin/El_Maven*
 
 #Documentation files
 docs/html
