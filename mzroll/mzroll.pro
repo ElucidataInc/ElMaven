@@ -15,8 +15,7 @@ QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
 
 #add version information during compilation
-#VERSION=$$system(git rev-parse HEAD)
-VERSION="v0.0.2"
+VERSION=$$system(git describe --tag)
 DEFINES += "EL_MAVEN_VERSION=$$VERSION"
 DEFINES += "PLATFORM=\"$$QMAKE_HOST.os\""
 DEFINES += EMBEDHTTPSERVER
