@@ -512,8 +512,7 @@ int Database::loadCompoundCSVFile(string filename){
         if ( header.count("rt") && header["rt"]<N)  rt = string2float(fields[ header["rt"]]);
         if ( header.count("expectedrt") && header["expectedrt"]<N) rt = string2float(fields[ header["expectedrt"]]);
         if ( header.count("charge")&& header["charge"]<N) charge = string2float(fields[ header["charge"]]);
-        
-        if ( header.count("formula")&& header["formala"]<N) formula = fields[ header["formula"] ];
+        if ( header.count("formula")&& header["formula"]<N) formula = fields[header["formula"]];
         if ( header.count("id")&& header["id"]<N) 	 id = fields[ header["id"] ];
         if ( header.count("name")&& header["name"]<N) 	 name = fields[ header["name"] ];
         if ( header.count("compound")&& header["compound"]<N) 	 name = fields[ header["compound"] ];
