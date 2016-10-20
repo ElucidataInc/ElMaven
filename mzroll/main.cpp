@@ -16,11 +16,8 @@
 /**
 * @file main.cpp
 */
-
-
-
-
-
+#define _STR(X) #X
+#define STR(X) _STR(X)
 #include "stable.h"
 #include "globals.h"
 #include "mainwindow.h"
@@ -42,7 +39,7 @@ int main(int argc, char *argv[])
     splash.setMask(pixmap.mask());
     splash.show();
     //Added while merging with Maven776 - Kiran
-    splash.showMessage(QString("Ver:")+ QString::number(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
+    splash.showMessage(QString("Ver:") + STR(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
     app.processEvents();
 
     MainWindow* mainWindow = new MainWindow();

@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#define _STR(X) #X
+#define STR(X) _STR(X)
 
 QDataStream &operator<<(QDataStream &out, const mzSample*) {
 	return out;
@@ -107,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
 	}
 	
-	setWindowTitle(programName + " " + QString::number(EL_MAVEN_VERSION));
+	setWindowTitle(programName + " " + STR(EL_MAVEN_VERSION));
 
 	//locations of common files and directories
 	QString methodsFolder = settings->value("methodsFolder").value<QString>();
@@ -839,7 +841,7 @@ void MainWindow::open() {
 
   //Changing the title of the main window aftyer selecting the samples
 	setWindowTitle(
-			programName + "_" + QString::number(EL_MAVEN_VERSION) + " "
+			programName + "_" + STR(EL_MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
     //updated while merging with Maven776 - Kiran
     Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
