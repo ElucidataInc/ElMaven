@@ -6,7 +6,7 @@
 
 
 class MainWindow; 
-// --@Giridhari
+//   Add class while changing in settings form and peaks form --@Giridhari
 class PeakDetectionDialog;
 class MavenParameters;
 
@@ -16,7 +16,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                 Q_OBJECT
 		public:
 				 SettingsForm(QSettings* s, MainWindow *w);
-                 void Updatevalue(MavenParameters* mavenParameters); // --@Giridhari
+
                 protected:
                     void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
                     void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
@@ -31,7 +31,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void selectFile(QString key);
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
-                 // --@Giridhari
+                 // Create methods for Initalize value and show dialog box of setting form --@Giridhari
                 void initvalue();
                 void showsettings();
 
@@ -55,7 +55,6 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-                PeakDetectionDialog *peakdetectiondialog; 
 };
 
 #endif

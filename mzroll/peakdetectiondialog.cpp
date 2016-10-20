@@ -358,7 +358,7 @@ void PeakDetectionDialog::findPeaks() {
     } else {
         runBackgroupJob("computePeaks");
     }
-    //settingsform->Updatevalue(settings);
+
 }
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
@@ -423,22 +423,22 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
             samples[0]->getAverageFullScanTime());
     // Time domain resolution(scans)
 }
-// --@Giridhari
+// @author: Giridhari TODO: Change the updation method of mavenparameters 
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
         // EIC Processing: Baseline calculation and Smoothing
-        cerr << "Maven Parameters Function: ";
-        cerr << "a: "<< eic_smoothingAlgorithm->currentIndex();
-         settings->setValue("eic_smoothingAlgorithm",
-                        eic_smoothingAlgorithm->currentIndex());
+        // cerr << "Maven Parameters Function: ";
+        // cerr << "a: "<< eic_smoothingAlgorithm->currentIndex();
+        //  settings->setValue("eic_smoothingAlgorithm",
+        //                 eic_smoothingAlgorithm->currentIndex());
         // settingsform->eic_smoothingAlgorithm->setCurrentIndex(
         //           settings->value("eic_smoothingAlgorithm").toInt());
-        cerr<< "b: " <<settings->value("eic_smoothingAlgorithm").toDouble();
+        // cerr<< "b: " <<settings->value("eic_smoothingAlgorithm").toDouble();
         mavenParameters->eic_smoothingAlgorithm = eic_smoothingAlgorithm->currentIndex();
         mavenParameters->eic_smoothingWindow = eic_smoothingWindow->value();
-        cerr << "c: " << mavenParameters->eic_smoothingAlgorithm ;
+        // cerr << "c: " << mavenParameters->eic_smoothingAlgorithm ;
         mavenParameters->grouping_maxRtWindow = grouping_maxRtDiff->value();
         // BaseLine Calculation
         mavenParameters->baseline_smoothingWindow = baseline_smoothing->value();
@@ -514,14 +514,14 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->samples = mainwindow->getSamples();
 
         peakupdater->setMavenParameters(mavenParameters);
-        // settings->setValue("eic_smoothingAlgorithm",
-        //                eic_smoothingAlgorithm->currentIndex());
-       // int val = eic_smoothingAlgorithm->currentIndex();
-        //  settingsform->eic_smoothingAlgorithm->itemData(eic_smoothingAlgorithm->currentIndex());
-        //settingsform->eic_smoothingWindow = NULL;
-        //  settingsform->eic_smoothingWindow->setValue(eic_smoothingWindow->value());
-       // settingsform->Updatevalue(mavenParameters);
-        cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();
+    //     // settings->setValue("eic_smoothingAlgorithm",
+    //     //                eic_smoothingAlgorithm->currentIndex());
+    //    // int val = eic_smoothingAlgorithm->currentIndex();
+    //     //  settingsform->eic_smoothingAlgorithm->itemData(eic_smoothingAlgorithm->currentIndex());
+    //     //settingsform->eic_smoothingWindow = NULL;
+    //     //  settingsform->eic_smoothingWindow->setValue(eic_smoothingWindow->value());
+    //    // settingsform->Updatevalue(mavenParameters);
+    //     cerr << "SettingValue: "<< settings->value("eic_smoothingAlgorithm").toInt();
     }
 }
 /**
@@ -580,8 +580,7 @@ void PeakDetectionDialog::setProgressBar(QString text, int progress,
 void PeakDetectionDialog::showMethodSummary() {
     //Merged to 776
     if(peakupdater) {
-        cerr << "sShow MEthod";
-      //  setMavenParameters(settings);
+        setMavenParameters(settings);
       //  updateQSettingsWithUserInput(settings);
         setMavenParameters(settings);
         methodSummary->clear();

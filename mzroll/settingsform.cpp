@@ -5,7 +5,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     settings = s;
     mainwindow = w;
     updateSettingFormGUI();
- //   Updatevalue(settings);
+
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
@@ -134,7 +134,7 @@ void SettingsForm::updateSettingFormGUI() {
 void SettingsForm::getFormValues() {
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
-    //peakdetectiondialog->eic_smoothingWindow = NULL;
+   
    // Updatevalue(settings);    // --@Giridhari
     settings->setValue("eic_smoothingAlgorithm",eic_smoothingAlgorithm->currentIndex());
     settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
@@ -228,16 +228,8 @@ void SettingsForm::setStringValue(QString key, QString value) {
      settings->setValue(key,value);
 }
 
-// --@Giridhari
-void SettingsForm::Updatevalue(MavenParameters* mavenParameters) {
-
-      if (mavenParameters) {
-            // EIC Processing: Baseline calculation and Smoothing
-            //    eic_smoothingAlgorithm->itemData(mavenParameters->eic_smoothingAlgorithm.currentIndex());
-                 // cerr << "updatevalue: " << eic_smoothingAlgorithm->currentIndex();
-     }
-}
-
+// @author: Giridhari
+// TODO: To initialize vlaue of Change Global Values Form --@Giridhari
 void SettingsForm::initvalue() {
      cerr << "Lal2 ";
       if (mainwindow != NULL) {
@@ -258,7 +250,8 @@ void SettingsForm::initvalue() {
       }
       
 }
-
+// @author: Giridhari
+// TODO: To show the Dialog box of Settings and initialize the values --@Giridhari
 void SettingsForm::showsettings() {
      cerr << "Lal1 ";
     if (mainwindow == NULL) return;
