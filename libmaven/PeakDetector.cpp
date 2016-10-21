@@ -142,6 +142,7 @@ void PeakDetector::processMassSlices() {
 
     MassSlices massSlices;
     massSlices.setSamples(mavenParameters->samples);
+    massSlices.setMavenParameters(mavenParameters);
     massSlices.algorithmB(
         mavenParameters->ppmMerge, mavenParameters->minGroupIntensity,
         mavenParameters->rtStepSize);  // perform algorithmB for samples
@@ -190,6 +191,11 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
         //Looping over the compounds in the compound database
         for (unsigned int i = 0; i < set.size(); i++) {
+                if (mavenParameters->stop) {
+                    delete_all(slices);
+                    break;
+                }
+
                 Compound* c = set[i];
                 if (c == NULL)
                         continue;
@@ -469,6 +475,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
         // using the classifier
         // #pragma omp parallel for ordered
         for (unsigned int s = 0; s < slices.size(); s++) {
+
+                if (mavenParameters->stop) break;
                 mzSlice* slice = slices[s];
 
                 Compound* compound = slice->compound;

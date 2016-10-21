@@ -178,6 +178,7 @@ public:
 	vector<mzSample*> samples;
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
+	bool stop;
 
 	int alignMaxItterations; //TODO: Sahil - Kiran, Added while merging mainwindow
 	int alignPolynomialDegree; //TODO: Sahil - Kiran, Added while merging mainwindow

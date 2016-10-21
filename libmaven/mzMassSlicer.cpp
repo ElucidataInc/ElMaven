@@ -20,6 +20,13 @@ void MassSlices::algorithmA() {
     cerr << "#algorithmA" << slices.size() << endl;
 }
 
+void MassSlices::stopSlicing() {
+    if (slices.size() > 0) {
+        delete_all(slices);
+        slices.clear();
+        cache.clear();
+    }
+}
 /**
  * MassSlices::algorithmB This is the main function that does the peakdetection
  * This dont need a DB to check the peaks. This function finds all the peaks
@@ -43,8 +50,17 @@ void MassSlices::algorithmB(float userPPM, float minIntensity, int rtStep) {
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
+        if (mavenParameters->stop) {
+            stopSlicing();
+            break;
+        }
+
 // #pragma omp cancel for
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
+            if (mavenParameters->stop) {
+                stopSlicing();
+                break;
+            }
             Scan* scan = samples[i]->scans[j];
             if (scan->mslevel != 1 ) continue;
             if (_maxRt and !isBetweenInclusive(scan->rt,_minRt,_maxRt)) continue;

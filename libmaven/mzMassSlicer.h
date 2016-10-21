@@ -1,6 +1,7 @@
 #ifndef MASSSLICES_H
 #define MASSSLICES_H
 
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "Matrix.h"
@@ -71,6 +72,8 @@ class MassSlices {
         void setMinCharge   ( float v) {  _minCharge = v; }
         void setMaxCharge   ( float v) {  _maxCharge = v; }
         void setPrecursorPPMTolr (float v) { _precursorPPM = v; }
+	    void setMavenParameters(MavenParameters* mp) { mavenParameters = mp;}
+        void stopSlicing();
 
     private:
         unsigned int _maxSlices;
@@ -86,6 +89,7 @@ class MassSlices {
 
         vector<mzSample*> samples;
         multimap<int,mzSlice*>cache;
+        MavenParameters* mavenParameters;
 
 };
 #endif
