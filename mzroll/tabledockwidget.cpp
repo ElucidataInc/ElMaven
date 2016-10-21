@@ -475,7 +475,10 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
     treeWidget->clear();
-    if (allgroups.size() == 0 ) return;
+    if (allgroups.size() == 0 ) {
+        setVisible(false);
+        return;
+    }
 
     treeWidget->setSortingEnabled(false);
      //Added when Merging to Maven776 - Kiran
