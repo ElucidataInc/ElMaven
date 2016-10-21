@@ -463,12 +463,15 @@ int Database::loadCompoundCSVFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
+    static const string allHeadersarr[] = {"mz", "rt", "expectedrt", "charge", "formula", "id", "name", 
+    "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity"};
+    vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
     char sep='\t';
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=',';
 
-    cerr << filename << " sep=" << sep << endl;
+    //cerr << filename << " sep=" << sep << endl;
     while ( getline(myfile,line) ) {
         if (!line.empty() && line[0] == '#') continue;
         //trim spaces on the left
@@ -491,8 +494,12 @@ int Database::loadCompoundCSVFile(string filename){
         if (lineCount==1) {
             headers = fields;
             for(unsigned int i=0; i < fields.size(); i++ ) {
-                fields[i]=makeLowerCase(fields[i]);
-                header[ fields[i] ] = i;
+                fields[i] = makeLowerCase(fields[i]);
+                if (find(allHeaders.begin(), allHeaders.end(), fields[i]) != allHeaders.end()) {
+                    header[fields[i]] = i;
+                } else {
+                    return 0;
+                }
             }
             continue;
         }
@@ -549,8 +556,6 @@ int Database::loadCompoundCSVFile(string filename){
 
         }
 
-
-
         //cerr << "Loading: " << id << " " << formula << "mz=" << mz << " rt=" << rt << " charge=" << charge << endl;
 
         if (mz == 0) mz=precursormz;
@@ -578,7 +583,7 @@ int Database::loadCompoundCSVFile(string filename){
         }
     }
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);
-    cerr << "Loading " << dbname << " " << loadCount << endl;
+    //cerr << "Loading " << dbname << " " << loadCount << endl;
     myfile.close();
     return loadCount;
 }

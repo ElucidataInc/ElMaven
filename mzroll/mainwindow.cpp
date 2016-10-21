@@ -876,12 +876,14 @@ void MainWindow::loadCompoundsFile(QString filename) {
 		ligandWidget->setDatabaseNames();
 		if (ligandWidget->isVisible())
 			ligandWidget->setDatabase(QString(dbname.c_str()));
-	}
 
-	settings->setValue("lastDatabaseFile", filename);
-	setStatusText(
+		settings->setValue("lastDatabaseFile", filename);
+		setStatusText(
 			tr("loadCompounds: done after loading %1 compounds").arg(
 					QString::number(compoundCount)));
+	} else {
+		setStatusText(tr("loadCompounds: not able to load %1 database").arg(filename));
+	}
 }
 
 void MainWindow::loadCompoundsFile() {
