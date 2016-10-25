@@ -78,7 +78,7 @@ void EicLine::fixEnds() {
     // if the ends are already fixed - return; - Kiran
     if(_line.size() < 1 or _endsFixed == true) return;
 
-    cerr << this << "Fix ends.." << endl;
+    //cerr << this << "Fix ends.." << endl;
 
    // Made more readable - Kiran
     QPointF first = _line.first();
@@ -90,6 +90,6 @@ void EicLine::fixEnds() {
     _line.append(b);        //move along baseline to origin
     _line.append(first);    //close path
 
-    qDebug() << last << a << b << first;
+    //qDebug() << last << a << b << first;
     _endsFixed=true;
 } 

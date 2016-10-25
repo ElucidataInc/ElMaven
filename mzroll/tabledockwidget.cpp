@@ -269,6 +269,9 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         item->setText(1,groupTagString(group));
     }
 
+    //Updating the peakid
+    item->setText(0,QString::number(group->groupId));
+
     //Added when Merging to Maven776 - Kiran
     if ( viewType == groupView && fabs(group->changeFoldRatio) >= 0 ) {
         item->setText(12,QString::number(group->changeFoldRatio, 'f', 3));
@@ -438,7 +441,10 @@ PeakGroup* TableDockWidget::addPeakGroup(PeakGroup* group) {
         allgroups.push_back(*group);
         if ( allgroups.size() > 0 ) {
             PeakGroup& g = allgroups[ allgroups.size()-1 ];
-            g.groupId = allgroups.size();
+            for (unsigned int i = 0; i <  allgroups.size(); i++) {
+                allgroups[i].groupId = i + 1;
+            }
+            //g.groupId = allgroups.size();
             return &g;
         }
     }
@@ -671,7 +677,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     }
     if (pos == -1) return;
 
-    qDebug() << "Delete pos=" << pos;
+    //qDebug() << "Delete pos=" << pos;
     QTreeWidgetItemIterator it(treeWidget);
     while (*it) {
         QTreeWidgetItem* item = (*it);
@@ -689,6 +695,12 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         }
         ++it;
     }
+
+    for(unsigned int i = 0; i < allgroups.size(); i++) {
+        allgroups[i].groupId = i + 1;
+    }
+    updateTable();
+    //showAllGroups();
     qDebug() << "Delete done..";
 }
 
