@@ -700,6 +700,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         allgroups[i].groupId = i + 1;
     }
     updateTable();
+    _mainwindow->getEicWidget()->replotForced();
 }
 
 void TableDockWidget::deleteGroup() {
@@ -728,11 +729,7 @@ void TableDockWidget::deleteGroup() {
         }
     }
     //show NextItem
-    if(nextItem) {
-        treeWidget->setCurrentItem(nextItem,0);
-    } else {
-        _mainwindow->getEicWidget()->replotForced();
-    }
+    if(nextItem) treeWidget->setCurrentItem(nextItem,0);
     return;
 }
 
