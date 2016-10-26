@@ -701,7 +701,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     }
     updateTable();
     //showAllGroups();
-    qDebug() << "Delete done..";
+    _mainwindow->getEicWidget()->replotForced();
 }
 
 void TableDockWidget::deleteGroup() {
