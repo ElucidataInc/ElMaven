@@ -1,7 +1,12 @@
-install:
-  - sudo apt-get install libqt4-dev qt4-qmake
-
+os: linux
+dist: trusty
+language: cpp
+compiler: gcc
+before_install:
+  - sudo apt-get update -y
+  - sudo apt-get install g++ -y
+  - sudo apt-get install qt4-dev-tools qt4-qmake libboost-all-dev -y
 script:
-  - qmake -project
-  - qmake build.pro 
-  - make
+  - export QT_SELECT=qt4
+  - qmake CONFIG+=release -o Makefile build.pro
+  - make -j4
