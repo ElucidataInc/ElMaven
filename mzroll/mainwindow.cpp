@@ -1517,7 +1517,6 @@ void MainWindow::addToHistory(const mzSlice& slice) {
 
 bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
-		sample->setSampleOrder(samples.size());
 		samples.push_back(sample);
 		if (sample->getPolarity())
 			setIonizationMode(sample->getPolarity());

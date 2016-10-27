@@ -162,7 +162,6 @@ void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item, int c
 void ProjectDockWidget::updateSampleList() {
 
     vector<mzSample*>samples = _mainwindow->getSamples();
-    std::sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
     std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
 
     if ( samples.size() > 0 ) setInfo(samples);
@@ -363,6 +362,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         mzSample* sample = samples[i];
         if (!sample) continue;
+
+        sample->setSampleOrder(i);
 
         if (sample->color[0] + sample->color[1] + sample->color[2]
 				> 0)
