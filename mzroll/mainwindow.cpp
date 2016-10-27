@@ -1810,37 +1810,33 @@ void MainWindow::spectaFocused(Peak* _peak) {
 
 }
 
-void MainWindow::setupSampleColors() {
-	if (samples.size() == 0)
-		return;
+// void MainWindow::setupSampleColors() {
 
-	float N = samples.size();
+// 	float N = samples.size();
 
-	for (unsigned int i = 0; i < samples.size(); i++) {
-		//skip sample that have been colored
-		if (samples[i]->color[0] + samples[i]->color[1] + samples[i]->color[2]
-				> 0)
-			continue;
+// 	if (!sample) continue;
 
-		//set blank to non transparent red
-		if (samples[i]->isBlank) {
-			samples[i]->color[0] = 0.9;
-			samples[i]->color[1] = 0.0;
-			samples[i]->color[2] = 0.0;
-			samples[i]->color[3] = 1.0;
-			continue;
-		}
+// 	if (sample->color[0] + sample->color[1] + sample->color[2]
+// 			> 0)
+// 		continue;
+// 	//set blank to non transparent red
+// 	if (sample->isBlank) {
+// 		sample->color[0] = 0.9;
+// 		sample->color[1] = 0.0;
+// 		sample->color[2] = 0.0;
+// 		sample->color[3] = 1.0;
+// 		continue;
+// 	}
 
-		float hue = 1 - 0.6 * ((float) (i + 1) / N);
-		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
-		//qDebug() << "SAMPLE COLOR=" << c;
+// 	float hue = 1 - 0.6 * ((float) (i + 1) / N);
+// 	QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
+// 	//qDebug() << "SAMPLE COLOR=" << c;
 
-		samples[i]->color[0] = c.redF();
-		samples[i]->color[1] = c.greenF();
-		samples[i]->color[2] = c.blueF();
-		samples[i]->color[3] = c.alphaF();
-	}
-}
+// 	sample->color[0] = c.redF();
+// 	sample->color[1] = c.greenF();
+// 	sample->color[2] = c.blueF();
+// 	sample->color[3] = c.alphaF();
+// }
 
 QString MainWindow::groupTextExport(PeakGroup* group) {
 

@@ -161,9 +161,10 @@ void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item, int c
 
 void ProjectDockWidget::updateSampleList() {
 
-    _mainwindow->setupSampleColors();
     vector<mzSample*>samples = _mainwindow->getSamples();
     std::sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+    std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
+
     if ( samples.size() > 0 ) setInfo(samples);
 
     if ( _mainwindow->getEicWidget() ) {
@@ -355,9 +356,35 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     _treeWidget->setRootIsDecorated(true);
     _treeWidget->expandToDepth(10);
 
+    //_mainwindow->setupSampleColors();
+    float N = samples.size();
+
     for(int i=0; i < samples.size(); i++ ) {
+
         mzSample* sample = samples[i];
         if (!sample) continue;
+
+        if (sample->color[0] + sample->color[1] + sample->color[2]
+				> 0)
+			continue;
+		//set blank to non transparent red
+		if (sample->isBlank) {
+			sample->color[0] = 0.9;
+			sample->color[1] = 0.0;
+			sample->color[2] = 0.0;
+			sample->color[3] = 1.0;
+			continue;
+		}
+
+		float hue = 1 - 0.6 * ((float) (i + 1) / N);
+		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
+		//qDebug() << "SAMPLE COLOR=" << c;
+
+		sample->color[0] = c.redF();
+		sample->color[1] = c.greenF();
+		sample->color[2] = c.blueF();
+		sample->color[3] = c.alphaF();
+
         
         QTreeWidgetItem* parent = getParentFolder(QString(sample->fileName.c_str()));
         //QTreeWidgetItem* parent=NULL;

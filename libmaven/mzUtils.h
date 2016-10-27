@@ -71,6 +71,8 @@ namespace mzUtils {
         return (floor(val));
     }
 
+    bool strcasecmp_withNumbers(const std::string& a, const std::string& b );
+
     void removeSpecialcharFromStartEnd(vector<string>& fields);
     /**
      * [spline fitting]

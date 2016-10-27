@@ -611,6 +611,8 @@ class mzLink {
              */
             static bool compSampleOrder(const mzSample* a, const mzSample* b ) { return a->_sampleOrder < b->_sampleOrder; }
 
+            static bool compSampleSort(const mzSample* a, const mzSample* b ) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName);}
+
             /**
              * [getMinMaxDimentions ]
              * @method getMinMaxDimentions

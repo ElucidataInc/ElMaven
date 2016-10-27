@@ -53,7 +53,6 @@ mzSample* mzFileIO::loadSample(QString filename){
 
     if (sampleName.isEmpty()) return NULL;
     mzSample* sample = NULL;
-    QTime timer; timer.start();
 
     try {
         if (filename.contains("mzdata",Qt::CaseInsensitive)) {            
@@ -69,8 +68,6 @@ mzSample* mzFileIO::loadSample(QString filename){
     } catch(...) {
         qDebug() << "mzFileIO::loadSample() " << filename << " failed..";
     }
-
-    qDebug() << "mzFileIO::loadSample time (msec) = " << timer.elapsed();
 
     if ( sample && sample->scans.size() > 0 ) {
         sample->sampleName = string( sampleName.toLatin1().data() );
@@ -484,31 +481,11 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 }
 
 void mzFileIO::run(void) {
-    qDebug() << "mzFileIO::run() filelist=" << filelist;
     fileImport();
     quit();
-    qDebug() << "mzFileIO::done() filelist=" << filelist;
 }
 
 void mzFileIO::fileImport(void) {
-//     if ( filelist.size() == 0 ) return;
-//     Q_EMIT (updateProgressBar( "Importing files", filelist.size()+0.01, filelist.size()));
-
-//     #pragma omp parallel for ordered
-//     for (int i = 0; i < filelist.size(); i++) {
-       
-//         QString filename = filelist.at(i);
-//         #pragma omp ordered
-//         Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), i+1, filelist.size()));
-	
-//         if(_mainwindow) {
-//             qDebug() << "Loading sample:" << filename;
-//             mzSample* sample = loadSample(filename);
-//             _mainwindow->addSample(sample);
-//         }
-//     }
-//    Q_EMIT (updateProgressBar( "Done importing", filelist.size(), filelist.size()));
-
     if ( filelist.size() == 0 ) return;
     Q_EMIT (updateProgressBar( "Importing files", 0, filelist.size()));
 
@@ -520,7 +497,6 @@ void mzFileIO::fileImport(void) {
     Q_FOREACH(QString filename, filelist ) {
         QFileInfo fileInfo(filename);
         if (!fileInfo.exists()) continue;
-        qDebug() << "fileImport:" << filename;
 
         if (isSampleFileType(filename)) {
             samples << filename;
@@ -534,27 +510,21 @@ void mzFileIO::fileImport(void) {
     }
 
     Q_FOREACH(QString filename, projects ) {
-        qDebug() << "fileImport: loadProject:" << filename;
         _mainwindow->projectDockWidget->loadProject(filename);
         _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
     }
 
     Q_FOREACH(QString filename, peaks ) {
-        qDebug() << "fileImport: loadPeaks:" << filename;
         QFileInfo fileInfo(filename);
         TableDockWidget* tableX = _mainwindow->addPeaksTable("Group Set " + fileInfo.fileName());
         tableX->loadPeakTable(filename);
     }
 
     int iter = 0;
-    double start = omp_get_wtime();
 
     #pragma omp parallel for shared(iter)
     for (int i = 0; i < samples.size(); i++) {
         QString filename = samples.at(i);
-        qDebug() << "fileImport: loadSamples:" << filename;
-
-
 		mzSample* sample = loadSample(filename);
 		if (sample) {
 				sample->enumerateSRMScans();
@@ -570,11 +540,10 @@ void mzFileIO::fileImport(void) {
 		}
         #pragma omp atomic
         iter++;
-        
+
         Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
 
 	}
-    cerr << "Time taken by file import : " << omp_get_wtime() - start;
 
     Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {

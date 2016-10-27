@@ -248,7 +248,7 @@ public Q_SLOTS:
 	void hideDockWidgets();
 	//void terminateTheads();
 	void doSearch(QString needle);
-	void setupSampleColors();
+	//void setupSampleColors();
         // void showMassSlices();
         void showSRMList();
         void addToHistory(const mzSlice& slice);
