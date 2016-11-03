@@ -81,4 +81,5 @@ void IsotopeLogic::computeIsotopes(string f, double ppm,
 	}
 
 	sort(links.begin(), links.end(), mzLink::compMz);
+	_scan = NULL;
 }

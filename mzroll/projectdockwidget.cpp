@@ -289,10 +289,11 @@ void ProjectDockWidget::unloadSelectedSamples() {
               mzSample*  sample =  v.value<mzSample*>();
               item->setHidden(true);
               unloadSample(sample);
+              delete(sample);
            }
       }
      _treeWidget->update();
-      _mainwindow->getEicWidget()->replotForced();
+     _mainwindow->getEicWidget()->replotForced();
 }
 
 
