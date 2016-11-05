@@ -233,20 +233,6 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
     if (mavenParameters->samples.size() == 0)
         return;
 
-    //init
-    // double maxNaturalAbundanceErr = 100; //naman: unused param.
-    // mavenParameters->maxNaturalAbundanceErr;
-    bool C13Labeled = false;
-    // mavenParameters->C13Labeled;
-    bool N15Labeled = false;
-    // mavenParameters->N15Labeled;
-    bool S34Labeled = false;
-    // mavenParameters->S34Labeled;
-    bool D2Labeled = false;
-    // mavenParameters->D2Labeled;
-    // int eic_smoothingAlgorithm = 0; //naman: unused
-    // mavenParameters->eic_smoothingAlgorithm;
-
     string formula = parentgroup->compound->formula; //parent formula
     //generate isotope list for parent mass
     vector<Isotope> masslist = MassCalculator::computeIsotopes(
@@ -309,12 +295,12 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
             }
             //if(isotopePeakIntensity==0) continue;
-
+            
             //natural abundance check
-            if ((x.C13 > 0 && C13Labeled == false) //if isotope is not C13Labeled
-                    || (x.N15 > 0 && N15Labeled == false) //if isotope is not N15 Labeled
-                    || (x.S34 > 0 && S34Labeled == false) //if isotope is not S34 Labeled
-                    || (x.H2 > 0 && D2Labeled == false) //if isotope is not D2 Labeled
+            if ((x.C13 > 0 && mavenParameters->C13Labeled == false) //if isotope is not C13Labeled
+                    || (x.N15 > 0 && mavenParameters->N15Labeled == false) //if isotope is not N15 Labeled
+                    || (x.S34 > 0 && mavenParameters->S34Labeled == false) //if isotope is not S34 Labeled
+                    || (x.H2 > 0 && mavenParameters->D2Labeled == false) //if isotope is not D2 Labeled
 
                ) {
                 if (expectedAbundance < 1e-8)
