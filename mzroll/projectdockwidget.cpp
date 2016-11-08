@@ -45,7 +45,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     QToolButton* loadButton = new QToolButton(toolBar);
     loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
     loadButton->setToolTip("Load Project");
-    connect(loadButton,SIGNAL(clicked()), SLOT(loadProject()));
+    connect(loadButton,SIGNAL(clicked()), SLOT(sampleupload()));
 
     QToolButton* saveButton = new QToolButton(toolBar);
     saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
@@ -158,7 +158,10 @@ void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item, int c
         cerr <<"changeSampleSet: " << sample->sampleName << "  " << sample->getNormalizationConstant() << endl;
     }
 }
-
+//@author: Giridhari
+void ProjectDockWidget::sampleupload(){
+    _mainwindow->open();
+}
 void ProjectDockWidget::updateSampleList() {
 
     _mainwindow->setupSampleColors();

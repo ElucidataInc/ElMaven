@@ -28,7 +28,7 @@ public Q_SLOTS:
     void saveProject(QString filename, TableDockWidget* peakTable = 0);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
-
+    void sampleupload();
 protected Q_SLOTS:
       void keyPressEvent( QKeyEvent *e );
       void contextMenuEvent ( QContextMenuEvent * event );

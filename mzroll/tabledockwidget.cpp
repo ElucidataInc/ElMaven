@@ -97,7 +97,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     QToolButton *btnLoad = new QToolButton(toolBar);
     btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
     btnLoad->setToolTip("Load Peaks");
-    connect(btnLoad, SIGNAL(clicked()), SLOT(loadPeakTable()));
+    connect(btnLoad, SIGNAL(clicked()), SLOT(sampleupload()));
 
     QToolButton *btnGood = new QToolButton(toolBar);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
@@ -1381,6 +1381,10 @@ void TableDockWidget::loadPeakTable() {
     }
     //Added when Merging to Maven776 - Kiran
 	showAllGroups();
+}
+//@author: Giridhari
+void TableDockWidget::sampleupload(){
+    _mainwindow->open();
 }
 
 void TableDockWidget::runScript() {

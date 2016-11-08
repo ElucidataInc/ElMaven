@@ -111,6 +111,7 @@ protected Q_SLOTS:
 
 private:
           void deletePeaks();
+          void sampleupload();
           void addRow(PeakGroup* group, QTreeWidgetItem* root);
           void heatmapBackground(QTreeWidgetItem* item);
 	  PeakGroup* readGroupXML(QXmlStreamReader& xml,PeakGroup* parent);
