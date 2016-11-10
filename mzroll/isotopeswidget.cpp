@@ -174,13 +174,18 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	mavenParameters->setPeakGroup(group);
 	mavenParameters->setSamples(vsamples);
 	mavenParameters->compoundPPMWindow = _mw->getUserPPM();
+	if (_mw->getIonizationMode()) {
+    	mavenParameters->ionizationMode = _mw->getIonizationMode();
+    } else {
+    	mavenParameters->setIonizationMode();
+    }
 	workerThread->start();
 	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
 
 void IsotopeWidget::setClipboard() {
 	if (isotopeParameters->_group) {
-
+		
 		//update clipboard
 		setClipboard(isotopeParameters->_group);
 
