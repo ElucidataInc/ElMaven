@@ -45,7 +45,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     QToolButton* loadButton = new QToolButton(toolBar);
     loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
     loadButton->setToolTip("Load Project");
-    connect(loadButton,SIGNAL(clicked()), SLOT(loadProject()));
+    //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
+    connect(loadButton,SIGNAL(clicked()),_mainwindow, SLOT(open()));
 
     QToolButton* saveButton = new QToolButton(toolBar);
     saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));

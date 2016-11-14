@@ -97,7 +97,8 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     QToolButton *btnLoad = new QToolButton(toolBar);
     btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
     btnLoad->setToolTip("Load Peaks");
-    connect(btnLoad, SIGNAL(clicked()), SLOT(loadPeakTable()));
+    //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
+    connect(btnLoad, SIGNAL(clicked()),_mainwindow, SLOT(open())); 
 
     QToolButton *btnGood = new QToolButton(toolBar);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
