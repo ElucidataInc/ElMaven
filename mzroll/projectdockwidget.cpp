@@ -366,9 +366,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         sample->setSampleOrder(i);
 
-        if (sample->color[0] + sample->color[1] + sample->color[2]
-				> 0)
-			continue;
 		//set blank to non transparent red
 		if (sample->isBlank) {
 			sample->color[0] = 0.9;
