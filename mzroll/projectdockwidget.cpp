@@ -559,9 +559,18 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QStringRef currentXmlElement;
 
     //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
-
+    //@author: Giridhari
+#pragma omp parallel //Add this code to make parallel processing
+{
     while (!xml.atEnd()) {
-        xml.readNext();
+         
+
+         #pragma omp critical   //Add this code to remove conflict between two or more processor at run time
+         {
+             xml.readNext();
+         }
+         
+
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
 
@@ -581,9 +590,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 }
 
                 if(checkLoaded == true) continue;  // skip files that have been loaded already
-
+                
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
+                
                 if (!sampleFile.exists()) {
                     Q_FOREACH(QString path, pathlist) {
                         fname= path + QDir::separator() + sampleFile.fileName();
@@ -637,6 +647,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
             projectDescription.append( xml.text() );
         }
     }
+}
     data.close();
 
     //setProjectDescription(projectDescription);
