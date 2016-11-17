@@ -405,7 +405,7 @@ void PeakGroup::groupStatistics() {
     int nonZeroCount=0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
-        if(peaks[i].pos != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
+        if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
         if(peaks[i].peakIntensity > 0) totalSampleCount++;
 
         if(peaks[i].peakIntensity>maxIntensity) {
