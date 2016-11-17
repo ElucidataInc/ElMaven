@@ -750,6 +750,16 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     }
     stream.writeEndElement();
 
+    stream.writeStartElement("database");
+
+    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ){
+        Compound* compound = DB.compoundsDB[i];
+        stream.writeStartElement("compound");
+        stream.writeAttribute("name",  compound->name.c_str());
+        stream.writeEndElement();
+    }
+
+    stream.writeEndElement();    
     stream.writeStartElement("projectDescription");
     stream.writeCharacters(getProjectDescription());
     stream.writeEndElement();

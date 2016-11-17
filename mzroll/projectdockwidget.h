@@ -7,6 +7,8 @@
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
+extern Database DB; 
+
 class ProjectDockWidget : public QDockWidget
 {
     Q_OBJECT
