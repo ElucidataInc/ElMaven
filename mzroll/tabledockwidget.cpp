@@ -640,13 +640,19 @@ QList<PeakGroup*> TableDockWidget::getSelectedGroups() {
     }
     return selectedGroups;
 }
-
+//@author:Giridhari -- Refactored this function
+//TODO: To select one or more item in Qtreewidget in peaktable
 PeakGroup* TableDockWidget::getSelectedGroup() { 
-    QTreeWidgetItem *item = treeWidget->currentItem();
-    if (!item) return NULL;
-    QVariant v = item->data(0,Qt::UserRole);
-    PeakGroup*  group =  v.value<PeakGroup*>();
+    PeakGroup*  group;
+    QList<QTreeWidgetItem*>selected = treeWidget->selectedItems();
+    if(selected.size() == 0) return NULL;
+    Q_FOREACH (QTreeWidgetItem* item, selected) {
+              QVariant v = item->data(0,Qt::UserRole);
+               group =  v.value<PeakGroup*>();
+              item->setHidden(true);
+           }
     if ( group != NULL ) { return group; }
+    else
     return NULL;
 }
 
@@ -712,6 +718,7 @@ void TableDockWidget::deleteGroup() {
     if ( item == NULL ) return;
 
     PeakGroup* group = getSelectedGroup();
+    
     if ( group == NULL ) return;
 
     PeakGroup* parentGroup = group->parent;
