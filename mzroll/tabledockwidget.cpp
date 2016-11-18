@@ -193,7 +193,8 @@ void TableDockWidget::setupPeakTable() {
     //Add a coulmn to the Peaks Table
     colNames << "#";
     colNames << "ID";
-    colNames << "m/z";
+    colNames << "Observed m/z";
+    colNames << "Expected m/z";
     colNames << "rt";
 
     /*
@@ -386,26 +387,33 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(0,QString::number(group->groupId));
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
-    item->setText(3,QString::number(group->meanRt, 'f', 2));
+    if (group->compound){
+        int charge = _mainwindow->getIonizationMode();
+        item->setText(3,QString::number(group->compound->ajustedMass(charge),'f', 4));
+    }
+    else{
+        item->setText(3, "NA");
+    }
+    item->setText(4,QString::number(group->meanRt, 'f', 2));
 
     if (group->label == 'g' ) item->setIcon(0,QIcon(":/images/good.png"));
     if (group->label == 'b' ) item->setIcon(0,QIcon(":/images/bad.png"));
 
     if (viewType == groupView) {
         //Updated when Merging to Maven776 - Kiran
-        item->setText(4,QString::number(group->expectedRtDiff,'f',2));
-        item->setText(5,QString::number(group->sampleCount));
-        item->setText(6,QString::number(group->goodPeakCount));
-        item->setText(7,QString::number(group->maxNoNoiseObs));
-        item->setText(8,QString::number(group->maxIntensity,'g',2));
-        item->setText(9,QString::number(group->maxSignalBaselineRatio,'f',0));
-        item->setText(10,QString::number(group->maxQuality,'f',2));
-        item->setText(11,QString::number(group->groupRank,'f',2));
+        item->setText(5,QString::number(group->expectedRtDiff,'f',2));
+        item->setText(6,QString::number(group->sampleCount));
+        item->setText(7,QString::number(group->goodPeakCount));
+        item->setText(8,QString::number(group->maxNoNoiseObs));
+        item->setText(9,QString::number(group->maxIntensity,'g',2));
+        item->setText(10,QString::number(group->maxSignalBaselineRatio,'f',0));
+        item->setText(11,QString::number(group->maxQuality,'f',2));
+        item->setText(12,QString::number(group->groupRank,'f',2));
 
         if ( group->changeFoldRatio != 0 ) {
             //Updated when Merging to Maven776 - Kiran
-            item->setText(12,QString::number(group->changeFoldRatio, 'f', 2));
-            item->setText(13,QString::number(group->changePValue,    'e', 4));
+            item->setText(13,QString::number(group->changeFoldRatio, 'f', 2));
+            item->setText(14,QString::number(group->changePValue,    'e', 4));
         }
 
     } else if ( viewType == peakView) {
@@ -414,7 +422,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         vector<float>yvalues = group->getOrderedIntensityVector(vsamples,_mainwindow->getUserQuantType());
         for(unsigned int i=0; i<yvalues.size(); i++ ) {
          //Updated when Merging to Maven776 - Kiran
-         item->setText(4+i,QString::number(yvalues[i]));
+         item->setText(5+i,QString::number(yvalues[i]));
         }
         heatmapBackground(item);
     }
@@ -498,7 +506,7 @@ void TableDockWidget::showAllGroups() {
             if (!parents.contains(metaGroupId)) {
                 parents[metaGroupId]= new QTreeWidgetItem(treeWidget);
                 parents[metaGroupId]->setText(0,QString("Cluster ") + QString::number(metaGroupId));
-                parents[metaGroupId]->setText(4,QString::number(allgroups[i].meanRt,'f',2));
+                parents[metaGroupId]->setText(5,QString::number(allgroups[i].meanRt,'f',2));
                 parents[metaGroupId]->setExpanded(true);
             }
             QTreeWidgetItem* parent = parents[ metaGroupId ];
