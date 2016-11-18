@@ -752,12 +752,44 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
     stream.writeStartElement("database");
 
-    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ){
+    string dbname = _mainwindow->ligandWidget->getDatabaseName().toStdString();
+
+    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
         Compound* compound = DB.compoundsDB[i];
+        if(compound->db != dbname ) continue; //skip compounds from other databases
+
         stream.writeStartElement("compound");
         stream.writeAttribute("name",  compound->name.c_str());
+        stream.writeAttribute("m/z", QString::number(compound->mass));
+        if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt));
+
+        if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
+        if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
+        if (compound->precursorMz) stream.writeAttribute("Precursor Mz", QString::number(compound->precursorMz, 'f', 2));
+        if (compound->productMz) stream.writeAttribute("Product Mz", QString::number(compound->productMz, 'f', 2));
+        if (compound->collisionEnergy) stream.writeAttribute("Collision Energy", QString::number(compound->collisionEnergy, 'f' ,2));
+
+        if(compound->category.size() > 0) {
+            stream.writeStartElement("categories");
+            for(unsigned int i=0; i<compound->category.size();i++) {
+                stream.writeAttribute("category", compound->category[i].c_str());
+            }
+            stream.writeEndElement();
+        }
+
+        // if (compound->fragment_mzs.size()) {
+        //     QStringList mzList;
+        //     for(unsigned int i=0; i<compound->fragment_mzs.size();i++) {
+        //         mzList << QString::number(compound->fragment_mzs[i],'f',2);
+        //     }
+        //     QTreeWidgetItem* child = addItem(parent,"Fragments",compound->fragment_mzs[0]);
+        //     child->setText(1,mzList.join(";"));
+        // }
+
         stream.writeEndElement();
     }
+
+
 
     stream.writeEndElement();    
     stream.writeStartElement("projectDescription");
