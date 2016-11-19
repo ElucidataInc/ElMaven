@@ -410,6 +410,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setIcon(0,coloricon);
         item->setText(0,QString(sample->sampleName.c_str()));
         item->setData(0,Qt::UserRole,QVariant::fromValue(samples[i]));
+        item->setIcon(1,QIcon(QPixmap(rsrcPath + "/edit.png")));
         item->setText(1,QString(sample->getSetName().c_str()));
         item->setText(2,QString::number(sample->getNormalizationConstant(),'f',2));
        // _treeWidget->setItemWidget(item,3,colorButton);
