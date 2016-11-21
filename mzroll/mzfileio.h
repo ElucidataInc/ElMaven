@@ -3,6 +3,8 @@
 #include "globals.h"
 #include "mainwindow.h"
 
+
+class ProjectDockWidget;
 /**
  * @class mzPoint
  * @ingroup mzroll
@@ -15,7 +17,7 @@ Q_OBJECT
 
     public:
         mzFileIO(QWidget*);
-
+        void qtSlot(const string& progressText, unsigned int completed_slices, int total_slices);
         /**
          * [set File List]
          * @param flist [file list]
@@ -104,6 +106,7 @@ Q_OBJECT
     private:
          QStringList filelist;
          MainWindow* _mainwindow;
+         ProjectDockWidget* projectdocwidget;
          bool _stopped;
          QProcess* process; //TODO: Sahil, Added while merging mzfileio
 

@@ -4,14 +4,15 @@
 #include "stable.h"
 #include "mzSample.h"
 #include "mainwindow.h"
-
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 class ProjectDockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
     explicit ProjectDockWidget(QMainWindow *parent = 0);
-
+    boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
 
 Q_SIGNALS:
 
@@ -28,6 +29,11 @@ public Q_SLOTS:
     void saveProject(QString filename, TableDockWidget* peakTable = 0);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
+    void sendBoostSignal( const string& progressText, unsigned int completed_slices, int total_slices)
+    {
+    boostSignal(progressText, completed_slices, total_slices);
+    }
+
 
 protected Q_SLOTS:
       void keyPressEvent( QKeyEvent *e );

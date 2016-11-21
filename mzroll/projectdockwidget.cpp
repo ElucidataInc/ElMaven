@@ -533,13 +533,13 @@ void ProjectDockWidget::loadProject() {
 }
 
 void ProjectDockWidget::loadProject(QString fileName) {
-
+    int samplecount = 0;
     QSettings* settings = _mainwindow->getSettings();
 
     QFileInfo fileinfo(fileName);
     QString projectPath = fileinfo.path();
     QString projectName = fileinfo.fileName();
-
+    //cerr <<"filename :" <<fileName;
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
         QErrorMessage errDialog(this);
@@ -548,6 +548,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
 
     QXmlStreamReader xml(&data);
+    QXmlStreamReader cxml(&data);
     mzSample* currentSample=NULL;
 
     QStringList pathlist;
@@ -559,8 +560,23 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QStringRef currentXmlElement;
 
     //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
-
+    int i=0;
+    while(!cxml.atEnd()){
+        // cerr <<"while loop:1";
+        if (cxml.isStartElement()) {
+         if (cxml.name() == "sample") {
+        i++;}
+        }
+        cxml.readNext();
+    }
+    cxml.clear();
+    xml.setDevice(xml.device());
+    cerr <<"value of i:" <<i;
+    // xml.clear();
+    cerr <<"before while loop:";
+//    xml.setDevice(xml.device());
     while (!xml.atEnd()) {
+        // cerr <<"while loop:";
         xml.readNext();
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
@@ -581,7 +597,8 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 }
 
                 if(checkLoaded == true) continue;  // skip files that have been loaded already
-
+                
+                samplecount++;
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
                 if (!sampleFile.exists()) {
@@ -636,6 +653,8 @@ void ProjectDockWidget::loadProject(QString fileName) {
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
             projectDescription.append( xml.text() );
         }
+        // cerr <<"vlaue of i: "<<i;
+    sendBoostSignal("Importing file %1", samplecount, i);
     }
     data.close();
 

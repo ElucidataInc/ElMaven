@@ -489,6 +489,7 @@ void mzFileIO::fileImport(void) {
     if ( filelist.size() == 0 ) return;
     Q_EMIT (updateProgressBar( "Importing files", 0, filelist.size()));
 
+    _mainwindow->getProjectWidget()->boostSignal.connect(boost::bind(&mzFileIO::qtSlot, this, _1, _2, _3));
     QStringList samples;
     QStringList peaks;
     QStringList projects;
@@ -496,7 +497,13 @@ void mzFileIO::fileImport(void) {
 
     Q_FOREACH(QString filename, filelist ) {
         QFileInfo fileInfo(filename);
-        if (!fileInfo.exists()) continue;
+        if (!fileInfo.exists()){
+        //     cerr <<"filename checking: ";
+        //     bool ok;
+		//   filename = QInputDialog::getText(0, tr("File Path"), tr("Location:"),
+		// 		QLineEdit::Normal,"Your Path", &ok);
+        continue;
+        }
 
         if (isSampleFileType(filename)) {
             samples << filename;
@@ -511,7 +518,7 @@ void mzFileIO::fileImport(void) {
 
     Q_FOREACH(QString filename, projects ) {
         _mainwindow->projectDockWidget->loadProject(filename);
-        _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+        _mainwindow->bookmarkedPeaks->loadPeakTable(filename);        
     }
 
     Q_FOREACH(QString filename, peaks ) {
@@ -566,7 +573,11 @@ void mzFileIO::fileImport(void) {
     filelist.clear(); //empty queue
 }
 
+void mzFileIO::qtSlot(const string& progressText, unsigned int completed_slices, int total_slices)
+{
+        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_slices, total_slices));
 
+}
 /*
 @author: Sahil
 */
