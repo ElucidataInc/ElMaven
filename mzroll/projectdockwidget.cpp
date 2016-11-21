@@ -548,7 +548,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
 
     QXmlStreamReader xml(&data);
-    QXmlStreamReader cxml(&data);
+    // QXmlStreamReader cxml(&data);
     mzSample* currentSample=NULL;
 
     QStringList pathlist;
@@ -561,15 +561,15 @@ void ProjectDockWidget::loadProject(QString fileName) {
 
     //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
     int i=0;
-    while(!cxml.atEnd()){
+    while(!xml.atEnd()){
         // cerr <<"while loop:1";
-        if (cxml.isStartElement()) {
-         if (cxml.name() == "sample") {
+        if (xml.isStartElement()) {
+         if (xml.name() == "sample") {
         i++;}
         }
-        cxml.readNext();
+        xml.readNext();
     }
-    cxml.clear();
+     data.seek(0);
     xml.setDevice(xml.device());
     cerr <<"value of i:" <<i;
     // xml.clear();
