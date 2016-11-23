@@ -3,6 +3,8 @@
 
 #include "stable.h"
 #include "globals.h"
+#include <ctime>
+#include <sstream>
 #include "../libmaven/mavenparameters.h"
 #include "scatterplot.h"
 #include "eicwidget.h"
@@ -93,6 +95,8 @@ public:
 	}
 	vector<mzSample*> samples;		//list of loadded samples
 	static mzSample* loadSample(QString filename);
+	int peaksMarked = 0;
+	void autoSavemzRoll();
 
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database

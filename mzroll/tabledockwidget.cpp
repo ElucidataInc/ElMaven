@@ -791,14 +791,18 @@ void TableDockWidget::showConsensusSpectra() {
 }
 
 
-void TableDockWidget::markGroupGood() { 
+void TableDockWidget::markGroupGood() {     
     setGroupLabel('g');
     showNextGroup();
+    _mainwindow->peaksMarked++;
+    _mainwindow->autoSavemzRoll();
 }
 
 void TableDockWidget::markGroupBad() { 
     setGroupLabel('b');
     showNextGroup();
+    _mainwindow->peaksMarked++;
+    _mainwindow->autoSavemzRoll();
 }
 
 void TableDockWidget::markGroupIgnored() { 

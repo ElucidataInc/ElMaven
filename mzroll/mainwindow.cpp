@@ -2478,6 +2478,24 @@ void MainWindow::getLinks(Peak* peak) {
 		adductWidget->setPeak(peak);
 }
 
+void MainWindow::autoSavemzRoll(){
+
+	if (peaksMarked % 10 == 0){
+		auto t = time(nullptr);
+		auto tm = *localtime(&t);
+
+		ostringstream oss;
+		oss << put_time(&tm, "%d-%m-%Y_%H-%M-%S");
+		auto date_time = oss.str();
+
+		date_time = date_time + ".mzroll";
+		QString path = ".";
+		QString filename = path + QDir::separator() + "tempAutoSave" + QDir::separator() + QString::fromUtf8(date_time.c_str());
+		projectDockWidget->saveProject(filename);
+	}
+}
+
+
 PeakGroup::QType MainWindow::getUserQuantType() {
 	if (quantType) {
 		QString type = quantType->currentText();
