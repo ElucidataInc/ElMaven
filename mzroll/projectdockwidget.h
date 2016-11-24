@@ -35,6 +35,7 @@ public Q_SLOTS:
     }
 
 
+    void SetAsBlankSamples(); //TODO: --@Giridhari, Create function to Set samples as Blank Samples
 protected Q_SLOTS:
       void keyPressEvent( QKeyEvent *e );
       void contextMenuEvent ( QContextMenuEvent * event );

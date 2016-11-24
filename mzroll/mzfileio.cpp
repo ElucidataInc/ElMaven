@@ -82,8 +82,6 @@ mzSample* mzFileIO::loadSample(QString filename){
         if (filename.contains("blan",Qt::CaseInsensitive)) sample->isBlank = true;
         return sample;
     }
-
-
     return NULL;
 }
 

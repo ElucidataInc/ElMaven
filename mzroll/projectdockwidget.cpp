@@ -70,6 +70,11 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     checkUncheck->setToolTip("Show / Hide Selected Samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
 
+    QToolButton* blankButton = new QToolButton(toolBar);
+    blankButton->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
+    blankButton->setToolTip("Set As a Blank Saples");
+    connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
+
     //toolBar->addWidget(new QLabel("Compounds: "));
     //toolBar->addWidget(databaseSelect);
     toolBar->addWidget(loadButton);
@@ -77,6 +82,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
     toolBar->addWidget(checkUncheck);
+    toolBar->addWidget(blankButton);
     //QLineEdit*  filterEditor = new QLineEdit(toolBar);
     QLineEdit*  filterEditor = new QLineEdit(this);
     filterEditor->setPlaceholderText("Sample name filter");
@@ -296,7 +302,24 @@ void ProjectDockWidget::unloadSelectedSamples() {
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
 }
+// @author:Giridhari
+//TODO: Create function to Set samples as Blank Samples
+void ProjectDockWidget::SetAsBlankSamples() {
+      //get selected items
+      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
+      if(selected.size() == 0) return;
 
+      Q_FOREACH (QTreeWidgetItem* item, selected) {
+          if (item->type() == SampleType) {
+              QVariant v = item->data(0,Qt::UserRole);
+              mzSample*  sample =  v.value<mzSample*>();
+              if ( sample == NULL) return;
+              sample->isBlank = true; // To selected samples as Blank Samples
+           }
+      }
+     _treeWidget->update();
+     _mainwindow->getEicWidget()->replotForced();
+}
 
 void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
     if (item == NULL) return;
