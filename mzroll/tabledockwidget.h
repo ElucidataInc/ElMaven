@@ -128,6 +128,7 @@ private:
           QMap<QString, QHistogramSlider*> sliders;
 
           tableViewType viewType;
+    
 };
 
 #endif

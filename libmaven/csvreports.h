@@ -6,6 +6,7 @@
 #include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+// #include "../mzroll/tabledockwidget.h"
 
 using namespace std;
 using namespace mzUtils;
@@ -13,7 +14,7 @@ using namespace mzUtils;
 class mzSample;
 class EIC;
 class PeakGroup;
-
+// class TableDockWidget;
 class CSVReports {
 
 public:
@@ -41,7 +42,7 @@ public:
     QString sanitizeString(const char* s);
     ofstream groupReport;
     ofstream peakReport;
-
+    int flag=1;
 private:
     void writeGroupInfo(PeakGroup* group);
     void writePeakInfo(PeakGroup* group);
@@ -66,6 +67,7 @@ private:
 
     vector<mzSample*> samples;
     PeakGroup::QType qtype;
+    // TableDockWidget* tabledocwidget;
 
 };
 

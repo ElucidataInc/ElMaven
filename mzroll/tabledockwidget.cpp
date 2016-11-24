@@ -524,7 +524,9 @@ void TableDockWidget::showAllGroups() {
 
 void TableDockWidget::exportGroupsToSpreadsheet() {
     //Merged to Maven776 - Kiran
-
+    // CSVReports* csvreport = new CSVReports;
+    vector<mzSample*> samples = _mainwindow->getSamples();
+    CSVReports* csvreports = new CSVReports(samples);
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
@@ -537,8 +539,10 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
     QString groupsTAB = "Groups  Summary Matrix Format (*.tab)";
+    QString groupsSTAB = "Groups  Summary Matrix Format Without Set Name (*.tab)";    
     QString peaksTAB =  "Peaks   Detailed Format   (*.tab)";
     QString groupsCSV = "Groups  Summary Matrix Format Comma Delimited (*.csv)";
+    QString groupsSCSV = "Groups  Summary Matrix Format Comma Delimited Without Set Name (*.csv)";    
     QString peaksCSV =  "Peaks   Detailed Format Comma Delimited  (*.csv)";
     //Added when Merging to Maven776 - Kiran
     QString peaksListQE= "Inclusion List QE (*.csv)";
@@ -547,7 +551,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     QString sFilterSel;
     QString fileName = QFileDialog::getSaveFileName(this, 
             tr("Export Groups"), dir, 
-            groupsTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
+            groupsTAB + ";;" + groupsSTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + groupsSCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
             &sFilterSel);
 
     if(fileName.isEmpty()) return;
@@ -555,12 +559,22 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     if ( sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
         if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
     }
-
+    if ( sFilterSel == groupsSCSV) {
+        if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
+        cerr <<"csv without:";
+        csvreports->flag = 0;
+        cerr <<"csv without:1";
+    }
     if ( sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
     }
-
-    vector<mzSample*> samples = _mainwindow->getSamples();
+    if ( sFilterSel == groupsSTAB) {
+        cerr <<"tab without:";
+        if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
+        csvreports->flag = 0;
+        cerr <<"tab without:1";
+    }
+    
     if ( samples.size() == 0) return;
 
     //Added when Merging to Maven776 - Kiran
@@ -572,7 +586,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         return;
     }
 
-    CSVReports* csvreports = new CSVReports(samples);
+   
     csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
 
     //Added to pass into csvreports file when merged with Maven776 - Kiran

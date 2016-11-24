@@ -57,7 +57,6 @@ void CSVReports::openPeakReportCSVFile(string outputfile) {
 }
 
 void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool includeSetNamesLine){
-
     if (groupReport.is_open()) {
         QStringList groupReportcolnames;
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
@@ -69,12 +68,14 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
             groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
+        cerr <<"flag: "<<flag; 
         //TODO: Remove this to remove row in csv reports --@Giridhari
-        // if (includeSetNamesLine){
-        //      for(unsigned int i=0; i < 12; i++) { groupReport << SEP; }
-        //      for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
-        //      groupReport << endl;
-        //  }
+        if (includeSetNamesLine && flag){
+            cerr <<"setname: ";
+             for(unsigned int i=0; i < 12; i++) { groupReport << SEP; }
+             for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
+             groupReport << endl;
+         }
     }
     else {
          cerr << "Error: Can't write to: " << outputfile << endl;
