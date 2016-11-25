@@ -539,7 +539,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QFileInfo fileinfo(fileName);
     QString projectPath = fileinfo.path();
     QString projectName = fileinfo.fileName();
-    //cerr <<"filename :" <<fileName;
+
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
         QErrorMessage errDialog(this);
@@ -548,7 +548,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
 
     QXmlStreamReader xml(&data);
-    // QXmlStreamReader cxml(&data);
     mzSample* currentSample=NULL;
 
     QStringList pathlist;
@@ -562,7 +561,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
     int i=0;
     while(!xml.atEnd()){
-        // cerr <<"while loop:1";
         if (xml.isStartElement()) {
          if (xml.name() == "sample") {
         i++;}
@@ -653,7 +651,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
             projectDescription.append( xml.text() );
         }
-        // cerr <<"vlaue of i: "<<i;
     sendBoostSignal("Importing file %1", samplecount, i);
     }
     data.close();

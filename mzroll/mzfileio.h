@@ -17,7 +17,7 @@ Q_OBJECT
 
     public:
         mzFileIO(QWidget*);
-        void qtSlot(const string& progressText, unsigned int completed_slices, int total_slices);
+        void qtSlot(const string& progressText, unsigned int completed_samples, int total_samples);
         /**
          * [set File List]
          * @param flist [file list]

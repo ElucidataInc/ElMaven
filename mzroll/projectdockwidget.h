@@ -29,9 +29,9 @@ public Q_SLOTS:
     void saveProject(QString filename, TableDockWidget* peakTable = 0);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
-    void sendBoostSignal( const string& progressText, unsigned int completed_slices, int total_slices)
+    void sendBoostSignal( const string& progressText, unsigned int completed_samples, int total_samples)
     {
-    boostSignal(progressText, completed_slices, total_slices);
+    boostSignal(progressText, completed_samples, total_samples);
     }
 
 

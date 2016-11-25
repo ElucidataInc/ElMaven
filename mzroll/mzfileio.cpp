@@ -497,13 +497,7 @@ void mzFileIO::fileImport(void) {
 
     Q_FOREACH(QString filename, filelist ) {
         QFileInfo fileInfo(filename);
-        if (!fileInfo.exists()){
-        //     cerr <<"filename checking: ";
-        //     bool ok;
-		//   filename = QInputDialog::getText(0, tr("File Path"), tr("Location:"),
-		// 		QLineEdit::Normal,"Your Path", &ok);
-        continue;
-        }
+        if (!fileInfo.exists()) continue;
 
         if (isSampleFileType(filename)) {
             samples << filename;
@@ -573,9 +567,9 @@ void mzFileIO::fileImport(void) {
     filelist.clear(); //empty queue
 }
 
-void mzFileIO::qtSlot(const string& progressText, unsigned int completed_slices, int total_slices)
+void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples, int total_samples)
 {
-        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_slices, total_slices));
+        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_samples, total_samples));
 
 }
 /*
