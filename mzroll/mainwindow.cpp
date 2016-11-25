@@ -846,8 +846,6 @@ void MainWindow::open() {
     //updated while merging with Maven776 - Kiran
     Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
     fileLoader->start();
-	// To show SRM list, After  uploading samples --@Giridhari
-	showSRMList();
 }
 
 void MainWindow::loadModel() {
