@@ -69,9 +69,9 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
     checkUncheck->setToolTip("Show / Hide Selected Samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
-
+    //TODO: Giridhari, Create this buttong to set samples as Blank samples
     QToolButton* blankButton = new QToolButton(toolBar);
-    blankButton->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
+    blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
     blankButton->setToolTip("Set As a Blank Saples");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
@@ -315,6 +315,12 @@ void ProjectDockWidget::SetAsBlankSamples() {
               mzSample*  sample =  v.value<mzSample*>();
               if ( sample == NULL) return;
               sample->isBlank = true; // To selected samples as Blank Samples
+              lastUsedSampleColor = QColor(Qt::black);
+              if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
+              QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+              QFont font;
+              font.setItalic(true); 
+              item->setFont(0,font);
            }
       }
      _treeWidget->update();
