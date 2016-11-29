@@ -47,11 +47,11 @@ bool checkConvergance = true;
 bool saveJsonEIC=false;
 bool saveMzrollFile=true;
 
-bool pullIsotopesFlag=false;
-    bool C13Labeled=false;
-    bool N15Labeled=false;
-    bool S34Labeled=false;
-    bool D2Labeled=false;
+bool pullIsotopesFlag = false;
+bool C13Labeled_BPE =false;
+bool N15Labeled_BPE =false;
+bool S34Labeled_BPE =false;
+bool D2Labeled_BPE =false;
 string csvFileFieldSeparator=",";
 PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
@@ -401,10 +401,10 @@ void processOptions(int argc, char* argv[]) {
                     label = atoi(optarg);
                     if (label > 0) {
                         mavenParameters->pullIsotopesFlag = 1;
-                        if (label & 1) mavenParameters->C13Labeled = true; 
-                        if (label & 2) mavenParameters->S34Labeled = true; 
-                        if (label & 4) mavenParameters->N15Labeled = true; 
-                        if (label & 8) mavenParameters->D2Labeled  = true; 
+                        if (label & 1) mavenParameters->C13Labeled_BPE = true; 
+                        if (label & 2) mavenParameters->S34Labeled_BPE = true; 
+                        if (label & 4) mavenParameters->N15Labeled_BPE = true; 
+                        if (label & 8) mavenParameters->D2Labeled_BPE  = true; 
                     }
                     
                     break;
@@ -790,10 +790,10 @@ void writeCSVReport( string filename) {
             string isotopeName = x.name;
 
             if( 
-                    (isotopeName.find("C13-label")!=string::npos  && mavenParameters->C13Labeled) || 
-                    (isotopeName.find("N15-label")!=string::npos  && mavenParameters->N15Labeled) || 
-                    (isotopeName.find("S34-label")!=string::npos  && mavenParameters->S34Labeled) || 
-                    (isotopeName.find("D2-label")!=string::npos  && mavenParameters->D2Labeled)  
+                    (isotopeName.find("C13-label")!=string::npos  && mavenParameters->C13Labeled_BPE) || 
+                    (isotopeName.find("N15-label")!=string::npos  && mavenParameters->N15Labeled_BPE) || 
+                    (isotopeName.find("S34-label")!=string::npos  && mavenParameters->S34Labeled_BPE) || 
+                    (isotopeName.find("D2-label")!=string::npos  && mavenParameters->D2Labeled_BPE)  
                     
             ) {
                 int counter=0;

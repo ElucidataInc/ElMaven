@@ -22,10 +22,22 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
 
     //isotope detection setting
-    connect(C13Labeled,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(N15Labeled,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(S34Labeled,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(D2Labeled, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(C13Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+        //isotope detection setting
+    connect(C13Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(N15Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(S34Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(D2Labeled_Barplot, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+
+        //isotope detection setting
+    connect(C13Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(N15Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(S34Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(D2Labeled_IsoWidget, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(recomputeIsotopes()));
 
     connect(maxNaturalAbundanceErr, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
@@ -97,10 +109,22 @@ void SettingsForm::updateSettingFormGUI() {
     baseline_quantile->setValue(settings->value("baseline_quantile").toDouble());
 
 
-    C13Labeled->setCheckState( (Qt::CheckState) settings->value("C13Labeled").toInt() );
-    N15Labeled->setCheckState( (Qt::CheckState) settings->value("N15Labeled").toInt()  );
-    S34Labeled->setCheckState( (Qt::CheckState) settings->value("S34Labeled").toInt() );
-    D2Labeled->setCheckState(  (Qt::CheckState) settings->value("D2Labeled").toInt()  );
+    C13Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("C13Labeled_BPE").toInt() );
+    N15Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("N15Labeled_BPE").toInt()  );
+    S34Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("S34Labeled_BPE").toInt() );
+    D2Labeled_BPE->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_BPE").toInt()  );
+    
+    C13Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("C13Labeled_Barplot").toInt() );
+    N15Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("N15Labeled_Barplot").toInt()  );
+    S34Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("S34Labeled_Barplot").toInt() );
+    D2Labeled_Barplot->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_Barplot").toInt()  );
+
+    C13Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("C13Labeled_IsoWidget").toInt() );
+    N15Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("N15Labeled_IsoWidget").toInt()  );
+    S34Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("S34Labeled_IsoWidget").toInt() );
+    D2Labeled_IsoWidget->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_IsoWidget").toInt()  );
+
+
     isotopeC13Correction->setCheckState(  (Qt::CheckState) settings->value("isotopeC13Correction").toInt()  );
 
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
@@ -141,10 +165,25 @@ void SettingsForm::getFormValues() {
     settings->setValue("maxNaturalAbundanceErr",maxNaturalAbundanceErr->value());
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
-    settings->setValue("C13Labeled",C13Labeled->checkState() );
-    settings->setValue("N15Labeled",N15Labeled->checkState() );
-    settings->setValue("S34Labeled",S34Labeled->checkState() );
-    settings->setValue("D2Labeled", D2Labeled->checkState()  );
+    
+    /*Isotopic settings for barplot*/
+    settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());
+    settings->setValue("N15Labeled_Barplot", N15Labeled_Barplot->checkState());
+    settings->setValue("S34Labeled_Barplot", S34Labeled_Barplot->checkState());
+    settings->setValue("D2Labeled_Barplot", D2Labeled_Barplot->checkState());
+
+    /*Isotopic settings for bookmark, peak detection and save csv*/
+    settings->setValue("C13Labeled_BPE", C13Labeled_BPE->checkState());
+    settings->setValue("N15Labeled_BPE", N15Labeled_BPE->checkState());
+    settings->setValue("S34Labeled_BPE", S34Labeled_BPE->checkState());
+    settings->setValue("D2Labeled_BPE", D2Labeled_BPE->checkState());
+
+    /*Isotopic settings for bookmark, peak detection and save csv*/
+    settings->setValue("C13Labeled_IsoWidget", C13Labeled_IsoWidget->checkState());
+    settings->setValue("N15Labeled_IsoWidget", N15Labeled_IsoWidget->checkState());
+    settings->setValue("S34Labeled_IsoWidget", S34Labeled_IsoWidget->checkState());
+    settings->setValue("D2Labeled_IsoWidget", D2Labeled_IsoWidget->checkState());
+
     settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState()  );
     settings->setValue("amuQ1", amuQ1->value());
     settings->setValue("amuQ3", amuQ3->value());

@@ -420,6 +420,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	//versionCheck(); //TODO: Sahil-Kiran, Removed while merging mainwindow
 
 	settings->setValue("closeEvent", 0);
+
+	peakDetectionDialog->setMavenParameters(settings);
 }
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
@@ -1115,17 +1117,17 @@ void MainWindow::readSettings() {
     if (!settings->contains("pullIsotopesFlag"))
         settings->setValue("pullIsotopesFlag", 0);
         
-    if (!settings->contains("checkBox"))
-        settings->setValue("checkBox", 0);
+    // if (!settings->contains("checkBox"))
+    //     settings->setValue("checkBox", 0);
 
-    if (!settings->contains("checkBox_2"))
-        settings->setValue("checkBox_2", 0);
+    // if (!settings->contains("checkBox_2"))
+    //     settings->setValue("checkBox_2", 0);
 
-    if (!settings->contains("checkBox_3"))
-        settings->setValue("checkBox_3", 0);
+    // if (!settings->contains("checkBox_3"))
+    //     settings->setValue("checkBox_3", 0);
 
-    if (!settings->contains("checkBox_4"))
-        settings->setValue("checkBox_4", 0);
+    // if (!settings->contains("checkBox_4"))
+    //     settings->setValue("checkBox_4", 0);
 
     //Pull Isotopes in options
     if (!settings->contains("isotopeC13Correction"))
@@ -1140,17 +1142,41 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minIsotopicCorrelation"))
 		settings->setValue("minIsotopicCorrelation", 0.1);
 
-    if (!settings->contains("C13Labeled"))
-        settings->setValue("C13Labeled", 2);
+	if (!settings->contains("C13Labeled_Barplot"))
+		settings->setValue("C13Labeled_Barplot", 2);
+	
+	if (!settings->contains("N15Labeled_Barplot"))
+		settings->setValue("N15Labeled_Barplot", 2);
+    
+	if (!settings->contains("S34Labeled_Barplot"))
+		settings->setValue("S34Labeled_Barplot", 2);
+    
+	if (!settings->contains("D2Labeled_Barplot"))
+		settings->setValue("D2Labeled_Barplot", 2);
 
-    if (!settings->contains("N15Labeled"))
-        settings->setValue("N15Labeled", 2);
+	if (!settings->contains("C13Labeled_BPE"))
+		settings->setValue("C13Labeled_BPE", 2);
 
-    if (!settings->contains("D2Labeled"))
-        settings->setValue("D2Labeled", 2);
+	if (!settings->contains("N15Labeled_BPE"))
+		settings->setValue("N15Labeled_BPE", 2);
 
-    if (!settings->contains("S34Labeled"))
-        settings->setValue("S34Labeled", 2);
+	if (!settings->contains("S34Labeled_BPE"))
+		settings->setValue("S34Labeled_BPE", 2);
+
+	if (!settings->contains("D2Labeled_BPE"))
+		settings->setValue("D2Labeled_BPE", 2);
+
+	if (!settings->contains("C13Labeled_IsoWidget"))
+		settings->setValue("C13Labeled_IsoWidget", 2);
+	
+	if (!settings->contains("N15Labeled_IsoWidget"))
+		settings->setValue("N15Labeled_IsoWidget", 2);
+
+	if (!settings->contains("S34Labeled_IsoWidget"))
+		settings->setValue("S34Labeled_IsoWidget", 2);
+
+	if (!settings->contains("D2Labeled_IsoWidget"))
+		settings->setValue("D2Labeled_IsoWidget", 2);
 
     //Main window right hand top
     if (!settings->contains("ppmWindowBox"))

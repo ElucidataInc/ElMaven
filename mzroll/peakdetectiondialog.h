@@ -23,6 +23,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void setSettings(QSettings* settings) { this->settings = settings; }
 				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
+				 void setMavenParameters(QSettings *settings);
 
 		public Q_SLOTS:
 				 void findPeaks();
@@ -50,7 +51,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings);
-                void setMavenParameters(QSettings *settings);
 };
 
 #endif

@@ -156,11 +156,23 @@ public:
 	double maxIsotopeScanDiff;
 	double maxNaturalAbundanceErr;
 	double minIsotopicCorrelation;
-	bool C13Labeled;
-	bool N15Labeled;
-	bool S34Labeled;
-	bool D2Labeled;
-    float minRt;
+	bool C13Labeled_BPE;
+	bool N15Labeled_BPE;
+	bool S34Labeled_BPE;
+	bool D2Labeled_BPE;
+	
+	bool C13Labeled_Barplot;
+	bool N15Labeled_Barplot;
+	bool S34Labeled_Barplot;
+	bool D2Labeled_Barplot;
+    
+	bool C13Labeled_IsoWidget;
+	bool N15Labeled_IsoWidget;
+	bool S34Labeled_IsoWidget;
+	bool D2Labeled_IsoWidget;
+
+
+	float minRt;
     float maxRt;
     float minMz;
     float maxMz;

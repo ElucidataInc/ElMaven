@@ -170,13 +170,14 @@ void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
                 Isotope& x = masslist[i];
                 string isotopeName = x.name;
                 if ((isotopeName.find("C13-label") != string::npos
-                        && samples[0]->_C13Labeled == true)
+                        && getMavenParameters()->C13Labeled_BPE)
                         || (isotopeName.find("N15-label") != string::npos
-                                && samples[0]->_N15Labeled == true)
+                                && getMavenParameters()->N15Labeled_BPE)
                         || (isotopeName.find("S34-label") != string::npos
-                                && samples[0]->_S34Labeled == true)
+                                && getMavenParameters()->S34Labeled_BPE)
                         || (isotopeName.find("D2-label") != string::npos
-                                && samples[0]->_D2Labeled == true)) {
+                                && getMavenParameters()->D2Labeled_BPE)) {
+
                     insertUserSelectedIsotopes(group,isotopeName);
                 }
       }

@@ -297,10 +297,10 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             //if(isotopePeakIntensity==0) continue;
             
             //natural abundance check
-            if ((x.C13 > 0 && mavenParameters->C13Labeled == false) //if isotope is not C13Labeled
-                    || (x.N15 > 0 && mavenParameters->N15Labeled == false) //if isotope is not N15 Labeled
-                    || (x.S34 > 0 && mavenParameters->S34Labeled == false) //if isotope is not S34 Labeled
-                    || (x.H2 > 0 && mavenParameters->D2Labeled == false) //if isotope is not D2 Labeled
+            if ((x.C13 > 0 && mavenParameters->C13Labeled_BPE == false) //if isotope is not C13Labeled
+                    || (x.N15 > 0 && mavenParameters->N15Labeled_BPE == false) //if isotope is not N15 Labeled
+                    || (x.S34 > 0 && mavenParameters->S34Labeled_BPE == false) //if isotope is not S34 Labeled
+                    || (x.H2 > 0 && mavenParameters->D2Labeled_BPE == false) //if isotope is not D2 Labeled
 
                ) {
                 if (expectedAbundance < 1e-8)

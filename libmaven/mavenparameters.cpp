@@ -51,10 +51,21 @@ MavenParameters::MavenParameters() {
         maxIsotopeScanDiff = 10;
         maxNaturalAbundanceErr = 100;
         minIsotopicCorrelation = 0;
-        C13Labeled = false;
-        N15Labeled = false;
-        S34Labeled = false;
-        D2Labeled = false;
+
+	C13Labeled_BPE = false;
+	N15Labeled_BPE = false;
+	S34Labeled_BPE = false;
+	D2Labeled_BPE = false;
+	
+	C13Labeled_Barplot = false;
+	N15Labeled_Barplot = false;
+	S34Labeled_Barplot = false;
+	D2Labeled_Barplot = false;
+    
+	C13Labeled_IsoWidget = false;
+	N15Labeled_IsoWidget = false;
+	S34Labeled_IsoWidget = false;
+	D2Labeled_IsoWidget = false;
 
         alignMaxItterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
         alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow

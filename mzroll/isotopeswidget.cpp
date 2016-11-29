@@ -125,10 +125,10 @@ void IsotopeWidget::computeIsotopes(string f) {
 			settings->value("minIsotopicCorrelation").toDouble();
 	double maxNaturalAbundanceErr =
 			settings->value("maxNaturalAbundanceErr").toDouble();
-	bool C13Labeled = settings->value("C13Labeled").toBool();
-	bool N15Labeled = settings->value("N15Labeled").toBool();
-	bool S34Labeled = settings->value("S34Labeled").toBool();
-	bool D2Labeled = settings->value("D2Labeled").toBool();
+	bool C13Labeled = settings->value("C13Labeled_BPE").toBool();
+	bool N15Labeled = settings->value("N15Labeled_BPE").toBool();
+	bool S34Labeled = settings->value("S34Labeled_BPE").toBool();
+	bool D2Labeled = settings->value("D2Labeled_BPE").toBool();
 
 	isotopeParameters->computeIsotopes(f, ppm, maxNaturalAbundanceErr,
 			C13Labeled, N15Labeled, S34Labeled, D2Labeled);

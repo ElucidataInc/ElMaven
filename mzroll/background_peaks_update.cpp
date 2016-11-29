@@ -346,6 +346,7 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
                 bool includeSetNamesLine=true;
                 string groupfilename = mavenParameters->outputdir + setName + ".csv";
                 csvreports = new CSVReports(mavenParameters->samples);
+                csvreports->setMavenParameters(mavenParameters);
                 csvreports->setUserQuantType(mainwindow->getUserQuantType());
                 //Added to pass into csvreports file when merged with Maven776 - Kiran
                 csvreports->openGroupReport(groupfilename,includeSetNamesLine);
@@ -383,27 +384,49 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
                                 "minIsotopicCorrelation").toDouble();
                         mavenParameters->maxNaturalAbundanceErr = settings->value(
                                 "maxNaturalAbundanceErr").toDouble();
-                        mavenParameters->C13Labeled =
-                                settings->value("C13Labeled").toBool();
-                        mavenParameters->N15Labeled =
-                                settings->value("N15Labeled").toBool();
-                        mavenParameters->S34Labeled =
-                                settings->value("S34Labeled").toBool();
-                        mavenParameters->D2Labeled = settings->value("D2Labeled").toBool();
+
+                        mavenParameters->C13Labeled_BPE =
+                                settings->value("C13Labeled_BPE").toBool();
+                        mavenParameters->N15Labeled_BPE =
+                                settings->value("N15Labeled_BPE").toBool();
+                        mavenParameters->S34Labeled_BPE =
+                                settings->value("S34Labeled_BPE").toBool();
+                        mavenParameters->D2Labeled_BPE = 
+                                settings->value("D2Labeled_BPE").toBool();
+
+                        mavenParameters->C13Labeled_Barplot =
+                                settings->value("C13Labeled_Barplot").toBool();
+                        mavenParameters->N15Labeled_Barplot =
+                                settings->value("N15Labeled_Barplot").toBool();
+                        mavenParameters->S34Labeled_Barplot =
+                                settings->value("S34Labeled_Barplot").toBool();
+                        mavenParameters->D2Labeled_Barplot = 
+                                settings->value("D2Labeled_Barplot").toBool();
+
+                        mavenParameters->C13Labeled_IsoWidget =
+                                settings->value("C13Labeled_IsoWidget").toBool();
+                        mavenParameters->N15Labeled_IsoWidget =
+                                settings->value("N15Labeled_IsoWidget").toBool();
+                        mavenParameters->S34Labeled_IsoWidget =
+                                settings->value("S34Labeled_IsoWidget").toBool();
+                        mavenParameters->D2Labeled_IsoWidget = 
+                                settings->value("D2Labeled_IsoWidget").toBool();
+
+
                         QSettings* settings = mainwindow->getSettings();
                         mavenParameters->eic_smoothingAlgorithm = settings->value(
                                 "eic_smoothingAlgorithm").toInt();
 
-                        //Feng note: assign labeling state to sample
-                        mavenParameters->samples[0]->_C13Labeled =
-                                mavenParameters->C13Labeled;
-                        mavenParameters->samples[0]->_N15Labeled =
-                                mavenParameters->N15Labeled;
-                        mavenParameters->samples[0]->_S34Labeled =
-                                mavenParameters->S34Labeled;
-                        mavenParameters->samples[0]->_D2Labeled =
-                                mavenParameters->D2Labeled;
-                        //End Feng addition
+                        // //Feng note: assign labeling state to sample
+                        // mavenParameters->samples[0]->_C13Labeled =
+                        //         mavenParameters->C13Labeled;
+                        // mavenParameters->samples[0]->_N15Labeled =
+                        //         mavenParameters->N15Labeled;
+                        // mavenParameters->samples[0]->_S34Labeled =
+                        //         mavenParameters->S34Labeled;
+                        // mavenParameters->samples[0]->_D2Labeled =
+                        //         mavenParameters->D2Labeled;
+                        // //End Feng addition
                 }
         }
 }

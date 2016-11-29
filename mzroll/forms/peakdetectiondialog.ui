@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="featureSelectionTab">
       <attribute name="title">
@@ -309,53 +309,7 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QGroupBox" name="reportIsotopesOptions">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="title">
-          <string>Report Isotopic Peaks</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QCheckBox" name="checkBox_4">
-            <property name="text">
-             <string>S34</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="checkBox_3">
-            <property name="text">
-             <string>D</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="text">
-             <string>N15</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="checkBox">
-            <property name="text">
-             <string>C13</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QGroupBox" name="matchFragmentatioOptions">
          <property name="enabled">
           <bool>false</bool>
@@ -370,6 +324,9 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+          </item>
           <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="minFragMatchScore">
             <property name="prefix">
@@ -393,16 +350,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_22">
-            <property name="text">
-             <string>Minumum Match Score</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-          </item>
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
           </item>
@@ -413,6 +360,13 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Minumum Match Score</string>
+            </property>
+           </widget>
+          </item>
          </layout>
          <zorder>label_22</zorder>
          <zorder>minFragMatchScore</zorder>
@@ -420,6 +374,23 @@
          <zorder>label_4</zorder>
          <zorder>doubleSpinBox_2</zorder>
          <zorder>label_21</zorder>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QGroupBox" name="reportIsotopesOptions">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Report Isotopic Peaks</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2"/>
         </widget>
        </item>
       </layout>

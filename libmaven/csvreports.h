@@ -6,6 +6,8 @@
 #include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "mavenparameters.h"
+
 // #include "../mzroll/tabledockwidget.h"
 
 using namespace std;
@@ -14,6 +16,7 @@ using namespace mzUtils;
 class mzSample;
 class EIC;
 class PeakGroup;
+class MavenParameters;
 // class TableDockWidget;
 class CSVReports {
 
@@ -32,6 +35,15 @@ public:
     void setUserQuantType(PeakGroup::QType t) {
         qtype = t;
     }
+
+    void setMavenParameters(MavenParameters * mp) { 
+        mavenparameters = mp;
+    }
+    
+    MavenParameters* getMavenParameters() {
+        return mavenparameters;
+    }
+
     void setTabDelimited() {
         SEP = "\t";
     }
@@ -67,6 +79,7 @@ private:
 
     vector<mzSample*> samples;
     PeakGroup::QType qtype;
+    MavenParameters * mavenparameters;
     // TableDockWidget* tabledocwidget;
 
 };

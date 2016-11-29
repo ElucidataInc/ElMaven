@@ -535,6 +535,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     // CSVReports* csvreport = new CSVReports;
     vector<mzSample*> samples = _mainwindow->getSamples();
     CSVReports* csvreports = new CSVReports(samples);
+    csvreports->setMavenParameters(_mainwindow->mavenParameters);
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
@@ -612,7 +613,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         //Updated when csvreports file was merged with Maven776 - Kiran
         csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     }
-
+    
     for(int i=0; i<allgroups.size(); i++ ) {
         PeakGroup& group = allgroups[i];
         csvreports->addGroup(&group);

@@ -9,6 +9,9 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         setModal(false);
         peakupdater = NULL;
 
+        peakupdater = new BackgroundPeakUpdate(this);
+        if (mainwindow) peakupdater->setMainWindow(mainwindow);
+
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -102,14 +105,12 @@ void PeakDetectionDialog::show() {
     // Thi is merged to 776
     if (mainwindow == NULL) return;
 
-    if (peakupdater == NULL) {
-        peakupdater = new BackgroundPeakUpdate(this);
-        if (mainwindow) peakupdater->setMainWindow(mainwindow);
+    delete(peakupdater);
+    peakupdater = new BackgroundPeakUpdate(this);
+    if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
-        connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
+    connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                SLOT(setProgressBar(QString, int,int)));
-
-    }
 
     // peakupdater->useMainWindowLabelOptions = false;
 
@@ -229,13 +230,13 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             // Isotope detection in peakdetection dialogue box
             reportIsotopesOptions->setChecked(
                 settings->value("pullIsotopesFlag").toBool());
-            checkBox->setChecked(settings->value("checkBox").toBool());  // C13
-            checkBox_2->setChecked(
-                settings->value("checkBox_2").toBool());  // N15
-            checkBox_3->setChecked(
-                settings->value("checkBox_3").toBool());  // D2
-            checkBox_4->setChecked(
-                settings->value("checkBox_4").toBool());  // S34
+            // checkBox->setChecked(settings->value("checkBox").toBool());  // C13
+            // checkBox_2->setChecked(
+            //     settings->value("checkBox_2").toBool());  // N15
+            // checkBox_3->setChecked(
+            //     settings->value("checkBox_3").toBool());  // D2
+            // checkBox_4->setChecked(
+            //     settings->value("checkBox_4").toBool());  // S34
 
             // Fragment Score
             minFragMatchScore->setValue(
@@ -399,10 +400,10 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
 
     // Isotope detection in peakdetection dialogue box
     settings->setValue("pullIsotopesFlag", reportIsotopesOptions->isChecked());
-    settings->setValue("checkBox", checkBox->isChecked());      // C13
-    settings->setValue("checkBox_2", checkBox_2->isChecked());  // N15
-    settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
-    settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
+    // settings->setValue("checkBox", checkBox->isChecked());      // C13
+    // settings->setValue("checkBox_2", checkBox_2->isChecked());  // N15
+    // settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
+    // settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
 
     // Fragment Score
     settings->setValue("minFragmentMatchScore", minFragMatchScore->value());
@@ -474,19 +475,39 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
                 "minIsotopicCorrelation").toDouble();
         mavenParameters->maxNaturalAbundanceErr = settings->value(
                 "maxNaturalAbundanceErr").toDouble();
-        mavenParameters->C13Labeled = settings->value("checkBox").toBool();  // C13
-        mavenParameters->N15Labeled =
-            settings->value("checkBox_2").toBool();                      // N15
-        mavenParameters->D2Labeled =
-            settings->value("checkBox_3").toBool();                      // D2
-        mavenParameters->S34Labeled =
-            settings->value("checkBox_4").toBool();  // S34
+
+        mavenParameters->C13Labeled_BPE =
+                settings->value("C13Labeled_BPE").toBool();
+        mavenParameters->N15Labeled_BPE =
+                settings->value("N15Labeled_BPE").toBool();
+        mavenParameters->S34Labeled_BPE =
+                settings->value("S34Labeled_BPE").toBool();
+        mavenParameters->D2Labeled_BPE = 
+                settings->value("D2Labeled_BPE").toBool();
+
+        mavenParameters->C13Labeled_Barplot =
+                settings->value("C13Labeled_Barplot").toBool();
+        mavenParameters->N15Labeled_Barplot =
+                settings->value("N15Labeled_Barplot").toBool();
+        mavenParameters->S34Labeled_Barplot =
+                settings->value("S34Labeled_Barplot").toBool();
+        mavenParameters->D2Labeled_Barplot = 
+                settings->value("D2Labeled_Barplot").toBool();
+
+        mavenParameters->C13Labeled_IsoWidget =
+                settings->value("C13Labeled_IsoWidget").toBool();
+        mavenParameters->N15Labeled_IsoWidget =
+                settings->value("N15Labeled_IsoWidget").toBool();
+        mavenParameters->S34Labeled_IsoWidget =
+                settings->value("S34Labeled_IsoWidget").toBool();
+        mavenParameters->D2Labeled_IsoWidget = 
+                settings->value("D2Labeled_IsoWidget").toBool();
         // Fragment Score
         mavenParameters->minFragmentMatchScore =
-            settings->value("minFragmentMatchScore").toDouble();
+           settings->value("minFragmentMatchScore").toDouble();
         mavenParameters->minFragmentMatchScore > 0
-            ? mavenParameters->matchFragmentation = true
-            : mavenParameters->matchFragmentation = false;
+           ? mavenParameters->matchFragmentation = true
+           : mavenParameters->matchFragmentation = false;
 
         //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {
