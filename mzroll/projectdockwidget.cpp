@@ -305,6 +305,8 @@ void ProjectDockWidget::unloadSelectedSamples() {
 // @author:Giridhari
 //TODO: Create function to Set samples as Blank Samples
 void ProjectDockWidget::SetAsBlankSamples() {
+      
+      int flag =0;
       //get selected items
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
       if(selected.size() == 0) return;
@@ -314,15 +316,26 @@ void ProjectDockWidget::SetAsBlankSamples() {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
               if ( sample == NULL) return;
-              sample->isBlank = true; // To selected samples as Blank Samples
-              lastUsedSampleColor = QColor(Qt::black);
-              if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
-              QString sampleName = QString::fromStdString(sample->sampleName.c_str());
-              QFont font;
-              font.setItalic(true); 
-              item->setFont(0,font);
+              if(!sample->isBlank){
+                        sample->isBlank = true; // To selected samples as Blank Samples
+                        lastUsedSampleColor = QColor(Qt::black);
+                        if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
+                        QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+                        QFont font;
+                        font.setItalic(true); 
+                        item->setFont(0,font);
+              }
+              else{
+                    flag = 1;
+                    sample->isBlank = false; // To unselected samples as Blank Samples
+                    QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+                    QFont font;
+                    font.setItalic(false); 
+                    item->setFont(0,font);
+              }
            }
       }
+      if(flag) updateSampleList();
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
 }
