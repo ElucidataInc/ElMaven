@@ -129,7 +129,7 @@ void CSVReports::insertGroupInformationIntoCSVFile (PeakGroup* group) {
     //output all relevant isotope info otherwise
     else {
 
-        writeGroupInfo(&group->children[0]); //C12 info
+        //writeGroupInfo(&group->children[0]); //C12 info
 
         int ionizationMode = getIonisationMode();
 
@@ -169,17 +169,7 @@ void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
       for (int i = 0; i < masslist.size(); i++) {
                 Isotope& x = masslist[i];
                 string isotopeName = x.name;
-                if ((isotopeName.find("C13-label") != string::npos
-                        && getMavenParameters()->C13Labeled_BPE)
-                        || (isotopeName.find("N15-label") != string::npos
-                                && getMavenParameters()->N15Labeled_BPE)
-                        || (isotopeName.find("S34-label") != string::npos
-                                && getMavenParameters()->S34Labeled_BPE)
-                        || (isotopeName.find("D2-label") != string::npos
-                                && getMavenParameters()->D2Labeled_BPE)) {
-
-                    insertUserSelectedIsotopes(group,isotopeName);
-                }
+                insertUserSelectedIsotopes(group,isotopeName);
       }
 }
 

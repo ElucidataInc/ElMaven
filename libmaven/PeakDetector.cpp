@@ -295,7 +295,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
             }
             //if(isotopePeakIntensity==0) continue;
-            
+
             //natural abundance check
             if ((x.C13 > 0 && mavenParameters->C13Labeled_BPE == false) //if isotope is not C13Labeled
                     || (x.N15 > 0 && mavenParameters->N15Labeled_BPE == false) //if isotope is not N15 Labeled
@@ -407,6 +407,34 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         if (mavenParameters->clsf->hasModel()) {
             mavenParameters->clsf->classify(&child);
             child.groupStatistics();
+        }
+
+        if (!getMavenParameters()->C13Labeled_BPE) {
+            if (isotopeName.find(C13_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->N15Labeled_BPE) {
+            if (isotopeName.find(N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->S34Labeled_BPE) {
+            if (isotopeName.find(S34_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->D2Labeled_BPE) {
+            if (isotopeName.find(H2_LABEL) != string::npos)
+                continue;
         }
         parentgroup->addChild(child);
     }

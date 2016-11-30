@@ -25,6 +25,7 @@
 #include "mzMassSlicer.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "constants.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 /**

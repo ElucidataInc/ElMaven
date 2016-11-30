@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include "constants.h"
 #include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
