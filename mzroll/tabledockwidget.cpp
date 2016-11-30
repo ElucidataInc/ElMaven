@@ -113,7 +113,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     QToolButton *btnHeatmapelete = new QToolButton(toolBar);
     btnHeatmapelete->setIcon(QIcon(rsrcPath + "/delete.png"));
     btnHeatmapelete->setToolTip("Delete Group");
-    connect(btnHeatmapelete, SIGNAL(clicked()), this, SLOT(deleteGroup()));
+    connect(btnHeatmapelete, SIGNAL(clicked()), this, SLOT(deleteGroups()));
 
     QToolButton *btnPDF = new QToolButton(toolBar);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
@@ -667,14 +667,10 @@ QList<PeakGroup*> TableDockWidget::getSelectedGroups() {
 //@author:Giridhari -- Refactored this function
 //TODO: To select one or more item in Qtreewidget in peaktable
 PeakGroup* TableDockWidget::getSelectedGroup() { 
-    PeakGroup*  group;
-    QList<QTreeWidgetItem*>selected = treeWidget->selectedItems();
-    if(selected.size() == 0) return NULL;
-    Q_FOREACH (QTreeWidgetItem* item, selected) {
-              QVariant v = item->data(0,Qt::UserRole);
-               group =  v.value<PeakGroup*>();
-              item->setHidden(true);
-           }
+    QTreeWidgetItem *item = treeWidget->currentItem();
+    if (!item) return NULL;
+    QVariant v = item->data(0,Qt::UserRole);
+    PeakGroup*  group =  v.value<PeakGroup*>();
     if ( group != NULL ) { return group; }
     else
     return NULL;
@@ -730,37 +726,37 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         allgroups[i].groupId = i + 1;
     }
     updateTable();
-    _mainwindow->getEicWidget()->replotForced();
 }
 
-void TableDockWidget::deleteGroup() {
+void TableDockWidget::deleteGroups() {
 
-    QTreeWidgetItem *item = treeWidget->currentItem();
-    //Added when Merging to Maven776 - Kiran
-    QTreeWidgetItem* nextItem = treeWidget->itemBelow(item);
 
-    if ( item == NULL ) return;
-
-    PeakGroup* group = getSelectedGroup();
-    
-    if ( group == NULL ) return;
-
-    PeakGroup* parentGroup = group->parent;
-
-    if ( parentGroup == NULL ) { //top level item
-        //Updated when Merging to Maven776 - Kiran
-        deleteGroup(group);
-    } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
-        if ( parentGroup->deleteChild(group) ) {
-            QTreeWidgetItem* parentItem = item->parent();
-            if ( parentItem ) {
-                parentItem->removeChild(item);
-                delete(item);
-            }
+    QList<PeakGroup*> selectedGroups;
+     QTreeWidgetItem* nextItem;
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+        if (item) {
+            nextItem = treeWidget->itemBelow(item);
+            QVariant v = item->data(0,Qt::UserRole);
+            PeakGroup*  group =  v.value<PeakGroup*>();
+            if ( group != NULL ) {
+                PeakGroup* parentGroup = group->parent;
+                if ( parentGroup == NULL ) { //top level item
+                    //Updated when Merging to Maven776 - Kiran
+                    deleteGroup(group);
+                } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
+                    if ( parentGroup->deleteChild(group) ) {
+                        QTreeWidgetItem* parentItem = item->parent();
+                        if ( parentItem ) {
+                            parentItem->removeChild(item);
+                            delete(item);
+                        }
+                    }
+                }
+             }
         }
     }
-    //show NextItem
     if(nextItem) treeWidget->setCurrentItem(nextItem,0);
+    _mainwindow->getEicWidget()->replotForced();
     return;
 }
 
@@ -872,7 +868,7 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
 
     QTreeWidgetItem *item = treeWidget->currentItem();
     if (e->key() == Qt::Key_Delete ) {
-        deleteGroup();
+        deleteGroups();
     } else if ( e->key() == Qt::Key_T ) {
         Train();
     } else if ( e->key() == Qt::Key_G ) {

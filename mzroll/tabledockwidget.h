@@ -82,7 +82,7 @@ public Q_SLOTS:
 	  void setClipboard();
       //Added when Merging to Maven776 - Kiran
       void showConsensusSpectra();
-	  void deleteGroup();
+	  void deleteGroups();
 	  // merged with maven776 - Kiran
 	  void deleteGroup(PeakGroup* groupX);
 	  void sortBy(int);
