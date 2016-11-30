@@ -552,15 +552,13 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QXmlStreamReader xml(&data);
     mzSample* currentSample=NULL;
 
-    QStringList pathlist;
-    pathlist << projectPath
-             << "."
-             << settings->value("lastDir").value<QString>();
+
+    _mainwindow->pathlist << projectPath
+             << ".";
 
     QString projectDescription;
     QStringRef currentXmlElement;
 
-    //int currentSampleCount=0; //TODO: Sahil. removed while merging projectdockwidget
     int i=0;
     while(!xml.atEnd()){
         if (xml.isStartElement()) {
@@ -569,14 +567,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
         }
         xml.readNext();
     }
-     data.seek(0);
+    data.seek(0);
+
     xml.setDevice(xml.device());
-    cerr <<"value of i:" <<i;
-    // xml.clear();
-    cerr <<"before while loop:";
-//    xml.setDevice(xml.device());
     while (!xml.atEnd()) {
-        // cerr <<"while loop:";
         xml.readNext();
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
@@ -602,9 +596,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
                 if (!sampleFile.exists()) {
-                    Q_FOREACH(QString path, pathlist) {
+                    Q_FOREACH(QString path, _mainwindow->pathlist) {
                         fname= path + QDir::separator() + sampleFile.fileName();
                         qDebug() << "Checking if exists:" << fname;
+                        sampleFile.setFile(fname);
                         if (sampleFile.exists())  break;
                     }
                 }

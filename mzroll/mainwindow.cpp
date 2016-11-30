@@ -847,7 +847,85 @@ void MainWindow::open() {
 					+ fileInfo.fileName());
     //updated while merging with Maven776 - Kiran
     Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
-    fileLoader->start();
+
+	bool cancelUploading = false;
+	cancelUploading = updateSamplePathinMzroll(filelist);
+	if (!cancelUploading) {
+		fileLoader->start();
+	}
+}
+
+bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
+
+    QStringList projects;
+	bool cancelUploading = false;
+
+    Q_FOREACH(QString filename, filelist ) {
+        QFileInfo fileInfo(filename);
+        if (!fileInfo.exists()) continue;
+        if (fileLoader->isProjectFileType(filename)) {
+            projects << filename;
+        }
+    }
+
+    Q_FOREACH(QString filename, projects ) {
+
+		QFileInfo fileinfo(filename);
+		QFile data(filename);
+
+		if ( !data.open(QFile::ReadOnly) ) {
+			QErrorMessage errDialog(this);
+			errDialog.showMessage("File open: " + filename + " failed");
+			cerr << endl << "REEEturn True" << endl;
+			return true;
+		}
+
+		QXmlStreamReader xml(&data);
+
+		bool gotDir = false;
+		while(!gotDir){
+			if (xml.isStartElement()) {
+				if (xml.name() == "sample") {
+					QString fname = xml.attributes().value("filename").toString();
+					QFileInfo sampleFile(fname);
+					if (!sampleFile.exists()) {
+						Q_FOREACH(QString path, pathlist) {
+							fname= path + QDir::separator() + sampleFile.fileName();
+							sampleFile.setFile(fname);
+							if (sampleFile.exists())  break;
+						}
+					}
+					bool sampleFileExists = false;
+					QString path;
+					while (!sampleFileExists) {
+						QString message = "Select the directory having samples corresponding to " + filename;
+						QMessageBox::StandardButton reply;
+						reply = QMessageBox::question(this, "Samples not found", message,
+														QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok);
+						if (reply == QMessageBox::Cancel) {
+							cancelUploading = true;
+							return cancelUploading;
+						} 
+
+						path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                             "/home",
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
+						fname= path + QDir::separator() + sampleFile.fileName();
+						sampleFile.setFile(fname);
+						if (sampleFile.exists()){
+							sampleFileExists = true;
+						}
+					}
+					pathlist << path;
+					gotDir = true;
+				}
+			}
+			xml.readNext();
+		}
+		data.close();
+	}
+	return false;
 }
 
 void MainWindow::loadModel() {

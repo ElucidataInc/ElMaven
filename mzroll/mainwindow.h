@@ -96,6 +96,7 @@ public:
 	QLineEdit *searchText;
 	QComboBox *quantType;
 	QLabel *statusText;
+	QStringList pathlist;
 
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
@@ -188,6 +189,7 @@ public:
 	// 	return &localDB;
 	// }
 	int versionCheck();
+	bool updateSamplePathinMzroll(QStringList filelist);
 
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
