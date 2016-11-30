@@ -23,9 +23,9 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     //isotope detection setting
     connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(C13Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(N15Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(S34Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
+    connect(D2Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
         //isotope detection setting
     connect(C13Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(N15Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
@@ -67,8 +67,7 @@ void SettingsForm::recomputeIsotopes() {
 
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {
-        PeakGroup* group =mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
-        cerr << "recomputeIsotopes() " << group << endl;
+        PeakGroup* group = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
         mainwindow->isotopeWidget->setPeakGroup(group);
     }
 

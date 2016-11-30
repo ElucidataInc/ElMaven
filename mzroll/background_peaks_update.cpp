@@ -416,17 +416,6 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
                         QSettings* settings = mainwindow->getSettings();
                         mavenParameters->eic_smoothingAlgorithm = settings->value(
                                 "eic_smoothingAlgorithm").toInt();
-
-                        // //Feng note: assign labeling state to sample
-                        // mavenParameters->samples[0]->_C13Labeled =
-                        //         mavenParameters->C13Labeled;
-                        // mavenParameters->samples[0]->_N15Labeled =
-                        //         mavenParameters->N15Labeled;
-                        // mavenParameters->samples[0]->_S34Labeled =
-                        //         mavenParameters->S34Labeled;
-                        // mavenParameters->samples[0]->_D2Labeled =
-                        //         mavenParameters->D2Labeled;
-                        // //End Feng addition
                 }
         }
 }

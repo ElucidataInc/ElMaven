@@ -417,30 +417,122 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             else if (isotopeName.find(C13S34_LABEL) != string::npos)
                 continue;
         }
-        
+
         if (!getMavenParameters()->N15Labeled_BPE) {
             if (isotopeName.find(N15_LABEL) != string::npos)
                 continue;
             else if (isotopeName.find(C13N15_LABEL) != string::npos)
                 continue;
         }
-        
+
         if (!getMavenParameters()->S34Labeled_BPE) {
             if (isotopeName.find(S34_LABEL) != string::npos)
                 continue;
             else if (isotopeName.find(C13S34_LABEL) != string::npos)
                 continue;
         }
-        
+
         if (!getMavenParameters()->D2Labeled_BPE) {
             if (isotopeName.find(H2_LABEL) != string::npos)
                 continue;
         }
         parentgroup->addChild(child);
     }
-    /*
-    //if ((float) isotope.maxIntensity/parentgroup->maxIntensity > 3*ab[isotopeName]/ab["C12 PARENT"]) continue;
-    */
+
+    parentgroup->childrenBarPlot.clear();
+    for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
+        string isotopeName = (*itr2).first;
+        PeakGroup& child = (*itr2).second;
+        child.tagString = isotopeName;
+        child.metaGroupId = parentgroup->metaGroupId;
+        child.groupId = parentgroup->groupId;
+        child.compound = parentgroup->compound;
+        child.parent = parentgroup;
+        child.setType(PeakGroup::Isotope);
+        child.groupStatistics();
+        
+        if (mavenParameters->clsf->hasModel()) {
+            mavenParameters->clsf->classify(&child);
+            child.groupStatistics();
+        }
+
+        
+        if (!getMavenParameters()->C13Labeled_Barplot) {
+            if (isotopeName.find(C13_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+
+        if (!getMavenParameters()->N15Labeled_Barplot) {
+            if (isotopeName.find(N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->S34Labeled_Barplot) {
+            if (isotopeName.find(S34_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->D2Labeled_Barplot) {
+            if (isotopeName.find(H2_LABEL) != string::npos)
+                continue;
+        }
+        parentgroup->addChildBarPlot(child);
+    }
+
+    parentgroup->childrenIsoWidget.clear();
+    for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
+        string isotopeName = (*itr2).first;
+        PeakGroup& child = (*itr2).second;
+        child.tagString = isotopeName;
+        child.metaGroupId = parentgroup->metaGroupId;
+        child.groupId = parentgroup->groupId;
+        child.compound = parentgroup->compound;
+        child.parent = parentgroup;
+        child.setType(PeakGroup::Isotope);
+        child.groupStatistics();
+        
+        if (mavenParameters->clsf->hasModel()) {
+            mavenParameters->clsf->classify(&child);
+            child.groupStatistics();
+        }
+        
+        if (!getMavenParameters()->C13Labeled_IsoWidget) {
+            if (isotopeName.find(C13_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->N15Labeled_IsoWidget) {
+            if (isotopeName.find(N15_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13N15_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->S34Labeled_IsoWidget) {
+            if (isotopeName.find(S34_LABEL) != string::npos)
+                continue;
+            else if (isotopeName.find(C13S34_LABEL) != string::npos)
+                continue;
+        }
+        
+        if (!getMavenParameters()->D2Labeled_IsoWidget) {
+            if (isotopeName.find(H2_LABEL) != string::npos)
+                continue;
+        }
+        parentgroup->addChildIsoWidget(child);
+    }
 }
 
 void PeakDetector::alignSamples() {

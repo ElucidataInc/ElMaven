@@ -2410,6 +2410,46 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
+	for (int i = 0; i < group->childCountBarPlot(); i++) {
+		if (group->childrenBarPlot[i].isIsotope()) {
+			PeakGroup* isotope = &(group->childrenBarPlot[i]);
+			isotopes.push_back(isotope);
+		}
+	}
+	std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
+
+	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
+	MM.setZero();
+
+	for (int i = 0; i < isotopes.size(); i++) {
+		if (!isotopes[i])
+			continue;
+		vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
+				qtype); //sort isotopes by sample
+		for (int j = 0; j < values.size(); j++)
+			MM(j, i) = values[j];  //rows=samples, columns=isotopes
+	}
+
+	int numberofCarbons = 0;
+	if (group->compound && !group->compound->formula.empty()) {
+		map<string, int> composition = MassCalculator::getComposition(
+				group->compound->formula);
+		numberofCarbons = composition["C"];
+	}
+
+	isotopeC13Correct(MM, numberofCarbons);
+	return MM;
+}
+
+MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
+
+	PeakGroup::QType qtype = getUserQuantType();
+	//get visiable samples
+	vector<mzSample*> vsamples = getVisibleSamples();
+	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+
+	//get isotopic groups
+	vector<PeakGroup*> isotopes;
 	for (int i = 0; i < group->childCount(); i++) {
 		if (group->children[i].isIsotope()) {
 			PeakGroup* isotope = &(group->children[i]);
@@ -2476,7 +2516,7 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons) {
 			}
 		}
 	}
-	//qDebug() << "IsotopePlot::IsotopePlot() done..";
+	cerr << "IsotopePlot::IsotopePlot() done.." << endl;
 
 }
 

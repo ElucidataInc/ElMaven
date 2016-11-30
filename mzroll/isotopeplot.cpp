@@ -46,9 +46,9 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
 
     _isotopes.clear();
-    for(int i=0; i < group->childCount(); i++ ) {
-        if (group->children[i].isIsotope() ) {
-            PeakGroup* isotope = &(group->children[i]);
+    for(int i=0; i < group->childCountBarPlot(); i++ ) {
+        if (group->childrenBarPlot[i].isIsotope() ) {
+            PeakGroup* isotope = &(group->childrenBarPlot[i]);
             _isotopes.push_back(isotope);
         }
     }

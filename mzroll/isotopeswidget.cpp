@@ -160,11 +160,11 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		return;
 	}
 
-	int isotopeCount = 0;
-	for (int i = 0; i < group->children.size(); i++) {
-		if (group->children[i].isIsotope())
-			isotopeCount++;
-	}
+	// int isotopeCount = 0;
+	// for (int i = 0; i < group->children.size(); i++) {
+	// 	if (group->children[i].isIsotope())
+	// 		isotopeCount++;
+	// }
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
 	workerThread->stop();
@@ -270,7 +270,7 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
 		std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
 
 		if (isotopes.size() > 0 ) {
-				MatrixXf MM = _mw->getIsotopicMatrix(group);
+				MatrixXf MM = _mw->getIsotopicMatrixIsoWidget(group);
 				///qDebug() << "MM row=" << MM.rows() << " " << MM.cols() << " " << isotopes.size() <<  " " << vsamples.size() << endl;
 				for (int i=0; i < isotopes.size(); i++ ) {
 						QStringList groupInfo;

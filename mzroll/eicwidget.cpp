@@ -1095,7 +1095,7 @@ void EicWidget::addIsotopicPlot(PeakGroup* group) {
 		scene()->addItem(_isotopeplot);
 	_isotopeplot->hide();
 
-	if (group->childCount() == 0)
+	if (group->childCountBarPlot() == 0)
 		return;
 
 	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
