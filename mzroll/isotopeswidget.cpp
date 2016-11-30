@@ -5,6 +5,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	_mw = mw;
 
 	isotopeParameters = new IsotopeLogic();
+	isotopeParametersBarPlot = new IsotopeLogic();
 
 	setupUi(this);
 	connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
@@ -15,21 +16,11 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 
 	ionization->setValue(isotopeParameters->_charge);
 
+	MavenParameters* mavenParameters = mw->mavenParameters;
+
 	workerThread = new BackgroundPeakUpdate(mw);
 	workerThread->setRunFunction("pullIsotopes");
 	workerThread->setMainWindow(mw);
-
-	MavenParameters* mavenParameters = mw->mavenParameters;
-	mavenParameters->minGoodGroupCount = 1;
-	mavenParameters->minSignalBlankRatio = 2;
-	mavenParameters->minSignalBaseLineRatio = 2;
-	mavenParameters->minNoNoiseObs = 2;
-	mavenParameters->minGroupIntensity = 0;
-	mavenParameters->writeCSVFlag = false;
-	mavenParameters->matchRtFlag = false;
-	mavenParameters->showProgressFlag = true;
-	mavenParameters->pullIsotopesFlag = true;
-	mavenParameters->keepFoundGroups = true;
 
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
@@ -37,20 +28,39 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
 	connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(),
 			SLOT(update()));
+	
+	//Thread for bar plot
+	workerThreadBarplot = new BackgroundPeakUpdate(mw);
+	workerThreadBarplot->setRunFunction("pullIsotopesBarPlot");
+	workerThreadBarplot->setMainWindow(mw);
+	workerThreadBarplot->setMavenParameters(mavenParameters);
+	workerThreadBarplot->setPeakDetector(new PeakDetector(mavenParameters));
+
+	connect(workerThreadBarplot, SIGNAL(finished()), this, SLOT(updateIsotopicBarplot()));
+	connect(workerThreadBarplot, SIGNAL(finished()), mw->getEicWidget()->scene(), SLOT(update()));
 
 }
 
 IsotopeWidget::~IsotopeWidget() {
 	isotopeParameters->links.clear();
+	isotopeParametersBarPlot->links.clear();
 }
 
-void IsotopeWidget::setPeakGroup(PeakGroup* grp) {
+void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp) {
 	if (!grp)
 		return;
 
 	isotopeParameters->_group = grp;
 	if (grp && grp->type() != PeakGroup::Isotope)
 		pullIsotopes(grp);
+}
+
+void IsotopeWidget::updateIsotopicBarplot(PeakGroup* grp) {
+	if (!grp)
+		return;
+	isotopeParametersBarPlot->_group = grp;
+	if (grp && grp->type() != PeakGroup::Isotope)
+		pullIsotopesForBarplot(grp);
 }
 
 void IsotopeWidget::setPeak(Peak* peak) {
@@ -160,15 +170,8 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		return;
 	}
 
-	// int isotopeCount = 0;
-	// for (int i = 0; i < group->children.size(); i++) {
-	// 	if (group->children[i].isIsotope())
-	// 		isotopeCount++;
-	// }
-
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
 	workerThread->stop();
-
 	MavenParameters* mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
 	mavenParameters->setPeakGroup(group);
@@ -183,6 +186,34 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
 
+void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
+	if (!group)
+		return;
+
+	if (group->compound == NULL) {
+		_mw->setStatusText(
+				tr("Unknown compound. Clipboard set to %1").arg(
+						group->tagString.c_str()));
+		return;
+	}
+
+	vector<mzSample*> vsamples = _mw->getVisibleSamples();
+	workerThreadBarplot->stop();
+	MavenParameters* mavenParameters =
+			workerThreadBarplot->peakDetector.getMavenParameters();
+	mavenParameters->setPeakGroup(group);
+	mavenParameters->setSamples(vsamples);
+	mavenParameters->compoundPPMWindow = _mw->getUserPPM();
+	if (_mw->getIonizationMode()) {
+    	mavenParameters->ionizationMode = _mw->getIonizationMode();
+    } else {
+    	mavenParameters->setIonizationMode();
+    }
+	workerThreadBarplot->start();
+	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
+}
+
+
 void IsotopeWidget::setClipboard() {
 	if (isotopeParameters->_group) {
 		
@@ -190,20 +221,13 @@ void IsotopeWidget::setClipboard() {
 		setClipboard(isotopeParameters->_group);
 
 		//update eic widget
+		//Sabu Iso
 		_mw->getEicWidget()->setSelectedGroup(isotopeParameters->_group);
-
-		/*
-		 //update gallery widget
-		 if (_mw->galleryDockWidget->isVisible() ) {
-		 vector<PeakGroup*>isotopes;
-		 for (int i=0; i < _group->children.size(); i++ ) {
-		 if ( _group->children[i].isIsotope() ) isotopes.push_back(&_group->children[i]);
-		 }
-		 _mw->galleryWidget->clear();
-		 _mw->galleryWidget->addEicPlots(isotopes);
-		 }
-		 */
 	}
+}
+
+void IsotopeWidget::updateIsotopicBarplot() {
+	_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
 }
 
 void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {

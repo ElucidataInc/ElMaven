@@ -327,6 +327,8 @@ void BackgroundPeakUpdate::run(void) {
                 processMassSlices();
         } else if (runFunction == "pullIsotopes") {
                 pullIsotopes(mavenParameters->_group);
+        } else if (runFunction == "pullIsotopesBarPlot") {
+                pullIsotopesBarPlot(mavenParameters->_group);
         } else if (runFunction == "computePeaks") {
                 computePeaks();
         } else {
@@ -548,6 +550,10 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
 void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
         getPullIsotopeSettings();
         peakDetector.pullIsotopes(parentgroup);
+}
+void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
+        getPullIsotopeSettings();
+        peakDetector.pullIsotopesBarPlot(parentgroup);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

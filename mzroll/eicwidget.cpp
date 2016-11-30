@@ -183,7 +183,8 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 
 	//TODO: Sahil, added while merging eicwidget
     if (newGroup and newGroup->compound) {
-           getMainWindow()->isotopeWidget->setPeakGroup(newGroup);
+           getMainWindow()->isotopeWidget->setPeakGroupAndMore(newGroup);
+		   getMainWindow()->isotopeWidget->updateIsotopicBarplot(newGroup);
            setSelectedGroup(newGroup);
 
     }	
@@ -886,7 +887,7 @@ void EicWidget::replot(PeakGroup* group) {
 			eicParameters->peakgroups[i].updateQuality();
 		}
 	}
-
+	
 	setSelectedGroup(group);
 	setTitle();
 	addEICLines(_showSpline);
@@ -1765,8 +1766,16 @@ void EicWidget::selectGroupNearRt(float rt) {
 	eicParameters->selectGroupNearRt(rt, selGroup);
 
 	if (selGroup) {
+		//Sabu Iso
 		setSelectedGroup(selGroup);
 	}
+}
+
+void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
+	if (_frozen || group == NULL)
+		return;
+	if (_showIsotopePlot)
+		addIsotopicPlot(group);
 }
 
 void EicWidget::setSelectedGroup(PeakGroup* group) {
@@ -1775,8 +1784,6 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 		return;
 	if (_showBarPlot)
 		addBarPlot(group);
-	if (_showIsotopePlot)
-		addIsotopicPlot(group);
 	if (_showBoxPlot)
 		addBoxPlot(group);
     addBaseline(group); 	//TODO: Sahil, added this while merging eicwidget

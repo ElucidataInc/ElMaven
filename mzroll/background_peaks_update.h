@@ -152,6 +152,8 @@ private:
 	 * @param group [pointer to group]
 	 */
 	void pullIsotopes(PeakGroup *group);
+	
+	void pullIsotopesBarPlot(PeakGroup *group);
 
 	/**
 	 * [processSlices]

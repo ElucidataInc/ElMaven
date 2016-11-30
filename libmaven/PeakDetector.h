@@ -111,6 +111,8 @@ public:
 	 */
 	void pullIsotopes(PeakGroup *group);
 
+	void pullIsotopesBarPlot(PeakGroup* group);
+
 	/**
 	 * [process Slices]
 	 * @method processSlices
