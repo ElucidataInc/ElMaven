@@ -15,7 +15,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 			SLOT(setCharge(double)));
 
 	ionization->setValue(isotopeParameters->_charge);
-
+	bookmarkflag = true;
 	MavenParameters* mavenParameters = mw->mavenParameters;
 
 	workerThread = new BackgroundPeakUpdate(mw);
@@ -46,10 +46,10 @@ IsotopeWidget::~IsotopeWidget() {
 	isotopeParametersBarPlot->links.clear();
 }
 
-void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp) {
+void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 	if (!grp)
 		return;
-
+	bookmarkflag = bookmarkflg;
 	isotopeParameters->_group = grp;
 	if (grp && grp->type() != PeakGroup::Isotope)
 		pullIsotopes(grp);
@@ -178,10 +178,10 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	mavenParameters->setSamples(vsamples);
 	mavenParameters->compoundPPMWindow = _mw->getUserPPM();
 	if (_mw->getIonizationMode()) {
-    	mavenParameters->ionizationMode = _mw->getIonizationMode();
-    } else {
-    	mavenParameters->setIonizationMode();
-    }
+		mavenParameters->ionizationMode = _mw->getIonizationMode();
+	} else {
+		mavenParameters->setIonizationMode();
+	}
 	workerThread->start();
 	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
@@ -205,10 +205,10 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 	mavenParameters->setSamples(vsamples);
 	mavenParameters->compoundPPMWindow = _mw->getUserPPM();
 	if (_mw->getIonizationMode()) {
-    	mavenParameters->ionizationMode = _mw->getIonizationMode();
-    } else {
-    	mavenParameters->setIonizationMode();
-    }
+		mavenParameters->ionizationMode = _mw->getIonizationMode();
+	} else {
+		mavenParameters->setIonizationMode();
+	}
 	workerThreadBarplot->start();
 	_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 }
@@ -216,18 +216,24 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 
 void IsotopeWidget::setClipboard() {
 	if (isotopeParameters->_group) {
-		
+
 		//update clipboard
 		setClipboard(isotopeParameters->_group);
 
 		//update eic widget
-		//Sabu Iso
 		_mw->getEicWidget()->setSelectedGroup(isotopeParameters->_group);
+		
+		if(bookmarkflag) {
+			_mw->bookmarkPeakGroup();
+			bookmarkflag = true;
+		}
 	}
 }
 
 void IsotopeWidget::updateIsotopicBarplot() {
-	_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
+	if (isotopeParametersBarPlot->_group) {
+		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
+	}
 }
 
 void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {

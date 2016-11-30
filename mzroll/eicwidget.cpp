@@ -179,18 +179,9 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 
 	eicParameters->_integratedGroup.groupStatistics();
 	setSelectedGroup (&eicParameters->_integratedGroup);
-    PeakGroup* newGroup = getMainWindow()->bookmarkPeakGroup();
-
-	//TODO: Sahil, added while merging eicwidget
-    if (newGroup and newGroup->compound) {
-           getMainWindow()->isotopeWidget->setPeakGroupAndMore(newGroup);
-		   getMainWindow()->isotopeWidget->updateIsotopicBarplot(newGroup);
-           setSelectedGroup(newGroup);
-
-    }	
-
-    this->copyToClipboard();
-    scene()->update();
+	//getMainWindow()->isotopeWidget->integrationFlag = true;
+	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
+	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {

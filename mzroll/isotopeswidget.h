@@ -28,7 +28,7 @@ public Q_SLOTS:
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
 	void computeIsotopes(string f);
-	void setPeakGroupAndMore(PeakGroup* group);
+	void setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg);
 	void setCompound(Compound* compound);
 	void setIonizationMode(int mode);
 	void setPeak(Peak* peak);
@@ -52,6 +52,7 @@ private:
       MainWindow* _mw;
 	  BackgroundPeakUpdate* workerThread;
 	  BackgroundPeakUpdate* workerThreadBarplot;
+	  bool bookmarkflag;
 
      QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
 
