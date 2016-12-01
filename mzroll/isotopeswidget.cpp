@@ -26,8 +26,6 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
-	connect(workerThread, SIGNAL(finished()), mw->getEicWidget()->scene(),
-			SLOT(update()));
 	
 	//Thread for bar plot
 	workerThreadBarplot = new BackgroundPeakUpdate(mw);
@@ -37,7 +35,6 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThreadBarplot->setPeakDetector(new PeakDetector(mavenParameters));
 
 	connect(workerThreadBarplot, SIGNAL(finished()), this, SLOT(updateIsotopicBarplot()));
-	connect(workerThreadBarplot, SIGNAL(finished()), mw->getEicWidget()->scene(), SLOT(update()));
 
 }
 
@@ -233,6 +230,7 @@ void IsotopeWidget::setClipboard() {
 			_mw->bookmarkPeakGroup();
 			bookmarkflag = true;
 		}
+		_mw->getEicWidget()->scene()->update();
 	}
 	workerThread->stop();
 }
