@@ -26,6 +26,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
 	connect(workerThread, SIGNAL(finished()), this, SLOT(setClipboard()));
+	connect(workerThread, SIGNAL(finished()), _mw->getEicWidget()->scene(), SLOT(update()));
 	
 	//Thread for bar plot
 	workerThreadBarplot = new BackgroundPeakUpdate(mw);
@@ -35,6 +36,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	workerThreadBarplot->setPeakDetector(new PeakDetector(mavenParameters));
 
 	connect(workerThreadBarplot, SIGNAL(finished()), this, SLOT(updateIsotopicBarplot()));
+	connect(workerThreadBarplot, SIGNAL(finished()), _mw->getEicWidget()->scene(), SLOT(update()));
 
 }
 
@@ -158,8 +160,6 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->clear(QClipboard::Clipboard);
 
-	setClipboard(group);
-
 	if (group->compound == NULL) {
 		_mw->setStatusText(
 				tr("Unknown compound. Clipboard set to %1").arg(
@@ -168,7 +168,6 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	}
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
-	cerr << workerThread->stopped() << " T" << endl;
 	if (workerThread->stopped()) {
 		workerThread->started();
 		MavenParameters* mavenParameters =
@@ -198,7 +197,6 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 	}
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();
-	cerr << workerThreadBarplot->stopped() << endl;
 	if (workerThreadBarplot->stopped()) {
 		workerThreadBarplot->started();
 		MavenParameters* mavenParameters =
@@ -230,7 +228,6 @@ void IsotopeWidget::setClipboard() {
 			_mw->bookmarkPeakGroup();
 			bookmarkflag = true;
 		}
-		_mw->getEicWidget()->scene()->update();
 	}
 	workerThread->stop();
 }
@@ -238,12 +235,8 @@ void IsotopeWidget::setClipboard() {
 void IsotopeWidget::updateIsotopicBarplot() {
 	if (isotopeParametersBarPlot->_group) {
 		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
-		_mw->getEicWidget()->scene()->update();
 	}
 	workerThreadBarplot->stop();
-	cerr << "S" << endl;
-	cerr << workerThreadBarplot->stopped() << endl;
-	cerr << "K" << endl;
 }
 
 void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {
