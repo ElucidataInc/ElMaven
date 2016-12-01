@@ -105,6 +105,9 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
 
+Q_SIGNALS:
+	void peakMarkedTableDock();
+
 protected Q_SLOTS:
 	  void keyPressEvent( QKeyEvent *e );
 	  void contextMenuEvent ( QContextMenuEvent * event );

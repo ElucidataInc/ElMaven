@@ -1876,12 +1876,12 @@ void EicWidget::setStatusText(QString text) {
 void EicWidget::markGroupGood() {
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'g');
 	getMainWindow()->peaksMarked++;
-	getMainWindow()->autoSavemzRoll();
+	Q_EMIT(peakMarkedEicWidget());
 }
 void EicWidget::markGroupBad() {
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'b');
 	getMainWindow()->peaksMarked++;
-	getMainWindow()->autoSavemzRoll();
+	Q_EMIT(peakMarkedEicWidget());
 }
 void EicWidget::copyToClipboard() {
 	getMainWindow()->setClipboardToGroup(eicParameters->getSelectedGroup());

@@ -156,6 +156,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //added while merging with Maven776 - Kiran
 	//fileLoader
+
+	autosave = new AutoSave(this);
+	autosave->setMainWindow(this);
+
     fileLoader = new mzFileIO(this);
     fileLoader->setMainWindow(this);
 
@@ -318,6 +322,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
+	connect(eicWidget, SIGNAL(peakMarkedEicWidget()), autosave, SLOT(saveMzRoll()));
+	connect(bookmarkedPeaks, SIGNAL(peakMarkedTableDock()), autosave, SLOT(saveMzRoll()));
 
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
@@ -431,6 +437,33 @@ MainWindow::MainWindow(QWidget *parent) :
 	settings->setValue("closeEvent", 0);
 
 	peakDetectionDialog->setMavenParameters(settings);
+}
+
+AutoSave::AutoSave(QWidget*){}
+
+
+void AutoSave::setMainWindow(MainWindow* mw) {
+    _mainwindow=mw;
+}
+
+
+void AutoSave::saveMzRoll(){
+
+	cerr << endl << "REAACCCed here " << _mainwindow->peaksMarked << endl;
+	if (_mainwindow->peaksMarked % 10 == 0){
+		cerr << endl << endl << "REAced here" << endl;
+		auto t = time(nullptr);
+		auto tm = *localtime(&t);
+
+		ostringstream oss;
+		oss << put_time(&tm, "%d-%m-%Y_%H-%M-%S");
+		auto date_time = oss.str();
+
+		date_time = date_time + ".mzroll";
+		QString path = "/temp";
+		QString filename = path + QDir::separator() + "tempAutoSave" + QDir::separator() + QString::fromUtf8(date_time.c_str());
+		_mainwindow->projectDockWidget->saveProject(filename);
+	}
 }
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
@@ -2478,22 +2511,10 @@ void MainWindow::getLinks(Peak* peak) {
 		adductWidget->setPeak(peak);
 }
 
-void MainWindow::autoSavemzRoll(){
-
-	if (peaksMarked % 10 == 0){
-		auto t = time(nullptr);
-		auto tm = *localtime(&t);
-
-		ostringstream oss;
-		oss << put_time(&tm, "%d-%m-%Y_%H-%M-%S");
-		auto date_time = oss.str();
-
-		date_time = date_time + ".mzroll";
-		QString path = ".";
-		QString filename = path + QDir::separator() + "tempAutoSave" + QDir::separator() + QString::fromUtf8(date_time.c_str());
-		projectDockWidget->saveProject(filename);
-	}
-}
+// void MainWindow::autoSavemzRoll(){
+// 	cerr << "TEST RUN " << endl;
+// 	cerr << endl << endl;
+// }
 
 
 PeakGroup::QType MainWindow::getUserQuantType() {

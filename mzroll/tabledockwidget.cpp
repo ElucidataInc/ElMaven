@@ -795,14 +795,15 @@ void TableDockWidget::markGroupGood() {
     setGroupLabel('g');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    _mainwindow->autoSavemzRoll();
+	Q_EMIT(peakMarkedTableDock());
 }
 
 void TableDockWidget::markGroupBad() { 
     setGroupLabel('b');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    _mainwindow->autoSavemzRoll();
+    cerr << endl << "REACedddddddd here mark good" << endl;
+	Q_EMIT(peakMarkedTableDock());
 }
 
 void TableDockWidget::markGroupIgnored() { 

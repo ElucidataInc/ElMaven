@@ -85,6 +85,18 @@ extern Database DB;
 //Added when merged with Maven776 - Kiran
 class RemoteSpectraHandler;
 
+class AutoSave: public QThread {
+Q_OBJECT
+
+public Q_SLOTS:
+	void saveMzRoll();
+
+public:
+	AutoSave(QWidget*);
+	void setMainWindow(MainWindow*);
+	MainWindow* _mainwindow;
+};
+
 class MainWindow: public QMainWindow {
 Q_OBJECT
 
@@ -96,8 +108,8 @@ public:
 	vector<mzSample*> samples;		//list of loadded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
-	void autoSavemzRoll();
 
+	AutoSave* autosave;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *ppmWindowBox;
