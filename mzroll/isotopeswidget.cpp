@@ -220,8 +220,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 }
 
 
-void IsotopeWidget::setClipboard() {
-	workerThread->stop();	
+void IsotopeWidget::setClipboard() {	
 	if (isotopeParameters->_group) {
 
 		//update clipboard
@@ -235,16 +234,18 @@ void IsotopeWidget::setClipboard() {
 			bookmarkflag = true;
 		}
 	}
+	workerThread->stop();
 }
 
 void IsotopeWidget::updateIsotopicBarplot() {
+	if (isotopeParametersBarPlot->_group) {
+		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
+		_mw->getEicWidget()->scene()->update();
+	}
 	workerThreadBarplot->stop();
 	cerr << "S" << endl;
 	cerr << workerThreadBarplot->stopped() << endl;
 	cerr << "K" << endl;
-	if (isotopeParametersBarPlot->_group) {
-		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
-	}
 }
 
 void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {
