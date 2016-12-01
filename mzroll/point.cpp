@@ -120,8 +120,8 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     if (_peak)  Q_EMIT peakSelected(_peak);
 
     if ( _group && _group->isIsotope() == false ) {
+        //_mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
-        _mw->isotopeWidget->updateIsotopicBarplot(_group);
     }
 
 }
@@ -217,8 +217,8 @@ void EicPoint::bookmark() { if(_group) _mw->bookmarkPeakGroup(_group); }
 
 void EicPoint::setClipboardToIsotopes() {
     if (_group &&_group->compound != NULL && ! _group->compound->formula.empty() )  {
-        _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
         _mw->isotopeWidget->updateIsotopicBarplot(_group);
+        _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
     }
 }
 

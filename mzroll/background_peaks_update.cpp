@@ -300,7 +300,7 @@ void BackgroundPeakUpdate::run(void) {
                 return;
         }
         mavenParameters->stop = false;
-        _stopped = false;
+        //_stopped = false;
 
         //populating the maven setting insatnces with with the samples
         // if (mavenParameters->samples.size() == 0) {
@@ -516,7 +516,7 @@ void BackgroundPeakUpdate::completeStop() {
         
         peakDetector.resetProgressBar();
         mavenParameters->stop = true;
-        stop();
+        //stop();
 }
 
 void BackgroundPeakUpdate::computePeaks() {

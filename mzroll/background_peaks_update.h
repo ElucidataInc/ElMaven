@@ -76,6 +76,10 @@ public:
 		_stopped = true;
 	}
 
+	void started() {
+		_stopped = false;
+	}
+
 	/**
 	 * [check for stopped thread]
 	 * @return [true if stopped, else false]
