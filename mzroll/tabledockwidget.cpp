@@ -692,7 +692,6 @@ void TableDockWidget::setGroupLabel(char label) {
 
 // merged with maven776 - Kiran
 void TableDockWidget::deleteGroup(PeakGroup *groupX) {
-    qDebug() << "TableDockWidget::deleteGroup()";
     if(!groupX) return;
 
     int pos=-1;
@@ -732,7 +731,7 @@ void TableDockWidget::deleteGroups() {
 
 
     QList<PeakGroup*> selectedGroups;
-     QTreeWidgetItem* nextItem;
+    QTreeWidgetItem* nextItem;
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             nextItem = treeWidget->itemBelow(item);
@@ -740,16 +739,24 @@ void TableDockWidget::deleteGroups() {
             PeakGroup*  group =  v.value<PeakGroup*>();
             if ( group != NULL ) {
                 PeakGroup* parentGroup = group->parent;
+                int childrenNum = -1;
                 if ( parentGroup == NULL ) { //top level item
                     //Updated when Merging to Maven776 - Kiran
                     deleteGroup(group);
                 } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
+                    childrenNum = parentGroup->childCount();
                     if ( parentGroup->deleteChild(group) ) {
                         QTreeWidgetItem* parentItem = item->parent();
                         if ( parentItem ) {
                             parentItem->removeChild(item);
                             delete(item);
                         }
+                    }
+                }
+                if (parentGroup != NULL) {
+                    if (childrenNum == parentGroup->childCount()) {
+                        deleteGroup(group);
+                        nextItem = treeWidget->itemBelow(item->parent());
                     }
                 }
              }

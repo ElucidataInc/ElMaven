@@ -115,7 +115,15 @@ void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
 }
 
 void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
-   bookmark();
+
+    if (_group) Q_EMIT peakGroupSelected(_group);
+    if (_peak)  Q_EMIT peakSelected(_peak);
+
+    if ( _group && _group->isIsotope() == false ) {
+        _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
+        _mw->isotopeWidget->updateIsotopicBarplot(_group);
+    }
+
 }
 void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     //if (_group) _group->groupOveralMatrix();
@@ -131,7 +139,6 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     if (_peak)  Q_EMIT peakSelected(_peak);
 
     if ( _group && _group->isIsotope() == false ) {
-        _mw->isotopeWidget->setPeakGroupAndMore(_group, false);
         _mw->isotopeWidget->updateIsotopicBarplot(_group);
     }
 
@@ -155,7 +162,7 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
         _mw->adductWidget->setPeak(_peak);
     }
 
-    //scene()->update();
+    scene()->update();
 }
 
 
