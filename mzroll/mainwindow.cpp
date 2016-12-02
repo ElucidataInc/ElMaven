@@ -872,13 +872,15 @@ bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
 
 		QFileInfo fileinfo(filename);
 		QFile data(filename);
+		QString projectPath = fileinfo.path();
+		pathlist << projectPath << ".";
 
 		if ( !data.open(QFile::ReadOnly) ) {
 			QErrorMessage errDialog(this);
 			errDialog.showMessage("File open: " + filename + " failed");
-			cerr << endl << "REEEturn True" << endl;
 			return true;
 		}
+
 
 		QXmlStreamReader xml(&data);
 
@@ -886,25 +888,29 @@ bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
 		while(!gotDir){
 			if (xml.isStartElement()) {
 				if (xml.name() == "sample") {
+
 					QString fname = xml.attributes().value("filename").toString();
 					QFileInfo sampleFile(fname);
+
 					if (!sampleFile.exists()) {
 						Q_FOREACH(QString path, pathlist) {
 							fname= path + QDir::separator() + sampleFile.fileName();
 							sampleFile.setFile(fname);
-							if (sampleFile.exists())  break;
+							if (sampleFile.exists()) break;
 						}
 					}
-					bool sampleFileExists = false;
+
 					QString path;
-					while (!sampleFileExists) {
-						QString message = "Select the directory having samples corresponding to " + filename;
+					while (!sampleFile.exists()) {
+						QString message = "Select the directory having samples corresponding to "
+											+ filename;
+
 						QMessageBox::StandardButton reply;
 						reply = QMessageBox::question(this, "Samples not found", message,
-														QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok);
+											QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok);
+
 						if (reply == QMessageBox::Cancel) {
-							cancelUploading = true;
-							return cancelUploading;
+							return true;
 						} 
 
 						path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -913,9 +919,6 @@ bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
                                              | QFileDialog::DontResolveSymlinks);
 						fname= path + QDir::separator() + sampleFile.fileName();
 						sampleFile.setFile(fname);
-						if (sampleFile.exists()){
-							sampleFileExists = true;
-						}
 					}
 					pathlist << path;
 					gotDir = true;

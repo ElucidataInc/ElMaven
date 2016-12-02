@@ -553,8 +553,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     mzSample* currentSample=NULL;
 
 
-    _mainwindow->pathlist << projectPath
-             << ".";
+
 
     QString projectDescription;
     QStringRef currentXmlElement;
