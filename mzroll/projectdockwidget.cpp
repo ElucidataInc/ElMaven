@@ -569,6 +569,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     data.seek(0);
 
     xml.setDevice(xml.device());
+    QString progressText;
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
@@ -602,6 +603,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
                         if (sampleFile.exists())  break;
                     }
                 }
+
+                QDir d = QFileInfo(fname).absoluteDir();
+                QString dStr = d.absolutePath();
+                progressText = "Importing files from " + dStr;
 
                 if ( !fname.isEmpty() ) {
                     // mzFileIO* fileLoader = new mzFileIO(this);
@@ -647,7 +652,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
             projectDescription.append( xml.text() );
         }
-    sendBoostSignal("Importing file %1", samplecount, i);
+    sendBoostSignal(progressText.toStdString(), samplecount, i);
     }
     data.close();
 
