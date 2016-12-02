@@ -322,8 +322,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
-	connect(eicWidget, SIGNAL(peakMarkedEicWidget()), autosave, SLOT(saveMzRoll()));
-	connect(bookmarkedPeaks, SIGNAL(peakMarkedTableDock()), autosave, SLOT(saveMzRoll()));
+	connect(this, SIGNAL(saveSignal()), autosave, SLOT(saveMzRoll()));
 
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
@@ -531,6 +530,9 @@ void MainWindow::setUrl(QString url, QString link) {
 	setStatusText(tr("<a href=\"%1\">%2</a>").arg(url, link));
 }
 
+void MainWindow::autoSaveSignal() {
+	Q_EMIT(saveSignal());
+}
 void MainWindow::setUrl(Compound* c) {
 	if (c == NULL)
 		return;

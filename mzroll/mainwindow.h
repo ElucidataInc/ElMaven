@@ -191,6 +191,7 @@ public:
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
+	void autoSaveSignal();
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
@@ -216,6 +217,8 @@ public:
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
+Q_SIGNALS:
+	void saveSignal();
 
 protected:
 	void closeEvent(QCloseEvent *event);
