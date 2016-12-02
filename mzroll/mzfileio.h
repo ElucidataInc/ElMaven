@@ -77,6 +77,7 @@ Q_OBJECT
     public Q_SLOTS:
         void readThermoRawFileImport(); //TODO: Sahil, Added while merging mzfileio
         void addFileToQueue(QString f); //TODO: Sahil, Added while merging mzfileio
+        void removeAllFilefromQueue();
 
     Q_SIGNALS:
 

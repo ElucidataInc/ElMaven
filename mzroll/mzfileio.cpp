@@ -653,6 +653,10 @@ void mzFileIO::addFileToQueue(QString f)
     if (isKnownFileType(f)) filelist << f;
 }
 
+void mzFileIO::removeAllFilefromQueue() {
+    filelist.clear();
+}
+
 /*
 @author: Sahil
 */

@@ -853,6 +853,9 @@ void MainWindow::open() {
 	if (!cancelUploading) {
 		fileLoader->start();
 	}
+	else {
+		fileLoader->removeAllFilefromQueue();
+	}
 }
 
 bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
