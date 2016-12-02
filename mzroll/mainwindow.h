@@ -94,6 +94,7 @@ public Q_SLOTS:
 public:
 	AutoSave(QWidget*);
 	void setMainWindow(MainWindow*);
+	bool doAutosave;
 	MainWindow* _mainwindow;
 };
 
@@ -217,6 +218,7 @@ public:
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
+	bool askAutosave();
 Q_SIGNALS:
 	void saveSignal();
 

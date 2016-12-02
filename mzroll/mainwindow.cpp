@@ -438,6 +438,21 @@ MainWindow::MainWindow(QWidget *parent) :
 	peakDetectionDialog->setMavenParameters(settings);
 }
 
+bool MainWindow::askAutosave() {
+
+	bool doAutosave = false;
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
+								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	if (reply == QMessageBox::Yes) {
+		doAutosave = true;
+	} else {
+		doAutosave = false;
+	}
+	return doAutosave;
+}
+
+
 AutoSave::AutoSave(QWidget*){}
 
 
@@ -448,29 +463,12 @@ void AutoSave::setMainWindow(MainWindow* mw) {
 
 void AutoSave::saveMzRoll(){
 
-	if (_mainwindow->peaksMarked % 10 == 0){
+	if (_mainwindow->peaksMarked == 2){
+		doAutosave = _mainwindow->askAutosave();
+		if (doAutosave) _mainwindow->projectDockWidget->saveProject();
+	}
 
-		// QSettings* settings = _mainwindow->getSettings();
-
-		// QString dir = ".";
-		// if ( settings->contains("lastDir") ) {
-		// 	QString ldir = settings->value("lastDir").value<QString>();
-		// 	QDir test(ldir);
-		// 	if (test.exists()) dir = ldir;
-		// }
-
-		// QString fileName = _mainwindow->projectDockWidget->lastOpennedProject;
-
-		// if ( !fileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == fileName ) {
-		// 	_mainwindow->projectDockWidget->saveProject(fileName);
-		// } else {
-		// 	QMessageBox msgBox;
-		// 	msgBox.setText("Save mzroll for further autosaving");
-		// 	msgBox.exec();
-		// 	QString fileName = QFileDialog::getSaveFileName( _mainwindow->projectDockWidget,
-		// 			"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
-
-		// 	if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
+	if (_mainwindow->peaksMarked % 10 == 0 && doAutosave){
 			_mainwindow->projectDockWidget->saveProject();
 	}
 }
