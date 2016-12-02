@@ -448,20 +448,30 @@ void AutoSave::setMainWindow(MainWindow* mw) {
 
 void AutoSave::saveMzRoll(){
 
-	cerr << endl << "REAACCCed here " << _mainwindow->peaksMarked << endl;
 	if (_mainwindow->peaksMarked % 10 == 0){
-		cerr << endl << endl << "REAced here" << endl;
-		auto t = time(nullptr);
-		auto tm = *localtime(&t);
 
-		ostringstream oss;
-		oss << put_time(&tm, "%d-%m-%Y_%H-%M-%S");
-		auto date_time = oss.str();
+		// QSettings* settings = _mainwindow->getSettings();
 
-		date_time = date_time + ".mzroll";
-		QString path = "/temp";
-		QString filename = path + QDir::separator() + "tempAutoSave" + QDir::separator() + QString::fromUtf8(date_time.c_str());
-		_mainwindow->projectDockWidget->saveProject(filename);
+		// QString dir = ".";
+		// if ( settings->contains("lastDir") ) {
+		// 	QString ldir = settings->value("lastDir").value<QString>();
+		// 	QDir test(ldir);
+		// 	if (test.exists()) dir = ldir;
+		// }
+
+		// QString fileName = _mainwindow->projectDockWidget->lastOpennedProject;
+
+		// if ( !fileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == fileName ) {
+		// 	_mainwindow->projectDockWidget->saveProject(fileName);
+		// } else {
+		// 	QMessageBox msgBox;
+		// 	msgBox.setText("Save mzroll for further autosaving");
+		// 	msgBox.exec();
+		// 	QString fileName = QFileDialog::getSaveFileName( _mainwindow->projectDockWidget,
+		// 			"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
+
+		// 	if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
+			_mainwindow->projectDockWidget->saveProject();
 	}
 }
 
@@ -2512,11 +2522,6 @@ void MainWindow::getLinks(Peak* peak) {
 	if (adductWidget->isVisible())
 		adductWidget->setPeak(peak);
 }
-
-// void MainWindow::autoSavemzRoll(){
-// 	cerr << "TEST RUN " << endl;
-// 	cerr << endl << endl;
-// }
 
 
 PeakGroup::QType MainWindow::getUserQuantType() {

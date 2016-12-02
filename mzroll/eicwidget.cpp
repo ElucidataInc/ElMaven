@@ -1877,20 +1877,17 @@ void EicWidget::markGroupGood() {
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'g');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
-	//Q_EMIT(peakMarkedEicWidget());
 }
 void EicWidget::markGroupBad() {
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'b');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
-	//Q_EMIT(peakMarkedEicWidget());
 }
 void EicWidget::copyToClipboard() {
 	getMainWindow()->setClipboardToGroup(eicParameters->getSelectedGroup());
 }
 
 void EicWidget::freezeView(bool freeze) {
-	//qDebug <<"EicWidget::freezeView(bool freeze) ";
 	if (freeze == true) {
 		_frozen = true;
 		_freezeTime = 100;

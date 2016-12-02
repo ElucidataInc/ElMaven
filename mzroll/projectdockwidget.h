@@ -13,6 +13,10 @@ class ProjectDockWidget : public QDockWidget
 public:
     explicit ProjectDockWidget(QMainWindow *parent = 0);
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
+    QString lastOpennedProject;
+    QString lastSavedProject;
+    QColor  lastUsedSampleColor;
+
 
 Q_SIGNALS:
 
@@ -63,11 +67,10 @@ private:
     QTreeWidget* _treeWidget;
     QSplitter*  _splitter;
 
+
     QMap<QString, QColor> storeColor;
-    QString lastOpennedProject;
-    QString lastSavedProject;
-    QColor  lastUsedSampleColor;
     QColor  usedColor;
+
 
 
 };

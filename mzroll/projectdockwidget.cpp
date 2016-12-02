@@ -551,7 +551,7 @@ void ProjectDockWidget::saveProject() {
         if (test.exists()) dir = ldir;
     }
 
-    QString fileName = lastOpennedProject;
+    QString fileName = lastSavedProject;
 
     if ( !fileName.isEmpty() && lastSavedProject == fileName ) {
 	    saveProject(fileName);
