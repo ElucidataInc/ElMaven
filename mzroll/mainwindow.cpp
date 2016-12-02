@@ -605,8 +605,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
     if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
         bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
         bookmarkedPeaks->showAllGroups();
+		bookmarkedPeaks->updateTable();
     }
-    bookmarkedPeaks->updateTable();
     return bookmarkedGroup;
 }
 
@@ -1600,7 +1600,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
+	if (isotopeWidget && group->compound != NULL) {
 		isotopeWidget->setCompound(group->compound);
 	}
 
