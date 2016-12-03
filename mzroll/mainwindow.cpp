@@ -1909,6 +1909,8 @@ void MainWindow::Align() {
 	mavenParameters->keepFoundGroups = true;
 	mavenParameters->eicMaxGroups = 5;
 
+	mavenParameters->samples = getSamples();
+	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 
