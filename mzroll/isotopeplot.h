@@ -4,6 +4,7 @@
 #include "stable.h"
 #include "mzSample.h"
 #include "mainwindow.h"
+#include "qcustomplot.h"
 
 class MainWindow;
 class PeakGroup;

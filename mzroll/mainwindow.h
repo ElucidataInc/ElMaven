@@ -9,6 +9,8 @@
 #include "settingsform.h"
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
+#include "qcustomplot.h"
+#include "isotopicplots.h"
 #include "masscalcgui.h"
 #include "adductwidget.h"
 #include "ligandwidget.h"
@@ -48,6 +50,8 @@ class PeakDetectionDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
+class QCustomPlot;
+class IsotopicPlots;
 class AdductWidget;
 class LigandWidget;
 class PathwayWidget;
@@ -100,6 +104,7 @@ public:
 
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
+	QCustomPlot *customPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
 	LigandWidget *ligandWidget;
@@ -110,6 +115,7 @@ public:
 	TreeDockWidget *srmDockWidget;
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
+	QDockWidget *isotopePlotsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
 	QDockWidget *scatterDockWidget;
@@ -171,7 +177,7 @@ public:
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
-	
+	void setIsotopicPlotStyling();
 	//TODO: Sahil - Kiran, Removed while merging mainwindow
 	// mzSample* getSample(int i) {
 	// 	assert(i < samples.size());
@@ -202,6 +208,7 @@ protected:
 
 public Q_SLOTS:
 	QDockWidget* createDockWidget(QString title, QWidget* w);
+	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
 	void setProgressBar(QString, int step, int totalSteps);
 	void setStatusText(QString text = QString::null);

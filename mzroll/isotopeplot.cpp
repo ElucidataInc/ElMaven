@@ -90,43 +90,84 @@ void IsotopePlot::showBars() {
         if (_barwidth>15) _barwidth=15;
         _height = visibleSamplesCount*_barwidth;
     }
+// customPlot->addPlottable(b);
+// b->addData(0, 1);
+// b->addData(1, 2);
+// customPlot->rescaleAxes();
+// customPlot->clearPlottables();
+// customPlot->replot();
+
+
 
     //qDebug() << "showBars: " << _width << " " << _height;
-
-
-    for(int i=0; i<MM.rows(); i++ ) {		//samples
-        float sum= MM.row(i).sum();
-        if (sum == 0) continue;
-        MM.row(i) /= sum;
-
-        double ycoord = _barwidth*i; 
-        double xcoord = 0;
-
-        for(int j=0; j < MM.cols(); j++ ) {	//isotopes
-            double length  = MM(i,j) * _width;
-            int h = j % 20;
-            if(length<0 ) length=0;
-            //qDebug() << length << " " << xcoord << " " << ycoord;
-            QBrush brush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
-            IsotopeBar* rect = new IsotopeBar(this,scene());
-            rect->setBrush(brush);
-            rect->setRect(xcoord,ycoord,length,_barwidth);
-
-            QString name = tr("%1 <br> %2 <b>%3\%</b>").arg(_samples[i]->sampleName.c_str(),
-                                                            _isotopes[j]->tagString.c_str(),
-                                                            QString::number(MM(i,j)*100));
-
-            rect->setData(0,QVariant::fromValue(name));
-            rect->setData(1,QVariant::fromValue(_isotopes[j]));
-
-            if(_mw) {
-                connect(rect,SIGNAL(groupSelected(PeakGroup*)),_mw, SLOT(setPeakGroup(PeakGroup*)));
-                connect(rect,SIGNAL(groupUpdated(PeakGroup*)),_mw->pathwayWidget, SLOT(updateCompoundConcentrations()));
-                //connect(rect,SIGNAL(showInfo(QString,int,int)),_mw->getEicWidget(),SLOT(setStatus(QString,int,int)));
-            }
-            xcoord += length;
+    _mw->customPlot->clearPlottables();
+    _mw->setIsotopicPlotStyling();
+    QVector<QCPBars *> isotopesType(MM.cols());
+    for(int j=0; j < MM.cols(); j++ ) {
+        isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
+        //_mw->customPlot->addPlottable(isotopesType[j]);
+        isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
+        //isotopesType[j]->setWidth(2);
+        //QColor::fromHsvF(h/20.0,1.0,1.0,1.0)
+        isotopesType[j]->setStackingGap(0);
+        int h = j % 20;
+        isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
+	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+        if (j != 0 ){
+            isotopesType[j]->moveBelow(isotopesType[j - 1]);
+	        //isotopesType[j]->moveBelow(nuclear);
         }
+        QVector<double> isotopeData(MM.cols());
+        QVector<double> sampleData(MM.rows());
+        cerr << "eee";
+        for(int i=0; i<MM.rows(); i++ ) {	
+            double length  = MM(i,j) * _width;
+            cerr << length;
+            cerr << i;
+            isotopeData << length;
+            sampleData << i;
+        }
+        cerr << "eee";
+
+        isotopesType[j]->setData(sampleData, isotopeData);
     }
+    _mw->customPlot->rescaleAxes();
+    _mw->customPlot->replot();
+
+    // for(int i=0; i<MM.rows(); i++ ) {		//samples
+    //     float sum= MM.row(i).sum();
+    //     if (sum == 0) continue;
+    //     MM.row(i) /= sum;
+
+    //     double ycoord = _barwidth*i; 
+    //     double xcoord = 0;
+
+    //     for(int j=0; j < MM.cols(); j++ ) {	//isotopes
+    //         double length  = MM(i,j) * _width;
+    //         int h = j % 20;
+    //         if(length<0 ) length=0;
+    //         //qDebug() << length << " " << xcoord << " " << ycoord;
+    //         QBrush brush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+    //         isotopesType[j]
+    //         IsotopeBar* rect = new IsotopeBar(this,scene());
+    //         rect->setBrush(brush);
+    //         rect->setRect(xcoord,ycoord,length,_barwidth);
+
+    //         QString name = tr("%1 <br> %2 <b>%3\%</b>").arg(_samples[i]->sampleName.c_str(),
+    //                                                         _isotopes[j]->tagString.c_str(),
+    //                                                         QString::number(MM(i,j)*100));
+
+    //         rect->setData(0,QVariant::fromValue(name));
+    //         rect->setData(1,QVariant::fromValue(_isotopes[j]));
+
+    //         if(_mw) {
+    //             //connect(rect,SIGNAL(groupSelected(PeakGroup*)),_mw, SLOT(setPeakGroup(PeakGroup*)));
+    //             //connect(rect,SIGNAL(groupUpdated(PeakGroup*)),_mw->pathwayWidget, SLOT(updateCompoundConcentrations()));
+    //             //connect(rect,SIGNAL(showInfo(QString,int,int)),_mw->getEicWidget(),SLOT(setStatus(QString,int,int)));
+    //         }
+    //         xcoord += length;
+    //     }
+    // }
 }
 
 

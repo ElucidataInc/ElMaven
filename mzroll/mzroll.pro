@@ -29,7 +29,7 @@ ICON = images/icon.icns
 
 DESTDIR = ../bin
 
-QT += sql network xml svg
+QT += sql network xml svg printsupport
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
 INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
@@ -110,7 +110,9 @@ HEADERS +=  stable.h \
                     spectralhit.h \
                    spectralhitstable.h\
                     clusterdialog.h \
-                    peptidefragmentation.h
+                    peptidefragmentation.h \
+                    qcustomplot.h \
+                    isotopicplots.h 
 
 
 SOURCES += mainwindow.cpp  \
@@ -164,7 +166,9 @@ database.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
  logwidget.cpp \ 
- peptidefragmentation.cpp
+ peptidefragmentation.cpp \
+ qcustomplot.cpp \
+ isotopicplots.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
