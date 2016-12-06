@@ -742,6 +742,13 @@ void TableDockWidget::deleteGroups() {
                 int childrenNum = -1;
                 if ( parentGroup == NULL ) { //top level item
                     //Updated when Merging to Maven776 - Kiran
+                    if (nextItem) {
+                        QVariant vc = nextItem->data(0,Qt::UserRole);
+                        PeakGroup*  groupc =  vc.value<PeakGroup*>();
+                        if (groupc->tagString == "C12 PARENT") {
+                            nextItem = nextItem->parent();
+                        }
+                    }
                     deleteGroup(group);
                 } else if ( parentGroup && parentGroup->childCount() ) {	//this a child item
                     childrenNum = parentGroup->childCount();
