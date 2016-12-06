@@ -130,7 +130,7 @@ void IsotopePlot::showBars() {
         isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
 	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
         if (j != 0 ){
-            isotopesType[j]->moveBelow(isotopesType[j - 1]);
+            isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
         QVector<double> isotopeData(MM.rows());
         QVector<double> sampleData(MM.rows());
