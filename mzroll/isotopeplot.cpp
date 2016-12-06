@@ -90,44 +90,35 @@ void IsotopePlot::showBars() {
         if (_barwidth>15) _barwidth=15;
         _height = visibleSamplesCount*_barwidth;
     }
-// customPlot->addPlottable(b);
-// b->addData(0, 1);
-// b->addData(1, 2);
-// customPlot->rescaleAxes();
-// customPlot->clearPlottables();
-// customPlot->replot();
 
+    for(int i=0; i<MM.rows(); i++ ) {		//samples
+        float sum= MM.row(i).sum();
+        if (sum == 0) continue;
+        MM.row(i) /= sum;
+    }
 
-
-    //qDebug() << "showBars: " << _width << " " << _height;
     _mw->customPlot->clearPlottables();
     _mw->setIsotopicPlotStyling();
     QVector<QCPBars *> isotopesType(MM.cols());
     for(int j=0; j < MM.cols(); j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
-        //_mw->customPlot->addPlottable(isotopesType[j]);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
-        //isotopesType[j]->setWidth(2);
-        //QColor::fromHsvF(h/20.0,1.0,1.0,1.0)
-        isotopesType[j]->setStackingGap(0);
-        int h = j % 20;
+        isotopesType[j]->setStackingGap(1);
+        int h = j ;
         isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
 	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
         if (j != 0 ){
             isotopesType[j]->moveBelow(isotopesType[j - 1]);
-	        //isotopesType[j]->moveBelow(nuclear);
         }
-        QVector<double> isotopeData(MM.cols());
+        QVector<double> isotopeData(MM.rows());
         QVector<double> sampleData(MM.rows());
-        cerr << "eee";
-        for(int i=0; i<MM.rows(); i++ ) {	
-            double length  = MM(i,j) * _width;
-            cerr << length;
-            cerr << i;
+        isotopesType[j]->setName(_isotopes[j]->tagString.c_str());
+        for(int i=0; i<MM.rows(); i++ ) {
+            double length  = MM(i,j);
+            if(length < 0 ) length = 0;
             isotopeData << length;
             sampleData << i;
         }
-        cerr << "eee";
 
         isotopesType[j]->setData(sampleData, isotopeData);
     }

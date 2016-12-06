@@ -187,7 +187,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	eicWidget = new EicWidget(this);
 	setCentralWidget(eicWidgetController());
 	spectraWidget = new SpectraWidget(this);
-	//isotopicPlots = new IsotopicPlots(this);
 	customPlot = new QCustomPlot(this);
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
@@ -203,7 +202,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	 heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0);
-	//qcustomPlot->xAxis->setRanage(0,)
+
 
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
@@ -219,49 +218,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
     peptideFragmentation = new PeptideFragmentationWidget(this);
-	///////////////////////////////////////////////////////////////////////////
-	
-	// // create empty bar chart objects:
-	// QCPBars *regen = new QCPBars(customPlot->xAxis, customPlot->yAxis);
-	// QCPBars *nuclear = new QCPBars(customPlot->xAxis, customPlot->yAxis);
-	// QCPBars *fossil = new QCPBars(customPlot->xAxis, customPlot->yAxis);
-	// regen->setAntialiased(true); // gives more crisp, pixel aligned bar borders
-	// nuclear->setAntialiased(true);
-	// fossil->setAntialiased(true);
-	// regen->setWidth(1);
-	// nuclear->setWidth(1);
-	// fossil->setWidth(1);
-	// regen->setStackingGap(0);
-	// nuclear->setStackingGap(0);
-	// fossil->setStackingGap(0);
-	// // set names and colors:
-	// fossil->setName("Fossil fuels");
-	// fossil->setPen(QPen(QColor(111, 9, 176).lighter(170)));
-	// fossil->setBrush(QColor(111, 9, 176));
-	// nuclear->setName("Nuclear");
-	// nuclear->setPen(QPen(QColor(250, 170, 20).lighter(150)));
-	// nuclear->setBrush(QColor(250, 170, 20));
-	// regen->setName("Regenerative");
-	// regen->setPen(QPen(QColor(0, 168, 140).lighter(130)));
-	// regen->setBrush(QColor(0, 168, 140));
-	// // stack bars on top of each other:
-	// nuclear->moveAbove(fossil);
-	// regen->moveAbove(nuclear);
-	
-	// // prepare x axis with country labels:
-	// QVector<double> ticks;
-	// ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7;
-	
-	// // Add data:
-	// QVector<double> fossilData, nuclearData, regenData;
-	// fossilData  << 0.86*10.5 << 0.83*5.5 << 0.84*5.5 << 0.52*5.8 << 0.89*5.2 << 0.90*4.2 << 0.67*11.2;
-	// nuclearData << 0.08*10.5 << 0.12*5.5 << 0.12*5.5 << 0.40*5.8 << 0.09*5.2 << 0.00*4.2 << 0.07*11.2;
-	// regenData   << 0.06*10.5 << 0.05*5.5 << 0.04*5.5 << 0.06*5.8 << 0.02*5.2 << 0.07*4.2 << 0.25*11.2;
-	// fossil->setData(ticks, fossilData);
-	// nuclear->setData(ticks, nuclearData);
-	// regen->setData(ticks, regenData);
-	//customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-/////////////////////////////////////////////////////////////////
+
+	setIsotopicPlotStyling();
+
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
@@ -518,6 +477,7 @@ void MainWindow::setIsotopicPlotStyling() {
 	QFont legendFont = font();
 	legendFont.setPointSize(10);
 	customPlot->legend->setFont(legendFont);
+	customPlot->plotLayout()->addElement(0, 1, customPlot->legend);
 	customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
 }
