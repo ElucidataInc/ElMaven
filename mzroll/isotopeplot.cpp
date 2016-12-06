@@ -97,8 +97,30 @@ void IsotopePlot::showBars() {
         MM.row(i) /= sum;
     }
 
+    //_mw->customPlot->plotLayout()->clear();
     _mw->customPlot->clearPlottables();
     _mw->setIsotopicPlotStyling();
+    //_mw->customPlot->plotLayout()->clear();
+
+    QCPTextElement *title = new QCPTextElement(_mw->customPlot);
+    title->setText(_isotopes[0]->compound->name.c_str());
+    title->setFont(QFont("sans", 12, QFont::Bold));
+    //_mw->customPlot->plotLayout()->insertRow(0);
+  // then we add it to the main plot layout:
+    // insert an empty row above the axis rect
+    _mw->customPlot->plotLayout()->addElement(0, 0, title); 
+
+    _mw->customPlot->legend->setVisible(true);
+    QCPAxisRect *bottomAxisRect = new QCPAxisRect(_mw->customPlot);
+    _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
+
+    _mw->customPlot->plotLayout()->addElement(1, 1, _mw->customPlot->legend);
+
+    _mw->customPlot->plotLayout()->setColumnStretchFactor(0, 8);
+    _mw->customPlot->plotLayout()->setColumnStretchFactor(1, 2);
+
+    //_mw->customPlot->plotLayout()->addElement(0, 0, customPlot->legend);
+
     QVector<QCPBars *> isotopesType(MM.cols());
     for(int j=0; j < MM.cols(); j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
@@ -124,6 +146,9 @@ void IsotopePlot::showBars() {
     }
     _mw->customPlot->rescaleAxes();
     _mw->customPlot->replot();
+    delete(title);
+    delete(bottomAxisRect);
+    //detete()
 
     // for(int i=0; i<MM.rows(); i++ ) {		//samples
     //     float sum= MM.row(i).sum();

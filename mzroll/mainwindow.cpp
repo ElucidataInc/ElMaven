@@ -220,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent) :
     peptideFragmentation = new PeptideFragmentationWidget(this);
 
 	setIsotopicPlotStyling();
+	customPlot->plotLayout()->insertRow(0);
 
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
@@ -477,8 +478,8 @@ void MainWindow::setIsotopicPlotStyling() {
 	QFont legendFont = font();
 	legendFont.setPointSize(10);
 	customPlot->legend->setFont(legendFont);
-	customPlot->plotLayout()->addElement(0, 1, customPlot->legend);
 	customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+	//customPlot->plotLayout()->insertRow(0);
 
 }
 
