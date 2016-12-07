@@ -468,8 +468,8 @@ int Database::loadCompoundCSVFile(string filename){
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
-    char sep='\t';
-    if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=',';
+    string sep="\t";
+    if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
 
     //cerr << filename << " sep=" << sep << endl;
     while ( getline(myfile,line) ) {
@@ -479,7 +479,7 @@ int Database::loadCompoundCSVFile(string filename){
         lineCount++;
 
         vector<string>fields;
-        mzUtils::split(line, sep, fields);
+        mzUtils::splitNew(line, sep, fields);
 
         for(unsigned int i=0; i < fields.size(); i++ ) {
             int n = fields[i].length();

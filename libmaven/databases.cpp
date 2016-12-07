@@ -11,8 +11,8 @@ int Databases::loadCompoundCSVFile(string filename) {
     vector<string> headers;
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
-    char sep='\t';
-    if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=',';
+    string sep="\t";
+    if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
 
     while (getline(myfile,line)) {
         //This is used to write commands
@@ -23,7 +23,7 @@ int Databases::loadCompoundCSVFile(string filename) {
         lineCount++;
 
         vector<string> fields;
-        mzUtils::split(line, sep, fields);
+        mzUtils::splitNew(line, sep, fields);
 
         mzUtils::removeSpecialcharFromStartEnd(fields);
 
