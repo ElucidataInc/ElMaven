@@ -478,7 +478,7 @@ void MainWindow::setIsotopicPlotStyling() {
 	QFont legendFont = font();
 	legendFont.setPointSize(10);
 	customPlot->legend->setFont(legendFont);
-	customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+	//customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 	//customPlot->plotLayout()->insertRow(0);
 
 }
