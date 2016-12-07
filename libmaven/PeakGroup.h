@@ -99,7 +99,7 @@ class PeakGroup{
         float maxSignalBaselineRatio;
         int goodPeakCount;
         float expectedRtDiff;
-        unsigned int groupRank;
+        float groupRank;
 
         //for sample contrasts  ratio and pvalue
         float changeFoldRatio;

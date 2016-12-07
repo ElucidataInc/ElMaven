@@ -276,8 +276,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
 
     //Added when Merging to Maven776 - Kiran
     if ( viewType == groupView && fabs(group->changeFoldRatio) >= 0 ) {
-        item->setText(12,QString::number(group->changeFoldRatio, 'f', 3));
-        item->setText(13,QString::number(group->changePValue,    'f', 6));
+        item->setText(13,QString::number(group->changeFoldRatio, 'f', 3));
+        item->setText(14,QString::number(group->changePValue,    'f', 6));
     }
 
     int good=0; int bad=0;
@@ -408,7 +408,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         item->setText(9,QString::number(group->maxIntensity,'g',2));
         item->setText(10,QString::number(group->maxSignalBaselineRatio,'f',0));
         item->setText(11,QString::number(group->maxQuality,'f',2));
-        item->setText(12,QString::number(group->groupRank,'f',2));
+        item->setText(12,QString::number(group->groupRank,'f',4));
 
         if ( group->changeFoldRatio != 0 ) {
             //Updated when Merging to Maven776 - Kiran
