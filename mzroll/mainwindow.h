@@ -90,11 +90,13 @@ Q_OBJECT
 
 public Q_SLOTS:
 	void saveMzRoll();
+	void saveMzRollAllTables();
 
 public:
 	AutoSave(QWidget*);
 	void setMainWindow(MainWindow*);
 	bool doAutosave;
+	QString newFileName;
 	MainWindow* _mainwindow;
 };
 
