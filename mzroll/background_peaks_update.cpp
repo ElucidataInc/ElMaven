@@ -321,6 +321,8 @@ void BackgroundPeakUpdate::run(void) {
         // }
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();
+        } else if (runFunction == "alignUsingDatabase") {
+                alignUsingDatabase();
         } else if (runFunction == "processSlices") {
                 processSlices();
         } else if (runFunction == "processMassSlices") {
@@ -459,6 +461,14 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->alignmentDialog->polynomialDegree->value());
                 aligner.doAlignment(groups);
         }
+}
+
+void BackgroundPeakUpdate::alignUsingDatabase() {
+
+        vector<mzSlice*> slices = peakDetector.processCompounds(mavenParameters->compounds, "compounds");
+        processSlices(slices, "compounds");
+
+
 }
 
 void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,

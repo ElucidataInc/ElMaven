@@ -10,6 +10,7 @@ Aligner::Aligner() {
 void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	if (peakgroups.size() == 0) return;
 
+	tolerance = 2;
 	//store groups into private variable
 	allgroups = peakgroups;
 	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
@@ -78,7 +79,15 @@ void Aligner::restoreFit() {
 vector<double> Aligner::groupMeanRt() {
 		//find retention time deviation
 		vector<double> groupRt(allgroups.size());
-		for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
+		// for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->getCompound()->expectedRt;
+		for (unsigned int i=0; i < allgroups.size(); i++ ) {
+
+			if (abs(allgroups[i]->getCompound()->expectedRt - allgroups[i]->medianRt()) < tolerance){
+				groupRt[i]=allgroups[i]->getCompound()->expectedRt;
+			} else {
+				groupRt[i]=allgroups[i]->medianRt();
+			}
+		}
 		return(groupRt);
 }
 
@@ -132,8 +141,15 @@ void Aligner::Fit(int ideg) {
                 int intTime = (int) p->rt*100;
                 duplicates[intTime]++;
                 if ( duplicates[intTime] > 5 ) continue;
-
-				ref[n]=allgroups[j]->medianRt();
+				// ref[n] = allgroups[j]->getCompound()->expectedRt;
+				if (abs(allgroups[j]->getCompound()->expectedRt - allgroups[j]->medianRt()) < tolerance){
+					compoundDataRt++;
+					ref[n]=allgroups[j]->getCompound()->expectedRt;
+				} else {
+					medianRt++;
+					ref[n]=allgroups[j]->medianRt();
+				}
+				
 				x[n]=p->rt; 
 
                 diff.push_back(POW2(x[n]-ref[n]));

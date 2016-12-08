@@ -1872,7 +1872,7 @@ void MainWindow::Align() {
 	if (sampleCount() < 2)
 		return;
 
-	BackgroundPeakUpdate* workerThread = newWorkerThread("processMassSlices");
+	BackgroundPeakUpdate* workerThread = newWorkerThread("alignUsingDatabase");
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
 
@@ -1911,6 +1911,7 @@ void MainWindow::Align() {
 
 	mavenParameters->samples = getSamples();
 	mavenParameters->stop = false;
+	mavenParameters->setCompounds(DB.getCopoundsSubset(ligandWidget->getDatabaseName().toStdString()));
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 

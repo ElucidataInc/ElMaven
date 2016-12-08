@@ -5,6 +5,7 @@
 #include <climits>
 #include <vector>
 #include "mzSample.h"
+#include "Compound.h"
 
 class Aligner;
 using namespace std;
@@ -22,6 +23,9 @@ class Aligner {
     vector<vector<float> > fit;
     vector<mzSample*> samples;
 
+    int medianRt;
+    int compoundDataRt;
+    float tolerance;
    private:
     vector<PeakGroup*> allgroups;
     int maxItterations;

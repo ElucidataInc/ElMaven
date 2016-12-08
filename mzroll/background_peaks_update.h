@@ -134,6 +134,7 @@ private:
 	 * [align function]
 	 */
 	void align();
+	void alignUsingDatabase();
 
 	/**
 	 * [get PullIsotope Settings]
