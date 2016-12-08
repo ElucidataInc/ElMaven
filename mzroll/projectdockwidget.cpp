@@ -318,24 +318,24 @@ void ProjectDockWidget::SetAsBlankSamples() {
               if ( sample == NULL) return;
               if(!sample->isBlank){
                         sample->isBlank = true; // To selected samples as Blank Samples
-                        lastUsedSampleColor = QColor(Qt::black);
-                        if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
                         QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+                        usedColor = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2], 1.0);
+                        storeColor[sampleName] = usedColor;
+                        if (item->type() == SampleType) setSampleColor(item, QColor(Qt::black));
                         QFont font;
                         font.setItalic(true); 
                         item->setFont(0,font);
               }
               else{
-                    flag = 1;
                     sample->isBlank = false; // To unselected samples as Blank Samples
                     QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+                    if (item->type() == SampleType) setSampleColor(item, storeColor[sampleName]);
                     QFont font;
                     font.setItalic(false); 
                     item->setFont(0,font);
               }
            }
       }
-      if(flag) updateSampleList();
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
 }

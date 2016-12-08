@@ -63,9 +63,11 @@ private:
     QTreeWidget* _treeWidget;
     QSplitter*  _splitter;
 
+    QMap<QString, QColor> storeColor;
     QString lastOpennedProject;
     QString lastSavedProject;
     QColor  lastUsedSampleColor;
+    QColor  usedColor;
 
 
 };
