@@ -453,7 +453,8 @@ bool MainWindow::askAutosave() {
 }
 
 
-AutoSave::AutoSave(QWidget*){}
+AutoSave::AutoSave(QWidget*){
+}
 
 
 void AutoSave::setMainWindow(MainWindow* mw) {
@@ -484,10 +485,12 @@ void AutoSave::saveMzRollAllTables() {
         if (test.exists()) dir = ldir;
     }
 
-    QString fileName = _mainwindow->projectDockWidget->lastSavedProject;
+	if (fileName.isEmpty()) {
+		fileName = _mainwindow->projectDockWidget->lastSavedProject;
+	}
 	QList<QPointer<TableDockWidget> > peaksTableList =
 		_mainwindow->getPeakTableList();
-	peaksTableList.prepend(0);
+	peaksTableList.append(0);
 
 	TableDockWidget* peaksTable;
 
@@ -495,49 +498,34 @@ void AutoSave::saveMzRollAllTables() {
 		int j = 0;
 
 		if ( !newFileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == newFileName ) {
-
-			if (peaksTable) {
-				if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-					QFileInfo fi(fileName);
-					newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_" + QString::number(j) + ".mzroll";
-				}
-				_mainwindow->projectDockWidget->saveProject(newFileName, peaksTable);
-			} else {
-				if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-					QFileInfo fi(fileName);
-					newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
-				}
-				_mainwindow->projectDockWidget->saveProject(newFileName);
-			}
-
-
+			savePeaksTable(peaksTable, fileName, QString::number(j));
 		} else {
 			fileName = QFileDialog::getSaveFileName( _mainwindow,
 					"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
-
 			if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
 
-			if (peaksTable) {
-				if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-					QFileInfo fi(fileName);
-					newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_" + QString::number(j) + ".mzroll";
-				}
-				_mainwindow->projectDockWidget->saveProject(newFileName, peaksTable);
-			} else {
-				if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-					QFileInfo fi(fileName);
-					newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
-				}
-				_mainwindow->projectDockWidget->saveProject(newFileName);
-			}
+			savePeaksTable(peaksTable, fileName, QString::number(j));
 		}
 		j++;
 	}
 
 }
 
-void AutoSave::savePeaksTable() {
+void AutoSave::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName) {
 	
+	if (peaksTable) {
+		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
+			QFileInfo fi(fileName);
+			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_" + tableName + ".mzroll";
+		}
+		_mainwindow->projectDockWidget->saveProject(newFileName, peaksTable);
+	} else if (!_mainwindow->bookmarkedPeaks->getGroups().isEmpty()) {
+		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
+			QFileInfo fi(fileName);
+			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
+		}
+		_mainwindow->projectDockWidget->saveProject(newFileName);
+	}
 }
 
 

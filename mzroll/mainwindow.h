@@ -91,11 +91,13 @@ Q_OBJECT
 public Q_SLOTS:
 	void saveMzRoll();
 	void saveMzRollAllTables();
+	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
 
 public:
 	AutoSave(QWidget*);
 	void setMainWindow(MainWindow*);
 	bool doAutosave;
+	QString fileName;
 	QString newFileName;
 	MainWindow* _mainwindow;
 };
