@@ -495,7 +495,7 @@ void AutoSave::saveMzRollAllTables() {
 	TableDockWidget* peaksTable;
 
 	Q_FOREACH(peaksTable, peaksTableList) {
-		int j = 0;
+		int j = 1;
 
 		if ( !newFileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == newFileName ) {
 			savePeaksTable(peaksTable, fileName, QString::number(j));
