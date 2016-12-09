@@ -502,6 +502,10 @@ void AutoSave::saveMzRollAllTables() {
 		} else {
 			fileName = QFileDialog::getSaveFileName( _mainwindow,
 					"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
+			if (fileName.isEmpty()) {
+				doAutosave = false;
+				break;
+			}
 			if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
 
 			savePeaksTable(peaksTable, fileName, QString::number(j));
