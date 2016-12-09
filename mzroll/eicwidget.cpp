@@ -1754,7 +1754,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 		return;
 
 	PeakGroup* selGroup = NULL;
-	eicParameters->selectGroupNearRt(rt, selGroup);
+	selGroup = eicParameters->selectGroupNearRt(rt, selGroup);
 
 	if (selGroup) {
 		//Sabu Iso

@@ -26,7 +26,7 @@ public:
 		return _slice;
 	}
 
-	void selectGroupNearRt(float rt, PeakGroup* selGroup);
+	PeakGroup* selectGroupNearRt(float rt, PeakGroup* selGroup);
 	void groupPeaks(float eic_smoothingWindow, float grouping_maxRtWindow);
 	mzSlice setMzSlice(float mz, double ppm);
 

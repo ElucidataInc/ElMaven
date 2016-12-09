@@ -25,7 +25,7 @@ void EICLogic::associateNameWithPeakGroups() {
 	}
 }
 
-void EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
+PeakGroup* EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
 
 	for (int i = 0; i < peakgroups.size(); i++) {
 		float diff = abs(peakgroups[i].meanRt - rt);
@@ -40,6 +40,7 @@ void EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
 			}
 		}
 	}
+	return selGroup;
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
