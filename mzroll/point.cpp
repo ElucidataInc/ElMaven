@@ -123,6 +123,9 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
         //_mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
     }
+    
+    _mw->peaksMarked++;
+	_mw->autoSaveSignal();
 
 }
 void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
