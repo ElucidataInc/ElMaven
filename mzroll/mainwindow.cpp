@@ -224,7 +224,6 @@ MainWindow::MainWindow(QWidget *parent) :
     peptideFragmentation = new PeptideFragmentationWidget(this);
 
 	setIsotopicPlotStyling();
-	customPlot->plotLayout()->insertRow(0);
 
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
@@ -559,28 +558,14 @@ void MainWindow::setIsotopicPlotStyling() {
 	//prepare x axis
 	customPlot->xAxis->setTickLabels( false );
 	customPlot->xAxis->setTicks( false );
-	//customPlot->xAxis->setRange(0, 8);
 	customPlot->xAxis->setBasePen(QPen(Qt::white));
 	customPlot->xAxis->grid()->setVisible(false);
 	
 	// prepare y axis:
-	//customPlot->yAxis->setRange(0, 12.1);
 	customPlot->yAxis->grid()->setVisible(false);
 	customPlot->yAxis->setTickLabels( false );
 	customPlot->yAxis->setTicks( false );
 	customPlot->yAxis->setBasePen(QPen(Qt::white));
-
-	// setup legend:
-	customPlot->legend->setVisible(true);
-	customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignHCenter);
-	customPlot->legend->setBrush(QColor(255, 255, 255, 100));
-	customPlot->legend->setBorderPen(Qt::NoPen);
-	QFont legendFont = font();
-	legendFont.setPointSize(10);
-	customPlot->legend->setFont(legendFont);
-	//customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-	//customPlot->plotLayout()->insertRow(0);
-
 }
 
 void MainWindow::reportBugs() {

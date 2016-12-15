@@ -11,6 +11,7 @@ IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
 	_barwidth=10;
 	_mw=NULL;
 	_group=NULL;
+    mpMouseText = NULL;
     if ( scene != NULL ) {
         _width = scene->width()*0.25;
         _height = 10;
@@ -91,41 +92,33 @@ void IsotopePlot::showBars() {
         _height = visibleSamplesCount*_barwidth;
     }
 
+    labels.reserve(MM.rows());
     for(int i=0; i<MM.rows(); i++ ) {		//samples
         float sum= MM.row(i).sum();
         if (sum == 0) continue;
         MM.row(i) /= sum;
+        labels << QString::fromStdString(_samples[i]->sampleName.c_str());
+        //ticks << i ;
     }
 
-    //_mw->customPlot->plotLayout()->clear();
-    _mw->customPlot->clearPlottables();
-    _mw->setIsotopicPlotStyling();
-    //_mw->customPlot->plotLayout()->clear();
+    MMDuplicate = MM;
 
-    QCPTextElement *title = new QCPTextElement(_mw->customPlot);
+    _mw->customPlot->plotLayout()->clear();
+    _mw->customPlot->clearPlottables();
+
+    QCPTextElement * title = new QCPTextElement(_mw->customPlot);
     title->setText(_isotopes[0]->compound->name.c_str());
-    title->setFont(QFont("sans", 12, QFont::Bold));
-    //_mw->customPlot->plotLayout()->insertRow(0);
-  // then we add it to the main plot layout:
-    // insert an empty row above the axis rect
+    title->setFont(QFont("Helvetica", 12, QFont::Bold));
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 
-    _mw->customPlot->legend->setVisible(true);
-    QCPAxisRect *bottomAxisRect = new QCPAxisRect(_mw->customPlot);
+    QCPAxisRect * bottomAxisRect = new QCPAxisRect(_mw->customPlot);
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
+    isotopesType.reserve(MM.rows());
 
-    _mw->customPlot->plotLayout()->addElement(1, 1, _mw->customPlot->legend);
-
-    _mw->customPlot->plotLayout()->setColumnStretchFactor(0, 8);
-    _mw->customPlot->plotLayout()->setColumnStretchFactor(1, 2);
-
-    //_mw->customPlot->plotLayout()->addElement(0, 0, customPlot->legend);
-
-    QVector<QCPBars *> isotopesType(MM.cols());
     for(int j=0; j < MM.cols(); j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
-        isotopesType[j]->setStackingGap(1);
+        isotopesType[j]->setStackingGap(0);
         int h = j % 20;
         isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
 	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
@@ -134,20 +127,36 @@ void IsotopePlot::showBars() {
         }
         QVector<double> isotopeData(MM.rows());
         QVector<double> sampleData(MM.rows());
-        isotopesType[j]->setName(_isotopes[j]->tagString.c_str());
+
         for(int i=0; i<MM.rows(); i++ ) {
             double length  = MM(i,j);
             if(length < 0 ) length = 0;
             isotopeData << length;
             sampleData << i;
         }
-
         isotopesType[j]->setData(sampleData, isotopeData);
+
     }
+
+    _mw->setIsotopicPlotStyling();
     _mw->customPlot->rescaleAxes();
     _mw->customPlot->replot();
-    delete(title);
-    delete(bottomAxisRect);
+
+    if (!mpMouseText) {
+        mpMouseText = new QCPItemText(_mw->customPlot);
+    }
+    //_mw->customPlot->addItem(mpMouseText); 
+    mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
+    mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
+    mpMouseText->setPositionAlignment(Qt::AlignLeft);
+    mpMouseText->position->setCoords(QPointF(0, 0));
+    mpMouseText->setText("");
+    mpMouseText->setPen(QPen(Qt::black)); // show black border around text
+
+    disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+    connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
+    //delete(title);
+    //delete(bottomAxisRect);
     //detete()
 
     // for(int i=0; i<MM.rows(); i++ ) {		//samples
@@ -184,6 +193,26 @@ void IsotopePlot::showBars() {
     //         xcoord += length;
     //     }
     // }
+}
+
+void IsotopePlot::showPointToolTip(QMouseEvent *event) {
+
+    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
+    int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    if (x < labels.count() && x >= 0) {
+        QString name = labels.at(x);
+        for(int j=0; j < MMDuplicate.cols(); j++ ) {
+            if (MMDuplicate(x,j)*100 > 0) 
+            {
+                name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
+                                                    QString::number(MMDuplicate(x,j)*100));
+            }
+        }
+
+        mpMouseText->setText(name);
+        mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
+    }
+    _mw->customPlot->replot();
 }
 
 

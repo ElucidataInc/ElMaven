@@ -64,6 +64,9 @@ public:
     QRectF boundingRect() const;
     void clear();
     void showBars();
+
+private Q_SLOTS:
+    void showPointToolTip(QMouseEvent *event);
 	
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -76,9 +79,13 @@ private:
     float _barwidth;
     vector<mzSample*> _samples;
     MainWindow* _mw;
+    QVector<QString> labels;
+    QCPItemText * mpMouseText;
+    QVector<QCPBars *> isotopesType;
 
     PeakGroup* _group;
-    vector<PeakGroup*> _isotopes;   
+    vector<PeakGroup*> _isotopes;
+    MatrixXf MMDuplicate;
 };
 
 #endif
