@@ -57,6 +57,12 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
+    QToolButton *btnSaveJson = new QToolButton(toolBar);
+    btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
+    btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
+    connect(btnSaveJson, SIGNAL(clicked()), SLOT(exportJson()));
+
+
     //QToolButton *btnHeatmap = new QToolButton(toolBar);
     //btnHeatmap->setIcon(QIcon(rsrcPath + "/heatmap.png"));
     //btnHeatmap->setToolTip("Show HeatMap");
@@ -159,6 +165,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     toolBar->addSeparator();
     toolBar->addWidget(btnPDF);
     toolBar->addWidget(btnGroupCSV);
+    toolBar->addWidget(btnSaveJson);
     toolBar->addWidget(btnRunScript);
 
     toolBar->addSeparator();
@@ -623,6 +630,98 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         }
     }
     csvreports->closeFiles();
+}
+
+void TableDockWidget::exportJson() {
+
+    if (allgroups.size() == 0 ) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save EICs to Json File"),dir,tr("*.json"));
+    if (fileName.isEmpty()) return;
+    if(!fileName.endsWith(".pdf",Qt::CaseInsensitive)) fileName = fileName + ".json";
+
+    saveEICsJson(fileName.toStdString());    
+}
+
+void TableDockWidget::saveEICsJson(string filename) {
+    ofstream myfile(filename.c_str());
+    if (!myfile.is_open()) return;
+    myfile << "[\n";
+    
+    for (int i = 0; i < allgroups.size(); i++) {
+        PeakGroup& grp = allgroups[i];
+        float rtmin = grp.minRt - 3;
+        float rtmax = grp.maxRt + 3;
+
+        myfile << "{\n";
+        myfile << "\"groupId\": " << i << "," << endl;
+        myfile << "\"rtmin\": " << rtmin << "," << endl;
+        myfile << "\"rtmax\": " << rtmax << "," << endl;
+        myfile << "\"eics\": [ " << endl;
+        vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
+
+        for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
+                myfile << "{\n";
+                saveEICJson(myfile, eics[j] ); //save EICs
+                myfile << "}\n";
+                if ( j < ((eics.size() / grp.peaks.size())-1)) myfile << ",\n";
+        }
+        myfile << "]" << endl;
+        myfile << "}" << endl;
+        
+        if (i != (allgroups.size()-1)){
+            myfile << ",";          
+        }
+
+        delete_all(eics); //cleanup
+    }
+    myfile << "]";
+
+    myfile.close();
+}
+
+void TableDockWidget::saveEICJson(ofstream& out, EIC* eic) {
+    int N = eic->rt.size();
+    int count = 0;
+
+        out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
+        out << "\"data\": [";
+        out << setprecision(4);
+        for(int i=0; i<N; i++) { 
+                if (eic->intensity[i]>0) {
+                      if(count && i<N) out << ",";
+                      out << "[" << eic->rt[i] << "," <<  eic->intensity[i] << "]"; 
+                      count++;
+                };
+        }
+        out << "]\n"; 
+}
+
+vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
+    vector<EIC*> eics;
+    for (int i = 0; i < grp.peaks.size(); i++) {
+        float mzmin = grp.meanMz - 0.2;
+        float mzmax = grp.meanMz + 0.2;
+        //cerr <<setprecision(5) << "getEICs: mz:" << mzmin << "-" << mzmax << " rt:" << rtmin << "-" << rtmax << endl;
+        vector<mzSample*> samples = _mainwindow->getSamples();
+        for (unsigned int j = 0; j < samples.size(); j++) {
+            if (!grp.srmId.empty()) {
+                EIC* eic = samples[j]->getEIC(grp.srmId);
+                eics.push_back(eic);
+            } else {
+                EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1);
+                eics.push_back(eic);
+            }
+        }
+    }
+    return (eics);
 }
 
 

@@ -58,6 +58,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+    void exportJson();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
@@ -103,6 +104,9 @@ public Q_SLOTS:
       //Added when Merging to Maven776 - Kiran
       void writeQEInclusionList(QString fileName);
       void writeMascotGeneric(QString fileName);
+      void saveEICsJson(string filename);
+      void saveEICJson(ofstream& out, EIC* eic);
+      vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
