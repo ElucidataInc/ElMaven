@@ -22,6 +22,7 @@ public:
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
+    bool bookmarkPeaksTAble = false;
     //Added when Merging to Maven776 - Kiran
     enum tableViewType{ groupView=0, peakView=1 };
 
@@ -73,6 +74,7 @@ public Q_SLOTS:
 
 	  void markGroupBad();
 	  void markGroupGood();
+      bool checkLabeledGroups();
 	  void markGroupIgnored();
           void showAllGroups();
 	  void showHeatMap();

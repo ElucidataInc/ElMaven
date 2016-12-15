@@ -206,6 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	 heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0);
+	bookmarkedPeaks->bookmarkPeaksTAble = true;
 
 
 	//treemap	 = 	  new TreeMap(this);
@@ -470,6 +471,10 @@ void AutoSave::saveMzRoll(){
 
 	if (_mainwindow->peaksMarked % 10 == 0 && doAutosave){
 			saveMzRollAllTables();
+	}
+
+	if (_mainwindow->allPeaksMarked && doAutosave) {
+			saveMzRollAllTables();		
 	}
 }
 

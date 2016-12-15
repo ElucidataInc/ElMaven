@@ -113,6 +113,7 @@ public:
 	vector<mzSample*> samples;		//list of loadded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
+	bool allPeaksMarked = false;
 
 	AutoSave* autosave;
 	MavenParameters* mavenParameters;

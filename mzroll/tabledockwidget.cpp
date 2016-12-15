@@ -795,6 +795,7 @@ void TableDockWidget::markGroupGood() {
     setGroupLabel('g');
     showNextGroup();
     _mainwindow->peaksMarked++;
+    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
 }
 
@@ -802,7 +803,31 @@ void TableDockWidget::markGroupBad() {
     setGroupLabel('b');
     showNextGroup();
     _mainwindow->peaksMarked++;
+    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
+}
+
+bool TableDockWidget::checkLabeledGroups() {
+
+    int totalCount=0;
+    int goodCount=0;
+    int badCount=0;
+
+    if (_mainwindow->peaksMarked >= allgroups.size()) {
+        for(int i=0; i < allgroups.size(); i++ ) {
+            char groupLabel = allgroups[i].label;
+            if (groupLabel == 'g' ) {
+                goodCount++;
+            } else if ( groupLabel == 'b' ) {
+                badCount++;
+            }
+            totalCount++;
+        }
+
+        if (totalCount == goodCount + badCount) return true;
+    }
+
+    return false;
 }
 
 void TableDockWidget::markGroupIgnored() { 
