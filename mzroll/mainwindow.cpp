@@ -785,7 +785,8 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	//  pathwayWidget->clear();
 	//    pathwayWidget->setCompound(c);
 	//}
-
+	disconnect(customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+	
 	if (isotopeWidget && isotopeWidget->isVisible())
 		isotopeWidget->setCompound(c);
 	if (massCalcWidget && massCalcWidget->isVisible()) {

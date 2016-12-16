@@ -82,6 +82,8 @@ private:
     QVector<QString> labels;
     QCPItemText * mpMouseText;
     QVector<QCPBars *> isotopesType;
+    QCPTextElement * title;
+    QCPAxisRect * bottomAxisRect;
 
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;

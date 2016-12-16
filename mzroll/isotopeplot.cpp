@@ -12,6 +12,8 @@ IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
 	_mw=NULL;
 	_group=NULL;
     mpMouseText = NULL;
+    title = NULL;
+    bottomAxisRect = NULL;
     if ( scene != NULL ) {
         _width = scene->width()*0.25;
         _height = 10;
@@ -106,12 +108,14 @@ void IsotopePlot::showBars() {
     _mw->customPlot->plotLayout()->clear();
     _mw->customPlot->clearPlottables();
 
-    QCPTextElement * title = new QCPTextElement(_mw->customPlot);
+    title = new QCPTextElement(_mw->customPlot);
+
     title->setText(_isotopes[0]->compound->name.c_str());
     title->setFont(QFont("Helvetica", 12, QFont::Bold));
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 
-    QCPAxisRect * bottomAxisRect = new QCPAxisRect(_mw->customPlot);
+    bottomAxisRect = new QCPAxisRect(_mw->customPlot);
+
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
     isotopesType.reserve(MM.rows());
 
@@ -138,13 +142,13 @@ void IsotopePlot::showBars() {
 
     }
 
-    _mw->setIsotopicPlotStyling();
-    _mw->customPlot->rescaleAxes();
-    _mw->customPlot->replot();
-
-    if (!mpMouseText) {
-        mpMouseText = new QCPItemText(_mw->customPlot);
+    if(mpMouseText) {
+        _mw->customPlot->removeItem(mpMouseText);
     }
+    mpMouseText = new QCPItemText(_mw->customPlot);
+
+    if(!mpMouseText) return;
+
     //_mw->customPlot->addItem(mpMouseText); 
     mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
     mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
@@ -153,61 +157,32 @@ void IsotopePlot::showBars() {
     mpMouseText->setText("");
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
 
+    _mw->setIsotopicPlotStyling();
+    _mw->customPlot->rescaleAxes();
+    _mw->customPlot->replot();
+
     disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
-    //delete(title);
-    //delete(bottomAxisRect);
-    //detete()
-
-    // for(int i=0; i<MM.rows(); i++ ) {		//samples
-    //     float sum= MM.row(i).sum();
-    //     if (sum == 0) continue;
-    //     MM.row(i) /= sum;
-
-    //     double ycoord = _barwidth*i; 
-    //     double xcoord = 0;
-
-    //     for(int j=0; j < MM.cols(); j++ ) {	//isotopes
-    //         double length  = MM(i,j) * _width;
-    //         int h = j % 20;
-    //         if(length<0 ) length=0;
-    //         //qDebug() << length << " " << xcoord << " " << ycoord;
-    //         QBrush brush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
-    //         isotopesType[j]
-    //         IsotopeBar* rect = new IsotopeBar(this,scene());
-    //         rect->setBrush(brush);
-    //         rect->setRect(xcoord,ycoord,length,_barwidth);
-
-    //         QString name = tr("%1 <br> %2 <b>%3\%</b>").arg(_samples[i]->sampleName.c_str(),
-    //                                                         _isotopes[j]->tagString.c_str(),
-    //                                                         QString::number(MM(i,j)*100));
-
-    //         rect->setData(0,QVariant::fromValue(name));
-    //         rect->setData(1,QVariant::fromValue(_isotopes[j]));
-
-    //         if(_mw) {
-    //             //connect(rect,SIGNAL(groupSelected(PeakGroup*)),_mw, SLOT(setPeakGroup(PeakGroup*)));
-    //             //connect(rect,SIGNAL(groupUpdated(PeakGroup*)),_mw->pathwayWidget, SLOT(updateCompoundConcentrations()));
-    //             //connect(rect,SIGNAL(showInfo(QString,int,int)),_mw->getEicWidget(),SLOT(setStatus(QString,int,int)));
-    //         }
-    //         xcoord += length;
-    //     }
-    // }
 }
 
-void IsotopePlot::showPointToolTip(QMouseEvent *event) {
-
+void IsotopePlot::showPointToolTip(QMouseEvent *event) {;
     int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    cerr << "JJ" << endl;
     if (x < labels.count() && x >= 0) {
         QString name = labels.at(x);
+        if (MMDuplicate.cols() != _isotopes.size()) return;
+
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
+            if (x  >= MMDuplicate.rows()) return; 
+
             if (MMDuplicate(x,j)*100 > 0) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                                                     QString::number(MMDuplicate(x,j)*100));
             }
         }
+        if(!mpMouseText) return;
 
         mpMouseText->setText(name);
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
