@@ -836,6 +836,22 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
     sample->isSelected=false;
     delete_all(sample->scans);
 
+    QList< QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
+    peaksTableList.prepend(_mainwindow->getBookmarkedPeaks());
+    TableDockWidget* peaksTable;
+    Q_FOREACH(peaksTable, peaksTableList) {
+        PeakGroup* grp;
+        Q_FOREACH(grp, peaksTable->getGroups()) {
+            vector<Peak>& peaks = grp->getPeaks();
+            for(unsigned int j=0; j< peaks.size(); j++) {
+                Peak p = peaks.at(j);
+                if (p.getSample()->sampleName == sample->sampleName) {
+                    peaks.erase(peaks.begin()+j);
+                }
+            }
+        }
+    }
+
     //remove sample from sample list
     for(unsigned int i=0; i<_mainwindow->samples.size(); i++) {
         if (_mainwindow->samples[i] == sample) {
