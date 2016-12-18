@@ -30,6 +30,13 @@ void IsotopePlot::clear() {
             delete(child);
         }
     }
+    if(mpMouseText) {
+        _mw->customPlot->removeItem(mpMouseText);
+    }
+    disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+    _mw->customPlot->plotLayout()->clear();
+    _mw->customPlot->clearPlottables();
+    _mw->customPlot->replot();
 }
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
@@ -159,16 +166,21 @@ void IsotopePlot::showBars() {
 
     _mw->setIsotopicPlotStyling();
     _mw->customPlot->rescaleAxes();
-    _mw->customPlot->replot();
 
     disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
+
+    _mw->customPlot->replot();
 }
 
-void IsotopePlot::showPointToolTip(QMouseEvent *event) {;
+void IsotopePlot::showPointToolTip(QMouseEvent *event) {
+
+    if (!event) return;
+    if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
+
     int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
-    cerr << "JJ" << endl;
+
     if (x < labels.count() && x >= 0) {
         QString name = labels.at(x);
         if (MMDuplicate.cols() != _isotopes.size()) return;
