@@ -127,9 +127,9 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-	void showIsotopePlot(bool f) {
+void showIsotopePlot(bool f) {
 		_showIsotopePlot = f;
-	}
+}
 	void showBarPlot(bool f) {
 		_showBarPlot = f;
 	}
@@ -143,6 +143,7 @@ public Q_SLOTS:
 	}
 
 	void markGroupGood();
+	void showIsotopicBarPlot();
 	void markGroupBad();
 	void copyToClipboard();
 	void selectionChangedAction();

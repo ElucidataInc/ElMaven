@@ -235,7 +235,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	bookmarkedPeaks->setVisible(false);
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
-	isotopePlotsDockWidget->setVisible(true);
+	isotopePlotsDockWidget->show();
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
@@ -311,7 +311,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
 	tabifyDockWidget(spectraDockWidget, isotopeWidget);
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
-	//tabifyDockWidget(spectraDockWidget, isotopicPlots);
+	tabifyDockWidget(spectraDockWidget, isotopePlotsDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
@@ -2398,7 +2398,8 @@ QWidget* MainWindow::eicWidgetController() {
     connect(btnShowBoxplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
    
     connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopePlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopicBarPlot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), eicWidget, SLOT(updateIsotopicBarplot())); //TODO: Sahil-Kiran, Added while merging mainwindow
     
     connect(btnShowSplines,SIGNAL(toggled(bool)),  eicWidget, SLOT(showSpline(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
     connect(btnShowSplines,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow

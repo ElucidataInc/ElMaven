@@ -1762,11 +1762,25 @@ void EicWidget::selectGroupNearRt(float rt) {
 	}
 }
 
+void EicWidget::showIsotopicBarPlot() {
+	if (_showIsotopePlot) {
+		getMainWindow()->isotopePlotsDockWidget->show();
+		//addIsotopicPlot(group);
+	} else {
+		getMainWindow()->isotopePlotsDockWidget->hide();
+	}
+}
+
 void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
 	if (_frozen || group == NULL)
 		return;
-	if (_showIsotopePlot)
+
+	if (_showIsotopePlot) {
+		getMainWindow()->isotopePlotsDockWidget->show();
 		addIsotopicPlot(group);
+	} else {
+		getMainWindow()->isotopePlotsDockWidget->hide();
+	}
 }
 
 void EicWidget::setSelectedGroup(PeakGroup* group) {
