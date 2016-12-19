@@ -464,6 +464,8 @@ void AutoSave::setMainWindow(MainWindow* mw) {
 
 void AutoSave::saveMzRoll(){
 
+    QSettings* settings = _mainwindow->getSettings();
+
 	if (_mainwindow->peaksMarked == 1){
 		doAutosave = _mainwindow->askAutosave();
 		if (doAutosave) saveMzRollAllTables();
@@ -475,6 +477,10 @@ void AutoSave::saveMzRoll(){
 
 	if (_mainwindow->allPeaksMarked && doAutosave) {
 			saveMzRollAllTables();		
+	}
+
+	if (settings->value("closeEvent").toInt() == 1 && doAutosave) {
+		saveMzRollAllTables();
 	}
 }
 
@@ -1462,6 +1468,7 @@ void MainWindow::writeSettings() {
 
 void MainWindow::closeEvent(QCloseEvent *event) {
 	settings->setValue("closeEvent", 1);
+	autosave->saveMzRoll();
 	writeSettings();
 	event->accept();
 
