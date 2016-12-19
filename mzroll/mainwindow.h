@@ -12,7 +12,6 @@
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
 #include "qcustomplot.h"
-#include "isotopicplots.h"
 #include "masscalcgui.h"
 #include "adductwidget.h"
 #include "ligandwidget.h"

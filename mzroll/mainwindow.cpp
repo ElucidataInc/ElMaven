@@ -570,13 +570,14 @@ void MainWindow::setIsotopicPlotStyling() {
 	customPlot->xAxis->setTickLabels( false );
 	customPlot->xAxis->setTicks( false );
 	customPlot->xAxis->setBasePen(QPen(Qt::white));
-	customPlot->xAxis->grid()->setVisible(false);
-	
+	customPlot->xAxis->grid()->setVisible(false);	
 	// prepare y axis:
 	customPlot->yAxis->grid()->setVisible(false);
 	customPlot->yAxis->setTickLabels( false );
 	customPlot->yAxis->setTicks( false );
 	customPlot->yAxis->setBasePen(QPen(Qt::white));
+	customPlot->yAxis->setRange(0, 1);
+	
 }
 
 void MainWindow::reportBugs() {

@@ -165,7 +165,8 @@ void IsotopePlot::showBars() {
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
 
     _mw->setIsotopicPlotStyling();
-    _mw->customPlot->rescaleAxes();
+    //_mw->customPlot->rescaleAxes();
+    _mw->customPlot->xAxis->setRange(-0.5, MM.rows());
 
     disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
@@ -195,8 +196,13 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
             }
         }
         if(!mpMouseText) return;
+        int g = QString::compare(name, labels.at(x), Qt::CaseInsensitive);
+        if(g == 0) {
+            mpMouseText->setText("");
+        } else {
+            mpMouseText->setText(name);
+        }
 
-        mpMouseText->setText(name);
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
     }
     _mw->customPlot->replot();
