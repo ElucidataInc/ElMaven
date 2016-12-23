@@ -715,10 +715,10 @@ bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, f
             * scans.size() + 10;
     }
 
-    this->scannum.reserve(estimatedScans);
-    this->rt.reserve(estimatedScans);
-    this->intensity.reserve(estimatedScans);
-    this->mz.reserve(estimatedScans);
+    this->scannum.resize(estimatedScans);
+    this->rt.resize(estimatedScans);
+    this->intensity.resize(estimatedScans);
+    this->mz.resize(estimatedScans);
 
     scanNum = scanItr - scans.begin() - 1;
 

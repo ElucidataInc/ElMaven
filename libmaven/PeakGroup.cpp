@@ -52,7 +52,7 @@ PeakGroup::PeakGroup()  {
     changePValue=0;
     changeFoldRatio=0;
     //children.reserve(0);
-    peaks.reserve(0);
+    peaks.resize(0);
 }
 
 void PeakGroup::copyObj(const PeakGroup& o)  {

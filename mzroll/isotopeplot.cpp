@@ -101,7 +101,7 @@ void IsotopePlot::showBars() {
         _height = visibleSamplesCount*_barwidth;
     }
 
-    labels.reserve(MM.rows());
+    labels.resize(MM.rows());
     for(int i=0; i<MM.rows(); i++ ) {		//samples
         float sum= MM.row(i).sum();
         if (sum == 0) continue;
