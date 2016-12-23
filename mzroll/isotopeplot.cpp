@@ -124,7 +124,7 @@ void IsotopePlot::showBars() {
     bottomAxisRect = new QCPAxisRect(_mw->customPlot);
 
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
-    isotopesType.reserve(MM.cols());
+    isotopesType.resize(MM.cols());
 
     for(int j=0; j < MM.cols(); j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
