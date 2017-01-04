@@ -1942,6 +1942,8 @@ void MainWindow::Align() {
 	if (sampleCount() < 2)
 		return;
 
+	aligned = true;
+
 	BackgroundPeakUpdate* workerThread = newWorkerThread("alignUsingDatabase");
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
@@ -1995,6 +1997,7 @@ void MainWindow::Align() {
 }
 
 void MainWindow::UndoAlignment() {
+	aligned = false;
 	for (int i = 0; i < samples.size(); i++) {
 		if (samples[i])
 			samples[i]->restoreOriginalRetentionTimes();

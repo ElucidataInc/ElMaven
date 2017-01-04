@@ -116,7 +116,7 @@ public:
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
 	bool allPeaksMarked = false;
-
+	bool aligned = false;
 	map<pair<string,string>, double> deltaRt;
 
 	AutoSave* autosave;
