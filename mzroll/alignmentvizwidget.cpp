@@ -22,21 +22,17 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
         QCPBars *sample = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         sample->setAntialiased(false);
         sample->setPen(QPen(QColor(111, 9, 176).lighter(170)));
-        sample->setBrush(QColor(111, 9, 176));
+        sample->setBrush(QColor(0, 0, 0, 50));
 
         QCPBars *shadow = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         shadow->setAntialiased(false);
-        shadow->setPen(QPen(QColor(111, 9, 176).lighter(170)));
-        shadow->setBrush(QColor(0, 0, 0));
+        shadow->setBrush(QColor(111, 9, 176, 100));
 
         float maxDiff = max(group->medianRt() - group->minRt, group->maxRt - group->medianRt());
 
         double baseValue = retentionTimes[tick] - maxDiff/20;
         double shadowBaseValue = baseValue + _mw->deltaRt[make_pair(group->getName(), samples[tick - 1]->getSampleName())];
 
-        cerr << "group ID " << group->groupId;
-        cerr << endl << "sample Name " << samples[tick - 1]->getSampleName() << endl;
-        cerr << "delta RT " << _mw->deltaRt[make_pair(group->getName(), samples[tick - 1]->getSampleName())] << endl;
 
 
         QVector<double> retentionTimeSolidBar; 
