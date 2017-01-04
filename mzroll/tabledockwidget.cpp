@@ -613,10 +613,14 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         //Updated when csvreports file was merged with Maven776 - Kiran
         csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     }
-    
+
+    QList<PeakGroup*> selectedGroups = getSelectedGroups();
+
     for(int i=0; i<allgroups.size(); i++ ) {
-        PeakGroup& group = allgroups[i];
-        csvreports->addGroup(&group);
+        if (selectedGroups.contains(&allgroups[i])) {
+            PeakGroup& group = allgroups[i];
+            csvreports->addGroup(&group);
+        }
     }
     csvreports->closeFiles();
 }
