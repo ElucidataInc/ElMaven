@@ -16,6 +16,18 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	//store groups into private variable
 	allgroups = peakgroups;
 
+	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+		PeakGroup* grp = allgroups.at(ii);
+		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+			Peak peak = grp->getPeaks().at(jj);
+			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
+		}
+	}
+
+
+	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
+	samples.clear();
+
     samples.clear();
 	set<mzSample*> samplesSet;
 	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
@@ -55,6 +67,15 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 		}
 		R2_before = R2_after;
 	 }
+
+	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+		PeakGroup* grp = allgroups.at(ii);
+		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+			Peak peak = grp->getPeaks().at(jj);
+			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
+		}
+
+	}
 }
 
 

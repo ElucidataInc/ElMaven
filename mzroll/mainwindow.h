@@ -117,6 +117,8 @@ public:
 	int peaksMarked = 0;
 	bool allPeaksMarked = false;
 
+	map<pair<string,string>, double> deltaRt;
+
 	AutoSave* autosave;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database

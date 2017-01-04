@@ -24,15 +24,29 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
         sample->setPen(QPen(QColor(111, 9, 176).lighter(170)));
         sample->setBrush(QColor(111, 9, 176));
 
+        QCPBars *shadow = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
+        shadow->setAntialiased(false);
+        shadow->setPen(QPen(QColor(111, 9, 176).lighter(170)));
+        shadow->setBrush(QColor(0, 0, 0));
+
         float maxDiff = max(group->medianRt() - group->minRt, group->maxRt - group->medianRt());
 
         double baseValue = retentionTimes[tick] - maxDiff/20;
+        double shadowBaseValue = baseValue + _mw->deltaRt[make_pair(group->getName(), samples[tick - 1]->getSampleName())];
+
+        cerr << "group ID " << group->groupId;
+        cerr << endl << "sample Name " << samples[tick - 1]->getSampleName() << endl;
+        cerr << "delta RT " << _mw->deltaRt[make_pair(group->getName(), samples[tick - 1]->getSampleName())] << endl;
+
+
         QVector<double> retentionTimeSolidBar; 
         retentionTimeSolidBar << (2*maxDiff)/20;
         sample->setBaseValue(baseValue);
+        shadow->setBaseValue(shadowBaseValue);
         QVector<double> tickVector;
         tickVector << tick;
         sample->setData(tickVector, retentionTimeSolidBar);
+        shadow->setData(tickVector, retentionTimeSolidBar);
 
     }
 
@@ -92,7 +106,7 @@ QVector<double> AlignmentVizWidget::setYAxis(vector<mzSample*> samples) {
     }
 
     _mw->alignmentVizPlot->yAxis->setTicks(true);
-    _mw->alignmentVizPlot->yAxis->setRange(0, samples.size() + 1);
+    _mw->alignmentVizPlot->yAxis->setRange(-1, samples.size() + 1);
     _mw->alignmentVizPlot->yAxis->setTicker(textTicker);
     _mw->alignmentVizPlot->yAxis->setTickLabelRotation(-20);
     _mw->alignmentVizPlot->yAxis->setTickLabelFont(QFont(QFont().family(), 8));

@@ -21,6 +21,8 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
+    map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
+	map<pair<string, string>, double> deltaRt;
     vector<vector<float> > fit;
     vector<mzSample*> samples;
 

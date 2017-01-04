@@ -460,6 +460,7 @@ void BackgroundPeakUpdate::align() {
                 aligner.setPolymialDegree(
                         mainwindow->alignmentDialog->polynomialDegree->value());
                 aligner.doAlignment(groups);
+                mainwindow->deltaRt = aligner.getDeltaRt();
         }
 }
 
