@@ -11,6 +11,7 @@
 #include "settingsform.h"
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
+#include "alignmentvizwidget.h"
 #include "qcustomplot.h"
 #include "masscalcgui.h"
 #include "adductwidget.h"
@@ -51,6 +52,7 @@ class PeakDetectionDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
+class AlignmentVizWidget;
 class QCustomPlot;
 class IsotopicPlots;
 class AdductWidget;
@@ -126,7 +128,9 @@ public:
 
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
+	AlignmentVizWidget *alignmentVizWidget;
 	QCustomPlot *customPlot;
+	QCustomPlot *alignmentVizPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
 	LigandWidget *ligandWidget;
@@ -137,6 +141,7 @@ public:
 	TreeDockWidget *srmDockWidget;
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
+	QDockWidget *alignmentVizDockWidget;
 	QDockWidget *isotopePlotsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;

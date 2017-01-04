@@ -916,6 +916,7 @@ void TableDockWidget::showSelectedGroup() {
 
     QVariant v = item->data(0,Qt::UserRole);
     PeakGroup*  group =  v.value<PeakGroup*>();
+    _mainwindow->alignmentVizWidget->plotGraph(group);
 
     if ( group != NULL && _mainwindow != NULL) {
         _mainwindow->setPeakGroup(group);

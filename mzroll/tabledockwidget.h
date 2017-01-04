@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "stable.h"
 #include "mainwindow.h"
+#include "alignmentvizwidget.h"
 #include "traindialog.h"
 #include "clusterdialog.h"
 #include "numeric_treewidgetitem.h"
@@ -11,6 +12,7 @@
 #include "saveJson.h"
 
 class MainWindow;
+class AlignmentVizWidget;
 class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
