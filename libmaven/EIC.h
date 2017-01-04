@@ -205,7 +205,7 @@ class EIC {
         inline mzSample* getSample() { return sample; }
 
 
-        static vector<PeakGroup> groupPeaks(vector<EIC*>&eics, int smoothingWindow, float maxRtDiff);
+        static vector<PeakGroup> groupPeaks(vector<EIC*>&eics, int smoothingWindow, float maxRtDiff, double minQuality);
         /**
          * [eicMerge ]
          * @method eicMerge

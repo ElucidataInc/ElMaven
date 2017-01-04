@@ -136,6 +136,8 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	//qDebug << "Integrating area from " << rtmin << " to " << rtmax;
 
 	eicParameters->_integratedGroup.clear();
+	QSettings *settings = getMainWindow()->getSettings();
+	eicParameters->_integratedGroup.minQuality = settings->value("minQuality").toDouble();
 	eicParameters->_integratedGroup.compound = eicParameters->_slice.compound;
 	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
 
@@ -1488,7 +1490,7 @@ void EicWidget::groupPeaks() {
 	float grouping_maxRtWindow =
 			settings->value("grouping_maxRtWindow").toDouble();
 
-	eicParameters->groupPeaks(eic_smoothingWindow, grouping_maxRtWindow);
+	eicParameters->groupPeaks(eic_smoothingWindow, grouping_maxRtWindow, settings->value("minQuality").toDouble());
 }
 
 void EicWidget::print(QPaintDevice* printer) {

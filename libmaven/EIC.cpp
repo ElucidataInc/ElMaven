@@ -545,7 +545,7 @@ void EIC::removeLowRankGroups( vector<PeakGroup>& groups, unsigned int rankLimit
 }
 
 
-vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float maxRtDiff) {
+vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float maxRtDiff, double minQuality) {
     // Merged to 776
 
     //list filled and return by this function
@@ -556,6 +556,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
         EIC* m=eics[0];
         for(unsigned int i=0; i< m->peaks.size(); i++ ) {
             PeakGroup grp;
+            grp.minQuality = minQuality;
             grp.groupId = i;
             grp.addPeak(m->peaks[i]);
             grp.groupStatistics();
@@ -635,6 +636,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float
     
     for(unsigned int i=0; i< pgroups.size(); i++) {
         PeakGroup& grp = pgroups[i];
+            grp.minQuality = minQuality;
             grp.reduce();
             //grp.fillInPeaks(eics);
             //Feng note: fillInPeaks is unecessary

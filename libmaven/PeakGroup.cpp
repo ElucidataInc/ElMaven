@@ -28,6 +28,7 @@ PeakGroup::PeakGroup()  {
     maxSignalBaselineRatio=0;
     maxPeakOverlap=0;
     maxQuality=0;
+    minQuality = 0.2;
 
     expectedRtDiff=-1;
     expectedAbundance=0;
@@ -377,7 +378,7 @@ void PeakGroup::updateQuality() {
     goodPeakCount=0;
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
-        if(peaks[i].quality > 0.5) goodPeakCount++;
+        if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
     }
 }
 
@@ -433,7 +434,7 @@ void PeakGroup::groupStatistics() {
         if(maxMz == 0 || peaks[i].mzmax> maxMz) maxMz = peaks[i].mzmax;
         if(peaks[i].peakAreaFractional > maxPeakFracionalArea) maxPeakFracionalArea=peaks[i].peakAreaFractional;
         if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
-        if(peaks[i].quality > 0.5) goodPeakCount++;
+        if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
         if ( peaks[i].signalBaselineRatio > maxSignalBaselineRatio) maxSignalBaselineRatio =  peaks[i].signalBaselineRatio;
 
 

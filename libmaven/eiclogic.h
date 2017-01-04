@@ -27,7 +27,7 @@ public:
 	}
 
 	PeakGroup* selectGroupNearRt(float rt, PeakGroup* selGroup);
-	void groupPeaks(float eic_smoothingWindow, float grouping_maxRtWindow);
+	void groupPeaks(float eic_smoothingWindow, float grouping_maxRtWindow, double minQuality);
 	mzSlice setMzSlice(float mz, double ppm);
 
 	//	find absolute min and max for extracted ion chromatograms

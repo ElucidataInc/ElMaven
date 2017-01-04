@@ -1393,6 +1393,9 @@ void MainWindow::readSettings() {
 
     if (!settings->contains("minGroupIntensity"))
         settings->setValue("minGroupIntensity", 5000);
+	
+	if (!settings->contains("minQuality"))
+        settings->setValue("minQuality", 0.50);
 
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))

@@ -397,6 +397,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
+        child.minQuality = mavenParameters->minQuality;
         child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
         child.groupId = parentgroup->groupId;
@@ -616,6 +617,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
+        child.minQuality = mavenParameters->minQuality;
         child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
         child.groupId = parentgroup->groupId;
@@ -662,6 +664,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
+        child.minQuality = mavenParameters->minQuality;
         child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
         child.groupId = parentgroup->groupId;
@@ -815,13 +818,16 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                 //for ( unsigned int j=0; j < eics.size(); j++ )	eics[j]->getPeakPositions(eic_smoothingWindow);
                 vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
                                                                mavenParameters->eic_smoothingWindow,
-                                                               mavenParameters->grouping_maxRtWindow);
+                                                               mavenParameters->grouping_maxRtWindow,
+                                                               mavenParameters->minQuality);
 
 		//score quality of each group using classifier
                 vector<PeakGroup*> groupsToAppend;
                 for (int j = 0; j < peakgroups.size(); j++) {
-			PeakGroup& group = peakgroups[j];
+
+                        PeakGroup& group = peakgroups[j];
                         group.setQuantitationType((PeakGroup::QType) mavenParameters->peakQuantitation);
+                        group.minQuality = mavenParameters->minQuality;
                         group.computeAvgBlankArea(eics);
                         group.groupStatistics();
                         groupCount++;

@@ -291,7 +291,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
     int good=0; int bad=0;
     int total=group->peakCount();
     for(int i=0; i < group->peakCount(); i++ ) {
-        group->peaks[i].quality > 0.5 ? good++ : bad++;
+        group->peaks[i].quality > _mainwindow->mavenParameters->minQuality ? good++ : bad++;
     }
 
     QBrush brush=Qt::NoBrush;
@@ -1247,12 +1247,12 @@ float TableDockWidget::showAccuracy(vector<PeakGroup*>&groups) {
                 float q = groups[i]->peaks[j].quality;
                 char  l = groups[i]->peaks[j].label;
                 if (l == 'g' ) gc++;
-                if (l == 'g' && q > 0.5 ) tp++;
-                if (l == 'g' && q < 0.5 ) fn++;
+                if (l == 'g' && q > _mainwindow->mavenParameters->minQuality ) tp++;
+                if (l == 'g' && q < _mainwindow->mavenParameters->minQuality ) fn++;
 
                 if (l == 'b' ) bc++;
-                if (l == 'b' && q < 0.5 ) tn++;
-                if (l == 'b' && q > 0.5 ) fp++;
+                if (l == 'b' && q < _mainwindow->mavenParameters->minQuality ) tn++;
+                if (l == 'b' && q > _mainwindow->mavenParameters->minQuality ) fp++;
                 total++;
             }
         }
@@ -1799,13 +1799,24 @@ void TableDockWidget::loadPeakTable(QString fileName) {
             if (xml.name()=="children")  {
                 if(stack.size() > 0) parent = stack.pop();
                 if(parent && parent->childCount()) {
-                    for(int i=0; i < parent->children.size(); i++ ) parent->children[i].groupStatistics();
+                    for(int i=0; i < parent->children.size(); i++ ) {
+                        parent->children[i].minQuality = _mainwindow->mavenParameters->minQuality;
+                        parent->children[i].groupStatistics();
+                    }
                 }
                 if (stack.size()==0) parent=NULL;  }
-            if (xml.name()=="PeakGroup") { if(group) group->groupStatistics(); group  = NULL; }
+            if (xml.name()=="PeakGroup") { 
+                if(group) {
+                    group->minQuality = _mainwindow->mavenParameters->minQuality;
+                    group->groupStatistics();
+                } 
+                group  = NULL; }
         }
     }
-    for(int i=0; i < allgroups.size(); i++ ) allgroups[i].groupStatistics();
+    for(int i=0; i < allgroups.size(); i++ ) {
+        allgroups[i].minQuality = _mainwindow->mavenParameters->minQuality;
+        allgroups[i].groupStatistics();
+    }
 }
 
 void TableDockWidget::clearClusters() {

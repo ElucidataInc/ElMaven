@@ -96,6 +96,7 @@ class PeakGroup{
         unsigned int maxNoNoiseObs;
         unsigned int  maxPeakOverlap;
         float maxQuality;
+        double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;
         float maxSignalBaselineRatio;

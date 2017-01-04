@@ -989,7 +989,8 @@ void SpectralHitsDockWidget::integrateMS1() {
 
        //qDebug() << "here.. .here.. here " << eics.size();
 
-       vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,eic_smoothingWindow,grouping_maxRtWindow);
+       vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,eic_smoothingWindow,grouping_maxRtWindow,
+       _mainwindow->mavenParameters->minQuality);
 
        PeakGroup* nearestGrp = NULL;
        for(int i=0; i < peakgroups.size();i++ ) {

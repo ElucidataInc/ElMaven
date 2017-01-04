@@ -44,10 +44,10 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
-		float grouping_maxRtWindow) {
+		float grouping_maxRtWindow, double minQuality) {
 
 	peakgroups = EIC::groupPeaks(eics, eic_smoothingWindow,
-			grouping_maxRtWindow);
+			grouping_maxRtWindow, minQuality);
 
 	//keep only top X groups ( ranked by intensity )
 	EIC::removeLowRankGroups(peakgroups, 50);
