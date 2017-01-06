@@ -39,6 +39,7 @@ MavenParameters::MavenParameters() {
         minNoNoiseObs = 1;
         minSignalBaseLineRatio = 2;
         minGroupIntensity = 500;
+        peakQuantitation = 0;
         minQuality = 0.5;
 
         compoundPPMWindow = 10;

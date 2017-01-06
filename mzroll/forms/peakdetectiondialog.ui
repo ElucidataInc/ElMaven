@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="featureSelectionTab">
       <attribute name="title">
@@ -496,6 +496,12 @@
           </item>
           <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="minGroupIntensity">
+            <property name="maximumSize">
+             <size>
+              <width>502</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="showGroupSeparator" stdset="0">
              <bool>true</bool>
             </property>
@@ -525,6 +531,30 @@
             <property name="text">
              <string/>
             </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QComboBox" name="peakQuantitation">
+            <item>
+             <property name="text">
+              <string>AreaTop</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Area</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Height</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>AreaNotCorrected</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

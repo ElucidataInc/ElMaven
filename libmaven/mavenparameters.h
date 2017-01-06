@@ -121,6 +121,7 @@ public:
 	float minNoNoiseObs;
 	float minSignalBaseLineRatio;
 	float minGroupIntensity;
+	int peakQuantitation;
 
 	/**
 	 * eic window around compound, compound detection setting

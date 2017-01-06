@@ -410,8 +410,18 @@ void PeakGroup::groupStatistics() {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
         if(peaks[i].peakIntensity > 0) totalSampleCount++;
 
-        if(peaks[i].peakIntensity>maxIntensity) {
-            maxIntensity = peaks[i].peakIntensity;
+        float max;
+        switch(quantitationType){
+            case AreaTop: max = peaks[i].peakAreaTop; break;
+            case Area: max = peaks[i].peakAreaCorrected; break;
+            case Height: max = peaks[i].peakIntensity; break;
+            case AreaNotCorrected: max = peaks[i].peakArea; break;
+            default: max = peaks[i].peakIntensity; break;
+        }
+
+
+        if(max>maxIntensity) {
+            maxIntensity = max;
             meanMz=peaks[i].baseMz;
             meanRt=peaks[i].rt;
         }

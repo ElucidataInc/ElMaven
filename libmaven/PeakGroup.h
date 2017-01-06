@@ -64,6 +64,8 @@ class PeakGroup{
 
         bool isFocused;
 
+        QType quantitationType;
+
         int groupId;
         int metaGroupId;
 
@@ -256,6 +258,8 @@ class PeakGroup{
          * @param  t       []
          */
         inline void setType(GroupType t)  { _type = t; }
+
+        void setQuantitationType(QType type) {quantitationType = type;}
 
         /**
          * [isIsotope ]

@@ -13,6 +13,9 @@ EIC::EIC() {
     baseline = NULL;
     mzmin = mzmax = rtmin = rtmax = 0;
     maxIntensity=totalIntensity = 0;
+    maxAreaTopIntensity = 0;
+    maxAreaIntensity = 0;
+    maxAreaNotCorrectedIntensity = 0;
     eic_noNoiseObs = 0;
     smootherType = GAUSSIAN;
     baselineSmoothingWindow = 5;
@@ -499,6 +502,16 @@ void EIC::getPeakStatistics() {
     for(unsigned int i=0; i<peaks.size(); i++) {
         findPeakBounds(peaks[i]);
         getPeakDetails(peaks[i]);
+
+        if (peaks[i].peakAreaTop > maxAreaTopIntensity)
+            maxAreaTopIntensity = peaks[i].peakAreaTop;
+
+        if (peaks[i].peakAreaCorrected > maxAreaIntensity)
+            maxAreaIntensity = peaks[i].peakAreaCorrected;
+
+        if (peaks[i].peakArea > maxAreaNotCorrectedIntensity)
+            maxAreaNotCorrectedIntensity = peaks[i].peakArea;
+
     }
 
     //assign peak ranks based on total area of the peak

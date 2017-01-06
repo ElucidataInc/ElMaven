@@ -790,12 +790,22 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->baseline_smoothingWindow,
                                 mavenParameters->baseline_dropTopX);
 
-		float eicMaxIntensity = 0;
+                float eicMaxIntensity = 0;
 
                 for (unsigned int j = 0; j < eics.size(); j++) {
-                        eicCount++;
-                        if (eics[j]->maxIntensity > eicMaxIntensity)
-                                eicMaxIntensity = eics[j]->maxIntensity;
+                    eicCount++;
+                    float max = 0;
+
+                    switch((PeakGroup::QType) mavenParameters->peakQuantitation) {
+                        case PeakGroup::AreaTop: max = eics[j]->maxAreaTopIntensity; break;
+                        case PeakGroup::Area: max =  eics[j]->maxAreaIntensity; break;
+                        case PeakGroup::Height: max = eics[j]->maxIntensity; break;
+                        case PeakGroup::AreaNotCorrected: max = eics[j]->maxAreaNotCorrectedIntensity; break;
+                        default: max = eics[j]->maxAreaTopIntensity; break;
+                    }
+
+                    if (max > eicMaxIntensity)
+                        eicMaxIntensity = max;
                 }
                 if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
                         delete_all(eics);
@@ -811,6 +821,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                 vector<PeakGroup*> groupsToAppend;
                 for (int j = 0; j < peakgroups.size(); j++) {
 			PeakGroup& group = peakgroups[j];
+                        group.setQuantitationType((PeakGroup::QType) mavenParameters->peakQuantitation);
                         group.computeAvgBlankArea(eics);
                         group.groupStatistics();
                         groupCount++;
