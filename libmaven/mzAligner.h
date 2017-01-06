@@ -17,6 +17,7 @@ class Aligner {
     double checkFit();
     void Fit(int ideg);
     void saveFit();
+    void PolyFit(int poly_align_degree);
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }

@@ -1,6 +1,9 @@
 #include "mzAligner.h"
 #include "mzMassSlicer.h"
 #include "mzSample.h"
+#include <cmath>
+#include "PolyAligner.h"
+
 
 Aligner::Aligner() {
 	maxItterations=10;
@@ -10,12 +13,10 @@ Aligner::Aligner() {
 void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	if (peakgroups.size() == 0) return;
 
-	tolerance = 2;
 	//store groups into private variable
 	allgroups = peakgroups;
-	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
-	samples.clear();
 
+    samples.clear();
 	set<mzSample*> samplesSet;
 	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
 			for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
@@ -36,13 +37,14 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	 saveFit();
 	 double R2_before = checkFit();
 
-	 int iter=0;
-     cerr << "Max Itterations: " << maxItterations << endl;
 
-	 while (++iter < maxItterations) {
-        cerr << "Itteration:" << iter << endl;
-        Fit(iter);
+     cerr << "Max Itterations: " << maxItterations << endl;
+     for(int iter=0; iter < maxItterations; iter++) {
+		 cerr << iter << endl;
+
+       PolyFit(polynomialDegree);
         double R2_after = checkFit();
+        cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
 
 		if (R2_after > R2_before) {
             cerr << "done...restoring previous fit.." << endl;
@@ -79,15 +81,7 @@ void Aligner::restoreFit() {
 vector<double> Aligner::groupMeanRt() {
 		//find retention time deviation
 		vector<double> groupRt(allgroups.size());
-		// for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->getCompound()->expectedRt;
-		for (unsigned int i=0; i < allgroups.size(); i++ ) {
-
-			if (abs(allgroups[i]->getCompound()->expectedRt - allgroups[i]->medianRt()) < tolerance){
-				groupRt[i]=allgroups[i]->getCompound()->expectedRt;
-			} else {
-				groupRt[i]=allgroups[i]->medianRt();
-			}
-		}
+		for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
 		return(groupRt);
 }
 
@@ -102,6 +96,65 @@ double Aligner::checkFit() {
 	}
 	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
 	return sumR2;
+}
+
+void Aligner::PolyFit(int poly_align_degree) {
+
+	if (allgroups.size() < 2 ) return;
+	cerr << "Align: " << allgroups.size() << endl;
+
+	vector<double> allGroupsMeansRt  = groupMeanRt();
+
+	for (unsigned int s=0; s < samples.size(); s++ ) {
+			mzSample* sample = samples[s];
+			if (sample == NULL) continue;
+
+			StatisticsVector<float>subj;
+			StatisticsVector<float>ref;
+			int n=0;
+
+            map<int,int>duplicates;
+			for(unsigned int j=0; j < allgroups.size(); j++ ) {
+				Peak* p = allgroups[j]->getPeak(sample);
+				if (!p) continue;
+                if (!p || p->rt <= 0 || allGroupsMeansRt[j] <=0 ) continue;
+
+                int intTime = (int) p->rt*100;
+                duplicates[intTime]++;
+                if ( duplicates[intTime] > 5 ) continue;
+
+                ref.push_back(allGroupsMeansRt[j]);
+				subj.push_back(p->rt);
+				n++; 
+			}
+			if ( n < 10 ) continue;
+
+			PolyAligner polyAligner(subj,ref);
+            AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
+
+           if (stats->transformImproved()) {
+
+                bool failedTransformation=false;
+                for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+                    double newrt =  stats->predict(sample->scans[ii]->rt);
+                    if (std::isnan(newrt) || std::isinf(newrt))  failedTransformation = true;
+                    break;
+                }
+
+                if (!failedTransformation) {
+                    for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+                        sample->scans[ii]->rt = stats->predict(sample->scans[ii]->rt);
+                    }
+
+                    for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
+                        Peak* p = allgroups[ii]->getPeak(sample);
+                        if (p)  p->rt = stats->predict(p->rt);
+                    }
+                }
+            } else 	{
+                cerr << "APPLYTING TRANSFORM FAILED! " << endl;
+            }
+    }
 }
 
 void Aligner::Fit(int ideg) {
@@ -141,15 +194,8 @@ void Aligner::Fit(int ideg) {
                 int intTime = (int) p->rt*100;
                 duplicates[intTime]++;
                 if ( duplicates[intTime] > 5 ) continue;
-				// ref[n] = allgroups[j]->getCompound()->expectedRt;
-				if (abs(allgroups[j]->getCompound()->expectedRt - allgroups[j]->medianRt()) < tolerance){
-					compoundDataRt++;
-					ref[n]=allgroups[j]->getCompound()->expectedRt;
-				} else {
-					medianRt++;
-					ref[n]=allgroups[j]->medianRt();
-				}
-				
+
+				ref[n]=allgroups[j]->medianRt();
 				x[n]=p->rt; 
 
                 diff.push_back(POW2(x[n]-ref[n]));
@@ -157,7 +203,7 @@ void Aligner::Fit(int ideg) {
 			}
 			if ( n == 0 ) continue;
 
-            double meanDiv = diff.mean();
+            //double meanDiv = diff.mean();
             double stdDiv  = diff.stddev();
             if ( stdDiv == 0) continue;
 

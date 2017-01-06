@@ -52,7 +52,8 @@ SOURCES = 	base64.cpp \
                 isotopelogic.cpp \
                 eiclogic.cpp \
                 databases.cpp \
-                Peptide.cpp
+                Peptide.cpp \
+                PolyAligner.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -83,6 +84,7 @@ HEADERS += 	constants.h \
 	            Scan.h \
                 databases.h \
                 Peptide.hpp \
-                PeptideRecord.h
+                PeptideRecord.h \
+                PolyAligner.h
 
 message($$LIBS)
