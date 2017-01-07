@@ -96,6 +96,7 @@ public:
 	AutoSave(QWidget*);
 	void setMainWindow(MainWindow*);
 	bool doAutosave;
+	int askAutosave;
 	QString fileName;
 	QString newFileName;
 	MainWindow* _mainwindow;

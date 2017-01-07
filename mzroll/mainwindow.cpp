@@ -454,6 +454,9 @@ bool MainWindow::askAutosave() {
 
 
 AutoSave::AutoSave(QWidget*){
+
+	doAutosave = false;
+	askAutosave = 0;
 }
 
 
@@ -466,7 +469,8 @@ void AutoSave::saveMzRoll(){
 
     QSettings* settings = _mainwindow->getSettings();
 
-	if (_mainwindow->peaksMarked == 1){
+	if (_mainwindow->peaksMarked == 1 && askAutosave == 0){
+		askAutosave++;
 		doAutosave = _mainwindow->askAutosave();
 		if (doAutosave) saveMzRollAllTables();
 	}
