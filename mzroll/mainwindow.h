@@ -196,7 +196,7 @@ public:
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
-	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons);
+	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
 	void autoSaveSignal();
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile

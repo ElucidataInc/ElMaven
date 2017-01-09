@@ -2649,16 +2649,38 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
 	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+	map<unsigned int, string> carbonIsotopeSpecies;
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
+	string delimIsotopic = "C13-label-";
+	string delimParent = "C12 PARENT";
 	for (int i = 0; i < group->childCountBarPlot(); i++) {
 		if (group->childrenBarPlot[i].isIsotope()) {
 			PeakGroup* isotope = &(group->childrenBarPlot[i]);
 			isotopes.push_back(isotope);
+			cerr << isotope->tagString << endl;
+			//Getting the labels of carbon
+			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
+				if (isotope->tagString.find(delimParent) != string::npos) {
+					carbonIsotopeSpecies.insert(pair<unsigned int, string>(0, isotope->tagString));
+				} else if (isotope->tagString.find(delimIsotopic) != string::npos) {
+					unsigned int carbonLabel = atoi(isotope->tagString.substr(delimIsotopic.size() - (isotope->tagString.size() - delimIsotopic.size() - 1)).c_str());
+					carbonIsotopeSpecies.insert(pair<unsigned int, string>(carbonLabel, isotope->tagString));
+				}
+			}
 		}
 	}
-	std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
+
+	typedef std::map<unsigned int, string>::iterator it_type;
+	for(it_type iterator = carbonIsotopeSpecies.begin(); iterator != carbonIsotopeSpecies.end(); iterator++) {
+		cerr << iterator->first << endl;
+		cerr << iterator->second << endl;
+		// iterator->first = key
+		// iterator->second = value
+		// Repeat if you also want to iterate through the second map.
+	}
+
 
 	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
 	MM.setZero();
@@ -2679,7 +2701,7 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 		numberofCarbons = composition["C"];
 	}
 
-	isotopeC13Correct(MM, numberofCarbons);
+	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
 	return MM;
 }
 
@@ -2689,16 +2711,27 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
 	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+	map<unsigned int, string> carbonIsotopeSpecies;
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
+	string delimIsotopic = "C13-label-";
+	string delimParent = "C12 PARENT";
 	for (int i = 0; i < group->childCount(); i++) {
 		if (group->children[i].isIsotope()) {
 			PeakGroup* isotope = &(group->children[i]);
 			isotopes.push_back(isotope);
+			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
+				if (isotope->tagString.find(delimParent) != string::npos) {
+					carbonIsotopeSpecies.insert(pair<unsigned int, string>(0, isotope->tagString));
+				} else if (isotope->tagString.find(delimIsotopic) != string::npos) {
+					unsigned int carbonLabel = atoi(isotope->tagString.substr(delimIsotopic.size() - (isotope->tagString.size() - delimIsotopic.size() - 1)).c_str());
+					carbonIsotopeSpecies.insert(pair<unsigned int, string>(carbonLabel, isotope->tagString));
+				}
+			}
 		}
 	}
-	std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
+	//std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
 
 	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
 	MM.setZero();
@@ -2719,11 +2752,11 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 		numberofCarbons = composition["C"];
 	}
 
-	isotopeC13Correct(MM, numberofCarbons);
+	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
 	return MM;
 }
 
-void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons) {
+void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies) {
 	if (numberofCarbons == 0)
 		return;
 
@@ -2749,11 +2782,13 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons) {
 				mv[j] /= sum;
 			} //normalize
 			vector<double> cmv = mzUtils::naturalAbundanceCorrection(
-					numberofCarbons, mv);
-
+					numberofCarbons, mv, carbonIsotopeSpecies);
 			for (int j = 0; j < mv.size(); j++) {
-				MM(i, j) = cmv[j];
-
+				if (j <= cmv.size()) {
+					MM(i, j) = cmv[j];
+				} else {
+					MM(i, j) = mv[j];
+				}
 				//cerr << mv[j] << " " << cmv[j] << endl;
 			}
 		}

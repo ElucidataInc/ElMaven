@@ -626,15 +626,17 @@ Series:  Prentice-Hall Series in Automatic Computation
         return outstring;
     }
 
-    std::vector<double> naturalAbundanceCorrection(int nC, std::vector<double>& M) {
+    std::vector<double> naturalAbundanceCorrection(int nC, std::vector<double>& M, std::map<unsigned int, string> carbonIsotopeSpecies) {
         //inputs
         int n = nC;		//number of carbonms
-        int nr_13C=n-1; //number of labeled carbons
+        int nr_13C = n + 1; //number of labeled carbons
 
         //uncorrected values
-        vector<double>C(n,0); // output vector with corrected values
+        vector<double>C(nr_13C,0); // output vector with corrected values
+        vector<double>COriginal(carbonIsotopeSpecies.size(),0); // output vector with corrected values
+        unsigned int carbonIsotopicSpeciesInt = 0;
 
-        for(int k=0; k < nr_13C-1; k++ ) {
+        for(int k=0; k < nr_13C; k++ ) {
             double contamination=0;
 
             for(int i=0; i<k; i++ ) {
@@ -643,9 +645,13 @@ Series:  Prentice-Hall Series in Automatic Computation
 
             C[k] = (M[k]-contamination) / pow(0.989,n-k);
             if(C[k] < 1e-4) C[k]=0;
+
+            if (carbonIsotopeSpecies.find(k) != carbonIsotopeSpecies.end()) {
+                COriginal[carbonIsotopicSpeciesInt++] = C[k];
+            }
         }
 
-        return C;
+        return COriginal;
     }
 
 

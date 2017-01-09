@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <map>
 #include "SavGolSmoother.h"
 #include "csvparser.h"
 #include "statistics.h"
@@ -281,7 +282,7 @@ namespace mzUtils {
     /**
      *
      */
-    vector<double> naturalAbundanceCorrection(int nC, vector<double>& M);
+    vector<double> naturalAbundanceCorrection(int nC, vector<double>& M, map<unsigned int, string> carbonIsotopeSpecies);
 
     /* string functions */
     /**
