@@ -1219,9 +1219,9 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 
 	bool setZValue = false;
 	if (eicParameters->selectedGroup && group == eicParameters->selectedGroup) {
-		sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
 		setZValue = true;
 	}
+	sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
 
 	for (unsigned int i = 0; i < group->peaks.size(); i++) {
 		Peak& peak = group->peaks[i];
