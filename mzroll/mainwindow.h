@@ -12,6 +12,7 @@
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
 #include "alignmentvizwidget.h"
+#include "alignmentvizallgroupswidget.h"
 #include "qcustomplot.h"
 #include "masscalcgui.h"
 #include "adductwidget.h"
@@ -53,6 +54,7 @@ class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
 class AlignmentVizWidget;
+class AlignmentVizAllGroupsWidget;
 class QCustomPlot;
 class IsotopicPlots;
 class AdductWidget;
@@ -131,8 +133,10 @@ public:
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	AlignmentVizWidget *alignmentVizWidget;
+	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
+	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
 	LigandWidget *ligandWidget;
@@ -144,6 +148,7 @@ public:
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
 	QDockWidget *alignmentVizDockWidget;
+	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *isotopePlotsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;

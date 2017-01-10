@@ -531,6 +531,7 @@ void TableDockWidget::showAllGroups() {
     treeWidget->setSortingEnabled(true);
     updateStatus();
 
+    _mainwindow->alignmentVizAllGroupsWidget->plotGraph(allgroups);
     /*
 	if (allgroups.size() > 0 ) { //select last item
 		treeWidget->setCurrentItem(treeWidget->topLevelItem(allgroups.size()-1));

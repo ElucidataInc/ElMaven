@@ -18,7 +18,7 @@ public:
     QString lastOpennedProject;
     QString lastSavedProject;
     QColor  lastUsedSampleColor;
-
+    QMap<mzSample*, QColor> storeSampleColors;
 
 Q_SIGNALS:
 

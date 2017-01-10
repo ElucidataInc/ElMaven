@@ -422,6 +422,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
 		//qDebug() << "SAMPLE COLOR=" << c;
 
+        storeSampleColors[sample] = c;
+
 		sample->color[0] = c.redF();
 		sample->color[1] = c.greenF();
 		sample->color[2] = c.blueF();

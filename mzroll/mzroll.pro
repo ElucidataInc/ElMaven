@@ -109,6 +109,7 @@ HEADERS +=  stable.h \
                     logwidget.h \
                     spectralhit.h \
                     alignmentvizwidget.h \
+                    alignmentvizallgroupswidget.h \
                    spectralhitstable.h\
                     clusterdialog.h \
                     peptidefragmentation.h \
@@ -168,6 +169,7 @@ database.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
  alignmentvizwidget.cpp \
+ alignmentvizallgroupswidget.cpp \
  logwidget.cpp \ 
  peptidefragmentation.cpp \
  qcustomplot.cpp \

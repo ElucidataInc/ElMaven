@@ -193,8 +193,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	setCentralWidget(eicWidgetController());
 	spectraWidget = new SpectraWidget(this);
 	alignmentVizWidget = new AlignmentVizWidget(this);
+	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
 	customPlot = new QCustomPlot(this);
 	alignmentVizPlot = new QCustomPlot(this);
+	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
@@ -216,6 +218,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
 	alignmentVizDockWidget = createDockWidget("AlignmentVisualization", alignmentVizPlot);
+	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
 	isotopePlotsDockWidget = createDockWidget("IsotopePlots", customPlot);
 	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
@@ -230,6 +233,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	setIsotopicPlotStyling();
 
+	// prepare x axis:
 	alignmentVizPlot->xAxis->setTicks(false);
 	alignmentVizPlot->xAxis->setBasePen(QPen(Qt::white));
 	alignmentVizPlot->xAxis->grid()->setVisible(false);	
@@ -237,6 +241,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	alignmentVizPlot->yAxis->setTicks(false);
 	alignmentVizPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizPlot->yAxis->grid()->setVisible(true);
+
+	// prepare x axis:
+	alignmentVizAllGroupsPlot->xAxis->setTicks(false);
+	alignmentVizAllGroupsPlot->xAxis->setBasePen(QPen(Qt::white));
+	alignmentVizAllGroupsPlot->xAxis->grid()->setVisible(false);	
+	// prepare y axis:
+	alignmentVizAllGroupsPlot->yAxis->setTicks(false);
+	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
+	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
 	ligandWidget->setVisible(false);
 	pathwayPanel->setVisible(false);
@@ -249,6 +262,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
 	alignmentVizDockWidget->setVisible(false);
+	alignmentVizAllGroupsDockWidget->setVisible(false);
 	isotopePlotsDockWidget->show();
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
@@ -300,6 +314,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
+	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, adductWidget, Qt::Horizontal);
@@ -327,6 +342,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(spectraDockWidget, isotopeWidget);
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
+	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotsDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
@@ -375,6 +391,7 @@ MainWindow::MainWindow(QWidget *parent) :
     projectDockWidget->raise();
     spectraDockWidget->raise();
 	alignmentVizDockWidget->raise();
+	alignmentVizAllGroupsDockWidget->raise();	
 
 	setIonizationMode(0);
 	if (settings->contains("ionizationMode")) {
@@ -1778,6 +1795,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
     QToolButton* btnAlignmentViz = addDockWidgetButton(sideBar, alignmentVizDockWidget, QIcon(rsrcPath + "/alignmentViz.png"), "Show Alignment Visualization Widget");
+	QToolButton* btnAlignmentVizAllGroups = addDockWidgetButton(sideBar, alignmentVizAllGroupsDockWidget, QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Show Alignment Visualization (for All Groups) Widget");
     QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
@@ -1813,6 +1831,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnLigands);
 	sideBar->addWidget(btnSpectra);
 	sideBar->addWidget(btnAlignmentViz);
+	sideBar->addWidget(btnAlignmentVizAllGroups);
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
