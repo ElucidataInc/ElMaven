@@ -164,7 +164,6 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		_mw->setStatusText(
 				tr("Unknown compound. Clipboard set to %1").arg(
 						group->tagString.c_str()));
-		return;
 	}
 
 	vector<mzSample*> vsamples = _mw->getVisibleSamples();

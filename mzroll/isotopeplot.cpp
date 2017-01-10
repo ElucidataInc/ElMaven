@@ -30,13 +30,17 @@ void IsotopePlot::clear() {
             delete(child);
         }
     }
-    if(mpMouseText) {
-        _mw->customPlot->removeItem(mpMouseText);
+    if (_mw) {
+        if (_mw->customPlot) {
+            if(mpMouseText) {
+                _mw->customPlot->removeItem(mpMouseText);
+            }
+            disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+            _mw->customPlot->plotLayout()->clear();
+            _mw->customPlot->clearPlottables();
+            _mw->customPlot->replot();
+        }
     }
-    disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
-    _mw->customPlot->plotLayout()->clear();
-    _mw->customPlot->clearPlottables();
-    _mw->customPlot->replot();
 }
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
