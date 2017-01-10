@@ -24,6 +24,7 @@ public Q_SLOTS:
     void plotGraph(QList<PeakGroup> allgroups);
     void setXAxis();
     void setYAxis();
+    void setLegend();
 
 private:
     MainWindow* _mw;

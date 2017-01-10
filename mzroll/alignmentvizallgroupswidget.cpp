@@ -47,12 +47,15 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         pen.setColor(color);
         pen.setWidth(1);
         _mw->alignmentVizAllGroupsPlot->graph()->setPen(pen);
+        _mw->alignmentVizAllGroupsPlot->graph()->setName(QString::fromStdString(sample->getSampleName()));
         _mw->alignmentVizAllGroupsPlot->graph()->setLineStyle(QCPGraph::lsLine);
         _mw->alignmentVizAllGroupsPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
         _mw->alignmentVizAllGroupsPlot->graph()->setData(retentionTime[sample], retentionTimeDeviation[sample]);
         _mw->alignmentVizAllGroupsPlot->graph()->rescaleAxes(true);
-
+        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     }
+
+    setLegend();
 }
 
 void AlignmentVizAllGroupsWidget::setXAxis() {
@@ -69,4 +72,19 @@ void AlignmentVizAllGroupsWidget::setYAxis() {
     _mw->alignmentVizAllGroupsPlot->yAxis->setVisible(true);
     _mw->alignmentVizAllGroupsPlot->yAxis->setLabel("Retention Time Deviation");
     _mw->alignmentVizAllGroupsPlot->yAxis->setRange(-0.5, 0.5);
+}
+
+void AlignmentVizAllGroupsWidget::setLegend() {
+
+    QPen pen;
+    QColor color = QColor(0, 0, 0);
+    pen.setColor(color);
+
+    _mw->alignmentVizAllGroupsPlot->legend->setVisible(true);
+    _mw->alignmentVizAllGroupsPlot->legend->setBrush(QColor(255, 255, 255, 100));
+    _mw->alignmentVizAllGroupsPlot->legend->setBorderPen(pen);
+    QFont legendFont("Times", 10);
+    legendFont.setPointSize(10);
+    _mw->alignmentVizAllGroupsPlot->legend->setFont(legendFont);
+
 }
