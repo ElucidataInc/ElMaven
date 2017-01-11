@@ -8,6 +8,7 @@ AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw) {
 
 void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
 
+    connect(_mw->alignmentVizAllGroupsPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     _mw->alignmentVizAllGroupsPlot->clearPlottables();
     setXAxis();
     setYAxis();
@@ -52,7 +53,7 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         _mw->alignmentVizAllGroupsPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
         _mw->alignmentVizAllGroupsPlot->graph()->setData(retentionTime[sample], retentionTimeDeviation[sample]);
         _mw->alignmentVizAllGroupsPlot->graph()->rescaleAxes(true);
-        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
     }
 
     setLegend();
@@ -86,5 +87,63 @@ void AlignmentVizAllGroupsWidget::setLegend() {
     QFont legendFont("Times", 10);
     legendFont.setPointSize(10);
     _mw->alignmentVizAllGroupsPlot->legend->setFont(legendFont);
+    _mw->alignmentVizAllGroupsPlot->legend->setSelectedFont(legendFont);
+    _mw->alignmentVizAllGroupsPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
 
+}
+
+void AlignmentVizAllGroupsWidget::selectionChanged()
+
+{
+    /*
+    normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
+    the user only to be able to select the axis as a whole, so we tie the selected states of the tick labels
+    and the axis base line together. However, the axis label shall be selectable individually.
+    
+    The selection state of the left and right axes shall be synchronized as well as the state of the
+    bottom and top axes.
+    
+    Further, we want to synchronize the selection of the graphs with the selection state of the respective
+    legend item belonging to that graph. So the user can select a graph by either clicking on the graph itself
+    or on its legend item.
+    */
+
+    makeAllGraphsVisible();
+
+    // make top and bottom axes be selected synchronously, and handle axis and tick labels as one selectable object:
+    if (_mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
+        _mw->alignmentVizAllGroupsPlot->xAxis2->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->xAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
+    {
+        _mw->alignmentVizAllGroupsPlot->xAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+        _mw->alignmentVizAllGroupsPlot->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+    }
+    // make left and right axes be selected synchronously, and handle axis and tick labels as one selectable object:
+    if (_mw->alignmentVizAllGroupsPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
+        _mw->alignmentVizAllGroupsPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
+    {
+    _mw->alignmentVizAllGroupsPlot->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+    _mw->alignmentVizAllGroupsPlot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+    }
+
+    // synchronize selection of graphs with selection of corresponding legend items:
+    for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i)
+    {
+        QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
+        QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
+        if (item->selected() || graph->selected())
+        {
+        item->setSelected(true);
+        graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+        }
+        else {
+            _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
+        }
+    }
+}
+
+void AlignmentVizAllGroupsWidget::makeAllGraphsVisible() {
+
+    for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i) {
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(true);
+    }
 }

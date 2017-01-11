@@ -25,6 +25,8 @@ public Q_SLOTS:
     void setXAxis();
     void setYAxis();
     void setLegend();
+    void selectionChanged();
+    void makeAllGraphsVisible();
 
 private:
     MainWindow* _mw;
