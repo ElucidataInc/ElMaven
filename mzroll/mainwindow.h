@@ -186,7 +186,7 @@ public:
 	QProgressBar *progressBar;
 
 	Compound * threadCompound;
- 
+
 
 	int sampleCount() {
 		return samples.size();

@@ -1095,6 +1095,11 @@ void MainWindow::setPathwayFocus(Pathway* p) {
 void MainWindow::setCompoundFocus(Compound*c) {
 	if (c == NULL)
 		return;
+		
+	if (!(isotopeWidget->workerThread->stopped() && isotopeWidget->workerThreadBarplot->stopped())) {
+		threadCompound = c;
+		return;
+	}
 
 		
  	if (!(isotopeWidget->workerThread->stopped() && isotopeWidget->workerThreadBarplot->stopped())) {

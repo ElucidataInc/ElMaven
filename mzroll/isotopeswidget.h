@@ -23,7 +23,9 @@ public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
 	BackgroundPeakUpdate* workerThread;
+
  	BackgroundPeakUpdate* workerThreadBarplot;
+
 
 public Q_SLOTS:
 	void setCharge(double charge);

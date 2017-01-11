@@ -232,10 +232,10 @@ void IsotopeWidget::setClipboard() {
 	}
 	workerThread->stop();
 
- 	if (_mw->threadCompound != NULL) {
- 		_mw->setCompoundFocus(_mw->threadCompound);
- 		_mw->threadCompound = NULL;
- 	}
+	if (_mw->threadCompound != NULL) {
+		_mw->setCompoundFocus(_mw->threadCompound);
+		_mw->threadCompound = NULL;
+	}
 }
 
 void IsotopeWidget::updateIsotopicBarplot() {
@@ -244,10 +244,10 @@ void IsotopeWidget::updateIsotopicBarplot() {
 	}
 	workerThreadBarplot->stop();
 
- 	if (_mw->threadCompound != NULL) {
- 		_mw->setCompoundFocus(_mw->threadCompound);
- 		_mw->threadCompound = NULL;
- 	}
+	if (_mw->threadCompound != NULL) {
+		_mw->setCompoundFocus(_mw->threadCompound);
+		_mw->threadCompound = NULL;
+	}
 }
 
 void IsotopeWidget::setClipboard(QList<PeakGroup*>& groups) {
