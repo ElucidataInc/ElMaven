@@ -135,7 +135,7 @@ private:
           ClusterDialog*       clusterDialog;
           QDialog* 	 filtersDialog;
           QMap<QString, QHistogramSlider*> sliders;
-
+        float rtWindow=2;
           tableViewType viewType;
     
 };

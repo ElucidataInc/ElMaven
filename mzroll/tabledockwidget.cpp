@@ -645,7 +645,7 @@ void TableDockWidget::exportJson() {
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save EICs to Json File"),dir,tr("*.json"));
     if (fileName.isEmpty()) return;
-    if(!fileName.endsWith(".pdf",Qt::CaseInsensitive)) fileName = fileName + ".json";
+    if(!fileName.endsWith(".json",Qt::CaseInsensitive)) fileName = fileName + ".json";
 
     saveEICsJson(fileName.toStdString());    
 }
@@ -657,19 +657,82 @@ void TableDockWidget::saveEICsJson(string filename) {
     
     for (int i = 0; i < allgroups.size(); i++) {
         PeakGroup& grp = allgroups[i];
-        float rtmin = grp.minRt - 3;
-        float rtmax = grp.maxRt + 3;
+        float rtmin = grp.minRt - rtWindow;
+        float rtmax = grp.maxRt + rtWindow;
 
         myfile << "{\n";
-        myfile << "\"groupId\": " << i << "," << endl;
-        myfile << "\"rtmin\": " << rtmin << "," << endl;
-        myfile << "\"rtmax\": " << rtmax << "," << endl;
+        myfile << "\"groupId\": " << i + 1 << "," << endl;
+        myfile << "\"metaGroupId\": " << grp.metaGroupId << "," << endl;
+        myfile << "\"rtmin\": " << grp.minRt << "," << endl;
+        myfile << "\"rtmax\": " << grp.maxRt << "," << endl;
+        myfile << "\"meanMz\": " << grp.meanMz << "," << endl;
+        myfile << "\"meanRt\": " << grp.meanRt << "," << endl;
+        myfile << "\"maxQuality\": " << grp.maxQuality << "," << endl;
+
+        if ( grp.hasCompoundLink() ) {
+
+            myfile << "\"compound\": " << endl;
+            myfile << "{\n";
+
+            string compoundID = grp.compound->id;
+            myfile << "\"compoundId\": " << "\"" << compoundID << "\"," << endl;
+            string compoundName = grp.compound->name;
+            myfile << "\"compoundName\": " << "\"" << compoundName << "\"," << endl;
+
+            myfile << "\"expectedRt\": " << grp.compound->expectedRt << "," << endl;
+
+            double mass = grp.compound->mass;
+            if (grp.compound->formula.empty()) {
+                float formula_mass =  _mainwindow->mavenParameters->mcalc.computeMass(grp.compound->formula,_mainwindow->mavenParameters->ionizationMode);
+                if(formula_mass) mass=formula_mass;
+            }
+            myfile << "\"expectedMz\": " << mass << "," << endl;
+
+            string fullTag = grp.srmId + grp.tagString;
+            string fullName=compoundName;
+            string fullID=compoundID;
+            if (fullTag.length()) {
+                fullName = compoundName + " [" + fullTag + "]";
+                fullID = compoundID + " [" + fullTag + "]";
+            }
+            myfile << "\"fullCompoundName\": " << "\"" << fullName << "\"," << endl;
+            myfile << "\"fullCompoundID\": " << "\"" << fullID << "\"" << endl;
+
+            myfile << "}" << "," << endl; // compound
+        }
+
         myfile << "\"eics\": [ " << endl;
         vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
 
         for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
                 myfile << "{\n";
                 saveEICJson(myfile, eics[j] ); //save EICs
+
+                for (unsigned int ii=0; ii < grp.peaks.size(); ii++) {
+                Peak peak = grp.peaks[ii];
+                    if (peak.getSample() == eics[j]->getSample()) {
+                        myfile << "," <<endl;
+                        myfile << "\"peakMz\": " << peak.peakMz << "," << endl;
+                        myfile << "\"peakQuality\": " << peak.quality << "," << endl;
+                        myfile << "\"medianMz\": " << peak.medianMz << "," << endl;
+                        myfile << "\"baseMz\": " << peak.baseMz << "," << endl;
+                        myfile << "\"mzmin\": " << peak.mzmin << "," << endl;
+                        myfile << "\"mzmax\": " << peak.mzmax << "," << endl;
+                        myfile << "\"rt\": " << peak.rt << "," << endl;
+                        myfile << "\"rtmin\": " << peak.rtmin << "," << endl;
+                        myfile << "\"rtmax\": " << peak.rtmax << "," << endl;
+                        myfile << "\"quality\": " << peak.quality << "," << endl;
+                        myfile << "\"peakIntensity\": " << peak.peakIntensity << "," << endl;
+                        myfile << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel << "," << endl;
+                        myfile << "\"peakArea\": " << peak.peakArea << "," << endl;
+                        myfile << "\"peakAreaTop\": " << peak.peakAreaTop << "," << endl;
+                        myfile << "\"peakAreaCorrected\": " << peak.peakAreaCorrected<< "," << endl;
+                        myfile << "\"noNoiseObs\": " << peak.noNoiseObs << "," << endl;
+                        myfile << "\"signalBaselineRatio\": " << peak.signalBaselineRatio << "," << endl;
+                        myfile << "\"fromBlankSample\": " << peak.fromBlankSample << endl;
+                    }
+                }
+
                 myfile << "}\n";
                 if ( j < ((eics.size() / grp.peaks.size())-1)) myfile << ",\n";
         }
