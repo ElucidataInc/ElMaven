@@ -105,7 +105,7 @@ void PeakDetectionDialog::show() {
     // Thi is merged to 776
     if (mainwindow == NULL) return;
 
-    delete(peakupdater);
+    // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
