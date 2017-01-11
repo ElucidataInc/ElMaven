@@ -22,6 +22,8 @@ Q_OBJECT
 public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
+	BackgroundPeakUpdate* workerThread;
+	BackgroundPeakUpdate* workerThreadBarplot;
 
 public Q_SLOTS:
 	void setCharge(double charge);
@@ -50,8 +52,6 @@ private:
 	  IsotopeLogic* isotopeParameters;
 	  IsotopeLogic* isotopeParametersBarPlot;
       MainWindow* _mw;
-	  BackgroundPeakUpdate* workerThread;
-	  BackgroundPeakUpdate* workerThreadBarplot;
 	  bool bookmarkflag;
 
      QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
