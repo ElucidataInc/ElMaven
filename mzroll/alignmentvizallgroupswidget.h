@@ -27,6 +27,11 @@ public Q_SLOTS:
     void setLegend();
     void selectionChanged();
     void makeAllGraphsVisible();
+    vector<float> generate_bezier(float x1, float y1, float x2, float y2, float x3, float y3);
+    float quadratic_bezier_point(float t, float point_0, float point_1, float point_2);
+    float mid_point(float a, float b);
+    vector<float> populate_bezier(vector<float> xy_points);
+
 
 private:
     MainWindow* _mw;
