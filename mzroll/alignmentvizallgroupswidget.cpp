@@ -57,6 +57,7 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
     }
 
     setLegend();
+    _mw->alignmentVizAllGroupsPlot->replot();
 }
 
 void AlignmentVizAllGroupsWidget::setXAxis() {
