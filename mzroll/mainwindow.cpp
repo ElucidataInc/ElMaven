@@ -188,7 +188,7 @@ using namespace mzUtils;
 	QStringList list = QApplication::libraryPaths();
 	qDebug() << "Library Path=" << list;
 #endif
-
+	threadCompound = NULL;
 	readSettings();
 
 	QString dataDir = ".";
@@ -1090,6 +1090,11 @@ void MainWindow::setPathwayFocus(Pathway* p) {
 void MainWindow::setCompoundFocus(Compound*c) {
 	if (c == NULL)
 		return;
+		
+	if (!(isotopeWidget->workerThread->stopped() && isotopeWidget->workerThreadBarplot->stopped())) {
+		threadCompound = c;
+		return;
+	}
 
 	int charge = 0;
 	if (samples.size() > 0 && samples[0]->getPolarity() > 0)

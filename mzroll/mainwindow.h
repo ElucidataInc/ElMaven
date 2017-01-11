@@ -184,6 +184,8 @@ public:
     Pillow::HttpServer*	  embededhttpserver;
 	QProgressBar *progressBar;
 
+	Compound * threadCompound;
+
 	int sampleCount() {
 		return samples.size();
 	}
