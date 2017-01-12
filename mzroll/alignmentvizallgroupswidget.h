@@ -33,6 +33,7 @@ public Q_SLOTS:
     vector<float> populate_bezier(vector<float> xy_points);
     void setupReset();
     void resetGraph();
+    bool legendSelected();
 
 
 private:

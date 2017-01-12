@@ -153,7 +153,6 @@ void AlignmentVizAllGroupsWidget::selectionChanged()
     or on its legend item.
     */
 
-    makeAllGraphsVisible();
 
     // make top and bottom axes be selected synchronously, and handle axis and tick labels as one selectable object:
     if (_mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
@@ -171,19 +170,40 @@ void AlignmentVizAllGroupsWidget::selectionChanged()
     }
 
     // synchronize selection of graphs with selection of corresponding legend items:
+    if (legendSelected()) {
+        makeAllGraphsVisible();
+        for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i)
+        {
+            QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
+            QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
+            if (item->selected() || graph->selected())
+            {
+                item->setSelected(true);
+                graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+            }
+            else {
+                _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
+            }
+        }
+    } 
+}
+
+
+bool AlignmentVizAllGroupsWidget::legendSelected() {
+
+    bool itemSelected = false;
+
+
     for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i)
     {
         QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
         QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
-        if (item->selected() || graph->selected())
+        if (item->selected())
         {
-        item->setSelected(true);
-        graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
-        }
-        else {
-            _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
+            itemSelected = true;
         }
     }
+    return itemSelected;
 }
 
 void AlignmentVizAllGroupsWidget::makeAllGraphsVisible() {
