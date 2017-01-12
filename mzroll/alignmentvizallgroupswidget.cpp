@@ -9,9 +9,11 @@ AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw) {
 void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
 
     connect(_mw->alignmentVizAllGroupsPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
+    connect(_mw->alignmentVizAllGroupsPlot, SIGNAL(selectionChangedByUser()), this, SLOT(resetGraph()));
     _mw->alignmentVizAllGroupsPlot->clearPlottables();
     setXAxis();
     setYAxis();
+    setupReset();
 
     map<mzSample*, QVector<double> > retentionTime;
     map<mzSample*, QVector<double> > retentionTimeDeviation;
@@ -94,6 +96,28 @@ void AlignmentVizAllGroupsWidget::setYAxis() {
     _mw->alignmentVizAllGroupsPlot->yAxis->setVisible(true);
     _mw->alignmentVizAllGroupsPlot->yAxis->setLabel("Retention Time Deviation");
     _mw->alignmentVizAllGroupsPlot->yAxis->setRange(-0.5, 0.5);
+}
+
+void AlignmentVizAllGroupsWidget::setupReset() {
+    _mw->alignmentVizAllGroupsPlot->addGraph();
+    QPen pen;
+    QColor color = QColor(0,0,0);
+    pen.setColor(color);
+    pen.setWidth(1);
+    _mw->alignmentVizAllGroupsPlot->graph()->setPen(pen);
+    _mw->alignmentVizAllGroupsPlot->graph()->setName("Reset");
+    _mw->alignmentVizAllGroupsPlot->graph()->setLineStyle(QCPGraph::lsLine);
+
+}
+
+void AlignmentVizAllGroupsWidget::resetGraph() {
+
+    QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(0);
+    QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
+    if (item->selected())
+    {
+        makeAllGraphsVisible();
+    }
 }
 
 void AlignmentVizAllGroupsWidget::setLegend() {

@@ -31,6 +31,8 @@ public Q_SLOTS:
     float quadratic_bezier_point(float t, float point_0, float point_1, float point_2);
     float mid_point(float a, float b);
     vector<float> populate_bezier(vector<float> xy_points);
+    void setupReset();
+    void resetGraph();
 
 
 private:
