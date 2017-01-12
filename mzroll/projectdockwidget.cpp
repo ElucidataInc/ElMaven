@@ -751,9 +751,9 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     stream.writeEndElement();
 
     stream.writeStartElement("database");
-
+    
     string dbname = _mainwindow->ligandWidget->getDatabaseName().toStdString();
-
+    stream.writeAttribute("name",  dbname.c_str());
     for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
         Compound* compound = DB.compoundsDB[i];
         if(compound->db != dbname ) continue; //skip compounds from other databases
@@ -777,21 +777,12 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
             stream.writeEndElement();
         }
 
-        // if (compound->fragment_mzs.size()) {
-        //     QStringList mzList;
-        //     for(unsigned int i=0; i<compound->fragment_mzs.size();i++) {
-        //         mzList << QString::number(compound->fragment_mzs[i],'f',2);
-        //     }
-        //     QTreeWidgetItem* child = addItem(parent,"Fragments",compound->fragment_mzs[0]);
-        //     child->setText(1,mzList.join(";"));
-        // }
-
         stream.writeEndElement();
     }
 
 
 
-    stream.writeEndElement();    
+    stream.writeEndElement();   
     stream.writeStartElement("projectDescription");
     stream.writeCharacters(getProjectDescription());
     stream.writeEndElement();

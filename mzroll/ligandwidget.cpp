@@ -130,6 +130,57 @@ QTreeWidgetItem* LigandWidget::addItem(QTreeWidgetItem* parentItem, string key ,
 	return item;
 }
 
+void LigandWidget::loadCompoundDBMzroll(QString fileName) {
+
+
+    QFile data(fileName);
+    if ( !data.open(QFile::ReadOnly) ) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open: " + fileName + " failed");
+        return;
+    }
+    cerr << "wefwe" << endl;
+    QXmlStreamReader xml(&data);
+
+    // PeakGroup* group=NULL;
+    // PeakGroup* parent=NULL;
+    // QStack<PeakGroup*>stack;
+
+    // while (!xml.atEnd()) {
+    //     cerr << "efwef" << endl;
+    //     xml.readNext();
+    //     if (xml.isStartElement()) {
+    //         if (xml.name() == "compound") { readCompoundXML(xml); }
+    //         // if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
+    //         // if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
+    //     }
+
+    //     // if (xml.isEndElement()) {
+    //     //     if (xml.name()=="children")  {
+    //     //         if(stack.size() > 0) parent = stack.pop();
+    //     //         if(parent && parent->childCount()) {
+    //     //             for(int i=0; i < parent->children.size(); i++ ) parent->children[i].groupStatistics();
+    //     //         }
+    //     //         if (stack.size()==0) parent=NULL;  }
+    //     //     //if (xml.name()=="PeakGroup") { if(group) group->groupStatistics(); group  = NULL; }
+    //     // }
+    // }
+    //for(int i=0; i < allgroups.size(); i++ ) allgroups[i].groupStatistics();
+}
+
+void LigandWidget::readCompoundXML(QXmlStreamReader& xml) {
+
+    xml.attributes().value("compound").toString().toStdString();
+    xml.attributes().value("name").toString().toStdString();
+    xml.attributes().value("m/z").toString().toFloat();
+    xml.attributes().value("rt").toString().toFloat();
+    xml.attributes().value("Charge").toString().toInt();
+    xml.attributes().value("Formula").toString().toStdString();
+    xml.attributes().value("Precursor Mz").toString().toStdString();
+    xml.attributes().value("Product Mz").toString().toStdString();
+    xml.attributes().value("Collision Energy").toString().toFloat();
+}
+
 void LigandWidget::setDatabase(QString dbname) {
    int currentIndex = databaseSelect->currentIndex();
    int index = databaseSelect->findText(dbname,Qt::MatchExactly);

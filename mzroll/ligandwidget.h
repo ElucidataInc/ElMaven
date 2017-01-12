@@ -56,6 +56,7 @@ public:
     void setDatabaseAltered(QString dbame,bool altered);
     //Added when merged with Maven776 - Kiran
 	Compound* getSelectedCompound();
+    void loadCompoundDBMzroll(QString fileName);
 
 public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
@@ -102,6 +103,7 @@ private:
     QString filterString;
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
+    void readCompoundXML(QXmlStreamReader& xml);
 
     //fetching of compounds from remote database
     //Added when merged with Maven776- Kiran
