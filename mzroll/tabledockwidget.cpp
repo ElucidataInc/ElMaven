@@ -754,6 +754,10 @@ void TableDockWidget::saveEICJson(ofstream& out, EIC* eic) {
     int count = 0;
 
         out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
+        out << "\"colorRed\":" << "\"" << eic->getSample()->color[0] << "\"," << endl;
+        out << "\"colorBlue\":" << "\"" << eic->getSample()->color[1] << "\"," << endl;
+        out << "\"colorGreen\":" << "\"" << eic->getSample()->color[2] << "\"," << endl;
+        out << "\"colorAlpha\":" << "\"" << eic->getSample()->color[3] << "\"," << endl;
         out << "\"data\": [";
         out << setprecision(4);
         for(int i=0; i<N; i++) { 
