@@ -715,6 +715,8 @@ void TableDockWidget::saveEICsJson(string filename) {
                         myfile << "," <<endl;
                         myfile << "\"peakMz\": " << peak.peakMz << "," << endl;
                         myfile << "\"peakQuality\": " << peak.quality << "," << endl;
+                        myfile << "\"peakAreaFractional\": " << peak.peakAreaFractional << "," << endl;
+                        myfile << "\"symmetry\": " << peak.symmetry << "," << endl;
                         myfile << "\"medianMz\": " << peak.medianMz << "," << endl;
                         myfile << "\"baseMz\": " << peak.baseMz << "," << endl;
                         myfile << "\"mzmin\": " << peak.mzmin << "," << endl;
@@ -724,10 +726,16 @@ void TableDockWidget::saveEICsJson(string filename) {
                         myfile << "\"rtmax\": " << peak.rtmax << "," << endl;
                         myfile << "\"peakIntensity\": " << peak.peakIntensity << "," << endl;
                         myfile << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel << "," << endl;
+                        myfile << "\"groupOverlap\": " << peak.groupOverlap << "," << endl;
+                        myfile << "\"groupOverlapFrac\": " << peak.groupOverlapFrac << "," << endl;
+                        myfile << "\"gaussFitR2\": " << peak.gaussFitR2 << "," << endl;
+                        myfile << "\"peakRank\": " << peak.peakRank << "," << endl;
+                        myfile << "\"gaussFitSigma\": " << peak.gaussFitSigma << "," << endl;
                         myfile << "\"peakArea\": " << peak.peakArea << "," << endl;
                         myfile << "\"peakAreaTop\": " << peak.peakAreaTop << "," << endl;
                         myfile << "\"peakAreaCorrected\": " << peak.peakAreaCorrected<< "," << endl;
                         myfile << "\"noNoiseObs\": " << peak.noNoiseObs << "," << endl;
+                        myfile << "\"noNoiseFraction\": " << peak.noNoiseFraction << "," << endl;
                         myfile << "\"signalBaselineRatio\": " << peak.signalBaselineRatio << "," << endl;
                         myfile << "\"fromBlankSample\": " << peak.fromBlankSample << endl;
                     }
