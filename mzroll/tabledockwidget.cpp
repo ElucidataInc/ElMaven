@@ -662,6 +662,7 @@ void TableDockWidget::saveEICsJson(string filename) {
 
         myfile << "{\n";
         myfile << "\"groupId\": " << i + 1 << "," << endl;
+        myfile << "\"label\": " << "\"" << grp.label << "\"," << endl;
         myfile << "\"metaGroupId\": " << grp.metaGroupId << "," << endl;
         myfile << "\"rtmin\": " << grp.minRt << "," << endl;
         myfile << "\"rtmax\": " << grp.maxRt << "," << endl;
@@ -753,7 +754,7 @@ void TableDockWidget::saveEICJson(ofstream& out, EIC* eic) {
     int N = eic->rt.size();
     int count = 0;
 
-        out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
+        out << "\"sampleName\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
         out << "\"colorRed\":" << "\"" << eic->getSample()->color[0] << "\"," << endl;
         out << "\"colorBlue\":" << "\"" << eic->getSample()->color[1] << "\"," << endl;
         out << "\"colorGreen\":" << "\"" << eic->getSample()->color[2] << "\"," << endl;
