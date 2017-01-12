@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	readSettings();
 
 	QString dataDir = ".";
+	unloadableFiles.reserve(50);
 
 	
 	QList<QString> dirs;
@@ -436,6 +437,22 @@ MainWindow::MainWindow(QWidget *parent) :
 	settings->setValue("closeEvent", 0);
 
 	peakDetectionDialog->setMavenParameters(settings);
+
+				
+    if (unloadableFiles.size() > 0) {
+
+		string filesNames = "";
+		for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
+		filesNames += "\n" + *it ;
+
+		QMessageBox* msgBox = new QMessageBox( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		msgBox->setStandardButtons( QMessageBox::Ok );
+		msgBox->setIcon(QMessageBox::Warning);
+		msgBox->setText(tr("Trouble in loading compound database files: %1").arg(QString::fromStdString(filesNames)));
+		msgBox->setModal( false );
+		msgBox->open();
+    }
 }
 
 bool MainWindow::askAutosave() {
@@ -1097,7 +1114,7 @@ void MainWindow::loadModel() {
 		clsf->loadModel(filelist[0].toStdString());
 }
 
-void MainWindow::loadCompoundsFile(QString filename) {
+bool MainWindow::loadCompoundsFile(QString filename) {
 
 	string dbfilename = filename.toStdString();
 	string dbname = mzUtils::cleanFilename(dbfilename);
@@ -1120,11 +1137,11 @@ void MainWindow::loadCompoundsFile(QString filename) {
 			ligandWidget->setDatabase(QString(dbname.c_str()));
 
 		settings->setValue("lastDatabaseFile", filename);
-		setStatusText(
-			tr("loadCompounds: done after loading %1 compounds").arg(
-					QString::number(compoundCount)));
+		setStatusText(tr("loadCompounds: done after loading %1 compounds").arg(QString::number(compoundCount)));
+		return true;
 	} else {
 		setStatusText(tr("loadCompounds: not able to load %1 database").arg(filename));
+		return false;
 	}
 }
 
@@ -1135,19 +1152,29 @@ void MainWindow::loadCompoundsFile() {
 					"All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML *.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*.massbank");
 
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
-    loadCompoundsFile(filelist[0]);
+	if(!loadCompoundsFile(filelist[0])) {
+		string dbfilename = filelist[0].toStdString();
+		string dbname = mzUtils::cleanFilename(dbfilename);
+
+		QMessageBox msgBox;
+		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
+		msgBox.setIcon(QMessageBox::Warning);
+		int ret = msgBox.exec();
+	}
 }
 
 void MainWindow::loadMethodsFolder(QString& methodsFolder) {
-	cerr << "LOADING METHODS FROM:" << methodsFolder.toStdString() << endl;
 	QDir dir(methodsFolder);
 	if (dir.exists()) {
 		dir.setFilter(QDir::Files);
 		QFileInfoList list = dir.entryInfoList();
 		for (int i = 0; i < list.size(); ++i) {
 			QFileInfo fileInfo = list.at(i);
-			//std::cerr << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName())) << endl;
-			loadCompoundsFile(fileInfo.absoluteFilePath());
+			if (!loadCompoundsFile(fileInfo.absoluteFilePath())){
+				string dbfilename = fileInfo.absoluteFilePath().toStdString();
+				string dbname = mzUtils::cleanFilename(dbfilename);
+				unloadableFiles.push_back(dbname);
+			}
 		}
 	}
 }

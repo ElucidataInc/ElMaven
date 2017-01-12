@@ -497,8 +497,6 @@ int Database::loadCompoundCSVFile(string filename){
                 fields[i] = makeLowerCase(fields[i]);
                 if (find(allHeaders.begin(), allHeaders.end(), fields[i]) != allHeaders.end()) {
                     header[fields[i]] = i;
-                } else {
-                    return 0;
                 }
             }
             continue;

@@ -242,7 +242,7 @@ public Q_SLOTS:
 	void setMzValue(float mz);
 	void loadModel();
 	void loadCompoundsFile();
-	void loadCompoundsFile(QString filename);
+	bool loadCompoundsFile(QString filename);
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 
@@ -336,6 +336,8 @@ private:
 	double _ppmWindow;
 
 	QToolBar* sideBar;
+
+	vector<string> unloadableFiles;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 
