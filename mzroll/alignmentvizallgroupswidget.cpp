@@ -176,7 +176,7 @@ void AlignmentVizAllGroupsWidget::selectionChanged()
         {
             QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
             QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
-            if (item->selected() || graph->selected())
+            if (item->selected())
             {
                 item->setSelected(true);
                 graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
@@ -184,7 +184,7 @@ void AlignmentVizAllGroupsWidget::selectionChanged()
             else {
                 _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
             }
-        }
+        }        
     } 
 }
 
