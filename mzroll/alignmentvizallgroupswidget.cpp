@@ -180,6 +180,8 @@ void AlignmentVizAllGroupsWidget::selectionChanged()
             {
                 item->setSelected(true);
                 graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+                QCPSelectionDecorator* decorator;
+                graph->setSelectionDecorator(decorator);
             }
             else {
                 _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
