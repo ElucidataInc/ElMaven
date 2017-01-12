@@ -76,6 +76,7 @@ Q_SIGNALS:
     void urlChanged(QString url);
     void compoundFocused(Compound* c);
     void databaseChanged(QString dbname);
+    void mzrollSetDB(QString dbname);
 
 private Q_SLOTS:
     void showLigand();
@@ -103,7 +104,7 @@ private:
     QString filterString;
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
-    void readCompoundXML(QXmlStreamReader& xml);
+    void readCompoundXML(QXmlStreamReader& xml, string dbname);
 
     //fetching of compounds from remote database
     //Added when merged with Maven776- Kiran

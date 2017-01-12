@@ -84,6 +84,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   // Fetches and reads compounds from a remote location when fetch button is clicked - Kiran
   disconnect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()));
   connect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()),this,SLOT(fetchRemoteCompounds()));
+  connect(this, SIGNAL(mzrollSetDB(QString)), _mw, SLOT(mzrollLoadDB(QString)));
 
   m_manager = new QNetworkAccessManager(this);
   connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
@@ -139,46 +140,54 @@ void LigandWidget::loadCompoundDBMzroll(QString fileName) {
         errDialog.showMessage("File open: " + fileName + " failed");
         return;
     }
-    cerr << "wefwe" << endl;
+
     QXmlStreamReader xml(&data);
 
-    // PeakGroup* group=NULL;
-    // PeakGroup* parent=NULL;
-    // QStack<PeakGroup*>stack;
+    string dbname = "";
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            if (xml.name() == "database") {
+                dbname = xml.attributes().value("name").toString().toStdString();
+            }
+            if (xml.name() == "compound") { readCompoundXML(xml, dbname); }
+        }
+     }
+     sort(DB.compoundsDB.begin(),DB.compoundsDB.end(), Compound::compMass);
 
-    // while (!xml.atEnd()) {
-    //     cerr << "efwef" << endl;
-    //     xml.readNext();
-    //     if (xml.isStartElement()) {
-    //         if (xml.name() == "compound") { readCompoundXML(xml); }
-    //         // if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
-    //         // if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
-    //     }
-
-    //     // if (xml.isEndElement()) {
-    //     //     if (xml.name()=="children")  {
-    //     //         if(stack.size() > 0) parent = stack.pop();
-    //     //         if(parent && parent->childCount()) {
-    //     //             for(int i=0; i < parent->children.size(); i++ ) parent->children[i].groupStatistics();
-    //     //         }
-    //     //         if (stack.size()==0) parent=NULL;  }
-    //     //     //if (xml.name()=="PeakGroup") { if(group) group->groupStatistics(); group  = NULL; }
-    //     // }
-    // }
-    //for(int i=0; i < allgroups.size(); i++ ) allgroups[i].groupStatistics();
+     Q_EMIT(mzrollSetDB( QString::fromStdString(dbname)));
 }
 
-void LigandWidget::readCompoundXML(QXmlStreamReader& xml) {
+void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
+    if(dbname == "") return;
+    string id, name, formula;
+    float rt=0;
+    float mz=0;
+    float charge=0;
+    float collisionenergy=0;
+    float precursormz=0;
+    float productmz=0;
 
-    xml.attributes().value("compound").toString().toStdString();
-    xml.attributes().value("name").toString().toStdString();
-    xml.attributes().value("m/z").toString().toFloat();
-    xml.attributes().value("rt").toString().toFloat();
-    xml.attributes().value("Charge").toString().toInt();
-    xml.attributes().value("Formula").toString().toStdString();
-    xml.attributes().value("Precursor Mz").toString().toStdString();
-    xml.attributes().value("Product Mz").toString().toStdString();
-    xml.attributes().value("Collision Energy").toString().toFloat();
+    id = xml.attributes().value("id").toString().toStdString();
+    name = xml.attributes().value("name").toString().toStdString();
+    mz = xml.attributes().value("mz").toString().toFloat();
+    rt = xml.attributes().value("rt").toString().toFloat();
+    charge = xml.attributes().value("Charge").toString().toInt();
+    formula = xml.attributes().value("Formula").toString().toStdString();
+    precursormz = xml.attributes().value("Precursor Mz").toString().toFloat();
+    productmz = xml.attributes().value("Product Mz").toString().toFloat();
+    collisionenergy = xml.attributes().value("Collision Energy").toString().toFloat();
+
+    Compound* compound = new Compound(id,name,formula,charge);
+    compound->expectedRt = rt;
+    compound->mass = mz;
+    compound->db = dbname;
+    compound->precursorMz=precursormz;
+    compound->productMz=productmz;
+    compound->collisionEnergy=collisionenergy;
+    DB.addCompound(compound);
+
+
 }
 
 void LigandWidget::setDatabase(QString dbname) {

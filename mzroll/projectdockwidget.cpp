@@ -748,7 +748,17 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
         stream.writeEndElement();
 
     }
+    stream.writeEndElement(); 
+    
+    stream.writeStartElement("projectDescription");
+    stream.writeCharacters(getProjectDescription());
     stream.writeEndElement();
+
+    if( peakTable ){
+         peakTable->writePeakTableXML(stream);
+    } else {
+        _mainwindow->bookmarkedPeaks->writePeakTableXML(stream);
+    }
 
     stream.writeStartElement("database");
     
@@ -759,8 +769,9 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
         if(compound->db != dbname ) continue; //skip compounds from other databases
 
         stream.writeStartElement("compound");
+        stream.writeAttribute("id",  compound->id.c_str());
         stream.writeAttribute("name",  compound->name.c_str());
-        stream.writeAttribute("m/z", QString::number(compound->mass));
+        stream.writeAttribute("mz", QString::number(compound->mass));
         if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt));
 
         if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
@@ -779,20 +790,8 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
         stream.writeEndElement();
     }
-
-
-
-    stream.writeEndElement();   
-    stream.writeStartElement("projectDescription");
-    stream.writeCharacters(getProjectDescription());
-    stream.writeEndElement();
-
-    if( peakTable ){
-         peakTable->writePeakTableXML(stream);
-    } else {
-        _mainwindow->bookmarkedPeaks->writePeakTableXML(stream);
-    }
-
+    stream.writeEndElement();  
+    
     stream.writeEndElement();
     QSettings* settings = _mainwindow->getSettings();
     settings->setValue("lastSavedProject", filename);

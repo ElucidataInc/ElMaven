@@ -246,6 +246,8 @@ public Q_SLOTS:
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 
+    void mzrollLoadDB(QString dbname);
+	
 	bool addSample(mzSample* sample);
         // void compoundDatabaseSearch();
         void showPeakdetectionDialog();  // TODO: Sahil - Kiran, Added while

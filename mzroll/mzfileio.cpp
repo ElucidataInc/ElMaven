@@ -510,9 +510,9 @@ void mzFileIO::fileImport(void) {
     }
 
     Q_FOREACH(QString filename, projects ) {
+        _mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
         _mainwindow->projectDockWidget->loadProject(filename);
-        //_mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
-        _mainwindow->bookmarkedPeaks->loadPeakTable(filename);        
+        _mainwindow->bookmarkedPeaks->loadPeakTable(filename); 
     }
 
     Q_FOREACH(QString filename, peaks ) {

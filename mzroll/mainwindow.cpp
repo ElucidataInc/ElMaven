@@ -584,6 +584,10 @@ void MainWindow::setIsotopicPlotStyling() {
 	
 }
 
+void MainWindow::mzrollLoadDB(QString dbname) {
+	ligandWidget->setDatabaseNames();
+    ligandWidget->setDatabase(dbname);
+}
 void MainWindow::reportBugs() {
 	QUrl link("https://github.com/ElucidataInc/ElMaven/issues");
 	QDesktopServices::openUrl(link);
