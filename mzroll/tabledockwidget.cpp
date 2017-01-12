@@ -721,7 +721,6 @@ void TableDockWidget::saveEICsJson(string filename) {
                         myfile << "\"rt\": " << peak.rt << "," << endl;
                         myfile << "\"rtmin\": " << peak.rtmin << "," << endl;
                         myfile << "\"rtmax\": " << peak.rtmax << "," << endl;
-                        myfile << "\"quality\": " << peak.quality << "," << endl;
                         myfile << "\"peakIntensity\": " << peak.peakIntensity << "," << endl;
                         myfile << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel << "," << endl;
                         myfile << "\"peakArea\": " << peak.peakArea << "," << endl;
