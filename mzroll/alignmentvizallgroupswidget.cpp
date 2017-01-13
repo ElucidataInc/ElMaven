@@ -22,8 +22,8 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         for(unsigned int i=0;i<grp.getPeaks().size();i++) {
             Peak peak = grp.getPeaks().at(i);
             mzSample* sample = peak.getSample();
-            retentionTime[sample] << peak.rt*60;
-            retentionTimeDeviation[sample] << peak.rt*60 - grp.medianRt()*60;
+            retentionTime[sample] << peak.rt;
+            retentionTimeDeviation[sample] << peak.rt - grp.medianRt();
         }
     }
 
@@ -73,9 +73,9 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
             rtDeviation << vertices[j+1];
         }
         
-        _mw->alignmentVizAllGroupsPlot->graph()->setData(rt, rtDeviation);
+        _mw->alignmentVizAllGroupsPlot->graph()->setData(retentionTime[sample], retentionTimeDeviation[sample]);
         _mw->alignmentVizAllGroupsPlot->graph()->rescaleAxes(true);
-        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
+        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend);
     }
 
     setLegend();
