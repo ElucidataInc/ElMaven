@@ -241,12 +241,12 @@
        <widget class="QComboBox" name="peakDetectionAlgo">
         <item>
          <property name="text">
-          <string>Targeted Peak Detection</string>
+          <string>Compound Database Search</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Untargeted Peak Detection</string>
+          <string>Automated Peak Detection</string>
          </property>
         </item>
        </widget>

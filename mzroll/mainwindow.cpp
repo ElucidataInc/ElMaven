@@ -1973,7 +1973,7 @@ void MainWindow::Align() {
 	aligned = true;
 
 	BackgroundPeakUpdate* workerThread;
-	if (alignmentDialog->peakDetectionAlgo->currentText() == "Targeted Peak Detection") {
+	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
 		mavenParameters->setCompounds(DB.getCopoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
 
