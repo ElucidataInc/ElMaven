@@ -290,6 +290,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
+	alignmentDialog->setMainWindow(this);
 	connect(alignmentDialog->alignButton, SIGNAL(clicked()), SLOT(Align()));
 	connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
 			SLOT(UndoAlignment()));
@@ -430,13 +431,18 @@ MainWindow::MainWindow(QWidget *parent) :
 			if (testf.exists())
 				loadCompoundsFile(lfile);
 		}
-
+		QString databaseSet;
 		if (settings->contains("lastCompoundDatabase")) {
 			ligandWidget->setDatabase(
 					settings->value("lastCompoundDatabase").toString());
+			databaseSet = settings->value("lastCompoundDatabase").toString();
 		} else {
 			ligandWidget->setDatabase("KNOWNS");
+			databaseSet = "KNOWNS";
 		}
+		alignmentDialog->setDatabase();
+		alignmentDialog->setDatabase(databaseSet);
+
 	}
 
 	setAcceptDrops(true);
@@ -1963,7 +1969,15 @@ void MainWindow::Align() {
 
 	aligned = true;
 
-	BackgroundPeakUpdate* workerThread = newWorkerThread("alignUsingDatabase");
+	BackgroundPeakUpdate* workerThread;
+	if (alignmentDialog->peakDetectionAlgo->currentText() == "Targeted Peak Detection") {
+		workerThread = newWorkerThread("alignUsingDatabase");
+		mavenParameters->setCompounds(DB.getCopoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
+
+	} else {
+		workerThread = newWorkerThread("processMassSlices");
+	}
+
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
 
@@ -2002,7 +2016,6 @@ void MainWindow::Align() {
 
 	mavenParameters->samples = getSamples();
 	mavenParameters->stop = false;
-	mavenParameters->setCompounds(DB.getCopoundsSubset(ligandWidget->getDatabaseName().toStdString()));
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
 

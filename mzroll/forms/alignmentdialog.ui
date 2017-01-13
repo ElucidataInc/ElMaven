@@ -6,14 +6,74 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
-    <height>429</height>
+    <width>520</width>
+    <height>547</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Alignment Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1" rowspan="2">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Alignment Algorithm</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="maxItterations">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Polynomial Degree</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="polynomialDegree">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="alignButton">
+        <property name="text">
+         <string>Align</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Maximum Number of Itterations</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QToolButton" name="UndoAlignment">
+     <property name="text">
+      <string>Undo Aligment</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -94,6 +154,12 @@
    </item>
    <item row="1" column="1">
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Peak Selection</string>
      </property>
@@ -164,67 +230,38 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>Alignment Algorithm</string>
-     </property>
-     <layout class="QFormLayout" name="formLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_7">
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>Maximum Number of Itterations</string>
+         <string>Peak Detection Algorithm</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="maxItterations">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="peakDetectionAlgo">
+        <item>
+         <property name="text">
+          <string>Targeted Peak Detection</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Untargeted Peak Detection</string>
+         </property>
+        </item>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
+      <item row="6" column="0">
+       <widget class="QLabel" name="selectDatabase">
         <property name="text">
-         <string>Polynomial Degree</string>
+         <string>Select Database</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="polynomialDegree">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>5</number>
-        </property>
-        <property name="value">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="alignButton">
-        <property name="text">
-         <string>Align</string>
-        </property>
-       </widget>
+      <item row="6" column="1">
+       <widget class="QComboBox" name="selectDatabaseComboBox"/>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QToolButton" name="UndoAlignment">
-     <property name="text">
-      <string>Undo Aligment</string>
-     </property>
     </widget>
    </item>
   </layout>
