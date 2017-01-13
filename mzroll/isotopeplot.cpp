@@ -108,9 +108,9 @@ void IsotopePlot::showBars() {
     labels.resize(0);
     for(int i=0; i<MM.rows(); i++ ) {		//samples
         float sum= MM.row(i).sum();
+        labels << QString::fromStdString(_samples[i]->sampleName.c_str());
         if (sum == 0) continue;
         MM.row(i) /= sum;
-        labels << QString::fromStdString(_samples[i]->sampleName.c_str());
         //ticks << i ;
     }
 
