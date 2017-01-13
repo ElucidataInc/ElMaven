@@ -662,7 +662,9 @@ void TableDockWidget::saveEICsJson(string filename) {
 
         myfile << "{\n";
         myfile << "\"groupId\": " << i + 1 << "," << endl;
-        myfile << "\"label\": " << "\"" << grp.label << "\"," << endl;
+        if (grp.label) {
+            myfile << "\"label\": " << "\"" << grp.label << "\"," << endl;
+        }
         myfile << "\"metaGroupId\": " << grp.metaGroupId << "," << endl;
         myfile << "\"rtmin\": " << grp.minRt << "," << endl;
         myfile << "\"rtmax\": " << grp.maxRt << "," << endl;
@@ -702,47 +704,72 @@ void TableDockWidget::saveEICsJson(string filename) {
             myfile << "}" << "," << endl; // compound
         }
 
-        myfile << "\"eics\": [ " << endl;
-        vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
+        myfile << "\"peaks\": [" << endl;
 
-        for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
-                myfile << "{\n";
-                saveEICJson(myfile, eics[j] ); //save EICs
+        for(int j=0; j < grp.peaks.size(); j++ ) {
 
-                for (unsigned int ii=0; ii < grp.peaks.size(); ii++) {
-                Peak peak = grp.peaks[ii];
-                    if (peak.getSample() == eics[j]->getSample()) {
-                        myfile << "," <<endl;
-                        myfile << "\"peakMz\": " << peak.peakMz << "," << endl;
-                        myfile << "\"peakQuality\": " << peak.quality << "," << endl;
-                        myfile << "\"peakAreaFractional\": " << peak.peakAreaFractional << "," << endl;
-                        myfile << "\"symmetry\": " << peak.symmetry << "," << endl;
-                        myfile << "\"medianMz\": " << peak.medianMz << "," << endl;
-                        myfile << "\"baseMz\": " << peak.baseMz << "," << endl;
-                        myfile << "\"mzmin\": " << peak.mzmin << "," << endl;
-                        myfile << "\"mzmax\": " << peak.mzmax << "," << endl;
-                        myfile << "\"rt\": " << peak.rt << "," << endl;
-                        myfile << "\"rtmin\": " << peak.rtmin << "," << endl;
-                        myfile << "\"rtmax\": " << peak.rtmax << "," << endl;
-                        myfile << "\"peakIntensity\": " << peak.peakIntensity << "," << endl;
-                        myfile << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel << "," << endl;
-                        myfile << "\"groupOverlap\": " << peak.groupOverlap << "," << endl;
-                        myfile << "\"groupOverlapFrac\": " << peak.groupOverlapFrac << "," << endl;
-                        myfile << "\"gaussFitR2\": " << peak.gaussFitR2 << "," << endl;
-                        myfile << "\"peakRank\": " << peak.peakRank << "," << endl;
-                        myfile << "\"gaussFitSigma\": " << peak.gaussFitSigma << "," << endl;
-                        myfile << "\"peakArea\": " << peak.peakArea << "," << endl;
-                        myfile << "\"peakAreaTop\": " << peak.peakAreaTop << "," << endl;
-                        myfile << "\"peakAreaCorrected\": " << peak.peakAreaCorrected<< "," << endl;
-                        myfile << "\"noNoiseObs\": " << peak.noNoiseObs << "," << endl;
-                        myfile << "\"noNoiseFraction\": " << peak.noNoiseFraction << "," << endl;
-                        myfile << "\"signalBaselineRatio\": " << peak.signalBaselineRatio << "," << endl;
-                        myfile << "\"fromBlankSample\": " << peak.fromBlankSample << endl;
-                    }
-                }
+            Peak peak = grp.peaks[j];
+            EIC* eic;
+            if ( !grp.srmId.empty() ) {
+                eic = peak.getSample()->getEIC(grp.srmId);
+                //eics.push_back(eic);
+            } else {
+                eic = peak.getSample()->getEIC(peak.mzmin,peak.mzmax,peak.rtmin-rtWindow,peak.rtmax + rtWindow,1);
+                //eics.push_back(eic);
+            }
 
-                myfile << "}\n";
-                if ( j < ((eics.size() / grp.peaks.size())-1)) myfile << ",\n";
+
+
+            myfile << "{\n";
+            myfile << "\"sampleName\": " << "\"" << peak.getSample()->sampleName << "\"," << endl;
+            myfile << "\"peakMz\": " << peak.peakMz << "," << endl;
+            myfile << "\"peakQuality\": " << peak.quality << "," << endl;
+            myfile << "\"peakAreaFractional\": " << peak.peakAreaFractional << "," << endl;
+            myfile << "\"symmetry\": " << peak.symmetry << "," << endl;
+            myfile << "\"medianMz\": " << peak.medianMz << "," << endl;
+            myfile << "\"baseMz\": " << peak.baseMz << "," << endl;
+            myfile << "\"mzmin\": " << peak.mzmin << "," << endl;
+            myfile << "\"mzmax\": " << peak.mzmax << "," << endl;
+            myfile << "\"rt\": " << peak.rt << "," << endl;
+            myfile << "\"rtmin\": " << peak.rtmin << "," << endl;
+            myfile << "\"rtmax\": " << peak.rtmax << "," << endl;
+            myfile << "\"peakIntensity\": " << peak.peakIntensity << "," << endl;
+            myfile << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel << "," << endl;
+            myfile << "\"groupOverlap\": " << peak.groupOverlap << "," << endl;
+            myfile << "\"groupOverlapFrac\": " << peak.groupOverlapFrac << "," << endl;
+            myfile << "\"gaussFitR2\": " << peak.gaussFitR2 << "," << endl;
+            myfile << "\"peakRank\": " << peak.peakRank << "," << endl;
+            myfile << "\"gaussFitSigma\": " << peak.gaussFitSigma << "," << endl;
+            myfile << "\"peakArea\": " << peak.peakArea << "," << endl;
+            myfile << "\"peakAreaTop\": " << peak.peakAreaTop << "," << endl;
+            myfile << "\"peakAreaCorrected\": " << peak.peakAreaCorrected<< "," << endl;
+            myfile << "\"noNoiseObs\": " << peak.noNoiseObs << "," << endl;
+            myfile << "\"noNoiseFraction\": " << peak.noNoiseFraction << "," << endl;
+            myfile << "\"signalBaselineRatio\": " << peak.signalBaselineRatio << "," << endl;
+            myfile << "\"fromBlankSample\": " << peak.fromBlankSample << "," << endl;
+            myfile << "\"colorRed\":"  << eic->getSample()->color[0] << "," << endl;
+            myfile << "\"colorBlue\":"  << eic->getSample()->color[1] << "," << endl;
+            myfile << "\"colorGreen\":"  << eic->getSample()->color[2] << "," << endl;
+            myfile << "\"colorAlpha\":"  << eic->getSample()->color[3] << "," << endl;
+
+
+            myfile << "\"eic\":" << "[";
+
+            int N = eic->rt.size();
+            int count = 0;
+            for(int i=0; i<N; i++) { 
+                    if (eic->intensity[i]>0) {
+                        if(count && i<N) myfile << ",";
+                        myfile << "[" << eic->rt[i] << "," <<  eic->intensity[i] << "]"; 
+                        count++;
+                    };
+            }
+            myfile << "]" << endl;
+            myfile << "}" << endl;
+
+            if (j != (grp.peaks.size()-1)){
+                myfile << ",";          
+            }
         }
         myfile << "]" << endl;
         myfile << "}" << endl;
@@ -751,7 +778,6 @@ void TableDockWidget::saveEICsJson(string filename) {
             myfile << ",";          
         }
 
-        delete_all(eics); //cleanup
     }
     myfile << "]";
 
