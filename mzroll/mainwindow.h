@@ -257,6 +257,7 @@ public Q_SLOTS:
 	bool loadCompoundsFile(QString filename);
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
+	void showAlignmentWidget();
 
     void mzrollLoadDB(QString dbname);
 	
