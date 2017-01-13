@@ -105,7 +105,7 @@ void IsotopePlot::showBars() {
         _height = visibleSamplesCount*_barwidth;
     }
 
-    labels.resize(MM.rows());
+    labels.resize(0);
     for(int i=0; i<MM.rows(); i++ ) {		//samples
         float sum= MM.row(i).sum();
         if (sum == 0) continue;
@@ -183,7 +183,7 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     if (!event) return;
     if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
 
-    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
+    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() +  (_mw->customPlot->axisRect()->width() / MMDuplicate.cols()) * 1 / 4);
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
 
     if (x < labels.count() && x >= 0) {
