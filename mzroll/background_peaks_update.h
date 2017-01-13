@@ -120,6 +120,8 @@ Q_SIGNALS:
 	 */
 	void newPeakGroup(PeakGroup* group);
 
+	void alignmentComplete(QList<PeakGroup>);
+
 protected:
 	/**
 	 * [run method for a thread]

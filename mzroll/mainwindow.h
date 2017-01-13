@@ -258,6 +258,7 @@ public Q_SLOTS:
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();
+	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 
     void mzrollLoadDB(QString dbname);
 	

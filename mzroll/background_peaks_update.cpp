@@ -461,6 +461,13 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->alignmentDialog->polynomialDegree->value());
                 aligner.doAlignment(groups);
                 mainwindow->deltaRt = aligner.getDeltaRt();
+
+                QList<PeakGroup> listGroups;
+                for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
+                        listGroups.append(mavenParameters->allgroups.at(i));
+                }
+
+                Q_EMIT(alignmentComplete(listGroups));
         }
 }
 
