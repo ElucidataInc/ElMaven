@@ -238,6 +238,7 @@ public:
 	bool askAutosave();
 Q_SIGNALS:
 	void saveSignal();
+	void undoAlignment(QList<PeakGroup>);
 
 protected:
 	void closeEvent(QCloseEvent *event);

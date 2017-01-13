@@ -372,6 +372,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
 
+	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
+	connect(this, SIGNAL(undoAlignment(QList<PeakGroup> )), this, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
+
 
     setContextMenuPolicy(Qt::NoContextMenu);
     pathwayPanel->setInfo(DB.pathwayDB);
@@ -2048,6 +2051,14 @@ void MainWindow::UndoAlignment() {
 			samples[i]->restoreOriginalRetentionTimes();
 	}
 	getEicWidget()->replotForced();
+
+	QList<PeakGroup> listGroups;
+	for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
+			listGroups.append(mavenParameters->allgroups.at(i));
+	}
+
+	Q_EMIT(undoAlignment(listGroups));
+
 }
 
 vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool associateCompoundNames) {
