@@ -157,7 +157,7 @@ void LigandWidget::loadCompoundDBMzroll(QString fileName) {
 
      Q_EMIT(mzrollSetDB( QString::fromStdString(dbname)));
 }
-
+        
 void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
     if(dbname == "") return;
     string id, name, formula;
@@ -167,6 +167,7 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
     float collisionenergy=0;
     float precursormz=0;
     float productmz=0;
+    vector<string>categorylist;
 
     id = xml.attributes().value("id").toString().toStdString();
     name = xml.attributes().value("name").toString().toStdString();
@@ -178,6 +179,14 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
     productmz = xml.attributes().value("Product Mz").toString().toFloat();
     collisionenergy = xml.attributes().value("Collision Energy").toString().toFloat();
 
+    while(xml.readNextStartElement()) {
+        if (xml.name() == "categories") {
+            Q_FOREACH(const QXmlStreamAttribute &attr, xml.attributes()) {
+                if(categorylist.size() == 0) categorylist.push_back(xml.attributes().value(attr.name().toString()).toString().toStdString());
+            }
+        }
+    }
+
     Compound* compound = new Compound(id,name,formula,charge);
     compound->expectedRt = rt;
     compound->mass = mz;
@@ -185,8 +194,8 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
     compound->precursorMz=precursormz;
     compound->productMz=productmz;
     compound->collisionEnergy=collisionenergy;
+    for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
     DB.addCompound(compound);
-
 
 }
 

@@ -783,7 +783,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
         if(compound->category.size() > 0) {
             stream.writeStartElement("categories");
             for(unsigned int i=0; i<compound->category.size();i++) {
-                stream.writeAttribute("category", compound->category[i].c_str());
+                stream.writeAttribute("category" + QString::number(i), compound->category[i].c_str());
             }
             stream.writeEndElement();
         }
