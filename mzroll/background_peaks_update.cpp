@@ -299,6 +299,11 @@ void BackgroundPeakUpdate::run(void) {
                 quit();
                 return;
         }
+
+        connect(this, SIGNAL(finished()), mainwindow, SLOT(showAlignmentWidget()));
+	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
+	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
+
         mavenParameters->stop = false;
         //_stopped = false;
 
@@ -462,13 +467,13 @@ void BackgroundPeakUpdate::align() {
                 aligner.doAlignment(groups);
                 mainwindow->deltaRt = aligner.getDeltaRt();
 
-                QList<PeakGroup> listGroups;
-                for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
-                        listGroups.append(mavenParameters->allgroups.at(i));
-                }
-
-                Q_EMIT(alignmentComplete(listGroups));
         }
+        QList<PeakGroup> listGroups;
+        for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
+                listGroups.append(mavenParameters->allgroups.at(i));
+        }
+
+        Q_EMIT(alignmentComplete(listGroups));
 }
 
 void BackgroundPeakUpdate::alignUsingDatabase() {

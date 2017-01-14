@@ -2026,9 +2026,6 @@ void MainWindow::Align() {
     connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
     connect(workerThread, SIGNAL(finished()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
     connect(workerThread, SIGNAL(terminated()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(workerThread, SIGNAL(finished()), this, SLOT(showAlignmentWidget())); //TODO: Sahil-Kiran, Added while merging mainwindow
-	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
-	connect(workerThread, SIGNAL(alignmentComplete(QList<PeakGroup> )), this, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 
 	workerThread->start();
 }
