@@ -185,6 +185,8 @@ public:
     string outputdir;
 
     vector<PeakGroup> allgroups;
+	vector<PeakGroup> undoAlignmentGroups;
+	int alignButton;
     MassCalculator mcalc;
     Classifier* clsf;
 	PeakGroup* _group;

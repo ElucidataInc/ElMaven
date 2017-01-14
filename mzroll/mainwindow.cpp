@@ -2049,9 +2049,11 @@ void MainWindow::UndoAlignment() {
 	}
 	getEicWidget()->replotForced();
 
+	mavenParameters->alignButton = 0;
+
 	QList<PeakGroup> listGroups;
-	for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
-			listGroups.append(mavenParameters->allgroups.at(i));
+	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
+			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
 	}
 
 	Q_EMIT(undoAlignment(listGroups));

@@ -454,6 +454,20 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
 }
 
 void BackgroundPeakUpdate::align() {
+
+        //These else if statements will take care of all corner cases of undoAlignment
+        if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton > 0) {
+                ;
+        } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton ==0){
+                mavenParameters->alignButton++;
+                mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
+        } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton == -1) {
+                ;
+        } else {
+                mavenParameters->alignButton = -1;
+                mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
+        }
+
         if (mavenParameters->alignSamplesFlag) {
                 //		Q_EMIT(updateProgressBar("Aligning Samples", 1, 100));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
@@ -466,6 +480,7 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->alignmentDialog->polynomialDegree->value());
                 aligner.doAlignment(groups);
                 mainwindow->deltaRt = aligner.getDeltaRt();
+                mavenParameters->alignSamplesFlag = false;
 
         }
         QList<PeakGroup> listGroups;

@@ -16,6 +16,8 @@ MavenParameters::MavenParameters() {
         keepFoundGroups = true;
         showProgressFlag = true;
 
+        alignButton = 0;
+
         fragmentMatchPPMTolr = 1000;
         mzBinStep = 0.01;
         rtStepSize = 20;
