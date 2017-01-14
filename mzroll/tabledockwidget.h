@@ -1,6 +1,7 @@
 #ifndef TABLEDOCKWIDGET_H
 #define TABLEDOCKWIDGET_H
 
+#include <algorithm>
 #include "stable.h"
 #include "mainwindow.h"
 #include "traindialog.h"
@@ -35,6 +36,10 @@ public:
     //Added when Merging to Maven776 - Kiran
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
+    void writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames);
+    void saveMzEICJson(string filename);
+    string sanitizeJSONstring(string s);
+    float outputRtWindow = 2.0;
 
 public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
@@ -104,8 +109,8 @@ public Q_SLOTS:
       //Added when Merging to Maven776 - Kiran
       void writeQEInclusionList(QString fileName);
       void writeMascotGeneric(QString fileName);
-      void saveEICsJson(string filename);
-      void saveEICJson(ofstream& out, EIC* eic);
+      //void saveEICsJson(string filename);
+      //void saveEICJson(ofstream& out, EIC* eic);
       vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
