@@ -8,15 +8,13 @@ AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw) {
 
 void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
 
-    connect(_mw->alignmentVizAllGroupsPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
-    connect(_mw->alignmentVizAllGroupsPlot, SIGNAL(selectionChangedByUser()), this, SLOT(resetGraph()));
     _mw->alignmentVizAllGroupsPlot->clearPlottables();
     setXAxis();
     setYAxis();
-    setupReset();
 
-    map<mzSample*, QVector<double> > retentionTime;
-    map<mzSample*, QVector<double> > retentionTimeDeviation;
+    pairPeakGroup.clear();
+    retentionTime.clear();
+    retentionTimeDeviation.clear();
 
     Q_FOREACH(PeakGroup grp, allgroups) {
         for(unsigned int i=0;i<grp.getPeaks().size();i++) {
@@ -24,12 +22,15 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
             mzSample* sample = peak.getSample();
             retentionTime[sample] << peak.rt;
             retentionTimeDeviation[sample] << peak.rt - grp.medianRt();
+            pairPeakGroup[make_pair(peak.rt, peak.rt - grp.medianRt())] = grp;
         }
     }
 
     vector<mzSample*> samples = _mw->getSamples();
 
     QPen pen;
+
+    unsigned int i = 0;
 
     Q_FOREACH(mzSample* sample, samples) {
 
@@ -49,9 +50,10 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         _mw->alignmentVizAllGroupsPlot->addGraph();
         pen.setColor(color);
         pen.setWidth(1);
-        _mw->alignmentVizAllGroupsPlot->graph()->setPen(pen);
-        _mw->alignmentVizAllGroupsPlot->graph()->setName(QString::fromStdString(sample->getSampleName()));
-        _mw->alignmentVizAllGroupsPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setPen(pen);
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setName(QString::fromStdString(sample->getSampleName()));
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 11));
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setLineStyle(QCPGraph::lsLine);
 
         vector<float> xy_points;
 
@@ -73,13 +75,49 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
             rtDeviation << vertices[j+1];
         }
         
-        _mw->alignmentVizAllGroupsPlot->graph()->setData(retentionTime[sample], retentionTimeDeviation[sample]);
-        _mw->alignmentVizAllGroupsPlot->graph()->rescaleAxes(true);
-        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend);
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setData(retentionTime[sample], retentionTimeDeviation[sample]);
+        _mw->alignmentVizAllGroupsPlot->graph(i)->rescaleAxes(true);
+        _mw->alignmentVizAllGroupsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
+        _mw->alignmentVizAllGroupsPlot->graph(i)->setSelectable(QCP::stSingleData );
+        connect(_mw->alignmentVizAllGroupsPlot->graph(i), SIGNAL(selectionChanged(bool)), this, SLOT(displayGroup()));
+        i++;
     }
 
     setLegend();
     _mw->alignmentVizAllGroupsPlot->replot();
+}
+
+void AlignmentVizAllGroupsWidget::displayGroup() {
+
+    vector<mzSample*> samples = _mw->getSamples();
+
+    QCPDataRange dataRange;
+    int index;
+    PeakGroup grp;
+
+    for (unsigned int i =0; i<samples.size(); i++) {
+        mzSample* sample = samples[i];
+
+        QCPDataSelection selection = _mw->alignmentVizAllGroupsPlot->graph(i)->selection();
+
+        if (selection.isEmpty()) {
+            continue;
+        } else {
+            dataRange =  selection.dataRange();
+            if (dataRange.isValid() && dataRange.begin() > 0) {
+                index = dataRange.begin();
+                float x = retentionTime[sample][index];
+                float y = retentionTimeDeviation[sample][index];
+                pair<float, float> xy = make_pair(x, y);
+                grp = pairPeakGroup[xy];
+                if (_mw != NULL) {
+                    _mw->setPeakGroup(&grp);
+                    _mw->getEicWidget()->replotForced();
+                    //_mw->rconsoleDockWidget->updateStatus();
+                }
+            }
+        }
+    }
 }
 
 void AlignmentVizAllGroupsWidget::setXAxis() {
@@ -98,28 +136,6 @@ void AlignmentVizAllGroupsWidget::setYAxis() {
     _mw->alignmentVizAllGroupsPlot->yAxis->setRange(-0.5, 0.5);
 }
 
-void AlignmentVizAllGroupsWidget::setupReset() {
-    _mw->alignmentVizAllGroupsPlot->addGraph();
-    QPen pen;
-    QColor color = QColor(0,0,0);
-    pen.setColor(color);
-    pen.setWidth(1);
-    _mw->alignmentVizAllGroupsPlot->graph()->setPen(pen);
-    _mw->alignmentVizAllGroupsPlot->graph()->setName("Reset");
-    _mw->alignmentVizAllGroupsPlot->graph()->setLineStyle(QCPGraph::lsLine);
-
-}
-
-void AlignmentVizAllGroupsWidget::resetGraph() {
-
-    QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(0);
-    QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
-    if (item->selected())
-    {
-        makeAllGraphsVisible();
-    }
-}
-
 void AlignmentVizAllGroupsWidget::setLegend() {
 
     QPen pen;
@@ -135,77 +151,6 @@ void AlignmentVizAllGroupsWidget::setLegend() {
     _mw->alignmentVizAllGroupsPlot->legend->setSelectedFont(legendFont);
     _mw->alignmentVizAllGroupsPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
 
-}
-
-void AlignmentVizAllGroupsWidget::selectionChanged()
-
-{
-    /*
-    normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
-    the user only to be able to select the axis as a whole, so we tie the selected states of the tick labels
-    and the axis base line together. However, the axis label shall be selectable individually.
-    
-    The selection state of the left and right axes shall be synchronized as well as the state of the
-    bottom and top axes.
-    
-    Further, we want to synchronize the selection of the graphs with the selection state of the respective
-    legend item belonging to that graph. So the user can select a graph by either clicking on the graph itself
-    or on its legend item.
-    */
-
-
-    // make top and bottom axes be selected synchronously, and handle axis and tick labels as one selectable object:
-    if (_mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
-        _mw->alignmentVizAllGroupsPlot->xAxis2->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->xAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
-    {
-        _mw->alignmentVizAllGroupsPlot->xAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
-        _mw->alignmentVizAllGroupsPlot->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
-    }
-    // make left and right axes be selected synchronously, and handle axis and tick labels as one selectable object:
-    if (_mw->alignmentVizAllGroupsPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
-        _mw->alignmentVizAllGroupsPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || _mw->alignmentVizAllGroupsPlot->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
-    {
-    _mw->alignmentVizAllGroupsPlot->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
-    _mw->alignmentVizAllGroupsPlot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
-    }
-
-    // synchronize selection of graphs with selection of corresponding legend items:
-    if (legendSelected()) {
-        makeAllGraphsVisible();
-        for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i)
-        {
-            QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
-            QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
-            if (item->selected())
-            {
-                item->setSelected(true);
-                graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
-                QCPSelectionDecorator* decorator;
-                graph->setSelectionDecorator(decorator);
-            }
-            else {
-                _mw->alignmentVizAllGroupsPlot->graph(i)->setVisible(false);
-            }
-        }        
-    } 
-}
-
-
-bool AlignmentVizAllGroupsWidget::legendSelected() {
-
-    bool itemSelected = false;
-
-
-    for (int i=0; i<_mw->alignmentVizAllGroupsPlot->graphCount(); ++i)
-    {
-        QCPGraph *graph = _mw->alignmentVizAllGroupsPlot->graph(i);
-        QCPPlottableLegendItem *item = _mw->alignmentVizAllGroupsPlot->legend->itemWithPlottable(graph);
-        if (item->selected())
-        {
-            itemSelected = true;
-        }
-    }
-    return itemSelected;
 }
 
 void AlignmentVizAllGroupsWidget::makeAllGraphsVisible() {
