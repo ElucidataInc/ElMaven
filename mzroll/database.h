@@ -78,6 +78,7 @@ class Database {
 	map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
+    vector<string> notFoundColumns;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:

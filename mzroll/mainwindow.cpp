@@ -440,8 +440,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 				
     if (unloadableFiles.size() > 0) {
-
-		string filesNames = "";
+		string filesNames = "Following database file(s) could not be loaded: ";
 		for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
 		filesNames += "\n" + *it ;
 
@@ -449,7 +448,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		msgBox->setAttribute( Qt::WA_DeleteOnClose );
 		msgBox->setStandardButtons( QMessageBox::Ok );
 		msgBox->setIcon(QMessageBox::Warning);
-		msgBox->setText(tr("Trouble in loading compound database files: %1").arg(QString::fromStdString(filesNames)));
+		msgBox->setText(tr("Trouble in loading compound database file(s)"));
+		msgBox->setDetailedText(QString::fromStdString(filesNames));
 		msgBox->setModal( false );
 		msgBox->open();
     }
@@ -1155,11 +1155,31 @@ void MainWindow::loadCompoundsFile() {
 	if(!loadCompoundsFile(filelist[0])) {
 		string dbfilename = filelist[0].toStdString();
 		string dbname = mzUtils::cleanFilename(dbfilename);
+		string notFoundColumns = "Following are the unknown column name(s) found: ";
 
 		QMessageBox msgBox;
 		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
 		msgBox.setIcon(QMessageBox::Warning);
+		if (DB.notFoundColumns.size() > 0) {
+			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
+    			notFoundColumns += "\n" + *it;
+			}
+			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+		}
+
 		int ret = msgBox.exec();
+	} else {
+		if (DB.notFoundColumns.size() > 0) {
+			string notFoundColumns = "Following are the unknown column name(s) found: ";
+			QMessageBox msgBox;
+			msgBox.setText(tr("Found some unknown column name(s)"));
+			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
+    			notFoundColumns += "\n" + *it;
+			}
+			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+			msgBox.setIcon(QMessageBox::Information);
+			int ret = msgBox.exec();
+		}
 	}
 }
 

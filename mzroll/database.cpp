@@ -470,7 +470,7 @@ int Database::loadCompoundCSVFile(string filename){
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
     string sep="\t";
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
-
+    notFoundColumns.resize(0);
     //cerr << filename << " sep=" << sep << endl;
     while ( getline(myfile,line) ) {
         if (!line.empty() && line[0] == '#') continue;
@@ -497,6 +497,8 @@ int Database::loadCompoundCSVFile(string filename){
                 fields[i] = makeLowerCase(fields[i]);
                 if (find(allHeaders.begin(), allHeaders.end(), fields[i]) != allHeaders.end()) {
                     header[fields[i]] = i;
+                } else {
+                    notFoundColumns.push_back(fields[i]);
                 }
             }
             continue;
