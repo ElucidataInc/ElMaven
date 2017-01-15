@@ -521,7 +521,7 @@ void mzFileIO::fileImport(void) {
         tableX->loadPeakTable(filename);
     }
 
-    if (false) {
+    if (_mainwindow->getSettings()->value("uploadMultiprocessing").toInt()) {
         int iter = 0;
         #pragma omp parallel for shared(iter)
         for (int i = 0; i < samples.size(); i++) {

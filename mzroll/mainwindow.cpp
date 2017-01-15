@@ -1536,6 +1536,9 @@ void MainWindow::readSettings() {
         settings->setValue("embeded_http_server_address", "127.0.0.1");
     }
 
+
+	settings->setValue("uploadMultiprocessing", 2);
+
 	resize(size);
 	move(pos);
 }

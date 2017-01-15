@@ -59,6 +59,9 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
 
+    //Multiprocessing
+    connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
+
 
 }
 
@@ -79,6 +82,10 @@ void SettingsForm::recomputeIsotopes() {
             mainwindow->pathwayWidget->recalculateConcentrations();
         }
     }
+}
+
+void SettingsForm::updateMultiprocessing() { 
+    settings->setValue("uploadMultiprocessing", checkBoxMultiprocessing->checkState());
 }
 
 void SettingsForm::recomputeEIC() { 
@@ -108,8 +115,10 @@ void SettingsForm::updateSettingFormGUI() {
     minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toDouble());
     baseline_quantile->setValue(settings->value("baseline_quantile").toDouble());
-    doubleSpinBoxMinQuality->setValue(settings->value("minQuality").toDouble());
 
+    doubleSpinBoxMinQuality->setValue(settings->value("minQuality").toDouble());
+    //Upload Multiprocessing
+    checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
     C13Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("C13Labeled_BPE").toInt() );
     N15Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("N15Labeled_BPE").toInt()  );
