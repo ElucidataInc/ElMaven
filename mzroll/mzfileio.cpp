@@ -521,30 +521,53 @@ void mzFileIO::fileImport(void) {
         tableX->loadPeakTable(filename);
     }
 
-    int iter = 0;
+    if (false) {
+        int iter = 0;
+        #pragma omp parallel for shared(iter)
+        for (int i = 0; i < samples.size(); i++) {
+            QString filename = samples.at(i);
+            mzSample* sample = loadSample(filename);
+            if (sample) {
+                    sample->enumerateSRMScans();
+                    sample->calculateMzRtRange();    //set min and max values for rt
+                    sample->fileName = filename.toStdString();
 
-    #pragma omp parallel for shared(iter)
-    for (int i = 0; i < samples.size(); i++) {
-        QString filename = samples.at(i);
-		mzSample* sample = loadSample(filename);
-		if (sample) {
-				sample->enumerateSRMScans();
-				sample->calculateMzRtRange();    //set min and max values for rt
-				sample->fileName = filename.toStdString();
+                    if ( filename.contains("blan",Qt::CaseInsensitive))
+                            sample->isBlank = true;   //check if this is a blank sample
 
-				if ( filename.contains("blan",Qt::CaseInsensitive))
-						sample->isBlank = true;   //check if this is a blank sample
+                    if (sample->scans.size()>0)
+                            _mainwindow->addSample(sample);
 
-				if (sample->scans.size()>0)
-						_mainwindow->addSample(sample);
+            }
+            #pragma omp atomic
+            iter++;
 
-		}
-        #pragma omp atomic
-        iter++;
+            Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
 
-        Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
+        }
+    } else {
+        int iter = 0;
+        for (int i = 0; i < samples.size(); i++) {
+            QString filename = samples.at(i);
+            mzSample* sample = loadSample(filename);
+            if (sample) {
+                    sample->enumerateSRMScans();
+                    sample->calculateMzRtRange();    //set min and max values for rt
+                    sample->fileName = filename.toStdString();
 
-	}
+                    if ( filename.contains("blan",Qt::CaseInsensitive))
+                            sample->isBlank = true;   //check if this is a blank sample
+
+                    if (sample->scans.size()>0)
+                            _mainwindow->addSample(sample);
+
+            }
+            iter++;
+
+            Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
+
+        }
+    }
 
     Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {
