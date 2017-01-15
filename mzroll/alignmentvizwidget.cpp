@@ -11,8 +11,21 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     _mw->alignmentVizPlot->clearPlottables();
 
+    PeakGroup* shadowGrp;
+
+    for (unsigned int ii =0 ; ii <_mw->mavenParameters->allgroups.size(); ii++) {
+        PeakGroup* previousGrp = &_mw->mavenParameters->allgroups[ii];
+        if (previousGrp->meanMz == group->meanMz && previousGrp->maxMz == group->maxMz && previousGrp->minMz == group->minMz) {
+            shadowGrp = previousGrp;
+            break;
+        }
+    }
+
     vector<mzSample*> samples = getSamplesFromGroup(group);
+    vector<mzSample*> shadowSamples = getSamplesFromGroup(shadowGrp);
+
     QVector<double> retentionTimes = getRetentionTime(samples, group);
+    QVector<double> retentionTimesShadow = getRetentionTime(shadowSamples, shadowGrp);
 
     setXAxis(group);
     QVector<double> ticks = setYAxis(samples);
@@ -21,30 +34,35 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
         QCPBars *sample = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         sample->setAntialiased(false);
-        sample->setBrush(QColor(111, 9, 176, 150));
+        sample->setPen(QPen(QColor(111, 9, 176).lighter(170)));
+        sample->setBrush(QColor(111, 9, 176, 50));
 
+        QCPBars *shadow = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
+        shadow->setAntialiased(false);
+        shadow->setPen(QPen(QColor(111, 9, 176).lighter(170)));
+        shadow->setBrush(QColor(0, 0, 0, 100));
 
-        QVector<double> retentionTimeSolidBar; 
         float maxDiff = max(group->medianRt() - group->minRt, group->maxRt - group->medianRt());
+        float shadowMaxDiff = max(shadowGrp->medianRt() - shadowGrp->minRt, shadowGrp->maxRt - shadowGrp->medianRt());
+
+        double baseValue = retentionTimes[tick] - maxDiff/20;
+        double shadowBaseValue = retentionTimesShadow[tick] - shadowMaxDiff/20;
+
+
+        QVector<double> retentionTimeSolidBar;
+        QVector<double> retentionTimeShadowBar;
+
         retentionTimeSolidBar << (2*maxDiff)/20;
+        retentionTimeShadowBar << (2*shadowMaxDiff)/20;
+
+        sample->setBaseValue(baseValue);
+        shadow->setBaseValue(shadowBaseValue);
+
         QVector<double> tickVector;
         tickVector << tick;
+        sample->setData(tickVector, retentionTimeSolidBar);
+        shadow->setData(tickVector, retentionTimeShadowBar);
 
-        if (_mw->aligned) {
-            QCPBars *shadow = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
-            shadow->setAntialiased(false);
-            shadow->setBrush(QColor(0, 0, 0, 10));
-            double shadowBaseValue = retentionTimes[tick] - maxDiff/20;
-            double baseValue = shadowBaseValue + _mw->deltaRt[make_pair(group->getName(), samples[tick - 1]->getSampleName())];
-            sample->setBaseValue(baseValue);
-            shadow->setBaseValue(shadowBaseValue);
-            sample->setData(tickVector, retentionTimeSolidBar);
-            shadow->setData(tickVector, retentionTimeSolidBar);
-        } else {
-            double baseValue = retentionTimes[tick] - maxDiff/20;
-            sample->setBaseValue(baseValue);
-            sample->setData(tickVector, retentionTimeSolidBar);
-        }
     }
 
 
