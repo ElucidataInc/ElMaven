@@ -8,12 +8,12 @@
 #include "clusterdialog.h"
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
+#include "saveJson.h"
 
 class MainWindow;
 class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
-
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -118,6 +118,7 @@ protected:
 
 Q_SIGNALS:
 	void peakMarkedTableDock();
+    void updateProgressBar(QString, int, int);
 
 protected Q_SLOTS:
 	  void keyPressEvent( QKeyEvent *e );

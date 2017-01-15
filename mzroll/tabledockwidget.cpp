@@ -55,6 +55,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     connect(exportAll, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
     //Updated when Merging with Maven776 - Kiran
     connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+    connect(this,SIGNAL(updateProgressBar(QString,int,int)), _mainwindow,SLOT(setProgressBar(QString, int,int)));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
     QToolButton *btnSaveJson = new QToolButton(toolBar);
@@ -647,7 +648,11 @@ void TableDockWidget::exportJson() {
     if (fileName.isEmpty()) return;
     if(!fileName.endsWith(".json",Qt::CaseInsensitive)) fileName = fileName + ".json";
 
-    saveMzEICJson(fileName.toStdString());    
+    saveJson * jsonSaveThread = new saveJson();
+    jsonSaveThread->setMainwindow(_mainwindow);
+    jsonSaveThread->setPeakTable(this);
+    jsonSaveThread->setfileName(fileName.toStdString());
+    jsonSaveThread->start();    
 }
 
 void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames) {
@@ -760,6 +765,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 myfile << "\n}" ;//eic
 
                 myfile << "\n}" ; //peak
+                delete(eic);
         }
 
 
@@ -829,6 +835,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
         myfile << "\n]" ; //peaks
 
         myfile << "}" ; //group
+        delete_all(eics);
 
 
 }
@@ -868,7 +875,7 @@ void TableDockWidget::saveMzEICJson(string filename) {
                 writeGroupMzEICJson(grp.children[k], myfile, vsampleNames);
             }
         }
-
+        Q_EMIT(updateProgressBar("Writing to json file. Please wait...", i, allgroups.size() - 1));
     }
     myfile << "]}"; //groups
     myfile.close();

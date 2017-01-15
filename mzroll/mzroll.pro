@@ -111,7 +111,8 @@ HEADERS +=  stable.h \
                    spectralhitstable.h\
                     clusterdialog.h \
                     peptidefragmentation.h \
-                    qcustomplot.h
+                    qcustomplot.h \
+                    saveJson.h
                      
 
 
@@ -167,7 +168,8 @@ database.cpp \
  spectralhitstable.cpp \
  logwidget.cpp \ 
  peptidefragmentation.cpp \
- qcustomplot.cpp
+ qcustomplot.cpp \
+ saveJson.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
