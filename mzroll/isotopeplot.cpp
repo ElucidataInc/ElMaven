@@ -183,7 +183,10 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     if (!event) return;
     if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
 
-    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() +  (_mw->customPlot->axisRect()->width() / MMDuplicate.cols()) * 1 / 4);
+    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
+    double keyPixel =  _mw->customPlot->xAxis->coordToPixel(x);
+    double shiftRight =  _mw->customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
+    x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
 
     if (x < labels.count() && x >= 0) {
