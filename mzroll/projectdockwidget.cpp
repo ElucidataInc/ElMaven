@@ -773,14 +773,14 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
         stream.writeStartElement("compound");
         stream.writeAttribute("id",  compound->id.c_str());
         stream.writeAttribute("name",  compound->name.c_str());
-        stream.writeAttribute("mz", QString::number(compound->mass));
-        if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt));
+        stream.writeAttribute("mz", QString::number(compound->mass, 'f', 6));
+        if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt, 'f', 6));
 
         if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
         if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
-        if (compound->precursorMz) stream.writeAttribute("Precursor Mz", QString::number(compound->precursorMz, 'f', 2));
-        if (compound->productMz) stream.writeAttribute("Product Mz", QString::number(compound->productMz, 'f', 2));
-        if (compound->collisionEnergy) stream.writeAttribute("Collision Energy", QString::number(compound->collisionEnergy, 'f' ,2));
+        if (compound->precursorMz) stream.writeAttribute("Precursor Mz", QString::number(compound->precursorMz, 'f', 6));
+        if (compound->productMz) stream.writeAttribute("Product Mz", QString::number(compound->productMz, 'f', 6));
+        if (compound->collisionEnergy) stream.writeAttribute("Collision Energy", QString::number(compound->collisionEnergy, 'f' ,6));
 
         if(compound->category.size() > 0) {
             stream.writeStartElement("categories");
