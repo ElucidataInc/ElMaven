@@ -804,7 +804,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         case PeakGroup::Area: max =  eics[j]->maxAreaIntensity; break;
                         case PeakGroup::Height: max = eics[j]->maxIntensity; break;
                         case PeakGroup::AreaNotCorrected: max = eics[j]->maxAreaNotCorrectedIntensity; break;
-                        default: max = eics[j]->maxAreaTopIntensity; break;
+                        default: max = eics[j]->maxIntensity; break;
                     }
 
                     if (max > eicMaxIntensity)

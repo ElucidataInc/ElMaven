@@ -223,8 +223,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             rtMax->setValue(settings->value("maxRT").toDouble());
             mzMin->setValue(settings->value("minMz").toDouble());
             mzMax->setValue(settings->value("maxMz").toDouble());
-            intensityMin->setValue(settings->value("minIntensity").toDouble());
-            intensityMax->setValue(settings->value("maxIntensity").toDouble());
+            minIntensity->setValue(settings->value("minIntensity").toDouble());
+            maxIntensity->setValue(settings->value("maxIntensity").toDouble());
             chargeMin->setValue(settings->value("minCharge").toDouble());
             chargeMax->setValue(settings->value("maxCharge").toDouble());
             classificationModelFilename->setText(settings->value("clsfModelFilename").toString());
@@ -396,8 +396,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("maxRT", rtMax->value());
     settings->setValue("minMz", mzMin->value());
     settings->setValue("maxMz", mzMax->value());
-    settings->setValue("minIntensity", intensityMin->value());
-    settings->setValue("maxIntensity", intensityMax->value());
+    settings->setValue("minIntensity", minIntensity->value());
+    settings->setValue("maxIntensity", maxIntensity->value());
     settings->setValue("minCharge", chargeMin->value());
     settings->setValue("maxCharge", chargeMax->value());
 

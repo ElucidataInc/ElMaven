@@ -128,9 +128,12 @@
            </widget>
           </item>
           <item row="2" column="3">
-           <widget class="QDoubleSpinBox" name="intensityMin">
+           <widget class="QDoubleSpinBox" name="minIntensity">
             <property name="maximum">
-             <double>999999999.000000000000000</double>
+             <double>9999999999.989999771118164</double>
+            </property>
+            <property name="value">
+             <double>50000.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -148,9 +151,12 @@
            </widget>
           </item>
           <item row="2" column="4">
-           <widget class="QDoubleSpinBox" name="intensityMax">
+           <widget class="QDoubleSpinBox" name="maxIntensity">
             <property name="maximum">
-             <double>999999999.000000000000000</double>
+             <double>9999999999.989999771118164</double>
+            </property>
+            <property name="value">
+             <double>9999999999.000000000000000</double>
             </property>
            </widget>
           </item>

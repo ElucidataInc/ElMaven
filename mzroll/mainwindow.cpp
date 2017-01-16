@@ -1435,10 +1435,10 @@ void MainWindow::readSettings() {
     if (!settings->contains("maxMz")) settings->setValue("maxMz", 0);
 
     if (!settings->contains("minIntensity"))
-        settings->setValue("minIntensity", 0);
+        settings->setValue("minIntensity", 50000.000000);
 
     if (!settings->contains("maxIntensity"))
-        settings->setValue("maxIntensity", 0);
+        settings->setValue("maxIntensity", 9999999999.000000);
 
     if (!settings->contains("minCharge")) settings->setValue("minCharge", 0);
 
@@ -2000,6 +2000,10 @@ void MainWindow::Align() {
 			alignmentDialog->limitGroupCount->value();
 	mavenParameters->minGroupIntensity =
 			alignmentDialog->minGroupIntensity->value();
+	mavenParameters->minIntensity =
+			alignmentDialog->minIntensity->value();
+	mavenParameters->maxIntensity =
+			alignmentDialog->maxIntensity->value();
 
 	//TODO: Sahil Re-verify this two parameters. Values are same
 	mavenParameters->eic_smoothingWindow =
