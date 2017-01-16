@@ -19,6 +19,8 @@ void AlignmentDialog::intialSetup() {
 	peakDetectionAlgo->setCurrentIndex(1);
 	setDatabase();
 	algoChanged();
+	minIntensity->setValue(_mw->mavenParameters->minIntensity);
+	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
 }
 
 void AlignmentDialog::algoChanged() {
