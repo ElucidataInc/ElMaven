@@ -9,7 +9,12 @@
 #include "Peak.h"
 #include "Scan.h"
 #include "mzSample.h"
+#include "mzMassCalculator.h"
+#include <vector>
+
 class mzSample;
+class Isotope;
+class MassCalculator;
 class Compound;
 class Peak;
 class Scan;
@@ -195,6 +200,8 @@ class PeakGroup{
         vector<Scan*> getFragmenationEvents();
 
         Scan* getAverageFragmenationScan(float resolution);
+
+        double getExpectedMz(int charge);
 
         /**
          * [setParent ]

@@ -396,32 +396,10 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
 
-    if (group->isIsotope() && group->childCount() == 0 && group->compound && !group->compound->formula.empty()) {
- 
-        float mz = 0;
-        vector<Isotope> masslist = MassCalculator::computeIsotopes(
-        group->compound->formula, _mainwindow->getIonizationMode());
-
-        for (unsigned int i = 0; i<masslist.size();i++) {
-            if (masslist[i].name == group->tagString) {
-                mz = masslist[i].mass;
-            }
-        }
-
+    if (group->getExpectedMz(_mainwindow->getIonizationMode()) != NULL) {
+        float mz = group->getExpectedMz(_mainwindow->getIonizationMode());
         item->setText(3,QString::number(mz,'f', 4));
-    }
-    else if (!group->isIsotope() && group->compound) {
-        float mz = 0;
-        if (!group->compound->formula.empty()) {
-            int charge = _mainwindow->getIonizationMode();
-            mz = group->compound->ajustedMass(charge);
-        } else {
-            mz = group->compound->mass;
-        }
-
-        item->setText(3,QString::number(mz,'f', 4));
-    }
-    else{
+    } else {
         item->setText(3, "NA");
     }
 

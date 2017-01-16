@@ -1420,7 +1420,12 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	eicParameters->_slice.mz = group->meanMz;
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != NULL) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	} else {
+		eicParameters->_slice.mz = group->meanMz;
+	}
+
 	eicParameters->_slice.compound = group->compound;
 	eicParameters->_slice.srmId = group->srmId;
 
@@ -1445,7 +1450,12 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	eicParameters->_slice.mz = group->meanMz;
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != NULL) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	} else {
+		eicParameters->_slice.mz = group->meanMz;
+	}
+
 	if (group->minMz != eicParameters->_slice.mzmin
 			|| group->maxMz != eicParameters->_slice.mzmax) {
 		eicParameters->_slice.mzmin = group->minMz;

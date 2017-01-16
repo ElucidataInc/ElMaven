@@ -382,6 +382,36 @@ void PeakGroup::updateQuality() {
     }
 }
 
+double PeakGroup::getExpectedMz(int charge) {
+
+    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty()) {
+ 
+        float mz = 0;
+        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge);
+
+        for (unsigned int i = 0; i<masslist.size();i++) {
+            if (masslist[i].name == tagString) {
+                mz = masslist[i].mass;
+            }
+        }
+
+        return mz;
+    }
+    else if (!isIsotope() && compound) {
+        float mz = 0;
+        if (!compound->formula.empty()) {
+            mz = compound->ajustedMass(charge);
+        } else {
+            mz = compound->mass;
+        }
+
+        return mz;
+    }
+
+    return NULL;
+
+}
+
 void PeakGroup::groupStatistics() {
     float rtSum = 0;
     float mzSum = 0;
