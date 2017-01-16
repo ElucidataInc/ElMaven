@@ -13,12 +13,19 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     PeakGroup* shadowGrp;
 
+    bool groupFound = false;
+
     for (unsigned int ii =0 ; ii <_mw->mavenParameters->allgroups.size(); ii++) {
         PeakGroup* previousGrp = &_mw->mavenParameters->allgroups[ii];
         if (previousGrp->meanMz == group->meanMz && previousGrp->maxMz == group->maxMz && previousGrp->minMz == group->minMz) {
             shadowGrp = previousGrp;
+            groupFound = true;
             break;
         }
+    }
+
+    if(!groupFound) {
+        shadowGrp = group;
     }
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
