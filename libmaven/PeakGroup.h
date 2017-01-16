@@ -71,6 +71,11 @@ class PeakGroup{
 
         QType quantitationType;
 
+        // To check wheather %peaks are available above threshold or not
+        bool quantilePeaksAvailable;
+        float minGroupIntensity;
+        float quantilePercent;
+
         int groupId;
         int metaGroupId;
 
