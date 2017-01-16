@@ -300,7 +300,9 @@ void BackgroundPeakUpdate::run(void) {
                 return;
         }
 
-        connect(this, SIGNAL(finished()), mainwindow, SLOT(showAlignmentWidget()));
+        if (mavenParameters->alignSamplesFlag) {
+                connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
+        }
 	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 
