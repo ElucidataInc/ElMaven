@@ -84,6 +84,7 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
     }
 
     setLegend();
+    _mw->alignmentVizAllGroupsPlot->rescaleAxes();
     _mw->alignmentVizAllGroupsPlot->replot();
 }
 
