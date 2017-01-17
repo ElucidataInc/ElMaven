@@ -115,6 +115,7 @@ void LigandWidget::setDatabaseNames() {
                 databaseSelect->addItem(icon,i.next());
 	}
 	connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
+	connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), _mw->alignmentDialog, SLOT(setDatabase(QString)));    
 }
 
 QTreeWidgetItem* LigandWidget::addItem(QTreeWidgetItem* parentItem, string key , float value) {

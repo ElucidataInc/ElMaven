@@ -443,8 +443,6 @@ MainWindow::MainWindow(QWidget *parent) :
 			ligandWidget->setDatabase("KNOWNS");
 			databaseSet = "KNOWNS";
 		}
-		alignmentDialog->setDatabase();
-		alignmentDialog->setDatabase(databaseSet);
 
 	}
 

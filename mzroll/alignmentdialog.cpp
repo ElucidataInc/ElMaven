@@ -12,7 +12,7 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 
 void AlignmentDialog::setMainWindow(MainWindow* mw) {
     _mw=mw;
-	setDatabase();
+
 }
 
 void AlignmentDialog::setProgressBar(QString text, int progress,
@@ -30,6 +30,7 @@ void AlignmentDialog::intialSetup() {
 
 	setProgressBar("Status", 0, 1);
 	setDatabase();
+	setDatabase(_mw->ligandWidget->getDatabaseName());
 	algoChanged();
 	minIntensity->setValue(_mw->mavenParameters->minIntensity);
 	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
@@ -45,7 +46,6 @@ void AlignmentDialog::algoChanged() {
 		label_11->setVisible(false);
 		minIntensity->setVisible(false);
 		maxIntensity->setVisible(false);
-		setDatabase();
 
 	} else {
 		selectDatabase->setVisible(false);
@@ -79,5 +79,5 @@ void AlignmentDialog::setDatabase() {
 void AlignmentDialog::setDatabase(QString db) {
 
 	selectDatabaseComboBox->setCurrentIndex(selectDatabaseComboBox->findText(db));
-
+	
 }
