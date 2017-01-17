@@ -918,7 +918,7 @@ void TableDockWidget::showSelectedGroup() {
     QVariant v = item->data(0,Qt::UserRole);
     PeakGroup*  group =  v.value<PeakGroup*>();
     _mainwindow->alignmentVizWidget->plotGraph(group);
-
+    
     if ( group != NULL && _mainwindow != NULL) {
         _mainwindow->setPeakGroup(group);
         _mainwindow->rconsoleDockWidget->updateStatus();
@@ -1035,6 +1035,8 @@ void TableDockWidget::deleteGroups() {
                         QVariant vc = nextItem->data(0,Qt::UserRole);
                         PeakGroup*  groupc =  vc.value<PeakGroup*>();
                         if (groupc->tagString == "C12 PARENT") {
+                            nextItem = nextItem->parent();
+                        } else if ( groupc->isIsotope()){
                             nextItem = nextItem->parent();
                         }
                     }
