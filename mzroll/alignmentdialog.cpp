@@ -15,8 +15,20 @@ void AlignmentDialog::setMainWindow(MainWindow* mw) {
 	setDatabase();
 }
 
+void AlignmentDialog::setProgressBar(QString text, int progress,
+                                         int totalSteps) {
+        showInfo(text);
+        progressBar->setRange(0, totalSteps);
+        progressBar->setValue(progress);
+}
+
+void AlignmentDialog::showInfo(QString text) {
+        statusText->setText(text);
+}
+
 void AlignmentDialog::intialSetup() {
-	peakDetectionAlgo->setCurrentIndex(1);
+
+	setProgressBar("Status", 0, 1);
 	setDatabase();
 	algoChanged();
 	minIntensity->setValue(_mw->mavenParameters->minIntensity);

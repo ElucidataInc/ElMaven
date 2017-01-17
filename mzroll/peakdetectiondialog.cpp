@@ -119,6 +119,8 @@ void PeakDetectionDialog::show() {
 
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                SLOT(setProgressBar(QString, int,int)));
+    connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
+               mainwindow->alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 
     // peakupdater->useMainWindowLabelOptions = false;
 

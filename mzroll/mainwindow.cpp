@@ -1261,7 +1261,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	workerThread->setMainWindow(this);
 
 	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
-			SLOT(setProgressBar(QString, int,int)));
+			alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;
@@ -1996,7 +1996,7 @@ void MainWindow::Align() {
 	}
 
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
-	connect(workerThread, SIGNAL(started()), alignmentDialog, SLOT(close()));
+	connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
 
 	if (settings != NULL) {
 		mavenParameters->eic_smoothingAlgorithm = settings->value(
