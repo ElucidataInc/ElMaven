@@ -51,6 +51,9 @@ public:
     void setCommaDelimited() {
         SEP = ",";
     }
+    inline void setSelectionFlag(int selFlag) {
+        selectionFlag = selFlag;
+    }
     //TODO: added when merged with Maven776 - Kiran
     QString sanitizeString(const char* s);
     ofstream groupReport;
@@ -81,6 +84,7 @@ private:
     vector<mzSample*> samples;
     PeakGroup::QType qtype;
     MavenParameters * mavenparameters;
+    int selectionFlag;
     // TableDockWidget* tabledocwidget;
 
 };

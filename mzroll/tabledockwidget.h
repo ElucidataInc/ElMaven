@@ -28,6 +28,7 @@ public:
     bool bookmarkPeaksTAble = false;
     //Added when Merging to Maven776 - Kiran
     enum tableViewType{ groupView=0, peakView=1 };
+    enum peakTableSelectionType{ selected=0, Whole=1, Good=2, Bad=3 };
 
     TableDockWidget(MainWindow* mw, QString title, int numColms);
 	~TableDockWidget();
@@ -65,6 +66,23 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+    inline void selectedPeakSet() {
+        peakTableSelection = peakTableSelectionType::selected;
+    };
+
+    inline void wholePeakSet () {
+        peakTableSelection = peakTableSelectionType::Whole;
+    };
+
+    inline void goodPeakSet () {
+        cerr << endl << "REAche here" << endl;
+        peakTableSelection = peakTableSelectionType::Good;
+    };
+
+    inline void badPeakSet () {
+        peakTableSelection = peakTableSelectionType::Bad;
+    };
+    
     void exportJson();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
@@ -145,7 +163,8 @@ private:
           QMap<QString, QHistogramSlider*> sliders;
         float rtWindow=2;
           tableViewType viewType;
-    
+          peakTableSelectionType peakTableSelection;
+          QList<PeakGroup*> getCustomGroups(peakTableSelectionType peakSelection);
 };
 
 #endif

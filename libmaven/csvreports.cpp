@@ -240,64 +240,192 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (!groupReport.is_open())
         return;
     groupId++;
-    vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
-    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+    
+    if (group->children.size() == 0) {
+        if (selectionFlag == 2) {
+            if(group->label !='g') return;
+        } else if (selectionFlag == 3) {
+            if(group->label !='b') return;
+        } else {
 
-    string tagString = group->srmId + group->tagString;
-    // using the new funtionality added - Kiran
-    tagString = sanitizeString(tagString.c_str()).toStdString();
-    char label[2];
-    sprintf(label, "%c", group->label);
+        }
+    
+        vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
+        //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
-    groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
-            << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
-            << SEP << group->meanRt << SEP << group->maxQuality << SEP
-            << tagString;
+        string tagString = group->srmId + group->tagString;
+        // using the new funtionality added - Kiran
+        tagString = sanitizeString(tagString.c_str()).toStdString();
+        char label[2];
+        sprintf(label, "%c", group->label);
 
-    string compoundName;
-    string compoundID;
-    // TODO: Added this while merging this file
-    string categoryString;
-    float expectedRtDiff = 0;
-    float ppmDist = 0;
+        groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
+                << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
+                << SEP << group->meanRt << SEP << group->maxQuality << SEP
+                << tagString;
 
-    if (group->compound != NULL) {
+        string compoundName;
+        string compoundID;
         // TODO: Added this while merging this file
-        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
-        // TODO: Added this while merging this file
-        compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
-        ppmDist = mzUtils::ppmDist((double) group->compound->mass,
-                (double) group->meanMz);
-        expectedRtDiff = group->expectedRtDiff;
+        string categoryString;
+        float expectedRtDiff = 0;
+        float ppmDist = 0;
 
-        // TODO: Added this while merging this file
-        //for(int i=0;i<group->compound->category.size(); i++) {
-        //    categoryString += group->compound->category[i] + ";";
-        //}
-        //categoryString=sanitizeString(categoryString.c_str()).toStdString();
+        if (group->compound != NULL) {
+            // TODO: Added this while merging this file
+            compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+            // TODO: Added this while merging this file
+            compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
+            ppmDist = mzUtils::ppmDist((double) group->compound->mass,
+                    (double) group->meanMz);
+            expectedRtDiff = group->expectedRtDiff;
 
-    }
+            // TODO: Added this while merging this file
+            //for(int i=0;i<group->compound->category.size(); i++) {
+            //    categoryString += group->compound->category[i] + ";";
+            //}
+            //categoryString=sanitizeString(categoryString.c_str()).toStdString();
 
-    groupReport << SEP << compoundName;
-    groupReport << SEP << compoundID;
-    //groupReport << SEP << categoryString;
-    groupReport << SEP << expectedRtDiff;
-    groupReport << SEP << ppmDist;
+        }
 
-    if (group->parent != NULL) {
-        groupReport << SEP << group->parent->meanMz;
-    } else {
-        groupReport << SEP << group->meanMz;
-    }
+        groupReport << SEP << compoundName;
+        groupReport << SEP << compoundID;
+        //groupReport << SEP << categoryString;
+        groupReport << SEP << expectedRtDiff;
+        groupReport << SEP << ppmDist;
 
-    for (unsigned int j = 0; j < samples.size(); j++)
-        groupReport << SEP << yvalues[j];
-    groupReport << endl;
+        if (group->parent != NULL) {
+            groupReport << SEP << group->parent->meanMz;
+        } else {
+            groupReport << SEP << group->meanMz;
+        }
 
-    for (unsigned int k = 0; k < group->children.size(); k++) {
-        group->children[k].metaGroupId = group->metaGroupId;
-        writeGroupInfo(&group->children[k]);
-        //writePeakInfo(&group->children[k]);
+        for (unsigned int j = 0; j < samples.size(); j++)
+            groupReport << SEP << yvalues[j];
+        groupReport << endl;
+    } else if (group->children.size() > 0 ) {
+
+        if (selectionFlag !=2 || selectionFlag !=3 ) {
+
+        } else if (selectionFlag ==2 || selectionFlag ==3 ) {
+            if (selectionFlag == 2 && group->label == 'g') {
+                    
+                vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
+                //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+
+                string tagString = group->srmId + group->tagString;
+                // using the new funtionality added - Kiran
+                tagString = sanitizeString(tagString.c_str()).toStdString();
+                char label[2];
+                sprintf(label, "%c", group->label);
+
+                groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
+                        << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
+                        << SEP << group->meanRt << SEP << group->maxQuality << SEP
+                        << tagString;
+
+                string compoundName;
+                string compoundID;
+                // TODO: Added this while merging this file
+                string categoryString;
+                float expectedRtDiff = 0;
+                float ppmDist = 0;
+
+                if (group->compound != NULL) {
+                    // TODO: Added this while merging this file
+                    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+                    // TODO: Added this while merging this file
+                    compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
+                    ppmDist = mzUtils::ppmDist((double) group->compound->mass,
+                            (double) group->meanMz);
+                    expectedRtDiff = group->expectedRtDiff;
+
+                    // TODO: Added this while merging this file
+                    //for(int i=0;i<group->compound->category.size(); i++) {
+                    //    categoryString += group->compound->category[i] + ";";
+                    //}
+                    //categoryString=sanitizeString(categoryString.c_str()).toStdString();
+
+                }
+
+                groupReport << SEP << compoundName;
+                groupReport << SEP << compoundID;
+                //groupReport << SEP << categoryString;
+                groupReport << SEP << expectedRtDiff;
+                groupReport << SEP << ppmDist;
+
+                if (group->parent != NULL) {
+                    groupReport << SEP << group->parent->meanMz;
+                } else {
+                    groupReport << SEP << group->meanMz;
+                }
+
+                for (unsigned int j = 0; j < samples.size(); j++)
+                    groupReport << SEP << yvalues[j];
+                groupReport << endl;
+
+            } else if ( selectionFlag == 3 && group->label == 'b') {
+                                    
+                vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
+                //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+
+                string tagString = group->srmId + group->tagString;
+                // using the new funtionality added - Kiran
+                tagString = sanitizeString(tagString.c_str()).toStdString();
+                char label[2];
+                sprintf(label, "%c", group->label);
+
+                groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
+                        << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
+                        << SEP << group->meanRt << SEP << group->maxQuality << SEP
+                        << tagString;
+
+                string compoundName;
+                string compoundID;
+                // TODO: Added this while merging this file
+                string categoryString;
+                float expectedRtDiff = 0;
+                float ppmDist = 0;
+
+                if (group->compound != NULL) {
+                    // TODO: Added this while merging this file
+                    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+                    // TODO: Added this while merging this file
+                    compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
+                    ppmDist = mzUtils::ppmDist((double) group->compound->mass,
+                            (double) group->meanMz);
+                    expectedRtDiff = group->expectedRtDiff;
+
+                    // TODO: Added this while merging this file
+                    //for(int i=0;i<group->compound->category.size(); i++) {
+                    //    categoryString += group->compound->category[i] + ";";
+                    //}
+                    //categoryString=sanitizeString(categoryString.c_str()).toStdString();
+
+                }
+
+                groupReport << SEP << compoundName;
+                groupReport << SEP << compoundID;
+                //groupReport << SEP << categoryString;
+                groupReport << SEP << expectedRtDiff;
+                groupReport << SEP << ppmDist;
+
+                if (group->parent != NULL) {
+                    groupReport << SEP << group->parent->meanMz;
+                } else {
+                    groupReport << SEP << group->meanMz;
+                }
+
+                for (unsigned int j = 0; j < samples.size(); j++)
+                    groupReport << SEP << yvalues[j];
+                groupReport << endl;
+            }
+        }
+        for (unsigned int k = 0; k < group->children.size(); k++) {
+            group->children[k].metaGroupId = group->metaGroupId;
+            writeGroupInfo(&group->children[k]);
+            //writePeakInfo(&group->children[k]);
+        }
     }
 
 }
@@ -314,6 +442,13 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
     }
 
+    if (selectionFlag == 2) {
+        if(group->label !='g') return;
+    } else if (selectionFlag == 3) {
+        if(group->label !='b') return;
+    } else {
+
+    }
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();

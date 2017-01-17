@@ -50,11 +50,24 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
     QAction* exportSelected = btnGroupCSV->menu()->addAction(tr("Export Selected"));
     QAction* exportAll = btnGroupCSV->menu()->addAction(tr("Export All Groups"));
+    QAction* exportGood = btnGroupCSV->menu()->addAction(tr("Export Good"));
+    QAction* exportBad = btnGroupCSV->menu()->addAction(tr("Export Bad"));
     //updated when Merging with Maven776 - Kiran
+    connect(exportSelected, SIGNAL(triggered()), SLOT(selectedPeakSet()));
     connect(exportSelected, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+    
+    connect(exportAll, SIGNAL(triggered()), SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    //Updated when Merging with Maven776 - Kiran
     connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+
+    connect(exportGood, SIGNAL(triggered()), SLOT(goodPeakSet()));
+    connect(exportGood, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
+    connect(exportGood, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+
+    connect(exportBad, SIGNAL(triggered()), SLOT(badPeakSet()));
+    connect(exportBad, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
+    connect(exportBad, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
+
     connect(this,SIGNAL(updateProgressBar(QString,int,int)), _mainwindow,SLOT(setProgressBar(QString, int,int)));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
@@ -624,6 +637,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     }
 
     QList<PeakGroup*> selectedGroups = getSelectedGroups();
+    csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
     for(int i=0; i<allgroups.size(); i++ ) {
         if (selectedGroups.contains(&allgroups[i])) {
@@ -953,6 +967,32 @@ QList<PeakGroup*> TableDockWidget::getSelectedGroups() {
     }
     return selectedGroups;
 }
+
+QList<PeakGroup*> TableDockWidget::getCustomGroups(peakTableSelectionType peakSelection) {
+    QList<PeakGroup*> selectedGroups;
+    peakTableSelectionType temppeakSelection = peakSelection;
+    Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
+        if (item) {
+            QVariant v = item->data(0,Qt::UserRole);
+            PeakGroup*  group =  v.value<PeakGroup*>();
+            if ( group != NULL ) {
+                if (temppeakSelection == peakTableSelectionType::Good) {
+                    if (group->label == 'g') {
+                        selectedGroups.append(group);
+                    }
+                } else if (temppeakSelection == peakTableSelectionType::Bad) {
+                    if (group->label == 'b') {
+                        selectedGroups.append(group);
+                    }
+                } else {
+                    selectedGroups.append(group);
+                }
+            }
+        }
+    }
+    return selectedGroups;
+}
+
 //@author:Giridhari -- Refactored this function
 //TODO: To select one or more item in Qtreewidget in peaktable
 PeakGroup* TableDockWidget::getSelectedGroup() { 
