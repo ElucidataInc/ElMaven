@@ -75,6 +75,8 @@ class PeakGroup{
         bool quantilePeaksAvailable;
         float minGroupIntensity;
         float quantilePercent;
+        bool quantilePeakQualityAvailable;
+        float quantilePeakQuality;
 
         int groupId;
         int metaGroupId;

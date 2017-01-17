@@ -484,6 +484,9 @@ void PeakGroup::groupStatistics() {
 
     if(noOfPeakCount > (peaks.size()*quantilePercent)/100) quantilePeaksAvailable = true;
     else quantilePeaksAvailable = false;
+    
+    if(goodPeakCount > (peaks.size()*quantilePeakQuality)/100) quantilePeakQualityAvailable = true;
+    else quantilePeakQualityAvailable = false;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {

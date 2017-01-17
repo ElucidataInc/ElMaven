@@ -56,6 +56,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     connect(centroid_scan_flag,SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(doubleSpinBoxMinQuality, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
+    connect(quantilePeakQuality, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
     connect(scan_filter_min_quantile, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
@@ -122,6 +123,8 @@ void SettingsForm::updateSettingFormGUI() {
     minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toDouble());
     baseline_quantile->setValue(settings->value("baseline_quantile").toDouble());
+    doubleSpinBoxMinQuality->setValue(settings->value("minQuality").toDouble());
+    quantilePeakQuality->setValue(settings->value("quantilePeakQuality").toDouble());
 
     doubleSpinBoxMinQuality->setValue(settings->value("minQuality").toDouble());
     //Upload Multiprocessing
@@ -185,6 +188,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
     settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
+    settings->setValue("quantilePeakQuality",quantilePeakQuality->value());
     
     /*Isotopic settings for barplot*/
     settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());

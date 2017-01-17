@@ -857,6 +857,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         group.minGroupIntensity = mavenParameters->minGroupIntensity;
                         group.quantilePercent = mavenParameters->quantilePercent;
                         group.minQuality = mavenParameters->minQuality;
+                        group.quantilePeakQuality = mavenParameters->quantilePeakQuality;
                         group.computeAvgBlankArea(eics);
                         group.groupStatistics();
                         groupCount++;
@@ -884,6 +885,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         if (group.maxIntensity < mavenParameters->minGroupIntensity)
                                 continue;
                         if(group.quantilePeaksAvailable == false) continue;
+                        if(!group.quantilePeakQualityAvailable) continue;
 
                         if (compound)
                                 group.compound = compound;

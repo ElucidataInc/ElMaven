@@ -471,6 +471,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
         mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
         mavenParameters->minQuality = settings->value("minQuality").toDouble();
+        mavenParameters->quantilePeakQuality = settings->value("quantilePeakQuality").toDouble();
 
         // Peak Scoring and Filtering
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
