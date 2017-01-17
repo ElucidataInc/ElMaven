@@ -103,7 +103,7 @@ void AlignmentVizWidget::setXAxis(PeakGroup* group) {
     QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
     textTicker->addTick(group->medianRt(), QString::number(group->medianRt()));
     _mw->alignmentVizPlot->xAxis->setTicks(true);
-    _mw->alignmentVizPlot->xAxis->setTicker(textTicker);
+    _mw->alignmentVizPlot->xAxis->setSubTicks(true);
 
     _mw->alignmentVizPlot->xAxis->setVisible(true);
 

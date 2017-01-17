@@ -408,7 +408,7 @@ double PeakGroup::getExpectedMz(int charge) {
         return mz;
     }
 
-    return NULL;
+    return -1;
 
 }
 

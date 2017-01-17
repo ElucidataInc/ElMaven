@@ -412,7 +412,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
 
-    if (group->getExpectedMz(_mainwindow->getIonizationMode()) != NULL) {
+    if (group->getExpectedMz(_mainwindow->getIonizationMode()) != -1) {
         float mz = group->getExpectedMz(_mainwindow->getIonizationMode());
         item->setText(3,QString::number(mz,'f', 4));
     } else {

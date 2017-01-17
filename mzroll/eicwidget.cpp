@@ -1420,7 +1420,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != NULL) {
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
@@ -1450,7 +1450,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != NULL) {
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
