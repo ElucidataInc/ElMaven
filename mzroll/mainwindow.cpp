@@ -1788,6 +1788,8 @@ void MainWindow::createToolBars() {
 	quantType->addItem("Quality");
 	quantType->setToolTip("Peak Quntitation Type");
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
+	connect(quantType, SIGNAL(activated(QString)), peakDetectionDialog, SLOT(updatePeakQType(QString)));
+	connect(peakDetectionDialog->peakQuantitation, SIGNAL(activated(QString)), this, SLOT(updateQType(QString)));
 
 	settings->beginGroup("searchHistory");
 	QStringList keys = settings->childKeys();
@@ -1860,6 +1862,14 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::updateQType(QString qtype) {
+    int index = quantType->findText(qtype);
+
+    if(index != -1) {
+        quantType->setCurrentIndex(index);
+    }
 }
 
 void MainWindow::historyLast() {

@@ -32,6 +32,14 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 }
 
+void PeakDetectionDialog::updatePeakQType(QString pQType) {
+    int index = peakQuantitation->findText(pQType);
+
+    if(index != -1) {
+        peakQuantitation->setCurrentIndex(index);
+    }
+}
+
 void PeakDetectionDialog::dbOptionsClicked() {
     if (dbOptions->isChecked()) {
         featureOptions->setChecked(false);
@@ -115,6 +123,8 @@ void PeakDetectionDialog::show() {
     // peakupdater->useMainWindowLabelOptions = false;
 
     inputInitialValuesPeakDetectionDialog();
+
+    updatePeakQType(mainwindow->quantType->currentText());
 }
 
 /**
