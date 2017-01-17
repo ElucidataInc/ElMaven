@@ -16,8 +16,11 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     treeWidget->setAcceptDrops(false);    
     treeWidget->setObjectName("PeakGroupTable");
-    //connect(treeWidget, SIGNAL(itemSelectionChanged()),SLOT(showSelectedGroup()));
-
+    treeWidget->setFocusPolicy(Qt::NoFocus);
+    treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->setFocusPolicy(Qt::ClickFocus);
+    tableSelectionFlagUp = false;
+    tableSelectionFlagDown =  false;
     this->setAcceptDrops(true);
 
     setWidget(treeWidget);
@@ -1242,14 +1245,60 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
 
     QTreeWidgetItem *item = treeWidget->currentItem();
     if (e->key() == Qt::Key_Delete ) {
-        deleteGroups();
+        QList<QTreeWidgetItem *> items = treeWidget->selectedItems();
+        if (items.size() > 0) {
+            cerr << items.size() << endl;
+            deleteGroups();
+        }
     } else if ( e->key() == Qt::Key_T ) {
-        Train();
+        if (item) {
+            Train();
+        }
     } else if ( e->key() == Qt::Key_G ) {
-        markGroupGood();
+        if (item) {
+            markGroupGood();
+        }
     } else if ( e->key() == Qt::Key_B ) {
-        markGroupBad();
-    }
+        if (item) {
+            markGroupBad();
+        }
+    } else if ( e->key() == Qt::Key_O ) {
+        if (treeWidget->currentItem()) {
+            if (treeWidget->currentItem()->isExpanded()) {
+                treeWidget->collapseItem(treeWidget->currentItem());
+            } else {
+                treeWidget->expandItem(treeWidget->currentItem());
+            }
+        }
+    } else if ( e->key() == Qt::Key_Down && e->modifiers()==Qt::ShiftModifier) {
+        if(treeWidget->itemBelow(item)) {
+            if (tableSelectionFlagDown) {
+                treeWidget->selectionModel()->setCurrentIndex( treeWidget->currentIndex(), QItemSelectionModel::Toggle| QItemSelectionModel::Rows);
+                tableSelectionFlagDown = false;
+            } else  {
+                treeWidget->selectionModel()->setCurrentIndex( treeWidget->indexBelow(treeWidget->currentIndex()), QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+            }
+            tableSelectionFlagUp = true;
+        }
+    } else if ( e->key() == Qt::Key_Up && e->modifiers()==Qt::ShiftModifier) {
+        if (treeWidget->itemAbove(item)) {
+            if(tableSelectionFlagUp) {
+                treeWidget->selectionModel()->setCurrentIndex( treeWidget->currentIndex(), QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+                tableSelectionFlagUp = false;
+            }   else {
+                treeWidget->selectionModel()->setCurrentIndex( treeWidget->indexAbove(treeWidget->currentIndex()), QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+            }
+            tableSelectionFlagDown = true;
+        }
+    }else if ( e->key() == Qt::Key_Down ) {
+        if(treeWidget->itemBelow(item)) {
+            treeWidget->setCurrentItem(treeWidget->itemBelow(item));
+        }
+	} else if ( e->key() == Qt::Key_Up ) {
+        if (treeWidget->itemAbove(item)) {
+            treeWidget->setCurrentItem(treeWidget->itemAbove(item));
+        }
+	} 
     QDockWidget::keyPressEvent(e);
     updateStatus();
 }

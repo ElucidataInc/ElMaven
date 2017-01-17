@@ -165,6 +165,9 @@ private:
           tableViewType viewType;
           peakTableSelectionType peakTableSelection;
           QList<PeakGroup*> getCustomGroups(peakTableSelectionType peakSelection);
+          bool tableSelectionFlagUp;
+          bool tableSelectionFlagDown;
+    
 };
 
 #endif
