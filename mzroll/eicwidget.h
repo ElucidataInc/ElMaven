@@ -49,7 +49,7 @@ public Q_SLOTS:
 	void setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* group);
-	void addEICLines(bool showSpline);
+	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
     void addBaseline(PeakGroup* group); //TODOL Sahil Added while mergin eicWidget
@@ -81,8 +81,14 @@ public Q_SLOTS:
 	void selectGroupNearRt(float rt);
 	void eicToClipboard();
 
+	void showEIC(bool f) {
+		_showEIC = f;
+	}
 	void showSpline(bool f) {
 		_showSpline = f;
+	}
+	void showCubicSpline(bool f) {
+		_showCubicSpline = f;
 	}
 	void showPeaks(bool f) {
 		_showPeaks = f;
@@ -196,7 +202,9 @@ private:
 	IsotopePlot* _isotopeplot;
 	Note* _statusText;
 
+	bool _showEIC;
 	bool _showSpline;
+	bool _showCubicSpline;
 	bool _showBaseline;
 	bool _showTicLine;
     bool _showBicLine; //TODO: Sahil Added while mergin eicWidget

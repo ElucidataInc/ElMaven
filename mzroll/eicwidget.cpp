@@ -24,7 +24,9 @@ EicWidget::EicWidget(QWidget *p) {
 
 	autoZoom(true);
 	showPeaks(true);
+	showEIC(true);
 	showSpline(false);
+	showCubicSpline(false);
 	showBaseLine(true);
 	showTicLine(false);
 	showBicLine(false); //TODO: Sahil, added while merging eicwidget
@@ -420,7 +422,7 @@ void EicWidget::replot() {
 	}
 }
 
-void EicWidget::addEICLines(bool showSpline) {
+void EicWidget::addEICLines(bool showSpline, bool showEIC) {
 	//qDebug <<" EicWidget::addEICLines(bool showSpline)";
 
 	//sort eics by peak height of selected group
@@ -462,9 +464,10 @@ void EicWidget::addEICLines(bool showSpline) {
 				continue;
 			if (showSpline) {
 				line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->spline[j])));
-			} else {
+			}
+			if (showEIC){
 				line->addPoint(
-						QPointF(toX(eic->rt[j]), toY(eic->intensity[j])));
+					QPointF(toX(eic->rt[j]), toY(eic->intensity[j])));
 			}
 		}
 		QColor pcolor = QColor::fromRgbF(eic->color[0], eic->color[1],
@@ -883,7 +886,7 @@ void EicWidget::replot(PeakGroup* group) {
 	
 	setSelectedGroup(group);
 	setTitle();
-	addEICLines(_showSpline);
+	addEICLines(_showSpline, _showEIC);
 	showAllPeaks();
 
 	if (group) {
@@ -891,9 +894,9 @@ void EicWidget::replot(PeakGroup* group) {
 			_focusLineRt = group->compound->expectedRt;
 	}
 
-    if(_showSpline) addCubicSpline();
+    if(_showCubicSpline) addCubicSpline();
     if(_showBaseline)  addBaseLine();   //qDebug() << "\tshowBaseLine msec=" << timerX.elapsed();
-    if(_showTicLine or _showBicLine)   addTicLine();    //qDebug() << "\tshowTic msec=" << timerX.elapsed();
+	if(_showTicLine or _showBicLine)   addTicLine();    //qDebug() << "\tshowTic msec=" << timerX.elapsed();
     if(_showMergedEIC) addMergedEIC();
     if(_focusLineRt >0) setFocusLine(_focusLineRt);  //qDebug() << "\tsetFocusLine msec=" << timerX.elapsed();
     if(_showNotes)	 getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);	//get notes that fall withing this mzrange
@@ -1656,11 +1659,23 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
     connect(o44, SIGNAL(toggled(bool)), SLOT(automaticPeakGrouping(bool)));
     connect(o44, SIGNAL(toggled(bool)), SLOT(replot()));
 
+	QAction* o10 = options.addAction("Show EIC");
+	o10->setCheckable(true);
+	o10->setChecked(_showEIC);
+	connect(o10, SIGNAL(toggled(bool)), SLOT(showEIC(bool)));
+	connect(o10, SIGNAL(toggled(bool)), SLOT(replot()));
+
 	QAction* o1 = options.addAction("Show Spline");
 	o1->setCheckable(true);
 	o1->setChecked(_showSpline);
 	connect(o1, SIGNAL(toggled(bool)), SLOT(showSpline(bool)));
 	connect(o1, SIGNAL(toggled(bool)), SLOT(replot()));
+
+	QAction* o9 = options.addAction("Show Cubic Spline");
+	o9->setCheckable(true);
+	o9->setChecked(_showCubicSpline);
+	connect(o9, SIGNAL(toggled(bool)), SLOT(showCubicSpline(bool)));
+	connect(o9, SIGNAL(toggled(bool)), SLOT(replot()));
 
 	QAction* o2 = options.addAction("Show Baseline");
 	o2->setCheckable(true);
