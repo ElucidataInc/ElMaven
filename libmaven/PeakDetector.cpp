@@ -860,7 +860,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         if (!slice->srmId.empty())
                                 group.srmId = slice->srmId;
 
-            // Peak Group Rank accoording to given weightage;
+            // Peak Group Rank accoording to given weightage
             float A = mavenParameters->qualityWeight;
             float B = mavenParameters->intensityWeight;
 
@@ -871,12 +871,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				float rtDiff = abs(compound->expectedRt - (group.meanRt));
                                 group.expectedRtDiff = rtDiff;
 				group.groupRank = rtDiff * rtDiff * A * (1.1 - group.maxQuality)
-                                                  * B * (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
+                                                  * (1 /(B * log(group.maxIntensity + 1))); //TODO Formula to rank groups
                                 if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
                                         continue;
                         } else {
 				group.groupRank = A * (1.1 - group.maxQuality)
-                                                  * B * (1 / log(group.maxIntensity + 1));
+                                                  * (1 /(B * log(group.maxIntensity + 1)));
                         }
 
 			groupsToAppend.push_back(&group);
