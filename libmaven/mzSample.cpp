@@ -1060,9 +1060,9 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
         //Adjusting the Retension Time so that it matches with the sample
         //retension time
         if (rtmin < this->minRt ) rtmin = this->minRt;
-        if (rtmax > this->maxRt ) rtmax = this->maxRt;
+        if (rtmax > this->maxRt && this->maxRt > rtmin) rtmax = this->maxRt;
         if (mzmin < this->minMz ) mzmin = this->minMz;
-        if (mzmax > this->maxMz ) mzmax = this->maxMz;
+        if (mzmax > this->maxMz && this->maxMz > mzmin) mzmax = this->maxMz;
 
         EIC* e = new EIC();
         e->sampleName = sampleName;
