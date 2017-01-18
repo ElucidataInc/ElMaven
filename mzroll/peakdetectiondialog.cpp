@@ -220,6 +220,12 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             peakQuantitation->setCurrentIndex(
             settings->value("peakQuantitation").toInt());
 
+            // Peak Group Rank
+            qualityWeight->setValue(
+                settings->value("qualityWeight").toDouble());
+            intensityWeight->setValue(
+                settings->value("intensityWeight").toDouble());
+
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
             compoundPPMWindow->setValue(
@@ -396,6 +402,9 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("minSignalBlankRatio", sigBlankRatio->value());
     settings->setValue("minGroupIntensity", minGroupIntensity->value());
     settings->setValue("peakQuantitation", peakQuantitation->currentIndex());
+    // Peak Group Rank 
+    settings->setValue("qualityWeight", qualityWeight->value());
+    settings->setValue("intensityWeight", intensityWeight->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
     settings->setValue("compoundPPMWindow", compoundPPMWindow->value());
@@ -462,6 +471,10 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
+
+        // Peak Group Rank
+        mavenParameters->qualityWeight = settings->value("qualityWeight").toDouble();
+        mavenParameters->intensityWeight = settings->value("intensityWeight").toDouble();
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();

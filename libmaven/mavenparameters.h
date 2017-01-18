@@ -123,6 +123,10 @@ public:
 	float minGroupIntensity;
 	int peakQuantitation;
 
+	// Peak Group Rank
+	float qualityWeight;
+	float intensityWeight;
+
 	/**
 	 * eic window around compound, compound detection setting
 	 */
