@@ -745,36 +745,48 @@
            <string>Intensity Weightage</string>
           </property>
          </widget>
-         <widget class="QDoubleSpinBox" name="qualityWeight">
+         <widget class="QSlider" name="intensityWeight">
           <property name="geometry">
            <rect>
-            <x>211</x>
-            <y>30</y>
-            <width>451</width>
-            <height>27</height>
+            <x>200</x>
+            <y>70</y>
+            <width>461</width>
+            <height>29</height>
            </rect>
           </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
+          <property name="inputMethodHints">
+           <set>Qt::ImhDigitsOnly</set>
           </property>
-          <property name="value">
-           <double>1.000000000000000</double>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
-         <widget class="QDoubleSpinBox" name="intensityWeight">
+         <widget class="QSlider" name="qualityWeight">
           <property name="geometry">
            <rect>
-            <x>210</x>
-            <y>70</y>
-            <width>451</width>
-            <height>27</height>
+            <x>200</x>
+            <y>30</y>
+            <width>461</width>
+            <height>29</height>
            </rect>
           </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <double>100.000000000000000</double>
+           <number>100</number>
           </property>
           <property name="value">
-           <double>1.000000000000000</double>
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </widget>
