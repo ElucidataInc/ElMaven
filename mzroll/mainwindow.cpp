@@ -1451,6 +1451,13 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);
 
+	// Peak Group Rank
+	if (!settings->contains("qualityWeight"))
+        settings->setValue("qualityWeight", 1.00);
+	
+	if (!settings->contains("intensityWeight"))
+        settings->setValue("intensityWeight", 1.00);
+
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
