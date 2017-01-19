@@ -181,6 +181,7 @@ void ProjectDockWidget::updateSampleList() {
 
 void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
     if (item && item->type() == SampleType ) {
+        _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         QVariant v = item->data(0,Qt::UserRole);
         mzSample*  sample =  v.value<mzSample*>();
         if (sample && sample->scans.size() > 0 ) {
@@ -278,6 +279,9 @@ void ProjectDockWidget::checkUncheck() {
           }
       }
      _treeWidget->update();
+
+     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+
       _mainwindow->getEicWidget()->replot();
 }
 

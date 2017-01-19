@@ -6,7 +6,13 @@ AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw) {
     this->_mw = mw;
 }
 
+void AlignmentVizAllGroupsWidget::replotGraph() {
+    plotGraph(saveGroups);
+}
+
 void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
+
+    saveGroups = allgroups;
 
     _mw->alignmentVizAllGroupsPlot->clearPlottables();
     setXAxis();
@@ -26,7 +32,14 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         }
     }
 
-    vector<mzSample*> samples = _mw->getSamples();
+    vector<mzSample*> samples;
+    
+    Q_FOREACH(mzSample* sample, _mw->getSamples()) {
+        if(sample->isSelected) {
+            samples.push_back(sample);
+        }
+    }
+
 
     QPen pen;
 
@@ -83,14 +96,19 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
         i++;
     }
 
-    setLegend();
     _mw->alignmentVizAllGroupsPlot->rescaleAxes();
     _mw->alignmentVizAllGroupsPlot->replot();
 }
 
 void AlignmentVizAllGroupsWidget::displayGroup() {
 
-    vector<mzSample*> samples = _mw->getSamples();
+    vector<mzSample*> samples;
+    
+    Q_FOREACH(mzSample* sample, _mw->getSamples()) {
+        if(sample->isSelected) {
+            samples.push_back(sample);
+        }
+    }
 
     QCPDataRange dataRange;
     int index;

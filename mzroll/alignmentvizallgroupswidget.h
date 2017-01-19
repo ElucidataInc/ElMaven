@@ -22,8 +22,10 @@ public:
     map<pair<float, float>, PeakGroup> pairPeakGroup;
     map<mzSample*, QVector<double> > retentionTime;
     map<mzSample*, QVector<double> > retentionTimeDeviation;
+    QList<PeakGroup> saveGroups;
 
 public Q_SLOTS:
+    void replotGraph();
     void plotGraph(QList<PeakGroup> allgroups);
     void setXAxis();
     void setYAxis();
