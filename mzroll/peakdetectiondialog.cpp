@@ -55,14 +55,33 @@ void PeakDetectionDialog::setIntensityWeightVisible(bool value) {
     label_25->setVisible(value);
     intensityWeight->setVisible(value);
     intensityWeightStatus->setVisible(value);
-}
+} 
 
 void PeakDetectionDialog::setDeltaRTWeightVisible(bool value) {
     label_34->setVisible(value);
     deltaRTWeight->setVisible(value);
     deltaRTWeightStatus->setVisible(value);
-
 }
+
+
+void PeakDetectionDialog::showQualityWeightStatus(int value) {
+    mainwindow->mavenParameters->qualityWeight = value;
+    QString stat= QString::number(value);
+    qualityWeightStatus->setText(stat);
+}
+
+void PeakDetectionDialog::showIntensityWeightStatus(int value) {
+    mainwindow->mavenParameters->intensityWeight = value;
+    QString stat= QString::number(value);
+    intensityWeightStatus->setText(stat);
+}
+
+void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
+    mainwindow->mavenParameters->deltaRTWeight = value;
+    QString stat= QString::number(value);
+    deltaRTWeightStatus->setText(stat);
+}
+
 void PeakDetectionDialog::setQualityWeightButtonStatus(bool check) {
     if(check) {
         mainwindow->mavenParameters->qualityWeightButtonStatus = true;
@@ -122,36 +141,14 @@ void PeakDetectionDialog::setGroupRank() {
 
 }
 
-void PeakDetectionDialog::showQualityWeightStatus(int value) {
-    mainwindow->mavenParameters->qualityWeight = value;
-    QString stat= QString::number(value);
-    qualityWeightStatus->setText(stat);
-}
-
-void PeakDetectionDialog::showIntensityWeightStatus(int value) {
-    mainwindow->mavenParameters->intensityWeight = value;
-    QString stat= QString::number(value);
-    intensityWeightStatus->setText(stat);
-}
-
-void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
-    mainwindow->mavenParameters->deltaRTWeight = value;
-    QString stat= QString::number(value);
-    deltaRTWeightStatus->setText(stat);
-}
-
 void PeakDetectionDialog::setInitialGroupRank() {
-
-    qualityWeight->setValue(1);
-    intensityWeight->setValue(1);
-    deltaRTWeight->setValue(2);
-    showQualityWeightStatus(1);
-    showIntensityWeightStatus(1);
-    showDeltaRTWeightStatus(2);
-    qualityWeightButton->setChecked(true);
-    mainwindow->mavenParameters->qualityWeightButtonStatus = true;
+    qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
+    intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
+    deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
+    showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
+    showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
+    showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
     setGroupRank();
-
 }
 
 void PeakDetectionDialog::updatePeakQType(QString pQType) {
@@ -249,6 +246,8 @@ void PeakDetectionDialog::show() {
     inputInitialValuesPeakDetectionDialog();
 
     updatePeakQType(mainwindow->quantType->currentText());
+
+    //setInitialGroupRank();
 }
 
 /**
