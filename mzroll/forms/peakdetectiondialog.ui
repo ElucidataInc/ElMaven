@@ -751,12 +751,18 @@
              <property name="text">
               <string>A :  Quality Weightage (A = 1)</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item row="2" column="0">
             <widget class="QRadioButton" name="deltaRTWeightButton">
              <property name="text">
               <string>C:   DeltaRT Weightage (C = 2)</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -781,7 +787,7 @@
               <number>1</number>
              </property>
              <property name="value">
-              <number>1</number>
+              <number>2</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
