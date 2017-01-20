@@ -7,6 +7,7 @@
 #include "PeakGroup.h"
 #include "mzSample.h"
 #include "Peak.h"
+#include <math.h>
 
 class MainWindow;
 class PeakGroup;
@@ -20,23 +21,26 @@ public:
     AlignmentVizWidget(MainWindow* mw);
 
 public Q_SLOTS:
-    void plotGraph(PeakGroup* group);
+    void plotGraph(PeakGroup*);
 
     void intialSetup();
     void setXAxis();
     void setYAxis();
 
     void refRtLine(PeakGroup*);
-    double getRefRt(PeakGroup* group);
+    double getRefRt(PeakGroup*);
+
+    void drawMessageBox(PeakGroup*, PeakGroup*);
+    float calculateRsquare(PeakGroup*);
 
     PeakGroup* getNewGroup(PeakGroup*);
-    bool checkGroupEquality(PeakGroup* grp1, PeakGroup* grp2);
+    bool checkGroupEquality(PeakGroup*, PeakGroup*);
 
-    void plotIndividualGraph(PeakGroup* group, QColor color);
+    void plotIndividualGraph(PeakGroup*, QColor);
 
-    vector<mzSample*> getSamplesFromGroup(PeakGroup* group);
-    float getWidthOfBar(PeakGroup* group);
-    double getRetentionTime(mzSample* sample, PeakGroup* group);
+    vector<mzSample*> getSamplesFromGroup(PeakGroup*);
+    float getWidthOfBar(PeakGroup*);
+    double getRetentionTime(mzSample*, PeakGroup*);
 
 private:
     MainWindow* _mw;

@@ -15,6 +15,8 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     PeakGroup* newGroup = getNewGroup(group);
 
+    drawMessageBox(newGroup, group);
+
     QColor colorCurrentGrp = QColor(100, 100, 100, 100);
     QColor colorShadowGrp  = QColor (0, 0, 0, 50);
 
@@ -32,7 +34,6 @@ void AlignmentVizWidget::intialSetup() {
     _mw->alignmentVizPlot->clearPlottables();
     setXAxis();
     setYAxis();
-    _mw->alignmentVizPlot->replot();
 }
 
 void AlignmentVizWidget::setXAxis() {
@@ -83,6 +84,40 @@ double AlignmentVizWidget::getRefRt(PeakGroup* group) {
     }
 
     return refRt;
+}
+
+void AlignmentVizWidget::drawMessageBox(PeakGroup* newGroup, PeakGroup* group) {
+
+    float newGroupR2 = calculateRsquare(newGroup);
+    float groupR2 = calculateRsquare(group);
+
+    QString message;
+
+    message = "previous R2 = " + QString::number(groupR2, 'f', 3);
+    message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 3);
+
+    QCPItemText *textLabel = new QCPItemText(_mw->alignmentVizPlot);
+    textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+    textLabel->position->setCoords(0.001, 0); // place position at center/top of axis rect
+    textLabel->setText(message);
+    textLabel->setFont(QFont("Times", 12)); 
+    textLabel->setPen(QPen(Qt::black)); 
+
+}
+
+float AlignmentVizWidget::calculateRsquare(PeakGroup* group) {
+
+    float r2 = 0;
+
+    Q_FOREACH(Peak peak, group->getPeaks()) {
+
+        float diff = peak.rt - getRefRt(group);
+        r2 += pow(diff, 2);
+    }
+
+    return r2;
+
 }
 
 PeakGroup* AlignmentVizWidget::getNewGroup(PeakGroup* group) {
