@@ -44,6 +44,10 @@ MavenParameters::MavenParameters() {
         peakQuantitation = 0;
         minQuality = 0.5;
 
+        qualityWeightButtonStatus = false;
+	intensityWeightButtonStatus = false;
+	deltaRTWeightButtonStatus = false;
+        
         compoundPPMWindow = 10;
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
