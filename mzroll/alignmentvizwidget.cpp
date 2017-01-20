@@ -9,71 +9,151 @@ AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
 
 void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
-    _mw->alignmentVizPlot->clearPlottables();
+    intialSetup();
 
-    PeakGroup* shadowGrp;
+    // refRtLine(group);
+
+    PeakGroup* newGroup = getNewGroup(group);
+
+    QColor colorCurrentGrp = QColor(100, 100, 100, 100);
+    QColor colorShadowGrp  = QColor (0, 0, 0, 50);
+
+    plotIndividualGraph(newGroup, colorCurrentGrp);
+
+    if (!checkGroupEquality(newGroup, group)) {
+        plotIndividualGraph(group, colorShadowGrp);
+    }
+
+    _mw->alignmentVizPlot->rescaleAxes();
+    _mw->alignmentVizPlot->replot();
+}
+
+void AlignmentVizWidget::intialSetup() {
+    _mw->alignmentVizPlot->clearPlottables();
+    setXAxis();
+    setYAxis();
+    _mw->alignmentVizPlot->replot();
+}
+
+void AlignmentVizWidget::setXAxis() {
+
+    _mw->alignmentVizPlot->xAxis->setTicks(true);
+    _mw->alignmentVizPlot->xAxis->setSubTicks(true);
+    _mw->alignmentVizPlot->xAxis->setVisible(true);
+    _mw->alignmentVizPlot->xAxis->setLabel("Retention Time");
+}
+
+void AlignmentVizWidget::setYAxis() {
+
+    _mw->alignmentVizPlot->yAxis->setVisible(true);
+    _mw->alignmentVizPlot->yAxis->setLabel("Samples");
+
+}
+
+void AlignmentVizWidget::refRtLine(PeakGroup*  group) {
+
+    double refRt = getRefRt(group);
+
+    QPen pen;
+    pen.setStyle(Qt::DotLine);
+    pen.setColor(Qt::red);
+
+    _mw->alignmentVizPlot->addGraph();
+    _mw->alignmentVizPlot->graph()->setPen(pen);
+
+    QVector<double> x, y;
+
+    x << refRt << refRt;
+    y << 0 << 1000;
+
+    _mw->alignmentVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
+    _mw->alignmentVizPlot->graph()->setData(x, y);
+
+    _mw->alignmentVizPlot->replot();
+
+}
+
+double AlignmentVizWidget::getRefRt(PeakGroup* group) {
+
+    double refRt;
+    if (group->hasCompoundLink()) {
+        refRt = group->compound->expectedRt;
+    } else {
+        refRt = group->medianRt();
+    }
+
+    return refRt;
+}
+
+PeakGroup* AlignmentVizWidget::getNewGroup(PeakGroup* group) {
+
+    PeakGroup* newGroup;
 
     bool groupFound = false;
 
     for (unsigned int ii =0 ; ii <_mw->mavenParameters->allgroups.size(); ii++) {
-        PeakGroup* previousGrp = &_mw->mavenParameters->allgroups[ii];
-        if (previousGrp->meanMz == group->meanMz && previousGrp->maxMz == group->maxMz && previousGrp->minMz == group->minMz) {
-            shadowGrp = previousGrp;
+        PeakGroup* currentGroup = &_mw->mavenParameters->allgroups[ii];
+        if (checkGroupEquality(currentGroup, group)) {
+            newGroup = currentGroup;
             groupFound = true;
             break;
         }
     }
 
     if(!groupFound) {
-        shadowGrp = group;
+        newGroup = group;
     }
+
+    return newGroup;
+
+}
+
+bool AlignmentVizWidget::checkGroupEquality(PeakGroup* grp1, PeakGroup* grp2) {
+    if (grp1->meanMz == grp2->meanMz 
+                && grp1->maxMz == grp2->maxMz
+                        && grp1->minMz == grp2->minMz) {
+        return true;
+
+    } else {
+        return false;
+    }
+}
+
+void AlignmentVizWidget::plotIndividualGraph(PeakGroup* group, QColor color) {
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
-    vector<mzSample*> shadowSamples = getSamplesFromGroup(shadowGrp);
+    // QVector<double> retentionTimes = getRetentionTime(samples, group);
 
-    QVector<double> retentionTimes = getRetentionTime(samples, group);
-    QVector<double> retentionTimesShadow = getRetentionTime(shadowSamples, shadowGrp);
+    float widthOfBar = getWidthOfBar(group);
 
-    setXAxis(group);
-    QVector<double> ticks = setYAxis(samples);
+    int i = 1;
+    Q_FOREACH(mzSample* sample, samples) {
 
-    Q_FOREACH(double tick, ticks) {
-
-        QCPBars *sample = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
-        sample->setAntialiased(false);
-        sample->setPen(QPen(QColor(111, 9, 176).lighter(170)));
-        sample->setBrush(QColor(111, 9, 176, 50));
-
-        QCPBars *shadow = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
-        shadow->setAntialiased(false);
-        shadow->setPen(QPen(QColor(111, 9, 176).lighter(170)));
-        shadow->setBrush(QColor(0, 0, 0, 100));
-
-        float maxDiff = max(group->medianRt() - group->minRt, group->maxRt - group->medianRt());
-        float shadowMaxDiff = max(shadowGrp->medianRt() - shadowGrp->minRt, shadowGrp->maxRt - shadowGrp->medianRt());
-
-        double baseValue = retentionTimes[tick] - maxDiff/20;
-        double shadowBaseValue = retentionTimesShadow[tick] - shadowMaxDiff/20;
+        QCPBars *bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
+        bar->setAntialiased(false);
+        bar->setBrush(color);
 
 
-        QVector<double> retentionTimeSolidBar;
-        QVector<double> retentionTimeShadowBar;
+        float rt;
 
-        retentionTimeSolidBar << (2*maxDiff)/20;
-        retentionTimeShadowBar << (2*shadowMaxDiff)/20;
+        rt = getRetentionTime(sample, group);
 
-        sample->setBaseValue(baseValue);
-        shadow->setBaseValue(shadowBaseValue);
+        if (rt != -1) {
 
-        QVector<double> tickVector;
-        tickVector << tick;
-        sample->setData(tickVector, retentionTimeSolidBar);
-        shadow->setData(tickVector, retentionTimeShadowBar);
+            double baseValue = rt - widthOfBar;
 
+            QVector<double> solidBar;
+            QVector<double> tick;
+
+            solidBar << 2*widthOfBar;
+            tick << i;
+
+            bar->setBaseValue(baseValue);
+            bar->setData(tick, solidBar);
+
+            i++;
+        }
     }
-
-
-    _mw->alignmentVizPlot->replot();
 }
 
 vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup* group) {
@@ -88,50 +168,23 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup* group) {
     return samples;
 }
 
-QVector<double> AlignmentVizWidget::getRetentionTime(vector<mzSample*> samples, PeakGroup* group) {
+float AlignmentVizWidget::getWidthOfBar(PeakGroup* group) {
 
-    QVector<double> retentionTimes;
-    Q_FOREACH(mzSample* sample, samples) {
-        Peak* peak = group->getPeak(sample);
-        if (peak) retentionTimes << peak->rt;
-    }
-    return retentionTimes;
+    float maxDiff, widthOfBar;
+    
+    maxDiff = max(getRefRt(group) - group->minRt, group->maxRt - getRefRt(group));
+
+    widthOfBar = maxDiff/500;
+
+    return widthOfBar;
 }
 
-void AlignmentVizWidget::setXAxis(PeakGroup* group) {
 
-    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
-    textTicker->addTick(group->medianRt(), QString::number(group->medianRt()));
-    _mw->alignmentVizPlot->xAxis->setTicks(true);
-    _mw->alignmentVizPlot->xAxis->setSubTicks(true);
+double AlignmentVizWidget::getRetentionTime(mzSample* sample, PeakGroup* group) {
 
-    _mw->alignmentVizPlot->xAxis->setVisible(true);
+    double rt = -1;
+    Peak* peak = group->getPeak(sample);
+    if (peak) rt = peak->rt;
 
-    float maxDiff = max(group->medianRt() - group->minRt, group->maxRt - group->medianRt());
-    float lowerRange =  group->medianRt() - 2*(maxDiff);
-    float upperRange = group->medianRt() + 2*(maxDiff);
-
-    _mw->alignmentVizPlot->xAxis->setRange(lowerRange, upperRange);
-    _mw->alignmentVizPlot->xAxis->setLabel("Retention Time");
-}
-
-QVector<double> AlignmentVizWidget::setYAxis(vector<mzSample*> samples) {
-
-    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
-    QVector<double> ticks;
-    int i=1;
-
-    Q_FOREACH(mzSample* sample, samples) {
-        textTicker->addTick(i, QString::fromStdString(sample->getSampleName()));
-        ticks << i;
-        i++;
-    }
-
-    _mw->alignmentVizPlot->yAxis->setTicks(true);
-    _mw->alignmentVizPlot->yAxis->setRange(-1, samples.size() + 1);
-    _mw->alignmentVizPlot->yAxis->setTicker(textTicker);
-    _mw->alignmentVizPlot->yAxis->setTickLabelRotation(-20);
-    _mw->alignmentVizPlot->yAxis->setTickLabelFont(QFont(QFont().family(), 8));
-
-    return ticks;
+    return rt;
 }

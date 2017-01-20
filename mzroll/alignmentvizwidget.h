@@ -21,10 +21,22 @@ public:
 
 public Q_SLOTS:
     void plotGraph(PeakGroup* group);
+
+    void intialSetup();
+    void setXAxis();
+    void setYAxis();
+
+    void refRtLine(PeakGroup*);
+    double getRefRt(PeakGroup* group);
+
+    PeakGroup* getNewGroup(PeakGroup*);
+    bool checkGroupEquality(PeakGroup* grp1, PeakGroup* grp2);
+
+    void plotIndividualGraph(PeakGroup* group, QColor color);
+
     vector<mzSample*> getSamplesFromGroup(PeakGroup* group);
-    QVector<double> getRetentionTime(vector<mzSample*> samples, PeakGroup* group);
-    void setXAxis(PeakGroup* group);
-    QVector<double> setYAxis(vector<mzSample*> samples);
+    float getWidthOfBar(PeakGroup* group);
+    double getRetentionTime(mzSample* sample, PeakGroup* group);
 
 private:
     MainWindow* _mw;
