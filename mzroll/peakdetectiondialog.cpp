@@ -48,20 +48,32 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 }
 
+void PeakDetectionDialog::setQualityWeightVisible(bool value) {
+    label_24->setVisible(value);
+    qualityWeight->setVisible(value);
+    qualityWeightStatus->setVisible(value);
+}
+
+void PeakDetectionDialog::setIntensityWeightVisible(bool value) {
+    label_25->setVisible(value);
+    intensityWeight->setVisible(value);
+    intensityWeightStatus->setVisible(value);
+}
+
+void PeakDetectionDialog::setDeltaRTWeightVisible(bool value) {
+    label_34->setVisible(value);
+    deltaRTWeight->setVisible(value);
+    deltaRTWeightStatus->setVisible(value);
+
+}
 void PeakDetectionDialog::setQualityWeightButtonStatus(bool check) {
     if(check) {
         mainwindow->mavenParameters->qualityWeightButtonStatus = true;
         mainwindow->mavenParameters->intensityWeightButtonStatus = false;
         mainwindow->mavenParameters->deltaRTWeightButtonStatus = false;
-        label_24->setVisible(false);
-        qualityWeight->setVisible(false);
-        qualityWeightStatus->setVisible(false);
-        label_25->setVisible(true);
-        intensityWeight->setVisible(true);
-        intensityWeightStatus->setVisible(true);
-        label_34->setVisible(true);
-        deltaRTWeight->setVisible(true);
-        deltaRTWeightStatus->setVisible(true);
+        setQualityWeightVisible(false);
+        setIntensityWeightVisible(true);
+        setDeltaRTWeightVisible(true);
     }
 }
 
@@ -70,15 +82,9 @@ void PeakDetectionDialog::setIntensityWeightButtonStatus(bool check) {
         mainwindow->mavenParameters->intensityWeightButtonStatus = true;
         mainwindow->mavenParameters->qualityWeightButtonStatus = false;
         mainwindow->mavenParameters->deltaRTWeightButtonStatus = false;
-        label_25->setVisible(false);
-        intensityWeight->setVisible(false);
-        intensityWeightStatus->setVisible(false);
-        label_24->setVisible(true);
-        qualityWeight->setVisible(true);
-        qualityWeightStatus->setVisible(true);
-        label_34->setVisible(true);
-        deltaRTWeight->setVisible(true);
-        deltaRTWeightStatus->setVisible(true);
+        setQualityWeightVisible(true);
+        setIntensityWeightVisible(false);
+        setDeltaRTWeightVisible(true);
     }
 }
 
@@ -87,15 +93,9 @@ void PeakDetectionDialog::setDeltaRTWeightButtonStatus(bool check) {
         mainwindow->mavenParameters->deltaRTWeightButtonStatus = true;
         mainwindow->mavenParameters->qualityWeightButtonStatus = false;
         mainwindow->mavenParameters->intensityWeightButtonStatus = false;
-        label_34->setVisible(false);
-        deltaRTWeight->setVisible(false);
-        deltaRTWeightStatus->setVisible(false);
-        label_24->setVisible(true);
-        qualityWeight->setVisible(true);
-        qualityWeightStatus->setVisible(true);
-        label_25->setVisible(true);
-        intensityWeight->setVisible(true);
-        intensityWeightStatus->setVisible(true);
+        setQualityWeightVisible(true);
+        setIntensityWeightVisible(true);
+        setDeltaRTWeightVisible(false);
     }
 }
 
@@ -104,14 +104,9 @@ void PeakDetectionDialog::setGroupRank() {
     bool check = matchRt->isChecked(); 
 
     if(check) {
-        label_26->setVisible(true);
-        label_27->setVisible(false);
-        label_30->setVisible(true);
-        label_33->setVisible(true);
+        textBrowser->setVisible(true);
+        textBrowser_2->setVisible(false);
         groupBox_7->setVisible(true);
-        label_34->setVisible(true);
-        deltaRTWeight->setVisible(true);
-        deltaRTWeightStatus->setVisible(true);
         if(mainwindow->mavenParameters->qualityWeightButtonStatus) 
             setQualityWeightButtonStatus(true);
         if(mainwindow->mavenParameters->intensityWeightButtonStatus) 
@@ -120,20 +115,12 @@ void PeakDetectionDialog::setGroupRank() {
             setDeltaRTWeightButtonStatus(true);
     }
     else {
-        label_26->setVisible(false);
-        label_27->setVisible(true);
-        label_30->setVisible(false);
-        label_33->setVisible(false);
+        textBrowser->setVisible(false);
+        textBrowser_2->setVisible(true);
         groupBox_7->setVisible(false);
-        label_24->setVisible(true);
-        qualityWeight->setVisible(true);
-        qualityWeightStatus->setVisible(true);
-        label_25->setVisible(true);
-        intensityWeight->setVisible(true);
-        intensityWeightStatus->setVisible(true);
-        label_34->setVisible(false);
-        deltaRTWeight->setVisible(false);
-        deltaRTWeightStatus->setVisible(false);
+        setQualityWeightVisible(true);
+        setIntensityWeightVisible(true);
+        setDeltaRTWeightVisible(false);
     }
 
 }
@@ -158,6 +145,9 @@ void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
 
 void PeakDetectionDialog::setInitialGroupRank() {
 
+    qualityWeight->setValue(1);
+    intensityWeight->setValue(1);
+    deltaRTWeight->setValue(2);
     showQualityWeightStatus(1);
     showIntensityWeightStatus(1);
     showDeltaRTWeightStatus(2);

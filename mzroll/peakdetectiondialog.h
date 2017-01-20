@@ -50,6 +50,9 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void setQualityWeightButtonStatus(bool check);
 				 void setIntensityWeightButtonStatus(bool check);
 				 void setDeltaRTWeightButtonStatus(bool check);
+				 void setQualityWeightVisible(bool value);
+				 void setIntensityWeightVisible(bool value);
+				 void setDeltaRTWeightVisible(bool value);
 
 		private:
 				QSettings *settings;
