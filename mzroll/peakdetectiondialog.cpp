@@ -12,15 +12,28 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
+        //mainwindow->mavenParameters->qualityWeightButtonStatus = false;
+        //mainwindow->mavenParameters->intensityWeightButtonStatus = false;
+        //mainwindow->mavenParameters->deltaRTWeightButtonStatus = false;
+
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(matchRt,SIGNAL(clicked()),this,SLOT(setGroupRank()));
+        connect(qualityWeightButton, SIGNAL(clicked(bool)),this,SLOT(setQualityWeightButtonStatus(bool)));
+        connect(intensityWeightButton, SIGNAL(clicked(bool)),this,SLOT(setIntensityWeightButtonStatus(bool)));
+        connect(deltaRTWeightButton, SIGNAL(clicked(bool)),this,SLOT(setDeltaRTWeightButtonStatus(bool)));
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
+
+        connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
+        connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
+        connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
+
 
         connect(dbOptions, SIGNAL(clicked(bool)), SLOT(dbOptionsClicked()));
         featureOptions->setChecked(false);
@@ -29,6 +42,125 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
         reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
+
+}
+
+void PeakDetectionDialog::setQualityWeightButtonStatus(bool check) {
+    if(check) {
+        mainwindow->mavenParameters->qualityWeightButtonStatus = true;
+        mainwindow->mavenParameters->intensityWeightButtonStatus = false;
+        mainwindow->mavenParameters->deltaRTWeightButtonStatus = false;
+        label_24->setVisible(false);
+        qualityWeight->setVisible(false);
+        qualityWeightStatus->setVisible(false);
+        label_25->setVisible(true);
+        intensityWeight->setVisible(true);
+        intensityWeightStatus->setVisible(true);
+        label_34->setVisible(true);
+        deltaRTWeight->setVisible(true);
+        deltaRTWeightStatus->setVisible(true);
+    }
+}
+
+void PeakDetectionDialog::setIntensityWeightButtonStatus(bool check) {
+    if(check) {
+        mainwindow->mavenParameters->intensityWeightButtonStatus = true;
+        mainwindow->mavenParameters->qualityWeightButtonStatus = false;
+        mainwindow->mavenParameters->deltaRTWeightButtonStatus = false;
+        label_25->setVisible(false);
+        intensityWeight->setVisible(false);
+        intensityWeightStatus->setVisible(false);
+        label_24->setVisible(true);
+        qualityWeight->setVisible(true);
+        qualityWeightStatus->setVisible(true);
+        label_34->setVisible(true);
+        deltaRTWeight->setVisible(true);
+        deltaRTWeightStatus->setVisible(true);
+    }
+}
+
+void PeakDetectionDialog::setDeltaRTWeightButtonStatus(bool check) {
+    if(check) {
+        mainwindow->mavenParameters->deltaRTWeightButtonStatus = true;
+        mainwindow->mavenParameters->qualityWeightButtonStatus = false;
+        mainwindow->mavenParameters->intensityWeightButtonStatus = false;
+        label_34->setVisible(false);
+        deltaRTWeight->setVisible(false);
+        deltaRTWeightStatus->setVisible(false);
+        label_24->setVisible(true);
+        qualityWeight->setVisible(true);
+        qualityWeightStatus->setVisible(true);
+        label_25->setVisible(true);
+        intensityWeight->setVisible(true);
+        intensityWeightStatus->setVisible(true);
+    }
+}
+
+void PeakDetectionDialog::setGroupRank() {
+
+    bool check = matchRt->isChecked(); 
+
+    if(check) {
+        label_26->setVisible(true);
+        label_27->setVisible(false);
+        label_30->setVisible(true);
+        label_33->setVisible(true);
+        groupBox_7->setVisible(true);
+        label_34->setVisible(true);
+        deltaRTWeight->setVisible(true);
+        deltaRTWeightStatus->setVisible(true);
+        if(mainwindow->mavenParameters->qualityWeightButtonStatus) 
+            setQualityWeightButtonStatus(true);
+        if(mainwindow->mavenParameters->intensityWeightButtonStatus) 
+            setIntensityWeightButtonStatus(true);
+        if(mainwindow->mavenParameters->deltaRTWeightButtonStatus) 
+            setDeltaRTWeightButtonStatus(true);
+    }
+    else {
+        label_26->setVisible(false);
+        label_27->setVisible(true);
+        label_30->setVisible(false);
+        label_33->setVisible(false);
+        groupBox_7->setVisible(false);
+        label_24->setVisible(true);
+        qualityWeight->setVisible(true);
+        qualityWeightStatus->setVisible(true);
+        label_25->setVisible(true);
+        intensityWeight->setVisible(true);
+        intensityWeightStatus->setVisible(true);
+        label_34->setVisible(false);
+        deltaRTWeight->setVisible(false);
+        deltaRTWeightStatus->setVisible(false);
+    }
+
+}
+
+void PeakDetectionDialog::showQualityWeightStatus(int value) {
+    mainwindow->mavenParameters->qualityWeight = value;
+    QString stat= QString::number(value);
+    qualityWeightStatus->setText(stat);
+}
+
+void PeakDetectionDialog::showIntensityWeightStatus(int value) {
+    mainwindow->mavenParameters->intensityWeight = value;
+    QString stat= QString::number(value);
+    intensityWeightStatus->setText(stat);
+}
+
+void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
+    mainwindow->mavenParameters->deltaRTWeight = value;
+    QString stat= QString::number(value);
+    deltaRTWeightStatus->setText(stat);
+}
+
+void PeakDetectionDialog::setInitialGroupRank() {
+
+    showQualityWeightStatus(1);
+    showIntensityWeightStatus(1);
+    showDeltaRTWeightStatus(2);
+    qualityWeightButton->setChecked(true);
+    mainwindow->mavenParameters->qualityWeightButtonStatus = true;
+    setGroupRank();
 
 }
 
@@ -222,9 +354,11 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             // Peak Group Rank
             qualityWeight->setValue(
-                settings->value("qualityWeight").toDouble());
+                settings->value("qualityWeight").toInt());
             intensityWeight->setValue(
-                settings->value("intensityWeight").toDouble());
+                settings->value("intensityWeight").toInt());
+            deltaRTWeight->setValue(
+                settings->value("deltaRTWeight").toInt());
 
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
@@ -405,7 +539,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // Peak Group Rank 
     settings->setValue("qualityWeight", qualityWeight->value());
     settings->setValue("intensityWeight", intensityWeight->value());
-    // Compound DB search
+    settings->setValue("deltaRTWeight", deltaRTWeight->value());
+// Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
     settings->setValue("compoundPPMWindow", compoundPPMWindow->value());
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
@@ -473,8 +608,9 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
 
         // Peak Group Rank
-        mavenParameters->qualityWeight = settings->value("qualityWeight").toDouble();
-        mavenParameters->intensityWeight = settings->value("intensityWeight").toDouble();
+        mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
+        mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
+        mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>874</width>
-    <height>739</height>
+    <width>884</width>
+    <height>755</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -708,84 +708,369 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Peak Group Rank</string>
-         </property>
-         <widget class="QLabel" name="label_24">
-          <property name="geometry">
-           <rect>
-            <x>17</x>
-            <y>30</y>
-            <width>181</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Quality Weightage</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_25">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>70</y>
-            <width>181</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Intensity Weightage</string>
-          </property>
-         </widget>
-         <widget class="QSlider" name="intensityWeight">
-          <property name="geometry">
-           <rect>
-            <x>200</x>
-            <y>70</y>
-            <width>461</width>
-            <height>29</height>
-           </rect>
-          </property>
-          <property name="inputMethodHints">
-           <set>Qt::ImhDigitsOnly</set>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-         <widget class="QSlider" name="qualityWeight">
-          <property name="geometry">
-           <rect>
-            <x>200</x>
-            <y>30</y>
-            <width>461</width>
-            <height>29</height>
-           </rect>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </widget>
-       </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="peakGroupRank">
+      <attribute name="title">
+       <string>Group Rank</string>
+      </attribute>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>831</width>
+         <height>611</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>731</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Group Rank Formula</string>
+        </property>
+        <widget class="QLabel" name="label_26">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>661</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Group Rank = (1.1 -( Quality)^A) * (1 /( log(Intensity + 1))^B) * (DeltaRT)^C *</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_27">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>671</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Group Rank = (1.1 - (Quality)^A) * (1 /( log(Intensity + 1))^B) </string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_28">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>291</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Where    Quality :       Quality of a group</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_29">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>140</y>
+           <width>281</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Intensity :    Intensity of a group</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_30">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>170</y>
+           <width>631</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>DetaRT :       Difference between compound retention time and group mean retention time</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_31">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>200</y>
+           <width>281</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>A :  Quality Weightage</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_32">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>230</y>
+           <width>271</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>B:   Intensity Weightage</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_33">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>260</y>
+           <width>201</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>C:   DeltaRT Weightage</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>450</y>
+          <width>771</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Group Rank Weightage</string>
+        </property>
+        <widget class="QLabel" name="label_24">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>30</y>
+           <width>171</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Quality Weightage</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_25">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>60</y>
+           <width>181</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Intensity Weightage</string>
+         </property>
+        </widget>
+        <widget class="QSlider" name="intensityWeight">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>60</y>
+           <width>461</width>
+           <height>29</height>
+          </rect>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>5</number>
+         </property>
+         <property name="pageStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QSlider" name="qualityWeight">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>30</y>
+           <width>461</width>
+           <height>29</height>
+          </rect>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>5</number>
+         </property>
+         <property name="pageStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QLabel" name="qualityWeightStatus">
+         <property name="geometry">
+          <rect>
+           <x>680</x>
+           <y>30</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Status</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="intensityWeightStatus">
+         <property name="geometry">
+          <rect>
+           <x>680</x>
+           <y>60</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Status</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_34">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>90</y>
+           <width>171</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>DeltaRT Weightage</string>
+         </property>
+        </widget>
+        <widget class="QSlider" name="deltaRTWeight">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>90</y>
+           <width>461</width>
+           <height>29</height>
+          </rect>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="maximum">
+          <number>5</number>
+         </property>
+         <property name="pageStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QLabel" name="deltaRTWeightStatus">
+         <property name="geometry">
+          <rect>
+           <x>680</x>
+           <y>90</y>
+           <width>101</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Status</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>320</y>
+          <width>671</width>
+          <height>121</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Select weightage to remain unchanged</string>
+        </property>
+        <widget class="QRadioButton" name="qualityWeightButton">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>30</y>
+           <width>281</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>A :  Quality Weightage (A = 1)</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="intensityWeightButton">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>60</y>
+           <width>311</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>B:   Intensity Weightage (B = 1)</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="deltaRTWeightButton">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>90</y>
+           <width>361</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>C:   DeltaRT Weightage (C = 2)</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
      </widget>
      <widget class="QWidget" name="methodSummaryTab">
       <attribute name="title">
