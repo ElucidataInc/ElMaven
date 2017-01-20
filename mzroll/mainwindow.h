@@ -338,6 +338,7 @@ private Q_SLOTS:
 	void createToolBars();
 	void readSettings();
 	void writeSettings();
+	void checkSRMList();
 
 private:
 	QSettings* settings;

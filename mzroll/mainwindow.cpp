@@ -359,6 +359,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
+	
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
@@ -478,20 +480,20 @@ MainWindow::MainWindow(QWidget *parent) :
 	peakDetectionDialog->setMavenParameters(settings);
 
 				
-    if (unloadableFiles.size() > 0) {
-		string filesNames = "Following database file(s) could not be loaded: ";
-		for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
-		filesNames += "\n" + *it ;
+    // if (unloadableFiles.size() > 0) {
+	// 	string filesNames = "Following database file(s) could not be loaded: ";
+	// 	for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
+	// 	filesNames += "\n" + *it ;
 
-		QMessageBox* msgBox = new QMessageBox( this );
-		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		msgBox->setStandardButtons( QMessageBox::Ok );
-		msgBox->setIcon(QMessageBox::Warning);
-		msgBox->setText(tr("Trouble in loading compound database file(s)"));
-		msgBox->setDetailedText(QString::fromStdString(filesNames));
-		msgBox->setModal( false );
-		msgBox->open();
-    }
+	// 	QMessageBox* msgBox = new QMessageBox( this );
+	// 	msgBox->setAttribute( Qt::WA_DeleteOnClose );
+	// 	msgBox->setStandardButtons( QMessageBox::Ok );
+	// 	msgBox->setIcon(QMessageBox::Warning);
+	// 	msgBox->setText(tr("Trouble in loading compound database file(s)"));
+	// 	msgBox->setDetailedText(QString::fromStdString(filesNames));
+	// 	msgBox->setModal( false );
+	// 	msgBox->open();
+    // }
 }
 
 bool MainWindow::askAutosave() {
@@ -508,6 +510,60 @@ bool MainWindow::askAutosave() {
 	return doAutosave;
 }
 
+/*!
+This function checks if all the samples that are loaded have the same number of SRM list. 
+If not then it will give an information message telling that all the samples dont have
+same number of SRM list.
+*/
+void MainWindow::checkSRMList() {
+	vector<mzSample*> allSamples = getSamples();
+	set<string> sampleSet;
+	map <string, set<string>> srmSampleMap;
+	map <string, set<string>> srmListError;
+	//Going through each sample and making a map of SRM list to sample a given SRM list should have
+	// all the samples
+	for(std::vector<mzSample*>::iterator it = allSamples.begin(); it != allSamples.end(); ++it) {
+		(*it)->srmScans;
+		vector<string> SRMStringVect;
+		for(map<string,vector<int>>::iterator iit = (*it)->srmScans.begin(); iit != (*it)->srmScans.end(); ++iit) {
+			SRMStringVect.push_back(iit->first);
+			srmSampleMap[iit->first].insert((*it)->sampleName);
+		}
+		sampleSet.insert((*it)->sampleName);
+	}
+	//Going through each of the sample SRM and checking if all the samples are there for a given SRM list
+	for(map<string,set<string>>::iterator iit = srmSampleMap.begin(); iit != srmSampleMap.end(); ++iit) {
+		if (srmSampleMap[iit->first].size() !=  sampleSet.size()) {
+			set<string> diff;
+			set_difference(sampleSet.begin(), sampleSet.end(), srmSampleMap[iit->first].begin(), srmSampleMap[iit->first].end(), 
+                         std::inserter(diff, diff.begin()));
+			//Inserting the diff of set of the sample that is not present for the given SRM ID
+			for (auto i : diff) srmListError[iit->first].insert(i);
+		}
+	}
+
+	if (srmListError.size() > 0) {
+		string filesNames = "Following are the list of the sample(s) for which segments are missing: ";
+		QMessageBox* msgBox = new QMessageBox( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		msgBox->setStandardButtons( QMessageBox::Ok );
+		msgBox->setIcon(QMessageBox::Warning);
+		for(map<string,set<string>>::iterator iit = srmListError.begin(); iit != srmListError.end(); ++iit) {
+			filesNames += "\n" + iit->first + " : " + "\n";
+			
+			for(auto f : srmListError[iit->first]) {
+				filesNames += "    " + f + "\n";
+			}    
+		}
+		
+		for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
+
+		msgBox->setText(tr("Segment runs missing in some samples!"));
+		msgBox->setDetailedText(QString::fromStdString(filesNames));
+		msgBox->setModal( false );
+		msgBox->open();
+	}
+}
 
 AutoSave::AutoSave(QWidget*){
 
