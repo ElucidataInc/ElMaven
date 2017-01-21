@@ -19,6 +19,9 @@ class AlignmentVizWidget : public QObject
     Q_OBJECT
 public:
     AlignmentVizWidget(MainWindow* mw);
+    QCPBars *bar;
+    map<int, mzSample*> mapSample;
+    map<int, pair<double, double> > mapXAxis;
 
 public Q_SLOTS:
     void plotGraph(PeakGroup*);
@@ -27,20 +30,22 @@ public Q_SLOTS:
     void setXAxis();
     void setYAxis();
 
-    void refRtLine(PeakGroup*);
-    double getRefRt(PeakGroup*);
+    void refRtLine(PeakGroup);
+    double getRefRt(PeakGroup);
 
-    void drawMessageBox(PeakGroup*, PeakGroup*);
-    float calculateRsquare(PeakGroup*);
+    void drawMessageBox(PeakGroup, PeakGroup);
+    float calculateRsquare(PeakGroup);
 
-    PeakGroup* getNewGroup(PeakGroup*);
-    bool checkGroupEquality(PeakGroup*, PeakGroup*);
+    PeakGroup getNewGroup(PeakGroup);
+    bool checkGroupEquality(PeakGroup, PeakGroup);
 
-    void plotIndividualGraph(PeakGroup*, QColor);
+    void plotIndividualGraph(PeakGroup, QColor);
 
-    vector<mzSample*> getSamplesFromGroup(PeakGroup*);
-    float getWidthOfBar(PeakGroup*);
-    double getRetentionTime(mzSample*, PeakGroup*);
+    vector<mzSample*> getSamplesFromGroup(PeakGroup);
+    float getWidthOfBar(PeakGroup);
+    double getRetentionTime(mzSample*, PeakGroup);
+
+    void mouseQCPBar(QMouseEvent *event);    
 
 private:
     MainWindow* _mw;

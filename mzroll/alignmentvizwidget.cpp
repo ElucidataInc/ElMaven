@@ -10,20 +10,22 @@ AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
 void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     intialSetup();
+    PeakGroup grp = *group;
 
-    // refRtLine(group);
 
-    PeakGroup* newGroup = getNewGroup(group);
+    // refRtLine(grp);
 
-    drawMessageBox(newGroup, group);
+    PeakGroup newGroup = getNewGroup(grp);
+
+    drawMessageBox(newGroup, grp);
 
     QColor colorCurrentGrp = QColor(100, 100, 100, 100);
     QColor colorShadowGrp  = QColor (0, 0, 0, 50);
 
     plotIndividualGraph(newGroup, colorCurrentGrp);
 
-    if (!checkGroupEquality(newGroup, group)) {
-        plotIndividualGraph(group, colorShadowGrp);
+    if (!checkGroupEquality(newGroup, grp)) {
+        plotIndividualGraph(grp, colorShadowGrp);
     }
 
     _mw->alignmentVizPlot->rescaleAxes();
@@ -51,7 +53,7 @@ void AlignmentVizWidget::setYAxis() {
 
 }
 
-void AlignmentVizWidget::refRtLine(PeakGroup*  group) {
+void AlignmentVizWidget::refRtLine(PeakGroup  group) {
 
     double refRt = getRefRt(group);
 
@@ -74,19 +76,19 @@ void AlignmentVizWidget::refRtLine(PeakGroup*  group) {
 
 }
 
-double AlignmentVizWidget::getRefRt(PeakGroup* group) {
+double AlignmentVizWidget::getRefRt(PeakGroup group) {
 
     double refRt;
-    if (group->hasCompoundLink()) {
-        refRt = group->compound->expectedRt;
+    if (group.hasCompoundLink()) {
+        refRt = group.compound->expectedRt;
     } else {
-        refRt = group->medianRt();
+        refRt = group.medianRt();
     }
 
     return refRt;
 }
 
-void AlignmentVizWidget::drawMessageBox(PeakGroup* newGroup, PeakGroup* group) {
+void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
     float newGroupR2 = calculateRsquare(newGroup);
     float groupR2 = calculateRsquare(group);
@@ -106,11 +108,11 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup* newGroup, PeakGroup* group) {
 
 }
 
-float AlignmentVizWidget::calculateRsquare(PeakGroup* group) {
+float AlignmentVizWidget::calculateRsquare(PeakGroup group) {
 
     float r2 = 0;
 
-    Q_FOREACH(Peak peak, group->getPeaks()) {
+    Q_FOREACH(Peak peak, group.getPeaks()) {
 
         float diff = peak.rt - getRefRt(group);
         r2 += pow(diff, 2);
@@ -120,14 +122,14 @@ float AlignmentVizWidget::calculateRsquare(PeakGroup* group) {
 
 }
 
-PeakGroup* AlignmentVizWidget::getNewGroup(PeakGroup* group) {
+PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 
-    PeakGroup* newGroup;
+    PeakGroup newGroup;
 
     bool groupFound = false;
 
     for (unsigned int ii =0 ; ii <_mw->mavenParameters->allgroups.size(); ii++) {
-        PeakGroup* currentGroup = &_mw->mavenParameters->allgroups[ii];
+        PeakGroup currentGroup = _mw->mavenParameters->allgroups[ii];
         if (checkGroupEquality(currentGroup, group)) {
             newGroup = currentGroup;
             groupFound = true;
@@ -143,10 +145,10 @@ PeakGroup* AlignmentVizWidget::getNewGroup(PeakGroup* group) {
 
 }
 
-bool AlignmentVizWidget::checkGroupEquality(PeakGroup* grp1, PeakGroup* grp2) {
-    if (grp1->meanMz == grp2->meanMz 
-                && grp1->maxMz == grp2->maxMz
-                        && grp1->minMz == grp2->minMz) {
+bool AlignmentVizWidget::checkGroupEquality(PeakGroup grp1, PeakGroup grp2) {
+    if (grp1.meanMz == grp2.meanMz 
+                && grp1.maxMz == grp2.maxMz
+                        && grp1.minMz == grp2.minMz) {
         return true;
 
     } else {
@@ -154,17 +156,18 @@ bool AlignmentVizWidget::checkGroupEquality(PeakGroup* grp1, PeakGroup* grp2) {
     }
 }
 
-void AlignmentVizWidget::plotIndividualGraph(PeakGroup* group, QColor color) {
+void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
     // QVector<double> retentionTimes = getRetentionTime(samples, group);
+    connect(_mw->alignmentVizPlot, SIGNAL(mouseMove(QMouseEvent* )) , this, SLOT(mouseQCPBar(QMouseEvent* )));
 
     float widthOfBar = getWidthOfBar(group);
 
     int i = 1;
     Q_FOREACH(mzSample* sample, samples) {
 
-        QCPBars *bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
+        bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         bar->setAntialiased(false);
         bar->setBrush(color);
 
@@ -186,14 +189,17 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup* group, QColor color) {
             bar->setBaseValue(baseValue);
             bar->setData(tick, solidBar);
 
+            mapSample[i] = sample;
+            mapXAxis[i] = make_pair(baseValue, baseValue + 2*widthOfBar);
+
             i++;
         }
     }
 }
 
-vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup* group) {
+vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
 
-    vector<Peak>& peaks = group->getPeaks();
+    vector<Peak>& peaks = group.getPeaks();
     vector<mzSample*> samples;
     for(unsigned int i=0; i < peaks.size(); i++ ) {
         mzSample* s = peaks[i].getSample();
@@ -203,11 +209,11 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup* group) {
     return samples;
 }
 
-float AlignmentVizWidget::getWidthOfBar(PeakGroup* group) {
+float AlignmentVizWidget::getWidthOfBar(PeakGroup group) {
 
     float maxDiff, widthOfBar;
     
-    maxDiff = max(getRefRt(group) - group->minRt, group->maxRt - getRefRt(group));
+    maxDiff = max(getRefRt(group) - group.minRt, group.maxRt - getRefRt(group));
 
     widthOfBar = maxDiff/500;
 
@@ -215,11 +221,40 @@ float AlignmentVizWidget::getWidthOfBar(PeakGroup* group) {
 }
 
 
-double AlignmentVizWidget::getRetentionTime(mzSample* sample, PeakGroup* group) {
+double AlignmentVizWidget::getRetentionTime(mzSample* sample, PeakGroup group) {
 
     double rt = -1;
-    Peak* peak = group->getPeak(sample);
+    Peak* peak = group.getPeak(sample);
     if (peak) rt = peak->rt;
 
     return rt;
+}
+
+void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
+{
+    double x = _mw->alignmentVizPlot->xAxis->pixelToCoord(event->pos().x());
+    double y = round(_mw->alignmentVizPlot->yAxis->pixelToCoord(event->pos().y()));
+
+    pair<double, double> qcpBarRange = mapXAxis[y];
+
+    QCPItemText *textLabel = new QCPItemText(_mw->alignmentVizPlot);
+    textLabel->setPositionAlignment(Qt::AlignBottom|Qt::AlignLeft);
+    textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+    textLabel->position->setCoords(0.001, 1); // place position at center/top of axis rect
+
+    QString message = "";
+
+    if (qcpBarRange.first <= x && x <= qcpBarRange.second) {
+        mzSample* sample = mapSample[y];
+        if(sample) {
+
+            message = QString::fromStdString(sample->getSampleName());
+
+        }
+    }
+    textLabel->setText(message);
+    textLabel->setFont(QFont("Times", 12));
+    textLabel->setPen(QPen(Qt::black)); 
+    _mw->alignmentVizPlot->replot();
+
 }
