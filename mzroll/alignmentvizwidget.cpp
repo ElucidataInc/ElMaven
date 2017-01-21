@@ -34,6 +34,20 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
 void AlignmentVizWidget::intialSetup() {
     _mw->alignmentVizPlot->clearPlottables();
+
+    if (_mw) {
+        if (_mw->alignmentVizPlot) {
+            if(textLabel) {
+                _mw->alignmentVizPlot->removeItem(textLabel);
+            }
+            if(sampleLabel) {
+                _mw->alignmentVizPlot->removeItem(sampleLabel);
+            }
+            // _mw->alignmentVizPlot->plotLayout()->clear();
+            _mw->alignmentVizPlot->replot();
+        }
+    }
+
     setXAxis();
     setYAxis();
 }
@@ -98,7 +112,7 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
     message = "previous R2 = " + QString::number(groupR2, 'f', 3);
     message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 3);
 
-    QCPItemText *textLabel = new QCPItemText(_mw->alignmentVizPlot);
+    textLabel = new QCPItemText(_mw->alignmentVizPlot);
     textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
     textLabel->position->setCoords(0.001, 0); // place position at center/top of axis rect
@@ -237,12 +251,17 @@ void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
 
     pair<double, double> qcpBarRange = mapXAxis[y];
 
-    QCPItemText *textLabel = new QCPItemText(_mw->alignmentVizPlot);
-    textLabel->setPositionAlignment(Qt::AlignBottom|Qt::AlignLeft);
-    textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-    textLabel->position->setCoords(0.001, 1); // place position at center/top of axis rect
+    if(sampleLabel) {
+        _mw->alignmentVizPlot->removeItem(sampleLabel);
+    }
+
+    sampleLabel = new QCPItemText(_mw->alignmentVizPlot);
+    sampleLabel->setPositionAlignment(Qt::AlignBottom|Qt::AlignLeft);
+    sampleLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+    sampleLabel->position->setCoords(0.001, 1); // place position at center/top of axis rect
 
     QString message = "";
+
 
     if (qcpBarRange.first <= x && x <= qcpBarRange.second) {
         mzSample* sample = mapSample[y];
@@ -252,9 +271,9 @@ void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
 
         }
     }
-    textLabel->setText(message);
-    textLabel->setFont(QFont("Times", 12));
-    textLabel->setPen(QPen(Qt::black)); 
+    sampleLabel->setText(message);
+    sampleLabel->setFont(QFont("Times", 12));
+    sampleLabel->setPen(QPen(Qt::black)); 
     _mw->alignmentVizPlot->replot();
 
 }

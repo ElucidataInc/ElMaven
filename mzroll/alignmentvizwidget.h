@@ -22,6 +22,8 @@ public:
     QCPBars *bar;
     map<int, mzSample*> mapSample;
     map<int, pair<double, double> > mapXAxis;
+    QCPItemText *textLabel;
+    QCPItemText *sampleLabel; 
 
 public Q_SLOTS:
     void plotGraph(PeakGroup*);
