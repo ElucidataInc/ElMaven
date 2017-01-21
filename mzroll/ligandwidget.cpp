@@ -32,10 +32,10 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   databaseSelect->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
 
 
-  galleryButton = new QToolButton(toolBar);
-  galleryButton->setIcon(QIcon(rsrcPath + "/gallery.png"));
-  galleryButton->setToolTip(tr("Show Compounds in Gallery Widget"));
-  connect(galleryButton,SIGNAL(clicked()),SLOT(showGallery()));
+//   galleryButton = new QToolButton(toolBar);
+//   galleryButton->setIcon(QIcon(rsrcPath + "/gallery.png"));
+//   galleryButton->setToolTip(tr("Show Compounds in Gallery Widget"));
+//   connect(galleryButton,SIGNAL(clicked()),SLOT(showGallery()));
 
   loadButton = new QToolButton(toolBar);
   loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
@@ -56,7 +56,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(loadButton);
   toolBar->addWidget(saveButton);
-  toolBar->addWidget(galleryButton);
+//   toolBar->addWidget(galleryButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);

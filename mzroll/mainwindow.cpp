@@ -190,7 +190,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//set main dock widget
 	eicWidget = new EicWidget(this);
-	setCentralWidget(eicWidgetController());
 	spectraWidget = new SpectraWidget(this);
 	alignmentVizWidget = new AlignmentVizWidget(this);
 	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
@@ -476,7 +475,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//versionCheck(); //TODO: Sahil-Kiran, Removed while merging mainwindow
 
 	settings->setValue("closeEvent", 0);
-
+	setCentralWidget(eicWidgetController());
 	peakDetectionDialog->setMavenParameters(settings);
 
 				
@@ -1871,7 +1870,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
-    QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
+    //QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
     QToolButton* btnNotes = addDockWidgetButton(sideBar,notesDockWidget,QIcon(rsrcPath + "/note.png"), "Show Notes Widget (F9)");
     QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
     QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
@@ -1887,10 +1886,10 @@ void MainWindow::createToolBars() {
 	btnIsotopes->setShortcut(Qt::Key_F5);
 	btnFindCompound->setShortcut(Qt::Key_F6);
 	btnCovariants->setShortcut(Qt::Key_F7);
-	btnPathways->setShortcut(Qt::Key_F8);
-	btnNotes->setShortcut(Qt::Key_F9);
-	btnBookmarks->setShortcut(Qt::Key_F10);
-	btnSRM->setShortcut(Qt::Key_F12);
+	//btnPathways->setShortcut(Qt::Key_F8);
+	btnNotes->setShortcut(Qt::Key_F8);
+	btnBookmarks->setShortcut(Qt::Key_F9);
+	btnSRM->setShortcut(Qt::Key_F10);
 
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
@@ -1907,7 +1906,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
-	sideBar->addWidget(btnPathways);
+	//sideBar->addWidget(btnPathways);
 	sideBar->addWidget(btnNotes);
 	sideBar->addWidget(btnSRM);
 	sideBar->addWidget(btnGallery);
@@ -2543,7 +2542,11 @@ QWidget* MainWindow::eicWidgetController() {
     btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
     btnShowIsotopeplot->setCheckable(true);
-    btnShowIsotopeplot->setChecked(true);
+	if (isotopePlotsDockWidget->isVisible()) {
+    	btnShowIsotopeplot->setChecked(true);
+	} else {
+		btnShowIsotopeplot->setChecked(false);
+	}
 
 	//TODO: Sahil-Kiran, Added while merging mainwindow
     QToolButton *btnShowSplines = new QToolButton(toolBar);
