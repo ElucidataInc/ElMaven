@@ -12,8 +12,7 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
     intialSetup();
     PeakGroup grp = *group;
 
-
-    // refRtLine(grp);
+    refRtLine(grp);
 
     PeakGroup newGroup = getNewGroup(grp);
 
@@ -28,7 +27,11 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
         plotIndividualGraph(grp, colorShadowGrp);
     }
 
-    _mw->alignmentVizPlot->rescaleAxes();
+    float rtRange = grp.medianRt();
+    vector<mzSample*> samples = getSamplesFromGroup(grp);
+
+    _mw->alignmentVizPlot->yAxis->setRange(0, samples.size() + 1);
+    _mw->alignmentVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
     _mw->alignmentVizPlot->replot();
 }
 
@@ -229,7 +232,7 @@ float AlignmentVizWidget::getWidthOfBar(PeakGroup group) {
     
     maxDiff = max(getRefRt(group) - group.minRt, group.maxRt - getRefRt(group));
 
-    widthOfBar = maxDiff/500;
+    widthOfBar = 0.01; //hard-coded on purpose
 
     return widthOfBar;
 }
