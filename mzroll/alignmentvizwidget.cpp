@@ -18,7 +18,7 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     drawMessageBox(newGroup, grp);
 
-    QColor colorCurrentGrp = QColor(100, 100, 100, 100);
+    QColor colorCurrentGrp = QColor(150, 10, 250, 100);
     QColor colorShadowGrp  = QColor (0, 0, 0, 50);
 
     plotIndividualGraph(newGroup, colorCurrentGrp);
@@ -77,6 +77,7 @@ void AlignmentVizWidget::refRtLine(PeakGroup  group) {
     QPen pen;
     pen.setStyle(Qt::DotLine);
     pen.setColor(Qt::red);
+    pen.setWidth(2);
 
     _mw->alignmentVizPlot->addGraph();
     _mw->alignmentVizPlot->graph()->setPen(pen);
@@ -186,6 +187,9 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
 
         bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         bar->setAntialiased(false);
+        QPen pen;
+        pen.setColor(color);
+        bar->setPen(pen);
         bar->setBrush(color);
 
 
@@ -259,9 +263,9 @@ void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
     }
 
     sampleLabel = new QCPItemText(_mw->alignmentVizPlot);
-    sampleLabel->setPositionAlignment(Qt::AlignBottom|Qt::AlignLeft);
+    sampleLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignRight);
     sampleLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-    sampleLabel->position->setCoords(0.001, 1); // place position at center/top of axis rect
+    sampleLabel->position->setCoords(0.99, 0.001); // place position at center/top of axis rect
 
     QString message = "";
 
