@@ -24,6 +24,7 @@ public:
     map<int, pair<double, double> > mapXAxis;
     QCPItemText *textLabel;
     QCPItemText *sampleLabel; 
+    QList<PeakGroup> currentGroups;
 
 public Q_SLOTS:
     void plotGraph(PeakGroup*);
@@ -39,7 +40,8 @@ public Q_SLOTS:
     float calculateRsquare(PeakGroup);
 
     PeakGroup getNewGroup(PeakGroup);
-    bool checkGroupEquality(PeakGroup, PeakGroup);
+    void setCurrentGroups(QList<PeakGroup> groups) {currentGroups = groups;}
+    float checkGroupEquality(PeakGroup, PeakGroup);
 
     void plotIndividualGraph(PeakGroup, QColor);
 

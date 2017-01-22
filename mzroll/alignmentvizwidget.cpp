@@ -23,9 +23,7 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     plotIndividualGraph(newGroup, colorCurrentGrp);
 
-    if (!checkGroupEquality(newGroup, grp)) {
-        plotIndividualGraph(grp, colorShadowGrp);
-    }
+    plotIndividualGraph(grp, colorShadowGrp);
 
     float rtRange = grp.medianRt();
     vector<mzSample*> samples = getSamplesFromGroup(grp);
@@ -146,12 +144,16 @@ PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 
     bool groupFound = false;
 
-    for (unsigned int ii =0 ; ii <_mw->mavenParameters->allgroups.size(); ii++) {
-        PeakGroup currentGroup = _mw->mavenParameters->allgroups[ii];
-        if (checkGroupEquality(currentGroup, group)) {
+
+    float min = FLT_MAX;
+
+    Q_FOREACH(PeakGroup currentGroup, currentGroups) {
+
+        float Rsquare = checkGroupEquality(currentGroup, group);
+        if (min > Rsquare) {
+            min = Rsquare;
             newGroup = currentGroup;
             groupFound = true;
-            break;
         }
     }
 
@@ -163,15 +165,13 @@ PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 
 }
 
-bool AlignmentVizWidget::checkGroupEquality(PeakGroup grp1, PeakGroup grp2) {
-    if (grp1.meanMz == grp2.meanMz 
-                && grp1.maxMz == grp2.maxMz
-                        && grp1.minMz == grp2.minMz) {
-        return true;
+float AlignmentVizWidget::checkGroupEquality(PeakGroup grp1, PeakGroup grp2) {
+ 
+    return (pow(grp1.meanMz - grp2.meanMz, 2) +
+                 pow(grp1.maxMz - grp2.maxMz, 2) + 
+                        pow(grp1.minMz - grp2.minMz, 2) + 
+                                pow(grp1.medianRt() - grp2.medianRt(), 2));
 
-    } else {
-        return false;
-    }
 }
 
 void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
