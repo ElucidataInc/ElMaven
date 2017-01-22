@@ -294,13 +294,29 @@ void ProjectDockWidget::unloadSelectedSamples() {
           if (item->type() == SampleType) {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
-              item->setHidden(true);
+              int i = _treeWidget->indexOfTopLevelItem(item);
+              _treeWidget->takeTopLevelItem(i);
+              delete item;
               unloadSample(sample);
               delete(sample);
            }
       }
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
+     if (_mainwindow->samples.size() < 1) {
+		QMessageBox* msgBox = new QMessageBox( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		msgBox->setStandardButtons( QMessageBox::Ok );
+        QPushButton *connectButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
+		msgBox->setIcon(QMessageBox::Information);
+		msgBox->setText(tr("All the samples has been deleted. \nWe recomand restarting El-MAVEN if loading another set of samples"));
+		msgBox->setModal( false );
+		msgBox->open();
+        msgBox->exec();
+        if (msgBox->clickedButton() == connectButton) {
+            _mainwindow->reBootApp();
+        }
+     }
 }
 // @author:Giridhari
 //TODO: Create function to Set samples as Blank Samples

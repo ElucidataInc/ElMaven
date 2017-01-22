@@ -221,6 +221,9 @@ public:
 	inline vector<mzSample*> getSamples() {
 		return samples;
 	}
+	inline void reBootApp() {
+		Q_EMIT(reBoot());
+	}
 	vector<mzSample*> getVisibleSamples();
 
 	PeakGroup::QType getUserQuantType();
@@ -239,6 +242,7 @@ public:
 Q_SIGNALS:
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
+	void reBoot();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -339,6 +343,17 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void checkSRMList();
+	inline void slotReboot() {
+ 		qDebug() << "Performing application reboot...";
+		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
+   		QStringList arguments;
+   		QProcess *myProcess = new QProcess(this);
+    	myProcess->start(rep, arguments);
+		settings->setValue("closeEvent", 1);
+		autosave->saveMzRoll();
+		writeSettings();
+		QCoreApplication::quit();
+	}
 
 private:
 	QSettings* settings;
