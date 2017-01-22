@@ -23,7 +23,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="instrumentationOptions">
       <attribute name="title">
@@ -507,60 +507,31 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="C13Labeled_BPE">
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="D2Labeled_IsoWidget">
             <property name="text">
-             <string>C13</string>
+             <string>D2</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="S34Labeled_BPE">
-            <property name="text">
-             <string>S34</string>
+          <item row="1" column="5">
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxAbThresh">
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <double>100.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="value">
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
           <item row="0" column="3">
            <widget class="QCheckBox" name="N15Labeled_BPE">
-            <property name="text">
-             <string>N15</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="D2Labeled_BPE">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>D2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_BPE">
-            <property name="text">
-             <string>Bookmark, peakdetection &amp; file export</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="D2Labeled_Barplot">
-            <property name="text">
-             <string>D2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="C13Labeled_Barplot">
-            <property name="text">
-             <string>C13</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QCheckBox" name="N15Labeled_Barplot">
             <property name="text">
              <string>N15</string>
             </property>
@@ -580,15 +551,74 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="D2Labeled_IsoWidget">
+          <item row="2" column="4">
+           <widget class="QCheckBox" name="S34Labeled_IsoWidget">
+            <property name="text">
+             <string>S34</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="C13Labeled_Barplot">
+            <property name="text">
+             <string>C13</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="D2Labeled_Barplot">
             <property name="text">
              <string>D2</string>
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_IsoWidget">
+            <property name="text">
+             <string>Isotopic widget</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="N15Labeled_Barplot">
+            <property name="text">
+             <string>N15</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="2">
            <widget class="QCheckBox" name="C13Labeled_IsoWidget">
+            <property name="text">
+             <string>C13</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_BPE">
+            <property name="text">
+             <string>Bookmark, peakdetection &amp; file export</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="D2Labeled_BPE">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>D2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>Abundance Threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="C13Labeled_BPE">
             <property name="text">
              <string>C13</string>
             </property>
@@ -601,17 +631,10 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="4">
-           <widget class="QCheckBox" name="S34Labeled_IsoWidget">
+          <item row="0" column="4">
+           <widget class="QCheckBox" name="S34Labeled_BPE">
             <property name="text">
              <string>S34</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_IsoWidget">
-            <property name="text">
-             <string>Isotopic widget</string>
             </property>
            </widget>
           </item>

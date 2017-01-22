@@ -1539,6 +1539,9 @@ void MainWindow::readSettings() {
 	if (!settings->contains("D2Labeled_Barplot"))
 		settings->setValue("D2Labeled_Barplot", 2);
 
+	if (!settings->contains("AbthresholdBarplot"))
+		settings->setValue("AbthresholdBarplot", 1);
+
 	if (!settings->contains("C13Labeled_BPE"))
 		settings->setValue("C13Labeled_BPE", 2);
 

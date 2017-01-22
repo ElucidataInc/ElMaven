@@ -194,9 +194,8 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
         if (MMDuplicate.cols() != _isotopes.size()) return;
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
-            if (x  >= MMDuplicate.rows()) return; 
-
-            if (MMDuplicate(x,j)*100 > 0) 
+            if (x  >= MMDuplicate.rows()) return;
+            if (MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                                                     QString::number(MMDuplicate(x,j)*100));
