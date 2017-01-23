@@ -343,10 +343,11 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void checkSRMList();
-	inline void slotReboot() {
+	inline void slotReboot(QString mzrollPath = NULL) {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
    		QStringList arguments;
+		if (mzrollPath != NULL) arguments << mzrollPath;
    		QProcess *myProcess = new QProcess(this);
     	myProcess->start(rep, arguments);
 		settings->setValue("closeEvent", 1);
