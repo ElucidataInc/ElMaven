@@ -82,8 +82,9 @@ void AlignmentVizWidget::refRtLine(PeakGroup  group) {
 
     QVector<double> x, y;
 
+    vector<mzSample*> samples = getSamplesFromGroup(group);
     x << refRt << refRt;
-    y << 0 << 1000;
+    y << 0 << (samples.size() + 1);
 
     _mw->alignmentVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
     _mw->alignmentVizPlot->graph()->setData(x, y);
@@ -108,11 +109,18 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
     float newGroupR2 = calculateRsquare(newGroup);
     float groupR2 = calculateRsquare(group);
+    double refRt = getRefRt(group);
 
     QString message;
 
-    message = "previous R2 = " + QString::number(groupR2, 'f', 3);
-    message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 3);
+    message = "previous R2 = " + QString::number(groupR2, 'f', 5);
+    message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
+ 
+    if(group.hasCompoundLink()) {
+        message += "\nCompound Rt" + QString::number(refRt, 'f', 5);
+    } else {
+        message += "\nMedian RT = " + QString::number(refRt, 'f', 5);
+    }
 
     textLabel = new QCPItemText(_mw->alignmentVizPlot);
     textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
