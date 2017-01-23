@@ -313,7 +313,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
 		msgBox->setStandardButtons( QMessageBox::Ok );
         QPushButton *connectButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
 		msgBox->setIcon(QMessageBox::Information);
-		msgBox->setText(tr("All the samples has been deleted. \nWe recomand restarting El-MAVEN if loading another set of samples"));
+		msgBox->setText(tr("All the samples have been deleted. \nPlease restart El-Maven if you want to process another set of samples for better experience."));
 		msgBox->setModal( false );
 		msgBox->open();
         msgBox->exec();
