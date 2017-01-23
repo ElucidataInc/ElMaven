@@ -46,16 +46,20 @@ void PeakDetectionDialog::updatePeakQType(QString pQType) {
 
 void PeakDetectionDialog::dbOptionsClicked() {
     if (dbOptions->isChecked()) {
+        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
     } else {
+        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
     }
 }
 
 void PeakDetectionDialog::featureOptionsClicked() {
     if (featureOptions->isChecked()) {
+        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbOptions->setChecked(false);
     } else {
+        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
     }
 }
