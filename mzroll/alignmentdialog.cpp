@@ -25,7 +25,6 @@ void AlignmentDialog::show() {
 void AlignmentDialog::inputInitialValuesAlignmentDialog() {
 
 	minGoodPeakCount->setValue(_mw->mavenParameters->minGoodGroupCount);
-	limitGroupCount->setValue(_mw->mavenParameters->limitGroupCount);
 	groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
 
 	minGroupIntensity->setValue(_mw->mavenParameters->minGroupIntensity);
