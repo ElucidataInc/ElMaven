@@ -45,7 +45,7 @@
 #include "remotespectrahandler.h"
 #include "messageBoxResize.h"
 #include "libplog/Log.h"
-
+#include <csignal>
 
 class SettingsForm;
 class EicWidget;
@@ -89,7 +89,7 @@ class PeptideFragmentationWidget;
 extern Database DB;
 //Added when merged with Maven776 - Kiran
 class RemoteSpectraHandler;
-
+static void signalHandler(int signum);
 class AutoSave: public QThread {
 Q_OBJECT
 
@@ -103,6 +103,7 @@ public:
 	void setMainWindow(MainWindow*);
 	bool doAutosave;
 	int askAutosave;
+	bool systemCrash;
 	QString fileName;
 	QString newFileName;
 	MainWindow* _mainwindow;
@@ -112,6 +113,7 @@ class MainWindow: public QMainWindow {
 Q_OBJECT
 
 public:
+	int value() const { return m_value; }
 	MainWindow(QWidget *parent = 0);
 	QSettings* getSettings() {
 		return settings;
@@ -238,12 +240,13 @@ public:
 	// }
 	int versionCheck();
 	bool updateSamplePathinMzroll(QStringList filelist);
-
+	void setValue(int value);
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
 	bool askAutosave();
 Q_SIGNALS:
+	void valueChanged(int newValue);
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot(QString);
@@ -254,6 +257,7 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+	void printvalue();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -366,6 +370,7 @@ private Q_SLOTS:
 	}
 
 private:
+	int m_value;
 	QSettings* settings;
 	Classifier* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;

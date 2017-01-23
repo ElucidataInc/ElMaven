@@ -50,13 +50,58 @@ QDataStream &operator<<(QDataStream &out, const SpectralHit*) {
 QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
 }
+unsigned long mainwindowDummy;
+void signalHandler( int signum ) {
+	MainWindow *pthis = (MainWindow * )mainwindowDummy;
+    QObject::connect(pthis, SIGNAL(valueChanged(int)),
+                     pthis, SLOT(printvalue()));
+	pthis->setValue(12);
+	exit(signum);
+}
 
+void MainWindow::setValue(int value)
+{
+    if (value != m_value) {
+        m_value = value;
+        Q_EMIT valueChanged(value);
+    }
+}
+
+void MainWindow::printvalue(){
+	if(autosave->doAutosave){
+		autosave->saveMzRoll();
+	} else{
+		if (samples.size() > 0 ) {
+			settings->setValue("closeEvent", 1);
+			autosave->doAutosave = true;
+			autosave->askAutosave=1;
+			autosave->systemCrash =  true;
+			QFileInfo fi(QString::fromStdString(samples[0]->fileName));
+			QString samplePath = fi.absolutePath() + QDir::separator();
+			const QDateTime nowTime = QDateTime::currentDateTime(); 
+			const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
+			QString AutosavePath = samplePath + timestamp + ".mzroll";
+			autosave->fileName=AutosavePath;
+			autosave->saveMzRoll();
+			autosave->systemCrash =  false;
+		}
+	}
+}
 using namespace mzUtils;
 
-MainWindow::MainWindow(QWidget *parent) :
+ MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
 
 	connect( this, SIGNAL (reBoot(QString)), this, SLOT (slotReboot(QString)));
+	m_value=0; 	
+	mainwindowDummy = (unsigned long) this;
+	signal(SIGINT,signalHandler);
+	signal(SIGFPE,signalHandler);
+	signal(SIGILL,signalHandler);
+	signal(SIGABRT,signalHandler);
+	signal(SIGSEGV,signalHandler);
+	signal(SIGTERM,signalHandler);
+	
 	qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 
@@ -573,6 +618,7 @@ AutoSave::AutoSave(QWidget*){
 
 	doAutosave = false;
 	askAutosave = 0;
+	systemCrash = false;
 }
 
 
@@ -584,7 +630,7 @@ void AutoSave::setMainWindow(MainWindow* mw) {
 void AutoSave::saveMzRoll(){
 
     QSettings* settings = _mainwindow->getSettings();
-
+	
 	if (_mainwindow->peaksMarked == 1 && askAutosave == 0){
 		askAutosave++;
 		doAutosave = _mainwindow->askAutosave();
@@ -596,7 +642,7 @@ void AutoSave::saveMzRoll(){
 	}
 
 	if (_mainwindow->allPeaksMarked && doAutosave) {
-			saveMzRollAllTables();		
+			saveMzRollAllTables();	
 	}
 
 	if (settings->value("closeEvent").toInt() == 1 && doAutosave) {
@@ -627,7 +673,9 @@ void AutoSave::saveMzRollAllTables() {
 	int j = 1;
 	Q_FOREACH(peaksTable, peaksTableList) {
 
-		if ( !newFileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == newFileName ) {
+		if ( !fileName.isEmpty() && systemCrash) {
+			savePeaksTable(peaksTable, fileName, QString::number(j));
+		} else if ( !newFileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == newFileName ) {
 			savePeaksTable(peaksTable, fileName, QString::number(j));
 		} else {
 			fileName = QFileDialog::getSaveFileName( _mainwindow,
@@ -646,7 +694,7 @@ void AutoSave::saveMzRollAllTables() {
 }
 
 void AutoSave::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName) {
-	
+
 	if (peaksTable) {
 		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
 			QFileInfo fi(fileName);
@@ -657,6 +705,12 @@ void AutoSave::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QSt
 		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
 			QFileInfo fi(fileName);
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
+		}
+		_mainwindow->projectDockWidget->saveProject(newFileName);
+	} else {
+		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
+			QFileInfo fi(fileName);
+			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + ".mzroll";
 		}
 		_mainwindow->projectDockWidget->saveProject(newFileName);
 	}
