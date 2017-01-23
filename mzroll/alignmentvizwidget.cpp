@@ -41,10 +41,6 @@ void AlignmentVizWidget::intialSetup() {
             if(textLabel) {
                 _mw->alignmentVizPlot->removeItem(textLabel);
             }
-            if(sampleLabel) {
-                _mw->alignmentVizPlot->removeItem(sampleLabel);
-            }
-            // _mw->alignmentVizPlot->plotLayout()->clear();
             _mw->alignmentVizPlot->replot();
         }
     }
@@ -117,7 +113,7 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
     message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
  
     if(group.hasCompoundLink()) {
-        message += "\nCompound Rt" + QString::number(refRt, 'f', 5);
+        message += "\nCompound RT = " + QString::number(refRt, 'f', 5);
     } else {
         message += "\nMedian RT = " + QString::number(refRt, 'f', 5);
     }
@@ -174,11 +170,14 @@ PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 }
 
 float AlignmentVizWidget::checkGroupEquality(PeakGroup grp1, PeakGroup grp2) {
- 
-    return (pow(grp1.meanMz - grp2.meanMz, 2) +
-                 pow(grp1.maxMz - grp2.maxMz, 2) + 
+    float R2Sq = FLT_MAX;
+    if (abs(grp1.medianRt() - grp2.medianRt()) < 0.5) {
+        R2Sq = (pow(grp1.meanMz - grp2.meanMz, 2) +
+                    pow(grp1.maxMz - grp2.maxMz, 2) + 
                         pow(grp1.minMz - grp2.minMz, 2) + 
                                 pow(grp1.medianRt() - grp2.medianRt(), 2));
+    }
+    return R2Sq;
 
 }
 
