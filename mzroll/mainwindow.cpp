@@ -56,7 +56,7 @@ using namespace mzUtils;
 MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
 
-	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
+	connect( this, SIGNAL (reBoot(QString)), this, SLOT (slotReboot(QString)));
 	qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 

@@ -221,8 +221,8 @@ public:
 	inline vector<mzSample*> getSamples() {
 		return samples;
 	}
-	inline void reBootApp() {
-		Q_EMIT(reBoot());
+	inline void reBootApp(QString fileName = NULL) {
+		Q_EMIT(reBoot(fileName));
 	}
 	vector<mzSample*> getVisibleSamples();
 
@@ -242,7 +242,7 @@ public:
 Q_SIGNALS:
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
-	void reBoot();
+	void reBoot(QString);
 
 protected:
 	void closeEvent(QCloseEvent *event);
