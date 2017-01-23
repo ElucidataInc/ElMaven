@@ -1456,12 +1456,13 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 		eicParameters->_slice.mz = group->meanMz;
 	}
 
-	if (group->minMz != eicParameters->_slice.mzmin
-			|| group->maxMz != eicParameters->_slice.mzmax) {
-		eicParameters->_slice.mzmin = group->minMz;
-		eicParameters->_slice.mzmax = group->maxMz;
-		recompute();
-	}
+	// if (group->minMz != eicParameters->_slice.mzmin
+	// 		|| group->maxMz != eicParameters->_slice.mzmax) {
+	double ppm = getMainWindow()->getUserPPM();
+	eicParameters->_slice.mzmin = eicParameters->_slice.mz - (eicParameters->_slice.mz/1e6*ppm);
+	eicParameters->_slice.mzmax = eicParameters->_slice.mz + (eicParameters->_slice.mz/1e6*ppm);
+	recompute();
+	// }
 
 	if (group->compound)
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
