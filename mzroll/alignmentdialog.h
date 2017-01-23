@@ -20,6 +20,8 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		MainWindow* _mw;
 
 	public Q_SLOTS:
+		void show();
+		void inputInitialValuesAlignmentDialog();
 		void intialSetup();
 		void algoChanged();
 		void setDatabase();

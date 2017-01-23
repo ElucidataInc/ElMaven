@@ -15,6 +15,27 @@ void AlignmentDialog::setMainWindow(MainWindow* mw) {
 
 }
 
+void AlignmentDialog::show() {
+
+    inputInitialValuesAlignmentDialog();
+	QDialog::show();
+
+}
+
+void AlignmentDialog::inputInitialValuesAlignmentDialog() {
+
+	minGoodPeakCount->setValue(_mw->mavenParameters->minGoodGroupCount);
+	limitGroupCount->setValue(_mw->mavenParameters->limitGroupCount);
+	groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
+
+	minGroupIntensity->setValue(_mw->mavenParameters->minGroupIntensity);
+	minSN->setValue(_mw->mavenParameters->minSignalBaseLineRatio);
+	minPeakWidth->setValue(_mw->mavenParameters->minNoNoiseObs);
+	minIntensity->setValue(_mw->mavenParameters->minIntensity);
+	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
+
+}
+
 void AlignmentDialog::setProgressBar(QString text, int progress,
                                          int totalSteps) {
         showInfo(text);
