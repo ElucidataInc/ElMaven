@@ -445,7 +445,8 @@ void EicWidget::addEICLines(bool showSpline, bool showEIC) {
 			continue;
 		if (eic->maxIntensity <= 0)
 			continue;
-		EicLine* line = new EicLine(0, scene());
+		EicLine* lineEIC = new EicLine(0, scene());
+		EicLine* lineSpline = new EicLine(0, scene());
 
 		//sample stacking..
 		int zValue = 0;
@@ -463,10 +464,10 @@ void EicWidget::addEICLines(bool showSpline, bool showEIC) {
 			if (eic->rt[j] > eicParameters->_slice.rtmax)
 				continue;
 			if (showSpline) {
-				line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->spline[j])));
+				lineSpline->addPoint(QPointF(toX(eic->rt[j]), toY(eic->spline[j])));
 			}
 			if (showEIC){
-				line->addPoint(
+				lineEIC->addPoint(
 					QPointF(toX(eic->rt[j]), toY(eic->intensity[j])));
 			}
 		}
@@ -480,21 +481,33 @@ void EicWidget::addEICLines(bool showSpline, bool showEIC) {
 		//TODO: Sahil, added while merging eicwidget
         if(_showEICLines) {
              brush.setStyle(Qt::NoBrush);
-            line->setFillPath(false);
+            lineEIC->setFillPath(false);
         } else {
              brush.setStyle(Qt::SolidPattern);
-             line->setFillPath(true);
+             lineEIC->setFillPath(true);
         }
 
 
-		line->setZValue(zValue);
-		line->setFillPath(true);
-		line->setEIC(eic);
-		line->setBrush(brush);
-		line->setPen(pen);
-		line->setColor(pcolor);
+		lineEIC->setZValue(zValue);
+		lineEIC->setFillPath(true);
+		lineEIC->setEIC(eic);
+		lineEIC->setBrush(brush);
+		lineEIC->setPen(pen);
+		lineEIC->setColor(pcolor);
 
-		//line->fixEnds();
+		QColor splinebcolor = QColor::fromRgbF(eic->color[0], eic->color[1],
+				eic->color[2], 0.7);
+		QBrush splineBrush(splinebcolor);
+
+		lineSpline->setZValue(zValue);
+		lineSpline->setFillPath(true);
+		lineSpline->setEIC(eic);
+		lineSpline->setBrush(splineBrush);
+		lineSpline->setPen(pen);
+		lineSpline->setColor(pcolor);
+
+
+		//lineEIC->fixEnds();
 	}
 }
 

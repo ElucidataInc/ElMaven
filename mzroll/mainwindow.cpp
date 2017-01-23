@@ -2559,6 +2559,7 @@ QWidget* MainWindow::eicWidgetController() {
     btnShowSplines->setToolTip(tr("Show Splines"));
     btnShowSplines->setCheckable(true);
     btnShowSplines->setChecked(false);
+	btnShowSplines->setVisible(false);
 	/*
 	 QSpinBox* smoothingWindowBox = new QSpinBox(toolBar);
 	 smoothingWindowBox->setRange(1, 2000);
