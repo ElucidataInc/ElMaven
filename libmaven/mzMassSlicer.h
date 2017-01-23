@@ -45,7 +45,7 @@ class MassSlices {
          * @param  minIntensity []
          * @param  step         []
          */
-        void algorithmB(float ppm, float minIntensity, float maxIntensity, int step);
+        void algorithmB(float ppm, int step);
 
 
         void algorithmC(float ppm, float minIntensity, float rtStep);

@@ -1482,11 +1482,11 @@ void MainWindow::readSettings() {
         settings->setValue("minRT", 0);
 
     if(!settings->contains("maxRT"))
-        settings->setValue("maxRT", 0);
+        settings->setValue("maxRT", 9999999999.000000);
 
     if (!settings->contains("minMz")) settings->setValue("minMz", 0);
 
-    if (!settings->contains("maxMz")) settings->setValue("maxMz", 0);
+    if (!settings->contains("maxMz")) settings->setValue("maxMz", 9999999999.000000);
 
     if (!settings->contains("minIntensity"))
         settings->setValue("minIntensity", 50000.000000);

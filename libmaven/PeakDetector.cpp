@@ -143,9 +143,14 @@ void PeakDetector::processMassSlices() {
     MassSlices massSlices;
     massSlices.setSamples(mavenParameters->samples);
     massSlices.setMavenParameters(mavenParameters);
-    massSlices.algorithmB(
-        mavenParameters->ppmMerge, mavenParameters->minIntensity,
-        mavenParameters->maxIntensity, mavenParameters->rtStepSize);  // perform algorithmB for samples
+
+    massSlices.setMaxIntensity(mavenParameters->maxIntensity);
+    massSlices.setMinIntensity(mavenParameters->minIntensity);
+    massSlices.setMaxRt	(mavenParameters->maxRt);
+    massSlices.setMinRt (mavenParameters->minRt);
+    massSlices.setMaxMz (mavenParameters->maxMz);
+    massSlices.setMinMz	(mavenParameters->minMz);
+    massSlices.algorithmB(mavenParameters->ppmMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
 
     if (massSlices.slices.size() == 0)
         massSlices.algorithmA();  // if no slices present, perform algorithmA

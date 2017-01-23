@@ -22,6 +22,10 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
+        label_20->setVisible(false);
+        chargeMin->setVisible(false);
+        chargeMax->setVisible(false);
+        
         connect(dbOptions, SIGNAL(clicked(bool)), SLOT(dbOptionsClicked()));
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(clicked(bool)), SLOT(featureOptionsClicked()));

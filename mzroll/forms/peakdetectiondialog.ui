@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
+    <width>876</width>
     <height>655</height>
    </rect>
   </property>
@@ -65,6 +65,9 @@
           <item row="1" column="4">
            <widget class="QDoubleSpinBox" name="rtMax">
             <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+            <property name="value">
              <double>999999999.000000000000000</double>
             </property>
            </widget>
@@ -183,6 +186,9 @@
           <item row="0" column="4">
            <widget class="QDoubleSpinBox" name="mzMax">
             <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+            <property name="value">
              <double>999999999.000000000000000</double>
             </property>
            </widget>

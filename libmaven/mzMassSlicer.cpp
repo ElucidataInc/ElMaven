@@ -35,15 +35,13 @@ void MassSlices::stopSlicing() {
  * @param minIntensity [description]
  * @param rtStep       [description]
  */
-void MassSlices::algorithmB(float userPPM, float minIntensity, float maxIntensity,int rtStep) {
+void MassSlices::algorithmB(float userPPM,int rtStep) {
     delete_all(slices);
     slices.clear();
     cache.clear();
 
 	float rtWindow=2.0;
 	this->_precursorPPM=userPPM;
-	this->_minIntensity=minIntensity;
-    this->_maxIntensity=maxIntensity;
 
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
