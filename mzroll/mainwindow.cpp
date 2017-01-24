@@ -1882,6 +1882,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
     QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
 
+	btnRconsole->setVisible(false);
 
 
 	//btnSamples->setShortcut(Qt::Key_F2);

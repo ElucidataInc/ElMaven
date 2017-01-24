@@ -157,6 +157,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QToolButton *btnRunScript = new QToolButton(toolBar);
     btnRunScript->setIcon(QIcon(rsrcPath + "/R.png"));
     btnRunScript->setToolTip("Run Script");
+    btnRunScript->setVisible(false);
     connect(btnRunScript, SIGNAL(clicked()), SLOT(runScript()));
 
     /*
