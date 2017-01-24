@@ -865,22 +865,28 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 group.compound = compound;
                         if (!slice->srmId.empty())
                                 group.srmId = slice->srmId;
-			// update peak group rank using rt difference b/w
-			// compound's expectedRt and peak groups's RT
-			if (mavenParameters->matchRtFlag && compound != NULL &&
-			    compound->expectedRt > 0) {
-				float rtDiff = abs(compound->expectedRt - (group.meanRt));
-                                group.expectedRtDiff = rtDiff;
-				group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
-                                                  * (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
-                                if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
-                                        continue;
-                        } else {
-				group.groupRank = (1.1 - group.maxQuality)
-                                                  * (1 / log(group.maxIntensity + 1));
+
+                        
+                        float rtDiff = -1;
+
+                        if (compound != NULL && compound->expectedRt > 0)
+                        {
+                            rtDiff = abs(compound->expectedRt - (group.meanRt));
+                            group.expectedRtDiff = rtDiff;
                         }
 
-			groupsToAppend.push_back(&group);
+                        if (mavenParameters->matchRtFlag && compound != NULL && compound->expectedRt > 0) {
+                            group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality) * (1 / log(group.maxIntensity + 1));
+
+                            if (group.expectedRtDiff > mavenParameters->compoundRTWindow) continue;
+
+                        } else {
+
+                            group.groupRank = (1.1 - group.maxQuality) * (1 / log(group.maxIntensity + 1));
+
+                        }
+
+                        groupsToAppend.push_back(&group);
                 }
 
 		//sort groups according to their rank

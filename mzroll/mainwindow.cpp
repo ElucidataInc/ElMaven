@@ -871,6 +871,11 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
     PeakGroup* bookmarkedGroup=NULL;
     if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
+
+		if (group->compound != NULL && group->compound->expectedRt > 0)
+		{
+			group->expectedRtDiff = abs(group->compound->expectedRt - (group->meanRt));
+		}
         bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
