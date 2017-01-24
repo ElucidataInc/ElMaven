@@ -227,7 +227,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	notesDockWidget = new NotesWidget(this);
 	projectDockWidget = new ProjectDockWidget(this);
 	logWidget = new LogWidget(this, std::cout);
-	rconsoleDockWidget = new RconsoleWidget(this);
+	// rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
     peptideFragmentation = new PeptideFragmentationWidget(this);
 
@@ -270,7 +270,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	galleryDockWidget->setVisible(false);
 	projectDockWidget->setVisible(false);
 	logWidget->setVisible(false);
-	rconsoleDockWidget->setVisible(false);
+	// rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
     peptideFragmentation->setVisible(false);
 	//treemap->setVisible(false);
@@ -327,7 +327,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	addDockWidget(Qt::BottomDockWidgetArea, galleryDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, srmDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, logWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
+	// addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, spectralHitsDockWidget,
 			Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea,peptideFragmentation,Qt::Horizontal);
@@ -351,7 +351,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	tabifyDockWidget(spectraDockWidget, notesDockWidget);
 	tabifyDockWidget(spectraDockWidget, galleryDockWidget);
 	tabifyDockWidget(spectraDockWidget, logWidget);
-	tabifyDockWidget(rconsoleDockWidget, logWidget);
+	// tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
 	connect(this, SIGNAL(saveSignal()), autosave, SLOT(saveMzRoll()));
@@ -1880,9 +1880,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
     QToolButton* btnScatter = addDockWidgetButton(sideBar,scatterDockWidget,QIcon(rsrcPath + "/scatterplot.png"), "Show Scatter Plot Widget");
     QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
-    QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
-
-	btnRconsole->setVisible(false);
+    // QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
 
 
 	//btnSamples->setShortcut(Qt::Key_F2);
@@ -1916,7 +1914,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnSRM);
 	sideBar->addWidget(btnGallery);
 	sideBar->addWidget(btnScatter);
-	sideBar->addWidget(btnRconsole);
+	// sideBar->addWidget(btnRconsole);
 	sideBar->addSeparator();
 	sideBar->addWidget(btnBookmarks);
 	// sideBar->addWidget(btnHeatmap);

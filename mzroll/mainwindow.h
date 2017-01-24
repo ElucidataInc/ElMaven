@@ -38,7 +38,7 @@
 #include "logwidget.h"
 #include "qdownloader.h"
 #include "spectralhit.h"
-#include "rconsolewidget.h"
+// #include "rconsolewidget.h"
 #include "spectralhitstable.h"
 #include "peptidefragmentation.h"
 //Added when merged with Maven776 - Kiran
@@ -79,7 +79,7 @@ class mzFileIO;
 class ProjectDockWidget;
 class SpectraMatching;
 class LogWidget;
-class RconsoleWidget;
+// class RconsoleWidget;
 class SpectralHit;
 class SpectralHitsDockWidget;
 class PeptideFragmentationWidget;
@@ -173,7 +173,7 @@ public:
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
 	AlignmentDialog* alignmentDialog;
-	RconsoleWidget* rconsoleDockWidget;
+	// RconsoleWidget* rconsoleDockWidget;
 	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
     //Added when merged with Maven776 - Kiran
     Pillow::HttpServer*	  embededhttpserver;
@@ -194,9 +194,9 @@ public:
 	ProjectDockWidget* getProjectWidget() {
 		return projectDockWidget;
 	}
-	RconsoleWidget* getRconsoleWidget() {
-		return rconsoleDockWidget;
-	}
+	// RconsoleWidget* getRconsoleWidget() {
+	// 	return rconsoleDockWidget;
+	// }
 	TableDockWidget* getBookmarkedPeaks() {
 		return bookmarkedPeaks;
 	}

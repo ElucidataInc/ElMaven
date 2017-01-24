@@ -102,7 +102,7 @@ public Q_SLOTS:
 	  void updateTable();
 	  void updateItem(QTreeWidgetItem* item);
 	  void updateStatus();
-          void runScript();
+        //   void runScript();
 
 	  void markGroupBad();
 	  void markGroupGood();

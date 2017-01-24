@@ -154,11 +154,10 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     btnPDF->setToolTip("Generate PDF Report");
     connect(btnPDF, SIGNAL(clicked()), this, SLOT(printPdfReport()));
 
-    QToolButton *btnRunScript = new QToolButton(toolBar);
-    btnRunScript->setIcon(QIcon(rsrcPath + "/R.png"));
-    btnRunScript->setToolTip("Run Script");
-    btnRunScript->setVisible(false);
-    connect(btnRunScript, SIGNAL(clicked()), SLOT(runScript()));
+    // QToolButton *btnRunScript = new QToolButton(toolBar);
+    // btnRunScript->setIcon(QIcon(rsrcPath + "/R.png"));
+    // btnRunScript->setToolTip("Run Script");
+    // connect(btnRunScript, SIGNAL(clicked()), SLOT(runScript()));
 
     /*
     QToolButton *btnMoveTo = new QToolButton(toolBar);
@@ -201,7 +200,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     toolBar->addWidget(btnPDF);
     toolBar->addWidget(btnGroupCSV);
     toolBar->addWidget(btnSaveJson);
-    toolBar->addWidget(btnRunScript);
+    // toolBar->addWidget(btnRunScript);
 
     toolBar->addSeparator();
     toolBar->addWidget(btnXML);
@@ -1032,7 +1031,7 @@ void TableDockWidget::showSelectedGroup() {
     
     if ( group != NULL && _mainwindow != NULL) {
         _mainwindow->setPeakGroup(group);
-        _mainwindow->rconsoleDockWidget->updateStatus();
+        // _mainwindow->rconsoleDockWidget->updateStatus();
     }
 
     if ( item->childCount() > 0 ) {
@@ -1945,23 +1944,23 @@ void TableDockWidget::loadPeakTable() {
 	showAllGroups();
 }
 
-void TableDockWidget::runScript() {
-    QString dir = ".";
-    QSettings* settings = _mainwindow->getSettings();
+// void TableDockWidget::runScript() {
+//     QString dir = ".";
+//     QSettings* settings = _mainwindow->getSettings();
 
-    treeWidget->selectAll();
-    _mainwindow->getRconsoleWidget()->linkTable(this);
-    _mainwindow->getRconsoleWidget()->updateStatus();
-    _mainwindow->getRconsoleWidget()->show();
-    _mainwindow->getRconsoleWidget()->raise();
+//     treeWidget->selectAll();
+//     _mainwindow->getRconsoleWidget()->linkTable(this);
+//     _mainwindow->getRconsoleWidget()->updateStatus();
+//     _mainwindow->getRconsoleWidget()->show();
+//     _mainwindow->getRconsoleWidget()->raise();
 
-    //find R executable
-    QString Rprogram = "R.exe";
-    if (settings->contains("Rprogram") ) Rprogram = settings->value("Rprogram").value<QString>();
-    if (!QFile::exists( Rprogram)) { QErrorMessage dialog(this); dialog.showMessage("Can't find R executable"); return; }
+//     //find R executable
+//     QString Rprogram = "R.exe";
+//     if (settings->contains("Rprogram") ) Rprogram = settings->value("Rprogram").value<QString>();
+//     if (!QFile::exists( Rprogram)) { QErrorMessage dialog(this); dialog.showMessage("Can't find R executable"); return; }
 
 
-}
+// }
 
 void TableDockWidget::loadPeakTable(QString fileName) {
 
