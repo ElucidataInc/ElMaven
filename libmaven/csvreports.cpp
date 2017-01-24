@@ -6,6 +6,7 @@ CSVReports::CSVReports(vector<mzSample*>&insamples) {
     setUserQuantType(PeakGroup::AreaTop);
     setTabDelimited();
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+    errorReport = "";
 }
 
 CSVReports::~CSVReports() {
@@ -78,7 +79,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
          }
     }
     else {
-         cerr << "Error: Can't write to: " << outputfile << endl;
+        errorReport = "Error: Can't write to: " + QString::fromStdString(outputfile);
     }
 }
 

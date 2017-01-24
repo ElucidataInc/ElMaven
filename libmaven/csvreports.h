@@ -37,6 +37,10 @@ public:
         qtype = t;
     }
 
+    QString getErrorReport(void) {
+        return errorReport;
+    }
+
     void setMavenParameters(MavenParameters * mp) { 
         mavenparameters = mp;
     }
@@ -80,6 +84,8 @@ private:
 
     int groupId;	//sequential group numbering
     string SEP;
+
+    QString errorReport;
 
     vector<mzSample*> samples;
     PeakGroup::QType qtype;

@@ -735,6 +735,12 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         }
     }
     csvreports->closeFiles();
+
+    if (csvreports->getErrorReport() != "") {
+        QMessageBox msgBox(_mainwindow);
+        msgBox.setText(csvreports->getErrorReport());
+        msgBox.exec();
+    }
 }
 
 void TableDockWidget::exportJson() {
