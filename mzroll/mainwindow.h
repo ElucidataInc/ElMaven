@@ -117,6 +117,7 @@ public:
 	vector<mzSample*> samples;		//list of loadded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
+	int noOfPeakTables = 0;
 	bool allPeaksMarked = false;
 	bool aligned = false;
 	map<pair<string,string>, double> deltaRt;

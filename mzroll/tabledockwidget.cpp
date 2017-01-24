@@ -26,6 +26,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     setWidget(treeWidget);
     setWindowTitle(title);
     setupPeakTable();
+    setTableId();
 
     traindialog = new TrainDialog(this);
     connect(traindialog->saveButton,SIGNAL(clicked(bool)),SLOT(saveModel()));
@@ -121,7 +122,18 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
     btnLoad->setToolTip("Load Peaks");
     //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
-    connect(btnLoad, SIGNAL(clicked()),_mainwindow, SLOT(open())); 
+    connect(btnLoad, SIGNAL(clicked()),_mainwindow, SLOT(open()));
+
+    btnMerge = new QToolButton(toolBar);
+    btnMerge->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
+    btnMerge->setToolTip("Merge Groups");
+    btnMergeMenu = new QMenu("Export Groups");
+    btnMerge->setMenu(btnMergeMenu);
+    // btnMerge->setVisible(bookmarkPeaksTAble);
+    //btnMerge->setVisible(false);
+    btnMerge->setPopupMode(QToolButton::InstantPopup);
+	connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions())); 
+    connect(btnMergeMenu, SIGNAL(triggered(QAction*)), SLOT(mergeGroupsIntoPeakTable(QAction*)));
 
     QToolButton *btnGood = new QToolButton(toolBar);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
@@ -188,6 +200,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     toolBar->addSeparator();
     toolBar->addWidget(btnXML);
     toolBar->addWidget(btnLoad);
+    toolBar->addWidget(btnMerge);
 
    // toolBar->addWidget(btnMoveTo);
     toolBar->addWidget(spacer);
@@ -197,13 +210,53 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     setTitleBarWidget(toolBar);
     setupFiltersDialog();
 
-
     setAcceptDrops(true);
 
 }
 
 TableDockWidget::~TableDockWidget() { 
     if(traindialog != NULL) delete traindialog;
+}
+
+void TableDockWidget::setTableId() {
+    tableId = ++(_mainwindow->noOfPeakTables);
+}
+
+void TableDockWidget::showMergeTableOptions() {
+
+    QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
+    int n = peaksTableList.size();
+    btnMergeMenu->clear();
+    mergeAction.clear(); 
+    for(int i=0; i<n; i++) {
+        mergeAction.append(btnMergeMenu->addAction("Table " + QString::number(peaksTableList[i]->tableId-1)));
+    }
+
+}
+
+void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
+
+    QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
+    int n = peaksTableList.size(),j;
+
+    for(unsigned int i=0; i<mergeAction.size(); i++) {
+        if(action == mergeAction[i]) {
+            j = i;
+            break;
+        }
+    }
+
+    if(n) { 
+        int sz = peaksTableList[j]->allgroups.size();
+        for(unsigned int i=0; i<allgroups.size(); i++) {
+            allgroups[i].groupId = ++sz;
+            peaksTableList[j]->allgroups.append(allgroups[i]);
+        }
+        allgroups.clear();
+        peaksTableList[j]->showAllGroups();
+        showAllGroups();
+    }
+
 }
 
 void TableDockWidget::sortBy(int col) { 

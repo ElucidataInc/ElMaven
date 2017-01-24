@@ -25,6 +25,10 @@ public:
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
+    QToolButton *btnMerge;
+    QMenu* btnMergeMenu;
+    QList<QAction*> mergeAction;
+    //QAction *hell;
     bool bookmarkPeaksTAble = false;
     //Added when Merging to Maven776 - Kiran
     enum tableViewType{ groupView=0, peakView=1 };
@@ -36,11 +40,13 @@ public:
 	int  groupCount() { return allgroups.size(); }
 	bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
+    int tableId;
     //Added when Merging to Maven776 - Kiran
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
     void writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames);
     void saveMzEICJson(string filename);
+    void setTableId();
     string sanitizeJSONstring(string s);
     float outputRtWindow = 2.0;
 
@@ -122,6 +128,8 @@ public Q_SLOTS:
       void filterPeakTable();
       int loadSpreadsheet(QString fileName);
       int loadCSVFile(QString filename, QString sep);
+      void showMergeTableOptions();
+      void mergeGroupsIntoPeakTable(QAction* action);
       void switchTableView();
      //Added when Merging to Maven776 - Kiran
       void setTableView(tableViewType t) {viewType=t; }

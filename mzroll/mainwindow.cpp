@@ -212,6 +212,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0);
 	bookmarkedPeaks->bookmarkPeaksTAble = true;
+	//bookmarkedPeaks->btnMerge->setVisible(false);	
 
 
 	//treemap	 = 	  new TreeMap(this);
