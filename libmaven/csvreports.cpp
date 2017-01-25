@@ -79,7 +79,8 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
          }
     }
     else {
-        errorReport = "Error: Can't write to: " + QString::fromStdString(outputfile);
+        errorReport = "Unable to write to file \"" + QString::fromStdString(outputfile) + "\"\n";
+        errorReport += "Please check if you have permission to write to the specified location or the file is not in use";
     }
 }
 

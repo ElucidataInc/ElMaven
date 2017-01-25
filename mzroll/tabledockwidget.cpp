@@ -738,6 +738,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
     if (csvreports->getErrorReport() != "") {
         QMessageBox msgBox(_mainwindow);
+        msgBox.setIcon(QMessageBox::Critical);
         msgBox.setText(csvreports->getErrorReport());
         msgBox.exec();
     }
