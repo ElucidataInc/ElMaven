@@ -220,6 +220,7 @@ void SettingsForm::getFormValues() {
     int mode=0;
     if (ionizationMode->currentText().contains("+1") )     mode=1;
     else if ( ionizationMode->currentText().contains("-1") ) mode=-1;
+    else if (ionizationMode->currentText().contains("Auto Detect")) mode=mainwindow->samples[0]->getPolarity();
     if(mainwindow) mainwindow->setIonizationMode(mode);
     settings->setValue("ionizationMode",mode);
 
