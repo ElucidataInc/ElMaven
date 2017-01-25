@@ -636,6 +636,25 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             child.groupStatistics();
         }
 
+
+        float rtDiff = -1;
+
+        if (child.compound != NULL && child.compound->expectedRt > 0)
+        {
+            rtDiff = abs(child.compound->expectedRt - (child.meanRt));
+            child.expectedRtDiff = rtDiff;
+        }
+
+        if (mavenParameters->matchRtFlag && child.compound != NULL && child.compound->expectedRt > 0)
+        {
+            child.groupRank = rtDiff * rtDiff * (1.1 - child.maxQuality) * (1 / log(child.maxIntensity + 1));
+        }
+        else
+        {
+            child.groupRank = (1.1 - child.maxQuality) * (1 / log(child.maxIntensity + 1));
+        }
+
+
         if (!getMavenParameters()->C13Labeled_BPE) {
             if (isotopeName.find(C13_LABEL) != string::npos)
                 continue;

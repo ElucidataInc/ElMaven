@@ -872,10 +872,24 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
     PeakGroup* bookmarkedGroup=NULL;
     if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
 
+
+		float rtDiff = -1;
+
 		if (group->compound != NULL && group->compound->expectedRt > 0)
 		{
-			group->expectedRtDiff = abs(group->compound->expectedRt - (group->meanRt));
+			rtDiff = abs(group->compound->expectedRt - (group->meanRt));
+			group->expectedRtDiff = rtDiff;
 		}
+
+        if (mavenParameters->matchRtFlag && group->compound != NULL && group->compound->expectedRt > 0)
+        {
+            group->groupRank = rtDiff * rtDiff * (1.1 - group->maxQuality) * (1 / log(group->maxIntensity + 1));
+        }
+        else
+        {
+            group->groupRank = (1.1 - group->maxQuality) * (1 / log(group->maxIntensity + 1));
+        }
+
         bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
