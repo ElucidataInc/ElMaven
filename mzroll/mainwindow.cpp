@@ -210,9 +210,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ligandWidget = new LigandWidget(this);
 	 heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
-	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0);
+	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, 1);
 	bookmarkedPeaks->bookmarkPeaksTAble = true;
-	//bookmarkedPeaks->btnMerge->setVisible(false);	
 
 
 	//treemap	 = 	  new TreeMap(this);

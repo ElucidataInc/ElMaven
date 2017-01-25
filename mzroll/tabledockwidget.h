@@ -27,14 +27,14 @@ public:
     QTreeWidget *treeWidget;
     QToolButton *btnMerge;
     QMenu* btnMergeMenu;
-    QList<QAction*> mergeAction;
+    QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;
     //Added when Merging to Maven776 - Kiran
     enum tableViewType{ groupView=0, peakView=1 };
     enum peakTableSelectionType{ selected=0, Whole=1, Good=2, Bad=3 };
 
-    TableDockWidget(MainWindow* mw, QString title, int numColms);
+    TableDockWidget(MainWindow* mw, QString title, int numColms, int bookmarkFlag = 0);
 	~TableDockWidget();
 
 	int  groupCount() { return allgroups.size(); }
@@ -129,6 +129,7 @@ public Q_SLOTS:
       int loadSpreadsheet(QString fileName);
       int loadCSVFile(QString filename, QString sep);
       void showMergeTableOptions();
+      void showMsgBox(bool check, int tableNo);
       void mergeGroupsIntoPeakTable(QAction* action);
       void switchTableView();
      //Added when Merging to Maven776 - Kiran

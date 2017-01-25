@@ -324,11 +324,11 @@ void PeakDetectionDialog::findPeaks() {
 
     QString title;
     if (_featureDetectionType == FullSpectrum)
-        title = "Detected Features";
+        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nDetected Features \n";
     else if (_featureDetectionType == CompoundDB)
-        title = "DB Search " + compoundDatabase->currentText();
+        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nDB Search " + compoundDatabase->currentText();
     else if (_featureDetectionType == QQQ)
-        title = "QQQ DB Search " + compoundDatabase->currentText();
+        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nQQQ DB Search " + compoundDatabase->currentText();
 
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;

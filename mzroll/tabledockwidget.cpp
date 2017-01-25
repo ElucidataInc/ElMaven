@@ -1,6 +1,6 @@
 #include "tabledockwidget.h";
 
-TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
+TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, int bookmarkFlag) {
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
@@ -125,13 +125,12 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     connect(btnLoad, SIGNAL(clicked()),_mainwindow, SLOT(open()));
 
     btnMerge = new QToolButton(toolBar);
-    btnMerge->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
-    btnMerge->setToolTip("Merge Groups");
-    btnMergeMenu = new QMenu("Export Groups");
+    btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
+    btnMerge->setToolTip("Merge Groups With");
+    btnMergeMenu = new QMenu("Merge Groups");
     btnMerge->setMenu(btnMergeMenu);
-    // btnMerge->setVisible(bookmarkPeaksTAble);
-    //btnMerge->setVisible(false);
     btnMerge->setPopupMode(QToolButton::InstantPopup);
+    if(!bookmarkFlag) btnMerge->setVisible(false);
 	connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions())); 
     connect(btnMergeMenu, SIGNAL(triggered(QAction*)), SLOT(mergeGroupsIntoPeakTable(QAction*)));
 
@@ -174,10 +173,16 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms) {
     //btnX->setIcon(QIcon(rsrcPath + "/hide.png"));
     connect(btnX, SIGNAL(clicked()),SLOT(hide()));
 
-
+    QLabel *titlePeakTable = new QLabel(toolBar);
+    QFont font;
+	font.setPointSize(14);
+    titlePeakTable->setFont(font);
+    if(tableId) titlePeakTable->setText("Table "+ QString::number(tableId) + "  ");
+    titlePeakTable->setStyleSheet("font-weight: bold; color: black");
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    toolBar->addWidget(titlePeakTable);
     toolBar->addWidget(btnSwitchView);
     toolBar->addWidget(btnGood);
     toolBar->addWidget(btnBad);
@@ -219,7 +224,7 @@ TableDockWidget::~TableDockWidget() {
 }
 
 void TableDockWidget::setTableId() {
-    tableId = ++(_mainwindow->noOfPeakTables);
+    tableId = (_mainwindow->noOfPeakTables)++;
 }
 
 void TableDockWidget::showMergeTableOptions() {
@@ -229,33 +234,60 @@ void TableDockWidget::showMergeTableOptions() {
     btnMergeMenu->clear();
     mergeAction.clear(); 
     for(int i=0; i<n; i++) {
-        mergeAction.append(btnMergeMenu->addAction("Table " + QString::number(peaksTableList[i]->tableId-1)));
+        mergeAction.insert(btnMergeMenu->addAction("Table " + QString::number(peaksTableList[i]->tableId)), 
+            peaksTableList[i]->tableId);
     }
+
+}
+
+void TableDockWidget::showMsgBox(bool check, int tableNo) {
+
+    QMessageBox* msgBox = new QMessageBox( this );
+	msgBox->setAttribute( Qt::WA_DeleteOnClose );
+	msgBox->setStandardButtons( QMessageBox::Ok );
+
+    if(check) {
+        msgBox->setIconPixmap(QPixmap("checked(1).png"));
+        msgBox->setText("Successfully Merged from Bookmark Table to Table " + QString::number(tableNo) + "   ");
+    }
+    else {
+        msgBox->setIcon(QMessageBox::Warning);
+        if(tableNo==-1) msgBox->setText("Error while merging");
+        else msgBox->setText("Error while merging from Bookmark Table to Table " + QString::number(tableNo) + "   ");
+    }
+
+    msgBox->open();
 
 }
 
 void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
 
     QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
-    int n = peaksTableList.size(),j;
+    int n = peaksTableList.size();
+    int j = mergeAction.value(action, -1);
 
-    for(unsigned int i=0; i<mergeAction.size(); i++) {
-        if(action == mergeAction[i]) {
-            j = i;
-            break;
-        }
+    if(j==-1) {
+        showMsgBox(false, j);
+        return;
     }
 
-    if(n) { 
-        int sz = peaksTableList[j]->allgroups.size();
-        for(unsigned int i=0; i<allgroups.size(); i++) {
-            allgroups[i].groupId = ++sz;
-            peaksTableList[j]->allgroups.append(allgroups[i]);
-        }
-        allgroups.clear();
-        peaksTableList[j]->showAllGroups();
-        showAllGroups();
+    if(!allgroups.size() || !n) {
+        showMsgBox(true, j);
+        return;
     }
+    int sz = peaksTableList[j-1]->allgroups.size();
+    int total = allgroups.size() + peaksTableList[j-1]->allgroups.size();
+    for(unsigned int i=0; i<allgroups.size(); i++) {
+        allgroups[i].groupId = ++sz;
+        peaksTableList[j-1]->allgroups.append(allgroups[i]);
+    }
+    
+    allgroups.clear();
+    peaksTableList[j-1]->showAllGroups();
+    showAllGroups();
+
+    if(total==peaksTableList[j-1]->allgroups.size()) showMsgBox(true, j);
+    else showMsgBox(false, j);
 
 }
 
