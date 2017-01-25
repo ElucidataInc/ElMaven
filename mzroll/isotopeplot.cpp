@@ -66,7 +66,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
             _isotopes.push_back(isotope);
         }
     }
-    std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
+    //std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
 	/*
 	for(int i=0; i < _isotopes.size(); i++ )  {
 		cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl; 
