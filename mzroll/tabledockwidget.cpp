@@ -247,7 +247,7 @@ void TableDockWidget::showMsgBox(bool check, int tableNo) {
 	msgBox->setStandardButtons( QMessageBox::Ok );
 
     if(check) {
-        msgBox->setIconPixmap(QPixmap("checked(1).png"));
+        msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
         msgBox->setText("Successfully Merged from Bookmark Table to Table " + QString::number(tableNo) + "   ");
     }
     else {
@@ -268,7 +268,7 @@ void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
 
     if(j==-1) {
         showMsgBox(false, j);
-        return;
+        return;     
     }
 
     if(!allgroups.size() || !n) {
@@ -276,12 +276,13 @@ void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
         return;
     }
     int sz = peaksTableList[j-1]->allgroups.size();
-    int total = allgroups.size() + peaksTableList[j-1]->allgroups.size();
+    int total = allgroups.size() + sz;
     for(unsigned int i=0; i<allgroups.size(); i++) {
         allgroups[i].groupId = ++sz;
         peaksTableList[j-1]->allgroups.append(allgroups[i]);
     }
     
+    treeWidget->clear();
     allgroups.clear();
     peaksTableList[j-1]->showAllGroups();
     showAllGroups();
