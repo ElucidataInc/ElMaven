@@ -338,11 +338,11 @@ public Q_SLOTS:
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
 	void updateQType(QString);
-	void checkSRMList();
 
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
+	void checkSRMList();
 	void readSettings();
 	void writeSettings();
 	inline void slotReboot(QString mzrollPath = NULL) {

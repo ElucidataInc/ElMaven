@@ -176,7 +176,6 @@ void ProjectDockWidget::updateSampleList() {
     if ( _mainwindow->getEicWidget() ) {
         _mainwindow->getEicWidget()->replotForced();
     }
-    _mainwindow->checkSRMList();
 }
 
 void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
