@@ -108,6 +108,7 @@ void PeakDetector::processSlice(mzSlice& slice) {
 
 void PeakDetector::pullAllIsotopes() {
     for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
+        if(mavenParameters->stop) break;
         PeakGroup& group = mavenParameters->allgroups[j];
         Compound* compound = group.compound;
 
