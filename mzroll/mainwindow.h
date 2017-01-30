@@ -43,6 +43,7 @@
 #include "peptidefragmentation.h"
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
+#include "messageBoxResize.h"
 
 
 class SettingsForm;
@@ -337,13 +338,13 @@ public Q_SLOTS:
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
 	void updateQType(QString);
+	void checkSRMList();
 
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
 	void readSettings();
 	void writeSettings();
-	void checkSRMList();
 	inline void slotReboot(QString mzrollPath = NULL) {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

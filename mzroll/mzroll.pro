@@ -114,7 +114,8 @@ HEADERS +=  stable.h \
                     clusterdialog.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
-                    saveJson.h
+                    saveJson.h \
+                    messageBoxResize.h
                      
 
 

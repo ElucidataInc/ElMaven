@@ -358,9 +358,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
-    connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
-	
+    connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));	
+
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
@@ -544,10 +543,10 @@ void MainWindow::checkSRMList() {
 
 	if (srmListError.size() > 0) {
 		string filesNames = "Following are the list of the sample(s) for which segments are missing: ";
-		QMessageBox* msgBox = new QMessageBox( this );
+		QMessageBoxResize* msgBox = new QMessageBoxResize( this );
 		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		msgBox->setStandardButtons( QMessageBox::Ok );
-		msgBox->setIcon(QMessageBox::Warning);
+		msgBox->setStandardButtons( QMessageBoxResize::Ok );
+		msgBox->setIcon(QMessageBoxResize::Warning);
 		for(map<string,set<string>>::iterator iit = srmListError.begin(); iit != srmListError.end(); ++iit) {
 			filesNames += "\n" + iit->first + " : " + "\n";
 			
@@ -555,8 +554,6 @@ void MainWindow::checkSRMList() {
 				filesNames += "    " + f + "\n";
 			}    
 		}
-		
-		for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
 
 		msgBox->setText(tr("Segment runs missing in some samples!"));
 		msgBox->setDetailedText(QString::fromStdString(filesNames));
@@ -1271,9 +1268,9 @@ void MainWindow::loadCompoundsFile() {
 		string dbname = mzUtils::cleanFilename(dbfilename);
 		string notFoundColumns = "Following are the unknown column name(s) found: ";
 
-		QMessageBox msgBox;
+		QMessageBoxResize msgBox;
 		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
-		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setIcon(QMessageBoxResize::Warning);
 		if (DB.notFoundColumns.size() > 0) {
 			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
     			notFoundColumns += "\n" + *it;
@@ -1285,13 +1282,13 @@ void MainWindow::loadCompoundsFile() {
 	} else {
 		if (DB.notFoundColumns.size() > 0) {
 			string notFoundColumns = "Following are the unknown column name(s) found: ";
-			QMessageBox msgBox;
+			QMessageBoxResize msgBox;
 			msgBox.setText(tr("Found some unknown column name(s)"));
 			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
     			notFoundColumns += "\n" + *it;
 			}
 			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setIcon(QMessageBox::Information);
+			msgBox.setIcon(QMessageBoxResize::Information);
 			int ret = msgBox.exec();
 		}
 	}
