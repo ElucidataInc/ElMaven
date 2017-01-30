@@ -480,7 +480,6 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 
 void mzFileIO::run(void) {
     fileImport();
-    _mainwindow->showSRMList(); // To show SRM list, After  uploading samples --@Giridhari
     quit();
 }
 

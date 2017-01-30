@@ -359,6 +359,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
 
 
@@ -370,6 +371,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
