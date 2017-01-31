@@ -1362,6 +1362,21 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
         if (item) {
             markGroupBad();
         }
+    } else if ( e->key() == Qt::Key_Left ) {
+        if (treeWidget->currentItem()) {
+            if (treeWidget->currentItem()->parent()) {
+                treeWidget->collapseItem(treeWidget->currentItem()->parent());
+                treeWidget->setCurrentItem(treeWidget->currentItem()->parent());
+            } else {
+                treeWidget->collapseItem(treeWidget->currentItem());
+            }
+        }
+    }  else if ( e->key() == Qt::Key_Right ) {
+        if (treeWidget->currentItem()) {
+            if (!treeWidget->currentItem()->isExpanded()) {
+                treeWidget->expandItem(treeWidget->currentItem());
+            }
+        }
     } else if ( e->key() == Qt::Key_O ) {
         if (treeWidget->currentItem()) {
             if (treeWidget->currentItem()->isExpanded()) {
