@@ -24,6 +24,7 @@
 #include "Matrix.h"
 #include "EIC.h"
 #include "Scan.h"
+#include <QRegExp>
 
 #ifdef ZLIB
 #include <zlib.h>

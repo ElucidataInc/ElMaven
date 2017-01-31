@@ -260,6 +260,11 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
              chromatogram; chromatogram = chromatogram.next_sibling("chromatogram")) {
 
                 string chromatogramId = chromatogram.attribute("id").value();
+
+                QRegExp rx("sample\ *\=\ *[0-9]+\ ");      // match ampersands but not &amp;
+                QString line = QString::fromStdString(chromatogramId);
+                chromatogramId = line.replace(rx, "").toStdString();
+
                 vector<float> timeVector;
                 vector<float> intsVector;
 
