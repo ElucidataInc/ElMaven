@@ -1,4 +1,5 @@
 #include "PeakDetector.h"
+#include <math.h>
 
 PeakDetector::PeakDetector() {
     mavenParameters = NULL; //naman: wasn't initialized
@@ -776,7 +777,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
                                 0 :
                                 converged++;
-                        if (converged > 1000) {
+                        if (converged > 1000) { 
                         break;
                         }
                         foundGroups = mavenParameters->allgroups.size();
@@ -865,19 +866,30 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 group.compound = compound;
                         if (!slice->srmId.empty())
                                 group.srmId = slice->srmId;
+
+            // Peak Group Rank accoording to given weightage
+            int A = mavenParameters->qualityWeight;
+            int B = mavenParameters->intensityWeight;
+            int C = mavenParameters->deltaRTWeight;
+
 			// update peak group rank using rt difference b/w
 			// compound's expectedRt and peak groups's RT
 			if (mavenParameters->matchRtFlag && compound != NULL &&
 			    compound->expectedRt > 0) {
 				float rtDiff = abs(compound->expectedRt - (group.meanRt));
                                 group.expectedRtDiff = rtDiff;
-				group.groupRank = rtDiff * rtDiff * (1.1 - group.maxQuality)
-                                                  * (1 / log(group.maxIntensity + 1)); //TODO Formula to rank groups
+
+                if(mavenParameters->qualityWeightButtonStatus) A = 1;
+                if(mavenParameters->intensityWeightButtonStatus) B = 1;
+                if(mavenParameters->deltaRTWeightButtonStatus) C = 2;
+
+                group.groupRank = pow(rtDiff, C) * (1.1 - pow(group.maxQuality, A) )
+                                                  * (1 /( pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
                                 if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
                                         continue;
                         } else {
-				group.groupRank = (1.1 - group.maxQuality)
-                                                  * (1 / log(group.maxIntensity + 1));
+                group.groupRank = (1.1 - pow(group.maxQuality, A))
+                                                  * (1 /(pow(log(group.maxIntensity + 1), B)));
                         }
 
 			groupsToAppend.push_back(&group);

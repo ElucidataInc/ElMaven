@@ -1451,6 +1451,16 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);
 
+	// Peak Group Rank
+	if (!settings->contains("qualityWeight"))
+        settings->setValue("qualityWeight", 1);
+	
+	if (!settings->contains("intensityWeight"))
+        settings->setValue("intensityWeight", 1);
+
+	if (!settings->contains("deltaRTWeight"))
+        settings->setValue("deltaRTWeight", 2);
+
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
@@ -1775,6 +1785,7 @@ void MainWindow::createToolBars() {
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
+	connect(btnFeatureDetect, SIGNAL(clicked()), peakDetectionDialog, SLOT(setInitialGroupRank()));
 	connect(btnSettings, SIGNAL(clicked()), settingsForm, SLOT(show()));
 	connect(btnSpectraMatching, SIGNAL(clicked()), spectraMatchingForm,
 			SLOT(show()));
