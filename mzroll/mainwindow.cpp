@@ -559,6 +559,7 @@ void MainWindow::checkSRMList() {
 		msgBox->setIcon(QMessageBoxResize::Warning);
 		msgBox->setText(tr("Segment runs missing in some samples!"));
 		msgBox->setDetailedText(QString::fromStdString(filesNames));
+		msgBox->setWindowFlags(msgBox->windowFlags() & ~Qt::WindowCloseButtonHint);
 		msgBox->setModal( false );
 		msgBox->open();
 	}
@@ -1278,6 +1279,7 @@ void MainWindow::loadCompoundsFile() {
     			notFoundColumns += "\n" + *it;
 			}
 			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
 		}
 
 		int ret = msgBox.exec();
@@ -1290,6 +1292,7 @@ void MainWindow::loadCompoundsFile() {
     			notFoundColumns += "\n" + *it;
 			}
 			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
 			msgBox.setIcon(QMessageBoxResize::Information);
 			int ret = msgBox.exec();
 		}
