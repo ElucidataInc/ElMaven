@@ -70,7 +70,22 @@ void MainWindow::setValue(int value)
 void MainWindow::printvalue(){
 	if(autosave->doAutosave){
 		autosave->saveMzRoll();
-	} else{
+		QMessageBox* msgBox = new QMessageBox( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		msgBox->setStandardButtons( QMessageBox::Ok );
+		QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
+		QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
+		msgBox->setIcon(QMessageBox::Information);
+		msgBox->setText(tr("Unexpected error has happened in El-MAVEN. \nWe would be able to restore the last saved state"));
+		msgBox->setModal( false );
+		msgBox->open();
+		msgBox->exec();
+		if (msgBox->clickedButton() == connectButton) {
+				reBootApp(autosave->SaveMzrollListvar.at(0));
+			} else if (msgBox->clickedButton() == restartButton) {
+				reBootApp();
+			}
+		} else{
 		if (samples.size() > 0 ) {
 			settings->setValue("closeEvent", 1);
 			autosave->doAutosave = true;
@@ -84,6 +99,40 @@ void MainWindow::printvalue(){
 			autosave->fileName=AutosavePath;
 			autosave->saveMzRoll();
 			autosave->systemCrash =  false;
+			if (autosave->SaveMzrollListvar.size() > 0) {
+				QFile f(autosave->SaveMzrollListvar.at(0));
+				if (f.size() > 0) {
+					QMessageBox* msgBox = new QMessageBox( this );
+					msgBox->setAttribute( Qt::WA_DeleteOnClose );
+					msgBox->setStandardButtons( QMessageBox::Ok );
+					QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
+					QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
+					msgBox->setIcon(QMessageBox::Information);
+					msgBox->setText(tr("Unexpected error has happened in El-MAVEN. \nWe would be able to restore the last saved state"));
+					msgBox->setModal( false );
+					msgBox->open();
+					msgBox->exec();
+					if (msgBox->clickedButton() == connectButton) {
+						reBootApp(autosave->SaveMzrollListvar.at(0));
+					} else if (msgBox->clickedButton() == restartButton) {
+						reBootApp();
+					}
+				} else {
+					QMessageBox* msgBox = new QMessageBox( this );
+					msgBox->setAttribute( Qt::WA_DeleteOnClose );
+					msgBox->setStandardButtons( QMessageBox::Ok );
+					//QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
+					QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
+					msgBox->setIcon(QMessageBox::Information);
+					msgBox->setText(tr("Unexpected error has happened in MAVEN. \nUnfortunately El-MAVEN has to be restarted"));
+					msgBox->setModal( false );
+					msgBox->open();
+					msgBox->exec();
+					if (msgBox->clickedButton() == restartButton) {
+						reBootApp();
+					}
+				}
+			}
 		}
 	}
 }
@@ -91,7 +140,7 @@ using namespace mzUtils;
 
  MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
-
+			
 	connect( this, SIGNAL (reBoot(QString)), this, SLOT (slotReboot(QString)));
 	m_value=0; 	
 	mainwindowDummy = (unsigned long) this;
@@ -621,7 +670,10 @@ AutoSave::AutoSave(QWidget*){
 	systemCrash = false;
 }
 
-
+void AutoSave::saveMzRollList(QString MzrollFileName){
+	 SaveMzrollListvar << MzrollFileName;
+ }
+ 
 void AutoSave::setMainWindow(MainWindow* mw) {
     _mainwindow=mw;
 }
@@ -671,6 +723,7 @@ void AutoSave::saveMzRollAllTables() {
 	TableDockWidget* peaksTable;
 
 	int j = 1;
+	SaveMzrollListvar.clear();
 	Q_FOREACH(peaksTable, peaksTableList) {
 
 		if ( !fileName.isEmpty() && systemCrash) {
@@ -700,18 +753,21 @@ void AutoSave::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QSt
 			QFileInfo fi(fileName);
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_" + tableName + ".mzroll";
 		}
+		saveMzRollList(newFileName);
 		_mainwindow->projectDockWidget->saveProject(newFileName, peaksTable);
 	} else if (!_mainwindow->bookmarkedPeaks->getGroups().isEmpty()) {
 		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
 			QFileInfo fi(fileName);
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
 		}
+		saveMzRollList(newFileName);
 		_mainwindow->projectDockWidget->saveProject(newFileName);
 	} else {
 		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
 			QFileInfo fi(fileName);
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + ".mzroll";
 		}
+		saveMzRollList(newFileName);
 		_mainwindow->projectDockWidget->saveProject(newFileName);
 	}
 }

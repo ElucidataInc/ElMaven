@@ -46,6 +46,7 @@
 #include "messageBoxResize.h"
 #include "libplog/Log.h"
 #include <csignal>
+#include <QList>
 
 class SettingsForm;
 class EicWidget;
@@ -99,6 +100,8 @@ public Q_SLOTS:
 	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
 
 public:
+	void saveMzRollList(QString MzrollFileName);
+	QList<QString> SaveMzrollListvar;
 	AutoSave(QWidget*);
 	void setMainWindow(MainWindow*);
 	bool doAutosave;
