@@ -546,10 +546,6 @@ void MainWindow::checkSRMList() {
 
 	if (srmListError.size() > 0) {
 		string filesNames = "Following are the list of the sample(s) for which segments are missing: ";
-		QMessageBoxResize* msgBox = new QMessageBoxResize( this );
-		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		msgBox->setStandardButtons( QMessageBoxResize::Ok );
-		msgBox->setIcon(QMessageBoxResize::Warning);
 		for(map<string,set<string>>::iterator iit = srmListError.begin(); iit != srmListError.end(); ++iit) {
 			filesNames += "\n" + iit->first + " : " + "\n";
 			
@@ -557,7 +553,10 @@ void MainWindow::checkSRMList() {
 				filesNames += "    " + f + "\n";
 			}    
 		}
-
+		QMessageBoxResize* msgBox = new QMessageBoxResize( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		msgBox->setStandardButtons( QMessageBoxResize::Ok );
+		msgBox->setIcon(QMessageBoxResize::Warning);
 		msgBox->setText(tr("Segment runs missing in some samples!"));
 		msgBox->setDetailedText(QString::fromStdString(filesNames));
 		msgBox->setModal( false );

@@ -17,9 +17,14 @@ class QMessageBoxResize: public QMessageBox
             switch (e->type()) {
             case QEvent::MouseMove:
             case QEvent::MouseButtonPress:
+                setMinimumHeight(0);
+                setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
                 setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-                if (QWidget *textEdit = findChild<QTextEdit *>()) {
-                textEdit->setMaximumHeight(QWIDGETSIZE_MAX);
+                if (QTextEdit *textEdit = findChild<QTextEdit *>()) {
+                    textEdit->setMinimumHeight(0);
+                    textEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+                    textEdit->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+                    textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
                 }
             }
             return res;
