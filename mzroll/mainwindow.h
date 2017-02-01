@@ -128,6 +128,7 @@ public:
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *ppmWindowBox;
 	QLineEdit *searchText;
+	QComboBox *ionizationModeComboBox;
 	QComboBox *quantType;
 	QLabel *statusText;
 	QStringList pathlist;
@@ -266,6 +267,8 @@ public Q_SLOTS:
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
+
+	void setQComboBox();
 
     void mzrollLoadDB(QString dbname);
 	

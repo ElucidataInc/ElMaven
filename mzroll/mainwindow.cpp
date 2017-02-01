@@ -361,7 +361,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
-
+	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(setQComboBox()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
@@ -401,10 +401,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	alignmentVizDockWidget->raise();
 	alignmentVizAllGroupsDockWidget->raise();	
 
+	createToolBars();
 	setIonizationMode(0);
 	if (settings->contains("ionizationMode")) {
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
+
+	setQComboBox();
 
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
@@ -423,7 +426,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	createMenus();
-	createToolBars();
 	if (ligandWidget)
 		loadMethodsFolder(methodsFolder);
 	if (pathwayWidget)
@@ -816,8 +818,33 @@ void MainWindow::setIonizationMode(int x) {
 	_ionizationMode = x;
 	massCalcWidget->setCharge(_ionizationMode);
 	isotopeWidget->setCharge(_ionizationMode);
-
 }
+
+void MainWindow::setQComboBox() {
+
+	QString ionMode = settingsForm->ionizationMode->currentText();
+
+    if		(ionMode.contains("Positive")) 		ionizationModeComboBox->setCurrentIndex(0);
+    else if	(ionMode.contains("Negative")) 		ionizationModeComboBox->setCurrentIndex(1);
+    else if	(ionMode.contains("Neutral")) 		ionizationModeComboBox->setCurrentIndex(2);
+	else if	(ionMode.contains("Auto Detect")) 	{
+
+		disconnect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), 0, 0);
+
+		if(!samples.empty()) {
+			int mode = samples[0]->getPolarity();
+			if (mode == 0) ionizationModeComboBox->setCurrentIndex(2);
+			else if (mode == -1) ionizationModeComboBox->setCurrentIndex(1);
+			else if (mode == 1) ionizationModeComboBox->setCurrentIndex(0);
+			else ionizationModeComboBox->setCurrentIndex(2);
+		}
+
+		connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
+
+	}
+	else ionizationModeComboBox->setCurrentIndex(2);
+}
+
 vector<mzSample*> MainWindow::getVisibleSamples() {
 
 	vector<mzSample*> vsamples;
@@ -1860,6 +1887,13 @@ void MainWindow::createToolBars() {
 			SLOT(setDatabase(QString)));
 	layout->addSpacing(10);
 
+	ionizationModeComboBox = new QComboBox(hBox);
+	ionizationModeComboBox->addItem("Positive (+)");
+	ionizationModeComboBox->addItem("Negative (-)");
+	ionizationModeComboBox->addItem("Neutral (0)");
+	ionizationModeComboBox->setToolTip("Select Ionization Mode");
+	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
+
 	quantType = new QComboBox(hBox);
 	quantType->addItem("AreaTop");
 	quantType->addItem("Area");
@@ -1877,6 +1911,7 @@ void MainWindow::createToolBars() {
 	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
 	settings->endGroup();
 
+	layout->addWidget(ionizationModeComboBox, 0);
 	layout->addWidget(quantType, 0);
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);

@@ -28,6 +28,8 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void  setStringValue(QString key, QString value);
                  void updateMultiprocessing();
 
+                 void setSettingsIonizationMode(QString);
+
                  void updateSmoothingWindowValue(double value);
                  inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
                  inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }

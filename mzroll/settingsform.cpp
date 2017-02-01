@@ -17,6 +17,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
+    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(amuQ1, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
     connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
@@ -61,8 +62,14 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     //Multiprocessing
     connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
+}
 
+void SettingsForm::setSettingsIonizationMode(QString ionMode) {
 
+    if      (ionMode.contains("Neutral"))   ionizationMode->setCurrentIndex(1);
+    else if (ionMode.contains("Positive"))  ionizationMode->setCurrentIndex(2);
+    else if (ionMode.contains("Negative"))  ionizationMode->setCurrentIndex(3);
+    else                                    ionizationMode->setCurrentIndex(0);
 }
 
 void SettingsForm::recomputeIsotopes() { 
