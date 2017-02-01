@@ -4,6 +4,8 @@
 #include <qstring.h>
 #include <string>
 #include <vector>
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 #include "mzMassCalculator.h"
 #include "mzSample.h"
@@ -14,6 +16,7 @@ class Classifier;
 class MavenParameters {
 public:
 	MavenParameters();
+	boost::signals2::signal< void (const string&,unsigned int , int ) > sig;
 
 	/**
 	 * [set Output Directory]

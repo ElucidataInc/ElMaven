@@ -7,6 +7,8 @@
 #include "Matrix.h"
 
 #include <omp.h>
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 class mzSample;
 using namespace std;
@@ -20,6 +22,7 @@ using namespace std;
 class MassSlices {
 
     public:
+
         MassSlices()  {
             _maxSlices=INT_MAX; 
             _minRt=FLT_MIN; _minMz=FLT_MIN; _minIntensity=FLT_MIN;
@@ -28,6 +31,11 @@ class MassSlices {
             _precursorPPM=1000;
         }
         ~MassSlices() { delete_all(slices); cache.clear(); }
+
+        void sendSignal( const string& progressText, unsigned int completed_samples, int total_samples)
+        {
+            mavenParameters->sig(progressText, completed_samples, total_samples);
+        }
 
         vector<mzSlice*> slices;
         mzSlice* sliceExists(float mz,float rt);

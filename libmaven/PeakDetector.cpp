@@ -167,6 +167,8 @@ void PeakDetector::processMassSlices() {
         return;
     }
 
+    sendBoostSignal("Peak Detection",0,1);
+
     // process goodslices
     processSlices(massSlices.slices, "allslices");
 

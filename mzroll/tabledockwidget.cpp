@@ -997,6 +997,7 @@ void TableDockWidget::saveMzEICJson(string filename) {
     }
     myfile << "]}"; //groups
     myfile.close();
+    Q_EMIT(updateProgressBar("Writing to json complete.", 1, 1));
 }
 
 string TableDockWidget::sanitizeJSONstring(string s) {

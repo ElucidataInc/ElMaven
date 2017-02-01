@@ -32,6 +32,7 @@ public:
 	BackgroundPeakUpdate(QWidget*);
 	~BackgroundPeakUpdate();
 	void qtSlot(const string& progressText, unsigned int completed_slices, int total_slices);
+	void qtSignalSlot(const string& progressText, unsigned int completed_samples, int total_samples);
 	/**
 	 * [get Maven Parameters]
 	 * @return [params]

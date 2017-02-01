@@ -5,6 +5,7 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         _stopped = true;
         setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
+        peakDetector.boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
 }
 
 
@@ -505,7 +506,6 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
                                          string setName) {
 
         getProcessSlicesSettings();
-        peakDetector.boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
 
         peakDetector.processSlices(slices, setName);
 
@@ -539,6 +539,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 
 void BackgroundPeakUpdate::processMassSlices() {
         Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
+        mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
         peakDetector.processMassSlices();
         //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
@@ -550,6 +551,12 @@ void BackgroundPeakUpdate::processMassSlices() {
         }
 
         writeCSVRep("allslices");
+}
+
+void BackgroundPeakUpdate::qtSignalSlot(const string& progressText, unsigned int completed_slices, int total_slices)
+{
+        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_slices, total_slices));
+
 }
 
 void BackgroundPeakUpdate::completeStop() {

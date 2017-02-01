@@ -43,7 +43,12 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 	float rtWindow=2.0;
 	this->_precursorPPM=userPPM;
 
+    int totalScans = 0,currentScans = 0;
+    for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
+
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
+
+    sendSignal("Status", 0 , 1);
 
 // #pragma omp parallel for ordered
     for(unsigned int i=0; i < samples.size(); i++) {
@@ -54,12 +59,25 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             break;
         }
 
+        string num;
+        if(i==0) num = "st";
+        else if(i==1) num = "nd";
+        else if(i==2) num = "rd";
+        else num = "th ";
+
+        if (mavenParameters->showProgressFlag ) {
+            string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
+                                  + " Sample(s) Processing.....";
+            sendSignal(progressText,currentScans,totalScans);
+        }
+
 // #pragma omp cancel for
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
             if (mavenParameters->stop) {
                 stopSlicing();
                 break;
             }
+            currentScans++;
             Scan* scan = samples[i]->scans[j];
             if (scan->mslevel != 1 ) continue;
             if (_maxRt and !isBetweenInclusive(scan->rt,_minRt,_maxRt)) continue;
@@ -107,10 +125,19 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                     cache.insert( pair<int,mzSlice*>(mzRange, s));
                 }
             }
+
+            if (mavenParameters->showProgressFlag ) {
+                string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
+                                  + " Sample(s) Processing.....\n"
+                                  + to_string(slices.size()) + " Slices Created ";
+                sendSignal(progressText,currentScans,totalScans);
+            }
+
         }
     }
     cerr << "Found=" << slices.size() << " slices" << endl;
     sort(slices.begin(),slices.end(), mzSlice::compIntensity);
+    sendSignal("Mass Slices Processed", 1 , 1);
 }
 
 void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
