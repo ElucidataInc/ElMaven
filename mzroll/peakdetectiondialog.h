@@ -42,6 +42,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void updatePeakTableList(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void updatePeakQType(QString);
+				 void showSettingsForm();
 
 		private:
 				QSettings *settings;

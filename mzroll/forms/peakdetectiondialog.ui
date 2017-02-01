@@ -402,7 +402,15 @@
          <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2"/>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="changeIsotopeOptions">
+            <property name="text">
+             <string>Isotope Detection Options</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -514,9 +522,6 @@
               <height>16777215</height>
              </size>
             </property>
-            <property name="showGroupSeparator" stdset="0">
-             <bool>true</bool>
-            </property>
             <property name="suffix">
              <string/>
             </property>
@@ -525,6 +530,9 @@
             </property>
             <property name="value">
              <double>1000000.000000000000000</double>
+            </property>
+            <property name="showGroupSeparator" stdset="0">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

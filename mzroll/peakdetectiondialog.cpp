@@ -33,7 +33,13 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
         reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
+        connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
 
+}
+
+void PeakDetectionDialog::showSettingsForm() {
+    mainwindow->settingsForm->show();
+    mainwindow->settingsForm->setIsotopeDetectionTab();
 }
 
 void PeakDetectionDialog::updatePeakQType(QString pQType) {
