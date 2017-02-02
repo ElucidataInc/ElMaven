@@ -8,6 +8,23 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 			selectDatabase->setVisible(true);
 		}
 		connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
+		connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
+}
+
+AlignmentDialog::~AlignmentDialog() {
+	if (workerThread) delete (workerThread);
+	_mw->UndoAlignment();
+    cancel();
+}
+
+void AlignmentDialog::cancel() {
+    if (workerThread) {
+        if (workerThread->isRunning()) {
+            workerThread->completeStop();
+            return;
+        }
+    }
+    close();
 }
 
 void AlignmentDialog::setMainWindow(MainWindow* mw) {

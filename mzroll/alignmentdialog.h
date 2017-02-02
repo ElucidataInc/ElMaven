@@ -6,6 +6,7 @@
 #include "ui_alignmentdialog.h"
 #include "mainwindow.h"
 
+class BackgroundPeakUpdate;
 class Database;
 class MainWindow;
 
@@ -16,10 +17,14 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 
 	public:
 		AlignmentDialog(QWidget *parent);
+		~AlignmentDialog();
 		void setMainWindow(MainWindow* mw);
+		void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread) {workerThread = alignmentWorkerThread;}
 		MainWindow* _mw;
+		BackgroundPeakUpdate* workerThread;
 
 	public Q_SLOTS:
+		void cancel();
 		void show();
 		void inputInitialValuesAlignmentDialog();
 		void intialSetup();

@@ -473,7 +473,7 @@ void BackgroundPeakUpdate::align() {
                 mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
         }
 
-        if (mavenParameters->alignSamplesFlag) {
+        if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
                 //		Q_EMIT(updateProgressBar("Aligning Samples", 1, 100));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)

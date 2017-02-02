@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>640</height>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -244,6 +244,13 @@
       <string>Alignment Algorithm</string>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Maximum Number of Itterations</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1">
        <widget class="QSpinBox" name="maxItterations">
         <property name="minimum">
@@ -274,13 +281,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Maximum Number of Itterations</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -289,15 +289,22 @@
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout_8">
-      <item row="3" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="2">
+       <widget class="QPushButton" name="cancelButton">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
        <widget class="QProgressBar" name="progressBar">
         <property name="value">
          <number>0</number>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="3" column="1">
        <widget class="QPushButton" name="alignButton">
         <property name="text">
          <string>Align</string>
@@ -305,16 +312,16 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QToolButton" name="UndoAlignment">
-        <property name="text">
-         <string>Undo Aligment</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
        <widget class="QLabel" name="statusText">
         <property name="text">
          <string>StatusText</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QToolButton" name="UndoAlignment">
+        <property name="text">
+         <string>Undo Aligment</string>
         </property>
        </widget>
       </item>

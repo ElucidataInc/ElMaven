@@ -2176,6 +2176,7 @@ void MainWindow::Align() {
 	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
+	alignmentDialog->setWorkerThread(workerThread);
 
     //connect new connections
     connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
