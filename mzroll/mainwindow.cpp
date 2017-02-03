@@ -201,6 +201,7 @@ using namespace mzUtils;
 
     fileLoader = new mzFileIO(this);
     fileLoader->setMainWindow(this);
+	connect(fileLoader, SIGNAL(createPeakTableSignal(QString)), this,  SLOT(createPeakTable(QString)));
 	//settings dialog
 	settingsForm = new SettingsForm(settings, this);
 	//progress Bar on the bottom of the page
@@ -534,6 +535,11 @@ using namespace mzUtils;
 	// 	msgBox->setModal( false );
 	// 	msgBox->open();
     // }
+}
+void MainWindow::createPeakTable(QString filenameNew) {	
+	TableDockWidget * peaksTable = this->addPeaksTable("title");
+	peaksTable->loadPeakTable(filenameNew);
+	peaksTable->showAllGroups();
 }
 
 bool MainWindow::askAutosave() {
