@@ -47,6 +47,7 @@
 #include "libplog/Log.h"
 #include <csignal>
 #include <QList>
+#include <QRegExp>
 
 class SettingsForm;
 class EicWidget;
@@ -94,22 +95,15 @@ static void signalHandler(int signum);
 class AutoSave: public QThread {
 Q_OBJECT
 
-public Q_SLOTS:
-	void saveMzRoll();
-	void saveMzRollAllTables();
-	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
+// public Q_SLOTS:
+// 	void saveMzRollWorker();
 
 public:
-	void saveMzRollList(QString MzrollFileName);
-	QList<QString> SaveMzrollListvar;
-	AutoSave(QWidget*);
-	void setMainWindow(MainWindow*);
-	bool doAutosave;
-	int askAutosave;
-	bool systemCrash;
-	QString fileName;
-	QString newFileName;
+	AutoSave(MainWindow*);
+	void saveMzRollWorker();
 	MainWindow* _mainwindow;
+private:
+    void run();
 };
 
 class MainWindow: public QMainWindow {
@@ -253,6 +247,9 @@ public:
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
 	bool askAutosave();
+	void saveMzRoll();
+	bool doAutosave;
+	int askAutosaveMain;
 Q_SIGNALS:
 	void valueChanged(int newValue);
 	void saveSignal();
@@ -266,6 +263,7 @@ protected:
 
 public Q_SLOTS:
 	void printvalue();
+	void autosaveMzRoll();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -366,15 +364,14 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	inline void slotReboot(QString mzrollPath = NULL) {
+		settings->setValue("closeEvent", 1);
+		writeSettings();
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
    		QStringList arguments;
 		if (mzrollPath != NULL) arguments << mzrollPath;
    		QProcess *myProcess = new QProcess(this);
     	myProcess->start(rep, arguments);
-		settings->setValue("closeEvent", 1);
-		autosave->saveMzRoll();
-		writeSettings();
 		QCoreApplication::quit();
 	}
 
@@ -396,6 +393,12 @@ private:
 	vector<string> unloadableFiles;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
+	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
+	QString fileName;
+	QString newFileName;
+	void saveMzRollList(QString MzrollFileName);
+	void saveMzRollAllTables();
+	QSet<QString> SaveMzrollListvar;
 
 };
 
