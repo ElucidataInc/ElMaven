@@ -282,6 +282,7 @@ public Q_SLOTS:
 	void showsettingsForm();
 	void showButtonLog();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
+	void createPeakTable(QString);
 
 	void setQComboBox();
 

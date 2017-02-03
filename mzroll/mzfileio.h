@@ -92,6 +92,7 @@ Q_OBJECT
      void spectraLoaded(); //TODO: Sahil, Added while merging mzfileio
      void projectLoaded(); //TODO: Sahil, Added while merging mzfileio
      void peaklistLoaded(); //TODO: Sahil, Added while merging mzfileio
+     void createPeakTableSignal(QString);
 
     protected:
       /**
