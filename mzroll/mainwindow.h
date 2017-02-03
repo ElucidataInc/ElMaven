@@ -124,6 +124,7 @@ public:
 	map<pair<string,string>, double> deltaRt;
 
 	AutoSave* autosave;
+	QSet<QString> SaveMzrollListvar;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *ppmWindowBox;
@@ -229,8 +230,8 @@ public:
 	inline vector<mzSample*> getSamples() {
 		return samples;
 	}
-	inline void reBootApp(QString fileName = NULL) {
-		Q_EMIT(reBoot(fileName));
+	inline void reBootApp() {
+		Q_EMIT(reBoot());
 	}
 	vector<mzSample*> getVisibleSamples();
 
@@ -254,7 +255,7 @@ Q_SIGNALS:
 	void valueChanged(int newValue);
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
-	void reBoot(QString);
+	void reBoot();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -364,15 +365,17 @@ private Q_SLOTS:
 	void checkSRMList();
 	void readSettings();
 	void writeSettings();
-	inline void slotReboot(QString mzrollPath = NULL) {
-		settings->setValue("closeEvent", 1);
-		writeSettings();
+	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
    		QStringList arguments;
-		if (mzrollPath != NULL) arguments << mzrollPath;
+		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+			arguments << newFileName;
+		}
    		QProcess *myProcess = new QProcess(this);
     	myProcess->start(rep, arguments);
+		settings->setValue("closeEvent", 1);
+		writeSettings();
 		QCoreApplication::quit();
 	}
 
@@ -399,7 +402,6 @@ private:
 	QString newFileName;
 	void saveMzRollList(QString MzrollFileName);
 	void saveMzRollAllTables();
-	QSet<QString> SaveMzrollListvar;
 
 };
 
