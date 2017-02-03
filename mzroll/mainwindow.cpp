@@ -66,8 +66,6 @@ void MainWindow::setValue(int value)
 }
 
 void MainWindow::printvalue() {
-	//reBootApp();
-	cerr << samples.size() << endl;
 	if (samples.size() > 0 ) {
 		settings->setValue("closeEvent", 1);
 		QFileInfo fi(QString::fromStdString(samples[0]->fileName));
@@ -78,15 +76,14 @@ void MainWindow::printvalue() {
 		this->fileName = AutosavePath;
 		this->doAutosave = true;
 		this->saveMzRoll();
-		qDebug() << SaveMzrollListvar << endl; 
+		slotReboot();
 	}
 }
 using namespace mzUtils;
 
  MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
-
-	connect( this, SIGNAL (reBoot(QString)), this, SLOT (slotReboot(QString)));
+	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
 	m_value=0; 	
 	mainwindowDummy = (unsigned long) this;
 	signal(SIGINT,signalHandler);

@@ -317,6 +317,8 @@ void ProjectDockWidget::unloadSelectedSamples() {
 		msgBox->open();
         msgBox->exec();
         if (msgBox->clickedButton() == connectButton) {
+            QSet<QString> fileNames;
+            _mainwindow->SaveMzrollListvar.clear();
             _mainwindow->reBootApp();
         }
      }
