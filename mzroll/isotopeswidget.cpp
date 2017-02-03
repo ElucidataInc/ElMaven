@@ -226,6 +226,8 @@ void IsotopeWidget::setClipboard() {
 		if(bookmarkflag) {
 			_mw->bookmarkPeakGroup();
 			bookmarkflag = true;
+			_mw->peaksMarked++;
+			_mw->autoSaveSignal();
 		}
 	}
 	workerThread->stop();

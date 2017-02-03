@@ -53,9 +53,7 @@ QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 unsigned long mainwindowDummy;
 void signalHandler( int signum ) {
 	MainWindow *pthis = (MainWindow * )mainwindowDummy;
-    QObject::connect(pthis, SIGNAL(valueChanged(int)),
-                     pthis, SLOT(printvalue()));
-	pthis->setValue(12);
+	pthis->printvalue();
 	exit(signum);
 }
 
@@ -67,80 +65,27 @@ void MainWindow::setValue(int value)
     }
 }
 
-void MainWindow::printvalue(){
-	if(autosave->doAutosave){
-		autosave->saveMzRoll();
-		QMessageBox* msgBox = new QMessageBox( this );
-		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		msgBox->setStandardButtons( QMessageBox::Ok );
-		QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
-		QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
-		msgBox->setIcon(QMessageBox::Information);
-		msgBox->setText(tr("Unexpected error has happened in El-MAVEN. \nWe would be able to restore the last saved state"));
-		msgBox->setModal( false );
-		msgBox->open();
-		msgBox->exec();
-		if (msgBox->clickedButton() == connectButton) {
-				reBootApp(autosave->SaveMzrollListvar.at(0));
-			} else if (msgBox->clickedButton() == restartButton) {
-				reBootApp();
-			}
-		} else{
-		if (samples.size() > 0 ) {
-			settings->setValue("closeEvent", 1);
-			autosave->doAutosave = true;
-			autosave->askAutosave=1;
-			autosave->systemCrash =  true;
-			QFileInfo fi(QString::fromStdString(samples[0]->fileName));
-			QString samplePath = fi.absolutePath() + QDir::separator();
-			const QDateTime nowTime = QDateTime::currentDateTime(); 
-			const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
-			QString AutosavePath = samplePath + timestamp + ".mzroll";
-			autosave->fileName=AutosavePath;
-			autosave->saveMzRoll();
-			autosave->systemCrash =  false;
-			if (autosave->SaveMzrollListvar.size() > 0) {
-				QFile f(autosave->SaveMzrollListvar.at(0));
-				if (f.size() > 0) {
-					QMessageBox* msgBox = new QMessageBox( this );
-					msgBox->setAttribute( Qt::WA_DeleteOnClose );
-					msgBox->setStandardButtons( QMessageBox::Ok );
-					QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
-					QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
-					msgBox->setIcon(QMessageBox::Information);
-					msgBox->setText(tr("Unexpected error has happened in El-MAVEN. \nWe would be able to restore the last saved state"));
-					msgBox->setModal( false );
-					msgBox->open();
-					msgBox->exec();
-					if (msgBox->clickedButton() == connectButton) {
-						reBootApp(autosave->SaveMzrollListvar.at(0));
-					} else if (msgBox->clickedButton() == restartButton) {
-						reBootApp();
-					}
-				} else {
-					QMessageBox* msgBox = new QMessageBox( this );
-					msgBox->setAttribute( Qt::WA_DeleteOnClose );
-					msgBox->setStandardButtons( QMessageBox::Ok );
-					//QPushButton *connectButton = msgBox->addButton(tr("Restore State"), QMessageBox::ActionRole);
-					QPushButton *restartButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
-					msgBox->setIcon(QMessageBox::Information);
-					msgBox->setText(tr("Unexpected error has happened in MAVEN. \nUnfortunately El-MAVEN has to be restarted"));
-					msgBox->setModal( false );
-					msgBox->open();
-					msgBox->exec();
-					if (msgBox->clickedButton() == restartButton) {
-						reBootApp();
-					}
-				}
-			}
-		}
+void MainWindow::printvalue() {
+	//reBootApp();
+	cerr << samples.size() << endl;
+	if (samples.size() > 0 ) {
+		settings->setValue("closeEvent", 1);
+		QFileInfo fi(QString::fromStdString(samples[0]->fileName));
+		QString samplePath = fi.absolutePath() + QDir::separator();
+		const QDateTime nowTime = QDateTime::currentDateTime(); 
+		const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
+		QString AutosavePath = samplePath + timestamp + ".mzroll";
+		this->fileName = AutosavePath;
+		this->doAutosave = true;
+		this->saveMzRoll();
+		qDebug() << SaveMzrollListvar << endl; 
 	}
 }
 using namespace mzUtils;
 
  MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
-			
+
 	connect( this, SIGNAL (reBoot(QString)), this, SLOT (slotReboot(QString)));
 	m_value=0; 	
 	mainwindowDummy = (unsigned long) this;
@@ -252,13 +197,10 @@ using namespace mzUtils;
 
     //added while merging with Maven776 - Kiran
 	//fileLoader
-
 	autosave = new AutoSave(this);
-	autosave->setMainWindow(this);
 
     fileLoader = new mzFileIO(this);
     fileLoader->setMainWindow(this);
-
 	//settings dialog
 	settingsForm = new SettingsForm(settings, this);
 	//progress Bar on the bottom of the page
@@ -448,7 +390,7 @@ using namespace mzUtils;
 	// tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
-	connect(this, SIGNAL(saveSignal()), autosave, SLOT(saveMzRoll()));
+	connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveMzRoll()));
 
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
@@ -663,61 +605,74 @@ void MainWindow::checkSRMList() {
 	}
 }
 
-AutoSave::AutoSave(QWidget*){
+AutoSave::AutoSave(MainWindow* mw){
 
-	doAutosave = false;
-	askAutosave = 0;
-	systemCrash = false;
+	_mainwindow = mw;
+	_mainwindow->doAutosave = false;
+	_mainwindow->askAutosaveMain = 0;
+
 }
 
-void AutoSave::saveMzRollList(QString MzrollFileName){
-	 SaveMzrollListvar << MzrollFileName;
+void MainWindow::saveMzRollList(QString MzrollFileName){
+	 SaveMzrollListvar.insert(MzrollFileName);
  }
- 
-void AutoSave::setMainWindow(MainWindow* mw) {
-    _mainwindow=mw;
+
+void AutoSave::saveMzRollWorker() {
+	this->start();
+}
+void AutoSave::run() {
+	_mainwindow->saveMzRoll();
 }
 
+void MainWindow::autosaveMzRoll() {
+	if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
+		this->askAutosaveMain++;
+		this->doAutosave = this->askAutosave();
+		if (this->doAutosave) {
+			QString dir = ".";
+			if ( settings->contains("lastDir") ) {
+				QString ldir = settings->value("lastDir").value<QString>();
+				QDir test(ldir);
+				if (test.exists()) dir = ldir;
+			}
 
-void AutoSave::saveMzRoll(){
-
-    QSettings* settings = _mainwindow->getSettings();
-	
-	if (_mainwindow->peaksMarked == 1 && askAutosave == 0){
-		askAutosave++;
-		doAutosave = _mainwindow->askAutosave();
-		if (doAutosave) saveMzRollAllTables();
-	}
-
-	if (_mainwindow->peaksMarked % 10 == 0 && doAutosave){
-			saveMzRollAllTables();
-	}
-
-	if (_mainwindow->allPeaksMarked && doAutosave) {
-			saveMzRollAllTables();	
-	}
-
-	if (settings->value("closeEvent").toInt() == 1 && doAutosave) {
-		saveMzRollAllTables();
+			this->fileName = QFileDialog::getSaveFileName( this,
+					"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
+			if (this->fileName.isEmpty()) {
+				this->doAutosave = false;
+				return;
+			}
+			if(!this->fileName.endsWith(".mzroll",Qt::CaseInsensitive)) this->fileName = this->fileName + ".mzroll";
+			autosave->saveMzRollWorker();
+		}
+	} else if (this->doAutosave) {
+		autosave->saveMzRollWorker();
 	}
 }
 
-void AutoSave::saveMzRollAllTables() {
+void MainWindow::saveMzRoll() {
 
-    QSettings* settings = _mainwindow->getSettings();
+    QSettings* settings = this->getSettings();
+	if (this->peaksMarked > 5) {
+			this->saveMzRollAllTables();
+	} else if (this->allPeaksMarked) {
+			this->saveMzRollAllTables();	
+	} else if (settings->value("closeEvent").toInt() == 1) {
+		this->saveMzRollAllTables();
+	} else if(this->doAutosave) {
+		this->saveMzRollAllTables();
+	}
+}
 
-    QString dir = ".";
-    if ( settings->contains("lastDir") ) {
-        QString ldir = settings->value("lastDir").value<QString>();
-        QDir test(ldir);
-        if (test.exists()) dir = ldir;
-    }
+void MainWindow::saveMzRollAllTables() {
+
+    QSettings* settings = this->getSettings();
 
 	if (fileName.isEmpty()) {
-		fileName = _mainwindow->projectDockWidget->lastSavedProject;
+		fileName = this->projectDockWidget->lastSavedProject;
 	}
 	QList<QPointer<TableDockWidget> > peaksTableList =
-		_mainwindow->getPeakTableList();
+		this->getPeakTableList();
 	peaksTableList.append(0);
 
 	TableDockWidget* peaksTable;
@@ -726,19 +681,9 @@ void AutoSave::saveMzRollAllTables() {
 	SaveMzrollListvar.clear();
 	Q_FOREACH(peaksTable, peaksTableList) {
 
-		if ( !fileName.isEmpty() && systemCrash) {
-			savePeaksTable(peaksTable, fileName, QString::number(j));
-		} else if ( !newFileName.isEmpty() && _mainwindow->projectDockWidget->lastSavedProject == newFileName ) {
+		if ( !newFileName.isEmpty() && this->projectDockWidget->lastSavedProject == newFileName ) {
 			savePeaksTable(peaksTable, fileName, QString::number(j));
 		} else {
-			fileName = QFileDialog::getSaveFileName( _mainwindow,
-					"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
-			if (fileName.isEmpty()) {
-				doAutosave = false;
-				break;
-			}
-			if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
-
 			savePeaksTable(peaksTable, fileName, QString::number(j));
 		}
 		j++;
@@ -746,32 +691,29 @@ void AutoSave::saveMzRollAllTables() {
 
 }
 
-void AutoSave::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName) {
+void MainWindow::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName) {
+	if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
+		QRegExp rxr("_table-[0-9]+");
+		fileName = fileName.replace(rxr, "");
+		QRegExp rxr1("_bookmarkedPeaks");
+		fileName = fileName.replace(rxr1, "");
+		QFileInfo fi(fileName);
 
-	if (peaksTable) {
-		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-			QFileInfo fi(fileName);
-			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_" + tableName + ".mzroll";
-		}
-		saveMzRollList(newFileName);
-		_mainwindow->projectDockWidget->saveProject(newFileName, peaksTable);
-	} else if (!_mainwindow->bookmarkedPeaks->getGroups().isEmpty()) {
-		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-			QFileInfo fi(fileName);
+		if (peaksTable) {
+			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_table-" + tableName + ".mzroll";
+			saveMzRollList(newFileName);
+			this->projectDockWidget->saveProject(newFileName, peaksTable);
+		} else if (!this->bookmarkedPeaks->getGroups().isEmpty()) {
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
-		}
-		saveMzRollList(newFileName);
-		_mainwindow->projectDockWidget->saveProject(newFileName);
-	} else {
-		if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-			QFileInfo fi(fileName);
+			saveMzRollList(newFileName);
+			this->projectDockWidget->saveProject(newFileName);
+		} else {
 			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + ".mzroll";
+			saveMzRollList(newFileName);
+			this->projectDockWidget->saveProject(newFileName);
 		}
-		saveMzRollList(newFileName);
-		_mainwindow->projectDockWidget->saveProject(newFileName);
 	}
 }
-
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
@@ -833,6 +775,7 @@ void MainWindow::setUrl(QString url, QString link) {
 void MainWindow::autoSaveSignal() {
 	Q_EMIT(saveSignal());
 }
+
 void MainWindow::setUrl(Compound* c) {
 	if (c == NULL)
 		return;
@@ -1794,7 +1737,7 @@ void MainWindow::writeSettings() {
 
 void MainWindow::closeEvent(QCloseEvent *event) {
 	settings->setValue("closeEvent", 1);
-	autosave->saveMzRoll();
+	this->saveMzRoll();
 	writeSettings();
 	event->accept();
 
