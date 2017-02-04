@@ -24,6 +24,8 @@ private:
     void startElMaven();
 private Q_SLOTS:
     void on_restart_clicked();
+    void on_send_report_clicked();
+    void on_cancel_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -42,7 +42,7 @@
         <widget class="QLineEdit" name="lineEdit"/>
        </item>
        <item row="8" column="2">
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="cancel">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -68,7 +68,7 @@
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="send_report">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -152,8 +152,8 @@
       <zorder>label</zorder>
       <zorder>lineEdit</zorder>
       <zorder>label_3</zorder>
-      <zorder>pushButton_3</zorder>
-      <zorder>pushButton</zorder>
+      <zorder>cancel</zorder>
+      <zorder>send_report</zorder>
       <zorder>restart</zorder>
      </widget>
     </item>
