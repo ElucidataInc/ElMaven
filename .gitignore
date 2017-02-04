@@ -52,6 +52,7 @@ bin/mzWatcher
 bin/peakdetector
 bin/MavenTests
 bin/El_Maven*
+bin/CrashReporter*
 
 #Documentation files
 docs/html
