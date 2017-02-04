@@ -408,12 +408,13 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
-
+	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setQComboBox()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setQComboBox()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
