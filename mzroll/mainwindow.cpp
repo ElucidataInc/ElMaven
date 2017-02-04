@@ -76,10 +76,16 @@ void MainWindow::printvalue() {
 		this->fileName = AutosavePath;
 		this->doAutosave = true;
 		this->saveMzRoll();
-  		unsigned int countCrashState = 0;
+		//Starting the crash reporter
+		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
+		QProcess *myProcess = new QProcess();
+		QStringList arguments;
+		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+    	myProcess->start(crashReporterPath, arguments);
+  		//process of crash reporting ended
+		unsigned int countCrashState = 0;
 		settings->beginWriteArray("crashTables");
 		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
-			qDebug() <<newFileName;
 			settings->setArrayIndex(countCrashState++);
 			settings->setValue("crashTable", newFileName);
 		}

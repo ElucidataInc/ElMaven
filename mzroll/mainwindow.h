@@ -372,7 +372,7 @@ private Q_SLOTS:
 		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
 			arguments << newFileName;
 		}
-   		QProcess *myProcess = new QProcess(this);
+   		QProcess *myProcess = new QProcess();
     	myProcess->start(rep, arguments);
 		settings->setValue("closeEvent", 1);
 		writeSettings();

@@ -80,7 +80,7 @@
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="restart">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -154,7 +154,7 @@
       <zorder>label_3</zorder>
       <zorder>pushButton_3</zorder>
       <zorder>pushButton</zorder>
-      <zorder>pushButton_2</zorder>
+      <zorder>restart</zorder>
      </widget>
     </item>
    </layout>
