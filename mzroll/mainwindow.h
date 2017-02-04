@@ -377,7 +377,20 @@ private Q_SLOTS:
 		settings->setValue("closeEvent", 1);
 		writeSettings();
 		QCoreApplication::quit();
-	}
+	};
+	
+	inline void deleteCrashFileTables() {
+		unsigned int size = settings->beginReadArray("crashTables");
+		for (unsigned int i = 0; i < size; ++i) {
+			settings->setArrayIndex(i);
+			QFile file (settings->value("crashTable").toString());
+    		file.remove();
+		}
+		settings->endArray();
+		settings->beginWriteArray("crashTables");
+		settings->endArray();
+		settings->sync();
+	};
 
 private:
 	int m_value;
