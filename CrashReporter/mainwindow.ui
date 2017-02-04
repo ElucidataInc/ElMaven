@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>594</width>
+    <height>453</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>594</width>
+    <height>489</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>El-MAVEN Crash reporter</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>       We are Sorry :(</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="4" column="0" colspan="3">
+        <widget class="QLineEdit" name="lineEdit"/>
+       </item>
+       <item row="8" column="2">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>E-mail</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QPushButton" name="pushButton">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Send report</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Restart</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>In some cases we would like to recirve more information to resolve the problem. We will use below email to contact you.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" rowspan="2" colspan="3">
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Tell us about the crash</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QLabel" name="label_4">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;El-Maven&lt;/span&gt; has a &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt; unfortunately. We will try to restore your last version when it starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+      <zorder>plainTextEdit</zorder>
+      <zorder>plainTextEdit</zorder>
+      <zorder>label_4</zorder>
+      <zorder>label_5</zorder>
+      <zorder>label</zorder>
+      <zorder>lineEdit</zorder>
+      <zorder>label_3</zorder>
+      <zorder>pushButton_3</zorder>
+      <zorder>pushButton</zorder>
+      <zorder>pushButton_2</zorder>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>594</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEl_MAVEN_CrashReporter">
+    <property name="title">
+     <string>El-MAVEN CrashReporter</string>
+    </property>
+   </widget>
+   <addaction name="menuEl_MAVEN_CrashReporter"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

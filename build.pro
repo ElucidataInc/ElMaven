@@ -15,4 +15,5 @@ SUBDIRS +=	\
         libpls \
     	mzroll \
         peakdetector \
-        MavenTests
+        MavenTests \
+        CrashReporter
