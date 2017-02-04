@@ -421,6 +421,7 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -541,9 +542,6 @@ using namespace mzUtils;
 		fileLoader->addFileToQueue(settings->value("crashTable").toString());
 	}
 	settings->endArray();
-	settings->beginWriteArray("crashTables");
-	settings->endArray();
-	settings->sync();
 
 	if (CrashFileList.size() > 0) {
 		QMessageBox* msgBox = new QMessageBox( this );
@@ -586,7 +584,7 @@ bool MainWindow::askAutosave() {
 }
 
 /*!
-This function checks if all the samples that are loaded have the same number of SRM list. 
+This function checks if all the samples that are loaded have the same number of SRM list.
 If not then it will give an information message telling that all the samples dont have
 same number of SRM list.
 */
