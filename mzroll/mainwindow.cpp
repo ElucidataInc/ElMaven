@@ -76,7 +76,15 @@ void MainWindow::printvalue() {
 		this->fileName = AutosavePath;
 		this->doAutosave = true;
 		this->saveMzRoll();
-		slotReboot();
+  		unsigned int countCrashState = 0;
+		settings->beginWriteArray("crashTables");
+		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+			qDebug() <<newFileName;
+			settings->setArrayIndex(countCrashState++);
+			settings->setValue("crashTable", newFileName);
+		}
+		settings->endArray();
+		settings->sync();
 	}
 }
 using namespace mzUtils;
@@ -519,23 +527,40 @@ using namespace mzUtils;
 	settings->setValue("closeEvent", 0);
 	setCentralWidget(eicWidgetController());
 	peakDetectionDialog->setMavenParameters(settings);
-	
-					
-    // if (unloadableFiles.size() > 0) {
-	// 	string filesNames = "Following database file(s) could not be loaded: ";
-	// 	for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
-	// 	filesNames += "\n" + *it ;
 
-	// 	QMessageBox* msgBox = new QMessageBox( this );
-	// 	msgBox->setAttribute( Qt::WA_DeleteOnClose );
-	// 	msgBox->setStandardButtons( QMessageBox::Ok );
-	// 	msgBox->setIcon(QMessageBox::Warning);
-	// 	msgBox->setText(tr("Trouble in loading compound database file(s)"));
-	// 	msgBox->setDetailedText(QString::fromStdString(filesNames));
-	// 	msgBox->setModal( false );
-	// 	msgBox->open();
-    // }
+
+
+	QStringList CrashFileList;
+	unsigned int size = settings->beginReadArray("crashTables");
+	for (unsigned int i = 0; i < size; ++i) {
+		settings->setArrayIndex(i);
+		CrashFileList << settings->value("crashTable").toString();
+		fileLoader->addFileToQueue(settings->value("crashTable").toString());
+	}
+	settings->endArray();
+	settings->beginWriteArray("crashTables");
+	settings->endArray();
+	settings->sync();
+
+	if (CrashFileList.size() > 0) {
+		QMessageBox* msgBox = new QMessageBox( this );
+		msgBox->setAttribute( Qt::WA_DeleteOnClose );
+		QPushButton *restoreNO = msgBox->addButton(tr("Don't Restore"), QMessageBox::ActionRole);
+		QPushButton *restore = msgBox->addButton(tr("Restore"), QMessageBox::ActionRole);
+		msgBox->setIcon(QMessageBox::Information);
+		msgBox->setText(tr("Unfortunately, ElMaven crashed when you were using it earlier.\nHowever, we can restore the application without losing information."));
+		msgBox->setModal( false );
+		msgBox->open();
+		msgBox->exec();
+		if (msgBox->clickedButton() == restore) {
+			fileLoader->start();
+        } else {
+			fileLoader->removeAllFilefromQueue();
+		}
+	}
+
 }
+
 void MainWindow::createPeakTable(QString filenameNew) {	
 	TableDockWidget * peaksTable = this->addPeaksTable("title");
 	peaksTable->loadPeakTable(filenameNew);
