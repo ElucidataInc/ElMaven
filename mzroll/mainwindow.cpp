@@ -538,6 +538,8 @@ using namespace mzUtils;
 	unsigned int size = settings->beginReadArray("crashTables");
 	for (unsigned int i = 0; i < size; ++i) {
 		settings->setArrayIndex(i);
+		//TODO:If the file does not exist it has to be removed from the entry of the Qsettings
+		//The above part of the code has to be implemented
 		CrashFileList << settings->value("crashTable").toString();
 		fileLoader->addFileToQueue(settings->value("crashTable").toString());
 	}
@@ -550,13 +552,23 @@ using namespace mzUtils;
 		QPushButton *restore = msgBox->addButton(tr("Restore"), QMessageBox::ActionRole);
 		msgBox->setIcon(QMessageBox::Information);
 		msgBox->setText(tr("Unfortunately, ElMaven crashed when you were using it earlier.\nHowever, we can restore the application without losing information."));
-		msgBox->setModal( false );
+		msgBox->setModal( true );
 		msgBox->open();
 		msgBox->exec();
 		if (msgBox->clickedButton() == restore) {
 			fileLoader->start();
         } else {
 			fileLoader->removeAllFilefromQueue();
+			unsigned int size = settings->beginReadArray("crashTables");
+			for (unsigned int i = 0; i < size; ++i) {
+				settings->setArrayIndex(i);
+				QFile file (settings->value("crashTable").toString());
+				file.remove();
+			}
+			settings->endArray();
+			settings->beginWriteArray("crashTables");
+			settings->endArray();
+			settings->sync();
 		}
 	}
 }
