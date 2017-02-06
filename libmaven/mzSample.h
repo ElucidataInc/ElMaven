@@ -220,7 +220,7 @@ class mzSlice {
         bool operator< (const mzSlice* b) const { return mz < b->mz; }
 
 
-        bool calculateMzMinMax(float CompoundppmWindow, int ionizationMode);
+        bool calculateMzMinMax(float CompoundppmWindow, int charge);
 
         void calculateRTMinMax(bool matchRtFlag, float compoundRTWindow);
 

@@ -844,14 +844,14 @@ mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
         return d;
 }
 
-bool mzSlice::calculateMzMinMax(float CompoundppmWindow, int ionizationMode) {
+bool mzSlice::calculateMzMinMax(float CompoundppmWindow, int charge) {
     
     float ppmScale = 1e6;
 
     //Calculating the mzmin and mzmax
     if (!this->compound->formula.empty()) {
         //Computing the mass if the formula is given
-        double mass = MassCalculator::computeMass(this->compound->formula, ionizationMode);
+        double mass = MassCalculator::computeMass(this->compound->formula, charge);
         this->mzmin = mass - CompoundppmWindow * mass / ppmScale;
         this->mzmax = mass + CompoundppmWindow * mass / ppmScale;
 
