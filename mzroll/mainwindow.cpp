@@ -408,6 +408,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	setQComboBox();
+	setTotalCharge();
+	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setTotalCharge()));
+	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
@@ -844,6 +847,19 @@ void MainWindow::setQComboBox() {
 	}
 	else ionizationModeComboBox->setCurrentIndex(2);
 }
+
+void MainWindow::setTotalCharge() {
+
+	int temp = 0;
+	if(ionizationModeComboBox->currentIndex() == 0) temp = 1;
+	else if(ionizationModeComboBox->currentIndex() == 1) temp = -1;
+	else if(ionizationModeComboBox->currentIndex() == 2) temp = 0;
+	mavenParameters->ionizationMode = temp;
+	mavenParameters->charge = ionChargeBox->value();
+	totalCharge = temp * ionChargeBox->value();
+	cerr << ionChargeBox->value() << "<<<<<<<<<<<<<<<<<<<" << totalCharge <<endl; 
+	
+} 
 
 vector<mzSample*> MainWindow::getVisibleSamples() {
 
@@ -1625,6 +1641,9 @@ void MainWindow::readSettings() {
     if (!settings->contains("ionizationMode"))
         settings->setValue("ionizationMode", -1);
 
+	if (!settings->contains("ionChargeBox"))
+        settings->setValue("ionChargeBox", 1);
+
 
     if (settings->contains("lastOpenedProject"))
 		settings->setValue("lastOpenedProject", "");
@@ -1654,6 +1673,7 @@ void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
 	settings->setValue("ppmWindowBox", ppmWindowBox->value());
+	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
 	settings->setValue("ionizationMode", getIonizationMode());
@@ -1894,6 +1914,9 @@ void MainWindow::createToolBars() {
 	ionizationModeComboBox->setToolTip("Select Ionization Mode");
 	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
 
+	ionChargeBox = new QSpinBox(hBox);
+	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
+
 	quantType = new QComboBox(hBox);
 	quantType->addItem("AreaTop");
 	quantType->addItem("Area");
@@ -1912,6 +1935,8 @@ void MainWindow::createToolBars() {
 	settings->endGroup();
 
 	layout->addWidget(ionizationModeComboBox, 0);
+	layout->addWidget(new QLabel("Charge", hBox), 0);
+	layout->addWidget(ionChargeBox, 0);
 	layout->addWidget(quantType, 0);
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
