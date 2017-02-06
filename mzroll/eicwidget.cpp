@@ -1347,8 +1347,7 @@ void EicWidget::setCompound(Compound* c) {
 		return;
 
 	int ionizationMode = samples[0]->getPolarity();
-	if (getMainWindow()->getIonizationMode())
-		ionizationMode = getMainWindow()->getIonizationMode(); //user specified ionization mode
+	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
 
 	float ppm = getMainWindow()->getUserPPM();
 	float mz = 0;
