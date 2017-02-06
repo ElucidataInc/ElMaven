@@ -531,7 +531,7 @@ using namespace mzUtils;
 
 	setQComboBox();
 	setTotalCharge();
-	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setTotalCharge()));
+	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setTotalCharge()));
 	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
   // This been set here why is this here; beacuse of this
@@ -1235,8 +1235,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
 void MainWindow::setFormulaFocus(QString formula) {
 	int charge = 0;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		charge = mavenParameters->ionizationMode*mavenParameters->charge; //user specified ionization mode
 
 	// MassCalculator mcalc;
 	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
@@ -1269,15 +1269,16 @@ void MainWindow::setCompoundFocus(Compound*c) {
 
 
 	int charge = 0;
-	if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-		charge = 1;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
+	// 	charge = 1;
+	// if (getIonizationMode())
+	// 	charge = getIonizationMode(); //user specified ionization mode
+	charge = mavenParameters->ionizationMode*mavenParameters->charge;
 	qDebug() << "setCompoundFocus:" << c->name.c_str() << " " << charge << " "
 			<< c->expectedRt;
 
 	float mz = c->mass;
-	if (!c->formula.empty() && charge)
+	if (!c->formula.empty())
 		mz = c->ajustedMass(charge);
 
 	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
@@ -2665,8 +2666,8 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 		return;
 
 	int ionizationMode = scan->getPolarity();
-	if (getIonizationMode())
-		ionizationMode = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		ionizationMode = mavenParameters->ionizationMode; //user specified ionization mode
 
 	if (spectraDockWidget->isVisible() && scan) {
 		spectraWidget->setScan(_peak);
@@ -2705,8 +2706,8 @@ void MainWindow::spectaFocused(Peak* _peak) {
 		return;
 
 	int ionizationMode = scan->getPolarity();
-	if (getIonizationMode())
-		ionizationMode = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		ionizationMode = mavenParameters->ionizationMode; //user specified ionization mode
 
 	if (spectraDockWidget->isVisible() && scan) {
 		spectraWidget->setScan(_peak);
@@ -2847,10 +2848,11 @@ void MainWindow::reorderSamples(PeakGroup* group) {
 
 bool MainWindow::checkCompoundExistance(Compound* c) {
 	int charge = -1;
-	if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-		charge = 1;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
+	// 	charge = 1;
+	// if (getIonizationMode())
+	// 	charge = getIonizationMode(); //user specified ionization mode
+	charge = mavenParameters->ionizationMode*mavenParameters->charge;
 
 	float mz = c->ajustedMass(charge);
 	float mzmin = mz - mz / 1e6 * 3;

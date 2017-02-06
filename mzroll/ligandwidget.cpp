@@ -662,9 +662,9 @@ void LigandWidget::matchFragmentation() {
 	int mzCount = c->fragment_mzs.size();
 	int intsCount = c->fragment_intensity.size(); 
 
-    int charge = _mw->getIonizationMode(); //user specified ionization mode
+    int charge = _mw->mavenParameters->ionizationMode; //user specified ionization mode
 	float precursorMz = c->precursorMz;
-    if (!c->formula.empty() && charge) precursorMz = c->ajustedMass(charge);
+    if (!c->formula.empty()) precursorMz = c->ajustedMass(charge);
 
     for(int i=0; i < mzCount; i++ ) {
 			float mz = c->fragment_mzs[i];

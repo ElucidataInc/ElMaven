@@ -174,11 +174,12 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundPPMWindow = _mw->getUserPPM();
-		if (_mw->getIonizationMode()) {
-			mavenParameters->ionizationMode = _mw->getIonizationMode();
-		} else {
-			mavenParameters->setIonizationMode();
-		}
+		// if (_mw->getIonizationMode()) {
+		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
+		// } else {
+		// 	mavenParameters->setIonizationMode();
+		// }
+		cerr << "<<<<hello<<<<" << mavenParameters->ionizationMode << "<<<<bye<<<<" << endl;
 		workerThread->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}
@@ -203,11 +204,12 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundPPMWindow = _mw->getUserPPM();
-		if (_mw->getIonizationMode()) {
-			mavenParameters->ionizationMode = _mw->getIonizationMode();
-		} else {
-			mavenParameters->setIonizationMode();
-		}
+		// if (_mw->getIonizationMode()) {
+		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
+		// } else {
+		// 	mavenParameters->setIonizationMode();
+		// }
+		cerr << "<<<<hello1<<<<" << mavenParameters->ionizationMode << "<<<<bye1<<<<" << endl;
 		workerThreadBarplot->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}

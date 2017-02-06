@@ -1702,7 +1702,7 @@ void TableDockWidget::saveModel() {
 void TableDockWidget::findMatchingCompounds() { 
     //matching compounds
     float ppm = _mainwindow->getUserPPM();
-    float ionizationMode = _mainwindow->getIonizationMode();
+    float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& g = allgroups[i];
         QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, 
@@ -1725,7 +1725,7 @@ void TableDockWidget::writeQEInclusionList(QString filename) {
     QList<PeakGroup*>selected = getSelectedGroups();
 
 	float window=1.5;
-	int polarity = _mainwindow->getIonizationMode();
+	int polarity = _mainwindow->mavenParameters->ionizationMode;
 	QTextStream out(&file);
 	for(int i=0; i < selected.size(); i++ ) { 
         PeakGroup* g = selected[i];

@@ -401,6 +401,8 @@ void PeakDetectionDialog::findPeaks() {
     setMavenParameters(settings);
     mainwindow->settingsForm->setIsotopeAtom();
 
+    mainwindow->setTotalCharge();
+
     QString title;
     if (_featureDetectionType == FullSpectrum)
         title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nDetected Features \n";
@@ -639,11 +641,11 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //sample
         //TODO: See how the ionization mode is effected if the user selects
         //Neutral or autodetect
-        if (mainwindow->getIonizationMode()) {
-            mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        } else {
-            mavenParameters->setIonizationMode();
-        }
+        // if (mainwindow->getIonizationMode()) {
+        //     mavenParameters->ionizationMode = mainwindow->getIonizationMode();
+        // } else {
+        //     mavenParameters->setIonizationMode();
+        // }
 
         mavenParameters->setCompounds(DB.getCopoundsSubset(
             compoundDatabase->currentText().toStdString()));
