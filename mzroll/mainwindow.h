@@ -125,6 +125,7 @@ public:
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
 	int noOfPeakTables = 0;
+	int totalCharge = 0;
 	bool allPeaksMarked = false;
 	bool aligned = false;
 	map<pair<string,string>, double> deltaRt;
@@ -136,6 +137,7 @@ public:
 	QDoubleSpinBox *ppmWindowBox;
 	QLineEdit *searchText;
 	QComboBox *ionizationModeComboBox;
+	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
 	QStringList pathlist;
@@ -354,6 +356,7 @@ public Q_SLOTS:
 	int getIonizationMode() {
 		return _ionizationMode;
 	}
+	void setTotalCharge();
 
 	void setUserPPM(double x);
 	double getUserPPM() {

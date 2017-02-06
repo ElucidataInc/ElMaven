@@ -101,6 +101,7 @@ public:
 	 * default ionization mode used by mass spec
 	 */
 	int ionizationMode;
+	int charge;
 
 	//mass slicing parameters
 	float mzBinStep;

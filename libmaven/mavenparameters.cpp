@@ -13,6 +13,7 @@ MavenParameters::MavenParameters() {
 
         writeCSVFlag = false;
         ionizationMode = -1;
+        charge = 1;
         keepFoundGroups = true;
         showProgressFlag = true;
 
