@@ -125,9 +125,9 @@ void CSVReports::insertGroupInformationIntoCSVFile (PeakGroup* group) {
 
     if (group->childCount() > 0) {
 
-        int ionizationMode = getIonisationMode();
+        //int ionizationMode = getIonisationMode();
 
-        vector<Isotope> masslist = computeIsotopes(group, ionizationMode);
+        vector<Isotope> masslist = computeIsotopes(group, mavenparameters->ionizationMode);
 
         insertIsotopes(group,masslist);
 
@@ -152,7 +152,7 @@ vector<Isotope> CSVReports::computeIsotopes (PeakGroup* group, int ionizationMod
 
       MassCalculator *masscalc;
       string formula = group->compound->formula;
-      vector<Isotope> masslist = masscalc->computeIsotopes(formula,ionizationMode,getMavenParameters()->isotopeAtom, 
+      vector<Isotope> masslist = masscalc->computeIsotopes(formula,ionizationMode*mavenparameters->charge,getMavenParameters()->isotopeAtom, 
                                                                     getMavenParameters()->noOfIsotopes);
 
       return masslist;

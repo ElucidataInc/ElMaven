@@ -1406,7 +1406,7 @@ void EicWidget::setCompound(Compound* c) {
 	float mz = 0;
 
 	if (!c->formula.empty()) {
-		mz = c->ajustedMass(ionizationMode);
+		mz = c->ajustedMass(getMainWindow()->mavenParameters->ionizationMode*getMainWindow()->mavenParameters->charge);
 	} else {
 		mz = c->mass;
 	}
@@ -1488,9 +1488,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode(), getMainWindow()->mavenParameters->isotopeAtom, 
-					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge, 
+			getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge,
 					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
@@ -1520,9 +1520,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode(),getMainWindow()->mavenParameters->isotopeAtom,
-					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge,
+			getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge,
 					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;

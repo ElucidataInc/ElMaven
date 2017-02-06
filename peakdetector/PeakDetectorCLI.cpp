@@ -785,7 +785,7 @@ void writeCSVReport( string filename) {
             writeGroupInfoCSV( &group->children[0],groupReport); //C12 info
 
             string formula = group->compound->formula;
-            vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+            vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode*mavenParameters->charge, 
 												            mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
             for( int i=0; i<masslist.size(); i++ ) {
             Isotope& x = masslist[i];
@@ -869,7 +869,8 @@ void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport) {
         //compoundID =  c->id;
         double mass =c->mass;
         if (!c->formula.empty()) {
-            float formula_mass =  mcalc.computeMass(c->formula,mavenParameters->ionizationMode);
+            float formula_mass =  mcalc.computeMass(c->formula,mavenParameters->ionizationMode
+														*mavenParameters->charge);
             if(formula_mass) mass=formula_mass;
         }
         ppmDist = mzUtils::ppmDist(mass,(double) group->meanMz);

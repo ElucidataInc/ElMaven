@@ -3219,7 +3219,7 @@ void MainWindow::getLinks(Peak* peak) {
 	//matching compounds
 	for (int i = 0; i < links.size(); i++) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
-				links[i].mz2, ppm, ionizationMode);
+				links[i].mz2, ppm, mavenParameters->ionizationMode*mavenParameters->charge);
 		if (compunds.size() > 0)
 			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}
