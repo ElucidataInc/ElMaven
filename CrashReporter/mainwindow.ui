@@ -26,7 +26,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="1" column="0">
+    <item row="0" column="0">
      <widget class="QGroupBox" name="groupBox">
       <property name="font">
        <font>
@@ -38,22 +38,10 @@
        <string>       We are Sorry :(</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="4" column="0" colspan="3">
+       <item row="6" column="0" colspan="2">
         <widget class="QLineEdit" name="lineEdit"/>
        </item>
-       <item row="8" column="2">
-        <widget class="QPushButton" name="cancel">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_3">
          <property name="font">
           <font>
@@ -67,31 +55,10 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QPushButton" name="send_report">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Send report</string>
-         </property>
-        </widget>
+       <item row="8" column="0" rowspan="2" colspan="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
        </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="restart">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Restart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="3">
+       <item row="2" column="0" colspan="2">
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
@@ -106,10 +73,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0" rowspan="2" colspan="3">
-        <widget class="QPlainTextEdit" name="plainTextEdit"/>
-       </item>
-       <item row="5" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label">
          <property name="font">
           <font>
@@ -123,7 +87,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="3">
+       <item row="1" column="0" colspan="2">
         <widget class="QLabel" name="label_4">
          <property name="font">
           <font>
@@ -144,17 +108,37 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Restart</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>Send Report</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
       </layout>
-      <zorder>plainTextEdit</zorder>
       <zorder>plainTextEdit</zorder>
       <zorder>label_4</zorder>
       <zorder>label_5</zorder>
       <zorder>label</zorder>
       <zorder>lineEdit</zorder>
       <zorder>label_3</zorder>
-      <zorder>cancel</zorder>
-      <zorder>send_report</zorder>
-      <zorder>restart</zorder>
+      <zorder>pushButton</zorder>
+      <zorder>pushButton_3</zorder>
+      <zorder>pushButton_2</zorder>
      </widget>
     </item>
    </layout>

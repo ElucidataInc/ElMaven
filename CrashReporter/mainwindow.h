@@ -1,14 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include "ui_mainwindow.h"
 #include <QMainWindow>
 #include <QDir>
 #include <QtDebug>
 #include <QProcess>
-#include "ui_mainwindow.h"
-namespace Ui {
-class MainWindow;
-}
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -23,9 +19,9 @@ private:
     Ui::MainWindow *ui;
     void startElMaven();
 private Q_SLOTS:
-    void on_restart_clicked();
-    void on_send_report_clicked();
-    void on_cancel_clicked();
+    void on_pushButton_clicked();
+    void on_pushButton_3_clicked();
+    void on_pushButton_2_clicked();
 };
 
 #endif // MAINWINDOW_H
