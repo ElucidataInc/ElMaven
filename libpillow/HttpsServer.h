@@ -1,8 +1,6 @@
 #ifndef PILLOW_HTTPSSERVER_H
 #define PILLOW_HTTPSSERVER_H
 
-#ifndef PILLOW_NO_SSL
-
 #ifndef PILLOW_PILLOWCORE_H
 #include "PillowCore.h"
 #endif // PILLOW_PILLOWCORE_H
@@ -19,6 +17,8 @@
 #include <QtNetwork/QSslError>
 #endif // QSSLERROR_H
 
+#if !defined(PILLOW_NO_SSL) && !defined(QT_NO_SSL)
+
 namespace Pillow
 {
 	//
@@ -31,12 +31,16 @@ namespace Pillow
 		QSslCertificate _certificate;
 		QSslKey _privateKey;
 
-	public Q_SLOTS:
+	public slots:
 		void sslSocket_encrypted();
 		void sslSocket_sslErrors(const QList<QSslError>& sslErrors);
 
 	protected:
-		virtual void incomingConnection(int socketDescriptor);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		void incomingConnection(int socketDescriptor);
+#else
+		void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
+#endif
 
 	public:
 		HttpsServer(QObject* parent = 0);
@@ -45,12 +49,12 @@ namespace Pillow
 		const QSslCertificate& certificate() const { return _certificate; }
 		const QSslKey& privateKey() const { return _privateKey; }
 
-	public Q_SLOTS:
+	public slots:
 		void setCertificate(const QSslCertificate& certificate);
 		void setPrivateKey(const QSslKey& privateKey);
 	};
 }
 
-#endif // !PILLOW_NO_SSL
+#endif // !defined(PILLOW_NO_SSL) && !defined(QT_NO_SSL)
 
 #endif // PILLOW_HTTPSSERVER_H

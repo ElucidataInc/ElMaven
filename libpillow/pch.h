@@ -2,6 +2,7 @@
 #define PCH_H
 
 #ifdef __cplusplus
+#define QT_DISABLE_DEPRECATED_BEFORE 0
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
 #include <QtCore/QString>

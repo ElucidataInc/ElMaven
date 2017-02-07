@@ -110,7 +110,7 @@ HttpHandlerSimpleRouter::HttpHandlerSimpleRouter(QObject* parent /* = 0 */)
 
 HttpHandlerSimpleRouter::~HttpHandlerSimpleRouter()
 {
-	Q_FOREACH (Route* route, d_ptr->routes)
+	foreach (Route* route, d_ptr->routes)
 		delete route;
 	delete d_ptr;
 }
@@ -240,7 +240,7 @@ bool HttpHandlerSimpleRouter::handleRequest(Pillow::HttpConnection *request)
 
 	QString requestPath = QUrl::fromPercentEncoding(request->requestPath());
 
-	Q_FOREACH (Route* route, d_ptr->routes)
+	foreach (Route* route, d_ptr->routes)
 	{
 		if (route->regExp.indexIn(requestPath) != -1)
 		{

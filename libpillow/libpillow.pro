@@ -5,19 +5,12 @@ TARGET = $$PILLOWCORE_LIB_NAME
 TEMPLATE = lib
 DESTDIR = $$OUTPUT_DIR/lib
 
-
 QT       += core network script
-QT 	 -= webkit
 QT       -= gui
-QT       += script
 
-CONFIG += release
-CONFIG += precompile_header
-CONFIG -= no_keywords
-INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/zlib
-LIBS += -lz
+CONFIG   += precompile_header
 
-#PRECOMPILED_HEADER = pch.h
+PRECOMPILED_HEADER = pch.h
 
 DEPENDPATH = .
 INCLUDEPATH = .
@@ -27,6 +20,10 @@ DEFINES += PILLOWCORE_BUILD
 pillow_static {
 	CONFIG += static
 	DEFINES += PILLOWCORE_BUILD_STATIC
+}
+
+pillow_zlib {
+	LIBS += $$PILLOW_ZLIB_LIBS
 }
 
 SOURCES += \

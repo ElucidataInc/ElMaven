@@ -61,6 +61,18 @@ namespace Pillow
 			// So the only downside that will happen if an unshared QByteArray is altered to share data is a few bytes wasted
 			// until the QByteArray control block releases the control data + the unshared buffer at some point in the future.
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			if (length == 0)
+			{
+				target.setRawData("", 0);
+			}
+			else
+			{
+				target.setRawData(data + start, length);
+				*(data + start + length) = 0; // Null terminate the string.
+			}
+
+#else
 			target.data_ptr()->alloc = 0;
 			if (length == 0)
 				target.setRawData("", 0);
@@ -76,10 +88,14 @@ namespace Pillow
 					target.setRawData(data + start, length);
 				*(data + start + length) = 0; // Null terminate the string.
 			}
+#endif
 		}
 
 		inline void setFromRawData(QByteArray& target, const char* data, int start, int length)
 		{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			target.setRawData(data + start, length);
+#else
 			if (target.data_ptr()->ref == 1)
 			{
 				target.data_ptr()->data = const_cast<char*>(data) + start;
@@ -91,6 +107,7 @@ namespace Pillow
 				target.data_ptr()->alloc = 0;
 				target.setRawData(data + start, length);
 			}
+#endif
 		}
 
 		template <typename Integer, int Base>
