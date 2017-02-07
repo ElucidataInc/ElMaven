@@ -11,7 +11,6 @@ SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) {
 }
 
 void SpectraMatching::findMatches() { 
-    LOGD;
     getFormValues();
     doSearch();
     /*
