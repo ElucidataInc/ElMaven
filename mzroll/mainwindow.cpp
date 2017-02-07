@@ -50,7 +50,7 @@ QDataStream &operator<<(QDataStream &out, const SpectralHit*) {
 QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
 }
-unsigned long mainwindowDummy;
+long long mainwindowDummy;
 void signalHandler( int signum ) {
 	MainWindow *pthis = (MainWindow * )mainwindowDummy;
 	pthis->printvalue();
@@ -99,7 +99,7 @@ using namespace mzUtils;
 		QMainWindow(parent) {
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
 	m_value=0; 	
-	mainwindowDummy = (unsigned long) this;
+	mainwindowDummy = (long long) this;
 	signal(SIGINT,signalHandler);
 	signal(SIGFPE,signalHandler);
 	signal(SIGILL,signalHandler);
