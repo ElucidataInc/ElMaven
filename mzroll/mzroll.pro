@@ -32,7 +32,7 @@ DESTDIR = ../bin
 QT += sql network xml svg printsupport
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
-INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
+INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser 
 
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls                   #64bit

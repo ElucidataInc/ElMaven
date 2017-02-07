@@ -1,5 +1,5 @@
 OMP_CANCELLATION=true
-export QT_SELECT=qt4 
+export QT_SELECT=qt5 
 while true; do
     read -p "Do you wish to install this program in release mode? " yn
     case $yn in
