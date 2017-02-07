@@ -40,8 +40,13 @@ Pillow is not meant to be used in a hostile environment (such as a public server
 
 ## Building
 
-Tested on: Kubuntu 10.10 x86 (GCC 4.4.5) and Windows Vista x86 (MSVC 9.0).
-Tested against: Qt 4.7.0 and 4.7.1 on both platforms. Should be compatible with 4.6.x too, but untested.
+Tested with: Qt 4.8 and Qt 5.5
+
+Tested on the following OS/Compiler/Qt combinations:
+
+* Kubuntu 15.10 x64 (GCC 5.2.1, Qt 5.5.1, Qt 4.8.6)
+* Windows 7 (MSVC 10/Visual Studio 2010, Qt 5.4, Qt 4.8.4)
+* Windows 10 (MSVC 12/Visual Studio 2013 update 4, Qt 5.5.1)
 
 Dependencies: At lest the following Qt development modules: QtCore, QtNetwork (with SSL support enabled) and QtScript. I have plans to make the QtNetwork SSL and QtScript dependencies optional. However, they should be included out of the box in the Qt dev packages of most Linux distros, and they are included in the official Qt packages for Windows. 
 
@@ -61,6 +66,7 @@ Test:
 	cd tests
 	./tests # Or ./release/tests.exe on Windows
 	# If all tests pass, you are good to go. If some fails, please post a bug or help fix it!
+	# Note that some tests are especially flaky on Windows.
 
 Integrate:
 

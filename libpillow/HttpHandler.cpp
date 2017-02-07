@@ -30,7 +30,7 @@ HttpHandlerStack::HttpHandlerStack(QObject *parent)
 
 bool HttpHandlerStack::handleRequest(Pillow::HttpConnection *connection)
 {
-	Q_FOREACH (QObject* object, children())
+	foreach (QObject* object, children())
 	{
 		HttpHandler* handler = qobject_cast<HttpHandler*>(object);
 
@@ -54,14 +54,14 @@ void Pillow::HttpHandlerFixed::setStatusCode(int statusCode)
 {
 	if (_statusCode == statusCode) return;
 	_statusCode = statusCode;
-	Q_EMIT changed();
+	emit changed();
 }
 
 void Pillow::HttpHandlerFixed::setContent(const QByteArray &content)
 {
 	if (_content == content) return;
 	_content = content;
-	Q_EMIT changed();
+	emit changed();
 }
 
 bool HttpHandlerFixed::handleRequest(Pillow::HttpConnection *connection)
@@ -91,7 +91,7 @@ bool HttpHandler404::handleRequest(Pillow::HttpConnection *connection)
 //
 
 HttpHandlerFunction::HttpHandlerFunction(QObject *parent)
-	:HttpHandler(parent), _function(0)
+	:HttpHandler(parent), _function()
 {
 }
 
@@ -133,7 +133,7 @@ HttpHandlerLog::HttpHandlerLog(QIODevice *device, QObject *parent)
 
 HttpHandlerLog::~HttpHandlerLog()
 {
-	Q_FOREACH (QElapsedTimer* timer, _requestTimerMap)
+	foreach (QElapsedTimer* timer, _requestTimerMap)
 		delete timer;
 }
 
@@ -263,7 +263,7 @@ void HttpHandlerFile::setPublicPath(const QString &publicPath)
 			qWarning() << "HttpHandlerStaticFile::SetPublicPath:" << publicPath << "does not exist or is not a readable directory.";
 		}
 	}
-	Q_EMIT changed();
+	emit changed();
 }
 
 void HttpHandlerFile::setBufferSize(int bytes)
@@ -372,6 +372,6 @@ void HttpHandlerFileTransfer::writeNextPayload()
 		_connection->writeContent(_sourceDevice->read(bytesToRead));
 
 		if (_sourceDevice->atEnd())
-			Q_EMIT finished();
+			emit finished();
 	}
 }

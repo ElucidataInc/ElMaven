@@ -131,6 +131,9 @@ namespace Pillow
 Pillow::HttpConnectionPrivate::HttpConnectionPrivate(HttpConnection *connection)
 	: q_ptr(connection), _state(Pillow::HttpConnection::Uninitialized), _inputDevice(0), _outputDevice(0)
 {
+	// Detach bytearrays we're going to write to from global shared null as we'll be thinkering with their internal data with the assumption that they are never shared.
+	_requestBuffer.detach();
+	_requestContent.detach();
 }
 
 inline void Pillow::HttpConnectionPrivate::initialize()
@@ -158,11 +161,11 @@ inline void Pillow::HttpConnectionPrivate::processInput()
 	qint64 bytesAvailable = _inputDevice->bytesAvailable();
 	if (bytesAvailable > 0)
 	{
-		if (_requestBuffer.capacity() < _requestBuffer.size() + bytesAvailable)
+		if (_requestBuffer.capacity() < (_requestBuffer.size() + bytesAvailable + 1))
 			_requestBuffer.reserve(_requestBuffer.size() + bytesAvailable + 1);
-		qint64 bytesRead = _inputDevice->read(_requestBuffer.data() + _requestBuffer.size(), bytesAvailable);
+		const qint64 bytesRead = _inputDevice->read(_requestBuffer.data() + _requestBuffer.size(), bytesAvailable);
 		_requestBuffer.data_ptr()->size += bytesRead;
-		_requestBuffer.data_ptr()->data[_requestBuffer.data_ptr()->size] = 0;
+		_requestBuffer.data()[_requestBuffer.data_ptr()->size] = '\0'; // The parser requires the string to be null terminated.
 	}
 
 	if (_state == Pillow::HttpConnection::ReceivingHeaders)
@@ -234,7 +237,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToReceivingContent()
 		// Resize the request buffer right away to avoid too many reallocs later.
 		// NOTE: This invalidates the request headers QByteArrays if the reallocation
 		// changes the buffer's address (very likely unless the content-length is tiny).
-		_requestBuffer.reserve(_parser.body_start + _requestContentLength + 1);
+		_requestBuffer.reserve(int(_parser.body_start + _requestContentLength + 1));
 
 		// So do invalidate the request headers.
 		if (_requestHeaders.size() > 0) _requestHeaders.pop_back();
@@ -284,14 +287,14 @@ inline void Pillow::HttpConnectionPrivate::transitionToSendingHeaders()
 
 	_requestHttp11 = _requestHttpVersion == httpSlash11Token;
 
-	setFromRawData(_requestContent, _requestBuffer.constData(), _parser.body_start, _requestContentLength);
+	setFromRawData(_requestContent, _requestBuffer.constData(), static_cast<int>(_parser.body_start), _requestContentLength);
 
 	// Reset our known information about the response.
 	_responseContentLength = -1;   // The response content-length is initially unknown.
 	_responseContentBytesSent = 0; // No content bytes transfered yet.
 	_responseConnectionKeepAlive = true;
 	_responseChunkedTransferEncoding = false;
-	Q_EMIT q_ptr->requestReady(q_ptr);
+	emit q_ptr->requestReady(q_ptr);
 }
 
 inline void Pillow::HttpConnectionPrivate::transitionToSendingContent()
@@ -322,7 +325,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToCompleted()
 		qWarning() << "HttpConnection::transitionToCompleted called while the request is in the closed state.";
 	}
 	_state = Pillow::HttpConnection::Completed;
-	Q_EMIT q_ptr->requestCompleted(q_ptr);
+	emit q_ptr->requestCompleted(q_ptr);
 
 	// Preserve any existing data in the request buffer that did not belong to the completed request.
 	// Reuse the already allocated buffer if it is not too large.
@@ -336,7 +339,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToCompleted()
 	if (_requestParams.capacity() > 16) _requestParams.clear();
 	else while(!_requestParams.isEmpty()) _requestParams.pop_back();
 
-	_requestContent.data_ptr()->size = 0;
+	if (_requestContent.size() > 0)	_requestContent.data_ptr()->size = 0;
 
 	if (_responseConnectionKeepAlive)
 	{
@@ -387,7 +390,7 @@ inline void Pillow::HttpConnectionPrivate::transitionToClosed()
 
 	if (_inputDevice && _inputDevice->isOpen()) _inputDevice->close();
 	if (_outputDevice && (_inputDevice != _outputDevice) && _outputDevice->isOpen()) _outputDevice->close();
-	Q_EMIT q_ptr->closed(q_ptr);
+	emit q_ptr->closed(q_ptr);
 
 	QObject::disconnect(_inputDevice, 0, q_ptr, 0);
 	if (_inputDevice != _outputDevice) QObject::disconnect(_outputDevice, 0, q_ptr, 0);
@@ -407,7 +410,7 @@ void Pillow::HttpConnectionPrivate::writeRequestErrorResponse(int statusCode)
 
 	ByteArray _responseHeadersBuffer; _responseHeadersBuffer.reserve(1024);
 	const char* status = HttpProtocol::StatusCodes::getStatusCodeAndMessage(statusCode);
-	_responseHeadersBuffer.append("HTTP/1.0 ").append(status, strlen(status)).append(crLfToken);
+	_responseHeadersBuffer.append("HTTP/1.0 ").append(status, qstrlen(status)).append(crLfToken);
 	_responseHeadersBuffer.append("Connection: close").append(crLfToken);
 	_responseHeadersBuffer.append(crLfToken); // End of headers.
 	_outputDevice->write(_responseHeadersBuffer);
@@ -423,7 +426,7 @@ inline void Pillow::HttpConnectionPrivate::parser_http_field(void *data, const c
 		request->_requestContentLengthHeaderIndex = request->_requestHeadersRef.size();
 
 	const char* begin = request->_requestBuffer.constData();
-	request->_requestHeadersRef.append(HttpHeaderRef(field - begin, flen, value - begin, vlen));
+	request->_requestHeadersRef.append(HttpHeaderRef(field - begin, static_cast<int>(flen), value - begin, static_cast<int>(vlen)));
 }
 
 inline void Pillow::HttpConnectionPrivate::writeResponse(int statusCode, const HttpHeaderCollection &headers, const QByteArray &content)
@@ -460,7 +463,7 @@ inline void Pillow::HttpConnectionPrivate::writeHeaders(int statusCode, const Ht
 	if (_responseHeadersBuffer.capacity() == 0)
 		_responseHeadersBuffer.reserve(1024);
 
-	_responseHeadersBuffer.append(_requestHttpVersion).append(' ').append(statusCodeAndMessage, static_cast<int>(strlen(statusCodeAndMessage))).append(crLfToken);
+	_responseHeadersBuffer.append(_requestHttpVersion).append(' ').append(statusCodeAndMessage, qstrlen(statusCodeAndMessage)).append(crLfToken);
 
 	const HttpHeader* contentTypeHeader = 0;
 	const HttpHeader* connectionHeader = 0;

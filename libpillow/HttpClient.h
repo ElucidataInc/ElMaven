@@ -218,12 +218,12 @@ namespace Pillow
 		bool redirected() const;
 		QByteArray redirectionLocation() const;
 
-	Q_SIGNALS:
+	signals:
 		void headersCompleted(); // Headers have been fully received and are ready to be checked.
 		void contentReadyRead(); // Some new data is available in the response content.
 		void finished();         // Request finished. Check error() to verify if there was an error.
 
-	private Q_SLOTS:
+	private slots:
 		void device_error(QAbstractSocket::SocketError error);
 		void device_connected();
 		void device_readyRead();
@@ -272,7 +272,7 @@ namespace Pillow
 	protected:
 		QNetworkReply *createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData = 0);
 
-	private Q_SLOTS:
+	private slots:
 		void client_finished();
 
 	private:

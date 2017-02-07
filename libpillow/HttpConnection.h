@@ -86,7 +86,7 @@ namespace Pillow
 		Q_INVOKABLE QString requestParamValue(const QString& name);
 		Q_INVOKABLE void setRequestParam(const QString& name, const QString& value);
 
-	public Q_SLOTS:
+	public slots:
 		// Response members.
 		void writeResponse(int statusCode = 200, const Pillow::HttpHeaderCollection& headers = Pillow::HttpHeaderCollection(), const QByteArray& content = QByteArray());
 		void writeResponseString(int statusCode = 200, const Pillow::HttpHeaderCollection& headers = Pillow::HttpHeaderCollection(), const QString& content = QString());
@@ -102,12 +102,12 @@ namespace Pillow
 		int responseStatusCode() const;
 		qint64 responseContentLength() const;
 
-	Q_SIGNALS:
+	signals:
 		void requestReady(Pillow::HttpConnection* self);     // The request is ready to be processed, all request headers and content have been received.
 		void requestCompleted(Pillow::HttpConnection* self); // The response is completed, all response headers and content have been sent.
 		void closed(Pillow::HttpConnection* self);			 // The connection is closing, no further requests will arrive on this object.
 
-	private Q_SLOTS:
+	private slots:
 		void processInput();
 		void drain();
 

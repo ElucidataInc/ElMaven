@@ -97,13 +97,13 @@ namespace Pillow
 		inline HttpHeaderCollection &operator<<(const QVector<HttpHeader> &l) { *this += l; return *this; }
 		inline operator const QVector<QPair<QByteArray, QByteArray> > &() const { return *reinterpret_cast<const QVector<QPair<QByteArray, QByteArray> >*>(this); }
 	};
+
+	inline bool operator==(const Pillow::HttpHeader &p1, const QPair<QByteArray, QByteArray> &p2) { return p1.first == p2.first && p1.second == p2.second; }
+	inline bool operator==(const Pillow::HttpHeader &p1, const Pillow::HttpHeader &p2) { return p1.first == p2.first && p1.second == p2.second; }
+
+	inline bool operator!=(const Pillow::HttpHeader &p1, const QPair<QByteArray, QByteArray> &p2) { return !(p1 == p2); }
+	inline bool operator!=(const Pillow::HttpHeader &p1, const Pillow::HttpHeader &p2) { return !(p1 == p2); }
 }
-
-inline bool operator==(const Pillow::HttpHeader &p1, const QPair<QByteArray, QByteArray> &p2) { return p1.first == p2.first && p1.second == p2.second; }
-inline bool operator==(const Pillow::HttpHeader &p1, const Pillow::HttpHeader &p2) { return p1.first == p2.first && p1.second == p2.second; }
-
-inline bool operator!=(const Pillow::HttpHeader &p1, const QPair<QByteArray, QByteArray> &p2) { return !(p1 == p2); }
-inline bool operator!=(const Pillow::HttpHeader &p1, const Pillow::HttpHeader &p2) { return !(p1 == p2); }
 
 Q_DECLARE_METATYPE(Pillow::HttpHeader);
 Q_DECLARE_METATYPE(Pillow::HttpHeaderCollection);

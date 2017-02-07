@@ -30,11 +30,15 @@ namespace Pillow
 		Q_DECLARE_PRIVATE(HttpServer)
 		HttpServerPrivate* d_ptr;
 
-	private Q_SLOTS:
+	private slots:
 		void connection_closed(Pillow::HttpConnection* request);
 
 	protected:
-		virtual void incomingConnection(int socketDescriptor);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		void incomingConnection(int socketDescriptor);
+#else
+		void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
+#endif
 		HttpConnection* createHttpConnection();
 
 	public:
@@ -42,7 +46,7 @@ namespace Pillow
 		HttpServer(const QHostAddress& serverAddress, quint16 serverPort, QObject *parent = 0);
 		~HttpServer();
 
-	Q_SIGNALS:
+	signals:
 		void requestReady(Pillow::HttpConnection* connection); // There is a request ready to be handled on this connection.
 	};
 
@@ -56,7 +60,7 @@ namespace Pillow
 		Q_DECLARE_PRIVATE(HttpServer)
 		HttpServerPrivate* d_ptr;
 
-	private Q_SLOTS:
+	private slots:
 		void this_newConnection();
 		void connection_closed(Pillow::HttpConnection* request);
 
@@ -64,7 +68,7 @@ namespace Pillow
 		HttpLocalServer(QObject* parent = 0);
 		HttpLocalServer(const QString& serverName, QObject *parent = 0);
 
-	Q_SIGNALS:
+	signals:
 		void requestReady(Pillow::HttpConnection* connection); // There is a request ready to be handled on this connection.
 	};
 }

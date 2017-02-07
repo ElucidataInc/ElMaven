@@ -1,8 +1,9 @@
-#ifndef PILLOW_NO_SSL
-
 #include "HttpsServer.h"
 #include "HttpConnection.h"
 #include <QtNetwork/QSslSocket>
+
+#if !defined(PILLOW_NO_SSL) && !defined(QT_NO_SSL)
+
 using namespace Pillow;
 
 //
@@ -29,7 +30,11 @@ void HttpsServer::setPrivateKey(const QSslKey &privateKey)
 	_privateKey = privateKey;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 void HttpsServer::incomingConnection(int socketDescriptor)
+#else
+void HttpsServer::incomingConnection(qintptr socketDescriptor)
+#endif
 {
 	QSslSocket* sslSocket = new QSslSocket(this);
 	if (sslSocket->setSocketDescriptor(socketDescriptor))
@@ -58,4 +63,4 @@ void HttpsServer::sslSocket_encrypted()
 {
 }
 
-#endif // !PILLOW_NO_SSL
+#endif // !defined(PILLOW_NO_SSL) && !defined(QT_NO_SSL)

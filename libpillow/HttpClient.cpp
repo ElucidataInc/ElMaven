@@ -7,6 +7,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkCookie>
+#include <QtNetwork/QNetworkCookieJar>
 #include <QtCore/QTimer>
 #include "private/zlib.h"
 
@@ -33,6 +34,7 @@ namespace Pillow
 		virtual QByteArray transform(const char *data, int length) = 0;
 	};
 
+#ifdef PILLOW_ZLIB
 	class GunzipContentTransformer : public ContentTransformer
 	{
 	public:
@@ -50,7 +52,10 @@ namespace Pillow
 		QByteArray transform(const char *data, int length)
 		{
 			unsigned char buffer[32 * 1024];
-			_inflatedBuffer.data_ptr()->size = 0;
+            if (_inflatedBuffer.isDetached())
+                _inflatedBuffer.data_ptr()->size = 0;
+            else
+                _inflatedBuffer.clear();
 
 			_inflateStream.next_in = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data));
 			_inflateStream.avail_in = length;
@@ -73,8 +78,11 @@ namespace Pillow
 
 			if (_streamBad)
 			{
-				_inflatedBuffer.data_ptr()->size = 0;
-				_inflatedBuffer.append(data, length);
+                if (_inflatedBuffer.isDetached())
+                    _inflatedBuffer.data_ptr()->size = 0;
+                else
+                    _inflatedBuffer.clear();
+                _inflatedBuffer.append(data, length);
 			}
 
 			return _inflatedBuffer;
@@ -85,6 +93,7 @@ namespace Pillow
 		QByteArray _inflatedBuffer;
 		bool _streamBad;
 	};
+#endif // PILLOW_ZLIB
 }
 
 //
@@ -390,7 +399,7 @@ bool Pillow::HttpClient::redirected() const
 
 QByteArray Pillow::HttpClient::redirectionLocation() const
 {
-	Q_FOREACH (const Pillow::HttpHeader &header, headers())
+	foreach (const Pillow::HttpHeader &header, headers())
 	{
 		if (Pillow::ByteArrayHelpers::asciiEqualsCaseInsensitive(header.first, Pillow::LowerCaseToken("location")))
 			return header.second;
@@ -482,7 +491,10 @@ void Pillow::HttpClient::request(const Pillow::HttpClientRequest &request)
 	}
 	else
 	{
-		_hostHeaderValue.data_ptr()->size = 0; // Clear the previosu host header value (if any), without deallocating memory.
+        if (_hostHeaderValue.isDetached())
+            _hostHeaderValue.data_ptr()->size = 0; // Clear the previous host header value (if any), without deallocating memory.
+        else
+            _hostHeaderValue.clear();
 
 		if (_device->state() != QAbstractSocket::UnconnectedState)
 			_device->disconnectFromHost();
@@ -499,7 +511,7 @@ void Pillow::HttpClient::abort()
 		Pillow::HttpResponseParser::pause();
 		_error = AbortedError;
 		_responsePending = false;
-		Q_EMIT finished();
+		emit finished();
 	}
 }
 
@@ -536,7 +548,7 @@ void Pillow::HttpClient::device_error(QAbstractSocket::SocketError error)
 
 	_device->close();
 	_responsePending = false;
-	Q_EMIT finished();
+	emit finished();
 }
 
 void Pillow::HttpClient::device_connected()
@@ -606,7 +618,7 @@ void Pillow::HttpClient::device_readyRead()
 			_error = ResponseInvalidError;
 			_device->close();
 			_responsePending = false;
-			Q_EMIT finished();
+			emit finished();
 		}
 	}
 
@@ -633,7 +645,7 @@ void Pillow::HttpClient::sendRequest()
 
 	if (_hostHeaderValue.isEmpty())
 	{
-		_hostHeaderValue = _request.url.encodedHost();
+        _hostHeaderValue = _request.url.encodedHost();
 		if (_request.url.port(80) != 80)
 		{
 			_hostHeaderValue.append(':');
@@ -665,7 +677,7 @@ void Pillow::HttpClient::headersComplete()
 	if (statusCode() == 100)
 		return;
 
-	Q_EMIT headersCompleted();
+	emit headersCompleted();
 
 	if (Pillow::ByteArrayHelpers::asciiEqualsCaseInsensitive(_request.method, Pillow::LowerCaseToken("head")))
 	{
@@ -674,6 +686,7 @@ void Pillow::HttpClient::headersComplete()
 	}
 	else
 	{
+#ifdef PILLOW_ZLIB
 		for (int i = 0, iE = _headers.size(); i < iE; ++i)
 		{
 			const Pillow::HttpHeader& header = _headers.at(i);
@@ -683,6 +696,7 @@ void Pillow::HttpClient::headersComplete()
 					_contentDecoder = new Pillow::GunzipContentTransformer();
 			}
 		}
+#endif // PILLOW_ZLIB
 	}
 }
 
@@ -697,7 +711,7 @@ void Pillow::HttpClient::messageContent(const char *data, int length)
 	{
 		Pillow::HttpResponseParser::messageContent(data, length);
 	}
-	Q_EMIT contentReadyRead();
+	emit contentReadyRead();
 }
 
 void Pillow::HttpClient::messageComplete()
@@ -725,7 +739,7 @@ void Pillow::HttpClient::messageComplete()
 			_keepAliveTimeoutTimer.start();
 		}
 
-		Q_EMIT finished();
+		emit finished();
 	}
 }
 
@@ -766,7 +780,7 @@ namespace Pillow
 			return QNetworkReply::bytesAvailable() + _content.size() - _contentPos;
 		}
 
-	private Q_SLOTS:
+	private slots:
 		void client_headersCompleted()
 		{
 			QList<QNetworkCookie> cookies;
@@ -778,7 +792,7 @@ namespace Pillow
 			//
 			// setAttribute(QNetworkRequest::HttpReasonPhraseAttribute, ...);
 
-			Q_FOREACH (const Pillow::HttpHeader &header, _client->headers())
+			foreach (const Pillow::HttpHeader &header, _client->headers())
 			{
 				setRawHeader(header.first, header.second);
 
@@ -805,14 +819,14 @@ namespace Pillow
 
 			open(QIODevice::ReadOnly | QIODevice::Unbuffered);
 
-			Q_EMIT metaDataChanged();
+			emit metaDataChanged();
 		}
 
 		void client_contentReadyRead()
 		{
 			_content.append(_client->consumeContent());
-			 Q_EMIT readyRead();
-			 //Q_EMIT downloadProgress();
+			 emit readyRead();
+			 //emit downloadProgress();
 		}
 
 		void client_finished()
@@ -832,12 +846,12 @@ namespace Pillow
 				case Pillow::HttpClient::AbortedError: error = QNetworkReply::OperationCanceledError; break;
 				}
 
-				Q_EMIT this->error(error);
+				emit this->error(error);
 			}
 
 			_client = 0;
 			setFinished(true);
-			Q_EMIT finished();
+			emit finished();
 		}
 
 	protected:
@@ -897,7 +911,7 @@ QNetworkReply *Pillow::NetworkAccessManager::createRequest(QNetworkAccessManager
 	Pillow::NetworkReply *reply = new Pillow::NetworkReply(client, op, request);
 
 	Pillow::HttpHeaderCollection headers;
-	Q_FOREACH (const QByteArray &headerName, request.rawHeaderList())
+	foreach (const QByteArray &headerName, request.rawHeaderList())
 		headers << Pillow::HttpHeader(headerName, request.rawHeader(headerName));
 
 //	headers << Pillow::HttpHeader("Accept-Encoding", "gzip");
