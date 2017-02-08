@@ -28,9 +28,7 @@
 class QProg : public QObject, public QGraphicsItem
 {
     Q_OBJECT
-#if QT_VERSION >= 0x040600
-    Q_INTERFACES( QGraphicsItem )
-#endif
+
     Q_PROPERTY(double value READ value WRITE setValue);
     Q_PROPERTY(double min READ minValue WRITE setMinValue);
     Q_PROPERTY(double max READ maxValue WRITE setMaxValue);

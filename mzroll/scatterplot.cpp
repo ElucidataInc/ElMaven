@@ -1,6 +1,7 @@
 #include "scatterplot.h"
 #include "pls.h"
-#include "plsutility.h"
+#include "pls.h"
+#include "utility.h"
 
 ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) { 
 
@@ -305,7 +306,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
         int nresp = Y.cols();
         int ncomp = 3;
         plsm.initialize(npred, nresp, ncomp);
-        plsm.plsr(X,Y, plsm, PLS_KERNEL_TYPE1);
+        plsm.plsr(X,Y,KERNEL_TYPE1);
 
         // A is number of components to use
         for (int A = 1; A<=ncomp; A++) {
@@ -320,7 +321,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
         cerr << "Validation (PRESS):\n";
         cerr << plsm.loo_validation(X, Y, PRESS) << endl;
 
-        cerr << "Optimal number of components:\t" << plsm.optimal_num_components(X,Y) << endl;
+        cerr << "Optimal number of components:\t" << plsm.loo_optimal_num_components(X,Y) << endl;
 
         cerr << "Fitted Values:\n";
         //cerr << plsm.fitted_values(X,ncomp);

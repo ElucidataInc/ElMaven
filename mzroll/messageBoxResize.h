@@ -1,3 +1,5 @@
+#include <QTextEdit>
+
 class QMessageBoxResize: public QMessageBox
 {
     Q_OBJECT

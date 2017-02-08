@@ -332,7 +332,7 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
             _items.push_back(pB);
 
             if (!label.isEmpty() ) {
-                QGraphicsTextItem* text = new QGraphicsTextItem(label,0,0);
+                QGraphicsTextItem* text = new QGraphicsTextItem(label,0);
                 scene()->addItem(text);
                 text->setPos(x,yA-10);
                 _items.push_back(text);
@@ -530,7 +530,7 @@ void SpectraWidget::drawMzLabels(Scan* scan) {
         if (pos< chargeStates.size() and chargeStates[pos]>0)
             labelText += "<sup>z=" +  QString::number(chargeStates[pos]) + "</sup>";
 
-        QGraphicsTextItem* text = new QGraphicsTextItem(labelText,0,0);
+        QGraphicsTextItem* text = new QGraphicsTextItem(labelText,0);
         text->setHtml(labelText);
         text->setFont(font);
 
@@ -559,7 +559,7 @@ void SpectraWidget::drawAnnotations() {
         if ( links[i].mz2 < _minX || links[i].mz2 > _maxX ) continue;
 
         QString labelText(links[i].note.c_str());
-        QGraphicsTextItem* text = new QGraphicsTextItem(labelText,0,0);
+        QGraphicsTextItem* text = new QGraphicsTextItem(labelText,0);
         text->setHtml(labelText);
         text->setFont(font);
         scene()->addItem(text);
@@ -842,7 +842,7 @@ void SpectraWidget::addLabel(QString text,float x, float y) {
     QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
 
     QGraphicsTextItem* _label = scene()->addText(text, font);
-    _label->translate(toX(x), toY(y));
+    _label->setPos(toX(x), toY(y));  
 }
 
 void SpectraWidget::mouseMoveEvent(QMouseEvent* event){

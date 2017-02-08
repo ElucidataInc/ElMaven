@@ -29,8 +29,7 @@ ICON = images/icon.icns
 
 DESTDIR = ../bin
 
-QT += sql network xml svg printsupport
-DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
+QT += sql network xml printsupport
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser 

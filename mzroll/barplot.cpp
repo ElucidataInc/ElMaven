@@ -3,7 +3,7 @@
 PeakGroup::QType BarPlot::qtype = PeakGroup::AreaTop;
 
 BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
-    :QGraphicsItem(parent, scene) {
+    :QGraphicsItem(parent) {
     // uninitialised variable - Kiran
     _mw=NULL;
     _width = 0;

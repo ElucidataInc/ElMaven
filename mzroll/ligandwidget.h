@@ -111,7 +111,6 @@ private:
     QNetworkAccessManager* m_manager;
 
     int connectionId;
-    QHttp http;
     QXmlStreamReader xml;
 
 };

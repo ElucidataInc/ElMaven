@@ -1,7 +1,7 @@
 #include "note.h"
 #include <QDebug>
 
-Note::Note(const QString &text, QGraphicsItem *parent, QGraphicsScene *scene): QGraphicsItem(parent, scene)
+Note::Note(const QString &text, QGraphicsItem *parent, QGraphicsScene *scene): QGraphicsItem(parent)
 {
     setupGraphicOptions();
     setPlainText(text);
@@ -36,7 +36,7 @@ void Note::setupGraphicOptions() {
     setFlag(QGraphicsItem::ItemIsFocusable);
    // setFlag(QGraphicsItem::ItemIsMovable);
 
-    setAcceptsHoverEvents(true);
+    setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
     setHandlesChildEvents(true);
 
@@ -47,8 +47,8 @@ void Note::setupGraphicOptions() {
     editable=false;
     expanded=false;
 
-    _label = new QGraphicsTextItem(this,scene());
-    _labelBox = new QGraphicsPathItem(this,scene());
+    _label = new QGraphicsTextItem(this);
+    _labelBox = new QGraphicsPathItem(this);
     _labelBox->stackBefore(_label);
 
     _timerId=0;
@@ -92,9 +92,10 @@ void Note::showBoundBox() {
 		_shape.addRect(_label->boundingRect());
         } else if (_style == showNoteIcon) {
             _label->hide();
-            QGraphicsPixmapItem* icon = new QGraphicsPixmapItem(this,this->scene());
+            QGraphicsPixmapItem* icon = new QGraphicsPixmapItem(this);
             icon->setPixmap(QIcon(":/images/note.png").pixmap(24,24));
             _shape.addRect(icon->boundingRect());
+            scene()->addItem(icon);
              icon->setPos(-5,-5);
 	} else {
             _label->hide();
@@ -151,8 +152,10 @@ void Note::mouseMoveEvent (QGraphicsSceneMouseEvent* event) {
 void Note::setRemoteNoteLink(UserNote* note, QString link) {
     if (note && !link.isEmpty() ) {
         QUrl url(link);
-        url.addQueryItem("noteid", QString::number(note->noteid));
-        url.addQueryItem("action","editnote");
+        QUrlQuery query;
+        query.addQueryItem("noteid", QString::number(note->noteid));
+        query.addQueryItem("action","editnote");
+        url.setQuery(query);
         _link = url.toString();
     }
 }

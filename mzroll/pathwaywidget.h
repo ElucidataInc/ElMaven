@@ -135,7 +135,6 @@ protected:
 
     AnimationControl* 	  animationControl;
     BackgroundPeakUpdate* workerThread;
-    QProg*				  animationProgress;
     TinyPlot*		  	  tinyPlot;
 
 

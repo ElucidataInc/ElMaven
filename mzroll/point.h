@@ -13,12 +13,9 @@ class SpectraWidget;
 
 class EicPoint : public QObject, public QGraphicsItem {
     Q_OBJECT
-//#if QT_VERSION >= 0x040600    
     Q_INTERFACES( QGraphicsItem )
-//#endif
 
 public:
-    //TODO: Sahil Added while merging eicwidget
     enum POINTSHAPE { CIRCLE, SQUARE, TRIANGLE_UP, TRIANGLE_DOWN };
     EicPoint(QObject *parent = 0);
     EicPoint(float x, float y, Peak* peak, MainWindow* mw);
@@ -27,12 +24,10 @@ public:
     void setPen(QPen &p)  { _pen = p;  }
     void setBrush(QBrush &b)  { _brush = b; }
     void setPeakGroup(PeakGroup* g) { _group = g; }
-    void setPeak(Peak* p) { _peak=p; } //TODO: Sahil, Added while merging point
-    //TODO: Sahil Added while merging eicwidget
+    void setPeak(Peak* p) { _peak=p; }
     void setScan(Scan* x) { _scan=x; }
     Peak* getPeak() { return _peak; }
     PeakGroup* getPeakGroup() { return _group; }
-    //TODO: Sahil Added 3 below functions while merging eicwidget
     void setPointShape(POINTSHAPE shape) { pointShape=shape; }
     void forceFillColor(bool flag) { _forceFill = flag; }
     void setSize(float size) { _cSize=size; }
@@ -51,7 +46,6 @@ protected:
 private:
     float _x;
     float _y;
-    //TODO: sahil merging eicwidget
     Scan* _scan;
     Peak* _peak;
     PeakGroup* _group;
@@ -59,9 +53,9 @@ private:
     QColor _color;
     QPen _pen;
     QBrush _brush;       
-    POINTSHAPE pointShape;     //TODO: sahil merging eicwidget
-    bool _forceFill;     //TODO: sahil merging eicwidget
-    float _cSize;    //TODO: sahil merging eicwidget
+    POINTSHAPE pointShape;
+    bool _forceFill;
+    float _cSize;
 
 private Q_SLOTS:
 	void bookmark();

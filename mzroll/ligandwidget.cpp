@@ -500,30 +500,36 @@ void LigandWidget::fetchRemoteCompounds()
 
     if ( settings->contains("data_server_url")) {
         QUrl url(settings->value("data_server_url").toString());
-        url.addQueryItem("action", "fetchcompounds");
-        url.addQueryItem("format", "xml");
-        //Merged with Maven776 - Fetching compounds from a remote - Kiran
-        QNetworkRequest request;
+        QUrlQuery query;
+        query.addQueryItem("action", "fetchcompounds");
+        query.addQueryItem("format", "xml");
+        url.setQuery(query);
+         QNetworkRequest request;
         request.setUrl(url);
 
-        QNetworkReply *reply = m_manager->get(request);
-        qDebug() << url.toEncoded();
-   }
+         QNetworkReply *reply = m_manager->get(request);
+         qDebug() << url.toEncoded();
+    }
 }
 
 void LigandWidget::readRemoteData(QNetworkReply* reply)
-{   //Merged with Maven 776 - Reading the compounds- Kiran
-    //qDebug() << "readRemoteData() << " << resp.statusCode();
-
-    if (reply) { //redirect
-        xml.addData(reply->readAll());
-    } else {
-        http.abort();
-    }
-
-    parseXMLRemoteCompounds();
-    setDatabaseNames();
-}
+  {
+      //qDebug() << "readRemoteData() << " << resp.statusCode();
+  
+    //  if (resp.statusCode() == 302 || resp.statusCode() == 200 ) { //redirect
+    //      xml.addData(http.readAll());
+    //      parseXMLRemoteCompounds();
+    //      setDatabaseNames();
+     if (reply) { //redirect
+         xml.addData(reply->readAll());
+      } else {
+        //  http.abort();
+         reply->abort();
+      }
+ 
+     parseXMLRemoteCompounds();
+     setDatabaseNames();
+  }
 
 QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
 {
@@ -620,7 +626,7 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
     if (xml.error()) {
         if ( xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
             qWarning() << "XML ERROR: BAD END TO DOCUMENT" << xml.lineNumber() << ": " << xml.errorString();
-            http.abort();
+            // http.abort();
         } else {
             qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
         }

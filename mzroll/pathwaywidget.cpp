@@ -67,14 +67,14 @@ PathwayWidget::PathwayWidget(MainWindow* parent) {
 	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)), parent,
 			SLOT(setProgressBar(QString, int,int)));
 
-	animationProgress = new QProg(0, scene());
-	animationProgress->setMinValue(0);
-	animationProgress->setMaxValue(1.0);
-	animationProgress->setValue(0.0);
-	animationProgress->setFlag(QGraphicsItem::ItemIsMovable);
-	animationProgress->setPos(0, 0);
-	animationProgress->scale(.5, .5);
-	animationProgress->hide();
+	// animationProgress = new QProg(0, scene());
+	// animationProgress->setMinValue(0);
+	// animationProgress->setMaxValue(1.0);
+	// animationProgress->setValue(0.0);
+	// animationProgress->setFlag(QGraphicsItem::ItemIsMovable);
+	// animationProgress->setPos(0, 0);
+	// animationProgress->scale(.5, .5);
+	// animationProgress->hide();
 
 	QSettings* settings = mw->getSettings();
 	if (settings->contains("pathwayId")) {
@@ -142,14 +142,14 @@ void PathwayWidget::clear() {
 	if (!scene())
 		return;
 
-	if (animationProgress && animationProgress->scene() == scene()) {
-		scene()->removeItem(animationProgress);
-	}
+	// if (animationProgress && animationProgress->scene() == scene()) {
+	// 	scene()->removeItem(animationProgress);
+	// }
 	if (tinyPlot && tinyPlot->scene() == scene()) {
 		scene()->removeItem(tinyPlot);
 	}
-	if (animationProgress)
-		animationProgress->hide();
+	// if (animationProgress)
+	// 	animationProgress->hide();
 	GraphWidget::clear();
 }
 
@@ -1354,8 +1354,8 @@ void PathwayWidget::stopSimulation() {
 	if (_timerId != 0)
 		killTimer(_timerId);
 	_timerId = 0;
-	if (animationProgress)
-		animationProgress->hide();
+	// if (animationProgress)
+	// 	animationProgress->hide();
 	if (_encodeVideo)
 		encodeVideo();
 	setTimerStep(0);
@@ -1370,8 +1370,8 @@ void PathwayWidget::startSimulation() {
 	cleanTempVideoDir();
 	resetSimulation();
 
-	if (animationProgress)
-		animationProgress->show();
+	// if (animationProgress)
+	// 	animationProgress->show();
 	_timerId = startTimer(_timerSpeed); // in ms
 }
 
@@ -1504,8 +1504,8 @@ void PathwayWidget::showAnimationStep(float fraction) {
 
 	if (tinyPlot)
 		tinyPlot->setCurrentXCoord(fraction);
-	if (animationProgress)
-		animationProgress->setValue(fraction);
+	// if (animationProgress)
+	// 	animationProgress->setValue(fraction);
 
 	if (getTimerMaxSteps() == 0)
 		return;
@@ -1820,13 +1820,13 @@ void PathwayWidget::showAtomTrasformations(Compound* c, int atomNumber) {
 void PathwayWidget::dropEvent(QDropEvent * event) {
 	QGraphicsView::dropEvent(event);
 
-	qDebug() << "dropEvent:" << event->mimeData()->text();
-	qDebug() << "source: " << event->source()->windowTitle();
-	qDebug() << "type" << event->type();
-	qDebug() << "format" << event->format();
-	qDebug() << "encodedData" << event->encodedData(event->format());
+	// qDebug() << "dropEvent:" << event->mimeData()->text();
+	// qDebug() << "source: " << event->source()->windowTitle();
+	// qDebug() << "type" << event->type();
+	// qDebug() << "format" << event->format();
+	// qDebug() << "encodedData" << event->encodedData(event->format());
 
-	QByteArray encoded = event->encodedData(event->format());
+	QByteArray encoded = event->mimeData()->data("BUG");
 	QDataStream stream(&encoded, QIODevice::ReadOnly);
 	QGraphicsView::dropEvent(event);
 

@@ -1,6 +1,6 @@
 #include "tinyplot.h"
 
-TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent, scene)  {
+TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)  {
 	_width=100;
 	_height=100;
 	_currentXCoord=0;

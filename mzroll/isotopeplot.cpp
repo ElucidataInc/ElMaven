@@ -6,7 +6,7 @@ using namespace Eigen;
 
 
 IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
-    :QGraphicsItem(parent, scene) {
+    :QGraphicsItem(parent) {
 	// Initialised existing values - Kiran
 	_barwidth=10;
 	_mw=NULL;

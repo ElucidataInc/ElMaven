@@ -19,10 +19,10 @@ class IsotopeBar : public QObject, public QGraphicsRectItem
 #endif
 
 	public:
-	IsotopeBar(QGraphicsItem *parent, QGraphicsScene *scene):QGraphicsRectItem(parent,scene){
+	IsotopeBar(QGraphicsItem *parent, QGraphicsScene *scene):QGraphicsRectItem(parent){
 			setFlag(ItemIsSelectable);
 			setFlag(ItemIsFocusable);
-			setAcceptsHoverEvents(true);
+			setAcceptHoverEvents(true);
 	}
 
         QRectF boundingRect() {

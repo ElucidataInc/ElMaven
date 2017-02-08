@@ -4,7 +4,7 @@ PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {
 	selectionRect = new QGraphicsRectItem(); selectionRect->hide(); selectionRect->setPen(QPen(Qt::DotLine));
 	vline = new QGraphicsLineItem(); vline->hide(); vline->setPen(QPen(Qt::DotLine));
 	hline = new QGraphicsLineItem(); hline->hide();	hline->setPen(QPen(Qt::DotLine));
-	ylabel = new QGraphicsTextItem(); ylabel->hide(); ylabel->setFont(QFont("Helvetica",10)); ylabel->rotate(-90);
+	ylabel = new QGraphicsTextItem(); ylabel->hide(); ylabel->setFont(QFont("Helvetica",10)); ylabel->setRotation(-90);
 	xlabel = new QGraphicsTextItem(); xlabel->hide(); xlabel->setFont(QFont("Helvetica",10));
 	xValueLabel   = new Note("", hline, this);  xValueLabel->setExpanded(true); xValueLabel->hide();
 	yValueLabel   = new Note("", vline, this);  yValueLabel->setExpanded(true); yValueLabel->hide();
@@ -215,7 +215,7 @@ QPointF PlotScene::plotToMap(float x,float y) {
 }
 
 
-PlotDockWidget::PlotDockWidget(QWidget * parent = 0,Qt::WindowFlags flags = 0 ):QDockWidget(parent,flags) {
+PlotDockWidget::PlotDockWidget(QWidget * parent,Qt::WindowFlags flags):QDockWidget(parent,flags) {
 
 	mainWidget = new QWidget(this);
 

@@ -301,7 +301,7 @@ void SpectralHitsDockWidget::showSpectralHits() {
     colNames << "Sample" << "Protein" << "Peptide" << "rt" << "Precursor MZ" << "Charge" << "Scan Number" << "Score" << "matchCount"  << "Hit Rank";
     treeWidget->setColumnCount(colNames.size());
     treeWidget->setHeaderLabels(colNames);
-    //treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
+    //treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     //treeWidget->header()->adjustSize();
     treeWidget->setSortingEnabled(false);
 

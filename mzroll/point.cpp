@@ -2,9 +2,10 @@
 EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
 {
 
-	setFlag(QGraphicsItem::ItemIsFocusable);
+    setFlag(QGraphicsItem::ItemIsFocusable);
     setFlag(QGraphicsItem::ItemIsSelectable);
-    setAcceptsHoverEvents(true);
+    setAcceptHoverEvents(true);
+
     _x = x;
     _y = y;
     _mw = mw;
@@ -16,8 +17,8 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _pen=QPen(_color);
     _brush=QBrush(_color);
 
-    setPointShape(CIRCLE); // TODO: Sahil Added the change while merging eicwidget
-    forceFillColor(false); // TODO: Sahil Added the change while merging eicwidget
+    setPointShape(CIRCLE);
+    forceFillColor(false);
 
     if (_peak) {
         _cSize += 20*(_peak->quality);
@@ -37,7 +38,6 @@ EicPoint::~EicPoint() {}
 
 QRectF EicPoint::boundingRect() const
 {
-	//float cSize = 10 + 30*(_peak->quality);
     return(QRectF(_x-_cSize/2,_y-_cSize/2,_cSize,_cSize));
 }
 
@@ -215,9 +215,8 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     }
 }
 
-//TODO: Sahil, Added while merging point
 void EicPoint::setClipboardToGroup() { if(_group) _mw->setClipboardToGroup(_group); }
-//TODO: Sahil, Added while merging point
+
 void EicPoint::bookmark() { if(_group) _mw->bookmarkPeakGroup(_group); }
 
 void EicPoint::setClipboardToIsotopes() {
