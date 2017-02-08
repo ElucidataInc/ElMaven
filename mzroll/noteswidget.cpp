@@ -18,8 +18,8 @@ NotesWidget::NotesWidget(QWidget *parent): QDockWidget(parent)
     connect(fetchButton,SIGNAL(clicked()), this, SLOT(updateAllNotes()));
     connect(fetchButton,SIGNAL(clicked()), this, SLOT(showNotes()));
 
-    connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)), this,
-            SLOT(readRemoteData(const QHttpResponseHeader &)));
+    m_manager = new QNetworkAccessManager(this);
+    connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
 
 
     updateAllNotes();
@@ -39,24 +39,27 @@ void NotesWidget::fetchRemoteNotes()
 
     if ( settings->contains("data_server_url")) {
         QUrl url(settings->value("data_server_url").toString());
-        url.addQueryItem("action", "fetchnotes");
-        url.addQueryItem("format", "xml");
-        http.setHost(url.host());
-        connectionId = http.get(url.toEncoded());
-       // qDebug() << " ConnectionId=" << connectionId;
+        QUrlQuery query;
+        query.addQueryItem("action", "fetchnotes");
+        query.addQueryItem("format", "xml");
+        url.setQuery(query);
+
+        QNetworkRequest request;
+        request.setUrl(url);
+
+        QNetworkReply *reply = m_manager->get(request);
+        qDebug() << url.toEncoded();
     }
 }
 
-void NotesWidget::readRemoteData(const QHttpResponseHeader &resp)
+void NotesWidget::readRemoteData(QNetworkReply *reply)
 {
-    //qDebug() << "readRemoteData() << " << resp.statusCode();
-
-    if (resp.statusCode() == 302 || resp.statusCode() == 200 ) { //redirect
-        xml.addData(http.readAll());
+    if (reply) { //redirect
+        xml.addData(reply->readAll());
         _notes << getRemoteNotes();
         showNotes();
     } else {
-        http.abort();
+        reply->abort();
     }
 }
 
@@ -85,7 +88,7 @@ void NotesWidget::updateAllNotes() {
     qDeleteAll(_notes);
     _notes.clear();
  //   _notes << getLocalNotes(); //local notes
-    fetchRemoteNotes();       //remote notes
+    //fetchRemoteNotes();       //remote notes
 }
 
 QList<UserNote*> NotesWidget::getNotes(float mzmin, float mzmax) {
@@ -161,7 +164,6 @@ QList<UserNote*> NotesWidget::getRemoteNotes()
 
     if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
         qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
-        http.abort();
     }
     return remotenotes;
 }
@@ -171,21 +173,23 @@ void NotesWidget::editNote() {
 
     QUrl url(_mainwindow->getSettings()->value("data_server_url").toString());
 
+    QUrlQuery query;
     QString newTitle = titleEdit->text();
     if (newTitle != selectedNote->title){
       selectedNote->title = newTitle;
-      url.addQueryItem("title", newTitle);      
+      query.addQueryItem("title", newTitle);
     }
 
     QString newDesc = noteEdit->toPlainText();
     if (newDesc != selectedNote->description){
       selectedNote->description = newDesc;
-      url.addQueryItem("description", newDesc);
+      query.addQueryItem("description", newDesc);
     }
 
+    url.setQuery(query);
     if (url.hasQuery()) {
-      url.addQueryItem("action", "editnote");
-      url.addQueryItem("noteid", QString::number(selectedNote->noteid));
+      query.addQueryItem("action", "editnote");
+      query.addQueryItem("noteid", QString::number(selectedNote->noteid));
       QDesktopServices::openUrl(url);
     } // else no changes
     return;
@@ -204,8 +208,10 @@ void NotesWidget::editRemoteNote() {
             usernote->description = noteEdit->toPlainText();
 
             QUrl url(settings->value("data_server_url").toString());
-            url.addQueryItem("action", "editnote");
-            url.addQueryItem("noteid", QString::number(usernote->noteid));
+            QUrlQuery query;
+            query.addQueryItem("action", "editnote");
+            query.addQueryItem("noteid", QString::number(usernote->noteid));
+            url.setQuery(query);
             QDesktopServices::openUrl(url);
             return;
         }

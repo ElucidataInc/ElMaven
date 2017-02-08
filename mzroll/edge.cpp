@@ -13,7 +13,7 @@ Edge::Edge() {
 	setLastFlux(0);
     setVisible(false);
     setFlag(ItemIsSelectable);
-	setAcceptsHoverEvents(true);
+	setAcceptHoverEvents(true);
 	setHighlighted(false);
 	setZValue(0);
 

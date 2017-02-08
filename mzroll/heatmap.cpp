@@ -119,7 +119,7 @@ void HeatMap::drawMap() {
                 int textWidth = item->boundingRect().width();
                 float ratio = _rowSpacer/(float) textWidth;
                 item->setPos(0,_sampleSpacer+i*_boxH);
-                if ( ratio < 1 ) item->scale(ratio,ratio);
+                if ( ratio < 1 ) item->setScale(ratio);
                 item->setData(0, QVariant::fromValue(group));
 
             }
@@ -130,10 +130,10 @@ void HeatMap::drawMap() {
 		 QGraphicsTextItem* item = scene()->addText(QString(vsamples[i]->sampleName.c_str()));
 		 int textWidth = item->boundingRect().width();
 		 float ratio = _sampleSpacer/(float) textWidth;
-	  	 if ( ratio < 1 ) item->scale(ratio,ratio);
+	  	 if ( ratio < 1 ) item->setScale(ratio);
 		 int textHeight = item->boundingRect().height();
 	 	 item->setPos(_rowSpacer+i*_boxW+textHeight,0);
-		 item->rotate(90);
+		 item->setRotation(90);
 	 }
 
 	//draw lagend

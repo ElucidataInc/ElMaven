@@ -21,7 +21,7 @@
 
 #include "qprog.h"
 
-QProg::QProg(QGraphicsItem *parent, QGraphicsScene *scene) : QGraphicsItem(parent,scene)
+QProg::QProg(QGraphicsItem *parent, QGraphicsScene *scene) : QGraphicsItem(parent)
 {
     initValue();
 

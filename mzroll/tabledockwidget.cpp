@@ -347,7 +347,7 @@ void TableDockWidget::setupPeakTable() {
 
     treeWidget->setColumnCount(colNames.size());
     treeWidget->setHeaderLabels(colNames);
-    treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
+    treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     treeWidget->header()->adjustSize();
 
     treeWidget->setSortingEnabled(true);

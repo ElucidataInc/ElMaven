@@ -1,11 +1,11 @@
 #include "node.h"
 
-Node::Node(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent,scene)
+Node::Node(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
     setFlag(ItemIsFocusable);
-    setAcceptsHoverEvents(true);
+    acceptHoverEvents();
     setVisible(false);
     setHighlighted(false);
 
@@ -31,6 +31,7 @@ Node::Node(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent,sc
     _graph = NULL;
 
     setAcceptDrops(true);
+    if(scene) scene->addItem(this);
 }
 
 Node::~Node() {
@@ -98,14 +99,15 @@ bool Node::setNewPos(float x, float y) {
 	fy=(float)(int)(fy*50)/50; //grid
 	y=SR.y()+fy*(SR.height()-SR.y());
 
-	if (pos().x() == x && pos().y() == y ) return true;
+    if (pos().x() == x && pos().y() == y ) return true;
+    QTransform transform;
 
-	if (scene()->itemAt(x,y) == this) { 
+    if (scene()->itemAt(x,y,transform) == this) {
 		setPos(x,y); 
 	} else {
 		for(int j=0; j<100; j++ ) {
-			if (scene()->itemAt(x,y) && scene()->itemAt(x,y) != this) { 
-					x+=cos(j)*j; y+=sin(j)*j; 
+            if (scene()->itemAt(x,y,transform) && scene()->itemAt(x,y,transform) != this) {
+                    x+=cos(j)*j; y+=sin(j)*j;
 			}
 		}
 		setPos(x,y); 
@@ -162,7 +164,7 @@ float Node::calculateMetaboliteConcentrations() {
 }
 		
 float Node::getFontSize() { 
-
+    if(!scene()) return 0;
 	float scale=1; 
     int height = 100;
 	if(_graph) {
@@ -208,7 +210,7 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget *)
 }
 
 void Node::drawLabel() {
-
+    if (!scene()) return;
     if ( _showLabelFlag == false ) {
         if (_label) _label->hide();
         if (_labelBox) _labelBox->hide();
@@ -227,8 +229,8 @@ void Node::drawLabel() {
 
     int itemW=_shape.boundingRect().width();
     int itemH=_shape.boundingRect().height();
-    if (!_label) _label = new QGraphicsTextItem(this,scene());  
-    if (!_labelBox) _labelBox = new QGraphicsRectItem(this,scene());
+    if (!_label) { _label = new QGraphicsTextItem(this); }
+    if (!_labelBox) {  _labelBox = new QGraphicsRectItem(this); }
 
     if (_label && _labelBox)  {
         _label->setFont(f);
@@ -334,4 +336,4 @@ void Node::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 			setScalingFactor( getScalingFactor()*0.8 );
 	}
 	cerr << "scalingFactor=" << getScalingFactor() << endl;
-}
+}	

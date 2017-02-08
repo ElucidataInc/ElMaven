@@ -23,12 +23,11 @@
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
-#include <QtConcurrentMap>
 
 
 
 Database DB;
-void customMessageHandler(QtMsgType type, const char *msg);
+void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
     app.processEvents();
 
     MainWindow* mainWindow = new MainWindow();
-    qInstallMsgHandler(customMessageHandler);
+    qInstallMessageHandler(customMessageHandler);
 
     //updated while merging with Maven776 - Kiran
     for (int i = 1; i < argc; ++i)
@@ -59,20 +58,20 @@ int main(int argc, char *argv[])
 }
 
 
-void customMessageHandler(QtMsgType type, const char *msg)
+void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
         switch (type) {
         	case QtDebugMsg:
-				cerr << "Debug: " << msg << endl;
+				cerr << "Debug: " << msg.toStdString() << endl;
                 break;
         	case QtWarningMsg:
-				cerr << "Warning: " << msg << endl;
+				cerr << "Warning: " << msg.toStdString() << endl;
                 break;
         	case QtCriticalMsg:
-				cerr << "Critical: " << msg << endl;
+				cerr << "Critical: " << msg.toStdString() << endl;
                 break;
         	case QtFatalMsg:
-                cerr << "Fetal: " << msg << endl;
+                cerr << "Fetal: " << msg.toStdString() << endl;
 				break;
                 //abort();
         }

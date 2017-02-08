@@ -233,7 +233,7 @@ void EicWidget::setFocusLine(float rt) {
 	//qDebug <<" EicWidget::setFocusLine(float rt)";
 	_focusLineRt = rt;
 	if (_focusLine == NULL)
-		_focusLine = new QGraphicsLineItem(0, scene());
+		_focusLine = new QGraphicsLineItem(0);
 	if (_focusLine->scene() != scene())
 		scene()->addItem(_focusLine);
 
@@ -245,7 +245,7 @@ void EicWidget::setFocusLine(float rt) {
 void EicWidget::drawSelectionLine(float rtmin, float rtmax) {
 	//qDebug <<" EicWidget::drawSelectionLine(float rtmin, float rtmax)";
 	if (_selectionLine == NULL)
-		_selectionLine = new QGraphicsLineItem(0, scene());
+		_selectionLine = new QGraphicsLineItem(0);
 	if (_selectionLine->scene() != scene())
 		scene()->addItem(_selectionLine);
 
@@ -1079,7 +1079,7 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 		float y2 = toY(_maxY);
 
 		QPen pen2(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		QGraphicsLineItem* focusLine = new QGraphicsLineItem(0, scene());
+		QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
 		focusLine->setPen(pen2);
 		focusLine->setLine(rt, y1, rt, y2);
 
@@ -1562,36 +1562,37 @@ void EicWidget::addNote(float rt, float intensity, QString text) {
 
 	if (!text.isEmpty() && !link.isEmpty()) {
 		QUrl url(link);
+		QUrlQuery query;
 
-		url.addQueryItem("action", "addnote");
+		query.addQueryItem("action", "addnote");
 
 		if (eicParameters->_slice.compound) {
 			if (!eicParameters->_slice.compound->name.empty())
-				url.addQueryItem("compound_name",
+				query.addQueryItem("compound_name",
 						QString(eicParameters->_slice.compound->name.c_str()));
 
 			if (!eicParameters->_slice.compound->id.empty())
-				url.addQueryItem("compound_id",
+				query.addQueryItem("compound_id",
 						QString(eicParameters->_slice.compound->id.c_str()));
 		}
 
 		if (!eicParameters->_slice.srmId.empty())
-			url.addQueryItem("srm_id",
+			query.addQueryItem("srm_id",
 					QString(eicParameters->_slice.srmId.c_str()));
-		url.addQueryItem("mz",
+		query.addQueryItem("mz",
 				QString::number(
 						eicParameters->_slice.mzmin
 								+ (eicParameters->_slice.mzmax
 										- eicParameters->_slice.mzmin) / 2, 'f',
 						6));
-		url.addQueryItem("mzmin",
+		query.addQueryItem("mzmin",
 				QString::number(eicParameters->_slice.mzmin, 'f', 6));
-		url.addQueryItem("mzmax",
+		query.addQueryItem("mzmax",
 				QString::number(eicParameters->_slice.mzmax, 'f', 6));
-		url.addQueryItem("rt", QString::number(rt, 'f', 6));
-		url.addQueryItem("intensity", QString::number(intensity, 'f', 2));
-		url.addQueryItem("title", text);
-
+		query.addQueryItem("rt", QString::number(rt, 'f', 6));
+		query.addQueryItem("intensity", QString::number(intensity, 'f', 2));
+		query.addQueryItem("title", text);
+		url.setQuery(query);
 		QDesktopServices::openUrl(url);
 
 	}

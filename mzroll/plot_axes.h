@@ -7,7 +7,7 @@
 class Axes : public QGraphicsItem
 {
 public:
-	Axes(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent,scene){};
+	Axes(QGraphicsItem* parent):QGraphicsItem(parent){};
     Axes( int type, float min, float max, int nticks);
     QRectF boundingRect() const;
 	void setRange(double a, double b) { min=a; max=b; } 

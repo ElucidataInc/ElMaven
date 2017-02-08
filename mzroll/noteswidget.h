@@ -24,7 +24,7 @@ public Q_SLOTS:
          void updateAllNotes();
 
      private Q_SLOTS:
-         void readRemoteData(const QHttpResponseHeader &);
+         void readRemoteData(QNetworkReply* reply);
          QList<UserNote*> getRemoteNotes();
          void editNote();
          void editRemoteNote();
@@ -34,7 +34,7 @@ private:
 
          QList<UserNote*> _notes;
          int connectionId;
-         QHttp http;
+         QNetworkAccessManager* m_manager;
          QXmlStreamReader xml;
          UserNote* selectedNote;
          MainWindow* _mainwindow;

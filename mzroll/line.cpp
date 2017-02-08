@@ -1,6 +1,6 @@
 #include "line.h"
 
-EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent,scene)
+EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)
 {
     setHighlighted(false);
     // Obselete Function -Kiran
@@ -10,6 +10,7 @@ EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(par
     _closePath=true;
     //Unintialised Value - Kiran
     _eic=NULL;
+    if(scene) scene->addItem(this);
 }
 
 QRectF EicLine::boundingRect() const

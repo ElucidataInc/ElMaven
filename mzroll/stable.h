@@ -4,7 +4,8 @@
 //QT gui headers
 #include <QtGui>
 #include <QtSql>
-#include <QHttp>
+#include <QtNetwork>
+#include <QNetworkReply>
 #include <QCloseEvent>
 #include <QDialog>
 #include <QDockWidget>
@@ -28,13 +29,31 @@
 #include <QStyleOption>
 #include <QTableWidget>
 #include <QtGui>
-#include <QtGui/QGraphicsView>
+#include <QGraphicsView>
 #include <QThread>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QtSql>
+#include <QToolButton>
+#include <QToolBar>
+#include <QMainWindow>
 #include <QWidget>
-#include <QtConcurrentMap>
+#include <QShortcut>
+#include <QPainter>
+#include <QSplitter>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QErrorMessage>
+#include <QDropEvent>
+#include <QSplashScreen>
+#include <QApplication>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QScrollBar>
+#include <QColorDialog>
+
+#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintDialog>
 
 //std c++
 //#include <math.h>
@@ -60,9 +79,9 @@
 #include "mzFit.h"
 
 //Linear Algebra
-#include <Eigen/Core>
-#include <Eigen/LU>
-#include <Eigen/SVD>
+#include <../Eigen/Core>
+#include <../Eigen/LU>
+#include <../Eigen/SVD>
 //#include <Eigen/Array>
 
 // import most common Eigen types
