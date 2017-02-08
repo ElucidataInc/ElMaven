@@ -66,14 +66,14 @@ void TestScan::testdeepcopy() {
     QVERIFY(scan->mz[2] == scan1->mz[2]);
     QVERIFY(scan->mz[3] == scan1->mz[3]);
 
-    bool scanType=FALSE;
+    bool scanType=false;
     if (scan->scanType.compare(scan1->scanType)==0)
-        scanType=TRUE;
+        scanType=true;
     QVERIFY(scanType);
 
-    bool filterLine=FALSE;
+    bool filterLine=false;
     if (scan->filterLine.compare(scan1->filterLine)==0)
-        filterLine=TRUE;
+        filterLine=true;
     QVERIFY(filterLine);
 
 }
