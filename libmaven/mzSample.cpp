@@ -1501,7 +1501,7 @@ void mzSample::applyPolynomialTransform() {
 	if (poly_align_degree <= 0) return;
 
 	double* transform = &polynomialAlignmentTransformation.front();
-	for(int i=0; i<scans.size(); i++ ) {
+	for(unsigned int i=0; i<scans.size(); i++ ) {
 		float newrt = leasev(transform, poly_align_degree, scans[i]->rt);
 		//cerr << "applyPolynomialTransform() " << scans[i]->rt << "\t" << newrt << endl;
 		scans[i]->rt = newrt;

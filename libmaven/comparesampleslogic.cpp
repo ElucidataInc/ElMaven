@@ -116,13 +116,13 @@ void CompareSamplesLogic::computeStats(PeakGroup* group,
 	// TODO: misingSet1 and 2 is not used anywhere - Kiran
     int missingSet1=0;
 	int missingSet2=0;
-	for(int i=0; i < sset1.size(); i++ ) { groupA[i]=yvalues[i]; if (groupA[i] == 0) missingSet1++; }
-	for(int i=0; i < sset2.size(); i++ ) { groupB[i]=yvalues[ sset1.size()+i ]; if (groupB[i] ==0 ) missingSet2++; }
+	for(unsigned int i=0; i < sset1.size(); i++ ) { groupA[i]=yvalues[i]; if (groupA[i] == 0) missingSet1++; }
+	for(unsigned int i=0; i < sset2.size(); i++ ) { groupB[i]=yvalues[ sset1.size()+i ]; if (groupB[i] ==0 ) missingSet2++; }
 	
-	for (int i = 0; i < groupA.size(); i++)
+	for (unsigned int i = 0; i < groupA.size(); i++)
 		if (groupA[i] < _missingValue)
 			groupA[i] = _missingValue;
-	for (int i = 0; i < groupB.size(); i++)
+	for (unsigned int i = 0; i < groupB.size(); i++)
 		if (groupB[i] < _missingValue)
 			groupB[i] = _missingValue;
 

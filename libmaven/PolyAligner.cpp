@@ -9,7 +9,7 @@ PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>&
 	}
 
 	//copy values that are presents in both vectors
-	for(int indx=0; indx < subj.size(); indx++ ) {
+	for(unsigned int indx=0; indx < subj.size(); indx++ ) {
 		if (subj[indx]> 0 and ref[indx] > 0)  { 
 			subjVector.push_back(subj[indx]);
 			refVector.push_back(ref[indx]);
@@ -49,7 +49,7 @@ double PolyAligner::countInliners(AlignmentStats* model, float zValueCutoff) {
 
 	int inlinerCount=0; 
 	double R2=0;
-	for(int i=0; i < residuals.size(); i++ ) {
+	for(unsigned int i=0; i < residuals.size(); i++ ) {
 		if (abs((residuals[i] - meanResidual)/stdResidual) < zValueCutoff ) {
 			R2 += residuals[i];
 			inlinerCount++;
@@ -88,7 +88,7 @@ AlignmentStats* PolyAligner::align(int degree) {
 	double* ref =  new double[subjVector.size()];
 
 	//copy values that are presents in both vectors to c arrays
-	for(int indx=0; indx < subjVector.size(); indx++ ) {
+	for(unsigned int indx=0; indx < subjVector.size(); indx++ ) {
 		x[indx]  =subjVector[indx];
 		ref[indx]=refVector[indx];
 	}
@@ -99,7 +99,7 @@ AlignmentStats* PolyAligner::align(int degree) {
 	if(outlierVector.size() > 0 ) {
 		int j=0;
 		stats->N=0;
-		for(int i=0; i< outlierVector.size();i++) { 
+		for(unsigned int i=0; i< outlierVector.size();i++) { 
 			if(outlierVector[i] == false) { 
 				x[j]= x[i];
 				ref[j]=ref[i];

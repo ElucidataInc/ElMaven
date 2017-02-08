@@ -156,7 +156,7 @@ void EIC::subtractBaseLine() {
     }
 
     eic_noNoiseObs = 0;
-    for (int i = 0; i < intensity.size(); i++) {
+    for (unsigned int i = 0; i < intensity.size(); i++) {
         intensity[i] -= baseline[i];
         if (intensity[i] < 0) intensity[i] = 0;
         if (intensity[i] > 0) eic_noNoiseObs++;
@@ -306,7 +306,7 @@ void EIC::findPeakBounds(Peak& peak) {
     }
 
     //find maximum point in the span from min to max position
-    for(unsigned int k=lb; k<rb && k < N; k++ ) {
+    for(int k=lb; k<rb && k < N; k++ ) {
         if(intensity[k]> intensity[peak.pos] && mz[k] > 0 ) peak.pos = k;
     }
 

@@ -168,7 +168,7 @@ vector<Isotope> CSVReports::computeIsotopes (PeakGroup* group, int ionizationMod
 
 void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
 
-      for (int i = 0; i < masslist.size(); i++) {
+      for (unsigned int i = 0; i < masslist.size(); i++) {
                 Isotope& x = masslist[i];
                 string isotopeName = x.name;
                 insertUserSelectedIsotopes(group,isotopeName);

@@ -137,7 +137,7 @@ void ClassifierNaiveBayes::classify(Peak&p) {
 			<< endl;
 	p.quality = 0.5;
 
-	for (unsigned int jj = 0; jj < num_features; jj++) {
+	for (int jj = 0; jj < num_features; jj++) {
 		float rssG = 0;
 		float rssB = 0;
 		StatisticsVector<float> distG;
@@ -273,7 +273,7 @@ void ClassifierNaiveBayes::findOptimalSplit(vector<Peak*>&peaks, int fNum) {
 	map<char, float> totals;
 	vector<char> labels(peaks.size());
 
-	for (int i = 0; i < peaks.size(); i++) {
+	for (unsigned int i = 0; i < peaks.size(); i++) {
 		Peak* p = peaks[i];
 		vector<float> features = getFeatures(*p);
 		if (fNum < features.size()) {
@@ -295,7 +295,7 @@ void ClassifierNaiveBayes::findOptimalSplit(vector<Peak*>&peaks, int fNum) {
 		map<char, float> counts;
 		float pG = 0;
 		float pB = 0;
-		for (int i = 0; i < X.size(); i++)
+		for (unsigned int i = 0; i < X.size(); i++)
 			if (X[i] < cut)
 				counts[labels[i]]++;
 		if (totals.count('g'))

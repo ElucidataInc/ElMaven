@@ -107,7 +107,7 @@ void PeakDetector::processSlice(mzSlice& slice) {
 }
 
 void PeakDetector::pullAllIsotopes() {
-    for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
+    for (unsigned int j = 0; j < mavenParameters->allgroups.size(); j++) {
         if(mavenParameters->stop) break;
         PeakGroup& group = mavenParameters->allgroups[j];
         Compound* compound = group.compound;
@@ -253,7 +253,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
     //   #pragma omp parallel for ordered
     for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
         mzSample* sample = mavenParameters->samples[s];
-        for (int k = 0; k < masslist.size(); k++) {
+        for (unsigned int k = 0; k < masslist.size(); k++) {
             //			if (stopped())
             //				break; TODO: stop
             Isotope& x = masslist[k];
@@ -292,7 +292,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                     //look for isotopic mass in the same spectrum
                     vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
 
-                    for (int i = 0; i < matches.size(); i++) {
+                    for (unsigned int i = 0; i < matches.size(); i++) {
                         int pos = matches[i];
                         if (s->intensity[pos] > isotopePeakIntensity) {
                             isotopePeakIntensity = s->intensity[pos];
@@ -370,7 +370,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             // nearest peak is one with mimimum distance== min RT
             Peak* nearestPeak = NULL;
             float d = FLT_MAX;
-            for (int i = 0; i < allPeaks.size(); i++) {
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
                 Peak& x = allPeaks[i];
                 float dist = abs(x.rt - rt);
                 if (dist > mavenParameters->maxIsotopeScanDiff *
@@ -473,7 +473,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
     //   #pragma omp parallel for ordered
     for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
         mzSample* sample = mavenParameters->samples[s];
-        for (int k = 0; k < masslist.size(); k++) {
+        for (unsigned int k = 0; k < masslist.size(); k++) {
             //			if (stopped())
             //				break; TODO: stop
             Isotope& x = masslist[k];
@@ -512,7 +512,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     //look for isotopic mass in the same spectrum
                     vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
 
-                    for (int i = 0; i < matches.size(); i++) {
+                    for (unsigned int i = 0; i < matches.size(); i++) {
                         int pos = matches[i];
                         if (s->intensity[pos] > isotopePeakIntensity) {
                             isotopePeakIntensity = s->intensity[pos];
@@ -590,7 +590,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             // nearest peak is one with mimimum distance== min RT
             Peak* nearestPeak = NULL;
             float d = FLT_MAX;
-            for (int i = 0; i < allPeaks.size(); i++) {
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
                 Peak& x = allPeaks[i];
                 float dist = abs(x.rt - rt);
                 if (dist > mavenParameters->maxIsotopeScanDiff *
@@ -850,7 +850,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
 		//score quality of each group using classifier
                 vector<PeakGroup*> groupsToAppend;
-                for (int j = 0; j < peakgroups.size(); j++) {
+                for (unsigned int j = 0; j < peakgroups.size(); j++) {
 
                         PeakGroup& group = peakgroups[j];
                         group.setQuantitationType((PeakGroup::QType) mavenParameters->peakQuantitation);
@@ -914,7 +914,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                 std::sort(groupsToAppend.begin(), groupsToAppend.end(),
                           PeakGroup::compRankPtr);
 
-                for (int j = 0; j < groupsToAppend.size(); j++) {
+                for (unsigned int j = 0; j < groupsToAppend.size(); j++) {
                         //check for duplicates	and append group
                         if (j >= mavenParameters->eicMaxGroups)
                                 break;
@@ -966,7 +966,7 @@ bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
         bool noOverlap = true;
 
 //   #pragma omp parallel for
-        for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+        for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
                 PeakGroup& grp2 = mavenParameters->allgroups[i];
                 float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
                                                         grp2.minRt, grp2.maxRt);
