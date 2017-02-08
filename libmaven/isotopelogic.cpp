@@ -30,7 +30,7 @@ float IsotopeLogic::getIsotopeIntensity(float mz, double ppm) {
 		Scan* s = sample->getScan(i);
 		vector<int> matches = s->findMatchingMzs(mz - mz / 1e6 * ppm,
 				mz + mz / 1e6 * ppm);
-		for (int i = 0; i < matches.size(); i++) {
+		for (unsigned int i = 0; i < matches.size(); i++) {
 			int pos = matches[i];
 			if (s->intensity[pos] > highestIntensity)
 				highestIntensity = s->intensity[pos];
@@ -47,7 +47,7 @@ void IsotopeLogic::computeIsotopes(string f, double ppm,
 	float parentPeakIntensity = getIsotopeIntensity(parentMass, ppm);
 
 	vector<Isotope> isotopes = MassCalculator::computeIsotopes(f, _charge);
-	for (int i = 0; i < isotopes.size(); i++) {
+	for (unsigned int i = 0; i < isotopes.size(); i++) {
 		Isotope& x = isotopes[i];
 
 		float expectedAbundance = x.abundance;

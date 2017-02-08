@@ -60,7 +60,7 @@ Fragment::Fragment(Fragment* other) {
 
 void Fragment::appendBrothers(Fragment* other) {
     //copy other's brothers
-    for(int i=0; i < other->brothers.size(); i++ ) {
+    for(unsigned int i=0; i < other->brothers.size(); i++ ) {
         this->brothers.push_back( other->brothers[i]);
     }
 
@@ -205,14 +205,14 @@ void Fragment::printConsensusNIST(ostream& outstream, int minConsensusFraction, 
     float avgMVH=0;
     if ( assignedPeptide ) {
         avgMVH=assignedPeptide->mvh;
-        for(int i=0; i<brothers.size();i++ )  avgMVH += brothers[i]->assignedPeptide->mvh;
+        for(unsigned int i=0; i<brothers.size();i++ )  avgMVH += brothers[i]->assignedPeptide->mvh;
         avgMVH /= (brothers.size()+1);
     }
 
 
     //compute retention time window
     StatisticsVector<float>retentionTimes; retentionTimes.push_back(this->rt);
-    for(int i=0; i<brothers.size();i++ ) retentionTimes.push_back(brothers[i]->rt);
+    for(unsigned int i=0; i<brothers.size();i++ ) retentionTimes.push_back(brothers[i]->rt);
 
     float precursorMz =  consensus->precursorMz;
     float MW=consensus->precursorMz;
@@ -224,7 +224,7 @@ void Fragment::printConsensusNIST(ostream& outstream, int minConsensusFraction, 
 
     //scan list
     string scanList = this->sampleName + "." + integer2string(this->scanNum);
-    for(int i=0; i<brothers.size();i++ )  scanList += ";" + brothers[i]->sampleName + "." + integer2string(brothers[i]->scanNum);
+    for(unsigned int i=0; i<brothers.size();i++ )  scanList += ";" + brothers[i]->sampleName + "." + integer2string(brothers[i]->scanNum);
 
     int consensusSize = this->brothers.size()+1;
 
@@ -276,7 +276,7 @@ void Fragment::printInclusionList(bool printHeader, ostream& outstream, string C
 
     //compute retention time window
     StatisticsVector<float>retentionTimes; retentionTimes.push_back(this->rt);
-    for(int i=0; i<brothers.size();i++ ) retentionTimes.push_back(brothers[i]->rt);
+    for(unsigned int i=0; i<brothers.size();i++ ) retentionTimes.push_back(brothers[i]->rt);
 
     float medRt = retentionTimes.median();
     float stdRt	 = sqrt(retentionTimes.variance());
@@ -338,7 +338,7 @@ vector<int> Fragment::compareRanks( Fragment* a, Fragment* b, float productAmuTo
             if (abs(a->mzs[i]-b->mzs[j])<productAmuToll) { ranks[i] = j; break; }   //this needs optimization.. 
         }
     }
-    if (verbose) { cerr << " compareranks: "; for(int i=0; i < ranks.size(); i++ ) cerr << ranks[i] << " "; }
+    if (verbose) { cerr << " compareranks: "; for(unsigned int i=0; i < ranks.size(); i++ ) cerr << ranks[i] << " "; }
     return ranks;
 }
 
@@ -351,7 +351,7 @@ vector<int> Fragment::locatePositions( Fragment* a, Fragment* b, float productAm
         int pos = b->findClosestHighestIntensityPos(a->mzs[i],productAmuToll);
         ranks[i] = pos;
     }
-    if (verbose) { cerr << " compareranks: "; for(int i=0; i < ranks.size(); i++ ) cerr << ranks[i] << " "; }
+    if (verbose) { cerr << " compareranks: "; for(unsigned int i=0; i < ranks.size(); i++ ) cerr << ranks[i] << " "; }
     return ranks;
 }
 
@@ -424,7 +424,7 @@ vector<int> Fragment::intensityOrderDesc() {
     int nobs = intensity_array.size();
     vector<pair<float,int> > _pairsarray(nobs);
     vector<int>position(nobs);
-    for(unsigned int pos=0; pos < nobs; pos++ ) {
+    for(int pos=0; pos < nobs; pos++ ) {
         _pairsarray[pos] = make_pair(intensity_array[pos],pos);
     }
 
@@ -432,7 +432,7 @@ vector<int> Fragment::intensityOrderDesc() {
     sort(_pairsarray.rbegin(), _pairsarray.rend());
 
     //return positions in order from highest to lowest intenisty
-    for(int i=0; i < _pairsarray.size(); i++) { position[i] = _pairsarray[i].second; }
+    for(unsigned int i=0; i < _pairsarray.size(); i++) { position[i] = _pairsarray[i].second; }
     return position;
 }
 
@@ -441,7 +441,7 @@ vector<int> Fragment::mzOrderInc() {
     int nobs = mzs.size();
     vector<pair<float,int> > _pairsarray(nobs);
     vector<int>position(nobs);
-    for(unsigned int pos=0; pos < nobs; pos++ ) {
+    for(int pos=0; pos < nobs; pos++ ) {
         _pairsarray[pos] = make_pair(mzs[pos],pos);
     }
 
@@ -449,7 +449,7 @@ vector<int> Fragment::mzOrderInc() {
     sort(_pairsarray.begin(), _pairsarray.end());
 
     //return positions in order from highest to lowest intenisty
-    for(int i=0; i < _pairsarray.size(); i++) { position[i] = _pairsarray[i].second; }
+    for(unsigned int i=0; i < _pairsarray.size(); i++) { position[i] = _pairsarray[i].second; }
     return position;
 }
 
@@ -525,7 +525,7 @@ void Fragment::buildConsensusAvg() {
 
 double Fragment::spearmanRankCorrelation(const vector<int>& X) {
     double d2=0; int n=X.size();
-    for(int i=0; i<X.size();i++ ) {	
+    for(unsigned int i=0; i<X.size();i++ ) {	
         //if(verbose) cerr << X[i] << " ";
         if (X[i] == -1 ) d2 += (i-n)*(i-n);	//mising values set to average distance
         else 		     d2 += (i-X[i])*(i-X[i]);
@@ -538,7 +538,7 @@ double Fragment::spearmanRankCorrelation(const vector<int>& X) {
 double Fragment::fractionMatched(const vector<int>& X) {
     if (X.size() == 0) return 0;
     int matchCount=0;
-    for(int i=0; i<X.size();i++ ) {	if (X[i] != -1 ) matchCount++; }
+    for(unsigned int i=0; i<X.size();i++ ) {	if (X[i] != -1 ) matchCount++; }
     //if (verbose) { cerr << "\t\t fractionMatched:" << matchCount << endl; }
     return ((double)matchCount / X.size());
 }

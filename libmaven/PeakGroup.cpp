@@ -649,7 +649,7 @@ Scan* PeakGroup::getAverageFragmenationScan(float resolution) {
 
         //vector<int>positions = scan->intensityOrderDesc();
         //for(unsigned int p=0; p <positions.size() and p<100; p++ ) {
-        for(int i=0; i < scan->nobs(); i++ ) {
+        for(unsigned int i=0; i < scan->nobs(); i++ ) {
             int pos = avgScan->findClosestHighestIntensityPos(scan->mz[i],resolution);
             float bin;
             if (pos >= 0) {

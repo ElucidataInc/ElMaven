@@ -132,7 +132,7 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
         compound->productMz = productmz;
         compound->collisionEnergy = collisionenergy;
 
-        for(int i=0; i < categorylist.size(); i++) 
+        for(unsigned int i=0; i < categorylist.size(); i++) 
             compound->category.push_back(categorylist[i]);
         
         return compound;
@@ -186,7 +186,7 @@ void Databases::addCompound(Compound* c) {
     } else { 
         //compound exists with the same name, match database
         bool matched = false;
-        for(int i = 0; i < compoundsDB.size(); i++) {
+        for(unsigned int i = 0; i < compoundsDB.size(); i++) {
             Compound* currentCompound = compoundsDB[i];
             if ( currentCompound->db == c->db && currentCompound->id == c->id) { 
                 //compound from the same database

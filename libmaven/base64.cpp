@@ -137,7 +137,7 @@ namespace base64 {
 
         free(*dest);
         *dest = (char *)calloc(sizeof(char), uncompStr.size());
-        for (int i = 0; i < uncompStr.size(); i++)
+        for (unsigned int i = 0; i < uncompStr.size(); i++)
             *dest[i] = uncompStr[i];
 
         size = 1 + (uncompStr.size() * 3 / 4 - 4) / float_size;

@@ -13,12 +13,12 @@ void EICLogic::addPeakGroup(PeakGroup& group) {
 void EICLogic::associateNameWithPeakGroups() {
 
 	if (_slice.compound) {
-		for (int i = 0; i < peakgroups.size(); i++) {
+		for (unsigned int i = 0; i < peakgroups.size(); i++) {
 			peakgroups[i].compound = _slice.compound;
 		}
 	}
 	if (!_slice.srmId.empty()) {
-		for (int i = 0; i < peakgroups.size(); i++) {
+		for (unsigned int i = 0; i < peakgroups.size(); i++) {
 
 			peakgroups[i].srmId = _slice.srmId;
 		}
@@ -27,7 +27,7 @@ void EICLogic::associateNameWithPeakGroups() {
 
 PeakGroup* EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
 
-	for (int i = 0; i < peakgroups.size(); i++) {
+	for (unsigned int i = 0; i < peakgroups.size(); i++) {
 		float diff = abs(peakgroups[i].meanRt - rt);
 		if (diff < 2) {
 			if (selGroup == NULL) {
@@ -85,7 +85,7 @@ void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
 mzSlice EICLogic::visibleEICBounds() {
 	mzSlice bounds(0, 0, 0, 0);
 
-	for (int i = 0; i < eics.size(); i++) {
+	for (unsigned int i = 0; i < eics.size(); i++) {
 		EIC* eic = eics[i];
 		if (i == 0 || eic->rtmin < bounds.rtmin)
 			bounds.rtmin = eic->rtmin;
@@ -104,7 +104,7 @@ mzSlice EICLogic::visibleEICBounds() {
 
 mzSlice EICLogic::visibleSamplesBounds(vector<mzSample*> samples) {
 	mzSlice bounds(0, 0, 0, 0);
-	for (int i = 0; i < samples.size(); i++) {
+	for (unsigned int i = 0; i < samples.size(); i++) {
 		mzSample* sample = samples[i];
 		if (i == 0 || sample->minRt < bounds.rtmin)
 			bounds.rtmin = sample->minRt;

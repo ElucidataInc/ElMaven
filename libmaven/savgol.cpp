@@ -14,6 +14,7 @@ namespace mzUtils
     int ludcmp(float **a, int n, int *indx, float *d)
     {
         int i,imax,j,k;
+        imax = 0;
         float big=0,dum=0,sum=0,temp=0;
         float *vv = new float [n] ;
         for (j = 0 ; j < n ; j++)

@@ -295,7 +295,7 @@ string MassCalculator::peptideFormula(const string& peptideSeq) {
     bool noCmod=true;
     bool noNmod=true;
 
-    for(int i=0; i<peptideSeq.length(); i++ ) {
+    for(unsigned int i=0; i<peptideSeq.length(); i++ ) {
         char aa = peptideSeq[i];
         switch (aa)  {
             case 'A': C+=3; H+=5;  N+=1;  O+=1; break;

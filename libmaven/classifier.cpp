@@ -11,12 +11,12 @@ vector<Peak*> Classifier::removeRedundacy(vector<Peak*>&peaks) {
 	if (peaks.size() > 0)
 		nrPeaks.push_back(peaks[0]);
 
-	for (int i = 1; i < peaks.size(); i++) {
+	for (unsigned int i = 1; i < peaks.size(); i++) {
 		Peak* p1 = peaks[i];
 		vector<float> A = getFeatures(*p1);
 
 		bool unique = true;
-		for (int j = 0; j < nrPeaks.size(); j++) {
+		for (unsigned int j = 0; j < nrPeaks.size(); j++) {
 			Peak* p2 = nrPeaks[j];
 			vector<float> B = getFeatures(*p2);
 
@@ -83,7 +83,7 @@ void Classifier::printLabelDistribution() {
 	map<char, int> counts;
 	map<char, int>::iterator itr;
 
-	for (int i = 0; i < labels.size(); i++)
+	for (unsigned int i = 0; i < labels.size(); i++)
 		counts[labels[i]]++;
 	cerr << "refineModel FEATURES=" << labels.size() << endl;
 	for (itr = counts.begin(); itr != counts.end(); itr++) {
@@ -92,7 +92,7 @@ void Classifier::printLabelDistribution() {
 	}
 
 	cerr << "\tfeature\t\tClass=b\t\tClass=g" << endl;
-	for (unsigned int jj = 0; jj < num_features; jj++) {
+	for (int jj = 0; jj < num_features; jj++) {
 		StatisticsVector<float> distG;
 		StatisticsVector<float> distB;
 		for (unsigned int ii = 0; ii < labels.size(); ii++) {
