@@ -3,9 +3,9 @@ dist: trusty
 language: cpp
 compiler: gcc
 before_install:
-  - sudo apt-get update -y
-  - sudo apt-get install g++ -y
-  - sudo apt-get install qtdeclarative5-dev qt5-qmake libboost-all-dev -y
+  - sudo apt-get update -qq
+  - sudo apt-get install g++ -qq
+  - sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev
 script:
   - export QT_SELECT=qt5
   - qmake CONFIG+=release -o Makefile build.pro
