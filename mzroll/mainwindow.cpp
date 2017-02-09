@@ -100,13 +100,18 @@ using namespace mzUtils;
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
 	m_value=0; 	
 	mainwindowDummy = (long long) this;
-	signal(SIGINT,signalHandler);
-	signal(SIGFPE,signalHandler);
-	signal(SIGILL,signalHandler);
-	signal(SIGABRT,signalHandler);
-	signal(SIGSEGV,signalHandler);
-	signal(SIGTERM,signalHandler);
-	
+	signal(SIGINT, signalHandler);
+	signal(SIGFPE, signalHandler);
+	signal(SIGILL, signalHandler);
+	signal(SIGABRT, signalHandler);
+	signal(SIGSEGV, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	signal(SIGBUS, signalHandler);
+	signal(SIGSTKFLT, signalHandler);
+	signal(SIGPWR, signalHandler);
+	signal(SIGSYS, signalHandler);
+
 	qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 
