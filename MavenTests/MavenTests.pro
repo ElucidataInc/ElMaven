@@ -6,6 +6,7 @@ TARGET = MavenTests
 DESTDIR = ../bin
 
 QT += testlib core
+QT -= gui
 CONFIG += qtestlib warn_off
 
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls

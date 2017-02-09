@@ -1,5 +1,5 @@
 #include <QtTest>
-#include <QtWidgets/QApplication>
+#include <QCoreApplication>
 #include "testLoadSamples.h"
 #include "testMassCalculator.h"
 #include "testCSVReports.h"
@@ -13,7 +13,7 @@
 #include "testMzAligner.h"
 
 int main(int argc, char** argv) {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     // QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     // QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
