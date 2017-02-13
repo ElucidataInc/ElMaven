@@ -27,7 +27,7 @@
 
 
 #define ALL 0
-#define INPUT 1
+#define NEUN_INPUT 1
 #define HIDDEN 2
 #define OUTPUT 3
 

@@ -99,7 +99,7 @@ int nnwork::get_layersize (int layer)
 		case (ALL):
 			return input_size + hidden_size + output_size;
 			
-		case (INPUT):
+		case (NEUN_INPUT):
 			return input_size;
 
 		case (HIDDEN):

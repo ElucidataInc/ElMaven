@@ -1,4 +1,7 @@
 #include "mainwindow.h"
+#ifdef WIN32
+#include <windows.h>
+#endif
 #define _STR(X) #X
 #define STR(X) _STR(X)
 
@@ -91,8 +94,26 @@ void MainWindow::printvalue() {
 		}
 		settings->endArray();
 		settings->sync();
+	} else {
+		//Starting the crash reporter
+		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
+		QProcess *myProcess = new QProcess();
+		QStringList arguments;
+		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+    	myProcess->start(crashReporterPath, arguments);
+  		//process of crash reporting ended
 	}
 }
+
+#ifdef WIN32
+int exception_handler(LPEXCEPTION_POINTERS p)
+{
+   	MainWindow *pthis = (MainWindow * )mainwindowDummy;
+	pthis->printvalue();
+    exit(1);
+}
+#endif
+
 using namespace mzUtils;
 
  MainWindow::MainWindow(QWidget *parent) :
@@ -106,11 +127,19 @@ using namespace mzUtils;
 	signal(SIGABRT, signalHandler);
 	signal(SIGSEGV, signalHandler);
 	signal(SIGTERM, signalHandler);
+	#ifdef UNIX
 	signal(SIGQUIT, signalHandler);
 	signal(SIGBUS, signalHandler);
 	signal(SIGSTKFLT, signalHandler);
 	signal(SIGPWR, signalHandler);
 	signal(SIGSYS, signalHandler);
+	#endif
+
+	#ifdef WIN32
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&exception_handler);
+	#endif
 
 	qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
@@ -557,8 +586,8 @@ using namespace mzUtils;
 	if (CrashFileList.size() > 0) {
 		QMessageBox* msgBox = new QMessageBox( this );
 		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		QPushButton *restoreNO = msgBox->addButton(tr("Don't Restore"), QMessageBox::ActionRole);
 		QPushButton *restore = msgBox->addButton(tr("Restore"), QMessageBox::ActionRole);
+		QPushButton *restoreNO = msgBox->addButton(tr("Don't Restore"), QMessageBox::ActionRole);
 		msgBox->setIcon(QMessageBox::Information);
 		msgBox->setText(tr("Unfortunately, ElMaven crashed when you were using it earlier.\nHowever, we can restore the application without losing information."));
 		msgBox->setModal( true );

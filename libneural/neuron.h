@@ -26,7 +26,7 @@
 
 #ifndef _NEURON_H
 #define _NEURON_H
-#define INPUT 1
+#define NEU_INPUT 1
 #define NONINPUT 0
 
 struct neuron {

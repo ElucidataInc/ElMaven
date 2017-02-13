@@ -43,11 +43,13 @@ mac {
     DEFINES += ZLIB
     DEFINES += unix
     LIBS += -lz -lcdfread -lnetcdf
+    DEFINES += MAC
 }
 
 unix {
    message("using unix config")
    DEFINES -= LITTLE_ENDIAN
+   DEFINES += UNIX
  #  DEFINES += CDFPARSER
  #  LIBS += -lcdfread -lnetcdf
  #  DEFINES += ZLIB
