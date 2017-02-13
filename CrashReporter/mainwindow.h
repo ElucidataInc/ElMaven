@@ -5,6 +5,12 @@
 #include <QDir>
 #include <QtDebug>
 #include <QProcess>
+#include "include/qs3/qs3.h"
+#include <QDateTime>
+#include <QEventLoop>
+#include <QStatusBar>
+#include <QStatusBar>
+
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -22,6 +28,7 @@ private Q_SLOTS:
     void on_pushButton_clicked();
     void on_pushButton_3_clicked();
     void on_pushButton_2_clicked();
+    void uploadToS3Done();
 };
 
 #endif // MAINWINDOW_H

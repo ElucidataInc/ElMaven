@@ -51,7 +51,7 @@
           </font>
          </property>
          <property name="text">
-          <string>E-mail</string>
+          <string>E-mail (optional)</string>
          </property>
         </widget>
        </item>
@@ -83,7 +83,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Tell us about the crash</string>
+          <string>Tell us about the crash (optional)</string>
          </property>
         </widget>
        </item>
@@ -98,7 +98,7 @@
           </font>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;El-Maven&lt;/span&gt; has a &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt; unfortunately. We will try to restore your last version when it starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;El-Maven&lt;/span&gt; has &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt; unfortunately. We will try to restore your last version when it starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -118,7 +118,7 @@
        <item row="10" column="0">
         <widget class="QPushButton" name="pushButton_3">
          <property name="text">
-          <string>Send Report</string>
+          <string>Send Report and Restart</string>
          </property>
         </widget>
        </item>
