@@ -399,7 +399,7 @@ bool Pillow::HttpClient::redirected() const
 
 QByteArray Pillow::HttpClient::redirectionLocation() const
 {
-	foreach (const Pillow::HttpHeader &header, headers())
+	Q_FOREACH (const Pillow::HttpHeader &header, headers())
 	{
 		if (Pillow::ByteArrayHelpers::asciiEqualsCaseInsensitive(header.first, Pillow::LowerCaseToken("location")))
 			return header.second;
@@ -511,7 +511,7 @@ void Pillow::HttpClient::abort()
 		Pillow::HttpResponseParser::pause();
 		_error = AbortedError;
 		_responsePending = false;
-		emit finished();
+		Q_EMIT finished();
 	}
 }
 
@@ -548,7 +548,7 @@ void Pillow::HttpClient::device_error(QAbstractSocket::SocketError error)
 
 	_device->close();
 	_responsePending = false;
-	emit finished();
+	Q_EMIT finished();
 }
 
 void Pillow::HttpClient::device_connected()
@@ -618,7 +618,7 @@ void Pillow::HttpClient::device_readyRead()
 			_error = ResponseInvalidError;
 			_device->close();
 			_responsePending = false;
-			emit finished();
+			Q_EMIT finished();
 		}
 	}
 
@@ -677,7 +677,7 @@ void Pillow::HttpClient::headersComplete()
 	if (statusCode() == 100)
 		return;
 
-	emit headersCompleted();
+	Q_EMIT headersCompleted();
 
 	if (Pillow::ByteArrayHelpers::asciiEqualsCaseInsensitive(_request.method, Pillow::LowerCaseToken("head")))
 	{
@@ -711,7 +711,7 @@ void Pillow::HttpClient::messageContent(const char *data, int length)
 	{
 		Pillow::HttpResponseParser::messageContent(data, length);
 	}
-	emit contentReadyRead();
+	Q_EMIT contentReadyRead();
 }
 
 void Pillow::HttpClient::messageComplete()
@@ -739,7 +739,7 @@ void Pillow::HttpClient::messageComplete()
 			_keepAliveTimeoutTimer.start();
 		}
 
-		emit finished();
+		Q_EMIT finished();
 	}
 }
 
@@ -780,7 +780,7 @@ namespace Pillow
 			return QNetworkReply::bytesAvailable() + _content.size() - _contentPos;
 		}
 
-	private slots:
+	private Q_SLOTS:
 		void client_headersCompleted()
 		{
 			QList<QNetworkCookie> cookies;
@@ -792,7 +792,7 @@ namespace Pillow
 			//
 			// setAttribute(QNetworkRequest::HttpReasonPhraseAttribute, ...);
 
-			foreach (const Pillow::HttpHeader &header, _client->headers())
+			Q_FOREACH (const Pillow::HttpHeader &header, _client->headers())
 			{
 				setRawHeader(header.first, header.second);
 
@@ -819,14 +819,14 @@ namespace Pillow
 
 			open(QIODevice::ReadOnly | QIODevice::Unbuffered);
 
-			emit metaDataChanged();
+			Q_EMIT metaDataChanged();
 		}
 
 		void client_contentReadyRead()
 		{
 			_content.append(_client->consumeContent());
-			 emit readyRead();
-			 //emit downloadProgress();
+			 Q_EMIT readyRead();
+			 //Q_EMIT downloadProgress();
 		}
 
 		void client_finished()
@@ -846,12 +846,12 @@ namespace Pillow
 				case Pillow::HttpClient::AbortedError: error = QNetworkReply::OperationCanceledError; break;
 				}
 
-				emit this->error(error);
+				Q_EMIT this->error(error);
 			}
 
 			_client = 0;
 			setFinished(true);
-			emit finished();
+			Q_EMIT finished();
 		}
 
 	protected:
@@ -911,7 +911,7 @@ QNetworkReply *Pillow::NetworkAccessManager::createRequest(QNetworkAccessManager
 	Pillow::NetworkReply *reply = new Pillow::NetworkReply(client, op, request);
 
 	Pillow::HttpHeaderCollection headers;
-	foreach (const QByteArray &headerName, request.rawHeaderList())
+	Q_FOREACH (const QByteArray &headerName, request.rawHeaderList())
 		headers << Pillow::HttpHeader(headerName, request.rawHeader(headerName));
 
 //	headers << Pillow::HttpHeader("Accept-Encoding", "gzip");

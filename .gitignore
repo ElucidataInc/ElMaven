@@ -96,3 +96,7 @@ maven_opensource.kdev4
 *.Debug
 *.Release
 *.swp
+
+moc_*.cpp
+ui_*.h
+*.moc

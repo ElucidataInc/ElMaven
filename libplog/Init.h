@@ -1,9 +1,9 @@
 #pragma once
 #include <cstring>
-#include <libplog/Logger.h>
-#include <libplog/Formatters/CsvFormatter.h>
-#include <libplog/Formatters/TxtFormatter.h>
-#include <libplog/Appenders/RollingFileAppender.h>
+#include "Logger.h"
+#include "Formatters/CsvFormatter.h"
+#include "Formatters/TxtFormatter.h"
+#include "Appenders/RollingFileAppender.h"
 
 namespace plog
 {

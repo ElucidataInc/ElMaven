@@ -2,8 +2,8 @@
 // CustomAppender - shows how to implement a custom appender that stores log messages in memory.
 //
 
-#include <libplog/Log.h>
-#include <libplog/Formatters/FuncMessageFormatter.h>
+#include "Log.h"
+#include "Formatters/FuncMessageFormatter.h"
 #include <vector>
 
 namespace plog
