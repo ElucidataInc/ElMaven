@@ -600,7 +600,6 @@ void ProjectDockWidget::loadProject() {
 }
 
 void ProjectDockWidget::loadProject(QString fileName) {
-    int samplecount = 0;
     QSettings* settings = _mainwindow->getSettings();
 
     QFileInfo fileinfo(fileName);
@@ -615,7 +614,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
 
     QXmlStreamReader xml(&data);
-    mzSample* currentSample=NULL;
 
 
 
@@ -623,18 +621,21 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QString projectDescription;
     QStringRef currentXmlElement;
 
-    int i=0;
-    while(!xml.atEnd()){
-        if (xml.isStartElement()) {
-         if (xml.name() == "sample") {
-        i++;}
-        }
-        xml.readNext();
-    }
-    data.seek(0);
+    // int noOfSamples=0;
+    // while(!xml.atEnd()){
+    //     if (xml.isStartElement()) {
+    //      if (xml.name() == "sample") {
+    //     noOfSamples++;}
+    //     }
+    //     xml.readNext();
+    // }
+    // data.seek(0);
+
+    QMap<QString, QMap<QString,QString>> sampleInfoMap;
+    QMap<QString, vector<double>> sampleAlignmentTransformationInfo;
+    QString key=NULL;
 
     xml.setDevice(xml.device());
-    QString progressText;
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
@@ -647,79 +648,42 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 QString setname   = xml.attributes().value("setName").toString();
                 QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
                 QString isSelected   = xml.attributes().value("isSelected").toString();
-                //_mainwindow->setStatusText(tr("Loading sample: %1").arg(sname));
-                //_mainwindow->setProgressBar(tr("Loading Sample Number %1").arg(++currentSampleCount),currentSampleCount,currentSampleCount+1);
 
-                bool checkLoaded=false;
-                Q_FOREACH(mzSample* loadedFile, _mainwindow->getSamples()) {
-                    if (QString(loadedFile->fileName.c_str())== fname) checkLoaded=true;
-                }
+                key = sname;
 
-                if(checkLoaded == true) continue;  // skip files that have been loaded already
-                
-                samplecount++;
-                qDebug() << "Checking:" << fname;
-                QFileInfo sampleFile(fname);
-                if (!sampleFile.exists()) {
-                    Q_FOREACH(QString path, _mainwindow->pathlist) {
-                        fname= path + QDir::separator() + sampleFile.fileName();
-                        qDebug() << "Checking if exists:" << fname;
-                        sampleFile.setFile(fname);
-                        if (sampleFile.exists())  break;
-                    }
-                }
-
-                QDir d = QFileInfo(fname).absoluteDir();
-                QString dStr = d.absolutePath();
-                progressText = "Importing files from " + dStr;
-
-                if ( !fname.isEmpty() ) {
-                    // mzFileIO* fileLoader = new mzFileIO(this);
-                    // fileLoader->setMainWindow(_mainwindow);
-                    // mzSample* sample = fileLoader->loadSample(fname);
-                    // delete(fileLoader);
-
-                    mzSample* sample = _mainwindow->fileLoader->loadSample(fname);
-                    if (sample) {
-                        _mainwindow->addSample(sample);
-                        currentSample=sample;
-                        if (!sname.isEmpty() )  		sample->sampleName = sname.toStdString();
-                        if (!setname.isEmpty() )  		sample->setSetName(setname.toStdString());
-                        if (!sampleOrder.isEmpty())     sample->setSampleOrder(sampleOrder.toInt());
-                        if (!isSelected.isEmpty()) 		sample->isSelected = isSelected.toInt();
-                    } else {
-                        currentSample=NULL;
-                    }
-                }
+                sampleInfoMap[key].insert("fname", fname);
+                sampleInfoMap[key].insert("sname", sname);
+                sampleInfoMap[key].insert("setname", setname);
+                sampleInfoMap[key].insert("sampleOrder", sampleOrder);
+                sampleInfoMap[key].insert("isSelected", isSelected);
             }
 
 			//change sample color
-            if (xml.name() == "color" && currentSample) {
-                currentSample->color[0]   = xml.attributes().value("red").toString().toDouble();
-                currentSample->color[1]   = xml.attributes().value("blue").toString().toDouble();
-                currentSample->color[2]   = xml.attributes().value("green").toString().toDouble();
-                currentSample->color[3]  = xml.attributes().value("alpha").toString().toDouble();
+            if (xml.name() == "color") {
+                sampleInfoMap[key].insert("colorRed", xml.attributes().value("red").toString());
+                sampleInfoMap[key].insert("colorBlue", xml.attributes().value("blue").toString());
+                sampleInfoMap[key].insert("colorGreen", xml.attributes().value("green").toString());
+                sampleInfoMap[key].insert("colorAlpha", xml.attributes().value("alpha").toString());
             }
 
 			//polynomialAlignmentTransformation vector
-            if (xml.name() == "polynomialAlignmentTransformation" && currentSample) {
+            if (xml.name() == "polynomialAlignmentTransformation") {
 				vector<double>transform;
 				Q_FOREACH(QXmlStreamAttribute coef, xml.attributes() ) {
 					double coefValue =coef.value().toString().toDouble();
 					transform.push_back(coefValue);
 				}
-				qDebug() << "polynomialAlignmentTransformation: "; printF(transform);
-				currentSample->polynomialAlignmentTransformation = transform;
-				currentSample->saveOriginalRetentionTimes();
-				currentSample->applyPolynomialTransform();
+                sampleAlignmentTransformationInfo.insert(key, transform);
 			}
         }
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
             projectDescription.append( xml.text() );
         }
-    sendBoostSignal(progressText.toStdString(), samplecount, i);
     }
     data.close();
+
+    loadSamplesFromProject(sampleInfoMap, 
+                            sampleAlignmentTransformationInfo);
 
     //setProjectDescription(projectDescription);
 
@@ -731,6 +695,90 @@ void ProjectDockWidget::loadProject(QString fileName) {
 //     if(_mainwindow->bookmarkedPeaks) _mainwindow->bookmarkedPeaks->loadPeakTable(fileName);
 //     if(_mainwindow->spectraWidget && sampleCount) _mainwindow->spectraWidget->setScan(samples[0]->getScan(0));
     lastOpennedProject = fileName;
+}
+
+
+void ProjectDockWidget::loadSamplesFromProject(QMap<QString, QMap<QString,QString>> sampleInfoMap,
+                        QMap<QString, vector<double>> sampleAlignmentTransformationInfo) {
+
+
+    int iter = 0;
+    #pragma omp parallel for shared(iter)
+    for(int ii=0; ii<sampleInfoMap.size(); ii++) {
+
+        QString progressText;
+        QString key = sampleInfoMap.keys()[ii];
+        mzSample* currentSample=NULL;
+
+        QString fname       = sampleInfoMap[key]["fname"];
+        QString sname       = sampleInfoMap[key]["sname"];
+        QString setname     = sampleInfoMap[key]["setname"];
+        QString sampleOrder = sampleInfoMap[key]["sampleOrder"];
+        QString isSelected  = sampleInfoMap[key]["isSelected"];
+
+        bool checkLoaded=false;
+        Q_FOREACH(mzSample* loadedFile, _mainwindow->getSamples()) {
+            if (QString(loadedFile->fileName.c_str())== fname) checkLoaded=true;
+        }
+
+        if(checkLoaded == true) continue;
+
+        qDebug() << "Checking:" << fname;
+        QFileInfo sampleFile(fname);
+        if (!sampleFile.exists()) {
+            Q_FOREACH(QString path, _mainwindow->pathlist) {
+                fname= path + QDir::separator() + sampleFile.fileName();
+                qDebug() << "Checking if exists:" << fname;
+                sampleFile.setFile(fname);
+                if (sampleFile.exists())  break;
+            }
+        }
+
+        QDir d = QFileInfo(fname).absoluteDir();
+        QString dStr = d.absolutePath();
+        progressText = "Importing files from " + dStr;
+
+        if ( !fname.isEmpty() ) {
+            // mzFileIO* fileLoader = new mzFileIO(this);
+            // fileLoader->setMainWindow(_mainwindow);
+            // mzSample* sample = fileLoader->loadSample(fname);
+            // delete(fileLoader);
+
+            mzSample* sample = _mainwindow->fileLoader->loadSample(fname);
+            if (sample) {
+                _mainwindow->addSample(sample);
+                currentSample=sample;
+                if (!sname.isEmpty() )  		sample->sampleName = sname.toStdString();
+                if (!setname.isEmpty() )  		sample->setSetName(setname.toStdString());
+                if (!sampleOrder.isEmpty())     sample->setSampleOrder(sampleOrder.toInt());
+                if (!isSelected.isEmpty()) 		sample->isSelected = isSelected.toInt();
+            } else {
+                currentSample=NULL;
+            }
+        }
+
+        //change sample color
+        if (sampleInfoMap[key].contains("colorRed") && currentSample) {
+            currentSample->color[0]   = sampleInfoMap[key]["colorRed"].toDouble();
+            currentSample->color[1]   = sampleInfoMap[key]["colorBlue"].toDouble();
+            currentSample->color[2]   = sampleInfoMap[key]["colorGreen"].toDouble();
+            currentSample->color[3]   = sampleInfoMap[key]["colorAlpha"].toDouble();
+        }
+
+        //polynomialAlignmentTransformation vector
+        if (sampleAlignmentTransformationInfo.contains(key) && currentSample) {
+
+            qDebug() << "polynomialAlignmentTransformation: "; printF(sampleAlignmentTransformationInfo[key]);
+            currentSample->polynomialAlignmentTransformation = sampleAlignmentTransformationInfo[key];
+            currentSample->saveOriginalRetentionTimes();
+            currentSample->applyPolynomialTransform();
+        }
+
+        #pragma omp atomic
+        iter++;
+
+        sendBoostSignal(progressText.toStdString(), iter + 1, sampleInfoMap.size());
+    }
 }
 
 void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable) {
