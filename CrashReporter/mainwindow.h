@@ -20,6 +20,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QString restartApplicationPath;
+    QString accessKey;
+    QString secretKey;
+    QString bucketName;
+    QString logInformation;
 
 private:
     Ui::MainWindow *ui;

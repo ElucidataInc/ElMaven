@@ -45,6 +45,7 @@
 #include "remotespectrahandler.h"
 #include "messageBoxResize.h"
 #include "libplog/Log.h"
+#include "libplog/Appenders/CustomAppender.h"
 #include <csignal>
 #include <QList>
 #include <QRegExp>
@@ -89,6 +90,7 @@ class SpectralHitsDockWidget;
 class PeptideFragmentationWidget;
 
 extern Database DB;
+extern plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
 //Added when merged with Maven776 - Kiran
 class RemoteSpectraHandler;
 static void signalHandler(int signum);
