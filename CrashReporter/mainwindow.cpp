@@ -39,12 +39,14 @@ void MainWindow::on_pushButton_3_clicked()
 
     const QDateTime nowTime = QDateTime::currentDateTime(); 
 	const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
-	QString AutosavePath = timestamp + ".log";
+	QString AutosavePath;
     QString userMessage;
     if (this->windowState == 1) {
         userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n" + "log: " + this->logInformation;
+        AutosavePath = timestamp + "_Crash.log";
     } else {
         userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n";
+        AutosavePath = timestamp + "_Feedback.log";
     }
     QByteArray data(userMessage.toUtf8());
     bucket->upload(AutosavePath, data);
