@@ -33,7 +33,7 @@ void AlignmentDialog::setMainWindow(MainWindow* mw) {
 }
 
 void AlignmentDialog::show() {
-
+	LOGD;
     inputInitialValuesAlignmentDialog();
 	QDialog::show();
 
@@ -64,7 +64,7 @@ void AlignmentDialog::showInfo(QString text) {
 }
 
 void AlignmentDialog::intialSetup() {
-
+	LOGD;
 	setProgressBar("Status", 0, 1);
 	setDatabase();
 	setDatabase(_mw->ligandWidget->getDatabaseName());

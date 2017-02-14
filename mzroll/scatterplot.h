@@ -20,6 +20,7 @@ class ScatterPlot: public PlotDockWidget  {
 
 		public Q_SLOTS:
 				void contrastGroups();
+                void deleteGroup();
 				void showSelectedGroups(QPointF a, QPointF b);
                 //New funtions defined - Kiran                
 		void showSelectedGroupGallery(QPointF from, QPointF to);
@@ -40,7 +41,6 @@ class ScatterPlot: public PlotDockWidget  {
                 void drawPLS(vector<PeakGroup*>groups);
                 void setupToolBar();
                 //New funtions defined - Kiran   
-                void deleteGroup();
                 void keyPressEvent( QKeyEvent *e );
                 QSet<PeakGroup*> getGroupsInRect(QPointF from, QPointF to);
 

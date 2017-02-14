@@ -230,6 +230,7 @@ void LigandWidget::setDatabaseAltered(QString name, bool altered) {
 }
 
 void LigandWidget::setCompoundFocus(Compound* c) {
+    LOGD;
 	if (c==NULL) return;
 	QString dbname(c->db.c_str());
 	int index = databaseSelect->findText(dbname,Qt::MatchExactly);
@@ -372,7 +373,7 @@ void LigandWidget::showTable() {
 }
 
 void LigandWidget::saveCompoundList(){
-
+    LOGD;
     QSettings *settings = _mw->getSettings();
     string dbname = databaseSelect->currentText().toStdString();
     QString dbfilename = databaseSelect->currentText() + ".tab";
@@ -480,6 +481,7 @@ void LigandWidget::showLast() {
 }
 
 void LigandWidget::showLigand() {
+    LOGD;
 	if (!_mw) return;
 
     qDebug() << "LigandWidget::showLigand()";

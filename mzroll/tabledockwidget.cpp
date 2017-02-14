@@ -99,7 +99,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QToolButton *btnCluster = new QToolButton(toolBar);
     btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
     btnCluster->setToolTip("Cluster Groups");
-    connect(btnCluster, SIGNAL(clicked()),clusterDialog,SLOT(show()));
+    connect(btnCluster, SIGNAL(clicked()), SLOT(showClusterDialog()));
 
     /*
 		QToolButton *btnFilter = new QToolButton(toolBar);
@@ -111,7 +111,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QToolButton *btnTrain = new QToolButton(toolBar);
     btnTrain->setIcon(QIcon(rsrcPath + "/train.png"));
     btnTrain->setToolTip("Train Neural Net");
-    connect(btnTrain,SIGNAL(clicked()),traindialog,SLOT(show()));
+    connect(btnTrain,SIGNAL(clicked()), SLOT(showTrainDialog()));
 
     QToolButton *btnXML = new QToolButton(toolBar);
     btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
@@ -223,12 +223,26 @@ TableDockWidget::~TableDockWidget() {
     if(traindialog != NULL) delete traindialog;
 }
 
+void TableDockWidget::showLog() {
+    LOGD << "Table " << this->tableId;
+}
+
+void TableDockWidget::showTrainDialog() {
+    LOGD;
+    traindialog->show();
+}
+
+void TableDockWidget::showClusterDialog() {
+    LOGD;
+    clusterDialog->show();
+}
+
 void TableDockWidget::setTableId() {
     tableId = (_mainwindow->noOfPeakTables)++;
 }
 
 void TableDockWidget::showMergeTableOptions() {
-
+    LOGD;
     QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
     int n = peaksTableList.size();
     btnMergeMenu->clear();
@@ -261,7 +275,7 @@ void TableDockWidget::showMsgBox(bool check, int tableNo) {
 }
 
 void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
-
+    LOGD;
     QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
     int n = peaksTableList.size();
     int j = mergeAction.value(action, -1);
@@ -675,6 +689,7 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
 }
 
 void TableDockWidget::exportGroupsToSpreadsheet() {
+    LOGD;
     //Merged to Maven776 - Kiran
     // CSVReports* csvreport = new CSVReports;
     vector<mzSample*> samples = _mainwindow->getSamples();
@@ -778,7 +793,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 }
 
 void TableDockWidget::exportJson() {
-
+    LOGD;
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
@@ -1062,6 +1077,7 @@ vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
 
 
 void TableDockWidget::showSelectedGroup() { 
+    LOGD;
     //sortBy(treeWidget->header()->sortIndicatorSection());
     QTreeWidgetItem *item = treeWidget->currentItem();
     if (!item) return;
@@ -1195,7 +1211,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
 void TableDockWidget::deleteGroups() {
 
-
+    LOGD;
     QList<PeakGroup*> selectedGroups;
     QTreeWidgetItem* nextItem;
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
@@ -1259,7 +1275,8 @@ void TableDockWidget::showConsensusSpectra() {
 }
 
 
-void TableDockWidget::markGroupGood() {     
+void TableDockWidget::markGroupGood() {
+    LOGD;     
     setGroupLabel('g');
     showNextGroup();
     _mainwindow->peaksMarked++;
@@ -1268,6 +1285,7 @@ void TableDockWidget::markGroupGood() {
 }
 
 void TableDockWidget::markGroupBad() { 
+    LOGD;
     setGroupLabel('b');
     showNextGroup();
     _mainwindow->peaksMarked++;
@@ -1333,7 +1351,8 @@ void TableDockWidget::showNextGroup() {
     if ( nextitem != NULL )  treeWidget->setCurrentItem(nextitem);
 }
 
-void TableDockWidget::Train() { 
+void TableDockWidget::Train() {
+    LOGD; 
     Classifier* clsf = _mainwindow->getClassifier();
 
 
@@ -1389,14 +1408,17 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
             Train();
         }
     } else if ( e->key() == Qt::Key_G ) {
+        LOGD;
         if (item) {
             markGroupGood();
         }
     } else if ( e->key() == Qt::Key_B ) {
+        LOGD;
         if (item) {
             markGroupBad();
         }
     } else if ( e->key() == Qt::Key_Left ) {
+        LOGD;
         if (treeWidget->currentItem()) {
             if (treeWidget->currentItem()->parent()) {
                 treeWidget->collapseItem(treeWidget->currentItem()->parent());
@@ -1406,6 +1428,7 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
             }
         }
     }  else if ( e->key() == Qt::Key_Right ) {
+        LOGD;
         if (treeWidget->currentItem()) {
             if (!treeWidget->currentItem()->isExpanded()) {
                 treeWidget->expandItem(treeWidget->currentItem());
@@ -1445,10 +1468,12 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e ) {
             tableSelectionFlagDown = true;
         }
     }else if ( e->key() == Qt::Key_Down ) {
+        LOGD;
         if(treeWidget->itemBelow(item)) {
             treeWidget->setCurrentItem(treeWidget->itemBelow(item));
         }
 	} else if ( e->key() == Qt::Key_Up ) {
+        LOGD;
         if (treeWidget->itemAbove(item)) {
             treeWidget->setCurrentItem(treeWidget->itemAbove(item));
         }
@@ -1528,6 +1553,7 @@ float TableDockWidget::showAccuracy(vector<PeakGroup*>&groups) {
 }
 
 void TableDockWidget::showScatterPlot() { 
+    LOGD;
     if (groupCount() == 0 ) return;
     _mainwindow->scatterDockWidget->setVisible(true);
     ((ScatterPlot*) _mainwindow->scatterDockWidget)->setTable(this);
@@ -1537,7 +1563,7 @@ void TableDockWidget::showScatterPlot() {
 
 
 void TableDockWidget::printPdfReport() {
-
+    LOGD;
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
@@ -1591,7 +1617,7 @@ void TableDockWidget::showHeatMap() {
 }
 
 void TableDockWidget::showGallery() { 
-
+    LOGD;
     if ( _mainwindow->galleryWidget ) {
         _mainwindow->galleryDockWidget->setVisible(true);
         QList<PeakGroup*>selected = getSelectedGroups();
@@ -1644,6 +1670,7 @@ void TableDockWidget::contextMenuEvent ( QContextMenuEvent * event )
 
 
 void TableDockWidget::saveModel() { 
+    LOGD;
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Classification Model to a File"));
     if (fileName.isEmpty()) return;
 
@@ -1938,7 +1965,7 @@ void TableDockWidget::readPeakXML(QXmlStreamReader& xml,PeakGroup* parent) {
 }
 
 void TableDockWidget::savePeakTable() {
-
+    LOGD;
     if (allgroups.size() == 0 ) { 
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
@@ -2066,11 +2093,13 @@ void TableDockWidget::loadPeakTable(QString fileName) {
 }
 
 void TableDockWidget::clearClusters() {
+    LOGD;
     for(unsigned int i=0; i<allgroups.size(); i++) allgroups[i].metaGroupId=0;
     showAllGroups();
 }
 
 void TableDockWidget::clusterGroups() {
+    LOGD;
     sort(allgroups.begin(),allgroups.end(), PeakGroup::compRt);
     qDebug() << "Clustering..";
     int metaGroupId = 0;
@@ -2326,6 +2355,7 @@ int TableDockWidget::loadCSVFile(QString filename, QString sep="\t"){
 
 
 void TableDockWidget::switchTableView() {
+    LOGD;
     viewType == groupView ? viewType=peakView: viewType=groupView;
     setupPeakTable();
     showAllGroups();
