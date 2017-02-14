@@ -144,6 +144,9 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -152,12 +155,6 @@
      <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuEl_MAVEN_CrashReporter">
-    <property name="title">
-     <string>El-MAVEN CrashReporter</string>
-    </property>
-   </widget>
-   <addaction name="menuEl_MAVEN_CrashReporter"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

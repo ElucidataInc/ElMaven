@@ -11,8 +11,10 @@ int main(int argc, char *argv[])
     w.accessKey = QString(argv[3]);
     w.secretKey = QString(argv[4]);
     w.logInformation = QString(argv[5]);
+    w.windowState = QString(argv[6]).toInt();
 
     w.show();
+    w.onStart();
 
     return a.exec();
 }
