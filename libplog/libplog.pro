@@ -11,5 +11,23 @@ LDFLAGS     +=  ./lib
 
 LIBS += -L.
 
-HEADERS += init.h Log.h Logger.h Record.h Severity.h Util.h /Formatters/CsvFormatter.h /Formatters/FuncMessageFormatter.h /Formatters/TxtFormatter.h /Converters/UTF8Converter.h /Appenders/AndroidAppender.h /Appenders/ColorConsoleAppender.h /Appenders/ColorConsoleAppender.h /Appenders/DebugOutputAppender.h /Appenders/EventLogAppender.h /Appenders/IAppender.h /Appenders/RollingFileAppender.h
+HEADERS += \
+    init.h \
+    Log.h \
+    Logger.h \
+    Record.h \
+    Severity.h \
+    Util.h \
+    Formatters/CsvFormatter.h \
+    Formatters/FuncMessageFormatter.h \
+    Formatters/TxtFormatter.h \
+    Converters/UTF8Converter.h \
+    Appenders/AndroidAppender.h \
+    Appenders/ColorConsoleAppender.h \
+    Appenders/ConsoleAppender.h \
+    Appenders/CustomAppender.h \
+    Appenders/DebugOutputAppender.h \
+    Appenders/EventLogAppender.h \
+    Appenders/IAppender.h \
+    Appenders/RollingFileAppender.h
     

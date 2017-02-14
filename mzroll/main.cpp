@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     mainWindow->show();
     mainWindow->fileLoader->start();
     int rv = app.exec();
+    myAppender.show();
     return rv;
 
 

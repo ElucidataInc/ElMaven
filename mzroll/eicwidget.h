@@ -13,6 +13,7 @@
 #include "isotopeplot.h"
 #include "point.h"
 #include "plot_axes.h"
+#include "libplog/Log.h"
 #include "../libmaven/eiclogic.h"
 
 class PeakGroup;
@@ -94,6 +95,7 @@ public Q_SLOTS:
 		_showPeaks = f;
 	}
 	void showTicLine(bool f) {
+		LOGD;
 		_showTicLine = f;
 	}
     void showBicLine(bool f) { //TODO: Sahil Added while mergin eicWidget
@@ -119,9 +121,11 @@ public Q_SLOTS:
 	}
 
 	void startAreaIntegration() {
+		LOGD;
 		toggleAreaIntegration(true);
 	}
 	void startSpectralAveraging() {
+		LOGD;
 		toggleSpectraAveraging(true);
 	}
 	void toggleAreaIntegration(bool f) {
@@ -133,18 +137,22 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-void showIsotopePlot(bool f) {
+	void showIsotopePlot(bool f) {
+		LOGD;
 		_showIsotopePlot = f;
-}
+	}
 	void showBarPlot(bool f) {
+		LOGD;
 		_showBarPlot = f;
 	}
 	void showBoxPlot(bool f) {
+		LOGD;
 		_showBoxPlot = f;
 	}
 
 	void setStatusText(QString text);
 	void autoZoom(bool f) {
+		LOGD;
 		_autoZoom = f;
 	}
 
