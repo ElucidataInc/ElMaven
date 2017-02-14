@@ -272,7 +272,7 @@ using namespace mzUtils;
 
 	QToolButton *btnBugs = new QToolButton(this);
 	btnBugs->setIcon(QIcon(rsrcPath + "/bug.png"));
-	btnBugs->setToolTip(tr("Bug!"));
+	btnBugs->setToolTip(tr("Feedback!"));
 	connect(btnBugs, SIGNAL(clicked()), SLOT(reportBugs()));
 	statusBar()->addPermanentWidget(btnBugs, 0);
 
