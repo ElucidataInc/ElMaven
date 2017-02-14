@@ -31,13 +31,11 @@
 
 Database DB;
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
 
 int main(int argc, char *argv[])
 {
-    static plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
     plog::init(plog::debug, &myAppender); // Initialize the logger with our appender.
-
-    myAppender.show();
 
     QApplication app(argc, argv);
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
@@ -59,7 +57,6 @@ int main(int argc, char *argv[])
     mainWindow->show();
     mainWindow->fileLoader->start();
     int rv = app.exec();
-    myAppender.show();
     return rv;
 
 

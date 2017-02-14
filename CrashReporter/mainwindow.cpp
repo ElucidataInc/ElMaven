@@ -33,13 +33,12 @@ void MainWindow::on_pushButton_3_clicked()
     QString s3Host = "s3.amazonaws.com";
 
     QS3::S3 s3(s3Host);
-    QS3::Bucket* bucket = s3.bucket("elmaven", "AKIAI74WRZJ6ZHGJIQRA", "U4NHyMGkoq+yJ7n8ix5pEaW5v0Ig8IGyEQYRkIxK");
+    QS3::Bucket* bucket = s3.bucket(this->bucketName, this->accessKey, this->secretKey);
 
     const QDateTime nowTime = QDateTime::currentDateTime(); 
 	const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
 	QString AutosavePath = timestamp + ".log";
-
-    QString userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n";
+    QString userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n" + "log: " + this->logInformation;
     QByteArray data(userMessage.toUtf8());
     bucket->upload(AutosavePath, data);
 

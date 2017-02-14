@@ -19,6 +19,7 @@ namespace plog
             if(m_messageList.size()>500) m_messageList.pop_back();
 
             m_messageList.push_front(str); // Store a log message in a list.
+            m_messageQList += QString::fromStdString(str);
         }
 
         void show() 
@@ -35,7 +36,13 @@ namespace plog
             return m_messageList;
         }
 
+        QString getMessageQList()
+        {
+            return m_messageQList;
+        }
+
     private:
         std::list<util::nstring> m_messageList;
+        QString m_messageQList;
     };
 }

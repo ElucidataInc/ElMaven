@@ -84,6 +84,10 @@ void MainWindow::printvalue() {
 		QProcess *myProcess = new QProcess();
 		QStringList arguments;
 		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+		arguments << settings->value("bucket_name").toString();
+		arguments << settings->value("access_key").toString();
+		arguments << settings->value("secret_key").toString();
+		arguments <<  myAppender.getMessageQList();
     	myProcess->start(crashReporterPath, arguments);
   		//process of crash reporting ended
 		unsigned int countCrashState = 0;
