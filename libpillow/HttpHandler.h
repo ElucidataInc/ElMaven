@@ -35,7 +35,7 @@ namespace Pillow
 	public:
 		HttpHandler(QObject *parent = 0);
 
-	public slots:
+	public Q_SLOTS:
 		virtual bool handleRequest(Pillow::HttpConnection* connection) = 0;
 	};
 
@@ -77,11 +77,11 @@ namespace Pillow
 	public:
 		virtual bool handleRequest(Pillow::HttpConnection* connection);
 
-	public slots:
+	public Q_SLOTS:
 		void setStatusCode(int statusCode);
 		void setContent(const QByteArray& content);
 
-	signals:
+	Q_SIGNALS:
 		void changed();
 	};
 
@@ -149,14 +149,14 @@ namespace Pillow
 		inline Mode mode() const { return _mode; }
 		QIODevice* device() const;
 
-	public slots:
+	public Q_SLOTS:
 		void setMode(Mode mode);
 		void setDevice(QIODevice* device);
 
 	public:
 		virtual bool handleRequest(Pillow::HttpConnection* connection);
 
-	private slots:
+	private Q_SLOTS:
 		void requestCompleted(Pillow::HttpConnection* connection);
 		void requestClosed(Pillow::HttpConnection* connection);
 		void requestDestroyed(QObject* connection);
@@ -194,7 +194,7 @@ namespace Pillow
 
 		virtual bool handleRequest(Pillow::HttpConnection* connection);
 
-	signals:
+	Q_SIGNALS:
 		void changed();
 	};
 
@@ -208,10 +208,10 @@ namespace Pillow
 	public:
 		HttpHandlerFileTransfer(QIODevice* sourceDevice, Pillow::HttpConnection* connection, int bufferSize = HttpHandlerFile::DefaultBufferSize);
 
-	public slots:
+	public Q_SLOTS:
 		void writeNextPayload();
 
-	signals:
+	Q_SIGNALS:
 		void finished();
 	};
 }

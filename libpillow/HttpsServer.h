@@ -31,7 +31,7 @@ namespace Pillow
 		QSslCertificate _certificate;
 		QSslKey _privateKey;
 
-	public slots:
+	public Q_SLOTS:
 		void sslSocket_encrypted();
 		void sslSocket_sslErrors(const QList<QSslError>& sslErrors);
 
@@ -49,7 +49,7 @@ namespace Pillow
 		const QSslCertificate& certificate() const { return _certificate; }
 		const QSslKey& privateKey() const { return _privateKey; }
 
-	public slots:
+	public Q_SLOTS:
 		void setCertificate(const QSslCertificate& certificate);
 		void setPrivateKey(const QSslKey& privateKey);
 	};

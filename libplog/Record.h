@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
-#include <libplog/Util.h>
-#include <libplog/Severity.h>
+#include "Util.h"
+#include "Severity.h"
 
 namespace plog
 {

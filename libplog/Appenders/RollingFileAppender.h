@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
-#include <libplog/Util.h>
-#include <libplog/Converters/UTF8Converter.h>
+#include "Util.h"
+#include "Converters/UTF8Converter.h"
 
 namespace plog
 {

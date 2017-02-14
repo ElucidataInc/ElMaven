@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <libplog/Appenders/IAppender.h>
-#include <libplog/Util.h>
+#include "Appenders/IAppender.h"
+#include "Util.h"
 
 #ifndef PLOG_DEFAULT_INSTANCE
 #   define PLOG_DEFAULT_INSTANCE 0

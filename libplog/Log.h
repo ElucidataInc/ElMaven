@@ -4,9 +4,9 @@
 //  License: MPL 2.0, http://mozilla.org/MPL/2.0/
 
 #pragma once
-#include <libplog/Record.h>
-#include <libplog/Logger.h>
-#include <libplog/Init.h>
+#include "Record.h"
+#include "Logger.h"
+#include "Init.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Helper macros that get context info
