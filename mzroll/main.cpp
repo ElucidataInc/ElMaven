@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     static plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
     plog::init(plog::debug, &myAppender); // Initialize the logger with our appender.
 
-    LOGD << "A debug message!";
+    LOGD << "Welcome Logger";
 
     myAppender.show();
 
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
     mainWindow->show();
     mainWindow->fileLoader->start();
     int rv = app.exec();
+    myAppender.show();
     return rv;
 
 

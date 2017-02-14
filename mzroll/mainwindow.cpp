@@ -507,8 +507,10 @@ bool MainWindow::askAutosave() {
 	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
 								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes) {
+		LOGD;
 		doAutosave = true;
 	} else {
+		LOGD;
 		doAutosave = false;
 	}
 	return doAutosave;
@@ -703,6 +705,7 @@ void MainWindow::mzrollLoadDB(QString dbname) {
     ligandWidget->setDatabase(dbname);
 }
 void MainWindow::reportBugs() {
+	LOGD;
 	QUrl link("https://github.com/ElucidataInc/ElMaven/issues");
 	QDesktopServices::openUrl(link);
 
@@ -775,6 +778,7 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
 		btnTable->setChecked(panel->isVisible());
 		btnTable->setCheckable(true);
 		btnTable->setToolTip(title);
+		connect(btnTable, SIGNAL(triggered(bool)), panel, SLOT(showLog()));
 		connect(btnTable, SIGNAL(toggled(bool)), panel, SLOT(setVisible(bool)));
 		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
 				SLOT(setChecked(bool)));
@@ -864,6 +868,7 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 // }
 
 PeakGroup* MainWindow::bookmarkPeakGroup() {
+	LOGD;
     //qDebug() << "MainWindow::bookmarkPeakGroup()";
     if ( eicWidget ) {
        return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
@@ -1099,7 +1104,7 @@ void MainWindow::setMzValue(float mz) {
 }
 
 void MainWindow::print() {
-
+	LOGD;
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -1118,6 +1123,7 @@ void MainWindow::print() {
 
 void MainWindow::open() {
 
+	LOGD;
 	QString dir = ".";
 
 	if (settings->contains("lastDir")) {
@@ -1287,6 +1293,7 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 }
 
 void MainWindow::loadCompoundsFile() {
+	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
 					".",
@@ -1388,7 +1395,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
  */
 
 void MainWindow::exportPDF() {
-
+	LOGD;
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -1410,6 +1417,7 @@ void MainWindow::exportPDF() {
 }
 
 void MainWindow::exportSVG() {
+	LOGD;
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);
 	//eicWidget->print(&image);
@@ -1765,13 +1773,20 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 	btn->setIcon(icon);
 	btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	btn->setToolTip(description);
+	btn->setObjectName(dockwidget->objectName());
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(setVisible(bool)));
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(raise()));
+	connect(btn, SIGNAL(clicked(bool)), this, SLOT(showButtonLog()));
 	btn->setChecked(dockwidget->isVisible());
 	connect(dockwidget, SIGNAL(visibilityChanged(bool)), btn,
 			SLOT(setChecked(bool)));
 	dockwidget->setWindowIcon(icon);
 	return btn;
+}
+
+void MainWindow::showButtonLog() {
+	QObject* obj = sender();
+	LOGD << obj->objectName().toStdString();
 }
 
 void MainWindow::createToolBars() {
@@ -1823,9 +1838,8 @@ void MainWindow::createToolBars() {
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
-	connect(btnSettings, SIGNAL(clicked()), settingsForm, SLOT(show()));
-	connect(btnSpectraMatching, SIGNAL(clicked()), spectraMatchingForm,
-			SLOT(show()));
+	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
+	connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
@@ -1979,6 +1993,16 @@ void MainWindow::createToolBars() {
 	addToolBar(Qt::RightToolBarArea, sideBar);
 }
 
+void MainWindow::showspectraMatchingForm() {
+	LOGD;
+	spectraMatchingForm->show();
+}
+
+void MainWindow::showsettingsForm() {
+	LOGD;
+	settingsForm->show();
+}
+
 void MainWindow::updateQType(QString qtype) {
     int index = quantType->findText(qtype);
 
@@ -1988,12 +2012,14 @@ void MainWindow::updateQType(QString qtype) {
 }
 
 void MainWindow::historyLast() {
+	LOGD;
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.last());
 }
 
 void MainWindow::historyNext() {
+	LOGD;
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.next());
@@ -2020,6 +2046,7 @@ bool MainWindow::addSample(mzSample* sample) {
 */
 //TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
+	LOGD;
     peakDetectionDialog->show();   
    
 }
@@ -2038,7 +2065,7 @@ void MainWindow::showPeakdetectionDialog() {
 //}
 
 void MainWindow::showSRMList() {
-
+	LOGD;
      //added while merging with Maven776 - Kiran
      if (srmDockWidget->isVisible()) {
         double amuQ1 = getSettings()->value("amuQ1").toDouble();
@@ -2680,7 +2707,7 @@ QWidget* MainWindow::eicWidgetController() {
    
     connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopePlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
     connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopicBarPlot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), eicWidget, SLOT(updateIsotopicBarplot())); //TODO: Sahil-Kiran, Added while merging mainwindow
+    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), isotopeWidget, SLOT(updateIsotopicBarplot())); //TODO: Sahil-Kiran, Added while merging mainwindow
     
     connect(btnShowSplines,SIGNAL(toggled(bool)),  eicWidget, SLOT(showSpline(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
     connect(btnShowSplines,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow

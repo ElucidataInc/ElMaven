@@ -62,7 +62,7 @@ void NotesWidget::readRemoteData(const QHttpResponseHeader &resp)
 
 // update note desplay
 void NotesWidget::showNotes() {
-
+    LOGD;
     qDebug() << "showNotes()";
     treeWidget->clear();
     Q_FOREACH(UserNote* usernote, _notes ) {
@@ -82,6 +82,7 @@ void NotesWidget::showNotes() {
 // NOTE FETCH OPERATIONS
 //
 void NotesWidget::updateAllNotes() {
+    LOGD;
     qDeleteAll(_notes);
     _notes.clear();
  //   _notes << getLocalNotes(); //local notes
@@ -167,6 +168,7 @@ QList<UserNote*> NotesWidget::getRemoteNotes()
 }
 
 void NotesWidget::editNote() {
+    LOGD;
     if(!selectedNote) return;
 
     QUrl url(_mainwindow->getSettings()->value("data_server_url").toString());
