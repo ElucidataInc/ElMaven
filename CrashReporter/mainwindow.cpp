@@ -18,8 +18,10 @@ MainWindow::~MainWindow()
 
  void MainWindow::startElMaven()
  {
-     QProcess * myProcess = new QProcess();
-     myProcess->start(this->restartApplicationPath);
+     if (this->windowState == 1) {
+        QProcess * myProcess = new QProcess();
+        myProcess->start(this->restartApplicationPath);
+     }
      QCoreApplication::quit();
  }
 
@@ -38,7 +40,12 @@ void MainWindow::on_pushButton_3_clicked()
     const QDateTime nowTime = QDateTime::currentDateTime(); 
 	const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
 	QString AutosavePath = timestamp + ".log";
-    QString userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n" + "log: " + this->logInformation;
+    QString userMessage;
+    if (this->windowState == 1) {
+        userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n" + "log: " + this->logInformation;
+    } else {
+        userMessage = "email: " + ui->lineEdit->text() + "\nmessage:" + ui->plainTextEdit->toPlainText() + "\n";
+    }
     QByteArray data(userMessage.toUtf8());
     bucket->upload(AutosavePath, data);
 
@@ -59,4 +66,19 @@ void MainWindow::uploadToS3Done() {
     ui->lineEdit->clear();
     ui->statusBar->showMessage("Report is sent. Our team will get back to you as soon as possible.");
     this->startElMaven();
+}
+
+void MainWindow::onStart()
+{
+    if (this->windowState != 1) {
+        ui->pushButton->setVisible( false );
+        ui->label_4->setVisible( false );
+        ui->label_3->setText("E-mail");
+        ui->label->setText("Tell us your feedback");
+        this->setWindowTitle ("Send Feedback" );
+        ui->groupBox->setTitle("      Send Feedback");
+        ui->label_5->setText( "Please give us your valiable feedback/feature request here. If there is any bug that came under notice dont hesitate to add it to below discription" );
+        ui->pushButton_3->setText("Send feedback");
+    }
+    this->show();
 }

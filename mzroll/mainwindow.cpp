@@ -88,6 +88,7 @@ void MainWindow::printvalue() {
 		arguments << settings->value("access_key").toString();
 		arguments << settings->value("secret_key").toString();
 		arguments <<  myAppender.getMessageQList();
+		arguments << "1";
     	myProcess->start(crashReporterPath, arguments);
   		//process of crash reporting ended
 		unsigned int countCrashState = 0;
@@ -104,6 +105,11 @@ void MainWindow::printvalue() {
 		QProcess *myProcess = new QProcess();
 		QStringList arguments;
 		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+		arguments << settings->value("bucket_name").toString();
+		arguments << settings->value("access_key").toString();
+		arguments << settings->value("secret_key").toString();
+		arguments <<  myAppender.getMessageQList();
+		arguments << "1";
     	myProcess->start(crashReporterPath, arguments);
   		//process of crash reporting ended
 	}
@@ -125,7 +131,7 @@ using namespace mzUtils;
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
 	m_value=0; 	
 	mainwindowDummy = (long long) this;
-	signal(SIGINT, signalHandler);
+	//signal(SIGINT, signalHandler);
 	signal(SIGFPE, signalHandler);
 	signal(SIGILL, signalHandler);
 	signal(SIGABRT, signalHandler);
@@ -839,8 +845,16 @@ void MainWindow::mzrollLoadDB(QString dbname) {
 }
 void MainWindow::reportBugs() {
 	LOGD;
-	QUrl link("https://github.com/ElucidataInc/ElMaven/issues");
-	QDesktopServices::openUrl(link);
+	QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
+	QProcess *myProcess = new QProcess();
+	QStringList arguments;
+	arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+	arguments << settings->value("bucket_name").toString();
+	arguments << settings->value("access_key").toString();
+	arguments << settings->value("secret_key").toString();
+	arguments <<  myAppender.getMessageQList();
+	arguments << "0";
+	myProcess->start(crashReporterPath, arguments);
 
 }
 

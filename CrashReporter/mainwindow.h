@@ -24,6 +24,8 @@ public:
     QString secretKey;
     QString bucketName;
     QString logInformation;
+    int windowState;
+    void onStart();
 
 private:
     Ui::MainWindow *ui;
