@@ -264,6 +264,7 @@ public Q_SLOTS:
 	void setMzValue();
 	void setMzValue(float mz);
 	void loadModel();
+	void refreshIntensities();
 	void loadCompoundsFile();
 	bool loadCompoundsFile(QString filename);
 	void loadMethodsFolder(QString& methodsFolder);
