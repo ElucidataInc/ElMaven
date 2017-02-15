@@ -44,13 +44,9 @@ MavenParameters::MavenParameters() {
         peakQuantitation = 0;
         minQuality = 0.5;
 
-        qualityWeight=1;
-	intensityWeight=1;
-	deltaRTWeight=2;
-        
-        qualityWeightButtonStatus = true;
-	intensityWeightButtonStatus = false;
-	deltaRTWeightButtonStatus = false;
+        qualityWeight=10;
+	intensityWeight=10;
+	deltaRTWeight=10;
         
         compoundPPMWindow = 10;
         compoundRTWindow = 2;

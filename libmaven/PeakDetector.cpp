@@ -862,9 +862,9 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 group.srmId = slice->srmId;
 
             // Peak Group Rank accoording to given weightage
-            int A = mavenParameters->qualityWeight;
-            int B = mavenParameters->intensityWeight;
-            int C = mavenParameters->deltaRTWeight;
+            double A = mavenParameters->qualityWeight/10;
+            double B = mavenParameters->intensityWeight/10;
+            double C = mavenParameters->deltaRTWeight/10;
 
 			// update peak group rank using rt difference b/w
 			// compound's expectedRt and peak groups's RT
@@ -873,16 +873,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 				float rtDiff = abs(compound->expectedRt - (group.meanRt));
                                 group.expectedRtDiff = rtDiff;
 
-                if(mavenParameters->qualityWeightButtonStatus) A = 1;
-                if(mavenParameters->intensityWeightButtonStatus) B = 1;
-                if(mavenParameters->deltaRTWeightButtonStatus) C = 2;
-
-                group.groupRank = pow(rtDiff, C) * (1.1 - pow(group.maxQuality, A) )
+                group.groupRank = pow(rtDiff, 2*C) * pow((1.1 - group.maxQuality), A)
                                                   * (1 /( pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
                                 if (group.expectedRtDiff > mavenParameters->compoundRTWindow)
                                         continue;
                         } else {
-                group.groupRank = (1.1 - pow(group.maxQuality, A))
+                group.groupRank = pow((1.1 - group.maxQuality), A)
                                                   * (1 /(pow(log(group.maxIntensity + 1), B)));
                         }
 

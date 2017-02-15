@@ -1397,13 +1397,13 @@ void MainWindow::readSettings() {
 
 	// Peak Group Rank
 	if (!settings->contains("qualityWeight"))
-        settings->setValue("qualityWeight", 1);
+        settings->setValue("qualityWeight", 10);
 	
 	if (!settings->contains("intensityWeight"))
-        settings->setValue("intensityWeight", 1);
+        settings->setValue("intensityWeight", 10);
 
 	if (!settings->contains("deltaRTWeight"))
-        settings->setValue("deltaRTWeight", 2);
+        settings->setValue("deltaRTWeight", 10);
 
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))

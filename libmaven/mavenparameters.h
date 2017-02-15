@@ -127,9 +127,6 @@ public:
 	int qualityWeight;
 	int intensityWeight;
 	int deltaRTWeight;
-	bool qualityWeightButtonStatus;
-	bool intensityWeightButtonStatus;
-	bool deltaRTWeightButtonStatus;
 
 	/**
 	 * eic window around compound, compound detection setting
