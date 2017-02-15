@@ -3,6 +3,7 @@
 AdductWidget::AdductWidget(MainWindow* mw) { 
   _mw = mw;
   _graph = new GraphWidget();
+  setObjectName("AdductWidget");
   _graph->setLayoutAlgorithm(GraphWidget::Circular);
   _graph->setNodeSizeScale(0.2);
   _graph->setLabelSizeScale(1.6);

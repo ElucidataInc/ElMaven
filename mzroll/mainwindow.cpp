@@ -477,15 +477,6 @@ using namespace mzUtils;
     setContextMenuPolicy(Qt::NoContextMenu);
     pathwayPanel->setInfo(DB.pathwayDB);
 
-	if (settings->contains("windowState")) {
-		restoreState(settings->value("windowState").toByteArray());
-	}
-
-	if (settings->contains("geometry")) {
-		restoreGeometry(settings->value("geometry").toByteArray());
-	}
-
-
     scatterDockWidget->hide();
     spectralHitsDockWidget->hide();
     peptideFragmentation->hide();
@@ -1600,6 +1591,14 @@ void MainWindow::readSettings() {
 
 	QPoint pos = settings->value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings->value("size", QSize(400, 400)).toSize();
+
+	if (settings->contains("windowState")) {
+		restoreState(settings->value("windowState").toByteArray());
+	}
+
+	if (settings->contains("geometry")) {
+		restoreGeometry(settings->value("geometry").toByteArray());
+	}
 
 	if (!settings->contains("scriptsFolder"))
 		settings->setValue("scriptsFolder", "scripts");
