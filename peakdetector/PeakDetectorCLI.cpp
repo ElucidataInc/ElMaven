@@ -667,20 +667,20 @@ void loadCompoundCSVFile(string filename){
 }
 
 //
-// bool addPeakGroup(PeakGroup& grp1) {
+// bool addPeakGroup(PeakGroup& grup1) {
 //
 // 	for (unsigned int i = 0; i < allgroups.size(); i++) {
-// 		PeakGroup& grp2 = allgroups[i];
-// 		float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
-// 				grp2.minRt, grp2.maxRt);
-// 		if (rtoverlap > 0.9 && ppmDist(grp1.meanMz, grp2.meanMz) < ppmMerge
-// 				&& grp1.maxIntensity < grp2.maxIntensity) {
+// 		PeakGroup& grup2 = allgroups[i];
+// 		float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
+// 				grup2.minRt, grup2.maxRt);
+// 		if (rtoverlap > 0.9 && ppmDist(grup1.meanMz, grup2.meanMz) < ppmMerge
+// 				&& grup1.maxIntensity < grup2.maxIntensity) {
 // 			return false;
 // 		}
 // 	}
 //
-// 	//cerr << "\t\t accepting " << grp1.meanMz << "@" << grp1.meanRt;
-// 	allgroups.push_back(grp1);
+// 	//cerr << "\t\t accepting " << grup1.meanMz << "@" << grup1.meanRt;
+// 	allgroups.push_back(grup1);
 // 	return true;
 // }
 
@@ -693,24 +693,24 @@ void reduceGroups() {
 	}
 
 	for(unsigned int i=0; i<mavenParameters->allgroups.size(); i++) {
-		PeakGroup& grp1 = mavenParameters->allgroups[i];
-        if(grp1.deletedFlag) continue;
+		PeakGroup& grup1 = mavenParameters->allgroups[i];
+        if(grup1.deletedFlag) continue;
 		for(unsigned int j=i+1; j<mavenParameters->allgroups.size(); j++) {
-			PeakGroup& grp2 = mavenParameters->allgroups[j];
-            if( grp2.deletedFlag) continue;
+			PeakGroup& grup2 = mavenParameters->allgroups[j];
+            if( grup2.deletedFlag) continue;
 
-			float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt, grp2.minRt, grp2.maxRt );
-			float ppmdist = ppmDist(grp2.meanMz, grp1.meanMz);
+			float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt, grup2.minRt, grup2.maxRt );
+			float ppmdist = ppmDist(grup2.meanMz, grup1.meanMz);
 		    if ( ppmdist > ppmMerge ) break;
 
 			if (rtoverlap > 0.8 && ppmdist < ppmMerge) {
-				if (grp1.maxIntensity <= grp2.maxIntensity) {
-                     grp1.deletedFlag = true;
+				if (grup1.maxIntensity <= grup2.maxIntensity) {
+                     grup1.deletedFlag = true;
 					 //allgroups.erase(allgroups.begin()+i);
 					 //i--;
 					 break;
-				} else if ( grp1.maxIntensity > grp2.maxIntensity) {
-                     grp2.deletedFlag = true;
+				} else if ( grup1.maxIntensity > grup2.maxIntensity) {
+                     grup2.deletedFlag = true;
 					 //allgroups.erase(allgroups.begin()+j);
 					 //i--;
 					// break;
@@ -722,10 +722,10 @@ void reduceGroups() {
     vector<PeakGroup> allgroups_;
     for(int i=0; i <mavenParameters->allgroups.size(); i++)
     {
-        PeakGroup& grp1 = mavenParameters->allgroups[i];
-        if(grp1.deletedFlag == false)
+        PeakGroup& grup1 = mavenParameters->allgroups[i];
+        if(grup1.deletedFlag == false)
         {
-            allgroups_.push_back(grp1);
+            allgroups_.push_back(grup1);
             reducedGroupCount++;
         }
     }
