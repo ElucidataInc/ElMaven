@@ -79,6 +79,7 @@ void MainWindow::printvalue() {
 		this->fileName = AutosavePath;
 		this->doAutosave = true;
 		this->saveMzRoll();
+		saveSettingsToLog();
 		//Starting the crash reporter
 		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
 		QProcess *myProcess = new QProcess();
@@ -109,6 +110,7 @@ void MainWindow::printvalue() {
 		QString path;
 		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
 		arguments << path;
+		saveSettingsToLog();
 		arguments << settings->value("bucket_name").toString();
 		arguments << settings->value("access_key").toString();
 		arguments << settings->value("secret_key").toString();
@@ -611,6 +613,108 @@ using namespace mzUtils;
 		}
 	}
 }
+
+void MainWindow::saveSettingsToLog() {
+
+    QString buffer;
+    QTextStream summary( &buffer, QIODevice::ReadWrite);	
+
+    summary << "\n\n-------------------Maven Parameters-------------------"<< "\n"<< "\n";
+//     summary << "runFunction =" << runFunction<< "\n";
+    summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
+    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
+
+    summary << "--------------------------------MASS SLICING"<< "\n";
+    summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
+    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
+
+    summary << "minMz=" << mavenParameters->minMz << "\n";
+    summary << "maxMz=" << mavenParameters->maxMz << "\n";
+
+    summary << "minRt=" << mavenParameters->minRt << "\n";
+    summary << "maxRt=" << mavenParameters->maxRt << "\n";
+
+    summary << "minIntensity=" << mavenParameters->minIntensity << "\n";
+    summary << "maxIntensity=" << mavenParameters->maxIntensity << "\n";
+
+    summary << "minCharge=" << mavenParameters->minCharge << "\n";
+    summary << "maxCharge=" << mavenParameters->maxCharge << "\n";
+    summary << "------------------------------COMPOUND MATCHING"
+            << "\n";
+
+    summary << "ionizationMode=" << mavenParameters->ionizationMode << "\n";
+    summary << "matchRtFlag=" << mavenParameters->matchRtFlag << "\n";
+    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow
+            << "\n";
+    summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
+    summary << "matchFragmentation=" << mavenParameters->matchFragmentation
+            << "\n";
+    summary << "fragmentMatchPPMTolr=" << mavenParameters->fragmentMatchPPMTolr
+            << "\n";
+
+    summary << "------------------------------EIC CONSTRUCTION"
+            << "\n";
+    summary << "eic_smoothingWindow=" << mavenParameters->eic_smoothingWindow
+            << "\n";
+    summary << "eic_smoothingAlgorithm="
+            << mavenParameters->eic_smoothingAlgorithm << "\n";
+    summary << "baseline_smoothingWindow="
+            << mavenParameters->baseline_smoothingWindow << "\n";
+    summary << "baseline_dropTopX=" << mavenParameters->baseline_dropTopX
+            << "\n";
+    summary << "------------------------------PEAK GROUPING"
+            << "\n";
+
+    summary << "grouping_maxRtWindow=" << mavenParameters->grouping_maxRtWindow
+            << "\n";
+    summary << "eicMaxGroups=" << mavenParameters->eicMaxGroups << "\n";
+    summary << "------------------------------GROUP FILTERING"
+            << "\n";
+
+    summary << "minGoodPeakCount=" << mavenParameters->minGoodGroupCount
+            << "\n";
+    summary << "minSignalBlankRatio=" << mavenParameters->minSignalBlankRatio
+            << "\n";
+    summary << "minSignalBlankRatio=" << mavenParameters->minSignalBlankRatio
+            << "\n";
+    summary << "minNoNoiseObs=" << mavenParameters->minNoNoiseObs << "\n";
+    summary << "minSignalBaseLineRatio="
+            << mavenParameters->minSignalBaseLineRatio << "\n";
+    summary << "minGroupIntensity=" << mavenParameters->minGroupIntensity
+            << "\n";
+
+    summary << "-----------------------------------OUTPUT"
+            << "\n";
+    summary << "outputdir="
+            << QString::fromStdString(mavenParameters->outputdir) << "\n";
+    summary << "writeCSVFlag=" << mavenParameters->writeCSVFlag << "\n";
+    summary << "keepFoundGroups=" << mavenParameters->keepFoundGroups << "\n";
+    summary << "showProgressFlag=" << mavenParameters->showProgressFlag << "\n";
+
+    QString mavenParametersSummary = summary.readAll();
+
+	LOGD  << mavenParametersSummary;
+
+	QString qsettingsSummary;
+
+	qsettingsSummary += "\n\n----------------------------------SETTINGS-----------------------------\n";
+
+
+	Q_FOREACH(QString key, settings->allKeys()) {
+		if (key == "bucket_name" || key == "access_key" || key == "secret_key") {
+			continue;
+		} else {
+			qsettingsSummary += "\n" + key + "=" + settings->value(key).toString();
+		}
+	}
+
+
+	LOGD << qsettingsSummary;
+
+}
+
 
 void MainWindow::createPeakTable(QString filenameNew) {	
 	TableDockWidget * peaksTable = this->addPeaksTable("title");
