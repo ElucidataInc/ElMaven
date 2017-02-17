@@ -244,6 +244,9 @@ public:
 	// 	return &localDB;
 	// }
 	int versionCheck();
+
+	void saveSettingsToLog();
+
 	bool updateSamplePathinMzroll(QStringList filelist);
 	void setValue(int value);
 	//TODO: Sahil - Kiran, removed while merging mainwindow
