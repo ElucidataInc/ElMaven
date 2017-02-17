@@ -35,45 +35,10 @@
        </font>
       </property>
       <property name="title">
-       <string>       We are Sorry :(</string>
+       <string>       Oops! We are sorry.</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="6" column="0" colspan="2">
-        <widget class="QLineEdit" name="lineEdit"/>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>E-mail (optional)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" rowspan="2" colspan="2">
-        <widget class="QPlainTextEdit" name="plainTextEdit"/>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QLabel" name="label_5">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>In some cases we would like to recirve more information to resolve the problem. We will use below email to contact you.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label">
          <property name="font">
           <font>
@@ -83,11 +48,21 @@
           </font>
          </property>
          <property name="text">
-          <string>Tell us about the crash (optional)</string>
+          <string>Description of the crash (Optional)</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="7" column="0" colspan="2">
+        <widget class="QLineEdit" name="lineEdit"/>
+       </item>
+       <item row="11" column="0">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>Send Report and Restart</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
         <widget class="QLabel" name="label_4">
          <property name="font">
           <font>
@@ -98,7 +73,7 @@
           </font>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;El-Maven&lt;/span&gt; has &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt; unfortunately. We will try to restore your last version when it starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unfortunately, &lt;span style=&quot; font-weight:600;&quot;&gt;El Maven&lt;/span&gt; has &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt;. We will try to restore your session upon restart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -108,24 +83,55 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>Restart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QPushButton" name="pushButton_3">
-         <property name="text">
-          <string>Send Report and Restart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
+       <item row="11" column="1">
         <widget class="QPushButton" name="pushButton_2">
          <property name="text">
           <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" rowspan="2" colspan="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Email (optional)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>The tool would also benefit if you share your email and details about the crash with us.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="pushButton">
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Restart</string>
          </property>
         </widget>
        </item>
@@ -136,9 +142,9 @@
       <zorder>label</zorder>
       <zorder>lineEdit</zorder>
       <zorder>label_3</zorder>
-      <zorder>pushButton</zorder>
       <zorder>pushButton_3</zorder>
       <zorder>pushButton_2</zorder>
+      <zorder>pushButton</zorder>
      </widget>
     </item>
    </layout>
