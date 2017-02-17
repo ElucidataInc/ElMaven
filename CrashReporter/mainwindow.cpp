@@ -74,13 +74,13 @@ void MainWindow::onStart()
 {
     if (this->windowState != 1) {
         ui->pushButton->setVisible( false );
-        ui->label_4->setVisible( false );
         ui->label_3->setText("E-mail");
-        ui->label->setText("Tell us your feedback");
-        this->setWindowTitle ("Send Feedback" );
-        ui->groupBox->setTitle("      Send Feedback");
-        ui->label_5->setText( "Please give us your valiable feedback/feature request here. If there is any bug that came under notice dont hesitate to add it to below discription" );
-        ui->pushButton_3->setText("Send feedback");
+        ui->label->setText("Description of feature/ bug");
+        this->setWindowTitle ("Bug reporting and Feature request");
+        ui->groupBox->setTitle("");
+        ui->label_4->setText( "<b>Make El Maven better by giving us your feedback.</b>");
+        ui->label_5->setText( "If you have a feature wish list or if you identified a bug please get in touch with us. A brief description below would help us a lot. We would love to hear from you." );
+        ui->pushButton_3->setText("Submit Feedback");
     }
     this->show();
 }
