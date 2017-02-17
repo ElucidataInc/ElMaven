@@ -169,13 +169,13 @@ PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::checkGroupEquality(PeakGroup grp1, PeakGroup grp2) {
+float AlignmentVizWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
     float R2Sq = FLT_MAX;
-    if (abs(grp1.medianRt() - grp2.medianRt()) < 0.5) {
-        R2Sq = (pow(grp1.meanMz - grp2.meanMz, 2) +
-                    pow(grp1.maxMz - grp2.maxMz, 2) + 
-                        pow(grp1.minMz - grp2.minMz, 2) + 
-                                pow(grp1.medianRt() - grp2.medianRt(), 2));
+    if (abs(grup1.medianRt() - grup2.medianRt()) < 0.5) {
+        R2Sq = (pow(grup1.meanMz - grup2.meanMz, 2) +
+                    pow(grup1.maxMz - grup2.maxMz, 2) + 
+                        pow(grup1.minMz - grup2.minMz, 2) + 
+                                pow(grup1.medianRt() - grup2.medianRt(), 2));
     }
     return R2Sq;
 

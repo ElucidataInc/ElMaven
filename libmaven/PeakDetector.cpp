@@ -962,16 +962,16 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
         //cleanup();
 }
 
-bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
+bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
         bool noOverlap = true;
 
 //   #pragma omp parallel for
         for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
-                PeakGroup& grp2 = mavenParameters->allgroups[i];
-                float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt,
-                                                        grp2.minRt, grp2.maxRt);
+                PeakGroup& grup2 = mavenParameters->allgroups[i];
+                float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
+                                                        grup2.minRt, grup2.maxRt);
                 if (rtoverlap > 0.9
-                    && ppmDist(grp2.meanMz, grp1.meanMz)
+                    && ppmDist(grup2.meanMz, grup1.meanMz)
                     < mavenParameters->ppmMerge) {
                         noOverlap = false;
 //       #pragma omp cancel for
@@ -980,6 +980,6 @@ bool PeakDetector::addPeakGroup(PeakGroup& grp1) {
         }
 
         //push the group to the allgroups vector
-        mavenParameters->allgroups.push_back(grp1);
+        mavenParameters->allgroups.push_back(grup1);
         return noOverlap;
 }

@@ -2085,11 +2085,11 @@ void TableDockWidget::clusterGroups() {
 
 
     for(unsigned int i=0; i<allgroups.size(); i++) {
-        PeakGroup& grp1 = allgroups[i];
+        PeakGroup& grup1 = allgroups[i];
 
-        if (grp1.metaGroupId == 0) {  //create new cluster
-            grp1.metaGroupId=++metaGroupId;
-            parentGroups[metaGroupId]=&grp1;
+        if (grup1.metaGroupId == 0) {  //create new cluster
+            grup1.metaGroupId=++metaGroupId;
+            parentGroups[metaGroupId]=&grup1;
         }
 
         //cluster parent
@@ -2098,38 +2098,38 @@ void TableDockWidget::clusterGroups() {
         mzSample* largestSample=NULL;
         double maxIntensity=0;
 
-        for(int i=0; i < grp1.peakCount(); i++ ) {
-            mzSample* sample = grp1.peaks[i].getSample();
-            if ( grp1.peaks[i].peakIntensity > maxIntensity ) largestSample=sample;
+        for(int i=0; i < grup1.peakCount(); i++ ) {
+            mzSample* sample = grup1.peaks[i].getSample();
+            if ( grup1.peaks[i].peakIntensity > maxIntensity ) largestSample=sample;
         }
 
         if (largestSample == NULL ) continue;
-        vector<float>peakIntensityA = grp1.getOrderedIntensityVector(samples,PeakGroup::AreaTop);
+        vector<float>peakIntensityA = grup1.getOrderedIntensityVector(samples,PeakGroup::AreaTop);
 
         for(unsigned int j=i+1; j<allgroups.size(); j++) {
-            PeakGroup& grp2 = allgroups[j];
-            if (grp2.metaGroupId > 0 ) continue;
+            PeakGroup& grup2 = allgroups[j];
+            if (grup2.metaGroupId > 0 ) continue;
 
             //retention time distance
-            float rtdist  = abs(parent->meanRt-grp2.meanRt);
+            float rtdist  = abs(parent->meanRt-grup2.meanRt);
             if (rtdist > maxRtDiff*2 ) continue;
 
             //retention time overlap
-            float rtoverlap = mzUtils::checkOverlap(grp1.minRt, grp1.maxRt, grp2.minRt, grp2.maxRt );
+            float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt, grup2.minRt, grup2.maxRt );
             if (rtoverlap < 0.1) continue;
 
             //peak intensity correlation
-            vector<float>peakIntensityB = grp2.getOrderedIntensityVector(samples,PeakGroup::AreaTop);
+            vector<float>peakIntensityB = grup2.getOrderedIntensityVector(samples,PeakGroup::AreaTop);
             float cor = correlation(peakIntensityA,peakIntensityB);
             if (cor < minSampleCorrelation) continue;
 
             //peak shape correlation
-            float cor2 = largestSample->correlation(grp1.meanMz,grp2.meanMz,ppm,grp1.minRt,grp1.maxRt);
+            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt);
             if (cor2 < minRtCorrelation) continue;
 
-            //passed all the filters.. group grp1 and grp2 into a single metagroup
+            //passed all the filters.. group grup1 and grup2 into a single metagroup
             //cerr << rtdist << " " << cor << " " << cor2 << endl;
-            grp2.metaGroupId = grp1.metaGroupId;
+            grup2.metaGroupId = grup1.metaGroupId;
         }
         if (i%10==0) _mainwindow->setProgressBar("Clustering.,",i+1,allgroups.size());
 
