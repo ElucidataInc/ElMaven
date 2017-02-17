@@ -8,7 +8,7 @@ DESTDIR = $$OUTPUT_DIR/lib
 QT       += core network script
 QT       -= gui
 
-CONFIG   += precompile_header staticlib
+CONFIG   += precompile_header
 
 PRECOMPILED_HEADER = pch.h
 

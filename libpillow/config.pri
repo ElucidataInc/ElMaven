@@ -3,14 +3,15 @@
 #
 
 # Uncomment the following to build pillow as a static lib instead of a shared libary
-#CONFIG += pillow_static
-
+unix {
+	CONFIG += pillow_static
+}
 # Comment/uncomment the following line to enable SSL support in Pillow.
 CONFIG += pillow_ssl
 
 # Comment/uncomment the following lines to enable Zlib support (currently for transparent decompression of gzip streams in HttpClient).
-#CONFIG += pillow_zlib
-#PILLOW_ZLIB_LIBS = -lz
+CONFIG += pillow_zlib
+PILLOW_ZLIB_LIBS = -lz
 
 #
 # Project Setup (not configurable)
