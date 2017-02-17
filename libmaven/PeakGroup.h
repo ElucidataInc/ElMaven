@@ -77,6 +77,11 @@ class PeakGroup{
         bool deletedFlag;
 
         float maxIntensity;
+        float maxAreaTopIntensity;
+        float maxAreaIntensity;
+        float maxHeightIntensity;
+        float maxAreaNotCorrectedIntensity;
+        float currentIntensity;
         float meanRt;
         float meanMz;
         int totalSampleCount;

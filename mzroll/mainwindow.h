@@ -132,6 +132,7 @@ public:
 	QComboBox *quantType;
 	QLabel *statusText;
 	QStringList pathlist;
+	QString currentIntensityName;
 
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;

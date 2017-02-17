@@ -405,6 +405,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	createToolBars();
 	setIonizationMode(0);
+	currentIntensityName = "Max "+quantType->currentText();
 	if (settings->contains("ionizationMode")) {
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
@@ -1994,6 +1995,7 @@ void MainWindow::refreshIntensities() {
 	for(int i=0; i<peaksTableList.size(); i++) {
 		peaksTableList[i]->showAllGroups();
 	}
+	bookmarkedPeaks->showAllGroups();
 }
 
 void MainWindow::updateQType(QString qtype) {
