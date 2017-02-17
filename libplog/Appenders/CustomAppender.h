@@ -1,3 +1,5 @@
+#ifndef CUSTOMAPPENDER_H
+#define CUSTOMAPPENDER_H
 #pragma once //
 // CustomAppender - shows how to implement a custom appender that stores log messages in memory.
 //
@@ -19,16 +21,12 @@ namespace plog
             if(m_messageList.size()>500) m_messageList.pop_back();
 
             m_messageList.push_front(str); // Store a log message in a list.
-            m_messageQList += QString::fromStdString(str);
-        }
+            #ifdef _WIN32
+                m_messageQList += QString::fromStdWString(str);
+            #else
+                m_messageQList += QString::fromStdString(str);
+            #endif
 
-        void show() 
-        {
-            std::list<util::nstring>::iterator it = m_messageList.begin();
-            while (it != m_messageList.end()) {
-                cerr << *it;
-                it++;
-            }
         }
 
         std::list<util::nstring>& getMessageList()
@@ -46,3 +44,5 @@ namespace plog
         QString m_messageQList;
     };
 }
+
+#endif // CUSTOMAPPENDER_H
