@@ -83,7 +83,9 @@ void MainWindow::printvalue() {
 		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
 		QProcess *myProcess = new QProcess();
 		QStringList arguments;
-		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+		QString path;
+		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
+		arguments << path;
 		arguments << settings->value("bucket_name").toString();
 		arguments << settings->value("access_key").toString();
 		arguments << settings->value("secret_key").toString();
@@ -104,7 +106,9 @@ void MainWindow::printvalue() {
 		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
 		QProcess *myProcess = new QProcess();
 		QStringList arguments;
-		arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
+		QString path;
+		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
+		arguments << path;
 		arguments << settings->value("bucket_name").toString();
 		arguments << settings->value("access_key").toString();
 		arguments << settings->value("secret_key").toString();
