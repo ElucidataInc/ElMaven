@@ -67,7 +67,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 	mzSample* sample = scan->getSample();
  
 	int ionizationMode = scan->getPolarity();
-	if (_mw->getIonizationMode()) ionizationMode=_mw->getIonizationMode(); //user specified ionization mode
+	ionizationMode = _mw->mavenParameters->ionizationMode; //user specified ionization mode
 
     QVector<float>newMzs;
     float intensity1 = getIntensity(centerMz,ppm);

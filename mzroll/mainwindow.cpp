@@ -410,6 +410,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	setQComboBox();
+	setTotalCharge();
+	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setTotalCharge()));
+	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
@@ -847,6 +850,19 @@ void MainWindow::setQComboBox() {
 	else ionizationModeComboBox->setCurrentIndex(2);
 }
 
+void MainWindow::setTotalCharge() {
+
+	int temp = 0;
+	if(ionizationModeComboBox->currentIndex() == 0) temp = 1;
+	else if(ionizationModeComboBox->currentIndex() == 1) temp = -1;
+	else if(ionizationModeComboBox->currentIndex() == 2) temp = 0;
+	mavenParameters->ionizationMode = temp;
+	mavenParameters->charge = ionChargeBox->value();
+	totalCharge = temp * ionChargeBox->value();
+	cerr << ionChargeBox->value() << "<<<<<<<<<<<<<<<<<<<" << totalCharge <<endl; 
+	
+} 
+
 vector<mzSample*> MainWindow::getVisibleSamples() {
 
 	vector<mzSample*> vsamples;
@@ -928,8 +944,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
 void MainWindow::setFormulaFocus(QString formula) {
 	int charge = 0;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		charge = mavenParameters->ionizationMode*mavenParameters->charge; //user specified ionization mode
 
 	// MassCalculator mcalc;
 	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
@@ -957,15 +973,16 @@ void MainWindow::setCompoundFocus(Compound*c) {
 
 
 	int charge = 0;
-	if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-		charge = 1;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
+	// 	charge = 1;
+	// if (getIonizationMode())
+	// 	charge = getIonizationMode(); //user specified ionization mode
+	charge = mavenParameters->ionizationMode*mavenParameters->charge;
 	qDebug() << "setCompoundFocus:" << c->name.c_str() << " " << charge << " "
 			<< c->expectedRt;
 
 	float mz = c->mass;
-	if (!c->formula.empty() && charge)
+	if (!c->formula.empty())
 		mz = c->ajustedMass(charge);
 
 	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
@@ -1634,6 +1651,9 @@ void MainWindow::readSettings() {
     if (!settings->contains("ionizationMode"))
         settings->setValue("ionizationMode", -1);
 
+	if (!settings->contains("ionChargeBox"))
+        settings->setValue("ionChargeBox", 1);
+
 
     if (settings->contains("lastOpenedProject"))
 		settings->setValue("lastOpenedProject", "");
@@ -1663,6 +1683,7 @@ void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
 	settings->setValue("ppmWindowBox", ppmWindowBox->value());
+	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
 	settings->setValue("ionizationMode", getIonizationMode());
@@ -1903,6 +1924,9 @@ void MainWindow::createToolBars() {
 	ionizationModeComboBox->setToolTip("Select Ionization Mode");
 	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
 
+	ionChargeBox = new QSpinBox(hBox);
+	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
+
 	quantType = new QComboBox(hBox);
 	quantType->addItem("AreaTop");
 	quantType->addItem("Area");
@@ -1921,6 +1945,8 @@ void MainWindow::createToolBars() {
 	settings->endGroup();
 
 	layout->addWidget(ionizationModeComboBox, 0);
+	layout->addWidget(new QLabel("Charge", hBox), 0);
+	layout->addWidget(ionChargeBox, 0);
 	layout->addWidget(quantType, 0);
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
@@ -2288,8 +2314,8 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 		return;
 
 	int ionizationMode = scan->getPolarity();
-	if (getIonizationMode())
-		ionizationMode = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		ionizationMode = mavenParameters->ionizationMode; //user specified ionization mode
 
 	if (spectraDockWidget->isVisible() && scan) {
 		spectraWidget->setScan(_peak);
@@ -2328,8 +2354,8 @@ void MainWindow::spectaFocused(Peak* _peak) {
 		return;
 
 	int ionizationMode = scan->getPolarity();
-	if (getIonizationMode())
-		ionizationMode = getIonizationMode(); //user specified ionization mode
+	//if (getIonizationMode())
+		ionizationMode = mavenParameters->ionizationMode; //user specified ionization mode
 
 	if (spectraDockWidget->isVisible() && scan) {
 		spectraWidget->setScan(_peak);
@@ -2470,10 +2496,11 @@ void MainWindow::reorderSamples(PeakGroup* group) {
 
 bool MainWindow::checkCompoundExistance(Compound* c) {
 	int charge = -1;
-	if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-		charge = 1;
-	if (getIonizationMode())
-		charge = getIonizationMode(); //user specified ionization mode
+	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
+	// 	charge = 1;
+	// if (getIonizationMode())
+	// 	charge = getIonizationMode(); //user specified ionization mode
+	charge = mavenParameters->ionizationMode*mavenParameters->charge;
 
 	float mz = c->ajustedMass(charge);
 	float mzmin = mz - mz / 1e6 * 3;
@@ -2842,7 +2869,7 @@ void MainWindow::getLinks(Peak* peak) {
 	//matching compounds
 	for (int i = 0; i < links.size(); i++) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
-				links[i].mz2, ppm, ionizationMode);
+				links[i].mz2, ppm, mavenParameters->ionizationMode*mavenParameters->charge);
 		if (compunds.size() > 0)
 			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}

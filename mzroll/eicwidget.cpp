@@ -1347,14 +1347,13 @@ void EicWidget::setCompound(Compound* c) {
 		return;
 
 	int ionizationMode = samples[0]->getPolarity();
-	if (getMainWindow()->getIonizationMode())
-		ionizationMode = getMainWindow()->getIonizationMode(); //user specified ionization mode
+	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
 
 	float ppm = getMainWindow()->getUserPPM();
 	float mz = 0;
 
 	if (!c->formula.empty()) {
-		mz = c->ajustedMass(ionizationMode);
+		mz = c->ajustedMass(getMainWindow()->mavenParameters->ionizationMode*getMainWindow()->mavenParameters->charge);
 	} else {
 		mz = c->mass;
 	}
@@ -1436,8 +1435,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode()
+															*getMainWindow()->mavenParameters->charge);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
@@ -1466,8 +1466,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode()*getMainWindow()->mavenParameters->charge) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode()
+															*getMainWindow()->mavenParameters->charge);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
