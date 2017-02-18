@@ -199,6 +199,17 @@ using namespace mzUtils;
 
 	readSettings();
 
+	if (settings->value("bucket_name", -1) == -1 ||
+		settings->value("access_key", -1) == -1 ||
+		settings->value("secret_key", -1) == -1) {
+
+		awsBucketCredentialsDialog = new AwsBucketCredentialsDialog(this);
+		awsBucketCredentialsDialog->show();
+		awsBucketCredentialsDialog->setMainWindow(this);
+		awsBucketCredentialsDialog->setSettings(settings);
+
+	}
+
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 

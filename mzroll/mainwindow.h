@@ -22,6 +22,7 @@
 #include "tabledockwidget.h"
 #include "peakdetectiondialog.h"
 #include "alignmentdialog.h"
+#include "awsbucketcredentialsdialog.h"
 //#include "rconsoledialog.h"
 #include "background_peaks_update.h"
 #include "heatmap.h"
@@ -55,6 +56,7 @@ class EicWidget;
 class PlotDockWidget;
 class BackgroundPeakUpdate;
 class PeakDetectionDialog;
+class AwsBucketCredentialsDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
@@ -178,6 +180,7 @@ public:
 
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
+	AwsBucketCredentialsDialog *awsBucketCredentialsDialog;
 	AlignmentDialog* alignmentDialog;
 	// RconsoleWidget* rconsoleDockWidget;
 	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget

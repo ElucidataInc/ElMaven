@@ -54,7 +54,8 @@ FORMS = forms/settingsform.ui  \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/spectramatching.ui\
-        forms/peptidefragmentation.ui 
+        forms/peptidefragmentation.ui \ 
+    forms/awsbucketcredentialsdialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -114,7 +115,8 @@ HEADERS +=  stable.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
-                    messageBoxResize.h
+                    messageBoxResize.h \
+                    awsbucketcredentialsdialog.h
                      
 
 
@@ -173,7 +175,8 @@ database.cpp \
  logwidget.cpp \ 
  peptidefragmentation.cpp \
  qcustomplot.cpp \
- saveJson.cpp
+ saveJson.cpp \
+    awsbucketcredentialsdialog.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
