@@ -185,6 +185,10 @@ public:
     float minCharge;
     float maxCharge;
 
+	// %peaks should have to be above threshold
+	float quantilePercent;
+	// min peak quality (quantile)
+	float quantilePeakQuality;
     string outputdir;
 
     vector<PeakGroup> allgroups;

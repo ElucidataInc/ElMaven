@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1028</width>
+    <width>1051</width>
     <height>232</height>
    </rect>
   </property>
@@ -485,6 +485,20 @@
             </property>
             <property name="value">
              <double>0.500000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>Quantile Peak Quality</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="quantilePeakQuality">
+            <property name="maximum">
+             <double>100.000000000000000</double>
             </property>
            </widget>
           </item>

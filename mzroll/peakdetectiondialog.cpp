@@ -233,6 +233,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("minGroupIntensity").toDouble());
             peakQuantitation->setCurrentIndex(
             settings->value("peakQuantitation").toInt());
+            quantilePercent->setValue(
+                settings->value("quantilePercent").toDouble());
 
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
@@ -410,6 +412,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("minSignalBlankRatio", sigBlankRatio->value());
     settings->setValue("minGroupIntensity", minGroupIntensity->value());
     settings->setValue("peakQuantitation", peakQuantitation->currentIndex());
+    settings->setValue("quantilePercent", quantilePercent->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
     settings->setValue("compoundPPMWindow", compoundPPMWindow->value());
@@ -468,6 +471,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
         mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
         mavenParameters->minQuality = settings->value("minQuality").toDouble();
+        mavenParameters->quantilePeakQuality = settings->value("quantilePeakQuality").toDouble();
 
         // Peak Scoring and Filtering
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
@@ -476,6 +480,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
+        mavenParameters->quantilePercent = settings->value("quantilePercent").toDouble();
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();

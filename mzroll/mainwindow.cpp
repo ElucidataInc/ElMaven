@@ -1508,6 +1508,9 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);
 
+	if (!settings->contains("quantilePeakQuality"))
+        settings->setValue("quantilePeakQuality", 0.0);
+
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);

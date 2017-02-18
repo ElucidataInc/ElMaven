@@ -437,6 +437,9 @@ void PeakGroup::groupStatistics() {
     maxSignalBaselineRatio=0;
     int nonZeroCount=0;
 
+    // To count no of peaks above threshold
+    unsigned int noOfPeakCount = 0;
+
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
         if(peaks[i].peakIntensity > 0) totalSampleCount++;
@@ -450,6 +453,7 @@ void PeakGroup::groupStatistics() {
             default: max = peaks[i].peakIntensity; break;
         }
 
+        if(max > minGroupIntensity) noOfPeakCount++;
 
         if(max>maxIntensity) {
             maxIntensity = max;
@@ -477,6 +481,12 @@ void PeakGroup::groupStatistics() {
             if(peaks[i].peakIntensity > sampleMax) sampleMax = peaks[i].peakIntensity;
         }
     }
+
+    if(noOfPeakCount > (peaks.size()*quantilePercent)/100) quantilePeaksAvailable = true;
+    else quantilePeaksAvailable = false;
+    
+    if(goodPeakCount > (peaks.size()*quantilePeakQuality)/100) quantilePeakQualityAvailable = true;
+    else quantilePeakQualityAvailable = false;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {
