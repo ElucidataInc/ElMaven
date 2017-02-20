@@ -86,7 +86,6 @@ public Q_SLOTS:
     };
 
     inline void goodPeakSet () {
-        cerr << endl << "REAche here" << endl;
         peakTableSelection = peakTableSelectionType::Good;
     };
 
