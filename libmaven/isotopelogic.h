@@ -7,13 +7,12 @@
 #include "Compound.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
-class MainWindow;
 
 class IsotopeLogic {
 public:
 	IsotopeLogic();
-	void computeIsotopes(string f, double ppm, double maxNaturalAbundanceErr,
-			bool C13Labeled, bool N15Labeled, bool S34Labeled, bool D2Labeled);
+	void computeIsotopes(string f, double ppm, double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, 
+		bool S34Labeled, bool D2Labeled, map<string, bool> isotopeAtom);
 	void userChangedFormula();
 
 	string _formula;

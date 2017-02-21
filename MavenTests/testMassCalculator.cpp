@@ -79,7 +79,13 @@ void TestMassCalculator::testComputeMass() {
 void TestMassCalculator::testComputeIsotopes() {
     string XanthosineChe = "C10H12N4O6";
 
-    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1);
+    map <string, bool> isotopeAtom;
+    isotopeAtom["D2Labeled_BPE"] = true;
+    isotopeAtom["C13Labeled_BPE"] = true;
+    isotopeAtom["N15Labeled_BPE"] = true;
+    isotopeAtom["S34Labeled_BPE"] = true;
+
+    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1, isotopeAtom);
 
     //TODO: have to add a test case here
     for(vector<Isotope>::iterator it = isotopesXanthosine.begin(); it != isotopesXanthosine.end(); ++it) {

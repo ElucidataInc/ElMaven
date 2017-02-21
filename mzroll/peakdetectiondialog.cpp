@@ -329,6 +329,7 @@ void PeakDetectionDialog::findPeaks() {
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
+    mainwindow->settingsForm->setIsotopeAtom();
 
     QString title;
     if (_featureDetectionType == FullSpectrum)
@@ -508,6 +509,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
                 "minIsotopicCorrelation").toDouble();
         mavenParameters->maxNaturalAbundanceErr = settings->value(
                 "maxNaturalAbundanceErr").toDouble();
+        mavenParameters->noOfIsotopes = settings->value(
+                "noOfIsotopes").toInt();
 
         mavenParameters->C13Labeled_BPE =
                 settings->value("C13Labeled_BPE").toBool();
@@ -635,6 +638,7 @@ void PeakDetectionDialog::showMethodSummary() {
         methodSummary->clear();
         methodSummary->setPlainText(peakupdater->printSettings());
     }
+    mainwindow->settingsForm->setIsotopeAtom();
 }
 
 

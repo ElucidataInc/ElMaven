@@ -243,8 +243,8 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
     string formula = parentgroup->compound->formula; //parent formula
     //generate isotope list for parent mass
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-            formula, mavenParameters->ionizationMode);
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+                                                                                mavenParameters->isotopeAtom);
 
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
@@ -463,12 +463,19 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
     string formula = parentgroup->compound->formula; //parent formula
     //generate isotope list for parent mass
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-            formula, mavenParameters->ionizationMode);
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+                                                                            mavenParameters->isotopeAtom);
 
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
     map<string, PeakGroup>::iterator itr2;
+
+    int count_C13Label = 0;
+    int count_N15Label = 0;
+    int count_S34Label = 0;
+    int count_H2Label = 0;
+    int count_C13N15Label = 0;
+    int count_C13S34Label = 0;
 
     //   #pragma omp parallel for ordered
     for (unsigned int s = 0; s < mavenParameters->samples.size(); s++) {
@@ -604,15 +611,78 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
             //delete (nearestPeak);
             if (nearestPeak) { //if nearest peak is present
-                if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
-                    PeakGroup g;
-                    g.meanMz = isotopeMass;
-                    g.tagString = isotopeName;
-                    g.expectedAbundance = expectedAbundance;
-                    g.isotopeC13count = x.C13;
-                    isotopes[isotopeName] = g;
+                if(x.C13 > 0 && x.N15 > 0 && count_C13N15Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_C13N15Label++;
                 }
-                isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                else if(x.C13 > 0 && x.S34 > 0 && count_C13S34Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_C13S34Label++;
+                }
+                else if(x.C13 > 0 && x.N15 <=0 && x.S34 <= 0 && count_C13Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_C13Label++;
+                }
+                else if(x.N15 > 0 && x.C13 <=0 && count_N15Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_N15Label++;
+                }
+                else if(x.S34 > 0 && x.C13 <= 0 && count_S34Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_S34Label++;
+                }
+                else if(x.H2 > 0 && count_H2Label < mavenParameters->noOfIsotopes) {
+                    if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                        PeakGroup g;
+                        g.meanMz = isotopeMass;
+                        g.tagString = isotopeName;
+                        g.expectedAbundance = expectedAbundance;
+                        g.isotopeC13count = x.C13;
+                        isotopes[isotopeName] = g;
+                    }
+                    isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                    count_H2Label++;
+                }
             }
             vector<Peak>().swap(allPeaks);
         }

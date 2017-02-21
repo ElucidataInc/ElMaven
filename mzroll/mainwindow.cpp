@@ -485,8 +485,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	settings->setValue("closeEvent", 0);
 	setCentralWidget(eicWidgetController());
 	peakDetectionDialog->setMavenParameters(settings);
-
-				
+	
+					
     // if (unloadableFiles.size() > 0) {
 	// 	string filesNames = "Following database file(s) could not be loaded: ";
 	// 	for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
@@ -1599,6 +1599,9 @@ void MainWindow::readSettings() {
 
 	if (!settings->contains("AbthresholdBarplot"))
 		settings->setValue("AbthresholdBarplot", 1);
+
+	if (!settings->contains("noOfIsotopes"))
+		settings->setValue("noOfIsotopes", 2);
 
 	if (!settings->contains("C13Labeled_BPE"))
 		settings->setValue("C13Labeled_BPE", 2);
@@ -3067,7 +3070,7 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 			vector<double> cmv = mzUtils::naturalAbundanceCorrection(
 					numberofCarbons, mv, carbonIsotopeSpecies);
 			for (int j = 0; j < mv.size(); j++) {
-				if (j <= cmv.size()) {
+				if (j < cmv.size()) {
 					MM(i, j) = cmv[j];
 				} else {
 					MM(i, j) = mv[j];

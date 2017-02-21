@@ -5,7 +5,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     settings = s;
     mainwindow = w;
     updateSettingFormGUI();
-
+    setIsotopeAtom();
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
@@ -33,6 +33,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(S34Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(D2Labeled_Barplot, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(doubleSpinBoxAbThresh, SIGNAL(valueChanged(double)),SLOT(recomputeIsotopes()));
+    connect(noOfIsotopes, SIGNAL(valueChanged(int)),SLOT(recomputeIsotopes()));
         //isotope detection setting
     connect(C13Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(N15Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
@@ -71,9 +72,32 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
     else                                    ionizationMode->setCurrentIndex(0);
 }
 
+void SettingsForm::setIsotopeAtom() {
+
+    if(!mainwindow) return;
+    mainwindow->mavenParameters->isotopeAtom.clear();
+
+    if(D2Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = false;
+    
+    if(C13Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["C13Labeled_BPE"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["C13Labeled_BPE"] = false;
+
+    if(N15Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["N15Labeled_BPE"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["N15Labeled_BPE"] = false;
+
+    if(S34Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = false;
+
+    if(mainwindow->mavenParameters->pullIsotopesFlag) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
+    
+}
+
 void SettingsForm::recomputeIsotopes() { 
     getFormValues();
     if (!mainwindow) return;
+    setIsotopeAtom();
 
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {
@@ -135,6 +159,7 @@ void SettingsForm::updateSettingFormGUI() {
     S34Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("S34Labeled_Barplot").toInt() );
     D2Labeled_Barplot->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_Barplot").toInt()  );
     doubleSpinBoxAbThresh->setValue(settings->value("AbthresholdBarplot").toDouble());
+    noOfIsotopes->setValue(settings->value("noOfIsotopes").toInt());
 
     C13Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("C13Labeled_IsoWidget").toInt() );
     N15Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("N15Labeled_IsoWidget").toInt()  );
@@ -189,6 +214,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("S34Labeled_Barplot", S34Labeled_Barplot->checkState());
     settings->setValue("D2Labeled_Barplot", D2Labeled_Barplot->checkState());
     settings->setValue("AbthresholdBarplot",  doubleSpinBoxAbThresh->value());
+    settings->setValue("noOfIsotopes", noOfIsotopes->value());
 
     /*Isotopic settings for bookmark, peak detection and save csv*/
     settings->setValue("C13Labeled_BPE", C13Labeled_BPE->checkState());

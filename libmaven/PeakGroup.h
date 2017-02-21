@@ -206,7 +206,8 @@ class PeakGroup{
 
         Scan* getAverageFragmenationScan(float resolution);
 
-        double getExpectedMz(int charge);
+        
+        double getExpectedMz(int charge, map<string,bool> isotopeAtom);
 
         /**
          * [setParent ]

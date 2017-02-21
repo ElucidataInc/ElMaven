@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1265</width>
+    <width>1291</width>
     <height>232</height>
    </rect>
   </property>
@@ -615,6 +615,20 @@
            <widget class="QCheckBox" name="S34Labeled_BPE">
             <property name="text">
              <string>S34</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QSpinBox" name="noOfIsotopes">
+            <property name="value">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <widget class="QLabel" name="label_27">
+            <property name="text">
+             <string>Max. Number Of Isotopes</string>
             </property>
            </widget>
           </item>
