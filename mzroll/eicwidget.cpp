@@ -989,12 +989,12 @@ void EicWidget::wheelEvent(QWheelEvent *event) {
 	if (_barplot != NULL && _barplot->isSelected()) {
 		QGraphicsView::wheelEvent(event);
 	}
-	eicParameters->selectedGroup = NULL;
-	if (eicParameters->getSelectedGroup()) {
-		event->delta() > 0 ? _zoomFactor *= 2 : _zoomFactor /= 2;
-		zoom(_zoomFactor);
-		return;
-	}
+	// eicParameters->selectedGroup = NULL;
+	// if (eicParameters->getSelectedGroup()) {
+	// 	event->delta() > 0 ? _zoomFactor *= 2 : _zoomFactor /= 2;
+	// 	zoom(_zoomFactor);
+	// 	return;
+	// }
 
 	float scale = 1;
 	event->delta() > 0 ? scale = 1.2 : scale = 0.9;
@@ -1008,7 +1008,7 @@ void EicWidget::wheelEvent(QWheelEvent *event) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 	// qDebug() << "EicWidget::wheelEvent() " << _slice.rtmin << " " << _slice.rtmax << endl;
-	replot(NULL);
+	replot(eicParameters->getSelectedGroup());
 }
 
 void EicWidget::addFocusLine(PeakGroup* group) {
