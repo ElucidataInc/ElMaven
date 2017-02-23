@@ -64,6 +64,7 @@ public:
     QRectF boundingRect() const;
     void clear();
     void showBars();
+    void setBelowAbThresholdMatrixEntries(MatrixXf &MM,MainWindow* _mw);
 
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);

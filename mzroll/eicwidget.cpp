@@ -1436,9 +1436,10 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode(), getMainWindow()->mavenParameters->isotopeAtom) != -1) {
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode(), getMainWindow()->mavenParameters->isotopeAtom, 
+					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
-																getMainWindow()->mavenParameters->isotopeAtom);
+					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
@@ -1467,9 +1468,10 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode(),getMainWindow()->mavenParameters->isotopeAtom) != -1) {
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode(),getMainWindow()->mavenParameters->isotopeAtom,
+					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
-																	getMainWindow()->mavenParameters->isotopeAtom);
+					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}

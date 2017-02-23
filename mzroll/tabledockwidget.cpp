@@ -513,8 +513,10 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
 
-    if (group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom) != -1) {
-        float mz = group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom);
+    if (group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom, 
+                    _mainwindow->mavenParameters->noOfIsotopes) != -1) {
+        float mz = group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom, 
+                                                            _mainwindow->mavenParameters->noOfIsotopes);
         item->setText(3,QString::number(mz,'f', 4));
     } else {
         item->setText(3, "NA");

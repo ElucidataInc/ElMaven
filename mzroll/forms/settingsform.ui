@@ -628,7 +628,7 @@
           <item row="0" column="6">
            <widget class="QLabel" name="label_27">
             <property name="text">
-             <string>Max. Number Of Isotopes</string>
+             <string>Number Of M+1 Isotopes</string>
             </property>
            </widget>
           </item>

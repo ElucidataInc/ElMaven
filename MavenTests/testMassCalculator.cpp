@@ -85,7 +85,7 @@ void TestMassCalculator::testComputeIsotopes() {
     isotopeAtom["N15Labeled_BPE"] = true;
     isotopeAtom["S34Labeled_BPE"] = true;
 
-    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1, isotopeAtom);
+    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1, isotopeAtom, 2);
 
     //TODO: have to add a test case here
     for(vector<Isotope>::iterator it = isotopesXanthosine.begin(); it != isotopesXanthosine.end(); ++it) {

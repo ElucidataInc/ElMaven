@@ -140,7 +140,7 @@ void IsotopeWidget::computeIsotopes(string f) {
 	bool D2Labeled = settings->value("D2Labeled_BPE").toBool();
 
 	isotopeParameters->computeIsotopes(f, ppm, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
-												 							_mw->mavenParameters->isotopeAtom);
+												_mw->mavenParameters->isotopeAtom, _mw->mavenParameters->noOfIsotopes);
 	showTable();
 }
 

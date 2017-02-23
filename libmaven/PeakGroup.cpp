@@ -392,12 +392,12 @@ void PeakGroup::updateQuality() {
     }
 }
 
-double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom) {
+double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int noOfIsotopes) {
 
     if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty()) {
  
         float mz = 0;
-        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom);
+        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom, noOfIsotopes);
 
         for (unsigned int i = 0; i<masslist.size();i++) {
             if (masslist[i].name == tagString) {

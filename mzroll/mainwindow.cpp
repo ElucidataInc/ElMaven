@@ -2929,6 +2929,15 @@ int MainWindow::versionCheck() {
 	return 0;
 }
 
+void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {
+	for(int i = 0; i < MM.rows(); i++) {
+		float sum = 0;
+		for(int j = 0; j < MM.cols(); j++) sum += MM(i,j);
+		if(sum<=0) continue;
+		for(int j = 0; j < MM.cols(); j++) MM(i,j) /= sum;
+	}
+}
+
 MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	PeakGroup::QType qtype = getUserQuantType();
@@ -2986,8 +2995,8 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 				group->compound->formula);
 		numberofCarbons = composition["C"];
 	}
-
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
+	normalizeIsotopicMatrix(MM);
 	return MM;
 }
 
@@ -3067,15 +3076,16 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 			for (int j = 0; j < mv.size(); j++) {
 				mv[j] /= sum;
 			} //normalize
-			vector<double> cmv = mzUtils::naturalAbundanceCorrection(
-					numberofCarbons, mv, carbonIsotopeSpecies);
+
+			vector<double> cmv = mzUtils::naturalAbundanceCorrection(numberofCarbons, mv, carbonIsotopeSpecies);
+
 			for (int j = 0; j < mv.size(); j++) {
 				if (j < cmv.size()) {
 					MM(i, j) = cmv[j];
 				} else {
 					MM(i, j) = mv[j];
 				}
-				//cerr << mv[j] << " " << cmv[j] << endl;
+				//cerr << " Hello   " << mv[j] << "    " << cmv[j] << "   " << MM(i,j) << endl;
 			}
 		}
 	}

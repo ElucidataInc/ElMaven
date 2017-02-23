@@ -96,7 +96,7 @@ class MassCalculator {
         void enumerateMasses(double inputMass, double charge, double maxdiff, vector<Match*>& matches);
 
 
-        static vector<Isotope> computeIsotopes(string formula, int polarity, map<string, bool> isotopeAtom);
+        static vector<Isotope> computeIsotopes(string formula, int polarity, map<string, bool> isotopeAtom, int noOfIsotopes);
         /**
          * [adjustMass ]
          * @method adjustMass

@@ -786,7 +786,7 @@ void writeCSVReport( string filename) {
 
             string formula = group->compound->formula;
             vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
-												             							mavenParameters->isotopeAtom);
+												            mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
             for( int i=0; i<masslist.size(); i++ ) {
             Isotope& x = masslist[i];
             string isotopeName = x.name;

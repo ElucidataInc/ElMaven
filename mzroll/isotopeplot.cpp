@@ -84,6 +84,14 @@ QRectF IsotopePlot::boundingRect() const
     return(QRectF(0,0,_width,_height));
 }
 
+void IsotopePlot::setBelowAbThresholdMatrixEntries(MatrixXf &MM, MainWindow* _mw) {
+    for(int i = 0; i < MM.rows(); i++) {
+        for(int j = 0; j < MM.cols(); j++) {
+            if(MM(i,j)*100 <= _mw->getSettings()->value("AbthresholdBarplot").toDouble()) MM(i,j) = 0;
+        }
+    }
+}
+
 void IsotopePlot::showBars() {
     clear();
     if (_isotopes.size() == 0 ) return;
@@ -96,6 +104,7 @@ void IsotopePlot::showBars() {
     if ( _mw ) qtype = _mw->getUserQuantType();
 
     MatrixXf MM = _mw->getIsotopicMatrix(_group);
+    setBelowAbThresholdMatrixEntries(MM,_mw);
 
     if (scene()) {
         _width =   scene()->width()*0.20;
@@ -107,10 +116,10 @@ void IsotopePlot::showBars() {
 
     labels.resize(0);
     for(int i=0; i<MM.rows(); i++ ) {		//samples
-        float sum= MM.row(i).sum();
+        //float sum= MM.row(i).sum();
         labels << QString::fromStdString(_samples[i]->sampleName.c_str());
-        if (sum == 0) continue;
-        MM.row(i) /= sum;
+        //if (sum == 0) continue;
+        //MM.row(i) /= sum;
         //ticks << i ;
     }
 

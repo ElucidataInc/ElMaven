@@ -41,12 +41,12 @@ float IsotopeLogic::getIsotopeIntensity(float mz, double ppm) {
 
 void IsotopeLogic::computeIsotopes(string f, double ppm,
 		double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, bool S34Labeled, 
-		bool D2Labeled, map<string, bool> isotopeAtom) {
+		bool D2Labeled, map<string, bool> isotopeAtom, int noOfIsotopes) {
 
 	double parentMass = MassCalculator::computeMass(f, _charge);
 	float parentPeakIntensity = getIsotopeIntensity(parentMass, ppm);
 
-	vector<Isotope> isotopes = MassCalculator::computeIsotopes(f, _charge, isotopeAtom);
+	vector<Isotope> isotopes = MassCalculator::computeIsotopes(f, _charge, isotopeAtom, noOfIsotopes);
 	for (int i = 0; i < isotopes.size(); i++) {
 		Isotope& x = isotopes[i];
 
