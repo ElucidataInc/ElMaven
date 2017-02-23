@@ -95,7 +95,8 @@ void SettingsForm::updateMultiprocessing() {
     settings->setValue("uploadMultiprocessing", checkBoxMultiprocessing->checkState());
 }
 
-void SettingsForm::recomputeEIC() { 
+void SettingsForm::recomputeEIC() {
+    LOGD; 
     getFormValues();
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();
@@ -174,6 +175,7 @@ void SettingsForm::updateSettingFormGUI() {
 
 
 void SettingsForm::getFormValues() {
+    LOGD;
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
 

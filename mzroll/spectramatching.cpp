@@ -11,6 +11,7 @@ SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) {
 }
 
 void SpectraMatching::findMatches() { 
+    LOGD;
     getFormValues();
     doSearch();
     /*
@@ -375,7 +376,7 @@ double SpectraMatching::matchPattern(Scan* scan) {
 }
 
 void SpectraMatching::exportMatches() { 
-
+    LOGD;
     if (matches.size() == 0 ) { return; }
     QString dir = ".";
     QSettings* settings = mainwindow->getSettings();

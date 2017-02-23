@@ -54,6 +54,7 @@ public Q_SLOTS:
 	  //void showInfo(PeakGroup* group);
 	  PeakGroup* addPeakGroup(PeakGroup* group);
 	  void setupPeakTable();
+      void showLog();
 	  PeakGroup* getSelectedGroup();
       QList<PeakGroup*> getSelectedGroups();
           void showFocusedGroups();
@@ -72,6 +73,8 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+    void showTrainDialog();
+    void showClusterDialog();
     inline void selectedPeakSet() {
         peakTableSelection = peakTableSelectionType::selected;
     };

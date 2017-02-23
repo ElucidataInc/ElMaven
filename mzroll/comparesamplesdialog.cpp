@@ -34,6 +34,7 @@ CompareSamplesDialog::~CompareSamplesDialog() {
 }
 
 void CompareSamplesDialog::cancel() {
+	LOGD;
 	QDialog::close();
 }
 
@@ -53,6 +54,7 @@ void CompareSamplesDialog::setTableWidget(TableDockWidget* w) {
 }
 
 void CompareSamplesDialog::resetSamples() {
+	LOGD;
 	filelist1->clear();
 	filelist2->clear();
 }
@@ -136,6 +138,7 @@ vector<mzSample*> CompareSamplesDialog::getSampleSet(QListWidget *set) {
 }
 
 void CompareSamplesDialog::compareSamples() {
+	LOGD;
 	if (!table)
 		return;
 

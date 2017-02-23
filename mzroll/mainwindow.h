@@ -44,6 +44,7 @@
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
 #include "messageBoxResize.h"
+#include "libplog/Log.h"
 
 
 class SettingsForm;
@@ -269,6 +270,9 @@ public Q_SLOTS:
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();
+	void showspectraMatchingForm(); 
+	void showsettingsForm();
+	void showButtonLog();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 
 	void setQComboBox();

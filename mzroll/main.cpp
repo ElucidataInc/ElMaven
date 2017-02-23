@@ -23,7 +23,9 @@
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
-#include <QtConcurrentMap>
+#include "libplog/Log.h"
+#include "libplog/Appenders/CustomAppender.h"
+#include <list>
 
 
 
@@ -32,6 +34,12 @@ void customMessageHandler(QtMsgType type, const char *msg);
 
 int main(int argc, char *argv[])
 {
+    static plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
+    plog::init(plog::debug, &myAppender); // Initialize the logger with our appender.
+
+    LOGD << "Welcome Logger";
+
+    myAppender.show();
 
     QApplication app(argc, argv);
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
@@ -53,6 +61,7 @@ int main(int argc, char *argv[])
     mainWindow->show();
     mainWindow->fileLoader->start();
     int rv = app.exec();
+    myAppender.show();
     return rv;
 
 

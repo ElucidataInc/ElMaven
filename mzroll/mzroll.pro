@@ -33,9 +33,9 @@ QT += sql network xml svg printsupport
 DEFINES += QT_CORE_LIB QT_DLL QT_NETWORK_LIB QT_SQL_LIB QT_THREAD_LIB
 
 INCLUDEPATH +=  /usr/include/qt4/QtXml/ /usr/include/qt4/QtSql
-INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser 
+INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser ../libplog
 
-LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls                   #64bit
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
 
 message($$LIBS)
 

@@ -53,6 +53,7 @@ void PeptideFragmentationWidget::setScan(Scan* s) {
 
 
 void PeptideFragmentationWidget::compute() {
+    LOGD;
      _sequence = 	peptideSequence->text();
   	 _charge =  	charge->value();
      _resolution = 		resolution->value();
