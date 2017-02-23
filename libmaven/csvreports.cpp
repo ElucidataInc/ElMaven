@@ -234,11 +234,22 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (!groupReport.is_open())
         return;
     groupId++;
-    
+
+
+    char lab;
+    lab = group->label;
+
+    PeakGroup* parentGroup = group->getParent();
+    if (parentGroup) {
+        if (group->label == '\0') {
+            lab = parentGroup->label;
+        }
+    }
+
     if (selectionFlag == 2) {
-        if(group->label !='g') return;
+        if(lab !='g') return;
     } else if (selectionFlag == 3) {
-        if(group->label !='b') return;
+        if(lab !='b') return;
     } else {
 
     }
