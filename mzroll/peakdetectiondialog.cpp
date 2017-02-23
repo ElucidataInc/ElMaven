@@ -374,16 +374,16 @@ void PeakDetectionDialog::findPeaks() {
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
     disconnect(peakupdater, SIGNAL(finished()), 0, 0);
-    disconnect(peakupdater, SIGNAL(terminated()), 0, 0);
+    // disconnect(peakupdater, SIGNAL(terminated()), 0, 0);
 
     // connect new connections
     connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
-    connect(peakupdater, SIGNAL(terminated()), peaksTable,
-            SLOT(showAllGroups()));
+    // connect(peakupdater, SIGNAL(terminated()), peaksTable,
+            // SLOT(showAllGroups()));
     connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
-    connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
+    // connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 
     // RUN THREAD
