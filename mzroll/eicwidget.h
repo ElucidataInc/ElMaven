@@ -35,7 +35,8 @@ public:
 		return eicParameters;
 	}
 	QString eicToTextBuffer(); //TODO: Sahil Added while merging eicwidget
-
+	void addPeakPositions();
+	
 public Q_SLOTS:
 	void setMzSlice(float mz);
 	void setPPM(double ppm);

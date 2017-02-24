@@ -1235,6 +1235,12 @@ void EicWidget::showAllPeaks() {
 	}
 }
 
+void EicWidget::addPeakPositions() {
+	if (eicParameters->getSelectedGroup()) {
+		addPeakPositions(eicParameters->getSelectedGroup());
+	}
+}
+
 void EicWidget::addPeakPositions(PeakGroup* group) {
 	////qDebug <<"EicWidget::addPeakPositions(PeakGroup* group) ";
 	if (_showPeaks == false)

@@ -1255,6 +1255,9 @@ void TableDockWidget::deleteGroups() {
     }
     if(nextItem) treeWidget->setCurrentItem(nextItem,0);
     _mainwindow->getEicWidget()->replotForced();
+    showSelectedGroup();
+    _mainwindow->getEicWidget()->addPeakPositions();
+
     return;
 }
 
