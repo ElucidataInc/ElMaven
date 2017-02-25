@@ -1195,9 +1195,9 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             item->setHidden(true);
 
             //Deleteing
-            allgroups.erase(allgroups.begin()+pos);
             int posTree = treeWidget->indexOfTopLevelItem(item);
             if (posTree != -1) treeWidget->takeTopLevelItem(posTree);
+            allgroups.erase(allgroups.begin()+pos);
             break;
         }
         ++it;
