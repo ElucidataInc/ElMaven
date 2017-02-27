@@ -2266,12 +2266,12 @@ void MainWindow::createToolBars() {
 
 void MainWindow::showspectraMatchingForm() {
 	LOGD;
-	spectraMatchingForm->show();
+	spectraMatchingForm->exec();
 }
 
 void MainWindow::showsettingsForm() {
 	LOGD;
-	settingsForm->show();
+	settingsForm->exec();
 }
 
 void MainWindow::updateQType(QString qtype) {

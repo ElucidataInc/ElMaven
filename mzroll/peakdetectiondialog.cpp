@@ -39,7 +39,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 void PeakDetectionDialog::showSettingsForm() {
     LOGD;
-    mainwindow->settingsForm->show();
+    mainwindow->settingsForm->exec();
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
 
@@ -305,7 +305,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         // EIC extraction windows ppm value that is set in the main
         // window is been set to the GUI
         compoundPPMWindow->setValue(mainwindow->getUserPPM());
-        QDialog::show();
+        QDialog::exec();
     }
 }
 
