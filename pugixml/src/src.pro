@@ -8,7 +8,7 @@ TARGET = pugixml
 QMAKE_CXXFLAGS_RELEASE = -O9
 
 
-SOURCES=pugixml.cpp  pugixpath.cpp
+SOURCES=pugixml.cpp 
 HEADERS=pugixml.hpp  pugiconfig.hpp
 
 contains(MEEGO_EDITION,harmattan) {
