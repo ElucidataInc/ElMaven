@@ -550,7 +550,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         item->setText(9,QString::number(extractMaxIntensity(group),'g',2));
         item->setText(10,QString::number(group->maxSignalBaselineRatio,'f',0));
         item->setText(11,QString::number(group->maxQuality,'f',2));
-        item->setText(12,QString::number(group->groupRank,'f',6));
+        item->setText(12,QString::number(group->groupRank,'e',6));
 
         if ( group->changeFoldRatio != 0 ) {
             //Updated when Merging to Maven776 - Kiran

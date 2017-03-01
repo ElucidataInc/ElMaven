@@ -43,6 +43,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void updatePeakQType(QString);
 				 void showSettingsForm();
+				 void showQualityWeightStatus(int value);
+				 void showIntensityWeightStatus(int value);
+				 void showDeltaRTWeightStatus(int value);
+				 void setGroupRank();
+				 void setInitialGroupRank();
+				 void setDeltaRTWeightVisible(bool value);
 
 		private:
 				QSettings *settings;

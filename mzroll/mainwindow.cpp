@@ -1790,6 +1790,16 @@ void MainWindow::readSettings() {
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);
 
+	// Peak Group Rank
+	if (!settings->contains("qualityWeight"))
+        settings->setValue("qualityWeight", 10);
+	
+	if (!settings->contains("intensityWeight"))
+        settings->setValue("intensityWeight", 10);
+
+	if (!settings->contains("deltaRTWeight"))
+        settings->setValue("deltaRTWeight", 10);
+
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
@@ -2342,6 +2352,7 @@ bool MainWindow::addSample(mzSample* sample) {
 //TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
 	LOGD;
+	peakDetectionDialog->setInitialGroupRank();
     peakDetectionDialog->show();   
    
 }
