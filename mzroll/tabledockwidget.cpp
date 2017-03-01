@@ -1214,6 +1214,11 @@ void TableDockWidget::deleteGroups() {
     LOGD;
     QList<PeakGroup*> selectedGroups;
     QTreeWidgetItem* nextItem;
+
+    if (treeWidget->selectedItems().size() == 0) {
+        return;
+    }
+
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             nextItem = treeWidget->itemBelow(item);
