@@ -29,6 +29,9 @@ class Aligner {
     int medianRt;
     int compoundDataRt;
     float tolerance;
+    map<mzSample*, int> sampleDegree;
+    map<mzSample*, vector<double> > sampleCoefficient;
+
    private:
     vector<PeakGroup*> allgroups;
     int maxItterations;

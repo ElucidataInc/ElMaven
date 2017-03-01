@@ -153,6 +153,9 @@ void Aligner::PolyFit(int poly_align_degree) {
 			PolyAligner polyAligner(subj,ref);
             AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
 
+			sampleDegree[sample] = stats->poly_align_degree;
+			sampleCoefficient[sample] = stats->poly_transform_result;
+
            if (stats->transformImproved()) {
 
                 bool failedTransformation=false;

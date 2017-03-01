@@ -307,6 +307,7 @@ void BackgroundPeakUpdate::run(void) {
 	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentVizWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
+        connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentPolyVizDockWidget, SLOT(plotGraph()));
         mavenParameters->stop = false;
         //_stopped = false;
 
@@ -484,6 +485,8 @@ void BackgroundPeakUpdate::align() {
                 aligner.setPolymialDegree(
                         mainwindow->alignmentDialog->polynomialDegree->value());
                 aligner.doAlignment(groups);
+                mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
+                mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
                 mainwindow->deltaRt = aligner.getDeltaRt();
                 mavenParameters->alignSamplesFlag = false;
 

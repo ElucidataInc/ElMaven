@@ -1,11 +1,12 @@
 #include "alignmentpolyvizdockwidget.h"
 
-AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(QWidget *parent) :
-    QDockWidget(parent),
+AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(MainWindow *mw) :
+    QDockWidget(mw),
     ui(new Ui::AlignmentPolyVizDockWidget)
 {
+    this->_mw= mw;
     ui->setupUi(this);
-    setObjectName("AlignmentPolyVizWidget");
+    setObjectName("AlignmentPolyVizDockWidget");
     setWindowTitle("AlignmentPolyVizWidget");
 
     QToolBar *toolBar = new QToolBar(this);
@@ -27,4 +28,40 @@ AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(QWidget *parent) :
 AlignmentPolyVizDockWidget::~AlignmentPolyVizDockWidget()
 {
     delete ui;
+}
+
+void AlignmentPolyVizDockWidget::plotGraph() {
+
+    intialSetup();
+
+    // plot individual graphs here
+
+    refresh();
+
+}
+
+void AlignmentPolyVizDockWidget::intialSetup() {
+
+    setXAxis();
+    setYAxis();
+
+}
+
+void AlignmentPolyVizDockWidget::setXAxis() {
+
+    _mw->alignmentPolyVizPlot->xAxis->setTicks(true);
+    _mw->alignmentPolyVizPlot->xAxis->setSubTicks(true);
+    _mw->alignmentPolyVizPlot->xAxis->setVisible(true);
+    _mw->alignmentPolyVizPlot->xAxis->setLabel("Retention Time");
+}
+
+void AlignmentPolyVizDockWidget::setYAxis() {
+
+    _mw->alignmentPolyVizPlot->yAxis->setVisible(true);
+    _mw->alignmentPolyVizPlot->yAxis->setLabel("Polynomial Model");
+
+}
+
+void AlignmentPolyVizDockWidget::refresh() {
+    _mw->alignmentPolyVizPlot->replot();
 }
