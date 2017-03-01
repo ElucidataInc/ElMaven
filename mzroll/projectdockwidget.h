@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <omp.h>
 
 extern Database DB; 
 
@@ -25,6 +26,8 @@ Q_SIGNALS:
 public Q_SLOTS:
     void showInfo();
     QString getProjectDescription();
+    void loadSamplesFromProject(QMap<QString, QMap<QString,QString>> sampleInfoMap,
+                        QMap<QString, vector<double>> sampleAlignmentTransformationInfo);
     void setProjectDescription(QString text);
     void setInfo(vector<mzSample*>&samples);
     void changeSampleOrder();
