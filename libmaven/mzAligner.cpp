@@ -154,7 +154,7 @@ void Aligner::PolyFit(int poly_align_degree) {
             AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
 
 			sampleDegree[sample] = stats->poly_align_degree;
-			sampleCoefficient[sample] = stats->poly_transform_result;
+			sampleCoefficient[sample] = stats->getCoeffients();
 
            if (stats->transformImproved()) {
 

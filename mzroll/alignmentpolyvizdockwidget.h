@@ -34,6 +34,7 @@ public:
 
 public Q_SLOTS:
     void plotGraph();
+    void plotIndividualGraph(mzSample* sample);
     void refresh();
 
 private:
