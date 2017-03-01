@@ -131,7 +131,7 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 				eicParameters->_slice.rtmax = bounds.rtmax;
 		}
 		replot (eicParameters->selectedGroup);
-		addPeakPositions(eicParameters->getSelectedGroup());
+		if(eicParameters->getSelectedGroup()) addPeakPositions(eicParameters->getSelectedGroup());
 	}
 }
 
@@ -1010,7 +1010,7 @@ void EicWidget::wheelEvent(QWheelEvent *event) {
 		eicParameters->_slice.rtmax = bounds.rtmax;
 	// qDebug() << "EicWidget::wheelEvent() " << _slice.rtmin << " " << _slice.rtmax << endl;
 	replot(eicParameters->getSelectedGroup());
-	addPeakPositions(eicParameters->getSelectedGroup());
+	if(eicParameters->getSelectedGroup()) addPeakPositions(eicParameters->getSelectedGroup());
 }
 
 void EicWidget::addFocusLine(PeakGroup* group) {
