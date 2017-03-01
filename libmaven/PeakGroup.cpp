@@ -8,6 +8,11 @@ PeakGroup::PeakGroup()  {
     groupRank=INT_MAX;
 
     maxIntensity=0;
+    maxAreaTopIntensity = 0;
+    maxAreaIntensity = 0;
+    maxHeightIntensity = 0;
+    maxAreaNotCorrectedIntensity = 0;
+    currentIntensity = 0;
     meanRt=0;
     meanMz=0;
 
@@ -62,6 +67,11 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     groupRank= o.groupRank;
 
     maxIntensity= o.maxIntensity;
+    maxAreaTopIntensity = o.maxAreaTopIntensity;
+    maxAreaIntensity = o.maxAreaIntensity;
+    maxHeightIntensity = o.maxHeightIntensity;
+    maxAreaNotCorrectedIntensity = o.maxAreaNotCorrectedIntensity;
+    currentIntensity = o.currentIntensity;
     meanRt=o.meanRt;
     meanMz=o.meanMz;
 
@@ -382,12 +392,12 @@ void PeakGroup::updateQuality() {
     }
 }
 
-double PeakGroup::getExpectedMz(int charge) {
+double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int noOfIsotopes) {
 
     if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty()) {
  
         float mz = 0;
-        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge);
+        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom, noOfIsotopes);
 
         for (unsigned int i = 0; i<masslist.size();i++) {
             if (masslist[i].name == tagString) {
@@ -416,6 +426,11 @@ void PeakGroup::groupStatistics() {
     float rtSum = 0;
     float mzSum = 0;
     maxIntensity = 0;
+    maxAreaTopIntensity = 0;
+    maxAreaIntensity = 0;
+    maxHeightIntensity = 0;
+    maxAreaNotCorrectedIntensity = 0;
+    currentIntensity = 0;
     totalSampleCount =  0;
 
     blankMax =0;
@@ -450,9 +465,14 @@ void PeakGroup::groupStatistics() {
             default: max = peaks[i].peakIntensity; break;
         }
 
+        if(peaks[i].peakAreaTop > maxAreaTopIntensity) maxAreaTopIntensity = peaks[i].peakAreaTop;
+        if(peaks[i].peakAreaCorrected > maxAreaIntensity) maxAreaIntensity = peaks[i].peakAreaCorrected;
+        if(peaks[i].peakIntensity > maxHeightIntensity) maxHeightIntensity = peaks[i].peakIntensity;
+        if(peaks[i].peakArea > maxAreaNotCorrectedIntensity) maxAreaNotCorrectedIntensity = peaks[i].peakArea;
 
         if(max>maxIntensity) {
             maxIntensity = max;
+            currentIntensity = max;
             meanMz=peaks[i].baseMz;
             meanRt=peaks[i].rt;
         }

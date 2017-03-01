@@ -160,6 +160,7 @@ public:
 	double maxIsotopeScanDiff;
 	double maxNaturalAbundanceErr;
 	double minIsotopicCorrelation;
+	int noOfIsotopes;
 	bool C13Labeled_BPE;
 	bool N15Labeled_BPE;
 	bool S34Labeled_BPE;
@@ -196,6 +197,7 @@ public:
 	vector<mzSample*> samples;
 	vector<Compound*> compounds;
 	vector<mzSlice*> _slices;
+	map <string, bool> isotopeAtom;
 	bool stop;
 
 	int alignMaxItterations; //TODO: Sahil - Kiran, Added while merging mainwindow

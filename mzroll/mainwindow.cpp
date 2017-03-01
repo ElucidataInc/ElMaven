@@ -405,6 +405,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	createToolBars();
 	setIonizationMode(0);
+	currentIntensityName = "Max "+quantType->currentText();
 	if (settings->contains("ionizationMode")) {
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
@@ -484,8 +485,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	settings->setValue("closeEvent", 0);
 	setCentralWidget(eicWidgetController());
 	peakDetectionDialog->setMavenParameters(settings);
-
-				
+	
+					
     // if (unloadableFiles.size() > 0) {
 	// 	string filesNames = "Following database file(s) could not be loaded: ";
 	// 	for (std::vector<string>::iterator it = unloadableFiles.begin() ; it != unloadableFiles.end(); ++it)
@@ -1599,6 +1600,9 @@ void MainWindow::readSettings() {
 	if (!settings->contains("AbthresholdBarplot"))
 		settings->setValue("AbthresholdBarplot", 1);
 
+	if (!settings->contains("noOfIsotopes"))
+		settings->setValue("noOfIsotopes", 2);
+
 	if (!settings->contains("C13Labeled_BPE"))
 		settings->setValue("C13Labeled_BPE", 2);
 
@@ -1913,6 +1917,7 @@ void MainWindow::createToolBars() {
 	quantType->setToolTip("Peak Quntitation Type");
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
 	connect(quantType, SIGNAL(activated(QString)), peakDetectionDialog, SLOT(updatePeakQType(QString)));
+	connect(quantType, SIGNAL(currentIndexChanged(int)), SLOT(refreshIntensities()));
 	connect(peakDetectionDialog->peakQuantitation, SIGNAL(activated(QString)), this, SLOT(updateQType(QString)));
 
 	settings->beginGroup("searchHistory");
@@ -1986,6 +1991,14 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::refreshIntensities() {
+	QList<QPointer<TableDockWidget> > peaksTableList = getPeakTableList();
+	for(int i=0; i<peaksTableList.size(); i++) {
+		peaksTableList[i]->showAllGroups();
+	}
+	bookmarkedPeaks->showAllGroups();
 }
 
 void MainWindow::updateQType(QString qtype) {
@@ -2916,6 +2929,15 @@ int MainWindow::versionCheck() {
 	return 0;
 }
 
+void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {
+	for(int i = 0; i < MM.rows(); i++) {
+		float sum = 0;
+		for(int j = 0; j < MM.cols(); j++) sum += MM(i,j);
+		if(sum<=0) continue;
+		for(int j = 0; j < MM.cols(); j++) MM(i,j) /= sum;
+	}
+}
+
 MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	PeakGroup::QType qtype = getUserQuantType();
@@ -2973,8 +2995,8 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 				group->compound->formula);
 		numberofCarbons = composition["C"];
 	}
-
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
+	normalizeIsotopicMatrix(MM);
 	return MM;
 }
 
@@ -3054,15 +3076,16 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 			for (int j = 0; j < mv.size(); j++) {
 				mv[j] /= sum;
 			} //normalize
-			vector<double> cmv = mzUtils::naturalAbundanceCorrection(
-					numberofCarbons, mv, carbonIsotopeSpecies);
+
+			vector<double> cmv = mzUtils::naturalAbundanceCorrection(numberofCarbons, mv, carbonIsotopeSpecies);
+
 			for (int j = 0; j < mv.size(); j++) {
-				if (j <= cmv.size()) {
+				if (j < cmv.size()) {
 					MM(i, j) = cmv[j];
 				} else {
 					MM(i, j) = mv[j];
 				}
-				//cerr << mv[j] << " " << cmv[j] << endl;
+				//cerr << " Hello   " << mv[j] << "    " << cmv[j] << "   " << MM(i,j) << endl;
 			}
 		}
 	}

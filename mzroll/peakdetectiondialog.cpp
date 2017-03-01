@@ -219,6 +219,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("baseline_smoothingWindow").toInt());
             baseline_quantile->setValue(
                 settings->value("baseline_dropTopX").toInt());
+            doubleSpinBoxMinQuality->setValue(
+                settings->value("minQuality").toDouble());
 
             // Peak Scoring and Filtering
             minGoodGroupCount->setValue(
@@ -327,6 +329,7 @@ void PeakDetectionDialog::findPeaks() {
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
+    mainwindow->settingsForm->setIsotopeAtom();
 
     QString title;
     if (_featureDetectionType == FullSpectrum)
@@ -402,7 +405,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // BaseLine Calculation
     settings->setValue("baseline_smoothingWindow", baseline_smoothing->value());
     settings->setValue("baseline_dropTopX", baseline_quantile->value());
-
+    settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
     // Peak Scoring and Filtering
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
@@ -506,6 +509,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
                 "minIsotopicCorrelation").toDouble();
         mavenParameters->maxNaturalAbundanceErr = settings->value(
                 "maxNaturalAbundanceErr").toDouble();
+        mavenParameters->noOfIsotopes = settings->value(
+                "noOfIsotopes").toInt();
 
         mavenParameters->C13Labeled_BPE =
                 settings->value("C13Labeled_BPE").toBool();
@@ -633,6 +638,7 @@ void PeakDetectionDialog::showMethodSummary() {
         methodSummary->clear();
         methodSummary->setPlainText(peakupdater->printSettings());
     }
+    mainwindow->settingsForm->setIsotopeAtom();
 }
 
 

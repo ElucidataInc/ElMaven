@@ -54,6 +54,7 @@ MavenParameters::MavenParameters() {
         maxIsotopeScanDiff = 10;
         maxNaturalAbundanceErr = 100;
         minIsotopicCorrelation = 0;
+        noOfIsotopes = 2;
 
 	C13Labeled_BPE = false;
 	N15Labeled_BPE = false;

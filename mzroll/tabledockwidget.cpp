@@ -296,6 +296,21 @@ void TableDockWidget::sortBy(int col) {
     treeWidget->sortByColumn(col,Qt::AscendingOrder);
 }
 
+void TableDockWidget::setIntensityColName() {
+    QTreeWidgetItem* header = treeWidget->headerItem();
+    QString temp;
+    PeakGroup::QType qtype = _mainwindow->getUserQuantType();
+    switch(qtype) {
+        case PeakGroup::AreaTop: temp = "Max AreaTop"; break;
+        case PeakGroup::Area: temp = "Max Area"; break;
+        case PeakGroup::Height: temp = "Max Height"; break;
+        case PeakGroup::AreaNotCorrected: temp = "Max AreaNotCorrected"; break;
+        default: temp = _mainwindow->currentIntensityName; break;
+    }
+    _mainwindow->currentIntensityName = temp;
+    header->setText(9, temp);
+}
+
 void TableDockWidget::setupPeakTable() {
 
     QStringList colNames;
@@ -329,7 +344,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "#peaks";
         colNames << "#good";
         colNames << "Max Width";
-        colNames << "Max Intensity";
+        colNames << "Max AreaTop";
         colNames << "Max S/N";
         colNames << "Max Quality";
         //Added when Merging to Maven776 - Kiran
@@ -498,8 +513,10 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
 
-    if (group->getExpectedMz(_mainwindow->getIonizationMode()) != -1) {
-        float mz = group->getExpectedMz(_mainwindow->getIonizationMode());
+    if (group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom, 
+                    _mainwindow->mavenParameters->noOfIsotopes) != -1) {
+        float mz = group->getExpectedMz(_mainwindow->getIonizationMode(), _mainwindow->mavenParameters->isotopeAtom, 
+                                                            _mainwindow->mavenParameters->noOfIsotopes);
         item->setText(3,QString::number(mz,'f', 4));
     } else {
         item->setText(3, "NA");
@@ -516,7 +533,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         item->setText(6,QString::number(group->sampleCount));
         item->setText(7,QString::number(group->goodPeakCount));
         item->setText(8,QString::number(group->maxNoNoiseObs));
-        item->setText(9,QString::number(group->maxIntensity,'g',2));
+        item->setText(9,QString::number(extractMaxIntensity(group),'g',2));
         item->setText(10,QString::number(group->maxSignalBaselineRatio,'f',0));
         item->setText(11,QString::number(group->maxQuality,'f',2));
         item->setText(12,QString::number(group->groupRank,'f',6));
@@ -602,6 +619,7 @@ void TableDockWidget::deleteAll() {
 void TableDockWidget::showAllGroups() {
     treeWidget->clear();
     if (allgroups.size() == 0 ) {
+        if (viewType == groupView) setIntensityColName();
         setVisible(false);
         return;
     }
@@ -609,7 +627,8 @@ void TableDockWidget::showAllGroups() {
     treeWidget->setSortingEnabled(false);
      //Added when Merging to Maven776 - Kiran
     setupPeakTable();
-
+    if (viewType == groupView) setIntensityColName();
+    
     QMap<int,QTreeWidgetItem*> parents;
     for(int i=0; i < allgroups.size(); i++ ) { 
         int metaGroupId  = allgroups[i].metaGroupId;
@@ -639,6 +658,20 @@ void TableDockWidget::showAllGroups() {
 		treeWidget->setCurrentItem(treeWidget->topLevelItem(allgroups.size()-1));
 	}
 	(*/
+}
+
+float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
+    float temp;
+    PeakGroup::QType qtype = _mainwindow->getUserQuantType();
+    switch(qtype) {
+        case PeakGroup::AreaTop: temp = group->maxAreaTopIntensity; break;
+        case PeakGroup::Area: temp =  group->maxAreaIntensity; break;
+        case PeakGroup::Height: temp = group->maxHeightIntensity; break;
+        case PeakGroup::AreaNotCorrected: temp = group->maxAreaNotCorrectedIntensity; break;
+        default: temp = group->currentIntensity; break;
+    }
+    group->currentIntensity = temp;
+    return temp;
 }
 
 void TableDockWidget::exportGroupsToSpreadsheet() {

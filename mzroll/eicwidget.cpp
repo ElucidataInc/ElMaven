@@ -365,8 +365,8 @@ void EicWidget::findPlotBounds() {
 		if (mzUtils::checkOverlap(eicParameters->peakgroups[i].minRt,
 				eicParameters->peakgroups[i].maxRt, eicParameters->_slice.rtmin,
 				eicParameters->_slice.rtmax) > 0) {
-			if (eicParameters->peakgroups[i].maxIntensity > _maxY) {
-				_maxY = eicParameters->peakgroups[i].maxIntensity;
+			if (eicParameters->peakgroups[i].maxHeightIntensity > _maxY) {
+				_maxY = eicParameters->peakgroups[i].maxHeightIntensity;
 			}
 		}
 	}
@@ -1436,8 +1436,10 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode(), getMainWindow()->mavenParameters->isotopeAtom, 
+					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
+					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
@@ -1466,8 +1468,10 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
 
-	if (group->getExpectedMz(getMainWindow()->getIonizationMode()) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode());
+	if (group->getExpectedMz(getMainWindow()->getIonizationMode(),getMainWindow()->mavenParameters->isotopeAtom,
+					getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
+		eicParameters->_slice.mz = group->getExpectedMz(getMainWindow()->getIonizationMode(),
+					getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}

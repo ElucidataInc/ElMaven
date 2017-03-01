@@ -396,6 +396,8 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
                                 "minIsotopicCorrelation").toDouble();
                         mavenParameters->maxNaturalAbundanceErr = settings->value(
                                 "maxNaturalAbundanceErr").toDouble();
+                        mavenParameters->noOfIsotopes = settings->value(
+                                "noOfIsotopes").toInt();
 
                         mavenParameters->C13Labeled_BPE =
                                 settings->value("C13Labeled_BPE").toBool();

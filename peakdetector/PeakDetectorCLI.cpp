@@ -52,6 +52,7 @@ bool C13Labeled_BPE =false;
 bool N15Labeled_BPE =false;
 bool S34Labeled_BPE =false;
 bool D2Labeled_BPE =false;
+int noOfIsotopes = 2;
 string csvFileFieldSeparator=",";
 PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
@@ -784,7 +785,8 @@ void writeCSVReport( string filename) {
             writeGroupInfoCSV( &group->children[0],groupReport); //C12 info
 
             string formula = group->compound->formula;
-            vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode);
+            vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+												            mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
             for( int i=0; i<masslist.size(); i++ ) {
             Isotope& x = masslist[i];
             string isotopeName = x.name;

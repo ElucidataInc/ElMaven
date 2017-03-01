@@ -132,6 +132,7 @@ public:
 	QComboBox *quantType;
 	QLabel *statusText;
 	QStringList pathlist;
+	QString currentIntensityName;
 
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
@@ -216,6 +217,7 @@ public:
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
 	void autoSaveSignal();
+	void normalizeIsotopicMatrix(MatrixXf &MM);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
@@ -264,6 +266,7 @@ public Q_SLOTS:
 	void setMzValue();
 	void setMzValue(float mz);
 	void loadModel();
+	void refreshIntensities();
 	void loadCompoundsFile();
 	bool loadCompoundsFile(QString filename);
 	void loadMethodsFolder(QString& methodsFolder);

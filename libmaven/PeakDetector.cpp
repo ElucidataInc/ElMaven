@@ -243,8 +243,8 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
     string formula = parentgroup->compound->formula; //parent formula
     //generate isotope list for parent mass
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-            formula, mavenParameters->ionizationMode);
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+                                                    mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
 
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
@@ -463,8 +463,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
     string formula = parentgroup->compound->formula; //parent formula
     //generate isotope list for parent mass
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-            formula, mavenParameters->ionizationMode);
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode, 
+                                                        mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
 
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;

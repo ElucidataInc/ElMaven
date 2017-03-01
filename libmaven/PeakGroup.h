@@ -77,6 +77,11 @@ class PeakGroup{
         bool deletedFlag;
 
         float maxIntensity;
+        float maxAreaTopIntensity;
+        float maxAreaIntensity;
+        float maxHeightIntensity;
+        float maxAreaNotCorrectedIntensity;
+        float currentIntensity;
         float meanRt;
         float meanMz;
         int totalSampleCount;
@@ -201,7 +206,8 @@ class PeakGroup{
 
         Scan* getAverageFragmenationScan(float resolution);
 
-        double getExpectedMz(int charge);
+        
+        double getExpectedMz(int charge, map<string,bool> isotopeAtom, int noOfIsotopes);
 
         /**
          * [setParent ]
