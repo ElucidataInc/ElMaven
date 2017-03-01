@@ -2286,6 +2286,7 @@ void MainWindow::refreshIntensities() {
 		peaksTableList[i]->showAllGroups();
 	}
 	bookmarkedPeaks->showAllGroups();
+}
 
 void MainWindow::showspectraMatchingForm() {
 	LOGD;
