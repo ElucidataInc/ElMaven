@@ -20,6 +20,7 @@
 #include "isotopeswidget.h"
 #include "treedockwidget.h"
 #include "tabledockwidget.h"
+#include "alignmentpolyvizdockwidget.h"
 #include "peakdetectiondialog.h"
 #include "alignmentdialog.h"
 #include "awsbucketcredentialsdialog.h"
@@ -71,6 +72,7 @@ class IsotopeWidget;
 class MassCalcWidget;
 class TreeDockWidget;
 class TableDockWidget;
+class AlignmentPolyVizDockWidget;
 class Classifier;
 class ClassifierNeuralNet;
 class ClassifierNaiveBayes;
@@ -142,9 +144,11 @@ public:
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	AlignmentVizWidget *alignmentVizWidget;
+	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
+	QCustomPlot *alignmentPolyVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;

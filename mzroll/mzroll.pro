@@ -55,7 +55,8 @@ FORMS = forms/settingsform.ui  \
         forms/clusterdialog.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \ 
-    forms/awsbucketcredentialsdialog.ui
+    forms/awsbucketcredentialsdialog.ui \
+    forms/alignmentpolyvizdockwidget.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -116,7 +117,8 @@ HEADERS +=  stable.h \
                     qcustomplot.h \
                     saveJson.h \
                     messageBoxResize.h \
-                    awsbucketcredentialsdialog.h
+                    awsbucketcredentialsdialog.h \
+                    alignmentpolyvizdockwidget.h
                      
 
 
@@ -176,7 +178,8 @@ database.cpp \
  peptidefragmentation.cpp \
  qcustomplot.cpp \
  saveJson.cpp \
-    awsbucketcredentialsdialog.cpp
+    awsbucketcredentialsdialog.cpp \
+    alignmentpolyvizdockwidget.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
