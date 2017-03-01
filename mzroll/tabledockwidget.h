@@ -47,6 +47,8 @@ public:
     void writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames);
     void saveMzEICJson(string filename);
     void setTableId();
+    void setIntensityColName();
+    float extractMaxIntensity(PeakGroup* group);
     string sanitizeJSONstring(string s);
     float outputRtWindow = 2.0;
 

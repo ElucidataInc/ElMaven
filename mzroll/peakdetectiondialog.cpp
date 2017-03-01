@@ -219,6 +219,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("baseline_smoothingWindow").toInt());
             baseline_quantile->setValue(
                 settings->value("baseline_dropTopX").toInt());
+            doubleSpinBoxMinQuality->setValue(
+                settings->value("minQuality").toDouble());
 
             // Peak Scoring and Filtering
             minGoodGroupCount->setValue(
@@ -402,7 +404,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // BaseLine Calculation
     settings->setValue("baseline_smoothingWindow", baseline_smoothing->value());
     settings->setValue("baseline_dropTopX", baseline_quantile->value());
-
+    settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
     // Peak Scoring and Filtering
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());

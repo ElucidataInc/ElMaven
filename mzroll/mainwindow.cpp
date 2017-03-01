@@ -405,6 +405,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	createToolBars();
 	setIonizationMode(0);
+	currentIntensityName = "Max "+quantType->currentText();
 	if (settings->contains("ionizationMode")) {
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
@@ -1913,6 +1914,7 @@ void MainWindow::createToolBars() {
 	quantType->setToolTip("Peak Quntitation Type");
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
 	connect(quantType, SIGNAL(activated(QString)), peakDetectionDialog, SLOT(updatePeakQType(QString)));
+	connect(quantType, SIGNAL(currentIndexChanged(int)), SLOT(refreshIntensities()));
 	connect(peakDetectionDialog->peakQuantitation, SIGNAL(activated(QString)), this, SLOT(updateQType(QString)));
 
 	settings->beginGroup("searchHistory");
@@ -1986,6 +1988,14 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::refreshIntensities() {
+	QList<QPointer<TableDockWidget> > peaksTableList = getPeakTableList();
+	for(int i=0; i<peaksTableList.size(); i++) {
+		peaksTableList[i]->showAllGroups();
+	}
+	bookmarkedPeaks->showAllGroups();
 }
 
 void MainWindow::updateQType(QString qtype) {

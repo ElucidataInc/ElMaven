@@ -365,8 +365,8 @@ void EicWidget::findPlotBounds() {
 		if (mzUtils::checkOverlap(eicParameters->peakgroups[i].minRt,
 				eicParameters->peakgroups[i].maxRt, eicParameters->_slice.rtmin,
 				eicParameters->_slice.rtmax) > 0) {
-			if (eicParameters->peakgroups[i].maxIntensity > _maxY) {
-				_maxY = eicParameters->peakgroups[i].maxIntensity;
+			if (eicParameters->peakgroups[i].maxHeightIntensity > _maxY) {
+				_maxY = eicParameters->peakgroups[i].maxHeightIntensity;
 			}
 		}
 	}
