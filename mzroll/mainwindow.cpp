@@ -1176,13 +1176,19 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 			group->expectedRtDiff = rtDiff;
 		}
 
+		double A = (double) mavenParameters->qualityWeight/10;
+        double B = (double) mavenParameters->intensityWeight/10;
+        double C = (double) mavenParameters->deltaRTWeight/10;
+
         if (mavenParameters->matchRtFlag && group->compound != NULL && group->compound->expectedRt > 0)
         {
-            group->groupRank = rtDiff * rtDiff * (1.1 - group->maxQuality) * (1 / log(group->maxIntensity + 1));
+            group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
+                                                  * (1 /( pow(log(group->maxIntensity + 1), B)));
         }
         else
         {
-            group->groupRank = (1.1 - group->maxQuality) * (1 / log(group->maxIntensity + 1));
+            group->groupRank = pow((1.1 - group->maxQuality), A)
+                                                  * (1 /(pow(log(group->maxIntensity + 1), B)));
         }
 
         bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);

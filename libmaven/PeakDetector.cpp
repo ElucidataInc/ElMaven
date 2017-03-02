@@ -647,13 +647,20 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             child.expectedRtDiff = rtDiff;
         }
 
+        double A = (double) mavenParameters->qualityWeight/10;
+        double B = (double) mavenParameters->intensityWeight/10;
+        double C = (double) mavenParameters->deltaRTWeight/10;
+
         if (mavenParameters->matchRtFlag && child.compound != NULL && child.compound->expectedRt > 0)
         {
-            child.groupRank = rtDiff * rtDiff * (1.1 - child.maxQuality) * (1 / log(child.maxIntensity + 1));
+            child.groupRank = pow(rtDiff, 2*C) * pow((1.1 - child.maxQuality), A)
+                                                  * (1 /( pow(log(child.maxIntensity + 1), B)));
         }
         else
         {
-            child.groupRank = (1.1 - child.maxQuality) * (1 / log(child.maxIntensity + 1));
+            child.groupRank = pow((1.1 - child.maxQuality), A)
+                                                  * (1 /(pow(log(child.maxIntensity + 1), B)));
+
         }
 
 
@@ -897,9 +904,11 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         }
 
                         // Peak Group Rank accoording to given weightage
-                        double A = mavenParameters->qualityWeight/10;
-                        double B = mavenParameters->intensityWeight/10;
-                        double C = mavenParameters->deltaRTWeight/10;
+                        double A = (double) mavenParameters->qualityWeight/10;
+                        double B = (double) mavenParameters->intensityWeight/10;
+                        double C = (double) mavenParameters->deltaRTWeight/10;
+
+                        cerr << "  A: " << A << "     B: " << B << "     C: " << C << endl;
 
                         if (mavenParameters->matchRtFlag && compound != NULL && compound->expectedRt > 0) {
                             group.groupRank = pow(rtDiff, 2*C) * pow((1.1 - group.maxQuality), A)

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="featureSelectionTab">
       <attribute name="title">
@@ -901,12 +901,6 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
          </layout>
-         <zorder>label_26</zorder>
-         <zorder>deltaRTWeight</zorder>
-         <zorder>qualityWeight</zorder>
-         <zorder>intensityWeight</zorder>
-         <zorder>label_24</zorder>
-         <zorder>label_25</zorder>
          <zorder>deltaRTWeight</zorder>
          <zorder>label_26</zorder>
          <zorder>qualityWeightStatus</zorder>
