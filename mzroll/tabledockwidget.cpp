@@ -296,8 +296,7 @@ void TableDockWidget::mergeGroupsIntoPeakTable(QAction* action) {
         peaksTableList[j-1]->allgroups.append(allgroups[i]);
     }
     
-    treeWidget->clear();
-    allgroups.clear();
+    deleteAll();
     peaksTableList[j-1]->showAllGroups();
     showAllGroups();
 
