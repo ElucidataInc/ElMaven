@@ -181,6 +181,7 @@ void ProjectDockWidget::updateSampleList() {
 void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
     if (item && item->type() == SampleType ) {
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+        _mainwindow->alignmentPolyVizDockWidget->plotGraph();
         QVariant v = item->data(0,Qt::UserRole);
         mzSample*  sample =  v.value<mzSample*>();
         if (sample && sample->scans.size() > 0 ) {
@@ -217,6 +218,10 @@ void ProjectDockWidget::changeSampleOrder() {
     }
 
     if (changed) {
+
+        _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+        _mainwindow->alignmentPolyVizDockWidget->plotGraph();
+
         _mainwindow->getEicWidget()->replot();
     }
 }
@@ -256,6 +261,10 @@ void ProjectDockWidget::changeColors() {
       }
 
       _treeWidget->update();
+
+     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+     _mainwindow->alignmentPolyVizDockWidget->plotGraph();
+
       _mainwindow->getEicWidget()->replot();
 }
 
@@ -280,6 +289,7 @@ void ProjectDockWidget::checkUncheck() {
      _treeWidget->update();
 
      _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+     _mainwindow->alignmentPolyVizDockWidget->plotGraph();
 
       _mainwindow->getEicWidget()->replot();
 }
@@ -322,6 +332,9 @@ void ProjectDockWidget::unloadSelectedSamples() {
             _mainwindow->reBootApp();
         }
      }
+
+    _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+    _mainwindow->alignmentPolyVizDockWidget->plotGraph();
 }
 // @author:Giridhari
 //TODO: Create function to Set samples as Blank Samples

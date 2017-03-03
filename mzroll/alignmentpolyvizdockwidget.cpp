@@ -35,9 +35,10 @@ void AlignmentPolyVizDockWidget::plotGraph() {
     intialSetup();
 
     // plot individual graphs here
-    for (unsigned int i = 0;i<_mw->samples.size();i++) {
-        mzSample* sample = _mw->samples[i];
-        plotIndividualGraph(sample);
+    Q_FOREACH(mzSample* sample, _mw->getSamples()) {
+        if(sample->isSelected) {
+            plotIndividualGraph(sample);
+        }
     }
 
     refresh();
@@ -46,6 +47,7 @@ void AlignmentPolyVizDockWidget::plotGraph() {
 
 void AlignmentPolyVizDockWidget::intialSetup() {
 
+    _mw->alignmentPolyVizPlot->clearPlottables();
     setXAxis();
     setYAxis();
 
@@ -99,6 +101,8 @@ void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample) {
     _mw->alignmentPolyVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
 
     _mw->alignmentPolyVizPlot->graph()->setData(xAxis, yAxis);
+
+    _mw->alignmentPolyVizPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
 
 }
 
