@@ -32,6 +32,7 @@ public:
         void showSampleNames(bool flag) { _showSampleNames=flag; }
         void showIntensityText(bool flag)   { _showIntensityText=flag; }
         void showQValueType(bool flag) { _showQValueType=flag; }
+        int intensityTextShift();
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);

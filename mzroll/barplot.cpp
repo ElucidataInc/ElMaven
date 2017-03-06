@@ -57,14 +57,6 @@ void BarPlot::setPeakGroup(PeakGroup* group) {
 
     if (vsamples.size() <=0 ) return;
 
-    if (scene()) {
-        _width =   scene()->width()*0.20;
-        _barwidth = scene()->height()*0.75/vsamples.size();
-        if (_barwidth<3)  _barwidth=3;
-        if (_barwidth>15) _barwidth=15;
-        _height = _yvalues.size()*_barwidth;
-    }
-
     for(int i=0; i < vsamples.size(); i++ ) {
         mzSample* sample = vsamples[i];
         QColor color = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2],sample->color[3]);
@@ -77,6 +69,14 @@ void BarPlot::setPeakGroup(PeakGroup* group) {
         _yvalues.push_back(yvalues[i]);
     }
 
+    if (scene()) {
+        _width =   scene()->width()*0.20;
+        _barwidth = scene()->height()*0.75/vsamples.size();
+        if (_barwidth<3)  _barwidth=3;
+        if (_barwidth>15) _barwidth=15;
+        _height = _yvalues.size()*_barwidth;
+    }
+
 }
 
 void BarPlot::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
@@ -86,6 +86,17 @@ void BarPlot::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
     if (scale < 0.1) scale=0.1;
     if (scale > 2 ) scale=2;
     this->setScale(scale);
+}
+
+int BarPlot::intensityTextShift() {
+
+    QFont font("Helvetica");
+    float fontsize = _barwidth*0.8;
+    if  (fontsize < 1 ) fontsize=1;
+    font.setPointSizeF(fontsize);
+    QFontMetrics fm( font );
+    return fm.size(0,"100e+10",0,NULL).width();   
+
 }
 
 void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
@@ -111,7 +122,7 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     font.setPointSizeF(fontsize);
     painter->setFont(font);
     QFontMetrics fm( font );
-    int lagendShift = fm.size(0,"100e+10",0,NULL).width();
+    int lagendShift = fm.size(0,"100e+10",0,NULL).width();   
 
     QColor color = QColor::fromRgbF(0.2,0.2,0.2,1.0);
     QBrush brush(color);

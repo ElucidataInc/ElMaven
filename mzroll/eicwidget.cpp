@@ -1055,6 +1055,45 @@ void EicWidget::addAxes() {
 	return;
 }
 
+void EicWidget::setBarplotPosition(PeakGroup* group) {
+
+	if(!group || !_barplot) return;
+	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+	if(samples.size()==0) return;
+
+	int bwidth = _barplot->boundingRect().width();
+	int bheight = _barplot->boundingRect().height();
+	int legendShift = _barplot->intensityTextShift();
+
+	int xpos_right = scene()->width() * 0.95 - bwidth;
+	int xpos_left = scene()->width() * 0.10;
+	int ypos = scene()->height() * 0.10;
+
+	int count_right = 0, count_left = 0;
+
+	for(int i = 0; i < group->peaks.size(); i++) {
+		Peak& peak = group->peaks[i];
+		int x = toX(peak.rt);
+		int y = toY(peak.peakIntensity);
+		if(x >= xpos_right-legendShift-5 && x <= xpos_right+bwidth+5 && y <= ypos+bheight) count_right++;
+		if(x >= xpos_left-legendShift-5 && x <= xpos_left+bwidth+5 && y <= ypos+bheight) count_left++;
+	}
+
+	if(count_right == 0) {
+		_barplot->setPos(xpos_right, ypos);
+		return;
+	}
+
+	if(count_left == 0) {
+		_barplot->setPos(xpos_left, ypos);
+		return;
+	}
+
+	if(count_right <= count_left) _barplot->setPos(xpos_right, ypos);
+	else _barplot->setPos(xpos_left, ypos);
+
+}
+
 void EicWidget::addBarPlot(PeakGroup* group) {
 	//qDebug <<" EicWidget::addBarPlot(PeakGroup* group )";
 	if (group == NULL)
@@ -1067,11 +1106,12 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 	_barplot->setMainWindow(getMainWindow());
 	_barplot->setPeakGroup(group);
 
-	int bwidth = _barplot->boundingRect().width();
-	int bheight = _barplot->boundingRect().height();
-	int xpos = scene()->width() * 0.95 - bwidth;
-	int ypos = scene()->height() * 0.10;
-	_barplot->setPos(xpos, ypos);
+	// int bwidth = _barplot->boundingRect().width();
+	// int bheight = _barplot->boundingRect().height();
+	// int xpos = scene()->width() * 0.95 - bwidth;
+	// int ypos = scene()->height() * 0.10;
+	// _barplot->setPos(xpos, ypos);
+	setBarplotPosition(group);
 	_barplot->setZValue(1000);
 
 	float medianRt = group->medianRt();
