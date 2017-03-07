@@ -86,6 +86,9 @@ void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample) {
     vector<double> coefficients;
     double degree;
 
+    if (degreeMap.empty()) return;
+    if (coefficientMap.empty()) return;
+
     degree = degreeMap[sample];
     coefficients = coefficientMap[sample];
 
