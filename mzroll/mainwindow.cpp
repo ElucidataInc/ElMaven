@@ -536,6 +536,8 @@ using namespace mzUtils;
 	if (pathwayWidget)
 		loadPathwaysFolder(pathwaysFolder);
 
+	setCentralWidget(eicWidgetController());	
+
 	if (ligandWidget) {
 		if (settings->contains("lastDatabaseFile")) {
 			QString lfile =
@@ -585,10 +587,10 @@ using namespace mzUtils;
 	//versionCheck(); //TODO: Sahil-Kiran, Removed while merging mainwindow
 
 	settings->setValue("closeEvent", 0);
-	setCentralWidget(eicWidgetController());
 	peakDetectionDialog->setMavenParameters(settings);
 
 
+	readSettings();
 
 	QStringList CrashFileList;
 	unsigned int size = settings->beginReadArray("crashTables");
