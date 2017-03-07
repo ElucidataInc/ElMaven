@@ -13,9 +13,18 @@ AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(MainWindow *mw) :
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    QWidget* spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer);
+    QWidget* spacer1 = new QWidget();
+    spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolBar->addWidget(spacer1);
+
+    QToolButton *btnResetZoom = new QToolButton(toolBar);
+    btnResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
+    connect(btnResetZoom, SIGNAL(clicked()), SLOT(refresh()));
+    toolBar->addWidget(btnResetZoom);
+
+    QWidget* spacer2 = new QWidget();
+    spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolBar->addWidget(spacer2);
 
     QToolButton *btnHide = new QToolButton(toolBar);
     btnHide->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
@@ -32,16 +41,16 @@ AlignmentPolyVizDockWidget::~AlignmentPolyVizDockWidget()
 
 void AlignmentPolyVizDockWidget::plotGraph() {
 
-    intialSetup();
+        intialSetup();
 
-    // plot individual graphs here
-    Q_FOREACH(mzSample* sample, _mw->getSamples()) {
-        if(sample->isSelected) {
-            plotIndividualGraph(sample);
+        // plot individual graphs here
+        Q_FOREACH(mzSample* sample, _mw->getSamples()) {
+            if(sample->isSelected) {
+                plotIndividualGraph(sample);
+            }
         }
-    }
 
-    refresh();
+        refresh();
 
 }
 
@@ -66,7 +75,7 @@ void AlignmentPolyVizDockWidget::setYAxis() {
     _mw->alignmentPolyVizPlot->yAxis->setTicks(true);
     _mw->alignmentPolyVizPlot->yAxis->setSubTicks(true);
     _mw->alignmentPolyVizPlot->yAxis->setVisible(true);
-    _mw->alignmentPolyVizPlot->yAxis->setLabel("Polynomial Model");
+    _mw->alignmentPolyVizPlot->yAxis->setLabel("Retention Time Deviation");
 
 }
 
@@ -80,15 +89,17 @@ void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample) {
     degree = degreeMap[sample];
     coefficients = coefficientMap[sample];
 
+    double *coe = &coefficients[0];
+
     for(unsigned int i=0; i < sample->scans.size(); i++ ) {
         double rt = sample->scans[i]->rt;
         xAxis.push_back(rt);
 
         double y = 0;
-        for(int j=0; j <= degree; j++ ) {
-            y += coefficients[j] * pow(rt, degree - j);
-        }
-        yAxis.push_back(y);
+
+        y = leasev(coe, degree, rt);
+
+        yAxis.push_back(y - rt);
     }
 
     QColor color = _mw->projectDockWidget->storeSampleColors[sample];
