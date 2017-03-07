@@ -102,8 +102,8 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
 
     int count1 = 0, count2 = 0;
 
-    //Isotope parent(C12_PARENT_LABEL, parentMass);
-    //isotopes.push_back(parent);
+    Isotope parent(C12_PARENT_LABEL, parentMass);
+    isotopes.push_back(parent);
 
     if(isotopeAtom["ShowIsotopes"]) {
 

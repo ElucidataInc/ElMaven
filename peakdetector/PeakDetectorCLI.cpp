@@ -52,7 +52,7 @@ bool C13Labeled_BPE =false;
 bool N15Labeled_BPE =false;
 bool S34Labeled_BPE =false;
 bool D2Labeled_BPE =false;
-int noOfIsotopes = 2;
+int noOfIsotopes = 4;
 string csvFileFieldSeparator=",";
 PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
