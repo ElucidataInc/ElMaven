@@ -9,6 +9,8 @@ AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
 
 void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
+    if (!_mw->alignmentVizDockWidget->isVisible()) return;
+
     intialSetup();
     PeakGroup grp = *group;
 
