@@ -891,7 +891,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 myfile << ",\n" << "\"groupOverlapFrac\": " << peak.groupOverlapFrac ;
                 myfile << ",\n" << "\"gaussFitR2\": " << peak.gaussFitR2 ;
                 myfile << ",\n" << "\"peakRank\": " << peak.peakRank ;
-
+                myfile << ",\n" << "\"peakWidth\": " << peak.width ;
                 //EIC* eic = peak.getEIC(); //need to see if this is sufficient or if we need to change rt window
                 //this doesn't work -- peak.getEIC need not return a valid pointer neessarily, the EICs get cleared
 
