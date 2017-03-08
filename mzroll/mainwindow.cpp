@@ -1143,7 +1143,6 @@ void MainWindow::setTotalCharge() {
 	mavenParameters->ionizationMode = temp;
 	mavenParameters->charge = ionChargeBox->value();
 	totalCharge = temp * ionChargeBox->value();
-	cerr << ionChargeBox->value() << "<<<<<<<<<<<<<<<<<<<" << totalCharge <<endl; 
 	
 } 
 
