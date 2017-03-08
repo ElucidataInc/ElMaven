@@ -98,7 +98,7 @@ void IsotopePlot::normalizeIsotopicMatrix(MatrixXf &MM) {
     for(int i = 0; i < MM.rows(); i++) {
 		float sum = 0;
 		for(int j = 0; j < MM.cols(); j++) sum += MM(i,j);
-		if(sum<=1) continue;
+		if(sum<=0) continue;
 		for(int j = 0; j < MM.cols(); j++) MM(i,j) /= sum;
 	}
 
