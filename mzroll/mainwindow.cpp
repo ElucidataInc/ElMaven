@@ -3293,7 +3293,6 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 		if (group->childrenBarPlot[i].isIsotope()) {
 			PeakGroup* isotope = &(group->childrenBarPlot[i]);
 			isotopes.push_back(isotope);
-			cerr << isotope->tagString << endl;
 			//Getting the labels of carbon
 			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
 				if (isotope->tagString.find(delimParent) != string::npos) {
@@ -3305,16 +3304,6 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 			}
 		}
 	}
-
-	typedef std::map<unsigned int, string>::iterator it_type;
-	for(it_type iterator = carbonIsotopeSpecies.begin(); iterator != carbonIsotopeSpecies.end(); iterator++) {
-		cerr << iterator->first << endl;
-		cerr << iterator->second << endl;
-		// iterator->first = key
-		// iterator->second = value
-		// Repeat if you also want to iterate through the second map.
-	}
-
 
 	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
 	MM.setZero();
