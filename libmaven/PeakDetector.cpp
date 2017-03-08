@@ -621,7 +621,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
     //fill peak group list with the compound and it's isotopes.
     // peak group list would be filled with the parent group, with its isotopes as children
     // click on + to see children == isotopes
-    parentgroup->children.clear();
+    // parentgroup->children.clear();
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
@@ -691,10 +691,18 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             if (isotopeName.find(H2_LABEL) != string::npos)
                 continue;
         }
-        parentgroup->addChild(child);
+
+        bool childExist = false;
+        for (unsigned int ii = 0; ii < parentgroup->children.size(); ii++) {
+            if (parentgroup->children[ii].tagString == isotopeName) {
+                childExist = true;
+            }
+        }
+
+        if (!childExist) parentgroup->addChild(child);
     }
 
-    parentgroup->childrenIsoWidget.clear();
+    // parentgroup->childrenIsoWidget.clear();
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
@@ -739,7 +747,16 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             if (isotopeName.find(H2_LABEL) != string::npos)
                 continue;
         }
-        parentgroup->addChildIsoWidget(child);
+
+        bool childExist = false;
+        for (unsigned int ii = 0; ii < parentgroup->childrenIsoWidget.size(); ii++) {
+            if (parentgroup->childrenIsoWidget[ii].tagString == isotopeName) {
+                childExist = true;
+            }
+        }
+
+        if (!childExist) parentgroup->addChildIsoWidget(child);
+
     }
 }
 
