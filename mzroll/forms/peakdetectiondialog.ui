@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>876</width>
-    <height>660</height>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -426,35 +426,52 @@
           <string>Peak Scoring and Filtering</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Peak Classifier Model File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Min. Peak Intensity</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Min. Signal/BaseLine Ratio</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_12">
             <property name="text">
              <string>Min. Peak Width</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_100">
+            <property name="text">
+             <string>Min. Good Peak / Group</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="3">
+           <widget class="QPushButton" name="loadModelButton">
+            <property name="text">
+             <string>Load Model</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QComboBox" name="peakQuantitation">
+            <item>
+             <property name="text">
+              <string>AreaTop</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Area</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Height</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>AreaNotCorrected</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="1">
            <widget class="QSpinBox" name="minNoNoiseObs">
             <property name="suffix">
              <string> scans</string>
@@ -470,7 +487,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="7" column="1">
            <widget class="QSpinBox" name="minGoodGroupCount">
             <property name="suffix">
              <string> peaks</string>
@@ -483,21 +500,28 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="3">
-           <widget class="QPushButton" name="loadModelButton">
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Load Model</string>
+             <string>Peak Classifier Model File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Min. Peak Intensity</string>
             </property>
            </widget>
           </item>
           <item row="6" column="0">
-           <widget class="QLabel" name="label_100">
+           <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Min. Good Peak / Group</string>
+             <string>Min. Signal/BaseLine Ratio</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1">
            <widget class="QDoubleSpinBox" name="sigBlankRatio">
             <property name="maximum">
              <double>10000000.000000000000000</double>
@@ -507,7 +531,24 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="8" column="1">
+           <widget class="QLineEdit" name="classificationModelFilename">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QSpinBox" name="sigBaselineRatio">
+            <property name="maximum">
+             <number>10000000</number>
+            </property>
+            <property name="value">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
              <string>Min. Signal/Blank Ratio</string>
@@ -536,45 +577,18 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QSpinBox" name="sigBaselineRatio">
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="quantileIntensity">
             <property name="maximum">
-             <number>10000000</number>
-            </property>
-            <property name="value">
-             <number>2</number>
+             <double>100.000000000000000</double>
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
-           <widget class="QLineEdit" name="classificationModelFilename">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_27">
             <property name="text">
-             <string/>
+             <string>% Peaks Atleast Above Threshold Intensity   </string>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QComboBox" name="peakQuantitation">
-            <item>
-             <property name="text">
-              <string>AreaTop</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Area</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Height</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>AreaNotCorrected</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -593,85 +607,6 @@
            <widget class="QLabel" name="label_36">
             <property name="text">
              <string>EIC Smoothing Algorithm</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QGroupBox" name="groupBox">
-            <property name="title">
-             <string>Baseline Calculation</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="1">
-              <widget class="QSpinBox" name="baseline_quantile">
-               <property name="suffix">
-                <string> %</string>
-               </property>
-               <property name="prefix">
-                <string/>
-               </property>
-               <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="value">
-                <number>80</number>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_15">
-               <property name="text">
-                <string>Drop top x%  intensities from chromatogram</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_8">
-               <property name="text">
-                <string>Baseline Smoothing </string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QSpinBox" name="baseline_smoothing">
-               <property name="suffix">
-                <string> scans</string>
-               </property>
-               <property name="maximum">
-                <number>1000000</number>
-               </property>
-               <property name="value">
-                <number>5</number>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelMinQuality">
-               <property name="text">
-                <string>Min. Quality</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QDoubleSpinBox" name="doubleSpinBoxMinQuality">
-               <property name="maximum">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-               <property name="value">
-                <double>0.500000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Peak Grouping (Max Group Rt Difference)</string>
             </property>
            </widget>
           </item>
@@ -698,6 +633,32 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Peak Grouping (Max Group Rt Difference)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="eic_smoothingAlgorithm">
+            <item>
+             <property name="text">
+              <string>Savitzky-Golay</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Gaussian</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Moving Average</string>
+             </property>
+            </item>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="eic_smoothingWindow">
             <property name="suffix">
@@ -720,23 +681,90 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="eic_smoothingAlgorithm">
-            <item>
-             <property name="text">
-              <string>Savitzky-Golay</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Gaussian</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Moving Average</string>
-             </property>
-            </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Baseline Calculation</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Baseline Smoothing </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="baseline_quantile">
+               <property name="suffix">
+                <string> %</string>
+               </property>
+               <property name="prefix">
+                <string/>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>80</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="labelMinQuality">
+               <property name="text">
+                <string>Min. Quality</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QDoubleSpinBox" name="doubleSpinBoxMinQuality">
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.500000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string>Drop top x%  intensities from chromatogram</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QSpinBox" name="baseline_smoothing">
+               <property name="suffix">
+                <string> scans</string>
+               </property>
+               <property name="maximum">
+                <number>1000000</number>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_28">
+               <property name="text">
+                <string>% Peaks Atleast Above Threshold Quality</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="quantileQuality">
+               <property name="maximum">
+                <double>100.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>

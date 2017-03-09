@@ -79,7 +79,20 @@ MavenParameters::MavenParameters() {
         alignMaxItterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
         alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow
         
+        quantileQuality = 0.0;
+        quantileIntensity = 0.0;
 
+}
+
+vector<mzSample*> MavenParameters::getVisibleSamples() {
+
+	vector<mzSample*> vsamples;
+	for (int i = 0; i < samples.size(); i++) {
+		if (samples[i] && samples[i]->isSelected) {
+			vsamples.push_back(samples[i]);
+		}
+	}
+	return vsamples;
 }
 
 void MavenParameters::setAverageScanTime() {

@@ -90,6 +90,11 @@ class PeakGroup{
         float expectedAbundance;
         int   isotopeC13count;
 
+        double minIntensity;
+
+        int quantileIntensityPeaks;
+        int quantileQualityPeaks;
+
         float minRt;
         float maxRt;
         float minMz;

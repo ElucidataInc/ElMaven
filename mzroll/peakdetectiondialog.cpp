@@ -282,6 +282,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("baseline_dropTopX").toInt());
             doubleSpinBoxMinQuality->setValue(
                 settings->value("minQuality").toDouble());
+            quantileQuality->setValue(
+                settings->value("quantileQuality").toDouble());
 
             // Peak Scoring and Filtering
             minGoodGroupCount->setValue(
@@ -295,7 +297,9 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             minGroupIntensity->setValue(
                 settings->value("minGroupIntensity").toDouble());
             peakQuantitation->setCurrentIndex(
-            settings->value("peakQuantitation").toInt());
+                settings->value("peakQuantitation").toInt());
+            quantileIntensity->setValue(
+                settings->value("quantileIntensity").toDouble());
 
             // Peak Group Rank
             qualityWeight->setValue(
@@ -478,6 +482,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("baseline_smoothingWindow", baseline_smoothing->value());
     settings->setValue("baseline_dropTopX", baseline_quantile->value());
     settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
+    settings->setValue("quantileQuality", quantileQuality->value());
     // Peak Scoring and Filtering
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
@@ -485,6 +490,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("minSignalBlankRatio", sigBlankRatio->value());
     settings->setValue("minGroupIntensity", minGroupIntensity->value());
     settings->setValue("peakQuantitation", peakQuantitation->currentIndex());
+    settings->setValue("quantileIntensity", quantileIntensity->value());
     // Peak Group Rank
     settings->setValue("qualityWeight", qualityWeight->value());
     settings->setValue("intensityWeight", intensityWeight->value());
@@ -547,6 +553,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
         mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
         mavenParameters->minQuality = settings->value("minQuality").toDouble();
+        mavenParameters->quantileQuality = settings->value("quantileQuality").toDouble();
 
         // Peak Scoring and Filtering
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
@@ -555,6 +562,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
+        mavenParameters->quantileIntensity = settings->value("quantileIntensity").toDouble();
 
         // Peak Group Rank
         mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();

@@ -34,6 +34,10 @@ PeakGroup::PeakGroup()  {
     maxPeakOverlap=0;
     maxQuality=0;
     minQuality = 0.2;
+    minIntensity = 0;
+
+    quantileIntensityPeaks = 0;
+    quantileQualityPeaks = 0;
 
     expectedRtDiff=-1;
     expectedAbundance=0;
@@ -66,6 +70,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     metaGroupId= o.metaGroupId;
     groupRank= o.groupRank;
 
+    minQuality = o.minQuality;
+    minIntensity = o.minIntensity;
     maxIntensity= o.maxIntensity;
     maxAreaTopIntensity = o.maxAreaTopIntensity;
     maxAreaIntensity = o.maxAreaIntensity;
@@ -78,6 +84,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
     blankMean=o.blankMean;
+
+    quantileIntensityPeaks = o.quantileIntensityPeaks;
+    quantileQualityPeaks = o.quantileQualityPeaks;
 
     sampleMax=o.sampleMax;
     sampleCount=o.sampleCount;
@@ -450,6 +459,8 @@ void PeakGroup::groupStatistics() {
     maxQuality=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
+    quantileIntensityPeaks;
+    quantileQualityPeaks;
     int nonZeroCount=0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
@@ -469,6 +480,9 @@ void PeakGroup::groupStatistics() {
         if(peaks[i].peakAreaCorrected > maxAreaIntensity) maxAreaIntensity = peaks[i].peakAreaCorrected;
         if(peaks[i].peakIntensity > maxHeightIntensity) maxHeightIntensity = peaks[i].peakIntensity;
         if(peaks[i].peakArea > maxAreaNotCorrectedIntensity) maxAreaNotCorrectedIntensity = peaks[i].peakArea;
+
+        if(max > minIntensity) quantileIntensityPeaks++;
+        if(peaks[i].quality > minQuality) quantileQualityPeaks++;  
 
         if(max>maxIntensity) {
             maxIntensity = max;

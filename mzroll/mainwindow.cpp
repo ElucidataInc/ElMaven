@@ -1812,6 +1812,12 @@ void MainWindow::readSettings() {
     if (!settings->contains("baseline_dropTopX"))
         settings->setValue("baseline_dropTopX", 80);
 
+	if (!settings->contains("minQuality"))
+        settings->setValue("minQuality", 0.50);
+
+	if (!settings->contains("quantileQuality"))
+        settings->setValue("quantileQuality", 0.0);
+
     // Peak Scoring and Fitering
     if (!settings->contains("minGoodGroupCount"))
         settings->setValue("minGoodGroupCount", 1);
@@ -1828,8 +1834,8 @@ void MainWindow::readSettings() {
     if (!settings->contains("minGroupIntensity"))
         settings->setValue("minGroupIntensity", 5000);
 	
-	if (!settings->contains("minQuality"))
-        settings->setValue("minQuality", 0.50);
+	if (!settings->contains("quantileIntensity"))
+        settings->setValue("quantileIntensity", 0.0);
 
 	// Peak Group Rank
 	if (!settings->contains("qualityWeight"))

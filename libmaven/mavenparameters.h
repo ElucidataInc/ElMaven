@@ -87,6 +87,7 @@ public:
 	 * @method cleanup
 	 */
 	void cleanup();
+	vector<mzSample*> getVisibleSamples();
 
 	bool writeCSVFlag;
 	bool alignSamplesFlag;
@@ -102,6 +103,10 @@ public:
 	 */
 	int ionizationMode;
 	int charge;
+
+	// For quantile intensity and qualityWeight
+	double quantileQuality;
+	double quantileIntensity;
 
 	//mass slicing parameters
 	float mzBinStep;
