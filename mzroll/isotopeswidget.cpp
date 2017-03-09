@@ -179,7 +179,6 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		// } else {
 		// 	mavenParameters->setIonizationMode();
 		// }
-		cerr << "<<<<hello<<<<" << mavenParameters->ionizationMode << "<<<<bye<<<<" << endl;
 		workerThread->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}
@@ -209,7 +208,6 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 		// } else {
 		// 	mavenParameters->setIonizationMode();
 		// }
-		cerr << "<<<<hello1<<<<" << mavenParameters->ionizationMode << "<<<<bye1<<<<" << endl;
 		workerThreadBarplot->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}
