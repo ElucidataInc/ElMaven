@@ -19,6 +19,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(matchRt,SIGNAL(clicked()),this,SLOT(setGroupRank()));
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(reportIsotopesOptions,SIGNAL(clicked(bool)),this,SLOT(showMethodSummary())); 
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
