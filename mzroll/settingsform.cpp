@@ -75,6 +75,8 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
 void SettingsForm::setIsotopeAtom() {
 
     if(!mainwindow) return;
+
+    bool temp = mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"];
     mainwindow->mavenParameters->isotopeAtom.clear();
 
     if(D2Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
@@ -89,8 +91,7 @@ void SettingsForm::setIsotopeAtom() {
     if(S34Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
     else mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = false;
 
-    if(mainwindow->mavenParameters->pullIsotopesFlag) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
+    mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = temp;
     
 }
 

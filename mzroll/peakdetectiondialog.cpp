@@ -26,6 +26,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
+        connect(reportIsotopesOptions, SIGNAL(clicked(bool)), SLOT(setShowIsotopes()));
 
         label_20->setVisible(false);
         chargeMin->setVisible(false);
@@ -39,6 +40,13 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
         connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
+
+}
+
+void PeakDetectionDialog::setShowIsotopes() {
+
+    if(reportIsotopesOptions->isChecked()) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
 
 }
 
