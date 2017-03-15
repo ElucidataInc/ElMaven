@@ -5,6 +5,6 @@ El-MAVEN is an LC-MS data processing engine for large-scale metabolomic experime
 
 
 ## Installation
-Install on [windows](http://localhost:4000/main/2016/02/12/windows-installation.html)
+Install on [Windows](http://localhost:4000/main/2016/02/12/windows-installation.html)
 
 Install on [Ubuntu](http://localhost:4000/main/2016/02/12/ubuntu-installation.html)
