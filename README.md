@@ -1,27 +1,15 @@
 Maven
 =====
 
+El-MAVEN is an LC-MS data processing engine for large-scale metabolomic experiments. It allows completely automated processing of raw LC-MS data from isotopomer labeling and untargeted metabolomic profiling experiments. It is vendor-neutral, open-source and has an interface built for ease of processing and visualizing 100s of samples.
+
+The project was originally developed as MAVEN at the Rabinowitz Lab at Princeton University. Over the last year, Elucidata has revamped the software architecture of the tool to make it capable of handling large datasets - tens of GBs (also in terms of number of samples). In the process, we have also made it faster and more robust.
+
+We continue to actively develop the application with support from our collaborators. Elucidata offers support for deployment, maintenance and training users. We also develop customized features for El-MAVEN for our partners to accommodate special requirements.
+
+
+
 ## Installation
-Run `./run.sh`.
+Install on [windows](http://localhost:4000/main/2016/02/12/windows-installation.html)
 
-## Uninstall MAVEN
-Run  `./uninstall.sh`.
-
-## Documentation
-1. Use `cd docs/ && doxygen Doxyfile` to generate documentation of the mzroll source code.
-2. Open the `docs/html/index.html` file in browser to view the documentation.
-3. Use `rm -rf docs/html maven_opensource/docs/latex` to clean the documentation files. Complete step 1 to create documentation again.
-  NOTE: uninstall.sh also cleans stale documentation files.
-
-## PeakDetector CLI
-
-1. Run `cd peakdetector && make && cd ..`
-
-/path/to/peakdetector --savemzroll 1 --minQuality 0.5 --ppmMerge 10 //
---minSignalBaseLineRatio 2 --ionizationMode 1 --grouping_maxRtWindow 0.5 //
---minPrecursorCharge 0 --db /path/to/database/Kegg_PopularMetabolites.tab.txt //
---alignSamples 0 --minGroupIntensity 10000 --matchRtFlag 0 --pullIsotopes 0 //
---model /path/to/model/default.model --minPeakWidth 5 --minGoodGroupCount 3 //
---eicMaxGroups 10 --eicSmoothingWindow 12 --rtStepSize 10 --outputdir /path/to/output/directory //
-/path/to/mzxml/file1/"a2811-pos/"bk_#sucyxpe_1_10.mzxml /path/to/mzxml/file2/"a2811-pos/"bk_#sucyxpe_1_11.mzxml //
-/path/to/mzxml/file3/"a2811-pos/"bk_#sucyxpe_1_12.mzxml ..
+Install on [Ubuntu](http://localhost:4000/main/2016/02/12/ubuntu-installation.html)
