@@ -28,6 +28,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
                  void updateMultiprocessing();
+                 void showSetIsotopeAtom();
 
                  void setSettingsIonizationMode(QString);
 

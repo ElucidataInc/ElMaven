@@ -40,6 +40,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(S34Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(D2Labeled_IsoWidget, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
 
+    connect(showBookmarkIsotopes, SIGNAL(toggled(bool)),SLOT(showSetIsotopeAtom()));
+
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(recomputeIsotopes()));
 
     connect(maxNaturalAbundanceErr, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
@@ -72,9 +74,15 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
     else                                    ionizationMode->setCurrentIndex(0);
 }
 
+void SettingsForm::showSetIsotopeAtom() {
+    setIsotopeAtom();
+    cerr << mainwindow->mavenParameters->isotopeAtom["IsotopeWidget"] << " hello \n\n";
+}
+
 void SettingsForm::setIsotopeAtom() {
 
     if(!mainwindow) return;
+    bool b = mainwindow->mavenParameters->isotopeAtom["IsotopeWidget"];
     mainwindow->mavenParameters->isotopeAtom.clear();
 
     if(D2Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
@@ -89,8 +97,13 @@ void SettingsForm::setIsotopeAtom() {
     if(S34Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
     else mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = false;
 
+    if(showBookmarkIsotopes->isChecked()) mainwindow->mavenParameters->isotopeAtom["showBookmarkIsotopes"] = true;
+    else mainwindow->mavenParameters->isotopeAtom["showBookmarkIsotopes"] = false;
+
     if(mainwindow->mavenParameters->pullIsotopesFlag) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
     else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
+
+    mainwindow->mavenParameters->isotopeAtom["IsotopeWidget"] = b;
     
 }
 

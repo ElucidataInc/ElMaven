@@ -105,7 +105,15 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
     Isotope parent(C12_PARENT_LABEL, parentMass);
     isotopes.push_back(parent);
 
-    if(isotopeAtom["ShowIsotopes"]) {
+    bool b;
+
+    if(isotopeAtom["IsotopeWidget"]) {
+        b = isotopeAtom["showBookmarkIsotopes"];
+        isotopeAtom["showBookmarkIsotopes"] = false;
+    }
+    else b = isotopeAtom["showIsotopes"];
+
+    if(b) {
 
         if(isotopeAtom["C13Labeled_BPE"] && isotopeAtom["N15Labeled_BPE"]) {
             for (int i = 1; i <= CatomCount; i++) {
