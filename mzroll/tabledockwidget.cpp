@@ -706,12 +706,12 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
-    QString groupsTAB = "Groups  Summary Matrix Format (*.tab)";
-    QString groupsSTAB = "Groups  Summary Matrix Format Without Set Name (*.tab)";    
-    QString peaksTAB =  "Peaks   Detailed Format   (*.tab)";
-    QString groupsCSV = "Groups  Summary Matrix Format Comma Delimited (*.csv)";
-    QString groupsSCSV = "Groups  Summary Matrix Format Comma Delimited Without Set Name (*.csv)";    
-    QString peaksCSV =  "Peaks   Detailed Format Comma Delimited  (*.csv)";
+    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
+    QString groupsSTAB = "Groups Summary Matrix Format Without Set Name (*.tab)";    
+    QString peaksTAB =  "Peaks Detailed Format (*.tab)";
+    QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
+    QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited Without Set Name (*.csv)";
+    QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
     //Added when Merging to Maven776 - Kiran
     QString peaksListQE= "Inclusion List QE (*.csv)";
     QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
