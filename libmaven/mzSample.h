@@ -25,6 +25,8 @@
 #include "EIC.h"
 #include "Scan.h"
 #include <QRegExp>
+#include <QString>
+#include <QStringList>
 
 #ifdef ZLIB
 #include <zlib.h>

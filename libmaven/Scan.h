@@ -194,6 +194,7 @@ class Scan{
         vector <float> mz;
         string scanType;
         string filterLine;
+        int sampleNumber;
         mzSample* sample;
 
         /**

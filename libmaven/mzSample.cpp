@@ -263,6 +263,16 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
 
                 QRegExp rx("sample\ *\=\ *[0-9]+\ ");      // match ampersands but not &amp;
                 QString line = QString::fromStdString(chromatogramId);
+
+                QRegExp rxSampleNumber("sample\ *\=\ *([0-9]+)\ ");
+                QStringList listSampleNo;
+                int pos = 0;
+
+                while ((pos = rxSampleNumber.indexIn(line, pos)) != -1) {
+                        listSampleNo << rxSampleNumber.cap(1);
+                        pos += rxSampleNumber.matchedLength();
+                }
+
                 chromatogramId = line.replace(rx, "").toStdString();
 
                 vector<float> timeVector;
@@ -304,6 +314,7 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList) {
                                 scan->productMz=productMz;
                                 scan->mz.push_back(productMz);
                                 scan->filterLine= chromatogramId;
+                                if (!listSampleNo.isEmpty()) scan->sampleNumber = listSampleNo[0].toInt();
                                 scan->intensity.push_back(intsVector[i]);
                                 addScan(scan);
                         }

@@ -62,6 +62,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
                             "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
                             "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
                             "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) + 
+                            "<br> <b>sample number: </b>" +   QString::number(_peak->getScan()->sampleNumber) + 
                             "<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
 							);
 
@@ -87,6 +88,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
 					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
 					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
+                    "<br> <b>sample number: </b>" +   QString::number(_scan->sampleNumber) + 
 					"<br> <b>PrecursorMz: </b>" +   QString::number(_scan->precursorMz, 'f', 2 )
 		);
 	}
