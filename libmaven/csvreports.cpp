@@ -333,8 +333,15 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();
         string sampleName;
-        if (sample != NULL)
-            sampleName = sanitizeString(sample->sampleName.c_str()).toStdString();;
+        if (sample != NULL) {
+
+            string sampleId = "";
+            sampleId = sample->sampleName;
+            if (peak.getScan()->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
+
+            sampleName = sanitizeString(sampleId.c_str()).toStdString();
+        }
+
 
         peakReport << setprecision(8)
                 << groupId << SEP
