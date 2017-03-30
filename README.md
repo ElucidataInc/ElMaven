@@ -5,6 +5,6 @@ El-MAVEN is an LC-MS data processing engine for large-scale metabolomic experime
 
 
 ## Installation
-Install on [Windows](http://localhost:4000/main/2016/02/12/windows-installation.html)
+Install on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html)
 
-Install on [Ubuntu](http://localhost:4000/main/2016/02/12/ubuntu-installation.html)
+Install on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html)
