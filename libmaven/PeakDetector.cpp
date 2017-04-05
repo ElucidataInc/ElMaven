@@ -817,16 +817,16 @@ bool PeakDetector::quantileFilters(PeakGroup *group) {
         }
     }
     int noVisibleSamples = mavenParameters->getVisibleSamples().size();
-    if ((peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileIntensity) {
+    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileIntensity) {
         return true;
     }
-    if ((peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileQuality) {
+    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileQuality) {
         return true;
     }
-    if ((peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
+    if ((1.0*peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
         return true;
     }
-    if ((peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
+    if ((1.0*peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
         return true;
     }
     return false;
