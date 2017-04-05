@@ -459,8 +459,8 @@ void PeakGroup::groupStatistics() {
     maxQuality=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
-    quantileIntensityPeaks;
-    quantileQualityPeaks;
+    quantileIntensityPeaks=0;
+    quantileQualityPeaks=0;
     int nonZeroCount=0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
