@@ -55,7 +55,7 @@ public Q_SLOTS:
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
-    void addBaseline(PeakGroup* group); //TODOL Sahil Added while mergin eicWidget
+    void addBaseLine(EIC*);
 	void addTicLine();
 	void addMergedEIC();
 	void setFocusLine(float rt);

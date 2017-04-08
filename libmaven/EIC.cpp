@@ -102,6 +102,8 @@ EIC* EIC::eicMerge(const vector<EIC*>& eics) {
 
 void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
     //Merged to 776
+    cerr << "calculating baseline for " << sample->fileName << "\n";
+    cerr << rtmin << "\t" <<rtmax << "\n";
     if (baseline != NULL ) { //delete previous baseline if exists
         delete[] baseline;
         baseline = NULL;
@@ -125,10 +127,15 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
     //compute maximum intensity of baseline, any point above this value will
     // be dropped. User specifies quantile of points to keep, for example
     //drop 60% of highest intensities = cut at 40% value;
+
     float cutvalueF = (100.0 - (float) dropTopX) / 101;
+    cerr << "cutvalue = " << cutvalueF << "\n";
     unsigned int pos = tmpv.size() * cutvalueF;
+    cerr << "pos = " << pos << "\n";
+    cerr << "tmpv size = " << tmpv.size() << "\n";
     float qcut = 0;
     pos < tmpv.size() ? qcut = tmpv[pos] : qcut = tmpv.back();
+    cerr << "qcut = " << qcut << "\n";
 
     //drop all points above maximum baseline value
     for(int i = 0; i < n; i++ ) {
@@ -146,6 +153,9 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX) {
     for (int i = 0; i < n; i++) {
         if (intensity[i] > baseline[i]) eic_noNoiseObs++;
     }
+    cerr << "eic size = " << n << "\n";
+    cerr << "eic no noise obs = " << eic_noNoiseObs << "\n";
+
 }
 
 void EIC::subtractBaseLine() {
