@@ -318,6 +318,7 @@ void TableDockWidget::setIntensityColName() {
         case PeakGroup::Area: temp = "Max Area"; break;
         case PeakGroup::Height: temp = "Max Height"; break;
         case PeakGroup::AreaNotCorrected: temp = "Max AreaNotCorrected"; break;
+        case PeakGroup::AreaTopNotCorrected: temp = "Max AreaTopNotCorrected"; break;
         default: temp = _mainwindow->currentIntensityName; break;
     }
     _mainwindow->currentIntensityName = temp;
@@ -682,6 +683,7 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
         case PeakGroup::Area: temp =  group->maxAreaIntensity; break;
         case PeakGroup::Height: temp = group->maxHeightIntensity; break;
         case PeakGroup::AreaNotCorrected: temp = group->maxAreaNotCorrectedIntensity; break;
+        case PeakGroup::AreaTopNotCorrected: temp = group->maxAreaTopNotCorrectedIntensity; break;
         default: temp = group->currentIntensity; break;
     }
     group->currentIntensity = temp;
@@ -879,9 +881,11 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 myfile << ",\n" << "\"quality\": " << peak.quality ;
                 myfile << ",\n" << "\"peakIntensity\": " << peak.peakIntensity ;
                 myfile << ",\n" << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel ;
-                myfile << ",\n" << "\"peakArea\": " << peak.peakArea ;
-                myfile << ",\n" << "\"peakAreaTop\": " << peak.peakAreaTop ;
-                myfile << ",\n" << "\"peakAreaCorrected\": " << peak.peakAreaCorrected;
+                myfile << ",\n" << "\"peakArea\": " << peak.peakAreaCorrected ;
+                myfile << ",\n" << "\"peakAreaTop\": " << peak.peakAreaTopCorrected;
+//                myfile << ",\n" << "\"peakAreaNotCorrected\": " << peak.peakAreaNotCorrected;
+//                myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << peak.peakAreaTopNotCorrected;
+
                 myfile << ",\n" << "\"noNoiseObs\": " << peak.noNoiseObs ;
                 myfile << ",\n" << "\"signalBaselineRatio\": " << peak.signalBaselineRatio ;
                 myfile << ",\n" << "\"fromBlankSample\": " << peak.fromBlankSample ;
@@ -961,7 +965,8 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 myfile << ",\n" << "\"peakBaseLineLevel\": " << sanitizeJSONstring("NA");
                 myfile << ",\n" << "\"peakArea\": " << sanitizeJSONstring("NA");
                 myfile << ",\n" << "\"peakAreaTop\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"peakAreaCorrected\": " << sanitizeJSONstring("NA");
+//                myfile << ",\n" << "\"peakAreaCorrected\": " << sanitizeJSONstring("NA");
+//                myfile << ",\n" << "\"peakAreaTopCorrected\": " << sanitizeJSONstring("NA");
                 myfile << ",\n" << "\"noNoiseObs\": " << sanitizeJSONstring("NA");
                 myfile << ",\n" << "\"signalBaselineRatio\": " << sanitizeJSONstring("NA");
                 myfile << ",\n" << "\"fromBlankSample\": " << sanitizeJSONstring("NA");
@@ -1814,6 +1819,7 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("peakArea",  QString::number(p.peakArea,'f',6));
         stream.writeAttribute("peakAreaCorrected",  QString::number(p.peakAreaCorrected,'f',6));
         stream.writeAttribute("peakAreaTop",  QString::number(p.peakAreaTop,'f',6));
+        stream.writeAttribute("peakAreaTopCorrected",  QString::number(p.peakAreaTopCorrected,'f',6));
         stream.writeAttribute("peakAreaFractional",  QString::number(p.peakAreaFractional,'f',6));
         stream.writeAttribute("peakRank",  QString::number(p.peakRank,'f',6));
         stream.writeAttribute("peakIntensity",  QString::number(p.peakIntensity,'f',6));
@@ -1942,6 +1948,7 @@ void TableDockWidget::readPeakXML(QXmlStreamReader& xml,PeakGroup* parent) {
     p.peakArea = xml.attributes().value("peakArea").toString().toDouble();
     p.peakAreaCorrected = xml.attributes().value("peakAreaCorrected").toString().toDouble();
     p.peakAreaTop = xml.attributes().value("peakAreaTop").toString().toDouble();
+    p.peakAreaTopCorrected = xml.attributes().value("peakAreaTopCorrected").toString().toDouble();
     p.peakAreaFractional = xml.attributes().value("peakAreaFractional").toString().toDouble();
     p.peakRank = xml.attributes().value("peakRank").toString().toDouble();
     p.peakIntensity = xml.attributes().value("peakIntensity").toString().toDouble();

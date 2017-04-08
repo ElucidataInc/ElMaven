@@ -1013,6 +1013,7 @@ void writeGroupXML(xml_node& parent, PeakGroup* g) {
 		peak.append_attribute("peakArea") = p.peakArea;
 		peak.append_attribute("peakAreaCorrected") = p.peakAreaCorrected;
 		peak.append_attribute("peakAreaTop") = p.peakAreaTop;
+        peak.append_attribute("peakAreaTopCorrected") = p.peakAreaTopCorrected;
 		peak.append_attribute("peakAreaFractional") = p.peakAreaFractional;
 		peak.append_attribute("peakRank") = p.peakRank;
 		peak.append_attribute("peakIntensity") = p.peakIntensity;

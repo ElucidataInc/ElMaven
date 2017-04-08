@@ -20,7 +20,11 @@ BarPlot::BarPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 
 void BarPlot::switchQValue() {  
     //TODO: updated equation, didn't understand why - Kiran
-    BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
+    //VC: I'm so confused by what this next line was supposed to do.
+    //I suspect it caused a bug when I increased the number of qtypes, but I don't see what it was
+    //supposed to do in the first place. qtype is set in setPeakGroup()
+    //it seems like it temporarily changes the qtype?
+    //BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
 	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
 	if ( g != NULL ) {
@@ -136,6 +140,7 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     case PeakGroup::Area: title = "Peak Area"; break;
     // new feature - Kiran
     case PeakGroup::AreaNotCorrected: title = "Peak Area Not Corrected"; break;
+    case PeakGroup::AreaTopNotCorrected: title = "Peak AreaTop Not Corrected"; break;
     case PeakGroup::Height: title = "Peak Height"; break;
     case PeakGroup::Quality: title = "Peak Quality"; break;
     case PeakGroup::RetentionTime: title = "RetentionTime"; break;

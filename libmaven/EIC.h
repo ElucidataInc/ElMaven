@@ -66,6 +66,8 @@ class EIC {
 
         float maxAreaNotCorrectedIntensity;
 
+        float maxAreaTopNotCorrectedIntensity;
+
         /**      sum of all intensities in EIC */
         float totalIntensity;
 

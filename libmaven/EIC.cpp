@@ -15,6 +15,7 @@ EIC::EIC() {
     maxIntensity=totalIntensity = 0;
     maxAreaTopIntensity = 0;
     maxAreaIntensity = 0;
+    maxAreaTopNotCorrectedIntensity = 0;
     maxAreaNotCorrectedIntensity = 0;
     eic_noNoiseObs = 0;
     smootherType = GAUSSIAN;
@@ -409,18 +410,23 @@ void EIC::getPeakDetails(Peak& peak) {
 
     int n =1;
     peak.peakAreaTop = intensity[peak.pos];
+    peak.peakAreaTopCorrected = intensity[peak.pos]-baseline[peak.pos];
     if (peak.pos - 1 < N) {
         peak.peakAreaTop += intensity[peak.pos - 1];
+        peak.peakAreaTopCorrected += intensity[peak.pos-1] - baseline[peak.pos-1];
         n++;
     }
     if (peak.pos + 1 < N) {
         peak.peakAreaTop += intensity[peak.pos + 1];
+        peak.peakAreaTopCorrected += intensity[peak.pos+1] - baseline[peak.pos+1];
         n++;
     }
+    peak.peakAreaTop /= n;
+    peak.peakAreaTopCorrected /= n;
+
+    peak.peakMz = mz[ peak.pos ];
 
     float maxBaseLine = MAX(MAX(baseline[peak.pos],10), MAX(intensity[peak.minpos], intensity[peak.maxpos]));
-    peak.peakMz = mz[ peak.pos ];
-    peak.peakAreaTop /= n;
     peak.peakBaseLineLevel = baseline[peak.pos];
     peak.noNoiseFraction = (float) peak.noNoiseObs/(this->eic_noNoiseObs+1);
     peak.peakAreaCorrected = peak.peakArea-baselineArea;
@@ -513,8 +519,11 @@ void EIC::getPeakStatistics() {
         findPeakBounds(peaks[i]);
         getPeakDetails(peaks[i]);
 
-        if (peaks[i].peakAreaTop > maxAreaTopIntensity)
+        if (peaks[i].peakAreaTopCorrected > maxAreaTopIntensity)
             maxAreaTopIntensity = peaks[i].peakAreaTop;
+
+        if (peaks[i].peakAreaTop > maxAreaTopNotCorrectedIntensity)
+            maxAreaTopNotCorrectedIntensity = peaks[i].peakAreaTop;
 
         if (peaks[i].peakAreaCorrected > maxAreaIntensity)
             maxAreaIntensity = peaks[i].peakAreaCorrected;
