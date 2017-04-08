@@ -24,6 +24,7 @@ Peak::Peak() {
     peakAreaCorrected = 0;
     peakAreaFractional = 0;
     peakAreaTop = 0;
+    peakAreaTopCorrected = 0;
     peakIntensity = 0;
     peakMz = 0;
     peakBaseLineLevel = 0;
@@ -64,6 +65,7 @@ Peak::Peak(EIC* e, int p) {
     peakAreaCorrected=0;
     peakAreaFractional=0;
     peakAreaTop=0;
+    peakAreaTopCorrected=0;
     peakIntensity=0; 
     peakMz=0;
     peakBaseLineLevel=0;
@@ -106,6 +108,7 @@ void Peak::copyObj(const Peak& o ) {
     peakAreaCorrected=o.peakAreaCorrected;
     peakAreaFractional=o.peakAreaFractional;
     peakAreaTop=o.peakAreaTop;
+    peakAreaTopCorrected=o.peakAreaTopCorrected;
     peakIntensity=o.peakIntensity;
     peakMz= o.peakMz;
     quality= o.quality;

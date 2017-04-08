@@ -44,6 +44,8 @@ class Peak {
         float peakAreaCorrected;
         /** top 3 points of the peak */
         float peakAreaTop;
+        /** top 3 points of the peak baseline subtracted */
+        float peakAreaTopCorrected;
         /** area of the peak divided by total area in the EIC */
         float peakAreaFractional;
         /**  peak rank (sorted by peakAreaCorrected) */

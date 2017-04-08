@@ -2391,7 +2391,8 @@ void MainWindow::createToolBars() {
 	quantType->addItem("Area");
     quantType->addItem("Height");
     quantType->addItem("AreaNotCorrected"); //TODO: Sahil-Kiran, Added while merging mainwindow
-	quantType->addItem("Retention Time");
+    quantType->addItem("AreaTopNotCorrected");
+    quantType->addItem("Retention Time");
 	quantType->addItem("Quality");
 	quantType->setToolTip("Peak Quntitation Type");
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
@@ -3396,6 +3397,8 @@ PeakGroup::QType MainWindow::getUserQuantType() {
 		//TODO: Sahil-Kiran, Added while merging mainwindow
 		else if (type  == "AreaNotCorrected") 
 			return PeakGroup::AreaNotCorrected;
+        else if (type  == "AreaTopNotCorrected")
+            return PeakGroup::AreaTopNotCorrected;
 		else if (type == "Quality")
 			return PeakGroup::Quality;
 		else if (type == "S/N Ratio")

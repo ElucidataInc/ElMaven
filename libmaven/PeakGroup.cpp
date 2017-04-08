@@ -13,6 +13,8 @@ PeakGroup::PeakGroup()  {
     maxAreaIntensity = 0;
     maxHeightIntensity = 0;
     maxAreaNotCorrectedIntensity = 0;
+    maxAreaTopNotCorrectedIntensity = 0;
+
     currentIntensity = 0;
     meanRt=0;
     meanMz=0;
@@ -79,6 +81,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxAreaIntensity = o.maxAreaIntensity;
     maxHeightIntensity = o.maxHeightIntensity;
     maxAreaNotCorrectedIntensity = o.maxAreaNotCorrectedIntensity;
+    maxAreaTopNotCorrectedIntensity = o.maxAreaTopNotCorrectedIntensity;
     currentIntensity = o.currentIntensity;
     meanRt=o.meanRt;
     meanMz=o.meanMz;
@@ -242,10 +245,11 @@ vector<float> PeakGroup::getOrderedIntensityVector(vector<mzSample*>& samples, Q
             int s  = sampleOrder[ sample ];
             float y = 0;
             switch (type)  {
-                case AreaTop: y = peak.peakAreaTop; break;
+                case AreaTop: y = peak.peakAreaTopCorrected; break;
                 case Area: y = peak.peakAreaCorrected; break;
                 case Height: y = peak.peakIntensity; break;
                 case AreaNotCorrected: y = peak.peakArea; break;
+                case AreaTopNotCorrected: y = peak.peakAreaTop; break;
                 case RetentionTime: y = peak.rt; break;
                 case Quality: y = peak.quality; break;
                 case SNRatio: y = peak.signalBaselineRatio; break;
@@ -441,6 +445,7 @@ void PeakGroup::groupStatistics() {
     maxAreaIntensity = 0;
     maxHeightIntensity = 0;
     maxAreaNotCorrectedIntensity = 0;
+    maxAreaTopNotCorrectedIntensity = 0;
     currentIntensity = 0;
     totalSampleCount =  0;
 
@@ -478,10 +483,11 @@ void PeakGroup::groupStatistics() {
             default: max = peaks[i].peakIntensity; break;
         }
 
-        if(peaks[i].peakAreaTop > maxAreaTopIntensity) maxAreaTopIntensity = peaks[i].peakAreaTop;
+        if(peaks[i].peakAreaTopCorrected > maxAreaTopIntensity) maxAreaTopIntensity = peaks[i].peakAreaTopCorrected;
         if(peaks[i].peakAreaCorrected > maxAreaIntensity) maxAreaIntensity = peaks[i].peakAreaCorrected;
         if(peaks[i].peakIntensity > maxHeightIntensity) maxHeightIntensity = peaks[i].peakIntensity;
         if(peaks[i].peakArea > maxAreaNotCorrectedIntensity) maxAreaNotCorrectedIntensity = peaks[i].peakArea;
+        if(peaks[i].peakAreaTop > maxAreaTopNotCorrectedIntensity) maxAreaTopNotCorrectedIntensity = peaks[i].peakAreaTop;
 
         //if(max > minIntensity) quantileIntensityPeaks++;
         //if(peaks[i].quality > minQuality) quantileQualityPeaks++;  

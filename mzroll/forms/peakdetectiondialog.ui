@@ -570,6 +570,11 @@
                 <string>AreaNotCorrected</string>
                </property>
               </item>
+              <item>
+               <property name="text">
+                <string>AreaTopNotCorrected</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item row="5" column="0">
