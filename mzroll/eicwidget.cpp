@@ -709,85 +709,61 @@ void EicWidget::addMergedEIC() {
 	line->setBrush(brush);
 	line->setPen(pen);
 	line->setColor(color);
+
+    if(_showBaseline) {
+        addBaseLine(eic);
+    }
+
+}
+
+void EicWidget::addBaseLine(EIC* eic) {
+    QSettings* settings = this->getMainWindow()->getSettings();
+    int baseline_smoothing = settings->value("baseline_smoothing").toInt();
+    int baseline_quantile = settings->value("baseline_quantile").toInt();
+
+    eic->computeBaseLine(baseline_smoothing, baseline_quantile);
+//        //debug
+//        for(int j=0;j<eic->size();j++) {
+//            qDebug() << eic->rt[j] << "\t" << eic->baseline[j];
+//        }
+    if (eic->size() == 0)
+        return;
+    EicLine* line = new EicLine(0, scene());
+    line->setEIC(eic);
+
+    float baselineSum = 0;
+    for (int j = 0; j < eic->size(); j++) {
+        if (eic->rt[j] < eicParameters->_slice.rtmin)
+            continue;
+        if (eic->rt[j] > eicParameters->_slice.rtmax)
+            continue;
+        baselineSum += eic->baseline[j];
+        line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->baseline[j])));
+    }
+
+    if (baselineSum == 0) {
+        qDebug() << "baseline sum was 0";
+        return;
+    }
+
+    QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 0.9 );
+    line->setColor(color);
+
+    float linewidth=5.0;
+    QPen pen(color, linewidth, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+
+    line->setPen(pen);
 }
 
 void EicWidget::addBaseLine() {
 	qDebug() << " EicWidget::addBaseLine()";
-	QSettings* settings = this->getMainWindow()->getSettings();
-	int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-	int baseline_quantile = settings->value("baseline_quantile").toInt();
 
 	for (unsigned int i = 0; i < eicParameters->eics.size(); i++) {
 		EIC* eic = eicParameters->eics[i];
-		eic->computeBaseLine(baseline_smoothing, baseline_quantile);
-		if (eic->size() == 0)
-			continue;
-		EicLine* line = new EicLine(0, scene());
-		line->setEIC(eic);
-
-		float baselineSum = 0;
-		for (int j = 0; j < eic->size(); j++) {
-			if (eic->rt[j] < eicParameters->_slice.rtmin)
-				continue;
-			if (eic->rt[j] > eicParameters->_slice.rtmax)
-				continue;
-			baselineSum += eic->baseline[j];
-			line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->baseline[j])));
-		}
-
-		if (baselineSum == 0)
-			continue;
-
-		QColor color = Qt::black; //QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 0.9 );
-		line->setColor(color);
-
-		//QPen pen(color, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		QBrush brush(Qt::black);
-		brush.setStyle(Qt::Dense4Pattern);
-		line->setBrush(brush);
-		line->setFillPath(true);
-
-		QPen pen = Qt::NoPen;
-		line->setPen(pen);
-		//line->fixEnds();
-	}
-}
-
-/*
-@author: Sahil
-*/
-//TODO: Sahil Added while merging eicWidget
-void EicWidget::addBaseline(PeakGroup* group) {
-    qDebug() << " EicWidget::addBaseline(group)";
-
-    for( unsigned int i=0; i< eicParameters->eics.size(); i++ ) {
-        EIC* eic = eicParameters->eics[i];
-        if (eic->size()==0 or not eic->baseline) continue;
-        EicLine* line = new EicLine(0,scene());
-        line->setEIC(eic);
-
-        float baselineSum=0;
-        for (int j=0; j < eic->size(); j++ ){
-            if ( eic->rt[j] < group->minRt) continue;
-            if ( eic->rt[j] > group->maxRt ) continue;
-            baselineSum += eic->baseline[j];
-            line->addPoint(QPointF( toX(eic->rt[j]), toY(eic->baseline[j])));
-        }
-        if ( baselineSum == 0 ) continue;
-
-        QColor color = Qt::red; //QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 0.9 );
-        line->setColor(color);
-
-        //QPen pen(color, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        QBrush brush(Qt::black);
-        brush.setStyle(Qt::Dense5Pattern);
-        line->setBrush(brush);
-        line->setFillPath(true);
-
-        //line->setPen(QPen(Qt::red));
-        //line->fixEnds();
+        addBaseLine(eic);
     }
 }
+
 
 
 void EicWidget::showPeakArea(Peak* peak) {
@@ -1890,7 +1866,6 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 		addBarPlot(group);
 	if (_showBoxPlot)
 		addBoxPlot(group);
-    addBaseline(group); 	//TODO: Sahil, added this while merging eicwidget
 	//drawSelectionLine(group->minRt, group->maxRt); // TODO: Sahil commented this 
 	//addFitLine(group);
 	eicParameters->selectedGroup = group;
