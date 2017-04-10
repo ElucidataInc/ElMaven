@@ -2182,7 +2182,7 @@ void MainWindow::createToolBars() {
 
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
-	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
+	// connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));

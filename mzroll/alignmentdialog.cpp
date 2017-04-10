@@ -35,6 +35,7 @@ void AlignmentDialog::setMainWindow(MainWindow* mw) {
 void AlignmentDialog::show() {
 	LOGD;
     inputInitialValuesAlignmentDialog();
+	intialSetup();
 	QDialog::exec();
 
 }
