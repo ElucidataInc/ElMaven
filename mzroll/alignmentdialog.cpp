@@ -3,7 +3,10 @@
 AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 
 		setupUi(this); 
 		setModal(false);
-		
+
+		workerThread = NULL;
+		workerThread = new BackgroundPeakUpdate(this);
+
 		if (peakDetectionAlgo->currentIndex() == 0) {
 			selectDatabase->setVisible(true);
 		}
