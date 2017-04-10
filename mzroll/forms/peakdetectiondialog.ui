@@ -311,7 +311,7 @@
           <item row="3" column="0">
            <widget class="QCheckBox" name="matchRt">
             <property name="text">
-             <string>Match Retention Times</string>
+             <string>Match Retention Time (+/-)</string>
             </property>
             <property name="checked">
              <bool>false</bool>
