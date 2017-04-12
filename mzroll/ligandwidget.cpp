@@ -20,7 +20,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   treeWidget->setObjectName("CompoundTable");
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
 
-  connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showLigand()));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
