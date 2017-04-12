@@ -2172,7 +2172,7 @@ void MainWindow::createToolBars() {
 	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
 	btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnSpectraMatching->setToolTip(
-			tr("Seach Spectra for Fragmentation Patterns"));
+			tr("Search Spectra for Fragmentation Patterns"));
 
 	QToolButton *btnSettings = new QToolButton(toolBar);
 	btnSettings->setText("Options");
