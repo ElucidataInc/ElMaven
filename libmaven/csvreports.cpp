@@ -121,9 +121,13 @@ void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group) {
 
 void CSVReports::insertGroupInformationIntoCSVFile (PeakGroup* group) {
 
-    writeGroupInfo(group);
+    if(group->compound == NULL || group->childCount() == 0) {
 
-    if (group->childCount() > 0) {
+        writeGroupInfo(group);
+
+    }
+
+    else {
 
         //int ionizationMode = getIonisationMode();
 
