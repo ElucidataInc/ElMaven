@@ -177,7 +177,8 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QFont font;
 	font.setPointSize(14);
     titlePeakTable->setFont(font);
-    if(tableId) titlePeakTable->setText("Table "+ QString::number(tableId) + "  ");
+    if(tableId==0) titlePeakTable->setText(" Bookmark Table  ");
+    else titlePeakTable->setText("Peak Table "+ QString::number(tableId) + "  ");
     titlePeakTable->setStyleSheet("font-weight: bold; color: black");
 
     QWidget* spacer = new QWidget();
