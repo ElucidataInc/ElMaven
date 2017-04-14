@@ -173,7 +173,7 @@ void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
 				_missingValue);
 
 		//qDebug() << "CompareSamplesDialog: " << i << " " << meanA << " " << meanB;
-		Q_EMIT(setProgressBar("CompareSamples", i + 1, allgroups.size()));
+		Q_EMIT(setProgressBar("CompareSamples", i, allgroups.size()));
 	}
 
 	float alpha = minPValue->value(); //alpha value //TODO: Alpha value is not being used
@@ -185,7 +185,16 @@ void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
 	int correction = correctionBox->currentIndex();
 	compareLogic.FDRCorrection(allgroups, correction);
 
-	//if (table) { table->updateTable();}
+	Q_EMIT(setProgressBar("Updating Peak Table", 0, 0));
+	if (table) {
+		TableWidgetThread* tableThread = new TableWidgetThread();
+		tableThread->setTable(table);
+		tableThread->start();
+		connect(tableThread, SIGNAL(finished()), SLOT(setProgressBarDone()));
+	} else {
+		Q_EMIT(setProgressBar("Done", 1, 1));
+	}
+
 	if (parentWidget())
 		((ScatterPlot*) parentWidget())->replot();
 
@@ -203,4 +212,8 @@ void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
 	//cleanup
 	compareLogic.rand_scores.clear();
 	allgroups.clear();
+}
+
+void CompareSamplesDialog::setProgressBarDone() {
+	Q_EMIT(setProgressBar("Done", 1, 1));
 }

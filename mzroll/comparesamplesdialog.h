@@ -7,6 +7,7 @@
 
 class MainWindow;
 class TableDockWidget;
+class TableWidgetThread;
 
 class CompareSamplesDialog: public QDialog, public Ui_CompareSamplesDialog {
 Q_OBJECT
@@ -31,6 +32,7 @@ public Q_SLOTS:
 	vector<mzSample*> getSampleSet2() {
 		return getSampleSet(filelist2);
 	}
+	void setProgressBarDone();
 
 protected Q_SLOTS:
 	void showEvent(QShowEvent*);
