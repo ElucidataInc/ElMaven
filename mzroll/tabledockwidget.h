@@ -183,4 +183,18 @@ private:
     
 };
 
+
+class TableWidgetThread: public QThread {
+    Q_OBJECT
+
+    private:
+        void run() {table->updateTable();quit();return;}
+
+    public:
+        void setTable(TableDockWidget* _table) {this->table = _table;}
+        TableDockWidget* table;
+
+
+};
+
 #endif
