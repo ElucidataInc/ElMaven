@@ -338,50 +338,35 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                 continue;
 
             vector<Peak> allPeaks;
-            for (int i = 0; i < mavenParameters->maxIsotopeScanDiff;
-                    i++) {
-                float window = i * mavenParameters->avgScanTime;
-                EIC * eic = sample->getEIC(mzmin, mzmax, rtmin - window,
-                        rtmax + window, 1);
 
-                // smooth fond eic TODO: null check for found
-                eic->setSmootherType(
-                        (EIC::SmootherType)
-                        mavenParameters->eic_smoothingAlgorithm);
-                eic->getPeakPositions(
-                        mavenParameters->eic_smoothingWindow);
-                allPeaks = eic->peaks;
-                delete(eic);
-                // find peak position inside eic
-                if (allPeaks.size() == 0){
-                    continue;
-                }
-                if (allPeaks.size() > 1) {
-                    break;
-                }
-            }
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
+            //actually last parameter should probably be deepest MS level?
 
-            if (allPeaks.size() <= 0) {
-                continue;
-            }
-
-            // find nearest peak. compute distance between parent
-            // peak and all other peaks
-            // nearest peak is one with mimimum distance== min RT
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
+            eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
+            //TODO: this could be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
             Peak* nearestPeak = NULL;
             float d = FLT_MAX;
             for (unsigned int i = 0; i < allPeaks.size(); i++) {
                 Peak& x = allPeaks[i];
                 float dist = abs(x.rt - rt);
-                if (dist > mavenParameters->maxIsotopeScanDiff *
-                        mavenParameters->avgScanTime)
+                if (dist > maxRtDiff)
                     continue;
                 if (dist < d) {
                     d = dist;
                     nearestPeak = &x;
                 }
             }
-
             //delete (nearestPeak);
             if (nearestPeak) { //if nearest peak is present
                 if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
@@ -398,7 +383,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
         }
     }
 
-    //fill peak group list with the compound and it's isotopes.
+    //fill peak group list with the compound and its isotopes.
     // peak group list would be filled with the parent group, with its isotopes as children
     // click on + to see children == isotopes
     parentgroup->childrenBarPlot.clear();
@@ -560,43 +545,29 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                 continue;
 
             vector<Peak> allPeaks;
-            for (int i = 0; i < mavenParameters->maxIsotopeScanDiff;
-                    i++) {
-                float window = i * mavenParameters->avgScanTime;
-                EIC * eic = sample->getEIC(mzmin, mzmax, rtmin - window,
-                        rtmax + window, 1);
 
-                // smooth fond eic TODO: null check for found
-                eic->setSmootherType(
-                        (EIC::SmootherType)
-                        mavenParameters->eic_smoothingAlgorithm);
-                eic->getPeakPositions(
-                        mavenParameters->eic_smoothingWindow);
-                allPeaks = eic->peaks;
-                delete(eic);
-                // find peak position inside eic
-                if (allPeaks.size() == 0){
-                    continue;
-                }
-                if (allPeaks.size() > 1) {
-                    break;
-                }
-            }
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
+            //actually last parameter should probably be deepest MS level?
 
-            if (allPeaks.size() <= 0) {
-                continue;
-            }
-
-            // find nearest peak. compute distance between parent
-            // peak and all other peaks
-            // nearest peak is one with mimimum distance== min RT
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
+            eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
+            //TODO: this could be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
             Peak* nearestPeak = NULL;
             float d = FLT_MAX;
             for (unsigned int i = 0; i < allPeaks.size(); i++) {
                 Peak& x = allPeaks[i];
                 float dist = abs(x.rt - rt);
-                if (dist > mavenParameters->maxIsotopeScanDiff *
-                        mavenParameters->avgScanTime)
+                if (dist > maxRtDiff)
                     continue;
                 if (dist < d) {
                     d = dist;
@@ -620,7 +591,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         }
     }
 
-    //fill peak group list with the compound and it's isotopes.
+    //fill peak group list with the compound and its isotopes.
     // peak group list would be filled with the parent group, with its isotopes as children
     // click on + to see children == isotopes
     // parentgroup->children.clear();
@@ -630,7 +601,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         child.minQuality = mavenParameters->minQuality;
         child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
-        child.groupId = parentgroup->groupId;
+        child.groupId = parentgroup->groupId; // isn't this a bug? shouldn't it get a new groupId?
         child.compound = parentgroup->compound;
         child.parent = parentgroup;
         child.setType(PeakGroup::Isotope);
