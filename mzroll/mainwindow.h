@@ -231,6 +231,8 @@ public:
 	void autoSaveSignal();
 	void normalizeIsotopicMatrix(MatrixXf &MM);
 
+	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
+
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
 	//TODO: Sahil - Kiran, Removed while merging mainwindow
@@ -425,7 +427,6 @@ private:
 	vector<string> unloadableFiles;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
-	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
 	QString fileName;
 	QString newFileName;
 	void saveMzRollList(QString MzrollFileName);

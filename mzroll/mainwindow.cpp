@@ -2061,7 +2061,7 @@ void MainWindow::createMenus() {
 	connect(loadCompoundsFile, SIGNAL(triggered()), SLOT(loadCompoundsFile()));
 	fileMenu->addAction(loadCompoundsFile);
 
-	QAction* saveProjectFile = new QAction(tr("Save Project"), this);
+	QAction* saveProjectFile = new QAction(tr("Save Project As"), this);
 	saveProjectFile->setShortcut(tr("Ctrl+S"));
 	connect(saveProjectFile, SIGNAL(triggered()), projectDockWidget,
 			SLOT(saveProject()));

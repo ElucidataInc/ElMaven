@@ -50,7 +50,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     QToolButton* saveButton = new QToolButton(toolBar);
     saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
-    saveButton->setToolTip("Save Project");
+    saveButton->setToolTip("Save Project As");
     connect(saveButton,SIGNAL(clicked()), SLOT(saveProject()));
 
     QToolButton* colorButton = new QToolButton(toolBar);
@@ -577,7 +577,7 @@ void ProjectDockWidget::dropEvent(QDropEvent* e) {
 }
 
 void ProjectDockWidget::saveProject() {
-
+    
     QSettings* settings = _mainwindow->getSettings();
 
     QString dir = ".";
@@ -586,19 +586,23 @@ void ProjectDockWidget::saveProject() {
         QDir test(ldir);
         if (test.exists()) dir = ldir;
     }
+    QString fileName = QFileDialog::getSaveFileName( this,
+            "Save Project As(.mzroll)", dir, "mzRoll Project(*.mzroll)");
 
-    QString fileName = lastOpennedProject;
+    if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
 
-    if ( !fileName.isEmpty() && lastSavedProject == fileName ) {
-	    saveProject(fileName);
-    } else {
-	    QString fileName = QFileDialog::getSaveFileName( this,
-			    "Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
+	QList<QPointer<TableDockWidget> > peaksTableList =
+		_mainwindow->getPeakTableList();
+	peaksTableList.append(0);
 
-	    if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
+	TableDockWidget* peaksTable;
 
-	    saveProject(fileName);
-    }
+	int j = 1;
+	_mainwindow->SaveMzrollListvar.clear();
+	Q_FOREACH(peaksTable, peaksTableList) {
+        _mainwindow->savePeaksTable(peaksTable, fileName, QString::number(j));
+		j++;
+	}
 }
 
 void ProjectDockWidget::loadProject() {
