@@ -2819,6 +2819,8 @@ void MainWindow::spectaFocused(Peak* _peak) {
 // 	sample->color[3] = c.alphaF();
 // }
 
+//TODO: Check whether AreaTopNotCorrected should be added to this,
+//and whether the extra column would break anything
 QString MainWindow::groupTextExport(PeakGroup* group) {
 
 	if (group == NULL || group->isEmpty())

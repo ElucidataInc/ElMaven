@@ -230,6 +230,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         return slices;
 }
 
+//TODO: lots of code duplicated between this and PullIsotopes(PeakGroup*). See comments for that function
 void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
     // FALSE CONDITIONS
     if (parentgroup == NULL)
@@ -342,6 +343,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
             EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
             //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
 
             // smooth fond eic TODO: null check for found
             eic->setSmootherType(
@@ -513,6 +515,10 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             //if(isotopePeakIntensity==0) continue;
 
             //natural abundance check
+            //TODO: I think this loop will never run right? Since we're now only pulling the relevant isotopes
+            //if x.C13>0 then mavenParameters->C13Labeled_BPE must have been true
+            //so we could just eliminate maxNaturalAbundanceErr parameter in this case
+            //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
             if ((x.C13 > 0 && mavenParameters->C13Labeled_BPE == false) //if isotope is not C13Labeled
                     || (x.N15 > 0 && mavenParameters->N15Labeled_BPE == false) //if isotope is not N15 Labeled
                     || (x.S34 > 0 && mavenParameters->S34Labeled_BPE == false) //if isotope is not S34 Labeled
@@ -521,7 +527,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                ) {
                 if (expectedAbundance < 1e-8)
                     continue;
-                if (expectedAbundance * parentPeakIntensity < 1)
+                if (expectedAbundance * parentPeakIntensity < 1) //TODO: In practice this is probably fine but in general I don't like these types of intensity checks -- the actual absolute value depends on the type of instrument, etc
                     continue;
                 float observedAbundance = isotopePeakIntensity
                     / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
@@ -536,6 +542,9 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     continue;
             }
 
+            //TODO: this is really an abuse of the maxIsotopeScanDiff parameter
+            //I can easily imagine you might set maxIsotopeScanDiff to something much less than the peak width
+            //here w should really be determined by the minRt and maxRt for the parent and child peaks
             float w = mavenParameters->maxIsotopeScanDiff
                 * mavenParameters->avgScanTime;
             double c = sample->correlation(
@@ -549,6 +558,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
             EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
             //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
 
             // smooth fond eic TODO: null check for found
             eic->setSmootherType(
@@ -557,7 +567,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
             eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
             eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
-            //TODO: this could be optimized to not bother finding peaks outside of
+            //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
             // find nearest peak as long as it is within RT window
@@ -602,7 +612,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         child.minQuality = mavenParameters->minQuality;
         child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
-        child.groupId = parentgroup->groupId; // isn't this a bug? shouldn't it get a new groupId?
+        //TODO: isn't this a bug? shouldn't it get a new groupId?
+        child.groupId = parentgroup->groupId;
         child.compound = parentgroup->compound;
         child.parent = parentgroup;
         child.setType(PeakGroup::Isotope);
