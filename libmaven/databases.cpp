@@ -68,7 +68,9 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
     if (header.count("expectedrt") && header["expectedrt"] < NumOfFields) 
         rt = string2float(fields[header["expectedrt"]]);
     
-    if (header.count("formula") && header["formala"] < NumOfFields)
+    //TODO: Not really a todo, just marking that I fixed a typo here
+    //make sure we merge it in
+    if (header.count("formula") && header["formula"] < NumOfFields)
         formula = fields[header["formula"]];
     
     if (header.count("id") && header["id"] < NumOfFields)
