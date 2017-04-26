@@ -11,6 +11,7 @@
 #include "mzMassSlicer.h"
 #include "options.h"
 #include "omp.h"
+#include "../libmaven/databases.h"
 #include "../libmaven/classifierNeuralNet.h"
 #include <sys/time.h>
 
@@ -35,6 +36,8 @@ MassCalculator mcalc;
 time_t startTime, curTime, stopTime;
 
 vector<string> filenames;
+
+Databases DB;
 
 MavenParameters* mavenParameters = new MavenParameters ();
 
@@ -61,17 +64,14 @@ void processOptions(int argc, char* argv[]);
  */
 void loadClassificationModel(string clsfModelFilename);
 
+
+void loadCompoundsFile();
+
 /**
  * [loadSamples description]
  * @param filenames [description]
  */
 void loadSamples(vector<string>&filenames);
-
-/**
- * [loadCompoundCSVFile description]
- * @param filename [description]
- */
-void loadCompoundCSVFile(string filename);
 
 /**
  * [reduce number of Groups]
