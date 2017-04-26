@@ -46,9 +46,6 @@ PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
 string clsfModelFilename = "default.model";
 
-// Temporary variable for pullIsotopesFlag
-int label =0;
-
 /**
  * [process command line Options]
  * @param argc [argument counter]
@@ -324,23 +321,22 @@ void processOptions(int argc, char* argv[]) {
 							"b?minGoodGroupCount <int>",
 							"c?matchRtFlag <int>",
 							"d?db <string>",
-							"e?processAllSlices",
+							"e?processAllSlices <int>",
 							"f?pullIsotopes <int>",				//C13(1st bit), S34i(2nd bit), N15i(3rd bit), D2(4th bit)
-							"g:grouping_maxRtWindow <float>",
+							"g?grouping_maxRtWindow <float>",
 							"h?help",
 							"i?minGroupIntensity <float>",
 							"m?model <string>",
 							"n?eicMaxGroups <int>",
-							"l?list  <string>",
 							"o?outputdir <string>",
 							"p?ppmMerge <float>",
+							"q?minQuality <float>",
 							"r?rtStepSize <float>",
                             "s?savemzroll <int>",
-							"q:minQuality <float>",
                             "v?ionizationMode <int>",
 							"w?minPeakWidth <int>",
 							"y?eicSmoothingWindow <int>",
-							"z:minSignalBaseLineRatio <float>",
+							"z?minSignalBaseLineRatio <float>",
 							NULL 
 	};
 
@@ -356,20 +352,7 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->alignSamplesFlag = true;
 			if (atoi(optarg) == 0) mavenParameters->alignSamplesFlag = false;
 			break;
-        case 'v' : 
-                    mavenParameters->ionizationMode = atoi(optarg);
-        case 'f' :
-                    mavenParameters->pullIsotopesFlag = 0;
-                    label = atoi(optarg);
-                    if (label > 0) {
-                        mavenParameters->pullIsotopesFlag = 1;
-                        if (label & 1) mavenParameters->C13Labeled_BPE = true; 
-                        if (label & 2) mavenParameters->S34Labeled_BPE = true; 
-                        if (label & 4) mavenParameters->N15Labeled_BPE = true; 
-                        if (label & 8) mavenParameters->D2Labeled_BPE  = true; 
-                    }
-                    
-                    break;
+
 		case 'b':
 			mavenParameters->minGoodGroupCount = atoi(optarg);
 			break;
@@ -380,8 +363,32 @@ void processOptions(int argc, char* argv[]) {
             if(mavenParameters->compoundRTWindow==0) mavenParameters->matchRtFlag=false;
             break;
 
+		case 'd':
+			mavenParameters->ligandDbFilename = optarg;
+			break;
+
 		case 'e':
-			mavenParameters->processAllSlices = atoi(optarg);
+			mavenParameters->processAllSlices = true;
+			if (atoi(optarg) == 0) mavenParameters->processAllSlices = false;
+			break;
+
+        case 'f' :
+			{
+				mavenParameters->pullIsotopesFlag = 0;
+				int label = 0;
+				label = atoi(optarg);
+				if (label > 0) {
+					mavenParameters->pullIsotopesFlag = 1;
+					if (label & 1) mavenParameters->C13Labeled_BPE = true; 
+					if (label & 2) mavenParameters->S34Labeled_BPE = true; 
+					if (label & 4) mavenParameters->N15Labeled_BPE = true; 
+					if (label & 8) mavenParameters->D2Labeled_BPE  = true; 
+				}
+			}
+			break;
+
+		case 'g':
+			mavenParameters->grouping_maxRtWindow = atof(optarg);
 			break;
 
 		case 'h':
@@ -393,32 +400,18 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->minGroupIntensity = atof(optarg);
 			break;
 
-        case 'j' :
-        	saveJsonEIC=atoi(optarg);
-            break;
-
-        case 's':
-        	saveMzrollFile=atoi(optarg);
-
-		case 'y':
-			mavenParameters->eic_smoothingWindow = atoi(optarg);
+		case 'm':
+			clsfModelFilename = optarg;
 			break;
 
         case 'n' :
         	mavenParameters->eicMaxGroups = atoi(optarg);
-
-		case 'g':
-			mavenParameters->grouping_maxRtWindow = atof(optarg);
 			break;
 
-		case 'w':
-			mavenParameters->minNoNoiseObs = atoi(optarg);
+		case 'o':
+			mavenParameters->outputdir = optarg + string(DIR_SEPARATOR_STR);
 			break;
-
-		case 'r':
-			mavenParameters->rtStepSize = atoi(optarg);
-			break;
-
+	
 		case 'p':
 			mavenParameters->ppmMerge = atof(optarg);
 			break;
@@ -427,20 +420,29 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->minQuality = atof(optarg);
 			break;
 
+		case 'r':
+			mavenParameters->rtStepSize = atoi(optarg);
+			break;
+
+        case 's':
+        	saveMzrollFile = true;
+			if (atoi(optarg) == 0) saveMzrollFile = false;
+			break;
+
+        case 'v' : 
+			mavenParameters->ionizationMode = atoi(optarg);
+			break;
+
+		case 'w':
+			mavenParameters->minNoNoiseObs = atoi(optarg);
+			break;
+
+		case 'y':
+			mavenParameters->eic_smoothingWindow = atoi(optarg);
+			break;
+
 		case 'z':
 			mavenParameters->minSignalBaseLineRatio = atof(optarg);
-			break;
-
-		case 'o':
-			mavenParameters->outputdir = optarg + string(DIR_SEPARATOR_STR);
-			break;
-
-		case 'd':
-			mavenParameters->ligandDbFilename = optarg;
-			break;
-
-		case 'm':
-			clsfModelFilename = optarg;
 			break;
 
 		default:
