@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
 	//load compound list
 	if (!mavenParameters->ligandDbFilename.empty()) {
 		mavenParameters->processAllSlices = false;
-		cerr << "Loading ligand database" << endl;
+		cerr << "\nLoading ligand database" << endl;
 		loadCompoundCSVFile(mavenParameters->ligandDbFilename);
 	}
 
@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
     double startLoadingTime = getTime();
 	loadSamples(filenames);
 
-	cerr << "Execution time (Sample loading) : %f seconds \n", getTime() - startLoadingTime;
+	cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
 
 	if (mavenParameters->samples.size() == 0) {
 		cerr << "Exiting .. nothing to process " << endl;
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]) {
 	mavenParameters->samples.clear();
 	mavenParameters->allgroups.clear();
 
-    cerr << "Total program execution time : %f seconds \n",getTime() - programStartTime;
+    cerr << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
 	return(0);
 }
 
@@ -456,10 +456,12 @@ void processOptions(int argc, char* argv[]) {
 		}
 	}
 
-	cerr << "#Command:\t";
+	cerr << "\n\nCommand:  ";
+
 	for (int i = 0; i < argc; i++)
 		cerr << argv[i] << " ";
-	cerr << endl;
+
+	cerr << "\n\n\n"; 
 
 	if (iter.index() < argc) {
 		for (int i = iter.index(); i < argc; i++)
@@ -468,7 +470,7 @@ void processOptions(int argc, char* argv[]) {
 }
 
 void loadSamples(vector<string>&filenames) {
-	cerr << "Loading samples" << endl;
+	cerr << "\nLoading samples" << endl;
 	for (unsigned int i = 0; i < filenames.size(); i++) {
 		cerr << "Loading " << filenames[i] << endl;
 		mzSample* sample = new mzSample();
@@ -655,7 +657,7 @@ void loadCompoundCSVFile(string filename){
 
 void reduceGroups() {
 	sort(mavenParameters->allgroups.begin(), mavenParameters->allgroups.end(), PeakGroup::compMz);
-	cerr << "reduceGroups(): " << mavenParameters->allgroups.size();
+	cerr << "\nreduceGroups(): " << mavenParameters->allgroups.size();
 	//init deleteFlag 
 	for(unsigned int i=0; i<mavenParameters->allgroups.size(); i++) {
 			mavenParameters->allgroups[i].deletedFlag=false;
@@ -698,9 +700,9 @@ void reduceGroups() {
             reducedGroupCount++;
         }
     }
-    printf("Reduced count of groups : %d \n",  reducedGroupCount);
+    printf("\nReduced count of groups : %d \n",  reducedGroupCount);
     mavenParameters->allgroups = allgroups_;
-	cerr << " done final group count(): " << mavenParameters->allgroups.size() << endl;
+	cerr << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
 }
 
 void writeReport(string setName) {
@@ -709,21 +711,21 @@ void writeReport(string setName) {
 	//create an output folder
 	mzUtils::createDir(mavenParameters->outputdir.c_str());
 
-	cerr << "writeReport() " << mavenParameters->allgroups.size() << " groups ";
+	cerr << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
     double startGroupReduction = getTime();
 	if (reduceGroupsFlag) reduceGroups();
-    cerr << "\tExecution time (Group reduction) : %f seconds \n", getTime() - startGroupReduction;
+    cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
 	if (saveJsonEIC)      saveEICsJson(mavenParameters->outputdir + setName + ".eics.json");
 	if (saveMzrollFile == true)
 	{
 		double startSavingMzroll = getTime();
 		writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
-		printf("\tExecution time (Saving mzroll)   : %f seconds \n", getTime() - startSavingMzroll);
+		cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
 	
     }
     double startSavingCSV = getTime();
 	writeCSVReport(mavenParameters->outputdir + setName + ".csv");
-    printf("\tExecution time (Saving CSV)      : %f seconds \n", getTime() - startSavingCSV);
+    cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
 }
 
 void writeCSVReport( string filename) {
