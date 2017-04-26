@@ -10,20 +10,14 @@ int main(int argc, char *argv[]) {
 	//load classification model
 	loadClassificationModel(clsfModelFilename);
 
+	//set Maven Parameters
 	peakDetector->setMavenParameters(mavenParameters);
 
+	//load compounds file
 	loadCompoundsFile();
 
 	//load files
-    double startLoadingTime = getTime();
 	loadSamples(filenames);
-
-	cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
-
-	if (mavenParameters->samples.size() == 0) {
-		cerr << "Exiting .. nothing to process " << endl;
-		exit(1);
-	}
 
 	//get retention time resolution
 	mavenParameters->setAverageScanTime();
@@ -240,6 +234,40 @@ void loadCompoundsFile() {
 
 }
 
+void loadSamples(vector<string>&filenames) {
+
+	double startLoadingTime = getTime();
+	cerr << "\nLoading samples" << endl;
+
+	#pragma omp parallel for
+	for (unsigned int i = 0; i < filenames.size(); i++) {
+		mzSample* sample = new mzSample();
+		sample->loadSample(filenames[i].c_str());
+		sample->sampleName = cleanSampleName(filenames[i]);
+
+		if (sample->scans.size() >= 1) {
+			mavenParameters->samples.push_back(sample);
+		} else {
+			if (sample != NULL) {
+				delete sample;
+				sample = NULL;
+			}
+		}
+	}
+
+
+	if (mavenParameters->samples.size() == 0) {
+		cerr << "Exiting .. nothing to process " << endl;
+		exit(1);
+	}
+
+	sort(mavenParameters->samples.begin(), mavenParameters->samples.end(),mzSample::compSampleSort);
+
+	cerr << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples\n";
+	cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
+
+}
+
 void saveEICsJson(string filename) {
 	ofstream myfile(filename.c_str());
 	if (!myfile.is_open()) return;
@@ -312,27 +340,6 @@ vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 		}
 	}
 	return (eics);
-}
-
-void loadSamples(vector<string>&filenames) {
-	cerr << "\nLoading samples" << endl;
-	for (unsigned int i = 0; i < filenames.size(); i++) {
-		cerr << "Loading " << filenames[i] << endl;
-		mzSample* sample = new mzSample();
-		sample->loadSample(filenames[i].c_str());
-		sample->sampleName = cleanSampleName(filenames[i]);
-
-		if (sample->scans.size() >= 1) {
-			mavenParameters->samples.push_back(sample);
-			sample->summary();
-		} else {
-			if (sample != NULL) {
-				delete sample;
-				sample = NULL;
-			}
-		}
-	}
-	cerr << "loadSamples done: loaded " << mavenParameters->samples.size() << " samples\n";
 }
 
 string cleanSampleName(string sampleName) {
