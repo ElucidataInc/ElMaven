@@ -38,52 +38,13 @@ time_t startTime, curTime, stopTime;
 
 vector<string> filenames;
 
-bool alignSamplesFlag = false;
-bool processAllSlices = true;
 bool reduceGroupsFlag = true;
-bool matchRtFlag = true;
-bool writeReportFlag = true;
-bool checkConvergance = true;
 bool saveJsonEIC=false;
 bool saveMzrollFile=true;
-
-bool pullIsotopesFlag = false;
-bool C13Labeled_BPE =false;
-bool N15Labeled_BPE =false;
-bool S34Labeled_BPE =false;
-bool D2Labeled_BPE =false;
-int noOfIsotopes = 4;
 string csvFileFieldSeparator=",";
 PeakGroup::QType quantitationType = PeakGroup::AreaTop;
 
-string ligandDbFilename;
 string clsfModelFilename = "default.model";
-string outputdir = "reports" + string(DIR_SEPARATOR_STR);
-
-int ionizationMode = -1;
-
-//mass slice detection
-int rtStepSize = 10;
-float ppmMerge = 30;
-float avgScanTime = 0.2;
-
-//peak detection
-int eic_smoothingWindow = 5;
-
-//maxGroupsOption
-int eicMaxGroups=10;
-
-//peak grouping across samples
-float grouping_maxRtWindow = 0.5;
-
-//peak filtering criteria
-int minGoodGroupCount = 1;
-float minSignalBlankRatio = 2;
-int minNoNoiseObs = 3;
-float minSignalBaseLineRatio = 2;
-float minGroupIntensity = 100;
-float minQuality = 0.5;
-
 
 // Temporary variable for pullIsotopesFlag
 int label =0;
@@ -701,9 +662,9 @@ void reduceGroups() {
 
 			float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt, grup2.minRt, grup2.maxRt );
 			float ppmdist = ppmDist(grup2.meanMz, grup1.meanMz);
-		    if ( ppmdist > ppmMerge ) break;
+		    if ( ppmdist > mavenParameters->ppmMerge ) break;
 
-			if (rtoverlap > 0.8 && ppmdist < ppmMerge) {
+			if (rtoverlap > 0.8 && ppmdist < mavenParameters->ppmMerge) {
 				if (grup1.maxIntensity <= grup2.maxIntensity) {
                      grup1.deletedFlag = true;
 					 //allgroups.erase(allgroups.begin()+i);
@@ -744,7 +705,7 @@ void writeReport(string setName) {
     double startGroupReduction = getTime();
 	if (reduceGroupsFlag) reduceGroups();
     cerr << "\tExecution time (Group reduction) : %f seconds \n", getTime() - startGroupReduction;
-	if (saveJsonEIC)      saveEICsJson(outputdir + setName + ".eics.json");
+	if (saveJsonEIC)      saveEICsJson(mavenParameters->outputdir + setName + ".eics.json");
 	if (saveMzrollFile == true)
 	{
 		double startSavingMzroll = getTime();
