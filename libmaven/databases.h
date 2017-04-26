@@ -15,10 +15,10 @@ class Databases {
         float getChargeFromDB(vector<string>& fields, map<string, int> & header);
         vector<string> getCategoryFromDB(vector<string>& fields, map<string, int> & header);
         void closeAll();
+        vector<Compound*> compoundsDB;
 
     private:
         map<string,Compound*> compoundIdMap;
-        deque<Compound*> compoundsDB;
 
         //vector<Adduct*> adductsDB;
         //vector<Adduct*> fragmentsDB;
