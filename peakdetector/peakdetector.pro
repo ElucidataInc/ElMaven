@@ -20,7 +20,8 @@ SOURCES	= 	PeakDetectorCLI.cpp  \
 			../libmaven/classifier.cpp \  
 			../libmaven/classifierNeuralNet.cpp\
 
-HEADERS += 	../libmaven/classifier.h \
+HEADERS += 	PeakDetectorCLI.h \
+			../libmaven/classifier.h \
 			../libmaven/classifierNeuralNet.h \
 			options.h
 
