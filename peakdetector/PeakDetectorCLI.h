@@ -27,7 +27,6 @@ using namespace std;
 	#define omp_get_thread_num()  1
 #endif
 
-Classifier* clsf;
 vector<mzSample*> samples;
 vector<Compound*> compoundsDB;
 vector<PeakGroup> allgroups;
@@ -55,6 +54,12 @@ string clsfModelFilename = "default.model";
  * @param argv [argument variables]
  */
 void processOptions(int argc, char* argv[]);
+
+/**
+ * [load Classfication model]
+ * @param clsfModelFilename [name of classifier model]
+ */
+void loadClassificationModel(string clsfModelFilename);
 
 /**
  * [loadSamples description]
