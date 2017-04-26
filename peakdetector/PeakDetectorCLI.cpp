@@ -326,6 +326,7 @@ void processOptions(int argc, char* argv[]) {
 							"g?grouping_maxRtWindow <float>",
 							"h?help",
 							"i?minGroupIntensity <float>",
+                            "j?saveEicJson <int>",
 							"m?model <string>",
 							"n?eicMaxGroups <int>",
 							"o?outputdir <string>",
@@ -399,6 +400,11 @@ void processOptions(int argc, char* argv[]) {
 		case 'i':
 			mavenParameters->minGroupIntensity = atof(optarg);
 			break;
+
+        case 'j':
+        	saveJsonEIC = true;
+			if (atoi(optarg) == 0) saveJsonEIC = false;
+            break;
 
 		case 'm':
 			clsfModelFilename = optarg;
