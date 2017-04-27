@@ -84,6 +84,14 @@ void reduceGroups();
  */
 void writeReport(string setName);
 
+void groupReduction();
+
+void saveJson(string setName);
+
+void saveMzRoll(string setName);
+
+void saveCSV(string setName);
+
 /**
  * [write Sample List in XML]
  * @param parent [parent node]
