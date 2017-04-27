@@ -263,7 +263,7 @@ void loadSamples(vector<string>&filenames) {
 
 	sort(mavenParameters->samples.begin(), mavenParameters->samples.end(),mzSample::compSampleSort);
 
-	cerr << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples\n";
+	cerr << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples";
 	cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
 
 }
@@ -411,7 +411,39 @@ void saveMzRoll(string setName) {
 void saveCSV(string setName) {
 
     double startSavingCSV = getTime();
-	writeCSVReport(mavenParameters->outputdir + setName + ".csv");
+
+	string fileName = mavenParameters->outputdir + setName + ".csv";
+
+    CSVReports* csvreports = new CSVReports(mavenParameters->samples);
+    csvreports->setMavenParameters(mavenParameters);
+
+    if (mavenParameters->allgroups.size() == 0 ) {
+		cerr << "Writing to CSV Failed: No Groups found" << endl;
+        return;
+    }
+
+    if(fileName.empty()) return;
+
+	csvreports->flag = 0;
+    
+    if (mavenParameters->samples.size() == 0) return;
+
+    csvreports->setUserQuantType(quantitationType);
+
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
+    bool includeSetNamesLines=true;
+	csvreports->openGroupReport(fileName, includeSetNamesLines);
+
+    for(int i=0; i<mavenParameters->allgroups.size(); i++ ) {
+		PeakGroup& group = mavenParameters->allgroups[i];
+		csvreports->addGroup(&group);
+    }
+    csvreports->closeFiles();
+
+    if (csvreports->getErrorReport() != "") {
+        cerr << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
+    }
+
     cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
 }
 
@@ -464,157 +496,6 @@ void reduceGroups() {
     mavenParameters->allgroups = allgroups_;
 	cerr << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
 }
-
-void writeCSVReport( string filename) {
-    ofstream groupReport;
-    groupReport.open(filename.c_str());
-    if(! groupReport.is_open()) return;
-
-    int groupId=0;
-    int metaGroupId=0;
-    string SEP = csvFileFieldSeparator;
-
-
-    groupReport << "label,metaGroupId,groupId,goodPeakCount,medMz,medRt,maxQuality,note,compound,compoundId,expectedRtDiff,ppmDiff,parent";
-    for(unsigned int i=0; i< mavenParameters->samples.size(); i++) { groupReport << "," << mavenParameters->samples[i]->sampleName; }
-    groupReport << endl;
-
-    for (int i=0; i < mavenParameters->allgroups.size(); i++ ) {
-        PeakGroup* group = &mavenParameters->allgroups[i];
-
-        //if compound is unknown, output only the unlabeled form information
-        if( group->compound == NULL || group->childCount() == 0 ) {
-            group->groupId= ++groupId;
-            group->metaGroupId= ++metaGroupId;
-            writeGroupInfoCSV(group,groupReport);
-        } else { //output all relevant isotope info otherwise
-            group->groupId = group->children[0].groupId = ++groupId;
-            group->metaGroupId = group->children[0].metaGroupId= ++metaGroupId;
-            writeGroupInfoCSV( &group->children[0],groupReport); //C12 info
-
-            string formula = group->compound->formula;
-            vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode*mavenParameters->charge, 
-												            mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
-            for( int i=0; i<masslist.size(); i++ ) {
-            Isotope& x = masslist[i];
-            string isotopeName = x.name;
-
-            if( 
-                    (isotopeName.find("C13-label")!=string::npos  && mavenParameters->C13Labeled_BPE) || 
-                    (isotopeName.find("N15-label")!=string::npos  && mavenParameters->N15Labeled_BPE) || 
-                    (isotopeName.find("S34-label")!=string::npos  && mavenParameters->S34Labeled_BPE) || 
-                    (isotopeName.find("D2-label")!=string::npos  && mavenParameters->D2Labeled_BPE)  
-                    
-            ) {
-                int counter=0;
-                    for (unsigned int k=0; k<group->children.size() && counter==0; k++) { //output non-zero-intensity peaks
-                        PeakGroup* subgroup = &group->children[k];
-                        if( subgroup->tagString == isotopeName ) {
-                            subgroup->metaGroupId = group->metaGroupId;
-                            subgroup->groupId= ++groupId;
-                            counter=1;
-                            writeGroupInfoCSV(subgroup,groupReport);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if(groupReport.is_open()) groupReport.close();
-}
-
-QString sanitizeString(const char* s,const char* SEP) {
-    QString out=s;
-    out.replace("\"","\"\"");
-    if(out.contains(SEP)){
-        out="\""+out+"\"";
-    }
-    return out;
-}
-
-void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport) {
-    if(! groupReport.is_open()) return;
-    string SEP = csvFileFieldSeparator;
-    PeakGroup::QType qtype = quantitationType;
-    vector<float> yvalues = group->getOrderedIntensityVector(mavenParameters->samples,qtype);
-    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
-
-    string tagString = group->srmId + group->tagString;
-    tagString=sanitizeString(tagString.c_str(),SEP.c_str()).toStdString();
-    char label[2];
-    sprintf(label,"%c",group->label);
-
-    groupReport << label << SEP
-                << setprecision(7)
-                << group->metaGroupId << SEP
-                << group->groupId << SEP
-                << group->goodPeakCount << SEP
-                << group->meanMz << SEP
-                << group->meanRt << SEP
-                << group->maxQuality << SEP
-                << tagString;
-
-    string compoundName;
-    string compoundID;
-    float  expectedRtDiff=1000;
-    float  ppmDist=1000;
-
-    if ( group->hasCompoundLink() ) {
-        Compound* c = group->compound;
-        compoundID = c->id;
-        if (group->tagString.length()) { 
-            cout << "TRUE" << group->tagString.c_str() << group->tagString.length() << endl;
-            compoundID = compoundID + " [" + group->tagString.c_str() + "]";
-        }
-
-        compoundID = sanitizeString(compoundID.c_str(),SEP.c_str()).toStdString();
-    }
-
-    if ( group->compound != NULL or group->parent != NULL ) {
-        Compound* c = group->compound;
-        compoundName = sanitizeString(c->name.c_str(),SEP.c_str()).toStdString();
-        //compoundID =  c->id;
-        double mass =c->mass;
-        if (!c->formula.empty()) {
-            float formula_mass =  mcalc.computeMass(c->formula,mavenParameters->ionizationMode
-														*mavenParameters->charge);
-            if(formula_mass) mass=formula_mass;
-        }
-        ppmDist = mzUtils::ppmDist(mass,(double) group->meanMz);
-        expectedRtDiff = c->expectedRt-group->meanRt;
-
-    }
-
-    groupReport << SEP << compoundName;
-    groupReport << SEP << compoundID;
-    
-    Compound* c = group->compound;
-    if (c->expectedRt == 0 or c->expectedRt == NULL){ // If there is 0 or unspecified rt value
-        groupReport << SEP;                           // then the expectedRtDiff field would
-    }                                                 // be empty (blank)
-    else{
-        groupReport << SEP << expectedRtDiff;
-    }
-
-    groupReport << SEP << ppmDist;
-
-    if ( group->parent != NULL ) {
-        groupReport << SEP << group->parent->meanMz;
-    } else {
-        groupReport << SEP << group->meanMz;
-    }
-
-    for( unsigned int j=0; j < mavenParameters->samples.size(); j++) groupReport << SEP <<  yvalues[j];
-    groupReport << endl;
-
-    /*for (unsigned int k=0; k < group->children.size(); k++) {
-        group->children[k].metaGroupId = group->metaGroupId;
-        writeGroupInfoCSV(&group->children[k]);
-        //writePeakInfo(&group->children[k]);
-    }*/
-}
-
 
 void writeSampleListXML(xml_node& parent) {
 	xml_node samplesset = parent.append_child();
