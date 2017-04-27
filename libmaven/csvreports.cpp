@@ -69,7 +69,6 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
             groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
-        cerr <<"flag: "<<flag; 
         //TODO: Remove this to remove row in csv reports --@Giridhari
         if (includeSetNamesLine && flag){
             cerr <<"setname: ";

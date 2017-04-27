@@ -6,19 +6,20 @@
 #include <ctime>
 #include <limits.h>
 #include <algorithm>
+#include <sys/time.h>
+#include "omp.h"
 
+#include "options.h"
 #include "mzSample.h"
 #include "mzMassSlicer.h"
-#include "options.h"
-#include "omp.h"
 #include "../libmaven/databases.h"
+#include "../libmaven/csvreports.h"
+#include "../libmaven/PeakDetector.h"
 #include "../libmaven/classifierNeuralNet.h"
-#include <sys/time.h>
 
 #include <QtCore>
 
 #include "pugixml.hpp"
-#include "../libmaven/PeakDetector.h"
 
 using namespace std;
 #ifdef OMP_PARALLEL
@@ -105,19 +106,11 @@ void writeSampleListXML(xml_node& parent);
 void writePeakTableXML(string filename);
 
 /**
- * [write CSV Report]
- * @param filename [name of the file]
- */
-void writeCSVReport(string filename);
-
-/**
  * [write Group information in XML]
  * @param parent [parent ion]
  * @param g      [peak group]
  */
 void writeGroupXML(xml_node& parent, PeakGroup* g);
-
-void writeGroupInfoCSV(PeakGroup* group,  ofstream& groupReport);
 
 /**
  * [write Parameters of ion in XML]
