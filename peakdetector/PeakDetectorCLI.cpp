@@ -71,6 +71,7 @@ void processOptions(int argc, char* argv[]) {
 							"h?help",
 							"i?minGroupIntensity <float>",
                             "j?saveEicJson <int>",
+							"k?charge <int>",
 							"m?model <string>",
 							"n?eicMaxGroups <int>",
 							"o?outputdir <string>",
@@ -149,6 +150,10 @@ void processOptions(int argc, char* argv[]) {
         case 'j':
         	saveJsonEIC = true;
 			if (atoi(optarg) == 0) saveJsonEIC = false;
+			break;
+
+		case 'k':
+			mavenParameters->charge = atoi(optarg);
 			break;
 
 		case 'm':
