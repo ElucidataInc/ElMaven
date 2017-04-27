@@ -357,6 +357,64 @@ string cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
+void writeReport(string setName) {
+
+
+	//create an output folder
+	mzUtils::createDir(mavenParameters->outputdir.c_str());
+
+	cerr << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
+
+	//reduce groups
+	groupReduction();
+
+	//save Eic Json
+	saveJson(setName);
+
+	//save Mzroll File
+	saveMzRoll(setName);
+
+	//save output CSV
+	saveCSV(setName);
+
+}
+
+void groupReduction() {
+
+	if (reduceGroupsFlag) {
+		double startGroupReduction = getTime();
+		reduceGroups();
+		cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
+	}
+}
+
+void saveJson(string setName) {
+	if (saveJsonEIC) {
+
+		double startSavingJson = getTime();
+		saveEICsJson(mavenParameters->outputdir + setName + ".eics.json");
+		cerr << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
+	}
+}
+
+void saveMzRoll(string setName) {
+
+	if (saveMzrollFile == true)
+	{
+		double startSavingMzroll = getTime();
+		writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
+		cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
+	
+    }
+}
+
+void saveCSV(string setName) {
+
+    double startSavingCSV = getTime();
+	writeCSVReport(mavenParameters->outputdir + setName + ".csv");
+    cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
+}
+
 void reduceGroups() {
 	sort(mavenParameters->allgroups.begin(), mavenParameters->allgroups.end(), PeakGroup::compMz);
 	cerr << "\nreduceGroups(): " << mavenParameters->allgroups.size();
@@ -402,32 +460,9 @@ void reduceGroups() {
             reducedGroupCount++;
         }
     }
-    printf("\nReduced count of groups : %d \n",  reducedGroupCount);
+    cerr << "\nReduced count of groups : " << reducedGroupCount << " \n";
     mavenParameters->allgroups = allgroups_;
 	cerr << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
-}
-
-void writeReport(string setName) {
-
-
-	//create an output folder
-	mzUtils::createDir(mavenParameters->outputdir.c_str());
-
-	cerr << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
-    double startGroupReduction = getTime();
-	if (reduceGroupsFlag) reduceGroups();
-    cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
-	if (saveJsonEIC)      saveEICsJson(mavenParameters->outputdir + setName + ".eics.json");
-	if (saveMzrollFile == true)
-	{
-		double startSavingMzroll = getTime();
-		writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
-		cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
-	
-    }
-    double startSavingCSV = getTime();
-	writeCSVReport(mavenParameters->outputdir + setName + ".csv");
-    cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
 }
 
 void writeCSVReport( string filename) {
