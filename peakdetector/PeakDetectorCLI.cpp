@@ -70,6 +70,7 @@ void processOptions(int argc, char* argv[]) {
 							"g?grouping_maxRtWindow <float>",
 							"h?help",
 							"i?minGroupIntensity <float>",
+							"I?quantileIntensity <float>",
                             "j?saveEicJson <int>",
 							"k?charge <int>",
 							"m?model <string>",
@@ -77,6 +78,7 @@ void processOptions(int argc, char* argv[]) {
 							"o?outputdir <string>",
 							"p?ppmMerge <float>",
 							"q?minQuality <float>",
+							"Q?quantileQuality <float>",
 							"r?rtStepSize <float>",
                             "s?savemzroll <int>",
                             "v?ionizationMode <int>",
@@ -147,6 +149,10 @@ void processOptions(int argc, char* argv[]) {
 			mavenParameters->minGroupIntensity = atof(optarg);
 			break;
 
+		case 'I':
+			mavenParameters->quantileIntensity = atof(optarg);
+			break;
+
         case 'j':
         	saveJsonEIC = true;
 			if (atoi(optarg) == 0) saveJsonEIC = false;
@@ -174,6 +180,10 @@ void processOptions(int argc, char* argv[]) {
 
 		case 'q':
 			mavenParameters->minQuality = atof(optarg);
+			break;
+
+		case 'Q':
+			mavenParameters->quantileQuality = atof(optarg);
 			break;
 
 		case 'r':
