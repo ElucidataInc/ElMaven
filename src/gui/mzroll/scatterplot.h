@@ -17,6 +17,9 @@ class ScatterPlot: public PlotDockWidget  {
                 ~ScatterPlot();
 				void showSimilar(PeakGroup* g);
 				void setTable(TableDockWidget* t);
+                void setPeakTable(QWidget* w);
+                vector<PeakGroup*> presentGroups;
+                QToolButton *btnPeakTable;
 
 		public Q_SLOTS:
 				void contrastGroups();
@@ -28,7 +31,7 @@ class ScatterPlot: public PlotDockWidget  {
                 void setPlotTypeFlower() { plotType=FLOWRPLOT;    draw(); }
                 void setPlotTypePLS() { plotType=PLSPLOT;    draw(); }
                 void showSimilarOnClick(bool t) { showSimilarFlag=t; }
-
+                void showPeakTable();
 
 
 
@@ -48,6 +51,7 @@ class ScatterPlot: public PlotDockWidget  {
 				QAction* showSimilarOptions;
 				bool showSimilarFlag;
 				TableDockWidget* _table;
+                TableDockWidget* _peakTable;
 				CompareSamplesDialog* compareSamplesDialog;
 
                 plotTypeEnum plotType;

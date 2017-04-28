@@ -147,6 +147,7 @@ void CompareSamplesDialog::compareSamples() {
 	if (sset1.size() == 0 || sset2.size() == 0)
 		return;
 	compareSets(sset1, sset2);
+	if (parentWidget()) ((ScatterPlot*) parentWidget())->showPeakTable();
 }
 
 void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
