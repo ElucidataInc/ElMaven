@@ -18,7 +18,8 @@ LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \
 			../libmaven/classifier.cpp \  
-			../libmaven/classifierNeuralNet.cpp\
+			../libmaven/classifierNeuralNet.cpp \
+			main.cpp
 
 HEADERS += 	PeakDetectorCLI.h \
 			../libmaven/classifier.h \

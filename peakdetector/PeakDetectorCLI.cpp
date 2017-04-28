@@ -1,63 +1,6 @@
 #include "PeakDetectorCLI.h"
 
-int main(int argc, char *argv[]) {
-
-    double programStartTime = getTime();
-
-	//read command line options
-	processOptions(argc, argv);
-
-	//load classification model
-	loadClassificationModel(clsfModelFilename);
-
-	//set Maven Parameters
-	peakDetector->setMavenParameters(mavenParameters);
-
-	//load compounds file
-	loadCompoundsFile();
-
-	//load files
-	loadSamples(filenames);
-
-	//get retention time resolution
-	mavenParameters->setAverageScanTime();
-
-	//ionization
-	mavenParameters->setIonizationMode();
-
-	//align samples
-	if (mavenParameters->samples.size() > 1 && mavenParameters->alignSamplesFlag){
-		peakDetector->alignSamples();
-	}
-
-
-	//process compound list
-	if (mavenParameters->compounds.size()) {
-		vector<mzSlice*> slices = peakDetector->processCompounds(
-				mavenParameters->compounds, "compounds");
-		peakDetector->processSlices(slices, "compounds");
-		if (mavenParameters->pullIsotopesFlag) peakDetector->pullAllIsotopes();
-		writeReport("compounds");
-		delete_all(slices);
-	}
-
-	//process all mass slices
-	if (mavenParameters->processAllSlices == true) {
-		mavenParameters->matchRtFlag = false;
-		mavenParameters->checkConvergance = true;
-		peakDetector->processMassSlices();
-	}
-
-	//cleanup
-	delete_all(mavenParameters->samples);
-	mavenParameters->samples.clear();
-	mavenParameters->allgroups.clear();
-
-    cerr << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
-	return(0);
-}
-
-void processOptions(int argc, char* argv[]) {
+void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 	//command line options
 	const char * optv[] = {
@@ -229,7 +172,7 @@ void processOptions(int argc, char* argv[]) {
 	}
 }
 
-void loadClassificationModel(string clsfModelFilename) {
+void PeakDetectorCLI::loadClassificationModel(string clsfModelFilename) {
 
 	cerr << "Loading classifiation model" << endl;
 	cerr << "clsfModelFilename " << clsfModelFilename << endl;
@@ -237,7 +180,7 @@ void loadClassificationModel(string clsfModelFilename) {
 	mavenParameters->clsf->loadModel(clsfModelFilename);
 }
 
-void loadCompoundsFile() {
+void PeakDetectorCLI::loadCompoundsFile() {
 
 	//load compound list
 	if (!mavenParameters->ligandDbFilename.empty()) {
@@ -250,7 +193,7 @@ void loadCompoundsFile() {
 
 }
 
-void loadSamples(vector<string>&filenames) {
+void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 	double startLoadingTime = getTime();
 	cerr << "\nLoading samples" << endl;
@@ -284,7 +227,7 @@ void loadSamples(vector<string>&filenames) {
 
 }
 
-void saveEICsJson(string filename) {
+void PeakDetectorCLI::saveEICsJson(string filename) {
 	ofstream myfile(filename.c_str());
 	if (!myfile.is_open()) return;
     myfile << "[\n";
@@ -321,7 +264,7 @@ void saveEICsJson(string filename) {
 	myfile.close();
 }
 
-void saveEICJson(ofstream& out, EIC* eic) {
+void PeakDetectorCLI::saveEICJson(ofstream& out, EIC* eic) {
 	int N = eic->rt.size();
 	int count = 0;
 
@@ -338,7 +281,7 @@ void saveEICJson(ofstream& out, EIC* eic) {
 		out << "]\n"; 
 }
 
-vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
+vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 	vector<EIC*> eics;
 	for (int i = 0; i < grp.peaks.size(); i++) {
 		float mzmin = grp.meanMz - 0.2;
@@ -358,7 +301,7 @@ vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 	return (eics);
 }
 
-string cleanSampleName(string sampleName) {
+string PeakDetectorCLI::cleanSampleName(string sampleName) {
         QString out(sampleName.c_str());
         out.replace(QRegExp(".*/"),"");
         out.replace(QRegExp(".*\\"),"");
@@ -373,7 +316,7 @@ string cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
-void writeReport(string setName) {
+void PeakDetectorCLI::writeReport(string setName) {
 
 
 	//create an output folder
@@ -395,7 +338,7 @@ void writeReport(string setName) {
 
 }
 
-void groupReduction() {
+void PeakDetectorCLI::groupReduction() {
 
 	if (reduceGroupsFlag) {
 		double startGroupReduction = getTime();
@@ -404,7 +347,7 @@ void groupReduction() {
 	}
 }
 
-void saveJson(string setName) {
+void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 
 		double startSavingJson = getTime();
@@ -413,7 +356,7 @@ void saveJson(string setName) {
 	}
 }
 
-void saveMzRoll(string setName) {
+void PeakDetectorCLI::saveMzRoll(string setName) {
 
 	if (saveMzrollFile == true)
 	{
@@ -424,7 +367,7 @@ void saveMzRoll(string setName) {
     }
 }
 
-void saveCSV(string setName) {
+void PeakDetectorCLI::saveCSV(string setName) {
 
     double startSavingCSV = getTime();
 
@@ -463,7 +406,7 @@ void saveCSV(string setName) {
     cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
 }
 
-void reduceGroups() {
+void PeakDetectorCLI::reduceGroups() {
 	sort(mavenParameters->allgroups.begin(), mavenParameters->allgroups.end(), PeakGroup::compMz);
 	cerr << "\nreduceGroups(): " << mavenParameters->allgroups.size();
 	//init deleteFlag 
@@ -513,7 +456,7 @@ void reduceGroups() {
 	cerr << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
 }
 
-void writeSampleListXML(xml_node& parent) {
+void PeakDetectorCLI::writeSampleListXML(xml_node& parent) {
 	xml_node samplesset = parent.append_child();
 	samplesset.set_name("samples");
 
@@ -528,7 +471,7 @@ void writeSampleListXML(xml_node& parent) {
 	}
 }
 
-void writePeakTableXML(std::string filename) {
+void PeakDetectorCLI::writePeakTableXML(std::string filename) {
 
 	xml_document doc;
 	doc.append_child().set_name("project");
@@ -550,7 +493,7 @@ void writePeakTableXML(std::string filename) {
 	doc.save_file(filename.c_str());
 }
 
-void writeParametersXML(xml_node& parent) {
+void PeakDetectorCLI::writeParametersXML(xml_node& parent) {
 
 	xml_node p = parent.append_child();
 	p.set_name("PeakDetectionParameters");
@@ -575,7 +518,7 @@ void writeParametersXML(xml_node& parent) {
 	p.append_attribute("minQuality") = mavenParameters->minQuality;
 }
 
-void writeGroupXML(xml_node& parent, PeakGroup* g) {
+void PeakDetectorCLI::writeGroupXML(xml_node& parent, PeakGroup* g) {
 	if (!g)
 		return;
 
@@ -650,6 +593,7 @@ void writeGroupXML(xml_node& parent, PeakGroup* g) {
 		}
 	}
 }
+
 double get_wall_time(){
     struct timeval time;
     if (gettimeofday(&time,NULL)){
