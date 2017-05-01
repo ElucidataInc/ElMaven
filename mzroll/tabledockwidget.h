@@ -22,6 +22,7 @@ class TableDockWidget: public QDockWidget {
       Q_OBJECT
 
 public:
+    MainWindow* _mainwindow;
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
@@ -167,7 +168,6 @@ private:
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
 
-          MainWindow* _mainwindow;
           QList<PeakGroup>allgroups;
 
           TrainDialog* traindialog;
@@ -181,6 +181,22 @@ private:
           bool tableSelectionFlagUp;
           bool tableSelectionFlagDown;
     
+};
+
+class TableToolBarWidgetAction : public QWidgetAction
+{
+    public:
+        QString btnName;
+        TableDockWidget* td;
+        TableToolBarWidgetAction(QObject *parent, TableDockWidget* table, QString btnType) : QWidgetAction(parent) {
+            btnName = btnType;
+            td = table;
+        }
+        virtual ~TableToolBarWidgetAction() {}
+
+    protected:
+
+        virtual QWidget *createWidget(QWidget *parent);
 };
 
 #endif

@@ -37,93 +37,13 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     connect(clusterDialog->clusterButton,SIGNAL(clicked(bool)),SLOT(clusterGroups()));
     connect(clusterDialog->clearButton,SIGNAL(clicked(bool)),SLOT(clearClusters()));
 
-    QToolBar *toolBar = new QToolBar(this);
-    toolBar->setFloatable(false);
-    toolBar->setMovable(false);
-
-    QToolButton *btnSwitchView = new QToolButton(toolBar);
-    btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
-    btnSwitchView->setToolTip("Switch between Group and Peak Views");
-    connect(btnSwitchView,SIGNAL(clicked()),SLOT(switchTableView()));
-
-    QToolButton *btnGroupCSV = new QToolButton(toolBar);
-
-    btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
-    btnGroupCSV->setToolTip(tr("Export Groups To SpreadSheet (.csv) "));
-    btnGroupCSV->setMenu(new QMenu("Export Groups"));
-    btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
-    QAction* exportSelected = btnGroupCSV->menu()->addAction(tr("Export Selected"));
-    QAction* exportAll = btnGroupCSV->menu()->addAction(tr("Export All Groups"));
-    QAction* exportGood = btnGroupCSV->menu()->addAction(tr("Export Good"));
-    QAction* exportBad = btnGroupCSV->menu()->addAction(tr("Export Bad"));
-    //updated when Merging with Maven776 - Kiran
-    connect(exportSelected, SIGNAL(triggered()), SLOT(selectedPeakSet()));
-    connect(exportSelected, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
-    
-    connect(exportAll, SIGNAL(triggered()), SLOT(wholePeakSet()));
-    connect(exportAll, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    connect(exportAll, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
-
-    connect(exportGood, SIGNAL(triggered()), SLOT(goodPeakSet()));
-    connect(exportGood, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    connect(exportGood, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
-
-    connect(exportBad, SIGNAL(triggered()), SLOT(badPeakSet()));
-    connect(exportBad, SIGNAL(triggered()), treeWidget, SLOT(selectAll()));
-    connect(exportBad, SIGNAL(triggered()), SLOT(exportGroupsToSpreadsheet()));
-
     connect(this,SIGNAL(updateProgressBar(QString,int,int)), _mainwindow,SLOT(setProgressBar(QString, int,int)));
     //connect(btnGroupCSV, SIGNAL(clicked()), SLOT(exportGroupsToSpreadsheet()));
 
-    QToolButton *btnSaveJson = new QToolButton(toolBar);
-    btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
-    btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
-    connect(btnSaveJson, SIGNAL(clicked()), SLOT(exportJson()));
 
-
-    //QToolButton *btnHeatmap = new QToolButton(toolBar);
-    //btnHeatmap->setIcon(QIcon(rsrcPath + "/heatmap.png"));
-    //btnHeatmap->setToolTip("Show HeatMap");
-    //connect(btnHeatmap, SIGNAL(clicked()), SLOT(showHeatMap()));
-
-    QToolButton *btnGallery = new QToolButton(toolBar);
-    btnGallery->setIcon(QIcon(rsrcPath + "/gallery.png"));
-    btnGallery->setToolTip("Show Gallery");
-    connect(btnGallery, SIGNAL(clicked()), SLOT(showGallery()));
-
-    QToolButton *btnScatter = new QToolButton(toolBar);
-    btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
-    btnScatter->setToolTip("Show ScatterPlot");
-    connect(btnScatter, SIGNAL(clicked()), SLOT(showScatterPlot()));
-
-    QToolButton *btnCluster = new QToolButton(toolBar);
-    btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnCluster->setToolTip("Cluster Groups");
-    connect(btnCluster, SIGNAL(clicked()), SLOT(showClusterDialog()));
-
-    /*
-		QToolButton *btnFilter = new QToolButton(toolBar);
-		btnFilter->setIcon(QIcon(rsrcPath + "/filter.png"));
-		btnFilter->setToolTip("Filter Groups");
-		connect(btnFilter, SIGNAL(clicked()), SLOT(showFiltersDialog()));
-		*/
-
-    QToolButton *btnTrain = new QToolButton(toolBar);
-    btnTrain->setIcon(QIcon(rsrcPath + "/train.png"));
-    btnTrain->setToolTip("Train Neural Net");
-    connect(btnTrain,SIGNAL(clicked()), SLOT(showTrainDialog()));
-
-    QToolButton *btnXML = new QToolButton(toolBar);
-    btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
-    btnXML->setToolTip("Save Peaks");
-    connect(btnXML, SIGNAL(clicked()), SLOT(savePeakTable()));
-
-    QToolButton *btnLoad = new QToolButton(toolBar);
-    btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-    btnLoad->setToolTip("Load Peaks");
-    //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
-    connect(btnLoad, SIGNAL(clicked()),_mainwindow, SLOT(open()));
-
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
     btnMerge = new QToolButton(toolBar);
     btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
     btnMerge->setToolTip("Merge Groups With");
@@ -134,83 +54,56 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 	connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions())); 
     connect(btnMergeMenu, SIGNAL(triggered(QAction*)), SLOT(mergeGroupsIntoPeakTable(QAction*)));
 
-    QToolButton *btnGood = new QToolButton(toolBar);
-    btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
-    btnGood->setToolTip("Mark Group as Good");
-    connect(btnGood, SIGNAL(clicked()), SLOT(markGroupGood()));
 
-    QToolButton *btnBad = new QToolButton(toolBar);
-    btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-    btnBad->setToolTip("Mark Good as Bad");
-    connect(btnBad, SIGNAL(clicked()), SLOT(markGroupBad()));
 
-    QToolButton *btnHeatmapelete = new QToolButton(toolBar);
-    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/delete.png"));
-    btnHeatmapelete->setToolTip("Delete Group");
-    connect(btnHeatmapelete, SIGNAL(clicked()), this, SLOT(deleteGroups()));
 
-    QToolButton *btnPDF = new QToolButton(toolBar);
-    btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
-    btnPDF->setToolTip("Generate PDF Report");
-    connect(btnPDF, SIGNAL(clicked()), this, SLOT(printPdfReport()));
-
-    // QToolButton *btnRunScript = new QToolButton(toolBar);
-    // btnRunScript->setIcon(QIcon(rsrcPath + "/R.png"));
-    // btnRunScript->setToolTip("Run Script");
-    // connect(btnRunScript, SIGNAL(clicked()), SLOT(runScript()));
-
-    /*
-    QToolButton *btnMoveTo = new QToolButton(toolBar);
-    btnMoveTo->setMenu(new QMenu("Move To"));
-    btnMoveTo->setIcon(QIcon(rsrcPath + "/delete.png"));
-    btnMoveTo->setPopupMode(QToolButton::InstantPopup);
-    btnMoveTo->menu()->addAction(tr("BookMarks Table"));
-    btnMoveTo->menu()->addAction(tr("Table X"));
-    btnMoveTo->menu()->addAction(tr("Table Y"));
-*/
-    QToolButton *btnX = new QToolButton(toolBar);
-    btnX->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-    //btnX->setIcon(QIcon(rsrcPath + "/hide.png"));
-    connect(btnX, SIGNAL(clicked()),SLOT(hide()));
-
-    QLabel *titlePeakTable = new QLabel(toolBar);
-    QFont font;
-	font.setPointSize(14);
-    titlePeakTable->setFont(font);
-    if(tableId) titlePeakTable->setText("Table "+ QString::number(tableId) + "  ");
-    titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+    QWidgetAction *titlePeakTable = new TableToolBarWidgetAction(toolBar, this,  "titlePeakTable");
+    QWidgetAction *btnSwitchView = new TableToolBarWidgetAction(toolBar, this,  "btnSwitchView");
+    QWidgetAction *btnGroupCSV = new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+    QWidgetAction *btnSaveJson = new TableToolBarWidgetAction(toolBar, this,  "btnSaveJson");
+    QWidgetAction *btnGallery = new TableToolBarWidgetAction(toolBar, this,  "btnGallery");
+    QWidgetAction *btnScatter = new TableToolBarWidgetAction(toolBar, this,  "btnScatter");
+    QWidgetAction *btnCluster = new TableToolBarWidgetAction(toolBar, this,  "btnCluster");
+    QWidgetAction *btnTrain = new TableToolBarWidgetAction(toolBar, this,  "btnTrain");
+    QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this,  "btnXML");
+    QWidgetAction *btnLoad = new TableToolBarWidgetAction(toolBar, this,  "btnLoad");
+    QWidgetAction *btnGood = new TableToolBarWidgetAction(toolBar, this,  "btnGood");
+    QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this,  "btnBad");
+    QWidgetAction *btnHeatmapelete = new TableToolBarWidgetAction(toolBar, this,  "btnHeatmapelete");
+    QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this,  "btnPDF");
+    QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this,  "btnX");
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    toolBar->addWidget(titlePeakTable);
-    toolBar->addWidget(btnSwitchView);
-    toolBar->addWidget(btnGood);
-    toolBar->addWidget(btnBad);
-    toolBar->addWidget(btnTrain);
-    toolBar->addWidget(btnHeatmapelete);
-    toolBar->addSeparator();
 
-    //toolBar->addWidget(btnHeatmap);
-    toolBar->addWidget(btnScatter);
-    toolBar->addWidget(btnGallery);
-    toolBar->addWidget(btnCluster);
-    //toolBar->addWidget(btnFilter);
-
-    toolBar->addSeparator();
-    toolBar->addWidget(btnPDF);
-    toolBar->addWidget(btnGroupCSV);
-    toolBar->addWidget(btnSaveJson);
-    // toolBar->addWidget(btnRunScript);
-
-    toolBar->addSeparator();
-    toolBar->addWidget(btnXML);
-    toolBar->addWidget(btnLoad);
+    toolBar->addAction(titlePeakTable);
+    toolBar->addAction(btnSwitchView);
+    toolBar->addAction(btnGood);
+    toolBar->addAction(btnBad);
+    toolBar->addAction(btnTrain);
+    toolBar->addAction(btnHeatmapelete);
     toolBar->addWidget(btnMerge);
 
-   // toolBar->addWidget(btnMoveTo);
-    toolBar->addWidget(spacer);
+    toolBar->addSeparator();
+    toolBar->addAction(btnScatter);
+    toolBar->addAction(btnGallery);
+    toolBar->addAction(btnCluster);
 
-    toolBar->addWidget(btnX);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnPDF);
+    toolBar->addAction(btnGroupCSV);
+    toolBar->addAction(btnSaveJson);
+
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnXML);
+    toolBar->addAction(btnLoad);
+
+
+    toolBar->addWidget(spacer);
+    toolBar->addAction(btnX);
+
 
     setTitleBarWidget(toolBar);
     setupFiltersDialog();
@@ -2389,3 +2282,155 @@ MatrixXf TableDockWidget::getGroupMatrix(vector<mzSample*>& samples, PeakGroup::
     return X;
 }
 
+QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
+
+
+    if (btnName == "titlePeakTable") {
+ 
+        QLabel *titlePeakTable = new QLabel(parent);
+        QFont font;
+        font.setPointSize(14);
+        titlePeakTable->setFont(font);
+        if(td->tableId) titlePeakTable->setText("Table "+ QString::number(td->tableId) + "  ");
+        titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+        return titlePeakTable;
+
+    } else if (btnName == "btnSwitchView") {
+
+        QToolButton *btnSwitchView = new QToolButton(parent);
+        btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
+        btnSwitchView->setToolTip("Switch between Group and Peak Views");
+        connect(btnSwitchView,SIGNAL(clicked()), td, SLOT(switchTableView()));
+        return btnSwitchView;
+
+    } else if (btnName == "btnGroupCSV") {
+
+        QToolButton *btnGroupCSV = new QToolButton(parent);
+
+        btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
+        btnGroupCSV->setToolTip(tr("Export Groups To SpreadSheet (.csv) "));
+        btnGroupCSV->setMenu(new QMenu("Export Groups"));
+        btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
+        QAction* exportSelected = btnGroupCSV->menu()->addAction(tr("Export Selected"));
+        QAction* exportAll = btnGroupCSV->menu()->addAction(tr("Export All Groups"));
+        QAction* exportGood = btnGroupCSV->menu()->addAction(tr("Export Good"));
+        QAction* exportBad = btnGroupCSV->menu()->addAction(tr("Export Bad"));
+
+        connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+        connect(exportSelected, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
+        
+        connect(exportAll, SIGNAL(triggered()), td,  SLOT(wholePeakSet()));
+        connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
+        connect(exportAll, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
+
+        connect(exportGood, SIGNAL(triggered()), td,  SLOT(goodPeakSet()));
+        connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
+        connect(exportGood, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
+
+        connect(exportBad, SIGNAL(triggered()), td,  SLOT(badPeakSet()));
+        connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
+        connect(exportBad, SIGNAL(triggered()), td, SLOT(exportGroupsToSpreadsheet()));
+        return btnGroupCSV;
+
+    } else if (btnName == "btnSaveJson") {
+
+        QToolButton* btnSaveJson = new QToolButton(parent);
+        btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
+        btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
+        connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
+        return btnSaveJson;
+
+    } else if (btnName == "btnGallery") {
+
+        QToolButton* btnGallery = new QToolButton(parent);
+        btnGallery->setIcon(QIcon(rsrcPath + "/gallery.png"));
+        btnGallery->setToolTip("Show Gallery");
+        connect(btnGallery, SIGNAL(clicked()), td, SLOT(showGallery()));
+        return btnGallery;
+
+    } else if (btnName == "btnScatter") {
+
+        QToolButton* btnScatter = new QToolButton(parent);
+        btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
+        btnScatter->setToolTip("Show ScatterPlot");
+        connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
+        return btnScatter;
+
+    } else if (btnName == "btnCluster") {
+
+        QToolButton* btnCluster = new QToolButton(parent);
+        btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
+        btnCluster->setToolTip("Cluster Groups");
+        connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
+        return btnCluster;
+
+    } else if (btnName == "btnTrain") {
+
+        QToolButton* btnTrain = new QToolButton(parent);
+        btnTrain->setIcon(QIcon(rsrcPath + "/train.png"));
+        btnTrain->setToolTip("Train Neural Net");
+        connect(btnTrain,SIGNAL(clicked()), td, SLOT(showTrainDialog()));
+        return btnTrain;
+
+    } else if (btnName == "btnXML") {
+
+        QToolButton* btnXML = new QToolButton(parent);
+        btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
+        btnXML->setToolTip("Save Peaks");
+        connect(btnXML, SIGNAL(clicked()), td, SLOT(savePeakTable()));
+        return btnXML;
+
+    } else if (btnName == "btnLoad") {
+
+        QToolButton* btnLoad = new QToolButton(parent);
+        btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
+        btnLoad->setToolTip("Load Peaks");
+        connect(btnLoad, SIGNAL(clicked()), td->_mainwindow, SLOT(open()));
+        return btnLoad;
+
+    } else if (btnName == "btnGood") {
+
+        QToolButton* btnGood = new QToolButton(parent);
+        btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
+        btnGood->setToolTip("Mark Group as Good");
+        connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
+        return btnGood;
+
+    } else if (btnName == "btnBad") {
+
+        QToolButton* btnBad = new QToolButton(parent);
+        btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
+        btnBad->setToolTip("Mark Good as Bad");
+        connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
+        return btnBad;
+
+    } else if (btnName == "btnHeatmapelete") {
+        
+        QToolButton* btnHeatmapelete = new QToolButton(parent);
+        btnHeatmapelete->setIcon(QIcon(rsrcPath + "/delete.png"));
+        btnHeatmapelete->setToolTip("Delete Group");
+        connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteGroups()));
+        return btnHeatmapelete;
+
+    } else if (btnName == "btnPDF") {
+
+        QToolButton* btnPDF = new QToolButton(parent);
+        btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
+        btnPDF->setToolTip("Generate PDF Report");
+        connect(btnPDF, SIGNAL(clicked()), td, SLOT(printPdfReport()));
+        return btnPDF;
+
+    } else if (btnName == "btnX") {
+
+        QToolButton* btnX = new QToolButton(parent);        
+        btnX->setIcon(td->style()->standardIcon(QStyle::SP_DialogCloseButton));
+        connect(btnX, SIGNAL(clicked()), td, SLOT(hide()));
+        return btnX;
+
+    } else {
+        cerr << endl << endl << "REAched here  " << endl << endl;
+        return NULL;
+    
+    }
+ 
+}
