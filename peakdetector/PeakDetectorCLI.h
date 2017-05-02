@@ -15,6 +15,7 @@
 #include "options.h"
 #include "mzSample.h"
 #include "mzMassSlicer.h"
+#include "parseOptions.h"
 #include "../libmaven/databases.h"
 #include "../libmaven/csvreports.h"
 #include "../libmaven/PeakDetector.h"
