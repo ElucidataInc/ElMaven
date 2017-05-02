@@ -41,6 +41,14 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
+    titlePeakTable = new QLabel(toolBar);
+    QFont font;
+	font.setPointSize(14);
+    titlePeakTable->setFont(font);
+    if(tableId==0) titlePeakTable->setText(" Bookmark Table  ");
+    else titlePeakTable->setText("Peak Table "+ QString::number(tableId) + "  ");
+    titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+
     QToolButton *btnSwitchView = new QToolButton(toolBar);
     btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
     btnSwitchView->setToolTip("Switch between Group and Peak Views");
@@ -173,14 +181,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     //btnX->setIcon(QIcon(rsrcPath + "/hide.png"));
     connect(btnX, SIGNAL(clicked()),SLOT(hide()));
 
-    QLabel *titlePeakTable = new QLabel(toolBar);
-    QFont font;
-	font.setPointSize(14);
-    titlePeakTable->setFont(font);
-    if(tableId==0) titlePeakTable->setText(" Bookmark Table  ");
-    else titlePeakTable->setText("Peak Table "+ QString::number(tableId) + "  ");
-    titlePeakTable->setStyleSheet("font-weight: bold; color: black");
-
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     toolBar->addWidget(titlePeakTable);
@@ -249,7 +249,7 @@ void TableDockWidget::showMergeTableOptions() {
     btnMergeMenu->clear();
     mergeAction.clear(); 
     for(int i=0; i<n; i++) {
-        mergeAction.insert(btnMergeMenu->addAction("Table " + QString::number(peaksTableList[i]->tableId)), 
+        mergeAction.insert(btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()), 
             peaksTableList[i]->tableId);
     }
 
