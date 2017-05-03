@@ -15,7 +15,14 @@ class ParseOptions {
         ParseOptions();
         ~ParseOptions();
         void createXMLFile();
-        xml_node addNode(xml_document &doc, char* nodeName, char* nodeValue = 0);
+        template <typename T> 
+        xml_node addNode(T &doc, char* nodeName, char* nodeValue = 0);
+
+        template <typename T>
+        void addAttribute(xml_node &node, char* attrName, T value);
+
+        void saveDoc(xml_document &doc, char* docPath);
+
         void checkErrors(xml_parse_result &result, char* source);
 };
 
