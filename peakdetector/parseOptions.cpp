@@ -16,12 +16,14 @@ void ParseOptions::createXMLFile() {
     //test
     xml_node args = addNode(doc, "Arguments");
 
+    xml_node child = addNode(args, "OptionsTab", "Arguments/Variables from Options Tab in ElMaven GUI");
 
-    doc.save_file("save_file_output.xml");
+    saveDoc(doc, "test.xml");
 
 }
 
-xml_node ParseOptions::addNode(xml_document &doc, char* nodeName, char* nodeValue) {
+template <typename T> 
+xml_node ParseOptions::addNode(T &doc, char* nodeName, char* nodeValue) {
 
     xml_node node;
 
@@ -33,6 +35,20 @@ xml_node ParseOptions::addNode(xml_document &doc, char* nodeName, char* nodeValu
 
     return node;
 }
+
+template <typename T>
+void ParseOptions::addAttribute(xml_node &node, char* attrName, T value) {
+
+    node.append_attribute(attrName) = value;
+
+}
+
+void ParseOptions::saveDoc(xml_document &doc, char* docPath) {
+
+    doc.save_file(docPath);
+
+}
+
 
 void ParseOptions::checkErrors(xml_parse_result &result, char* source) {
 
