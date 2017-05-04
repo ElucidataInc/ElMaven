@@ -11,7 +11,9 @@
 #include <algorithm>
 #include <sys/time.h>
 #include "omp.h"
-
+#include "QString"
+#include "QStringList"
+#include "QByteArray"
 
 #include "parseOptions.h"
 #include "options.h"
@@ -157,51 +159,47 @@ class PeakDetectorCLI {
 		* @param grp [the peak group]
 		*/
 		vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
-
-};
-
-
-struct GeneralArgs {
-	int alignSamples = 0;
-	int saveEicJson = 0;
-	string outputdir;
-	int savemzroll = 0;
-
-};
-
-struct PeakDialogArgs {
-	int minGoodGroupCount = 1;
-	int matchRtFlag = 0;
-	string db;
-	int processAllSlices = 0;
-	int pullIsotopes = 0;
-	float grouping_maxRtWindow = 0.5;
-	float minGroupIntensity = 5000;
-	float quantileIntensity = 0.0;
-	string model;
-	int eicMaxGroups = INT_MAX;
-	float ppmMerge = 30;
-	float minQuality = 0.5;
-	float quantileQuality = 0.0;
-	float rtStepSize = 20;
-	int minPeakWidth = 1;
-	int eicSmoothingWindow = 10;
-	float minSignalBaseLineRatio = 2;
-
-};
-
-struct OptionsDialogArgs {
-	int ionizationMode = -1;
-	int charge = 1;
+		
 };
 
 struct Arguments {
 
-	GeneralArgs general;
-	PeakDialogArgs peakDialog;
-	OptionsDialogArgs optionsDialog;
-	
+	QStringList generalArgs;
+	QStringList peakDialogArgs;
+	QStringList optionsDialogArgs;
+
+	void populateArgs() {
+		generalArgs << "int" << "alignSamples" << "0";
+		generalArgs << "int" << "saveEicJson" << "0";
+		generalArgs << "string" << "outputdir" << "0";
+		generalArgs << "int" << "savemzroll" << "0";
+
+		peakDialogArgs << "int" << "minGoodGroupCount" << "1";
+		peakDialogArgs << "int" << "matchRtFlag" << "0";
+		peakDialogArgs << "string" << "DDb" << "0"; 
+		peakDialogArgs << "int" << "processAllSlices" << "0";
+		peakDialogArgs << "int" << "pullIsotopes" << "0";
+		peakDialogArgs << "float" << "grouping_maxRtWindow" << "0.5";
+		peakDialogArgs << "float" << "minGroupIntensity" << "5000";
+		peakDialogArgs << "float" << "quantileIntensity" << "0.0";
+		peakDialogArgs << "string" << "model" << "0";
+		peakDialogArgs << "int" << "eicMaxGroups" << "INT_MAX";
+		peakDialogArgs << "float" << "ppmMerge" << "30";
+		peakDialogArgs << "float" << "minQuality" << "0.5";
+		peakDialogArgs << "float" << "quantileQuality" << "0.0";
+		peakDialogArgs << "float" << "rtStepSize" << "20";
+		peakDialogArgs << "int" << "minPeakWidth" << "1";
+		peakDialogArgs << "int" << "eicSmoothingWindow" << "10";
+		peakDialogArgs << "float" << "minSignalBaseLineRatio" << "2";
+
+		optionsDialogArgs << "int" << "ionizationMode" << "-1";
+		optionsDialogArgs << "int" << "charge" << "1";
+
+	}
+
 };
+
+
 
 double get_wall_time();
 double get_cpu_time(); 

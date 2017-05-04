@@ -1,27 +1,73 @@
 #include "parseOptions.h"
 
-ParseOptions::ParseOptions(const Arguments &args) {
+ParseOptions::ParseOptions(Arguments &arguments) {
 
-
+    createXMLFile(arguments);
 }
 
 ParseOptions::~ParseOptions() {
 
 }
 
-void ParseOptions::createXMLFile() {
+void ParseOptions::createXMLFile(Arguments &arguments) {
+
+    arguments.populateArgs();
+    QStringList optionsDialog = arguments.optionsDialogArgs;
+    QStringList peakDialog = arguments.peakDialogArgs;
+    QStringList general = arguments.generalArgs;
 
 
     xml_document doc;
-
-    //test
     xml_node args = addNode(doc, "Arguments");
 
-    xml_node child = addNode(args, "OptionsTab", "Arguments/Variables from Options Tab in ElMaven GUI");
+    addChildren(args, "OptionsDialogArguments", optionsDialog);
+    addChildren(args, "PeaksDialogArguments", peakDialog);
+    addChildren(args, "GeneralArguments", general);
 
     saveDoc(doc, "test.xml");
 
 }
+
+void ParseOptions::addChildren(xml_node args, char* nodeName, QStringList cliArguments) {
+
+    xml_node node = addNode(args, nodeName);
+
+    for(int i = 0;i < cliArguments.size();i = i + 3) {
+
+        char* ArgName = qStringtocharPointer(cliArguments[i + 1]);
+        string strType = cliArguments[i].toStdString();
+        char* Type = qStringtocharPointer(cliArguments[i]);
+
+        QString nodeValue = cliArguments[i + 2];
+        xml_node nodeArg = addNode(node, ArgName);
+        addAttribute(nodeArg, "type", Type);
+
+        if (strType == "int") {
+            int Value = nodeValue.toInt();
+            addAttribute(nodeArg, "value", Value);
+        } else if (strType == "float") {
+            float Value = nodeValue.toDouble();
+            addAttribute(nodeArg, "value", Value);
+        } else if (strType == "string") {
+            char* Value = qStringtocharPointer(nodeValue);
+            addAttribute(nodeArg, "value", Value);
+        } else {
+            cerr << "Unknown Type" << endl;
+        }
+
+
+    }
+
+}
+
+char* ParseOptions::qStringtocharPointer(QString stringToBeConverted) {
+
+    QByteArray array = stringToBeConverted.toLocal8Bit();
+    char* buffer = array.data();
+
+    return buffer;
+}
+
 
 template <typename T> 
 xml_node ParseOptions::addNode(T &doc, char* nodeName, char* nodeValue) {

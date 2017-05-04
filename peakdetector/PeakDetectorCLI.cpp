@@ -2,6 +2,9 @@
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
+	Arguments args;
+	ParseOptions *parseOptions = new ParseOptions(args);
+
 	//command line options
 	const char * optv[] = {
 							"a?alignSamples <int>",
