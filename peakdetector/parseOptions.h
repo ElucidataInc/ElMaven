@@ -6,13 +6,15 @@
 
 #include "pugixml.hpp"
 
+#include "PeakDetectorCLI.h"
+
 using namespace std;
 using namespace pugi;
 
 class ParseOptions {
 
     public:
-        ParseOptions();
+        ParseOptions(const struct Arguments &args);
         ~ParseOptions();
         void createXMLFile();
         template <typename T> 

@@ -1,6 +1,7 @@
 #include "parseOptions.h"
 
-ParseOptions::ParseOptions() {
+ParseOptions::ParseOptions(const Arguments &args) {
+
 
 }
 

@@ -12,6 +12,8 @@
 #include <sys/time.h>
 #include "omp.h"
 
+
+#include "parseOptions.h"
 #include "options.h"
 #include "mzSample.h"
 #include "mzMassSlicer.h"
@@ -156,6 +158,49 @@ class PeakDetectorCLI {
 		*/
 		vector<EIC*> getEICs(float rtmin, float rtmax, PeakGroup& grp);
 
+};
+
+
+struct GeneralArgs {
+	int alignSamples = 0;
+	int saveEicJson = 0;
+	string outputdir;
+	int savemzroll = 0;
+
+};
+
+struct PeakDialogArgs {
+	int minGoodGroupCount = 1;
+	int matchRtFlag = 0;
+	string db;
+	int processAllSlices = 0;
+	int pullIsotopes = 0;
+	float grouping_maxRtWindow = 0.5;
+	float minGroupIntensity = 5000;
+	float quantileIntensity = 0.0;
+	string model;
+	int eicMaxGroups = INT_MAX;
+	float ppmMerge = 30;
+	float minQuality = 0.5;
+	float quantileQuality = 0.0;
+	float rtStepSize = 20;
+	int minPeakWidth = 1;
+	int eicSmoothingWindow = 10;
+	float minSignalBaseLineRatio = 2;
+
+};
+
+struct OptionsDialogArgs {
+	int ionizationMode = -1;
+	int charge = 1;
+};
+
+struct Arguments {
+
+	GeneralArgs general;
+	PeakDialogArgs peakDialog;
+	OptionsDialogArgs optionsDialog;
+	
 };
 
 double get_wall_time();
