@@ -3,7 +3,7 @@ include(../mzroll.pri)
 TEMPLATE = app
 TARGET = peakdetector
 DESTDIR = ../bin
-CONFIG += warn_off xml 
+CONFIG += warn_off xml -std=c++14
 
 QT -= network gui opengl 
 CONFIG -= network gui opengl 

@@ -14,9 +14,12 @@ using namespace pugi;
 class ParseOptions {
 
     public:
-        ParseOptions(const struct Arguments &args);
+        ParseOptions(struct Arguments &arguments);
         ~ParseOptions();
-        void createXMLFile();
+        void createXMLFile(struct Arguments &arguments);
+        void addChildren(xml_node args, char* nodeName, QStringList cliArguments);
+        char* qStringtocharPointer(QString stringToBeConverted);
+
         template <typename T> 
         xml_node addNode(T &doc, char* nodeName, char* nodeValue = 0);
 
