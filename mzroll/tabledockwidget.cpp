@@ -24,7 +24,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     this->setAcceptDrops(true);
 
     setWidget(treeWidget);
-    setWindowTitle(title);
     setupPeakTable();
     setTableId();
 
@@ -49,6 +48,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     else titlePeakTable->setText("Peak Table "+ QString::number(tableId) + "  ");
     titlePeakTable->setStyleSheet("font-weight: bold; color: black");
 
+    setWindowTitle(titlePeakTable->text());
     QToolButton *btnSwitchView = new QToolButton(toolBar);
     btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
     btnSwitchView->setToolTip("Switch between Group and Peak Views");
