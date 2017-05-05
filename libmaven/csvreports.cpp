@@ -62,7 +62,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         QStringList groupReportcolnames;
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
-                << "compoundId" << "expectedRtDiff" << "ppmDiff" << "parent";
+                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" << "parent";
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
@@ -88,7 +88,7 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
 
     if (peakReport.is_open()) {
         QStringList peakReportcolnames;
-        peakReportcolnames << "groupId" << "compound" << "compoundId" << "sample" << "peakMz"
+        peakReportcolnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
                 << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
                 << "peakIntensity" << "peakArea" << "peakAreaTop"
                 << "peakAreaCorrected" << "noNoiseObs" << "signalBaseLineRatio"
@@ -274,6 +274,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
     string compoundName;
     string compoundID;
+    string formula;
     // TODO: Added this while merging this file
     string categoryString;
     float expectedRtDiff = 0;
@@ -296,8 +297,13 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
     }
 
+    if (!group->compound->formula.empty()) {
+        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+    }
+
     groupReport << SEP << compoundName;
     groupReport << SEP << compoundID;
+    groupReport << SEP << formula;
     //groupReport << SEP << categoryString;
     groupReport << SEP << expectedRtDiff;
     groupReport << SEP << ppmDist;
@@ -319,11 +325,16 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         return;
     string compoundName = "";
     string compoundID = "";
+    string formula = "";
 
     if (group->compound != NULL) {
         // TODO: Added this while merging this file
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
+    }
+
+    if (!group->compound->formula.empty()) {
+        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
     }
 
     if (selectionFlag == 2) {
@@ -351,6 +362,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                 << groupId << SEP
                 << compoundName << SEP
                 << compoundID << SEP
+                << formula << SEP
                 << sampleName << SEP
                 << peak.peakMz <<  SEP
                 << peak.medianMz <<  SEP
