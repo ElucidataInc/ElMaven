@@ -186,7 +186,6 @@ private:
 class TableToolBarWidgetAction : public QWidgetAction
 {
     public:
-        QString btnName;
         TableDockWidget* td;
         TableToolBarWidgetAction(QObject *parent, TableDockWidget* table, QString btnType) : QWidgetAction(parent) {
             btnName = btnType;
@@ -195,8 +194,15 @@ class TableToolBarWidgetAction : public QWidgetAction
         virtual ~TableToolBarWidgetAction() {}
 
     protected:
-
+        /**
+        * [This is a virtual function of class QWidgetAction. This function gets called when we create
+            instance of class QWidgetAcion or class inherting QWidgetAction. This widget creates custom Widgets]
+        * @param parent [parent of the instance]
+        */
         virtual QWidget *createWidget(QWidget *parent);
+
+    private:
+        QString btnName;
 };
 
 #endif
