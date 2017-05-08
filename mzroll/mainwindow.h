@@ -446,4 +446,26 @@ struct FileLoader {
 	}
 };
 
+class MainWindowWidgetAction : public QWidgetAction
+{
+    public:
+        MainWindow* mw;
+        MainWindowWidgetAction(QObject *parent, MainWindow* mainwindow, QString btnType) : QWidgetAction(parent) {
+            btnName = btnType;
+            mw = mainwindow;
+        }
+        virtual ~MainWindowWidgetAction() {}
+
+    protected:
+        /**
+        * [This is a virtual function of class QWidgetAction. This function gets called when we create
+            instance of class QWidgetAcion or class inherting QWidgetAction. This widget creates custom Widgets]
+        * @param parent [parent of the instance]
+        */
+        virtual QWidget *createWidget(QWidget *parent);
+
+    private:
+        QString btnName;
+};
+
 #endif

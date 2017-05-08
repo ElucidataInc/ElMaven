@@ -2428,9 +2428,7 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         return btnX;
 
     } else {
-        cerr << endl << endl << "REAched here  " << endl << endl;
         return NULL;
-    
     }
  
 }

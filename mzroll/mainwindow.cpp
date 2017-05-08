@@ -2885,201 +2885,54 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->setFloatable(false);
 	toolBar->setMovable(false);
 
-	QToolButton *btnZoom = new QToolButton(toolBar);
-	btnZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-	btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnZoom->setToolTip(tr("Zoom out (0)"));
+	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
+	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");
+	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
+	QWidgetAction *btnMarkGood = new MainWindowWidgetAction(toolBar, this,  "btnMarkGood");
+	QWidgetAction *btnMarkBad = new MainWindowWidgetAction(toolBar, this,  "btnMarkBad");
+	QWidgetAction *btnGallary = new MainWindowWidgetAction(toolBar, this,  "btnGallary");
+	QWidgetAction *btnIntegrateArea = new MainWindowWidgetAction(toolBar, this,  "btnIntegrateArea");
+	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
+	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
+	QWidgetAction *btnNext = new MainWindowWidgetAction(toolBar, this,  "btnNext");
+	QWidgetAction *btnPDF = new MainWindowWidgetAction(toolBar, this,  "btnPDF");
+	QWidgetAction *btnPNG = new MainWindowWidgetAction(toolBar, this,  "btnPNG");
+	QWidgetAction *btnPrint = new MainWindowWidgetAction(toolBar, this,  "btnPrint");
+	QWidgetAction *btnAutoZoom = new MainWindowWidgetAction(toolBar, this,  "btnAutoZoom");
+	QWidgetAction *btnShowTic = new MainWindowWidgetAction(toolBar, this,  "btnShowTic");
+	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
+	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
+	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
+	QWidgetAction *btnShowSplines = new MainWindowWidgetAction(toolBar, this,  "btnShowSplines");
 
-	QToolButton *btnPrint = new QToolButton(toolBar);
-	btnPrint->setIcon(QIcon(rsrcPath + "/fileprint.png"));
-	btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPrint->setToolTip(tr("Print EIC (Ctr+P)"));
-	btnPrint->setShortcut(tr("Ctrl+P"));
+	toolBar->addAction(btnZoom);
+	toolBar->addAction(btnBookmark);
+	toolBar->addAction(btnCopyCSV);
+	toolBar->addAction(btnMarkGood);
+	toolBar->addAction(btnMarkBad);
+	toolBar->addAction(btnGallary);
 
-	QToolButton *btnPDF = new QToolButton(toolBar);
-	btnPDF->setIcon(QIcon(rsrcPath + "/exportpdf.png"));
-	btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPDF->setToolTip(tr("Save EIC Image to PDF file"));
-
-	QToolButton *btnPNG = new QToolButton(toolBar);
-	btnPNG->setIcon(QIcon(rsrcPath + "/copyPNG.png"));
-	btnPNG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPNG->setToolTip(tr("Copy EIC Image to Clipboard"));
-
-	QToolButton *btnLast = new QToolButton(toolBar);
-	btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
-	btnLast->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnLast->setToolTip(tr("History Back (Ctrl+Left)"));
-	btnLast->setShortcut(tr("Ctrl+Left"));
-
-	QToolButton *btnNext = new QToolButton(toolBar);
-	btnNext->setIcon(QIcon(rsrcPath + "/next.png"));
-	btnNext->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnNext->setToolTip(tr("History Forward (Ctrl+Right)"));
-	btnNext->setShortcut(tr("Ctrl+Right"));
-
-	QToolButton *btnAutoZoom = new QToolButton(toolBar);
-	btnAutoZoom->setCheckable(true);
-	btnAutoZoom->setChecked(true);
-	btnAutoZoom->setIcon(QIcon(rsrcPath + "/autofocus.png"));
-	btnAutoZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnAutoZoom->setToolTip(
-			tr(
-					"Auto Zoom. Always center chromatogram on expected retention time!"));
-
-	QToolButton *btnGallary = new QToolButton(toolBar);
-	btnGallary->setIcon(QIcon(rsrcPath + "/gallery.png"));
-	btnGallary->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnGallary->setToolTip(tr("Show In Gallary"));
-
-	QToolButton *btnShowTic = new QToolButton(toolBar);
-	btnShowTic->setCheckable(true);
-	btnShowTic->setChecked(false);
-	btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
-	btnShowTic->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnShowTic->setToolTip(tr("Show TICs"));
-
-	QToolButton *btnMarkGood = new QToolButton(toolBar);
-	btnMarkGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
-	btnMarkGood->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnMarkGood->setToolTip(tr("Bookmark as Good Group (G)"));
-
-	QToolButton *btnMarkBad = new QToolButton(toolBar);
-	btnMarkBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-	btnMarkBad->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnMarkBad->setToolTip(tr("Bookmark as Bad Group (B)"));
-
-	QToolButton *btnCopyCSV = new QToolButton(toolBar);
-	btnCopyCSV->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
-	btnCopyCSV->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnCopyCSV->setToolTip(tr("Copy Group Information to Clipboard (Ctrl+C)"));
-	btnCopyCSV->setShortcut(tr("Ctrl+C"));
-
-	QToolButton *btnBookmark = new QToolButton(toolBar);
-	btnBookmark->setIcon(QIcon(rsrcPath + "/bookmark.png"));
-	btnBookmark->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
-	btnBookmark->setShortcut(tr("Ctrl+D"));
-
-	QToolButton *btnIntegrateArea = new QToolButton(toolBar);
-	btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
-	btnIntegrateArea->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
-
-	QToolButton *btnAverageSpectra = new QToolButton(toolBar);
-	btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
-	btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
-
-
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    QToolButton *btnShowBarplot = new QToolButton(toolBar);
-    btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
-    btnShowBarplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnShowBarplot->setToolTip(tr("Show Barplot"));
-    btnShowBarplot->setCheckable(true);
-    btnShowBarplot->setChecked(true);
-    
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    QToolButton *btnShowBoxplot = new QToolButton(toolBar);
-    btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
-    btnShowBoxplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnShowBoxplot->setToolTip(tr("Show Boxplot"));
-    btnShowBoxplot->setCheckable(true);
-    btnShowBoxplot->setChecked(false);
-    
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    QToolButton *btnShowIsotopeplot = new QToolButton(toolBar);
-    btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
-    btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
-    btnShowIsotopeplot->setCheckable(true);
-	if (isotopePlotsDockWidget->isVisible()) {
-    	btnShowIsotopeplot->setChecked(true);
-	} else {
-		btnShowIsotopeplot->setChecked(false);
-	}
-
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    QToolButton *btnShowSplines = new QToolButton(toolBar);
-    btnShowSplines->setIcon(QIcon(rsrcPath + "/splines.png"));
-    btnShowSplines->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnShowSplines->setToolTip(tr("Show Splines"));
-    btnShowSplines->setCheckable(true);
-    btnShowSplines->setChecked(false);
-	btnShowSplines->setVisible(false);
-	/*
-	 QSpinBox* smoothingWindowBox = new QSpinBox(toolBar);
-	 smoothingWindowBox->setRange(1, 2000);
-	 smoothingWindowBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-	 smoothingWindowBox->setValue(settings->value("eic_smoothingWindow").toInt());
-	 smoothingWindowBox->setToolTip("EIC Smoothing Window");
-	 connect(smoothingWindowBox, SIGNAL(valueChanged(int)), SLOT(updateEicSmoothingWindow(int)));
-	 */
-
-	toolBar->addWidget(btnZoom);
-	toolBar->addWidget(btnBookmark);
-	toolBar->addWidget(btnCopyCSV);
-	toolBar->addWidget(btnMarkGood);
-	toolBar->addWidget(btnMarkBad);
-	toolBar->addWidget(btnGallary);
 	toolBar->addSeparator();
-	toolBar->addWidget(btnIntegrateArea);
-	toolBar->addWidget(btnAverageSpectra);
+	toolBar->addAction(btnIntegrateArea);
+	toolBar->addAction(btnAverageSpectra);
+	toolBar->addAction(btnLast);
+	toolBar->addAction(btnNext);
 
-	toolBar->addWidget(btnLast);
-	toolBar->addWidget(btnNext);
 	toolBar->addSeparator();
+	toolBar->addAction(btnPDF);
+	toolBar->addAction(btnPNG);
+	toolBar->addAction(btnPrint);
 
-	toolBar->addWidget(btnPDF);
-	toolBar->addWidget(btnPNG);
-	toolBar->addWidget(btnPrint);
 	toolBar->addSeparator();
+	toolBar->addAction(btnAutoZoom);
+	toolBar->addAction(btnShowTic);
 
-	toolBar->addWidget(btnAutoZoom);
-	toolBar->addWidget(btnShowTic);
-    toolBar->addSeparator(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    toolBar->addSeparator();
+    toolBar->addAction(btnShowBarplot);
+    toolBar->addAction(btnShowIsotopeplot);
+    toolBar->addAction(btnShowBoxplot);
+    toolBar->addAction(btnShowSplines);
 
-    toolBar->addWidget(btnShowBarplot); //TODO: Sahil-Kiran, Added while merging mainwindow
-    toolBar->addWidget(btnShowIsotopeplot); //TODO: Sahil-Kiran, Added while merging mainwindow
-    toolBar->addWidget(btnShowBoxplot); //TODO: Sahil-Kiran, Added while merging mainwindow
-    toolBar->addWidget(btnShowSplines); //TODO: Sahil-Kiran, Added while merging mainwindow
-//    toolBar->addWidget(smoothingWindowBox);
-
-	connect(btnLast, SIGNAL(clicked()), SLOT(historyLast()));
-	connect(btnNext, SIGNAL(clicked()), SLOT(historyNext()));
-	connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-	connect(btnZoom, SIGNAL(clicked()), eicWidget, SLOT(resetZoom()));
-	connect(btnPDF, SIGNAL(clicked()), SLOT(exportPDF()));
-	connect(btnPNG, SIGNAL(clicked()), SLOT(exportSVG()));
-	connect(btnAutoZoom, SIGNAL(toggled(bool)), eicWidget,
-			SLOT(autoZoom(bool)));
-	connect(btnBookmark, SIGNAL(clicked()), this, SLOT(bookmarkPeakGroup()));
-	connect(btnCopyCSV, SIGNAL(clicked()), eicWidget, SLOT(copyToClipboard()));
-	connect(btnMarkGood, SIGNAL(clicked()), eicWidget, SLOT(markGroupGood()));
-	connect(btnMarkBad, SIGNAL(clicked()), eicWidget, SLOT(markGroupBad()));
-	connect(btnGallary, SIGNAL(clicked()), eicWidget, SLOT(setGallaryToEics()));
-	connect(btnIntegrateArea, SIGNAL(clicked()), eicWidget,
-			SLOT(startAreaIntegration()));
-	connect(btnAverageSpectra, SIGNAL(clicked()), eicWidget,
-			SLOT(startSpectralAveraging()));
-
-	
-    connect(btnShowBarplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showBarPlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowBarplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-    
-    connect(btnShowBoxplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showBoxPlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowBoxplot,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-   
-    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopePlot(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  eicWidget, SLOT(showIsotopicBarPlot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), isotopeWidget, SLOT(updateIsotopicBarplot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-    
-    connect(btnShowSplines,SIGNAL(toggled(bool)),  eicWidget, SLOT(showSpline(bool))); //TODO: Sahil-Kiran, Added while merging mainwindow
-    connect(btnShowSplines,SIGNAL(toggled(bool)), eicWidget, SLOT(replot())); //TODO: Sahil-Kiran, Added while merging mainwindow
-	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget,
-			SLOT(showTicLine(bool)));
-	connect(btnShowTic, SIGNAL(toggled(bool)), eicWidget, SLOT(replot()));
 
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -3091,6 +2944,245 @@ QWidget* MainWindow::eicWidgetController() {
 
 	window->setLayout(layout);
 	return window;
+}
+
+QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
+
+
+	if (btnName == "btnZoom") {
+
+		QToolButton *btnZoom = new QToolButton(parent);
+		btnZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
+		btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnZoom->setToolTip(tr("Zoom out (0)"));
+		connect(btnZoom, SIGNAL(clicked()), mw->getEicWidget(), SLOT(resetZoom()));
+		return btnZoom;
+
+	}
+	else if (btnName == "btnBookmark") {
+
+		QToolButton *btnBookmark = new QToolButton(parent);
+		btnBookmark->setIcon(QIcon(rsrcPath + "/bookmark.png"));
+		btnBookmark->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
+		btnBookmark->setShortcut(tr("Ctrl+D"));
+		connect(btnBookmark, SIGNAL(clicked()), mw, SLOT(bookmarkPeakGroup()));
+		return btnBookmark;
+
+	}
+	else if (btnName == "btnCopyCSV") {
+
+		QToolButton *btnCopyCSV = new QToolButton(parent);
+		btnCopyCSV->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
+		btnCopyCSV->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnCopyCSV->setToolTip(tr("Copy Group Information to Clipboard (Ctrl+C)"));
+		btnCopyCSV->setShortcut(tr("Ctrl+C"));
+		connect(btnCopyCSV, SIGNAL(clicked()), mw->getEicWidget(), SLOT(copyToClipboard()));
+		return btnCopyCSV;
+
+	}
+	else if (btnName == "btnMarkGood") {
+
+		QToolButton *btnMarkGood = new QToolButton(parent);
+		btnMarkGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
+		btnMarkGood->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnMarkGood->setToolTip(tr("Bookmark as Good Group (G)"));
+		connect(btnMarkGood, SIGNAL(clicked()), mw->getEicWidget(), SLOT(markGroupGood()));
+		return btnMarkGood;
+
+	}
+	else if (btnName == "btnMarkBad") {
+
+		QToolButton *btnMarkBad = new QToolButton(parent);
+		btnMarkBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
+		btnMarkBad->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnMarkBad->setToolTip(tr("Bookmark as Bad Group (B)"));
+		connect(btnMarkBad, SIGNAL(clicked()), mw->getEicWidget(), SLOT(markGroupBad()));
+		return btnMarkBad;
+
+	}
+	else if (btnName == "btnGallary") {
+
+		QToolButton *btnGallary = new QToolButton(parent);
+		btnGallary->setIcon(QIcon(rsrcPath + "/gallery.png"));
+		btnGallary->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnGallary->setToolTip(tr("Show In Gallary"));
+		connect(btnGallary, SIGNAL(clicked()), mw->getEicWidget(), SLOT(setGallaryToEics()));
+		return btnGallary;
+
+	}
+	else if (btnName == "btnIntegrateArea") {
+
+		QToolButton *btnIntegrateArea = new QToolButton(parent);
+		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
+		btnIntegrateArea->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
+		connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
+				SLOT(startAreaIntegration()));
+		return btnIntegrateArea;
+
+	}
+	else if (btnName == "btnAverageSpectra") {
+
+		QToolButton *btnAverageSpectra = new QToolButton(parent);
+		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
+		btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
+		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
+				SLOT(startSpectralAveraging()));
+
+		return btnAverageSpectra;
+
+	}
+	else if (btnName == "btnLast") {
+
+		QToolButton *btnLast = new QToolButton(parent);
+		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
+		btnLast->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnLast->setToolTip(tr("History Back (Ctrl+Left)"));
+		btnLast->setShortcut(tr("Ctrl+Left"));
+		connect(btnLast, SIGNAL(clicked()), mw, SLOT(historyLast()));
+		return btnLast;
+
+	}
+	else if (btnName == "btnNext") {
+
+		QToolButton *btnNext = new QToolButton(parent);
+		btnNext->setIcon(QIcon(rsrcPath + "/next.png"));
+		btnNext->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnNext->setToolTip(tr("History Forward (Ctrl+Right)"));
+		btnNext->setShortcut(tr("Ctrl+Right"));
+		connect(btnNext, SIGNAL(clicked()), mw, SLOT(historyNext()));		
+		return btnNext;
+
+	}
+	else if (btnName == "btnPDF") {
+
+		QToolButton *btnPDF = new QToolButton(parent);
+		btnPDF->setIcon(QIcon(rsrcPath + "/exportpdf.png"));
+		btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnPDF->setToolTip(tr("Save EIC Image to PDF file"));
+		connect(btnPDF, SIGNAL(clicked()), mw, SLOT(exportPDF()));
+		return btnPDF;
+
+	}
+	else if (btnName == "btnPNG") {
+
+		QToolButton *btnPNG = new QToolButton(parent);
+		btnPNG->setIcon(QIcon(rsrcPath + "/copyPNG.png"));
+		btnPNG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnPNG->setToolTip(tr("Copy EIC Image to Clipboard"));
+		connect(btnPNG, SIGNAL(clicked()), mw, SLOT(exportSVG()));
+		return btnPNG;
+
+	}
+	else if (btnName == "btnPrint") {
+
+		QToolButton *btnPrint = new QToolButton(parent);
+		btnPrint->setIcon(QIcon(rsrcPath + "/fileprint.png"));
+		btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnPrint->setToolTip(tr("Print EIC (Ctr+P)"));
+		btnPrint->setShortcut(tr("Ctrl+P"));
+		connect(btnPrint, SIGNAL(clicked()), mw, SLOT(print()));
+		return btnPrint;
+
+	}
+	else if (btnName == "btnAutoZoom") {
+
+		QToolButton *btnAutoZoom = new QToolButton(parent);
+		btnAutoZoom->setCheckable(true);
+		btnAutoZoom->setChecked(true);
+		btnAutoZoom->setIcon(QIcon(rsrcPath + "/autofocus.png"));
+		btnAutoZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnAutoZoom->setToolTip(
+			tr("Auto Zoom. Always center chromatogram on expected retention time!"));
+
+		connect(btnAutoZoom, SIGNAL(toggled(bool)), mw->getEicWidget(),
+				SLOT(autoZoom(bool)));
+
+		return btnAutoZoom;
+	}
+	else if (btnName == "btnShowTic") {
+
+		QToolButton *btnShowTic = new QToolButton(parent);
+		btnShowTic->setCheckable(true);
+		btnShowTic->setChecked(false);
+		btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
+		btnShowTic->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnShowTic->setToolTip(tr("Show TICs"));
+		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(),
+				SLOT(showTicLine(bool)));
+
+		return btnShowTic;
+
+	}
+	else if (btnName == "btnShowBarplot") {
+
+		QToolButton *btnShowBarplot = new QToolButton(parent);
+		btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
+		btnShowBarplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnShowBarplot->setToolTip(tr("Show Barplot"));
+		btnShowBarplot->setCheckable(true);
+		btnShowBarplot->setChecked(true);
+		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
+		connect(btnShowBarplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+		return btnShowBarplot;
+
+	}
+	else if (btnName == "btnShowIsotopeplot") {
+
+		QToolButton *btnShowIsotopeplot = new QToolButton(parent);
+		btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
+		btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
+		btnShowIsotopeplot->setCheckable(true);
+		if (mw->isotopePlotsDockWidget->isVisible()) {
+			btnShowIsotopeplot->setChecked(true);
+		} else {
+			btnShowIsotopeplot->setChecked(false);
+		}
+
+		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showIsotopePlot(bool)));
+		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot()));
+		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
+
+		return btnShowIsotopeplot;
+
+	}
+	else if (btnName == "btnShowBoxplot") {
+		
+		QToolButton *btnShowBoxplot = new QToolButton(parent);
+		btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
+		btnShowBoxplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnShowBoxplot->setToolTip(tr("Show Boxplot"));
+		btnShowBoxplot->setCheckable(true);
+		btnShowBoxplot->setChecked(false);
+		
+		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBoxPlot(bool)));
+		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+
+		return btnShowBoxplot;
+
+	}
+	else if (btnName == "btnShowSplines") {
+
+		QToolButton *btnShowSplines = new QToolButton(parent);
+		btnShowSplines->setIcon(QIcon(rsrcPath + "/splines.png"));
+		btnShowSplines->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnShowSplines->setToolTip(tr("Show Splines"));
+		btnShowSplines->setCheckable(true);
+		btnShowSplines->setChecked(false);
+		btnShowSplines->setVisible(false);
+
+		connect(btnShowSplines,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showSpline(bool)));
+		connect(btnShowSplines,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+
+		return btnShowSplines;
+
+	} else {
+		return NULL;
+	}
 }
 
 QWidget* MainWindow::pathwayWidgetController() {
