@@ -295,10 +295,10 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         //}
         //categoryString=sanitizeString(categoryString.c_str()).toStdString();
 
-    }
 
-    if (!group->compound->formula.empty()) {
-        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        if (!group->compound->formula.empty()) {
+            formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        }
     }
 
     groupReport << SEP << compoundName;
@@ -331,10 +331,10 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         // TODO: Added this while merging this file
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
-    }
 
-    if (!group->compound->formula.empty()) {
-        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        if (!group->compound->formula.empty()) {
+            formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        }
     }
 
     if (selectionFlag == 2) {
