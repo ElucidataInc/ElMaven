@@ -408,17 +408,8 @@ void PeakDetectionDialog::findPeaks() {
 
     mainwindow->setTotalCharge();
 
-    QString title;
-    if (_featureDetectionType == FullSpectrum)
-        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nDetected Features \n";
-    else if (_featureDetectionType == CompoundDB)
-        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nDB Search " + compoundDatabase->currentText();
-    else if (_featureDetectionType == QQQ)
-        title = "Table " + QString::number(mainwindow->noOfPeakTables) + "\nQQQ DB Search " + compoundDatabase->currentText();
-
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
-
     } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
     } else if (!(dbOptions->isChecked()) && !(featureOptions->isChecked())) {
@@ -426,6 +417,14 @@ void PeakDetectionDialog::findPeaks() {
     } else {
         _featureDetectionType = FullSpectrum;
     }
+    
+    QString title;
+    if (_featureDetectionType == FullSpectrum)
+        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nDetected Features \n";
+    else if (_featureDetectionType == CompoundDB)
+        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nDB Search " + compoundDatabase->currentText();
+    else if (_featureDetectionType == QQQ)
+        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nQQQ DB Search " + compoundDatabase->currentText();
 
     TableDockWidget* peaksTable = mainwindow->getBookmarkedPeaks();
     int peakTableIdx = outputTableComboBox->currentIndex();
@@ -443,7 +442,6 @@ void PeakDetectionDialog::findPeaks() {
         }
     }
 
-    peaksTable->setWindowTitle(title); 
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
