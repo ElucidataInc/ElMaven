@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <sys/time.h>
 #include "omp.h"
+
+#include "QMap"
 #include "QString"
 #include "QStringList"
 #include "QByteArray"

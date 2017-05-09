@@ -28,6 +28,49 @@ void ParseOptions::createXMLFile(Arguments &arguments) {
 
 }
 
+xml_node ParseOptions::loadXMLNode(char* filename, char* nodeName) {
+
+    xml_document doc;
+    doc.load_file(filename);
+
+    xml_node node = doc.child(nodeName);
+
+    return node;
+}
+
+vector<xml_node> ParseOptions::getChildren(xml_node &node) {
+
+    vector<xml_node> nodeChildren;
+    for (xml_node child: node.children())
+    {
+        nodeChildren.push_back(child);
+
+    }
+
+    return nodeChildren;
+
+}
+
+xml_node ParseOptions::getChild(xml_node &node, char* childName) {
+
+    xml_node nodeChild = node.child(childName); 
+
+    return nodeChild;
+}
+
+QMap<string, string> ParseOptions::getAttributes(xml_node &node) {
+
+    QMap<string, string> attributes;
+
+    for (xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
+    {
+        attributes[attr.name()] = attr.value();
+    }
+
+    return attributes;
+
+}
+
 void ParseOptions::addChildren(xml_node args, char* nodeName, QStringList cliArguments) {
 
     xml_node node = addNode(args, nodeName);
