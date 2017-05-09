@@ -2903,7 +2903,6 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
-	QWidgetAction *btnShowSplines = new MainWindowWidgetAction(toolBar, this,  "btnShowSplines");
 
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
@@ -2931,7 +2930,6 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowBarplot);
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
-    toolBar->addAction(btnShowSplines);
 
 
 	QWidget *window = new QWidget(this);
@@ -3110,9 +3108,9 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
 		btnShowTic->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowTic->setToolTip(tr("Show TICs"));
-		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(),
 				SLOT(showTicLine(bool)));
+		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 
 		return btnShowTic;
 
@@ -3165,22 +3163,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnShowBoxplot;
 
 	}
-	else if (btnName == "btnShowSplines") {
-
-		QToolButton *btnShowSplines = new QToolButton(parent);
-		btnShowSplines->setIcon(QIcon(rsrcPath + "/splines.png"));
-		btnShowSplines->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnShowSplines->setToolTip(tr("Show Splines"));
-		btnShowSplines->setCheckable(true);
-		btnShowSplines->setChecked(false);
-		btnShowSplines->setVisible(false);
-
-		connect(btnShowSplines,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showSpline(bool)));
-		connect(btnShowSplines,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
-
-		return btnShowSplines;
-
-	} else {
+	else {
 		return NULL;
 	}
 }
