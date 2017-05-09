@@ -710,200 +710,212 @@ void TableDockWidget::exportJson() {
     jsonSaveThread->start();    
 }
 
-void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames) {
+void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mzSample*> vsamples) {
 
-        myfile << "{\n";
-        myfile << "\"groupId\": " << grp.groupId ;
-        myfile << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
-        myfile << ",\n" << "\"meanMz\": " << grp.meanMz  ;
-        myfile << ",\n" << "\"meanRt\": " << grp.meanRt ;
-        myfile << ",\n" << "\"rtmin\": " << grp.minRt ;
-        myfile << ",\n" << "\"rtmax\": " << grp.maxRt ;
-        myfile << ",\n" << "\"maxQuality\": " << grp.maxQuality ;
+    //QTime timer1;
+    //QTime timer2;
+    int eic_time=0,total_time=0;
+    double mz,mzmin,mzmax,rtmin,rtmax;
+    //timer1.start();
 
-        if ( grp.hasCompoundLink() ) {
+    myfile << setprecision(10);
+    myfile << "{\n";
+    myfile << "\"groupId\": " << grp.groupId ;
+    myfile << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
+    myfile << ",\n" << "\"meanMz\": " << grp.meanMz  ;
+    myfile << ",\n" << "\"meanRt\": " << grp.meanRt ;
+    myfile << ",\n" << "\"rtmin\": " << grp.minRt ;
+    myfile << ",\n" << "\"rtmax\": " << grp.maxRt ;
+    myfile << ",\n" << "\"maxQuality\": " << grp.maxQuality ;
 
-            myfile << ",\n" << "\"compound\": { " ;
+    if ( grp.hasCompoundLink() ) {
 
-            string compoundID = grp.compound->id;
-            myfile << "\"compoundId\": "<< sanitizeJSONstring(compoundID) ;
-            string compoundName = grp.compound->name;
-            myfile << ",\n" << "\"compoundName\": "<< sanitizeJSONstring(compoundName);
+        myfile << ",\n" << "\"compound\": { " ;
 
-            myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
+        string compoundID = grp.compound->id;
+        myfile << "\"compoundId\": "<< sanitizeJSONstring(compoundID) ;
+        string compoundName = grp.compound->name;
+        myfile << ",\n" << "\"compoundName\": "<< sanitizeJSONstring(compoundName);
 
-            //check!!
-            double mass = grp.compound->mass;
-            if (!grp.compound->formula.empty()) {
-                int charge = _mainwindow->mavenParameters->getCharge(grp.compound);
-                float formula_mass =  _mainwindow->mavenParameters->mcalc.computeMass(grp.compound->formula,charge);
-                if(formula_mass) mass=formula_mass;
+        myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
+
+        mz = grp.compound->mass;
+        if (!grp.compound->formula.empty()) {
+            float formula_mz =  _mainwindow->mavenParameters->mcalc.computeMass(grp.compound->formula,_mainwindow->mavenParameters->charge);
+            if(formula_mz) {
+                mz = formula_mz;
             }
-            myfile << ",\n" << "\"expectedMz\": " << mass ;
-
-            myfile << ",\n" << "\"srmID\": " << sanitizeJSONstring(grp.srmId) ;
-            myfile << ",\n" << "\"tagString\": " << sanitizeJSONstring(grp.tagString) ;
-
-            string fullTag = grp.srmId + grp.tagString;
-            string fullName=compoundName;
-            string fullID=compoundID;
-            if (fullTag.length()) {
-                fullName = compoundName + " [" + fullTag + "]";
-                fullID = compoundID + " [" + fullTag + "]";
-            }
-            myfile << ",\n" << "\"fullCompoundName\": "<< sanitizeJSONstring(fullName);
-            myfile << ",\n" << "\"fullCompoundID\": "<< sanitizeJSONstring(fullID) ;
-
-            myfile << "}" ; // compound
-        }
-        vector<string> tempVSampleNames = vsampleNames;
-
-        myfile << ",\n"<< "\"peaks\": [ " ;
-
-        for(int i=0; i < grp.peaks.size(); i++ ) {
-                Peak& peak = grp.peaks[i];
-                if (i>0) myfile << ",\n";
-                myfile << "{\n";
-                tempVSampleNames.erase(std::remove(tempVSampleNames.begin(), tempVSampleNames.end(), peak.getSample()->sampleName), tempVSampleNames.end());
-                myfile << "\"sampleName\": " << sanitizeJSONstring(peak.getSample()->sampleName) ;
-                myfile << ",\n" << "\"peakMz\": " << peak.peakMz ;
-                myfile << ",\n" << "\"medianMz\": " << peak.medianMz ;
-                myfile << ",\n" << "\"baseMz\": " << peak.baseMz ;
-                myfile << ",\n" << "\"mzmin\": " << peak.mzmin ;
-                myfile << ",\n" << "\"mzmax\": " << peak.mzmax ;
-                myfile << ",\n" << "\"rt\": " << peak.rt ;
-                myfile << ",\n" << "\"rtmin\": " << peak.rtmin ;
-                myfile << ",\n" << "\"rtmax\": " << peak.rtmax ;
-                myfile << ",\n" << "\"quality\": " << peak.quality ;
-                myfile << ",\n" << "\"peakIntensity\": " << peak.peakIntensity ;
-                myfile << ",\n" << "\"peakBaseLineLevel\": " << peak.peakBaseLineLevel ;
-                myfile << ",\n" << "\"peakArea\": " << peak.peakAreaCorrected ;
-                myfile << ",\n" << "\"peakAreaTop\": " << peak.peakAreaTopCorrected;
-//                myfile << ",\n" << "\"peakAreaNotCorrected\": " << peak.peakAreaNotCorrected;
-//                myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << peak.peakAreaTopNotCorrected;
-
-                myfile << ",\n" << "\"noNoiseObs\": " << peak.noNoiseObs ;
-                myfile << ",\n" << "\"signalBaselineRatio\": " << peak.signalBaselineRatio ;
-                myfile << ",\n" << "\"fromBlankSample\": " << peak.fromBlankSample ;
-                myfile << ",\n" << "\"peakAreaFractional\": " << peak.peakAreaFractional ;
-                myfile << ",\n" << "\"symmetry\": " << peak.symmetry ;
-                myfile << ",\n" << "\"noNoiseFraction\": " << peak.noNoiseFraction ;
-                myfile << ",\n" << "\"groupOverlap\": " << peak.groupOverlap ;
-                myfile << ",\n" << "\"groupOverlapFrac\": " << peak.groupOverlapFrac ;
-                myfile << ",\n" << "\"gaussFitR2\": " << peak.gaussFitR2 ;
-                myfile << ",\n" << "\"peakRank\": " << peak.peakRank ;
-                myfile << ",\n" << "\"peakWidth\": " << peak.width ;
-                //EIC* eic = peak.getEIC(); //need to see if this is sufficient or if we need to change rt window
-                //this doesn't work -- peak.getEIC need not return a valid pointer neessarily, the EICs get cleared
-
-                EIC* eic;
-                if ( !grp.srmId.empty() ) {
-                    eic = peak.getSample()->getEIC(grp.srmId, _mainwindow->mavenParameters->eicType);
-                    //eics.push_back(eic);
-                } else {
-                    eic = peak.getSample()->getEIC(peak.mzmin,peak.mzmax,peak.rtmin-outputRtWindow,peak.rtmax+outputRtWindow,1, _mainwindow->mavenParameters->eicType);
-                    //eics.push_back(eic);
-                }
-
-                int N = eic->rt.size();
-
-                //myfile << setprecision(4);
-
-                myfile << ",\n" << "\"eic\": {" ;
-
-                myfile << "\"rt\": [";
-
-                for(int i=0;i<N;i++){
-                    if ( eic->rt[i] > 0) {
-                        myfile << eic->rt[i];
-                        if (i < N - 1) myfile << ",";
-                    }
-                }
-                myfile << "]," ; //rt
-                myfile << "\"intensity\": [";
-                for(int i=0;i<N;i++){
-                    if ( eic->rt[i] > 0) {
-                        myfile << eic->intensity[i];
-                        if (i < N - 1) myfile << ",";
-                    }
-                }
-                myfile << "]" ; //intensity
-                myfile << "\n}" ;//eic
-
-                myfile << "\n}" ; //peak
-                delete(eic);
         }
 
+        myfile << ",\n" << "\"expectedMz\": " << mz ;
 
-        //cerr << tempVSampleNames.size() << endl;
-        float rtmin = grp.minRt - outputRtWindow;
-        float rtmax = grp.maxRt + outputRtWindow;
-        vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
+        myfile << ",\n" << "\"srmID\": " << sanitizeJSONstring(grp.srmId) ;
+        myfile << ",\n" << "\"tagString\": " << sanitizeJSONstring(grp.tagString) ;
 
+        string fullTag = grp.srmId + grp.tagString;
+        string fullName=compoundName;
+        string fullID=compoundID;
+        if (fullTag.length()) {
+            fullName = compoundName + " [" + fullTag + "]";
+            fullID = compoundID + " [" + fullTag + "]";
+        }
+        myfile << ",\n" << "\"fullCompoundName\": "<< sanitizeJSONstring(fullName);
+        myfile << ",\n" << "\"fullCompoundID\": "<< sanitizeJSONstring(fullID) ;
 
-        for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
-            if (std::find(tempVSampleNames.begin(), tempVSampleNames.end(), eics[j]->getSample()->sampleName) != tempVSampleNames.end()) {
-                int N = eics[j]->rt.size();
+        myfile << "}" ; // compound
+    }
+    myfile << ",\n"<< "\"peaks\": [ " ;
 
-                myfile << ",\n";
-                myfile << "{\n";
-                myfile << "\"sampleName\": " << sanitizeJSONstring(eics[j]->getSample()->sampleName) ;
-                myfile << ",\n" << "\"peakMz\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"medianMz\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"baseMz\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"mzmin\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"mzmax\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"rt\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"rtmin\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"rtmax\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"quality\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"peakIntensity\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"peakBaseLineLevel\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"peakArea\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"peakAreaTop\": " << sanitizeJSONstring("NA");
-//                myfile << ",\n" << "\"peakAreaCorrected\": " << sanitizeJSONstring("NA");
-//                myfile << ",\n" << "\"peakAreaTopCorrected\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"noNoiseObs\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"signalBaselineRatio\": " << sanitizeJSONstring("NA");
-                myfile << ",\n" << "\"fromBlankSample\": " << sanitizeJSONstring("NA");
-
-                //EIC* eic = peak.getEIC(); //need to see if this is sufficient or if we need to change rt window
-                //this doesn't work -- peak.getEIC need not return a valid pointer neessarily, the EICs get cleared
-
-                EIC* eic = eics[j];
-                // int N = eic->rt.size();
-
-                //myfile << setprecision(4);
-
-                myfile << ",\n" << "\"eic\": {" ;
-
-                myfile << "\"rt\": [";
-
-                for(int i=0;i<N;i++){
-                    if ( eic->rt[i] > 0) {
-                        myfile << eic->rt[i];
-                        if (i < N - 1) myfile << ",";
-                    }
-                }
-                myfile << "]," ; //rt
-                myfile << "\"intensity\": [";
-                for(int i=0;i<N;i++){
-                    if ( eic->rt[i] > 0) {
-                        myfile << eic->intensity[i];
-                        if (i < N - 1) myfile << ",";
-                    }
-                }
-                myfile << "]" ; //intensity
-                myfile << "\n}" ;//eic
-
-                myfile << "\n}" ; //peak
+    for(std::vector<mzSample*>::iterator it = vsamples.begin(); it != vsamples.end(); ++it) {
+        if (it!=vsamples.begin()) {
+            myfile << ",\n";
+        }
+        Peak* peak = grp.getSamplePeak(*it);
+        if(peak) {
+            //TODO: add slice information here: e.g. what ppm was used
+            myfile << "{\n";
+            myfile << "\"sampleName\": " << sanitizeJSONstring((*it)->sampleName) ;
+            myfile << ",\n" << "\"peakMz\": " << peak->peakMz ;
+            myfile << ",\n" << "\"medianMz\": " << peak->medianMz ;
+            myfile << ",\n" << "\"baseMz\": " << peak->baseMz ;
+            myfile << ",\n" << "\"mzmin\": " << peak->mzmin ;
+            myfile << ",\n" << "\"mzmax\": " << peak->mzmax ;
+            myfile << ",\n" << "\"rt\": " << peak->rt ;
+            myfile << ",\n" << "\"rtmin\": " << peak->rtmin ;
+            myfile << ",\n" << "\"rtmax\": " << peak->rtmax ;
+            myfile << ",\n" << "\"quality\": " << peak->quality ;
+            myfile << ",\n" << "\"peakIntensity\": " << peak->peakIntensity ;
+            myfile << ",\n" << "\"peakBaseLineLevel\": " << peak->peakBaseLineLevel ;
+            myfile << ",\n" << "\"peakArea\": " << peak->peakAreaCorrected ;
+            myfile << ",\n" << "\"peakAreaTop\": " << peak->peakAreaTopCorrected;
+            myfile << ",\n" << "\"peakAreaNotCorrected\": " << peak->peakArea;
+            myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << peak->peakAreaTop;
+            myfile << ",\n" << "\"noNoiseObs\": " << peak->noNoiseObs ;
+            myfile << ",\n" << "\"signalBaselineRatio\": " << peak->signalBaselineRatio ;
+            myfile << ",\n" << "\"fromBlankSample\": " << peak->fromBlankSample ;
+            myfile << ",\n" << "\"peakAreaFractional\": " << peak->peakAreaFractional ;
+            myfile << ",\n" << "\"symmetry\": " << peak->symmetry ;
+            myfile << ",\n" << "\"noNoiseFraction\": " << peak->noNoiseFraction ;
+            myfile << ",\n" << "\"groupOverlap\": " << peak->groupOverlap ;
+            myfile << ",\n" << "\"groupOverlapFrac\": " << peak->groupOverlapFrac ;
+            myfile << ",\n" << "\"gaussFitR2\": " << peak->gaussFitR2 ;
+            myfile << ",\n" << "\"peakRank\": " << peak->peakRank ;
+            myfile << ",\n" << "\"peakWidth\": " << peak->width ;
+        }
+        else {
+            myfile << "{\n";
+            myfile << "\"sampleName\": " << sanitizeJSONstring((*it)->sampleName) ;
+            myfile << ",\n" << "\"peakMz\": " << "NA" ;
+            myfile << ",\n" << "\"medianMz\": " << "NA" ;
+            myfile << ",\n" << "\"baseMz\": " << "NA" ;
+            myfile << ",\n" << "\"mzmin\": " << "NA" ;
+            myfile << ",\n" << "\"mzmax\": " << "NA" ;
+            myfile << ",\n" << "\"rt\": " << "NA" ;
+            myfile << ",\n" << "\"rtmin\": " << "NA" ;
+            myfile << ",\n" << "\"rtmax\": " << "NA" ;
+            myfile << ",\n" << "\"quality\": " << "NA" ;
+            myfile << ",\n" << "\"peakIntensity\": " << "NA" ;
+            myfile << ",\n" << "\"peakBaseLineLevel\": " << "NA" ;
+            myfile << ",\n" << "\"peakArea\": " << "NA" ;
+            myfile << ",\n" << "\"peakAreaTop\": " << "NA";
+            myfile << ",\n" << "\"peakAreaNotCorrected\": " << "NA";
+            myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << "NA";
+            myfile << ",\n" << "\"noNoiseObs\": " << "NA" ;
+            myfile << ",\n" << "\"signalBaselineRatio\": " << "NA" ;
+            myfile << ",\n" << "\"fromBlankSample\": " << "NA" ;
+            myfile << ",\n" << "\"peakAreaFractional\": " << "NA" ;
+            myfile << ",\n" << "\"symmetry\": " << "NA" ;
+            myfile << ",\n" << "\"noNoiseFraction\": " << "NA" ;
+            myfile << ",\n" << "\"groupOverlap\": " << "NA";
+            myfile << ",\n" << "\"groupOverlapFrac\": " << "NA" ;
+            myfile << ",\n" << "\"gaussFitR2\": " << "NA" ;
+            myfile << ",\n" << "\"peakRank\": " << "NA" ;
+            myfile << ",\n" << "\"peakWidth\": " << "NA" ;
+        }
+        myfile.flush();
+        EIC* eic=NULL;
+        //timer2.restart();
+        //TODO: replace this by putting mzSlice pointer in peakgroup and using that
+        if (grp.hasCompoundLink()) {
+            if ( !grp.srmId.empty() ) { //MS-MS case 1
+                eic = (*it)->getEIC(grp.srmId);
             }
-         }
-        myfile << "\n]" ; //peaks
+            else if((grp.compound->precursorMz > 0) & (grp.compound->productMz > 0)) { //MS-MS case 2
+                //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
+                //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
+                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,_mainwindow->mavenParameters->amuQ1, _mainwindow->mavenParameters->amuQ3);
+            }
+            else {//MS1 case
+                //TODO: same problem here: need the ppm that was used, or the slice object
+                //for mz could rely on same computation being done way above
+                //redoing it only for code clarity
+                mz = grp.compound->mass;
+                if (!grp.compound->formula.empty()) {
+                    float formula_mz =  _mainwindow->mavenParameters->mcalc.computeMass(grp.compound->formula,_mainwindow->mavenParameters->charge);
+                    if(formula_mz) {
+                        mz = formula_mz;
+                    }
+                }
+                float ppm=_mainwindow->mavenParameters->compoundPPMWindow;
+                mzmin = mz - mz / 1e6 * ppm;
+                mzmax = mz + mz / 1e6 * ppm;
+                rtmin = grp.minRt - outputRtWindow;
+                rtmax = grp.maxRt + outputRtWindow;
+                eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1);
+            }
+        }
 
-        myfile << "}" ; //group
-        delete_all(eics);
+        else {//no compound information
+            //TODO: same problem here: need the ppm that was used, or the slice object
+            mz=grp.meanMz;
+            float ppm=_mainwindow->mavenParameters->compoundPPMWindow;
+            mzmin = mz - mz / 1e6 * ppm;
+            mzmax = mz + mz / 1e6 * ppm;
+            rtmin = grp.minRt - outputRtWindow;
+            rtmax = grp.maxRt + outputRtWindow;
+            eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1);
+        }
+        //eic_time+=timer2.elapsed();
 
+        //TODO: for MS1 we've already limited RT range, but for MS/MS the entire RT range of the SRM will be output
+        //either check here or edit getEIC functionality
+        if(eic) {
+            int N = eic->rt.size();
+
+            //myfile << setprecision(4);
+
+            myfile << ",\n" << "\"eic\": {" ;
+
+            myfile << "\"rt\": [";
+
+            for(int i=0;i<N;i++){
+                if ( eic->rt[i] > 0) {
+                    myfile << eic->rt[i];
+                    if (i < N - 1) myfile << ",";
+                }
+            }
+            myfile << "],\n" ; //rt
+            myfile << "\"intensity\": [";
+            for(int i=0;i<N;i++){
+                if ( eic->rt[i] > 0) {
+                    myfile << eic->intensity[i];
+                    if (i < N - 1) myfile << ",";
+                }
+            }
+            myfile << "]" ; //intensity
+            myfile << "\n}" ;//eic
+
+            myfile << "\n}" ; //peak
+            delete(eic);
+        }
+    }
+
+
+    myfile << "\n]" ; //peaks
+
+    myfile << "}" ; //group
+    //total_time=timer1.elapsed();
+    //cerr << "jsonGroup: eic: " << eic_time << " ms file total: " << total_time << " ms\n";//ratio " << 1.0*eic_time/total_time << "\n";
 
 }
 
@@ -917,10 +929,6 @@ void TableDockWidget::saveMzEICJson(string filename) {
     int groupId=0;
     int metaGroupId=0;
     vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
-     vector<string> vsampleNames;
-    for(std::vector<mzSample*>::iterator it = vsamples.begin(); it != vsamples.end(); ++it) {
-        vsampleNames.push_back((*it)->sampleName);
-    }
 
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& grp = allgroups[i];
@@ -930,7 +938,7 @@ void TableDockWidget::saveMzEICJson(string filename) {
             grp.groupId= ++groupId;
             grp.metaGroupId= ++metaGroupId;
             if(groupId>1) myfile << "\n,";
-            writeGroupMzEICJson(grp,myfile, vsampleNames);
+            writeGroupMzEICJson(grp,myfile, vsamples);
         }
         else { //output all relevant isotope info otherwise
             //does this work? is children[0] always the same as grp (parent)?
@@ -939,7 +947,7 @@ void TableDockWidget::saveMzEICJson(string filename) {
                 grp.children[k].metaGroupId = grp.metaGroupId;
                 grp.children[k].groupId= ++groupId;
                 if(groupId>1) myfile << "\n,";
-                writeGroupMzEICJson(grp.children[k], myfile, vsampleNames);
+                writeGroupMzEICJson(grp.children[k], myfile, vsamples);
             }
         }
         Q_EMIT(updateProgressBar("Writing to json file. Please wait...", i, allgroups.size() - 1));
