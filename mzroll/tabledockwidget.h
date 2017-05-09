@@ -44,7 +44,7 @@ public:
     //Added when Merging to Maven776 - Kiran
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
-    void writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<string> vsampleNames);
+    void writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mzSample*> vsampleNames);
     void saveMzEICJson(string filename);
     void setTableId();
     void setIntensityColName();
