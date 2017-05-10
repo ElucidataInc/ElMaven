@@ -1,5 +1,9 @@
 #include "PeakDetectorCLI.h"
 
+PeakDetectorCLI::PeakDetectorCLI() {
+	parseOptions = new ParseOptions();
+}
+
 void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 	//command line options
@@ -26,6 +30,8 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
                             "s?savemzroll <int>",
                             "v?ionizationMode <int>",
 							"w?minPeakWidth <int>",
+							"x?xml <string>",
+							"X|defaultXml",
 							"y?eicSmoothingWindow <int>",
 							"z?minSignalBaseLineRatio <float>",
 							NULL 
@@ -146,6 +152,18 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			mavenParameters->minNoNoiseObs = atoi(optarg);
 			break;
 
+		case 'x':
+			if (!optarg) {
+				processXML("config.xml");
+			} else {
+				processXML((char*)optarg);
+			}
+			break;
+
+		case 'X':
+			createXMLFile("config.xml");
+			break;
+
 		case 'y':
 			mavenParameters->eic_smoothingWindow = atoi(optarg);
 			break;
@@ -172,21 +190,52 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 	}
 }
 
-void PeakDetectorCLI::processXML(){
+void PeakDetectorCLI::processXML(char* fileName){
+	
+	ifstream xmlFile(fileName);
 
-	Arguments args;
-	parseOptions = new ParseOptions(args);
+	if (xmlFile)
+	{
 
-	parseOptions->createXMLFile(args);
+		cerr << endl << "Found " << fileName << endl;
+		cerr << endl << "Processing..." << endl;
 
-	xml_node argsNode = parseOptions->loadXMLNode("test.xml", "Arguments");
-	xml_node optionsArgs = parseOptions->getChild(argsNode, "OptionsDialogArguments");
-	processOptionsArgsXML(optionsArgs);
-	xml_node peaksArgs = parseOptions->getChild(argsNode, "PeaksDialogArguments");
-	processPeaksArgsXML(peaksArgs);
-	xml_node generalArgs = parseOptions->getChild(argsNode, "GeneralArguments");
-	processGeneralArgsXML(generalArgs);
+		xml_node argsNode = parseOptions->loadXMLNode(fileName, "Arguments");
+		xml_node optionsArgs = parseOptions->getChild(argsNode, "OptionsDialogArguments");
+		processOptionsArgsXML(optionsArgs);
+		xml_node peaksArgs = parseOptions->getChild(argsNode, "PeaksDialogArguments");
+		processPeaksArgsXML(peaksArgs);
+		xml_node generalArgs = parseOptions->getChild(argsNode, "GeneralArguments");
+		processGeneralArgsXML(generalArgs);
 
+	} else {
+
+		cerr << endl << "No file found with path " << fileName << endl;
+		cerr << "To create a default file pass argument --defaultXml." << endl;
+		cerr << "This will create a default file config.xml into the root folder." << endl;
+
+	}
+
+}
+
+void PeakDetectorCLI::createXMLFile(char* fileName) {
+
+	Arguments arguments;
+
+    arguments.populateArgs();
+    QStringList optionsDialog = arguments.optionsDialogArgs;
+    QStringList peakDialog = arguments.peakDialogArgs;
+    QStringList general = arguments.generalArgs;
+
+
+    xml_document doc;
+	xml_node args = doc.append_child("Arguments");
+
+    parseOptions->addChildren(args, "OptionsDialogArguments", optionsDialog);
+    parseOptions->addChildren(args, "PeaksDialogArguments", peakDialog);
+    parseOptions->addChildren(args, "GeneralArguments", general);
+
+    parseOptions->saveDoc(doc, fileName);
 
 }
 
