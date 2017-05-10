@@ -32,6 +32,9 @@
 #include "pugixml.hpp"
 
 using namespace std;
+
+class ParseOptions;
+
 #ifdef OMP_PARALLEL
 	#define getTime() omp_get_wtime()
 #else 
@@ -46,6 +49,8 @@ class PeakDetectorCLI {
 		vector<Compound*> compoundsDB;
 		vector<PeakGroup> allgroups;
 		MassCalculator mcalc;
+
+		ParseOptions *parseOptions;
 
 		time_t startTime, curTime, stopTime;
 
@@ -71,6 +76,29 @@ class PeakDetectorCLI {
 		* @param argv [argument variables]
 		*/
 		void processOptions(int argc, char* argv[]);
+
+		/**
+		* [handle loading of arguments using XML]
+		*/
+		void processXML();
+
+		/**
+		* [Load Arguments for Options Dialog]
+		* @param optionsArgs [pugixml xml node]
+		*/
+		void processOptionsArgsXML(xml_node& optionsArgs);
+
+		/**
+		* [Load Arguments for Peaks Dialog]
+		* @param peaksArgs [pugixml xml node]
+		*/
+		void processPeaksArgsXML(xml_node& peaksArgs);
+
+		/**
+		* [Load general Arguments]
+		* @param generalArgs [pugixml xml node]
+		*/
+		void processGeneralArgsXML(xml_node& generalArgs);
 
 		/**
 		* [load Classfication model]
@@ -178,7 +206,7 @@ struct Arguments {
 
 		peakDialogArgs << "int" << "minGoodGroupCount" << "1";
 		peakDialogArgs << "int" << "matchRtFlag" << "0";
-		peakDialogArgs << "string" << "DDb" << "0"; 
+		peakDialogArgs << "string" << "Db" << "0"; 
 		peakDialogArgs << "int" << "processAllSlices" << "0";
 		peakDialogArgs << "int" << "pullIsotopes" << "0";
 		peakDialogArgs << "float" << "grouping_maxRtWindow" << "0.5";
