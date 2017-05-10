@@ -9,6 +9,11 @@ int main(int argc, char *argv[]) {
 	//read command line options
 	peakdetectorCLI->processOptions(argc, argv);
 
+	if (!peakdetectorCLI->status) {
+		cerr << peakdetectorCLI->textStatus;
+		return(0);
+	}
+
 	//load classification model
 	peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
 
