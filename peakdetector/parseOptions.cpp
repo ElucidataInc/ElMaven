@@ -2,7 +2,6 @@
 
 ParseOptions::ParseOptions(Arguments &arguments) {
 
-    createXMLFile(arguments);
 }
 
 ParseOptions::~ParseOptions() {
@@ -41,11 +40,12 @@ xml_node ParseOptions::loadXMLNode(char* filename, char* nodeName) {
 vector<xml_node> ParseOptions::getChildren(xml_node &node) {
 
     vector<xml_node> nodeChildren;
-    for (xml_node child: node.children())
-    {
-        nodeChildren.push_back(child);
 
+    for (xml_node_iterator it = node.begin(); it != node.end(); ++it)
+    {
+        nodeChildren.push_back(*it);
     }
+
 
     return nodeChildren;
 
