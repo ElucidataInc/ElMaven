@@ -54,6 +54,9 @@ class PeakDetectorCLI {
 
 		ParseOptions *parseOptions;
 
+		bool status = true;
+		string textStatus = "";
+
 		time_t startTime, curTime, stopTime;
 
 		vector<string> filenames;

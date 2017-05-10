@@ -194,6 +194,15 @@ void PeakDetectorCLI::processXML(char* fileName){
 	
 	ifstream xmlFile(fileName);
 
+	string file = string(fileName);
+
+	if(file.substr(file.find_last_of(".") + 1) != "xml") {
+		
+		status = false;
+		textStatus += "Not a xml file.\n";
+		return;
+	} 
+
 	if (xmlFile)
 	{
 
@@ -210,9 +219,12 @@ void PeakDetectorCLI::processXML(char* fileName){
 
 	} else {
 
-		cerr << endl << "No file found with path " << fileName << endl;
-		cerr << "To create a default file pass argument --defaultXml." << endl;
-		cerr << "This will create a default file config.xml into the root folder." << endl;
+		status = false;
+		string errorMsg = "Error Loading file " + (string)fileName + ". File not found. Can't process further.\n";
+		errorMsg = errorMsg + "To create a default file pass argument --defaultXml.\n";
+		errorMsg = errorMsg + "This will create a default file config.xml into the root folder.\n";
+
+		textStatus += errorMsg;
 
 	}
 
@@ -236,6 +248,10 @@ void PeakDetectorCLI::createXMLFile(char* fileName) {
     parseOptions->addChildren(args, "GeneralArguments", general);
 
     parseOptions->saveDoc(doc, fileName);
+
+	status = false;
+
+	textStatus = textStatus + "Default file \"" + fileName + "\" created.";
 
 }
 
