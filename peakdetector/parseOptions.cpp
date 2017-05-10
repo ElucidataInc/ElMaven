@@ -1,29 +1,10 @@
 #include "parseOptions.h"
 
-ParseOptions::ParseOptions(Arguments &arguments) {
+ParseOptions::ParseOptions() {
 
 }
 
 ParseOptions::~ParseOptions() {
-
-}
-
-void ParseOptions::createXMLFile(Arguments &arguments) {
-
-    arguments.populateArgs();
-    QStringList optionsDialog = arguments.optionsDialogArgs;
-    QStringList peakDialog = arguments.peakDialogArgs;
-    QStringList general = arguments.generalArgs;
-
-
-    xml_document doc;
-    xml_node args = addNode(doc, "Arguments");
-
-    addChildren(args, "OptionsDialogArguments", optionsDialog);
-    addChildren(args, "PeaksDialogArguments", peakDialog);
-    addChildren(args, "GeneralArguments", general);
-
-    saveDoc(doc, "test.xml");
 
 }
 

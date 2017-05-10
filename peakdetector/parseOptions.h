@@ -14,9 +14,8 @@ using namespace pugi;
 class ParseOptions {
 
     public:
-        ParseOptions(struct Arguments &arguments);
+        ParseOptions();
         ~ParseOptions();
-        void createXMLFile(struct Arguments &arguments);
 
 		/**
 		* [load single parent node of a given file]

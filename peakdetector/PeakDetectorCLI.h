@@ -44,7 +44,9 @@ class ParseOptions;
 
 class PeakDetectorCLI {
 
-	public: 
+	public:
+		PeakDetectorCLI();
+
 		vector<mzSample*> samples;
 		vector<Compound*> compoundsDB;
 		vector<PeakGroup> allgroups;
@@ -77,10 +79,12 @@ class PeakDetectorCLI {
 		*/
 		void processOptions(int argc, char* argv[]);
 
+		void createXMLFile(char* fileName);
+
 		/**
 		* [handle loading of arguments using XML]
 		*/
-		void processXML();
+		void processXML(char* fileName);
 
 		/**
 		* [Load Arguments for Options Dialog]
