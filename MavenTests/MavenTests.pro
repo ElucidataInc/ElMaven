@@ -9,11 +9,12 @@ QT += testlib core
 QT -= gui
 CONFIG += qtestlib warn_off
 
-INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls
+QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -DOMP_PARALLEL
 QMAKE_CXXFLAGS += -fopenmp
-LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -fopenmp
 
-QMAKE_CXXFLAGS_RELEASE -= -O3 -Wall -Wno-sign-compare -std=c++11
+INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls ../peakdetector
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -fopenmp
 
 
 
@@ -31,8 +32,13 @@ HEADERS += \
     testPeakDetection.h \
     testbase64.h \
     testMzFit.h \
-    testMzAligner.h
-
+    testMzAligner.h \
+    testCLI.h \
+    ../peakdetector/PeakDetectorCLI.h \
+    ../libmaven/classifier.h \
+    ../libmaven/classifierNeuralNet.h \
+    ../peakdetector/parseOptions.h \
+    ../peakdetector/options.h
 
 SOURCES += \
     common.cpp \
@@ -47,7 +53,13 @@ SOURCES += \
     testbase64.cpp \
     testMzFit.cpp \
     testMzAligner.cpp \
-    main.cpp
+    testCLI.cpp \
+    main.cpp \
+    ../peakdetector/PeakDetectorCLI.cpp  \
+    ../peakdetector/options.cpp \
+    ../libmaven/classifier.cpp \  
+    ../libmaven/classifierNeuralNet.cpp \
+    ../peakdetector/parseOptions.cpp     
 
 
     

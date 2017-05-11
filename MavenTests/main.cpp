@@ -11,6 +11,7 @@
 #include "testbase64.h"
 #include "testMzFit.h"
 #include "testMzAligner.h"
+#include "testCLI.h"
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
@@ -49,6 +50,9 @@ int main(int argc, char** argv) {
 
     if(freopen("testMzFit.xml",  "w", stdout))
         result |= QTest::qExec(new TestMzFit, argc, argv);
+
+    if(freopen("testCLI.xml",  "w", stdout))
+        result |= QTest::qExec(new TestCLI, argc, argv);
 
     // freopen("testMzAligner.xml",  "w", stdout);
     // result |= QTest::qExec(new TestMzAligner, argc, argv);
