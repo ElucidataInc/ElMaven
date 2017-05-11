@@ -251,7 +251,7 @@ void PeakDetectorCLI::createXMLFile(char* fileName) {
 
 	status = false;
 
-	textStatus = textStatus + "Default file \"" + fileName + "\" created.";
+	textStatus = textStatus + "Default file \"" + fileName + "\" created.\n";
 
 }
 
@@ -264,10 +264,10 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 		xml_node node = optionsNodes[i];
 
 		if (strcmp(node.name(),"ionizationMode") == 0) {
-			mavenParameters->ionizationMode = atoi(node.attribute("ionizationMode").value());
+			mavenParameters->ionizationMode = atoi(node.attribute("value").value());
 		}
 		else if (strcmp(node.name(),"charge") == 0) {
-			mavenParameters->charge = atoi(node.attribute("charge").value());
+			mavenParameters->charge = atoi(node.attribute("value").value());
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
@@ -287,32 +287,32 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 
 		if (strcmp(node.name(),"minGoodGroupCount") == 0) {
 
-			mavenParameters->minGoodGroupCount = atoi(node.attribute("minGoodGroupCount").value());
+			mavenParameters->minGoodGroupCount = atoi(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"matchRtFlag") == 0) {
 
-        	mavenParameters->compoundRTWindow=atof(node.attribute("matchRtFlag").value());
+        	mavenParameters->compoundRTWindow=atof(node.attribute("value").value());
             mavenParameters->matchRtFlag=true;
             if(mavenParameters->compoundRTWindow==0) mavenParameters->matchRtFlag=false;
 
 		}
 		else if (strcmp(node.name(),"Db") == 0) {
 
-			mavenParameters->ligandDbFilename = node.attribute("Db").value();
+			mavenParameters->ligandDbFilename = node.attribute("value").value();
 
 		}
 		else if (strcmp(node.name(),"processAllSlices") == 0) {
 
 			mavenParameters->processAllSlices = true;
-			if (atoi(node.attribute("processAllSlices").value()) == 0) mavenParameters->processAllSlices = false;
+			if (atoi(node.attribute("value").value()) == 0) mavenParameters->processAllSlices = false;
 
 		}
 		else if (strcmp(node.name(),"pullIsotopes") == 0) {
 
 				mavenParameters->pullIsotopesFlag = 0;
 				int label = 0;
-				label = atoi(node.attribute("pullIsotopes").value());
+				label = atoi(node.attribute("value").value());
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					mavenParameters->isotopeAtom["ShowIsotopes"] = true;
@@ -325,62 +325,62 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 		}
 		else if (strcmp(node.name(),"grouping_maxRtWindow") == 0) {
 
-			mavenParameters->grouping_maxRtWindow = atof(node.attribute("grouping_maxRtWindow").value());
+			mavenParameters->grouping_maxRtWindow = atof(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"minGroupIntensity") == 0) {
 
-			mavenParameters->minGroupIntensity = atof(node.attribute("minGroupIntensity").value());
+			mavenParameters->minGroupIntensity = atof(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"quantileIntensity") == 0) {
 
-			mavenParameters->quantileIntensity = atof(node.attribute("quantileIntensity").value());
+			mavenParameters->quantileIntensity = atof(node.attribute("value").value());
 			
 		}
 		else if (strcmp(node.name(),"model") == 0) {
 
-			clsfModelFilename = node.attribute("model").value();
+			clsfModelFilename = node.attribute("value").value();
 
 		}
 		else if (strcmp(node.name(),"eicMaxGroups") == 0) {
 
-			mavenParameters->eicMaxGroups = atoi(node.attribute("eicMaxGroups").value());
+			mavenParameters->eicMaxGroups = atoi(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"ppmMerge") == 0) {
 
-			mavenParameters->ppmMerge = atof(node.attribute("ppmMerge").value());
+			mavenParameters->ppmMerge = atof(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"minQuality") == 0) {
 
-			mavenParameters->minQuality = atof(node.attribute("minQuality").value());
+			mavenParameters->minQuality = atof(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"quantileQuality") == 0) {
 
-			mavenParameters->quantileQuality = atof(node.attribute("quantileQuality").value());
+			mavenParameters->quantileQuality = atof(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"rtStepSize") == 0) {
 
-			mavenParameters->rtStepSize = atoi(node.attribute("rtStepSize").value());
+			mavenParameters->rtStepSize = atoi(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"minPeakWidth") == 0) {
 
-			mavenParameters->minNoNoiseObs = atoi(node.attribute("minPeakWidth").value());
+			mavenParameters->minNoNoiseObs = atoi(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"eicSmoothingWindow") == 0) {
 
-			mavenParameters->eic_smoothingWindow = atoi(node.attribute("eicSmoothingWindow").value());
+			mavenParameters->eic_smoothingWindow = atoi(node.attribute("value").value());
 
 		}
 		else if (strcmp(node.name(),"minSignalBaseLineRatio") == 0) {
 
-			mavenParameters->minSignalBaseLineRatio = atof(node.attribute("minSignalBaseLineRatio").value());
+			mavenParameters->minSignalBaseLineRatio = atof(node.attribute("value").value());
 
 		}
 		else {
@@ -402,25 +402,33 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 		if (strcmp(node.name(),"alignSamples") == 0) {
 
 			mavenParameters->alignSamplesFlag = true;
-			if (atoi(node.attribute("alignSamples").value()) == 0) mavenParameters->alignSamplesFlag = false;
+			if (atoi(node.attribute("value").value()) == 0) mavenParameters->alignSamplesFlag = false;
 
 		}
 		else if (strcmp(node.name(),"saveEicJson") == 0) {
 
         	saveJsonEIC = true;
-			if (atoi(node.attribute("saveEicJson").value()) == 0) saveJsonEIC = false;
+			if (atoi(node.attribute("value").value()) == 0) saveJsonEIC = false;
 
 		}
 		else if (strcmp(node.name(),"outputdir") == 0) {
 
-			mavenParameters->outputdir = node.attribute("outputdir").value() + string(DIR_SEPARATOR_STR);
+			mavenParameters->outputdir = node.attribute("value").value() + string(DIR_SEPARATOR_STR);
 
 		}
 		else if (strcmp(node.name(),"savemzroll") == 0) {
 
         	saveMzrollFile = true;
-			if (atoi(node.attribute("savemzroll").value()) == 0) saveMzrollFile = false;
+			if (atoi(node.attribute("value").value()) == 0) saveMzrollFile = false;
 
+		}
+		else if (strcmp(node.name(),"samples") == 0) {
+
+			string sampleStr = node.attribute("value").value();
+			cerr << endl << endl << sampleStr << endl;
+			if (!sampleStr.empty()) {
+				splitNew(sampleStr, ",", filenames);
+			}
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
@@ -458,6 +466,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 	#pragma omp parallel for
 	for (unsigned int i = 0; i < filenames.size(); i++) {
+		cerr << endl << endl << filenames[i] << endl;
 		mzSample* sample = new mzSample();
 		sample->loadSample(filenames[i].c_str());
 		sample->sampleName = cleanSampleName(filenames[i]);
