@@ -32,11 +32,13 @@ class TestCLI : public QObject {
         const char* dbPath;
         const char* normalSample;
         const char* blankSample;
+        const char* xmlPath;
 
     private Q_SLOTS:
         void testLoadClassificationModel();
         void testLoadCompoundsFile();
         void testLoadSamples();
+        void testProcessXml();
 };
 
 #endif

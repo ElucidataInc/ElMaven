@@ -425,7 +425,6 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 		else if (strcmp(node.name(),"samples") == 0) {
 
 			string sampleStr = node.attribute("value").value();
-			cerr << endl << endl << sampleStr << endl;
 			if (!sampleStr.empty()) {
 				splitNew(sampleStr, ",", filenames);
 			}
@@ -466,7 +465,6 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 	#pragma omp parallel for
 	for (unsigned int i = 0; i < filenames.size(); i++) {
-		cerr << endl << endl << filenames[i] << endl;
 		mzSample* sample = new mzSample();
 		sample->loadSample(filenames[i].c_str());
 		sample->sampleName = cleanSampleName(filenames[i]);
