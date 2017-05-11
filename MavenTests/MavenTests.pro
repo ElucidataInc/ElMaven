@@ -29,7 +29,6 @@ HEADERS += \
     testPeakDetection.h \
     testScan.h \
     testEIC.h \
-    testPeakDetection.h \
     testbase64.h \
     testMzFit.h \
     testMzAligner.h \
