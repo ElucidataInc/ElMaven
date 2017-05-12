@@ -77,6 +77,8 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->alignSamplesFlag == 0);
     QVERIFY(peakdetectorCLI->saveJsonEIC == 1);
     QVERIFY(peakdetectorCLI->saveMzrollFile == 1);
+    QVERIFY(peakdetectorCLI->mavenParameters->peakQuantitation == 2);
+    QVERIFY(peakdetectorCLI->quantitationType == 2);
 
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
     QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("bk_#sucyxpe_1_9.mzxml"));
@@ -103,6 +105,6 @@ void TestCLI::testCreateXMLFile() {
         myFile.close();
     } 
 
-    QVERIFY(size >= 1224);
+    QVERIFY(size >= 1268);
 
 }
