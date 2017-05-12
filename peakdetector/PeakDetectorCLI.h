@@ -230,6 +230,13 @@ struct Arguments {
 		peakDialogArgs << "int" << "eicSmoothingWindow" << "10";
 		peakDialogArgs << "float" << "minSignalBaseLineRatio" << "2";
 		peakDialogArgs << "int" << "quantitationType" << "0";
+		peakDialogArgs << "float" << "minScanMz" << "0";
+		peakDialogArgs << "float" << "maxScanMz" << "1000000000";
+		peakDialogArgs << "float" << "minScanRt" << "0";
+		peakDialogArgs << "float" << "maxScanRt" << "1000000000";
+		peakDialogArgs << "float" << "minScanIntensity" << "0";
+		peakDialogArgs << "float" << "maxScanIntensity" << "9999999999";
+
 
 		optionsDialogArgs << "int" << "ionizationMode" << "-1";
 		optionsDialogArgs << "int" << "charge" << "1";

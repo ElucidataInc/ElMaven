@@ -389,6 +389,37 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 			quantitationType = (PeakGroup::QType)atoi(node.attribute("value").value());
 
 		}
+		else if (strcmp(node.name(),"minScanMz") == 0) {
+
+			mavenParameters->minMz = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"maxScanMz") == 0) {
+
+			mavenParameters->maxMz = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"minScanRt") == 0) {
+
+			mavenParameters->minRt = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"maxScanRt") == 0) {
+
+			mavenParameters->maxRt = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"minScanIntensity") == 0) {
+
+			mavenParameters->minIntensity = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"maxScanIntensity") == 0) {
+
+			mavenParameters->maxIntensity = atof(node.attribute("value").value());
+
+		}
+		
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
 		}

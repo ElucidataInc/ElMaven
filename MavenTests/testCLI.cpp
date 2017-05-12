@@ -79,6 +79,13 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->saveMzrollFile == 1);
     QVERIFY(peakdetectorCLI->mavenParameters->peakQuantitation == 2);
     QVERIFY(peakdetectorCLI->quantitationType == 2);
+    QVERIFY(peakdetectorCLI->mavenParameters->minMz == (float)10.51);
+    QVERIFY(peakdetectorCLI->mavenParameters->maxMz == (float)99.97);
+    QVERIFY(peakdetectorCLI->mavenParameters->minRt == (float)5.4);
+    QVERIFY(peakdetectorCLI->mavenParameters->maxRt == (float)24.6);
+    QVERIFY(peakdetectorCLI->mavenParameters->minIntensity == (float)5000);
+    QVERIFY(peakdetectorCLI->mavenParameters->maxIntensity  == (float)1000000);
+
 
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
     QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("bk_#sucyxpe_1_9.mzxml"));
@@ -105,6 +112,6 @@ void TestCLI::testCreateXMLFile() {
         myFile.close();
     } 
 
-    QVERIFY(size >= 1268);
+    QVERIFY(size >= 1528);
 
 }
