@@ -145,10 +145,48 @@ void TestCLI::testReduceGroups() {
 		delete_all(slices);
 	}
 
-	//cleanup
 	delete_all(peakdetectorCLI->mavenParameters->samples);
 	peakdetectorCLI->mavenParameters->samples.clear();
 	peakdetectorCLI->mavenParameters->allgroups.clear();
 
+}
+
+void TestCLI::testWriteReport() {
+
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+
+	peakdetectorCLI->processXML((char*)xmlPath);
+
+	if (!peakdetectorCLI->status) {
+		cerr << peakdetectorCLI->textStatus;
+		return;
+	}
+
+	peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
+	peakdetectorCLI->peakDetector->setMavenParameters(peakdetectorCLI->mavenParameters);
+	peakdetectorCLI->loadCompoundsFile();
+	peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
+	peakdetectorCLI->mavenParameters->setAverageScanTime();
+	peakdetectorCLI->mavenParameters->setIonizationMode();
+
+	if (peakdetectorCLI->mavenParameters->compounds.size()) {
+		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
+				peakdetectorCLI->mavenParameters->compounds, "compounds");
+		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
+
+        peakdetectorCLI->writePeakTableXML(peakdetectorCLI->mavenParameters->outputdir + "testmzRoll" + ".mzroll");
+        QFileInfo mzrollFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testmzRoll" + ".mzroll"));
+        QVERIFY(mzrollFile.exists() && mzrollFile.isFile());
+
+        peakdetectorCLI->saveCSV("testcsv");
+        QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));
+        QVERIFY(csvFile.exists() && csvFile.isFile());
+
+		delete_all(slices);
+	}
+
+	delete_all(peakdetectorCLI->mavenParameters->samples);
+	peakdetectorCLI->mavenParameters->samples.clear();
+	peakdetectorCLI->mavenParameters->allgroups.clear();
 
 }
