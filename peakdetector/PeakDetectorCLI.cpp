@@ -383,6 +383,12 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 			mavenParameters->minSignalBaseLineRatio = atof(node.attribute("value").value());
 
 		}
+		else if (strcmp(node.name(),"quantitationType") == 0) {
+
+			mavenParameters->peakQuantitation = (PeakGroup::QType)atoi(node.attribute("value").value()); //AreaTop=0, Area=1, Height=2, AreaNotCorrected=3
+			quantitationType = (PeakGroup::QType)atoi(node.attribute("value").value());
+
+		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
 		}

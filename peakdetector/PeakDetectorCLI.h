@@ -229,6 +229,7 @@ struct Arguments {
 		peakDialogArgs << "int" << "minPeakWidth" << "1";
 		peakDialogArgs << "int" << "eicSmoothingWindow" << "10";
 		peakDialogArgs << "float" << "minSignalBaseLineRatio" << "2";
+		peakDialogArgs << "int" << "quantitationType" << "0";
 
 		optionsDialogArgs << "int" << "ionizationMode" << "-1";
 		optionsDialogArgs << "int" << "charge" << "1";
