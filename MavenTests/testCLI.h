@@ -41,6 +41,7 @@ class TestCLI : public QObject {
         void testLoadSamples();
         void testProcessXml();
         void testCreateXMLFile();
+        void testReduceGroups();
 
 };
 
