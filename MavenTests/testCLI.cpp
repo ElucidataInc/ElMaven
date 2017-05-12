@@ -54,17 +54,17 @@ void TestCLI::testProcessXml() {
     PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
     peakdetectorCLI->processXML((char*)xmlPath);
 
-    QVERIFY(peakdetectorCLI->mavenParameters->ionizationMode == 1);
-    QVERIFY(peakdetectorCLI->mavenParameters->charge == 3);
-    QVERIFY(peakdetectorCLI->mavenParameters->minGoodGroupCount == 5);
-    QVERIFY(peakdetectorCLI->mavenParameters->matchRtFlag == 1);
+    QVERIFY(peakdetectorCLI->mavenParameters->ionizationMode == -1);
+    QVERIFY(peakdetectorCLI->mavenParameters->charge == 1);
+    QVERIFY(peakdetectorCLI->mavenParameters->minGoodGroupCount == 1);
+    QVERIFY(peakdetectorCLI->mavenParameters->matchRtFlag == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->processAllSlices == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->C13Labeled_BPE == true);
     QVERIFY(peakdetectorCLI->mavenParameters->N15Labeled_BPE == true);
     QVERIFY(peakdetectorCLI->mavenParameters->S34Labeled_BPE == false);
     QVERIFY(peakdetectorCLI->mavenParameters->D2Labeled_BPE == false);
     QVERIFY(peakdetectorCLI->mavenParameters->grouping_maxRtWindow == 2.5);
-    QVERIFY(peakdetectorCLI->mavenParameters->minGroupIntensity == 400000);
+    QVERIFY(peakdetectorCLI->mavenParameters->minGroupIntensity == 500);
     QVERIFY(peakdetectorCLI->mavenParameters->quantileIntensity == 50);
     QVERIFY(peakdetectorCLI->mavenParameters->eicMaxGroups == 4);
     QVERIFY(peakdetectorCLI->mavenParameters->ppmMerge == 32);
@@ -113,5 +113,42 @@ void TestCLI::testCreateXMLFile() {
     } 
 
     QVERIFY(size >= 1528);
+
+}
+
+void TestCLI::testReduceGroups() {
+
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+
+	peakdetectorCLI->processXML((char*)xmlPath);
+
+	if (!peakdetectorCLI->status) {
+		cerr << peakdetectorCLI->textStatus;
+		return;
+	}
+
+	peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
+	peakdetectorCLI->peakDetector->setMavenParameters(peakdetectorCLI->mavenParameters);
+	peakdetectorCLI->loadCompoundsFile();
+	peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
+	peakdetectorCLI->mavenParameters->setAverageScanTime();
+	peakdetectorCLI->mavenParameters->setIonizationMode();
+
+	if (peakdetectorCLI->mavenParameters->compounds.size()) {
+		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
+				peakdetectorCLI->mavenParameters->compounds, "compounds");
+		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
+
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 16);
+        peakdetectorCLI->reduceGroups();
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 14);
+		delete_all(slices);
+	}
+
+	//cleanup
+	delete_all(peakdetectorCLI->mavenParameters->samples);
+	peakdetectorCLI->mavenParameters->samples.clear();
+	peakdetectorCLI->mavenParameters->allgroups.clear();
+
 
 }
