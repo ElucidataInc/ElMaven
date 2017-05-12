@@ -3,6 +3,7 @@
 TestCLI::TestCLI() {
 
     xmlPath = "bin/methods/test.xml";
+    createXmlPath = "bin/methods/createTest.xml";
     clsfPath = "bin/default.model";
     dbPath = "bin/methods/KNOWNS.csv";
     normalSample = "bin/methods/bk_#sucyxpe_1_9.mzxml";
@@ -86,5 +87,22 @@ void TestCLI::testProcessXml() {
 
 	peakdetectorCLI->loadCompoundsFile();
     QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 257);
+
+}
+
+void TestCLI::testCreateXMLFile() {
+
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+    peakdetectorCLI->createXMLFile((char*)createXmlPath);
+
+
+    int size = 0;
+    QFile myFile(createXmlPath);
+    if (myFile.open(QIODevice::ReadOnly)){
+        size = myFile.size(); 
+        myFile.close();
+    } 
+
+    QVERIFY(size >= 1224);
 
 }

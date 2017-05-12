@@ -33,12 +33,15 @@ class TestCLI : public QObject {
         const char* normalSample;
         const char* blankSample;
         const char* xmlPath;
+        const char* createXmlPath;
 
     private Q_SLOTS:
         void testLoadClassificationModel();
         void testLoadCompoundsFile();
         void testLoadSamples();
         void testProcessXml();
+        void testCreateXMLFile();
+
 };
 
 #endif
