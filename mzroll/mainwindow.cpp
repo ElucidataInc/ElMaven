@@ -3135,15 +3135,14 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
 		btnShowIsotopeplot->setCheckable(true);
-		if (mw->isotopePlotsDockWidget->isVisible()) {
-			btnShowIsotopeplot->setChecked(true);
-		} else {
-			btnShowIsotopeplot->setChecked(false);
-		}
 
-		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showIsotopePlot(bool)));
-		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot()));
-		connect(btnShowIsotopeplot,SIGNAL(toggled(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
+		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopePlot(bool)));
+		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot(bool)));
+		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
+
+		btnShowIsotopeplot->setChecked(mw->isotopePlotsDockWidget->isVisible());
+		connect(mw->isotopePlotsDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
+				SLOT(setChecked(bool)));
 
 		return btnShowIsotopeplot;
 

@@ -1859,9 +1859,9 @@ void EicWidget::selectGroupNearRt(float rt) {
 	}
 }
 
-void EicWidget::showIsotopicBarPlot() {
+void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
 	LOGD;
-	if (_showIsotopePlot) {
+	if (_showIsotopicBarPlot) {
 		getMainWindow()->isotopePlotsDockWidget->show();
 		//addIsotopicPlot(group);
 	} else {
