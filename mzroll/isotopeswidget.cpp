@@ -50,10 +50,8 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 		return;
 	bookmarkflag = bookmarkflg;
 	isotopeParameters->_group = grp;
-	if (grp && grp->type() != PeakGroup::Isotope) {
-		_mw->mavenParameters->isotopeAtom["IsotopeWidget"] = true;
+	if (grp && grp->type() != PeakGroup::Isotope) 
 		pullIsotopes(grp);
-	}
 }
 
 void IsotopeWidget::updateIsotopicBarplot(PeakGroup* grp) {

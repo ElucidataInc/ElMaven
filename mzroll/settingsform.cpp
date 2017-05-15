@@ -76,7 +76,6 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
 
 void SettingsForm::showSetIsotopeAtom() {
     setIsotopeAtom();
-    cerr << mainwindow->mavenParameters->isotopeAtom["IsotopeWidget"] << " hello \n\n";
 }
 
 void SettingsForm::setIsotopeAtom() {
