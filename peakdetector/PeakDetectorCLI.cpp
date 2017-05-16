@@ -449,9 +449,7 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 		else if (strcmp(node.name(),"samples") == 0) {
 
 			string sampleStr = node.attribute("value").value();
-			if (!sampleStr.empty()) {
-				splitNew(sampleStr, ",", filenames);
-			}
+			filenames.push_back(sampleStr);
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;

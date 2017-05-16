@@ -210,7 +210,9 @@ struct Arguments {
 		generalArgs << "int" << "saveEicJson" << "0";
 		generalArgs << "string" << "outputdir" << "0";
 		generalArgs << "int" << "savemzroll" << "0";
-		generalArgs << "string" << "samples" << "path/to/sample1,path/to/sample2";
+		generalArgs << "string" << "samples" << "path/to/sample1";
+		generalArgs << "string" << "samples" << "path/to/sample2";
+		generalArgs << "string" << "samples" << "path/to/sample3";
 
 		peakDialogArgs << "int" << "minGoodGroupCount" << "1";
 		peakDialogArgs << "int" << "matchRtFlag" << "0";
