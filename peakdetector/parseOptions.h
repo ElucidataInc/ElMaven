@@ -26,13 +26,6 @@ class ParseOptions {
         xml_node loadXMLNode(char* filename, char* nodeName);
 
 		/**
-		* [get all the children of a node]
-		* @param node [parent node]
-        * @return nodeChildren [vector of children nodes of parent node]
-		*/
-        vector<xml_node> getChildren(xml_node &node);
-
-		/**
 		* [get particular child of a node]
 		* @param node [parent node]
 		* @param childName [name of child]

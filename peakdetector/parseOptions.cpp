@@ -18,19 +18,6 @@ xml_node ParseOptions::loadXMLNode(char* filename, char* nodeName) {
     return node;
 }
 
-vector<xml_node> ParseOptions::getChildren(xml_node &node) {
-
-    vector<xml_node> nodeChildren;
-
-    for (xml_node_iterator it = node.begin(); it != node.end(); ++it)
-    {
-        nodeChildren.push_back(*it);
-    }
-
-
-    return nodeChildren;
-
-}
 
 xml_node ParseOptions::getChild(xml_node &node, char* childName) {
 

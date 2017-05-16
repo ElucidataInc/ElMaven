@@ -257,12 +257,7 @@ void PeakDetectorCLI::createXMLFile(char* fileName) {
 
 void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 
-	vector<xml_node> optionsNodes = parseOptions->getChildren(optionsArgs);
-
-	for (int i = 0; i < optionsNodes.size(); i++) {
-
-		xml_node node = optionsNodes[i];
-
+	for (xml_node node = optionsArgs.first_child(); node; node = node.next_sibling()) {
 		if (strcmp(node.name(),"ionizationMode") == 0) {
 			mavenParameters->ionizationMode = atoi(node.attribute("value").value());
 		}
@@ -426,11 +421,7 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 
 void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 
-	vector<xml_node> genNodes = parseOptions->getChildren(generalArgs);
-
-	for (int i = 0; i < genNodes.size(); i++) {
-
-		xml_node node = genNodes[i];
+	for (xml_node node = generalArgs.first_child(); node; node = node.next_sibling()) {
 
 		if (strcmp(node.name(),"alignSamples") == 0) {
 
