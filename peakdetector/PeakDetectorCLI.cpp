@@ -279,12 +279,8 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 
 void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 
-	vector<xml_node> peaksNodes = parseOptions->getChildren(peaksArgs);
-
-	for (int i = 0; i < peaksNodes.size(); i++) {
-
-		xml_node node = peaksNodes[i];
-
+	for (xml_node node = peaksArgs.first_child(); node; node = node.next_sibling()) {
+  
 		if (strcmp(node.name(),"minGoodGroupCount") == 0) {
 
 			mavenParameters->minGoodGroupCount = atoi(node.attribute("value").value());

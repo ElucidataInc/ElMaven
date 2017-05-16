@@ -11,7 +11,7 @@ ParseOptions::~ParseOptions() {
 xml_node ParseOptions::loadXMLNode(char* filename, char* nodeName) {
 
     xml_document doc;
-    doc.load_file(filename);
+    doc.load_file(filename, pugi::parse_minimal);
 
     xml_node node = doc.child(nodeName);
 
