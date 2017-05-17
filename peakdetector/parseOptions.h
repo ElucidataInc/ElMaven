@@ -18,22 +18,6 @@ class ParseOptions {
         ~ParseOptions();
 
 		/**
-		* [load single parent node of a given file]
-		* @param filename [xml file to be loaded]
-		* @param nodeName [name of the parent node to be loaded]
-        * @return node [parent node]
-		*/
-        xml_node loadXMLNode(char* filename, char* nodeName);
-
-		/**
-		* [get particular child of a node]
-		* @param node [parent node]
-		* @param childName [name of child]
-        * @return nodeChild [child node]
-		*/
-        xml_node getChild(xml_node &node, char* childName);
-
-		/**
 		* [get map (name, value) of all the attributes present inside a node]
 		* @param node [parent node]
 		* @return attributes [QMap<string, string> of attributes from parent node]
@@ -47,8 +31,6 @@ class ParseOptions {
 
         template <typename T>
         void addAttribute(xml_node &node, char* attrName, T value);
-
-        void saveDoc(xml_document &doc, char* docPath);
 
         void checkErrors(xml_parse_result &result, char* source);
 };

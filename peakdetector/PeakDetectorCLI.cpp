@@ -190,7 +190,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 	}
 }
 
-void PeakDetectorCLI::processXML(char* fileName){
+void PeakDetectorCLI::processXML(const char* fileName){
 	
 	ifstream xmlFile(fileName);
 
@@ -201,7 +201,7 @@ void PeakDetectorCLI::processXML(char* fileName){
 		status = false;
 		textStatus += "Not a xml file.\n";
 		return;
-	} 
+	}
 
 	if (xmlFile)
 	{
@@ -209,12 +209,16 @@ void PeakDetectorCLI::processXML(char* fileName){
 		cerr << endl << "Found " << fileName << endl;
 		cerr << endl << "Processing..." << endl;
 
-		xml_node argsNode = parseOptions->loadXMLNode(fileName, "Arguments");
-		xml_node optionsArgs = parseOptions->getChild(argsNode, "OptionsDialogArguments");
+		xml_document doc;
+		doc.load_file(fileName, pugi::parse_minimal);
+		xml_node argsNode = doc.child("Arguments");
+
+		xml_node optionsArgs = argsNode.child("OptionsDialogArguments");
+		xml_node peaksArgs = argsNode.child("PeaksDialogArguments");
+		xml_node generalArgs = argsNode.child("GeneralArguments");
+
 		processOptionsArgsXML(optionsArgs);
-		xml_node peaksArgs = parseOptions->getChild(argsNode, "PeaksDialogArguments");
 		processPeaksArgsXML(peaksArgs);
-		xml_node generalArgs = parseOptions->getChild(argsNode, "GeneralArguments");
 		processGeneralArgsXML(generalArgs);
 
 	} else {
@@ -230,7 +234,7 @@ void PeakDetectorCLI::processXML(char* fileName){
 
 }
 
-void PeakDetectorCLI::createXMLFile(char* fileName) {
+void PeakDetectorCLI::createXMLFile(const char* fileName) {
 
 	Arguments arguments;
 
@@ -247,7 +251,7 @@ void PeakDetectorCLI::createXMLFile(char* fileName) {
     parseOptions->addChildren(args, "PeaksDialogArguments", peakDialog);
     parseOptions->addChildren(args, "GeneralArguments", general);
 
-    parseOptions->saveDoc(doc, fileName);
+    doc.save_file(fileName);
 
 	status = false;
 
@@ -485,7 +489,6 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 	double startLoadingTime = getTime();
 	cerr << "\nLoading samples" << endl;
 
-	#pragma omp parallel for
 	for (unsigned int i = 0; i < filenames.size(); i++) {
 		mzSample* sample = new mzSample();
 		sample->loadSample(filenames[i].c_str());
@@ -493,6 +496,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 		if (sample->scans.size() >= 1) {
 			mavenParameters->samples.push_back(sample);
+			cerr << endl << "Loaded Sample : " << sample->getSampleName() << endl;
 		} else {
 			if (sample != NULL) {
 				delete sample;

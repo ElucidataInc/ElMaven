@@ -8,23 +8,6 @@ ParseOptions::~ParseOptions() {
 
 }
 
-xml_node ParseOptions::loadXMLNode(char* filename, char* nodeName) {
-
-    xml_document doc;
-    doc.load_file(filename, pugi::parse_minimal);
-
-    xml_node node = doc.child(nodeName);
-
-    return node;
-}
-
-
-xml_node ParseOptions::getChild(xml_node &node, char* childName) {
-
-    xml_node nodeChild = node.child(childName); 
-
-    return nodeChild;
-}
 
 QMap<string, string> ParseOptions::getAttributes(xml_node &node) {
 
@@ -98,12 +81,6 @@ template <typename T>
 void ParseOptions::addAttribute(xml_node &node, char* attrName, T value) {
 
     node.append_attribute(attrName) = value;
-
-}
-
-void ParseOptions::saveDoc(xml_document &doc, char* docPath) {
-
-    doc.save_file(docPath);
 
 }
 

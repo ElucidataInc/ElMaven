@@ -82,12 +82,12 @@ class PeakDetectorCLI {
 		*/
 		void processOptions(int argc, char* argv[]);
 
-		void createXMLFile(char* fileName);
+		void createXMLFile(const char* fileName);
 
 		/**
 		* [handle loading of arguments using XML]
 		*/
-		void processXML(char* fileName);
+		void processXML(const char* fileName);
 
 		/**
 		* [Load Arguments for Options Dialog]
