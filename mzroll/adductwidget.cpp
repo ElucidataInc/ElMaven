@@ -281,6 +281,7 @@ mzLink* AdductWidget::checkConnection(float mz1, float mz2, string note) {
 
 	if(!sample) return NULL;
 	pair<string,double> pr = _mw->getMassAccPair();
+	pair<string,double> temppr = make_pair("ppm",5);
 
 	if (linkExists(mz1,mz2,pr)) return NULL;
 
@@ -290,13 +291,13 @@ mzLink* AdductWidget::checkConnection(float mz1, float mz2, string note) {
 
 	if (links.size() > 1 ) {
 		for(int i=0; i < links.size(); i++ ) {
-			if ( sample->correlation(links[i]->mz1, mz2, 5, _scan->rt-1, _scan->rt+1) < 0.0 ) return NULL;
-			if ( sample->correlation(links[i]->mz1, mz1, 5, _scan->rt-1, _scan->rt+1) < 0.0 ) return NULL;
+			if ( sample->correlation(links[i]->mz1, mz2, temppr, _scan->rt-1, _scan->rt+1) < 0.0 ) return NULL;
+			if ( sample->correlation(links[i]->mz1, mz1, temppr, _scan->rt-1, _scan->rt+1) < 0.0 ) return NULL;
 		}
 	}
 
 	if( _scan->hasMz(mz2,pr) ) {
-		float correlation  = sample->correlation(mz1, mz2, 5, _scan->rt-1, _scan->rt+1);
+		float correlation  = sample->correlation(mz1, mz2, temppr, _scan->rt-1, _scan->rt+1);
 
 		if ( correlation > 0.3) {
 				mzLink* l = new mzLink(mz1,mz2,note);

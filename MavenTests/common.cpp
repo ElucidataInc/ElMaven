@@ -80,7 +80,8 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->compoundPPMWindow = 10;
+    mavenparameters->cmpdMassAccValue = 10;
+    mavenparameters->cmpdMassAccType = 0;
     mavenparameters->ionizationMode = -1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;

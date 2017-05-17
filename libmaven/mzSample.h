@@ -222,7 +222,7 @@ class mzSlice {
         bool operator< (const mzSlice* b) const { return mz < b->mz; }
 
 
-        bool calculateMzMinMax(float CompoundppmWindow, int charge);
+        bool calculateMzMinMax(pair<string,double> pr, int charge);
 
         void calculateRTMinMax(bool matchRtFlag, float compoundRTWindow);
 
@@ -383,9 +383,6 @@ class mzLink {
              * @return [correlation]
              */
             float correlation(float mz1,  float mz2, pair<string,double> pr, float rt1, float rt2 );
-
-            float correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 );
-
 
             /**
              * [get normalization constant]

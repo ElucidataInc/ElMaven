@@ -160,7 +160,7 @@ void TestEIC:: testGetPeakDetails() {
 void TestEIC:: testgroupPeaks() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -180,7 +180,7 @@ void TestEIC:: testgroupPeaks() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;
@@ -218,7 +218,7 @@ void TestEIC:: testgroupPeaks() {
 void TestEIC:: testeicMerge() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -234,7 +234,7 @@ void TestEIC:: testeicMerge() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;

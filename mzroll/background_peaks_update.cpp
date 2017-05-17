@@ -44,8 +44,10 @@ QString BackgroundPeakUpdate::printSettings() {
 
     summary << "ionizationMode=" << mavenParameters->ionizationMode << "\n";
     summary << "matchRtFlag=" << mavenParameters->matchRtFlag << "\n";
-    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow
+    summary << "cmpdMassAccValue=" << mavenParameters->cmpdMassAccValue
             << "\n";
+    summary << "cmpdMassAccType=" << mavenParameters->cmpdMassAccType
+            << "\n";        
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
             << "\n";
@@ -131,7 +133,8 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
 
     stream.writeAttribute( "ionizationMode" ,QString::number(mavenParameters->ionizationMode));
     stream.writeAttribute( "matchRtFlag" ,QString::number( mavenParameters->matchRtFlag));
-    stream.writeAttribute( "compoundPPMWindow" ,QString::number( mavenParameters->compoundPPMWindow));
+    stream.writeAttribute( "cmpdMassAccValue" ,QString::number( mavenParameters->cmpdMassAccValue));
+    stream.writeAttribute( "cmpdMassAccType" ,QString::number( mavenParameters->cmpdMassAccType));
     stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
     stream.writeAttribute( "matchFragmentation" ,QString::number( mavenParameters->matchFragmentation));
     stream.writeAttribute( "fragmentMatchPPMTolr" ,QString::number( mavenParameters->fragmentMatchPPMTolr));
@@ -206,8 +209,10 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         xml.attributes().value("minGroupIntensity").toString().toFloat());
                 // Compound DB search
                 settings->setValue("matchRtFlag", xml.attributes().value("matchRtFlag").toString().toInt());
-                settings->setValue("compoundPPMWindow",
-                        xml.attributes().value("compoundPPMWindow").toString().toFloat());
+                settings->setValue("cmpdMassAccValue",
+                        xml.attributes().value("cmpdMassAccValue").toString().toFloat());
+                settings->setValue("cmpdMassAccType",
+                        xml.attributes().value("cmpdMassAccType").toString().toFloat());
                 settings->setValue("compoundRTWindow",
                         xml.attributes().value("compoundRTWindow").toString().toFloat());
                 settings->setValue("eicMaxGroups", xml.attributes().value("eicMaxGroups").toString().toInt());

@@ -855,23 +855,23 @@ mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
         return d;
 }
 
-bool mzSlice::calculateMzMinMax(float CompoundppmWindow, int charge) {
-    
-    float ppmScale = 1e6;
+bool mzSlice::calculateMzMinMax(pair<string,double> pr, int charge) {
 
     //Calculating the mzmin and mzmax
     if (!this->compound->formula.empty()) {
         //Computing the mass if the formula is given
         double mass = MassCalculator::computeMass(this->compound->formula, charge);
-        this->mzmin = mass - CompoundppmWindow * mass / ppmScale;
-        this->mzmax = mass + CompoundppmWindow * mass / ppmScale;
+        double massAcc = mzUtils::getMassAcc(pr,mass);
+        this->mzmin = mass - massAcc;
+        this->mzmax = mass + massAcc;
 
     } else if (this->compound->mass > 0) {
         // Mass already present in the compound DB then using
         // it to find the mzmin and mzmax
         double mass = this->compound->mass;
-        this->mzmin = mass - CompoundppmWindow * mass / ppmScale;
-        this->mzmax = mass + CompoundppmWindow * mass / ppmScale;
+        double massAcc = mzUtils::getMassAcc(pr,mass);
+        this->mzmin = mass - massAcc;
+        this->mzmax = mass + massAcc;
     } else {
         // Not adding the compound if the formula is not given
         // and if the mass is also not given
@@ -1196,19 +1196,6 @@ EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel) {
         e->rtmax = e->rt[ e->size()-1];
     }
     return(e);
-}
-
-float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 ) {
-
-        float ppm1 = ppm*mz1/1e6;
-        float ppm2 = ppm*mz2/1e6;
-        int mslevel=1;
-        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel);
-        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel);
-        float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
-        delete(e1);
-        delete(e2);
-        return correlation;
 }
 
 //compute correlation between two mzs within some retention time window

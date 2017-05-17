@@ -88,6 +88,7 @@ public:
 	 */
 	void cleanup();
 	vector<mzSample*> getVisibleSamples();
+	pair<string,double> getCmpdMassAccPair();
 
 	bool writeCSVFlag;
 	bool alignSamplesFlag;
@@ -140,7 +141,8 @@ public:
 	/**
 	 * eic window around compound, compound detection setting
 	 */
-	float compoundPPMWindow;
+	float cmpdMassAccValue;
+	int cmpdMassAccType;
 	float compoundRTWindow;
 	int eicMaxGroups;
 

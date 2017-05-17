@@ -217,7 +217,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
                 // //Calculating the mzmin and mzmax
                 bool success  = \
-                slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, \
+                slice->calculateMzMinMax(mavenParameters->getCmpdMassAccPair(), \
                                                 mavenParameters->ionizationMode*mavenParameters->charge);
                 if (!success) continue;
 
@@ -261,12 +261,11 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            float mzmin = isotopeMass -
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
-            float mzmax = isotopeMass +
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
+            pair<string,double> pr = mavenParameters->getCmpdMassAccPair();
+            float massAcc = mzUtils::getMassAcc(pr,isotopeMass);
+
+            float mzmin = isotopeMass - massAcc;
+            float mzmax = isotopeMass + massAcc;
 
             float rt = parentgroup->medianRt();
             float rtmin = parentgroup->minRt;
@@ -332,7 +331,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                 * mavenParameters->avgScanTime;
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
-                    mavenParameters->compoundPPMWindow, rtmin - w,
+                    mavenParameters->getCmpdMassAccPair(), rtmin - w,
                     rtmax + w);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;
@@ -483,12 +482,11 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            float mzmin = isotopeMass -
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
-            float mzmax = isotopeMass +
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
+            pair<string,double> pr = mavenParameters->getCmpdMassAccPair();
+            float massAcc = mzUtils::getMassAcc(pr,isotopeMass);
+
+            float mzmin = isotopeMass - massAcc;
+            float mzmax = isotopeMass + massAcc;
 
             float rt = parentgroup->medianRt();
             float rtmin = parentgroup->minRt;
@@ -554,7 +552,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                 * mavenParameters->avgScanTime;
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
-                    mavenParameters->compoundPPMWindow, rtmin - w,
+                    mavenParameters->getCmpdMassAccPair(), rtmin - w,
                     rtmax + w);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;

@@ -690,8 +690,14 @@ void MainWindow::saveSettingsToLog() {
 
     summary << "ionizationMode=" << mavenParameters->ionizationMode << "\n";
     summary << "matchRtFlag=" << mavenParameters->matchRtFlag << "\n";
-    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow
-            << "\n";
+    summary << "compoundMassAcc=" << mavenParameters->cmpdMassAccValue << " ";
+
+				switch(mavenParameters->cmpdMassAccType) {
+					case 0: summary << "ppm\n"; break;
+					case 1: summary << "mDa\n"; break;
+					default: summary << "ppm\n"; break; 
+				}
+
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
             << "\n";
@@ -1853,8 +1859,11 @@ void MainWindow::readSettings() {
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
 
-    if (!settings->contains("compoundPPMWindow"))
-        settings->setValue("compoundPPMWindow", 20);
+    if (!settings->contains("cmpdMassAccVal"))
+        settings->setValue("cmpdMassAccVal", 20);
+
+	if (!settings->contains("cmpdMassAccType"))
+        settings->setValue("cmpdMassAccType", 0);
 
     if (!settings->contains("compoundRTWindow"))
         settings->setValue("compoundRTWindow", 2);
@@ -1968,8 +1977,8 @@ void MainWindow::readSettings() {
 		settings->setValue("D2Labeled_IsoWidget", 2);
 
     //Main window right hand top
-    if (!settings->contains("ppmWindowBox"))
-        settings->setValue("ppmWindowBox", 5);
+    if (!settings->contains("massAccValueBox"))
+        settings->setValue("massAccValueBox", 5);
 
 	if (!settings->contains("massAccTypeBox"))
         settings->setValue("massAccTypeBox", 0);
@@ -3237,6 +3246,8 @@ void MainWindow::getLinks(Peak* peak) {
 
 	vector<mzLink> links = peak->findCovariants();
 	pair<string,double> pr = getMassAccPair(); 
+	pair<string,double> temppr = make_pair("ppm",5); 
+
 	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, pr, ionizationMode);
 	for (int i = 0; i < linksX.size(); i++)
 		links.push_back(linksX[i]);
@@ -3246,7 +3257,7 @@ void MainWindow::getLinks(Peak* peak) {
 	float rtmax = peak->rtmax + 1;
 	for (int i = 0; i < links.size(); i++) {
 		links[i].correlation = sample->correlation(links[i].mz1, links[i].mz2,
-				5, rtmin, rtmax);
+				temppr, rtmin, rtmax);
 	}
 
 	//matching compounds

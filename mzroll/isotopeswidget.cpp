@@ -174,7 +174,8 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 				workerThread->peakDetector.getMavenParameters();
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundPPMWindow = _mw->massAccValueBox->value();
+		mavenParameters->cmpdMassAccValue = _mw->massAccValueBox->value();
+		mavenParameters->cmpdMassAccType = _mw->massAccTypeBox->currentIndex();
 		// if (_mw->getIonizationMode()) {
 		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
 		// } else {
@@ -203,7 +204,8 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 				workerThreadBarplot->peakDetector.getMavenParameters();
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundPPMWindow = _mw->massAccValueBox->value();
+		mavenParameters->cmpdMassAccValue = _mw->massAccValueBox->value();
+		mavenParameters->cmpdMassAccType = _mw->massAccTypeBox->currentIndex();
 		// if (_mw->getIonizationMode()) {
 		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
 		// } else {

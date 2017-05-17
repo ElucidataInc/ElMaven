@@ -312,8 +312,10 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
-            compoundPPMWindow->setValue(
-                settings->value("compoundPPMWindow").toDouble());
+            cmpdMassAccValue->setValue(
+                settings->value("cmpdMassAccValue").toDouble());
+            cmpdMassAccType->setCurrentIndex(
+                settings->value("cmpdMassAccType").toInt());
             compoundRTWindow->setValue(
                 settings->value("compoundRTWindow").toDouble());
             eicMaxGroups->setValue(settings->value("eicMaxGroups").toInt());
@@ -375,7 +377,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         // EIC extraction windows ppm value that is set in the main
         // window is been set to the GUI
-        compoundPPMWindow->setValue(mainwindow->massAccValueBox->value());
+        cmpdMassAccValue->setValue(mainwindow->massAccValueBox->value());
+        cmpdMassAccType->setCurrentIndex(mainwindow->massAccTypeBox->currentIndex());
         QDialog::exec();
     }
 }
@@ -498,7 +501,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("deltaRTWeight", deltaRTWeight->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
-    settings->setValue("compoundPPMWindow", compoundPPMWindow->value());
+    settings->setValue("cmpdMassAccValue", cmpdMassAccValue->value());
+    settings->setValue("cmpdMassAccType", cmpdMassAccType->currentIndex());
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
     settings->setValue("eicMaxGroups", eicMaxGroups->value());
     // Automated Peak Detection
@@ -572,7 +576,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow").toDouble();
+        mavenParameters->cmpdMassAccValue = settings->value("cmpdMassAccValue").toDouble();
+        mavenParameters->cmpdMassAccType = settings->value("cmpdMassAccType").toInt();
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
 

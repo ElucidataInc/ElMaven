@@ -28,15 +28,15 @@ void TestMzSlice::testCalculateMzMaxMinWithCF() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
-    float ppmScale = 1e6;
 
     float mass = 663.109131 + 1.007;
-    float mzMin = mass - compoundPPMWindow * mass / ppmScale;
-    float mzMax = mass + compoundPPMWindow * mass / ppmScale;
+    float massAcc = mzUtils::getMassAcc(pr,mass);
+    float mzMin = mass - massAcc;
+    float mzMax = mass + massAcc;
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
     QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
     common::floatCompare(slice->mzmax,mzMax));
@@ -46,16 +46,16 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
     vector<Compound*> compounds = common::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
-    float ppmScale = 1e6;
 
-    float mzMin = compounds[0]->mass - compoundPPMWindow * compounds[0]->mass / ppmScale;
-    float mzMax = compounds[0]->mass + compoundPPMWindow * compounds[0]->mass / ppmScale;
+    float massAcc = mzUtils::getMassAcc(pr,compounds[0]->mass);
+    float mzMin = compounds[0]->mass - massAcc;
+    float mzMax = compounds[0]->mass + massAcc;
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
     QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
     common::floatCompare(slice->mzmax,mzMax));
@@ -67,10 +67,10 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[1];
     compounds[1]->mass = 0;
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
 
-    QVERIFY(!slice->calculateMzMinMax(compoundPPMWindow, ionizationMode));
+    QVERIFY(!slice->calculateMzMinMax(pr, ionizationMode));
 }
 
 void TestMzSlice::testcalculateRTMinMaxWithRTandEnabled() {

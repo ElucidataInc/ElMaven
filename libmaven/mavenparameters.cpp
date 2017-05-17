@@ -49,7 +49,8 @@ MavenParameters::MavenParameters() {
 	intensityWeight=10;
 	deltaRTWeight=10;
 
-        compoundPPMWindow = 10;
+        cmpdMassAccValue = 10;
+        cmpdMassAccType = 0;
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
 
@@ -93,6 +94,16 @@ vector<mzSample*> MavenParameters::getVisibleSamples() {
 		}
 	}
 	return vsamples;
+}
+
+pair<string,double> MavenParameters::getCmpdMassAccPair() {
+        pair<string,double> pr;
+        switch(cmpdMassAccType) {
+                case 0: pr = make_pair("ppm",cmpdMassAccValue); break;
+                case 1: pr = make_pair("mDa",cmpdMassAccValue); break;
+                default: pr = make_pair("ppm",cmpdMassAccValue); break;
+        }
+        return pr;
 }
 
 void MavenParameters::setAverageScanTime() {
@@ -145,6 +156,11 @@ void MavenParameters::printSettings() {
 
 
 //compound detection setting
-        cerr << "#compoundPPMWindow=" << compoundPPMWindow << endl;
+        cerr << "#compoundMassAcc=" << cmpdMassAccValue << endl;
+        switch(cmpdMassAccType) {
+                case 0: cerr << "ppm\n"; break;
+                case 1: cerr << "mDa\n"; break;
+                default: cerr << "ppm\n"; break; 
+	}
         cerr << "#compoundRTWindow=" << compoundRTWindow << endl;
 }

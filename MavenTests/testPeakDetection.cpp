@@ -30,7 +30,8 @@ void TestPeakDetection::testProcessCompound() {
     vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
 
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundPPMWindow = 10;
+    mavenparameters->cmpdMassAccValue = 10;
+    mavenparameters->cmpdMassAccType = 0;
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;
@@ -46,7 +47,7 @@ void TestPeakDetection::testProcessCompound() {
 void TestPeakDetection::testPullEICs() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
+    pair<string,double> pr = make_pair("ppm",10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -61,7 +62,7 @@ void TestPeakDetection::testPullEICs() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[2];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(pr, ionizationMode);
 
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;
@@ -105,7 +106,8 @@ void TestPeakDetection::testpullIsotopes() {
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->compoundPPMWindow = 10;
+    mavenparameters->cmpdMassAccValue = 10;
+    mavenparameters->cmpdMassAccType = 0;
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;
