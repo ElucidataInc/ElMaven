@@ -30,15 +30,23 @@ void SpectraMatching::findMatches() {
     */
 }
 
+pair<string,double> SpectraMatching::getPrecursorMassAccPair() {
+    pair<string,double> pr;
+    pr = make_pair(precursorMassAccType->currentText().toStdString(),precursorMassAccValue->value());
+    return pr;
+}
+
+pair<string,double> SpectraMatching::getProductMassAccPair() {
+    pair<string,double> pr;
+    pr = make_pair(productMassAccType->currentText().toStdString(),productMassAccValue->value());
+    return pr;
+}
+
 void SpectraMatching::getFormValues() {
     qDebug() << "SpectraMatching::getFormValues() ";
 
     //get precursor mass
     _precursorMz = this->precursorMz->text().toDouble();
-
-    //get tollerance
-    _precursorPPM = this->precursorPPM->value();
-    _productPPM   = this->productPPM->value();
 
     //get scan type
    _msScanType=0;
@@ -204,6 +212,7 @@ void SpectraMatching::doSearch() {
 
 void SpectraMatching::addHit(double score, float precursormz, QString samplename, int matchCount, Scan* scan,QVector<double>&mzs,QVector<double>&ints) {
        SpectralHit hit;
+       pair<string,double> _productpr = getProductMassAccPair();
        hit.score = score;
        hit.precursorMz=precursormz;
        hit.sampleName=samplename;
@@ -211,14 +220,17 @@ void SpectraMatching::addHit(double score, float precursormz, QString samplename
        hit.scan = scan;
        hit.mzList = mzs;
        hit.intensityList=ints;
-       hit.productPPM=_productPPM;
+       hit.productMassAccPair=_productpr;
        matches.push_back(hit);
 }
 
 double SpectraMatching::scoreScan(Scan* scan) {
 
     if (_msScanType  > 0 && scan->mslevel != _msScanType) return 0;
-    if (_precursorMz > 0 && mzUtils::ppmDist(_precursorMz,(double)scan->precursorMz) > _precursorPPM) return 0;
+    pair<string,double> _precursorpr = getPrecursorMassAccPair();
+    pair<string,double> _productpr = getProductMassAccPair();
+    double _precursorMassAcc = mzUtils::getMassAcc(_precursorpr,_precursorMz);
+    if (_precursorMz > 0 && mzUtils::massDiff(_precursorMz,(double)scan->precursorMz) > _precursorMassAcc) return 0;
 
    float score=0;
    int matchCount=0;
@@ -232,7 +244,7 @@ double SpectraMatching::scoreScan(Scan* scan) {
    QVector<float> x;
    QVector<float> y;
    for(int i=0; i < N; i++ ) {
-       int pos = scan->findHighestIntensityPos(_mzsList[i],_productPPM);
+       int pos = scan->findHighestIntensityPos(_mzsList[i],_productpr);
        if (pos >= 0) {
            matchCount++;
             if(Nc==0) { score += log(scan->intensity[pos]); }
@@ -297,6 +309,7 @@ double SpectraMatching::matchPattern(Scan* scan) {
 
    //sliding window pattern search.. compare pattern to every peak in a scan
    int hitCount=0;
+   pair<string,double> productpr = getProductMassAccPair();
    for(int i=0; i<scan->nobs(); i++) {
 
        //first value to match
@@ -306,7 +319,7 @@ double SpectraMatching::matchPattern(Scan* scan) {
        int matchCount=0;
        for(int j=0; j < deltaListGiven.size(); j++ ) {
            double expectedMz = startMz - deltaListGiven[j];
-           int   pos = scan->findHighestIntensityPos(expectedMz,_productPPM);
+           int   pos = scan->findHighestIntensityPos(expectedMz,productpr);
 
            if(pos >= 0 ) {
                matchCount++;

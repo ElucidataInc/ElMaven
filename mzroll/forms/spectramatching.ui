@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
+    <width>604</width>
     <height>492</height>
    </rect>
   </property>
@@ -14,14 +14,163 @@
    <string>Spectra Matching</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="2">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Algorithm</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="3">
+    <widget class="QPushButton" name="findButton">
+     <property name="text">
+      <string>Find Matching Spectra</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="0">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="4">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>List of mz values OR List of mz intensity pairs seperated by commas</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="algorithm">
+     <item>
+      <property name="text">
+       <string>Fragment Search</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Isotopic Pattern Search</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QSpinBox" name="minPeakMatches">
+     <property name="suffix">
+      <string> peaks</string>
+     </property>
+     <property name="minimum">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <number>1000000000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="1">
+    <widget class="QPushButton" name="exportButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Export Results</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QSpinBox" name="productMassAccValue">
+     <property name="suffix">
+      <string> </string>
+     </property>
+     <property name="prefix">
+      <string>+/- </string>
+     </property>
+     <property name="maximum">
+      <number>100000</number>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="5">
+    <widget class="QPlainTextEdit" name="fragmentsText">
+     <property name="backgroundVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Precurrsor m/z </string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Scan Type:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="20" column="0" colspan="4">
+    <widget class="QTreeWidget" name="resultTable">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>false</bool>
+     </property>
+     <column>
+      <property name="text">
+       <string>Score</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Scan#</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>precursorMz</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>matchedPeaks</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>intensityList</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QSpinBox" name="precursorMassAccValue">
+     <property name="suffix">
+      <string/>
+     </property>
+     <property name="prefix">
+      <string>+/- </string>
+     </property>
+     <property name="maximum">
+      <number>10000</number>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
     <widget class="QComboBox" name="scanTypeComboBox">
      <item>
       <property name="text">
@@ -70,176 +219,55 @@
      </item>
     </widget>
    </item>
-   <item row="20" column="0" colspan="3">
-    <widget class="QTreeWidget" name="resultTable">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>false</bool>
-     </property>
-     <column>
-      <property name="text">
-       <string>Score</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Scan#</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>precursorMz</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>matchedPeaks</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>intensityList</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="11" column="0" colspan="4">
-    <widget class="QPlainTextEdit" name="fragmentsText">
-     <property name="backgroundVisible">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Algorithm</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="3">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>List of mz values OR List of mz intensity pairs seperated by commas</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QSpinBox" name="productPPM">
-     <property name="suffix">
-      <string> ppm</string>
-     </property>
-     <property name="prefix">
-      <string>+/- </string>
-     </property>
-     <property name="maximum">
-      <number>100000</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Precurrsor m/z </string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Mass Tollerance</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QSpinBox" name="precursorPPM">
-     <property name="suffix">
-      <string> ppm</string>
-     </property>
-     <property name="prefix">
-      <string>+/- </string>
-     </property>
-     <property name="maximum">
-      <number>10000</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Precursor Mass  Tollerance</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QComboBox" name="algorithm">
-     <item>
-      <property name="text">
-       <string>Fragment Search</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Isotopic Pattern Search</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="21" column="2">
-    <widget class="QPushButton" name="findButton">
-     <property name="text">
-      <string>Find Matching Spectra</string>
-     </property>
-    </widget>
-   </item>
-   <item row="21" column="0">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0">
     <widget class="QLineEdit" name="precursorMz"/>
    </item>
-   <item row="7" column="2">
+   <item row="7" column="3">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>Match At Least X peaks</string>
      </property>
     </widget>
    </item>
+   <item row="1" column="2">
+    <widget class="QComboBox" name="productMassAccType">
+     <item>
+      <property name="text">
+       <string>ppm</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>mDa</string>
+      </property>
+     </item>
+    </widget>
+   </item>
    <item row="8" column="2">
-    <widget class="QSpinBox" name="minPeakMatches">
-     <property name="suffix">
-      <string> peaks</string>
-     </property>
-     <property name="minimum">
-      <number>2</number>
-     </property>
-     <property name="maximum">
-      <number>1000000000</number>
+    <widget class="QComboBox" name="precursorMassAccType">
+     <item>
+      <property name="text">
+       <string>ppm</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>mDa</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Precursor Mass  Tollerance</string>
      </property>
     </widget>
    </item>
-   <item row="21" column="1">
-    <widget class="QPushButton" name="exportButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="0" column="1" colspan="2">
+    <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Export Results</string>
+      <string>Mass Tollerance</string>
      </property>
     </widget>
    </item>

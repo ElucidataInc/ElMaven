@@ -196,7 +196,7 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,float product
 	hit.score = 0;
 	hit.matchCount=0;
 	hit.sampleName="";
-    hit.productPPM=1;
+    hit.productMassAccPair=make_pair("ppm",1);
     hit.precursorMz=record.monoisotopicMZ();
 	hit.scan = _currentScan;
 	
@@ -231,7 +231,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
         hit.precursorMz = c->precursorMz;
         hit.matchCount=0;
         hit.sampleName="";
-        hit.productPPM=1000;
+        hit.productMassAccPair=make_pair("ppm",1000);
         hit.scan=NULL;
         for(int i=0; i < c->fragment_mzs.size();i++)        hit.mzList << c->fragment_mzs[i];
         for(int i=0; i < c->fragment_intensity.size();i++)  hit.intensityList<< c->fragment_intensity[i];
@@ -260,7 +260,7 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         repaint();
 
         double focusMz = hit.mzList.first();
-        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productPPM);
+        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productMassAccPair);
         if(pos>=0) {
                 _focusCoord.setX(focusMz);
                 _focusCoord.setY(_currentScan->intensity[pos]);
@@ -287,15 +287,15 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
 
 void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
 
-    float ppmWindow = hit.productPPM;
+    pair<string,double> pr = hit.productMassAccPair;
     double maxIntensityHit= hit.getMaxIntensity();
 
-    qDebug() << "overlaySpectra() started.." <<  ppmWindow << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
+    qDebug() << "overlaySpectra() started.." << maxIntensityHit <<  " " << hit.mzList.size() << endl;
     QPen redpen(Qt::red, 3);
     QPen bluepen(Qt::blue, 3);
 
     for(int i=0; i < hit.mzList.size(); i++) {
-        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],ppmWindow);
+        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],pr);
 
 
         double hitIntensity=0;

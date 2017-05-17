@@ -22,14 +22,13 @@ class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
         void exportMatches();
         double scoreScan(Scan* scan);
         double matchPattern(Scan* scan);
-
+        pair<string,double> getPrecursorMassAccPair();
+        pair<string,double> getProductMassAccPair();
 
     private:
         MainWindow *mainwindow;
         int _msScanType;
         double _precursorMz;
-        float _precursorPPM;
-        float _productPPM;
         QVector<double> _mzsList;
         QVector<double> _intensityList;
         QVector<double> _intensityMinErr;
