@@ -2860,7 +2860,7 @@ void MainWindow::showFragmentationScans(float pmz) {
 		for (unsigned int j = 0; j < samples[i]->scans.size(); j++) {
 			float massAcc = getUserMassAcc(samples[i]->scans[j]->precursorMz);
 			if (samples[i]->scans[j]->mslevel > 1
-					&& massAccDist(samples[i]->scans[j]->precursorMz, pmz) < massAcc) {
+					&& massDiff(samples[i]->scans[j]->precursorMz, pmz) < massAcc) {
 				fragPanel->addScanItem(samples[i]->scans[j]);
 			}
 		}

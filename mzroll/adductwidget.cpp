@@ -214,10 +214,10 @@ bool AdductWidget::linkExists(float mz1, float mz2, pair<string,double> pr) {
 	Q_FOREACH( mzLink* link, links ) {
 		float massAcc1 = mzUtils::getMassAcc(pr,link->mz1);
 		float massAcc2 = mzUtils::getMassAcc(pr,link->mz2);
-		if ( mzUtils::massAccDist(link->mz1,mz1) < massAcc1  && mzUtils::massAccDist(link->mz2,mz2) < massAcc2) {
+		if ( mzUtils::massDiff(link->mz1,mz1) < massAcc1 && mzUtils::massDiff(link->mz2,mz2) < massAcc2) {
 				return true;
 		}
-		if ( mzUtils::massAccDist(link->mz2,mz1) < massAcc2 && mzUtils::massAccDist(link->mz1,mz2) < massAcc1) {
+		if ( mzUtils::massDiff(link->mz2,mz1) < massAcc2 && mzUtils::massDiff(link->mz1,mz2) < massAcc1) {
 				return true;
 		}
 	} 

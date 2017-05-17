@@ -412,7 +412,7 @@ namespace mzUtils {
      */
     double ppmDist(const double mz1, const double mz2);
 
-    double massAccDist(const double mz1, const double mz2);
+    double massDiff(const double mz1, const double mz2);
 
     /**
      * [ppmround ]

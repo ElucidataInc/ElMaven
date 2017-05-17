@@ -400,7 +400,7 @@ Series:  Prentice-Hall Series in Automatic Computation
         return ( abs((mz2-mz1)/(mz1/1e6)) );
     }
 
-    double massAccDist(const double mz1, const double mz2) {
+    double massDiff(const double mz1, const double mz2) {
         return ( abs(mz2-mz1) );
     }
 

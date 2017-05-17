@@ -123,17 +123,21 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
-        <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
-        </property>
-        <property name="text">
-         <string>ppm</string>
-        </property>
+       <widget class="QComboBox" name="maxMassAccTypeDiff">
+        <item>
+         <property name="text">
+          <string>ppm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>mDa</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="maxppmdiff">
+       <widget class="QDoubleSpinBox" name="maxMassAccValDiff">
         <property name="maximum">
          <double>10000.000000000000000</double>
         </property>
