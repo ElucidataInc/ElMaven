@@ -78,7 +78,8 @@ void SpectraWidget::setCurrentScan(Scan* scan) {
         _scanset.clear();
 
         if (scan->mslevel == 1) {
-            chargeStates=_currentScan->assignCharges(mainwindow->getUserPPM());
+            pair<string,double> pr = this->mainwindow->getMassAccPair(); 
+            chargeStates = _currentScan->assignCharges(pr);
         }
     }
 }
@@ -780,10 +781,11 @@ void SpectraWidget::setMzFocus(float mz) {
     //int bestMatch=-1;
     //float bestMatchDiff=FLT_MAX;
 
-	float ppm= mainwindow->getUserPPM();
+	pair<string,double> pr = mainwindow->getMassAccPair();
+    float massAcc = mainwindow->getUserMassAcc(mz);
 
 	if (_currentScan->mslevel==1) {
-		int pos = _currentScan->findHighestIntensityPos(mz,ppm);
+		int pos = _currentScan->findHighestIntensityPos(mz,pr);
 		if(pos>=0) { 
 			float bestMz = _currentScan->mz[pos];
 			mainwindow->setMzValue(bestMz);
@@ -798,8 +800,8 @@ void SpectraWidget::setMzFocus(float mz) {
 			mainwindow->massCalcWidget->setMass(bestMz);
 
 	} else if (!_currentScan->filterLine.empty() ) {
-		float mzmin = mz - mz/1e6*ppm;
-		float mzmax = mz + mz/1e6*ppm;
+		float mzmin = mz - massAcc;
+		float mzmax = mz + massAcc;
     	mzSlice eicSlice = mainwindow->getEicWidget()->getParameters()->getMzSlice();
         mzSlice slice(mzmin,mzmax,eicSlice.rtmin,eicSlice.rtmax); 
 		slice.srmId=_currentScan->filterLine;
@@ -976,7 +978,8 @@ void SpectraWidget::annotateScan() {
 */
 
 void SpectraWidget::assignCharges() {
-    chargeStates = _currentScan->assignCharges(mainwindow->getUserPPM());
+    pair<string,double> pr = this->mainwindow->getMassAccPair();  
+    chargeStates = _currentScan->assignCharges(pr);
 }
 
 void SpectraWidget::annotateScan() {
@@ -1130,7 +1133,7 @@ void SpectraWidget::gotoScan() {
 		}
 }
 
-vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, int ionizationMode) {
+vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, pair<string,double> pr, int ionizationMode) {
 
     vector<mzLink> links;
     //check for possible C13s
@@ -1163,12 +1166,12 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
     	if(frag->charge != 0 && SIGN(frag->charge) != SIGN(ionizationMode) ) continue;
         float mzMinus=centerMz-frag->mass;
         float mzPlus =centerMz+frag->mass;
-        if( scan->hasMz(mzPlus,ppm)) {
+        if( scan->hasMz(mzPlus,pr)) {
             QString noteText = tr("%1 Fragment").arg(QString(DB.fragmentsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,mzPlus,noteText.toStdString()));
         }
 
-        if( scan->hasMz(mzMinus,ppm)) {
+        if( scan->hasMz(mzMinus,pr)) {
             QString noteText = tr("%1 Fragment").arg(QString(DB.fragmentsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,mzMinus,noteText.toStdString()));
         }
@@ -1180,7 +1183,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
         float parentMass=DB.adductsDB[i]->computeParentMass(centerMz);
         parentMass += ionizationMode*HMASS;   //adjusted mass
 
-        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,ppm)) {
+        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,pr)) {
             cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
             QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,parentMass,noteText.toStdString()));
@@ -1192,7 +1195,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
     	if ( SIGN(DB.adductsDB[i]->charge) != SIGN(ionizationMode) ) continue;
         float parentMass = centerMz-ionizationMode*HMASS;   //adjusted mass
         float adductMass=DB.adductsDB[i]->computeAdductMass(parentMass);
-        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,ppm)) {
+        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,pr)) {
             QString noteText = tr("Adduct %1").arg(QString(DB.adductsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,adductMass,noteText.toStdString()));
         }

@@ -135,9 +135,9 @@ bool SpectralHitsDockWidget::hasSpectralHit(SpectralHit* group) {
 */
 //TODO: Sahil, Added while merging mzfileio
 void SpectralHitsDockWidget::limitPrecursorMz(float pMZ) {
-    float ppm = _mainwindow->getUserPPM();
+    pair<string,double> pr = _mainwindow->getMassAccPair();
     for(int i=0; i < allhits.size(); i++ ) {
-        if (mzUtils::withinXppm(pMZ,allhits[i]->precursorMz,ppm) ) {
+        if (mzUtils::withinXmassAcc(pMZ,allhits[i]->precursorMz,pr) ) {
             allhits[i]->isFocused=true;
         } else {
             allhits[i]->isFocused=false;
@@ -343,9 +343,9 @@ void SpectralHitsDockWidget::showSelectedGroup() {
 
         _mainwindow->setPeptideSequence( hit->getModPeptideString() );
 
-        float ppmWindow=hit->precursorMz/1e6*_mainwindow->getUserPPM();
-        float mzmin = hit->precursorMz -ppmWindow;
-        float mzmax = hit->precursorMz +ppmWindow;
+        float massAcc = _mainwindow->getUserMassAcc(hit->precursorMz);
+        float mzmin = hit->precursorMz - massAcc;
+        float mzmax = hit->precursorMz + massAcc;
 
         if(hit->rt > 0) {
              mzSlice slice(mzmin,mzmax,hit->rt-3,hit->rt+3);
@@ -923,7 +923,7 @@ void SpectralHitsDockWidget::integrateMS1() {
     vector <mzSample*> samples = _mainwindow->getVisibleSamples();
     if (samples.size() == 0) return;
 
-   float ppm = _mainwindow->getUserPPM();
+   pair<string,double> pr = _mainwindow->getMassAccPair();
    float rtWinMin = 3;
 
    QSettings *settings 		= _mainwindow->getSettings();
@@ -942,8 +942,8 @@ void SpectralHitsDockWidget::integrateMS1() {
        QString peptideId = hit->fragmentId;
 
        if(! peptideMap.count(peptideId)) {
-           float amuTol = hit->precursorMz/1e6*ppm;
-           mzSlice slice(hit->precursorMz-amuTol,hit->precursorMz+amuTol, hit->rt-rtWinMin, hit->rt+rtWinMin);
+           float massAcc = mzUtils::getMassAcc(pr,hit->precursorMz);
+           mzSlice slice(hit->precursorMz-massAcc,hit->precursorMz+massAcc, hit->rt-rtWinMin, hit->rt+rtWinMin);
            slice.rt = hit->rt;
            slice.ionCount = 1;
 

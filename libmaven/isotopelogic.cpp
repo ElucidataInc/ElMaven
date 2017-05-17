@@ -17,7 +17,7 @@ void IsotopeLogic::userChangedFormula() {
 	_compound = tempCompound;
 }
 
-float IsotopeLogic::getIsotopeIntensity(float mz, double ppm) {
+float IsotopeLogic::getIsotopeIntensity(float mz, pair<string,double> pr) {
 	float highestIntensity = 0;
 
 	if (_scan == NULL)
@@ -28,8 +28,8 @@ float IsotopeLogic::getIsotopeIntensity(float mz, double ppm) {
 
 	for (int i = _scan->scannum - 2; i < _scan->scannum + 2; i++) {
 		Scan* s = sample->getScan(i);
-		vector<int> matches = s->findMatchingMzs(mz - mz / 1e6 * ppm,
-				mz + mz / 1e6 * ppm);
+		float massAcc = mzUtils::getMassAcc(pr,mz);
+		vector<int> matches = s->findMatchingMzs(mz - massAcc, mz + massAcc);
 		for (unsigned int i = 0; i < matches.size(); i++) {
 			int pos = matches[i];
 			if (s->intensity[pos] > highestIntensity)
@@ -39,12 +39,12 @@ float IsotopeLogic::getIsotopeIntensity(float mz, double ppm) {
 	return highestIntensity;
 }
 
-void IsotopeLogic::computeIsotopes(string f, double ppm,
+void IsotopeLogic::computeIsotopes(string f, pair<string,double> pr,
 		double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, bool S34Labeled, 
 		bool D2Labeled, map<string, bool> isotopeAtom, int noOfIsotopes) {
 
 	double parentMass = MassCalculator::computeMass(f, _charge);
-	float parentPeakIntensity = getIsotopeIntensity(parentMass, ppm);
+	float parentPeakIntensity = getIsotopeIntensity(parentMass, pr);
 
 	vector<Isotope> isotopes = MassCalculator::computeIsotopes(f, _charge, isotopeAtom, noOfIsotopes);
 	for (unsigned int i = 0; i < isotopes.size(); i++) {
@@ -61,7 +61,7 @@ void IsotopeLogic::computeIsotopes(string f, double ppm,
 			if (expectedAbundance < 1e-8)
 				continue;
 			// if (expectedAbundance * parentPeakIntensity < 500) continue;
-			float isotopePeakIntensity = getIsotopeIntensity(x.mass, ppm);
+			float isotopePeakIntensity = getIsotopeIntensity(x.mass, pr);
 
 			float observedAbundance = isotopePeakIntensity
 					/ (parentPeakIntensity + isotopePeakIntensity);
@@ -76,7 +76,7 @@ void IsotopeLogic::computeIsotopes(string f, double ppm,
 		link.mz2 = x.mass;
 		link.note = x.name;
 		link.value1 = x.abundance;
-		link.value2 = getIsotopeIntensity(x.mass, ppm);
+		link.value2 = getIsotopeIntensity(x.mass, pr);
 		links.push_back(link);
 	}
 

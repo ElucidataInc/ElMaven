@@ -412,6 +412,8 @@ namespace mzUtils {
      */
     double ppmDist(const double mz1, const double mz2);
 
+    double massAccDist(const double mz1, const double mz2);
+
     /**
      * [ppmround ]
      * @method ppmround
@@ -430,6 +432,10 @@ namespace mzUtils {
      * @return []
      */
     bool withinXppm(float mz1, float mz2, int ppmWindow);
+
+    bool withinXmassAcc( float mz1, float mz2, pair<string,double> pr);
+
+    double getMassAcc(pair<string,double> pr, double mass);
 
     /* file system functions */
     /**

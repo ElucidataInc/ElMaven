@@ -1594,11 +1594,11 @@ void TableDockWidget::saveModel() {
 
 void TableDockWidget::findMatchingCompounds() { 
     //matching compounds
-    float ppm = _mainwindow->getUserPPM();
+    pair<string,double> pr = _mainwindow->getMassAccPair();
     float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& g = allgroups[i];
-        QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, 
+        QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, pr, 
                     _mainwindow->mavenParameters->ionizationMode*_mainwindow->mavenParameters->charge);
         if (compounds.size() > 0 ) Q_FOREACH( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
         //cerr << g.meanMz << " " << compounds.size() << endl;
@@ -2010,7 +2010,7 @@ void TableDockWidget::clusterGroups() {
     double maxRtDiff =  clusterDialog->maxRtDiff_2->value();
     double minSampleCorrelation =  clusterDialog->minSampleCorr->value();
     double minRtCorrelation = clusterDialog->minRt->value();
-    double ppm	= _mainwindow->getUserPPM();
+    pair<string,double> pr	= _mainwindow->getMassAccPair();
 
     vector<mzSample*> samples = _mainwindow->getSamples();
 
@@ -2059,7 +2059,7 @@ void TableDockWidget::clusterGroups() {
             if (cor < minSampleCorrelation) continue;
 
             //peak shape correlation
-            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt);
+            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,pr,grup1.minRt,grup1.maxRt);
             if (cor2 < minRtCorrelation) continue;
 
             //passed all the filters.. group grup1 and grup2 into a single metagroup

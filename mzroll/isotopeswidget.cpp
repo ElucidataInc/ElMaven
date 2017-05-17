@@ -125,7 +125,6 @@ void IsotopeWidget::computeIsotopes(string f) {
 		isotopeParameters->links.clear();
 
 	QSettings* settings = _mw->getSettings();
-	double ppm = _mw->getUserPPM();
 
 	//N TODO:remove unneeded settings
 	double maxIsotopeScanDiff =
@@ -139,7 +138,9 @@ void IsotopeWidget::computeIsotopes(string f) {
 	bool S34Labeled = settings->value("S34Labeled_BPE").toBool();
 	bool D2Labeled = settings->value("D2Labeled_BPE").toBool();
 
-	isotopeParameters->computeIsotopes(f, ppm, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
+	pair<string,double> pr = _mw->getMassAccPair();
+
+	isotopeParameters->computeIsotopes(f, pr, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
 												_mw->mavenParameters->isotopeAtom, _mw->mavenParameters->noOfIsotopes);
 	showTable();
 }
@@ -173,7 +174,7 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 				workerThread->peakDetector.getMavenParameters();
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundPPMWindow = _mw->getUserPPM();
+		mavenParameters->compoundPPMWindow = _mw->massAccValueBox->value();
 		// if (_mw->getIonizationMode()) {
 		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
 		// } else {
@@ -202,7 +203,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group) {
 				workerThreadBarplot->peakDetector.getMavenParameters();
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundPPMWindow = _mw->getUserPPM();
+		mavenParameters->compoundPPMWindow = _mw->massAccValueBox->value();
 		// if (_mw->getIonizationMode()) {
 		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
 		// } else {
@@ -392,10 +393,10 @@ void IsotopeWidget::showInfo() {
 	float mz = __mz.toDouble();
 
 	if (mz > 0) {
-		double ppm = _mw->getUserPPM();
 		mzSlice slice = _mw->getEicWidget()->getParameters()->getMzSlice();
-		slice.mzmin = mz - mz / 1e6 * ppm;
-		slice.mzmax = mz + mz / 1e6 * ppm;
+		double massAcc = _mw->getUserMassAcc(mz);
+		slice.mzmin = mz - massAcc;
+		slice.mzmax = mz + massAcc;
 		if (isotopeParameters->_compound)
 			slice.compound = isotopeParameters->_compound;
 		if (!isotopeParameters->_compound)

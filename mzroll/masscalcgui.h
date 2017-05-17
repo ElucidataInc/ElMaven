@@ -30,6 +30,7 @@ public Q_SLOTS:
 	  void setPPM(float ppm);
       void compute();
 	  QSet<Compound*> findMathchingCompounds(float mz, float ppm, float charge);
+        QSet<Compound*> findMathchingCompounds(float mz, pair<string,double> pr, float charge);
 
 private Q_SLOTS:
       void showCellInfo(int row, int col, int lrow, int lcol);

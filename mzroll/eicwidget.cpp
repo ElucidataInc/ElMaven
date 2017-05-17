@@ -1401,7 +1401,6 @@ void EicWidget::setCompound(Compound* c) {
 	int ionizationMode = samples[0]->getPolarity();
 	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
 
-	float ppm = getMainWindow()->getUserPPM();
 	float mz = 0;
 
 	if (!c->formula.empty()) {
@@ -1415,8 +1414,10 @@ void EicWidget::setCompound(Compound* c) {
 	//    mz =mcalc.adjustMass(c->mass,ionizationMode);
 	//}
 
-	float minmz = mz - mz / 1e6 * ppm;
-	float maxmz = mz + mz / 1e6 * ppm;
+	float massAcc = getMainWindow()->getUserMassAcc(mz);
+
+	float minmz = mz - massAcc;
+	float maxmz = mz + massAcc;
 	float rtmin = eicParameters->_slice.rtmin;
 	float rtmax = eicParameters->_slice.rtmax;
 
@@ -1529,9 +1530,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
 	// if (group->minMz != eicParameters->_slice.mzmin
 	// 		|| group->maxMz != eicParameters->_slice.mzmax) {
-	double ppm = getMainWindow()->getUserPPM();
-	eicParameters->_slice.mzmin = eicParameters->_slice.mz - (eicParameters->_slice.mz/1e6*ppm);
-	eicParameters->_slice.mzmax = eicParameters->_slice.mz + (eicParameters->_slice.mz/1e6*ppm);
+	double massAcc = getMainWindow()->getUserMassAcc(eicParameters->_slice.mz);
+	eicParameters->_slice.mzmin = eicParameters->_slice.mz - massAcc;
+	eicParameters->_slice.mzmax = eicParameters->_slice.mz + massAcc;
 	recompute();
 	// }
 
@@ -1546,20 +1547,23 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	addPeakPositions(group);
 }
 
-void EicWidget::setPPM(double ppm) {
+void EicWidget::setEICMassAcc() {
 	//qDebug <<"EicWidget::setPPM(double ppm) ";
 	mzSlice x = eicParameters->_slice;
 	if (x.mz <= 0)
 		x.mz = x.mzmin + (x.mzmax - x.mzmin) / 2.0;
-	x.mzmin = x.mz - x.mz / 1e6 * ppm;
-	x.mzmax = x.mz + x.mz / 1e6 * ppm;
+	
+	double massAcc = getMainWindow()->getUserMassAcc(x.mz);
+
+	x.mzmin = x.mz - massAcc;
+	x.mzmax = x.mz + massAcc;
 	setMzSlice(x);
 }
 
 void EicWidget::setMzSlice(float mz) {
 
-	double ppm = getMainWindow()->getUserPPM();
-	mzSlice x = eicParameters->setMzSlice(mz, ppm);
+	pair<string,double> pr = getMainWindow()->getMassAccPair();
+	mzSlice x = eicParameters->setMzSlice(mz, pr);
 	setMzSlice(x);
 }
 
@@ -2040,7 +2044,6 @@ void EicWidget::addMS2Events(float mzmin, float mzmax) {
     vector <mzSample*> samples = mw->getVisibleSamples();
 
     if (samples.size() <= 0 ) return;
-    float ppm = mw->getUserPPM();
 
     mw->fragPanel->clearTree();
     int count=0;

@@ -207,7 +207,7 @@ void PathwayWidget::checkCompoundExistance() {
 	if (checkList.size() > 0) {
 		mavenParameters->setSamples(samples);
 		mavenParameters->setCompounds(checkList);
-		mavenParameters->compoundPPMWindow = mw->getUserPPM();
+		mavenParameters->compoundPPMWindow = mw->massAccValueBox->value();
 		workerThread->setRunFunction("computePeaks");
 
 		mavenParameters->minGoodGroupCount = 1;

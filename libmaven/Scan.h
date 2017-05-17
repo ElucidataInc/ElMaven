@@ -53,6 +53,8 @@ class Scan{
          * @return [highest intensity value for an m/z with a ppm window]
          */
         int findHighestIntensityPos(float mz, float ppm);
+        
+        int findHighestIntensityPos(float mz, pair<string,double> pr);
 
         /**
          * [highest intensity pos nearest to the cente mz]
@@ -70,7 +72,7 @@ class Scan{
          * @param  ppm   [ppm window]
          * @return [returns true if input m/z exists, otherwise false]
          */
-        bool hasMz(float mz, float ppm);
+        bool hasMz(float mz, pair<string,double> pr);
 
         /**
          * [Checks if the data is centroided]
@@ -121,7 +123,9 @@ class Scan{
          */
         vector<pair<float,float> > getTopPeaks(float minFracCutoff,float minSigNoiseRatio,int dropTopX);
 
-        vector<int>assignCharges(float ppmTolr); //TODO: Sahil, Added while merging spectrawidget
+        vector<int> assignCharges(pair<string,double> pr); //TODO: Sahil, Added while merging spectrawidget
+
+        vector<int> assignCharges(float ppmTolr);
 
         /**
          * [generate multi charges series..endingin in change Zx,Mx]

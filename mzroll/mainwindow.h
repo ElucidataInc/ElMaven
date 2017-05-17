@@ -134,7 +134,8 @@ public:
 	QSet<QString> SaveMzrollListvar;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
-	QDoubleSpinBox *ppmWindowBox;
+	QDoubleSpinBox *massAccValueBox;
+	QComboBox *massAccTypeBox;
 	QLineEdit *searchText;
 	QComboBox *ionizationModeComboBox;
 	QSpinBox *ionChargeBox;
@@ -260,6 +261,7 @@ public:
 
 	bool updateSamplePathinMzroll(QStringList filelist);
 	void setValue(int value);
+	pair<string,double> getMassAccPair();
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
@@ -360,10 +362,7 @@ public Q_SLOTS:
 	}
 	void setTotalCharge();
 
-	void setUserPPM(double x);
-	double getUserPPM() {
-		return _ppmWindow;
-	}
+	double getUserMassAcc(double mass);
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
 	TableDockWidget* addPeaksTable(QString title);

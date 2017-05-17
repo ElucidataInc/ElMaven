@@ -537,9 +537,15 @@ using namespace mzUtils;
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
   // value
-	setUserPPM(5);
-	if (settings->contains("ppmWindowBox")) {
-		setUserPPM(settings->value("ppmWindowBox").toDouble());
+	massAccValueBox->setValue(5);
+	massAccTypeBox->setCurrentIndex(0);
+	if (settings->contains("massAccValueBox")) {
+		massAccValueBox->setValue(
+			settings->value("massAccValueBox").toDouble());
+	}
+	if (settings->contains("massAccTypeBox")) {
+		massAccTypeBox->setCurrentIndex(
+			settings->value("massAccTypeBox").toInt());
 	}
 
 	QRectF view = settings->value("mzslice").value<QRectF>();
@@ -1098,10 +1104,6 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 // 	}
 // 	return panel;
 // }
-
-void MainWindow::setUserPPM(double x) {
-	_ppmWindow = x;
-}
 
 void MainWindow::setIonizationMode(int x) {
 	_ionizationMode = x;
@@ -1969,6 +1971,9 @@ void MainWindow::readSettings() {
     if (!settings->contains("ppmWindowBox"))
         settings->setValue("ppmWindowBox", 5);
 
+	if (!settings->contains("massAccTypeBox"))
+        settings->setValue("massAccTypeBox", 0);
+
     if (!settings->contains("mzslice"))
         settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
 
@@ -2007,7 +2012,8 @@ void MainWindow::readSettings() {
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
-	settings->setValue("ppmWindowBox", ppmWindowBox->value());
+	settings->setValue("massAccValueBox", massAccValueBox->value());
+	settings->setValue("massAccTypeBox", massAccTypeBox->currentIndex());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
@@ -2203,15 +2209,19 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QWidget(hBox), 15); // spacer
 
 	//ppmValue
-	ppmWindowBox = new QDoubleSpinBox(hBox);
-	ppmWindowBox->setRange(0.00, 100000.0);
-	ppmWindowBox->setValue(settings->value("ppmWindowBox").toDouble());
-	ppmWindowBox->setSingleStep(0.5);	//ppm step
-	ppmWindowBox->setToolTip("PPM (parts per million) Window");
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)), this,
-			SLOT(setUserPPM(double)));
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)), eicWidget,
-			SLOT(setPPM(double)));
+	massAccValueBox = new QDoubleSpinBox(hBox);
+	massAccValueBox->setRange(0.00, 100000.0);
+	massAccValueBox->setValue(settings->value("massAccValueBox").toDouble());
+	massAccValueBox->setSingleStep(0.5);	//ppm step
+	massAccValueBox->setToolTip("PPM (parts per million) Window");
+	connect(massAccValueBox, SIGNAL(valueChanged(double)), eicWidget, SLOT(setEICMassAcc()));
+
+	massAccTypeBox = new QComboBox(hBox);
+	massAccTypeBox->addItem("ppm");
+	massAccTypeBox->addItem("mDa");
+	massAccTypeBox->setCurrentIndex(settings->value("massAccTypeBox").toInt());
+	massAccTypeBox->setToolTip("Select Mass Accuracy Type");
+	connect(massAccTypeBox, SIGNAL(currentIndexChanged(int)), eicWidget, SLOT(setEICMassAcc()));
 
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(200);
@@ -2283,7 +2293,8 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
 	layout->addWidget(new QLabel("+/-", 0, 0));
-	layout->addWidget(ppmWindowBox, 0);
+	layout->addWidget(massAccValueBox, 0);
+	layout->addWidget(massAccTypeBox, 0);
 
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
@@ -2346,6 +2357,22 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+pair<string,double> MainWindow::getMassAccPair() {
+
+	pair<string, double> pr;
+	pr = make_pair(massAccTypeBox->currentText().toStdString(), massAccValueBox->value());
+	return pr;
+
+}
+
+double MainWindow::getUserMassAcc(double mass) {
+
+	pair<string, double> pr = getMassAccPair();
+	double massAcc = mzUtils::getMassAcc(pr,mass);
+	return massAcc;
+
 }
 
 void MainWindow::refreshIntensities() {
@@ -2509,7 +2536,7 @@ void MainWindow::Align() {
 				"eic_smoothingWindow").toInt();
 	}
 
-	//mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
+	//mavenParameters->eic_ppmWindow = massAccValueBox->value();(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();
@@ -2824,15 +2851,16 @@ void MainWindow::showFragmentationScans(float pmz) {
 
 	if (!fragPanel || fragPanel->isVisible() == false)
 		return;
-	float ppm = getUserPPM();
 
 	if (samples.size() <= 0)
 		return;
 	fragPanel->clearTree();
+
 	for (unsigned int i = 0; i < samples.size(); i++) {
 		for (unsigned int j = 0; j < samples[i]->scans.size(); j++) {
+			float massAcc = getUserMassAcc(samples[i]->scans[j]->precursorMz);
 			if (samples[i]->scans[j]->mslevel > 1
-					&& ppmDist(samples[i]->scans[j]->precursorMz, pmz) < ppm) {
+					&& massAccDist(samples[i]->scans[j]->precursorMz, pmz) < massAcc) {
 				fragPanel->addScanItem(samples[i]->scans[j]);
 			}
 		}
@@ -3207,11 +3235,9 @@ void MainWindow::getLinks(Peak* peak) {
 	if (getIonizationMode())
 		ionizationMode = getIonizationMode(); //user specified ionization mode
 
-	float ppm = getUserPPM();
-
 	vector<mzLink> links = peak->findCovariants();
-	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, ppm,
-			ionizationMode);
+	pair<string,double> pr = getMassAccPair(); 
+	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, pr, ionizationMode);
 	for (int i = 0; i < linksX.size(); i++)
 		links.push_back(linksX[i]);
 
@@ -3226,7 +3252,7 @@ void MainWindow::getLinks(Peak* peak) {
 	//matching compounds
 	for (int i = 0; i < links.size(); i++) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
-				links[i].mz2, ppm, mavenParameters->ionizationMode*mavenParameters->charge);
+				links[i].mz2, pr, mavenParameters->ionizationMode*mavenParameters->charge);
 		if (compunds.size() > 0)
 			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}

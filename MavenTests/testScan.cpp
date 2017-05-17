@@ -163,10 +163,11 @@ void TestScan::testsimpleCentroid() {
 void TestScan::testhasMz() {
 
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
+    pair<string,double> pr = make_pair("ppm",10000);
     initScan (scan);
-    QVERIFY(scan->hasMz(2.1,10000));
-    QVERIFY(!scan->hasMz(1.0,10000));
-    QVERIFY(!scan->hasMz(9,10000));
+    QVERIFY(scan->hasMz(2.1,pr));
+    QVERIFY(!scan->hasMz(1.0,pr));
+    QVERIFY(!scan->hasMz(9,pr));
 }
 
 void TestScan::testchargeSeries() {

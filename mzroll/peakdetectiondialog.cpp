@@ -375,7 +375,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         // EIC extraction windows ppm value that is set in the main
         // window is been set to the GUI
-        compoundPPMWindow->setValue(mainwindow->getUserPPM());
+        compoundPPMWindow->setValue(mainwindow->massAccValueBox->value());
         QDialog::exec();
     }
 }

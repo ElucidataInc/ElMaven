@@ -119,6 +119,26 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
 	return uniqset;
 }
 
+QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, pair<string,double> pr, float charge) {
+	if (sortedcompounds.size() != DB.compoundsDB.size() ) { setupSortedCompoundsDB(); }
+
+	QSet<Compound*>uniqset;
+    MassCalculator mcalc;
+    Compound x("find", "", "",0);
+    x.mass = mz-2;
+    vector<Compound*>::iterator itr = lower_bound(sortedcompounds.begin(), sortedcompounds.end(), &x, Compound::compMass);
+
+	//cerr << "findMathchingCompounds() mz=" << mz << " ppm=" << ppm << " charge=" <<  charge;
+    for(;itr != sortedcompounds.end(); itr++ ) {
+        Compound* c = *itr; if (!c) continue;
+        double cmass = MassCalculator::computeMass(c->formula, charge);
+        double massAcc = mzUtils::getMassAcc(pr,(double)cmass);
+        if ( mzUtils::massAccDist((double) cmass, (double) mz) < massAcc && !uniqset.contains(c) ) uniqset << c;
+        if (cmass > mz+2) break;
+	}
+	return uniqset;
+}
+
 void MassCalcWidget::getMatches() {
     int charge = _mw->mavenParameters->ionizationMode*_mw->mavenParameters->charge;
 	QSet<Compound*> compounds = findMathchingCompounds(_mz,_ppm,charge);

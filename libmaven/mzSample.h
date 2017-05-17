@@ -382,7 +382,10 @@ class mzLink {
              * @param  rt2         [retention time for second sample]
              * @return [correlation]
              */
+            float correlation(float mz1,  float mz2, pair<string,double> pr, float rt1, float rt2 );
+
             float correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 );
+
 
             /**
              * [get normalization constant]

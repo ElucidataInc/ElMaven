@@ -53,12 +53,13 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
 	EIC::removeLowRankGroups(peakgroups, 50);
 }
 
-mzSlice EICLogic::setMzSlice(float mz, double ppm) {
+mzSlice EICLogic::setMzSlice(float mz, pair<string,double> pr) {
 
 	mzSlice x(_slice.mzmin, _slice.mzmax, _slice.rtmin, _slice.rtmax);
 	x.mz = mz;
-	x.mzmin = mz - mz / 1e6 * ppm;
-	x.mzmax = mz + mz / 1e6 * ppm;
+	float massAcc = mzUtils::getMassAcc(pr,mz);
+	x.mzmin = mz - massAcc;
+	x.mzmax = mz + massAcc;
 	return x;
 }
 

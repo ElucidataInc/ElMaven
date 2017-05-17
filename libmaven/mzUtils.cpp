@@ -400,7 +400,9 @@ Series:  Prentice-Hall Series in Automatic Computation
         return ( abs((mz2-mz1)/(mz1/1e6)) );
     }
 
-
+    double massAccDist(const double mz1, const double mz2) {
+        return ( abs(mz2-mz1) );
+    }
 
     float ppmround(const float mz1, const float resolution) {
         //resolution parameter =10  -> one digit after decimal point,
@@ -413,6 +415,27 @@ Series:  Prentice-Hall Series in Automatic Computation
     bool withinXppm( float mz1, float mz2, int ppmWindow ) {
         if ( mz2 > (mz1 - (mz1/1e6)*ppmWindow) && mz2 < (mz1 + (mz1/1e6)*ppmWindow) ) return(true);
         else return(false);
+    }
+
+    bool withinXmassAcc( float mz1, float mz2, pair<string,double> pr ) {
+        double massAcc;
+        int temp = (int)pr.second;
+	    if(pr.first == "ppm") massAcc = (mz1 * temp) / 1e6;
+	    else if(pr.first == "mDa") massAcc = temp / 1e3;
+	    else massAcc = (mz1 * temp) / 1e6;
+
+        if ( mz2 > (mz1 - massAcc) && mz2 < (mz1 + massAcc) ) return(true);
+        else return(false);
+    }
+
+    double getMassAcc(pair<string,double> pr, double mass) {
+
+        double massAcc;
+	    if(pr.first == "ppm") massAcc = (mass * pr.second) / 1e6;
+	    else if(pr.first == "mDa") massAcc = pr.second / 1e3;
+	    else massAcc = (mass * pr.second) / 1e6;
+        return massAcc;
+
     }
 
     vector<float> quantileDistribution( vector<float> y ) {

@@ -60,6 +60,25 @@ int Scan::findHighestIntensityPos(float _mz, float ppm) {
         return bestPos;
 }
 
+int Scan::findHighestIntensityPos(float _mz, pair<string,double> pr) {
+        float massAcc = mzUtils::getMassAcc(pr,_mz);
+        float mzmin = _mz - massAcc;
+        float mzmax = _mz + massAcc;
+
+        vector<float>::iterator itr = lower_bound(mz.begin(), mz.end(), mzmin-1);
+        int lb = itr-mz.begin();
+        int bestPos=-1;  float highestIntensity=0;
+        for(unsigned int k=lb; k < nobs(); k++ ) {
+                if (mz[k] < mzmin) continue;
+                if (mz[k] > mzmax) break;
+                if (intensity[k] > highestIntensity ) {
+                        highestIntensity=intensity[k];
+                        bestPos=k;
+                }
+        }
+        return bestPos;
+}
+
 /*
 @author: Sahil
 */
@@ -201,9 +220,10 @@ void Scan::updateIntensityWithTheLocalMaximas(vector<float> *cMz, vector<float> 
     intensity.swap(*cIntensity);
 }
 
-bool Scan::hasMz(float _mz, float ppm) {
-    float mzmin = _mz - _mz/1e6*ppm;
-    float mzmax = _mz + _mz/1e6*ppm;
+bool Scan::hasMz(float _mz, pair<string,double> pr) {
+    float massAcc = mzUtils::getMassAcc(pr,_mz);
+    float mzmin = _mz - massAcc;
+    float mzmax = _mz + massAcc;
 	vector<float>::iterator itr = lower_bound(mz.begin(), mz.end(), mzmin);
 	//cerr << _mz  << " k=" << lb << "/" << mz.size() << " mzk=" << mz[lb] << endl;
 	for(unsigned int k=itr-mz.begin(); k < nobs(); k++ ) {
@@ -444,6 +464,99 @@ string Scan::toMGF() {
     buffer << "END IONS" << endl;
     //cout << buffer;
     return buffer.str();
+}
+
+vector<int> Scan::assignCharges(pair<string,double> pr) {
+    if ( nobs() == 0) {
+        vector<int>empty;
+        return empty;
+    }
+
+    int N = nobs(); //current scan size
+    vector<int>chargeStates (N,0);
+    vector<int>peakClusters = vector<int>(N,0);
+    vector<int>parentPeaks = vector<int>(N,0);
+    int clusterNumber=0;
+
+    //order intensities from high to low
+    vector<int>intensityOrder = intensityOrderDesc();
+    double NMASS=C13_MASS-12.00;
+
+    //a little silly, required number of peaks in a series in already to call a charge
+                          //z=0,   z=1,    z=2,   z=3,    z=4,   z=5,    z=6,     z=7,   z=8,
+    int minSeriesSize[9] = { 1,     2,     3,      3,      3,     4,      4,       4,     5  } ;
+
+    //for every position in a scan
+    for(int i=0; i < N; i++ ) {
+        int pos=intensityOrder[i];
+        float centerMz = mz[pos];
+        float centerInts = intensity[pos];
+       // float ppm = (0.125/centerMz)*1e6;
+       // float ppm = ppmTolr*2;
+       // cerr << pos << " " <<  centerMz << " " << centerInts << " " << clusterNumber << endl;
+        if (chargeStates[pos] != 0) continue;  //charge already assigned
+
+        //check for charged peak groups
+        int bestZ=0; int maxSeriesIntenisty=0;
+        vector<int>bestSeries;
+
+
+        //determine most likely charge state
+        for(int z=5; z>=1; z--) {
+            float delta = NMASS/z;
+            int zSeriesIntensity=centerInts;
+            vector<int>series;
+
+
+            for(int j=1; j<6; j++) { //forward
+                float mz=centerMz+(j*delta);
+                float massAcc = 2 * mzUtils::getMassAcc(pr,mz);
+                int matchedPos = findHighestIntensityPos(mz,massAcc);
+                if (matchedPos>0 && intensity[matchedPos]<centerInts) {
+                    series.push_back(matchedPos);
+                    zSeriesIntensity += intensity[matchedPos];
+                } else break;
+            }
+
+            for(int j=1; j<3; j++) {  //back
+                float mz=centerMz-(j*delta);
+                float massAcc = 2 * mzUtils::getMassAcc(pr,mz);
+                int matchedPos = findHighestIntensityPos(mz,massAcc);
+                if (matchedPos>0 && intensity[matchedPos]<centerInts) {
+                    series.push_back(matchedPos);
+                    zSeriesIntensity += intensity[matchedPos];
+                } else break;
+            } 
+            //cerr << endl;
+            if (zSeriesIntensity>maxSeriesIntenisty) { bestZ=z; maxSeriesIntenisty=zSeriesIntensity; bestSeries=series; }
+        }
+
+        //if ( i < 50) cerr << centerMz << " " << bestZ << " " << bestSeries.size() << " " << minSeriesSize[bestZ] << endl;
+
+        //series with highest intensity is taken to be be the right one
+        if(bestZ > 0 and bestSeries.size() >= minSeriesSize[bestZ] ) {
+            clusterNumber++;
+            int parentPeakPos=pos;
+            for(unsigned int j=0; j<bestSeries.size();j++) {
+                int brother_pos =bestSeries[j];
+                if(bestZ > 1 and mz[brother_pos] < mz[parentPeakPos]
+                        and intensity[brother_pos] < intensity[parentPeakPos]
+                        and intensity[brother_pos] > intensity[parentPeakPos]*0.25)
+                        parentPeakPos=brother_pos;
+                chargeStates[brother_pos]=bestZ;
+                peakClusters[brother_pos]=clusterNumber;
+             }
+
+           //if ( i < 50 ) cerr << "c12parent: " << mz[parentPeakPos] << endl;
+            peakClusters[parentPeakPos]=clusterNumber;
+            parentPeaks[parentPeakPos]=bestZ;
+
+
+            //cerr << "z-series: " <<  mz[pos] << endl;
+            //cerr << "parentPeak=" << mz[parentPeakPos] << " " << bestZ << endl;
+        }
+    }
+    return parentPeaks;
 }
 
 vector<int> Scan::assignCharges(float ppmTolr) {
