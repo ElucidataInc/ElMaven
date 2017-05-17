@@ -30,6 +30,9 @@ int main(int argc, char** argv) {
     if (freopen("testCSVReports.xml", "w", stdout))
         result |= QTest::qExec(new TestCSVReports, argc, argv);
 
+    if(freopen("testCLI.xml",  "w", stdout))
+        result |= QTest::qExec(new TestCLI, argc, argv);
+
     if (freopen("testPeakDetection.xml", "w", stdout))
         result |= QTest::qExec(new TestPeakDetection, argc, argv);
 
@@ -50,9 +53,6 @@ int main(int argc, char** argv) {
 
     if(freopen("testMzFit.xml",  "w", stdout))
         result |= QTest::qExec(new TestMzFit, argc, argv);
-
-    if(freopen("testCLI.xml",  "w", stdout))
-        result |= QTest::qExec(new TestCLI, argc, argv);
 
     // freopen("testMzAligner.xml",  "w", stdout);
     // result |= QTest::qExec(new TestMzAligner, argc, argv);
