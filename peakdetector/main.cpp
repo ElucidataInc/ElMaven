@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	peakdetectorCLI->peakDetector->setMavenParameters(peakdetectorCLI->mavenParameters);
 
 	//load compounds file
-	peakdetectorCLI->loadCompoundsFile();
+	if (peakdetectorCLI->mavenParameters->processAllSlices == false) peakdetectorCLI->loadCompoundsFile();
 
 	//load files
 	peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
@@ -39,12 +39,13 @@ int main(int argc, char *argv[]) {
 
 
 	//process compound list
-	if (peakdetectorCLI->mavenParameters->compounds.size()) {
+	if (peakdetectorCLI->mavenParameters->compounds.size() && !peakdetectorCLI->mavenParameters->processAllSlices) {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
 				peakdetectorCLI->mavenParameters->compounds, "compounds");
 		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-		if (peakdetectorCLI->mavenParameters->pullIsotopesFlag) peakdetectorCLI->peakDetector->pullAllIsotopes();
-		peakdetectorCLI->writeReport("compounds");
+		if (peakdetectorCLI->mavenParameters->pullIsotopesFlag) {
+			peakdetectorCLI->peakDetector->pullAllIsotopes();
+		}
 		delete_all(slices);
 	}
 
@@ -53,6 +54,11 @@ int main(int argc, char *argv[]) {
 		peakdetectorCLI->mavenParameters->matchRtFlag = false;
 		peakdetectorCLI->mavenParameters->checkConvergance = true;
 		peakdetectorCLI->peakDetector->processMassSlices();
+	}
+
+	//write report
+	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
+		peakdetectorCLI->writeReport("compounds");
 	}
 
 	//cleanup

@@ -223,7 +223,7 @@ struct Arguments {
 		peakDialogArgs << "float" << "minGroupIntensity" << "5000";
 		peakDialogArgs << "float" << "quantileIntensity" << "0.0";
 		peakDialogArgs << "string" << "model" << "0";
-		peakDialogArgs << "int" << "eicMaxGroups" << "INT_MAX";
+		peakDialogArgs << "int" << "eicMaxGroups" << "1000000";
 		peakDialogArgs << "float" << "ppmMerge" << "30";
 		peakDialogArgs << "float" << "minQuality" << "0.5";
 		peakDialogArgs << "float" << "quantileQuality" << "0.0";
