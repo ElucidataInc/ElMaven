@@ -712,11 +712,7 @@ void TableDockWidget::exportJson() {
 
 void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mzSample*> vsamples) {
 
-    //QTime timer1;
-    //QTime timer2;
-    int eic_time=0,total_time=0;
     double mz,mzmin,mzmax,rtmin,rtmax;
-    //timer1.start();
 
     myfile << setprecision(10);
     myfile << "{\n";
@@ -832,9 +828,8 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
             myfile << ",\n" << "\"peakRank\": " << "NA" ;
             myfile << ",\n" << "\"peakWidth\": " << "NA" ;
         }
-        myfile.flush();
+
         EIC* eic=NULL;
-        //timer2.restart();
         //TODO: replace this by putting mzSlice pointer in peakgroup and using that
         if (grp.hasCompoundLink()) {
             if ( !grp.srmId.empty() ) { //MS-MS case 1
@@ -875,7 +870,6 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
             rtmax = grp.maxRt + outputRtWindow;
             eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1);
         }
-        //eic_time+=timer2.elapsed();
 
         //TODO: for MS1 we've already limited RT range, but for MS/MS the entire RT range of the SRM will be output
         //either check here or edit getEIC functionality
@@ -914,9 +908,6 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
     myfile << "\n]" ; //peaks
 
     myfile << "}" ; //group
-    //total_time=timer1.elapsed();
-    //cerr << "jsonGroup: eic: " << eic_time << " ms file total: " << total_time << " ms\n";//ratio " << 1.0*eic_time/total_time << "\n";
-
 }
 
 
