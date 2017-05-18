@@ -22,7 +22,8 @@ MavenParameters::MavenParameters() {
         fragmentMatchPPMTolr = 1000;
         mzBinStep = 0.01;
         rtStepSize = 20;
-        ppmMerge = 30;
+        autoMassAccValue = 30;
+        autoMassAccType = 0;
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -106,6 +107,16 @@ pair<string,double> MavenParameters::getCmpdMassAccPair() {
         return pr;
 }
 
+pair<string,double> MavenParameters::getAutoMassAccPair() {
+        pair<string,double> pr;
+        switch(autoMassAccType) {
+                case 0: pr = make_pair("ppm",autoMassAccValue); break;
+                case 1: pr = make_pair("mDa",autoMassAccValue); break;
+                default: pr = make_pair("ppm",autoMassAccValue); break;
+        }
+        return pr;
+}
+
 void MavenParameters::setAverageScanTime() {
         if (samples.size() > 0)
                 avgScanTime = samples[0]->getAverageFullScanTime();
@@ -138,7 +149,12 @@ void MavenParameters::printSettings() {
         cerr << "#showProgressFlag=" << showProgressFlag << endl;
 
         cerr << "#rtStepSize=" << rtStepSize << endl;
-        cerr << "#ppmMerge=" << ppmMerge << endl;
+        cerr << "#AutomatedMassAcc=" << autoMassAccValue;
+        switch(autoMassAccType) {
+                case 0: cerr << "ppm\n"; break;
+                case 1: cerr << "mDa\n"; break;
+                default: cerr << "ppm\n"; break; 
+	}
         cerr << "#avgScanTime=" << avgScanTime << endl;
 
 //peak detection
@@ -156,7 +172,7 @@ void MavenParameters::printSettings() {
 
 
 //compound detection setting
-        cerr << "#compoundMassAcc=" << cmpdMassAccValue << endl;
+        cerr << "#compoundMassAcc=" << cmpdMassAccValue;
         switch(cmpdMassAccType) {
                 case 0: cerr << "ppm\n"; break;
                 case 1: cerr << "mDa\n"; break;

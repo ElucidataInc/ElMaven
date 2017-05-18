@@ -64,7 +64,8 @@ int ionizationMode = -1;
 
 //mass slice detection
 int rtStepSize = 10;
-float ppmMerge = 30;
+float autoMassAcc = 30;
+pair<string,double> autoMassAccPair = make_pair("ppm",30);
 float avgScanTime = 0.2;
 
 //peak detection
@@ -372,7 +373,7 @@ void processOptions(int argc, char* argv[]) {
 							"n?eicMaxGroups <int>",
 							"l?list  <string>",
 							"o?outputdir <string>",
-							"p?ppmMerge <float>",
+							"p?autoMassAcc <float>",
 							"r?rtStepSize <float>",
                             "s?savemzroll <int>",
 							"q:minQuality <float>",
@@ -459,7 +460,7 @@ void processOptions(int argc, char* argv[]) {
 			break;
 
 		case 'p':
-			mavenParameters->ppmMerge = atof(optarg);
+			mavenParameters->autoMassAccValue = atof(optarg);
 			break;
 
 		case 'q':
@@ -700,10 +701,11 @@ void reduceGroups() {
             if( grup2.deletedFlag) continue;
 
 			float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt, grup2.minRt, grup2.maxRt );
-			float ppmdist = ppmDist(grup2.meanMz, grup1.meanMz);
-		    if ( ppmdist > ppmMerge ) break;
+			float massDiff = mzUtils::massDiff(grup2.meanMz, grup1.meanMz);
+			float massAcc = mzUtils::getMassAcc(autoMassAccPair,grup2.meanMz);
+		    if ( massDiff > massAcc ) break;
 
-			if (rtoverlap > 0.8 && ppmdist < ppmMerge) {
+			if (rtoverlap > 0.8 && massDiff < massAcc) {
 				if (grup1.maxIntensity <= grup2.maxIntensity) {
                      grup1.deletedFlag = true;
 					 //allgroups.erase(allgroups.begin()+i);
@@ -955,7 +957,7 @@ void writeParametersXML(xml_node& parent) {
 			mavenParameters->ligandDbFilename.c_str();
 	p.append_attribute("clsfModelFilename") = clsfModelFilename.c_str();
 	p.append_attribute("rtStepSize") = mavenParameters->rtStepSize;
-	p.append_attribute("ppmMerge") = mavenParameters->ppmMerge;
+	p.append_attribute("autoMassAcc") = mavenParameters->autoMassAccValue;
 	p.append_attribute("eic_smoothingWindow") =
 			mavenParameters->eic_smoothingWindow;
 	p.append_attribute("grouping_maxRtWindow") =

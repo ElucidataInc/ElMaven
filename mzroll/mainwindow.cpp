@@ -671,7 +671,14 @@ void MainWindow::saveSettingsToLog() {
 
     summary << "--------------------------------MASS SLICING"<< "\n";
     summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
-    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "AutomatedMassAcc=" << mavenParameters->autoMassAccValue<< " ";
+
+				switch(mavenParameters->autoMassAccType) {
+					case 0: summary << "ppm\n"; break;
+					case 1: summary << "mDa\n"; break;
+					default: summary << "ppm\n"; break;
+				}
+ 
     summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
 
     summary << "minMz=" << mavenParameters->minMz << "\n";
@@ -1879,8 +1886,11 @@ void MainWindow::readSettings() {
         settings->setValue("featureOptions", 0);
 
     // Automated Peak Detection
-    if (!settings->contains("ppmMerge"))
-        settings->setValue("ppmMerge", 20);
+	if (!settings->contains("autoMassAccVal"))
+        settings->setValue("autoMassAccVal", 20);
+
+	if (!settings->contains("autoMassAccType"))
+        settings->setValue("autoMassAccType", 0);
 
     if (!settings->contains("rtStepSize"))
         settings->setValue("rtStepSize", 10);

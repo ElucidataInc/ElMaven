@@ -28,7 +28,7 @@ class MassSlices {
             _minRt=FLT_MIN; _minMz=FLT_MIN; _minIntensity=FLT_MIN;
             _maxRt=FLT_MAX; _maxMz=FLT_MAX; _maxIntensity=FLT_MAX;
             _minCharge=0; _maxCharge=INT_MAX;
-            _precursorPPM=1000;
+            _precursorMassAccPair=make_pair("ppm",1000);
         }
         ~MassSlices() { delete_all(slices); cache.clear(); }
 
@@ -53,10 +53,10 @@ class MassSlices {
          * @param  minIntensity []
          * @param  step         []
          */
-        void algorithmB(float ppm, int step);
+        void algorithmB(pair<string,double> pr, int step);
 
 
-        void algorithmC(float ppm, float minIntensity, float rtStep);
+        void algorithmC(pair<string,double> pr, float minIntensity, float rtStep);
         /**
          * [setMaxSlices ]
          * @method setMaxSlices
@@ -79,7 +79,6 @@ class MassSlices {
         void setMinMz	    ( float v) {  _minMz = v; }
         void setMinCharge   ( float v) {  _minCharge = v; }
         void setMaxCharge   ( float v) {  _maxCharge = v; }
-        void setPrecursorPPMTolr (float v) { _precursorPPM = v; }
 	    void setMavenParameters(MavenParameters* mp) { mavenParameters = mp;}
         void stopSlicing();
 
@@ -93,7 +92,7 @@ class MassSlices {
         float _minIntensity;
         int _minCharge;
         int _maxCharge;
-        float _precursorPPM;
+        pair<string,double> _precursorMassAccPair;
 
         vector<mzSample*> samples;
         multimap<int,mzSlice*>cache;

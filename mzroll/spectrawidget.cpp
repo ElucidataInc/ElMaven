@@ -987,7 +987,7 @@ void SpectraWidget::annotateScan() {
     float mzfocus = _focusCoord.x();
     if (mzfocus==0 || _currentScan == NULL || _currentScan->nobs() < 2 ) return;
     float noiseLevel=1;
-    float ppmMerge=100;
+    pair<string,double> pr=make_pair("ppm",100); 
     float minSigNoiseRatio=3;
     int minDeconvolutionCharge=100;
     int maxDeconvolutionCharge=500;
@@ -997,7 +997,7 @@ void SpectraWidget::annotateScan() {
 
     ChargedSpecies* x = _currentScan->deconvolute(mzfocus,
                                                   noiseLevel,
-                                                  ppmMerge,
+                                                  pr,
                                                   minSigNoiseRatio,
                                                   minDeconvolutionCharge,
                                                   maxDeconvolutionCharge,

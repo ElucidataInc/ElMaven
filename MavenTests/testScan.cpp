@@ -83,8 +83,8 @@ void TestScan::testdeepcopy() {
 void TestScan::testfindHighestIntensityPos() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
-
-    int bestpos=scan->findHighestIntensityPos(2.1, 10000);
+    pair<string,int> pr = make_pair("ppm",10000);
+    int bestpos=scan->findHighestIntensityPos(2.1, pr);
     QVERIFY(bestpos==2);
 
 }
@@ -216,8 +216,10 @@ void TestScan::testdeconvolute() {
                      88.04099,88.04099,88.04099,88.04099,88.04096,88.04095};
     scan->mz.assign(mzarr,mzarr+34);
 
-    ChargedSpecies* x=scan->deconvolute(87,4,100000,2,3,100,500,2e5,3);
-    ChargedSpecies* x1=scan->deconvolute(87,1,10000,2,3,100,500,2e5,3);
+    pair<string,double> pr = make_pair("ppm",100000);
+    pair<string,double> pr1 = make_pair("ppm",10000);
+    ChargedSpecies* x=scan->deconvolute(87,4,pr,2,3,100,500,2e5,3);
+    ChargedSpecies* x1=scan->deconvolute(87,1,pr1,2,3,100,500,2e5,3);
 
     QVERIFY(common::floatCompare(x->totalIntensity, 3423.70849609375));
     QVERIFY(x->countMatches==18);

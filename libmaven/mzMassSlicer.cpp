@@ -35,13 +35,13 @@ void MassSlices::stopSlicing() {
  * @param minIntensity [description]
  * @param rtStep       [description]
  */
-void MassSlices::algorithmB(float userPPM,int rtStep) {
+void MassSlices::algorithmB(pair<string,double> pr, int rtStep) {
     delete_all(slices);
     slices.clear();
     cache.clear();
 
 	float rtWindow=2.0;
-	this->_precursorPPM=userPPM;
+	this->_precursorMassAccPair=pr;
 
     int totalScans = 0,currentScans = 0;
     for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
@@ -84,7 +84,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             float rt = scan->rt;
 
             vector<int> charges;
-            if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(userPPM);
+            if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(pr);
 
             for(unsigned int k=0; k < scan->nobs(); k++ ) {
                 if (_maxMz and !isBetweenInclusive(scan->mz[k],_minMz,_maxMz)) continue;
@@ -92,8 +92,9 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                 if ((_minCharge or _maxCharge) and !isBetweenInclusive(charges[k],_minCharge,_maxCharge)) continue;
 
                 float mz = scan->mz[k];
-                float mzmax = mz + mz / 1e6 * _precursorPPM;
-                float mzmin = mz - mz / 1e6 * _precursorPPM;
+                float massAcc = mzUtils::getMassAcc(pr,mz);
+                float mzmax = mz + massAcc;
+                float mzmin = mz - massAcc;
 
 // #pragma omp ordered
                 mzSlice* Z = sliceExists(mz,rt);
@@ -109,8 +110,9 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 
 
                     //make sure that mz windown doesn't get out of control
-                    if (Z->mzmin < mz-(mz/1e6*userPPM)) Z->mzmin =  mz-(mz/1e6*userPPM);
-                    if (Z->mzmax > mz+(mz/1e6*userPPM)) Z->mzmax =  mz+(mz/1e6*userPPM);
+                     float tempMassAcc = mzUtils::getMassAcc(pr,mz);
+                    if (Z->mzmin < mz-tempMassAcc) Z->mzmin =  mz-tempMassAcc;
+                    if (Z->mzmax > mz+tempMassAcc) Z->mzmax =  mz+tempMassAcc;
                     Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
                     //cerr << Z->mz << " " << Z->mzmin << " " << Z->mzmax << " " << ppmDist((float)Z->mzmin,mz) << endl;
                 } else {
@@ -140,7 +142,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
     sendSignal("Mass Slices Processed", 1 , 1);
 }
 
-void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
+void MassSlices::algorithmC(pair<string,double> pr, float minIntensity, float rtWindow) {
     delete_all(slices);
     slices.clear();
     cache.clear();
@@ -156,8 +158,9 @@ void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
                 if (scan->intensity[pos] < minIntensity) continue;
                 float rt = scan->rt;
                 float mz = scan->mz[ pos ];
-                float mzmax = mz + mz/1e6*ppm;
-                float mzmin = mz - mz/1e6*ppm;
+                float massAcc = mzUtils::getMassAcc(pr,mz);
+                float mzmax = mz + massAcc;
+                float mzmin = mz - massAcc;
                 if(! sliceExists(mz,rt) ) {
                     mzSlice* s = new mzSlice(mzmin,mzmax, rt-2*rtWindow, rt+2*rtWindow);
                     s->ionCount = scan->intensity[pos];

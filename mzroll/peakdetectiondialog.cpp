@@ -321,7 +321,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             eicMaxGroups->setValue(settings->value("eicMaxGroups").toInt());
 
             // Automated Peak Detection
-            ppmStep->setValue(settings->value("ppmMerge").toDouble());
+            autoMassAccValue->setValue(settings->value("autoMassAccValue").toDouble());
+            autoMassAccType->setCurrentIndex(settings->value("autoMassAccType").toInt());
             rtStep->setValue(settings->value("rtStepSize").toDouble());
             rtMin->setValue(settings->value("minRT").toDouble());
             rtMax->setValue(settings->value("maxRT").toDouble());
@@ -506,7 +507,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
     settings->setValue("eicMaxGroups", eicMaxGroups->value());
     // Automated Peak Detection
-    settings->setValue("ppmMerge", ppmStep->value());
+    settings->setValue("autoMassAccValue", autoMassAccValue->value());
+    settings->setValue("autoMassAccType", autoMassAccType->currentIndex());
     settings->setValue("rtStepSize", rtStep->value());
     settings->setValue("minRT", rtMin->value());
     settings->setValue("maxRT", rtMax->value());
@@ -582,7 +584,8 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
 
         // Automated Peak Detection
-        mavenParameters->ppmMerge = settings->value("ppmMerge").toDouble();
+        mavenParameters->autoMassAccValue = settings->value("autoMassAccValue").toDouble();
+        mavenParameters->autoMassAccType = settings->value("autoMassAccType").toInt();
         mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
         mavenParameters->minRt = settings->value("minRT").toDouble();
         mavenParameters->maxRt = settings->value("maxRT").toDouble();

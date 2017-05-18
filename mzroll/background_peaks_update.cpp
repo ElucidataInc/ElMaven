@@ -25,7 +25,10 @@ QString BackgroundPeakUpdate::printSettings() {
 
     summary << "--------------------------------MASS SLICING"<< "\n";
     summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
-    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "autoMassAccValue=" << mavenParameters->autoMassAccValue
+            << "\n";
+    summary << "autoMassAccType=" << mavenParameters->autoMassAccType
+            << "\n";     
     summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
 
     summary << "minMz=" << mavenParameters->minMz << "\n";
@@ -116,7 +119,8 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "alignSamplesFlag"  ,   QString::number(mavenParameters->alignSamplesFlag));
 
     stream.writeAttribute( "rtStepSize" ,QString::number( mavenParameters->rtStepSize));
-    stream.writeAttribute( "ppmMerge" ,QString::number( mavenParameters->ppmMerge));
+    stream.writeAttribute( "autoMassAccValue" ,QString::number( mavenParameters->autoMassAccValue));
+    stream.writeAttribute( "autoMassAccType" ,QString::number( mavenParameters->autoMassAccType));
     stream.writeAttribute( "limitGroupCount" ,QString::number( mavenParameters->limitGroupCount));
 
     stream.writeAttribute( "minMz" ,QString::number( mavenParameters->minMz));
@@ -212,12 +216,15 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                 settings->setValue("cmpdMassAccValue",
                         xml.attributes().value("cmpdMassAccValue").toString().toFloat());
                 settings->setValue("cmpdMassAccType",
-                        xml.attributes().value("cmpdMassAccType").toString().toFloat());
+                        xml.attributes().value("cmpdMassAccType").toString().toInt());
                 settings->setValue("compoundRTWindow",
                         xml.attributes().value("compoundRTWindow").toString().toFloat());
                 settings->setValue("eicMaxGroups", xml.attributes().value("eicMaxGroups").toString().toInt());
                 // Automated Peak Detection
-                settings->setValue("ppmMerge", xml.attributes().value("ppmMerge").toString().toFloat());
+                settings->setValue("autoMassAccValue",
+                        xml.attributes().value("autoMassAccValue").toString().toFloat());
+                settings->setValue("autoMassAccType",
+                        xml.attributes().value("autoMassAccType").toString().toInt());
                 settings->setValue("rtStepSize", xml.attributes().value("rtStepSize").toString().toFloat());
                 settings->setValue("minRT", xml.attributes().value("minRt").toString().toFloat());
                 settings->setValue("maxRT", xml.attributes().value("maxRt").toString().toFloat());

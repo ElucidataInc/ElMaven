@@ -89,6 +89,7 @@ public:
 	void cleanup();
 	vector<mzSample*> getVisibleSamples();
 	pair<string,double> getCmpdMassAccPair();
+	pair<string,double> getAutoMassAccPair();
 
 	bool writeCSVFlag;
 	bool alignSamplesFlag;
@@ -113,7 +114,8 @@ public:
 	float mzBinStep;
 	float rtStepSize;
 	float avgScanTime;
-	float ppmMerge;
+	float autoMassAccValue;
+	int autoMassAccType;
 
 	//peak detection
 

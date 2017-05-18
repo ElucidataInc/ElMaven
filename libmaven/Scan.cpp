@@ -42,24 +42,6 @@ void Scan::deepcopy(Scan* b) {
 
 }
 
-int Scan::findHighestIntensityPos(float _mz, float ppm) {
-        float mzmin = _mz - _mz/1e6*ppm;
-        float mzmax = _mz + _mz/1e6*ppm;
-
-        vector<float>::iterator itr = lower_bound(mz.begin(), mz.end(), mzmin-1);
-        int lb = itr-mz.begin();
-        int bestPos=-1;  float highestIntensity=0;
-        for(unsigned int k=lb; k < nobs(); k++ ) {
-                if (mz[k] < mzmin) continue;
-                if (mz[k] > mzmax) break;
-                if (intensity[k] > highestIntensity ) {
-                        highestIntensity=intensity[k];
-                        bestPos=k;
-                }
-        }
-        return bestPos;
-}
-
 int Scan::findHighestIntensityPos(float _mz, pair<string,double> pr) {
         float massAcc = mzUtils::getMassAcc(pr,_mz);
         float mzmin = _mz - massAcc;
@@ -259,9 +241,9 @@ vector<float> Scan::chargeSeries(float Mx, unsigned int Zx) {
 }
 
 
-bool Scan::setParentPeakData(float mzfocus, float ppmMerge, float noiseLevel, float minSigNoiseRatio) {
+bool Scan::setParentPeakData(float mzfocus, pair<string,double> pr, float noiseLevel, float minSigNoiseRatio) {
     bool flag=true;
-    int mzfocus_pos = this->findHighestIntensityPos(mzfocus,ppmMerge);
+    int mzfocus_pos = this->findHighestIntensityPos(mzfocus,pr);
     if (mzfocus_pos < 0 ) { cout << "ERROR: Can't find parent " << mzfocus << endl; flag=false; return flag; }
     parentPeakIntensity=this->intensity[mzfocus_pos];
     float parentPeakSN=parentPeakIntensity/noiseLevel;
@@ -279,13 +261,13 @@ void Scan::initialiseBrotherData(int z, float mzfocus) {
         brotherdata->maxZ=z;
 }
 
-void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, float ppmMerge) {
+void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, pair<string,double> pr) {
 
             float brotherMz = (brotherdata->expectedMass+ii)/ii;
-            int pos = this->findHighestIntensityPos(brotherMz,ppmMerge);
+            int pos = this->findHighestIntensityPos(brotherMz,pr);
             float brotherIntensity = pos>=0?this->intensity[pos]:0;
             float snRatio = brotherIntensity/noiseLevel;
-            if (brotherIntensity < 1.1*(*lastIntensity) && snRatio > 2 && withinXppm(this->mz[pos]*ii-ii,brotherdata->expectedMass,ppmMerge)) {
+            if (brotherIntensity < 1.1*(*lastIntensity) && snRatio > 2 && withinXmassAcc(this->mz[pos]*ii-ii,brotherdata->expectedMass,pr)) {
                 if (loopdirection==1) {
                     brotherdata->maxZ = ii;
                     brotherdata->upCount++;
@@ -306,7 +288,7 @@ void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, b
 
 }
 
-void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, float ppmMerge,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates) {
+void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, pair<string,double> pr,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates) {
     brotherdata=&b;
     for(int z=minDeconvolutionCharge; z <= maxDeconvolutionCharge; z++ ) {
 
@@ -319,7 +301,7 @@ void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel,
         loopdirection=1;
         float lastIntensity=parentPeakIntensity;
         for(int ii=z; ii < z+50 && ii<maxDeconvolutionCharge; ii++ ) {
-            updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,ppmMerge);
+            updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,pr);
             if (flag==false)
                break;
         }
@@ -329,19 +311,19 @@ void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel,
         loopdirection=-1;
         lastIntensity=parentPeakIntensity;
         for(int ii=z-1; ii > z-50 && ii>minDeconvolutionCharge; ii--) {
-             updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,ppmMerge);
+             updateBrotherDataIfPeakFound(loopdirection,ii,&flag, &lastMatched,&lastIntensity,noiseLevel,pr);
              if (flag==false)
                  break;
         }
 
-        updateChargedSpeciesDataAndFindQScore(x, z, mzfocus,noiseLevel,ppmMerge,minChargedStates);
+        updateChargedSpeciesDataAndFindQScore(x, z, mzfocus,noiseLevel,pr,minChargedStates);
 
     }
     // done..
 }
 
 
-void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates) {
+void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, pair<string,double> pr, int minChargedStates) {
         if (x->totalIntensity < brotherdata->totalIntensity && brotherdata->countMatches>minChargedStates && brotherdata->upCount >= 2 && brotherdata->downCount >= 2 ) {
                 x->totalIntensity = brotherdata->totalIntensity;
                 x->countMatches=brotherdata->countMatches;
@@ -357,7 +339,7 @@ void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float 
 
                 float qscore=0;
                 for(int ii=brotherdata->minZ; ii <= brotherdata->maxZ; ii++ ) {
-                        int pos = this->findHighestIntensityPos( (brotherdata->expectedMass+ii)/ii, ppmMerge );
+                        int pos = this->findHighestIntensityPos( (brotherdata->expectedMass+ii)/ii, pr );
                         if (pos > 0 ) {
                                 x->observedCharges.push_back(ii);
                                 x->observedMzs.push_back( this->mz[pos] );
@@ -373,10 +355,10 @@ void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float 
         }
 }
 
-ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
+ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, pair<string,double> pr, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
 
 
-    bool flag=setParentPeakData(mzfocus,ppmMerge,noiseLevel,minSigNoiseRatio);
+    bool flag=setParentPeakData(mzfocus,pr,noiseLevel,minSigNoiseRatio);
 
         if (flag==false)
             return NULL;
@@ -386,7 +368,7 @@ ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, float ppmMerg
     for(unsigned int i=0; i<this->nobs();i++) scanTotalIntensity+=this->intensity[i];
 
     ChargedSpecies* x = new ChargedSpecies();
-    findBrotherPeaks (x, mzfocus, noiseLevel, ppmMerge, minDeconvolutionCharge, maxDeconvolutionCharge, minDeconvolutionMass, maxDeconvolutionMass, minChargedStates);
+    findBrotherPeaks (x, mzfocus, noiseLevel, pr, minDeconvolutionCharge, maxDeconvolutionCharge, minDeconvolutionMass, maxDeconvolutionMass, minChargedStates);
 
 
     if ( x->countMatches > minChargedStates ) {
@@ -477,6 +459,7 @@ vector<int> Scan::assignCharges(pair<string,double> pr) {
     vector<int>peakClusters = vector<int>(N,0);
     vector<int>parentPeaks = vector<int>(N,0);
     int clusterNumber=0;
+    pr.second = 2*pr.second;
 
     //order intensities from high to low
     vector<int>intensityOrder = intensityOrderDesc();
@@ -510,8 +493,7 @@ vector<int> Scan::assignCharges(pair<string,double> pr) {
 
             for(int j=1; j<6; j++) { //forward
                 float mz=centerMz+(j*delta);
-                float massAcc = 2 * mzUtils::getMassAcc(pr,mz);
-                int matchedPos = findHighestIntensityPos(mz,massAcc);
+                int matchedPos = findHighestIntensityPos(mz,pr);
                 if (matchedPos>0 && intensity[matchedPos]<centerInts) {
                     series.push_back(matchedPos);
                     zSeriesIntensity += intensity[matchedPos];
@@ -520,100 +502,7 @@ vector<int> Scan::assignCharges(pair<string,double> pr) {
 
             for(int j=1; j<3; j++) {  //back
                 float mz=centerMz-(j*delta);
-                float massAcc = 2 * mzUtils::getMassAcc(pr,mz);
-                int matchedPos = findHighestIntensityPos(mz,massAcc);
-                if (matchedPos>0 && intensity[matchedPos]<centerInts) {
-                    series.push_back(matchedPos);
-                    zSeriesIntensity += intensity[matchedPos];
-                } else break;
-            } 
-            //cerr << endl;
-            if (zSeriesIntensity>maxSeriesIntenisty) { bestZ=z; maxSeriesIntenisty=zSeriesIntensity; bestSeries=series; }
-        }
-
-        //if ( i < 50) cerr << centerMz << " " << bestZ << " " << bestSeries.size() << " " << minSeriesSize[bestZ] << endl;
-
-        //series with highest intensity is taken to be be the right one
-        if(bestZ > 0 and bestSeries.size() >= minSeriesSize[bestZ] ) {
-            clusterNumber++;
-            int parentPeakPos=pos;
-            for(unsigned int j=0; j<bestSeries.size();j++) {
-                int brother_pos =bestSeries[j];
-                if(bestZ > 1 and mz[brother_pos] < mz[parentPeakPos]
-                        and intensity[brother_pos] < intensity[parentPeakPos]
-                        and intensity[brother_pos] > intensity[parentPeakPos]*0.25)
-                        parentPeakPos=brother_pos;
-                chargeStates[brother_pos]=bestZ;
-                peakClusters[brother_pos]=clusterNumber;
-             }
-
-           //if ( i < 50 ) cerr << "c12parent: " << mz[parentPeakPos] << endl;
-            peakClusters[parentPeakPos]=clusterNumber;
-            parentPeaks[parentPeakPos]=bestZ;
-
-
-            //cerr << "z-series: " <<  mz[pos] << endl;
-            //cerr << "parentPeak=" << mz[parentPeakPos] << " " << bestZ << endl;
-        }
-    }
-    return parentPeaks;
-}
-
-vector<int> Scan::assignCharges(float ppmTolr) {
-    if ( nobs() == 0) {
-        vector<int>empty;
-        return empty;
-    }
-
-    int N = nobs(); //current scan size
-    vector<int>chargeStates (N,0);
-    vector<int>peakClusters = vector<int>(N,0);
-    vector<int>parentPeaks = vector<int>(N,0);
-    int clusterNumber=0;
-
-    //order intensities from high to low
-    vector<int>intensityOrder = intensityOrderDesc();
-    double NMASS=C13_MASS-12.00;
-
-    //a little silly, required number of peaks in a series in already to call a charge
-                          //z=0,   z=1,    z=2,   z=3,    z=4,   z=5,    z=6,     z=7,   z=8,
-    int minSeriesSize[9] = { 1,     2,     3,      3,      3,     4,      4,       4,     5  } ;
-
-    //for every position in a scan
-    for(int i=0; i < N; i++ ) {
-        int pos=intensityOrder[i];
-        float centerMz = mz[pos];
-        float centerInts = intensity[pos];
-       // float ppm = (0.125/centerMz)*1e6;
-        float ppm = ppmTolr*2;
-       // cerr << pos << " " <<  centerMz << " " << centerInts << " " << clusterNumber << endl;
-        if (chargeStates[pos] != 0) continue;  //charge already assigned
-
-        //check for charged peak groups
-        int bestZ=0; int maxSeriesIntenisty=0;
-        vector<int>bestSeries;
-
-
-        //determine most likely charge state
-        for(int z=5; z>=1; z--) {
-            float delta = NMASS/z;
-            int zSeriesIntensity=centerInts;
-            vector<int>series;
-
-
-            for(int j=1; j<6; j++) { //forward
-                float mz=centerMz+(j*delta);
-
-                int matchedPos = findHighestIntensityPos(mz,ppm);
-                if (matchedPos>0 && intensity[matchedPos]<centerInts) {
-                    series.push_back(matchedPos);
-                    zSeriesIntensity += intensity[matchedPos];
-                } else break;
-            }
-
-            for(int j=1; j<3; j++) {  //back
-                float mz=centerMz-(j*delta);
-                int matchedPos = findHighestIntensityPos(mz,ppm);
+                int matchedPos = findHighestIntensityPos(mz,pr);
                 if (matchedPos>0 && intensity[matchedPos]<centerInts) {
                     series.push_back(matchedPos);
                     zSeriesIntensity += intensity[matchedPos];

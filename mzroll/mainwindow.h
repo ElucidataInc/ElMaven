@@ -419,7 +419,6 @@ private:
 	History history;
 
 	int _ionizationMode;
-	double _ppmWindow;
 
 	QToolBar* sideBar;
 

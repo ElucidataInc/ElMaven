@@ -52,7 +52,6 @@ class Scan{
          * @param  ppm                     [ppm window]
          * @return [highest intensity value for an m/z with a ppm window]
          */
-        int findHighestIntensityPos(float mz, float ppm);
         
         int findHighestIntensityPos(float mz, pair<string,double> pr);
 
@@ -125,8 +124,6 @@ class Scan{
 
         vector<int> assignCharges(pair<string,double> pr); //TODO: Sahil, Added while merging spectrawidget
 
-        vector<int> assignCharges(float ppmTolr);
-
         /**
          * [generate multi charges series..endingin in change Zx,Mx]
          * @param Mx []
@@ -148,7 +145,7 @@ class Scan{
          * @param  minChargedStates       []
          * @return []
          */
-        ChargedSpecies* deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates );
+        ChargedSpecies* deconvolute(float mzfocus, float noiseLevel, pair<string,double> pr, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates );
         //Added while merging to Maven776
         string toMGF();
         //TODO deconvolute
@@ -242,10 +239,10 @@ class Scan{
         ofstream file;
         BrotherData *brotherdata,b;
         void initialiseBrotherData(int z, float mzfocus);
-        void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, float ppmMerge);
-        void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
-        void findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, float ppmMerge,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
-        bool setParentPeakData(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio);
+        void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, pair<string,double> pr);
+        void updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, pair<string,double> pr, int minChargedStates);
+        void findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, pair<string,double> pr,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
+        bool setParentPeakData(float mzfocus, pair<string,double> pr, float noiseLevel, float minSigNoiseRatio);
         void findError(ChargedSpecies* x);
 
         vector<float> smoothenIntensitites();

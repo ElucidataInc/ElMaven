@@ -151,7 +151,7 @@ void PeakDetector::processMassSlices() {
     massSlices.setMinRt (mavenParameters->minRt);
     massSlices.setMaxMz (mavenParameters->maxMz);
     massSlices.setMinMz	(mavenParameters->minMz);
-    massSlices.algorithmB(mavenParameters->ppmMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
+    massSlices.algorithmB(mavenParameters->getAutoMassAccPair(), mavenParameters->rtStepSize);  // perform algorithmB for samples
 
     if (massSlices.slices.size() == 0)
         massSlices.algorithmA();  // if no slices present, perform algorithmA
@@ -1008,12 +1008,11 @@ bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
                 PeakGroup& grup2 = mavenParameters->allgroups[i];
                 float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
                                                         grup2.minRt, grup2.maxRt);
-                if (rtoverlap > 0.9
-                    && ppmDist(grup2.meanMz, grup1.meanMz)
-                    < mavenParameters->ppmMerge) {
-                        noOverlap = false;
-//       #pragma omp cancel for
-                break;
+                float massAcc = mzUtils::getMassAcc(mavenParameters->getAutoMassAccPair(),grup2.meanMz);
+                if (rtoverlap > 0.9 && massDiff(grup2.meanMz, grup1.meanMz) < massAcc) {
+                    noOverlap = false;
+//                  #pragma omp cancel for
+                    break;
                 }
         }
 
