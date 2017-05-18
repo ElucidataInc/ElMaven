@@ -64,7 +64,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 	if (recursionLevel > 2) return;
 	if (!_scan) return;
 	Scan* scan = _scan;
-	pair<string,double> pr = _mw->getMassAccPair();
+	pair<massAccType,double> pr = _mw->getMassAccPair();
 	mzSample* sample = scan->getSample();
  
 	int ionizationMode = scan->getPolarity();
@@ -155,7 +155,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 
     }
 
-	pair<string,double> temppr = make_pair("ppm",5);
+	pair<massAccType,double> temppr = make_pair(ppm,5);
 
 	//parent check
     for(int i=0; i < DB.adductsDB.size(); i++ ) {
@@ -210,7 +210,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 }
 
 
-bool AdductWidget::linkExists(float mz1, float mz2, pair<string,double> pr) {
+bool AdductWidget::linkExists(float mz1, float mz2, pair<massAccType,double> pr) {
 	Q_FOREACH( mzLink* link, links ) {
 		float massAcc1 = mzUtils::getMassAcc(pr,link->mz1);
 		float massAcc2 = mzUtils::getMassAcc(pr,link->mz2);
@@ -257,7 +257,7 @@ void AdductWidget::showLink(Node* n) {
     }
 }
 
-float AdductWidget::getIntensity(float mz, pair<string,double> pr) {
+float AdductWidget::getIntensity(float mz, pair<massAccType,double> pr) {
     if (!_scan) return 0;
 
     float x=0;
@@ -280,8 +280,8 @@ mzLink* AdductWidget::checkConnection(float mz1, float mz2, string note) {
 	mzSample* sample = _scan->getSample();
 
 	if(!sample) return NULL;
-	pair<string,double> pr = _mw->getMassAccPair();
-	pair<string,double> temppr = make_pair("ppm",5);
+	pair<massAccType,double> pr = _mw->getMassAccPair();
+	pair<massAccType,double> temppr = make_pair(ppm,5);
 
 	if (linkExists(mz1,mz2,pr)) return NULL;
 
@@ -327,7 +327,7 @@ void AdductWidget::addLink(mzLink* l) {
             if ( ppmDist(mz,l->mz2) < 10 ) n2=item;
     }
 
-	pair<string,double> pr = _mw->getMassAccPair();
+	pair<massAccType,double> pr = _mw->getMassAccPair();
 	if (!n1) {
 		n1 = _graph->addNode(name1.toStdString(),0);
 		n1->setVisible(true); 

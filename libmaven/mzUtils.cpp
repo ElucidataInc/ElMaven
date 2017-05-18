@@ -417,22 +417,22 @@ Series:  Prentice-Hall Series in Automatic Computation
         else return(false);
     }
 
-    bool withinXmassAcc( float mz1, float mz2, pair<string,double> pr ) {
+    bool withinXmassAcc( float mz1, float mz2, pair<massAccType,double> pr ) {
         double massAcc;
         int temp = (int)pr.second;
-	    if(pr.first == "ppm") massAcc = (mz1 * temp) / 1e6;
-	    else if(pr.first == "mDa") massAcc = temp / 1e3;
+	    if(pr.first == ppm) massAcc = (mz1 * temp) / 1e6;
+	    else if(pr.first == mDa) massAcc = temp / 1e3;
 	    else massAcc = (mz1 * temp) / 1e6;
 
         if ( mz2 > (mz1 - massAcc) && mz2 < (mz1 + massAcc) ) return(true);
         else return(false);
     }
 
-    double getMassAcc(pair<string,double> pr, double mass) {
+    double getMassAcc(pair<massAccType,double> pr, double mass) {
 
         double massAcc;
-	    if(pr.first == "ppm") massAcc = (mass * pr.second) / 1e6;
-	    else if(pr.first == "mDa") massAcc = pr.second / 1e3;
+	    if(pr.first == ppm) massAcc = (mass * pr.second) / 1e6;
+	    else if(pr.first == mDa) massAcc = pr.second / 1e3;
 	    else massAcc = (mass * pr.second) / 1e6;
         return massAcc;
 

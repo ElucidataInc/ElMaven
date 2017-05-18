@@ -28,7 +28,7 @@ void TestMzSlice::testCalculateMzMaxMinWithCF() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     float mass = 663.109131 + 1.007;
@@ -46,7 +46,7 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
     vector<Compound*> compounds = common::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     float massAcc = mzUtils::getMassAcc(pr,compounds[0]->mass);
@@ -67,7 +67,7 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[1];
     compounds[1]->mass = 0;
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     QVERIFY(!slice->calculateMzMinMax(pr, ionizationMode));

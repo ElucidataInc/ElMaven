@@ -11,7 +11,7 @@
 class IsotopeLogic {
 public:
 	IsotopeLogic();
-	void computeIsotopes(string f, pair<string,double> pr, double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, 
+	void computeIsotopes(string f, pair<massAccType,double> pr, double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, 
 		bool S34Labeled, bool D2Labeled, map<string, bool> isotopeAtom, int noOfIsotopes);
 	void userChangedFormula();
 
@@ -25,7 +25,7 @@ public:
 	Compound* tempCompound;
 
 private:
-	float getIsotopeIntensity(float mz, pair<string,double> pr);
+	float getIsotopeIntensity(float mz, pair<massAccType,double> pr);
 };
 
 #endif // ISOTOPELOGIC_H

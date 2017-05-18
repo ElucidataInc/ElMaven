@@ -35,7 +35,7 @@ void MassSlices::stopSlicing() {
  * @param minIntensity [description]
  * @param rtStep       [description]
  */
-void MassSlices::algorithmB(pair<string,double> pr, int rtStep) {
+void MassSlices::algorithmB(pair<massAccType,double> pr, int rtStep) {
     delete_all(slices);
     slices.clear();
     cache.clear();
@@ -142,7 +142,7 @@ void MassSlices::algorithmB(pair<string,double> pr, int rtStep) {
     sendSignal("Mass Slices Processed", 1 , 1);
 }
 
-void MassSlices::algorithmC(pair<string,double> pr, float minIntensity, float rtWindow) {
+void MassSlices::algorithmC(pair<massAccType,double> pr, float minIntensity, float rtWindow) {
     delete_all(slices);
     slices.clear();
     cache.clear();

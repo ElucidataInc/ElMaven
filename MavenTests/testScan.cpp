@@ -83,7 +83,7 @@ void TestScan::testdeepcopy() {
 void TestScan::testfindHighestIntensityPos() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
-    pair<string,int> pr = make_pair("ppm",10000);
+    pair<massAccType,int> pr = make_pair(ppm,10000);
     int bestpos=scan->findHighestIntensityPos(2.1, pr);
     QVERIFY(bestpos==2);
 
@@ -163,7 +163,7 @@ void TestScan::testsimpleCentroid() {
 void TestScan::testhasMz() {
 
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
-    pair<string,double> pr = make_pair("ppm",10000);
+    pair<massAccType,double> pr = make_pair(ppm,10000);
     initScan (scan);
     QVERIFY(scan->hasMz(2.1,pr));
     QVERIFY(!scan->hasMz(1.0,pr));
@@ -216,8 +216,8 @@ void TestScan::testdeconvolute() {
                      88.04099,88.04099,88.04099,88.04099,88.04096,88.04095};
     scan->mz.assign(mzarr,mzarr+34);
 
-    pair<string,double> pr = make_pair("ppm",100000);
-    pair<string,double> pr1 = make_pair("ppm",10000);
+    pair<massAccType,double> pr = make_pair(ppm,100000);
+    pair<massAccType,double> pr1 = make_pair(ppm,10000);
     ChargedSpecies* x=scan->deconvolute(87,4,pr,2,3,100,500,2e5,3);
     ChargedSpecies* x1=scan->deconvolute(87,1,pr1,2,3,100,500,2e5,3);
 

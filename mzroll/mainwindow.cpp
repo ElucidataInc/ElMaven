@@ -2378,17 +2378,23 @@ void MainWindow::createToolBars() {
 	addToolBar(Qt::RightToolBarArea, sideBar);
 }
 
-pair<string,double> MainWindow::getMassAccPair() {
+pair<massAccType,double> MainWindow::getMassAccPair() {
 
-	pair<string, double> pr;
-	pr = make_pair(massAccTypeBox->currentText().toStdString(), massAccValueBox->value());
+	pair<massAccType, double> pr;
+	massAccType temp;
+	switch(massAccTypeBox->currentIndex()) {
+		case 0: temp = ppm; break;
+		case 1: temp = mDa; break;
+		default: temp = ppm; break;
+	}
+	pr = make_pair(temp, massAccValueBox->value());
 	return pr;
 
 }
 
 double MainWindow::getUserMassAcc(double mass) {
 
-	pair<string, double> pr = getMassAccPair();
+	pair<massAccType, double> pr = getMassAccPair();
 	double massAcc = mzUtils::getMassAcc(pr,mass);
 	return massAcc;
 
@@ -3255,8 +3261,8 @@ void MainWindow::getLinks(Peak* peak) {
 		ionizationMode = getIonizationMode(); //user specified ionization mode
 
 	vector<mzLink> links = peak->findCovariants();
-	pair<string,double> pr = getMassAccPair(); 
-	pair<string,double> temppr = make_pair("ppm",5); 
+	pair<massAccType,double> pr = getMassAccPair(); 
+	pair<massAccType,double> temppr = make_pair(ppm,5); 
 
 	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, pr, ionizationMode);
 	for (int i = 0; i < linksX.size(); i++)

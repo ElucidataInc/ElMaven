@@ -135,7 +135,7 @@ bool SpectralHitsDockWidget::hasSpectralHit(SpectralHit* group) {
 */
 //TODO: Sahil, Added while merging mzfileio
 void SpectralHitsDockWidget::limitPrecursorMz(float pMZ) {
-    pair<string,double> pr = _mainwindow->getMassAccPair();
+    pair<massAccType,double> pr = _mainwindow->getMassAccPair();
     for(int i=0; i < allhits.size(); i++ ) {
         if (mzUtils::withinXmassAcc(pMZ,allhits[i]->precursorMz,pr) ) {
             allhits[i]->isFocused=true;
@@ -923,7 +923,7 @@ void SpectralHitsDockWidget::integrateMS1() {
     vector <mzSample*> samples = _mainwindow->getVisibleSamples();
     if (samples.size() == 0) return;
 
-   pair<string,double> pr = _mainwindow->getMassAccPair();
+   pair<massAccType,double> pr = _mainwindow->getMassAccPair();
    float rtWinMin = 3;
 
    QSettings *settings 		= _mainwindow->getSettings();

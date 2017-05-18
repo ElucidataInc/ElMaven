@@ -193,7 +193,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
 }
 
 void MassCalculator::enumerateMasses(double inputMass, double charge,
-        pair<string,double> pr, vector<Match*>& matches) {
+        pair<massAccType,double> pr, vector<Match*>& matches) {
     if (charge > 0)
         inputMass = inputMass * abs(charge) - H_MASS * abs(charge);
     if (charge < 0)

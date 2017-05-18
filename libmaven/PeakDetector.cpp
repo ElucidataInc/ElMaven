@@ -261,7 +261,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            pair<string,double> pr = mavenParameters->getCmpdMassAccPair();
+            pair<massAccType,double> pr = mavenParameters->getCmpdMassAccPair();
             float massAcc = mzUtils::getMassAcc(pr,isotopeMass);
 
             float mzmin = isotopeMass - massAcc;
@@ -482,7 +482,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            pair<string,double> pr = mavenParameters->getCmpdMassAccPair();
+            pair<massAccType,double> pr = mavenParameters->getCmpdMassAccPair();
             float massAcc = mzUtils::getMassAcc(pr,isotopeMass);
 
             float mzmin = isotopeMass - massAcc;

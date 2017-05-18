@@ -78,7 +78,7 @@ void SpectraWidget::setCurrentScan(Scan* scan) {
         _scanset.clear();
 
         if (scan->mslevel == 1) {
-            pair<string,double> pr = this->mainwindow->getMassAccPair(); 
+            pair<massAccType,double> pr = this->mainwindow->getMassAccPair(); 
             chargeStates = _currentScan->assignCharges(pr);
         }
     }
@@ -196,7 +196,7 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,float product
 	hit.score = 0;
 	hit.matchCount=0;
 	hit.sampleName="";
-    hit.productMassAccPair=make_pair("ppm",1);
+    hit.productMassAccPair=make_pair(ppm,1);
     hit.precursorMz=record.monoisotopicMZ();
 	hit.scan = _currentScan;
 	
@@ -231,7 +231,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
         hit.precursorMz = c->precursorMz;
         hit.matchCount=0;
         hit.sampleName="";
-        hit.productMassAccPair=make_pair("ppm",1000);
+        hit.productMassAccPair=make_pair(ppm,1000);
         hit.scan=NULL;
         for(int i=0; i < c->fragment_mzs.size();i++)        hit.mzList << c->fragment_mzs[i];
         for(int i=0; i < c->fragment_intensity.size();i++)  hit.intensityList<< c->fragment_intensity[i];
@@ -287,7 +287,7 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
 
 void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
 
-    pair<string,double> pr = hit.productMassAccPair;
+    pair<massAccType,double> pr = hit.productMassAccPair;
     double maxIntensityHit= hit.getMaxIntensity();
 
     qDebug() << "overlaySpectra() started.." << maxIntensityHit <<  " " << hit.mzList.size() << endl;
@@ -781,7 +781,7 @@ void SpectraWidget::setMzFocus(float mz) {
     //int bestMatch=-1;
     //float bestMatchDiff=FLT_MAX;
 
-	pair<string,double> pr = mainwindow->getMassAccPair();
+	pair<massAccType,double> pr = mainwindow->getMassAccPair();
     float massAcc = mainwindow->getUserMassAcc(mz);
 
 	if (_currentScan->mslevel==1) {
@@ -978,7 +978,7 @@ void SpectraWidget::annotateScan() {
 */
 
 void SpectraWidget::assignCharges() {
-    pair<string,double> pr = this->mainwindow->getMassAccPair();  
+    pair<massAccType,double> pr = this->mainwindow->getMassAccPair();  
     chargeStates = _currentScan->assignCharges(pr);
 }
 
@@ -987,7 +987,7 @@ void SpectraWidget::annotateScan() {
     float mzfocus = _focusCoord.x();
     if (mzfocus==0 || _currentScan == NULL || _currentScan->nobs() < 2 ) return;
     float noiseLevel=1;
-    pair<string,double> pr=make_pair("ppm",100); 
+    pair<massAccType,double> pr=make_pair(ppm,100); 
     float minSigNoiseRatio=3;
     int minDeconvolutionCharge=100;
     int maxDeconvolutionCharge=500;
@@ -1133,7 +1133,7 @@ void SpectraWidget::gotoScan() {
 		}
 }
 
-vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, pair<string,double> pr, int ionizationMode) {
+vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, pair<massAccType,double> pr, int ionizationMode) {
 
     vector<mzLink> links;
     //check for possible C13s

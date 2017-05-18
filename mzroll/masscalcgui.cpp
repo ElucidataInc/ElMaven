@@ -6,7 +6,7 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);
   _mw = mw;
   _mz = 0;
-  pair<string,double> pr = make_pair("ppm",5);
+  pair<massAccType,double> pr = make_pair(ppm,5);
   setCharge(-1);
   setMaxMassAccDiff(pr);
 
@@ -34,14 +34,20 @@ void MassCalcWidget::setCharge(float charge) {
                 _charge=charge;
 }
 
-void MassCalcWidget::setMaxMassAccDiff(pair<string,double> pr) { 
+void MassCalcWidget::setMaxMassAccDiff(pair<massAccType,double> pr) { 
     maxMassAccValDiff->setValue(pr.second);
-    maxMassAccTypeDiff->setCurrentText(QString::fromStdString(pr.first));  
+    maxMassAccTypeDiff->setCurrentIndex(pr.first);  
 }
 
-pair<string,double> MassCalcWidget::getMaxMassAccDiffPair() {
-    pair<string,double> pr; 
-    pr = make_pair(maxMassAccTypeDiff->currentText().toStdString(),maxMassAccValDiff->value());
+pair<massAccType,double> MassCalcWidget::getMaxMassAccDiffPair() {
+    pair<massAccType,double> pr;
+    massAccType temp;
+	switch(maxMassAccTypeDiff->currentIndex()) {
+		case 0: temp = ppm; break;
+		case 1: temp = mDa; break;
+		default: temp = ppm; break;
+	} 
+    pr = make_pair(temp,maxMassAccValDiff->value());
     return pr;
 }
 
@@ -50,7 +56,7 @@ void MassCalcWidget::compute() {
 	 bool isDouble =false;
 	 _mz = 		lineEdit->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
-  	 pair<string,double> pr = getMaxMassAccDiffPair();
+  	 pair<massAccType,double> pr = getMaxMassAccDiffPair();
 
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
@@ -112,7 +118,7 @@ void MassCalcWidget::setupSortedCompoundsDB() {
     sort(sortedcompounds.begin(), sortedcompounds.end(), Compound::compMass);
 }
 
-QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, pair<string,double> pr, float charge) {
+QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, pair<massAccType,double> pr, float charge) {
 	if (sortedcompounds.size() != DB.compoundsDB.size() ) { setupSortedCompoundsDB(); }
 
 	QSet<Compound*>uniqset;
@@ -134,7 +140,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, pair<string,dou
 
 void MassCalcWidget::getMatches() {
     int charge = _mw->mavenParameters->ionizationMode*_mw->mavenParameters->charge;
-    pair<string,double> pr = getMaxMassAccDiffPair();
+    pair<massAccType,double> pr = getMaxMassAccDiffPair();
 	QSet<Compound*> compounds = findMathchingCompounds(_mz,pr,charge);
 	Q_FOREACH(Compound* c, compounds) {
           MassCalculator::Match* m = new MassCalculator::Match();

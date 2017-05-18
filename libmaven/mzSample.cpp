@@ -855,7 +855,7 @@ mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples) {
         return d;
 }
 
-bool mzSlice::calculateMzMinMax(pair<string,double> pr, int charge) {
+bool mzSlice::calculateMzMinMax(pair<massAccType,double> pr, int charge) {
 
     //Calculating the mzmin and mzmax
     if (!this->compound->formula.empty()) {
@@ -1199,7 +1199,7 @@ EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel) {
 }
 
 //compute correlation between two mzs within some retention time window
-float mzSample::correlation(float mz1,  float mz2, pair<string,double> pr, float rt1, float rt2 ) {
+float mzSample::correlation(float mz1,  float mz2, pair<massAccType,double> pr, float rt1, float rt2 ) {
 
         int mslevel=1;
         double massAcc1 = mzUtils::getMassAcc(pr,mz1);

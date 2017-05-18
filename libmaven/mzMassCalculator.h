@@ -93,7 +93,7 @@ class MassCalculator {
          * @param  maxdiff         []
          * @param  matches         []
          */
-        void enumerateMasses(double inputMass, double charge, pair<string,double> pr, vector<Match*>& matches);
+        void enumerateMasses(double inputMass, double charge, pair<mzUtils::massAccType,double> pr, vector<Match*>& matches);
 
 
         static vector<Isotope> computeIsotopes(string formula, int polarity, map<string, bool> isotopeAtom, int noOfIsotopes);

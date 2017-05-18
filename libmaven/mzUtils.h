@@ -61,6 +61,8 @@ using namespace std;
 
 namespace mzUtils {
 
+    enum massAccType { ppm = 0, mDa = 1 };
+
     /**
      * [round ]
      * @method round
@@ -433,9 +435,9 @@ namespace mzUtils {
      */
     bool withinXppm(float mz1, float mz2, int ppmWindow);
 
-    bool withinXmassAcc( float mz1, float mz2, pair<string,double> pr);
+    bool withinXmassAcc( float mz1, float mz2, pair<massAccType,double> pr);
 
-    double getMassAcc(pair<string,double> pr, double mass);
+    double getMassAcc(pair<massAccType,double> pr, double mass);
 
     /* file system functions */
     /**

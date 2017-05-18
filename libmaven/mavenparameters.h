@@ -88,8 +88,8 @@ public:
 	 */
 	void cleanup();
 	vector<mzSample*> getVisibleSamples();
-	pair<string,double> getCmpdMassAccPair();
-	pair<string,double> getAutoMassAccPair();
+	pair<massAccType,double> getCmpdMassAccPair();
+	pair<massAccType,double> getAutoMassAccPair();
 
 	bool writeCSVFlag;
 	bool alignSamplesFlag;

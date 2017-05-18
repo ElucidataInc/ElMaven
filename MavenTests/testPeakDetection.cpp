@@ -47,7 +47,7 @@ void TestPeakDetection::testProcessCompound() {
 void TestPeakDetection::testPullEICs() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;

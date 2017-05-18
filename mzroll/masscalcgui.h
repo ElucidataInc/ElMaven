@@ -20,7 +20,7 @@ class MassCalcWidget: public QDockWidget,  public Ui_MassCalcWidget {
 public:
       MassCalcWidget(MainWindow* mw);
       ~MassCalcWidget();
-      pair<string,double> getMaxMassAccDiffPair();
+      pair<massAccType,double> getMaxMassAccDiffPair();
 
 protected:
         
@@ -28,9 +28,9 @@ protected:
 public Q_SLOTS: 
  	  void setMass(float mz);
 	  void setCharge(float charge);
-	  void setMaxMassAccDiff(pair<string,double> pr);
+	  void setMaxMassAccDiff(pair<massAccType,double> pr);
         void compute();
-        QSet<Compound*> findMathchingCompounds(float mz, pair<string,double> pr, float charge);
+        QSet<Compound*> findMathchingCompounds(float mz, pair<massAccType,double> pr, float charge);
 
 private Q_SLOTS:
       void showCellInfo(int row, int col, int lrow, int lcol);

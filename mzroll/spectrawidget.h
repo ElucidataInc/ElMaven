@@ -12,7 +12,7 @@ class SpectraWidget : public QGraphicsView
     Q_OBJECT
 public:
     SpectraWidget(MainWindow* mw);
-    static vector<mzLink> findLinks(float centerMz, Scan* scan, pair<string,double> pr, int ionizationMode);
+    static vector<mzLink> findLinks(float centerMz, Scan* scan, pair<massAccType,double> pr, int ionizationMode);
 
         public Q_SLOTS:
                     void setScan(Scan* s);

@@ -261,7 +261,7 @@ public:
 
 	bool updateSamplePathinMzroll(QStringList filelist);
 	void setValue(int value);
-	pair<string,double> getMassAccPair();
+	pair<massAccType,double> getMassAccPair();
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);

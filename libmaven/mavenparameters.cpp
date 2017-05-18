@@ -97,22 +97,22 @@ vector<mzSample*> MavenParameters::getVisibleSamples() {
 	return vsamples;
 }
 
-pair<string,double> MavenParameters::getCmpdMassAccPair() {
-        pair<string,double> pr;
+pair<massAccType,double> MavenParameters::getCmpdMassAccPair() {
+        pair<massAccType,double> pr;
         switch(cmpdMassAccType) {
-                case 0: pr = make_pair("ppm",cmpdMassAccValue); break;
-                case 1: pr = make_pair("mDa",cmpdMassAccValue); break;
-                default: pr = make_pair("ppm",cmpdMassAccValue); break;
+                case 0: pr = make_pair(ppm,cmpdMassAccValue); break;
+                case 1: pr = make_pair(mDa,cmpdMassAccValue); break;
+                default: pr = make_pair(ppm,cmpdMassAccValue); break;
         }
         return pr;
 }
 
-pair<string,double> MavenParameters::getAutoMassAccPair() {
-        pair<string,double> pr;
+pair<massAccType,double> MavenParameters::getAutoMassAccPair() {
+        pair<massAccType,double> pr;
         switch(autoMassAccType) {
-                case 0: pr = make_pair("ppm",autoMassAccValue); break;
-                case 1: pr = make_pair("mDa",autoMassAccValue); break;
-                default: pr = make_pair("ppm",autoMassAccValue); break;
+                case 0: pr = make_pair(ppm,autoMassAccValue); break;
+                case 1: pr = make_pair(mDa,autoMassAccValue); break;
+                default: pr = make_pair(ppm,autoMassAccValue); break;
         }
         return pr;
 }

@@ -22,8 +22,8 @@ class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
         void exportMatches();
         double scoreScan(Scan* scan);
         double matchPattern(Scan* scan);
-        pair<string,double> getPrecursorMassAccPair();
-        pair<string,double> getProductMassAccPair();
+        pair<massAccType,double> getPrecursorMassAccPair();
+        pair<massAccType,double> getProductMassAccPair();
 
     private:
         MainWindow *mainwindow;

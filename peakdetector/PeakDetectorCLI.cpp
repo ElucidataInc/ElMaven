@@ -65,7 +65,7 @@ int ionizationMode = -1;
 //mass slice detection
 int rtStepSize = 10;
 float autoMassAcc = 30;
-pair<string,double> autoMassAccPair = make_pair("ppm",30);
+pair<massAccType,double> autoMassAccPair = make_pair(ppm,30);
 float avgScanTime = 0.2;
 
 //peak detection

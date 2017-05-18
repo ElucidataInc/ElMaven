@@ -1562,7 +1562,7 @@ void EicWidget::setEICMassAcc() {
 
 void EicWidget::setMzSlice(float mz) {
 
-	pair<string,double> pr = getMainWindow()->getMassAccPair();
+	pair<massAccType,double> pr = getMainWindow()->getMassAccPair();
 	mzSlice x = eicParameters->setMzSlice(mz, pr);
 	setMzSlice(x);
 }

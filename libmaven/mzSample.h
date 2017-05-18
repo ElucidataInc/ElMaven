@@ -222,7 +222,7 @@ class mzSlice {
         bool operator< (const mzSlice* b) const { return mz < b->mz; }
 
 
-        bool calculateMzMinMax(pair<string,double> pr, int charge);
+        bool calculateMzMinMax(pair<massAccType,double> pr, int charge);
 
         void calculateRTMinMax(bool matchRtFlag, float compoundRTWindow);
 
@@ -382,7 +382,7 @@ class mzLink {
              * @param  rt2         [retention time for second sample]
              * @return [correlation]
              */
-            float correlation(float mz1,  float mz2, pair<string,double> pr, float rt1, float rt2 );
+            float correlation(float mz1,  float mz2, pair<massAccType,double> pr, float rt1, float rt2 );
 
             /**
              * [get normalization constant]

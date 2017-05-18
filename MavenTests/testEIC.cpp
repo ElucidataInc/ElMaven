@@ -160,7 +160,7 @@ void TestEIC:: testGetPeakDetails() {
 void TestEIC:: testgroupPeaks() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -218,7 +218,7 @@ void TestEIC:: testgroupPeaks() {
 void TestEIC:: testeicMerge() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    pair<string,double> pr = make_pair("ppm",10);
+    pair<massAccType,double> pr = make_pair(ppm,10);
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;

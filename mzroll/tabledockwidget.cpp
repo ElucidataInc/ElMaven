@@ -1594,7 +1594,7 @@ void TableDockWidget::saveModel() {
 
 void TableDockWidget::findMatchingCompounds() { 
     //matching compounds
-    pair<string,double> pr = _mainwindow->getMassAccPair();
+    pair<massAccType,double> pr = _mainwindow->getMassAccPair();
     float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& g = allgroups[i];
@@ -2010,7 +2010,7 @@ void TableDockWidget::clusterGroups() {
     double maxRtDiff =  clusterDialog->maxRtDiff_2->value();
     double minSampleCorrelation =  clusterDialog->minSampleCorr->value();
     double minRtCorrelation = clusterDialog->minRt->value();
-    pair<string,double> pr	= _mainwindow->getMassAccPair();
+    pair<massAccType,double> pr	= _mainwindow->getMassAccPair();
 
     vector<mzSample*> samples = _mainwindow->getSamples();
 

@@ -17,7 +17,7 @@ void IsotopeLogic::userChangedFormula() {
 	_compound = tempCompound;
 }
 
-float IsotopeLogic::getIsotopeIntensity(float mz, pair<string,double> pr) {
+float IsotopeLogic::getIsotopeIntensity(float mz, pair<massAccType,double> pr) {
 	float highestIntensity = 0;
 
 	if (_scan == NULL)
@@ -39,7 +39,7 @@ float IsotopeLogic::getIsotopeIntensity(float mz, pair<string,double> pr) {
 	return highestIntensity;
 }
 
-void IsotopeLogic::computeIsotopes(string f, pair<string,double> pr,
+void IsotopeLogic::computeIsotopes(string f, pair<massAccType,double> pr,
 		double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, bool S34Labeled, 
 		bool D2Labeled, map<string, bool> isotopeAtom, int noOfIsotopes) {
 

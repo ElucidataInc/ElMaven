@@ -42,7 +42,7 @@ void Scan::deepcopy(Scan* b) {
 
 }
 
-int Scan::findHighestIntensityPos(float _mz, pair<string,double> pr) {
+int Scan::findHighestIntensityPos(float _mz, pair<massAccType,double> pr) {
         float massAcc = mzUtils::getMassAcc(pr,_mz);
         float mzmin = _mz - massAcc;
         float mzmax = _mz + massAcc;
@@ -202,7 +202,7 @@ void Scan::updateIntensityWithTheLocalMaximas(vector<float> *cMz, vector<float> 
     intensity.swap(*cIntensity);
 }
 
-bool Scan::hasMz(float _mz, pair<string,double> pr) {
+bool Scan::hasMz(float _mz, pair<massAccType,double> pr) {
     float massAcc = mzUtils::getMassAcc(pr,_mz);
     float mzmin = _mz - massAcc;
     float mzmax = _mz + massAcc;
@@ -241,7 +241,7 @@ vector<float> Scan::chargeSeries(float Mx, unsigned int Zx) {
 }
 
 
-bool Scan::setParentPeakData(float mzfocus, pair<string,double> pr, float noiseLevel, float minSigNoiseRatio) {
+bool Scan::setParentPeakData(float mzfocus, pair<massAccType,double> pr, float noiseLevel, float minSigNoiseRatio) {
     bool flag=true;
     int mzfocus_pos = this->findHighestIntensityPos(mzfocus,pr);
     if (mzfocus_pos < 0 ) { cout << "ERROR: Can't find parent " << mzfocus << endl; flag=false; return flag; }
@@ -261,7 +261,7 @@ void Scan::initialiseBrotherData(int z, float mzfocus) {
         brotherdata->maxZ=z;
 }
 
-void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, pair<string,double> pr) {
+void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, pair<massAccType,double> pr) {
 
             float brotherMz = (brotherdata->expectedMass+ii)/ii;
             int pos = this->findHighestIntensityPos(brotherMz,pr);
@@ -288,7 +288,7 @@ void Scan::updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, b
 
 }
 
-void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, pair<string,double> pr,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates) {
+void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel, pair<massAccType,double> pr,int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates) {
     brotherdata=&b;
     for(int z=minDeconvolutionCharge; z <= maxDeconvolutionCharge; z++ ) {
 
@@ -323,7 +323,7 @@ void Scan::findBrotherPeaks (ChargedSpecies* x, float mzfocus, float noiseLevel,
 }
 
 
-void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, pair<string,double> pr, int minChargedStates) {
+void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float mzfocus, float noiseLevel, pair<massAccType,double> pr, int minChargedStates) {
         if (x->totalIntensity < brotherdata->totalIntensity && brotherdata->countMatches>minChargedStates && brotherdata->upCount >= 2 && brotherdata->downCount >= 2 ) {
                 x->totalIntensity = brotherdata->totalIntensity;
                 x->countMatches=brotherdata->countMatches;
@@ -355,7 +355,7 @@ void Scan::updateChargedSpeciesDataAndFindQScore(ChargedSpecies* x, int z,float 
         }
 }
 
-ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, pair<string,double> pr, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
+ChargedSpecies* Scan::deconvolute(float mzfocus, float noiseLevel, pair<massAccType,double> pr, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates ) {
 
 
     bool flag=setParentPeakData(mzfocus,pr,noiseLevel,minSigNoiseRatio);
@@ -448,7 +448,7 @@ string Scan::toMGF() {
     return buffer.str();
 }
 
-vector<int> Scan::assignCharges(pair<string,double> pr) {
+vector<int> Scan::assignCharges(pair<massAccType,double> pr) {
     if ( nobs() == 0) {
         vector<int>empty;
         return empty;
