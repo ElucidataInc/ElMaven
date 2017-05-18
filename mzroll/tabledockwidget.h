@@ -28,6 +28,7 @@ public:
     QTreeWidget *treeWidget;
     QToolButton *btnMerge;
     QMenu* btnMergeMenu;
+    QLabel *titlePeakTable;
     QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;

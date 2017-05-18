@@ -141,7 +141,7 @@ void TableDockWidget::showMergeTableOptions() {
     btnMergeMenu->clear();
     mergeAction.clear(); 
     for(int i=0; i<n; i++) {
-        mergeAction.insert(btnMergeMenu->addAction("Table " + QString::number(peaksTableList[i]->tableId)), 
+        mergeAction.insert(btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()),
             peaksTableList[i]->tableId);
     }
 
@@ -2287,13 +2287,16 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
 
     if (btnName == "titlePeakTable") {
  
-        QLabel *titlePeakTable = new QLabel(parent);
+        td->titlePeakTable = new QLabel(parent);
         QFont font;
         font.setPointSize(14);
-        titlePeakTable->setFont(font);
-        if(td->tableId) titlePeakTable->setText("Table "+ QString::number(td->tableId) + "  ");
-        titlePeakTable->setStyleSheet("font-weight: bold; color: black");
-        return titlePeakTable;
+        td->titlePeakTable->setFont(font);
+
+        if(td->tableId==0) td->titlePeakTable->setText(" Bookmark Table  ");
+        else td->titlePeakTable->setText("Peak Table "+ QString::number(td->tableId) + "  ");
+
+        td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+        return td->titlePeakTable;
 
     } else if (btnName == "btnSwitchView") {
 
