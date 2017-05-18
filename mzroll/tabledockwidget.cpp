@@ -24,7 +24,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     this->setAcceptDrops(true);
 
     setWidget(treeWidget);
-    setWindowTitle(title);
     setupPeakTable();
     setTableId();
 
@@ -2296,6 +2295,8 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         else td->titlePeakTable->setText("Peak Table "+ QString::number(td->tableId) + "  ");
 
         td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+        td->setWindowTitle(td->titlePeakTable->text());
+
         return td->titlePeakTable;
 
     } else if (btnName == "btnSwitchView") {

@@ -1049,34 +1049,24 @@ void MainWindow::setUrl(Reaction* r) {
 }
 
 TableDockWidget* MainWindow::addPeaksTable(QString title) {
-	//TableDockWidget* panel	 = new TableDockWidget(this,"Bookmarked Groups",0);
-	QPointer<TableDockWidget> panel = new TableDockWidget(this,
-			"Bookmarked Groups", 0);
-	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-    groupTables.push_back(panel);
-    panel->setObjectName(tr("PeakTable: %1").arg(groupTables.size())); //TODO: Sahil-Kiran, Added while merging mainwindow
+	TableDockWidget* panel = new TableDockWidget(this, title, 0);
 
-	if (sideBar) {
-        QAction *btnTable = new QAction(sideBar);
-        groupTablesButtons[panel]=btnTable;
-		btnTable->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
-		btnTable->setChecked(panel->isVisible());
-		btnTable->setCheckable(true);
-		btnTable->setToolTip(title);
-		connect(btnTable, SIGNAL(triggered(bool)), panel, SLOT(showLog()));
-		connect(btnTable, SIGNAL(toggled(bool)), panel, SLOT(setVisible(bool)));
-		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
-				SLOT(setChecked(bool)));
-		sideBar->addAction(btnTable);
-	}
+	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
+	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
+
+    groupTables.push_back(panel);
+	groupTablesButtons[panel]=btnTable;
+	sideBar->addWidget(btnTable);
 
 	return panel;
 }
 
 void MainWindow::removePeaksTable(TableDockWidget* panel) {
 	//Merged with Maven776 - Kiran
-    if (groupTablesButtons.contains(panel))
-        sideBar->removeAction(groupTablesButtons[panel]);
+    if (groupTablesButtons.contains(panel)) {
+		QAction* tableAction = sideBar->addWidget(groupTablesButtons[panel]) ;
+		sideBar->removeAction(tableAction);
+	}
 }
 
 // SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {

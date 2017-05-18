@@ -443,7 +443,6 @@ void PeakDetectionDialog::findPeaks() {
         }
     }
 
-    peaksTable->setWindowTitle(title); 
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);

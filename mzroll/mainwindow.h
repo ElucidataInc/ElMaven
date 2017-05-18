@@ -415,7 +415,7 @@ private:
 	Classifier* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
-    QMap< QPointer<TableDockWidget>, QAction*> groupTablesButtons;
+    QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
 	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 
