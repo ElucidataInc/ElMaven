@@ -31,6 +31,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     connect(traindialog->saveButton,SIGNAL(clicked(bool)),SLOT(saveModel()));
     connect(traindialog->trainButton,SIGNAL(clicked(bool)),SLOT(Train()));
     connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)),SLOT(showSelectedGroup()));
+    connect(treeWidget, SIGNAL(itemSelectionChanged()),SLOT(showSelectedGroup()));
 
     clusterDialog = new ClusterDialog(this);
     connect(clusterDialog->clusterButton,SIGNAL(clicked(bool)),SLOT(clusterGroups()));

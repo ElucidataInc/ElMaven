@@ -21,6 +21,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
 
   connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showLigand()));
+  connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);

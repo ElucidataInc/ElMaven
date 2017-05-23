@@ -8,6 +8,7 @@ TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {
 		treeWidget->setColumnCount(numColms);
 		treeWidget->setObjectName(title);
 		connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showInfo()));
+        connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
 		treeWidget->setHeaderHidden(true);
 
         //QShortcut* ctrlA = new QShortcut(QKeySequence(tr("Ctrl+A", "Select All")), this);
