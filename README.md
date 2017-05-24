@@ -8,13 +8,13 @@
 
 ## Table of contents
 - [Quick start](#quick-start) 
-- [ElMaven features](#Elmaven-features)
-- [Bugs and feature requests](#Bugs-and-Feature-requests)
-- [Documentation](#Documentation)
-- [Contributing](#Contribution)
-- [Contributors](#Contributors)
-- [References](#References)
-- [Acknowledgment](#Acknowledgment)
+- [ElMaven features](#elmaven-features)
+- [Bugs and feature requests](#bugs-and-feature-requests)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [References](#references)
+- [Acknowledgment](#acknowledgment)
 - [Copyright and license](#copyright-and-license)
 
 ## Quick start
