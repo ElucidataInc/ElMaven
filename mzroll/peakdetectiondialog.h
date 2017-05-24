@@ -49,6 +49,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void setGroupRank();
 				 void setInitialGroupRank();
 				 void setDeltaRTWeightVisible(bool value);
+				 void setShowIsotopes();
 
 		private:
 				QSettings *settings;
