@@ -121,7 +121,7 @@ public:
 	QSettings* getSettings() {
 		return settings;
 	}
-	vector<mzSample*> samples;		//list of loadded samples
+	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
 	int noOfPeakTables = 0;
@@ -272,6 +272,7 @@ Q_SIGNALS:
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
+	void setLoaded();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -292,6 +293,9 @@ public Q_SLOTS:
 	void refreshIntensities();
 	void loadCompoundsFile();
 	bool loadCompoundsFile(QString filename);
+	void loadSetsFile();
+	bool loadSetsFile(QString filename);
+	int loadSetsCSVFile(string filename);
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();

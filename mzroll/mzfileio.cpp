@@ -36,7 +36,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QFile file(filename);
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
-    if (!file.exists() ) { 	//couldn't fine this file.. check local directory
+    if (!file.exists() ) { 	//couldn't find this file.. check local directory
         qDebug() << "Can't find file " << filename; return 0;
     }
 

@@ -19,6 +19,7 @@ public:
     QString lastSavedProject;
     QColor  lastUsedSampleColor;
     QMap<mzSample*, QColor> storeSampleColors;
+    QTreeWidget* getTreeWidget();
 
 Q_SIGNALS:
 

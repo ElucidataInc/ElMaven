@@ -1445,8 +1445,7 @@ void MainWindow::open() {
 					tr(
 							"All Known Formats(*.mzroll *.mzPeaks *.mzXML *.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
 							+ tr("mzXML Format(*.mzXML *.mzxml);;")
-							+ tr(
-									"mzData Format(*.mzdata *.mzData *.mzData.xml);;")
+							+ tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
 							+ tr("mzML Format(*.mzml *.mzML);;")
 							+ tr("NetCDF Format(*.cdf *.nc);;")
 							+ tr("Thermo (*.raw);;") //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -1455,19 +1454,19 @@ void MainWindow::open() {
 							+ tr("Peptide XML(*.pep.xml *.pepXML);;")
 							+ tr("Peptide idpDB(*.idpDB);;")
 							+ tr("All Files(*.*)"));
-
+							
 	if (filelist.size() == 0)
 		return;
 
   //Saving the file location into the Qsettings class so that it can be
-  //used yhe next time the user opens
+  //used the next time the user opens
 	QString absoluteFilePath(filelist[0]);
 	QFileInfo fileInfo(absoluteFilePath);
 	QDir tmp = fileInfo.absoluteDir();
 	if (tmp.exists())
 		settings->setValue("lastDir", tmp.absolutePath());
 
-  //Changing the title of the main window aftyer selecting the samples
+  //Changing the title of the main window after selecting the samples
 	setWindowTitle(
 			programName + "_" + STR(EL_MAVEN_VERSION) + " "
 					+ fileInfo.fileName());
@@ -1598,6 +1597,24 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 	}
 }
 
+//load set information
+bool MainWindow::loadSetsFile(QString filename) {
+	string dbfilename = filename.toStdString();
+	string dbname = mzUtils::cleanFilename(dbfilename);
+	int sampleCount = 0;
+
+    sampleCount = loadSetsCSVFile(dbfilename);
+    
+	if (sampleCount > 0) {
+		setStatusText(tr("loadSampleSets: done after loading %1 sample set").arg(QString::number(sampleCount)));
+		Q_EMIT(setLoaded());
+		return true;
+	} else {
+		setStatusText(tr("loadSampleSets: not able to load %1 sample set").arg(filename));
+		return false;
+	}
+}
+
 void MainWindow::loadCompoundsFile() {
 	LOGD;
 	QStringList filelist =
@@ -1637,6 +1654,119 @@ void MainWindow::loadCompoundsFile() {
 			int ret = msgBox.exec();
 		}
 	}
+}
+
+// open function for set csv
+void MainWindow::loadSetsFile() {
+	LOGD;
+	QStringList filelist =
+			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
+					".",
+					"All Known Formats(*.csv *.tab *.tab.txt);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv)");
+
+    if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
+	if(!loadSetsFile(filelist[0])) {
+		string dbfilename = filelist[0].toStdString();
+		string dbname = mzUtils::cleanFilename(dbfilename);
+		string notFoundColumns = "Following are the unknown column name(s) found: ";
+
+		QMessageBoxResize msgBox;
+		msgBox.setText(tr("Trouble in loading set information %1").arg(QString::fromStdString(dbname)));
+		msgBox.setIcon(QMessageBoxResize::Warning);
+		if (DB.notFoundColumns.size() > 0) {
+			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
+    			notFoundColumns += "\n" + *it;
+			}
+			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+		}
+
+		int ret = msgBox.exec();
+	} else {
+		if (DB.notFoundColumns.size() > 0) {
+			string notFoundColumns = "Following are the unknown column name(s) found: ";
+			QMessageBoxResize msgBox;
+			msgBox.setText(tr("Found some unknown column name(s)"));
+			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
+    			notFoundColumns += "\n" + *it;
+			}
+			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+			msgBox.setIcon(QMessageBoxResize::Information);
+			int ret = msgBox.exec();
+		}
+	}
+}
+
+int MainWindow::loadSetsCSVFile(string filename){
+
+    ifstream myfile(filename.c_str());
+    if (! myfile.is_open()) return 0;
+
+    string line;
+    string dbname = mzUtils::cleanFilename(filename);
+    int loadCount=0;
+    int lineCount=0;
+    map<string, int>header;
+    vector<string> headers;
+    static const string allHeadersarr[] = {"sample", "set"};
+    vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
+
+    //assume that files are tab delimited, unless matched ".csv", then comma delimited
+    string sep="\t";
+    if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
+    //cerr << filename << " sep=" << sep << endl;
+    while ( getline(myfile,line) ) {
+        if (!line.empty() && line[0] == '#') continue;
+        //trim spaces on the left
+        line.erase(line.find_last_not_of(" \n\r\t")+1);
+        lineCount++;
+
+        vector<string>fields;
+        mzUtils::splitNew(line, sep, fields);
+
+        for(unsigned int i=0; i < fields.size(); i++ ) {
+            int n = fields[i].length();
+            if (n>2 && fields[i][0] == '"' && fields[i][n-1] == '"') {
+                fields[i]= fields[i].substr(1,n-2);
+            }
+            if (n>2 && fields[i][0] == '\'' && fields[i][n-1] == '\'') {
+                fields[i]= fields[i].substr(1,n-2);
+            }
+        }
+
+        if (lineCount==1) {
+            headers = fields;
+            for(unsigned int i=0; i < fields.size(); i++ ) {
+                fields[i] = makeLowerCase(fields[i]);
+                header[fields[i]] = i;
+            }
+            continue;
+        }
+
+        string set;
+		QString sampleName;
+        int N=fields.size();
+
+        if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
+        if ( header.count("set")&& header["set"]<N)	set = fields[ header["set"] ];
+		else{
+			set = "NA";
+		}
+
+        if (sampleName.isEmpty()) continue;
+		if (set.empty()) set = "NA";
+
+        if (fileLoader->isSampleFileType(sampleName)){
+			sampleName = sampleName.section('.', 0, -2);
+		}
+		mzSample* sample=getSampleByName(sampleName);
+		if(!sample) continue; 
+        sample->_setName = set;
+       	loadCount++;
+    }
+    myfile.close();
+    return loadCount;
 }
 
 void MainWindow::loadMethodsFolder(QString& methodsFolder) {
@@ -2031,9 +2161,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 /**
- * MainWindow::createMenus This functin creates the menu that is on top of
+ * MainWindow::createMenus This function creates the menu that is on top of
  * the window. All the functionalities that are here are there in other
- * places on the window
+ * places in the window
  */
 void MainWindow::createMenus() {
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
@@ -3555,7 +3685,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 /*
 @author: Sahil
 */
-//TODO: Sahil, Added this while mergin mzfileio
+//TODO: Sahil, Added this while merging mzfileio
 mzSample* MainWindow::getSampleByName(QString name) {
 
     //perfect matching

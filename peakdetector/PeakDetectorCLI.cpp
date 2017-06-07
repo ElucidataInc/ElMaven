@@ -757,7 +757,7 @@ void PeakDetectorCLI::writeSampleListXML(xml_node& parent) {
 		_sample.append_attribute("name") = samples[i]->sampleName.c_str();
 		_sample.append_attribute("filename") = samples[i]->fileName.c_str();
 		_sample.append_attribute("sampleOrder") = i;
-		_sample.append_attribute("setName") = "A";
+		_sample.append_attribute("setName") = "NA";
 		_sample.append_attribute("sampleName") = samples[i]->sampleName.c_str();
 	}
 }

@@ -26,6 +26,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     _treeWidget=new QTreeWidget(this);
     _treeWidget->setColumnCount(4);
+    _treeWidget->setSortingEnabled(true);
     _treeWidget->setObjectName("Samples");
     _treeWidget->setHeaderHidden(true);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
@@ -48,6 +49,12 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
     connect(loadButton,SIGNAL(clicked()),_mainwindow, SLOT(open()));
 
+    QToolButton* loadSetsButton = new QToolButton(toolBar);
+    loadSetsButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
+    loadSetsButton->setToolTip("Load Sets");
+    connect(loadSetsButton,SIGNAL(clicked()),_mainwindow, SLOT(loadSetsFile()));
+    connect(_mainwindow,SIGNAL(setLoaded()),SLOT(updateSampleList()));
+
     QToolButton* saveButton = new QToolButton(toolBar);
     saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
     saveButton->setToolTip("Save Project As");
@@ -69,15 +76,16 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
     checkUncheck->setToolTip("Show / Hide Selected Samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
-    //TODO: Giridhari, Create this buttong to set samples as Blank samples
+    //TODO: Giridhari, Create this button to set samples as Blank samples
     QToolButton* blankButton = new QToolButton(toolBar);
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
-    blankButton->setToolTip("Set As a Blank Saples");
+    blankButton->setToolTip("Set As a Blank Sample");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
     //toolBar->addWidget(new QLabel("Compounds: "));
     //toolBar->addWidget(databaseSelect);
     toolBar->addWidget(loadButton);
+    toolBar->addWidget(loadSetsButton);
     toolBar->addWidget(saveButton);
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
@@ -424,7 +432,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     _treeWidget->clear();
 
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    QStringList header; header << "Sample" << "Set" << "Scalling";
+    QStringList header; header << "Sample" << "Set" << "Scaling";
     _treeWidget->setHeaderLabels( header );
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
@@ -603,6 +611,10 @@ void ProjectDockWidget::saveProject() {
         _mainwindow->savePeaksTable(peaksTable, fileName, QString::number(j));
 		j++;
 	}
+}
+
+QTreeWidget* ProjectDockWidget::getTreeWidget(){
+    return _treeWidget;
 }
 
 void ProjectDockWidget::loadProject() {

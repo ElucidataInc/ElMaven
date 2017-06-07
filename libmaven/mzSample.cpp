@@ -10,7 +10,7 @@ int mzSample::filter_mslevel=0;
 
 
 mzSample::mzSample() 
-        : _setName("A")
+        : _setName("NA")
 {
         maxMz = maxRt = 0;
         minMz = minRt = 0;
@@ -105,7 +105,7 @@ void mzSample::loadAnySample(const char* filename) {
     }
 }
 
-void mzSample::sampleNameing(const char* filename) {
+void mzSample::sampleNaming(const char* filename) {
     string filenameString = string(filename);
 
     //This is the complete file name
@@ -137,7 +137,7 @@ void mzSample::loadSample(const char* filename) {
     calculateMzRtRange();
 
     //Setting Sample name 
-    sampleNameing(filename);
+    sampleNaming(filename);
 
     //Checking if a sample is blank or not
     checkSampleBlank(filename);
