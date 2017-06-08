@@ -6,6 +6,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     mainwindow = w;
     updateSettingFormGUI();
     setIsotopeAtom();
+    setMavenParameters();
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
@@ -45,6 +46,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(maxNaturalAbundanceErr, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
     connect(minIsotopicCorrelation, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
     connect(maxIsotopeScanDiff, SIGNAL(valueChanged(int)), SLOT(recomputeIsotopes()));
+
+    connect(eicTypeComboBox, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
 
     //remote url used to fetch compound lists, pathways, and notes
     connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
@@ -170,6 +173,8 @@ void SettingsForm::updateSettingFormGUI() {
 
     isotopeC13Correction->setCheckState(  (Qt::CheckState) settings->value("isotopeC13Correction").toInt()  );
 
+    eicTypeComboBox->setCurrentIndex(settings->value("eicTypeComboBox").toInt());
+
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
@@ -236,6 +241,8 @@ void SettingsForm::getFormValues() {
     settings->setValue("baseline_quantile", baseline_quantile->value());
     settings->setValue("baseline_smoothing", baseline_smoothing->value());
 
+    settings->setValue("eicTypeComboBox",eicTypeComboBox->currentIndex());
+
     settings->setValue("centroid_scan_flag", centroid_scan_flag->checkState() );
     settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
     settings->setValue("scan_filter_min_quantile", scan_filter_min_quantile->value());
@@ -280,6 +287,19 @@ void SettingsForm::getFormValues() {
     	mzSample::setFilter_mslevel(2);
     } else {
     	mzSample::setFilter_mslevel(0);
+    }
+
+    setMavenParameters();
+}
+
+void SettingsForm::setMavenParameters() {
+
+    MavenParameters* mavenParameters = mainwindow->mavenParameters;
+
+    if (settings != NULL) {
+
+        mavenParameters->eicType = settings->value("eicTypeComboBox").toInt();
+
     }
 }
 

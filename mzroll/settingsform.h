@@ -21,6 +21,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
 		public Q_SLOTS:
                  void updateSettingFormGUI();
 				 void getFormValues();
+                 void setMavenParameters();
 				 void recomputeEIC();
 				 void recomputeIsotopes();
                  void selectFolder(QString key);

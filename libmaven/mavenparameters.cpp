@@ -33,6 +33,8 @@ MavenParameters::MavenParameters() {
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 40;
 
+        eicType = 0;
+
         // peak grouping across samples
         grouping_maxRtWindow = 0.5;
 

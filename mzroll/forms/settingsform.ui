@@ -731,6 +731,53 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="eicOptions">
+      <attribute name="title">
+       <string>EIC (XIC)</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QGroupBox" name="eicCalculation">
+         <property name="title">
+          <string>EIC Calculation</string>
+         </property>
+         <widget class="QComboBox" name="eicTypeComboBox">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>50</y>
+            <width>151</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <item>
+           <property name="text">
+            <string>Max</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Sum</string>
+           </property>
+          </item>
+         </widget>
+         <widget class="QLabel" name="label_28">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>44</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>EIC Type</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="Libraries">
       <attribute name="title">
        <string>Libraries</string>

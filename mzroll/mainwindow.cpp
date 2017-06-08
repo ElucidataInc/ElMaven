@@ -1795,6 +1795,9 @@ void MainWindow::readSettings() {
     if (!settings->contains("grouping_maxRtWindow"))
         settings->setValue("grouping_maxRtWindow", 0.5);
 
+    if (!settings->contains("eicTypeComboBox"))
+        settings->setValue("eicTypeComboBox", 0);
+
     // BaseLine Calculation
     if (!settings->contains("baseline_smoothingWindow"))
         settings->setValue("baseline_smoothingWindow", 5);

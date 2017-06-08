@@ -124,6 +124,8 @@ public:
 	int baseline_smoothingWindow;
 	int baseline_dropTopX;
 
+	int eicType;
+
 	//peak filtering
 	int minGoodGroupCount;
 	float minSignalBlankRatio;

@@ -37,6 +37,7 @@ class EIC {
          * 
          */
         enum SmootherType { GAUSSIAN=0, AVG=1, SAVGOL=2 };
+        enum EicType {MAX=0, SUM=1};
 
         vector <int> scannum;
         vector <float> rt;
