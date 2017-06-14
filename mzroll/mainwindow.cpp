@@ -1133,7 +1133,9 @@ void MainWindow::setTotalCharge() {
 	mavenParameters->ionizationMode = temp;
 	mavenParameters->charge = ionChargeBox->value();
 	totalCharge = temp * ionChargeBox->value();
-	
+
+	ligandWidget->updateTable();
+
 } 
 
 vector<mzSample*> MainWindow::getVisibleSamples() {
