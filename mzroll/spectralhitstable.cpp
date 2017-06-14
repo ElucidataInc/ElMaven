@@ -934,6 +934,7 @@ void SpectralHitsDockWidget::integrateMS1() {
    int baseline_smoothing = settings->value("baseline_smoothing").toInt();
    int baseline_quantile =  settings->value("baseline_quantile").toInt();
    float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
+   int eic_type = _mainwindow->mavenParameters->eicType;
 
 
    QMap<QString,mzSlice>  peptideMap;
@@ -985,7 +986,8 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     amuQ1,
                                                     amuQ3,
                                                     baseline_smoothing,
-                                                    baseline_quantile);
+                                                    baseline_quantile,
+                                                    eic_type);
 
        //qDebug() << "here.. .here.. here " << eics.size();
 

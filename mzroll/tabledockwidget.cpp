@@ -791,10 +791,10 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
 
                 EIC* eic;
                 if ( !grp.srmId.empty() ) {
-                    eic = peak.getSample()->getEIC(grp.srmId);
+                    eic = peak.getSample()->getEIC(grp.srmId, _mainwindow->mavenParameters->eicType);
                     //eics.push_back(eic);
                 } else {
-                    eic = peak.getSample()->getEIC(peak.mzmin,peak.mzmax,peak.rtmin-outputRtWindow,peak.rtmax+outputRtWindow,1);
+                    eic = peak.getSample()->getEIC(peak.mzmin,peak.mzmax,peak.rtmin-outputRtWindow,peak.rtmax+outputRtWindow,1, _mainwindow->mavenParameters->eicType);
                     //eics.push_back(eic);
                 }
 
@@ -957,10 +957,10 @@ vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
         vector<mzSample*> samples = _mainwindow->getSamples();
         for (unsigned int j = 0; j < samples.size(); j++) {
             if (!grp.srmId.empty()) {
-                EIC* eic = samples[j]->getEIC(grp.srmId);
+                EIC* eic = samples[j]->getEIC(grp.srmId, _mainwindow->mavenParameters->eicType);
                 eics.push_back(eic);
             } else {
-                EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1);
+                EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1, _mainwindow->mavenParameters->eicType);
                 eics.push_back(eic);
             }
         }

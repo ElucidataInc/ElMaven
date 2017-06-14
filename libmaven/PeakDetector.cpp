@@ -23,7 +23,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     float amuQ1, 
                                     float amuQ3,
                                     int baseline_smoothingWindow,
-                                    int baseline_dropTopX) 
+                                    int baseline_dropTopX, int eicType) 
 {
 
         vector<EIC*> eics;
@@ -59,21 +59,21 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         //if srmId of the slice is present, get EICs on the basis of srmId
                         //cout << "computeEIC srm:" << slice->srmId << endl;
 
-                        
-                        e = sample->getEIC(slice->srmId);
+
+                        e = sample->getEIC(slice->srmId, eicType);
                         
                         //TODO this is for MS/MS?
                 } else if (c && c->precursorMz > 0 && c->productMz > 0) {
                         //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 
-                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz,
+                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
                                         amuQ1, amuQ3);
 
                 } else {
                         //This is the usual case where we are going peakpicking
                         //with DB. This is a general enough senerio
                         e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-                                        slice->rtmax, 1);
+                                        slice->rtmax, 1, eicType);
                 }
                 
 
@@ -342,7 +342,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                     i++) {
                 float window = i * mavenParameters->avgScanTime;
                 EIC * eic = sample->getEIC(mzmin, mzmax, rtmin - window,
-                        rtmax + window, 1);
+                        rtmax + window, 1, mavenParameters->eicType);
 
                 // smooth fond eic TODO: null check for found
                 eic->setSmootherType(
@@ -564,7 +564,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     i++) {
                 float window = i * mavenParameters->avgScanTime;
                 EIC * eic = sample->getEIC(mzmin, mzmax, rtmin - window,
-                        rtmax + window, 1);
+                        rtmax + window, 1, mavenParameters->eicType);
 
                 // smooth fond eic TODO: null check for found
                 eic->setSmootherType(
@@ -844,7 +844,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->eic_smoothingAlgorithm, mavenParameters->amuQ1,
                                 mavenParameters->amuQ3,
                                 mavenParameters->baseline_smoothingWindow,
-                                mavenParameters->baseline_dropTopX);
+                                mavenParameters->baseline_dropTopX, mavenParameters->eicType);
 
                 float eicMaxIntensity = 0;
 

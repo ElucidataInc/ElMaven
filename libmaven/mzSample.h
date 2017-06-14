@@ -427,7 +427,7 @@ class mzLink {
              * @param  mslevel [MS Level]
              * @return         [pointer to EIC]
              */
-            EIC* getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel);
+            EIC* getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType);
 
 
             /**
@@ -436,7 +436,7 @@ class mzLink {
              * @param  srmId  [single reaction monitoring ID]
              * @return [pointer to EIC]
              */
-            EIC* getEIC(string srmId);
+            EIC* getEIC(string srmId, int eicType);
 
             /**
              * [get EIC]
@@ -448,7 +448,7 @@ class mzLink {
              * @param  amuQ2           [amu in Q2 step]
              * @return [pointer to EIC]
              */
-            EIC* getEIC(float precursorMz, float collisionEnergy, float productMz, float amuQ1, float amuQ2 );
+            EIC* getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, float amuQ1, float amuQ2);
 
             /**
              * [get Total Ion Chromatogram]

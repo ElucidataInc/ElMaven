@@ -957,7 +957,7 @@ Scan* mzSample::getScan(unsigned int scanNum) {
         }
 }
 
-EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, float amuQ1=0.1, float amuQ2=0.5) {
+EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, float amuQ1=0.1, float amuQ2=0.5) {
         EIC* e = new EIC();
         e->sampleName = sampleName;
         e->sample = this;
@@ -973,21 +973,50 @@ EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
                 if (productMz && abs(scan->productMz-productMz)>amuQ2) continue;
                 //if (collisionEnergy && abs(scan->collisionEnergy-collisionEnergy) > 0.5) continue;
 
-                float maxMz=0;
-                float maxIntensity=0;
-                for(unsigned int k=0; k < scan->nobs(); k++ ) {
-                        if (scan->intensity[k] > maxIntensity ) {
-                                maxIntensity=scan->intensity[k];
-                                maxMz = scan->mz[k];
-                        }
+                float eicMz=0;
+                float eicIntensity=0;
+
+                switch((EIC::EicType) eicType) {
+
+					case EIC::MAX:{
+						for(unsigned int k=0; k < scan->nobs(); k++ ) {
+							if (scan->intensity[k] > eicIntensity ) {
+								eicIntensity=scan->intensity[k];
+								eicMz = scan->mz[k];
+							}
+						}
+						break;
+					}
+					
+					case EIC::SUM: {
+						int n = 0;
+						for(unsigned int k=0; k < scan->nobs(); k++) {
+							eicIntensity += scan->intensity[k];
+							eicMz += scan->mz[k];
+							n++;
+						}
+
+						eicMz /= n;
+						break;
+					}
+					
+					default: {
+						for(unsigned int k=0; k < scan->nobs(); k++ ) {
+							if (scan->intensity[k] > eicIntensity ) {
+								eicIntensity=scan->intensity[k];
+								eicMz = scan->mz[k];
+							}
+						}
+						break;
+					}
                 }
 
                 e->scannum.push_back(scan->scannum);
                 e->rt.push_back( scan->rt );
-                e->intensity.push_back(maxIntensity);
-                e->mz.push_back(maxMz);
-                e->totalIntensity += maxIntensity;
-                if (maxIntensity>e->maxIntensity) e->maxIntensity = maxIntensity;
+                e->intensity.push_back(eicIntensity);
+                e->mz.push_back(eicMz);
+                e->totalIntensity += eicIntensity;
+                if (eicIntensity>e->maxIntensity) e->maxIntensity = eicIntensity;
         }
 
         if ( e->rt.size() > 0 ) {
@@ -1005,7 +1034,7 @@ EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 
 
 
-EIC* mzSample::getEIC(string srm) {
+EIC* mzSample::getEIC(string srm, int eicType) {
 
 
         EIC* e = new EIC();
@@ -1030,21 +1059,50 @@ EIC* mzSample::getEIC(string srm) {
                 vector<int> srmscans = srmScans[srm];
                 for (unsigned int i=0; i < srmscans.size(); i++ ) {
                         Scan* scan = scans[srmscans[i]];
-                        float maxMz=0;
-                        float maxIntensity=0;
-                        for(unsigned int k=0; k < scan->nobs(); k++ ) {
-                                if (scan->intensity[k] > maxIntensity ) {
-                                        maxIntensity=scan->intensity[k];
-                                        maxMz = scan->mz[k];
-                                }
-                        }
+						float eicMz=0;
+						float eicIntensity=0;
+
+						switch((EIC::EicType) eicType) {
+
+							case EIC::MAX: {
+								for(unsigned int k=0; k < scan->nobs(); k++ ) {
+										if (scan->intensity[k] > eicIntensity ) {
+												eicIntensity=scan->intensity[k];
+												eicMz = scan->mz[k];
+										}
+								}
+								break;
+							}
+							
+							case EIC::SUM: {
+								int n = 0;
+								for(unsigned int k=0; k < scan->nobs(); k++) {
+									eicIntensity += scan->intensity[k];
+									eicMz += scan->mz[k];
+								}
+
+								eicMz /= n;
+								break;
+							}
+							
+							default: {
+								for(unsigned int k=0; k < scan->nobs(); k++ ) {
+										if (scan->intensity[k] > eicIntensity ) {
+												eicIntensity=scan->intensity[k];
+												eicMz = scan->mz[k];
+										}
+								}
+								break;
+							}
+						}
+
                         e->scannum.push_back(scan->scannum);
                         e->rt.push_back( scan->rt );
-                        e->intensity.push_back(maxIntensity);
-                        e->mz.push_back(maxMz);
-                        e->totalIntensity += maxIntensity;
+                        e->intensity.push_back(eicIntensity);
+                        e->mz.push_back(eicMz);
+                        e->totalIntensity += eicIntensity;
 
-                        if (maxIntensity>e->maxIntensity) e->maxIntensity = maxIntensity;
+                        if (eicIntensity>e->maxIntensity) e->maxIntensity = eicIntensity;
                 }
         }
 
@@ -1071,7 +1129,7 @@ EIC* mzSample::getEIC(string srm) {
  * MS/MS
  * @return         [description]
  */
-EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel) {
+EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType) {
 
         //Adjusting the Retension Time so that it matches with the sample
         //retension time
@@ -1096,7 +1154,7 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
             return e;
         }
 
-        bool success = e->makeEICSlice(this,  mzmin, mzmax, rtmin, rtmax, mslevel);
+        bool success = e->makeEICSlice(this,  mzmin, mzmax, rtmin, rtmax, mslevel, eicType);
 
         if(!success) {
             return e;

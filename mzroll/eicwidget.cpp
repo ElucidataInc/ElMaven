@@ -313,12 +313,13 @@ void EicWidget::computeEICs() {
 	float amuQ3 = settings->value("amuQ3").toDouble();
 	int baseline_smoothing = settings->value("baseline_smoothing").toInt();
 	int baseline_quantile = settings->value("baseline_quantile").toInt();
+	int eic_type = getMainWindow()->mavenParameters->eicType;
 
 	mzSlice bounds = visibleSamplesBounds();
 
 	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
 			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
-			baseline_quantile);
+			baseline_quantile, eic_type);
 
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget

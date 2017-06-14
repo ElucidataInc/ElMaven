@@ -706,8 +706,8 @@ void EIC::getRTMinMaxPerScan() {
  * Total intensity is calculated by adding the maxintensity from each scan.
  * @param[in] scan This is the 
  */
-bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel) {
-    float maxMz = 0, maxIntensity = 0;
+bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType) {
+    float eicMz = 0, eicIntensity = 0;
     int lb, scanNum;
     vector<float>::iterator mzItr;
     deque<Scan*>::iterator scanItr;
@@ -745,29 +745,62 @@ bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, f
         if (scan->rt < rtmin) continue;
         if (scan->rt > rtmax) break;
 
-        maxMz = 0;
-        maxIntensity = 0;
+        eicMz = 0;
+        eicIntensity = 0;
 
         //binary search
         mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
         lb = mzItr - scan->mz.begin();
 
-        for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
-            if (scan->mz[scanIdx] < mzmin) continue;
-            if (scan->mz[scanIdx] > mzmax) break;
+        switch((EIC::EicType) eicType) {
 
-            if (scan->intensity[scanIdx] > maxIntensity ) {
-                maxIntensity = scan->intensity[scanIdx];
-                maxMz = scan->mz[scanIdx];
+            case EIC::MAX: {
+                for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+                    if (scan->mz[scanIdx] < mzmin) continue;
+                    if (scan->mz[scanIdx] > mzmax) break;
+
+                    if (scan->intensity[scanIdx] > eicIntensity ) {
+                        eicIntensity = scan->intensity[scanIdx];
+                        eicMz = scan->mz[scanIdx];
+                    }
+                }
+                break;
+            }
+            
+            case EIC::SUM: {
+                int n = 0;
+                for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+                    if (scan->mz[scanIdx] < mzmin) continue;
+                    if (scan->mz[scanIdx] > mzmax) break;
+
+                    eicIntensity += scan->intensity[scanIdx];
+                    eicMz += scan->mz[scanIdx];
+                    n++;
+                }
+                eicMz /= n;
+                break;
+            }
+            
+            default: {
+                for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
+                    if (scan->mz[scanIdx] < mzmin) continue;
+                    if (scan->mz[scanIdx] > mzmax) break;
+
+                    if (scan->intensity[scanIdx] > eicIntensity ) {
+                        eicIntensity = scan->intensity[scanIdx];
+                        eicMz = scan->mz[scanIdx];
+                    }
+                }
+                break;
             }
         }
 
         this->scannum.push_back(scanNum);
         this->rt.push_back(scan->rt);
-        this->intensity.push_back(maxIntensity);
-        this->mz.push_back(maxMz);
-        this->totalIntensity += maxIntensity;
-        if (maxIntensity > this->maxIntensity) this->maxIntensity = maxIntensity;
+        this->intensity.push_back(eicIntensity);
+        this->mz.push_back(eicMz);
+        this->totalIntensity += eicIntensity;
+        if (eicIntensity > this->maxIntensity) this->maxIntensity = eicIntensity;
     }
 
     return true;

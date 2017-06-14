@@ -64,7 +64,7 @@ mzSlice EICLogic::setMzSlice(float mz, double ppm) {
 
 void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
 		int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
-		float amuQ3, int baseline_smoothing, int baseline_quantile) {
+		float amuQ3, int baseline_smoothing, int baseline_quantile, int eicType) {
 
 	mzSlice slice = _slice;
 	slice.rtmin = bounds.rtmin;
@@ -73,7 +73,7 @@ void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
 	//get eics
 	eics = PeakDetector::pullEICs(&slice, samples, EicLoader::PeakDetection,
 			eic_smoothingWindow, eic_smoothingAlgorithm, amuQ1, amuQ3,
-			baseline_smoothing, baseline_quantile);
+			baseline_smoothing, baseline_quantile, eicType);
 
 	//find peaks
 	//for(int i=0; i < eics.size(); i++ )  eics[i]->getPeakPositions(eic_smoothingWindow);
