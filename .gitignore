@@ -101,3 +101,8 @@ maven_opensource.kdev4
 moc_*.cpp
 ui_*.h
 *.moc
+
+*.qmake.stash
+moc_predefs.h
+qrc_mzroll.cpp
+object_script.pillowcore

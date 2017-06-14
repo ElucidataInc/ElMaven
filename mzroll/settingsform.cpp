@@ -254,7 +254,6 @@ void SettingsForm::getFormValues() {
     else if ( ionizationMode->currentText().contains("-1") ) mode=-1;
     else if (ionizationMode->currentText().contains("Auto Detect") && !mainwindow->samples.empty()) mode=mainwindow->samples[0]->getPolarity();
     if(mainwindow) mainwindow->setIonizationMode(mode);
-    settings->setValue("ionizationMode",mode);
 
     //change ionization type
 

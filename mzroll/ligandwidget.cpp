@@ -332,7 +332,16 @@ void LigandWidget::showTable() {
         QString name(compound->name.c_str() );
        // QString id( compound->id.c_str() );
         parent->setText(0,name.toUpper());  //Feng note: sort names after capitalization
-        parent->setText(1,QString::number(compound->mass,'f',6));
+
+        float mz;
+        if (compound->formula.length()) {
+            int charge = _mw->mavenParameters->ionizationMode * _mw->mavenParameters->charge;
+            mz = compound->ajustedMass(charge);
+        } else {
+            mz = compound->mass;
+        }
+
+        parent->setText(1,QString::number(mz,'f',6));
         if(compound->expectedRt > 0) parent->setText(2,QString::number(compound->expectedRt));
         parent->setData(0, Qt::UserRole, QVariant::fromValue(compound));
         parent->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsEnabled);
