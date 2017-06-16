@@ -10,6 +10,7 @@
 #include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "compound.h"
 
 class Classifier;
 
@@ -35,6 +36,8 @@ public:
 	void setMaxGroupCount(int x) {
 		limitGroupCount = x;
 	}
+	
+	int getCharge(Compound* compound = nullptr);
 
 	/**
 	 * [set Compounds]
@@ -103,6 +106,7 @@ public:
 	 */
 	int ionizationMode;
 	int charge;
+	bool formulaFlag = false;
 
 	// For quantile intensity and qualityWeight
 	double quantileQuality;

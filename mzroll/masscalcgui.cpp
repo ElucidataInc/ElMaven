@@ -120,12 +120,12 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
 }
 
 void MassCalcWidget::getMatches() {
-    int charge = _mw->mavenParameters->ionizationMode*_mw->mavenParameters->charge;
+    int charge = _mw->mavenParameters->getCharge();
 	QSet<Compound*> compounds = findMathchingCompounds(_mz,_ppm,charge);
 	Q_FOREACH(Compound* c, compounds) {
           MassCalculator::Match* m = new MassCalculator::Match();
           m->name = c->formula;
-          m->mass = MassCalculator::computeMass(c->formula,charge);
+          m->mass = MassCalculator::computeMass(c->formula,_mw->mavenParameters->getCharge(c));
           m->diff = mzUtils::ppmDist((double) m->mass,(double) _mz);
           m->compoundLink = c;
           matches.push_back(m);

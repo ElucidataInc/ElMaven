@@ -1226,9 +1226,10 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
 void MainWindow::setFormulaFocus(QString formula) {
 	int charge = 0;
+	mavenParameters->formulaFlag = TRUE;
 	//if (getIonizationMode())
-		charge = mavenParameters->ionizationMode*mavenParameters->charge; //user specified ionization mode
-
+	charge = mavenParameters->getCharge(); //user specified ionization mode
+	mavenParameters->formulaFlag = FALSE;
 	// MassCalculator mcalc;
 	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
 	if (eicWidget->isVisible())
@@ -1264,7 +1265,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	// 	charge = 1;
 	// if (getIonizationMode())
 	// 	charge = getIonizationMode(); //user specified ionization mode
-	charge = mavenParameters->ionizationMode*mavenParameters->charge;
+	charge = mavenParameters->getCharge(c);
 	qDebug() << "setCompoundFocus:" << c->name.c_str() << " " << charge << " "
 			<< c->expectedRt;
 
@@ -2849,8 +2850,7 @@ bool MainWindow::checkCompoundExistance(Compound* c) {
 	// 	charge = 1;
 	// if (getIonizationMode())
 	// 	charge = getIonizationMode(); //user specified ionization mode
-	charge = mavenParameters->ionizationMode*mavenParameters->charge;
-
+	charge = mavenParameters->getCharge(c);
 	float mz = c->ajustedMass(charge);
 	float mzmin = mz - mz / 1e6 * 3;
 	float mzmax = mz + mz / 1e6 * 3;
@@ -3292,7 +3292,7 @@ void MainWindow::getLinks(Peak* peak) {
 	//matching compounds
 	for (int i = 0; i < links.size(); i++) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
-				links[i].mz2, ppm, mavenParameters->ionizationMode*mavenParameters->charge);
+				links[i].mz2, ppm, mavenParameters->getCharge());
 		if (compunds.size() > 0)
 			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}

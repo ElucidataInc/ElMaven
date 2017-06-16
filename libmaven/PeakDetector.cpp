@@ -216,9 +216,9 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                 slice->setSRMId();
 
                 // //Calculating the mzmin and mzmax
+                int charge = mavenParameters->getCharge(c);
                 bool success  = \
-                slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, \
-                                                mavenParameters->ionizationMode*mavenParameters->charge);
+                slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, charge);
                 if (!success) continue;
 
                 //calculating the min and max RT
@@ -242,8 +242,9 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
         return;
 
     string formula = parentgroup->compound->formula; //parent formula
+    int charge = mavenParameters->getCharge(parentgroup->compound);
     //generate isotope list for parent mass
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode*mavenParameters->charge, 
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
                                                     mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
 
     //iterate over samples to find properties for parent's isotopes.
@@ -462,9 +463,9 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
         return;
 
     string formula = parentgroup->compound->formula; //parent formula
-    //generate isotope list for parent mass
+    int charge = mavenParameters->getCharge(parentgroup->compound);//generate isotope list for parent mass
 
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, mavenParameters->ionizationMode*mavenParameters->charge, 
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
                                                         mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
 
 

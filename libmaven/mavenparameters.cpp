@@ -100,6 +100,16 @@ void MavenParameters::setAverageScanTime() {
                 avgScanTime = samples[0]->getAverageFullScanTime();
 }
 
+int MavenParameters::getCharge(Compound* compound){
+	int charge;
+        if(compound != nullptr && !this->formulaFlag)
+                if(compound->charge)
+                        charge = compound->charge;
+        else
+                charge = this->ionizationMode*this->charge;
+	return charge;
+}
+
 /**
  * MavenParameters::setIonizationMode In this the mode is selected my looking
  * at the first sample polarity

@@ -121,7 +121,7 @@ public:
 	QSettings* getSettings() {
 		return settings;
 	}
-	vector<mzSample*> samples;		//list of loadded samples
+	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
 	int noOfPeakTables = 0;
@@ -218,7 +218,7 @@ public:
 	TableDockWidget* getBookmarkedPeaks() {
 		return bookmarkedPeaks;
 	}
-
+	
     QList< QPointer<TableDockWidget> > getPeakTableList() { return groupTables; } //TODO: Sahil - Kiran, Added while merging mainwindow
 	
 	Classifier* getClassifier() {
