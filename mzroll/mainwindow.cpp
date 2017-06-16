@@ -1606,11 +1606,11 @@ bool MainWindow::loadSetsFile(QString filename) {
     sampleCount = loadSetsCSVFile(dbfilename);
     
 	if (sampleCount > 0) {
-		setStatusText(tr("loadSampleSets: done after loading %1 sample set").arg(QString::number(sampleCount)));
+		setStatusText(tr("loadSetInfo: done after loading %1 set information").arg(QString::number(sampleCount)));
 		Q_EMIT(setLoaded());
 		return true;
 	} else {
-		setStatusText(tr("loadSampleSets: not able to load %1 sample set").arg(filename));
+		setStatusText(tr("loadSetInfo: not able to load %1 set information").arg(filename));
 		return false;
 	}
 }
@@ -1668,33 +1668,12 @@ void MainWindow::loadSetsFile() {
 	if(!loadSetsFile(filelist[0])) {
 		string dbfilename = filelist[0].toStdString();
 		string dbname = mzUtils::cleanFilename(dbfilename);
-		string notFoundColumns = "Following are the unknown column name(s) found: ";
 
 		QMessageBoxResize msgBox;
 		msgBox.setText(tr("Trouble in loading set information %1").arg(QString::fromStdString(dbname)));
 		msgBox.setIcon(QMessageBoxResize::Warning);
-		if (DB.notFoundColumns.size() > 0) {
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
-		}
 
 		int ret = msgBox.exec();
-	} else {
-		if (DB.notFoundColumns.size() > 0) {
-			string notFoundColumns = "Following are the unknown column name(s) found: ";
-			QMessageBoxResize msgBox;
-			msgBox.setText(tr("Found some unknown column name(s)"));
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
-			msgBox.setIcon(QMessageBoxResize::Information);
-			int ret = msgBox.exec();
-		}
 	}
 }
 

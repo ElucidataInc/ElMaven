@@ -50,7 +50,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     connect(loadButton,SIGNAL(clicked()),_mainwindow, SLOT(open()));
 
     QToolButton* loadSetsButton = new QToolButton(toolBar);
-    loadSetsButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
+    loadSetsButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
     loadSetsButton->setToolTip("Load Sets");
     connect(loadSetsButton,SIGNAL(clicked()),_mainwindow, SLOT(loadSetsFile()));
     connect(_mainwindow,SIGNAL(setLoaded()),SLOT(updateSampleList()));
