@@ -10,7 +10,7 @@
 #include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "mzUtils.h"
-#include "compound.h"
+#include "Compound.h"
 
 class Classifier;
 
