@@ -218,7 +218,7 @@ public:
 	TableDockWidget* getBookmarkedPeaks() {
 		return bookmarkedPeaks;
 	}
-
+	
     QList< QPointer<TableDockWidget> > getPeakTableList() { return groupTables; } //TODO: Sahil - Kiran, Added while merging mainwindow
 	
 	Classifier* getClassifier() {

@@ -103,8 +103,8 @@ void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 		if (!c->srmId.empty()) slice.srmId=c->srmId;
 
 		if (!c->formula.empty()) {
-			double mass = mcalc.computeMass(c->formula,mainwindow->mavenParameters->ionizationMode
-												*mainwindow->mavenParameters->charge);
+			int charge = mainwindow->mavenParameters->getCharge(c);
+			double mass = mcalc.computeMass(c->formula,charge);
             double ppmW = mass/1e6*compoundPPMWindow;
             slice.mzmin = mass-ppmW;
             slice.mzmax = mass+ppmW;
