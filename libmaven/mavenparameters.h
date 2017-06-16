@@ -37,7 +37,7 @@ public:
 		limitGroupCount = x;
 	}
 	
-	int getCharge(Compound* compound = nullptr);
+	int getCharge(Compound* compound = NULL);
 
 	/**
 	 * [set Compounds]

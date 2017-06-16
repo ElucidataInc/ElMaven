@@ -1226,10 +1226,10 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
 void MainWindow::setFormulaFocus(QString formula) {
 	int charge = 0;
-	mavenParameters->formulaFlag = TRUE;
+	mavenParameters->formulaFlag = true;
 	//if (getIonizationMode())
 	charge = mavenParameters->getCharge(); //user specified ionization mode
-	mavenParameters->formulaFlag = FALSE;
+	mavenParameters->formulaFlag = false;
 	// MassCalculator mcalc;
 	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
 	if (eicWidget->isVisible())
