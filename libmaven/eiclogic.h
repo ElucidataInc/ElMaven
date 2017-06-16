@@ -26,7 +26,14 @@ public:
 		return _slice;
 	}
 
-	PeakGroup* selectGroupNearRt(float rt, PeakGroup* selGroup);
+	PeakGroup* selectGroupNearRt(float rt,
+								PeakGroup* selGroup,
+								bool matchRtFlag,
+								float compoundRTWindow,
+								int qualityWeight,
+								int intensityWeight,
+								int deltaRTWeight);
+
 	void groupPeaks(float eic_smoothingWindow, float grouping_maxRtWindow, double minQuality);
 	mzSlice setMzSlice(float mz, double ppm);
 

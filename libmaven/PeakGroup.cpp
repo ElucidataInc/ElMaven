@@ -729,3 +729,34 @@ Scan* PeakGroup::getAverageFragmenationScan(float resolution) {
     //cout << "getAverageScan() from:" << from << " to:" << to << " scanCount:" << scanCount << "scans. mzs=" << avgScan->nobs() << endl;
     return avgScan;
     }
+
+void PeakGroup::calGroupRank(bool matchRtFlag,
+                            float compoundRTWindow,
+                            int qualityWeight,
+                            int intensityWeight,
+                            int deltaRTWeight) {
+
+    float rtDiff = -1;
+
+    if (compound != NULL && compound->expectedRt > 0)
+    {
+        rtDiff = abs(compound->expectedRt - (meanRt));
+        expectedRtDiff = rtDiff;
+    }
+
+    // Peak Group Rank accoording to given weightage
+    double A = (double) qualityWeight/10;
+    double B = (double) intensityWeight/10;
+    double C = (double) deltaRTWeight/10;
+
+    if (matchRtFlag && compound != NULL && compound->expectedRt > 0) {
+        groupRank = pow(rtDiff, 2*C) * pow((1.1 - maxQuality), A)
+                                * (1 /( pow(log(maxIntensity + 1), B))); //TODO Formula to rank groups
+    } else {
+
+        groupRank = pow((1.1 - maxQuality), A)
+                                * (1 /(pow(log(maxIntensity + 1), B)));
+
+    }
+
+}

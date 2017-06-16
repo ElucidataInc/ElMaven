@@ -1852,7 +1852,13 @@ void EicWidget::selectGroupNearRt(float rt) {
 		return;
 
 	PeakGroup* selGroup = NULL;
-	selGroup = eicParameters->selectGroupNearRt(rt, selGroup);
+	selGroup = eicParameters->selectGroupNearRt(rt,
+												selGroup,
+												getMainWindow()->mavenParameters->matchRtFlag,
+												getMainWindow()->mavenParameters->compoundRTWindow,
+												getMainWindow()->mavenParameters->qualityWeight,
+												getMainWindow()->mavenParameters->intensityWeight,
+												getMainWindow()->mavenParameters->deltaRTWeight);
 
 	if (selGroup) {
 		//Sabu Iso

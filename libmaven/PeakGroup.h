@@ -525,5 +525,11 @@ class PeakGroup{
          */
         static bool compMetaGroup(const PeakGroup& a, const PeakGroup& b) { return(a.metaGroupId < b.metaGroupId); }
         bool operator< (const PeakGroup* b) const { return this->maxIntensity < b->maxIntensity; }
+
+        void calGroupRank(bool matchRtFlag,
+                            float compoundRTWindow,
+                            int qualityWeight,
+                            int intensityWeight,
+                            int deltaRTWeight);
 };
 #endif

@@ -25,7 +25,13 @@ void EICLogic::associateNameWithPeakGroups() {
 	}
 }
 
-PeakGroup* EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
+PeakGroup* EICLogic::selectGroupNearRt(float rt,
+									   	PeakGroup* selGroup,
+										bool matchRtFlag,
+										float compoundRTWindow,
+										int qualityWeight,
+										int intensityWeight,
+										int deltaRTWeight) {
 
 	for (unsigned int i = 0; i < peakgroups.size(); i++) {
 		float diff = abs(peakgroups[i].meanRt - rt);
@@ -34,8 +40,20 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt, PeakGroup* selGroup) {
 				selGroup = &peakgroups[i];
 				continue;
 			}
+
+			selGroup->calGroupRank(matchRtFlag,
+									compoundRTWindow,
+									qualityWeight,
+									intensityWeight,
+									deltaRTWeight);
+			peakgroups[i].calGroupRank(matchRtFlag,
+									compoundRTWindow,
+									qualityWeight,
+									intensityWeight,
+									deltaRTWeight);
+
 			if (selGroup != NULL
-					&& peakgroups[i].maxIntensity > selGroup->maxIntensity) {
+					&& peakgroups[i].groupRank < selGroup->groupRank) {
 				selGroup = &peakgroups[i];
 			}
 		}
