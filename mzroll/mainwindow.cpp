@@ -1730,11 +1730,11 @@ int MainWindow::loadSetsCSVFile(string filename){
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
         if ( header.count("set")&& header["set"]<N)	set = fields[ header["set"] ];
 		else{
-			set = "NA";
+			set = "";
 		}
 
         if (sampleName.isEmpty()) continue;
-		if (set.empty()) set = "NA";
+		if (set.empty()) set = "";
 
         if (fileLoader->isSampleFileType(sampleName)){
 			sampleName = sampleName.section('.', 0, -2);

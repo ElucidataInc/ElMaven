@@ -10,7 +10,7 @@ int mzSample::filter_mslevel=0;
 
 
 mzSample::mzSample() 
-        : _setName("NA")
+        : _setName("")
 {
         maxMz = maxRt = 0;
         minMz = minRt = 0;
