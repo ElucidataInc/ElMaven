@@ -1488,7 +1488,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
 	if (group == NULL)
 		return;
-	int charge = getMainWindow()->mavenParameters->getCharge();
+	int charge = getMainWindow()->mavenParameters->getCharge(group->compound);
 	if (group->getExpectedMz(charge, 
 			getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(charge,
@@ -1520,7 +1520,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 		eicParameters->_slice.rtmin = bounds.rtmin;
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
-	charge = getMainWindow()->mavenParameters->getCharge();
+	charge = getMainWindow()->mavenParameters->getCharge(group->compound);
 
 	if (group->getExpectedMz(charge,
 			getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes) != -1) {
