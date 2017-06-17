@@ -93,12 +93,12 @@ void CompareSamplesDialog::showEvent(QShowEvent *) {
 	QRegExp splitStr(";");
 
 	Q_FOREACH(mzSample* sample, samples ){
-	QString qname( sample->getSetName().c_str());
-	qname=qname.simplified();
-	QList<QString> names = qname.split(splitStr);
-	setnames.insert(qname);
-	Q_FOREACH(QString name, names) {name=name.simplified(); if(!name.isEmpty()) setnames.insert(name);}
-}
+		QString qname( sample->getSetName().c_str());
+		qname=qname.simplified();
+		QList<QString> names = qname.split(splitStr);
+		if(!qname.isEmpty() && qname != "") setnames.insert(qname);
+		Q_FOREACH(QString name, names) {name=name.simplified(); if(!name.isEmpty() && name != "") setnames.insert(name);}
+	}
 
 	Q_FOREACH(QString name, setnames ){
 	filelist1->addItem(name);
