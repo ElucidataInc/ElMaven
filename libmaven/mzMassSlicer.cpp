@@ -29,13 +29,14 @@ void MassSlices::stopSlicing() {
 }
 /**
  * MassSlices::algorithmB This is the main function that does the peakdetection
- * This dont need a DB to check the peaks. This function finds all the peaks
+ * This does not need a DB to check the peaks. This function finds all the peaks
  * that are present in the mzxml files
  * @param userPPM      [description]
  * @param minIntensity [description]
  * @param rtStep       [description]
  */
 void MassSlices::algorithmB(float userPPM,int rtStep) {
+//clear all previous data
     delete_all(slices);
     slices.clear();
     cache.clear();
@@ -44,16 +45,20 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 	this->_precursorPPM=userPPM;
 
     int totalScans = 0,currentScans = 0;
+
+//Calculate the total number of scans
     for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
 
+//Calculating the rt window using average distance between rts and mutiplying it with 20
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
     sendSignal("Status", 0 , 1);
 
-// #pragma omp parallel for ordered
+// Looping over every sample
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
+// Checking if splicing has been stopped
         if (mavenParameters->stop) {
             stopSlicing();
             break;
@@ -65,14 +70,17 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
         else if(i==2) num = "rd";
         else num = "th ";
 
+// updating progress on samples
         if (mavenParameters->showProgressFlag ) {
             string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
                                   + " Sample(s) Processing.....";
             sendSignal(progressText,currentScans,totalScans);
         }
 
-// #pragma omp cancel for
+// for loop for iterating over every scan of a sample
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
+
+// Checking if splicing has been stopped 
             if (mavenParameters->stop) {
                 stopSlicing();
                 break;
@@ -80,27 +88,33 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             currentScans++;
             Scan* scan = samples[i]->scans[j];
             if (scan->mslevel != 1 ) continue;
+
+// Checking if RT is in the given min to max RT range
             if (_maxRt and !isBetweenInclusive(scan->rt,_minRt,_maxRt)) continue;
             float rt = scan->rt;
 
             vector<int> charges;
             if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(userPPM);
 
+// Looping over every observation in the scan
             for(unsigned int k=0; k < scan->nobs(); k++ ) {
+
+// Checking if mz, intensity and charge are within specified range
                 if (_maxMz and !isBetweenInclusive(scan->mz[k],_minMz,_maxMz)) continue;
                 if (_maxIntensity and !isBetweenInclusive(scan->intensity[k],_minIntensity,_maxIntensity)) continue;
                 if ((_minCharge or _maxCharge) and !isBetweenInclusive(charges[k],_minCharge,_maxCharge)) continue;
 
+// Define mz max and min for this slice
                 float mz = scan->mz[k];
                 float mzmax = mz + mz / 1e6 * _precursorPPM;
                 float mzmin = mz - mz / 1e6 * _precursorPPM;
 
-// #pragma omp ordered
+// sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
                 mzSlice* Z = sliceExists(mz,rt);
 
                 if (Z) {
                     //cerr << "Merged Slice " <<  Z->mzmin << " " << Z->mzmax << " " << scan->intensity[k] << "  " << Z->ionCount << endl;
-
+                    // If slice exists take the max of the intensity, rt and mz (max and min)
                     Z->ionCount = std::max((float) Z->ionCount, (float ) scan->intensity[k]);
                     Z->rtmax = std::max((float)Z->rtmax, rt+2*rtWindow);
                     Z->rtmin = std::min((float)Z->rtmin, rt-2*rtWindow);
@@ -115,6 +129,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                     //cerr << Z->mz << " " << Z->mzmin << " " << Z->mzmax << " " << ppmDist((float)Z->mzmin,mz) << endl;
                 } else {
                     //cerr << "\t" << rt << "  " << mzmin << "  "  << mzmax << endl;
+                    //Make a new slice if no slice returned by sliceExists and push it into cache
                     mzSlice* s = new mzSlice(mzmin, mzmax, rt - 2 * rtWindow, rt + 2 * rtWindow);
                     s->ionCount = scan->intensity[k];
                     s->rt=scan->rt;
@@ -125,7 +140,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                     cache.insert( pair<int,mzSlice*>(mzRange, s));
                 }
             }
-
+// progress update 
             if (mavenParameters->showProgressFlag ) {
                 string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
                                   + " Sample(s) Processing.....\n"
@@ -173,14 +188,17 @@ void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
     cerr << "#algorithmC" << slices.size() << endl;
 }
 
+//Function to check if slice is already present in cache
 mzSlice*  MassSlices::sliceExists(float mz, float rt) {
     pair< multimap<int, mzSlice*>::iterator,  multimap<int, mzSlice*>::iterator > ppp;
+    // putting all mz slices in cache in a particular range in ppp
     ppp = cache.equal_range( (int) (mz* 10) );
     multimap<int, mzSlice*>::iterator it2 = ppp.first;
 
     float bestDist=FLT_MAX; 
     mzSlice* best=NULL;
 
+// For loop to iterate till best MZ slice becomes second
     for(; it2 != ppp.second; ++it2 ) {
         mzSlice* x = (*it2).second;
         if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {
