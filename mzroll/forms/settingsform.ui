@@ -733,7 +733,7 @@
      </widget>
      <widget class="QWidget" name="eicOptions">
       <attribute name="title">
-       <string>EIC (XIC)</string>
+       <string>EIC (XIC) [BETA]</string>
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
