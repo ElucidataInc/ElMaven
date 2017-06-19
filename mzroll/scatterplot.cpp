@@ -607,13 +607,13 @@ void ScatterPlot::showSimilar(PeakGroup* group) {
 	if (!_table) return;
 
     QList<PeakGroup*>allgroups = _table->getGroups();
-    if (!group->metaGroupId) _table->clusterGroups();
+    if (!group->clusterId) _table->clusterGroups();
 
     QSet<PeakGroup*>similar;
 
     for(int i=0; i < allgroups.size(); i++ ) {
-        if ( group->metaGroupId ) {
-            if ( allgroups[i]->metaGroupId == group->metaGroupId ) {
+        if ( group->clusterId ) {
+            if ( allgroups[i]->clusterId == group->clusterId ) {
                 similar.insert(allgroups[i]);
             }
         }

@@ -538,15 +538,15 @@ void TableDockWidget::showAllGroups() {
     
     QMap<int,QTreeWidgetItem*> parents;
     for(int i=0; i < allgroups.size(); i++ ) { 
-        int metaGroupId  = allgroups[i].metaGroupId;
-        if (metaGroupId && allgroups[i].meanMz > 0 && allgroups[i].peakCount()>0) {
-            if (!parents.contains(metaGroupId)) {
-                parents[metaGroupId]= new QTreeWidgetItem(treeWidget);
-                parents[metaGroupId]->setText(0,QString("Cluster ") + QString::number(metaGroupId));
-                parents[metaGroupId]->setText(5,QString::number(allgroups[i].meanRt,'f',2));
-                parents[metaGroupId]->setExpanded(true);
+        int clusterId  = allgroups[i].clusterId;
+        if (clusterId && allgroups[i].meanMz > 0 && allgroups[i].peakCount()>0) {
+            if (!parents.contains(clusterId)) {
+                parents[clusterId]= new QTreeWidgetItem(treeWidget);
+                parents[clusterId]->setText(0,QString("Cluster ") + QString::number(clusterId));
+                parents[clusterId]->setText(5,QString::number(allgroups[i].meanRt,'f',2));
+                parents[clusterId]->setExpanded(true);
             }
-            QTreeWidgetItem* parent = parents[ metaGroupId ];
+            QTreeWidgetItem* parent = parents[ clusterId ];
             addRow(&allgroups[i], parent); 
         } else {
             addRow(&allgroups[i], NULL);
@@ -1674,6 +1674,7 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
     stream.writeAttribute("groupId",  QString::number(g->groupId) );
     stream.writeAttribute("tagString",  QString(g->tagString.c_str()) );
     stream.writeAttribute("metaGroupId",  QString::number(g->metaGroupId) );
+    stream.writeAttribute("clusterId", QString::number(g->clusterId) );
     stream.writeAttribute("expectedRtDiff",  QString::number(g->expectedRtDiff,'f',6) );
     stream.writeAttribute("groupRank",  QString::number(g->groupRank,'f',6) );
     stream.writeAttribute("label",  QString::number(g->label ));
@@ -1773,6 +1774,7 @@ PeakGroup* TableDockWidget::readGroupXML(QXmlStreamReader& xml,PeakGroup* parent
     g.groupId = xml.attributes().value("groupId").toString().toInt();
     g.tagString = xml.attributes().value("tagString").toString().toStdString();
     g.metaGroupId = xml.attributes().value("metaGroupId").toString().toInt();
+    g.clusterId = xml.attributes().value("clusterId").toString().toInt();
     //Updated when Merging to Maven776 - Kiran
     g.expectedRtDiff = xml.attributes().value("expectedRtDiff").toString().toFloat();
     g.groupRank = xml.attributes().value("grouRank").toString().toFloat();
@@ -1996,7 +1998,7 @@ void TableDockWidget::loadPeakTable(QString fileName) {
 
 void TableDockWidget::clearClusters() {
     LOGD;
-    for(unsigned int i=0; i<allgroups.size(); i++) allgroups[i].metaGroupId=0;
+    for(unsigned int i=0; i<allgroups.size(); i++) allgroups[i].clusterId=0;
     showAllGroups();
 }
 
@@ -2004,7 +2006,7 @@ void TableDockWidget::clusterGroups() {
     LOGD;
     sort(allgroups.begin(),allgroups.end(), PeakGroup::compRt);
     qDebug() << "Clustering..";
-    int metaGroupId = 0;
+    int clusterId = 0;
 
     QSettings* settings = _mainwindow->getSettings();
     double maxRtDiff =  clusterDialog->maxRtDiff_2->value();
@@ -2015,23 +2017,23 @@ void TableDockWidget::clusterGroups() {
     vector<mzSample*> samples = _mainwindow->getSamples();
 
     //clear cluster information
-    for(unsigned int i=0; i<allgroups.size(); i++) allgroups[i].metaGroupId=0;
+    for(unsigned int i=0; i<allgroups.size(); i++) allgroups[i].clusterId=0;
     map<int,PeakGroup*>parentGroups;
 
 
     for(unsigned int i=0; i<allgroups.size(); i++) {
         PeakGroup& grup1 = allgroups[i];
 
-        if (grup1.metaGroupId == 0) {  //create new cluster
-            grup1.metaGroupId=++metaGroupId;
-            parentGroups[metaGroupId]=&grup1;
+        if (grup1.clusterId == 0) {  //create new cluster
+            grup1.clusterId=++clusterId;
+            parentGroups[clusterId]=&grup1;
         }
 
         //cluster parent
-        PeakGroup* parent = parentGroups[ metaGroupId ];
+        PeakGroup* parent = parentGroups[ clusterId ];
 
         mzSample* largestSample=NULL;
-        double maxIntensity=0;
+        double maxIntensity=0; int countCheckRaghu=0;
 
         for(int i=0; i < grup1.peakCount(); i++ ) {
             mzSample* sample = grup1.peaks[i].getSample();
@@ -2043,7 +2045,7 @@ void TableDockWidget::clusterGroups() {
 
         for(unsigned int j=i+1; j<allgroups.size(); j++) {
             PeakGroup& grup2 = allgroups[j];
-            if (grup2.metaGroupId > 0 ) continue;
+            if (grup2.clusterId > 0 ) continue;
 
             //retention time distance
             float rtdist  = abs(parent->meanRt-grup2.meanRt);
@@ -2064,7 +2066,7 @@ void TableDockWidget::clusterGroups() {
 
             //passed all the filters.. group grup1 and grup2 into a single metagroup
             //cerr << rtdist << " " << cor << " " << cor2 << endl;
-            grup2.metaGroupId = grup1.metaGroupId;
+            grup2.clusterId = grup1.clusterId;
         }
         if (i%10==0) _mainwindow->setProgressBar("Clustering.,",i+1,allgroups.size());
 

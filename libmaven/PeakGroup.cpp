@@ -5,6 +5,7 @@
 PeakGroup::PeakGroup()  {
     groupId=0;
     metaGroupId=0;
+    clusterId = 0;
     groupRank=INT_MAX;
 
     maxIntensity=0;
@@ -68,6 +69,7 @@ PeakGroup::PeakGroup()  {
 void PeakGroup::copyObj(const PeakGroup& o)  {
     groupId= o.groupId;
     metaGroupId= o.metaGroupId;
+    clusterId = o.clusterId;
     groupRank= o.groupRank;
 
     minQuality = o.minQuality;

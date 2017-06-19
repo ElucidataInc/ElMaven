@@ -819,6 +819,7 @@ void PeakDetectorCLI::writeGroupXML(xml_node& parent, PeakGroup* g) {
 	group.append_attribute("groupId") = g->groupId;
 	group.append_attribute("tagString") = g->tagString.c_str();
 	group.append_attribute("metaGroupId") = g->metaGroupId;
+	group.append_attribute("clusterId") = g->clusterId;
 	group.append_attribute("expectedRtDiff") = g->expectedRtDiff;
 	group.append_attribute("groupRank") = (float) g->groupRank;
 	group.append_attribute("label") = g->label;

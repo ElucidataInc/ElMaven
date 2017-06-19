@@ -73,6 +73,7 @@ class PeakGroup{
 
         int groupId;
         int metaGroupId;
+        int clusterId;
 
         bool deletedFlag;
 
