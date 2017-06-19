@@ -23,7 +23,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="instrumentationOptions">
       <attribute name="title">
@@ -766,7 +766,7 @@
            <rect>
             <x>10</x>
             <y>50</y>
-            <width>44</width>
+            <width>91</width>
             <height>16</height>
            </rect>
           </property>
