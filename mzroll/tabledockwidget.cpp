@@ -418,7 +418,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(0,QString::number(group->groupId));
     item->setText(1,groupTagString(group));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
-    int charge = _mainwindow->mavenParameters->getCharge();
+    int charge = _mainwindow->mavenParameters->getCharge(group->compound);
 
     if (group->getExpectedMz(charge, 
             _mainwindow->mavenParameters->isotopeAtom, _mainwindow->mavenParameters->noOfIsotopes) != -1) {
@@ -1600,8 +1600,8 @@ void TableDockWidget::findMatchingCompounds() {
     float ppm = _mainwindow->getUserPPM();
     float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
     for(int i=0; i < allgroups.size(); i++ ) {
-        int charge = _mainwindow->mavenParameters->getCharge();
         PeakGroup& g = allgroups[i];
+        int charge = _mainwindow->mavenParameters->getCharge(g.compound);
         QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, 
                     charge);
         if (compounds.size() > 0 ) Q_FOREACH( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
