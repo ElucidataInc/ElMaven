@@ -29,11 +29,13 @@ void MassSlices::stopSlicing() {
 }
 /**
  * MassSlices::algorithmB This is the main function that does the peakdetection
- * This does not need a DB to check the peaks. This function finds all the peaks
- * that are present in the mzxml files
- * @param userPPM      [description]
- * @param minIntensity [description]
- * @param rtStep       [description]
+ * This does not need a DB to check the peaks. The function essentially loops over
+ * every observation in every scan in every sample. Every observation is checked if
+ * it is already present in a slice or not. If present in a slice MZmax, MZmin, RTmin,
+ * RTmax, intensity, MZ and RT are modified and the  slice then put back into cache. If 
+ * not then then a new slice is created and added to the slice.
+ * @param userPPM      The user defined PPM for MZ range
+ * @param rtStep       Minimum RT range for RT window
  */
 void MassSlices::algorithmB(float userPPM,int rtStep) {
 //clear all previous data
