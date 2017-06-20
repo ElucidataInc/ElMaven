@@ -60,7 +60,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
-// Checking if splicing has been stopped
+// Check if Peak detection has been cancelled by the user
         if (mavenParameters->stop) {
             stopSlicing();
             break;
@@ -82,7 +82,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 // for loop for iterating over every scan of a sample
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
 
-// Checking if splicing has been stopped 
+// Check if Peak detection has been cancelled by the user
             if (mavenParameters->stop) {
                 stopSlicing();
                 break;
