@@ -38,7 +38,7 @@ void MassSlices::stopSlicing() {
  * @param rtStep       Minimum RT range for RT window
  */
 void MassSlices::algorithmB(float userPPM,int rtStep) {
-//clear all previous data
+    //clear all previous data
     delete_all(slices);
     slices.clear();
     cache.clear();
@@ -48,19 +48,19 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 
     int totalScans = 0,currentScans = 0;
 
-//Calculate the total number of scans
+    //Calculate the total number of scans
     for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
 
-//Calculating the rt window using average distance between RTs and mutiplying it with RTstep (default 20)
+    //Calculating the rt window using average distance between RTs and mutiplying it with RTstep (default 20a)
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
     sendSignal("Status", 0 , 1);
 
-// Looping over every sample
+    // Looping over every sample
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
-// Check if Peak detection has been cancelled by the user
+        // Check if Peak detection has been cancelled by the user
         if (mavenParameters->stop) {
             stopSlicing();
             break;
@@ -72,17 +72,17 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
         else if(i==2) num = "rd";
         else num = "th ";
 
-// updating progress on samples
+        // updating progress on samples
         if (mavenParameters->showProgressFlag ) {
             string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
                                   + " Sample(s) Processing.....";
             sendSignal(progressText,currentScans,totalScans);
         }
 
-// for loop for iterating over every scan of a sample
+        // for loop for iterating over every scan of a sample
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
 
-// Check if Peak detection has been cancelled by the user
+            // Check if Peak detection has been cancelled by the user
             if (mavenParameters->stop) {
                 stopSlicing();
                 break;
@@ -91,27 +91,27 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             Scan* scan = samples[i]->scans[j];
             if (scan->mslevel != 1 ) continue;
 
-// Checking if RT is in the given min to max RT range
+            // Checking if RT is in the given min to max RT range
             if (_maxRt and !isBetweenInclusive(scan->rt,_minRt,_maxRt)) continue;
             float rt = scan->rt;
 
             vector<int> charges;
             if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(userPPM);
 
-// Looping over every observation in the scan
+            // Looping over every observation in the scan
             for(unsigned int k=0; k < scan->nobs(); k++ ) {
 
-// Checking if mz, intensity and charge are within specified range
+                // Checking if mz, intensity and charge are within specified range
                 if (_maxMz and !isBetweenInclusive(scan->mz[k],_minMz,_maxMz)) continue;
                 if (_maxIntensity and !isBetweenInclusive(scan->intensity[k],_minIntensity,_maxIntensity)) continue;
                 if ((_minCharge or _maxCharge) and !isBetweenInclusive(charges[k],_minCharge,_maxCharge)) continue;
 
-// Define mz max and min for this slice
+                // Define mz max and min for this slice
                 float mz = scan->mz[k];
                 float mzmax = mz + mz / 1e6 * _precursorPPM;
                 float mzmin = mz - mz / 1e6 * _precursorPPM;
 
-// sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
+                // sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
                 mzSlice* Z = sliceExists(mz,rt);
 
                 if (Z) {
@@ -142,7 +142,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                     cache.insert( pair<int,mzSlice*>(mzRange, s));
                 }
             }
-// progress update 
+            // progress update 
             if (mavenParameters->showProgressFlag ) {
                 string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
                                   + " Sample(s) Processing.....\n"
@@ -200,7 +200,7 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
     float bestDist=FLT_MAX; 
     mzSlice* best=NULL;
 
-// For loop to iterate till best MZ slice becomes second
+    // For loop to iterate till best MZ slice becomes second
     for(; it2 != ppp.second; ++it2 ) {
         mzSlice* x = (*it2).second;
         if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {
