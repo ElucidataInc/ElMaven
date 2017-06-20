@@ -51,7 +51,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 //Calculate the total number of scans
     for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
 
-//Calculating the rt window using average distance between rts and mutiplying it with 20
+//Calculating the rt window using average distance between RTs and mutiplying it with RTstep (default 20)
     if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
 
     sendSignal("Status", 0 , 1);
