@@ -56,6 +56,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 
     sendSignal("Status", 0 , 1);
 
+    // #pragma omp parallel for ordered
     // Looping over every sample
     for(unsigned int i=0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
@@ -79,6 +80,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             sendSignal(progressText,currentScans,totalScans);
         }
 
+        // #pragma omp cancel for
         // for loop for iterating over every scan of a sample
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
 
@@ -111,6 +113,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
                 float mzmax = mz + mz / 1e6 * _precursorPPM;
                 float mzmin = mz - mz / 1e6 * _precursorPPM;
 
+                // #pragma omp ordered
                 // sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
                 mzSlice* Z = sliceExists(mz,rt);
 
