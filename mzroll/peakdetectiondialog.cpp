@@ -28,6 +28,10 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
 
+        connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+        connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+        connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+
         label_20->setVisible(false);
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
