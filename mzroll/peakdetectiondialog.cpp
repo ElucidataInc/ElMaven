@@ -195,6 +195,10 @@ void PeakDetectionDialog::show() {
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                mainwindow->alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 
+    connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(deltaRTWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+
     // peakupdater->useMainWindowLabelOptions = false;
 
     inputInitialValuesPeakDetectionDialog();
