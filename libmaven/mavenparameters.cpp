@@ -105,8 +105,10 @@ void MavenParameters::setAverageScanTime() {
 int MavenParameters::getCharge(Compound* compound){
 	int charge;
         if(compound != nullptr && !this->formulaFlag){
-                if(compound->charge){
+                if(compound->charge !=0){
                         charge = compound->charge;
+                } else {
+                        charge = this->ionizationMode*this->charge;
                 }
         }
         else{
