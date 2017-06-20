@@ -47,12 +47,16 @@ class MassSlices {
         void algorithmA();
 
         /**
-         * [algorithmB ]
-         * @method algorithmB
-         * @param  ppm          []
-         * @param  minIntensity []
-         * @param  step         []
-         */
+        * [This is the main function that does the peakdetection
+        * This does not need a DB to check the peaks. The function essentially loops over
+        * every observation in every scan in every sample. Every observation is checked if
+        * it is already present in a slice or not. If present in a slice MZmax, MZmin, RTmin,
+        * RTmax, intensity, MZ and RT are modified and the  slice then put back into cache. If 
+        * not then then a new slice is created and added to the slice.]
+        * @method AlgorithmB
+        * @param userPPM      The user defined PPM for MZ range
+        * @param rtStep       Minimum RT range for RT window
+        */
         void algorithmB(float ppm, int step);
 
 
