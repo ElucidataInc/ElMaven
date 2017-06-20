@@ -1,17 +1,31 @@
 #include "mzMassSlicer.h"
 
+/**
+ * MassSlices::algorithmA This is function is called when mass Slicing using 
+ * AlgorithmB returns no slices. The slices here are created using the filterLine
+ * in Mzml and Mzxml files.
+ */
 void MassSlices::algorithmA() {
+    // clear cache
     delete_all(slices);
     slices.clear();
     cache.clear();
     map< string, int> seen;
 
-//#pragma omp parallel for ordered
+    //#pragma omp parallel for ordered
+    // Iterate over every sample
     for(unsigned int i=0; i < samples.size(); i++) {
+        // Iterate over every scan 
         for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
+            // Make temprorary element scan with present scan
             Scan* scan = samples[i]->scans[j];
+
+            // Check if filterLine(SRM transition for MS-MS, segment for LC-MS) for the scan is empty
             if ( scan->filterLine.empty() ) continue;
+
             if ( seen.count( scan->filterLine ) ) continue;
+
+            //Create new slice for every filterLine
             mzSlice* s = new mzSlice(scan->filterLine);
             slices.push_back(s);
             seen[ scan->filterLine ]=1;
