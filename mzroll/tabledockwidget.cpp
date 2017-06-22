@@ -2065,7 +2065,7 @@ void TableDockWidget::clusterGroups() {
             if (cor < minSampleCorrelation) continue;
 
             //peak shape correlation
-            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt);
+            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt, _mainwindow->mavenParameters->eicType);
             if (cor2 < minRtCorrelation) continue;
 
             //passed all the filters.. group grup1 and grup2 into a single metagroup

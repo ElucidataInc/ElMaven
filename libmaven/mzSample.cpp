@@ -1257,13 +1257,13 @@ EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel) {
 }
 
 //compute correlation between two mzs within some retention time window
-float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 ) {
+float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 , int eicType) {
 
         float ppm1 = ppm*mz1/1e6;
         float ppm2 = ppm*mz2/1e6;
         int mslevel=1;
-        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel, 0);
-        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel, 0);
+        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel, eicType);
+        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel, eicType);
         float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
         delete(e1);
         delete(e2);

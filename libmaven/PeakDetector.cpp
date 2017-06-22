@@ -334,7 +334,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
                     mavenParameters->compoundPPMWindow, rtmin - w,
-                    rtmax + w);  // find correlation for isotopes
+                    rtmax + w, mavenParameters->eicType);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;
 
@@ -556,7 +556,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
                     mavenParameters->compoundPPMWindow, rtmin - w,
-                    rtmax + w);  // find correlation for isotopes
+                    rtmax + w, mavenParameters->eicType);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;
 
