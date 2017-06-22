@@ -1262,8 +1262,8 @@ float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float r
         float ppm1 = ppm*mz1/1e6;
         float ppm2 = ppm*mz2/1e6;
         int mslevel=1;
-        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel);
-        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel);
+        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel, 0);
+        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel, 0);
         float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
         delete(e1);
         delete(e2);
