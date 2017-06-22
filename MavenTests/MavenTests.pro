@@ -33,6 +33,7 @@ HEADERS += \
     testMzFit.h \
     testMzAligner.h \
     testCLI.h \
+    testCharge.h \
     ../peakdetector/PeakDetectorCLI.h \
     ../libmaven/classifier.h \
     ../libmaven/classifierNeuralNet.h \
@@ -53,6 +54,7 @@ SOURCES += \
     testMzFit.cpp \
     testMzAligner.cpp \
     testCLI.cpp \
+    testCharge.cpp \
     main.cpp \
     ../peakdetector/PeakDetectorCLI.cpp  \
     ../peakdetector/options.cpp \
