@@ -336,7 +336,7 @@ public Q_SLOTS:
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq); //TODO: Sahil, Added while merging point
 	//Added when merging with Maven776 - Kiran
-	vector<mzSlice*> getSrmSlices(double q1tol, double q3tol, bool associateCompoundNames);
+	vector<mzSlice*> getSrmSlices(double q1tol, double q3tol, bool rtMatch, bool associateCompoundNames);
 
 	void open();
 	void print();
