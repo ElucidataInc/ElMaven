@@ -12,6 +12,7 @@
 #include "testMzFit.h"
 #include "testMzAligner.h"
 #include "testCLI.h"
+#include "testCharge.h"
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
@@ -27,14 +28,14 @@ int main(int argc, char** argv) {
     if (freopen("testMassCalculator.xml", "w", stdout))
         result |= QTest::qExec(new TestMassCalculator, argc, argv);
 
-    if (freopen("testCSVReports.xml", "w", stdout))
-        result |= QTest::qExec(new TestCSVReports, argc, argv);
-
     if(freopen("testCLI.xml",  "w", stdout))
         result |= QTest::qExec(new TestCLI, argc, argv);
 
     if (freopen("testPeakDetection.xml", "w", stdout))
         result |= QTest::qExec(new TestPeakDetection, argc, argv);
+
+    if(freopen("testCharge.xml",  "w", stdout))
+        result |= QTest::qExec(new TestCharge, argc, argv);
 
     if (freopen("testLoadDB.xml", "w", stdout))
         result |= QTest::qExec(new TestLoadDB, argc, argv);
@@ -53,6 +54,9 @@ int main(int argc, char** argv) {
 
     if(freopen("testMzFit.xml",  "w", stdout))
         result |= QTest::qExec(new TestMzFit, argc, argv);
+
+    if (freopen("testCSVReports.xml", "w", stdout))
+        result |= QTest::qExec(new TestCSVReports, argc, argv);
 
     // freopen("testMzAligner.xml",  "w", stdout);
     // result |= QTest::qExec(new TestMzAligner, argc, argv);
