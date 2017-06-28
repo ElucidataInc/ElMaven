@@ -44,18 +44,16 @@ void TestCharge::testChargeWithCompoundNoFormula(){
 }
 
 void TestCharge::testChargeWithCompoundNoCharge(){
-    Compound* compound = new Compound("1","one","C6H12O6",2);
+    Compound* compound = new Compound("1","one","C6H12O6",0);
     MavenParameters* mp = new MavenParameters();
     mp->charge = 3;
     mp->ionizationMode = 1;
     mp->formulaFlag = false;
-    Compound* c = new Compound("1","one","C6H12O6",0);
-    int charge = mp->getCharge(c);
+    int charge = mp->getCharge(compound);
     QVERIFY(charge == 3);
 }
 
 void TestCharge::testChargeWithNoCompoundNoFormula(){
-    Compound* compound = new Compound("1","one","C6H12O6",2);
     MavenParameters* mp = new MavenParameters();
     mp->charge = 3;
     mp->ionizationMode = -1;
@@ -65,7 +63,6 @@ void TestCharge::testChargeWithNoCompoundNoFormula(){
 }
 
 void TestCharge::testChargeWithFormulaNoCompound(){
-    Compound* compound = new Compound("1","one","C6H12O6",2);
     MavenParameters* mp = new MavenParameters();
     mp->charge = 3;
     mp->ionizationMode = -1;
