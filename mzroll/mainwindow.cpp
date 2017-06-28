@@ -2537,11 +2537,13 @@ void MainWindow::showSRMList() {
 	LOGD;
      //added while merging with Maven776 - Kiran
      if (srmDockWidget->isVisible()) {
+		
+		bool rtMatch = getSettings()->value("rtMatch").toInt();
         double amuQ1 = getSettings()->value("amuQ1").toDouble();
         double amuQ3 = getSettings()->value("amuQ3").toDouble();
         bool associateCompoundNames=true;
-        vector<mzSlice*>slices = getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
-        if (slices.size() ==  0 ) return;
+        vector<mzSlice*>slices = getSrmSlices(amuQ1,amuQ3,rtMatch,associateCompoundNames);
+		if (slices.size() ==  0 ) return;
         srmDockWidget->setInfo(slices);
         delete_all(slices);
      }
@@ -2690,7 +2692,7 @@ void MainWindow::UndoAlignment() {
 
 }
 
-vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool associateCompoundNames) {
+vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool rtMatch, bool associateCompoundNames) {
 	//Merged with Maven776 - Kiran
     qDebug() << "getSrmSlices() Q1=" << amuQ1 << " Q3=" << amuQ3;
     QMap<QString, Scan*>seenMRMS;
@@ -2760,7 +2762,7 @@ vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool assoc
             }
 
             if (precursorMz != 0 && productMz != 0 ) {
-                compound = DB.findSpeciesByPrecursor(precursorMz,productMz,rt,polarity,amuQ1,amuQ3);
+                compound = DB.findSpeciesByPrecursor(precursorMz,productMz,rt,rtMatch,polarity,amuQ1,amuQ3);
             }
 
             if (compound) {
