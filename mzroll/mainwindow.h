@@ -6,6 +6,7 @@
 #include <ctime>
 #include <sstream>
 #include "../libmaven/mavenparameters.h"
+#include "../libmaven/SRMLists.h"
 #include "scatterplot.h"
 #include "eicwidget.h"
 #include "settingsform.h"
