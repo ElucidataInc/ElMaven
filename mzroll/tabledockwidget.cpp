@@ -1813,6 +1813,7 @@ PeakGroup* TableDockWidget::readGroupXML(QXmlStreamReader& xml,PeakGroup* parent
     if (parent) {
         parent->addChild(g);
         if (parent->children.size() > 0 ) {
+            _mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
             gp = &(parent->children[ parent->children.size()-1]);
             //cerr << parent << "\t addChild() " << gp << endl;
         }
