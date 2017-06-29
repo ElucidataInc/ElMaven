@@ -84,6 +84,12 @@ MavenParameters::MavenParameters() {
         quantileQuality = 0.0;
         quantileIntensity = 0.0;
 
+        //options dialog::peak grouping tab-widget
+	distXWeight = 1.0;
+	distYWeight = 1.0;
+	overlapWeight = 1.0;
+	bool useOverlap = true;
+
 }
 
 vector<mzSample*> MavenParameters::getVisibleSamples() {
@@ -147,13 +153,13 @@ void MavenParameters::printSettings() {
         cerr << "#ppmMerge=" << ppmMerge << endl;
         cerr << "#avgScanTime=" << avgScanTime << endl;
 
-//peak detection
+        //peak detection
         cerr << "#eic_smoothingWindow=" << eic_smoothingWindow << endl;
 
-//peak grouping across samples
+        //peak grouping across samples
         cerr << "#grouping_maxRtWindow=" << grouping_maxRtWindow << endl;
 
-//peak filtering criteria
+        //peak filtering criteria
         cerr << "#minGoodGroupCount=" << minGoodGroupCount << endl;
         cerr << "#minSignalBlankRatio=" << minSignalBlankRatio << endl;
         cerr << "#minNoNoiseObs=" << minNoNoiseObs << endl;
@@ -161,7 +167,13 @@ void MavenParameters::printSettings() {
         cerr << "#minGroupIntensity=" << minGroupIntensity << endl;
 
 
-//compound detection setting
+        //compound detection setting
         cerr << "#compoundPPMWindow=" << compoundPPMWindow << endl;
         cerr << "#compoundRTWindow=" << compoundRTWindow << endl;
+
+        //peak grouping score
+        cerr << "#distXWeight=" << distXWeight << endl;
+        cerr << "#distYWeight=" << distYWeight << endl; 
+        cerr << "#overlapWeight=" << overlapWeight << endl; 
+        cerr << "#useOverlap=" << useOverlap << endl;              
 }

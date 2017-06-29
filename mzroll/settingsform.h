@@ -9,16 +9,17 @@ class MainWindow;
 
 class SettingsForm : public QDialog, public Ui_SettingsForm
 {
-                Q_OBJECT
-		public:
-				 SettingsForm(QSettings* s, MainWindow *w);
-                 void setIsotopeAtom();
-                protected:
-                    void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
-                    void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
-                    void mouseReleaseEvent(QMouseEvent* e) {QDialog::mouseReleaseEvent(e); getFormValues(); }
+      Q_OBJECT
 
-		public Q_SLOTS:
+      public:
+            SettingsForm(QSettings* s, MainWindow *w);
+            void setIsotopeAtom();
+            protected:
+            void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
+            void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
+            void mouseReleaseEvent(QMouseEvent* e) {QDialog::mouseReleaseEvent(e); getFormValues(); }
+
+      public Q_SLOTS:
             void updateSettingFormGUI();
             void getFormValues();
             void setMavenParameters();
@@ -29,7 +30,6 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void  setNumericValue(QString key, double value);
             void  setStringValue(QString key, QString value);
             void updateMultiprocessing();
-
             void setSettingsIonizationMode(QString);
 
             /*
@@ -37,13 +37,11 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             * @method setWeightStatus 
             */
             void setWeightStatus();
-
             void updateSmoothingWindowValue(double value);
             inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
             inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }
             inline void showPeakDetectionTab()   { tabWidget->setCurrentIndex(2); }
             inline void setIsotopeDetectionTab()  { tabWidget->setCurrentIndex(3); }
-
             inline void selectScriptsFolder() {   selectFolder("scriptsFolder"); }                 
             inline void selectMethodsFolder() {   selectFolder("methodsFolder"); }
             inline void selectPathwaysFolder() {   selectFolder("pathwaysFolder"); }
@@ -52,9 +50,9 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             inline void setQ1Tollrance(double value) { setNumericValue("amuQ1",value); }
             inline void setQ3Tollrance(double value) { setNumericValue("amuQ3",value); }
 
-		private:
-				QSettings *settings;
-				MainWindow *mainwindow;
+      private:
+            QSettings *settings;
+            MainWindow *mainwindow;
 };
 
 #endif

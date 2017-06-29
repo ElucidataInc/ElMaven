@@ -228,6 +228,13 @@ public:
      * @method printSettings
      */
     void printSettings();
+
+	//options dialog::peak grouping tab-widget
+	double distXWeight;
+	double distYWeight;
+	double overlapWeight;
+	bool useOverlap;
+
 };
 
 #endif // MAVENPARAMETERS_H

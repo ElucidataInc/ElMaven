@@ -52,8 +52,12 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     //Peak Grouping Tab
     setWeightStatus();
     connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+    connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+    connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
+    connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(getFormValues()));
 
     //remote url used to fetch compound lists, pathways, and notes
     connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
@@ -200,6 +204,19 @@ void SettingsForm::updateSettingFormGUI() {
 
     eicTypeComboBox->setCurrentIndex(settings->value("eicTypeComboBox").toInt());
 
+    //peak grouping tab
+    if (settings->contains("distXWeight"))
+    distXSlider->setValue(settings->value("distXWeight").toFloat()*10);
+
+    if (settings->contains("distYWeight"))
+    distYSlider->setValue(settings->value("distYWeight").toFloat()*10);
+
+    if (settings->contains("overlapWeight"))
+    overlapSlider->setValue(settings->value("overlapWeight").toFloat()*10);
+
+    if (settings->contains("useOverlap"))
+    useOverlap->setCheckState( (Qt::CheckState) settings->value("useOverlap").toInt());
+
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
@@ -292,6 +309,11 @@ void SettingsForm::getFormValues() {
     if (ionizationType->currentText() == "EI")  MassCalculator::ionizationType = MassCalculator::EI;
     else MassCalculator::ionizationType = MassCalculator::ESI;
 
+    //peak grouping tab
+    settings->setValue("distXWeight", (distXSlider->value()*1.0)/10);
+    settings->setValue("distYWeight", (distYSlider->value()*1.0)/10);
+    settings->setValue("overlapWeight", (overlapSlider->value()*1.0)/10);
+    settings->setValue("useOverlap", useOverlap->checkState());
 
     mzSample::setFilter_centroidScans( centroid_scan_flag->checkState() == Qt::Checked );
     mzSample::setFilter_minIntensity( scan_filter_min_intensity->value() );
@@ -323,7 +345,11 @@ void SettingsForm::setMavenParameters() {
     if (settings != NULL) {
 
         mavenParameters->eicType = settings->value("eicTypeComboBox").toInt();
-
+        mavenParameters->distXWeight = settings->value("distXWeight").toFloat();
+        mavenParameters->distYWeight = settings->value("distYWeight").toFloat();
+        mavenParameters->overlapWeight = settings->value("overlapWeight").toFloat();
+        mavenParameters->useOverlap = false;
+        if (settings->value("useOverlap").toInt() > 0) mavenParameters->useOverlap = true;
     }
 }
 

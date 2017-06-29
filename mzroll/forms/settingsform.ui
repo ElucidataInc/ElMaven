@@ -892,7 +892,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="useOverlap">
             <property name="toolTip">
              <string/>
             </property>
