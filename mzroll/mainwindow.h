@@ -337,6 +337,16 @@ public Q_SLOTS:
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq); //TODO: Sahil, Added while merging point
 	//Added when merging with Maven776 - Kiran
+
+	/**
+	* [	Initialises variables and calls the "SRMLists->getSrmSlices" to compare and assign
+	* 	SRMs to the compounds known through the database. ]
+	* @param q1tol		[tolerance for Q1 value]
+	* @param q3tol		[tolerance for Q1 value]
+	* @param rtMatch	[boolean - Whether to consider rt-value while comparing the compounds]
+	* @param associateCompoundNames [boolean - Whether to assign the compound names or not.]
+	* @result slices 	[Returned by "SRMLists->getSrmSlices"]
+	*/
 	vector<mzSlice*> getSrmSlices(double q1tol, double q3tol, bool rtMatch, bool associateCompoundNames);
 
 	void open();
@@ -350,6 +360,10 @@ public Q_SLOTS:
 	void doSearch(QString needle);
 	//void setupSampleColors();
         // void showMassSlices();
+
+		/**
+		* Update the SRMListWidget whenever the "show SRM Lists" button is clicked.
+		*/
         void showSRMList();
         void addToHistory(const mzSlice& slice);
         void historyNext();
