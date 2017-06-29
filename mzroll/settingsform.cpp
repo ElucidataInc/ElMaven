@@ -49,6 +49,12 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     connect(eicTypeComboBox, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
 
+    //Peak Grouping Tab
+    setWeightStatus();
+    connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+    connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
+
     //remote url used to fetch compound lists, pathways, and notes
     connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
     connect(scriptsFolderSelect, SIGNAL(clicked()), SLOT(selectScriptsFolder()));
@@ -95,6 +101,25 @@ void SettingsForm::setIsotopeAtom() {
     if(mainwindow->mavenParameters->pullIsotopesFlag) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
     else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
     
+}
+
+void SettingsForm::setWeightStatus() {
+
+    // slider int values to double
+    double distX = distXSlider->value()*1.0;
+    double distY = distYSlider->value()*1.0;
+    double overlap = overlapSlider->value()*1.0;
+
+    // normalizing slider values from 0-100 (int) to 0-10 (double) 
+    distX = distX/10;
+    distY = distY/10;
+    overlap = overlap/10;
+
+    // updating slider status
+    distXStatus->setText(QString::number(distX));
+    distYStatus->setText(QString::number(distY));
+    overlapStatus->setText(QString::number(overlap));
+
 }
 
 void SettingsForm::recomputeIsotopes() { 
