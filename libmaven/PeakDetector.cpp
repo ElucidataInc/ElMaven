@@ -912,9 +912,9 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                     
                         int noVisibleSamples = mavenParameters->getVisibleSamples().size();
 
-                        if ((group.quantileIntensityPeaks/noVisibleSamples)*100 < mavenParameters->quantileIntensity) 
+                        if ((1.0*group.quantileIntensityPeaks/noVisibleSamples)*100 < mavenParameters->quantileIntensity)
                                 continue;
-                        if ((group.quantileQualityPeaks/noVisibleSamples)*100 < mavenParameters->quantileQuality) 
+                        if ((1.0*group.quantileQualityPeaks/noVisibleSamples)*100 < mavenParameters->quantileQuality)
                                 continue;
 
                         if (compound)
