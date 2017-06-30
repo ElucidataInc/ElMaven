@@ -201,7 +201,16 @@ vector<Compound*> Database::findSpeciesByName(string name, string dbname) {
 		return set;
 }
 
-Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, int polarity,double amuQ1, double amuQ3) {
+Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, bool rtMatch, int polarity,double amuQ1, double amuQ3) {
+    /*
+        This function takes the attributes(precursorMz, productMz, rt, polarity) of a 
+    scan and compares with the compounds in the compound database to find the best match.
+        It takes the following constraints into account while finding best match:
+            1. Difference in q1 and q2 are within the tolerance range.
+            2. Polarity charge should match exactly.
+            3. The compound with minimum variation interms of precursorMz, productMz and rt values
+               in values is considered best.
+    */
 		Compound* x=NULL;
 		float dist=FLT_MAX;
 
@@ -213,8 +222,10 @@ Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, i
 				if ( a > amuQ1 ) continue; // q1 tollorance
 				float b = abs(compoundsDB[i]->productMz - productMz);
 				if ( b > amuQ3 ) continue; // q2 tollarance
-				float d = sqrt(a*a+b*b);
-				if ( d < dist) { x = compoundsDB[i]; dist=d; }
+                float c = abs( compoundsDB[i]->expectedRt - rt);
+                if ( rtMatch == 0) c = 0.0; 
+                float d = sqrt(a*a+b*b+c*c);
+				if ( d < dist) { x = compoundsDB[i]; dist=d;}
 		}
 		return x;
 }

@@ -583,8 +583,9 @@ void BackgroundPeakUpdate::findPeaksQQQ() {
 	if(mainwindow == NULL) return;
         double amuQ1 = mainwindow->getSettings()->value("amuQ1").toDouble();
         double amuQ3 = mainwindow->getSettings()->value("amuQ3").toDouble();
+        bool rtMatch = mainwindow->getSettings()->value("rtMatch").toInt();
         bool associateCompoundNames=false;
-        vector<mzSlice*>slices = mainwindow->getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
+        vector<mzSlice*>slices = mainwindow->getSrmSlices(amuQ1,amuQ3,rtMatch,associateCompoundNames);
 	processSlices(slices,"QQQ Peaks");
 	delete_all(slices);
 	slices.clear();
