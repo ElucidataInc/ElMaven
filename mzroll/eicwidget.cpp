@@ -1575,7 +1575,15 @@ void EicWidget::groupPeaks() {
 	float grouping_maxRtWindow =
 			settings->value("grouping_maxRtWindow").toDouble();
 
-	eicParameters->groupPeaks(eic_smoothingWindow, grouping_maxRtWindow, settings->value("minQuality").toDouble());
+	eicParameters->groupPeaks(eic_smoothingWindow,
+								grouping_maxRtWindow,
+								settings->value("minQuality").toDouble(),
+								getMainWindow()->mavenParameters->distXWeight,
+								getMainWindow()->mavenParameters->distYWeight,
+								getMainWindow()->mavenParameters->overlapWeight,
+								getMainWindow()->mavenParameters->useOverlap);
+
+
 }
 
 void EicWidget::print(QPaintDevice* printer) {

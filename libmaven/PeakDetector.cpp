@@ -871,9 +871,14 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
                 //for ( unsigned int j=0; j < eics.size(); j++ )	eics[j]->getPeakPositions(eic_smoothingWindow);
                 vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                               mavenParameters->eic_smoothingWindow,
-                                                               mavenParameters->grouping_maxRtWindow,
-                                                               mavenParameters->minQuality);
+                                                                mavenParameters->eic_smoothingWindow,
+                                                                mavenParameters->grouping_maxRtWindow,
+                                                                mavenParameters->minQuality,
+                                                                mavenParameters->distXWeight,
+                                                                mavenParameters->distYWeight,
+                                                                mavenParameters->overlapWeight,
+                                                                mavenParameters->useOverlap);
+
 
 		//score quality of each group using classifier
                 vector<PeakGroup*> groupsToAppend;

@@ -545,7 +545,14 @@ void EIC::removeLowRankGroups( vector<PeakGroup>& groups, unsigned int rankLimit
 }
 
 
-vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics, int smoothingWindow, float maxRtDiff, double minQuality) {
+vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
+                                    int smoothingWindow,
+                                    float maxRtDiff,
+                                    double minQuality,
+                                    double distXWeight,
+                                    double distYWeight,
+                                    double overlapWeight,
+                                    bool useOverlap) {
     // Merged to 776
 
     //list filled and return by this function

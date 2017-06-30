@@ -201,9 +201,14 @@ void TestEIC:: testgroupPeaks() {
                                     mavenparameters->eicType);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                mavenparameters->eic_smoothingWindow,
-                                                mavenparameters->grouping_maxRtWindow,
-                                                mavenparameters->minQuality);
+                                                    mavenparameters->eic_smoothingWindow,
+                                                    mavenparameters->grouping_maxRtWindow,
+                                                    mavenparameters->minQuality,
+                                                    mavenparameters->distXWeight,
+                                                    mavenparameters->distYWeight,
+                                                    mavenparameters->overlapWeight,
+                                                    mavenparameters->useOverlap);
+
 
     QVERIFY(peakgroups.size() == 3);
     unsigned int maxPeakNum = 0;

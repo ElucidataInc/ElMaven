@@ -62,10 +62,22 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
-		float grouping_maxRtWindow, double minQuality) {
+							float grouping_maxRtWindow,
+							double minQuality,
+							double distXWeight,
+							double distYWeight,
+							double overlapWeight,
+							bool useOverlap) {
 
-	peakgroups = EIC::groupPeaks(eics, eic_smoothingWindow,
-			grouping_maxRtWindow, minQuality);
+	peakgroups = EIC::groupPeaks(eics,
+								eic_smoothingWindow,
+								grouping_maxRtWindow,
+								minQuality,
+                                distXWeight,
+                                distYWeight,
+                                overlapWeight,
+                                useOverlap);
+
 
 	//keep only top X groups ( ranked by intensity )
 	EIC::removeLowRankGroups(peakgroups, 50);

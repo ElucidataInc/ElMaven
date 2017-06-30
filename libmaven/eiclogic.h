@@ -34,7 +34,14 @@ public:
 								int intensityWeight,
 								int deltaRTWeight);
 
-	void groupPeaks(float eic_smoothingWindow, float grouping_maxRtWindow, double minQuality);
+	void groupPeaks(float eic_smoothingWindow,
+					float grouping_maxRtWindow,
+					double minQuality,
+					double distXWeight,
+					double distYWeight,
+					double overlapWeight,
+					bool useOverlap);
+
 	mzSlice setMzSlice(float mz, double ppm);
 
 	//	find absolute min and max for extracted ion chromatograms
