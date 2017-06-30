@@ -28,6 +28,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  void selectFile(QString key);
                  void  setNumericValue(QString key, double value);
                  void  setStringValue(QString key, QString value);
+                 void  setIntValue(QString key, bool value);
                  void updateMultiprocessing();
 
                  void setSettingsIonizationMode(QString);
@@ -45,6 +46,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
                  inline void selectRawExtractor() {      selectFile("RawExtractProgram"); }
                  inline void setQ1Tollrance(double value) { setNumericValue("amuQ1",value); }
                  inline void setQ3Tollrance(double value) { setNumericValue("amuQ3",value); }
+                 inline void setRtMatch(int value)  { setIntValue("rtMatch",value);}
 
 
 

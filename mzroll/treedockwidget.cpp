@@ -434,11 +434,16 @@ void TreeDockWidget::setQQQToolBar() {
     associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
     connect(associateCompounds,SIGNAL(clicked()),_mainWindow,SLOT(showSRMList()));
 
+    QCheckBox* rtMatch = new QCheckBox("Consider RT to find Best Match in Compounds", toolBar);
+    connect(rtMatch, SIGNAL(stateChanged(int)),_mainWindow->getSettingsForm(), SLOT(setRtMatch(int)));
+    connect(rtMatch, SIGNAL(stateChanged(int)),_mainWindow,SLOT(showSRMList()));
+
     toolBar->addWidget(new QLabel("Q1"));
     toolBar->addWidget(amuQ1);
     toolBar->addWidget(new QLabel("Q3"));
     toolBar->addWidget(amuQ3);
     toolBar->addWidget(associateCompounds);
+    toolBar->addWidget(rtMatch);
 
     setTitleBarWidget(toolBar);
 
