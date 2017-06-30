@@ -201,8 +201,7 @@ vector<Compound*> Database::findSpeciesByName(string name, string dbname) {
 		return set;
 }
 
-Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, int polarity,double amuQ1, double amuQ3) {
-		Compound* x=NULL;
+Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {		Compound* x=NULL;
 		float dist=FLT_MAX;
 
 		for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
@@ -213,7 +212,8 @@ Compound* Database::findSpeciesByPrecursor(float precursorMz, float productMz, i
 				if ( a > amuQ1 ) continue; // q1 tollorance
 				float b = abs(compoundsDB[i]->productMz - productMz);
 				if ( b > amuQ3 ) continue; // q2 tollarance
-				float d = sqrt(a*a+b*b);
+				float c = abs( compoundsDB[i]->expectedRt - rt);
+                float d = sqrt(a*a+b*b+c*c);
 				if ( d < dist) { x = compoundsDB[i]; dist=d; }
 		}
 		return x;

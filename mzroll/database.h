@@ -55,7 +55,7 @@ class Database {
 	Molecule2D* getMolecularCoordinates(QString id);
     //Added while merging with Maven776 - Kiran
 	Compound* findSpeciesById(string id, string dbName);
-	Compound* findSpeciesByPrecursor(float precursorMz, float productMz,
+	Compound* findSpeciesByPrecursor(float precursorMz, float productMz, float rt,
 					 int polarity, double amuQ1,
 					 double amuQ3);
 	set<Compound*> findSpeciesByMass(float mz, float ppm);
