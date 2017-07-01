@@ -2070,6 +2070,19 @@ void MainWindow::readSettings() {
 	if (!settings->contains("D2Labeled_IsoWidget"))
 		settings->setValue("D2Labeled_IsoWidget", 2);
 
+    //peak grouping tab
+    if (!settings->contains("distXWeight"))
+		settings->setValue("distXWeight", 1);
+
+    if (!settings->contains("distYWeight"))
+		settings->setValue("distYWeight", 1);
+
+    if (!settings->contains("overlapWeight"))
+		settings->setValue("overlapWeight", 1);
+
+    if (!settings->contains("useOverlap"))
+		settings->setValue("useOverlap", 2);
+
     //Main window right hand top
     if (!settings->contains("ppmWindowBox"))
         settings->setValue("ppmWindowBox", 5);
