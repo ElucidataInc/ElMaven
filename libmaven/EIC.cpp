@@ -603,18 +603,29 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
             for(unsigned int k=0; k< m->peaks.size(); k++ ) {
                 Peak& a = m->peaks[k];
 
+                float score;
+
                 float overlap = checkOverlap(a.rtmin,a.rtmax,b.rtmin,b.rtmax); //check for overlap
-
-                if (overlap == 0 and a.rtmax < b.rtmin) continue;
-                if (overlap == 0 and a.rtmin > b.rtmax) break;
-
                 float distx = abs(b.rt-a.rt);
-                if ( distx > maxRtDiff && overlap < 0.2 ) continue;
-
                 float disty = abs(b.peakIntensity-a.peakIntensity);
-                //float score= overlap+1/(distx+0.01)+1/(disty+0.01);
-                float score = 1.0/(distx+0.01)/(disty+0.01)*overlap;
-                //Feng note: the new score function above makes sure that the three terms are weighted equally.
+
+                if (useOverlap) {
+
+                    if (overlap == 0 and a.rtmax < b.rtmin) continue;
+                    if (overlap == 0 and a.rtmin > b.rtmax) break;
+
+                    if ( distx > maxRtDiff && overlap < 0.2 ) continue;
+
+                    score = 1.0/(distXWeight*distx+0.01)/(distYWeight*disty+0.01)*(overlapWeight*overlap);
+
+                } else {
+
+                    if ( distx > maxRtDiff) continue;
+
+                    score = 1.0/(distXWeight*distx+0.01)/(distYWeight*disty+0.01);
+
+                }
+
                 if ( score > b.groupOverlap) { b.groupNum=k; b.groupOverlap=score; }
             }
 
