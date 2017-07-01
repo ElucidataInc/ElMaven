@@ -783,6 +783,42 @@ void PeakDetector::alignSamples() {
         }
 }
 
+bool PeakDetector::signalBaselineQuantileFilter(PeakGroup *group){
+    if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
+                return true;
+    }
+    vector<Peak> peaks = group->getPeaks();
+    int peaksAboveBaselineRatio = 0;
+    for (int i = 0; i < peaks.size(); i++){
+        if(peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio){
+            peaksAboveBaselineRatio++;
+        }
+    }
+    int noVisibleSamples = mavenParameters->getVisibleSamples().size();
+    if ((peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
+        return true;
+    }
+    return false;
+}
+
+bool PeakDetector::signalBlankQuantileFilter(PeakGroup *group){
+    if (group->maxIntensity < group->blankMax * mavenParameters->minSignalBlankRatio){
+        return true;
+    }
+    vector<Peak> peaks = group->getPeaks();
+    int peaksAboveBlankRatio = 0;
+    for (int i = 0; i <peaks.size(); i++){
+        if(peaks[i].peakIntensity > group->blankMax * mavenParameters->minSignalBlankRatio){
+            peaksAboveBlankRatio++;
+        }
+    }
+    int noVisibleSamples = mavenParameters->getVisibleSamples().size();
+    if ((peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
+        return true;
+    }
+    return false;
+}
+
 void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
 
         if (slices.size() == 0)
@@ -904,13 +940,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                             && group.maxQuality < mavenParameters->minQuality)
                                 continue;
                         // if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
-                        if (group.blankMax * mavenParameters->minSignalBlankRatio
-                            > group.maxIntensity)
-                                continue;
+                        
                         if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
-                                continue;
-                        if (group.maxSignalBaselineRatio
-                            < mavenParameters->minSignalBaseLineRatio)
                                 continue;
                         if (group.maxIntensity < mavenParameters->minGroupIntensity)
                                 continue;
@@ -920,6 +951,10 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         if ((group.quantileIntensityPeaks/noVisibleSamples)*100 < mavenParameters->quantileIntensity) 
                                 continue;
                         if ((group.quantileQualityPeaks/noVisibleSamples)*100 < mavenParameters->quantileQuality) 
+                                continue;
+                        if (signalBaselineQuantileFilter(&group))
+                                continue;
+                        if (signalBlankQuantileFilter(&group))
                                 continue;
 
                         if (compound)

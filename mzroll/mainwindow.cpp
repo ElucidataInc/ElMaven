@@ -1932,9 +1932,15 @@ void MainWindow::readSettings() {
 
     if (!settings->contains("minSignalBaseLineRatio"))
         settings->setValue("minSignalBaseLineRatio", 2);
+	
+	if (!settings->contains("quantileSignalBaselineRatio"))
+		settings->setValue("quantileSignalBaselineRatio", 0.0);
 
     if (!settings->contains("minSignalBlankRatio"))
         settings->setValue("minSignalBlankRatio", 2);
+	
+	if (!settings->contains("quantileSignalBlankRatio"))
+		settings->setValue("quantileSignalBlankRatio", 0.0);
 
     if (!settings->contains("minGroupIntensity"))
         settings->setValue("minGroupIntensity", 5000);

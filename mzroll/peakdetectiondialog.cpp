@@ -301,8 +301,12 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("minNoNoiseObs").toDouble());  // minPeakWidth
             sigBaselineRatio->setValue(
                 settings->value("minSignalBaseLineRatio").toDouble());
+            quantileSignalBaselineRatio->setValue(
+                settings->value("quantileSignalBaselineRatio").toDouble());
             sigBlankRatio->setValue(
                 settings->value("minSignalBlankRatio").toDouble());
+            quantileSignalBlankRatio->setValue(
+                settings->value("quantileSignalBlankRatio").toDouble());
             minGroupIntensity->setValue(
                 settings->value("minGroupIntensity").toDouble());
             peakQuantitation->setCurrentIndex(
@@ -495,7 +499,9 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
     settings->setValue("minSignalBaseLineRatio", sigBaselineRatio->value());
+    settings->setValue("quantileSignalBaselineRatio", quantileSignalBaselineRatio->value());
     settings->setValue("minSignalBlankRatio", sigBlankRatio->value());
+    settings->setValue("quantileSignalBlankRatio", quantileSignalBlankRatio->value());
     settings->setValue("minGroupIntensity", minGroupIntensity->value());
     settings->setValue("peakQuantitation", peakQuantitation->currentIndex());
     settings->setValue("quantileIntensity", quantileIntensity->value());
@@ -567,10 +573,14 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
         mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
         mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
+        mavenParameters->quantileSignalBaselineRatio = settings->value("quantileSignalBaselineRatio").toDouble();
         mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
+        mavenParameters->quantileSignalBlankRatio = settings->value("quantileSignalBlankRatio").toDouble();
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
         mavenParameters->quantileIntensity = settings->value("quantileIntensity").toDouble();
+
+        //cerr << "Test: " << mavenParameters->quantileSignalBaselineRatio << endl;
 
         // Peak Group Rank
         mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();

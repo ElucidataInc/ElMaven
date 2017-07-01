@@ -83,6 +83,8 @@ MavenParameters::MavenParameters() {
         
         quantileQuality = 0.0;
         quantileIntensity = 0.0;
+        quantileSignalBaselineRatio = 0.0;
+        quantileSignalBlankRatio = 0.0;
 
         //options dialog::peak grouping tab-widget
 	distXWeight = 1.0;

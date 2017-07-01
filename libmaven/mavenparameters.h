@@ -111,6 +111,8 @@ public:
 	// For quantile intensity and qualityWeight
 	double quantileQuality;
 	double quantileIntensity;
+	double quantileSignalBaselineRatio;
+	double quantileSignalBlankRatio;
 
 	//mass slicing parameters
 	float mzBinStep;
