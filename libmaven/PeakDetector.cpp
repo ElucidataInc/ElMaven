@@ -341,7 +341,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType);
             //actually last parameter should probably be deepest MS level?
             //TODO: decide how isotope children should even work in MS mode
 
@@ -556,7 +556,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
 
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1);
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType);
             //actually last parameter should probably be deepest MS level?
             //TODO: decide how isotope children should even work in MS mode
 

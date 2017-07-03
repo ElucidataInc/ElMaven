@@ -833,12 +833,12 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
         //TODO: replace this by putting mzSlice pointer in peakgroup and using that
         if (grp.hasCompoundLink()) {
             if ( !grp.srmId.empty() ) { //MS-MS case 1
-                eic = (*it)->getEIC(grp.srmId);
+                eic = (*it)->getEIC(grp.srmId, _mainwindow->mavenParameters->eicType);
             }
             else if((grp.compound->precursorMz > 0) & (grp.compound->productMz > 0)) { //MS-MS case 2
                 //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
                 //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
-                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,_mainwindow->mavenParameters->amuQ1, _mainwindow->mavenParameters->amuQ3);
+                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,_mainwindow->mavenParameters->eicType,_mainwindow->mavenParameters->amuQ1, _mainwindow->mavenParameters->amuQ3);
             }
             else {//MS1 case
                 //TODO: same problem here: need the ppm that was used, or the slice object
@@ -856,7 +856,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 mzmax = mz + mz / 1e6 * ppm;
                 rtmin = grp.minRt - outputRtWindow;
                 rtmax = grp.maxRt + outputRtWindow;
-                eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1);
+                eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1, _mainwindow->mavenParameters->eicType);
             }
         }
 
@@ -868,7 +868,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
             mzmax = mz + mz / 1e6 * ppm;
             rtmin = grp.minRt - outputRtWindow;
             rtmax = grp.maxRt + outputRtWindow;
-            eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1);
+            eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1, _mainwindow->mavenParameters->eicType);
         }
 
         //TODO: for MS1 we've already limited RT range, but for MS/MS the entire RT range of the SRM will be output
