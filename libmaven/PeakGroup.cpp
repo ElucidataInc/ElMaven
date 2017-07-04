@@ -476,9 +476,10 @@ void PeakGroup::groupStatistics() {
 
         float max;
         switch(quantitationType){
-            case AreaTop: max = peaks[i].peakAreaTop; break;
+            case AreaTop: max = peaks[i].peakAreaTopCorrected; break;
             case Area: max = peaks[i].peakAreaCorrected; break;
             case Height: max = peaks[i].peakIntensity; break;
+            case AreaTopNotCorrected: max = peaks[i].peakAreaTop; break;
             case AreaNotCorrected: max = peaks[i].peakArea; break;
             default: max = peaks[i].peakIntensity; break;
         }

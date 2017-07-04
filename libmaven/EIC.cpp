@@ -520,7 +520,7 @@ void EIC::getPeakStatistics() {
         getPeakDetails(peaks[i]);
 
         if (peaks[i].peakAreaTopCorrected > maxAreaTopIntensity)
-            maxAreaTopIntensity = peaks[i].peakAreaTop;
+            maxAreaTopIntensity = peaks[i].peakAreaTopCorrected;
 
         if (peaks[i].peakAreaTop > maxAreaTopNotCorrectedIntensity)
             maxAreaTopNotCorrectedIntensity = peaks[i].peakAreaTop;
