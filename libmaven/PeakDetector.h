@@ -122,20 +122,12 @@ public:
 	void processSlices(vector<mzSlice*>&slices, string setName);
 
 	/**
-	 * [apply signal/baseline percentage filter to group; if certain percentage of peaks in the group are above the user input threshold, do not reject the group]
-	 * @method signalBaselineQuantileFilter
+	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
+	 * @method quantileFilters
 	 * @param  group        [pointer to PeakGroup]
 	 * @return [True if group has to be rejected, else False]
 	 */
-	bool signalBaselineQuantileFilter(PeakGroup *group);
-
-	/**
-	 * [apply signal/blank percentage filter to group; if certain percentage of peaks in the group are above the user input threshold, do not reject the group]
-	 * @method signalBlankQuantileFilter
-	 * @param group        [pointer to PeakGroup]
-	 * @return [True if group has to be rejected, else False]
-	 */
-	bool signalBlankQuantileFilter(PeakGroup *group);
+	 bool quantileFilters(PeakGroup *group);
 
 	/**
 	 * [process Compounds]

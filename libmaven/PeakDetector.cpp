@@ -783,36 +783,49 @@ void PeakDetector::alignSamples() {
         }
 }
 
-bool PeakDetector::signalBaselineQuantileFilter(PeakGroup *group){
-    if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
-                return true;
-    }
-    vector<Peak> peaks = group->getPeaks();
-    int peaksAboveBaselineRatio = 0;
-    for (int i = 0; i < peaks.size(); i++){
-        if(peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio){
-            peaksAboveBaselineRatio++;
-        }
-    }
-    int noVisibleSamples = mavenParameters->getVisibleSamples().size();
-    if ((peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
+bool PeakDetector::quantileFilters(PeakGroup *group) {
+    if (group->maxIntensity < mavenParameters->minIntensity){
         return true;
     }
-    return false;
-}
-
-bool PeakDetector::signalBlankQuantileFilter(PeakGroup *group){
+    if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
+        return true;
+    }
+    if (mavenParameters->clsf->hasModel() && 
+        group->maxQuality < mavenParameters->minQuality) {
+            return true;
+    }
     if (group->maxIntensity < group->blankMax * mavenParameters->minSignalBlankRatio){
         return true;
     }
     vector<Peak> peaks = group->getPeaks();
+    int peaksAboveMinIntensity = 0;
+    int peaksAboveBaselineRatio = 0;
     int peaksAboveBlankRatio = 0;
-    for (int i = 0; i <peaks.size(); i++){
-        if(peaks[i].peakIntensity > group->blankMax * mavenParameters->minSignalBlankRatio){
+    int peaksAboveMinQuality = 0;
+    for (int i = 0; i < peaks.size(); i++) {
+        if (peaks[i].peakIntensity > mavenParameters->minIntensity) {
+            peaksAboveMinIntensity++;
+        }
+        if (peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio) {
+            peaksAboveBaselineRatio++;
+        }
+        if (peaks[i].peakIntensity > group->blankMax * mavenParameters->minSignalBlankRatio){
             peaksAboveBlankRatio++;
+        }
+        if (peaks[i].quality > mavenParameters->minQuality) {
+            peaksAboveMinQuality++;
         }
     }
     int noVisibleSamples = mavenParameters->getVisibleSamples().size();
+    if ((peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileIntensity) {
+        return true;
+    }
+    if ((peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileQuality) {
+        return true;
+    }
+    if ((peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
+        return true;
+    }
     if ((peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
         return true;
     }
@@ -936,27 +949,13 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         if (mavenParameters->clsf->hasModel()
                             && group.goodPeakCount < mavenParameters->minGoodGroupCount)
                                 continue;
-                        if (mavenParameters->clsf->hasModel()
-                            && group.maxQuality < mavenParameters->minQuality)
-                                continue;
                         // if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
                         
                         if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
                                 continue;
-                        if (group.maxIntensity < mavenParameters->minGroupIntensity)
+                        if (quantileFilters(&group))
                                 continue;
-                    
-                        int noVisibleSamples = mavenParameters->getVisibleSamples().size();
-
-                        if ((group.quantileIntensityPeaks/noVisibleSamples)*100 < mavenParameters->quantileIntensity) 
-                                continue;
-                        if ((group.quantileQualityPeaks/noVisibleSamples)*100 < mavenParameters->quantileQuality) 
-                                continue;
-                        if (signalBaselineQuantileFilter(&group))
-                                continue;
-                        if (signalBlankQuantileFilter(&group))
-                                continue;
-
+                                
                         if (compound)
                                 group.compound = compound;
                         if (!slice->srmId.empty())

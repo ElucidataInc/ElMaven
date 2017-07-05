@@ -93,8 +93,8 @@ class PeakGroup{
 
         double minIntensity;
 
-        int quantileIntensityPeaks;
-        int quantileQualityPeaks;
+        //int quantileIntensityPeaks;
+        //int quantileQualityPeaks;
 
         float minRt;
         float maxRt;
