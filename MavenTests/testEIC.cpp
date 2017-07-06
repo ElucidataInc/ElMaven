@@ -191,6 +191,11 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
     mavenparameters->grouping_maxRtWindow = 0.5;
+    mavenparameters->distXWeight = 1;
+    mavenparameters->distYWeight = 5;
+    mavenparameters->overlapWeight = 2;
+    mavenparameters->useOverlap = 0;
+
 
     vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
                                     1, mavenparameters->eic_smoothingWindow,
@@ -210,9 +215,17 @@ void TestEIC:: testgroupPeaks() {
                                                     mavenparameters->useOverlap);
 
 
+
     QVERIFY(peakgroups.size() == 3);
+    QVERIFY(13.2378 < peakgroups[0].meanRt < 13.238);
+    QVERIFY(744.075 < peakgroups[0].meanMz < 744.077);
+    QVERIFY(13.7593 < peakgroups[1].meanRt < 13.7595);
+    QVERIFY(744.0749 <peakgroups[1].meanMz < 744.0751);
+    QVERIFY(14.8468 < peakgroups[2].meanRt < 14.847);
+    QVERIFY(744.0849 < peakgroups[2].meanMz < 744.0851);
+
     unsigned int maxPeakNum = 0;
-    for(unsigned int j = 0; j < peakgroups.size(); j++) {
+    for(unsigned int j = 0; j < peakgroups.size(); j++) {   
         if (maxPeakNum < peakgroups[j].peaks.size())
             maxPeakNum = peakgroups[j].peaks.size();
     }
