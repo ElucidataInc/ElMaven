@@ -79,6 +79,19 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     //Multiprocessing
     connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
+
+    //Group Rank
+    showQualityWeightStatus(qualityWeight->value());
+    showIntensityWeightStatus(intensityWeight->value());
+    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
+    connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
+    connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+
+    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+    connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+    qualityWeight->setValue(settings->value("qualityWeight").toInt());
+    intensityWeight->setValue(settings->value("intensityWeight").toInt());
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -350,7 +363,33 @@ void SettingsForm::getFormValues() {
     	mzSample::setFilter_mslevel(0);
     }
 
+    //group rank tab
+    //settings->setValue("qualityWeight", (qualityWeightSl))
+
     setMavenParameters();
+}
+
+void SettingsForm::showQualityWeightStatus(int value) {
+    mainwindow->mavenParameters->qualityWeight = value;
+    //settings->setValue("qualityWeight")
+    QString stat= QString::number((double) value/10, 'f', 1);
+    qualityWeightStatus->setText(stat);
+}
+
+void SettingsForm::showIntensityWeightStatus(int value) {
+    mainwindow->mavenParameters->intensityWeight = value;
+    QString stat= QString::number((double) value/10, 'f', 1);
+    intensityWeightStatus->setText(stat);
+}
+
+void SettingsForm::setInitialGroupRank() {
+    qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
+    intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
+    //deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
+    showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
+    showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
+    //showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
+    //setGroupRank();
 }
 
 void SettingsForm::setMavenParameters() {

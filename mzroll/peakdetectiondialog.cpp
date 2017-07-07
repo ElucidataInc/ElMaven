@@ -16,6 +16,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
+        //remove
         connect(matchRt,SIGNAL(clicked()),this,SLOT(setGroupRank()));
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
@@ -24,11 +25,15 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
+        //moved
         connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
+        //moved
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
 
+        //moved
         connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+        //moved
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
 
@@ -61,18 +66,21 @@ void PeakDetectionDialog::updatePeakQType(QString pQType) {
     }
 }
 
+//remove
 void PeakDetectionDialog::setDeltaRTWeightVisible(bool value) {
     label_26->setVisible(value);
     deltaRTWeight->setVisible(value);
     deltaRTWeightStatus->setVisible(value);
 }
 
+//moved
 void PeakDetectionDialog::showQualityWeightStatus(int value) {
     mainwindow->mavenParameters->qualityWeight = value;
     QString stat= QString::number((double) value/10, 'f', 1);
     qualityWeightStatus->setText(stat);
 }
 
+//moved
 void PeakDetectionDialog::showIntensityWeightStatus(int value) {
     mainwindow->mavenParameters->intensityWeight = value;
     QString stat= QString::number((double) value/10, 'f', 1);
@@ -85,6 +93,7 @@ void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
     deltaRTWeightStatus->setText(stat);
 }
 
+//remove
 void PeakDetectionDialog::setGroupRank() {
 
     if(dbOptions->isChecked() && matchRt->isChecked()) {
@@ -100,6 +109,7 @@ void PeakDetectionDialog::setGroupRank() {
 
 }
 
+//moved
 void PeakDetectionDialog::setInitialGroupRank() {
     qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
     intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
@@ -199,7 +209,9 @@ void PeakDetectionDialog::show() {
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                mainwindow->alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 
+    //moved
     connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    //moved
     connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
     connect(deltaRTWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
 
@@ -579,8 +591,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
         mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
         mavenParameters->quantileIntensity = settings->value("quantileIntensity").toDouble();
-
-        //cerr << "Test: " << mavenParameters->quantileSignalBaselineRatio << endl;
 
         // Peak Group Rank
         mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();

@@ -971,7 +971,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <layout class="QGridLayout" name="gridLayout_14">
         <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_2">
+         <widget class="QSlider" name="intensityWeight">
           <property name="maximum">
            <number>50</number>
           </property>
@@ -987,7 +987,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="qualityWeight">
           <property name="maximum">
            <number>50</number>
           </property>
@@ -1003,7 +1003,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLabel" name="label_36">
+         <widget class="QLabel" name="intensityWeightStatus">
           <property name="text">
            <string>Status</string>
           </property>
@@ -1017,7 +1017,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSlider" name="horizontalSlider_3">
+         <widget class="QSlider" name="deltaRTWeight">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -1033,14 +1033,14 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLabel" name="label_37">
+         <widget class="QLabel" name="deltaRTWeightStatus">
           <property name="text">
            <string>Status</string>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="label_35">
+         <widget class="QLabel" name="qualityWeightStatus">
           <property name="text">
            <string>Status</string>
           </property>

@@ -31,6 +31,9 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void  setStringValue(QString key, QString value);
             void updateMultiprocessing();
             void setSettingsIonizationMode(QString);
+            void showQualityWeightStatus(int value);
+            void showIntensityWeightStatus(int value);
+            void setInitialGroupRank();
 
             /*
             * [Update status of the weight slider on UI]
