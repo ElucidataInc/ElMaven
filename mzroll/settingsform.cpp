@@ -332,7 +332,3 @@ void SettingsForm::setStringValue(QString key, QString value) {
      settings->setValue(key,value);
 }
 
-void SettingsForm::setIntValue(QString key, bool value) {
-      if(settings->contains(key)) qDebug() << "Changing " << key << " value to" << value;
-     settings->setValue(key,value);
-}

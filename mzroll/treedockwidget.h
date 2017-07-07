@@ -16,6 +16,7 @@ public:
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
+    QCheckBox* rtMatch;
 
     TreeDockWidget(MainWindow*, QString title, int numColms);
     //Added while merging with Maven776 - Kiran
@@ -36,6 +37,7 @@ public Q_SLOTS:
 	  void setInfo(vector<mzLink>&links);
 	  void setInfo(vector<mzSlice*>&slices);
 	  void setInfo(deque<Pathway*>&pathways);
+        void showSRMList();
 
 	  void addScanItem(Scan* scan);
 	  void clearTree();

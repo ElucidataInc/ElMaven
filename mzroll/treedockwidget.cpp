@@ -417,7 +417,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ1->setMinimumWidth(20);
 
     connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ1Tollrance(double)));
-    connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
+    connect(amuQ1, SIGNAL(valueChanged(double)), this, SLOT(showSRMList()));
 
     QDoubleSpinBox* amuQ3 = new QDoubleSpinBox(toolBar);
     amuQ3->setRange(0.001, 2.0);
@@ -427,16 +427,15 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ3->setSuffix(" amu");
     amuQ3->setMinimumWidth(20);
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
-    connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
+    connect(amuQ3, SIGNAL(valueChanged(double)), this, SLOT(showSRMList()));
 
     QToolButton* associateCompounds = new QToolButton(toolBar);
     associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
     associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
-    connect(associateCompounds,SIGNAL(clicked()),_mainWindow,SLOT(showSRMList()));
+    connect(associateCompounds,SIGNAL(clicked()), this, SLOT(showSRMList()));
 
-    QCheckBox* rtMatch = new QCheckBox("Consider RT to find Best Match in Compounds", toolBar);
-    connect(rtMatch, SIGNAL(stateChanged(int)),_mainWindow->getSettingsForm(), SLOT(setRtMatch(int)));
-    connect(rtMatch, SIGNAL(stateChanged(int)),_mainWindow,SLOT(showSRMList()));
+    rtMatch = new QCheckBox("Consider RT to find Best Match in Compounds", toolBar);
+    connect(rtMatch, SIGNAL(stateChanged(int)), this, SLOT(showSRMList()));
 
     toolBar->addWidget(new QLabel("Q1"));
     toolBar->addWidget(amuQ1);
@@ -446,5 +445,11 @@ void TreeDockWidget::setQQQToolBar() {
     toolBar->addWidget(rtMatch);
 
     setTitleBarWidget(toolBar);
+}
+
+void TreeDockWidget::showSRMList() {
+
+    _mainWindow->getSettings()->setValue("rtMatch", rtMatch->checkState());
+    _mainWindow->showSRMList();
 
 }
