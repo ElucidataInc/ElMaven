@@ -269,6 +269,11 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
             float area2 = (slice->mzmax-slice->mzmin) * (slice->rtmax-slice->rtmin);
             float area = area1 < area2 ? area1 : area2;
 
+            if (overlapArea/area > threshold/100 && overlapArea > bestOverlapArea){
+                bestOverlapArea = overlapArea;
+                bestSliceNum = thisSliceNum;
+            }
+            
         }
     }
     slices = returnSlices;
