@@ -170,7 +170,11 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
         }
     }
     cerr << "Found=" << slices.size() << " slices" << endl;
+    float threshold;
+    cin >> threshold;
+    removeDuplicateSlices(userPPM, threshold);
     sort(slices.begin(),slices.end(), mzSlice::compIntensity);
+    cerr << "After removing duplicate slices. Threshold : "<< threshold <<", Found="<< slices.size()<< " slices" <<endl;
     sendSignal("Mass Slices Processed", 1 , 1);
 }
 
@@ -233,7 +237,20 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
     vector<mzSlice*> returnSlices;
     mzSlice* slice;
     multimap<int,int>vectorCache;
-    //int ischecked[slice_vector.size()] = {0};
+    
+   for(int i=0; i<slices.size(); i++) {
+        slice = slices[i];
+        float mz = slice->mz;
+        multimap<int, int>::iterator start, end;
+        
+        start = vectorCache.equal_range( (int) (mz* 10 - 1) ).first;
+        end = vectorCache.equal_range( (int) (mz* 10 + 1) ).second;
+        float mzOverlap =  0.0;
+        float rtOverlap = 0.0;
+        float overlapArea, bestOverlapArea = 0.0;
+        int bestSliceNum = -1;
 
+        
+    }
     slices = returnSlices;
 }
