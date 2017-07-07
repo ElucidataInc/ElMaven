@@ -250,7 +250,18 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
         float overlapArea, bestOverlapArea = 0.0;
         int bestSliceNum = -1;
 
-        
+        for(; start != end; start++) {
+            int thisSliceNum = (*start).second;
+            mzSlice *thisSlice = returnSlices[thisSliceNum];
+
+            float low = thisSlice->mzmin > slice->mzmin ? thisSlice->mzmin : slice->mzmin;
+            float high = thisSlice->mzmax < slice->mzmax ? thisSlice->mzmax : slice->mzmax;
+            mzOverlap = high-low;
+
+            low = thisSlice->rtmin > slice->rtmin ? thisSlice->rtmin : slice->rtmin;
+            high = thisSlice->rtmax < slice->rtmax ? thisSlice->rtmax : slice->rtmax;
+            rtOverlap = high-low;
+        }
     }
     slices = returnSlices;
 }
