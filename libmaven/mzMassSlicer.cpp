@@ -227,3 +227,13 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
     }
     return best;
 }
+
+void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
+
+    vector<mzSlice*> returnSlices;
+    mzSlice* slice;
+    multimap<int,int>vectorCache;
+    //int ischecked[slice_vector.size()] = {0};
+
+    slices = returnSlices;
+}

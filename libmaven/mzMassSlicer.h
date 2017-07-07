@@ -40,6 +40,8 @@ class MassSlices {
         vector<mzSlice*> slices;
         mzSlice* sliceExists(float mz,float rt);
 
+        void removeDuplicateSlices(float userPPM, float threshold);
+        
         /**
          * [This is function is called when mass Slicing using 
          * AlgorithmB returns no slices. The slices here are created using the filterLine
