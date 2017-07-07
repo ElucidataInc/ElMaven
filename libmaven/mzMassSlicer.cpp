@@ -275,6 +275,22 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
             }
             
         }
+
+        if(bestSliceNum >= 0){
+            cerr << "1";
+            mzSlice* Z = returnSlices[bestSliceNum];
+            
+            Z->ionCount = std::max((float) Z->ionCount, (float ) slice->ionCount);
+            Z->rtmax = std::max((float)Z->rtmax, (float)slice->rtmax);
+            Z->rtmin = std::min((float)Z->rtmin, (float)slice->rtmin);
+            Z->mzmax = std::max((float)Z->mzmax, (float)slice->mzmax);
+            Z->mzmin = std::min((float)Z->mzmin, (float)slice->mzmin);
+
+            //make sure that mz windown doesn't get out of control
+            if (Z->mzmin < mz-(mz/1e6*userPPM)) Z->mzmin =  mz-(mz/1e6*userPPM);
+            if (Z->mzmax > mz+(mz/1e6*userPPM)) Z->mzmax =  mz+(mz/1e6*userPPM);
+            Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
+        }
     }
     slices = returnSlices;
 }
