@@ -364,8 +364,8 @@ void SettingsForm::getFormValues() {
     }
 
     //group rank tab
-    //settings->setValue("qualityWeight", (qualityWeightSl))
-
+    settings->setValue("qualityWeight", (qualityWeight->value()));
+    settings->setValue("intensityWeight", (intensityWeight->value()));
     setMavenParameters();
 }
 
