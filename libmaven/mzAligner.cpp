@@ -3,6 +3,8 @@
 #include "mzSample.h"
 #include <cmath>
 #include "PolyAligner.h"
+#include <fstream>
+#include <iostream>
 
 
 Aligner::Aligner() {
