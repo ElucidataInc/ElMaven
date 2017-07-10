@@ -38,6 +38,7 @@ SOURCES = 	base64.cpp \
             Fragment.cpp \
 	        EIC.cpp \
 	        Scan.cpp \
+                SRMList.cpp \
 	        Peak.cpp  \
 	        Compound.cpp \
 	        savgol.cpp \
@@ -82,6 +83,7 @@ HEADERS += 	constants.h \
                 eiclogic.h \
                 EIC.h \
 	            Scan.h \
+                SRMList.h \
                 databases.h \
                 Peptide.hpp \
                 PeptideRecord.h \
