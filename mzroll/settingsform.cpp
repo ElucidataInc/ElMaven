@@ -94,6 +94,10 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     showDeltaRTWeightStatus(deltaRTWeight->value());
 
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
+
+    connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(deltaRTWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {

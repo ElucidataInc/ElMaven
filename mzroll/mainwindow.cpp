@@ -2487,6 +2487,7 @@ void MainWindow::showspectraMatchingForm() {
 
 void MainWindow::showsettingsForm() {
 	LOGD;
+	settingsForm->setInitialGroupRank();
 	settingsForm->exec();
 }
 
@@ -2534,9 +2535,7 @@ bool MainWindow::addSample(mzSample* sample) {
 //TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
 	LOGD;
-	peakDetectionDialog->setInitialGroupRank();
-    peakDetectionDialog->show();   
-   
+    peakDetectionDialog->show();      
 }
 
 // void MainWindow::showMassSlices() {
