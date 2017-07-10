@@ -10,7 +10,7 @@
 class SRMList{
     public:
 
-        SRMLists(vector<mzSample*>samples, deque<Compound*> compoundsDB);
+        SRMList(vector<mzSample*>samples, deque<Compound*> compoundsDB);
         vector<mzSample*>samples;
 
         vector<mzSlice*> getSrmSlices(double amuQ1, double amuQ3, int userPolarity, bool associateCompoundNames);

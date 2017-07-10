@@ -85,7 +85,7 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
 	return slices;
 }
 
-Compound *SRMLists::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {
+Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {
     
     Compound* x=NULL;
     float dist=FLT_MAX;
