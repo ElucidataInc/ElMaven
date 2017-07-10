@@ -1,4 +1,11 @@
 #include "background_peaks_update.h"
+#include "python2.7/Python.h"
+#include <iostream>
+#include <fstream>
+#include <boost/python.hpp>
+#include <sstream>
+#include <vector>
+
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         mainwindow = NULL;
@@ -484,7 +491,28 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->alignmentDialog->maxItterations->value());
                 aligner.setPolymialDegree(
                         mainwindow->alignmentDialog->polynomialDegree->value());
+                
                 aligner.doAlignment(groups);
+
+                aligner.preProcessing(groups);
+                Py_Initialize();
+                PyRun_SimpleString("import sys");
+                Py_Finalize();
+                char c; // to eat the commas
+                std::string sample;
+                int x;
+                std::vector<int> xv;
+                std::vector<std::string> sn;
+                std::ifstream file("rts_out.csv");
+                std::string line;
+
+                while (std::getline(file, line)) {
+                    std::istringstream ss(line);
+                    ss >> sample >> c >> x;
+                    xv.push_back(x);
+                    sn.push_back(sample);
+                }
+
                 mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
                 mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
                 mainwindow->deltaRt = aligner.getDeltaRt();
