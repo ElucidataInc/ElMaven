@@ -50,6 +50,7 @@ MavenParameters::MavenParameters() {
         qualityWeight=10;
 	intensityWeight=10;
 	deltaRTWeight=10;
+        deltaRtCheckFlag = false;
 
         compoundPPMWindow = 10;
         compoundRTWindow = 2;

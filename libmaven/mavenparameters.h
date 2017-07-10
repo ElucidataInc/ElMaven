@@ -144,6 +144,7 @@ public:
 	int qualityWeight;
 	int intensityWeight;
 	int deltaRTWeight;
+	bool deltaRtCheckFlag;
 
 	/**
 	 * eic window around compound, compound detection setting

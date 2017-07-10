@@ -1206,7 +1206,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
 
-        if (mavenParameters->matchRtFlag && group->compound != NULL && group->compound->expectedRt > 0)
+        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && group->compound->expectedRt > 0)
         {
             group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
                                                   * (1 /( pow(log(group->maxIntensity + 1), B)));

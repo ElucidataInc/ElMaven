@@ -17,7 +17,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
         //remove
-        connect(matchRt,SIGNAL(clicked()),this,SLOT(setGroupRank()));
+        //connect(matchRt,SIGNAL(clicked()),this,SLOT(setGroupRank()));
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(reportIsotopesOptions,SIGNAL(clicked(bool)),this,SLOT(showMethodSummary())); 
@@ -120,7 +120,7 @@ void PeakDetectionDialog::setInitialGroupRank() {
     showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
     showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
     showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
-    setGroupRank();
+    //setGroupRank();
 }
 
 void PeakDetectionDialog::dbOptionsClicked() {
@@ -131,7 +131,7 @@ void PeakDetectionDialog::dbOptionsClicked() {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
     }
-    setGroupRank();
+    //setGroupRank();
 }
 
 void PeakDetectionDialog::featureOptionsClicked() {
@@ -142,7 +142,7 @@ void PeakDetectionDialog::featureOptionsClicked() {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
     }
-    setGroupRank();
+    //setGroupRank();
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -597,6 +597,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
         mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
         mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
+        mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool());
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();

@@ -369,6 +369,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("qualityWeight", (qualityWeight->value()));
     settings->setValue("intensityWeight", (intensityWeight->value()));
     settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
+    settings->setValue("deltaRtCheckFlag", (deltaRTCheck->isChecked()));
     setMavenParameters();
 }
 

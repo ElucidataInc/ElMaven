@@ -730,7 +730,7 @@ Scan* PeakGroup::getAverageFragmenationScan(float resolution) {
     return avgScan;
     }
 
-void PeakGroup::calGroupRank(bool matchRtFlag,
+void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
                             float compoundRTWindow,
                             int qualityWeight,
                             int intensityWeight,
@@ -749,7 +749,7 @@ void PeakGroup::calGroupRank(bool matchRtFlag,
     double B = (double) intensityWeight/10;
     double C = (double) deltaRTWeight/10;
 
-    if (matchRtFlag && compound != NULL && compound->expectedRt > 0) {
+    if (deltaRtCheckFlag && compound != NULL && compound->expectedRt > 0) {
         groupRank = pow(rtDiff, 2*C) * pow((1.1 - maxQuality), A)
                                 * (1 /( pow(log(maxIntensity + 1), B))); //TODO Formula to rank groups
     } else {
