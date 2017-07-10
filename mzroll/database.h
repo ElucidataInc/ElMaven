@@ -58,6 +58,7 @@ class Database {
 	Compound* findSpeciesByPrecursor(float precursorMz, float productMz,
 					 int polarity, double amuQ1,
 					 double amuQ3);
+	deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
 	set<Compound*> findSpeciesByMass(float mz, float ppm);
 	vector<Compound*> findSpeciesByName(string name, string dbname);
 
