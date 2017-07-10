@@ -12,6 +12,52 @@ Aligner::Aligner() {
 	polynomialDegree=3;
 }
 
+void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
+    if (peakgroups.size() == 0) return;
+    
+    allgroups = peakgroups;
+    
+    ofstream file;
+
+    file.open("groups.csv");
+    file << "group_number" << "," << "group_name" << "," << "sample_name" << "," << "rt" << std::endl;
+    for (unsigned int ii=0; ii<allgroups.size();ii++) {
+        PeakGroup* grp = allgroups.at(ii);
+        for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+            Peak peak = grp->getPeaks().at(jj);
+ 			file << ii << "," << grp->getName() << "," << peak.getSample()->getSampleName() << "," << peak.rt << std::endl;
+ 			cerr << grp->getName() <<  peak.getSample()->getSampleName() << peak.rt << std::endl;
+        }
+    }
+    file.close();
+    
+    samples.clear();
+
+    samples.clear();
+    set<mzSample*> samplesSet;
+    for (unsigned int i=0; i < peakgroups.size();  i++ ) {
+            for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
+                    Peak& p = peakgroups[i]->peaks[j];
+                    mzSample* sample = p.getSample();
+                    if (sample) samplesSet.insert(sample);
+            }
+    }
+
+    samples.resize(samplesSet.size());
+    copy(samplesSet.begin(), samplesSet.end(),samples.begin());
+
+    file.open("rts.csv");
+    file << "sample_name" << "," << "rt" << std::endl;
+    for(unsigned int i=0; i < samples.size(); i++ ) {
+            for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+                    file << samples[i]->getSampleName() << ","<< samples[i]->scans[ii]->rt << std::endl;
+            }
+        }
+    file.close();
+    return;
+}
+
+
 void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	if (peakgroups.size() == 0) return;
 
