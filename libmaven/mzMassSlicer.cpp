@@ -291,6 +291,10 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
             if (Z->mzmax > mz+(mz/1e6*userPPM)) Z->mzmax =  mz+(mz/1e6*userPPM);
             Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
         }
+        else{
+            vectorCache.insert(pair<int,int>(int (mz*10),returnSlices.size()));
+            returnSlices.push_back(slice);
+        }
     }
     slices = returnSlices;
 }
