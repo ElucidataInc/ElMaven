@@ -5,7 +5,7 @@ SRMList::SRMList(vector<mzSample*>samples, deque<Compound*> compoundsDB){
     this->compoundsDB = compoundsDB;
 }
 
-vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolarity, bool rtMatch, bool associateCompoundNames) {
+vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolarity, bool associateCompoundNames) {
 	//Merged with Maven776 - Kiran
     QMap<QString, Scan*>seenMRMS;
     //+118.001@cid34.00 [57.500-58.500]
@@ -71,7 +71,7 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             }
 
             if (precursorMz != 0 && productMz != 0 ) {
-                compound = findSpeciesByPrecursor(precursorMz,productMz,rt,rtMatch,polarity,amuQ1,amuQ3);
+                compound = findSpeciesByPrecursor(precursorMz,productMz,rt,polarity,amuQ1,amuQ3);
             }
 
             if (compound) {
