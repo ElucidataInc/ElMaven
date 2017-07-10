@@ -33,7 +33,9 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setSettingsIonizationMode(QString);
             void showQualityWeightStatus(int value);
             void showIntensityWeightStatus(int value);
+            void showDeltaRTWeightStatus(int value);
             void setInitialGroupRank();
+            void toggleDeltaRtWeight();
 
             /*
             * [Update status of the weight slider on UI]
@@ -56,6 +58,9 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
       private:
             QSettings *settings;
             MainWindow *mainwindow;
+      
+      public:
+            bool deltaRtCheckFlag;
 };
 
 #endif

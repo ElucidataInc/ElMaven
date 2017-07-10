@@ -29,12 +29,14 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
         //moved
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
+        //moved
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
 
-        //moved
+        //removed
         connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
-        //moved
+        //removed
         connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
+        //removed
         connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
 
         label_20->setVisible(false);
@@ -87,6 +89,7 @@ void PeakDetectionDialog::showIntensityWeightStatus(int value) {
     intensityWeightStatus->setText(stat);
 }
 
+//moved
 void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
     mainwindow->mavenParameters->deltaRTWeight = value;
     QString stat= QString::number((double) value/10, 'f', 1);
@@ -209,9 +212,7 @@ void PeakDetectionDialog::show() {
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
                mainwindow->alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 
-    //moved
     connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
-    //moved
     connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
     connect(deltaRTWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
 

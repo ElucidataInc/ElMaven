@@ -4,6 +4,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     setupUi(this);
     settings = s;
     mainwindow = w;
+    deltaRtCheckFlag = false;
     updateSettingFormGUI();
     setIsotopeAtom();
     setMavenParameters();
@@ -81,17 +82,18 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
 
     //Group Rank
-    showQualityWeightStatus(qualityWeight->value());
-    showIntensityWeightStatus(intensityWeight->value());
     connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
-    connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
     connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
-    connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
+    connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
 
-    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
-    connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
     qualityWeight->setValue(settings->value("qualityWeight").toInt());
+    showQualityWeightStatus(qualityWeight->value());
     intensityWeight->setValue(settings->value("intensityWeight").toInt());
+    showIntensityWeightStatus(intensityWeight->value());
+    deltaRTWeight->setValue(settings->value("deltaRTWeight").toInt());
+    showDeltaRTWeightStatus(deltaRTWeight->value());
+
+    connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -366,30 +368,48 @@ void SettingsForm::getFormValues() {
     //group rank tab
     settings->setValue("qualityWeight", (qualityWeight->value()));
     settings->setValue("intensityWeight", (intensityWeight->value()));
+    settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
     setMavenParameters();
 }
 
 void SettingsForm::showQualityWeightStatus(int value) {
     mainwindow->mavenParameters->qualityWeight = value;
-    //settings->setValue("qualityWeight")
+    settings->setValue("qualityWeight", (qualityWeight->value()));
     QString stat= QString::number((double) value/10, 'f', 1);
     qualityWeightStatus->setText(stat);
 }
 
 void SettingsForm::showIntensityWeightStatus(int value) {
     mainwindow->mavenParameters->intensityWeight = value;
+    settings->setValue("intensityWeight", (intensityWeight->value()));
     QString stat= QString::number((double) value/10, 'f', 1);
     intensityWeightStatus->setText(stat);
+}
+
+void SettingsForm::showDeltaRTWeightStatus(int value) {
+    mainwindow->mavenParameters->deltaRTWeight = value;
+    settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
+    QString stat= QString::number((double) value/10, 'f', 1);
+    deltaRTWeightStatus->setText(stat);
 }
 
 void SettingsForm::setInitialGroupRank() {
     qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
     intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
-    //deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
+    deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
     showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
     showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
-    //showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
-    //setGroupRank();
+    showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
+}
+
+void SettingsForm::toggleDeltaRtWeight() {
+    if (deltaRTCheck->isChecked()) {
+        deltaRtCheckFlag = true;
+    }
+    else {
+        deltaRtCheckFlag = false;
+    }
+    deltaRTWeight->setEnabled(deltaRtCheckFlag);
 }
 
 void SettingsForm::setMavenParameters() {
