@@ -2694,7 +2694,7 @@ vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool assoc
 	int userPolarity = 0;
 	if (getIonizationMode()) userPolarity=getIonizationMode();
 	deque<Compound*> compoundsDB = DB.getCompoundsDB();
-	SRMLists *srmList = new SRMList(samples, compoundsDB);
+	SRMList *srmList = new SRMList(samples, compoundsDB);
 	vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1,amuQ3,userPolarity,associateCompoundNames);
 	return slices;
 }
