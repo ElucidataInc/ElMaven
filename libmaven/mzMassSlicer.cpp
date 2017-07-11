@@ -170,8 +170,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
         }
     }
     cerr << "Found=" << slices.size() << " slices" << endl;
-    float threshold;
-    cin >> threshold;
+    float threshold = 100;
     removeDuplicateSlices(userPPM, threshold);
     sort(slices.begin(),slices.end(), mzSlice::compIntensity);
     cerr << "After removing duplicate slices. Threshold : "<< threshold <<", Found="<< slices.size()<< " slices" <<endl;
@@ -269,7 +268,7 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
             float area2 = (slice->mzmax-slice->mzmin) * (slice->rtmax-slice->rtmin);
             float area = area1 < area2 ? area1 : area2;
 
-            if (overlapArea/area > threshold/100 && overlapArea > bestOverlapArea){
+            if (overlapArea/area >= threshold/100 && overlapArea > bestOverlapArea){
                 bestOverlapArea = overlapArea;
                 bestSliceNum = thisSliceNum;
             }
@@ -277,7 +276,6 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
         }
 
         if(bestSliceNum >= 0){
-            cerr << "1";
             mzSlice* Z = returnSlices[bestSliceNum];
             
             Z->ionCount = std::max((float) Z->ionCount, (float ) slice->ionCount);
