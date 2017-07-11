@@ -12,6 +12,7 @@ using namespace std;
 class Aligner {
    public:
     Aligner();
+    void preProcessing(vector<PeakGroup*>& peakgroups);
     void doAlignment(vector<PeakGroup*>& peakgroups);
     vector<double> groupMeanRt();
     double checkFit();
