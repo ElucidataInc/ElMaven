@@ -12,3 +12,18 @@ samples = rts.sample_name.unique()
 nSamples = len(samples)
 group_num = groups.group_number.unique()
 minSample = nSamples * minFraction
+
+lim_groups = pd.DataFrame()
+for i in group_num:
+	sub_groups = groups[groups.group_number == i]
+	rows,cols = sub_groups.shape
+	if rows >= minSample:
+		flag = False
+		for j in samples:
+			sample_groups = sub_groups[sub_groups.sample_name == j]
+			row,col = sample_groups.shape
+			if row > extraPeaks + 1 :
+				flag = True
+		if(flag == False):
+			sub_groups = sub_groups.assign(rt_dev = (sub_groups.rt - np.median(sub_groups.rt)))
+			lim_groups = lim_groups.append(sub_groups, ignore_index = True)
