@@ -306,13 +306,13 @@ void EicWidget::computeEICs() {
 
 	QSettings *settings = getMainWindow()->getSettings();
 	float eic_smoothingWindow =
-			settings->value("eic_smoothingWindow").toDouble();
+			getMainWindow()->mavenParameters->eic_smoothingWindow;
 	int eic_smoothingAlgorithm =
-			settings->value("eic_smoothingAlgorithm").toInt();
+			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
 	float amuQ1 = settings->value("amuQ1").toDouble();
 	float amuQ3 = settings->value("amuQ3").toDouble();
-	int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-	int baseline_quantile = settings->value("baseline_quantile").toInt();
+	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
+	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 	int eic_type = getMainWindow()->mavenParameters->eicType;
 
 	mzSlice bounds = visibleSamplesBounds();
@@ -683,8 +683,8 @@ void EicWidget::addMergedEIC() {
 	int eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
 	int eic_smoothingAlgorithm =
 			settings->value("eic_smoothingAlgorithm").toInt();
-	int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-	int baseline_quantile = settings->value("baseline_quantile").toInt();
+	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
+	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
 	EicLine* line = new EicLine(0, scene());
 
@@ -715,8 +715,8 @@ void EicWidget::addMergedEIC() {
 void EicWidget::addBaseLine() {
 	qDebug() << " EicWidget::addBaseLine()";
 	QSettings* settings = this->getMainWindow()->getSettings();
-	int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-	int baseline_quantile = settings->value("baseline_quantile").toInt();
+	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
+	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
 	for (unsigned int i = 0; i < eicParameters->eics.size(); i++) {
 		EIC* eic = eicParameters->eics[i];

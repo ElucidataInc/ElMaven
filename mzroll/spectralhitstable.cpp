@@ -931,8 +931,8 @@ void SpectralHitsDockWidget::integrateMS1() {
    int   eic_smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
    float amuQ1 = settings->value("amuQ1").toDouble();
    float amuQ3 = settings->value("amuQ3").toDouble();
-   int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-   int baseline_quantile =  settings->value("baseline_quantile").toInt();
+   int baseline_smoothing = _mainwindow->mavenParameters->baseline_smoothingWindow;
+   int baseline_quantile =  _mainwindow->mavenParameters->baseline_dropTopX;
    float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
    int eic_type = _mainwindow->mavenParameters->eicType;
 

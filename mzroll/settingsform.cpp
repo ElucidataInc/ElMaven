@@ -435,6 +435,14 @@ void SettingsForm::setMavenParameters() {
         mavenParameters->overlapWeight = settings->value("overlapWeight").toFloat();
         mavenParameters->useOverlap = false;
         if (settings->value("useOverlap").toInt() > 0) mavenParameters->useOverlap = true;
+
+        //EIC Processing: Baseline Calculation and Smoothing
+        mavenParameters->eic_smoothingAlgorithm = settings->value(
+                "eic_smoothingAlgorithm").toInt();
+        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+
+        mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
+        mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
     }
 }
 

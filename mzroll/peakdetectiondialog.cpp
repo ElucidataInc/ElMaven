@@ -216,25 +216,12 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
     if (mainwindow != NULL) {
         QSettings* settings = mainwindow->getSettings();
         if (settings) {
-            // EIC Processing: Baseline calculation and Smoothing
-            eic_smoothingAlgorithm->setCurrentIndex(
-                settings->value("eic_smoothingAlgorithm").toInt());
-            eic_smoothingWindow->setValue(
-                settings->value("eic_smoothingWindow").toDouble());
-            grouping_maxRtDiff->setValue(
-                settings->value("grouping_maxRtWindow").toDouble());
 
-            // BaseLine Calculation
-            baseline_smoothing->setValue(
-                settings->value("baseline_smoothingWindow").toInt());
-            baseline_quantile->setValue(
-                settings->value("baseline_dropTopX").toInt());
+            // Peak Scoring and Filtering
             doubleSpinBoxMinQuality->setValue(
                 settings->value("minQuality").toDouble());
             quantileQuality->setValue(
                 settings->value("quantileQuality").toDouble());
-
-            // Peak Scoring and Filtering
             minGoodGroupCount->setValue(
                 settings->value("minGoodGroupCount").toInt());
             minNoNoiseObs->setValue(
@@ -414,20 +401,9 @@ void PeakDetectionDialog::findPeaks() {
 }
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
-    // EIC Processing: Baseline calculation and Smoothing
-    settings->setValue("eic_smoothingAlgorithm",
-                       eic_smoothingAlgorithm->currentIndex());
-
-    settings->setValue("eic_smoothingWindow", eic_smoothingWindow->value());
-
-    settings->setValue("grouping_maxRtWindow", grouping_maxRtDiff->value());
-
-    // BaseLine Calculation
-    settings->setValue("baseline_smoothingWindow", baseline_smoothing->value());
-    settings->setValue("baseline_dropTopX", baseline_quantile->value());
-    settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
-    settings->setValue("quantileQuality", quantileQuality->value());
     // Peak Scoring and Filtering
+    settings->setValue("quantileQuality", quantileQuality->value());
+    settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
     settings->setValue("minSignalBaseLineRatio", sigBaselineRatio->value());
@@ -485,19 +461,9 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
-        // EIC Processing: Baseline calculation and Smoothing
-        mavenParameters->eic_smoothingAlgorithm = settings->value(
-                "eic_smoothingAlgorithm").toInt();
-        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
-
-        mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
-        // BaseLine Calculation
-        mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothingWindow").toInt();
-        mavenParameters->baseline_dropTopX = settings->value("baseline_dropTopX").toInt();
+        // Peak Scoring and Filtering
         mavenParameters->minQuality = settings->value("minQuality").toDouble();
         mavenParameters->quantileQuality = settings->value("quantileQuality").toDouble();
-
-        // Peak Scoring and Filtering
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
         mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
         mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
@@ -626,8 +592,6 @@ void PeakDetectionDialog::runBackgroupJob(QString funcName) {
         // working
         if (peakupdater->isRunning()) {
     if (!settings->contains("eic_smoothingAlgorithm"))
-    if (!settings->contains("eic_smoothingAlgorithm"))
-        settings->setValue("eic_smoothingAlgorithm", 0);
         settings->setValue("eic_smoothingAlgorithm", 0);
                 cancel();
         }
