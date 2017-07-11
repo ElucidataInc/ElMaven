@@ -107,13 +107,16 @@ void PeakDetector::processSlice(mzSlice& slice) {
 }
 
 void PeakDetector::pullAllIsotopes() {
+    int mgId = 0;
     for (unsigned int j = 0; j < mavenParameters->allgroups.size(); j++) {
         if(mavenParameters->stop) break;
         PeakGroup& group = mavenParameters->allgroups[j];
         Compound* compound = group.compound;
 
-        if (mavenParameters->pullIsotopesFlag && !group.isIsotope())
+        if (mavenParameters->pullIsotopesFlag && !group.isIsotope()){
+            group.metaGroupId = ++mgId;
             pullIsotopes(&group);
+        }
 
         if (compound) {
             if (!compound->hasGroup() ||
