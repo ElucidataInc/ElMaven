@@ -2,7 +2,6 @@
 #include "python2.7/Python.h"
 #include <iostream>
 #include <fstream>
-#include <boost/python.hpp>
 #include <sstream>
 #include <vector>
 
@@ -496,7 +495,7 @@ void BackgroundPeakUpdate::align() {
 
                 aligner.preProcessing(groups);
                 Py_Initialize();
-                PyRun_SimpleString("import sys");
+                PyRun_SimpleString("exec(open('alignment.py').read())");
                 Py_Finalize();
                 char c; // to eat the commas
                 std::string sample;

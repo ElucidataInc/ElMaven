@@ -34,7 +34,7 @@ QT += sql network xml printsupport
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser ../libplog
 
-LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
+LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog -lpython2.7                  #64bit
 
 message($$LIBS)
 
