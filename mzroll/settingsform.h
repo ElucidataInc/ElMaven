@@ -36,6 +36,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void showDeltaRTWeightStatus(int value);
             void setInitialGroupRank();
             void toggleDeltaRtWeight();
+            void show();
 
             /*
             * [Update status of the weight slider on UI]

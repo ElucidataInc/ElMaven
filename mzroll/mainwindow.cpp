@@ -320,6 +320,7 @@ using namespace mzUtils;
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
+	settingsForm->show();
 	 heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, 1);
