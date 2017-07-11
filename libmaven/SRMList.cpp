@@ -88,7 +88,8 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
 Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {
     
     Compound* x=NULL;
-    float dist=FLT_MAX;
+    float distMz=FLT_MAX;
+    float distRt=FLT_MAX;
 
     for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
             if (compoundsDB[i]->precursorMz == 0 ) continue;
@@ -98,8 +99,13 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
             if ( a > amuQ1 ) continue; // q1 tollorance
             float b = abs(compoundsDB[i]->productMz - productMz);
             if ( b > amuQ3 ) continue; // q2 tollarance
-            float d = sqrt(a*a+b*b);
-            if ( d < dist) { x = compoundsDB[i]; dist=d;}
+            float dMz = sqrt(a*a+b*b);
+            float dRt = abs(compoundsDB[i]->expectedRt - rt);
+            if (  ( dMz < distMz)  ||   ((dMz == distMz) && (dRt < distRt))  ) { 
+                x = compoundsDB[i];
+                distMz=dMz; 
+                distRt=dRt;
+            }
     }
     return x;
 }
