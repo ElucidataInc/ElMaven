@@ -495,26 +495,29 @@ void BackgroundPeakUpdate::align() {
 
                 aligner.preProcessing(groups);
                 Py_Initialize();
-                PyRun_SimpleString("exec(open('alignment.py').read())");
+                PyRun_SimpleString("exec(open('/home/ubuntu/Desktop/ElMaven/bin/alignment.py').read())");
                 Py_Finalize();
                 char c; // to eat the commas
-                std::string sample;
-                int x;
-                std::vector<int> xv;
-                std::vector<std::string> sn;
+                std::string sample, group;
+                int num, gn, rt;
+                std::vector<int> rts;
+                std::vector<std::string> sampNam, groupName;
                 std::ifstream file("rts_out.csv");
                 std::string line;
+                std::getline(file, line);
+                std::istringstream ss(line);
+                ss >> num >> c >> gn >> c >> group >> c >> sample >> c >> rt;
+                map<pair<string, string>, double> deltaRt;
 
                 while (std::getline(file, line)) {
                     std::istringstream ss(line);
-                    ss >> sample >> c >> x;
-                    xv.push_back(x);
-                    sn.push_back(sample);
+                    ss >> num >> c >> gn >> c >> group >> c >> sample >> c >> rt;
+                    deltaRt[make_pair(group, sample)] = rt;
                 }
 
                 mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
                 mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
-                mainwindow->deltaRt = aligner.getDeltaRt();
+                mainwindow->deltaRt = deltaRt;
                 mavenParameters->alignSamplesFlag = false;
 
         }
@@ -522,6 +525,8 @@ void BackgroundPeakUpdate::align() {
         for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
                 listGroups.append(mavenParameters->allgroups.at(i));
         }
+
+	
 
         Q_EMIT(alignmentComplete(listGroups));
 }
