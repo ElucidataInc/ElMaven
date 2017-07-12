@@ -1912,11 +1912,11 @@ void MainWindow::readSettings() {
         settings->setValue("eicTypeComboBox", 0);
 
     // BaseLine Calculation
-    if (!settings->contains("baseline_smoothingWindow"))
-        settings->setValue("baseline_smoothingWindow", 5);
+    if (!settings->contains("baseline_smoothing"))
+        settings->setValue("baseline_smoothing", 5);
 
-    if (!settings->contains("baseline_dropTopX"))
-        settings->setValue("baseline_dropTopX", 80);
+    if (!settings->contains("baseline_quantile"))
+        settings->setValue("baseline_quantile", 80);
 
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);

@@ -11,7 +11,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
-    connect(recomputeEICButton, SIGNAL(clicked(bool)), SLOT(recomputeEIC()));
     connect(eic_smoothingWindow, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(eic_smoothingAlgorithm, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
     connect(grouping_maxRtWindow, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
@@ -284,6 +283,8 @@ void SettingsForm::getFormValues() {
     settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
     settings->setValue("grouping_maxRtWindow",grouping_maxRtWindow->value());
     settings->setValue("maxNaturalAbundanceErr",maxNaturalAbundanceErr->value());
+    settings->setValue("baseline_quantile", baseline_quantile->value());
+    settings->setValue("baseline_smoothing", baseline_smoothing->value());
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
     
@@ -310,8 +311,6 @@ void SettingsForm::getFormValues() {
     settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState()  );
     settings->setValue("amuQ1", amuQ1->value());
     settings->setValue("amuQ3", amuQ3->value());
-    settings->setValue("baseline_quantile", baseline_quantile->value());
-    settings->setValue("baseline_smoothing", baseline_smoothing->value());
 
     settings->setValue("eicTypeComboBox",eicTypeComboBox->currentIndex());
 
@@ -441,6 +440,7 @@ void SettingsForm::setMavenParameters() {
                 "eic_smoothingAlgorithm").toInt();
         mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
 
+        mavenParameters->grouping_maxRtWindow = settings->value("maxRtWindow").toDouble();
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
         mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
     }

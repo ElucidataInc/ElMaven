@@ -31,7 +31,7 @@ MavenParameters::MavenParameters() {
         eic_smoothingWindow = 10;
         eic_smoothingAlgorithm = 0;
         baseline_smoothingWindow = 5;
-        baseline_dropTopX = 40;
+        baseline_dropTopX = 80;
 
         eicType = 0;
 

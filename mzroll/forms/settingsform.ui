@@ -23,7 +23,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>6</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="instrumentationOptions">
       <attribute name="title">
@@ -412,13 +412,6 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="recomputeEICButton">
-         <property name="text">
-          <string>Recompute EIC</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
@@ -428,7 +421,27 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_20">
             <property name="text">
-             <string>Baseline Smooting </string>
+             <string>Baseline Smoothing </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Drop top x%  intensities from chromatogram</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="baseline_quantile">
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>80</number>
             </property>
            </widget>
           </item>
@@ -442,29 +455,6 @@
             </property>
             <property name="value">
              <number>5</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="baseline_quantile">
-            <property name="suffix">
-             <string> %</string>
-            </property>
-            <property name="prefix">
-             <string/>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>80</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Drop top x%  intensities from chromatogram</string>
             </property>
            </widget>
           </item>
