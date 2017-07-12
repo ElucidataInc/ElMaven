@@ -43,6 +43,10 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void updatePeakQType(QString);
 				 void showSettingsForm();
+				 void showIntensityQuantileStatus(int);
+				 void showQualityQuantileStatus(int);
+				 void showBaselineQuantileStatus(int);
+				 void showBlankQuantileStatus(int);
 
 		private:
 				QSettings *settings;

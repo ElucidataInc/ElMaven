@@ -23,6 +23,10 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
+        connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
+        connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
+        connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
+        connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
         //connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
         //connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
         //connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
@@ -222,6 +226,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("minQuality").toDouble());
             quantileQuality->setValue(
                 settings->value("quantileQuality").toDouble());
+            showQualityQuantileStatus(quantileQuality->value());
             minGoodGroupCount->setValue(
                 settings->value("minGoodGroupCount").toInt());
             minNoNoiseObs->setValue(
@@ -230,16 +235,19 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
                 settings->value("minSignalBaseLineRatio").toDouble());
             quantileSignalBaselineRatio->setValue(
                 settings->value("quantileSignalBaselineRatio").toDouble());
+            showBaselineQuantileStatus(quantileSignalBaselineRatio->value());
             sigBlankRatio->setValue(
                 settings->value("minSignalBlankRatio").toDouble());
             quantileSignalBlankRatio->setValue(
                 settings->value("quantileSignalBlankRatio").toDouble());
+            showBlankQuantileStatus(quantileSignalBlankRatio->value());
             minGroupIntensity->setValue(
                 settings->value("minGroupIntensity").toDouble());
             peakQuantitation->setCurrentIndex(
                 settings->value("peakQuantitation").toInt());
             quantileIntensity->setValue(
                 settings->value("quantileIntensity").toDouble());
+            showIntensityQuantileStatus(quantileIntensity->value());
 
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
@@ -398,6 +406,38 @@ void PeakDetectionDialog::findPeaks() {
     } else {
         runBackgroupJob("computePeaks");
     }
+}
+
+void PeakDetectionDialog::showIntensityQuantileStatus(int value) {
+    mainwindow->mavenParameters->quantileIntensity= value;
+    settings->setValue("quantileIntensity", (quantileIntensity->value()));
+    std::string stat(std::to_string(value) + "% peaks above minimum intensity");
+    QString qstat = QString::fromStdString(stat);
+    intensityQuantileStatus->setText(qstat);
+}
+
+void PeakDetectionDialog::showQualityQuantileStatus(int value) {
+    mainwindow->mavenParameters->quantileQuality= value;
+    settings->setValue("quantileQuality", (quantileQuality->value()));
+    std::string stat(std::to_string(value) + "% peaks above minimum quality");
+    QString qstat = QString::fromStdString(stat);
+    qualityQuantileStatus->setText(qstat);
+}
+
+void PeakDetectionDialog::showBaselineQuantileStatus(int value) {
+    mainwindow->mavenParameters->quantileSignalBaselineRatio= value;
+    settings->setValue("quantileSignalBaselineRatio", (quantileSignalBaselineRatio->value()));
+    std::string stat(std::to_string(value) + "% peaks above minimum signal/baseline ratio");
+    QString qstat = QString::fromStdString(stat);
+    baselineQuantileStatus->setText(qstat);
+}
+
+void PeakDetectionDialog::showBlankQuantileStatus(int value) {
+    mainwindow->mavenParameters->quantileSignalBlankRatio= value;
+    settings->setValue("quantileSignalBlankRatio", (quantileSignalBlankRatio->value()));
+    std::string stat(std::to_string(value) + "% peaks above minimum signal/blank ratio");
+    QString qstat = QString::fromStdString(stat);
+    blankQuantileStatus->setText(qstat);
 }
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
