@@ -26,7 +26,6 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
         for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
             Peak peak = grp->getPeaks().at(jj);
  			file << ii << "," << grp->getName() << "," << peak.getSample()->getSampleName() << "," << peak.rt << std::endl;
- 			cerr << grp->getName() <<  peak.getSample()->getSampleName() << peak.rt << std::endl;
         }
     }
     file.close();
