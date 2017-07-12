@@ -29,7 +29,6 @@ for i in group_num:
 			sub_groups = sub_groups.assign(rt_dev = (sub_groups.rt - np.median(sub_groups.rt)))
 			lim_groups = lim_groups.append(sub_groups, ignore_index = True)
 
-
 corr_rts = pd.DataFrame()
 for k in samples:
 	group_samp = lim_groups[lim_groups.sample_name == k]
@@ -37,10 +36,10 @@ for k in samples:
 	lowess_x = list(zip(*lowess))[0]
 	lowess_y = list(zip(*lowess))[1]
 	f = interp1d(lowess_x, lowess_y, bounds_error=False)
-	sub_rts = rts[rts.sample_name == k]
+	sub_rts = groups[groups.sample_name == k]
 	rt_dev_new = f(sub_rts.rt)
 	abs_rt_dev_new = abs(rt_dev_new)
-	rt_fit_dev = pd.DataFrame({'rt': sub_rts.rt,'rt_dev_new':rt_dev_new.tolist(), 'abs_rt_dev_new':abs_rt_dev_new.tolist()})
+	rt_fit_dev = pd.DataFrame({'group_name':sub_rts.group_name,'rt': sub_rts.rt,'rt_dev_new':rt_dev_new.tolist(), 'abs_rt_dev_new':abs_rt_dev_new.tolist()})
 	cutoff = abs(rt_fit_dev.rt_dev_new).quantile(0.9) * 2
 	rt_fit_dev[rt_fit_dev > cutoff].rt_dev_new= np.nan
 	no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev["rt_dev_new"])]
