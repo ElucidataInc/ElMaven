@@ -53,11 +53,15 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     setWeightStatus();
     connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
     connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
+    connect(distXSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
+    connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
     connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
+    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(getFormValues()));
+    connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(recomputeEIC()));
 
     //remote url used to fetch compound lists, pathways, and notes
     connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
