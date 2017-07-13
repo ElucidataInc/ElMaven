@@ -94,6 +94,8 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   //http://data_server_url?action=fetchcompounds&format=xml
   //fetchRemoteCompounds();
 
+  connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
+
 }
 QString LigandWidget::getDatabaseName() {
 	return databaseSelect->currentText();
