@@ -440,7 +440,7 @@ void SettingsForm::setMavenParameters() {
                 "eic_smoothingAlgorithm").toInt();
         mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
 
-        mavenParameters->grouping_maxRtWindow = settings->value("maxRtWindow").toDouble();
+        mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
         mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
     }
