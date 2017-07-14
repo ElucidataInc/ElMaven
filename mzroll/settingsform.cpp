@@ -93,6 +93,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     showDeltaRTWeightStatus(deltaRTWeight->value());
 
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
+    toggleDeltaRtWeight();
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -420,6 +421,8 @@ void SettingsForm::toggleDeltaRtWeight() {
         deltaRtCheckFlag = false;
     }
     deltaRTWeight->setEnabled(deltaRtCheckFlag);
+    deltaRTWeightStatus->setEnabled(deltaRtCheckFlag);
+    label_drtWeight->setEnabled(deltaRtCheckFlag);
 }
 
 void SettingsForm::setMavenParameters() {
