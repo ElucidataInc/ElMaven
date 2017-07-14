@@ -975,16 +975,18 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         double B = (double) mavenParameters->intensityWeight/10;
                         double C = (double) mavenParameters->deltaRTWeight/10;
 
-                        if (mavenParameters->deltaRtCheckFlag && compound != NULL && compound->expectedRt > 0) {
+                        if (compound != NULL && compound->expectedRt > 0) {
+                            if(mavenParameters->deltaRtCheckFlag) {
                             group.groupRank = pow(rtDiff, 2*C) * pow((1.1 - group.maxQuality), A)
                                                   * (1 /( pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
+                            }
                             if (mavenParameters->matchRtFlag && group.expectedRtDiff > mavenParameters->compoundRTWindow) continue;
 
-                        } else {
-
+                        } 
+                        
+                        if (!mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0) {
                             group.groupRank = pow((1.1 - group.maxQuality), A)
                                                   * (1 /(pow(log(group.maxIntensity + 1), B)));
-
                         }
 
                         groupsToAppend.push_back(&group);
