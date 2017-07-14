@@ -157,9 +157,14 @@ void SettingsForm::updateMultiprocessing() {
 void SettingsForm::recomputeEIC() {
     LOGD; 
     getFormValues();
+
+    PeakGroup* previousGroup = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
+    float rt = previousGroup->meanRt;
+
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();
         mainwindow->getEicWidget()->replot();
+        mainwindow->getEicWidget()->selectGroupNearRt(rt);
     }
 }
 
