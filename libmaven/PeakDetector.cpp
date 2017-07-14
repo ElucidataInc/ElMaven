@@ -784,7 +784,7 @@ void PeakDetector::alignSamples() {
 }
 
 bool PeakDetector::quantileFilters(PeakGroup *group) {
-    if (group->maxIntensity < mavenParameters->minIntensity){
+    if (group->maxIntensity < mavenParameters->minGroupIntensity){
         return true;
     }
     if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
@@ -803,7 +803,7 @@ bool PeakDetector::quantileFilters(PeakGroup *group) {
     int peaksAboveBlankRatio = 0;
     int peaksAboveMinQuality = 0;
     for (int i = 0; i < peaks.size(); i++) {
-        if (peaks[i].peakIntensity > mavenParameters->minIntensity) {
+        if (peaks[i].peakIntensity > mavenParameters->minGroupIntensity) {
             peaksAboveMinIntensity++;
         }
         if (peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio) {
