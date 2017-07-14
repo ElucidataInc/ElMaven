@@ -205,8 +205,8 @@ void SettingsForm::updateSettingFormGUI() {
     maxNaturalAbundanceErr->setValue(settings->value("maxNaturalAbundanceErr").toDouble());
     maxIsotopeScanDiff->setValue(settings->value("maxIsotopeScanDiff").toDouble());
     minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
-    baseline_smoothing->setValue(settings->value("baseline_smoothing").toDouble());
-    baseline_quantile->setValue(settings->value("baseline_quantile").toDouble());
+    baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
+    baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
 
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
