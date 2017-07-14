@@ -50,7 +50,7 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 		return;
 	bookmarkflag = bookmarkflg;
 	isotopeParameters->_group = grp;
-	if (grp && grp->type() != PeakGroup::Isotope)
+	if (grp && grp->type() != PeakGroup::Isotope) 
 		pullIsotopes(grp);
 }
 

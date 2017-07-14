@@ -186,6 +186,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	eicParameters->_integratedGroup.groupStatistics();
 	//setSelectedGroup (&eicParameters->_integratedGroup);
 	//getMainWindow()->isotopeWidget->integrationFlag = true;
+	getMainWindow()->mavenParameters->isotopeAtom["IsotopeWidget"] = true;
 	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
 	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
 }
