@@ -159,12 +159,18 @@ void SettingsForm::recomputeEIC() {
     getFormValues();
 
     PeakGroup* previousGroup = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
-    float rt = previousGroup->meanRt;
+    float rt = 0;
+
+    if (previousGroup) {
+        rt = previousGroup->meanRt;
+    }
 
     if (mainwindow != NULL && mainwindow->getEicWidget() != NULL) {
         mainwindow->getEicWidget()->recompute();
         mainwindow->getEicWidget()->replot();
-        mainwindow->getEicWidget()->selectGroupNearRt(rt);
+        if (rt != 0) {
+            mainwindow->getEicWidget()->selectGroupNearRt(rt);
+        }
     }
 }
 
