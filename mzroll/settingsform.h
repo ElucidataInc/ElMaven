@@ -31,9 +31,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void  setStringValue(QString key, QString value);
             void updateMultiprocessing();
             void setSettingsIonizationMode(QString);
-            void showQualityWeightStatus(int value);
-            void showIntensityWeightStatus(int value);
-            void showDeltaRTWeightStatus(int value);
+            void setGroupRankStatus();
             void setInitialGroupRank();
 
             /*

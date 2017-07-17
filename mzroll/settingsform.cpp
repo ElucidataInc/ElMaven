@@ -83,18 +83,18 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
 
     //Group Rank
-    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(showQualityWeightStatus(int)));
-    connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showIntensityWeightStatus(int)));
-    connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showDeltaRTWeightStatus(int)));
-
-    qualityWeight->setValue(settings->value("qualityWeight").toInt());
-    showQualityWeightStatus(qualityWeight->value());
-    intensityWeight->setValue(settings->value("intensityWeight").toInt());
-    showIntensityWeightStatus(intensityWeight->value());
-    deltaRTWeight->setValue(settings->value("deltaRTWeight").toInt());
-    showDeltaRTWeightStatus(deltaRTWeight->value());
-
+    setGroupRankStatus();
+    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(setGroupRankStatus()));
+    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(getFormValues()));
+    connect(qualityWeight, SIGNAL(valueChanged(int)), this,SLOT(recomputeEIC()));
+    connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(setGroupRankStatus()));
+    connect(intensityWeight, SIGNAL(valueChanged(int)), this,SLOT(getFormValues()));
+    connect(intensityWeight, SIGNAL(valueChanged(int)), this,SLOT(recomputeEIC()));
+    connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(setGroupRankStatus()));
+    connect(deltaRTWeight, SIGNAL(valueChanged(int)), this,SLOT(getFormValues()));
+    connect(deltaRTWeight, SIGNAL(valueChanged(int)), this,SLOT(recomputeEIC()));
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
+    connect(deltaRTCheck, SIGNAL(toggled(bool)), this,SLOT(getFormValues()));
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -263,6 +263,19 @@ void SettingsForm::updateSettingFormGUI() {
     if (settings->contains("useOverlap"))
     useOverlap->setCheckState( (Qt::CheckState) settings->value("useOverlap").toInt());
 
+    //group rank tab
+    if (settings->contains("qualityWeight"))
+    qualityWeight->setValue(settings->value("qualityWeight").toInt());
+
+    if (settings->contains("intensityWeight"))
+    intensityWeight->setValue(settings->value("intensityWeight").toInt());
+
+    if (settings->contains("deltaRTWeight"))
+    deltaRTWeight->setValue(settings->value("deltaRTWeight").toInt());
+
+    if (settings->contains("deltaRTCheck"))
+    deltaRTCheck->setCheckState( (Qt::CheckState) settings->value("deltaRTCheck").toInt());
+
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
@@ -385,7 +398,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("qualityWeight", (qualityWeight->value()));
     settings->setValue("intensityWeight", (intensityWeight->value()));
     settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
-    settings->setValue("deltaRtCheckFlag", (deltaRTCheck->isChecked()));
+    settings->setValue("deltaRTCheck", (deltaRTCheck->checkState()));
     setMavenParameters();
 }
 
@@ -399,34 +412,17 @@ void SettingsForm::show() {
     }
 }
 
-void SettingsForm::showQualityWeightStatus(int value) {
-    mainwindow->mavenParameters->qualityWeight = value;
-    settings->setValue("qualityWeight", (qualityWeight->value()));
-    QString stat= QString::number((double) value/10, 'f', 1);
-    qualityWeightStatus->setText(stat);
-}
-
-void SettingsForm::showIntensityWeightStatus(int value) {
-    mainwindow->mavenParameters->intensityWeight = value;
-    settings->setValue("intensityWeight", (intensityWeight->value()));
-    QString stat= QString::number((double) value/10, 'f', 1);
-    intensityWeightStatus->setText(stat);
-}
-
-void SettingsForm::showDeltaRTWeightStatus(int value) {
-    mainwindow->mavenParameters->deltaRTWeight = value;
-    settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
-    QString stat= QString::number((double) value/10, 'f', 1);
-    deltaRTWeightStatus->setText(stat);
+void SettingsForm::setGroupRankStatus() {
+    qualityWeightStatus->setText(QString::number((double) qualityWeight->value()/10, 'f', 1));
+    intensityWeightStatus->setText(QString::number((double) intensityWeight->value()/10, 'f', 1));
+    deltaRTWeightStatus->setText(QString::number((double) deltaRTWeight->value()/10, 'f', 1));
 }
 
 void SettingsForm::setInitialGroupRank() {
     qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
     intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
     deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
-    showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
-    showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
-    showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
+    setGroupRankStatus();
     toggleDeltaRtWeight();
 }
 
@@ -451,11 +447,18 @@ void SettingsForm::setMavenParameters() {
     if (settings != NULL) {
 
         mavenParameters->eicType = settings->value("eicTypeComboBox").toInt();
+        //peak grouping tab
         mavenParameters->distXWeight = settings->value("distXWeight").toFloat();
         mavenParameters->distYWeight = settings->value("distYWeight").toFloat();
         mavenParameters->overlapWeight = settings->value("overlapWeight").toFloat();
         mavenParameters->useOverlap = false;
         if (settings->value("useOverlap").toInt() > 0) mavenParameters->useOverlap = true;
+
+        //group rank tab
+        mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
+        mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
+        mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
+        mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool();
 
         //EIC Processing: Baseline Calculation and Smoothing
         mavenParameters->eic_smoothingAlgorithm = settings->value(

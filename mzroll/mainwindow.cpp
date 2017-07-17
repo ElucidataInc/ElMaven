@@ -1959,6 +1959,9 @@ void MainWindow::readSettings() {
 	if (!settings->contains("deltaRTWeight"))
         settings->setValue("deltaRTWeight", 10);
 
+	if (!settings->contains("deltaRtCheckFlag"))
+		settings->setValue("deltaRtCheckFlag", false);
+
     // Compound DB Search
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
