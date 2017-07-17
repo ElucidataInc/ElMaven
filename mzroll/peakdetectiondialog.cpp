@@ -52,55 +52,6 @@ void PeakDetectionDialog::showSettingsForm() {
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
 
-void PeakDetectionDialog::setDeltaRTWeightVisible(bool value) {
-    label_26->setVisible(value);
-    deltaRTWeight->setVisible(value);
-    deltaRTWeightStatus->setVisible(value);
-}
-
-void PeakDetectionDialog::showQualityWeightStatus(int value) {
-    mainwindow->mavenParameters->qualityWeight = value;
-    QString stat= QString::number((double) value/10, 'f', 1);
-    qualityWeightStatus->setText(stat);
-}
-
-void PeakDetectionDialog::showIntensityWeightStatus(int value) {
-    mainwindow->mavenParameters->intensityWeight = value;
-    QString stat= QString::number((double) value/10, 'f', 1);
-    intensityWeightStatus->setText(stat);
-}
-
-void PeakDetectionDialog::showDeltaRTWeightStatus(int value) {
-    mainwindow->mavenParameters->deltaRTWeight = value;
-    QString stat= QString::number((double) value/10, 'f', 1);
-    deltaRTWeightStatus->setText(stat);
-}
-
-void PeakDetectionDialog::setGroupRank() {
-
-    if(dbOptions->isChecked() && matchRt->isChecked()) {
-        textBrowser->setVisible(true);
-        textBrowser_2->setVisible(false);
-        setDeltaRTWeightVisible(true);
-    }
-    else {
-        textBrowser->setVisible(false);
-        textBrowser_2->setVisible(true);
-        setDeltaRTWeightVisible(false);
-    }
-
-}
-
-void PeakDetectionDialog::setInitialGroupRank() {
-    qualityWeight->setSliderPosition(mainwindow->mavenParameters->qualityWeight);
-    intensityWeight->setSliderPosition(mainwindow->mavenParameters->intensityWeight);
-    deltaRTWeight->setSliderPosition(mainwindow->mavenParameters->deltaRTWeight);
-    showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
-    showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
-    showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
-    setGroupRank();
-}
-
 void PeakDetectionDialog::dbOptionsClicked() {
     if (dbOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
