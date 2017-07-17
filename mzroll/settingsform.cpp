@@ -423,6 +423,8 @@ void SettingsForm::toggleDeltaRtWeight() {
     deltaRTWeight->setEnabled(deltaRtCheckFlag);
     deltaRTWeightStatus->setEnabled(deltaRtCheckFlag);
     label_drtWeight->setEnabled(deltaRtCheckFlag);
+    formulaWithRt->setVisible(deltaRtCheckFlag);
+    formulaWithoutRt->setVisible(!deltaRtCheckFlag);
 }
 
 void SettingsForm::setMavenParameters() {
