@@ -17,6 +17,7 @@ EIC::EIC() {
     maxAreaIntensity = 0;
     maxAreaTopNotCorrectedIntensity = 0;
     maxAreaNotCorrectedIntensity = 0;
+    filterSignalBaselineDiff = 0;
     eic_noNoiseObs = 0;
     smootherType = GAUSSIAN;
     baselineSmoothingWindow = 5;
@@ -242,6 +243,8 @@ void EIC::getPeakPositions(int smoothWindow) {
 
     computeBaseLine(baselineSmoothingWindow, baselineDropTopX);
     getPeakStatistics();
+
+    filterPeaks();
 }
 
 
@@ -432,6 +435,7 @@ void EIC::getPeakDetails(Peak& peak) {
     peak.peakAreaCorrected = peak.peakArea-baselineArea;
     peak.peakAreaFractional = peak.peakAreaCorrected/(totalIntensity+1);
     peak.signalBaselineRatio = peak.peakIntensity/maxBaseLine;
+    peak.signalBaselineDifference = peak.peakIntensity - maxBaseLine;
 
     if (allmzs.size()> 0 ) {
         peak.medianMz = allmzs.median();
@@ -465,6 +469,18 @@ void EIC::getPeakWidth(Peak& peak) {
     }
 
     peak.width = width + left + right;
+}
+
+void EIC::filterPeaks() {
+
+    unsigned int i = 0;
+    while ( i < peaks.size() ) {
+        if ( filterSignalBaselineDiff > peaks[i].signalBaselineDifference ) {
+            peaks.erase( peaks.begin() + i );
+        } else {
+            ++i;
+        }
+    }
 }
 
 vector<mzPoint> EIC::getIntensityVector(Peak& peak) {

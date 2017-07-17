@@ -69,6 +69,8 @@ class EIC {
 
         float maxAreaTopNotCorrectedIntensity;
 
+        float filterSignalBaselineDiff;
+
         /**      sum of all intensities in EIC */
         float totalIntensity;
 
@@ -146,6 +148,8 @@ class EIC {
 
         void findPeaks();
 
+        void filterPeaks();
+
         /**
          * [check Gaussian Fit]
          * @method checkGaussianFit
@@ -182,6 +186,8 @@ class EIC {
          * @param  x                   []
          */
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
+
+        void setFilterSignalBaselineDiff(float x) { filterSignalBaselineDiff=x; }
 
         bool makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType);
 

@@ -34,6 +34,7 @@ Peak::Peak() {
     rtmin = 0;
     scan = 0;
     signalBaselineRatio = 0;
+    signalBaselineDifference = 0;
     symmetry = 0;
     width = 0;
     gaussFitSigma = 10;
@@ -75,6 +76,7 @@ Peak::Peak(EIC* e, int p) {
     rtmin=0;
     scan=0;
     signalBaselineRatio=0;
+    signalBaselineDifference=0;
     symmetry=0;
     width=0;
     gaussFitSigma=10;
@@ -118,6 +120,7 @@ void Peak::copyObj(const Peak& o ) {
     rtmin= o.rtmin;
     scan= o.scan;
     signalBaselineRatio= o.signalBaselineRatio;
+    signalBaselineDifference= o.signalBaselineDifference;
     symmetry= o.symmetry;
     width= o.width;
     gaussFitSigma=o.gaussFitSigma;

@@ -74,6 +74,7 @@ class Peak {
         float noNoiseFraction;
         float symmetry;
         float signalBaselineRatio;
+        float signalBaselineDifference;
         /** 0 no overlap, 1 perfect overlap */
         float groupOverlap;
         float groupOverlapFrac;
