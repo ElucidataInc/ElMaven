@@ -747,11 +747,12 @@ void EicWidget::addBaseLine(EIC* eic) {
         return;
     }
 
-    QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 0.9 );
+    QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 1 );
     line->setColor(color);
+	line->setZValue(5);
 
-    float linewidth=5.0;
-    QPen pen(color, linewidth, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    float linewidth=2.0;
+    QPen pen(color, linewidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
     line->setPen(pen);
 }
