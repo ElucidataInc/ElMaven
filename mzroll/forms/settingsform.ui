@@ -611,10 +611,10 @@
           <item row="0" column="5">
            <widget class="QSpinBox" name="noOfIsotopes">
             <property name="maximum">
-             <number>100</number>
+             <number>1000000</number>
             </property>
             <property name="value">
-             <number>4</number>
+             <number>1000000</number>
             </property>
            </widget>
           </item>

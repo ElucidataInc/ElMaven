@@ -2051,7 +2051,7 @@ void MainWindow::readSettings() {
 		settings->setValue("AbthresholdBarplot", 1);
 
 	if (!settings->contains("noOfIsotopes"))
-		settings->setValue("noOfIsotopes", 4);
+		settings->setValue("noOfIsotopes", 1000000);
 
 	if (!settings->contains("C13Labeled_BPE"))
 		settings->setValue("C13Labeled_BPE", 2);
