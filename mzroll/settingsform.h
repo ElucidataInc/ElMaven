@@ -35,7 +35,18 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void showIntensityWeightStatus(int value);
             void showDeltaRTWeightStatus(int value);
             void setInitialGroupRank();
+
+            /*
+            * [Enable/disable deltaRtWeight slider and display appropriate group rank formula in UI]
+            * @method toggleDeltaRtWeight
+            */
             void toggleDeltaRtWeight();
+
+            /*
+            * [Enable/disable overlap slider and display appropriate peak grouping formula in UI]
+            * @method toggleOverlap
+            */
+            void toggleOverlap();
             void show();
 
             /*

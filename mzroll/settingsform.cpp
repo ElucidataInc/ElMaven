@@ -62,6 +62,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(getFormValues()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(recomputeEIC()));
+    connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(toggleOverlap()));
+    toggleOverlap();
 
     //remote url used to fetch compound lists, pathways, and notes
     connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
@@ -93,7 +95,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     showDeltaRTWeightStatus(deltaRTWeight->value());
 
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
-    toggleDeltaRtWeight();
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -143,6 +144,21 @@ void SettingsForm::setWeightStatus() {
     distYStatus->setText(QString::number(distY));
     overlapStatus->setText(QString::number(overlap));
 
+}
+
+void SettingsForm::toggleOverlap() {
+    bool statusOverlap;
+    if (useOverlap->checkState() > 0) {
+        statusOverlap = true;
+    }
+    else {
+        statusOverlap = false;
+    }
+    formulaWithOverlap->setVisible(statusOverlap);
+    formulaWithoutOverlap->setVisible(!statusOverlap);
+    overlapSlider->setEnabled(statusOverlap);
+    label_30->setEnabled(statusOverlap);
+    overlapStatus->setEnabled(statusOverlap);
 }
 
 void SettingsForm::recomputeIsotopes() { 
@@ -411,6 +427,7 @@ void SettingsForm::setInitialGroupRank() {
     showQualityWeightStatus(mainwindow->mavenParameters->qualityWeight);
     showIntensityWeightStatus(mainwindow->mavenParameters->intensityWeight);
     showDeltaRTWeightStatus(mainwindow->mavenParameters->deltaRTWeight);
+    toggleDeltaRtWeight();
 }
 
 void SettingsForm::toggleDeltaRtWeight() {
