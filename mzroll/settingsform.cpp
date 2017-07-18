@@ -95,6 +95,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(deltaRTWeight, SIGNAL(valueChanged(int)), this,SLOT(recomputeEIC()));
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
     connect(deltaRTCheck, SIGNAL(toggled(bool)), this,SLOT(getFormValues()));
+    toggleDeltaRtWeight();
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
@@ -273,9 +274,6 @@ void SettingsForm::updateSettingFormGUI() {
     if (settings->contains("deltaRTWeight"))
     deltaRTWeight->setValue(settings->value("deltaRTWeight").toInt());
 
-    if (settings->contains("deltaRTCheck"))
-    deltaRTCheck->setCheckState( (Qt::CheckState) settings->value("deltaRTCheck").toInt());
-
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
@@ -395,10 +393,10 @@ void SettingsForm::getFormValues() {
     }
 
     //group rank tab
-    settings->setValue("qualityWeight", (qualityWeight->value()));
-    settings->setValue("intensityWeight", (intensityWeight->value()));
-    settings->setValue("deltaRTWeight", (deltaRTWeight->value()));
-    settings->setValue("deltaRTCheck", (deltaRTCheck->checkState()));
+    settings->setValue("qualityWeight", qualityWeight->value());
+    settings->setValue("intensityWeight", intensityWeight->value());
+    settings->setValue("deltaRTWeight", deltaRTWeight->value());
+    settings->setValue("deltaRTCheckFlag", deltaRTCheck->isChecked());
     setMavenParameters();
 }
 
@@ -433,6 +431,7 @@ void SettingsForm::toggleDeltaRtWeight() {
     else {
         deltaRtCheckFlag = false;
     }
+    settings->setValue("deltaRtCheckFlag", deltaRtCheckFlag);
     deltaRTWeight->setEnabled(deltaRtCheckFlag);
     deltaRTWeightStatus->setEnabled(deltaRtCheckFlag);
     label_drtWeight->setEnabled(deltaRtCheckFlag);
