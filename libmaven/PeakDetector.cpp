@@ -360,6 +360,8 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             //TODO: this could be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
+
+            delete(eic);
             // find nearest peak as long as it is within RT window
             float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
             //why are we even doing this calculation, why not have the parameter be in units of RT?
@@ -576,6 +578,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
+
+            delete(eic);
             // find nearest peak as long as it is within RT window
             float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
             //why are we even doing this calculation, why not have the parameter be in units of RT?
