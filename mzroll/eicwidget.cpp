@@ -313,13 +313,14 @@ void EicWidget::computeEICs() {
 	float amuQ3 = settings->value("amuQ3").toDouble();
 	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
 	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
+	float minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
 	int eic_type = getMainWindow()->mavenParameters->eicType;
 
 	mzSlice bounds = visibleSamplesBounds();
 
 	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
 			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
-			baseline_quantile, eic_type);
+			baseline_quantile, minSignalBaselineDifference, eic_type);
 
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
@@ -685,6 +686,7 @@ void EicWidget::addMergedEIC() {
 			settings->value("eic_smoothingAlgorithm").toInt();
 	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
 	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
+	int minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
 
 	EicLine* line = new EicLine(0, scene());
 
@@ -692,6 +694,7 @@ void EicWidget::addMergedEIC() {
 	eic->setSmootherType((EIC::SmootherType) eic_smoothingAlgorithm);
 	eic->setBaselineSmoothingWindow(baseline_smoothing);
 	eic->setBaselineDropTopX(baseline_quantile);
+	eic->setFilterSignalBaselineDiff(minSignalBaselineDifference);
 	eic->getPeakPositions(eic_smoothingWindow);
 
 	for (int j = 0; j < eic->size(); j++) {
@@ -1558,7 +1561,8 @@ void EicWidget::groupPeaks() {
 								getMainWindow()->mavenParameters->distXWeight,
 								getMainWindow()->mavenParameters->distYWeight,
 								getMainWindow()->mavenParameters->overlapWeight,
-								getMainWindow()->mavenParameters->useOverlap);
+								getMainWindow()->mavenParameters->useOverlap,
+								getMainWindow()->mavenParameters->minSignalBaselineDifference);
 
 
 }

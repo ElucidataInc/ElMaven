@@ -221,7 +221,8 @@ class EIC {
                                             double distXWeight,
                                             double distYWeight,
                                             double overlapWeight,
-                                            bool useOverlap);
+                                            bool useOverlap,
+                                            float minSignalBaselineDifference);
         /**
          * [eicMerge ]
          * @method eicMerge

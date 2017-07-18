@@ -40,7 +40,8 @@ public:
 					double distXWeight,
 					double distYWeight,
 					double overlapWeight,
-					bool useOverlap);
+					bool useOverlap,
+					float minSignalBaselineDifference);
 
 	mzSlice setMzSlice(float mz, double ppm);
 
@@ -52,7 +53,8 @@ public:
 
 	void getEIC(mzSlice bounds, vector<mzSample*> samples,
 			int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
-			float amuQ3, int baseline_smoothing, int baseline_quantile, int eicType);
+			float amuQ3, int baseline_smoothing, int baseline_quantile,
+			float minSignalBaselineDifference, int eicType);
 
 	//associate compound names with peak groups
 	void associateNameWithPeakGroups();

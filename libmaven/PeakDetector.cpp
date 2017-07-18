@@ -15,6 +15,7 @@ void PeakDetector::resetProgressBar() {
 	zeroStatus = true;
 }
 
+//TODO: Refactor this function. Too many parameters - Sahil
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     std::vector<mzSample*>&samples,
                                     int peakDetect, 
@@ -23,7 +24,9 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     float amuQ1, 
                                     float amuQ3,
                                     int baseline_smoothingWindow,
-                                    int baseline_dropTopX, int eicType) 
+                                    int baseline_dropTopX, 
+                                    float minSignalBaselineDifference,
+                                    int eicType) 
 {
 
         vector<EIC*> eics;
@@ -84,6 +87,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         e->setSmootherType(smootherType);
                         e->setBaselineSmoothingWindow(baseline_smoothingWindow);
                         e->setBaselineDropTopX(baseline_dropTopX);
+                        e->setFilterSignalBaselineDiff(minSignalBaselineDifference);
                         e->getPeakPositions(smoothingWindow);
                         //smoohing over
 
@@ -351,6 +355,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                     mavenParameters->eic_smoothingAlgorithm);
             eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
             eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(mavenParameters->minSignalBaselineDifference);
             eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
             //TODO: this could be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
@@ -566,6 +571,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     mavenParameters->eic_smoothingAlgorithm);
             eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
             eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(mavenParameters->minSignalBaselineDifference);
             eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
@@ -876,7 +882,9 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->eic_smoothingAlgorithm, mavenParameters->amuQ1,
                                 mavenParameters->amuQ3,
                                 mavenParameters->baseline_smoothingWindow,
-                                mavenParameters->baseline_dropTopX, mavenParameters->eicType);
+                                mavenParameters->baseline_dropTopX,
+                                mavenParameters->minSignalBaselineDifference,
+                                mavenParameters->eicType);
 
                 float eicMaxIntensity = 0;
 
@@ -909,7 +917,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                                                 mavenParameters->distXWeight,
                                                                 mavenParameters->distYWeight,
                                                                 mavenParameters->overlapWeight,
-                                                                mavenParameters->useOverlap);
+                                                                mavenParameters->useOverlap,
+                                                                mavenParameters->minSignalBaselineDifference);
 
 
 		//score quality of each group using classifier

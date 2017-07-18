@@ -252,6 +252,7 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
         int smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
         int baseline_smoothing = mainwindow->mavenParameters->baseline_smoothingWindow;
 		int baseline_quantile =  mainwindow->mavenParameters->baseline_dropTopX;
+		float minSignalBaselineDifference = mainwindow->mavenParameters->minSignalBaselineDifference;
 		int eic_type = mainwindow->mavenParameters->eicType;
 
 
@@ -266,6 +267,7 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
                                                            amuQ3,
                                                            baseline_smoothing,
                                                            baseline_quantile,
+														   minSignalBaselineDifference,
 														   eic_type);
 	TinyPlot* plot = addEicPlot(eics);
 	delete_all(eics);

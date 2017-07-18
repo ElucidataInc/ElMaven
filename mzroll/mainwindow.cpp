@@ -706,6 +706,11 @@ void MainWindow::saveSettingsToLog() {
     summary << "------------------------------PEAK GROUPING"
             << "\n";
 
+    summary << "minSignalBaselineDifference=" << mavenParameters->minSignalBaselineDifference
+            << "\n";
+    summary << "------------------------------PEAK FILTERING"
+            << "\n";
+
     summary << "grouping_maxRtWindow=" << mavenParameters->grouping_maxRtWindow
             << "\n";
     summary << "eicMaxGroups=" << mavenParameters->eicMaxGroups << "\n";
@@ -1917,6 +1922,9 @@ void MainWindow::readSettings() {
 
     if (!settings->contains("baseline_quantile"))
         settings->setValue("baseline_quantile", 80);
+
+    if (!settings->contains("minSignalBaselineDifference"))
+        settings->setValue("minSignalBaselineDifference", 0);
 
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);

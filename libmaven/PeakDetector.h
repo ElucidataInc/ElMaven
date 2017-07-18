@@ -141,7 +141,7 @@ public:
 	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
 			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
 			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, int eicType);
+			int baselineDropTopX, float minSignalBaselineDifference, int eicType);
 
 private:
 
@@ -168,7 +168,7 @@ struct EicLoader {
 	EicLoader(mzSlice* islice, int eic_type, PeakDetectionFlag iflag = NoPeakDetection,
 			int smoothingWindow = 5, int smoothingAlgorithm = 0, float amuQ1 =
 					0.1, float amuQ2 = 0.5, int baselineSmoothingWindow = 5,
-			int baselineDropTopX = 40) {
+			int baselineDropTopX = 40, float minSignalBaselineDiff = 0) {
 
 		slice = islice;
 		eicType = eic_type;
@@ -179,6 +179,7 @@ struct EicLoader {
 		eic_amuQ2 = amuQ2;
 		eic_baselne_dropTopX = baselineDropTopX;
 		eic_baselne_smoothingWindow = baselineSmoothingWindow;
+		minSignalBaselineDifference = minSignalBaselineDiff;
 	}
 
 	typedef EIC* result_type;
@@ -211,6 +212,7 @@ struct EicLoader {
 		}
 
 		if (pdetect == PeakDetection && e) {
+			e->setFilterSignalBaselineDiff(minSignalBaselineDifference);
 			e->getPeakPositions(eic_smoothingWindow);
 		}
 		return e;
@@ -225,6 +227,7 @@ struct EicLoader {
 	float eic_amuQ2;
 	int eic_baselne_smoothingWindow;
 	int eic_baselne_dropTopX;
+	float minSignalBaselineDifference;
 };
 
 #endif // PEAKDETECTOR_H

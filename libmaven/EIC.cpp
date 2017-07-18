@@ -579,7 +579,7 @@ void EIC::removeLowRankGroups( vector<PeakGroup>& groups, unsigned int rankLimit
     }
 }
 
-
+//TODO: Lots of parameters. Refactor this code - Sahil
 vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
                                     int smoothingWindow,
                                     float maxRtDiff,
@@ -587,7 +587,8 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
                                     double distXWeight,
                                     double distYWeight,
                                     double overlapWeight,
-                                    bool useOverlap) {
+                                    bool useOverlap,
+                                    float minSignalBaselineDifference) {
     // Merged to 776
 
     //list filled and return by this function
@@ -612,6 +613,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
     if (!m) return pgroups;
 
     //find peaks in merged eic
+    m->setFilterSignalBaselineDiff(minSignalBaselineDifference);
     m->getPeakPositions(smoothingWindow);
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 

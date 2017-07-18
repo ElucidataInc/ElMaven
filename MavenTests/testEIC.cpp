@@ -65,6 +65,7 @@ void TestEIC::testgetPeakPositions() {
     e->setSmootherType(smootherType);
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(80);
+    e->setFilterSignalBaselineDiff(0);
     e->getPeakPositions(10);
     QVERIFY(true);
 }
@@ -203,6 +204,7 @@ void TestEIC:: testgroupPeaks() {
                                     mavenparameters->amuQ3,
                                     mavenparameters->baseline_smoothingWindow,
                                     mavenparameters->baseline_dropTopX,
+                                    mavenparameters->minSignalBaselineDifference,
                                     mavenparameters->eicType);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
@@ -212,7 +214,8 @@ void TestEIC:: testgroupPeaks() {
                                                     mavenparameters->distXWeight,
                                                     mavenparameters->distYWeight,
                                                     mavenparameters->overlapWeight,
-                                                    mavenparameters->useOverlap);
+                                                    mavenparameters->useOverlap,
+                                                    mavenparameters->minSignalBaselineDifference);
 
 
 
@@ -271,6 +274,7 @@ void TestEIC:: testeicMerge() {
                                     mavenparameters->amuQ3,
                                     mavenparameters->baseline_smoothingWindow,
                                     mavenparameters->baseline_dropTopX,
+                                    mavenparameters->minSignalBaselineDifference,
                                     mavenparameters->eicType);
 
     EIC* m = EIC::eicMerge(eics);

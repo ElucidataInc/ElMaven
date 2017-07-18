@@ -933,6 +933,7 @@ void SpectralHitsDockWidget::integrateMS1() {
    float amuQ3 = settings->value("amuQ3").toDouble();
    int baseline_smoothing = _mainwindow->mavenParameters->baseline_smoothingWindow;
    int baseline_quantile =  _mainwindow->mavenParameters->baseline_dropTopX;
+   float minSignalBaselineDifference = _mainwindow->mavenParameters->minSignalBaselineDifference;
    float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
    int eic_type = _mainwindow->mavenParameters->eicType;
 
@@ -987,6 +988,7 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     amuQ3,
                                                     baseline_smoothing,
                                                     baseline_quantile,
+                                                    minSignalBaselineDifference,
                                                     eic_type);
 
        //qDebug() << "here.. .here.. here " << eics.size();
@@ -998,7 +1000,8 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     _mainwindow->mavenParameters->distXWeight,
                                                     _mainwindow->mavenParameters->distYWeight,
                                                     _mainwindow->mavenParameters->overlapWeight,
-                                                    _mainwindow->mavenParameters->useOverlap);
+                                                    _mainwindow->mavenParameters->useOverlap,
+                                                    _mainwindow->mavenParameters->minSignalBaselineDifference);
 
 
        PeakGroup* nearestGrp = NULL;

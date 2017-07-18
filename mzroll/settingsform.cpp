@@ -16,6 +16,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(grouping_maxRtWindow, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
     connect(baseline_smoothing, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
+    connect(minSignalBaselineDifference, SIGNAL(valueChanged(float)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
     connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
@@ -225,6 +226,7 @@ void SettingsForm::updateSettingFormGUI() {
     minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
     baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
+    minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
 
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
@@ -315,6 +317,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("baseline_smoothing", baseline_smoothing->value());
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
+    settings->setValue("minSignalBaselineDifference", minSignalBaselineDifference->value());
     
     /*Isotopic settings for barplot*/
     settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());
@@ -467,6 +470,7 @@ void SettingsForm::setMavenParameters() {
         mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
         mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
+        mavenParameters->minSignalBaselineDifference = settings->value("minSignalBaselineDifference").toDouble();
     }
 }
 
