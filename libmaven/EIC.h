@@ -69,7 +69,7 @@ class EIC {
 
         float maxAreaTopNotCorrectedIntensity;
 
-        float filterSignalBaselineDiff;
+        double filterSignalBaselineDiff;
 
         /**      sum of all intensities in EIC */
         float totalIntensity;
@@ -187,7 +187,7 @@ class EIC {
          */
         void setBaselineDropTopX(int x) { baselineDropTopX=x; }
 
-        void setFilterSignalBaselineDiff(float x) { filterSignalBaselineDiff=x; }
+        void setFilterSignalBaselineDiff(double x) { filterSignalBaselineDiff=x; }
 
         bool makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType);
 
@@ -222,7 +222,7 @@ class EIC {
                                             double distYWeight,
                                             double overlapWeight,
                                             bool useOverlap,
-                                            float minSignalBaselineDifference);
+                                            double minSignalBaselineDifference);
         /**
          * [eicMerge ]
          * @method eicMerge

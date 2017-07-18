@@ -25,7 +25,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     float amuQ3,
                                     int baseline_smoothingWindow,
                                     int baseline_dropTopX, 
-                                    float minSignalBaselineDifference,
+                                    double minSignalBaselineDifference,
                                     int eicType) 
 {
 

@@ -588,7 +588,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
                                     double distYWeight,
                                     double overlapWeight,
                                     bool useOverlap,
-                                    float minSignalBaselineDifference) {
+                                    double minSignalBaselineDifference) {
     // Merged to 776
 
     //list filled and return by this function

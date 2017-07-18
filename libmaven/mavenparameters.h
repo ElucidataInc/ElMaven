@@ -130,7 +130,7 @@ public:
 	int baseline_smoothingWindow;
 	int baseline_dropTopX;
 
-	float minSignalBaselineDifference;
+	double minSignalBaselineDifference;
 
 	int eicType;
 

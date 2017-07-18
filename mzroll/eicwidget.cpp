@@ -313,7 +313,7 @@ void EicWidget::computeEICs() {
 	float amuQ3 = settings->value("amuQ3").toDouble();
 	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
 	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
-	float minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
+	double minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
 	int eic_type = getMainWindow()->mavenParameters->eicType;
 
 	mzSlice bounds = visibleSamplesBounds();
