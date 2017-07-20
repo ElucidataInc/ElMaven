@@ -732,6 +732,8 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
         myfile << "\"compoundId\": "<< sanitizeJSONstring(compoundID) ;
         string compoundName = grp.compound->name;
         myfile << ",\n" << "\"compoundName\": "<< sanitizeJSONstring(compoundName);
+        string formula = grp.compound->formula;
+        myfile << ",\n" << "\"formula\: "<< sanitizeJSONstring(formula);
 
         myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
 
@@ -1697,6 +1699,7 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
 		stream.writeAttribute("compoundId",  QString(c->id.c_str()));
         stream.writeAttribute("compoundDB",  QString(c->db.c_str()) );
 		stream.writeAttribute("compoundName",  QString(c->name.c_str()));
+        stream.writeAttribute("formula", QString(c->id.c_str()));
     }
 
     for(int j=0; j < g->peaks.size(); j++ ) {
