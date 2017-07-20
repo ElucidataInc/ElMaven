@@ -307,6 +307,7 @@ public Q_SLOTS:
 	void createPeakTable(QString);
 
 	void setQComboBox();
+	void setFilterLine();
 
     void mzrollLoadDB(QString dbname);
 	

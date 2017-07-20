@@ -490,6 +490,7 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(setFilterLine()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
@@ -1128,6 +1129,32 @@ void MainWindow::setQComboBox() {
 
 	}
 	else ionizationModeComboBox->setCurrentIndex(2);
+}
+
+void MainWindow::setFilterLine() {
+
+	QStringList filterlines;
+
+    for(int i=0; i < samples.size(); i++ ) {
+        mzSample* sample = samples[i];
+        for( int j=0; j < sample->scans.size(); j++ ) {
+            Scan* scan = sample->getScan(j);
+            if (!scan) continue;
+
+            QString filterLine(scan->filterLine.c_str());
+
+            if (filterLine.isEmpty())   continue;
+
+            if (filterlines.contains(filterLine)){
+            	continue;
+            }
+
+            filterlines << filterLine;
+        }
+    }
+
+	settingsForm->filterlineComboBox->insertItems(1, filterlines);
+
 }
 
 void MainWindow::setTotalCharge() {
