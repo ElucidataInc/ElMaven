@@ -23,7 +23,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="instrumentationOptions">
       <attribute name="title">
@@ -173,6 +173,22 @@
             <item>
              <property name="text">
               <string>Triple Quad</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QLabel" name="label_35">
+            <property name="text">
+             <string>Filterline</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="3">
+           <widget class="QComboBox" name="comboBox">
+            <item>
+             <property name="text">
+              <string>All</string>
              </property>
             </item>
            </widget>
