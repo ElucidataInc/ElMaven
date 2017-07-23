@@ -490,6 +490,7 @@ class mzLink {
             bool  _D2Labeled;
             float _normalizationConstant;
             string  _setName;
+            string injectionOrder;
 
             /**  srm to scan mapping */
             map<string,vector<int> >srmScans;
@@ -562,6 +563,24 @@ class mzLink {
              */
             inline int	  getSampleOrder() const { return _sampleOrder; }
 
+             /**
+              * @brief the order in  which the samples are inserted into the LC column.
+              * @method setInjectionOrder
+              * @param time
+              */
+             void setInjectionOrder(string order) {
+                 injectionOrder = order;
+             }
+
+             /**
+              * @brief return the injection order
+              * @method getInjectionOrder
+              * @return injectionOrder
+              */
+
+             string getInjectionOrder() {
+                 return injectionOrder;
+             }
             /**
              * [get Set Name]
              * @method getSetName

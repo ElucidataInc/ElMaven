@@ -1606,20 +1606,134 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 	}
 }
 
-//load set information
-bool MainWindow::loadSetsFile(QString filename) {
+
+void MainWindow::checkCorruptedSampleInjectionOrder()
+{
+    LOGD;
+
+    vector<mzSample*> samples = getSamples();
+
+    // check for samples with same injection order
+    // store samples with same injection order in a map with injection order as their key
+    QMap<string,QList<mzSample*>> sameInjectionOrder;
+    auto it = samples.begin();
+    while(it != samples.end()) {
+
+        if(sameInjectionOrder.find((*it)->getInjectionOrder()) == sameInjectionOrder.end())
+            sameInjectionOrder.insert((*it)->getInjectionOrder(),QList<mzSample*>() << (*it));
+
+        else {
+           QMap<string, QList<mzSample*>>::iterator  i = sameInjectionOrder.find((*it)->getInjectionOrder());
+           i.value().push_back((*it));
+        }
+
+        it++;
+    }
+
+    //check for sample with negative injection order
+    QList<mzSample*> negativeInjectionOrder;
+    it = samples.begin();
+    while(it != samples.end()) {
+
+        if(std::stoi((*it)->getInjectionOrder()) < 0 )
+            negativeInjectionOrder.push_back((*it));
+
+        it++;
+    }
+
+    // present a warning to user only if we found some samples with corrupted injection order
+    if(sameInjectionOrder.size() > 0 || negativeInjectionOrder.size() > 0)
+        warningForInjectionOrders(sameInjectionOrder, negativeInjectionOrder);
+
+
+}
+
+void MainWindow::warningForInjectionOrders(QMap<string, QList<mzSample*>> sameOrders, QList<mzSample*> negativeOrders)
+{
+    QString corruptedSamples;
+    QString warningMsg;
+
+    {
+        // iterate on sample with same orders and form a warning message
+        auto it = sameOrders.begin();
+        while(it != sameOrders.end()) {
+
+            if(it.value().size() > 1) {
+
+                auto it2 = it.value().begin();
+                QString smpl;
+                while(it2 != it.value().end()) {
+                    smpl += QString((*it2)->getSampleName().c_str());
+                    smpl += "   ";
+                    it2++;
+                }
+                if(!smpl.isEmpty()) {
+                    smpl = "* " + smpl;
+                    smpl += "\n\n";
+                }
+                corruptedSamples += smpl;
+                smpl.clear();
+            }
+
+            it++;
+        }
+    }
+
+    if(!corruptedSamples.isEmpty()) {
+        warningMsg = "Samples with same injection order";
+        warningMsg += "\n";
+        warningMsg += corruptedSamples;
+        warningMsg += "\n\n";
+    }
+
+    corruptedSamples.clear();
+
+    {
+        // iterarte on negative orders and add corrupted samples to warning message
+        auto it = negativeOrders.begin();
+        while(it != negativeOrders.end() ) {
+            QString smpl;
+            smpl += "* ";
+            smpl += QString((*it)->getSampleName().c_str());
+            smpl += "\n";
+            corruptedSamples += smpl;
+            it++;
+        }
+    }
+
+    if(!corruptedSamples.isEmpty()) {
+        warningMsg += "Samples with negative injection order ";
+        warningMsg += "\n";
+        warningMsg += corruptedSamples;
+        warningMsg += "\n\n";
+    }
+    cerr << "*********WARNING MSG******" << endl << warningMsg.toStdString() << endl;
+
+    if(!warningMsg.isEmpty()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("WARNING");
+        msgBox.setText(warningMsg);
+        msgBox.exec();
+    }
+}
+
+//load meta information
+bool MainWindow::loadMetaInformation(QString filename) {
 	string dbfilename = filename.toStdString();
 	string dbname = mzUtils::cleanFilename(dbfilename);
 	int sampleCount = 0;
 
-    sampleCount = loadSetsCSVFile(dbfilename);
+    sampleCount = loadMetaCsvFile(dbfilename);
     
 	if (sampleCount > 0) {
-		setStatusText(tr("loadSetInfo: done after loading %1 set information").arg(QString::number(sampleCount)));
-		Q_EMIT(setLoaded());
+        setStatusText(tr("loadMetaInfo: done after loading %1 meta information").arg(QString::number(sampleCount)));
+        Q_EMIT(metaCsvFileLoaded());
+
+        // user should be presented a warning if injection order of two samples is same or is negative
+        checkCorruptedSampleInjectionOrder();
 		return true;
 	} else {
-		setStatusText(tr("loadSetInfo: not able to load %1 set information").arg(filename));
+        setStatusText(tr("loadMetaInfo: not able to load %1 meta information").arg(filename));
 		return false;
 	}
 }
@@ -1666,7 +1780,7 @@ void MainWindow::loadCompoundsFile() {
 }
 
 // open function for set csv
-void MainWindow::loadSetsFile() {
+void MainWindow::loadMetaInformation() {
 	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
@@ -1674,7 +1788,7 @@ void MainWindow::loadSetsFile() {
 					"All Known Formats(*.csv *.tab *.tab.txt);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv)");
 
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
-	if(!loadSetsFile(filelist[0])) {
+    if(!loadMetaInformation(filelist[0])) {
 		string dbfilename = filelist[0].toStdString();
 		string dbname = mzUtils::cleanFilename(dbfilename);
 
@@ -1686,7 +1800,7 @@ void MainWindow::loadSetsFile() {
 	}
 }
 
-int MainWindow::loadSetsCSVFile(string filename){
+int MainWindow::loadMetaCsvFile(string filename){
 
     ifstream myfile(filename.c_str());
     if (! myfile.is_open()) return 0;
@@ -1697,7 +1811,7 @@ int MainWindow::loadSetsCSVFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set"};
+    static const string allHeadersarr[] = {"sample", "set", "injection order"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -1734,6 +1848,7 @@ int MainWindow::loadSetsCSVFile(string filename){
 
         string set;
 		QString sampleName;
+        string injectionOrder;
         int N=fields.size();
 
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
@@ -1741,6 +1856,8 @@ int MainWindow::loadSetsCSVFile(string filename){
 		else{
 			set = "";
 		}
+        if (header.count("injection order") && header["injection order"]<N)
+            injectionOrder = fields[header["injection order"]];
 
         if (sampleName.isEmpty()) continue;
 		if (set.empty()) set = "";
@@ -1751,7 +1868,9 @@ int MainWindow::loadSetsCSVFile(string filename){
 		mzSample* sample=getSampleByName(sampleName);
 		if(!sample) continue; 
         sample->_setName = set;
+        sample->setInjectionOrder(injectionOrder);
        	loadCount++;
+
     }
     myfile.close();
     return loadCount;

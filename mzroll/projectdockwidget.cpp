@@ -52,8 +52,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     QToolButton* loadSetsButton = new QToolButton(toolBar);
     loadSetsButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
     loadSetsButton->setToolTip("Load Sets");
-    connect(loadSetsButton,SIGNAL(clicked()),_mainwindow, SLOT(loadSetsFile()));
-    connect(_mainwindow,SIGNAL(setLoaded()),SLOT(updateSampleList()));
+    connect(loadSetsButton,SIGNAL(clicked()),_mainwindow, SLOT(loadMetaInformation()));
+    connect(_mainwindow,SIGNAL(metaCsvFileLoaded()),SLOT(updateSampleList()));
 
     QToolButton* saveButton = new QToolButton(toolBar);
     saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
@@ -185,6 +185,7 @@ void ProjectDockWidget::updateSampleList() {
         _mainwindow->getEicWidget()->replotForced();
     }
 }
+
 
 void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
     if (item && item->type() == SampleType ) {
@@ -432,7 +433,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     _treeWidget->clear();
 
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    QStringList header; header << "Sample" << "Set" << "Scaling";
+    QStringList header;
+    header << "Sample" << "Set" << "Scaling" << "Injection Order";
     _treeWidget->setHeaderLabels( header );
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
@@ -499,6 +501,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setIcon(1,QIcon(QPixmap(rsrcPath + "/edit.png")));
         item->setText(1,QString(sample->getSetName().c_str()));
         item->setText(2,QString::number(sample->getNormalizationConstant(),'f',2));
+        item->setText(3,QString(sample->getInjectionOrder().c_str()));
        // _treeWidget->setItemWidget(item,3,colorButton);
 
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);

@@ -273,7 +273,7 @@ Q_SIGNALS:
 	void saveSignal();
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
-	void setLoaded();
+    void metaCsvFileLoaded();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -294,9 +294,9 @@ public Q_SLOTS:
 	void refreshIntensities();
 	void loadCompoundsFile();
 	bool loadCompoundsFile(QString filename);
-	void loadSetsFile();
-	bool loadSetsFile(QString filename);
-	int loadSetsCSVFile(string filename);
+    void loadMetaInformation();
+    bool loadMetaInformation(QString filename);
+    int loadMetaCsvFile(string filename);
 	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();
@@ -435,6 +435,8 @@ private:
 	QString newFileName;
 	void saveMzRollList(QString MzrollFileName);
 	void saveMzRollAllTables();
+    void checkCorruptedSampleInjectionOrder();
+    void warningForInjectionOrders(QMap<string, QList<mzSample*>>, QList<mzSample*>);
 
 };
 
