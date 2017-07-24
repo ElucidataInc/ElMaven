@@ -60,6 +60,7 @@ MavenParameters::MavenParameters() {
 
         amuQ1 = 0.25;
         amuQ3 = 0.3;
+        filterline = "";
 
         maxIsotopeScanDiff = 10;
         maxNaturalAbundanceErr = 100;

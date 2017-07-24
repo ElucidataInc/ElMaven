@@ -24,6 +24,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(amuQ1, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
     connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
+    connect(filterlineComboBox, SIGNAL(activated(QString)), SLOT(getFormValues()));
 
     //isotope detection setting
     connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
@@ -344,6 +345,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState()  );
     settings->setValue("amuQ1", amuQ1->value());
     settings->setValue("amuQ3", amuQ3->value());
+    settings->setValue("filterlineComboBox", filterlineComboBox->currentText());
 
     settings->setValue("eicTypeComboBox",eicTypeComboBox->currentIndex());
 
@@ -449,6 +451,12 @@ void SettingsForm::setMavenParameters() {
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
 
     if (settings != NULL) {
+
+        if (settings->value("filterlineComboBox") == "All") {
+            mavenParameters->filterline = "";
+        } else {
+            mavenParameters->filterline = settings->value("filterlineComboBox").toString().toStdString();
+        }
 
         mavenParameters->eicType = settings->value("eicTypeComboBox").toInt();
         //peak grouping tab

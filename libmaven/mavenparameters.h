@@ -177,6 +177,8 @@ public:
 	 */
 	float amuQ3;
 
+	string filterline;
+
 	float minQuality;
 	string ligandDbFilename;
 
