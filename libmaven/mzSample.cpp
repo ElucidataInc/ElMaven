@@ -989,11 +989,11 @@ EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 					}
 					
 					case EIC::SUM: {
-						int n = 0;
+						float n = 0;
 						for(unsigned int k=0; k < scan->nobs(); k++) {
 							eicIntensity += scan->intensity[k];
-							eicMz += scan->mz[k];
-							n++;
+							eicMz += (scan->mz[k]) * (scan->intensity[k]);
+							n+=scan->intensity[k];
 						}
 
 						eicMz /= n;
@@ -1075,10 +1075,11 @@ EIC* mzSample::getEIC(string srm, int eicType) {
 							}
 							
 							case EIC::SUM: {
-								int n = 0;
+								float n = 0;
 								for(unsigned int k=0; k < scan->nobs(); k++) {
 									eicIntensity += scan->intensity[k];
-									eicMz += scan->mz[k];
+									eicMz += (scan->mz[k]) * (scan->intensity[k]);
+                                                                        n += scan->intensity[k];
 								}
 
 								eicMz /= n;
