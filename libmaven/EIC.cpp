@@ -823,14 +823,14 @@ bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, f
             }
             
             case EIC::SUM: {
-                int n = 0;
+                float n = 0;
                 for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
                     if (scan->mz[scanIdx] < mzmin) continue;
                     if (scan->mz[scanIdx] > mzmax) break;
 
                     eicIntensity += scan->intensity[scanIdx];
-                    eicMz += scan->mz[scanIdx];
-                    n++;
+                    eicMz += scan->mz[scanIdx] * scan->intensity[scanIdx];
+                    n += scan->intensity[scanIdx];
                 }
                 eicMz /= n;
                 break;
