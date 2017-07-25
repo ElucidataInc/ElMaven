@@ -42,7 +42,7 @@ void TestEIC::testcomputeSpline() {
     EIC* e = NULL;
 
     mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0);
+    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     //if eic exists, perform smoothing
     EIC::SmootherType smootherType = 
@@ -58,7 +58,7 @@ void TestEIC::testgetPeakPositions() {
     EIC* e = NULL;
 
     mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0);
+    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     EIC::SmootherType smootherType =
             (EIC::SmootherType) 1;
@@ -74,7 +74,7 @@ void TestEIC::testcomputeBaseLine() {
     mzSample* mzsample = new mzSample();
     EIC* e = NULL;
     mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0);
+    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     EIC::SmootherType smootherType =
             (EIC::SmootherType) 1;
@@ -90,7 +90,7 @@ void TestEIC::testfindPeakBounds() {
     EIC* e = NULL;
 
     mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0);
+    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     //if eic exists, perform smoothing
     EIC::SmootherType smootherType = 
@@ -117,7 +117,7 @@ void TestEIC:: testGetPeakDetails() {
     EIC* e = NULL;
 
     mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0);
+    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     //if eic exists, perform smoothing
     EIC::SmootherType smootherType = 
@@ -205,7 +205,8 @@ void TestEIC:: testgroupPeaks() {
                                     mavenparameters->baseline_smoothingWindow,
                                     mavenparameters->baseline_dropTopX,
                                     mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType);
+                                    mavenparameters->eicType,
+                                    mavenparameters->filterline);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
                                                     mavenparameters->eic_smoothingWindow,
@@ -275,7 +276,8 @@ void TestEIC:: testeicMerge() {
                                     mavenparameters->baseline_smoothingWindow,
                                     mavenparameters->baseline_dropTopX,
                                     mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType);
+                                    mavenparameters->eicType,
+                                    mavenparameters->filterline);
 
     EIC* m = EIC::eicMerge(eics);
 

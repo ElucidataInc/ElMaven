@@ -584,7 +584,7 @@ vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
 				EIC* eic = mavenParameters->samples[j]->getEIC(grp.srmId, mavenParameters->eicType);
 				eics.push_back(eic);
 			} else {
-				EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1, mavenParameters->eicType);
+				EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1, mavenParameters->eicType, mavenParameters->filterline);
 				eics.push_back(eic);
 			}
 		}

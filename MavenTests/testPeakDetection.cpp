@@ -79,7 +79,8 @@ void TestPeakDetection::testPullEICs() {
                                     mavenparameters->baseline_smoothingWindow,
                                     mavenparameters->baseline_dropTopX,
                                     mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType);
+                                    mavenparameters->eicType,
+                                    mavenparameters->filterline);
     QVERIFY(eics.size() == 2);
 }
 

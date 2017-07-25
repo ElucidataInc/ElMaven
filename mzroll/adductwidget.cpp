@@ -163,7 +163,8 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 		cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
         if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,ppm)) {
             QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
-			float correlation  = sample->correlation(centerMz, parentMass, 5, scan->rt-1, scan->rt+1, _mw->mavenParameters->eicType);
+			float correlation  = sample->correlation(centerMz, parentMass, 5, scan->rt-1, scan->rt+1,
+													_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
             float parentIntensity = getIntensity(parentMass,ppm);
 
 			if ( correlation > 0.3 && !linkExists(centerMz,parentMass,5) && parentIntensity > intensity1) {
@@ -184,7 +185,8 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 
         if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,ppm)) {
             QString noteText = tr("Adduct %1").arg(QString(DB.adductsDB[i]->name.c_str()));
-			float correlation  = sample->correlation(centerMz, adductMass, 5, scan->rt-1, scan->rt+1, _mw->mavenParameters->eicType);
+			float correlation  = sample->correlation(centerMz, adductMass, 5, scan->rt-1, scan->rt+1,
+												_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
             float childIntensity = getIntensity(adductMass,ppm);
 
 			if (correlation > 0.5 && ! linkExists(adductMass, centerMz,5) && childIntensity < intensity1) {
@@ -286,13 +288,16 @@ mzLink* AdductWidget::checkConnection(float mz1, float mz2, string note) {
 
 	if (links.size() > 1 ) {
 		for(int i=0; i < links.size(); i++ ) {
-			if ( sample->correlation(links[i]->mz1, mz2, 5, _scan->rt-1, _scan->rt+1, _mw->mavenParameters->eicType) < 0.0 ) return NULL;
-			if ( sample->correlation(links[i]->mz1, mz1, 5, _scan->rt-1, _scan->rt+1, _mw->mavenParameters->eicType) < 0.0 ) return NULL;
+			if ( sample->correlation(links[i]->mz1, mz2, 5, _scan->rt-1, _scan->rt+1,
+				_mw->mavenParameters->eicType, _mw->mavenParameters->filterline) < 0.0 ) return NULL;
+			if ( sample->correlation(links[i]->mz1, mz1, 5, _scan->rt-1, _scan->rt+1,
+				_mw->mavenParameters->eicType, _mw->mavenParameters->filterline) < 0.0 ) return NULL;
 		}
 	}
 
 	if( _scan->hasMz(mz2,ppm) ) {
-		float correlation  = sample->correlation(mz1, mz2, 5, _scan->rt-1, _scan->rt+1, _mw->mavenParameters->eicType);
+		float correlation  = sample->correlation(mz1, mz2, 5, _scan->rt-1, _scan->rt+1,
+												_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
 
 		if ( correlation > 0.3) {
 				mzLink* l = new mzLink(mz1,mz2,note);

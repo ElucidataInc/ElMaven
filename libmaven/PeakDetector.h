@@ -141,7 +141,7 @@ public:
 	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
 			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
 			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, double minSignalBaselineDifference, int eicType);
+			int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
 
 private:
 
@@ -165,13 +165,14 @@ struct EicLoader {
 		NoPeakDetection = 0, PeakDetection = 1
 	};
 
-	EicLoader(mzSlice* islice, int eic_type, PeakDetectionFlag iflag = NoPeakDetection,
+	EicLoader(mzSlice* islice, int eic_type, string filter_line, PeakDetectionFlag iflag = NoPeakDetection,
 			int smoothingWindow = 5, int smoothingAlgorithm = 0, float amuQ1 =
 					0.1, float amuQ2 = 0.5, int baselineSmoothingWindow = 5,
 			int baselineDropTopX = 40, double minSignalBaselineDiff = 0) {
 
 		slice = islice;
 		eicType = eic_type;
+		filterline = filter_line;
 		pdetect = iflag;
 		eic_smoothingWindow = smoothingWindow;
 		eic_smoothingAlgorithm = smoothingAlgorithm;
@@ -198,11 +199,11 @@ struct EicLoader {
 		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
 			//cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-					eic_amuQ1, eic_amuQ2);
+					filterline, eic_amuQ1, eic_amuQ2);
 		} else {
 			//cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-					slice->rtmax, 1, eicType);
+					slice->rtmax, 1, eicType, filterline);
 		}
 
 		if (e) {
@@ -221,6 +222,7 @@ struct EicLoader {
 	mzSlice* slice;
 	PeakDetectionFlag pdetect;
 	int eicType;
+	string filterline;
 	int eic_smoothingWindow;
 	int eic_smoothingAlgorithm;
 	float eic_amuQ1;

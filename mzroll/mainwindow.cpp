@@ -3531,7 +3531,7 @@ void MainWindow::getLinks(Peak* peak) {
 	float rtmax = peak->rtmax + 1;
 	for (int i = 0; i < links.size(); i++) {
 		links[i].correlation = sample->correlation(links[i].mz1, links[i].mz2,
-				5, rtmin, rtmax, mavenParameters->eicType);
+				5, rtmin, rtmax, mavenParameters->eicType, mavenParameters->filterline);
 	}
 
 	//matching compounds

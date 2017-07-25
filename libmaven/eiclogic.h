@@ -54,7 +54,7 @@ public:
 	void getEIC(mzSlice bounds, vector<mzSample*> samples,
 			int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
 			float amuQ3, int baseline_smoothing, int baseline_quantile,
-			double minSignalBaselineDifference, int eicType);
+			double minSignalBaselineDifference, int eicType, string filterline);
 
 	//associate compound names with peak groups
 	void associateNameWithPeakGroups();

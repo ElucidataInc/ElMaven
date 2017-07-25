@@ -382,7 +382,7 @@ class mzLink {
              * @param  rt2         [retention time for second sample]
              * @return [correlation]
              */
-            float correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 , int eicType);
+            float correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 , int eicType, string filterline);
 
             /**
              * [get normalization constant]
@@ -427,7 +427,7 @@ class mzLink {
              * @param  mslevel [MS Level]
              * @return         [pointer to EIC]
              */
-            EIC* getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType);
+            EIC* getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
 
 
             /**
@@ -448,7 +448,7 @@ class mzLink {
              * @param  amuQ2           [amu in Q2 step]
              * @return [pointer to EIC]
              */
-            EIC* getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, float amuQ1, float amuQ2);
+            EIC* getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1, float amuQ2);
 
             /**
              * [get Total Ion Chromatogram]

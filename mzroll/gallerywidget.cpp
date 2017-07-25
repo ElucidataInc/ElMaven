@@ -254,7 +254,7 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 		int baseline_quantile =  mainwindow->mavenParameters->baseline_dropTopX;
 		double minSignalBaselineDifference = mainwindow->mavenParameters->minSignalBaselineDifference;
 		int eic_type = mainwindow->mavenParameters->eicType;
-
+		string filterline = mainwindow->mavenParameters->filterline;
 
 	//qDebug() << "addEicPlot(slice)";
 
@@ -268,7 +268,8 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
                                                            baseline_smoothing,
                                                            baseline_quantile,
 														   minSignalBaselineDifference,
-														   eic_type);
+														   eic_type,
+														   filterline);
 	TinyPlot* plot = addEicPlot(eics);
 	delete_all(eics);
 	return plot;

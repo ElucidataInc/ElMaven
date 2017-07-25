@@ -849,7 +849,8 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
             else if((grp.compound->precursorMz > 0) & (grp.compound->productMz > 0)) { //MS-MS case 2
                 //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
                 //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
-                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,_mainwindow->mavenParameters->eicType,_mainwindow->mavenParameters->amuQ1, _mainwindow->mavenParameters->amuQ3);
+                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,_mainwindow->mavenParameters->eicType,
+                                   _mainwindow->mavenParameters->filterline, _mainwindow->mavenParameters->amuQ1, _mainwindow->mavenParameters->amuQ3);
             }
             else {//MS1 case
                 //TODO: same problem here: need the ppm that was used, or the slice object
@@ -867,7 +868,9 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
                 mzmax = mz + mz / 1e6 * ppm;
                 rtmin = grp.minRt - outputRtWindow;
                 rtmax = grp.maxRt + outputRtWindow;
-                eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1, _mainwindow->mavenParameters->eicType);
+                eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1,
+                                    _mainwindow->mavenParameters->eicType,
+                                    _mainwindow->mavenParameters->filterline);
             }
         }
 
@@ -879,7 +882,9 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
             mzmax = mz + mz / 1e6 * ppm;
             rtmin = grp.minRt - outputRtWindow;
             rtmax = grp.maxRt + outputRtWindow;
-            eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1, _mainwindow->mavenParameters->eicType);
+            eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1,
+                                _mainwindow->mavenParameters->eicType,
+                                _mainwindow->mavenParameters->filterline);
         }
 
         //TODO: for MS1 we've already limited RT range, but for MS/MS the entire RT range of the SRM will be output
@@ -978,7 +983,9 @@ vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
                 EIC* eic = samples[j]->getEIC(grp.srmId, _mainwindow->mavenParameters->eicType);
                 eics.push_back(eic);
             } else {
-                EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1, _mainwindow->mavenParameters->eicType);
+                EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1,
+                                        _mainwindow->mavenParameters->eicType,
+                                        _mainwindow->mavenParameters->filterline);
                 eics.push_back(eic);
             }
         }
@@ -2084,7 +2091,9 @@ void TableDockWidget::clusterGroups() {
             if (cor < minSampleCorrelation) continue;
 
             //peak shape correlation
-            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt, _mainwindow->mavenParameters->eicType);
+            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt,
+                                                    _mainwindow->mavenParameters->eicType,
+                                                    _mainwindow->mavenParameters->filterline);
             if (cor2 < minRtCorrelation) continue;
 
             //passed all the filters.. group grup1 and grup2 into a single metagroup

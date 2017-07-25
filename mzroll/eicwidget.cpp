@@ -322,12 +322,14 @@ void EicWidget::computeEICs() {
 	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 	double minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
 	int eic_type = getMainWindow()->mavenParameters->eicType;
+	string filterline = getMainWindow()->mavenParameters->filterline;
 
 	mzSlice bounds = visibleSamplesBounds();
 
 	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
 			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
-			baseline_quantile, minSignalBaselineDifference, eic_type);
+			baseline_quantile, minSignalBaselineDifference, eic_type,
+			filterline);
 
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget

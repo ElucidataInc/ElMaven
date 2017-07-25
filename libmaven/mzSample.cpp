@@ -957,7 +957,7 @@ Scan* mzSample::getScan(unsigned int scanNum) {
         }
 }
 
-EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, float amuQ1=0.1, float amuQ2=0.5) {
+EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1=0.1, float amuQ2=0.5) {
         EIC* e = new EIC();
         e->sampleName = sampleName;
         e->sample = this;
@@ -1134,7 +1134,7 @@ EIC* mzSample::getEIC(string srm, int eicType) {
  * MS/MS
  * @return         [description]
  */
-EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType) {
+EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline) {
 
         //Adjusting the Retension Time so that it matches with the sample
         //retension time
@@ -1262,13 +1262,13 @@ EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel) {
 }
 
 //compute correlation between two mzs within some retention time window
-float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 , int eicType) {
+float mzSample::correlation(float mz1,  float mz2, float ppm, float rt1, float rt2 , int eicType, string filterline) {
 
         float ppm1 = ppm*mz1/1e6;
         float ppm2 = ppm*mz2/1e6;
         int mslevel=1;
-        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel, eicType);
-        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel, eicType);
+        EIC* e1 = mzSample::getEIC(mz1-ppm1, mz1+ppm1, rt1, rt2, mslevel, eicType, filterline);
+        EIC* e2 = mzSample::getEIC(mz2-ppm2, mz2+ppm1, rt1, rt2, mslevel, eicType, filterline);
         float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
         delete(e1);
         delete(e2);

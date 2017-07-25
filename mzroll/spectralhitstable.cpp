@@ -936,7 +936,7 @@ void SpectralHitsDockWidget::integrateMS1() {
    double minSignalBaselineDifference = _mainwindow->mavenParameters->minSignalBaselineDifference;
    float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
    int eic_type = _mainwindow->mavenParameters->eicType;
-
+   string filterline = _mainwindow->mavenParameters->filterline;
 
    QMap<QString,mzSlice>  peptideMap;
 
@@ -989,7 +989,8 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     baseline_smoothing,
                                                     baseline_quantile,
                                                     minSignalBaselineDifference,
-                                                    eic_type);
+                                                    eic_type,
+                                                    filterline);
 
        //qDebug() << "here.. .here.. here " << eics.size();
 

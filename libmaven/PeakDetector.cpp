@@ -26,7 +26,8 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     int baseline_smoothingWindow,
                                     int baseline_dropTopX, 
                                     double minSignalBaselineDifference,
-                                    int eicType) 
+                                    int eicType,
+                                    string filterline) 
 {
 
         vector<EIC*> eics;
@@ -70,13 +71,13 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 
                         e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-                                        amuQ1, amuQ3);
+                                        filterline, amuQ1, amuQ3);
 
                 } else {
                         //This is the usual case where we are going peakpicking
                         //with DB. This is a general enough senerio
                         e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-                                        slice->rtmax, 1, eicType);
+                                        slice->rtmax, 1, eicType, filterline);
                 }
                 
 
@@ -339,13 +340,15 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
                     mavenParameters->compoundPPMWindow, rtmin - w,
-                    rtmax + w, mavenParameters->eicType);  // find correlation for isotopes
+                    rtmax + w, mavenParameters->eicType,
+                    mavenParameters->filterline);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;
 
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType);
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType,
+                                       mavenParameters->filterline);
             //actually last parameter should probably be deepest MS level?
             //TODO: decide how isotope children should even work in MS mode
 
@@ -557,13 +560,15 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
                     mavenParameters->compoundPPMWindow, rtmin - w,
-                    rtmax + w, mavenParameters->eicType);  // find correlation for isotopes
+                    rtmax + w, mavenParameters->eicType,
+                    mavenParameters->filterline);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
                 continue;
 
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType);
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, mavenParameters->eicType,
+                                        mavenParameters->filterline);
             //actually last parameter should probably be deepest MS level?
             //TODO: decide how isotope children should even work in MS mode
 
@@ -888,7 +893,8 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->baseline_smoothingWindow,
                                 mavenParameters->baseline_dropTopX,
                                 mavenParameters->minSignalBaselineDifference,
-                                mavenParameters->eicType);
+                                mavenParameters->eicType,
+                                mavenParameters->filterline);
 
                 float eicMaxIntensity = 0;
 
