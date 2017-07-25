@@ -761,7 +761,7 @@ void EIC::getRTMinMaxPerScan() {
  * Total intensity is calculated by adding the maxintensity from each scan.
  * @param[in] scan This is the 
  */
-bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType) {
+bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline) {
     float eicMz = 0, eicIntensity = 0;
     int lb, scanNum;
     vector<float>::iterator mzItr;
@@ -796,6 +796,7 @@ bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, f
         Scan* scan = *(scanItr);
         scanNum++;
 
+        if (!(scan->filterLine == filterline || filterline == "")) continue;
         if (scan->mslevel != mslevel) continue;
         if (scan->rt < rtmin) continue;
         if (scan->rt > rtmax) break;

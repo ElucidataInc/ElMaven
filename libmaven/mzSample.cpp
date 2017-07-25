@@ -968,6 +968,7 @@ EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 
         for(unsigned int i=0; i < scans.size(); i++ ) {
                 Scan* scan = scans[i];
+                if (!(scan->filterLine == filterline || filterline == "")) continue;
                 if (scan->mslevel < 2) continue;
                 if (precursorMz && abs(scan->precursorMz-precursorMz)>amuQ1 ) continue;
                 if (productMz && abs(scan->productMz-productMz)>amuQ2) continue;
@@ -1159,7 +1160,7 @@ EIC* mzSample::getEIC(float mzmin,float mzmax, float rtmin, float rtmax, int msl
             return e;
         }
 
-        bool success = e->makeEICSlice(this,  mzmin, mzmax, rtmin, rtmax, mslevel, eicType);
+        bool success = e->makeEICSlice(this,  mzmin, mzmax, rtmin, rtmax, mslevel, eicType, filterline);
 
         if(!success) {
             return e;

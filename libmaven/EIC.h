@@ -189,7 +189,7 @@ class EIC {
 
         void setFilterSignalBaselineDiff(double x) { filterSignalBaselineDiff=x; }
 
-        bool makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType);
+        bool makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
 
         void getRTMinMaxPerScan();
 

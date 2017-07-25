@@ -33,7 +33,7 @@ void TestEIC::testgetEIC() {
     mzsample->loadSample(loadFile);
     EIC e;
 
-    bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0);
+    bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0, "");
     QVERIFY(e.intensity.size() == numberOfScans && status);
 }
 
