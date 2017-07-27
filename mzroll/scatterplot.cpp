@@ -178,7 +178,7 @@ void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float
     scene()->setLogTransformed(true,true);
 
 	//draw x and y axes
-	drawAxes();
+    drawAxes();
 	scene()->showVLine(true);
 	scene()->showHLine(true);
     scene()->showXLabel("Sample Set 1");

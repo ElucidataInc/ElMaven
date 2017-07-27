@@ -338,13 +338,16 @@ void PlotDockWidget::drawAxes() {
 	 //QPen pen3(Qt::red);
 	 //scene()->addRect(scene()->getPlotRect(),pen3,Qt::NoBrush);
 
-     PlotAxes* x= new PlotAxes(0,10,scene());
-	 x->setZValue(0);
-	 x->setOffset(0);
+     PlotAxes* xAxis= new PlotAxes(0,10,scene());
+	 xAxis->setZValue(0);
+	 xAxis->setOffset(0);
 
-     PlotAxes* y= new PlotAxes(1,10,scene());
-	 y->setZValue(0);
-	 y->setOffset(0);
+     PlotAxes* yAxis= new PlotAxes(1,10,scene());
+	 yAxis->setZValue(0);
+	 yAxis->setOffset(0);
+
+	 scene()->addItem(xAxis);
+	 scene()->addItem(yAxis);
 }
 
 
