@@ -1,6 +1,7 @@
 #include "PeakGroup.h"
 #include "Compound.h"
 #include "mzSample.h"
+#include <iterator>
 
 PeakGroup::PeakGroup()  {
     groupId=0;
@@ -215,6 +216,8 @@ bool PeakGroup::deleteChild(PeakGroup* child ) {
     it = find(children.begin(),children.end(),child);
     if ( *it == child ) {
         cerr << "deleteChild: setting child to empty";
+        int index  = std::distance(children.begin(), it);
+        children.erase(children.begin()+index);
         child->clear();
         return true;
         //sort(children.begin(), children.end(),PeakGroup::compIntensity);
