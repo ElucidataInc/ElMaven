@@ -16,6 +16,7 @@ class AlignmentVizWidget;
 class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
+class CSVReports;
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -76,6 +77,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+      void exportAllGroups();
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {
@@ -167,6 +169,7 @@ private:
 	  void readPeakXML(QXmlStreamReader& xml,PeakGroup* parent);
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
+      CSVReports* prepareCsvReport();
 
           QList<PeakGroup>allgroups;
 
