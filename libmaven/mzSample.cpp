@@ -988,6 +988,8 @@ EIC* mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 						break;
 					}
 					
+                                        //calculate the weighted average(with intensities as weights) 
+                                        //while finding the eicMz for the whole EIC.
 					case EIC::SUM: {
 						float n = 0;
 						for(unsigned int k=0; k < scan->nobs(); k++) {
@@ -1074,6 +1076,8 @@ EIC* mzSample::getEIC(string srm, int eicType) {
 								break;
 							}
 							
+                                                        //calculate the weighted average(with intensities as weights) 
+                                                        //while finding the eicMz for the whole EIC.
 							case EIC::SUM: {
 								float n = 0;
 								for(unsigned int k=0; k < scan->nobs(); k++) {

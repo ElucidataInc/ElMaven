@@ -822,6 +822,8 @@ bool EIC::makeEICSlice(mzSample* sample, float mzmin,float mzmax, float rtmin, f
                 break;
             }
             
+            //calculate the weighted average(with intensities as weights) 
+            //while finding the eicMz for the whole EIC.
             case EIC::SUM: {
                 float n = 0;
                 for(unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++ ) {
