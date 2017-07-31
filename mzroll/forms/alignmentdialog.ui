@@ -244,14 +244,14 @@
       <string>Alignment Algorithm</string>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Maximum Number of Itterations</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QSpinBox" name="maxItterations">
         <property name="minimum">
          <number>1</number>
@@ -261,14 +261,14 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
          <string>Polynomial Degree</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QSpinBox" name="polynomialDegree">
         <property name="minimum">
          <number>1</number>
@@ -278,6 +278,30 @@
         </property>
         <property name="value">
          <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox">
+        <property name="currentText">
+         <string>Poly Fit</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Poly Fit</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Loess Fit</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Alignment Algorithm</string>
         </property>
        </widget>
       </item>
