@@ -5,10 +5,10 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     settings = s;
     mainwindow = w;
     deltaRtCheckFlag = false;
+    flagForIsotopes=false;
     updateSettingFormGUI();
     setIsotopeAtom();
     setMavenParameters();
-
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 
     connect(eic_smoothingWindow, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
@@ -17,6 +17,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(baseline_smoothing, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(minSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
+    connect(isotopicMinSignalBaselineDifference,SIGNAL(valueChanged(double)),SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
     connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
@@ -227,7 +228,7 @@ void SettingsForm::updateSettingFormGUI() {
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
     baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
     minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
-
+    isotopicMinSignalBaselineDifference->setValue(settings->value("isotopicMinSignalBaselineDifference").toInt());
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
@@ -301,8 +302,6 @@ void SettingsForm::updateSettingFormGUI() {
     if(settings->contains("scan_filter_min_quantile"))
         scan_filter_min_quantile->setValue( settings->value("scan_filter_min_quantile").toInt());
 }
-
-
 void SettingsForm::getFormValues() {
     LOGD;
     if (settings == NULL) return;
@@ -318,7 +317,8 @@ void SettingsForm::getFormValues() {
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
     settings->setValue("minSignalBaselineDifference", minSignalBaselineDifference->value());
-    
+    settings->setValue("isotopicMinSignalBaselineDifference",isotopicMinSignalBaselineDifference->value());
+
     /*Isotopic settings for barplot*/
     settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());
     settings->setValue("N15Labeled_Barplot", N15Labeled_Barplot->checkState());
@@ -471,6 +471,7 @@ void SettingsForm::setMavenParameters() {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
         mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
         mavenParameters->minSignalBaselineDifference = settings->value("minSignalBaselineDifference").toDouble();
+        mavenParameters->isotopicMinSignalBaselineDifference=settings->value("isotopicMinSignalBaselineDifference").toDouble();
     }
 }
 

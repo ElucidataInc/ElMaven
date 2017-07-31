@@ -131,6 +131,7 @@ public:
 	int baseline_dropTopX;
 
 	double minSignalBaselineDifference;
+	double isotopicMinSignalBaselineDifference;
 
 	int eicType;
 

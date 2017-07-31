@@ -27,12 +27,13 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void recomputeIsotopes();
             void selectFolder(QString key);
             void selectFile(QString key);
-            void  setNumericValue(QString key, double value);
-            void  setStringValue(QString key, QString value);
+            void setNumericValue(QString key, double value);
+            void setStringValue(QString key, QString value);
             void updateMultiprocessing();
             void setSettingsIonizationMode(QString);
             void setGroupRankStatus();
             void setInitialGroupRank();
+            //void setFlagForIsotopes();
 
             /*
             * [Enable/disable deltaRtWeight slider and display appropriate group rank formula in UI]
@@ -71,6 +72,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
       
       public:
             bool deltaRtCheckFlag;
+            bool flagForIsotopes;
 };
 
 #endif

@@ -278,7 +278,6 @@ void EIC::findPeakBounds(Peak& peak) {
     int jj = apex+1;
     int lb = ii;
     int rb = jj;
-
     unsigned int N = intensity.size();
     if (N==0) return;
     if (!spline) return;
@@ -436,7 +435,6 @@ void EIC::getPeakDetails(Peak& peak) {
     peak.peakAreaFractional = peak.peakAreaCorrected/(totalIntensity+1);
     peak.signalBaselineRatio = peak.peakIntensity/maxBaseLine;
     peak.signalBaselineDifference = peak.peakIntensity - maxBaseLine;
-
     if (allmzs.size()> 0 ) {
         peak.medianMz = allmzs.median();
         peak.baseMz =   allmzs.mean();
@@ -662,7 +660,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
                     score = 1.0/(distXWeight*distx+0.01)/(distYWeight*disty+0.01);
 
                 }
-
+                
                 if ( score > b.groupOverlap) { b.groupNum=k; b.groupOverlap=score; }
             }
 

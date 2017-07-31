@@ -86,6 +86,7 @@ void MainWindow::printvalue() {
 		QStringList arguments;
 		QString path;
 		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
+		//cation::applicationFilePath() + "\"";
 		arguments << path;
 		arguments << settings->value("bucket_name").toString();
 		arguments << settings->value("access_key").toString();
@@ -1925,6 +1926,8 @@ void MainWindow::readSettings() {
 
     if (!settings->contains("minSignalBaselineDifference"))
         settings->setValue("minSignalBaselineDifference", 0);
+    if(!settings->contains("isotopicMinSignalBaselineDifference"))
+    	settings->setValue("isotopicMinSignalBaselineDifference",0);
 
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);

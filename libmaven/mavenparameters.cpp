@@ -33,6 +33,7 @@ MavenParameters::MavenParameters() {
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 80;
         minSignalBaselineDifference = 0;
+        isotopicMinSignalBaselineDifference=0;
 
         eicType = 0;
 
