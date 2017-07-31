@@ -10,6 +10,12 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		if (peakDetectionAlgo->currentIndex() == 0) {
 			selectDatabase->setVisible(true);
 		}
+
+		if (alignAlgo->currentIndex() == 0) {
+			label_7->setVisible(true);
+			label_8->setVisible(true);
+		}
+		connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 		connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 		connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
 }
@@ -95,6 +101,18 @@ void AlignmentDialog::algoChanged() {
 		label_11->setVisible(true);
 		minIntensity->setVisible(true);
 		maxIntensity->setVisible(true);
+	}
+
+	if (alignAlgo->currentIndex() == 0) {
+		label_7->setVisible(true);
+		maxItterations->setVisible(true);
+		label_8->setVisible(true);
+		polynomialDegree->setVisible(true);
+	} else {
+		label_7->setVisible(false);
+		maxItterations->setVisible(false);
+		label_8->setVisible(false);
+		polynomialDegree->setVisible(false);
 	}
 }
 
