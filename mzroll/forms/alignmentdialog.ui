@@ -282,7 +282,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="alignAlgo">
         <property name="currentText">
          <string>Poly Fit</string>
         </property>
