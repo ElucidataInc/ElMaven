@@ -7,7 +7,6 @@
 #include <iostream>
 #include <QJsonArray>
 #include <QJsonValue>
-#include <QVariant>
 
 Aligner::Aligner() {
        maxItterations=10;
@@ -70,7 +69,7 @@ void Aligner::updateSampleRts(QJsonObject &sampleRts)
         if (it != sampleRts.end()) {
             QJsonArray rtArr = it.value().toArray();
             for(int index = 0; index != rtArr.size(); index++)
-                sm->scans[index]->rt = rtArr[index].toVariant().toFloat();
+                sm->scans[index]->rt =  (float)rtArr[index].toDouble();
         }
     }
 }
