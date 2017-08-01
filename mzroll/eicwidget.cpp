@@ -214,7 +214,7 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	}
 
 	if (selScan != NULL) { 
-        setFocusLine(selScan->rt);
+        //setFocusLine(selScan->rt);
         Q_EMIT(scanChanged(selScan)); //TODO: Sahil, added while merging eicwidget
 	}
 }
