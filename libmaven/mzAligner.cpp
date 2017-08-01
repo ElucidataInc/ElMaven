@@ -5,57 +5,122 @@
 #include "PolyAligner.h"
 #include <fstream>
 #include <iostream>
-
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QVariant>
 
 Aligner::Aligner() {
-	maxItterations=10;
-	polynomialDegree=3;
+       maxItterations=10;
+       polynomialDegree=3;
 }
 
 void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
+
     if (peakgroups.size() == 0) return;
     
     allgroups = peakgroups;
-    
-    ofstream file;
 
-    file.open("groups.csv");
-    file << "group_number" << "," << "group_name" << "," << "sample_name" << "," << "rt" << std::endl;
+    groupsJson = QJsonObject();
+    rtsJson = QJsonObject();
+
     for (unsigned int ii=0; ii<allgroups.size();ii++) {
         PeakGroup* grp = allgroups.at(ii);
+        QJsonArray jArr;
         for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
             Peak peak = grp->getPeaks().at(jj);
- 			file << ii << "," << grp->getName() << "," << peak.getSample()->getSampleName() << "," << peak.rt << std::endl;
-        }
-    }
-    file.close();
-    
-    samples.clear();
 
+            QJsonObject obj;
+            obj.insert(QString(peak.getSample()->getSampleName().c_str()), peak.rt);
+            jArr.push_back(QJsonValue(obj));
+
+        }
+        // group name and group number makes the key unique, hence this is important
+        QString key = QString(grp->getName().c_str()) + QString("_") +  QString::number(ii);
+        key.replace(" ", "");
+        groupsJson.insert(key, QJsonValue(jArr));
+    }
+    
     samples.clear();
     set<mzSample*> samplesSet;
     for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-            for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-                    Peak& p = peakgroups[i]->peaks[j];
-                    mzSample* sample = p.getSample();
-                    if (sample) samplesSet.insert(sample);
-            }
+        for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
+            Peak& p = peakgroups[i]->peaks[j];
+            mzSample* sample = p.getSample();
+            if (sample) samplesSet.insert(sample);
+        }
     }
 
     samples.resize(samplesSet.size());
     copy(samplesSet.begin(), samplesSet.end(),samples.begin());
 
-    file.open("rts.csv");
-    file << "sample_name" << "," << "rt" << std::endl;
     for(unsigned int i=0; i < samples.size(); i++ ) {
-            for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
-                    file << samples[i]->getSampleName() << ","<< samples[i]->scans[ii]->rt << std::endl;
-            }
+        QJsonArray jArr;
+        for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+            jArr.push_back(samples[i]->scans[ii]->rt);
         }
-    file.close();
+        rtsJson.insert(QString(samples[i]->getSampleName().c_str()), jArr);
+    }
     return;
 }
 
+void Aligner::updateSampleRts(QJsonObject &sampleRts)
+{
+    for(mzSample* sm: samples) {
+        auto it = sampleRts.find(QString(sm->getSampleName().c_str()));
+        if (it != sampleRts.end()) {
+            QJsonArray rtArr = it.value().toArray();
+            for(int index = 0; index != rtArr.size(); index++)
+                sm->scans[index]->rt = rtArr[index].toVariant().toFloat();
+        }
+    }
+}
+
+
+
+void Aligner::updateGroupsRts(QJsonObject &groupsRts)
+{
+    for (int grpIndex=0; grpIndex<allgroups.size(); grpIndex++) {
+        PeakGroup* grp = allgroups.at(grpIndex);
+        for (int peakIndex=0; peakIndex<grp->getPeaks().size(); peakIndex++) {
+            Peak peak = grp->getPeaks().at(peakIndex);
+            auto it = groupsRts.find(QString(peak.getSample()->getSampleName().c_str()));
+            if(it != groupsRts.end()) {
+                QJsonObject grpObj = it.value().toObject();
+                if(!grpObj.isEmpty()){
+
+                    // we have to form the group name in such a manner because that's how it was formed when
+                    // we formed our groupsJson. see preProcessing() for more
+                    QString groupName = QString(grp->getName().c_str()) + QString("_") + QString::number(grpIndex);
+                    groupName.replace(" ", "");
+                    QJsonValue val = grpObj.find(groupName).value();
+                    if(!val.isNull())
+                        deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = val.toDouble();
+                }
+            }
+        }
+    }
+}
+
+void Aligner::updateRts(QJsonObject &parentObj)
+{
+    if(!parentObj.isEmpty()) {
+
+        QJsonObject groupsRts;
+        QJsonObject sampleRts;
+
+        // value of groups and samples is expected to be an object.If this is not the case we return
+        if(!parentObj["groups"].isObject() && !parentObj["samples"].isObject())
+            return;
+
+        groupsRts = parentObj["groups"].toObject();
+        sampleRts = parentObj["samples"].toObject();
+
+        updateSampleRts(sampleRts);
+        updateGroupsRts(groupsRts);
+
+    }
+
+}
 
 void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	if (peakgroups.size() == 0) return;

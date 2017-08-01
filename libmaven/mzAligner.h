@@ -6,8 +6,8 @@
 #include <vector>
 #include "mzSample.h"
 #include "Compound.h"
+#include <QJsonObject>
 
-class Aligner;
 using namespace std;
 class Aligner {
    public:
@@ -33,8 +33,17 @@ class Aligner {
     map<mzSample*, int> sampleDegree;
     map<mzSample*, vector<double> > sampleCoefficient;
 
+    void updateRts(QJsonObject& parentObj);
+    void updateSampleRts(QJsonObject& sampleRts);
+    void updateGroupsRts(QJsonObject& groupsRts);
+
+    QJsonObject groupsJson;
+    QJsonObject rtsJson;
+
+
    private:
     vector<PeakGroup*> allgroups;
     int maxItterations;
     int polynomialDegree;
+
 };
