@@ -27,6 +27,7 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
         QJsonArray jArr;
         for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
             Peak peak = grp->getPeaks().at(jj);
+            deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
 
             QJsonObject obj;
             obj.insert(QString(peak.getSample()->getSampleName().c_str()), peak.rt);
@@ -50,9 +51,10 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
     }
 
     samples.resize(samplesSet.size());
-    copy(samplesSet.begin(), samplesSet.end(),samples.begin());
-
+    copy(samplesSet.begin(), samplesSet.end(),samples.begin());        
+	
     for(unsigned int i=0; i < samples.size(); i++ ) {
+        samples[i]->saveOriginalRetentionTimes();
         QJsonArray jArr;
         for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
             jArr.push_back(samples[i]->scans[ii]->rt);
@@ -92,8 +94,11 @@ void Aligner::updateGroupsRts(QJsonObject &groupsRts)
                     QString groupName = QString(grp->getName().c_str()) + QString("_") + QString::number(grpIndex);
                     groupName.replace(" ", "");
                     QJsonValue val = grpObj.find(groupName).value();
-                    if(!val.isNull())
-                        deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = val.toDouble();
+                    if(!val.isNull()) {
+                        deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= val.toDouble();
+                        Peak* p = grp->getPeak(peak.getSample());
+                        p->rt = val.toDouble();
+                    }
                 }
             }
         }
