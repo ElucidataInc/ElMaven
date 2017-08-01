@@ -62,6 +62,7 @@ class PeakGroup{
         deque<PeakGroup> children;
         deque<PeakGroup> childrenBarPlot;
         deque<PeakGroup> childrenIsoWidget;
+        vector<mzSample*> samplesUsed;
 
         string srmId;
         string tagString;
