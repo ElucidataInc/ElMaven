@@ -54,4 +54,5 @@ for k in samples:
 
 corr_rts.to_csv("corrected_rts.csv", sep = ",")
 
+input_json = ''
 
