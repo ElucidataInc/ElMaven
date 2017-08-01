@@ -63,6 +63,19 @@ def processData(json_obj):
         lowess_x = list(zip(*lowess))[0]
         lowess_y = list(zip(*lowess))[1]
         f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
+        sub_rts = groups_rt[groups_rt['sample'] == k]
+        rt_dev_new = f(sub_rts.rt)
+        abs_rt_dev_new = abs(rt_dev_new)
+        rt_fit_dev = pd.DataFrame({'group_name': sub_rts.group, 'rt': sub_rts.rt, 'rt_dev_new': rt_dev_new.tolist(), 'abs_rt_dev_new': abs_rt_dev_new.tolist()})
+        cutoff = abs(rt_fit_dev.rt_dev_new).quantile(0.9) * 2
+        rt_fit_dev[rt_fit_dev > cutoff].rt_dev_new = np.nan
+        no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev["rt_dev_new"])]
+        f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new, bounds_error=False, fill_value='extrapolate')
+        rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt_dev_new = f(rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt)
+        sub_rts.rt = sub_rts.rt - rt_fit_dev.rt_dev_new
+        sub_rts.rt[sub_rts['rt'].isnull()] = rt_fit_dev.rt[sub_rts['rt'].isnull()]
+        corr_group_rts[k] = dict(zip(sub_rts.group, sub_rts.rt))
+
 for line in iter(sys.stdin.readline, ''):
 
     if "start processing" in line:
