@@ -7,6 +7,8 @@
 #include "database.h"
 #include "csvreports.h"
 #include <iostream>
+#include <QProcess>
+#include <QJsonObject>
 #include "../libmaven/PeakDetector.h"
 #include <../libmaven/mavenparameters.h>
 
@@ -14,6 +16,8 @@ class MainWindow;
 class Database;
 class TableDockWidget;
 class EIC;
+class Aligner;
+
 
 extern Database DB;
 
@@ -102,7 +106,11 @@ public:
 		mainwindow = mw;
 	}
 
-	PeakDetector peakDetector;
+    void readDataFromPython(QByteArray& data);
+    void runPythonProg(Aligner* aligner);
+    void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
+
+    PeakDetector peakDetector;
 	MavenParameters* mavenParameters;
 
 Q_SIGNALS:
@@ -123,6 +131,8 @@ Q_SIGNALS:
 
 	void alignmentComplete(QList<PeakGroup>);
 
+
+
 protected:
 	/**
 	 * [run method for a thread]
@@ -132,6 +142,7 @@ protected:
 private:
 	string runFunction;
 	MainWindow *mainwindow;
+    QProcess* pythonProg;
 
 	/**
 	 * [align function]
@@ -212,6 +223,8 @@ private:
 	void findPeaksQQQ(void);
 
 	bool covertToMzXML(QString filename, QString outfile);
+
+
 
 private:
 	volatile bool _stopped;
