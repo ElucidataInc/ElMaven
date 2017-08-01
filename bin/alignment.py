@@ -37,6 +37,21 @@ def processData(json_obj):
     group_num = groups_rt.group.unique()
     minSample = nSamples * minFraction
 
+    lim_groups = pd.DataFrame()
+    for i in group_num:
+            sub_groups = groups_rt[groups_rt.group == i]
+            sub_grp_samp = sub_groups['sample'].unique()
+            nsamp = len(sub_grp_samp)
+            if nsamp >= minSample:
+                    flag = False
+                    for j in sub_grp_samp:
+                            sample_groups = sub_groups[sub_groups['sample'] == j]
+                            row, col = sample_groups.shape
+                            if row > extraPeaks + 1:
+                                    flag = True
+                    if(flag is False):
+                            sub_groups = sub_groups.assign(rt_dev=(sub_groups.rt - np.median(sub_groups.rt)))
+                            lim_groups = lim_groups.append(sub_groups, ignore_index=True)
 for line in iter(sys.stdin.readline, ''):
 
     if "start processing" in line:
