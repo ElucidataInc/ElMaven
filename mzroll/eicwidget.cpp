@@ -377,6 +377,11 @@ void EicWidget::findPlotBounds() {
 	}
 
 	//if(_minY <= 0) _minY = 0;
+	float mx=0;
+	for(int i=0;i<eicParameters->eics.size();++i)
+			mx=max(mx,eicParameters->eics[i]->maxIntensity);
+	if(_maxY==0) _maxY=mx;
+	
 	_maxY = (_maxY * 1.3) + 1;
 	if (_minX > _maxX)
 		swap(_minX, _maxX);
