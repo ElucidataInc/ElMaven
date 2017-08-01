@@ -567,41 +567,43 @@ void BackgroundPeakUpdate::align() {
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)
                         groups[i] = &mavenParameters->allgroups[i];
                 Aligner aligner;
-                aligner.setMaxItterations(
-                        mainwindow->alignmentDialog->maxItterations->value());
-                aligner.setPolymialDegree(
-                        mainwindow->alignmentDialog->polynomialDegree->value());
-                
-//                aligner.doAlignment(groups);
+                int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
-                aligner.preProcessing(groups);
+                if (alignAlgo == 0) {
+                        aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
+                        aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
+                        aligner.doAlignment(groups);
+                        mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
+                        mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
+                } else if (alignAlgo == 1) {
+                        aligner.preProcessing(groups);
 
-                /**runPythonProg()
-                 * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
-                 * python exe is going to correct the rts and send it back to us in json format
-                */
-                runPythonProg(&aligner);
+                         /**runPythonProg()
+                         * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
+                         * python exe is going to correct the rts and send it back to us in json format
+                         */
+                        runPythonProg(&aligner);
 
-                /**readDataFromPython(data)
-                 * it will wait for python to send the corrected rts
-                 * once we receive the corrected rts, we kill the python exe and update the rts in maven
-                */
-                QByteArray data;
-                readDataFromPython(data);
+                        /**readDataFromPython(data)
+                         * it will wait for python to send the corrected rts
+                         * once we receive the corrected rts, we kill the python exe and update the rts in maven
+                         */
+                        QByteArray data;
+                        readDataFromPython(data);
 
-                // convert the data to json
-                QJsonDocument jDoc;
-                QJsonObject parentObj;
+                        // convert the data to json
+                        QJsonDocument jDoc;
+                        QJsonObject parentObj;
 
-                // if jDoc is null that means the json returned from python is malformed
-                // in such a case our rts wont update with new values
-                jDoc = QJsonDocument::fromJson(data);
-                if(!jDoc.isNull())
-                    parentObj = jDoc.object();
+                        // if jDoc is null that means the json returned from python is malformed
+                        // in such a case our rts wont update with new values
+                        jDoc = QJsonDocument::fromJson(data);
+                        if(!jDoc.isNull())
+                        parentObj = jDoc.object();
 
-                if(!parentObj.isEmpty())
-                    aligner.updateRts(parentObj);
-
+                        if(!parentObj.isEmpty())
+                        aligner.updateRts(parentObj);
+                }
 
 
 
@@ -626,12 +628,9 @@ void BackgroundPeakUpdate::align() {
 //                    std::istringstream ss(line);
 //                    ss >> num >> c >> gn >> c >> group >> c >> sample >> c >> rt;
 //                    deltaRt[make_pair(group, sample)] = rt;
-//                }
-
-//                mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
-//                mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner->sampleCoefficient);
-//                mainwindow->deltaRt = deltaRt;
-//                mavenParameters->alignSamplesFlag = false;
+//                }  
+                mainwindow->deltaRt = aligner.getDeltaRt();
+                mavenParameters->alignSamplesFlag = false;
 
         }
         QList<PeakGroup> listGroups;
