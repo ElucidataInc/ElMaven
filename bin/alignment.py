@@ -52,6 +52,17 @@ def processData(json_obj):
                     if(flag is False):
                             sub_groups = sub_groups.assign(rt_dev=(sub_groups.rt - np.median(sub_groups.rt)))
                             lim_groups = lim_groups.append(sub_groups, ignore_index=True)
+
+    corr_group_rts = dict()
+    corr_sample_rts = dict()
+
+    for k in samples:
+
+        group_samp = lim_groups[lim_groups['sample'] == k]
+        lowess = sm.nonparametric.lowess(group_samp.rt_dev, group_samp.rt, frac=span)
+        lowess_x = list(zip(*lowess))[0]
+        lowess_y = list(zip(*lowess))[1]
+        f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
 for line in iter(sys.stdin.readline, ''):
 
     if "start processing" in line:
