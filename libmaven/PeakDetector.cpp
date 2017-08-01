@@ -573,11 +573,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     mavenParameters->eic_smoothingAlgorithm);
             eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
             eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
-
-            //added my pankaj=>start-
-            qDebug()<<"isotopicMinSignalBaselineDifference: "<<mavenParameters->isotopicMinSignalBaselineDifference<<"\n";
             eic->setFilterSignalBaselineDiff(mavenParameters->isotopicMinSignalBaselineDifference);
-            //pankaj=>end
             eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window

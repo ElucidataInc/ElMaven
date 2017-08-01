@@ -148,7 +148,6 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "minSignalBlankRatio" ,QString::number( mavenParameters->minSignalBlankRatio));
     stream.writeAttribute( "minNoNoiseObs" ,QString::number( mavenParameters->minNoNoiseObs));
     stream.writeAttribute( "minSignalBaseLineRatio" ,QString::number( mavenParameters->minSignalBaseLineRatio));
-    //stream.writeAttribute("isotopicMinSignalBaselineDifference",QString:number(mavenParameters->isotopicMinSignalBaselineDifference));
     stream.writeAttribute( "minGroupIntensity" ,QString::number( mavenParameters->minGroupIntensity));
 
     stream.writeAttribute( "outputdir" , QString::fromStdString(mavenParameters->outputdir));
