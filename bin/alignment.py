@@ -54,8 +54,6 @@ def processData(json_obj):
     groups_data = json_obj["groups"]
     samples_data = json_obj["rts"]
 
-    append(pd.DataFrame({'group': g, 'sample': groups_data[g][s].keys(), 'rt': groups_data[g][s][groups_data[g][s].keys()[0]]}))
-
     samples_rt = pd.DataFrame()
 
     samples_array =[]
@@ -65,8 +63,7 @@ def processData(json_obj):
     samples_rt = pd.concat(samples_array)
 
     samples = samples_rt['sample'].unique()
-    nSamples = len(samples)
-    group_num = groups_rt.group.unique()
+    nSamples = len(samples) 
     minSample = nSamples * minFraction
 
     groups_rt = pd.DataFrame() 
@@ -78,12 +75,10 @@ def processData(json_obj):
     groups_rt = pd.concat(groups_array)
     lim_groups = groups_rt[groups_rt['good_group'] == True]
     del groups_rt['good_group']
-    
     corr_group_rts = dict()
     corr_sample_rts = dict()
 
     for k in samples:
-
         group_samp = lim_groups[lim_groups['sample'] == k]
         lowess = sm.nonparametric.lowess(group_samp.rt_dev, group_samp.rt, frac=span)
         lowess_x = list(zip(*lowess))[0]
