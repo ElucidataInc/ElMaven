@@ -355,7 +355,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                     mavenParameters->eic_smoothingAlgorithm);
             eic->setBaselineSmoothingWindow(mavenParameters->baseline_smoothingWindow);
             eic->setBaselineDropTopX(mavenParameters->baseline_dropTopX);
-            eic->setFilterSignalBaselineDiff(mavenParameters->minSignalBaselineDifference);
+            eic->setFilterSignalBaselineDiff(mavenParameters->isotopicMinSignalBaselineDifference);
             eic->getPeakPositions(mavenParameters->eic_smoothingWindow);
             //TODO: this could be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
