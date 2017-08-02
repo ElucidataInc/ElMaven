@@ -562,7 +562,7 @@ void BackgroundPeakUpdate::align() {
         }
 
         if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
-                //		Q_EMIT(updateProgressBar("Aligning Samples", 1, 100));
+                Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)
                         groups[i] = &mavenParameters->allgroups[i];
