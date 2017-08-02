@@ -28,10 +28,22 @@ def processData(json_obj):
 
     samples_rt = pd.DataFrame()
 
-    for g in samples_data.keys():
-            for s in range(len(samples_data[g])):
-                    samples_rt = samples_rt.append(pd.DataFrame({'sample': g, 'rt': samples_data[g][s]}, index=[0]))
+    samples_array =[]
 
+    def sample_json_to_df(s, scan_num, samples_data):
+        return pd.DataFrame({'sample': s, 'rt': samples_data[s][scan_num]}, index= [0])
+
+
+    def samples_json_to_df(s, samples_data):
+        vec_sample_json_to_df = np.vectorize(sample_json_to_df)
+        samples_array = vec_sample_json_to_df(s, range(len(samples_data[s])), samples_data)
+        return pd.concat(samples_array)
+
+
+    vec_samples_json_to_df = np.vectorize(samples_json_to_df)
+    samples_array = vec_samples_json_to_df(samples_data.keys(), samples_data)
+    samples_rt = pd.concat(samples_array)
+    
     samples = samples_rt['sample'].unique()
     nSamples = len(samples)
     group_num = groups_rt.group.unique()
