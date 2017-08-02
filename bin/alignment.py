@@ -10,6 +10,40 @@ import warnings
 
 input_json = ''
 
+def group_json_to_df(g, group_num, groups_data):
+    return pd.DataFrame({'group': g,'sample': groups_data[g][group_num].keys(), 'rt': groups_data[g][group_num][groups_data[g][group_num].keys()[0]]})
+
+
+
+def groups_json_to_df(g, groups_data, minSample, extraPeaks):
+    vec_group_json_to_df = np.vectorize(group_json_to_df)
+    groups_array = vec_group_json_to_df(g, range(len(groups_data[g])), groups_data)
+    sub_groups =  pd.concat(groups_array)
+    sub_grp_samp = sub_groups['sample'].unique()
+    nsamp = len(sub_grp_samp)
+    sub_groups = sub_groups.assign(rt_dev = (sub_groups.rt - np.median(sub_groups.rt)))
+    if nsamp >= minSample:
+        flag = False
+        for j in sub_grp_samp:
+            sample_groups = sub_groups[sub_groups['sample'] == j]
+            row,col = sample_groups.shape
+            if row > extraPeaks + 1 :
+                flag = True
+        if(flag == False):
+            sub_groups = sub_groups.assign(good_group = True)
+    return sub_groups
+
+
+def sample_json_to_df(s, scan_num, samples_data):
+    return pd.DataFrame({'sample': s, 'rt': samples_data[s][scan_num]}, index= [0])
+
+
+def samples_json_to_df(s, samples_data):
+    vec_sample_json_to_df = np.vectorize(sample_json_to_df)
+    samples_array = vec_sample_json_to_df(s, range(len(samples_data[s])), samples_data)
+    return pd.concat(samples_array)
+
+
 
 def processData(json_obj):
 
@@ -20,51 +54,31 @@ def processData(json_obj):
     groups_data = json_obj["groups"]
     samples_data = json_obj["rts"]
 
-    groups_rt = pd.DataFrame()
-
-    for g in groups_data.keys():
-            for s in range(len(groups_data[g])):
-                groups_rt = groups_rt.append(pd.DataFrame({'group': g, 'sample': groups_data[g][s].keys(), 'rt': groups_data[g][s][groups_data[g][s].keys()[0]]}))
+    append(pd.DataFrame({'group': g, 'sample': groups_data[g][s].keys(), 'rt': groups_data[g][s][groups_data[g][s].keys()[0]]}))
 
     samples_rt = pd.DataFrame()
 
     samples_array =[]
 
-    def sample_json_to_df(s, scan_num, samples_data):
-        return pd.DataFrame({'sample': s, 'rt': samples_data[s][scan_num]}, index= [0])
-
-
-    def samples_json_to_df(s, samples_data):
-        vec_sample_json_to_df = np.vectorize(sample_json_to_df)
-        samples_array = vec_sample_json_to_df(s, range(len(samples_data[s])), samples_data)
-        return pd.concat(samples_array)
-
-
     vec_samples_json_to_df = np.vectorize(samples_json_to_df)
     samples_array = vec_samples_json_to_df(samples_data.keys(), samples_data)
     samples_rt = pd.concat(samples_array)
-    
+
     samples = samples_rt['sample'].unique()
     nSamples = len(samples)
     group_num = groups_rt.group.unique()
     minSample = nSamples * minFraction
 
-    lim_groups = pd.DataFrame()
-    for i in group_num:
-            sub_groups = groups_rt[groups_rt.group == i]
-            sub_grp_samp = sub_groups['sample'].unique()
-            nsamp = len(sub_grp_samp)
-            if nsamp >= minSample:
-                    flag = False
-                    for j in sub_grp_samp:
-                            sample_groups = sub_groups[sub_groups['sample'] == j]
-                            row, col = sample_groups.shape
-                            if row > extraPeaks + 1:
-                                    flag = True
-                    if(flag is False):
-                            sub_groups = sub_groups.assign(rt_dev=(sub_groups.rt - np.median(sub_groups.rt)))
-                            lim_groups = lim_groups.append(sub_groups, ignore_index=True)
+    groups_rt = pd.DataFrame() 
+    groups_array =[]
 
+    lim_groups = pd.DataFrame()
+    vec_groups_json_to_df = np.vectorize(groups_json_to_df)
+    groups_array = vec_groups_json_to_df(groups_data.keys(), groups_data, minSample, extraPeaks)
+    groups_rt = pd.concat(groups_array)
+    lim_groups = groups_rt[groups_rt['good_group'] == True]
+    del groups_rt['good_group']
+    
     corr_group_rts = dict()
     corr_sample_rts = dict()
 
