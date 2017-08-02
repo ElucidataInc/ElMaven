@@ -436,7 +436,7 @@ private:
 	void saveMzRollList(QString MzrollFileName);
 	void saveMzRollAllTables();
     void checkCorruptedSampleInjectionOrder();
-    void warningForInjectionOrders(QMap<string, QList<mzSample*>>, QList<mzSample*>);
+    void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
 
 };
 

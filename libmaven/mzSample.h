@@ -490,7 +490,7 @@ class mzLink {
             bool  _D2Labeled;
             float _normalizationConstant;
             string  _setName;
-            string injectionOrder;
+            int injectionOrder;
 
             /**  srm to scan mapping */
             map<string,vector<int> >srmScans;
@@ -568,7 +568,7 @@ class mzLink {
               * @method setInjectionOrder
               * @param time
               */
-             void setInjectionOrder(string order) {
+             void setInjectionOrder(int order) {
                  injectionOrder = order;
              }
 
@@ -578,7 +578,7 @@ class mzLink {
               * @return injectionOrder
               */
 
-             string getInjectionOrder() {
+             int getInjectionOrder() {
                  return injectionOrder;
              }
             /**

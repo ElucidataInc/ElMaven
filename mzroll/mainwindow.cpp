@@ -1615,7 +1615,7 @@ void MainWindow::checkCorruptedSampleInjectionOrder()
 
     // check for samples with same injection order
     // store samples with same injection order in a map with injection order as their key
-    QMap<string,QList<mzSample*>> sameInjectionOrder;
+    QMap<int,QList<mzSample*>> sameInjectionOrder;
     auto it = samples.begin();
     while(it != samples.end()) {
 
@@ -1623,7 +1623,7 @@ void MainWindow::checkCorruptedSampleInjectionOrder()
             sameInjectionOrder.insert((*it)->getInjectionOrder(),QList<mzSample*>() << (*it));
 
         else {
-           QMap<string, QList<mzSample*>>::iterator  i = sameInjectionOrder.find((*it)->getInjectionOrder());
+           QMap<int, QList<mzSample*>>::iterator  i = sameInjectionOrder.find((*it)->getInjectionOrder());
            i.value().push_back((*it));
         }
 
@@ -1635,7 +1635,7 @@ void MainWindow::checkCorruptedSampleInjectionOrder()
     it = samples.begin();
     while(it != samples.end()) {
 
-        if(std::stoi((*it)->getInjectionOrder()) < 0 )
+        if((*it)->getInjectionOrder() < 0 )
             negativeInjectionOrder.push_back((*it));
 
         it++;
@@ -1648,7 +1648,7 @@ void MainWindow::checkCorruptedSampleInjectionOrder()
 
 }
 
-void MainWindow::warningForInjectionOrders(QMap<string, QList<mzSample*>> sameOrders, QList<mzSample*> negativeOrders)
+void MainWindow::warningForInjectionOrders(QMap<int, QList<mzSample*>> sameOrders, QList<mzSample*> negativeOrders)
 {
     QString corruptedSamples;
     QString warningMsg;
@@ -1848,7 +1848,7 @@ int MainWindow::loadMetaCsvFile(string filename){
 
         string set;
 		QString sampleName;
-        string injectionOrder;
+        int injectionOrder;
         int N=fields.size();
 
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
@@ -1856,8 +1856,16 @@ int MainWindow::loadMetaCsvFile(string filename){
 		else{
 			set = "";
 		}
-        if (header.count("injection order") && header["injection order"]<N)
-            injectionOrder = fields[header["injection order"]];
+        if (header.count("injection order") && header["injection order"]<N){
+
+            try{
+                injectionOrder = std::stoi(fields[header["injection order"]]);
+            }
+            catch(std::exception&) {
+                injectionOrder = -1;
+            }
+
+        }
 
         if (sampleName.isEmpty()) continue;
 		if (set.empty()) set = "";
