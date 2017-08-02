@@ -17,6 +17,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(baseline_smoothing, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(minSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
+    connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
     connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
