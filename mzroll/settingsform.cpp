@@ -227,7 +227,7 @@ void SettingsForm::updateSettingFormGUI() {
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
     baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
     minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
-
+    isotopicMinSignalBaselineDifference->setValue(settings->value("isotopicMinSignalBaselineDifference").toInt());
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
@@ -318,7 +318,8 @@ void SettingsForm::getFormValues() {
     settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
     settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
     settings->setValue("minSignalBaselineDifference", minSignalBaselineDifference->value());
-    
+    settings->setValue("isotopicMinSignalBaselineDifference",isotopicMinSignalBaselineDifference->value());
+
     /*Isotopic settings for barplot*/
     settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());
     settings->setValue("N15Labeled_Barplot", N15Labeled_Barplot->checkState());
@@ -471,6 +472,8 @@ void SettingsForm::setMavenParameters() {
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
         mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
         mavenParameters->minSignalBaselineDifference = settings->value("minSignalBaselineDifference").toDouble();
+        mavenParameters->isotopicMinSignalBaselineDifference=settings->value("isotopicMinSignalBaselineDifference").toDouble();
+
     }
 }
 

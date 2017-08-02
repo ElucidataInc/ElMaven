@@ -1925,6 +1925,8 @@ void MainWindow::readSettings() {
 
     if (!settings->contains("minSignalBaselineDifference"))
         settings->setValue("minSignalBaselineDifference", 0);
+    if(!settings->contains("isotopicMinSignalBaselineDifference"))
+	   	settings->setValue("isotopicMinSignalBaselineDifference",0);
 
 	if (!settings->contains("minQuality"))
         settings->setValue("minQuality", 0.50);
