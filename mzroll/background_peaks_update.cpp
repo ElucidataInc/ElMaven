@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <QDir>
 
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
@@ -528,8 +529,7 @@ void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
 {
     if(pythonProg == 0) {
         pythonProg = new QProcess;
-        // use relative path
-        pythonProg->setProgram("/home/rishabh/elucidata/desktop/dist/my_app");
+        pythonProg->setProgram(QDir::currentPath() + "/python_exe");
     }
 
     // check that the program is not in a running state
