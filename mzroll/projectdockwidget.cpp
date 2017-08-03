@@ -49,10 +49,10 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
     connect(loadButton,SIGNAL(clicked()),_mainwindow, SLOT(open()));
 
-    QToolButton* loadSetsButton = new QToolButton(toolBar);
-    loadSetsButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
-    loadSetsButton->setToolTip("Load Sets");
-    connect(loadSetsButton,SIGNAL(clicked()),_mainwindow, SLOT(loadMetaInformation()));
+    QToolButton* loadMetaDataButton = new QToolButton(toolBar);
+    loadMetaDataButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
+    loadMetaDataButton->setToolTip("Load Sets");
+    connect(loadMetaDataButton,SIGNAL(clicked()),_mainwindow, SLOT(loadMetaInformation()));
     connect(_mainwindow,SIGNAL(metaCsvFileLoaded()),SLOT(updateSampleList()));
 
     QToolButton* saveButton = new QToolButton(toolBar);
@@ -85,7 +85,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     //toolBar->addWidget(new QLabel("Compounds: "));
     //toolBar->addWidget(databaseSelect);
     toolBar->addWidget(loadButton);
-    toolBar->addWidget(loadSetsButton);
+    toolBar->addWidget(loadMetaDataButton);
     toolBar->addWidget(saveButton);
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
