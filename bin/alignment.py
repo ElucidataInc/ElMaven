@@ -34,16 +34,6 @@ def groups_json_to_df(g, groups_data, minSample, extraPeaks):
     return sub_groups
 
 
-def sample_json_to_df(s, scan_num, samples_data):
-    return pd.DataFrame({'sample': s, 'rt': samples_data[s][scan_num]}, index= [0])
-
-
-def samples_json_to_df(s, samples_data):
-    vec_sample_json_to_df = np.vectorize(sample_json_to_df)
-    samples_array = vec_sample_json_to_df(s, range(len(samples_data[s])), samples_data)
-    return pd.concat(samples_array)
-
-
 
 def processData(json_obj):
 
@@ -54,15 +44,7 @@ def processData(json_obj):
     groups_data = json_obj["groups"]
     samples_data = json_obj["rts"]
 
-    samples_rt = pd.DataFrame()
-
-    samples_array =[]
-
-    vec_samples_json_to_df = np.vectorize(samples_json_to_df)
-    samples_array = vec_samples_json_to_df(samples_data.keys(), samples_data)
-    samples_rt = pd.concat(samples_array)
-
-    samples = samples_rt['sample'].unique()
+    samples = samples_data.keys()
     nSamples = len(samples) 
     minSample = nSamples * minFraction
 
@@ -96,19 +78,19 @@ def processData(json_obj):
         sub_rts.rt = sub_rts.rt - rt_fit_dev.rt_dev_new
         sub_rts.rt[sub_rts['rt'].isnull()] = rt_fit_dev.rt[sub_rts['rt'].isnull()]
         corr_group_rts[k] = dict(zip(sub_rts.group, sub_rts.rt))
-        sub_rts = samples_rt[samples_rt['sample'] == k]
+        sub_rts = samples_data[k]
         f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
-        rt_dev_new = f(sub_rts.rt)
+        rt_dev_new = f(sub_rts)
         abs_rt_dev_new = abs(rt_dev_new)
-        rt_fit_dev = pd.DataFrame({'rt': sub_rts.rt, 'rt_dev_new': rt_dev_new.tolist(), 'abs_rt_dev_new': abs_rt_dev_new.tolist()})
+        rt_fit_dev = pd.DataFrame({'rt': sub_rts, 'rt_dev_new': rt_dev_new.tolist(), 'abs_rt_dev_new': abs_rt_dev_new.tolist()})
         cutoff = abs(rt_fit_dev.rt_dev_new).quantile(0.9) * 2
         rt_fit_dev[rt_fit_dev > cutoff].rt_dev_new = np.nan
         no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev["rt_dev_new"])]
         f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new, bounds_error=False, fill_value='extrapolate')
         rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt_dev_new = f(rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt)
-        sub_rts.rt = sub_rts.rt - rt_fit_dev.rt_dev_new
-        sub_rts.rt[sub_rts['rt'].isnull()] = rt_fit_dev.rt[sub_rts['rt'].isnull()]
-        corr_sample_rts[k] = list(sub_rts.rt)
+        sub_rts = sub_rts - rt_fit_dev.rt_dev_new
+        sub_rts[sub_rts.isnull()] = rt_fit_dev.rt[sub_rts.isnull()]
+        corr_sample_rts[k] = list(sub_rts)
 
     output_dict = {"groups": corr_group_rts, "samples": corr_sample_rts}
 
