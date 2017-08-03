@@ -5,7 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <QDir>
-
+#include <QCoreApplication>
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         mainwindow = NULL;
@@ -529,7 +529,7 @@ void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
 {
     if(pythonProg == 0) {
         pythonProg = new QProcess;
-        pythonProg->setProgram(QDir::currentPath() + "/python_exe");
+        pythonProg->setProgram(QCoreApplication::applicationDirPath() + QDir::separator() + "python_exe");
     }
 
     // check that the program is not in a running state
