@@ -237,7 +237,13 @@ vector<float> PeakGroup::getOrderedIntensityVector(vector<mzSample*>& samples, Q
 
     for( unsigned int j=0; j < samples.size(); j++) {
         sampleOrder[samples[j]]=j;
-        maxIntensity[j]=0;
+        // check if the the sample was used while peak detection or not
+        // samplesUsed is populate during peakDetection
+        auto it = std::find(std::begin(samplesUsed), std::end(samplesUsed), samples[j]);
+        if(it != std::end(samplesUsed))
+            maxIntensity[j]=0;
+        else
+            maxIntensity[j] = -1;
     }
 
     for( unsigned int j=0; j < peaks.size(); j++) {
@@ -261,7 +267,15 @@ vector<float> PeakGroup::getOrderedIntensityVector(vector<mzSample*>& samples, Q
 
             //normalize
             if(sample) y *= sample->getNormalizationConstant();
-            if(maxIntensity[s] < y) { maxIntensity[s] = y; }
+            if(maxIntensity[s] < y) {
+                // check if the the sample was used while peak detection or not
+                // samplesUsed is populate during peakDetection
+                auto it = std::find(std::begin(samplesUsed), std::end(samplesUsed), sample);
+                if(it != std::end(samplesUsed))
+                    maxIntensity[s]=y;
+                else
+                    maxIntensity[s] = -1;
+            }
         }
     }
     return maxIntensity;

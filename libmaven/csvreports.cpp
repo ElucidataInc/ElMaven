@@ -240,7 +240,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         return;
     groupId++;
 
-
     char lab;
     lab = group->label;
 
@@ -309,8 +308,14 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         groupReport << SEP << group->meanMz;
     }
 
-    for (unsigned int j = 0; j < samples.size(); j++)
-        groupReport << SEP << yvalues[j];
+
+    for (unsigned int j = 0; j < samples.size(); j++){
+        // -1 value means a particular sample was not used in peak detection
+        if(yvalues[j] == -1)
+            groupReport << SEP << "NA";
+        else
+            groupReport << SEP << yvalues[j];
+    }
     groupReport << endl;
 
 }

@@ -926,6 +926,19 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
     Q_FOREACH(peaksTable, peaksTableList) {
         PeakGroup* grp;
         Q_FOREACH(grp, peaksTable->getGroups()) {
+
+            auto it = std::find(std::begin(grp->samplesUsed), std::end(grp->samplesUsed), sample);
+            if(it != std::end(grp->samplesUsed)){
+                grp->samplesUsed.erase(it);
+            }
+
+            for(PeakGroup& childGrp: grp->children) {
+                auto it = std::find(std::begin(childGrp.samplesUsed), std::end(childGrp.samplesUsed), sample);
+                if(it != std::end(childGrp.samplesUsed)){
+                    childGrp.samplesUsed.erase(it);
+                }
+            }
+
             vector<Peak>& peaks = grp->getPeaks();
             for(unsigned int j=0; j< peaks.size(); j++) {
                 Peak p = peaks.at(j);
