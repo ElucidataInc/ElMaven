@@ -203,6 +203,9 @@ private:
 	float _maxY;
 	float _zoomFactor;					//scaling of zoom in
 
+	float ymin;
+	float ymax;
+	bool zoomFlag;
 	QPointF _lastClickPos;
 	QPointF _mouseStartPos;
 	QPointF _mouseEndPos;

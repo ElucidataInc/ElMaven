@@ -13,6 +13,10 @@ EicWidget::EicWidget(QWidget *p) {
 	_minX = _minY = 0;
 	_maxX = _maxY = 0;
 
+	ymin=0;
+	ymax=0;
+	zoomFlag=false;
+
 	setScene(new QGraphicsScene(this));
 
 	_barplot = NULL;
@@ -87,6 +91,8 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 	float rtmin = invX(std::min(_mouseStartPos.x(), _mouseEndPos.x()));
 	float rtmax = invX(std::max(_mouseStartPos.x(), _mouseEndPos.x()));
 	int deltaX = _mouseEndPos.x() - _mouseStartPos.x();
+	ymin=invY(_mouseEndPos.y());
+	ymax=invY(_mouseStartPos.y());
 	_mouseStartPos = _mouseEndPos; //
 
 	//user is holding shift while releasing the mouse.. integrate area
@@ -121,6 +127,7 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 							eicParameters->selectedGroup->meanRt + d;
 				}
 			}
+			zoomFlag=true;
 		} else if (deltaX < 0) {	 //zoomout
 			//zoom(_zoomFactor * 1.2 );
 			eicParameters->_slice.rtmin *= 0.8;
@@ -350,8 +357,14 @@ void EicWidget::findPlotBounds() {
 	_minX = eicParameters->_slice.rtmin;
 	_maxX = eicParameters->_slice.rtmax;
 
-	_minY = 0;
+	_minY =0 ;
 	_maxY = 0;       //intensity
+	if(zoomFlag){
+		_maxY=std::max(ymin,ymax);
+		_maxY = (_maxY * 1.3) + 1;
+		zoomFlag=false;
+		return;
+	}
 
 	/*/
 	 //full proof version
