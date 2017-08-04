@@ -501,7 +501,10 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setIcon(1,QIcon(QPixmap(rsrcPath + "/edit.png")));
         item->setText(1,QString(sample->getSetName().c_str()));
         item->setText(2,QString::number(sample->getNormalizationConstant(),'f',2));
-        item->setText(3,QString::number(sample->getInjectionOrder()));
+        if( sample->getInjectionOrder() > 0 )
+            item->setText(3,QString::number(sample->getInjectionOrder()));
+        else
+            item->setText(3,QString("NA"));
        // _treeWidget->setItemWidget(item,3,colorButton);
 
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);

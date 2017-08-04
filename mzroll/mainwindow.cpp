@@ -1619,18 +1619,21 @@ void MainWindow::checkCorruptedSampleInjectionOrder()
     auto it = samples.begin();
     while(it != samples.end()) {
 
-        if(sameInjectionOrder.find((*it)->getInjectionOrder()) == sameInjectionOrder.end())
-            sameInjectionOrder.insert((*it)->getInjectionOrder(),QList<mzSample*>() << (*it));
+        if((*it)->getInjectionOrder() != 0 && ((*it)->getInjectionOrder() != -1)){
+            if(sameInjectionOrder.find((*it)->getInjectionOrder()) == sameInjectionOrder.end())
+                sameInjectionOrder.insert((*it)->getInjectionOrder(),QList<mzSample*>() << (*it));
 
-        else {
-           QMap<int, QList<mzSample*>>::iterator  i = sameInjectionOrder.find((*it)->getInjectionOrder());
-           i.value().push_back((*it));
+            else {
+                QMap<int, QList<mzSample*>>::iterator  i = sameInjectionOrder.find((*it)->getInjectionOrder());
+                i.value().push_back((*it));
+            }
         }
 
         it++;
     }
 
-    //check for sample with negative injection order
+    //check for sample with corrupted(negative/alphabet/string) injection order
+    // any injection Order that is corrupted has been assigned -1 previously
     QList<mzSample*> negativeInjectionOrder;
     it = samples.begin();
     while(it != samples.end()) {
@@ -1702,7 +1705,7 @@ void MainWindow::warningForInjectionOrders(QMap<int, QList<mzSample*>> sameOrder
     }
 
     if(!corruptedSamples.isEmpty()) {
-        warningMsg += "Samples with negative injection order ";
+        warningMsg += "Samples with corrupted injection order ";
         warningMsg += "\n";
         warningMsg += corruptedSamples;
         warningMsg += "\n\n";
@@ -1848,7 +1851,7 @@ int MainWindow::loadMetaCsvFile(string filename){
 
         string set;
 		QString sampleName;
-        int injectionOrder;
+        int injectionOrder = 0;
         int N=fields.size();
 
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
@@ -1858,11 +1861,25 @@ int MainWindow::loadMetaCsvFile(string filename){
 		}
         if (header.count("injection order") && header["injection order"]<N){
 
-            try{
-                injectionOrder = std::stoi(fields[header["injection order"]]);
-            }
-            catch(std::exception&) {
-                injectionOrder = -1;
+            string io = fields[header["injection order"]];
+            if(!io.empty()){
+                try{
+                    // injection order with a value between 1-9 is considered valid otherwise it's given a value of -1
+
+                    if(std::all_of(io.begin(), io.end(), ::isdigit)){
+                        injectionOrder = std::stoi(io);
+                        // 0 is not a valid injection order
+                        if(injectionOrder == 0)
+                            injectionOrder = -1;
+                    }
+                    // if any of the character is anything other than a  digit that means injection order is invalid
+                    else
+                        injectionOrder = -1;
+                }
+                catch(std::exception&) {
+                    // we could not convert injection order string to int since it was something invalid
+                    injectionOrder = -1;
+                }
             }
 
         }
