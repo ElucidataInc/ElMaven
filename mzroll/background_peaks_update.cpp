@@ -529,7 +529,15 @@ void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
 {
     if(pythonProg == 0) {
         pythonProg = new QProcess;
-        pythonProg->setProgram(QCoreApplication::applicationDirPath() + QDir::separator() + "python_exe");
+        QString programPath;
+        #if defined(Q_OS_LINUX)
+            programPath =  QCoreApplication::applicationDirPath() + QDir::separator() + "linux" + QDir::separator() + "python_exe";
+
+        #elif defined(Q_OS_WIN)
+            programPath = QCoreApplication::applicationDirPath() + QDir::separator() + "windows" + QDir::separator() + "python_exe.exe";
+
+        #endif
+        pythonProg->setProgram(programPath);
     }
 
     // check that the program is not in a running state
