@@ -73,6 +73,8 @@ This code of conduct and its related procedures also applies to unacceptable beh
 
 ## 9. Contact info
 
+info@elucidata.io
+
 abhishek.jha@elucidata.io
 
 swetabh.pathak@elucidata.io
