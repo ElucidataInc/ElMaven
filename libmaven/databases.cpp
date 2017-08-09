@@ -40,8 +40,9 @@ int Databases::loadCompoundCSVFile(string filename) {
         Compound* compound = extractCompoundfromEachLine(fields, header, loadCount, filename);
 
         if (compound) {
-            addCompound(compound);
-            loadCount++;
+            if (addCompound(compound)) {
+                loadCount++;
+            }
         }
     }
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);
@@ -178,13 +179,15 @@ vector<string> Databases::getCategoryFromDB(vector<string>& fields, map<string, 
 }
 
 
-void Databases::addCompound(Compound* c) {
-    if(c == NULL) return;
+bool Databases::addCompound(Compound* c) {
+    if(c == NULL) return false;
+    bool compoundAdded = false;
 
     //new compound id .. insert into compound list
     if (!compoundIdMap.count(c->id)) {
         compoundIdMap[c->id] = c;
         compoundsDB.push_back(c);
+        compoundAdded = true;
     } else { 
         //compound exists with the same name, match database
         bool matched = false;
@@ -207,9 +210,12 @@ void Databases::addCompound(Compound* c) {
             }
         }
 
-        if(!matched)
+        if(!matched) {
             compoundsDB.push_back(c);
+            compoundAdded = true;
+        }
     }
+    return compoundAdded;
 }
 
 vector<Compound*> Databases::getCopoundsSubset(string dbname) {

@@ -8,7 +8,7 @@
 class Databases {
 
     public:
-        void addCompound(Compound* c);
+        bool addCompound(Compound* c);
         int loadCompoundCSVFile(string filename);
         vector<Compound*> getCopoundsSubset(string dbname);
         Compound* extractCompoundfromEachLine(vector<string>& fields, map<string, int> & header, int loadCount, string filename);
