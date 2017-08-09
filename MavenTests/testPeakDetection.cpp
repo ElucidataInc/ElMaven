@@ -94,14 +94,13 @@ void TestPeakDetection::testprocessSlices() {
 void TestPeakDetection::testquantileFilters() {
     vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
     PeakGroup group = allgroups[0];
-    vector<Peak> peaks = group.getPeaks();
     PeakDetector peakDetector;
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->minIntensity = group.maxIntensity + 1;
+    mavenparameters->minGroupIntensity = group.maxIntensity + 1;
     peakDetector.setMavenParameters(mavenparameters);
     QVERIFY(peakDetector.quantileFilters(&group) == true);
 
-    mavenparameters->minIntensity = -1;
+    mavenparameters->minGroupIntensity = -1;
     mavenparameters->minSignalBaseLineRatio = group.maxSignalBaselineRatio + 1;
     peakDetector.setMavenParameters(mavenparameters);
     QVERIFY(peakDetector.quantileFilters(&group) == true);
@@ -110,13 +109,13 @@ void TestPeakDetection::testquantileFilters() {
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->minIntensity = -1;
+    mavenparameters->minGroupIntensity = -1;
     mavenparameters->minSignalBaseLineRatio = -1;
     mavenparameters->minQuality = group.maxQuality + 1;
     peakDetector.setMavenParameters(mavenparameters);
     QVERIFY(peakDetector.quantileFilters(&group) == true);
 
-    mavenparameters->minIntensity = -1;
+    mavenparameters->minGroupIntensity = -1;
     mavenparameters->minSignalBaseLineRatio = -1;
     mavenparameters->minQuality = -1;
     group.blankMax = 1;
@@ -124,7 +123,7 @@ void TestPeakDetection::testquantileFilters() {
     peakDetector.setMavenParameters(mavenparameters);
     QVERIFY(peakDetector.quantileFilters(&group) == true);
 
-    mavenparameters->minIntensity = -1;
+    mavenparameters->minGroupIntensity = -1;
     mavenparameters->minSignalBaseLineRatio = -1;
     mavenparameters->minQuality = -1;
     group.blankMax = 1;
