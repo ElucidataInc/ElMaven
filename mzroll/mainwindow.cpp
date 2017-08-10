@@ -1607,6 +1607,7 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 	string dbfilename = filename.toStdString();
 	string dbname = mzUtils::cleanFilename(dbfilename);
 	int compoundCount = 0;
+	bool reloading = false;
 
     //added while merging with Maven776 - Kiran
     if ( filename.endsWith("pepXML",Qt::CaseInsensitive)) {
@@ -1618,8 +1619,20 @@ bool MainWindow::loadCompoundsFile(QString filename) {
     } else {
         compoundCount = DB.loadCompoundCSVFile(dbfilename);
     }
+	deque<Compound*> compoundsDB = DB.getCompoundsDB();
 
-	if (compoundCount > 0 && ligandWidget) {
+	for (int i=0; i < compoundsDB.size(); i++) {
+        Compound* currentCompound = compoundsDB[i];
+		cerr << currentCompound->db;
+		if (currentCompound->db == dbname) {
+			reloading = true;
+			break;
+		}
+	}
+
+	//check status in case the same file had been uploaded earlier
+	//without modifications
+	if ((compoundCount > 0 || reloading) && ligandWidget) {
 		ligandWidget->setDatabaseNames();
 		if (ligandWidget->isVisible())
 			ligandWidget->setDatabase(QString(dbname.c_str()));
