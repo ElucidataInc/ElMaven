@@ -82,13 +82,15 @@ void Database::loadCategories() {
 	return;
 }
 
-void Database::addCompound(Compound* c) {
-    if(c == NULL) return;
+bool Database::addCompound(Compound* c) {
+    if(c == NULL) return false;
+    bool compoundAdded = false;
 
     //new compound id .. insert into compound list
     if (!compoundIdMap.count(c->id)) {
         compoundIdMap[c->id] = c;
         compoundsDB.push_back(c);
+        compoundAdded = true;
     } else { //compound exists with the same name, match database
         bool matched=false;
         for(int i=0; i < compoundsDB.size();i++) {
@@ -108,8 +110,12 @@ void Database::addCompound(Compound* c) {
                 matched=true;
             }
         }
-        if(!matched) compoundsDB.push_back(c);
+        if(!matched) {
+            compoundsDB.push_back(c);
+            compoundAdded = true;
+        }
     }
+    return compoundAdded;
 }
 
 void Database::loadSpecies(string db) {
@@ -560,8 +566,8 @@ int Database::loadCompoundCSVFile(string filename){
             compound->productMz=productmz;
             compound->collisionEnergy=collisionenergy;
             for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
-            addCompound(compound);
-            loadCount++;
+            if (addCompound(compound))
+                loadCount++;
         }
     }
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);

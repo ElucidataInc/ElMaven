@@ -40,7 +40,7 @@ class Database {
 	multimap<string, Compound*> keywordSearch(string needle);
 	vector<string> getCompoundReactions(string compound_id);
 
-	void addCompound(Compound* c);
+	bool addCompound(Compound* c);
 	void loadReactions(string modelName);
 
 	vector<Compound*> getCopoundsSubset(string database);
