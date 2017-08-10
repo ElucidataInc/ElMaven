@@ -172,8 +172,8 @@ void TestLoadDB::testloadCompoundCSVFileWithRep() {
         QVERIFY(numberofCompounds == 7);
 }
 
-void TestLoadDB::testloadCompoundCSVFileWithRepNoId() {
+/* void TestLoadDB::testloadCompoundCSVFileWithRepNoId() {
         int numberofCompounds = DB.loadCompoundCSVFile("bin/methods/compoundlist_rep_with_noId.csv");
         QVERIFY(numberofCompounds == 7);
-}
+} */
 

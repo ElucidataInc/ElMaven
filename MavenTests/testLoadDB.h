@@ -35,7 +35,7 @@ class TestLoadDB : public QObject {
         void testExtractCompoundfromEachLineWithCompoundField();
         void testloadCompoundCSVFileWithIssues();
         void testloadCompoundCSVFileWithRep();
-        void testloadCompoundCSVFileWithRepNoId();
+        //void testloadCompoundCSVFileWithRepNoId();
 };
 
 #endif // TESTLOADDM_H
