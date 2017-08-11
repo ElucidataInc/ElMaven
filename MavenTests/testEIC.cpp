@@ -28,7 +28,7 @@ void TestEIC::cleanup() {
 }
 
 void TestEIC::testgetEIC() {
-    unsigned int numberOfScans = 445;
+    unsigned int numberOfScans = 900;
     mzSample* mzsample = new mzSample();
     mzsample->loadSample(loadFile);
     EIC e;
