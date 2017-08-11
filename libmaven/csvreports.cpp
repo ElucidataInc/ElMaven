@@ -313,11 +313,11 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
 
     for (unsigned int j = 0; j < samples.size(); j++){
-        // -1 value means a particular sample was not used in peak detection
-        if(yvalues[j] == -1)
-            groupReport << SEP << "NA";
-        else
+        auto it = std::find(std::begin(group->samplesUsed), std::end(group->samplesUsed), samples[j]);
+        if(it != std::end(group->samplesUsed))
             groupReport << SEP << yvalues[j];
+        else
+            groupReport << SEP << "NA";
     }
     groupReport << endl;
 
