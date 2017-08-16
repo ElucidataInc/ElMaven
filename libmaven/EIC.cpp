@@ -40,7 +40,7 @@ EIC* EIC::eicMerge(const vector<EIC*>& eics) {
     float minRt = DBL_MAX;
     float maxRt = DBL_MIN;
     for (unsigned int i = 0; i < eics.size(); i++) {
-        if ( eics[i]->size() > maxlen ) maxlen = eics[i]->size() + 1;
+        if ( eics[i]->size() > maxlen ) maxlen = eics[i]->size();
         if ( eics[i]->rtmin  < minRt  ) minRt = eics[i]->rtmin;
         if ( eics[i]->rtmax  > maxRt  ) maxRt = eics[i]->rtmax;
     }

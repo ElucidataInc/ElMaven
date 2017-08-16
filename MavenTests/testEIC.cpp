@@ -286,12 +286,12 @@ void TestEIC:: testeicMerge() {
         if (maxEICsize < eics[j]->size())
             maxEICsize = eics[j]->size();
     }
-
-    QVERIFY(maxEICsize = m->size());
-    QVERIFY(maxEICsize = m->intensity.size());
-    QVERIFY(maxEICsize = m->rt.size());
-    QVERIFY(maxEICsize = m->scannum.size());
-    QVERIFY(maxEICsize = m->mz.size());
+    
+    QVERIFY(maxEICsize == m->size());
+    QVERIFY(maxEICsize == m->intensity.size());
+    QVERIFY(maxEICsize == m->rt.size());
+    QVERIFY(maxEICsize == m->scannum.size());
+    QVERIFY(maxEICsize == m->mz.size());
     QVERIFY(m->rtmin > 0);
     QVERIFY(m->rtmax > 0);
 }
