@@ -51,8 +51,8 @@ void TestCSVReports::testopenGroupReport() {
     QStringList colnames;
     colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
-                << "compoundId" <<"expectedRtDiff" << "ppmDiff" 
-                << "parent"<<"bk_#sucyxpe_1_9"<<"bk_#sucyxpe_1_10";
+                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" 
+                << "parent" << "bk_#sucyxpe_1_9" << "bk_#sucyxpe_1_10";
 
     QString header = colnames.join(",");
     QVERIFY(header.toStdString()==temp);
@@ -60,8 +60,7 @@ void TestCSVReports::testopenGroupReport() {
     colnames.clear();
     getline(ifile, temp);
     remove(outputfile.c_str());
-    for(unsigned int i=0; i < 12; i++) { colnames << ","; }
-             for(unsigned int i=0; i< 2; i++) { colnames << "," << "A"; }
+    for(unsigned int i=0; i < 14; i++) { colnames << ","; }
     header = colnames.join("");
     QVERIFY(header.toStdString()==temp);
 }
@@ -86,7 +85,7 @@ void TestCSVReports::testopenPeakReport() {
              << "fromBlankSample";
 
     QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);     
+    QVERIFY(header.toStdString()==temp);    
 }
 
 void TestCSVReports::testaddGroups() {
