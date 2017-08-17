@@ -79,10 +79,10 @@ void TestCSVReports::testopenPeakReport() {
 
 
     QStringList colnames;
-    colnames << "groupId" << "compound" << "compoundId" << "sample" << "peakMz"
+    colnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
              << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
              << "peakIntensity" << "peakArea" << "peakAreaTop"
-             << "peakAreaCorrected" << "noNoiseObs" << "signalBaseLineRatio"
+             << "peakAreaCorrected" << "peakAreaTopCorrected" << "noNoiseObs" << "signalBaseLineRatio"
              << "fromBlankSample";
 
     QString header = colnames.join(",");
