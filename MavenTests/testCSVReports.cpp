@@ -143,10 +143,10 @@ void TestCSVReports::testaddGroups() {
     remove(outputfile.c_str());
 
     QStringList colnames;
-    colnames << "" << "0" << "1" << "0" << "786.1589"
-             <<"14.93828"<<"0.06841305"<<"C12 PARENT"<<"FAD"
-             <<"HMDB01248"<<"-1"<<"2562.053"<<"786.1589"
-             <<"12744.6"<<"5440.218";
+    colnames << "" << "0" << "1" << "1" << "786.1589"
+    <<"14.93828"<<"0.6369841"<<"C12 PARENT"<<"FAD"
+    <<"HMDB01248"<<"C27H33N9O15P2" << "1.491715"<<"2562.053"<<"786.1589"
+    <<"NA"<<"NA";
 
     QString header = colnames.join(",");
     QVERIFY(header.toStdString()==temp);
