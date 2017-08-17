@@ -66,8 +66,8 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     vector<mzSample*> samplesToLoad;
 
     QStringList files;
-    files << "bin/methods/sample_#sucyxpe_2_5.mzxml" 
-          << "bin/methods/sample_#sucyxpe_2_6.mzxml";
+    files << "bin/methods/testsample_2.mzxml" 
+          << "bin/methods/testsample_3.mzxml";
 
     for (int i = 0; i < files.size(); ++i) {
         mzSample* mzsample = new mzSample();

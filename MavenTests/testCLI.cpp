@@ -6,8 +6,8 @@ TestCLI::TestCLI() {
     createXmlPath = "bin/methods/createTest.xml";
     clsfPath = "bin/default.model";
     dbPath = "bin/methods/KNOWNS.csv";
-    normalSample = "bin/methods/bk_#sucyxpe_1_9.mzxml";
-    blankSample = "bin/methods/blan_#sucyxpe_2_4.mzxml";
+    normalSample = "bin/methods/testsample_1.mzxml";
+    blankSample = "bin/methods/blan_1.mzxml";
 
 }
 
@@ -44,8 +44,8 @@ void TestCLI::testLoadSamples() {
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
 
     QVERIFY(peakdetectorCLI->mavenParameters->samples.size() == 2);
-    QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("bk_#sucyxpe_1_9.mzxml"));
-    QVERIFY(peakdetectorCLI->mavenParameters->samples[1]->getSampleName().compare("blan_#sucyxpe_2_4.mzxml"));
+    QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("testsample_1.mzxml"));
+    QVERIFY(peakdetectorCLI->mavenParameters->samples[1]->getSampleName().compare("blan_1.mzxml"));
 
 }
 
@@ -88,8 +88,8 @@ void TestCLI::testProcessXml() {
 
 
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
-    QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("bk_#sucyxpe_1_9.mzxml"));
-    QVERIFY(peakdetectorCLI->mavenParameters->samples[1]->getSampleName().compare("blan_#sucyxpe_2_4.mzxml"));
+    QVERIFY(peakdetectorCLI->mavenParameters->samples[0]->getSampleName().compare("testsample_1.mzxml"));
+    QVERIFY(peakdetectorCLI->mavenParameters->samples[1]->getSampleName().compare("blan_1.mzxml"));
 
 	peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
     QVERIFY(peakdetectorCLI->mavenParameters->clsf->hasModel());

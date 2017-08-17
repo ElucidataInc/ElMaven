@@ -2,7 +2,7 @@
 
 TestPeakDetection::TestPeakDetection() {
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
-    files << "bin/methods/sample_#sucyxpe_2_5.mzxml" << "bin/methods/sample_#sucyxpe_2_6.mzxml";
+    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
 
 }
 

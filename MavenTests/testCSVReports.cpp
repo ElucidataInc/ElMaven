@@ -4,7 +4,7 @@
 TestCSVReports::TestCSVReports() {
     outputfile = "output.csv";
     mzsample1 = new mzSample();
-    mzsample1->sampleName = "bk_#sucyxpe_1_9";
+    mzsample1->sampleName = "testsample_1";
     mzsample1->_sampleOrder = 1;
     mzsample2 = new mzSample();
     mzsample2->sampleName = "bk_#sucyxpe_1_10";
@@ -52,7 +52,7 @@ void TestCSVReports::testopenGroupReport() {
     colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
                 << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" 
-                << "parent" << "bk_#sucyxpe_1_9" << "bk_#sucyxpe_1_10";
+                << "parent" << "testsample_1" << "bk_#sucyxpe_1_10";
 
     QString header = colnames.join(",");
     QVERIFY(header.toStdString()==temp);
@@ -93,7 +93,7 @@ void TestCSVReports::testaddGroups() {
     const char* loadCompoundDB;
     QStringList files;
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
-    files << "bin/methods/sample_#sucyxpe_2_5.mzxml" << "bin/methods/sample_#sucyxpe_2_6.mzxml";
+    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds =

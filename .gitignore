@@ -70,20 +70,12 @@ maven_opensource.kdev4
 
 #editor configuration
 .jsbeautifyrc
-.mzroll
 
 #Visual Studio Code
 *.browse.VC.db
 *.browse.VC.db-shm
 *.browse.VC.db-wal
 *.vscode
-
-#Mzxml Files
-*.mzXML
-*.mzxml
-*.MZXML
-*.mzXml
-*.mZxml
 
 #XML Files
 *.xml

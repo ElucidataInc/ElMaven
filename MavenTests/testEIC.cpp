@@ -1,10 +1,10 @@
 #include "testEIC.h"
 
 TestEIC::TestEIC() {
-    loadFile = "bin/methods/bk_#sucyxpe_1_9.mzxml";
-    loadGoodSample = "bin/methods/sample_#sucyxpe_2_5.mzxml";
+    loadFile = "bin/methods/testsample_1.mzxml";
+    loadGoodSample = "bin/methods/testsample_2.mzxml";
 
-    files << "bin/methods/sample_#sucyxpe_2_5.mzxml" << "bin/methods/sample_#sucyxpe_2_6.mzxml";
+    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
 
 }
 

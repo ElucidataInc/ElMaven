@@ -3,8 +3,8 @@
 #include "../libmaven/mzSample.h"
 
 TestLoadSamples::TestLoadSamples() {
-    loadFile = "bin/methods/bk_#sucyxpe_1_9.mzxml";
-    blankSample = "bin/methods/blan_#sucyxpe_2_4.mzxml";
+    loadFile = "bin/methods/testsample_1.mzxml";
+    blankSample = "bin/methods/blan_1.mzxml";
 }
 
 void TestLoadSamples::initTestCase() {
@@ -123,7 +123,7 @@ void TestLoadSamples:: testMinMaxRT() {
 
 void TestLoadSamples:: testSampleName() {
     mzSample mzsample;
-    string sampleName = "bk_#sucyxpe_1_9";
+    string sampleName = "testsample_1";
     mzsample.loadSample(loadFile);
 
     QVERIFY(sampleName.compare(mzsample.sampleName) == 0);
