@@ -12,3 +12,4 @@ script:
   - qmake -qt=qt5 -v
   - qmake -qt=qt5 CONFIG+=release -o Makefile build.pro
   - make -j4
+  - ./bin/MavenTests
