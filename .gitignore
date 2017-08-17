@@ -81,6 +81,7 @@ maven_opensource.kdev4
 *.xml
 *.Xml
 *.XML
+!test.xml
 
 #log Files
 *.log
