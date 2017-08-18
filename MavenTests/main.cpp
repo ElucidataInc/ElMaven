@@ -67,11 +67,11 @@ int main(int argc, char** argv) {
     if(freopen("testMzFit.xml",  "w", stdout))
         result |= QTest::qExec(new TestMzFit, argc, argv);
     result|=readLog("testMzFit.xml");
-
+    
     if (freopen("testCSVReports.xml", "w", stdout))
         result |= QTest::qExec(new TestCSVReports, argc, argv);
     result|=readLog("testCSVReports.xml");
-    
+
     // if(freopen("testMzAligner.xml",  "w", stdout))
     //     result |= QTest::qExec(new TestMzAligner, argc, argv);
     // result|=readLog("testMzAligner.xml");
