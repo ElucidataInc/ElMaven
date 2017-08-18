@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
 
 int readLog(QString filename){
-    
+
     QFile file(filename);
     int result=0;
     if(file.open(QFile::ReadOnly | QFile::Text)){
@@ -96,7 +96,7 @@ int readLog(QString filename){
                     xsr.readNext();
                 }
                 result=1;
-                std::cerr<<"\n\ntest case failed: file-"<<file.toStdString()<<", line-"<<line<<", error info: "<<xsr.readElementText().toStdString()<<"\n";
+                qDebug()<<"\n\ntest case failed: file-"<<file<<", line-"<<line<<", error info: "<<xsr.readElementText(); 
             }
             xsr.readNext();
             
