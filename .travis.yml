@@ -12,4 +12,4 @@ script:
   - export QT_SELECT=qt5
   - qmake CONFIG+=debug -o Makefile build.pro;
   - make -j $(nproc)
-  - ./bin/MavenTests
+  - ./bin/MavenTests -xml

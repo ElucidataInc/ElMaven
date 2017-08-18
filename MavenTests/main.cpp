@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     if(freopen("testMzFit.xml",  "w", stdout))
         result |= QTest::qExec(new TestMzFit, argc, argv);
     result|=readLog("testMzFit.xml");
-    
+
     if (freopen("testCSVReports.xml", "w", stdout))
         result |= QTest::qExec(new TestCSVReports, argc, argv);
     result|=readLog("testCSVReports.xml");
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
 
 int readLog(QString filename){
-
+    
     QFile file(filename);
     int result=0;
     if(file.open(QFile::ReadOnly | QFile::Text)){
@@ -96,7 +96,7 @@ int readLog(QString filename){
                     xsr.readNext();
                 }
                 result=1;
-                qDebug()<<"\n\ntest case failed: file-"<<file<<", line-"<<line<<", error info: "<<xsr.readElementText();
+                std::cerr<<"\n\ntest case failed: file-"<<file.toStdString()<<", line-"<<line<<", error info: "<<xsr.readElementText().toStdString()<<"\n";
             }
             xsr.readNext();
             
