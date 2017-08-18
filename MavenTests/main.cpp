@@ -84,7 +84,6 @@ int readLog(QString filename){
 
     QFile file(filename);
     int result=0;
-    
     if(file.open(QFile::ReadOnly | QFile::Text)){
         QXmlStreamReader xsr(&file);
         xsr.readNext();
