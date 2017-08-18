@@ -95,12 +95,12 @@ int readLog(QString filename){
                 while(xsr.name()!="Description"){
                     xsr.readNext();
                 }
-                qDebug()<<"test case failed: file-"<<file<<", line-"<<line<<", error info: "<<xsr.readElementText();
+                result=1;
+                qDebug()<<"\n\ntest case failed: file-"<<file<<", line-"<<line<<", error info: "<<xsr.readElementText();
             }
             xsr.readNext();
-            result=1;
+            
         }
-
         file.close();
     }
     return result;
