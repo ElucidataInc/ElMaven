@@ -1,7 +1,18 @@
 os: linux
 dist: trusty
-language: cpp
-compiler: gcc
+sudo: required
+language:
+  - cpp
+compiler:
+  - gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
 group: deprecated-2017Q2
 before_install:
   - sudo apt-get update -qq
