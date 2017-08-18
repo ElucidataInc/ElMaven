@@ -96,7 +96,7 @@ int readLog(QString filename){
                     xsr.readNext();
                 }
                 result=1;
-                qDebug()<<"\n\ntest case failed: file-"<<file<<", line-"<<line<<", error info: "<<xsr.readElementText(); 
+                std::cerr<<"\n\ntest case failed: file-"<<file.toStdString()<<", line-"<<line<<", error info: "<<xsr.readElementText().toStdString()<<"\n";
             }
             xsr.readNext();
             
