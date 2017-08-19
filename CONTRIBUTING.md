@@ -28,6 +28,19 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 * Pull a new branch from develop. Branch name should reflect the issue addressed in it
 * Get started!
 
+
+
+## Commit Guidelines
+* Separate subject from body with a blank line
+* Limit the subject line to 50 characters- it's a rule of thumb. Follow it strictly
+  as long as possible, otherwise long subject line will get truncated.
+* Capitalize the subject line
+* Do not end the subject line with a period
+* Use the imperative mood in the subject line i.e. as you are giving order.
+* keep the length of line in body at 72 character.
+* Use the body to explain what and why vs how in consize manner i.e. no story telling 
+  and no inferential statements. Explain these three things to the point.
+
 ## Documentation guidelines
 We make use of Doxygen for generating the code documentation. You can read more about Doxygen [here](http://www.stack.nl/~dimitri/doxygen/index.html).
 
