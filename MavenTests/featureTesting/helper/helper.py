@@ -8,6 +8,8 @@ specified extenstion
 
 2. is_exe: Check if the specified file is exe or not
 
+3. check_exe_exists: Check if the specified exe exists in path
+
 """
 
 import os
@@ -51,3 +53,28 @@ def is_exe(fpath):
     file_is_exe = os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
     return file_is_exe
+
+def check_exe_exists(exe_path):
+    """
+    Check if the specified exe exists in path.
+
+    Args:
+        exe_path (str): Path of the exe to be checked
+
+    Returns:
+        Returns true if exe exist else false
+
+    """
+
+    fpath, fname = os.path.split(exe_path)
+    if fpath:
+        if is_exe(exe_path):
+            return True
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, exe_path)
+            if is_exe(exe_file):
+                return True
+
+    return False
