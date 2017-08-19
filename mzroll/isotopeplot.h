@@ -59,6 +59,7 @@ public:
     IsotopePlot(QGraphicsItem *parent, QGraphicsScene *scene);
     ~IsotopePlot();
 
+    QVector<QVector<double> > colorHolder;
     void setPeakGroup(PeakGroup* group);
     void setMainWindow(MainWindow* mw);
     QRectF boundingRect() const;
@@ -86,7 +87,6 @@ private:
     QVector<QCPBars *> isotopesType;
     QCPTextElement * title;
     QCPAxisRect * bottomAxisRect;
-
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;
     MatrixXf MMDuplicate;

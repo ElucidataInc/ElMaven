@@ -150,28 +150,38 @@ void IsotopePlot::showBars() {
     bottomAxisRect = new QCPAxisRect(_mw->customPlot);
 
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
-    isotopesType.resize(MM.cols());
-
-    for(int j=0; j < MM.cols(); j++ ) {
+    isotopesType.resize(MM.cols()+1);
+    colorHolder.resize(MM.cols()+1);
+    for(int j=0; j < MM.cols()+1; j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
         int h = j % 20;
-        isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
-	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+        if(j!=MM.cols()){
+            isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
+            isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+        }
+        else{
+            isotopesType[j]->setPen(QPen(QColor::fromRgb(255,246,0)));
+            isotopesType[j]->setBrush(QColor::fromRgb(255,255,255));
+        }
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
         QVector<double> isotopeData(MM.rows());
         QVector<double> sampleData(MM.rows());
-
         for(int i=0; i<MM.rows(); i++ ) {
-            double length  = MM(i,j);
+            double length;
+            if(j==MM.cols()) length=0;
+            else length  = MM(i,j);
             if(length < 0 ) length = 0;
-            isotopeData << length;
-            sampleData << i;
+            isotopeData [i] =length;
+            sampleData [i]= i;
         }
+        
+        colorHolder[j]=isotopeData;
         isotopesType[j]->setData(sampleData, isotopeData);
+
 
     }
 
@@ -198,10 +208,11 @@ void IsotopePlot::showBars() {
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
 
     _mw->customPlot->replot();
+
+
 }
 
 void IsotopePlot::showPointToolTip(QMouseEvent *event) {
-
     if (!event) return;
     if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
 
@@ -210,18 +221,36 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     double shiftRight =  _mw->customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
     x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    double xpos=event->pos().x() + shiftRight;
+    double ypos=event->pos().y();
+    double xposMax=_mw->customPlot->xAxis->coordToPixel(MMDuplicate.rows());
+    double xposMin=_mw->customPlot->xAxis->coordToPixel(0);
+    double yposMax=_mw->customPlot->yAxis->coordToPixel(0);
+    double yposMin=_mw->customPlot->yAxis->coordToPixel(1);
 
     if (x < labels.count() && x >= 0) {
         QString name = labels.at(x);
         if (MMDuplicate.cols() != _isotopes.size()) return;
 
-        for(int j=0; j < MMDuplicate.cols(); j++ ) {
+        for(int j=0; j < MMDuplicate.cols()+1; j++ ) {
             if (x  >= MMDuplicate.rows()) return;
-            if (MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
+            if (j!=MMDuplicate.cols()  && MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                                                     QString::number(MMDuplicate(x,j)*100));
             }
+
+            QVector<double> isotopeData(MMDuplicate.rows());
+            QVector<double> sampleData(MMDuplicate.rows());
+            for(int i=0;i<MMDuplicate.rows();++i){
+                sampleData[i]=i;
+                if(i!=x){
+                    if(j==MMDuplicate.cols()) isotopeData[i]=1;
+                    else isotopeData[i]=0;
+                }
+                else isotopeData[i]=colorHolder[j][i];
+            }
+            isotopesType[j]->setData(sampleData, isotopeData);
         }
         if(!mpMouseText) return;
         int g = QString::compare(name, labels.at(x), Qt::CaseInsensitive);
@@ -233,6 +262,19 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
 
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
     }
+    if(xpos>xposMax || xpos<xposMin || ypos>yposMax || ypos < yposMin){
+        for(int j=0;j<MMDuplicate.cols()+1;++j){
+            QVector<double> isotopeData(MMDuplicate.rows());
+            QVector<double> sampleData(MMDuplicate.rows());
+            for(int i=0;i<MMDuplicate.rows();++i){
+                isotopeData[i]=colorHolder[j][i];
+                sampleData[i]=i;
+            }
+            isotopesType[j]->setData(sampleData, isotopeData);
+        }
+    }
+
+    
     _mw->customPlot->replot();
 }
 
