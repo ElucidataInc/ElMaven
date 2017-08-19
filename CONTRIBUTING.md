@@ -41,3 +41,38 @@ Make your PR review process faster by maintaining this checklist before creating
 - Title and description of the PR provide an overview of all changes made in the branch
 
 You can open a new pull request [here](https://github.com/ElucidataInc/ElMaven/compare). 
+
+
+## Documentation guidelines
+We make use of Doxygen for generating the code documentation. You can read more about Doxygen [here](http://www.stack.nl/~dimitri/doxygen/index.html).
+
+We follow JavaDoc style comment blocks  to document classes and functions and Qt style comment blocks to document class members.
+Read about comment blocks [here](http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html#cppblock)
+
+
+### How to document
+In this short guide we will see how to document functions,classes, members of class.
+* While documenting classes/functions make sure to place the comment blocks before the declaration.
+* While documenting members of class, make sure to place the comment block after the declaration.
+* The keywords to be used are explained below
+* Refer to these [examples](http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html#docexamples)  to better understand how to use the comment blocks
+
+1. Function documentation
+
+    * @brief - A short description about what the function does. Do not use more than 2 lines
+    * @details - Use this to explain what function does in detail.This can be a bit long depending on how well  we need to explain the      funtion
+    * @param - If necessary explain the parameters. Try to keep it short
+    * @return - If necessary explain what the function returns. Try to keep it short
+    * @see - Use this if the function is related to any other function/member. To create links just mention the name of the fuction/member.
+             If the function to be linked is defined in some other class, use className::functionName to create link and make sure the other function is also documented otherwise
+             the link won't be created
+
+
+2. class documentation
+    * @brief - A short description about what the class does.
+    * @details - Use this to explain what's the role of the class, who handles the creation/deletion of the class etc
+    * @author - If necessary, mention the author/mail address
+
+3. class/struct/enum member documentation- Use the following comment style for members
+   * int variable; /**<  describe what this variable does */
+
