@@ -10,9 +10,12 @@ specified extenstion
 
 3. check_exe_exists: Check if the specified exe exists in path
 
+4. run_exe: Run the executable with arguments
+
 """
 
 import os
+import subprocess
 
 
 def list_files(dir_path, file_extension):
@@ -54,6 +57,7 @@ def is_exe(fpath):
 
     return file_is_exe
 
+
 def check_exe_exists(exe_path):
     """
     Check if the specified exe exists in path.
@@ -78,3 +82,24 @@ def check_exe_exists(exe_path):
                 return True
 
     return False
+
+
+def run_exe(exe_path, arguments):
+    """
+    Run the executable with arguments
+
+    Args:
+        exe_path(str) : Path of the executable
+
+        arguments(dict): Arguments with values
+
+    """
+    list_args = []
+    list_args.append(exe_path)
+
+    for arg, value in arguments.iteritems():
+        list_args.append(arg)
+        if value:
+            list_args.append(value)
+
+    subprocess.call(list_args)
