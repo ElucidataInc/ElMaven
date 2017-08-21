@@ -31,15 +31,55 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 
 
 ## Commit Guidelines
+* Start the subject line as "Ftr:", "Fix:", "Doc:", "Test:","Ref:" etc.
+  Ftr-for adding feature
+  Fix-for fixing bug
+  Doc-for documentation
+  Test- for testing
+  Ref-for code refactoring
 * Separate subject from body with a blank line
-* Limit the subject line to 50 characters- it's a rule of thumb. Follow it strictly
-  as long as possible, otherwise long subject line will get truncated.
+* Limit the subject line to 50 characters- it's a rule of thumb, follow it strictly
+  as long as possible otherwise long subject line will get truncated.
 * Capitalize the subject line
 * Do not end the subject line with a period
-* Use the imperative mood in the subject line i.e. as you are giving order.
-* keep the length of line in body at 72 character.
-* Use the body to explain what and why vs how in consize manner i.e. no story telling 
-  and no inferential statements. Explain these three things to the point.
+* Use the imperative mood in the subject line i.e. as you are giving command 
+  or instrcution
+  examples-all these commit guidelines have imperative mood
+* Keep the length of line in body at 72 character
+* Use the body to explain what and why vs how in concise manner i.e. no story telling 
+  and no inferential statements
+* Tag the issue number as last line of body, for example- issue #324 and
+  tag recommended issue to look over after this line if it's required
+ 
+  For example:
+
+  		Doc: Giving a good commit message subject line
+
+  		This commit message example is a good example of its own. Its  subject
+  		line has 50 or less than 50 characters and body lines have 72 or  less
+  		than 72 characters.This paragraph  of this message  is explaining what
+  		changes I'm making, next paragraph is going to  explain why I'm making
+  		this change and next of next one is going to  explain  how I'm  making
+  		this change.
+
+		Proper commit message is neccessary to understand the changes someone is
+		making and  impact  of these changes  to the codebase. It  helps fellow 
+		developers to understand the codebase and to save their time for faster
+		delivery of product. It also evaluates colaboration skill of a developer.
+
+		* First I have provided instructions to write good commit message.
+		* Next I have given an example.
+		* In this section I'm using bullet points,it could be "-" or "*" .
+		* Bullet points are not neccessary. It can also be simple paragraph.
+		* Last line have tag for issue this commit is going so resolve.
+		* There is no other issue related to this issue, that's why there is
+		  no "see also #IssueNo, #IssueNo ..." line after last line.
+
+		issue #324
+
+
+
+
 
 ## Documentation guidelines
 We make use of Doxygen for generating the code documentation. You can read more about Doxygen [here](http://www.stack.nl/~dimitri/doxygen/index.html).
