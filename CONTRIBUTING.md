@@ -37,6 +37,7 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
   Doc-for documentation
   Test- for testing
   Ref-for code refactoring
+* At the end of subject line, tag issue no
 * Separate subject from body with a blank line
 * Limit the subject line to 50 characters- it's a rule of thumb, follow it strictly
   as long as possible otherwise long subject line will get truncated.
@@ -48,12 +49,12 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 * Keep the length of line in body at 72 character
 * Use the body to explain what and why vs how in concise manner i.e. no story telling 
   and no inferential statements
-* Tag the issue number as last line of body, for example- issue #324 and
-  tag recommended issue to look over after this line if it's required
+* Tag the issue number as last line of body, for example- Issue: #324 with 
+  first letter capital and at end a colon and tag recommended issue to look over after this line if it's required
  
   For example:
 
-  		Doc: Giving a good commit message subject line
+  		Doc:Giving a good commit message subject line #324
 
   		This commit message example is a good example of its own. Its  subject
   		line has 50 or less than 50 characters and body lines have 72 or  less
@@ -73,9 +74,9 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 		* Bullet points are not neccessary. It can also be simple paragraph.
 		* Last line have tag for issue this commit is going so resolve.
 		* There is no other issue related to this issue, that's why there is
-		  no "see also #IssueNo, #IssueNo ..." line after last line.
+		  no "See also: #IssueNo, #IssueNo ..." line after last line.
 
-		issue #324
+		Issue: #324
 
 
 
