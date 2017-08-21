@@ -1,4 +1,4 @@
-#Contributing to ElMaven
+# Contributing to ElMaven
 
 Following are some guidelines for contributing to El-Maven. You may propose changes to the document in a pull request. 
 
@@ -28,27 +28,11 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 * Pull a new branch from develop. Branch name should reflect the issue addressed in it
 * Get started!
 
-## Creating Pull Requests
-Make your PR review process faster by maintaining this checklist before creating a pull request:
-- The code builds successfully on your machine
-- No test case is failing
-- Unit tests have been added/modified to cover your changes
-- The PR is linked to some open issue
-- One PR is not addressing more than one issue
-- There is a separate PR for code refactoring
-- Code documentation guidelines have been followed
-- Commit guidelines have been followed
-- Title and description of the PR provide an overview of all changes made in the branch
-
-You can open a new pull request [here](https://github.com/ElucidataInc/ElMaven/compare). 
-
-
 ## Documentation guidelines
 We make use of Doxygen for generating the code documentation. You can read more about Doxygen [here](http://www.stack.nl/~dimitri/doxygen/index.html).
 
 We follow JavaDoc style comment blocks  to document classes and functions and Qt style comment blocks to document class members.
 Read about comment blocks [here](http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html#cppblock)
-
 
 ### How to document
 In this short guide we will see how to document functions,classes, members of class.
@@ -76,3 +60,16 @@ In this short guide we will see how to document functions,classes, members of cl
 3. class/struct/enum member documentation- Use the following comment style for members
    * int variable; /**<  describe what this variable does */
 
+## Creating Pull Requests
+Make your PR review process faster by maintaining this checklist before creating a pull request:
+- The code builds successfully on your machine
+- No test case is failing
+- Unit tests have been added/modified to cover your changes
+- The PR is linked to some open issue
+- One PR is not addressing more than one issue
+- There is a separate PR for code refactoring
+- Code documentation guidelines have been followed
+- Commit guidelines have been followed
+- Title and description of the PR provide an overview of all changes made in the branch
+
+You can open a new pull request [here](https://github.com/ElucidataInc/ElMaven/compare). 
