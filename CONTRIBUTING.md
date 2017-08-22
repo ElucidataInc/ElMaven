@@ -31,12 +31,13 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 
 
 ## Commit Guidelines
-* Start the subject line as "Ftr:", "Fix:", "Doc:", "Test:","Ref:" etc.
+* Start the subject line as "Ftr:", "Fix:", "Doc:", "Test:","Ref:", "UI:" etc.
   Ftr-for adding feature
   Fix-for fixing bug
   Doc-for documentation
   Test- for testing
   Ref-for code refactoring
+  UI- for UI changes 
 * At the end of subject line, tag issue no
 * Separate subject from body with a blank line
 * Limit the subject line to 50 characters- it's a rule of thumb, follow it strictly
@@ -44,8 +45,8 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
 * Capitalize the subject line
 * Do not end the subject line with a period
 * Use the imperative mood in the subject line i.e. as you are giving command 
-  or instrcution
-  examples-all these commit guidelines have imperative mood
+  or instruction
+  Example: "Add a flag for ..." instead of "Adding a flag for ..."
 * Keep the length of line in body at 72 character
 * Use the body to explain what and why vs how in concise manner i.e. no story telling 
   and no inferential statements
@@ -54,7 +55,7 @@ You can file a new issue [here](https://github.com/ElucidataInc/ElMaven/issues/n
  
   For example:
 
-  		Doc:Giving a good commit message subject line #324
+  		Doc: Give a good commit message subject line #324
 
   		This commit message example is a good example of its own. Its  subject
   		line has 50 or less than 50 characters and body lines have 72 or  less
