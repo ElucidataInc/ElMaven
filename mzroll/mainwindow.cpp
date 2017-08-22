@@ -1623,7 +1623,6 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 
 	for (int i=0; i < compoundsDB.size(); i++) {
         Compound* currentCompound = compoundsDB[i];
-		cerr << currentCompound->db;
 		if (currentCompound->db == dbname) {
 			reloading = true;
 			break;

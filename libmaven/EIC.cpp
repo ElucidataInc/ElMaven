@@ -60,7 +60,6 @@ EIC* EIC::eicMerge(const vector<EIC*>& eics) {
         rt[i] = minRt + i * ((maxRt - minRt) / maxlen);
         scans[i] = i;
     }
-    if (rt[0] == 0) cerr << endl << "merge func rt[0]=0 minRt=" << minRt << endl;
 
     //combine intensity data from all pulled eics
     for (unsigned int i=0; i< eics.size(); i++ ) {
@@ -750,7 +749,6 @@ vector<Scan*> EIC::getFragmenationEvents() {
 
 void EIC::getRTMinMaxPerScan() {
     if ( this->rt.size() > 0 ) {
-        if ( this->rt[0] == 0) cerr << "minmaxrt " << this->sampleName << endl;
         this->rtmin = this->rt[0];
         this->rtmax = this->rt[ this->size() - 1];
     }
