@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="featureSelectionTab">
       <attribute name="title">
@@ -421,15 +421,15 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="eicProcessingTab">
+     <widget class="QWidget" name="groupFilteringTab">
       <attribute name="title">
-       <string>EIC Processing and Filtering</string>
+       <string>Group Filtering</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
        <item row="0" column="0">
         <widget class="QGroupBox" name="peakScoringOptions">
          <property name="title">
-          <string>Peak Scoring and Filtering</string>
+          <string>Group Filtering</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0" colspan="4">
