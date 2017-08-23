@@ -742,7 +742,7 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
         string compoundName = grp.compound->name;
         myfile << ",\n" << "\"compoundName\": "<< sanitizeJSONstring(compoundName);
         string formula = grp.compound->formula;
-        myfile << ",\n" << "\"formula\: "<< sanitizeJSONstring(formula);
+        myfile << ",\n" << "\"formula\": "<< sanitizeJSONstring(formula);
 
         myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
 
