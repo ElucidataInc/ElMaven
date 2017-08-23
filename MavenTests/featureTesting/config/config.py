@@ -8,6 +8,7 @@ List of all the class functions:
 2. get_json_keys: Return json keys after loading json
 
 """
+import os
 import json
 
 
@@ -17,7 +18,10 @@ class Config(object):
     """
 
     def __init__(self):
-        pass
+        current_file_path = os.path.dirname(__file__)
+        config_path = os.path.join(current_file_path, "config.json")
+        self.config_keys = self.get_json_keys(config_path)
+        self.config_data = self.load_json(config_path)
 
     def get_json_keys(self, json_path):
         """
