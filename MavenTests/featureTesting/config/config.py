@@ -5,6 +5,8 @@ List of all the class functions:
 
 1. load_json: Loads json from the specified path
 
+2. get_json_keys: Return json keys after loading json
+
 """
 import json
 
@@ -16,6 +18,21 @@ class Config(object):
 
     def __init__(self):
         pass
+
+    def get_json_keys(self, json_path):
+        """
+        Return json keys after loading json
+
+        Args:
+            json_path (str): Path of json file
+
+        Return:
+            json_keys (list): Keys of json file
+        """
+
+        json_data = self.load_json(json_path)
+        json_keys = json_data.keys()
+        return json_keys
 
     def load_json(self, json_path):
         """
