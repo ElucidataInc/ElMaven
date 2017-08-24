@@ -3,15 +3,18 @@ Helper functions for Feature Testing
 
 List of all the helper functions:
 
-1. list_files: List all the files in a given directory with
-specified extenstion
+1. list_files: List all the files in a given directory
+with specified extenstion
 
 2. is_exe: Check if the specified file is exe or not
 
-3. check_exe_exists: Check if the specified exe exists in path
+3. check_exe_exists: Check if the specified exe exists in
+path
 
 4. run_exe: Run the executable with arguments
 
+5. parse_arguments: Parse arguments. Supported types :
+string, list & dict
 """
 
 import os
@@ -94,12 +97,34 @@ def run_exe(exe_path, arguments):
         arguments(dict): Arguments with values
 
     """
-    list_args = []
-    list_args.append(exe_path)
-
-    for arg, value in arguments.iteritems():
-        list_args.append(arg)
-        if value:
-            list_args.append(value)
-
+    list_args = parse_arguments(arguments)
+    list_args.insert(0, exe_path)
     subprocess.call(list_args)
+
+
+def parse_arguments(arguments):
+    """
+    Parse arguments. Supported types : string, list & dict
+
+    Args:
+        arguments (str, list or dict): Arguments to be
+            parsed
+
+    Return:
+        list_args(list): List of arguments
+    """
+
+    list_args = []
+    if isinstance(arguments, basestring):
+        list_args.append(arguments)
+    elif isinstance(arguments, list):
+        list_args = arguments
+    elif isinstance(arguments, dict):
+        for arg, value in arguments.iteritems():
+            list_args.append(arg)
+            if value:
+                list_args.append(value)
+    else:
+        raise ValueError("Type not supported for arguments")
+
+    return list_args
