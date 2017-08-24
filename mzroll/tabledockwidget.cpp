@@ -926,51 +926,6 @@ void TableDockWidget::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vecto
     myfile << "}" ; //group
 }
 
-
-void TableDockWidget::saveMzEICJson(string filename) {
-    ofstream myfile(filename.c_str());
-    myfile << setprecision(10);
-
-    myfile << "{\"groups\": [" <<endl;
-
-    int groupId=0;
-    int metaGroupId=0;
-    vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
-
-    for(int i=0; i < allgroups.size(); i++ ) {
-        PeakGroup& grp = allgroups[i];
-
-        //if compound is unknown, output only the unlabeled form information
-        if( grp.compound == NULL || grp.childCount() == 0 ) {
-            grp.groupId= ++groupId;
-            grp.metaGroupId= ++metaGroupId;
-            if(groupId>1) myfile << "\n,";
-            writeGroupMzEICJson(grp,myfile, vsamples);
-        }
-        else { //output all relevant isotope info otherwise
-            //does this work? is children[0] always the same as grp (parent)?
-            grp.metaGroupId = ++ metaGroupId;
-            for (unsigned int k=0; k < grp.children.size(); k++) {
-                grp.children[k].metaGroupId = grp.metaGroupId;
-                grp.children[k].groupId= ++groupId;
-                if(groupId>1) myfile << "\n,";
-                writeGroupMzEICJson(grp.children[k], myfile, vsamples);
-            }
-        }
-        Q_EMIT(updateProgressBar("Writing to json file. Please wait...", i, allgroups.size() - 1));
-    }
-    myfile << "]}"; //groups
-    myfile.close();
-    Q_EMIT(updateProgressBar("Writing to json complete.", 1, 1));
-}
-
-string TableDockWidget::sanitizeJSONstring(string s) {
-    QString out(s.c_str());
-    out.replace("\"","\\\""); //escape quotes
-    out="\""+out+"\""; //quote the whole string
-    return out.toStdString();
-}
-
 vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
     vector<EIC*> eics;
     for (int i = 0; i < grp.peaks.size(); i++) {
