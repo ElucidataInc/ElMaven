@@ -602,7 +602,10 @@ void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 
 		double startSavingJson = getTime();
-		saveEICsJson(mavenParameters->outputdir + setName + ".eics.json");
+
+		jsonReports=new JSONReports(mavenParameters);
+		jsonReports->saveMzEICJson(mavenParameters->outputdir + setName + ".json",
+									mavenParameters->allgroups,mavenParameters->samples);
 		cerr << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
 	}
 }
