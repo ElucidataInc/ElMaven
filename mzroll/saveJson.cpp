@@ -1,5 +1,6 @@
 #include "saveJson.h"
 void saveJson::run()
 {
-    _pt->saveMzEICJson(_fn);
+    jsonReports=new JSONReports(_mw->mavenParameters);
+    jsonReports->saveMzEICJson(_fn,_pt->vallgroups,_mw->getVisibleSamples());
 }
