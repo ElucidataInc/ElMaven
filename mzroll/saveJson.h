@@ -3,6 +3,7 @@
 
 #include "mainwindow.h"
 #include "tabledockwidget.h"
+#include "../libmaven/jsonReports.h"
 
 class saveJson : public QThread
 {
@@ -23,7 +24,7 @@ public:
     MainWindow* _mw;
     TableDockWidget * _pt;
     string _fn;
-
+    JSONReports* jsonReports;
 
 };
 #endif
