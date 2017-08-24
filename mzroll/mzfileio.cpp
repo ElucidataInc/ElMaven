@@ -1,7 +1,10 @@
 #include "mzfileio.h"
 #include <QStringList>
 #include <QTextStream>
+
+#ifndef __APPLE__
 #include <omp.h>
+#endif
 
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
@@ -532,7 +535,9 @@ void mzFileIO::fileImport(void) {
 
     if (_mainwindow->getSettings()->value("uploadMultiprocessing").toInt()) {
         int iter = 0;
+        #ifndef __APPLE__
         #pragma omp parallel for shared(iter)
+        #endif
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
@@ -548,7 +553,9 @@ void mzFileIO::fileImport(void) {
                             _mainwindow->addSample(sample);
 
             }
+            #ifndef __APPLE__
             #pragma omp atomic
+            #endif
             iter++;
 
             Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));

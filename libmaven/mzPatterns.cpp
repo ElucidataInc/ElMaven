@@ -1,5 +1,5 @@
 #include "mzPatterns.h"
-
+#include <cstdlib>
 mzPattern::mzPattern(string pattern) {
     this->pattern = pattern;
     findNonZeroBounds();
@@ -56,7 +56,7 @@ int mzPattern::longestSymmetry(char x, char y) const  {
                     ycount++; 
                 else 
                     break;
-            int sym = xcount + ycount - abs(xcount - ycount);
+            int sym = xcount + ycount - std::abs(xcount - ycount);
             if ( sym > longest) longest = sym;
         }
     }

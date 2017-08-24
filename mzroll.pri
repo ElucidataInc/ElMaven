@@ -14,7 +14,9 @@ DEFINES += INSTALL_LIBDIR=\\\"$$INSTALL_LIBDIR\\\"
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wall -Wno-sign-compare
 CONFIG += no_keywords
 unix: INCLUDEPATH += /usr/lib/x86_64-linux-gnu/
-unix: LIBS += -lboost_signals
+unix:!macx {
+LIBS += -lboost_signals
+}
 win32: LIBS += -lboost_signals-mt
 
 QT += core
@@ -24,6 +26,7 @@ MOC_DIR = tmp
 UI_DIR   =  tmp
 QMAKE_CC = gcc
 QMAKE_CXX = g++
+
 
 win32-g++:contains(QMAKE_HOST.arch, x86_64):{
     DEFINES -= CDFPARSER
@@ -42,9 +45,15 @@ mac {
     DEFINES += CDFPARSER
     DEFINES += ZLIB
     DEFINES += unix
-    LIBS += -lz -lcdfread -lnetcdf
+    LIBS += -lz -lcdfread
     DEFINES += MAC
+    INCLUDEPATH += /usr/local/include
+    QMAKE_LFLAGS += -L/usr/local/lib/
+    QMAKE_LFLAGS += -L/usr/local/opt/netcdf/lib
+    LIBS += -lnetcdf
+    LIBS +=  -lboost_signals
 }
+
 
 unix {
    message("using unix config")
@@ -63,4 +72,4 @@ unix {
 INCLUDEPATH += $$PWD
 win32:INCLUDEPATH += "C:/msys64/mingw64/lib"
 
-LIBS += -L$$OUTPUT_DIR/lib -L$$OUTPUT_DIR/plugin
+LIBS += -L$$OUTPUT_DIR/lib

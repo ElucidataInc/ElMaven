@@ -4,7 +4,7 @@ int main(int argc, char *argv[]) {
 
     PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
 
-    double programStartTime = getTime();
+    // double programStartTime = getTime();
 
 	//read command line options
 	peakdetectorCLI->processOptions(argc, argv);
@@ -66,6 +66,6 @@ int main(int argc, char *argv[]) {
 	peakdetectorCLI->mavenParameters->samples.clear();
 	peakdetectorCLI->mavenParameters->allgroups.clear();
 
-    cerr << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
+    // cerr << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
 	return(0);
 }

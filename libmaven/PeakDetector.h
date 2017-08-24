@@ -16,7 +16,10 @@
 #include <map>
 #include <utility>
 
+#ifndef __APPLE__
 #include <omp.h>
+#endif
+
 #include "Compound.h"
 #include "classifier.h"
 #include "mavenparameters.h"
@@ -28,6 +31,7 @@
 #include "constants.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+
 /**
  * @class PeakDetector
  * @ingroup libmaven

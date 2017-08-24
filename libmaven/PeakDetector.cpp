@@ -32,24 +32,32 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
         vector<EIC*> eics;
         vector<mzSample*> vsamples;
+        #ifndef __APPLE__
         #pragma omp parallel default(shared)
+        #endif
         {
                 //Selecting only the samples that is been selected by the user
                 // double start=omp_get_wtime();
+                #ifndef __APPLE__
                 #pragma omp for
+                #endif
                 for (unsigned int i = 0; i < samples.size(); i++) {
                         if (samples[i] == NULL)
                                 continue;
                         if (samples[i]->isSelected == false)
                                 continue;
+                        #ifndef __APPLE__
                         #pragma omp critical
+                        #endif
                         vsamples.push_back(samples[i]);
                 }
                 // cerr<<"\n Time take by PeakDetector::pullEICs Loop1: "<<omp_get_wtime()-start<<"\n";
                 // single threaded version - getting EICs of selected samples.
                 // #pragma omp parallel for ordered
                 // start=omp_get_wtime();
-                #pragma omp for 
+                #ifndef __APPLE__
+                #pragma omp for
+                #endif
                 for (unsigned int i = 0; i < vsamples.size(); i++) {
                 //Samples been selected
                 mzSample* sample = vsamples[i];
@@ -93,7 +101,9 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         //smoohing over
 
                         //push eic to all eics vector
+                        #ifndef __APPLE__
                         #pragma omp critical
+                        #endif
                         eics.push_back(e);
                 }
                 }

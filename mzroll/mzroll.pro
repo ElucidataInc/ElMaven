@@ -7,8 +7,8 @@ CONFIG += qt thread warn_off sql svg console precompile_header
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
+!macx: LIBS += -fopenmp
 
 
 QMAKE_STRIP=echo
@@ -35,6 +35,17 @@ INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-lin
 INCLUDEPATH += ../libmaven ../maven ../pugixml/src ../libneural ../zlib/ ../Eigen/ ../libpls ../libcsvparser ../libplog
 
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
+
+macx{
+    LIBS -= -lplog
+#    INCLUDEPATH += /usr/local/include
+#    QMAKE_LFLAGS += -L/usr/local/lib/
+#    QMAKE_LFLAGS += -L/usr/local/opt/netcdf/lib
+#    LIBS += -lnetcdf
+#    LIBS +=  -lboost_signals
+
+}
+
 
 message($$LIBS)
 

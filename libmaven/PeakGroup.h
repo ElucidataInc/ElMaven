@@ -59,9 +59,9 @@ class PeakGroup{
         Compound* compound;
 
         vector<Peak> peaks;
-        deque<PeakGroup> children;
-        deque<PeakGroup> childrenBarPlot;
-        deque<PeakGroup> childrenIsoWidget;
+        vector<PeakGroup> children;
+        vector<PeakGroup> childrenBarPlot;
+        vector<PeakGroup> childrenIsoWidget;
         vector<mzSample*> samplesUsed;
 
         string srmId;
@@ -213,7 +213,7 @@ class PeakGroup{
         inline vector<Peak>& getPeaks() { return peaks; }
 
 
-        inline deque<PeakGroup>& getChildren()  { return children; }
+        inline vector<PeakGroup>& getChildren()  { return children; }
 
         vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
 

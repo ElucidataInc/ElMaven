@@ -15,14 +15,21 @@ QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
 #QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
+!macx: LIBS += -fopenmp
 
 TARGET = maven
 
 LIBS += -L. -lcsvparser
 
 INCLUDEPATH += ../pugixml/src/ ../libcdfread/ ../zlib/ ../mzroll/ ../libneural/ ../libcsvparser
+
+macx{
+
+    INCLUDEPATH += /usr/local/include/
+    QMAKE_LFLAGS += -L/usr/local/lib/
+    LIBS +=  -lboost_signals
+}
 
 SOURCES = 	base64.cpp \
                 mzMassCalculator.cpp \

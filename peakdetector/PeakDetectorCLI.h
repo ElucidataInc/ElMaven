@@ -10,7 +10,9 @@
 #include <limits.h>
 #include <algorithm>
 #include <sys/time.h>
-#include "omp.h"
+#ifndef __APPLE__
+#include <omp.h>
+#endif
 
 #include "QMap"
 #include "QString"
@@ -36,12 +38,13 @@ using namespace std;
 
 class ParseOptions;
 
-#ifdef OMP_PARALLEL
-	#define getTime() omp_get_wtime()
-#else 
-	#define getTime() get_wall_time()
-	#define omp_get_thread_num()  1
-#endif
+//#ifndef
+// #ifdef OMP_PARALLEL
+//    #define getTime() omp_get_wtime()
+// #else
+//    #define getTime() get_wall_time()
+//    #define omp_get_thread_num()  1
+// #endif
 
 class PeakDetectorCLI {
 

@@ -1,8 +1,11 @@
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
 
-#Faster build + C++11 ++ OpenMP
-#QMAKE_CXXFLAGS += -Ofast
+
+macx{
+    QMAKE_CXX = /usr/local/opt/llvm@3.7/lib/llvm-3.7/bin/clang++
+}
+
 
 SUBDIRS +=	\
 		libneural \
@@ -17,3 +20,6 @@ SUBDIRS +=	\
         peakdetector \
         MavenTests \
         CrashReporter
+macx{
+    SUBDIRS -= libplog
+}

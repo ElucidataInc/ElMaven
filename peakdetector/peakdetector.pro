@@ -7,13 +7,14 @@ CONFIG += warn_off xml -std=c++14
 
 QT -= network gui opengl 
 CONFIG -= network gui opengl 
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
+!macx: LIBS += -fopenmp
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../pugixml/src ../libneural ../zlib/ ../libcsvparser  ../libpls
 
 LDFLAGS     +=  $$OUTPUT_DIR/lib
 
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
+
 
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \

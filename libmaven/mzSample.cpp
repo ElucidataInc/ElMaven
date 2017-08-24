@@ -1298,7 +1298,7 @@ int mzSample::parseCDF (const char* filename, int is_verbose)
         // double inty_pt=0;
         // double inty=0;
 
-        cdf = ms_open_read( filename );
+        cdf = ms_open_read( const_cast<char*>(filename) );
         if ( -1 == cdf )
         {
                 fprintf( stderr, "\nopen_cdf_ms: ms_open_read failed!" );

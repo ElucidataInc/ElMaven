@@ -211,7 +211,7 @@ bool PeakGroup::deleteChild(unsigned int index) {
 bool PeakGroup::deleteChild(PeakGroup* child ) {
     if (!child) return false;
 
-    deque<PeakGroup>::iterator it;
+    vector<PeakGroup>::iterator it;
     it = find(children.begin(),children.end(),child);
     if ( *it == child ) {
         cerr << "deleteChild: setting child to empty";

@@ -145,10 +145,12 @@ using namespace mzUtils;
 	signal(SIGTERM, signalHandler);
 	#ifdef UNIX
 	signal(SIGQUIT, signalHandler);
-	signal(SIGBUS, signalHandler);
-	signal(SIGSTKFLT, signalHandler);
-	signal(SIGPWR, signalHandler);
+    signal(SIGBUS, signalHandler);
 	signal(SIGSYS, signalHandler);
+    #endif
+    #ifndef __APPLE__
+    signal(SIGSTKFLT, signalHandler);
+    signal(SIGPWR, signalHandler);
 	#endif
 
 	#ifdef WIN32
