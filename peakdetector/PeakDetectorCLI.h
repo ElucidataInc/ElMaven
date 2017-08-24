@@ -67,7 +67,7 @@ class PeakDetectorCLI {
 		MavenParameters* mavenParameters = new MavenParameters ();
 
 		JSONReports *jsonReports;
-		
+
 		PeakDetector* peakDetector = new PeakDetector ();
 
 		bool reduceGroupsFlag = true;
@@ -178,19 +178,6 @@ class PeakDetectorCLI {
 		* @return            [cleaned name]
 		*/
 		string cleanSampleName(string sampleName);
-
-		/**
-		* [save EICs Json]
-		* @param filename [name of the file]
-		*/
-		void saveEICsJson(string filename);
-
-		/**
-		* [save EIC json]
-		* @param out [the output file]
-		* @param eic [the eic to be saved]
-		*/
-		void saveEICJson(ofstream& out, EIC* eic);
 
 		/**
 		* [get EICs from a group]

@@ -531,59 +531,6 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 }
 
-void PeakDetectorCLI::saveEICsJson(string filename) {
-	ofstream myfile(filename.c_str());
-	if (!myfile.is_open()) return;
-    myfile << "[\n";
-	
-	for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
-		PeakGroup& grp = mavenParameters->allgroups[i];
-		float rtmin = grp.minRt - 3;
-		float rtmax = grp.maxRt + 3;
-
-		myfile << "{\n";
-		myfile << "\"groupId\": " << i << "," << endl;
-		myfile << "\"rtmin\": " << rtmin << "," << endl;
-		myfile << "\"rtmax\": " << rtmax << "," << endl;
-		myfile << "\"eics\": [ " << endl;
-		vector<EIC*> eics = getEICs(rtmin, rtmax, grp); //get EICs
-
-		for(int j=0; j < (eics.size() / grp.peaks.size()); j++ ) {
-				myfile << "{\n";
-				saveEICJson(myfile, eics[j] ); //save EICs
-				myfile << "}\n";
-				if ( j < ((eics.size() / grp.peaks.size())-1)) myfile << ",\n";
-		}
-		myfile << "]" << endl;
-		myfile << "}" << endl;
-        
-        if (i != (mavenParameters->allgroups.size()-1)){
-            myfile << ",";        	
-        }
-
-		delete_all(eics); //cleanup
-	}
-	myfile << "]";
-
-	myfile.close();
-}
-
-void PeakDetectorCLI::saveEICJson(ofstream& out, EIC* eic) {
-	int N = eic->rt.size();
-	int count = 0;
-
-		out << "\"label\":" << "\"" << eic->getSample()->sampleName << "\"," << endl;
-		out << "\"data\": [";
-		out << setprecision(4);
-		for(int i=0; i<N; i++) { 
-				if (eic->intensity[i]>0) {
-					  if(count && i<N) out << ",";
-					  out << "[" << eic->rt[i] << "," <<  eic->intensity[i] << "]"; 
-					  count++;
-				};
-		}
-		out << "]\n"; 
-}
 
 vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
 	vector<EIC*> eics;
