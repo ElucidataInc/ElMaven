@@ -54,7 +54,8 @@ SOURCES = 	base64.cpp \
                 eiclogic.cpp \
                 databases.cpp \
                 Peptide.cpp \
-                PolyAligner.cpp
+                PolyAligner.cpp \
+                jsonReports.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -87,6 +88,7 @@ HEADERS += 	constants.h \
                 databases.h \
                 Peptide.hpp \
                 PeptideRecord.h \
-                PolyAligner.h
+                PolyAligner.h \
+                jsonReports.h
 
 message($$LIBS)
