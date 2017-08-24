@@ -29,6 +29,8 @@ public:
     QToolButton *btnMerge;
     QMenu* btnMergeMenu;
     QLabel *titlePeakTable;
+    vector<PeakGroup> vallgroups;  //vallgroups will be used by libmaven/jsonReports.cpp
+                                //for json export
     QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;
@@ -51,7 +53,6 @@ public:
     void setTableId();
     void setIntensityColName();
     float extractMaxIntensity(PeakGroup* group);
-    string sanitizeJSONstring(string s);
     float outputRtWindow = 2.0;
 
 public Q_SLOTS: 
