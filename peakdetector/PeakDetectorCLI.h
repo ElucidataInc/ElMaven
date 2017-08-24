@@ -26,6 +26,7 @@
 #include "../libmaven/csvreports.h"
 #include "../libmaven/PeakDetector.h"
 #include "../libmaven/classifierNeuralNet.h"
+#include "../libmaven/jsonReports.h"
 
 #include <QtCore>
 
@@ -65,6 +66,8 @@ class PeakDetectorCLI {
 
 		MavenParameters* mavenParameters = new MavenParameters ();
 
+		JSONReports *jsonReports;
+		
 		PeakDetector* peakDetector = new PeakDetector ();
 
 		bool reduceGroupsFlag = true;
