@@ -19,3 +19,6 @@ if [ -f bin/MavenTests ]; then
 	./bin/MavenTests -xml
 fi
 
+lcov --capture --directory ./ --output-file coverage.info
+genhtml coverage.info --output-directory coverage
+
