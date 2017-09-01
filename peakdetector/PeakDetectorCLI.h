@@ -242,6 +242,7 @@ struct Arguments {
 
 		optionsDialogArgs << "int" << "ionizationMode" << "-1";
 		optionsDialogArgs << "int" << "charge" << "1";
+		optionsDialogArgs << "float" << "compoundPPMWindow" << "10";
 
 	}
 

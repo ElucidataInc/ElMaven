@@ -11,6 +11,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"a?alignSamples <int>",
 							"b?minGoodGroupCount <int>",
 							"c?matchRtFlag <int>",
+							"C?compoundPPMWindow <float>",							
 							"d?db <string>",
 							"e?processAllSlices <int>",
 							"f?pullIsotopes <int>",				//C13(1st bit), S34i(2nd bit), N15i(3rd bit), D2(4th bit)
@@ -58,7 +59,11 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
         	mavenParameters->compoundRTWindow=atof(optarg);
             mavenParameters->matchRtFlag=true;
             if(mavenParameters->compoundRTWindow==0) mavenParameters->matchRtFlag=false;
-            break;
+			break;
+		
+		case 'C':
+			mavenParameters->compoundPPMWindow = atof(optarg);
+			break;
 
 		case 'd':
 			mavenParameters->ligandDbFilename = optarg;
@@ -126,7 +131,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 		case 'p':
 			mavenParameters->ppmMerge = atof(optarg);
 			break;
-
+			
 		case 'q':
 			mavenParameters->minQuality = atof(optarg);
 			break;
@@ -267,6 +272,9 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 		}
 		else if (strcmp(node.name(),"charge") == 0) {
 			mavenParameters->charge = atoi(node.attribute("value").value());
+		}
+		else if (strcmp(node.name(), "compoundPPMWindow") == 0) {
+			mavenParameters->compoundPPMWindow = atof(node.attribute("value").value());
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
