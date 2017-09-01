@@ -3,7 +3,11 @@ This module runs peakdetector cli and generates the output
 
 List of all the functions in this module:
 
-1. run_peakdetector
+1. run_cli: Runs one instance of peakdetector with specified arguments
+2. run_multiple_cli: Runs multiple instances of peakdetector to generate
+    multiple outputs
+3. get_config_paths: Get paths of configuration files
+
 """
 
 from helper import helper
@@ -19,7 +23,7 @@ class RunCli(object):
     def __init__(self):
         self.config = config.Config()
 
-    def run_peakdetector(self, xml_path):
+    def run_cli(self, xml_path):
         """
         Runs one instance of peakdetector with specified arguments
 
@@ -35,12 +39,23 @@ class RunCli(object):
         else:
             raise ValueError("Peakdetector CLI exe not found")
 
-    def run(self, xml_paths):
+    def run_multiple_cli(self, xml_paths):
         """
         Runs multiple instances of peakdetector to generate multiple
         outputs
         """
 
         for path in xml_paths:
-            self.run_peakdetector(path)
+            self.run_cli(path)
 
+    def get_config_paths(self):
+        """
+        Get paths of configuration files
+
+        Returns:
+            config_files: List of paths of config files
+        """
+        config_path = self.config.cli_configs_path
+
+        config_files = helper.list_files(config_path, ".xml")
+        return config_files
