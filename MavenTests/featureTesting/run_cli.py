@@ -34,3 +34,13 @@ class RunCli(object):
             helper.run_exe(exe_path, args)
         else:
             raise ValueError("Peakdetector CLI exe not found")
+
+    def run(self, xml_paths):
+        """
+        Runs multiple instances of peakdetector to generate multiple
+        outputs
+        """
+
+        for path in xml_paths:
+            self.run_peakdetector(path)
+
