@@ -38,9 +38,10 @@ def list_files(dir_path, file_extension):
     """
     files = []
 
-    for fname in os.listdir(dir_path):
-        if fname.endswith(file_extension):
-            files.append(os.path.join(dir_path, fname))
+    for root, dirnames, filenames in os.walk(dir_path):
+        for fname in filenames:
+            if fname.endswith(file_extension):
+                files.append(os.path.join(root, fname))
 
     return files
 
