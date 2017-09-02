@@ -1169,7 +1169,7 @@ void EicWidget::addBoxPlot(PeakGroup* group) {
 	if (group == NULL)
 		return;
 	if (_boxplot == NULL)
-		_boxplot = new BoxPlot(NULL, 0);
+		_boxplot = new BoxPlot(NULL, scene());
 	if (_boxplot->scene() != scene())
 		scene()->addItem(_boxplot);
 

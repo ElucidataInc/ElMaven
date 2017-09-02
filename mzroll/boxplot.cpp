@@ -79,9 +79,9 @@ void BoxPlot::setPeakGroup(PeakGroup* group) {
         _barwidth = scene()->height()*0.75/setnames.size();
         if (_barwidth<3)  _barwidth=3;
         if (_barwidth>20) _barwidth=20;
-        _height = setnames.size()*_barwidth;
+		_height = setnames.size()*_barwidth;
     }
-
+	
 }
 
 void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
