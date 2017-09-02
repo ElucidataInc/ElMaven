@@ -15,6 +15,10 @@ path
 
 5. parse_arguments: Parse arguments. Supported types :
 string, list & dict
+
+6. intersection_lists: Returns intersection of lists of any data
+type
+
 """
 
 import os
@@ -129,3 +133,16 @@ def parse_arguments(arguments):
         raise ValueError("Type not supported for arguments")
 
     return list_args
+
+def intersection_lists(lists):
+    """
+    Returns intersection of lists of any data type
+
+    Args:
+        lists(list): List of lists
+
+    Returns:
+        intersected_list(list): List after intersection
+    """
+
+    return list(set.intersection(*map(set, lists)))
