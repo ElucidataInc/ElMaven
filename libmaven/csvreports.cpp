@@ -311,14 +311,33 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         groupReport << SEP << group->meanMz;
     }
 
+    bool fromGUI=false;  //this varible will check weather process is happening from
+                        //CLI or GUI
 
     for (unsigned int j = 0; j < samples.size(); j++){
         auto it = std::find(std::begin(group->samplesUsed), std::end(group->samplesUsed), samples[j]);
-        if(it != std::end(group->samplesUsed))
-            groupReport << SEP << yvalues[j];
-        else
-            groupReport << SEP << "NA";
+        if(it != std::end(group->samplesUsed)){
+            fromGUI=true;
+            break;
+        }
     }
+    if(fromGUI){
+        for (unsigned int j = 0; j < samples.size(); j++){
+            auto it = std::find(std::begin(group->samplesUsed), std::end(group->samplesUsed), samples[j]);
+            if(it != std::end(group->samplesUsed))
+                groupReport << SEP << yvalues[j];
+            else
+                groupReport << SEP << "NA";
+        }
+    }else{
+        for (unsigned int j = 0; j < samples.size(); j++){
+            if(samples[j]->isSelected)
+                groupReport << SEP << yvalues[j];
+            else
+                groupReport << SEP << "NA";
+        }
+    }
+
     groupReport << endl;
 
 }

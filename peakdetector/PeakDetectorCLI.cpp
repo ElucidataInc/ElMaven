@@ -508,7 +508,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 		mzSample* sample = new mzSample();
 		sample->loadSample(filenames[i].c_str());
 		sample->sampleName = cleanSampleName(filenames[i]);
-
+        sample->isSelected=true;
 		if (sample->scans.size() >= 1) {
 			mavenParameters->samples.push_back(sample);
 			cerr << endl << "Loaded Sample : " << sample->getSampleName() << endl;
