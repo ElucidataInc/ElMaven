@@ -5,6 +5,8 @@ List of functions:
 
 1. compare: Compare all the outputs generated from multiple
     cli instances
+2. load_files: Loads every file present in the input list into a pandas
+    dataframe
 
 """
 import pandas as pd
@@ -25,22 +27,23 @@ class CompareOutput(object):
         Compare all the outputs generated from multiple
         cli instances
         """
-
-        df1 = pd.read_csv('test1.tab', sep='\t',)
-        df2 = pd.read_csv('test2.tab', sep='\t',)
-
-
-        # df3 = pd.merge(df1, df2, on=["compoundId", "compound", "formula", "goodPeakCount"])
-
-        group1 = df1.groupby(["compoundId", "compound", "formula", "goodPeakCount"])
-        group2 = df2.groupby(["compoundId", "compound", "formula", "goodPeakCount"])
-
-        keys_group1 = group1.groups.keys()
-
-        keys_group2 = group2.groups.keys()
+        file_list = ['test1.tab', 'test2.tab']
+        df_list = self.load_files(file_list)
 
 
-        keys = [keys_group1, keys_group2]
-        result = helper.intersection_lists(keys)
+    def load_files(self, file_list):
+        """
+        Loads every file present in the input list into a pandas
+        dataframe
+        Args:
+            file_list (list): List of paths of files
+        Returns:
+            df_list (list): List of pandas dataframes
+        """
+        df_list = []
 
-        
+        for fpath in file_list:
+            pdataframe = helper.load_df(fpath)
+            df_list.append(pdataframe)
+
+        return df_list
