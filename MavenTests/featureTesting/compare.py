@@ -7,6 +7,8 @@ List of functions:
     cli instances
 2. load_files: Loads every file present in the input list into a pandas
     dataframe
+3. dfs_groupby: Converts list of pandas dataframes into groupby
+    objects based on the specified columns
 
 """
 import pandas as pd
@@ -29,6 +31,8 @@ class CompareOutput(object):
         """
         file_list = ['test1.tab', 'test2.tab']
         df_list = self.load_files(file_list)
+        col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
+        groupby_list = self.dfs_groupby(df_list, col_list)
 
 
     def load_files(self, file_list):
@@ -47,3 +51,21 @@ class CompareOutput(object):
             df_list.append(pdataframe)
 
         return df_list
+
+    def dfs_groupby(self, df_list, col_list):
+        """
+        Converts list of pandas dataframes into groupby
+        objects based on the specified columns
+        Args:
+            df_list (list): List of pandas dataframes
+            col_list (list): List of columns needed for groupby
+        Returns:
+            groupby_list (list): List of groupby objects
+        """
+        groupby_list = []
+
+        for pdataframe in df_list:
+            groupby_obj = pdataframe.groupby(col_list)
+            groupby_list.append(groupby_obj)
+
+        return groupby_list
