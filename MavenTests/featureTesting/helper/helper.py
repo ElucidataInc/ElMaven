@@ -19,10 +19,14 @@ string, list & dict
 6. intersection_lists: Returns intersection of lists of any data
 type
 
+7. load_df: Load specified file path into a pandas dataframe.
+Supported files types are .csv or .tab
+
 """
 
 import os
 import subprocess
+import pandas as pd
 
 
 def list_files(dir_path, file_extension):
@@ -146,3 +150,24 @@ def intersection_lists(lists):
     """
 
     return list(set.intersection(*map(set, lists)))
+
+def load_df(fpath):
+    """
+    Load specified file path into a pandas dataframe. Supported
+    files types are .csv or .tab
+    Args:
+        fpath(str): Path of file
+    Returns:
+        pdataframe(pandas dataframe): Specified file loaded to pandas df
+    """
+    fname, fextension = os.path.splitext(fpath)
+
+
+    if fextension == ".tab":
+        pdataframe = pd.read_csv(fpath, sep='\t')
+        return pdataframe
+    elif fextension == ".csv":
+        pdataframe = pd.read_csv(fpath, sep=',')
+        return pdataframe
+    else:
+        raise ValueError(fextension + " file format not supported")
