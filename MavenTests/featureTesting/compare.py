@@ -9,6 +9,7 @@ List of functions:
     dataframe
 3. dfs_groupby: Converts list of pandas dataframes into groupby
     objects based on the specified columns
+4. get_keys_groupby: Get list of keys of all groupby objects
 
 """
 import pandas as pd
@@ -33,6 +34,7 @@ class CompareOutput(object):
         df_list = self.load_files(file_list)
         col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
         groupby_list = self.dfs_groupby(df_list, col_list)
+        keys = self.get_keys_groupby(groupby_list)
 
 
     def load_files(self, file_list):
@@ -69,3 +71,18 @@ class CompareOutput(object):
             groupby_list.append(groupby_obj)
 
         return groupby_list
+
+    def get_keys_groupby(self, groupby_list):
+        """
+        Get list of keys of all groupby objects
+        Args:
+            groupby_list (list): List of groupby objects
+        Returns:
+            keys (list): List of keys of groupby objects
+        """
+        keys = []
+        for groupby_obj in groupby_list:
+            key = groupby_obj.groups.keys()
+            keys.append(key)
+
+        return keys
