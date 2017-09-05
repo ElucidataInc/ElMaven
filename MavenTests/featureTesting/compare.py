@@ -10,8 +10,9 @@ List of functions:
 3. dfs_groupby: Converts list of pandas dataframes into groupby
     objects based on the specified columns
 4. get_keys_groupby: Get list of keys of all groupby objects
+5. get_groups: Get groups from list of groupby objects basedon key
+6. get_indexes: Get indexes of each pandas df in the list
 
-5. get_groups: Get groups from list of groupby objects based on key
 """
 
 from helper import helper
@@ -40,6 +41,7 @@ class CompareOutput(object):
 
         for key in common_keys:
             groups_list = self.get_groups(groupby_list, key)
+            group_indexes = self.get_indexes(groups_list)
 
     def load_files(self, file_list):
         """
@@ -109,3 +111,19 @@ class CompareOutput(object):
             groups_list.append(group)
 
         return groups_list
+
+    def get_indexes(self, groups_list):
+        """
+        Get indexes of each pandas df in the list
+        Args:
+            groups_list (list): List of pandas dataframes
+        Returns:
+            group_indexes (list): List of indexes
+        """
+        group_indexes = []
+
+        for group in groups_list:
+            index = group.index.values
+            group_indexes.append(index)
+
+        return group_indexes
