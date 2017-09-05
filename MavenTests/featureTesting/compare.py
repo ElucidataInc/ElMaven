@@ -5,14 +5,15 @@ List of functions:
 
 1. compare: Compare all the outputs generated from multiple
     cli instances
-2. load_files: Loads every file present in the input list into a pandas
-    dataframe
+2. load_files: Loads every file present in the input list into a
+    pandas dataframe
 3. dfs_groupby: Converts list of pandas dataframes into groupby
     objects based on the specified columns
 4. get_keys_groupby: Get list of keys of all groupby objects
 
+5. get_groups: Get groups from list of groupby objects based on key
 """
-import pandas as pd
+
 from helper import helper
 
 
@@ -35,7 +36,10 @@ class CompareOutput(object):
         col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
         groupby_list = self.dfs_groupby(df_list, col_list)
         keys = self.get_keys_groupby(groupby_list)
+        common_keys = helper.intersection_lists(keys)
 
+        for key in common_keys:
+            groups_list = self.get_groups(groupby_list, key)
 
     def load_files(self, file_list):
         """
@@ -86,3 +90,22 @@ class CompareOutput(object):
             keys.append(key)
 
         return keys
+
+    def get_groups(self, groupby_list, key):
+        """
+        Get groups from list of groupby objects based on key
+        Args:
+            groupby_list (list): List of groupby objects
+            key (tuple): Key for accessing the group in groupby
+                object
+        Returns:
+            groups_list (list): List of pandas dataframes for the
+            specified key
+        """
+        groups_list = []
+
+        for groupby_obj in groupby_list:
+            group = groupby_obj.get_group(key)
+            groups_list.append(group)
+
+        return groups_list
