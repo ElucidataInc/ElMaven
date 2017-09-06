@@ -57,6 +57,7 @@ void AlignmentPolyVizDockWidget::plotGraph() {
 void AlignmentPolyVizDockWidget::intialSetup() {
 
     _mw->alignmentPolyVizPlot->clearPlottables();
+    _mw->alignmentPolyVizPlot->clearGraphs();
     setXAxis();
     setYAxis();
 
@@ -79,44 +80,79 @@ void AlignmentPolyVizDockWidget::setYAxis() {
 
 }
 
-void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample) {
+void AlignmentPolyVizDockWidget::prepareGraphDataPolyFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+{
+        vector<double> coefficients;
+        double degree;
+
+        if (degreeMap.empty()) return;
+        if (coefficientMap.empty()) return;
+
+        degree = degreeMap[sample];
+        coefficients = coefficientMap[sample];
+        double *coe = &coefficients[0];
+
+        /* just a sanity check to prevent SIGSEV
+         */
+        if(!sample->scans.empty() && coe != NULL){
+
+            for(unsigned int i=0; i < sample->scans.size(); i++ ) {
+                double rt = sample->scans[i]->rt;
+                xAxis.push_back(rt);
+
+                double y = 0;
+                y = leasev(coe, degree, rt);
+
+                yAxis.push_back(y - rt);
+            }
+        }
+}
+
+void AlignmentPolyVizDockWidget::prepareGraphDataLoessFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+{
+    double rt, rtDiff;
+    if(!sample->originalRetentionTimes.empty() && !sample->scans.empty()){
+
+        for(unsigned int i=0; i < sample->scans.size(); i++ ) {
+
+            rt = sample->originalRetentionTimes[i];
+            xAxis.push_back(rt);
+
+            rtDiff = sample->originalRetentionTimes[i] - sample->scans[i]->rt;
+            yAxis.push_back(rtDiff);
+        }
+    }
+}
+
+void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample)
+{
 
     QVector<double> xAxis;
     QVector<double> yAxis;
-    vector<double> coefficients;
-    double degree;
 
-    if (degreeMap.empty()) return;
-    if (coefficientMap.empty()) return;
+    int alignAlgo = _mw->alignmentDialog->alignAlgo->currentIndex();
 
-    degree = degreeMap[sample];
-    coefficients = coefficientMap[sample];
+    if(alignAlgo == 0)
+        prepareGraphDataPolyFit(xAxis, yAxis, sample);
 
-    double *coe = &coefficients[0];
+    if(alignAlgo == 1)
+        prepareGraphDataLoessFit(xAxis, yAxis, sample);
 
-    for(unsigned int i=0; i < sample->scans.size(); i++ ) {
-        double rt = sample->scans[i]->rt;
-        xAxis.push_back(rt);
+    if(!xAxis.isEmpty() && !yAxis.isEmpty()){
 
-        double y = 0;
+        QColor color = _mw->projectDockWidget->storeSampleColors[sample];
 
-        y = leasev(coe, degree, rt);
+        QPen pen;
+        pen.setColor(color);
 
-        yAxis.push_back(y - rt);
+        _mw->alignmentPolyVizPlot->addGraph();
+        _mw->alignmentPolyVizPlot->graph()->setPen(pen);
+        _mw->alignmentPolyVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
+
+        _mw->alignmentPolyVizPlot->graph()->setData(xAxis, yAxis);
+
+        _mw->alignmentPolyVizPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
     }
-
-    QColor color = _mw->projectDockWidget->storeSampleColors[sample];
-
-    QPen pen;
-    pen.setColor(color);
-
-    _mw->alignmentPolyVizPlot->addGraph();
-    _mw->alignmentPolyVizPlot->graph()->setPen(pen);
-    _mw->alignmentPolyVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
-
-    _mw->alignmentPolyVizPlot->graph()->setData(xAxis, yAxis);
-
-    _mw->alignmentPolyVizPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
 
 }
 
