@@ -61,7 +61,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
     if (groupReport.is_open()) {
         QStringList groupReportcolnames;
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
+                << "medMz" << "medRt" << "maxQuality" << "label" << "compound"
                 << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" << "parent";
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
