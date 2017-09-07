@@ -1000,7 +1000,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                             group.groupRank = pow((1.1 - group.maxQuality), A)
                                                   * (1 /(pow(log(group.maxIntensity + 1), B)));
                         }
-
+                        group.samples.clear();
+                        for(int k=0;k<mavenParameters->samples.size();++k){
+                            if(mavenParameters->samples[k]->isSelected){
+                                group.samples.push_back(mavenParameters->samples[k]);
+                            }
+                        }
                         groupsToAppend.push_back(&group);
                 }
 

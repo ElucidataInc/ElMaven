@@ -130,6 +130,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     changeFoldRatio = o.changeFoldRatio;
     changePValue    = o.changePValue;
     peaks = o.peaks;
+    samples=o.samples;
     copyChildren(o);
 }
 

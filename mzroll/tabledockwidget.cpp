@@ -492,15 +492,6 @@ PeakGroup* TableDockWidget::addPeakGroup(PeakGroup* group) {
                 allgroups[i].groupId = i + 1;
                 vallgroups[i].groupId = i + 1;
             }
-            // keep note of the samples that were used for a group and it's child
-            for(mzSample* sm: _mainwindow->samples) {
-                if(sm->isSelected){
-                    g.samplesUsed.push_back(sm);
-                    for(PeakGroup &childGrp: g.children) {
-                        childGrp.samplesUsed.push_back(sm);
-                    }
-                }
-            }
             //g.groupId = allgroups.size();
             return &g;
         }
