@@ -1425,26 +1425,33 @@ void MainWindow::doSearch(QString needle) {
 void MainWindow::setMzValue() {
 	bool isDouble = false;
 	QString value = searchText->text();
-	float mz = value.toDouble(&isDouble);
+	float mz1 = value.toDouble(&isDouble);
+	bool isDouble2 = false;
+	QString value2 = searchText2->text();
+	float mz2 = value2.toDouble(&isDouble2);
+
 	if (isDouble) {
-		if (eicWidget->isVisible())
-			eicWidget->setMzSlice(mz);
+		if (eicWidget->isVisible()) {
+			if (isDouble2) eicWidget->setMzSlice(mz1, mz2);
+			else eicWidget->setMzSlice(mz1);
+		}
 		if (massCalcWidget->isVisible())
-			massCalcWidget->setMass(mz);
+			massCalcWidget->setMass(mz1);
 		if (fragPanel->isVisible())
-			showFragmentationScans(mz);
+			showFragmentationScans(mz1);
 	}
-	suggestPopup->addToHistory(QString::number(mz, 'f', 5));
+	suggestPopup->addToHistory(QString::number(mz1, 'f', 5));
 }
 
-void MainWindow::setMzValue(float mz) {
-	searchText->setText(QString::number(mz, 'f', 8));
+void MainWindow::setMzValue(float mz1, float mz2) {
+	searchText->setText(QString::number(mz1, 'f', 8));
+	searchText2->setText(QString::number(mz2, 'f', 8));
 	if (eicWidget->isVisible())
-		eicWidget->setMzSlice(mz);
+		eicWidget->setMzSlice(mz1, mz2);
 	if (massCalcWidget->isVisible())
-		massCalcWidget->setMass(mz);
+		massCalcWidget->setMass(mz1);
 	if (fragPanel->isVisible())
-		showFragmentationScans(mz);
+		showFragmentationScans(mz1);
 }
 
 void MainWindow::print() {
@@ -2551,6 +2558,7 @@ void MainWindow::createToolBars() {
     searchText2->setToolTip("<b>Text Search</b>");
     searchText2->setObjectName(QString::fromUtf8("searchText2"));
 	searchText2->setShortcutEnabled(true);
+	connect(searchText2,SIGNAL(returnPressed()), SLOT(setMzValue()));	
 
 	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
 			this);

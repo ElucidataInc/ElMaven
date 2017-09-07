@@ -1466,7 +1466,11 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 				eicParameters->_slice.compound = slice.compound;
 				eicParameters->_slice.srmId = slice.srmId;
 			}
-		}
+		} else if (slice.mzmin != 0 && slice.mzmax != 0) {
+					eicParameters->_slice.mzmin = slice.mzmin;
+					eicParameters->_slice.mzmax = slice.mzmax;
+					eicParameters->_slice.mz = slice.mzmin;
+				}
 
 		recompute();
 	} else {
@@ -1557,10 +1561,10 @@ void EicWidget::setPPM(double ppm) {
 	setMzSlice(x);
 }
 
-void EicWidget::setMzSlice(float mz) {
+void EicWidget::setMzSlice(float mz1, float mz2) {
 
 	double ppm = getMainWindow()->getUserPPM();
-	mzSlice x = eicParameters->setMzSlice(mz, ppm);
+	mzSlice x = eicParameters->setMzSlice(mz1, ppm, mz2);
 	setMzSlice(x);
 }
 

@@ -43,7 +43,7 @@ public:
 					bool useOverlap,
 					double minSignalBaselineDifference);
 
-	mzSlice setMzSlice(float mz, double ppm);
+	mzSlice setMzSlice(float mz1, double ppm, float mz2 = 0.0);
 
 	//	find absolute min and max for extracted ion chromatograms
 	mzSlice visibleEICBounds();

@@ -39,7 +39,7 @@ public:
 	void setBarplotPosition(PeakGroup* group);
 	
 public Q_SLOTS:
-	void setMzSlice(float mz);
+	void setMzSlice(float mz1, float mz2 = 0.0);
 	void setPPM(double ppm);
 	void resetZoom();
 	void zoom(float factor);

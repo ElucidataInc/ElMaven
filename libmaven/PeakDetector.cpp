@@ -66,6 +66,9 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
                 //Init EIC by pointing it to NULL
                 EIC* e = NULL;
+
+                float precursorMz = slice->mzmin;
+                float productMz = slice->mzmax;
                 //TODO: what is SRM again going here?
                 if (!slice->srmId.empty()) {
                         //if srmId of the slice is present, get EICs on the basis of srmId
@@ -75,10 +78,16 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         e = sample->getEIC(slice->srmId, eicType);
                         
                         //TODO this is for MS/MS?
-                } else if (c && c->precursorMz > 0 && c->productMz > 0) {
+                } else if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
                         //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 
-                        e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
+                        float collisionEnergy = 0;
+                        if (c && c->precursorMz > 0 && c->productMz > 0) {
+                            collisionEnergy = c->collisionEnergy;
+                            precursorMz = c->precursorMz;
+                            productMz = c->productMz;
+                        }
+                        e = sample->getEIC(precursorMz, collisionEnergy, productMz, eicType,
                                         filterline, amuQ1, amuQ3);
 
                 } else {

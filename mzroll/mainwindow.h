@@ -290,7 +290,7 @@ public Q_SLOTS:
 	void setProgressBar(QString, int step, int totalSteps);
 	void setStatusText(QString text = QString::null);
 	void setMzValue();
-	void setMzValue(float mz);
+	void setMzValue(float mz1, float mz2 = 0.0);
 	void loadModel();
 	void refreshIntensities();
 	void loadCompoundsFile();
