@@ -2537,13 +2537,20 @@ void MainWindow::createToolBars() {
 			SLOT(setPPM(double)));
 
     searchText = new QLineEdit(hBox);
-    searchText->setMinimumWidth(200);
+    searchText->setMinimumWidth(100);
     searchText->setPlaceholderText("MW / Compound");   
     searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b>,<br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
     searchText->setObjectName(QString::fromUtf8("searchText"));
     searchText->setShortcutEnabled(true);
     connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
-    connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));
+	connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));
+	
+	searchText2 = new QLineEdit(hBox);
+    searchText2->setMinimumWidth(100);
+    searchText2->setPlaceholderText("MW / Compound");   
+    searchText2->setToolTip("<b>Text Search</b>");
+    searchText2->setObjectName(QString::fromUtf8("searchText2"));
+	searchText2->setShortcutEnabled(true);
 
 	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
 			this);
@@ -2604,6 +2611,8 @@ void MainWindow::createToolBars() {
 	layout->addWidget(quantType, 0);
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
+	layout->addWidget(new QLabel("Product m/z", hBox), 0);
+	layout->addWidget(searchText2, 0);
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(ppmWindowBox, 0);
 
