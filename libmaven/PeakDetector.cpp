@@ -619,6 +619,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                     g.tagString = isotopeName;
                     g.expectedAbundance = expectedAbundance;
                     g.isotopeC13count = x.C13;
+                    g.samples=parentgroup->samples;
                     isotopes[isotopeName] = g;
                 }
                 isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
