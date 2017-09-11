@@ -22,9 +22,13 @@ type
 7. load_df: Load specified file path into a pandas dataframe.
 Supported files types are .csv or .tab
 
+8. get_combinations: Get all the combinations of values in different
+lists
+
 """
 
 import os
+import itertools
 import subprocess
 import pandas as pd
 
@@ -171,3 +175,17 @@ def load_df(fpath):
         return pdataframe
     else:
         raise ValueError(fextension + " file format not supported")
+
+def get_combinations(list_of_lists):
+    """
+    Get all the combinations of values in different lists
+    Args:
+        list_of_lists(list): List of lists where each list consist some
+            int values
+    Returns:
+        combinations(list): List of combinations
+    """
+
+    combinations = list(itertools.product(*list_of_lists))
+
+    return combinations
