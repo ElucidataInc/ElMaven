@@ -42,6 +42,7 @@ class CompareOutput(object):
         for key in common_keys:
             groups_list = self.get_groups(groupby_list, key)
             group_indexes = self.get_indexes(groups_list)
+            index_combinations = helper.get_combinations(group_indexes)
 
     def load_files(self, file_list):
         """
@@ -123,7 +124,7 @@ class CompareOutput(object):
         group_indexes = []
 
         for group in groups_list:
-            index = group.index.values
+            index = list(group.index.values)
             group_indexes.append(index)
 
         return group_indexes
