@@ -33,7 +33,8 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
 
         mz = grp.compound->mass;
         if (!grp.compound->formula.empty()) {
-            float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula,mavenParameters->charge);
+            int charge = mavenParameters->getCharge(grp.compound);
+            float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula, charge);
             if(formula_mz) {
                 mz = formula_mz;
             }
@@ -143,7 +144,8 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
                 //redoing it only for code clarity
                 mz = grp.compound->mass;
                 if (!grp.compound->formula.empty()) {
-                    float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula,mavenParameters->charge);
+                    int charge = mavenParameters->getCharge(grp.compound);
+                    float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula, charge);
                     if(formula_mz) {
                         mz = formula_mz;
                     }
