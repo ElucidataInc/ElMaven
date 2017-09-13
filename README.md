@@ -6,6 +6,10 @@
 	<img src="http://www.elucidata.io/static/images/logo.png">
   </a>
 
+<p align="center">
+  <a href="https://travis-ci.org/ElucidataInc/ElMaven"><img alt="Travis Status" 
+  src="https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop"></a> </p>
+
 ## Table of contents
 - [Quick start](#quick-start) 
 - [ElMaven features](#elmaven-features)
