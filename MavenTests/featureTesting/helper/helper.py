@@ -28,6 +28,8 @@ List of all the helper functions:
 9. get_column_values: Get all the values with index of specified
     column from a pandas dataframe
 
+10. merge_dfs: Merge multiple dataframes based on specified columns
+
 """
 
 import os
@@ -210,3 +212,19 @@ def get_column_values(pandas_df, column_name):
         values_wth_index[index] = row[column_name]
 
     return values_wth_index
+
+def merge_dfs(df_list, col_list):
+    """
+    Merge multiple dataframes based on specified columns
+    Args:
+        df_list (list): List of pandas dataframes
+        col_list (list): List of column names which will be used for
+            merging dataframes
+    Returns:
+        merged_df (pandas df): Pandas dataframe after merging multiple
+            pandas dataframes
+    """
+
+    merged_df = reduce(lambda left, right: pd.merge(left, right, on=col_list), df_list)
+
+    return merged_df
