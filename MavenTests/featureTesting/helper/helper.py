@@ -4,26 +4,29 @@ Helper functions for Feature Testing
 List of all the helper functions:
 
 1. list_files: List all the files in a given directory
-with specified extenstion
+    with specified extenstion
 
 2. is_exe: Check if the specified file is exe or not
 
 3. check_exe_exists: Check if the specified exe exists in
-path
+    path
 
 4. run_exe: Run the executable with arguments
 
 5. parse_arguments: Parse arguments. Supported types :
-string, list & dict
+    string, list & dict
 
 6. intersection_lists: Returns intersection of lists of any data
-type
+    type
 
 7. load_df: Load specified file path into a pandas dataframe.
-Supported files types are .csv or .tab
+    Supported files types are .csv or .tab
 
 8. get_combinations: Get all the combinations of values in different
-lists
+    lists
+
+9. get_column_values: Get all the values with index of specified
+    column from a pandas dataframe
 
 """
 
@@ -189,3 +192,21 @@ def get_combinations(list_of_lists):
     combinations = list(itertools.product(*list_of_lists))
 
     return combinations
+
+def get_column_values(pandas_df, column_name):
+    """
+    Get all the values with index of specified column
+    from a pandas dataframe
+    Args:
+        pandas_df (df): Pandas dataframe
+        column_name (str): Name of column
+    Returns:
+        values_wth_index (dict): Column values with index
+    """
+
+    values_wth_index = {}
+
+    for index, row in pandas_df.iterrows():
+        values_wth_index[index] = row[column_name]
+
+    return values_wth_index
