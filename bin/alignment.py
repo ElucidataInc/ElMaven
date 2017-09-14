@@ -11,6 +11,7 @@ import warnings
 input_json = ''
 
 def fit_group_rt(lowess_x, lowess_y, groups_rt, k):
+    """This function is used to fit all the Retention times of the groups by extrapolting lowees fit values"""
     f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
     sub_rts = groups_rt[groups_rt['sample'] == k]
     rt_dev_new = f(sub_rts.rt)
@@ -27,6 +28,7 @@ def fit_group_rt(lowess_x, lowess_y, groups_rt, k):
 
 
 def fit_sample_rt(lowess_x, lowess_y, samples_data, k):
+    """This function is used to fit all the Retention times of the samples by extrapolting lowees fit values"""
     sub_rts = samples_data[k]
     f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
     rt_dev_new = f(sub_rts)
@@ -43,11 +45,13 @@ def fit_sample_rt(lowess_x, lowess_y, samples_data, k):
 
 
 def group_json_to_df(g, group_num, groups_data):
+    """This function converts the input group json into a pandas dataframe"""
     return pd.DataFrame({'group': g,'sample': groups_data[g][group_num].keys(), 'rt': groups_data[g][group_num][groups_data[g][group_num].keys()[0]]})
 
 
 
 def groups_json_to_df(g, groups_data, minSample, extraPeaks):
+    """This function converts the input groups json into a pandas dataframe and subsets the data"""
     vec_group_json_to_df = np.vectorize(group_json_to_df)
     groups_array = vec_group_json_to_df(g, range(len(groups_data[g])), groups_data)
     sub_groups =  pd.concat(groups_array)
@@ -68,7 +72,7 @@ def groups_json_to_df(g, groups_data, minSample, extraPeaks):
 
 
 def processData(json_obj):
-
+    """This function is called when a json file is recieved. It converts the json to df to estimate RT using lowess fit"""
     minFraction = 0.9
     extraPeaks = 1
     span = 0.2
