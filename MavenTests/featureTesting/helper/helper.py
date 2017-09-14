@@ -32,6 +32,8 @@ List of all the helper functions:
 
 11. delete_dir: Delete the directory and all its contents
 
+12. make_dir: Create directory recursively
+
 """
 
 import os
@@ -245,3 +247,17 @@ def delete_dir(dir_path):
         pass
     else:
         print "Not able to delete " + dir_path
+
+def make_dir(dir_path):
+    """
+    Create directory recursively
+    Args:
+        dir_path (str): directory to be created
+    """
+
+    try:
+        os.makedirs(dir_path)
+    except OSError:
+        pass
+    else:
+        print "Not able to create " + dir_path
