@@ -499,8 +499,10 @@ void PeakDetectorCLI::loadCompoundsFile() {
 
 void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
-	// double startLoadingTime = getTime();
-	cerr << "\nLoading samples" << endl;
+    #ifndef __APPLE__
+    double startLoadingTime = getTime();
+    #endif
+    cerr << "\nLoading samples" << endl;
 
 	for (unsigned int i = 0; i < filenames.size(); i++) {
 		mzSample* sample = new mzSample();
@@ -527,7 +529,10 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 	sort(mavenParameters->samples.begin(), mavenParameters->samples.end(),mzSample::compSampleSort);
 
 	cerr << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples";
-	// cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
+
+    #ifndef __APPLE__
+    cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
+    #endif
 
 }
 
@@ -592,21 +597,32 @@ void PeakDetectorCLI::writeReport(string setName) {
 void PeakDetectorCLI::groupReduction() {
 
 	if (reduceGroupsFlag) {
-		// double startGroupReduction = getTime();
-		reduceGroups();
-		// cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
+
+        #ifndef __APPLE__
+         double startGroupReduction = getTime();
+        #endif
+
+         reduceGroups();
+
+        #ifndef __APPLE__
+         cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
+        #endif
 	}
 }
 
 void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 
-		// double startSavingJson = getTime();
+		#ifndef __APPLE__
+		double startSavingJson = getTime();
+		#endif
 
 		jsonReports=new JSONReports(mavenParameters);
 		jsonReports->saveMzEICJson(mavenParameters->outputdir + setName + ".json",
 									mavenParameters->allgroups,mavenParameters->samples);
-		// cerr << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
+		#ifndef __APPLE__
+		cerr << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
+		#endif
 	}
 }
 
@@ -614,16 +630,24 @@ void PeakDetectorCLI::saveMzRoll(string setName) {
 
 	if (saveMzrollFile == true)
 	{
-		// double startSavingMzroll = getTime();
-		writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
-		// cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
+        #ifndef __APPLE__
+         double startSavingMzroll = getTime();
+        #endif
+
+         writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
+
+        #ifndef __APPLE__
+         cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
+        #endif
 	
     }
 }
 
 void PeakDetectorCLI::saveCSV(string setName) {
 
-    // double startSavingCSV = getTime();
+    #ifndef __APPLE__
+     double startSavingCSV = getTime();
+    #endif
 
 	string fileName = mavenParameters->outputdir + setName + ".csv";
 
@@ -657,7 +681,9 @@ void PeakDetectorCLI::saveCSV(string setName) {
         cerr << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
     }
 
-    // cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
+    #ifndef __APPLE__
+     cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
+    #endif
 }
 
 void PeakDetectorCLI::reduceGroups() {
@@ -859,6 +885,9 @@ double get_wall_time(){
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 double get_cpu_time(){
-    // return (double)getTime() / CLOCKS_PER_SEC;
+
+    #ifndef __APPLE__
+     return (double)getTime() / CLOCKS_PER_SEC;
+    #endif
     return 0;
 }

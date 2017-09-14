@@ -38,13 +38,14 @@ using namespace std;
 
 class ParseOptions;
 
-//#ifndef
-// #ifdef OMP_PARALLEL
-//    #define getTime() omp_get_wtime()
-// #else
-//    #define getTime() get_wall_time()
-//    #define omp_get_thread_num()  1
-// #endif
+#ifndef __APPLE__
+ #ifdef OMP_PARALLEL
+    #define getTime() omp_get_wtime()
+ #else
+    #define getTime() get_wall_time()
+    #define omp_get_thread_num()  1
+ #endif
+#endif
 
 class PeakDetectorCLI {
 
