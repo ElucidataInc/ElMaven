@@ -30,9 +30,12 @@ List of all the helper functions:
 
 10. merge_dfs: Merge multiple dataframes based on specified columns
 
+11. delete_dir: Delete the directory and all its contents
+
 """
 
 import os
+import shutil
 import itertools
 import subprocess
 import pandas as pd
@@ -228,3 +231,17 @@ def merge_dfs(df_list, col_list):
     merged_df = reduce(lambda left, right: pd.merge(left, right, on=col_list), df_list)
 
     return merged_df
+
+def delete_dir(dir_path):
+    """
+    Delete the directory and all its contents
+    Args:
+        dir_path (str): Path of directory
+    """
+
+    try:
+        shutil.rmtree(dir_path)
+    except OSError:
+        pass
+    else:
+        print "Not able to delete " + dir_path
