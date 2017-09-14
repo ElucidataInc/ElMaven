@@ -83,6 +83,12 @@ maven_opensource.kdev4
 *.XML
 !test.xml
 
+#Mzroll File
+*.mzroll
+
+#CSV File
+testcsv.csv
+
 #log Files
 *.log
 *.LOG
