@@ -245,7 +245,7 @@ def delete_dir(dir_path):
         shutil.rmtree(dir_path)
     except OSError:
         pass
-    else:
+    except:
         print "Not able to delete " + dir_path
 
 def make_dir(dir_path):
@@ -259,5 +259,5 @@ def make_dir(dir_path):
         os.makedirs(dir_path)
     except OSError:
         pass
-    else:
+    except:
         print "Not able to create " + dir_path
