@@ -23,16 +23,16 @@ class CompareOutput(object):
     different configuration files
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, file_list):
+        self.file_list = file_list
 
     def compare(self):
         """
         Compare all the outputs generated from multiple
         cli instances
         """
-        file_list = ['test1.tab', 'test2.tab']
-        df_list = self.load_files(file_list)
+
+        df_list = self.load_files(self.file_list)
         col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
         merged_df = helper.merge_dfs(df_list, col_list)
         merged_df = self.remove_outliers(merged_df)
