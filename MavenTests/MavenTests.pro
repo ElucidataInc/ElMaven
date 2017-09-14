@@ -11,11 +11,10 @@ CONFIG += qtestlib warn_off
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
-!macx: QMAKE_CXXFLAGS += -fopenmp
 
 INCLUDEPATH += ../pugixml/src/ ../sqlite ../libmaven ../libneural ../zlib/ ../libcsvparser ../libpls ../peakdetector
 LIBS += -L.  -lmaven -lpugixml -lneural -lcsvparser -lpls
-!macx: LIBS += -lfopenmp
+!macx: LIBS += -fopenmp
 
 
 # Input
@@ -58,9 +57,6 @@ SOURCES += \
     main.cpp \
     ../peakdetector/PeakDetectorCLI.cpp  \
     ../peakdetector/options.cpp \
-    ../libmaven/classifier.cpp \  
+    ../libmaven/classifier.cpp \
     ../libmaven/classifierNeuralNet.cpp \
-    ../peakdetector/parseOptions.cpp     
-
-
-    
+    ../peakdetector/parseOptions.cpp
