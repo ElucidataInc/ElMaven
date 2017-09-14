@@ -1424,17 +1424,20 @@ void MainWindow::doSearch(QString needle) {
 
 void MainWindow::setMzValue() {
 	bool isDouble = false;
-	QString value = searchText->text();
+	vector<string> values;
+	mzUtils::split(searchText->text().toStdString(), '-', values);
+	QString value = QString::fromStdString(values[0]);
 	float mz1 = value.toDouble(&isDouble);
 	bool isDouble2 = false;
-	QString value2 = searchText2->text();
-	float mz2 = value2.toDouble(&isDouble2);
+	float mz2 = 0.0;
+	if (values.size() > 1) {
+		QString value2 = QString::fromStdString(values[1]);
+		mz2 = value2.toDouble(&isDouble2);
+	}
 
 	if (isDouble) {
-		if (eicWidget->isVisible()) {
-			if (isDouble2) eicWidget->setMzSlice(mz1, mz2);
-			else eicWidget->setMzSlice(mz1);
-		}
+		if (eicWidget->isVisible())
+			eicWidget->setMzSlice(mz1, mz2);
 		if (massCalcWidget->isVisible())
 			massCalcWidget->setMass(mz1);
 		if (fragPanel->isVisible())
@@ -1445,7 +1448,6 @@ void MainWindow::setMzValue() {
 
 void MainWindow::setMzValue(float mz1, float mz2) {
 	searchText->setText(QString::number(mz1, 'f', 8));
-	searchText2->setText(QString::number(mz2, 'f', 8));
 	if (eicWidget->isVisible())
 		eicWidget->setMzSlice(mz1, mz2);
 	if (massCalcWidget->isVisible())
@@ -2550,15 +2552,7 @@ void MainWindow::createToolBars() {
     searchText->setObjectName(QString::fromUtf8("searchText"));
     searchText->setShortcutEnabled(true);
     connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
-	connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));
-	
-	searchText2 = new QLineEdit(hBox);
-    searchText2->setMinimumWidth(100);
-    searchText2->setPlaceholderText("MW / Compound");   
-    searchText2->setToolTip("<b>Text Search</b>");
-    searchText2->setObjectName(QString::fromUtf8("searchText2"));
-	searchText2->setShortcutEnabled(true);
-	connect(searchText2,SIGNAL(returnPressed()), SLOT(setMzValue()));	
+	connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));	
 
 	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
 			this);
@@ -2619,8 +2613,6 @@ void MainWindow::createToolBars() {
 	layout->addWidget(quantType, 0);
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
-	layout->addWidget(new QLabel("Product m/z", hBox), 0);
-	layout->addWidget(searchText2, 0);
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(ppmWindowBox, 0);
 

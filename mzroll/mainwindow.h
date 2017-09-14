@@ -137,7 +137,6 @@ public:
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *ppmWindowBox;
 	QLineEdit *searchText;
-	QLineEdit *searchText2;	
 	QComboBox *ionizationModeComboBox;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
