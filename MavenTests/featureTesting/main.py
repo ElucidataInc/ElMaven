@@ -37,7 +37,9 @@ def compare_output(config_path):
     file_list = []
     file_list.append(os.path.join(output_dir, "compounds.csv"))
     file_list.append(os.path.splitext(config_path)[0] + ".csv")
-    comp = compare.CompareOutput(file_list)
+    comp = compare.CompareOutput(file_list, os.path.basename(config_path))
+    comp.compare()
+    helper.delete_dir(output_dir)
 
 
 main()

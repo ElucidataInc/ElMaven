@@ -23,8 +23,9 @@ class CompareOutput(object):
     different configuration files
     """
 
-    def __init__(self, file_list):
+    def __init__(self, file_list, config_name):
         self.file_list = file_list
+        self.config_name = config_name
 
     def compare(self):
         """
@@ -36,7 +37,7 @@ class CompareOutput(object):
         col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
         merged_df = helper.merge_dfs(df_list, col_list)
         merged_df = self.remove_outliers(merged_df)
-        sample_list = ['SAMPLE_#SRK2BG7_2_2' , 'SAMPLE_#SRK2BG7_2_3' , 'SAMPLE_#SRK2BG7_2_4' , 'SAMPLE_#SRK2BG7_2_5' , 'SAMPLE_#SRK2BG7_2_6' , 'SAMPLE_#SRK2BG7_2_7' , 'SAMPLE_#SRK2BG7_2_8' , 'SAMPLE_#SRK2BG7_2_9' , 'SAMPLE_#SRK2BG7_2_10']
+        sample_list = ['testsample_1', 'testsample_2', 'testsample_3']
         self.plot(merged_df, sample_list)
 
 
@@ -77,7 +78,7 @@ class CompareOutput(object):
             mz_diff = abs(mz_2-mz_1)
             rt_diff = abs(rt_2-rt_1)
 
-            if mz_diff < 0.5 and rt_diff < 0.3:
+            if mz_diff < 0.3 and rt_diff < 0.2:
                 pass
             else:
                 pandas_df.drop(index, inplace=True)
@@ -115,7 +116,7 @@ class CompareOutput(object):
             data.append(trace)
 
         layout = go.Layout(
-            title='Scatter Plot',
+            title=self.config_name,
             xaxis=dict(
                 title='test1.tab',
                 type='log'
@@ -130,4 +131,4 @@ class CompareOutput(object):
         fig = go.Figure(data=data, layout=layout)
 
         os.system('mkdir -p results')
-        plot(fig, filename='results/my-graph.html')
+        plot(fig, filename=os.path.join('results', self.config_name + '.html'))
