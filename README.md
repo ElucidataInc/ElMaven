@@ -22,37 +22,49 @@
 - [Copyright and license](#copyright-and-license)
 
 ## Download
-Elmaven is supported by both 32 and 64 bit architectures on Windows and Ubuntu.
+Elmaven is supported on both 32 and 64 bit architectures on Windows and Ubuntu.
 Download [Elmaven](https://elucidatainc.github.io/ElMaven/) latest version or daily build depending on your OS and architecture
 
 ## Installation
+
+Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.  
 
 ### Windows 64 bit Installer
 - Double click on the installer and click Next  
 ![](https://dl.dropboxusercontent.com/s/t38t3jm1spc86hp/1.PNG?dl=0)  
 - Choose the path where you want to install El-Maven and then click Next  
 ![](https://dl.dropboxusercontent.com/s/elanm23f0f4pemc/2.PNG?dl=0)  
-- Click Next to start Installing. It'll take less than 30 seconds to install  
+- Click Next to start Installing. It will take less than 30 seconds to install  
 ![](https://dl.dropboxusercontent.com/s/apkiw057kx52kbc/3.PNG?dl=0)  
-- Click finish to end the Installation. A shortcut is made on the Desktop. Now you can start using El-Maven by double-clicking the shortcut.  
+- Click finish to end the Installation. A shortcut is made on the Desktop. Now you can click on the Elmaven icon to launch Elmaven.  
 ![](https://dl.dropboxusercontent.com/s/em2d4dtk59k3f61/5.PNG?dl=0)  
+- Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.  
 
 ### Windows Daily Build
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
-- Open MSYS2 and give the following commands for setting up libraries and toolchains. Reopen MSYS2 when required:  
--- Update pacman with `pacman --force -Sy`
--- Update core system packages with `pacman --force -Syu`
--- Update the rest with `pacman --force -Su`
--- For 62 bit: Install other supporting packages with `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`
--- For 32 bit: Install other supporting packages with `pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git`  
-- Move to the folder where MSYS2 was installed and open mingw64.exe and type the following:  
--- Create a folder on Windows and navigate to it using the cd command `cd <pathtofolder>    #for example: cd /c/User/Admin/Desktop`
--- Clone the repository using `git clone https://github.com/ElucidataInc/ElMaven.git`
--- To build Maven, use the command `./run.sh`  
--- If it compiles successfully, it will create an executable in the bin folder. To launch maven by running the executable, use the command `./bin/El_Maven_0.x`  
+- Open MSYS2 and give the following commands to set up libraries and tool chains for Elmaven. Reopen MSYS2 when required:  
+-> Update pacman with `pacman --force -Sy`  
+-> Update core system packages with `pacman --force -Syu`  
+-> Update the rest with `pacman --force -Su`  
+-> For 62 bit: Install other supporting packages with `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`  
+-> For 32 bit: Install other supporting packages with `pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git`  
+- To install Elmaven, move to the folder where MSYS2 was installed, open mingw64.exe and type the following:  
+-> Navigate to the folder where you wish to install Elmaven using the cd command `cd <pathtofolder>    #for example: cd /c/User/Admin/Desktop`  
+-> Clone the repository using `git clone https://github.com/ElucidataInc/ElMaven.git`  
+-> To build Elmaven, use the command `./run.sh`  
+- If it compiles successfully, it will create an executable in the bin folder. To launch Elmaven by running the executable, use the command `./bin/El_Maven_0.x`  
+- Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.  
 
-- Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.
-- After installing, click on the Elmaven icon to launch Elmaven.
+### Ubuntu  
+- Open the terminal and give the following commands to set up libraries and tool chains for Elmaven.
+-> Update package manager with `sudo apt-get update`  
+-> Install g++ compiler with `sudo apt-get install g++`  
+-> Install supporting libraries and tools with `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev`  
+- To install Elmaven, type the following in the terminal:  
+-> Navigate to the folder where you wish to install Elmaven using the cd command `cd <pathtofolder>    #for example: user@pc:~$ cd Desktop/`  
+-> Clone the repository using `git clone https://github.com/ElucidataInc/ElMaven.git`  
+-> To build Elmaven, use the command `./run.sh`  
+- If it compiles successfully, it will create an executable in the bin folder. To launch Elmaven by running the executable, use the command `./bin/El_Maven_0.x`
 - Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.
 
 ## Elmaven features
