@@ -50,7 +50,7 @@ void TestCSVReports::testopenGroupReport() {
 
     QStringList colnames;
     colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "note" << "compound"
+                << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
                 << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" 
                 << "parent" << "testsample_1" << "bk_#sucyxpe_1_10";
 
