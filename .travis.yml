@@ -2,13 +2,13 @@ os: linux
 dist: trusty
 language: cpp
 compiler: gcc
-sudo: required
 group: deprecated-2017Q2
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install g++ -qq
   - sudo apt-get install -qq qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev
 script:
+  - export QT_SELECT=qt5
   - qmake -qt=qt5 -v
   - qmake -qt=qt5 CONFIG+=release -o Makefile build.pro
   - make -j4
