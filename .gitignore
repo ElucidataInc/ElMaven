@@ -32,6 +32,8 @@
 tmp/
 build
 build.pro.user
+coverage
+coverage.info
 
 # Unused Makefiles
 Makefile
