@@ -133,6 +133,38 @@ def groups_json_to_df(
     return sub_groups
 
 
+def alignment_fit(
+    samples,
+    lim_groups,
+    span,
+    groups_rt,
+    samples_data 
+    ):
+    """
+    function to perform lowess fit on every sample using rt data from subsetted
+    peaks
+    :param samples: names of all samples
+    :param lim_groups: Substted groups used for lowess fit training
+    :param span: The window for lowess fit
+    :param groups_rt: Dataframe containing groups and their rts
+    :param samples_data: Json containing samples and their rts
+    """
+    corr_group_rts = dict()
+    corr_sample_rts = dict()
+    for k in samples:
+        group_samp = lim_groups[lim_groups['sample'] == k]
+        lowess = sm.nonparametric.lowess(group_samp.rt_dev,
+                group_samp.rt, frac=span)
+        lowess_x = list(zip(*lowess))[0]
+        lowess_y = list(zip(*lowess))[1]
+        corr_group_rts[k] = fit_group_rt(lowess_x, lowess_y, groups_rt,
+                k)
+        corr_sample_rts[k] = fit_sample_rt(lowess_x, lowess_y,
+                samples_data, k)
+    output_dict = {'groups': corr_group_rts, 'samples': corr_sample_rts}
+    return output_dict
+
+
 
 def processData(json_obj):
     """This function is called when a json file is recieved. It converts the json to df to estimate RT using lowess fit"""
