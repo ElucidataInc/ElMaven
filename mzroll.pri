@@ -13,10 +13,6 @@ DEFINES += INSTALL_LIBDIR=\\\"$$INSTALL_LIBDIR\\\"
 
 QMAKE_CXXFLAGS_RELEASE += -O3 -Wall -Wno-sign-compare
 
-QMAKE_CCFLAGS+= -fprofile-arcs -ftest-coverage
-QMAKE_CXXFLAGS+= -fprofile-arcs -ftest-coverage
-QMAKE_LFLAGS+= -fprofile-arcs -ftest-coverage
-
 CONFIG += no_keywords
 unix: INCLUDEPATH += /usr/lib/x86_64-linux-gnu/
 unix:!macx {
@@ -61,6 +57,9 @@ mac {
 
 
 unix {
+    QMAKE_CCFLAGS+= -fprofile-arcs -ftest-coverage
+    QMAKE_CXXFLAGS+= -fprofile-arcs -ftest-coverage
+    QMAKE_LFLAGS+= -fprofile-arcs -ftest-coverage
    message("using unix config")
    DEFINES -= LITTLE_ENDIAN
    DEFINES += UNIX
