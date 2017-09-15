@@ -98,23 +98,38 @@ def group_json_to_df(g, group_num, groups_data):
                         'rt': groups_data[g][group_num][groups_data[g][group_num].keys()[0]]})
 
 
-def groups_json_to_df(g, groups_data, minSample, extraPeaks):
-    """This function converts the input groups json into a pandas dataframe and subsets the data"""
+def groups_json_to_df(
+    g,
+    groups_data,
+    minSample,
+    extraPeaks,
+    ):
+    """
+    This function converts the input groups json into a pandas dataframe 
+    and subsets the data
+    :param g: Group name
+    :param extraPeaks: Total number of peaks allowed in a group per sample
+    :param minSample: Minimum number of samples present in a group
+    :param groups_data: Dataframe containing groups and their rts
+    """
+
     vec_group_json_to_df = np.vectorize(group_json_to_df)
-    groups_array = vec_group_json_to_df(g, range(len(groups_data[g])), groups_data)
-    sub_groups =  pd.concat(groups_array)
+    groups_array = vec_group_json_to_df(g, range(len(groups_data[g])),
+            groups_data)
+    sub_groups = pd.concat(groups_array)
     sub_grp_samp = sub_groups['sample'].unique()
     nsamp = len(sub_grp_samp)
-    sub_groups = sub_groups.assign(rt_dev = (sub_groups.rt - np.median(sub_groups.rt)))
+    sub_groups = sub_groups.assign(rt_dev=sub_groups.rt
+                                   - np.median(sub_groups.rt))
     if nsamp >= minSample:
         flag = False
         for j in sub_grp_samp:
             sample_groups = sub_groups[sub_groups['sample'] == j]
-            row,col = sample_groups.shape
-            if row > extraPeaks + 1 :
+            (row, col) = sample_groups.shape
+            if row > extraPeaks + 1:
                 flag = True
-        if(flag == False):
-            sub_groups = sub_groups.assign(good_group = True)
+        if flag == False:
+            sub_groups = sub_groups.assign(good_group=True)
     return sub_groups
 
 
