@@ -9,9 +9,9 @@ before_install:
   - sudo apt-get install g++ -qq
   - sudo apt-get install -qq qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev
 script:
-  - export QT_SELECT=qt5
-  - qmake CONFIG+=debug -o Makefile build.pro;
-  - make -j $(nproc)
+  - qmake -qt=qt5 -v
+  - qmake -qt=qt5 CONFIG+=release -o Makefile build.pro
+  - make -j4
   - ./bin/MavenTests -xml
 
   
