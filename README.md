@@ -57,7 +57,7 @@ Elmaven loads with two windows: one for logging the application status and anoth
 - Open the terminal and give the following commands to set up libraries and tool chains for Elmaven.
 `sudo apt-get update`  
 `sudo apt-get install g++`  
-`sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev`  
+`sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov`  
 `cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`  
 `git clone https://github.com/ElucidataInc/ElMaven.git`  
 `./run.sh`  
