@@ -49,18 +49,36 @@ def fit_group_rt(
     return dict(zip(sub_rts.group, sub_rts.rt))
 
 
-def fit_sample_rt(lowess_x, lowess_y, samples_data, k):
-    """This function is used to fit all the Retention times of the samples by extrapolting lowees fit values"""
+def fit_sample_rt(
+    lowess_x,
+    lowess_y,
+    samples_data,
+    k,
+    ):
+    """
+    This function is used to fit all the Retention times of the samples by 
+    extrapolting lowees fit values
+    :param lowess_x: x value for lowess fit
+    :param lowess_y: y value for lowess fit
+    :param samples_rt: Dataframe containing samples and their rts
+    :param k: sample name
+    """
+
     sub_rts = samples_data[k]
-    f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
+    f = interp1d(lowess_x, lowess_y, bounds_error=False,
+                 fill_value='extrapolate')
     rt_dev_new = f(sub_rts)
     abs_rt_dev_new = abs(rt_dev_new)
-    rt_fit_dev = pd.DataFrame({'rt': sub_rts, 'rt_dev_new': rt_dev_new.tolist(), 'abs_rt_dev_new': abs_rt_dev_new.tolist()})
+    rt_fit_dev = pd.DataFrame({'rt': sub_rts,
+                              'rt_dev_new': rt_dev_new.tolist(),
+                              'abs_rt_dev_new': abs_rt_dev_new.tolist()})
     cutoff = abs(rt_fit_dev.rt_dev_new).quantile(0.9) * 2
     rt_fit_dev[rt_fit_dev > cutoff].rt_dev_new = np.nan
-    no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev["rt_dev_new"])]
-    f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new, bounds_error=False, fill_value='extrapolate')
-    rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt_dev_new = f(rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt)
+    no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev['rt_dev_new'])]
+    f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new,
+                 bounds_error=False, fill_value='extrapolate')
+    rt_fit_dev[pd.isnull(rt_fit_dev['rt_dev_new'])].rt_dev_new = \
+        f(rt_fit_dev[pd.isnull(rt_fit_dev['rt_dev_new'])].rt)
     sub_rts = sub_rts - rt_fit_dev.rt_dev_new
     sub_rts[sub_rts.isnull()] = rt_fit_dev.rt[sub_rts.isnull()]
     return list(sub_rts)
