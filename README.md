@@ -65,6 +65,38 @@ Elmaven loads with two windows: one for logging the application status and anoth
 
 Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.
 
+
+### Mac
+- Install Xcode from App store
+
+- Download and Install Qt5.6 from http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang-5.6.2.dmg.mirrorlist.
+  This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under the directory /Users/Your_User_Name/
+
+`Using the terminal execute the following instructions`
+- sudo xcodebuild -license accept
+
+- xcode-select --install
+- /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+- brew install boost
+- brew install llvm@3.7
+- brew install netcdf
+
+- cd ~
+- touch .profile
+- echo "PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:$PATH" > .profile
+- source .profile
+
+- mkdir ~/maven_repo
+- cd ~/maven_repo
+- git clone https://github.com/ElucidataInc/ElMaven.git
+
+- cd ElMaven
+
+- source ~/.profile
+- qmake CONFIG+=debug -o Makefile build.pro
+- make -j4
+
+
 ## Elmaven features
 [Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [Elmaven](https://elucidatainc.github.io/ElMaven/)  share following features:
 * Multi-file chromatographic aligner
