@@ -59,9 +59,9 @@ class PeakGroup{
         Compound* compound;
 
         vector<Peak> peaks;
-        deque<PeakGroup> children;
-        deque<PeakGroup> childrenBarPlot;
-        deque<PeakGroup> childrenIsoWidget;
+        vector<PeakGroup> children;
+        vector<PeakGroup> childrenBarPlot;
+        vector<PeakGroup> childrenIsoWidget;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been 
                                     //used for peak detection
         string srmId;
