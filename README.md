@@ -33,16 +33,20 @@ Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02
 ### Windows
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
 - Open MSYS2 and give the following commands to set up libraries and tool chains for Elmaven. Reopen MSYS2 when required:  
+- For 64 bit:  
 `pacman --force -Sy`  
 `pacman --force -Syu`  
 `pacman --force -Su`  
+`pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`  
 
-64 bit: `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`  
-
-32 bit: `pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git`  
+- For 32 bit:  
+`pacman --force -Sy`  
+`pacman --force -Syu`  
+`pacman --force -Su`  
+`pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git`  
 
 - Open mingw64.exe from the MSYS2 folder and give the following commands:  
-`cd <pathtofolder>    #for example: cd /c/User/Admin/Desktop`  (Navigate to the installation folder)  
+`cd <PathToInstallationFolder>    #for example: cd /c/User/Admin/Desktop`  
 `git clone https://github.com/ElucidataInc/ElMaven.git`  
 `./run.sh`  
 `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`  
@@ -54,7 +58,7 @@ Elmaven loads with two windows: one for logging the application status and anoth
 `sudo apt-get update`  
 `sudo apt-get install g++`  
 `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev`  
-`cd <pathtofolder>    #for example: user@pc:~$ cd Desktop/`  (Navigate to the installation folder)  
+`cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`  
 `git clone https://github.com/ElucidataInc/ElMaven.git`  
 `./run.sh`  
 `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
