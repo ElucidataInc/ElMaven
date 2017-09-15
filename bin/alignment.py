@@ -167,42 +167,34 @@ def alignment_fit(
 
 
 def processData(json_obj):
-    """This function is called when a json file is recieved. It converts the json to df to estimate RT using lowess fit"""
+    """
+    This function is called when a json file is recieved. It converts the json 
+    to df to estimate RT using lowess fit
+    :param json_obj: The json object receieved from C
+    """
+
     minFraction = 0.9
     extraPeaks = 1
     span = 0.2
-
-    groups_data = json_obj["groups"]
-    samples_data = json_obj["rts"]
-
+    groups_data = json_obj['groups']
+    samples_data = json_obj['rts']
     samples = samples_data.keys()
-    nSamples = len(samples) 
+    nSamples = len(samples)
     minSample = nSamples * minFraction
-
-    groups_rt = pd.DataFrame() 
-    groups_array =[]
-
+    groups_rt = pd.DataFrame()
+    groups_array = []
     lim_groups = pd.DataFrame()
     vec_groups_json_to_df = np.vectorize(groups_json_to_df)
-    groups_array = vec_groups_json_to_df(groups_data.keys(), groups_data, minSample, extraPeaks)
+    groups_array = vec_groups_json_to_df(groups_data.keys(),
+            groups_data, minSample, extraPeaks)
     groups_rt = pd.concat(groups_array)
     lim_groups = groups_rt[groups_rt['good_group'] == True]
     del groups_rt['good_group']
-    corr_group_rts = dict()
-    corr_sample_rts = dict()
-
-    for k in samples:
-        group_samp = lim_groups[lim_groups['sample'] == k]
-        lowess = sm.nonparametric.lowess(group_samp.rt_dev, group_samp.rt, frac=span)
-        lowess_x = list(zip(*lowess))[0]
-        lowess_y = list(zip(*lowess))[1]
-        corr_group_rts[k] = fit_group_rt(lowess_x, lowess_y, groups_rt, k)
-        corr_sample_rts[k] = fit_sample_rt(lowess_x, lowess_y, samples_data, k)
-
-    output_dict = {"groups": corr_group_rts, "samples": corr_sample_rts}
-
+    output_dict = alignment_fit(samples, 
+        lim_groups, 
+        span, groups_rt, 
+        samples_data)
     output_json = json.dumps(output_dict)
-
     return output_json
 
 
