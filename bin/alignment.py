@@ -85,9 +85,17 @@ def fit_sample_rt(
 
 
 def group_json_to_df(g, group_num, groups_data):
-    """This function converts the input group json into a pandas dataframe"""
-    return pd.DataFrame({'group': g,'sample': groups_data[g][group_num].keys(), 'rt': groups_data[g][group_num][groups_data[g][group_num].keys()[0]]})
+    """
+    This function converts the input group json into a pandas dataframe
+    extrapolting lowees fit values
+    :param g: Group name
+    :param group_num: Unique group identifier
+    :param groups_data: Dataframe containing groups and their rts
+    """
 
+    return pd.DataFrame({'group': g,
+                        'sample': groups_data[g][group_num].keys(),
+                        'rt': groups_data[g][group_num][groups_data[g][group_num].keys()[0]]})
 
 
 def groups_json_to_df(g, groups_data, minSample, extraPeaks):
