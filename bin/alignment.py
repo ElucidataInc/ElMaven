@@ -199,19 +199,13 @@ def processData(json_obj):
 
 
 for line in iter(sys.stdin.readline, ''):
-
-    if "start processing" in line:
-            continue
-
-    if "end processing" in line:
-
+    if 'start processing' in line:
+        continue
+    if 'end processing' in line:
         json_obj = json.loads(input_json)
         processedData = processData(json_obj)
-
         print processedData
         sys.stdout.flush()
-
-        print "stop"
+        print 'stop'
         sys.stdout.flush()
-
     input_json += line
