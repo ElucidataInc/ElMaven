@@ -603,12 +603,19 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
             grp.groupId = i;
             grp.addPeak(m->peaks[i]);
             grp.groupStatistics();
+            if(m->sample->isSelected) grp.samples.push_back(m->sample);
             pgroups.push_back(grp);
         }
         return pgroups;
     }
 
     //create EIC compose from all sample eics
+    vector<mzSample*> samples;
+    for(int i=0;i<eics.size();++i){
+        if(eics[i]->sample->isSelected){
+            samples.push_back(eics[i]->sample);
+        }
+    }
     EIC* m = EIC::eicMerge(eics);
     if (!m) return pgroups;
 
@@ -620,6 +627,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
     for(unsigned int i=0; i< m->peaks.size(); i++ ) {
         PeakGroup grp;
         grp.groupId = i;
+        grp.samples=samples;
         pgroups.push_back(grp);
     }
 
