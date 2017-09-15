@@ -148,7 +148,7 @@ using namespace mzUtils;
     signal(SIGBUS, signalHandler);
 	signal(SIGSYS, signalHandler);
     #endif
-    #ifndef __APPLE__
+    #ifdef __linux
     signal(SIGSTKFLT, signalHandler);
     signal(SIGPWR, signalHandler);
 	#endif
