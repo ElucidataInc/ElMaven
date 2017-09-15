@@ -19,8 +19,9 @@ if [ -f bin/MavenTests ]; then
 	./bin/MavenTests -xml
 fi
 
-var="$(uname -s)"
-if [ "${var:0:1}" == "L" ]; then
+type="$(uname)" 
+systemType="$(echo "$type"  |  tr '[:upper:]'  '[:lower:]')"
+if [ $systemType == "linux" ]; then
     lcov --capture --directory ./ --output-file coverage.info
     genhtml coverage.info --output-directory coverage
 fi
