@@ -7,23 +7,45 @@ from sys import stdin
 import sys
 import warnings
 
-
 input_json = ''
 
-def fit_group_rt(lowess_x, lowess_y, groups_rt, k):
-    """This function is used to fit all the Retention times of the groups by extrapolting lowees fit values"""
-    f = interp1d(lowess_x, lowess_y, bounds_error=False, fill_value='extrapolate')
+
+def fit_group_rt(
+    lowess_x,
+    lowess_y,
+    groups_rt,
+    k,
+    ):
+    """
+    This function is used to fit all the Retention times of the groups by 
+    extrapolting lowees fit values
+    :param lowess_x: x value for lowess fit
+    :param lowess_y: y value for lowess fit
+    :param groups_rt: Dataframe containing groups and their rts
+    :param k: sample name
+    """
+
+    f = interp1d(lowess_x, lowess_y, bounds_error=False,
+                 fill_value='extrapolate')
     sub_rts = groups_rt[groups_rt['sample'] == k]
     rt_dev_new = f(sub_rts.rt)
     abs_rt_dev_new = abs(rt_dev_new)
-    rt_fit_dev = pd.DataFrame({'group_name': sub_rts.group, 'rt': sub_rts.rt, 'rt_dev_new': rt_dev_new.tolist(), 'abs_rt_dev_new': abs_rt_dev_new.tolist()})
+    rt_fit_dev = pd.DataFrame({
+        'group_name': sub_rts.group,
+        'rt': sub_rts.rt,
+        'rt_dev_new': rt_dev_new.tolist(),
+        'abs_rt_dev_new': abs_rt_dev_new.tolist(),
+        })
     cutoff = abs(rt_fit_dev.rt_dev_new).quantile(0.9) * 2
     rt_fit_dev[rt_fit_dev > cutoff].rt_dev_new = np.nan
-    no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev["rt_dev_new"])]
-    f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new, bounds_error=False, fill_value='extrapolate')
-    rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt_dev_new = f(rt_fit_dev[pd.isnull(rt_fit_dev["rt_dev_new"])].rt)
+    no_na_rts = rt_fit_dev[pd.notnull(rt_fit_dev['rt_dev_new'])]
+    f = interp1d(no_na_rts.rt, no_na_rts.rt_dev_new,
+                 bounds_error=False, fill_value='extrapolate')
+    rt_fit_dev[pd.isnull(rt_fit_dev['rt_dev_new'])].rt_dev_new = \
+        f(rt_fit_dev[pd.isnull(rt_fit_dev['rt_dev_new'])].rt)
     sub_rts.rt = sub_rts.rt - rt_fit_dev.rt_dev_new
-    sub_rts.rt[sub_rts['rt'].isnull()] = rt_fit_dev.rt[sub_rts['rt'].isnull()]
+    sub_rts.rt[sub_rts['rt'].isnull()] = rt_fit_dev.rt[sub_rts['rt'
+            ].isnull()]
     return dict(zip(sub_rts.group, sub_rts.rt))
 
 
