@@ -33,13 +33,13 @@ Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02
 ### Windows
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
 - Open MSYS2 and give the following commands to set up libraries and tool chains for Elmaven. Reopen MSYS2 when required:  
-- For 64 bit:  
+- **For 64 bit**:  
 `pacman --force -Sy`  
 `pacman --force -Syu`  
 `pacman --force -Su`  
 `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`  
 
-- For 32 bit:  
+- **For 32 bit**:  
 `pacman --force -Sy`  
 `pacman --force -Syu`  
 `pacman --force -Su`  
@@ -81,10 +81,10 @@ Elmaven is robust, faster and with more user friendly features compared to Maven
 Existing bugs and feature requests can be found on [El-maven github issue page](https://github.com/ElucidataInc/ElMaven/issues). Please search existing bugs and feature requests before you file a bug or request a feature.
 
 ## Documentation
-Please refer to Gitwiki for El maven user documentation.
+Elmaven user documentation can be found on the [GitWiki](https://github.com/ElucidataInc/ElMaven/wiki) page.
 
 ## Contributing
-You are welcome to contribute. Please go through Elmaven’s contributing guidelines and for coding guidelines, please contact Elucidata team. These guidelines include directions for coding standards, opening issues and development guidelines.
+You are welcome to contribute. Please go through our [contributing guidelines](https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md) and [code of conduct](https://github.com/ElucidataInc/ElMaven/blob/develop/CODE_OF_CONDUCT.md). These guidelines include directions for coding standards, opening issues and development guidelines.
 
 Pull requests must include relevant unit tests. All the functional features are to be tested before committing the code.
 ## Contributors
@@ -93,6 +93,11 @@ Pull requests must include relevant unit tests. All the functional features are 
 *	[Victor Chubukov](https://github.com/chubukov)
 *	[George Sabu](https://github.com/GeorgeSabu)
 *	[Sahil](https://github.com/sahil21)
+*	[Raghav Sehgal](https://github.com/Raghavdata)
+*	[Shubhra Agrawal](https://github.com/shubhra-agrawal)
+*	[Raghuram Reddy](https://github.com/r-el-maya)
+*	[Rishabh Gupta](https://github.com/rish9511)
+*	[Pankaj Kumar](https://github.com/IpankajI)
 *	[Rahul Kumar](https://github.com/rkdahmiwal)
 *	[Giridhari](https://github.com/Giridhari013)
 *	[Kiran Varghese](https://github.com/kiranvarghese2)
