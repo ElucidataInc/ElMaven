@@ -67,6 +67,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 //Init EIC by pointing it to NULL
                 EIC* e = NULL;
 
+                //TODO: Find a better way to send precursor and product mz for MRM search
                 float precursorMz = slice->mzmin;
                 float productMz = slice->mzmax;
                 //TODO: what is SRM again going here?
@@ -79,6 +80,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         
                         //TODO this is for MS/MS?
                 } else if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
+                        //mzmax/productmz will be smaller than mzmin/precursorMz only when it is for MRM search
                         //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 
                         float collisionEnergy = 0;
