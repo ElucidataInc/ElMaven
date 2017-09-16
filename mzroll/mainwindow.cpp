@@ -2548,7 +2548,7 @@ void MainWindow::createToolBars() {
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
     searchText->setPlaceholderText("MW / Compound");   
-    searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b>,<br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
+    searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b> <br> MRM: <b>precursorMz-productMz</b> <br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
     searchText->setObjectName(QString::fromUtf8("searchText"));
     searchText->setShortcutEnabled(true);
     connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
