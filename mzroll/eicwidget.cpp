@@ -1469,7 +1469,7 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 		} else if (slice.mzmin != 0 && slice.mzmax != 0) {
 					eicParameters->_slice.mzmin = slice.mzmin;
 					eicParameters->_slice.mzmax = slice.mzmax;
-					eicParameters->_slice.mz = slice.mzmin;
+					eicParameters->_slice.mz = slice.mz;
 				}
 
 		recompute();
