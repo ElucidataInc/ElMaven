@@ -1,0 +1,12 @@
+title: El Maven
+author: Elucidata
+email: http://elucidata.io
+baseurl: ""
+description: > # this means to ignore newlines until "baseurl:"
+  An opensource LC-MS data processing engine 
+
+twitter_username: macrod68
+github_username:  macrod68
+
+sass:
+    style: compressed
