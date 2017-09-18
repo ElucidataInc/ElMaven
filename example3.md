@@ -4,199 +4,33 @@ title: Manuals
 permalink: /table/
 ---
 
-<h1 class="page-title">{{ page.title | escape }}</h1>
+<h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
 
 <div class="section">
-    <h5>Borderless Table</h5> 
-    <div class="row">
-          <div class="col s12">
-            <table>
-              <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Item Name</th>
-                    <th>Item Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Alvin</td>
-                  <td>Eclair</td>
-                  <td>$0.87</td>
-                </tr>
-                <tr>
-                  <td>Alan</td>
-                  <td>Jellybean</td>
-                  <td>$3.76</td>
-                </tr>
-                <tr>
-                  <td>Jonathan</td>
-                  <td>Lollipop</td>
-                  <td>$7.00</td>
-                </tr>
-                <tr>
-                  <td>Shannon</td>
-                  <td>KitKat</td>
-                  <td>$9.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    </div>
+ <div id="manuals">
+    <h5><a href="https://github.com/ElucidataInc/ElMaven">Developer Manual</a></h5>
+    <br>
+    <h5><a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI">User Manual</a></h5>
+    <br>
+    <br>
+    <p class="cdn-content" style="font-size:14px;"><b>Supported Workflows:</b></p>
+    <br>
+    <ul type="none" style="padding-left:3%">
+    <li><h6><a href="https://github.com/ElucidataInc/ElMaven/wiki/Unlabeled-LCMS-Workflow">- Unlabeled LC-MS</a></h6></li>
+    <br>
+    <li><h6><a href="https://github.com/ElucidataInc/ElMaven/wiki/Labeled-LCMS-Workflow">- Labeled LC-MS</a></h6></li>
+    <br>
+    <li><h6><a href="https://github.com/ElucidataInc/ElMaven/wiki/Labeled-LC-MSMS-Workflow">- Labeled LC-MS/MS</a></h6></li>
+    </ul>
+ </div>
 </div>
-<div class="divider"></div>
-<div class="section">
-    <h5>Bordered Table</h5> 
-    <div class="row">
-          <div class="col s12">
-            <table class="bordered">
-              <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Item Name</th>
-                    <th>Item Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Alvin</td>
-                  <td>Eclair</td>
-                  <td>$0.87</td>
-                </tr>
-                <tr>
-                  <td>Alan</td>
-                  <td>Jellybean</td>
-                  <td>$3.76</td>
-                </tr>
-                <tr>
-                  <td>Jonathan</td>
-                  <td>Lollipop</td>
-                  <td>$7.00</td>
-                </tr>
-                <tr>
-                  <td>Shannon</td>
-                  <td>KitKat</td>
-                  <td>$9.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    </div>
-</div>
-<div class="divider"></div>
-<div class="section">
-    <h5>Striped Table</h5> 
-    <div class="row">
-          <div class="col s12">
-            <table class="striped">
-              <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Item Name</th>
-                    <th>Item Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Alvin</td>
-                  <td>Eclair</td>
-                  <td>$0.87</td>
-                </tr>
-                <tr>
-                  <td>Alan</td>
-                  <td>Jellybean</td>
-                  <td>$3.76</td>
-                </tr>
-                <tr>
-                  <td>Jonathan</td>
-                  <td>Lollipop</td>
-                  <td>$7.00</td>
-                </tr>
-                <tr>
-                  <td>Shannon</td>
-                  <td>KitKat</td>
-                  <td>$9.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    </div>
-</div>
-<div class="divider"></div>
-<div class="section">
-    <h5>Highlight Table</h5> 
-    <div class="row">
-          <div class="col s12">
-            <table class="highlight">
-              <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Item Name</th>
-                    <th>Item Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Alvin</td>
-                  <td>Eclair</td>
-                  <td>$0.87</td>
-                </tr>
-                <tr>
-                  <td>Alan</td>
-                  <td>Jellybean</td>
-                  <td>$3.76</td>
-                </tr>
-                <tr>
-                  <td>Jonathan</td>
-                  <td>Lollipop</td>
-                  <td>$7.00</td>
-                </tr>
-                <tr>
-                  <td>Shannon</td>
-                  <td>KitKat</td>
-                  <td>$9.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    </div>
-</div>
-<div class="divider"></div>
-<div class="section">
-    <h5>Responsive Table</h5> 
-    <div class="row">
-          <div class="col s12">
-            <table class="responsive-table">
-              <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Item Name</th>
-                    <th>Item Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Alvin</td>
-                  <td>Eclair</td>
-                  <td>$0.87</td>
-                </tr>
-                <tr>
-                  <td>Alan</td>
-                  <td>Jellybean</td>
-                  <td>$3.76</td>
-                </tr>
-                <tr>
-                  <td>Jonathan</td>
-                  <td>Lollipop</td>
-                  <td>$7.00</td>
-                </tr>
-                <tr>
-                  <td>Shannon</td>
-                  <td>KitKat</td>
-                  <td>$9.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    </div>
-</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>

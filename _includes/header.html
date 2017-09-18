@@ -3,25 +3,25 @@
     {% assign default_paths = site.pages | map: "path" %}
     {% assign page_paths = site.header_pages | default: default_paths %}
 
-          <ul class="right hide-on-med-and-down">
-            <li><a href="{{ "/" | relative_url }}">Home</a></li>
+          <ul class="right hide-on-med-and-down cdn-nav" style="background-color:#8985db;">
+            <li class="links"><a href="{{ "/" | relative_url }}" style="color:white;">Home</a></li>
             {% if page_paths %}
                 {% for path in page_paths %}
                     {% assign my_page = site.pages | where: "path", path | first %}
                     {% if my_page.title %}
-                    <li><a href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a></li>
+                    <li class="links"><a href="{{ my_page.url | relative_url }}" style="color:white;">{{ my_page.title | escape }}</a></li>
                     {% endif %}
                 {% endfor %}
             {% endif %}              
           </ul>
 
-          <ul id="nav-mobile" class="side-nav">
-            <li><a href="#">Home</a></li>
+          <ul id="nav-mobile cdn-nav" class="side-nav" style="background-color:#8985db;">
+            <li class="links"><a href="#" style="color:white;">Home</a></li>
                             {% if page_paths %}
                 {% for path in page_paths %}
                     {% assign my_page = site.pages | where: "path", path | first %}
                     {% if my_page.title %}
-                    <li><a href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a></li>
+                    <li class="links"><a href="{{ my_page.url | relative_url }}" style="color:white;">{{ my_page.title | escape }}</a></li>
                     {% endif %}
                 {% endfor %}
             {% endif %} 
