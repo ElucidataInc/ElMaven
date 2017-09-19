@@ -23,7 +23,6 @@ fi
 type="$(uname)" 
 systemType="$(echo "$type"  |  tr '[:upper:]'  '[:lower:]')"
 if [ $systemType == "linux" ] && [ $flag == 10 ]; then
-    echo "ss fdf"
     lcov --capture --directory ./ --output-file coverage.info
     genhtml coverage.info --output-directory coverage
 fi
