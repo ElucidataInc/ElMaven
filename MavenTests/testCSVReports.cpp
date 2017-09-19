@@ -132,6 +132,7 @@ void TestCSVReports::testaddGroups() {
     peakDetector.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
+    csvreports->setMavenParameters(mavenparameters);    
     csvreports->openGroupReport(outputfile,true);
     csvreports->addGroup(&(parent));
 
