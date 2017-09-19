@@ -3,9 +3,7 @@ layout: page
 title: Why ElMaven
 permalink: Buttoms/
 ---
-<link rel="stylesheet" type="text/css" media="screen,projection" href="/assets/materialize.css" />
-<link rel="stylesheet" type="text/css" media="screen,projection" href="/assets/codon-min.css" />
-<link rel="stylesheet" type="text/css" media="screen,projection" href="/assets/main.css">
+
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
 <br>
 <div class="section">
@@ -42,6 +40,3 @@ permalink: Buttoms/
 <br>
 <br>
 <br>
-<script src="/Scripts/jquery.min.js"></script>
-<script src="/Scripts/materialize.min.js"></script>
-<script src="/Scripts/init.js"></script>

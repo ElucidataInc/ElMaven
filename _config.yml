@@ -1,7 +1,9 @@
 title: El Maven
 author: Elucidata
 email: http://elucidata.io
-baseurl: ""
+baseurl: "/ElMaven"
+production_url : https://elucidatainc.github.io/ElMaven
+BASE_PATH : https://github.com/ElucidataInc/ElMaven
 description: > # this means to ignore newlines until "baseurl:"
   An opensource LC-MS data processing engine 
 
