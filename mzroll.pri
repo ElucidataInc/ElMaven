@@ -1,6 +1,12 @@
 OUTPUT_DIR = $$(OUTPUT_DIR)
 isEmpty(OUTPUT_DIR):OUTPUT_DIR=$$PWD/build
 
+CONFIG(debug, debug|release){
+    message("running in debug mode  ")
+    unix:QMAKE_CCFLAGS+= -fprofile-arcs -ftest-coverage
+    unix:QMAKE_CXXFLAGS+= -fprofile-arcs -ftest-coverage
+    unix:QMAKE_LFLAGS+= -fprofile-arcs -ftest-coverage
+}
 
 INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
 unix {
@@ -57,9 +63,6 @@ mac {
 
 
 unix {
-    QMAKE_CCFLAGS+= -fprofile-arcs -ftest-coverage
-    QMAKE_CXXFLAGS+= -fprofile-arcs -ftest-coverage
-    QMAKE_LFLAGS+= -fprofile-arcs -ftest-coverage
    message("using unix config")
    DEFINES -= LITTLE_ENDIAN
    DEFINES += UNIX
