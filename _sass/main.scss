@@ -78,13 +78,22 @@ p.rss-subscribe {
 
 }
 
-.dotted-list,.dotted-list li{
+.dotted-list,.dotted-list>li{
      list-style:disc !important;
+     margin-left:20px;
 }
 
+.dotted-list{
+}
+
+
 .img-res{
-    width:450px;
-    height:250px;
+    
+    align:center;
+    width:550px;
+    height:350px;
+    display: block;
+    margin: 0 auto;
 }
 
 
@@ -92,9 +101,6 @@ ul li{
     margin: 0px 20px;
 }
 
-ul.dotted-list {
-    list-style-type: circle;
-}
 
 
 .heading-sub{
