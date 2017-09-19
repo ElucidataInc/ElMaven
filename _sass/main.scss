@@ -65,3 +65,77 @@ h1.page-title {
 p.rss-subscribe {
     margin: 0;
 }
+
+
+/* Features  */
+
+.heading{
+    padding: 10px 0px;
+    color: #333333;
+    font-weight: bold;
+    letter-spacing: 0.1rem;
+    font-size: 1rem;
+
+}
+
+.dotted-list,.dotted-list li{
+     list-style:disc !important;
+}
+
+.img-res{
+    width:450px;
+    height:250px;
+}
+
+
+ul li{
+    margin: 0px 20px;
+}
+
+ul.dotted-list {
+    list-style-type: circle;
+}
+
+
+.heading-sub{
+    color: #333333;
+    font-weight: bold;
+    letter-spacing: 0.1rem;
+    font-size: .8rem;
+    padding: 05px 0px;
+    text-transform: uppercase;
+
+}
+
+.content{
+    padding: 04rem 0;
+    overflow: hidden;
+    color: #9E9D9E;
+
+}
+
+
+.content-dark{
+    background: #262F36;
+    color: white;
+    padding: 04rem 0;
+    overflow: hidden;
+
+}
+.img-src{
+    width:450px;height:250px;padding:10px;
+}
+
+.content > *{
+    font-size: 14px;
+}
+
+
+a{
+    color: #8985DB;
+}
+
+
+.material-icons{
+    color:#FF9800;
+}

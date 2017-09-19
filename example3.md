@@ -1,15 +1,13 @@
 ---
 layout: page
 title: Manuals
-permalink: table/
+permalink: /table/
 ---
 
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
 
 <div class="section">
  <div id="manuals">
-    <h5><a href="https://github.com/ElucidataInc/ElMaven">Developer Manual</a></h5>
-    <br>
     <h5><a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI">User Manual</a></h5>
     <br>
     <br>
@@ -22,6 +20,12 @@ permalink: table/
     <br>
     <li><h6><a href="https://github.com/ElucidataInc/ElMaven/wiki/Labeled-LC-MSMS-Workflow">- Labeled LC-MS/MS</a></h6></li>
     </ul>
+    <br>
+    <br>
+     <h5><a href="https://github.com/ElucidataInc/ElMaven">Developer Manual</a></h5>
+    <br>
+   
+
  </div>
 </div>
 <br>
