@@ -1,25 +1,20 @@
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
 
+SUBDIRS += 3rdparty/ src/core/libmaven/ src/gui/mzroll/ src/cli/peakdetector tests/MavenTests CrashReporter
 
-macx{
-    QMAKE_CXX = /usr/local/opt/llvm@3.7/lib/llvm-3.7/bin/clang++
-}
+# src/gui/mzroll/ src/cli/peakdetector tests/MavenTests CrashReporter
 
-
-SUBDIRS +=	\
-		libneural \
-        libcdfread \
-        libplog \
-		libcsvparser\
-		pugixml/src \
-		libmaven \
-        libpillow\
-        libpls \
-    	mzroll \
-        peakdetector \
-        MavenTests \
-        CrashReporter
-macx{
-    SUBDIRS -= libplog
-}
+#SUBDIRS +=	\
+#		libneural \
+#        libcdfread \
+#        libplog \
+#		libcsvparser\
+#		pugixml/src \
+#		libmaven \
+#        libpillow\
+#        libpls \
+#    	mzroll \
+#        peakdetector \
+#        MavenTests \
+#       CrashReporter
