@@ -7,11 +7,15 @@ include(./s3-qt.pri)
 
 QT       += core gui network
 
+MOC_DIR=$$top_builddir/tmp/crash_reporter/
+OBJECTS_DIR=$$top_builddir/tmp/crash_reporter/
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CrashReporter
 TEMPLATE = app
-DESTDIR = ../bin
+
+DESTDIR = $$top_builddir/bin/
 
 SOURCES += main.cpp\
         mainwindow.cpp
