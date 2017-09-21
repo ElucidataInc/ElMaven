@@ -11,10 +11,16 @@ List of functions:
 
 3. remove_outliers: Remove rows whose mzs and rts are not equal
 
-4. plot: Plot scatter plot for comparison single sample from two pandas
+4. remove_outliers_using_diff: Remove outliers in pandas dataframe
+    on the basis of mzs and rts difference
+
+5. remove_outliers_using_score: Remove outliers in pandas dataframe
+    on the basis of score and duplicates
+
+6. plot: Plot scatter plot for comparison single sample from two pandas
         dataframes
 
-5. get_layout: Returns layout for plotly
+7. get_layout: Returns layout for plotly
 
 """
 import os
@@ -22,6 +28,7 @@ import plotly.graph_objs as go
 from plotly.offline import plot
 from helper import helper
 from config import config
+
 
 class CompareOutput(object):
     """
@@ -45,7 +52,6 @@ class CompareOutput(object):
         merged_df = helper.merge_dfs(df_list, self.config.unique_identifiers)
         merged_df = self.remove_outliers(merged_df)
         self.plot(merged_df, self.config.sample_list)
-
 
     def load_files(self, file_list):
         """
@@ -74,6 +80,22 @@ class CompareOutput(object):
                 are removed
         """
 
+        pandas_df = self.remove_outliers_using_diff(pandas_df)
+        pandas_df = pandas_df.sort_values("score")
+        pandas_df = self.remove_outliers_using_score(pandas_df)
+
+        return pandas_df
+
+    def remove_outliers_using_diff(self, pandas_df):
+        """
+        Remove outliers in pandas dataframe on the basis
+        of mzs and rts difference
+        Args:
+            pandas_df (df): Pandas dataframe
+        Returns:
+            pandas_df (df): Pandas dataframe
+        """
+
         for index, row in pandas_df.iterrows():
 
             mz_1 = row["medMz_x"]
@@ -81,13 +103,46 @@ class CompareOutput(object):
             rt_1 = row["medRt_x"]
             rt_2 = row["medRt_y"]
 
-            mz_diff = abs(mz_2-mz_1)
-            rt_diff = abs(rt_2-rt_1)
+            mz_diff = abs(mz_2 - mz_1)
+            rt_diff = abs(rt_2 - rt_1)
+
+            pandas_df["score"] = mz_diff + rt_diff
 
             if mz_diff < 0.3 and rt_diff < 0.2:
                 pass
             else:
                 pandas_df.drop(index, inplace=True)
+
+        return pandas_df
+
+    def remove_outliers_using_score(self, pandas_df):
+        """
+        Remove outliers in pandas dataframe on the basis
+        of score and duplicates
+        Args:
+            pandas_df (df): Pandas dataframe
+        Returns:
+            pandas_df (df): Pandas dataframe
+        """
+
+        mzrt1 = []
+        mzrt2 = []
+
+        for index, row in pandas_df.iterrows():
+
+            mz_1 = row["medMz_x"]
+            mz_2 = row["medMz_y"]
+            rt_1 = row["medRt_x"]
+            rt_2 = row["medRt_y"]
+
+            key_1 = (mz_1, rt_1)
+            key_2 = (mz_2, rt_2)
+
+            if key_1 in mzrt1 or key_2 in mzrt2:
+                pandas_df.drop(index, inplace=True)
+            else:
+                mzrt1.append(key_1)
+                mzrt2.append(key_2)
 
         return pandas_df
 
@@ -121,11 +176,13 @@ class CompareOutput(object):
 
             data.append(trace)
 
-        layout = self.get_layout(self.config_name, self.file_list[0], self.file_list[1])
+        layout = self.get_layout(
+            self.config_name, self.file_list[0], self.file_list[1])
 
         fig = go.Figure(data=data, layout=layout)
 
-        plot(fig, filename=os.path.join('results', self.config_name + self.config.plot_result))
+        plot(fig, filename=os.path.join(
+            self.config.result_dir, self.config_name + self.config.plot_result))
 
     def get_layout(self, plot_title, x_title, y_title):
         """
