@@ -84,6 +84,7 @@ maven_opensource.kdev4
 *.Xml
 *.XML
 !test.xml
+!tests/featureTesting/data/*.xml
 
 #Mzroll File
 *.mzroll
@@ -107,3 +108,6 @@ ui_*.h
 moc_predefs.h
 qrc_mzroll.cpp
 object_script.pillowcore
+
+#Feature Testing
+tests/featureTesting/results

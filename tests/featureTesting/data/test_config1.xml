@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<Arguments>
+	<OptionsDialogArguments>
+		<ionizationMode type="int" value="-1" />
+		<charge type="int" value="1" />
+		<compoundPPMWindow type="float" value="10" />
+	</OptionsDialogArguments>
+	<PeaksDialogArguments>
+		<minGoodGroupCount type="int" value="1" />
+		<matchRtFlag type="int" value="0" />
+		<Db type="string" value="../../bin/methods/KNOWNS.csv" />
+		<processAllSlices type="int" value="0" />
+		<pullIsotopes type="int" value="1" />
+		<grouping_maxRtWindow type="float" value="0.3" />
+		<minGroupIntensity type="float" value="1000" />
+		<quantileIntensity type="float" value="50" />
+		<model type="string" value="../../bin/default.model" />
+		<eicMaxGroups type="int" value="1000" />
+		<ppmMerge type="float" value="30" />
+		<minQuality type="float" value="0.6" />
+		<quantileQuality type="float" value="20" />
+		<rtStepSize type="float" value="20" />
+		<minPeakWidth type="int" value="1" />
+		<eicSmoothingWindow type="int" value="5" />
+		<minSignalBaseLineRatio type="float" value="2" />
+		<quantitationType type="int" value="0" />
+		<minScanMz type="float" value="0" />
+		<maxScanMz type="float" value="1e+09" />
+		<minScanRt type="float" value="0" />
+		<maxScanRt type="float" value="1e+09" />
+		<minScanIntensity type="float" value="0" />
+		<maxScanIntensity type="float" value="1e+10" />
+	</PeaksDialogArguments>
+	<GeneralArguments>
+		<alignSamples type="int" value="0" />
+		<saveEicJson type="int" value="0" />
+		<outputdir type="string" value="tmp/" />
+		<savemzroll type="int" value="0" />
+		<samples type="string" value="../../bin/methods/testsample_1.mzxml" />
+		<samples type="string" value="../../bin/methods/testsample_2.mzxml" />
+		<samples type="string" value="../../bin/methods/testsample_3.mzxml" />
+	</GeneralArguments>
+</Arguments>
