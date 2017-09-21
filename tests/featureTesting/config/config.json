@@ -1,5 +1,5 @@
 {
-    "peakdetector_path":"../../bin/peakdetector",
+    "peakdetector_path":"../../../build/bin/peakdetector",
     "cli_configs_path":"data/",
     "output_path": "tmp/"
 }
