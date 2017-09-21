@@ -5,5 +5,7 @@
     "sample_list": ["testsample_1", "testsample_2", "testsample_3"],
     "unique_indentifiers": ["compoundId", "compound", "formula", "goodPeakCount"],
     "config_extension": "xml",
-    "output_fname": "compounds.csv"
+    "output_fname": "compounds.csv",
+    "result_dir": "results/",
+    "plot_result": "Results.html"
 }
