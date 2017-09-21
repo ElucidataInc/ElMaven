@@ -27,6 +27,8 @@ class Config(object):
         self.output_path = self.config_data["output_path"]
         self.sample_list = self.config_data["sample_list"]
         self.unique_identifiers = self.config_data["unique_indentifiers"]
+        self.config_extension = self.config_data["config_extension"]
+        self.output_fname = self.config_data["output_fname"]
 
     def get_json_keys(self, json_path):
         """
