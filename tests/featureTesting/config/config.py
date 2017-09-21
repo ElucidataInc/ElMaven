@@ -29,6 +29,8 @@ class Config(object):
         self.unique_identifiers = self.config_data["unique_indentifiers"]
         self.config_extension = self.config_data["config_extension"]
         self.output_fname = self.config_data["output_fname"]
+        self.result_dir = self.config_data["result_dir"]
+        self.plot_result = self.config_data["plot_result"]
 
     def get_json_keys(self, json_path):
         """

@@ -11,6 +11,11 @@ List of functions:
 
 3. remove_outliers: Remove rows whose mzs and rts are not equal
 
+4. plot: Plot scatter plot for comparison single sample from two pandas
+        dataframes
+
+5. get_layout: Returns layout for plotly
+
 """
 import os
 import plotly.graph_objs as go
@@ -28,6 +33,7 @@ class CompareOutput(object):
         self.file_list = file_list
         self.config_name = config_name
         self.config = config.Config()
+        helper.make_dir(self.config.result_dir)
 
     def compare(self):
         """
@@ -115,20 +121,34 @@ class CompareOutput(object):
 
             data.append(trace)
 
+        layout = self.get_layout(self.config_name, self.file_list[0], self.file_list[1])
+
+        fig = go.Figure(data=data, layout=layout)
+
+        plot(fig, filename=os.path.join('results', self.config_name + self.config.plot_result))
+
+    def get_layout(self, plot_title, x_title, y_title):
+        """
+        Returns layout for plotly
+
+        Args:
+            plot_title (str): Title of plot
+            x_title (str): Title of x axis
+            y_title (str): Title of y axis
+        Returns:
+            layout (plotly obj): Layout for plotly
+        """
+
         layout = go.Layout(
-            title=self.config_name,
+            title=plot_title,
             xaxis=dict(
-                title='test1.tab',
+                title=x_title,
                 type='log'
             ),
             yaxis=dict(
-                title='test2.tab',
+                title=y_title,
                 type='log'
             )
         )
 
-
-        fig = go.Figure(data=data, layout=layout)
-
-        os.system('mkdir -p results')
-        plot(fig, filename=os.path.join('results', self.config_name + '.html'))
+        return layout
