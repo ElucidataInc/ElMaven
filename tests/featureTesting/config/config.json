@@ -1,5 +1,7 @@
 {
     "peakdetector_path":"../../../build/bin/peakdetector",
     "cli_configs_path":"data/",
-    "output_path": "tmp/"
+    "output_path": "tmp/",
+    "sample_list": ["testsample_1", "testsample_2", "testsample_3"],
+    "unique_indentifiers": ["compoundId", "compound", "formula", "goodPeakCount"]
 }

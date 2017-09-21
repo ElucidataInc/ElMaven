@@ -25,6 +25,8 @@ class Config(object):
         self.peakdetector_path = self.config_data["peakdetector_path"]
         self.cli_configs_path = self.config_data["cli_configs_path"]
         self.output_path = self.config_data["output_path"]
+        self.sample_list = self.config_data["sample_list"]
+        self.unique_identifiers = self.config_data["unique_indentifiers"]
 
     def get_json_keys(self, json_path):
         """
