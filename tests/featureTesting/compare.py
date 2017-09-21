@@ -16,16 +16,18 @@ import os
 import plotly.graph_objs as go
 from plotly.offline import plot
 from helper import helper
+from config import config
 
 class CompareOutput(object):
     """
-    This class compares different outputs of Cli generaed using
+    This class compares different outputs of Cli generated using
     different configuration files
     """
 
     def __init__(self, file_list, config_name):
         self.file_list = file_list
         self.config_name = config_name
+        self.config = config.Config()
 
     def compare(self):
         """
@@ -34,11 +36,9 @@ class CompareOutput(object):
         """
 
         df_list = self.load_files(self.file_list)
-        col_list = ["compoundId", "compound", "formula", "goodPeakCount"]
-        merged_df = helper.merge_dfs(df_list, col_list)
+        merged_df = helper.merge_dfs(df_list, self.config.unique_identifiers)
         merged_df = self.remove_outliers(merged_df)
-        sample_list = ['testsample_1', 'testsample_2', 'testsample_3']
-        self.plot(merged_df, sample_list)
+        self.plot(merged_df, self.config.sample_list)
 
 
     def load_files(self, file_list):
