@@ -151,6 +151,14 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	eicParameters->_integratedGroup.minQuality = settings->value("minQuality").toDouble();
 	eicParameters->_integratedGroup.compound = eicParameters->_slice.compound;
 	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
+	eicParameters->_integratedGroup.samples.clear();
+	vector<mzSample*> samples=getMainWindow()->samples;
+	for(int i=0;i<samples.size();++i){
+		if(samples[i]->isSelected){
+			eicParameters->_integratedGroup.samples.push_back(samples[i]);		//insert all selected sample
+		}
+	}
+	
 
 	for (int i = 0; i < eicParameters->eics.size(); i++) {
 		EIC* eic = eicParameters->eics[i];
