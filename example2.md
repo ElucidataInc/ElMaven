@@ -86,7 +86,7 @@ ElMaven can read import raw data and export processed data in the following form
 <h4 class="cdn-h3">Peak Grouping:</h4>
 <p class="cdn-content">Track a metabolite across samples with a single visual</p>
 <br>
-<img class="img-res" src=" /assets/peak_group.png"></p>
+<img class="img-res" src=" /ElMaven/assets/peak_group.png"></p>
 <br>
 <h4 class=" cdn-h2" style="color: #8985db;">Statistical Analysis</h4>
 <br>
@@ -95,12 +95,12 @@ ElMaven can read import raw data and export processed data in the following form
 <p class="cdn-content"> It represents the log2 of fold change between the two sets: Sample 1 and Sample 2. The points falling on the diagonal line indicates high similarity between the sets. The two sets can be, for example, samples from a diseased cell and a healthy cell. In such cases the comparison helps study the difference between them.
 </p>
 <br>
-<img class="img-res" src="/assets/ScatterPlot.PNG">
+<img class="img-res" src="/ElMaven/assets/ScatterPlot.PNG">
 <br>
 <h4 class="cdn-h3">Volcano Plot:</h4><p class="cdn-content">
  Significance vs. Fold change graph to view differential intensities or abundances of two sets: Sample 1 and Sample 2.</p> 
 <br>
-<img class="img-res" src="/assets/FlowerPlot.PNG">
+<img class="img-res" src="/ElMaven/assets/FlowerPlot.PNG">
 <br>
 <h4 class="cdn-h3">Cluster Analysis:</h4>
 <p class="cdn-content">
@@ -119,7 +119,7 @@ ElMaven can read import raw data and export processed data in the following form
 <p class="cdn-content"> TIC is the sum of all intensities in a scan.
 </p>
 <br>
-<img class="img-res" src="/assets/TIC.PNG">
+<img class="img-res" src="/ElMaven/assets/TIC.PNG">
 <br>
 <h4 class="cdn-h3">Peak Intensity Barplot:</h4>
 <p class="cdn-content">
