@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Features
-permalink: /css/
+permalink: /Features/
 ---
 
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
@@ -29,7 +29,7 @@ ElMaven can read import raw data and export processed data in the following form
   </ul>
   <br>
   
-<h4 class="cdn-h2" style="color: #8985db;"  >Raw Data Methods:</h4>
+<h4 class="cdn-h2" style="color: #8985db;"  >Raw Data Processing:</h4>
 <br>
 <h4 class="cdn-h3">Instrumentation:</h4>
 
@@ -42,10 +42,6 @@ ElMaven can read import raw data and export processed data in the following form
   <li class="cdn-content">Filterline</li>
 </ul>
 <br>
- <img src="https://user-images.githubusercontent.com/28925846/29772499-b16d721a-8c16-11e7-89d6-0f0d0e2f111e.png" class="img-res"
-/>
-<br>
-<br>
 <h4 class="cdn-h3">File Import:</h4> 
 <p class="cdn-content">Determine how to store the imported scan information based on ionization method, polarity of ions, MS level, minimum threshold, et cetra.</p>
 <ul class="dotted-list">
@@ -57,10 +53,7 @@ ElMaven can read import raw data and export processed data in the following form
   <li class="cdn-content">Enable Multiprocessing</li>
 </ul>
 <br>
-<img  src="https://user-images.githubusercontent.com/28925846/29772500-b16e6850-8c16-11e7-952e-6b7a3551c18f.png" class="img-res"/>
-
-<br>
-<h4 class="cdn-h2" style="color: #8985db;">Alignment</h4>
+<h4 class="cdn-h3">Alignment</h4>
 <br>
 <p class="cdn-content"> Multiple runs in chromatography column can lead to a drift in retention time across samples. Alignment of the samples corrects for these drifts and brings the peaks closer to median RT of the group.
 </p>
@@ -72,145 +65,28 @@ ElMaven can read import raw data and export processed data in the following form
  <br>
     
 <p class="cdn-h3">Post-alignment EIC:</p>
-
-<p class="cdn-content">ElMaven provides three visualizations for alignment analysis.</p>
 <br>
 <img class="img-res" src="
  https://user-images.githubusercontent.com/31105033/29817379-4ab90a70-8ca7-11e7-987c-53990b5e265d.JPG
-">
-
-    <br>
-   <h4 class="cdn-h3">Alignment Visualization</h4> 
-  <p class="cdn-content">   Click on this widget and select any group to look at its delta Rt vs Rt graph.</p>
-    <br>
-    <img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772958-bb02c3fa-8c18-11e7-8efb-2763fc64535a.png" />
-  <br>
-  <br>
-   <h4  class="cdn-h3">Alignment Visualization (For All Groups):
-   <br>
-   </h4> 
-   <p class="cdn-content">This widget shows a graph for delta Rt vs Rt for all the groups.
-    </p>
-    <br>
-    <img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772953-bad88ef0-8c18-11e7-83bb-818adbf7d86c.png" >
-  
-  <br>
-   <h4 class="cdn-h3">Alignment Polynomial Fit:
-   </h4> 
-   <p class="cdn-content"> Click on this widget bar for Poly fit alignment.
-   </p>
-    <br>
-    <img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772952-ba8b43d4-8c18-11e7-852d-34db2bf20ac6.png" >
-  
-
+"/>
+   
 <ul>
 <br>
-<h4 class="cdn-h3">Automatic Peak Picking:</h4>
+<h4 class="cdn-h3 ">Automatic Peak Picking</h4>
 <p class="cdn-content">ElMaven can automatically select high intensity and high quality groups. This workflow is called automatic peak curation. The feature has been tested for accuracy against the gold standard of manually curated peaks by scientists at other tools. This feature reduces the time spent from days to a few hours in curating peaks in Untargted Global Profiling datasets.</p>
 <br>
-<h4 class="cdn-h3">Peak Detection:</h4>
-
-<p class="cdn-content">Reduce noise in the Extracted Ion Chromatograms (EIC) with settings for smoothing, baseline and peak filtering.
-</p><br>
-
-<p class="cdn-content">Peak Detection and Grouping Settings</p>
-<ul class="dotted-list cdn-content" >
-  <li class="cdn-content">EIC Smoothing Algorithm</li>
-  <li class="cdn-content">EIC Smoothing Window</li>
-  <li class="cdn-content">Max Retention Time Difference Between Peaks
-</li>
-</ul>
-<br>
-<p class="cdn-content">Baseline Calculation</p>
-<ul class="dotted-list cdn-content">
-  <li class="cdn-content">Drop top x% intensities from chromatogram</li>
-  <li class="cdn-content">Baseline Smoothing</li>
-</ul>
-<br>
-<p class="cdn-content">Peak Filtering</p>
-<ul class="dotted-list">
-  <li class="cdn-content">Min. Signal Baseline Difference</li>
-</ul>
-<br>
-<img class="img-res" src=" https://user-images.githubusercontent.com/28925846/29772498-b16c2c16-8c16-11e7-8ada-783f974307c0.png">
-<br>
-<br>
 
 <p class="cdn-content">
-<h4 class="cdn-h3" >Isotope Detection:</h4></p>
+<h4 class="cdn-h3 " >Isotope Detection</h4></p>
 <p class="cdn-content">Detect labeled samples by enabling the following settings according to the tracer used.</p>
-<p class="cdn-content">Are Sample Labeled?</p>
-<ul class="dotted-list">
-  <li class="cdn-content">Bookmarks, peak detection, file export</li>
-  <li class="cdn-content">Isotopic barplot</li>
-  <li class="cdn-content">Isotopic widget</li>
-  <li class="cdn-content">Number of M+n isotopes</li>
-  <li class="cdn-content">Abundance Threshold</li>
-</ul>
-
-<p class="cdn-content">Filter Isotopic Peaks based on these criteria</p>
-<ul class="dotted-list">
-  <li class="cdn-content">Minimum Isotope-Parent Correlation</li>
-  <li class="cdn-content">Isotope is within [X] scans of parent</li>
-  <li class="cdn-content">Maximum % Error to Natural Abundance</li>
-  <li class="cdn-content">Correct for Natural C13 Isotope Abundance</li>
-<ul>
 <br>
-
 <img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772496-b1680ec4-8c16-11e7-81ea-2308c552a30d.png">
 <br>
-
-<p class="cdn-content">
-<br>
-<h4 class="cdn-h3">EIC (XIC):</h4> 
-<p class="cdn-content">Detect labeled samples by enabling the following settings according to the tracer used.</p>
-<p class="cdn-content">Select a method to merge EICs over m/z from:</p>
-<ul class="dotted-list">
-  <li class="cdn-content">EIC type</li>
-</ul>
-<br>
-<img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772495-b1675da8-8c16-11e7-9263-ff7d355cfc15.png">
-<br>
-</p>
-<br>
-
 <p class="cdn-content">
 <h4 class="cdn-h3">Peak Grouping:</h4>
-<p class="cdn-content">All peaks originating from the same ion are sought to be viewed together. Peaks are assigned a grouping score to determine whether they should be grouped together. The score depends on the following 3 parameters and their weights:</p>
-<ol >
-  <li class="cdn-content">a) RT difference: Closer peaks are assigned a higher score.</li>
-  <li class="cdn-content">b) Intensity difference: Smaller difference accounts for a higher score.</li>
-  <li class="cdn-content">c) Overlap: Greater overlap accounts for a higher score.</li>
-</ol>
+<p class="cdn-content">Track a metabolite across samples with a single visual</p>
 <br>
-<p class="cdn-content">Adjust these parameters with:</p>
-<ul class="dotted-list">
-  <li class="cdn-content">Consider Overlap</li>
-  <li class="cdn-content">Sliders provided to adjust the weights attached to each of the three parameters.</li>
-</ul>
-<br>
-<img class="img-res" src=" https://user-images.githubusercontent.com/28925846/29772494-b1392604-8c16-11e7-8b9e-94323ca93b27.png"></p>
-<br>
-<br>
-<p class="cdn-content">
-<h4 class="cdn-h3">Group Ranks:</h4> 
-</p>
-<p class="cdn-content">Group rank is one of the parameters for group filtering. The score changes in the following manner</p>
-<ol>
-  <li class="cdn-content">a) Group Quality: Peaks are assigned a quality score by a machine learning algorithm in El Maven. Better quality leads to a higher rank.</li>
-  <li class="cdn-content">b) Group Intensity: Better intensity leads to a higher rank.</li>
-  <li class="cdn-content">c) RT difference: Samller RT difference leads to a higher rank. The slider is disabled if Consider Retention Time is unchecked.</li>
-</ol>
-<br>
-<p class="cdn-content">Adjust these parameters with:</p>
-<ol>
-<li class="cdn-content">a) Consider Retention Time</li>
-<li class="cdn-content">b) Quality Weight slider</li>
-<li class="cdn-content">c) Intensity Weight slider</li>
-<li class="cdn-content">d) dRT Weight slider</li>
-</ol>
-<br><img class="img-res" src="https://user-images.githubusercontent.com/28925846/29772493-b10d2dce-8c16-11e7-8712-06558f025c14.png">
-<br>
+<img class="img-res" src=" https://elucidatainc.atlassian.net/wiki/download/thumbnails/21201203/Screen%20Shot%202017-09-01%20at%2012.24.24%20PM.png?version=1&modificationDate=1505993444377&cacheVersion=1&api=v2&width=422&height=250"></p>
 <br>
 <h4 class=" cdn-h2" style="color: #8985db;">Statistical Analysis</h4>
 <br>
@@ -256,7 +132,7 @@ They display the peak intensity for a group in every sample. Intensity can be ca
 This visual displays the relative presence of all isotopologues of an ion. Each bar in the plot represents the relative percentage of different isotopic species for the selected group in a sample.
 
 </p>
-<br><img class="img-src" src=" https://user-images.githubusercontent.com/28925846/29966908-9b79f35c-8f31-11e7-9516-b2746f444234.png ">
+<br><img class="img-res" src=" https://user-images.githubusercontent.com/28925846/29966908-9b79f35c-8f31-11e7-9516-b2746f444234.png ">
 <br>
 <br>
 <h4 class="cdn-h3">Box Plot: </h4>
@@ -276,20 +152,13 @@ Mass Spectra plot displays each peak, its mass, and intensity for a scan. This f
 <br>
 <h4 class="cdn-h3">Alignment Visualization:</h4> 
 
-<p class="cdn-content">Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median RT of the group. The three alignment graphs indicate how aligned or misaligned the peaks in a group are.
-</p>
 <br>
-<ul class="dotted-list">
-<li class="cdn-content">
-<h4 class="cdn-h3">Visualization for One Group:</h4><br><img src="https://user-images.githubusercontent.com/28925846/29772958-bb02c3fa-8c18-11e7-8efb-2763fc64535a.png" class="img-res"> </li>
+<h4 class="cdn-h3">Visualization for One Group:</h4><br><img src="https://user-images.githubusercontent.com/28925846/29772958-bb02c3fa-8c18-11e7-8efb-2763fc64535a.png" class="img-res"> 
 <br>
-<li class="cdn-content">
-<h4 class="cdn-h3">Visualization for All Groups:</h4><br> <img src="https://user-images.githubusercontent.com/28925846/29772953-bad88ef0-8c18-11e7-83bb-818adbf7d86c.png" class="img-res"></li>
+
+<h4 class="cdn-h3">Visualization for All Groups:</h4><br> <img src="https://user-images.githubusercontent.com/28925846/29772953-bad88ef0-8c18-11e7-83bb-818adbf7d86c.png" class="img-res">
 <br>
-<li class="cdn-content">
 <h4 class="cdn-h3">Alignment Polynomial fit: </h4>
 <br>
-<img  src="https://user-images.githubusercontent.com/28925846/29772952-ba8b43d4-8c18-11e7-852d-34db2bf20ac6.png" class="img-res"></li>
-</ul>
-
-
+<img  src="https://user-images.githubusercontent.com/28925846/29772952-ba8b43d4-8c18-11e7-852d-34db2bf20ac6.png" class="img-res">
+<br>

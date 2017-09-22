@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Why ElMaven
-permalink: /Buttoms/
+permalink: /Why-ElMaven/
 ---
 
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
