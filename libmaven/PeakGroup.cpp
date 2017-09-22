@@ -768,3 +768,12 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
     }
 
 }
+
+void PeakGroup::setSelectedSamples(vector<mzSample*> vsamples){
+    samples.clear();
+    for(int i=0;i<vsamples.size();++i){
+        if(vsamples[i]->isSelected) {
+            samples.push_back(vsamples[i]);
+        }
+    }
+}

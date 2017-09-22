@@ -540,5 +540,7 @@ class PeakGroup{
                             int qualityWeight,
                             int intensityWeight,
                             int deltaRTWeight);
+        
+        void setSelectedSamples(vector<mzSample*> vsamples);
 };
 #endif
