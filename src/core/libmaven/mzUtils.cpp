@@ -500,11 +500,11 @@ Series:  Prentice-Hall Series in Automatic Computation
 
     float correlation(const vector<float>&x, const vector<float>&y) {
         int n = x.size();
-        float sumx = 0; 		//
-        float sumy = 0;
-        float sumxy =0;
-        float x2 = 0;
-        float y2 = 0;
+        double sumx = 0; 		//
+        double sumy = 0;
+        double sumxy =0;
+        double x2 = 0;
+        double y2 = 0;
 
         for (int i = 0; i < n; i++) {
             sumx += x[i];
