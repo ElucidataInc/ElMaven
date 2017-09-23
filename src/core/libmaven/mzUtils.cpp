@@ -514,8 +514,8 @@ Series:  Prentice-Hall Series in Automatic Computation
             y2 += y[i]*y[i];
         }
         if (n == 0) return 0;
-        float var1 = x2-(sumx*sumx)/n;
-        float var2 = y2-(sumy*sumy)/n;
+        double var1 = x2-(sumx*sumx)/n;
+        double var2 = y2-(sumy*sumy)/n;
         if ( var1 == 0 || var2 == 0 ) return 0;
         return (sumxy -( sumx*sumy)/n) / sqrt((x2-(sumx*sumx)/n)*(y2-(sumy*sumy)/n));
     }
