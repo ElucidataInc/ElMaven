@@ -169,10 +169,10 @@ data		1-D array[ns] of smoothed data
         float fcut;
         float r;
         float fcutr=1.0/nsr;
-        static int n;
-        static int mean;
-        static float fcutl;
-        static float s[1000];		/* smoothing filter array */
+        int n=0;
+        int mean=0;
+        float fcutl=0;
+        float s[1000];		/* smoothing filter array */
         float *temp;			/* temporary array */
 
         /* save input fcut */
