@@ -8,57 +8,97 @@ class Reaction;
 class PeakGroup;
 using namespace std;
 class Compound{
-    //static MassCalculator* mcalc;
+    /*
+    *@brief  -   class to represent a compound
+    *@detail  -  class Compound representing a compound. It will hold variable to
+    *discribe a compound and also PeakGroup object it will belong to in addition
+    *to other required functions for other operation
+    */
 
     private:
-        PeakGroup _group;			//link to peak group
+        /** 
+        *@param - One group represent one compund and
+        * _group will present a link to that compund
+         */
+        PeakGroup _group;
+        /**
+        *@param - _groupUnlinked will check  wether Compound and PeakGroup are linked or not
+        */
         bool      _groupUnlinked;
 
     public:
+        /**
+        *@brief  -   constructor for this compound
+        */
         Compound(string id, string name, string formula, int charge );
-        ~Compound(){}; //empty destructor
+        ~Compound(){};
 
         PeakGroup* getPeakGroup() { return &_group; }
+        /**@brief   -   set this compound to a group and vice-versa   */
         void setPeakGroup(const PeakGroup& group ) { _group = group; _group.compound = this; }
+        /**@brief    -  check wether this compound belong to a group or not   */
         bool hasGroup()  const   { if(_group.meanMz != 0 ) return true; return false; }
-        void clearGroup()  { _group.clear(); }
-        void unlinkGroup() { _group.clear(); _groupUnlinked = true; }
+
+        void clearGroup()  { _group.clear(); }      /**@brief  -   delete group children, peaks etc   */
+
+        void unlinkGroup() { _group.clear(); _groupUnlinked = true; }   /**@brief  -   clear its group and mark it unlink to any group  */
+
         bool groupUnlinked() const { return _groupUnlinked; }
 
+        /**
+        *@param  -   Reaction represents simple compound reaction
+        *Check Reaction class in mzSample.h  
+        */
         vector<Reaction*>reactions;
-        string id;
+        string id;          /**@param - compund id */
 
-        string name;
-        string formula;
-        string kegg_id;
-        string pubchem_id;
-        string hmdb_id;
-        string alias;
-
+        string name;        /**@param -  name of compound */
+        string formula;         /**@param -  formula of compound */
+        string kegg_id;         /**@param -  kegg_id-    Kyoto Encyclopedia of Genes and Genomes id*/
+        string pubchem_id;      /**@param  -  pubchem_id -    PubChem id*/
+        string hmdb_id;         /**@param  -  hmdb_id-    Human Metabolome Database id */
+        string alias;       /**@param   -  alias name of compound   */
+        /**
+        *@param -  srmId will hold filterLine string from mzxml file which represent type of
+        *mass spec and ionization is used and other info as well
+        */
         string srmId;
         float expectedRt;
 
-        int charge;
-        float mass;
+        int charge;     /**@param  -   number of charge of compound (electron loss or gain)   */
+        float mass;     /**@param   -  mass of this compund   */
 
-        //QQQ mapping
-        string method_id;
-        float precursorMz;	//QQQ parent ion
-        float productMz;    // QQQ child ion
-        float collisionEnergy; //QQQ collision energy
+        /** QQQ mapping */
+        string method_id;   /**@param  -  TODO*/
+        float precursorMz;	/**@param  -  QQQ parent ion  mz value   */
+        float productMz;    /**@param  -  QQQ child ion   mz value */
+        float collisionEnergy; /**@param  -   QQQ collision energy of this compound   */
 
-        string db;			//name of database for example KEGG, ECOCYC.. etc..
+        string db;			/**@param -   name of database for example KEGG, ECOCYC.. etc..    */
 
-        int transition_id;
-        vector<float>fragment_mzs;
-        vector<float>fragment_intensity;
-        vector<string> category;
+        int transition_id;  /**  TODO */
+        vector<float>fragment_mzs;  /**@param  -   mzs of fragments generated from this compund   */
+        vector<float>fragment_intensity;    /**@param  -  intensities of fragments generated from this compund     */
+        vector<string> category;    /**@param  -   categories of this compund- peptide etc.   */
 
-        float ajustedMass(int charge);
-        void addReaction(Reaction* r) { reactions.push_back(r); }
+        float ajustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
+        void addReaction(Reaction* r) { reactions.push_back(r); }   /**  add reaction of this compound   */
+        /**
+        *@brief   -  utility function to compare compound by mass
+        */
         static bool compMass(const Compound* a, const Compound* b )      { return(a->mass < b->mass);       }
+        /**
+        *@brief  -   utility function to compare compound by name for sorting purpose
+        */
         static bool compName(const Compound* a, const Compound* b )    { return(a->name < b->name);       }
+        /**
+        *@brief  -  utility function to compare compound by formula for sorting purpose
+        */
         static bool compFormula(const Compound* a, const Compound* b ) { return(a->formula < b->formula); }
+        /**
+        *@brief   -  utility function to compare compound by number of reactions
+        *it is involved in
+        */
         static bool compReactionCount(const Compound* a, const Compound* b ) { return(a->reactions.size() < b->reactions.size()); }
 };
 #endif

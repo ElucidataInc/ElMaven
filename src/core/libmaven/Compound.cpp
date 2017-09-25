@@ -6,6 +6,10 @@ Compound::Compound(string id, string name, string formula, int charge ) {
     this->name = name;
     this->formula = formula;
     this->charge = charge;
+    /**
+    *@brief  -   calculate mass of compound by its formula and assign it to mass
+    *@see  - double MassCalculator::computeNeutralMass(string formula) in mzMassCalculator.cpp
+    */
     this->mass =  MassCalculator::computeNeutralMass(formula);
     this->expectedRt = -1;
 
@@ -16,5 +20,9 @@ Compound::Compound(string id, string name, string formula, int charge ) {
 }
 
 float Compound::ajustedMass(int charge) { 
+     /**   
+    *@return    -    total mass by formula minus loss of electrons' mass 
+    *@see  -  double MassCalculator::computeMass(string formula, int charge) in mzMassCalculator.cpp
+    */
     return MassCalculator::computeMass(formula,charge); 
 }
