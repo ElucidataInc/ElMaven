@@ -61,13 +61,13 @@ using namespace mzUtils;
 using namespace std;
 
 /**
- * @brief Store point in rt, intensity and mz space (3 Dimensional)
- * 
- * @details The data we get from Mass Spectrometry has 3 datatypes, namely
- * rt (retention time), intensity and mz (Mass by charge ratio). Class mzPoint
- * stores a point in 3-D space where x, y and z are rt, intensity and mz axis
- *
- */
+* @brief Store point in rt, intensity and mz space (3 Dimensional)
+* 
+* @details The data we get from Mass Spectrometry has 3 datatypes, namely
+* rt (retention time), intensity and mz (Mass by charge ratio). Class mzPoint
+* stores a point in 3-D space where x, y and z are rt, intensity and mz axis
+*
+*/
 class mzPoint
 {
   public:
@@ -103,7 +103,10 @@ class mzPoint
     * @param b object of class mzPoint
     * @return bool True if b is greater than a in x plane
     */
-    static bool compX(const mzPoint &a, const mzPoint &b) { return a.x < b.x; }
+    static bool compX(const mzPoint &a, const mzPoint &b)
+    {
+        return a.x < b.x;
+    }
 
     /**
     * @brief Compare point in y plane
@@ -111,7 +114,10 @@ class mzPoint
     * @param b object of class mzPoint
     * @return bool True if b is greater than a in y plane
     */
-    static bool compY(const mzPoint &a, const mzPoint &b) { return a.y < b.y; }
+    static bool compY(const mzPoint &a, const mzPoint &b)
+    {
+        return a.y < b.y;
+    }
 
     /**
     * @brief Compare point in z plane
@@ -119,20 +125,32 @@ class mzPoint
     * @param b object of class mzPoint
     * @return bool True if b is greater than a in z plane
     */
-    static bool compZ(const mzPoint &a, const mzPoint &b) { return a.z < b.z; }
+    static bool compZ(const mzPoint &a, const mzPoint &b)
+    {
+        return a.z < b.z;
+    }
 
     double x, y, z;
 };
 
 /**
- * @class mzSlice
- * @ingroup libmaven
- * @brief Wrapper class for a MS Scan Slice.
- * @author Elucidata
- */
+* @brief Stores a slice in mz and rt plane
+*
+* @details An mzSlice is a slice in mz and rt plane. This class
+* stores an mzSlice and also provides couple of utility functions
+* for a mzSlice
+*
+*/
 class mzSlice
 {
   public:
+    /**
+    * @brief Constructor for class mzSlice having rt and mz range
+    * @param a mz minimum of a mzSlice
+    * @param b mz maximum of a mzSlice
+    * @param c rt minimum of a mzSlice
+    * @param d rt maximum of a mzSlice
+    */
     mzSlice(float a, float b, float c, float d)
     {
         mzmin = a;
@@ -144,42 +162,27 @@ class mzSlice
         compound = NULL;
         ionCount = 0;
     }
-    // TODO: Sabu commented this.
-    /*mzSlice(float a, float b) {
-          mz = mzmin = mzmax = a;
-          rt = rtmin = rtmax = b;
-        // ionCount=c;  Naman: reassigned below with 0
-        compound = NULL;
-        ionCount = 0;
-        }*/
 
+    /**
+    * @brief Constructor for class mzSlice having a filterline
+    * @param filterLine srm Id of a scan in a sample
+    * @see Scan:filterLine
+    */
     mzSlice(string filterLine)
     {
         mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
         compound = NULL;
-        srmId = filterLine; // naman: Consider performing initialization in
-        // initialization list.
+        srmId = filterLine;
     }
 
+    /**
+    * @brief Constructor for class mzSlice having no inputs parameters
+    */
     mzSlice()
     {
         mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
         compound = NULL;
     }
-    // TODO: commented by Sabu
-    /*
-        mzSlice(const mzSlice& b) {
-            mzmin = b.mzmin;
-            mzmax = b.mzmax;
-            rtmin = b.rtmin;
-            rtmax = b.rtmax;
-            ionCount = b.ionCount;
-            mz = b.mz;
-            rt = b.rt;
-            compound = b.compound;
-            srmId = b.srmId;
-        }
-        */
 
     mzSlice &operator=(const mzSlice &b)
     {
@@ -189,54 +192,98 @@ class mzSlice
         rtmax = b.rtmax;
         ionCount = b.ionCount;
         compound = b.compound;
-        srmId = b.srmId; //naman: Consider performing initialization in initialization list.
+        srmId = b.srmId;
         mz = b.mz;
         rt = b.rt;
         return *this;
     }
 
+    /**
+    * Average rt of a mzSlice. Zero in case mzSlice is based on filterline
+    * or constructor is empty
+    */
+    float rt;
+
+    /**
+    * Average mz of a mzSlice. Zero in case mzSlice is based on filterline
+    * or constructor is empty
+    */
+    float mz;
     float mzmin;
     float mzmax;
     float rtmin;
     float rtmax;
-    float mz;
-    float rt;
     float ionCount;
     Compound *compound;
     string srmId;
 
     /**
-         * [compare intensity of two samples]
-         * @method compIntensity
-         * @param  a             [Scan 1]
-         * @param  b             [Scan 2]
-         * @return [True if Scan 1 has lower intensity than Scan b, else false]
-         */
-    static bool compIntensity(const mzSlice *a, const mzSlice *b) { return b->ionCount < a->ionCount; }
+    * @brief Compare total intensity (ion count) of two mzSlices
+    * @param a object of class mzSlice
+    * @param b object of class mzSlice
+    * @return True if mzSlice a has lower intensity than mzSlice b
+    */
+    static bool compIntensity(const mzSlice *a, const mzSlice *b)
+    {
+        return b->ionCount < a->ionCount;
+    }
 
     /**
-         * [compare m/z of two samples]
-         * @method compMz
-         * @param  a             [Scan 1]
-         * @param  b             [Scan 2]
-         * @return [True if Scan 1 has lower m/z than Scan b, else false]
-         */
-    static bool compMz(const mzSlice *a, const mzSlice *b) { return a->mz < b->mz; }
+    * @brief Compare average m/z of two mzSlices
+    * @param a object of class mzSlice
+    * @param b object of class mzSlice
+    * @return True if mzSlice a has lower average m/z than mzSlice b
+    */
+    static bool compMz(const mzSlice *a, const mzSlice *b)
+    {
+        return a->mz < b->mz;
+    }
 
     /**
-         * [compare retention time of two samples]
-         * @method compRt
-         * @param  a             [Scan 1]
-         * @param  b             [Scan 2]
-         * @return [True if Scan 1 has lower retention time than Scan b, else false]
-         */
-    static bool compRt(const mzSlice *a, const mzSlice *b) { return a->rt < b->rt; }
-    bool operator<(const mzSlice *b) const { return mz < b->mz; }
+    * @brief Compare average rt of two mzSlices
+    * @param a object of class mzSlice
+    * @param b object of class mzSlice
+    * @return True if mzSlice a has lower average rt than mzSlice b
+    */
+    static bool compRt(const mzSlice *a, const mzSlice *b)
+    {
+        return a->rt < b->rt;
+    }
 
+    /**
+    * @brief operator overloading for less than operator in class mzSlice
+    * @param b object of class mzSlice
+    * @return True if average m/z of input mzSlice object is greater than
+    * current mzSlice object
+    */
+    bool operator<(const mzSlice *b) const
+    {
+        return mz < b->mz;
+    }
+
+    /**
+    * @brief Calculate mzmin and mzmax of mzSlice using mass accuracy (in ppm)
+    * @details mzmin and mzmax of an mzSlice are calculated using compound m/z
+    * and mass accuracy (in ppm). Compound m/z is being calculated using formula
+    * or taken from Compound class if formula is not present
+    * @param CompoundppmWindow Mass accuracy in ppm (parts per million)
+    * @param charge Charge of the compound
+    * @return bool True if compound mass exists
+    */
     bool calculateMzMinMax(float CompoundppmWindow, int charge);
 
+    /**
+    * @brief Calculate rtmin and rtmax of mzSlice using rt window
+    * @param matchRtFlag This flag is true if retention time in compound database
+    * is being used
+    * @param compoundRTWindow Retention time window for matching Rt from compound
+    * database
+    */
     void calculateRTMinMax(bool matchRtFlag, float compoundRTWindow);
 
+    /**
+    * @brief Set Srm Id of mzslice using the srm Id of compound
+    */
     void setSRMId();
 };
 
