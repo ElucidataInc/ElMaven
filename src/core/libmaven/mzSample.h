@@ -61,25 +61,27 @@ using namespace mzUtils;
 using namespace std;
 
 /**
- * @class mzPoint
- * @ingroup libmaven
- * @brief Wrapper class for Point
- * @author Elucidata
+ * @brief Store point in rt, intensity and mz space (3 Dimensional)
+ * 
+ * @details The data we get from Mass Spectrometry has 3 datatypes, namely
+ * rt (retention time), intensity and mz (Mass by charge ratio). Class mzPoint
+ * stores a point in 3-D space where x, y and z are rt, intensity and mz axis
+ *
  */
 class mzPoint
 {
   public:
     /**
-         * [Constructor for mzPoint]
-         */
+    * @brief Constructor with default values
+    */
     mzPoint() { x = y = z = 0; }
 
     /**
-          [Constructor for mzPoint]
-          @param ix    ix.
-          @param iy    iy.
-          @param iz 		iz.
-          */
+    * @brief Constructor with input values
+    * @param ix Value in x axis
+    * @param iy Value in y axis
+    * @param iz Value in z axis
+    */
     mzPoint(double ix, double iy, double iz)
     {
         x = ix;
@@ -96,30 +98,27 @@ class mzPoint
     }
 
     /**
-         * [compare with x]
-         * @method compX
-         * @param  a     [Point a]
-         * @param  b     [Point b]
-         * @return [bool less or more]
-         */
+    * @brief Compare point in x plane
+    * @param a object of class mzPoint
+    * @param b object of class mzPoint
+    * @return bool True if b is greater than a in x plane
+    */
     static bool compX(const mzPoint &a, const mzPoint &b) { return a.x < b.x; }
 
     /**
-         * [compare with y]
-         * @method compY
-         * @param  a     [Point a]
-         * @param  b     [Point b]
-         * @return [bool less or more]
-         */
+    * @brief Compare point in y plane
+    * @param a object of class mzPoint
+    * @param b object of class mzPoint
+    * @return bool True if b is greater than a in y plane
+    */
     static bool compY(const mzPoint &a, const mzPoint &b) { return a.y < b.y; }
 
     /**
-         * [compare with z]
-         * @method compZ
-         * @param  a     [Point a]
-         * @param  b     [Point b]
-         * @return [bool less or more]
-         */
+    * @brief Compare point in z plane
+    * @param a object of class mzPoint
+    * @param b object of class mzPoint
+    * @return bool True if b is greater than a in z plane
+    */
     static bool compZ(const mzPoint &a, const mzPoint &b) { return a.z < b.z; }
 
     double x, y, z;
