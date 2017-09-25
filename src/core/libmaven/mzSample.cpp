@@ -18,7 +18,7 @@ mzSample::mzSample()
 	maxIntensity = 0;
 	minIntensity = 0;
 	totalIntensity = 0;
-	_normalizationConstant = 1;
+	_normalizationConstant = 1; //TODO: Sahil Not being used anywhere
 	_sampleOrder = 0;
 	_C13Labeled = false;
 	_N15Labeled = false;
@@ -1543,6 +1543,7 @@ float mzSample::correlation(float mz1, float mz2, float ppm, float rt1, float rt
 	return correlation;
 }
 
+//TODO: is_verbose not being used
 int mzSample::parseCDF(const char *filename, int is_verbose)
 {
 #ifdef CDFPARSER

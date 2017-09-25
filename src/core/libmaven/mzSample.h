@@ -199,16 +199,17 @@ class mzSlice
     }
 
     /**
-    * Average rt of a mzSlice. Zero in case mzSlice is based on filterline
+    * @brief Average rt of a mzSlice. Zero in case mzSlice is based on filterline
     * or constructor is empty
     */
     float rt;
 
     /**
-    * Average mz of a mzSlice. Zero in case mzSlice is based on filterline
+    * @brief Average mz of a mzSlice. Zero in case mzSlice is based on filterline
     * or constructor is empty
     */
     float mz;
+
     float mzmin;
     float mzmax;
     float rtmin;
@@ -288,8 +289,8 @@ class mzSlice
 };
 
 /**
- * @brief Link two mzs
- */
+* @brief Link two mass by charge ratios
+*/
 class mzLink
 {
   public:
@@ -346,229 +347,440 @@ class mzLink
 };
 
 /** 
-@brief Wrapper class for a sample
+* @brief Parses input sample files and stores related metadata
+*
+* @details Loads and parses sample files from mass spectrometry. Supported file
+* formats: .mzxml, .mzml, .mzdata, .mzcsv and .cdf
+*
 */
 class mzSample
 {
-  private:
-    void sampleNaming(const char *filename);
-    void checkSampleBlank(const char *filename);
-
-    void setInstrumentSettigs(xml_document &doc, xml_node spectrumstore);
-
-    void parseMzXMLData(xml_document &staticdoc, xml_node spectrumstore);
-
-    xml_node getmzXMLSpectrumData(xml_document &doc, const char *filename);
-
-    float parseRTFromMzXML(xml_attribute &attr);
-
-    static int parsePolarityFromMzXML(xml_attribute &attr);
-
-    static int getPolarityFromfilterLine(string filterLine);
-
-    vector<float> parsePeaksFromMzXML(const xml_node &scan);
-
-    void populateMzAndIntensity(vector<float> mzint, Scan *_scan);
-
-    void populateFilterline(string filterLine, Scan *_scan);
-
-    void loadAnySample(const char *filename);
-
-    //TODO: This should be moved
-    static string getFileName(const string &filename);
 
   public:
+    /**
+    * @brief Constructor for class mzSample
+    */
     mzSample();
+
+    /**
+    * @brief Destructor for class mzSample
+    */
     ~mzSample();
 
     /**
-             * [load from file]
-             * @method loadSample
-             * @param  filename   [input string filename]
-             */
+    * @brief Load sample (supported formats: .mzxml, .mzml, .mzdata, .mzcsv and .cdf)
+    * @param filename Sample file name
+    */
     void loadSample(const char *filename);
 
     /**
-             * [load data from mzData file]
-             * @method parseMzData
-             * @param  char        [mzData file]
-             */
+    * @brief Parse mzData file format
+    * @param char* mzData file name
+    */
     void parseMzData(const char *);
 
     /**
-             * [load data from mzCSV file]
-             * @method parseMzData
-             * @param  char        [mzCSV file]
-             */
+    * @brief Parse mzCSV file format
+    * @param char* mzCSV file name
+    */
     void parseMzCSV(const char *);
 
     /**
-             * [load data from mzXML file]
-             * @method parseMzXML
-             * @param  char*        [mzXML file]
-             */
+    * @brief Parse mzXML file format
+    * @param char* mzXML file name
+    */
     void parseMzXML(const char *);
 
     /**
-             * [load data from mzML file]
-             * @method parseMzML
-             * @param  char*        [mzML file]
-             */
+    * @brief Parse mzML file format
+    * @param char* mzML file name
+    */
     void parseMzML(const char *);
 
     /**
-             * [load netcdf file]
-             * @method parseCDF
-             * @param  filename   [netcdf file]
-             * @param  is_verbose [verbose or not]
-             * @return            [int]
-             */
+    * @brief Parse netcdf file format
+    * @param filename netcdf file name
+    * @param is_verbose verbose or not
+    * @return Returns 0 if error in loading else 1
+    */
     int parseCDF(const char *filename, int is_verbose);
 
     /**
-             * [parse individual scan]
-             * @method parseMzXMLScan
-             * @param  scan           [scan]
-             * @param  scannum        [scan number]
-             */
+    * @brief Parse scan in mzXml file format
+    * @param scan xml_node object of pugixml library
+    * @param scannum scan number
+    */
     void parseMzXMLScan(const xml_node &scan, int scannum);
 
     /**
-             * [write mzCSV file]
-             * @method writeMzCSV
-             * @param  char*           [character pointer]
-             */
+    * @brief Write mzCSV file
+    * @param char* mzCSV file name
+    */
     void writeMzCSV(const char *);
 
+    /**
+    * @brief Get cv parameters of an xml_node from mzML format
+    * @param node xml_node object of pugixml lirary
+    * @return Returns a map of name and corresponding value of an xml_node object
+    */
     static map<string, string> mzML_cvParams(xml_node node);
 
     /**
-             * [parse MzML Chromatogrom List]
-             * @method parseMzMLChromatogromList
-             * @param  xml_node                  [xml node]
-             */
+    * @brief Parse mzML chromatogrom list
+    * @param xml_node xml_node object of pugixml lirary
+    */
     void parseMzMLChromatogromList(xml_node);
 
     /**
-             * [parse MzML Spectrum List]
-             * @method parseMzMLSpectrumList
-             * @param  xml_node              [xml node]
-             */
+    * @brief Parse mzML spectrum list
+    * @param xml_node xml_node object of pugixml lirary
+    */
     void parseMzMLSpectrumList(xml_node);
 
     /**
-             * [print info about sample]
-             * @method summary
-             */
+    * @brief Print info about sample 
+    * @details Print data of sample: 1. Number of observations 2. rt range
+    * 3. mz range
+    */
     void summary();
 
     /**
-             * [compute min and max values for mz and rt]
-             * @method calculateMzRtRange
-             */
+    * @brief Compute min and max values for mz and rt
+    * @details Compute min and max values for mz and rt by iterating over
+    * the scans. Also while iterating over scans, calculate min and max
+    * Intensity
+    */
     void calculateMzRtRange();
 
     /**
-             * [average time difference between scans]
-             * @method getAverageFullScanTime
-             * @return average scan time
-             */
+    * @brief Average time difference between scans
+    * @return Average scan time
+    */
     float getAverageFullScanTime();
 
     /**
-             * [srm->scan mapping for QQQ]
-             * @method enumerateSRMScans
-             */
+    * @brief Map scan numbers to filterline
+    * @details Update map srmScans where key is the filterline and value is int vector.
+    * int vector contains scan numbers
+    * @see mzSample:srmScans
+    */
     void enumerateSRMScans();
 
     /**
-             * [find correlation in EIC space]
-             * @method correlation
-             * @param  mz1         [m/z for first sample]
-             * @param  mz2         [m/z for second sample]
-             * @param  ppm         [ppm window]
-             * @param  rt1         [retention time for first sample]
-             * @param  rt2         [retention time for second sample]
-             * @return [correlation]
-             */
+    * @brief Find correlation between two EICs
+    * @param mz1 m/z for first EIC
+    * @param mz2 m/z for second EIC
+    * @param ppm ppm window
+    * @param rt1 Retention time for first EIC
+    * @param rt2 Retention time for second EIC
+    * @param eicType Type of EIC (max or sum)
+    * @param filterline selected filterline
+    * @return correlation
+    */
     float correlation(float mz1, float mz2, float ppm, float rt1, float rt2, int eicType, string filterline);
 
     /**
-             * [get normalization constant]
-             * @method getNormalizationConstant
-             * @return [normalization constant]
-             */
-    float getNormalizationConstant() const { return _normalizationConstant; }
+    * @brief Get normalization constant
+    * @return Normalization constant
+    */
+    float getNormalizationConstant() const
+    {
+        return _normalizationConstant;
+    }
 
     /**
-             * [set Normalization Constant]
-             * @method setNormalizationConstant
-             * @param  x                        [normalization constant]
-             */
-    void setNormalizationConstant(float x) { _normalizationConstant = x; }
+    * @brief Set normalization constant
+    * @param x Normalization constant
+    */
+    void setNormalizationConstant(float x)
+    {
+        _normalizationConstant = x;
+    }
 
     /**
-             * [get indexes for a given scan]
-             * @method getScan
-             * @param  scanNum [number of scans]
-             * @return [pointer to Scan]
-             */
+    * @brief Get scan for a given scan number
+    * @param scanNum Scan number
+    * @return Scan class object
+    * @see Scan
+    */
     Scan *getScan(unsigned int scanNum);
 
     /**
-             * [get Average Scan]
-             * @method getAverageScan
-             * @param  rtmin          [minimum retention time]
-             * @param  rtmax          [maximum retention time]
-             * @param  mslevel        [MS Level]
-             * @param  polarity       [ionization mode/polarity]
-             * @param  resolution     [mass resolution of the MS machine]
-             * @return [pointer to Scan]
-             */
+    * @brief Get Average Scan
+    * @param rtmin Minimum retention time
+    * @param rtmax Maximum retention time
+    * @param mslevel MS Level
+    * @param polarity Ionization mode/polarity
+    * @param resolution Mass resolution of the MS machine
+    * @return Scan class object
+    */
     Scan *getAverageScan(float rtmin, float rtmax, int mslevel, int polarity, float resolution);
 
     /**
-             * [get eic based on minMz, maxMz, minRt, maxRt,mslevel]
-             * @param  mzmin   [minimum m/z]
-             * @param  mzmax   [maximum m/z]
-             * @param  rtmin   [minimum retention time]
-             * @param  rtmax   [maximum retention time]
-             * @param  mslevel [MS Level]
-             * @return         [pointer to EIC]
-             */
+    * @brief Get EIC based on minMz, maxMz, minRt, maxRt, mslevel
+    * @param mzmin Minimum m/z
+    * @param mzmax Maximum m/z
+    * @param rtmin Minimum retention time
+    * @param rtmax Maximum retention time
+    * @param mslevel MS Level. MS Level is 1 for MS data and 2 for MS/MS data
+    * @param eicType Type of EIC (max or sum)
+    * @param filterline selected filterline
+    * @return EIC class object
+    * @see EIC
+    */
     EIC *getEIC(float mzmin, float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
 
     /**
-             * [get eic based on srmId]
-             * @method getEIC
-             * @param  srmId  [single reaction monitoring ID]
-             * @return [pointer to EIC]
-             */
+    * @brief Get EIC based on srmId
+    * @param srmId Filterline
+    * @param eicType Type of EIC (max or sum)
+    * @return EIC class object
+    * @see EIC
+    */
     EIC *getEIC(string srmId, int eicType);
 
     /**
-             * [get EIC]
-             * @method getEIC
-             * @param  precursorMz     [m/z of precur Ion]
-             * @param  collisionEnergy [collision Energy]
-             * @param  productMz       [m/z of product Ion]
-             * @param  amuQ1           [amu in Q1 step]
-             * @param  amuQ2           [amu in Q2 step]
-             * @return [pointer to EIC]
-             */
+    * @brief Get EIC for MS-MS dataset
+    * @param precursorMz m/z of precursor Ion
+    * @param collisionEnergy collision Energy
+    * @param productMz m/z of product Ion]
+    * @param eicType Type of EIC (max or sum)
+    * @param filterline selected filterline
+    * @param amuQ1 delta difference in Q1
+    * @param amuQ2 delta difference in Q3
+    * @return EIC class object
+    */
     EIC *getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1, float amuQ2);
 
     /**
-             * [get Total Ion Chromatogram]
-             * @param  rtmin   [minimum retention time]
-             * @param  rtmax   [maximum retention time]
-             * @param  mslevel [MS level of the MS machine]
-             * @return         [pointer to the EIC]
-             */
+    * @brief Get Total Ion Chromatogram
+    * @param rtmin Minimum retention time
+    * @param rtmax Maximum retention time
+    * @param mslevel MS level of the MS machine
+    * @return EIC class object
+    */
     EIC *getTIC(float rtmin, float rtmax, int mslevel);
 
-    // TODO: Sahil this change is made from merging EIC wisget
-    EIC *getBIC(float, float, int); // Base peak chromatogram
+    /**
+    * @brief Get Base Peak Chromatogram
+    * @param rtmin Minimum retention time
+    * @param rtmax Maximum retention time
+    * @param mslevel MS level of the MS machine
+    * @return EIC class object
+    */
+    EIC *getBIC(float rtmin, float rtmax, int mslevel);
+
+    /**
+             * [save Original Retention Times]
+             * @method saveOriginalRetentionTimes
+             */
+    void saveOriginalRetentionTimes();
+
+    /**
+                          * [restore Original Retention Times]
+                          * @method restoreOriginalRetentionTimes
+                          */
+    void restoreOriginalRetentionTimes();
+
+    void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
+
+    //class functions
+
+    /**
+                          * [add Scan]
+                          * @method addScan
+                          * @param  s       [scan]
+                          */
+    void addScan(Scan *s);
+
+    /**
+                          * [get Polarity]
+                          * @method getPolarity
+                          * @return [polarity of the scan]
+                          */
+    int getPolarity();
+
+    /**
+                          * [scan Count]
+                          * @method scanCount
+                          * @return [scan count]
+                          */
+    inline unsigned int scanCount() const { return (scans.size()); }
+
+    /**
+                          * [get Sample Name]
+                          * @method getSampleName
+                          * @return [name of the sample]
+                          */
+    inline string getSampleName() const { return sampleName; }
+
+    /**
+                          * [set Sample Order]
+                          * @method setSampleOrder
+                          * @param  x              [sample order]
+                          */
+    void setSampleOrder(int x) { _sampleOrder = x; }
+
+    /**
+                          * [get Sample Order]
+                          * @method getSampleOrder
+                          * @return [sample order]
+                          */
+    inline int getSampleOrder() const { return _sampleOrder; }
+
+    /**
+                           * @brief the order in  which the samples are inserted into the LC column.
+                           * @method setInjectionOrder
+                           * @param time
+                           */
+    void setInjectionOrder(int order)
+    {
+        injectionOrder = order;
+    }
+
+    /**
+                           * @brief return the injection order
+                           * @method getInjectionOrder
+                           * @return injectionOrder
+                           */
+
+    int getInjectionOrder()
+    {
+        return injectionOrder;
+    }
+    /**
+                          * [get Set Name]
+                          * @method getSetName
+                          * @return [set name]
+                          */
+    inline string getSetName() const { return _setName; }
+
+    /**
+                          * [set set Name]
+                          * @method setSetName
+                          * @param  x          [set name]
+                          */
+    void setSetName(string x) { _setName = x; }
+
+    /**
+                          * [set Sample Name]
+                          * @method setSampleName
+                          * @param  x             [sample name]
+                          */
+    void setSampleName(string x) { sampleName = x; }
+
+    /**
+                          * [get Max retention time]
+                          * @method getMaxRt
+                          * @param  samples  [vector of pointer to mzSample]
+                          * @return [maximum retention time]
+                          */
+    static float getMaxRt(const vector<mzSample *> &samples);
+
+    /**
+                          * [C13Labeled?]
+                          * @method C13Labeled
+                          * @return [true or false]
+                          */
+    bool C13Labeled() const { return _C13Labeled; }
+
+    /**
+                          * [N15Labeled]
+                          * @method N15Labeled
+                          * @return [true or false]
+                          */
+    bool N15Labeled() const { return _N15Labeled; }
+
+    /**
+                          * [compare Sample Order]
+                          * @method compSampleOrder
+                          * @param  a               [sample a]
+                          * @param  b               [sample b]
+                          * @return [true if sample order for sample a is less than b else false]
+                          */
+    static bool compSampleOrder(const mzSample *a, const mzSample *b) { return a->_sampleOrder < b->_sampleOrder; }
+
+    static bool compSampleSort(const mzSample *a, const mzSample *b) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName); }
+
+    /**
+                          * [getMinMaxDimentions ]
+                          * @method getMinMaxDimentions
+                          * @param  samples             []
+                          * @return []
+                          */
+    static mzSlice getMinMaxDimentions(const vector<mzSample *> &samples);
+
+    /**
+                          * [setFilter_minIntensity ]
+                          * @method setFilter_minIntensity
+                          * @param  x                      []
+                          */
+    static void setFilter_minIntensity(int x) { filter_minIntensity = x; }
+
+    /**
+                          * [setFilter_centroidScans ]
+                          * @method setFilter_centroidScans
+                          * @param  x                       []
+                          */
+    static void setFilter_centroidScans(bool x) { filter_centroidScans = x; }
+
+    /**
+                          * [setFilter_intensityQuantile ]
+                          * @method setFilter_intensityQuantile
+                          * @param  x                           []
+                          */
+    static void setFilter_intensityQuantile(int x) { filter_intensityQuantile = x; }
+
+    /**
+                          * [setFilter_mslevel ]
+                          * @method setFilter_mslevel
+                          * @param  x                 []
+                          */
+    static void setFilter_mslevel(int x) { filter_mslevel = x; }
+
+    /**
+                          * [setFilter_polarity ]
+                          * @method setFilter_polarity
+                          * @param  x                  []
+                          */
+    static void setFilter_polarity(int x) { filter_polarity = x; }
+
+    /**
+                          * [getFilter_minIntensity ]
+                          * @method getFilter_minIntensity
+                          * @return []
+                          */
+    static int getFilter_minIntensity() { return filter_minIntensity; }
+
+    /**
+                          * [getFilter_intensityQuantile ]
+                          * @method getFilter_intensityQuantile
+                          * @return []
+                          */
+    static int getFilter_intensityQuantile() { return filter_intensityQuantile; }
+
+    /**
+                          * [getFilter_centroidScans ]
+                          * @method getFilter_centroidScans
+                          * @return []
+                          */
+    static int getFilter_centroidScans() { return filter_centroidScans; }
+
+    /**
+                          * [getFilter_mslevel ]
+                          * @method getFilter_mslevel
+                          * @return []
+                          */
+    static int getFilter_mslevel() { return filter_mslevel; }
+
+    /**
+                          * [getFilter_polarity ]
+                          * @method getFilter_polarity
+                          * @return []
+                          */
+    static int getFilter_polarity() { return filter_polarity; }
+
+    vector<float> getIntensityDistribution(int mslevel);
 
     deque<Scan *> scans;
     string sampleName;
@@ -613,219 +825,32 @@ class mzSample
 
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 
-    /**
-             * [save Original Retention Times]
-             * @method saveOriginalRetentionTimes
-             */
-    void saveOriginalRetentionTimes();
-
-    /**
-             * [restore Original Retention Times]
-             * @method restoreOriginalRetentionTimes
-             */
-    void restoreOriginalRetentionTimes();
-
-    void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
-
-    //class functions
-
-    /**
-             * [add Scan]
-             * @method addScan
-             * @param  s       [scan]
-             */
-    void addScan(Scan *s);
-
-    /**
-             * [get Polarity]
-             * @method getPolarity
-             * @return [polarity of the scan]
-             */
-    int getPolarity();
-
-    /**
-             * [scan Count]
-             * @method scanCount
-             * @return [scan count]
-             */
-    inline unsigned int scanCount() const { return (scans.size()); }
-
-    /**
-             * [get Sample Name]
-             * @method getSampleName
-             * @return [name of the sample]
-             */
-    inline string getSampleName() const { return sampleName; }
-
-    /**
-             * [set Sample Order]
-             * @method setSampleOrder
-             * @param  x              [sample order]
-             */
-    void setSampleOrder(int x) { _sampleOrder = x; }
-
-    /**
-             * [get Sample Order]
-             * @method getSampleOrder
-             * @return [sample order]
-             */
-    inline int getSampleOrder() const { return _sampleOrder; }
-
-    /**
-              * @brief the order in  which the samples are inserted into the LC column.
-              * @method setInjectionOrder
-              * @param time
-              */
-    void setInjectionOrder(int order)
-    {
-        injectionOrder = order;
-    }
-
-    /**
-              * @brief return the injection order
-              * @method getInjectionOrder
-              * @return injectionOrder
-              */
-
-    int getInjectionOrder()
-    {
-        return injectionOrder;
-    }
-    /**
-             * [get Set Name]
-             * @method getSetName
-             * @return [set name]
-             */
-    inline string getSetName() const { return _setName; }
-
-    /**
-             * [set set Name]
-             * @method setSetName
-             * @param  x          [set name]
-             */
-    void setSetName(string x) { _setName = x; }
-
-    /**
-             * [set Sample Name]
-             * @method setSampleName
-             * @param  x             [sample name]
-             */
-    void setSampleName(string x) { sampleName = x; }
-
-    /**
-             * [get Max retention time]
-             * @method getMaxRt
-             * @param  samples  [vector of pointer to mzSample]
-             * @return [maximum retention time]
-             */
-    static float getMaxRt(const vector<mzSample *> &samples);
-
-    /**
-             * [C13Labeled?]
-             * @method C13Labeled
-             * @return [true or false]
-             */
-    bool C13Labeled() const { return _C13Labeled; }
-
-    /**
-             * [N15Labeled]
-             * @method N15Labeled
-             * @return [true or false]
-             */
-    bool N15Labeled() const { return _N15Labeled; }
-
-    /**
-             * [compare Sample Order]
-             * @method compSampleOrder
-             * @param  a               [sample a]
-             * @param  b               [sample b]
-             * @return [true if sample order for sample a is less than b else false]
-             */
-    static bool compSampleOrder(const mzSample *a, const mzSample *b) { return a->_sampleOrder < b->_sampleOrder; }
-
-    static bool compSampleSort(const mzSample *a, const mzSample *b) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName); }
-
-    /**
-             * [getMinMaxDimentions ]
-             * @method getMinMaxDimentions
-             * @param  samples             []
-             * @return []
-             */
-    static mzSlice getMinMaxDimentions(const vector<mzSample *> &samples);
-
-    /**
-             * [setFilter_minIntensity ]
-             * @method setFilter_minIntensity
-             * @param  x                      []
-             */
-    static void setFilter_minIntensity(int x) { filter_minIntensity = x; }
-
-    /**
-             * [setFilter_centroidScans ]
-             * @method setFilter_centroidScans
-             * @param  x                       []
-             */
-    static void setFilter_centroidScans(bool x) { filter_centroidScans = x; }
-
-    /**
-             * [setFilter_intensityQuantile ]
-             * @method setFilter_intensityQuantile
-             * @param  x                           []
-             */
-    static void setFilter_intensityQuantile(int x) { filter_intensityQuantile = x; }
-
-    /**
-             * [setFilter_mslevel ]
-             * @method setFilter_mslevel
-             * @param  x                 []
-             */
-    static void setFilter_mslevel(int x) { filter_mslevel = x; }
-
-    /**
-             * [setFilter_polarity ]
-             * @method setFilter_polarity
-             * @param  x                  []
-             */
-    static void setFilter_polarity(int x) { filter_polarity = x; }
-
-    /**
-             * [getFilter_minIntensity ]
-             * @method getFilter_minIntensity
-             * @return []
-             */
-    static int getFilter_minIntensity() { return filter_minIntensity; }
-
-    /**
-             * [getFilter_intensityQuantile ]
-             * @method getFilter_intensityQuantile
-             * @return []
-             */
-    static int getFilter_intensityQuantile() { return filter_intensityQuantile; }
-
-    /**
-             * [getFilter_centroidScans ]
-             * @method getFilter_centroidScans
-             * @return []
-             */
-    static int getFilter_centroidScans() { return filter_centroidScans; }
-
-    /**
-             * [getFilter_mslevel ]
-             * @method getFilter_mslevel
-             * @return []
-             */
-    static int getFilter_mslevel() { return filter_mslevel; }
-
-    /**
-             * [getFilter_polarity ]
-             * @method getFilter_polarity
-             * @return []
-             */
-    static int getFilter_polarity() { return filter_polarity; }
-
-    vector<float> getIntensityDistribution(int mslevel);
-
   private:
+    void sampleNaming(const char *filename);
+    void checkSampleBlank(const char *filename);
+
+    void setInstrumentSettigs(xml_document &doc, xml_node spectrumstore);
+
+    void parseMzXMLData(xml_document &staticdoc, xml_node spectrumstore);
+
+    xml_node getmzXMLSpectrumData(xml_document &doc, const char *filename);
+
+    float parseRTFromMzXML(xml_attribute &attr);
+
+    static int parsePolarityFromMzXML(xml_attribute &attr);
+
+    static int getPolarityFromfilterLine(string filterLine);
+
+    vector<float> parsePeaksFromMzXML(const xml_node &scan);
+
+    void populateMzAndIntensity(vector<float> mzint, Scan *_scan);
+
+    void populateFilterline(string filterLine, Scan *_scan);
+
+    void loadAnySample(const char *filename);
+
+    //TODO: This should be moved
+    static string getFileName(const string &filename);
     static int filter_minIntensity;
     static bool filter_centroidScans;
     static int filter_intensityQuantile;
