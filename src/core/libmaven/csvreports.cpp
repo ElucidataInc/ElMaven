@@ -1,20 +1,32 @@
 #include "csvreports.h"
 
 CSVReports::CSVReports(vector<mzSample*>&insamples) {
+    /*
+    *@detail -   constructor for instantiating class by all samples uploaded,
+    *different from samples vector of PeakGroup which will hold
+    *samples used for that particular group. it will be used to export group info
+    *only for samples used by a group and for other group, fields will be marked NA.
+    *Note that these samples are represented by pointers which will change their state
+    *even after group has been determine and detected. Only way to get those samples
+    *used for particular group by comparing these sample and samples from PeakGroup
+    */
     samples = insamples;
     groupId = 0;
+    /**@brief-  set user quant type-  generally represent intensity but not always check QType enum in PeaKGroup.h  */
     setUserQuantType(PeakGroup::AreaTop);
-    setTabDelimited();
+    setTabDelimited();      /**@brief-  set output file separator as tab*/
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
     errorReport = "";
 }
 
 CSVReports::~CSVReports() {
+    /**
+    *@details-    close all open output files opened for writing csv or tab file
+    */
     closeFiles();
 }
 
 QString CSVReports::sanitizeString(const char* s) {
-    //Merged with Maven776 - Kiran
     QString out=s;
     out.replace(QString("\""),QString("\"\""));
     if(out.contains(SEP.c_str())){
@@ -25,17 +37,17 @@ QString CSVReports::sanitizeString(const char* s) {
 
 void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine = false) {
 
-    initialCheck(outputfile);
-    openGroupReportCSVFile(outputfile);
-    insertGroupReportColumnNamesintoCSVFile(outputfile, includeSetNamesLine);
+    initialCheck(outputfile);                                                                                               /**@brief-  if number of sample is zero, output file will not open*/
+    openGroupReportCSVFile(outputfile);                                                                        /**@brief-  after checking initial check, open output file*/
+    insertGroupReportColumnNamesintoCSVFile(outputfile, includeSetNamesLine);   /**@brief-  write name of column  if output file is open */
 
 }
 
 void CSVReports::openPeakReport(string outputfile) {
 
-    initialCheck(outputfile);
-    openPeakReportCSVFile(outputfile);
-    insertPeakReportColumnNamesintoCSVFile();
+    initialCheck(outputfile);                                           /**@brief-  if number of sample is zero, output file will not open*/
+    openPeakReportCSVFile(outputfile);                      /**@brief-  after checking initial check, open output file*/
+    insertPeakReportColumnNamesintoCSVFile();      /**@brief-  write name of column  if output file is open */
 
 }
 
@@ -275,7 +287,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string compoundName;
     string compoundID;
     string formula;
-    // TODO: Added this while merging this file
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
