@@ -288,13 +288,31 @@ class mzSlice
 };
 
 /**
- * @class mzLink
- * @ingroup libmaven
- * @brief Wrapper class for a link between two mzs.  @author Elucidata
+ * @brief Link two mzs
  */
 class mzLink
 {
   public:
+    /**
+    * @brief Constructor for mzLink with no input arguments
+    */
+    mzLink();
+
+    /**
+    * @brief Constructor for mzLink with integer mzs
+    */
+    mzLink(int a, int b, string n);
+
+    /**
+    * @brief Constructor for mzLink with float mzs
+    */
+    mzLink(float a, float b, string n);
+
+    /**
+    * @brief Destructor for mzLink
+    */
+    ~mzLink() {}
+
     float mz1;
     float mz2;
     void *data1;
@@ -302,14 +320,34 @@ class mzLink
     float value1;
     float value2;
     string note;
-    mzLink();
-    mzLink(int a, int b, string n);
-    mzLink(float a, float b, string n);
-    ~mzLink() {}
-    float correlation;                                                             /** [compare m/z of two links] @method compMz @param  a             [Link 1] @param  b             [Link 2] @return [True if Link 1 has lower m/z than Link b, else false] */
-    static bool compMz(const mzLink &a, const mzLink &b) { return a.mz1 < b.mz1; } /** [compare correlation of two links] @method compMz @param  a             [Link 1] @param  b             [Link 2] @return [True if Link 1 has lower correlation than Link b, else false] */
-    static bool compCorrelation(const mzLink &a, const mzLink &b) { return a.correlation > b.correlation; }
-}; /** @class mzSample @ingroup libmaven @brief Wrapper class for a sample.  @author Elucidata */
+    float correlation;
+
+    /**
+    * @brief Compare m/z of two mzLinks
+    * @param a mzLink 1
+    * @param b mzLink 2
+    * @return True if mzLink 1 has lower m/z than mzLink b, else false
+    */
+    static bool compMz(const mzLink &a, const mzLink &b)
+    {
+        return a.mz1 < b.mz1;
+    }
+
+    /**
+    * @brief Compare correlation of two links
+    * @param a mzLink 1
+    * @param b mzLink 2
+    * @return True if Link 1 has lower correlation than Link b, else false
+    */
+    static bool compCorrelation(const mzLink &a, const mzLink &b)
+    {
+        return a.correlation > b.correlation;
+    }
+};
+
+/** 
+@brief Wrapper class for a sample
+*/
 class mzSample
 {
   private:
