@@ -78,111 +78,123 @@ class EIC
     float rtmax; /**< maximum retention time for pulling an EIC */
 
     /**
-         * [addPeak ]
-         * @method addPeak
-         * @param  peakPos []
-         * @return []
-         */
+    * @brief add peak object to vector
+    * @details create a peak object for given peak position and append to vector
+    * @param  peakPos position of peak in spline
+    * @return pointer to newly added peak object in the vector
+    */
     Peak *addPeak(int peakPos);
 
     /**
-         * [delete Peak]
-         * @method deletePeak
-         * @param  i          [peak position]
-         */
+    * @brief delete peak at given index from the vector
+    * @param  i index of peak to be deleted
+    */
     void deletePeak(unsigned int i);
 
     /**
-         * [get Peak Positions]
-         * @method getPeakPositions
-         * @param  smoothWindow     [smoothing Window]
-         */
+    * @brief find peak positions after smoothing, baseline calculation and peak filtering
+    * @param smoothWindow number of scans used for smoothing in each iteration
+    */
     void getPeakPositions(int smoothWindow);
 
     /**
-         * [get Peak Details]
-         * @method getPeakDetails
-         * @param  peak           [peak]
-         */
+    * @brief set values for all members of a peak object
+    * @param  peak peak object
+    */
     void getPeakDetails(Peak &peak);
 
     /**
-         * [get Peak Width]
-         * @method getPeakWidth
-         * @param  peak         [peak]
-         */
+    * @brief width of given peak in terms of number of scans
+    * @details find the number of scans where peak intensity is above baseline
+    * @param  peak peak object
+    */
     void getPeakWidth(Peak &peak);
 
     /**
-         * [compute BaseLine]
-         * @method computeBaseLine
-         * @param  smoothingWindow [smoothing Window]
-         * @param  dropTopX        [drop top X percent]
-         */
+    * @brief calculate baseline for all peaks in an EIC
+    * @param  smoothingWindow number of scans used for smoothing in each iteration 
+    * @param  dropTopX percentage of top intensities to be removed before setting baseline
+    */
     void computeBaseLine(int smoothingWindow, int dropTopX);
 
     /**
-         * [compute Spline]
-         * @method computeSpline
-         * @param  smoothWindow  [smoothing Window]
-         */
+    * @brief calculate spline of the EIC
+    * @details smoothen intensity data according to selected algorithm. stores it as spline
+    * @param  smoothWindow  number of scans used for smoothing in each iteration
+    */
     void computeSpline(int smoothWindow);
 
     /**
-         * [find Peak Bounds]
-         * @method findPeakBounds
-         * @param  peak           [peak]
-         */
+    * @brief find the first and last position of a peak
+    * @param  peak peak object
+    */
     void findPeakBounds(Peak &peak);
 
     /**
-         * [get Peak Statistics]
-         * @method getPeakStatistics
-         */
+    * @brief find all parameter values for every peak in an EIC
+    * @method getPeakStatistics
+    */
     void getPeakStatistics();
 
+    /**
+    * @brief find all peaks in an EIC
+    * @details find all local maxima in an EIC and save them as objects
+    */
     void findPeaks();
 
+    /**
+    * @brief remove peaks with parameter values below user-set thresholds
+    */
     void filterPeaks();
 
     /**
-         * [check Gaussian Fit]
-         * @method checkGaussianFit
-         * @param  peak             [peak]
-         */
+    * brief 
+    * @param  peak             [peak]
+    */
     void checkGaussianFit(Peak &peak);
 
+    /**
+    * @brief get vector of all intensity points in a peak
+    * @param peak peak object
+    * @return mzPoint vector of intensity points in the peak
+    */
     vector<mzPoint> getIntensityVector(Peak &peak);
 
     /**
-         * [summary]
-         * @method summary
-         */
+    * @brief print parameter values of an EIC in log window
+    */
     void summary();
 
     /**
-         * [set Smoother Type]
-         * @method setSmootherType
-         * @param  x               [Smoother type]
-         */
+    * @brief set smoothing algorithm
+    * @param  x SmootherType 
+    */
     void setSmootherType(EIC::SmootherType x) { smootherType = x; }
 
     /**
-         * [set Baseline Smoothing Window]
-         * @method setBaselineSmoothingWindow
-         * @param  x                          [baseline Smoothing Window]
-         */
+    * @brief set smoothing window for baseline
+    * @param  x number of scans used for smoothing in one iteration
+    */
     void setBaselineSmoothingWindow(int x) { baselineSmoothingWindow = x; }
 
     /**
-         * [setBaselineDropTopX ]
-         * @method setBaselineDropTopX
-         * @param  x                   []
-         */
+    * @brief set percentage of top intensity points to remove for setting baseline
+    * @param  x percentage of top intensity points to remove
+    */
     void setBaselineDropTopX(int x) { baselineDropTopX = x; }
 
+    /**
+    * @brief set minimum signal baseline difference for every peak
+    * @param x signal baseline difference threshold for every peak
+    */
     void setFilterSignalBaselineDiff(double x) { filterSignalBaselineDiff = x; }
 
+    /**
+    * @brief get EIC of a sample using given mass/charge and retention time range
+    * @details 
+    * @param
+    * @return bool true if EIC is pulled. false otherwise
+    */
     bool makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
 
     void getRTMinMaxPerScan();
@@ -201,10 +213,8 @@ class EIC
     inline unsigned int size() { return intensity.size(); }
 
     /**
-         * [getSample ]
-         * @method getSample
-         * @return []
-         */
+    * @return sample associated with the EIC
+    */
     inline mzSample *getSample() { return sample; }
 
     static vector<PeakGroup> groupPeaks(vector<EIC *> &eics,
@@ -242,10 +252,10 @@ class EIC
     static bool compMaxIntensity(EIC *a, EIC *b) { return a->maxIntensity > b->maxIntensity; }
 
   private:
-    SmootherType smootherType;  /**< name of selected smoothing algorithm */
+    SmootherType smootherType; /**< name of selected smoothing algorithm */
 
-    int baselineSmoothingWindow;  /**< sets the number of scans used for smoothing in one iteration*/
+    int baselineSmoothingWindow; /**< sets the number of scans used for smoothing in one iteration*/
 
-    int baselineDropTopX;  /**< percentage of top intensity points to remove before computing baseline */
+    int baselineDropTopX; /**< percentage of top intensity points to remove before computing baseline */
 };
 #endif //MZEIC_H

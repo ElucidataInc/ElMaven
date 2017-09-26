@@ -8,7 +8,6 @@
  */
 EIC::EIC()
 {
-    // Mergedwit 776
     sample = NULL;
     spline = NULL;
     baseline = NULL;
@@ -30,7 +29,6 @@ EIC::EIC()
 
 EIC::~EIC()
 {
-    // Merged to 776
     if (spline != NULL)
         delete[] spline;
     spline = NULL;
@@ -128,9 +126,6 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
 
 void EIC::computeBaseLine(int smoothing_window, int dropTopX)
 {
-    //Merged to 776
-    //cerr << "calculating baseline for " << sample->fileName << "\n";
-    //cerr << rtmin << "\t" <<rtmax << "\n";
     if (baseline != NULL)
     { //delete previous baseline if exists
         delete[] baseline;
@@ -280,17 +275,12 @@ void EIC::clearEICContents()
 
 Peak *EIC::addPeak(int peakPos)
 {
-    // Merged to 776
     peaks.push_back(Peak(this, peakPos));
     return &peaks[peaks.size() - 1];
 }
 
 void EIC::getPeakPositions(int smoothWindow)
 {
-    // Merged to 776
-    // cerr << "getPeakPositions() " << " sWindow=" << smoothWindow << " sType="
-    // << smootherType << endl;
-
     unsigned int N = intensity.size();
     if (N == 0)
         return;
@@ -309,7 +299,6 @@ void EIC::getPeakPositions(int smoothWindow)
 
 void EIC::findPeaks()
 {
-    // Merged to 776
     unsigned int N = intensity.size();
 
     for (unsigned int i = 1; i < N - 1; i++)
@@ -340,7 +329,6 @@ void EIC::findPeaks()
 
 void EIC::findPeakBounds(Peak &peak)
 {
-    // Merged to 776
     int apex = peak.pos;
 
     int ii = apex - 1;
@@ -355,8 +343,6 @@ void EIC::findPeakBounds(Peak &peak)
         return;
     if (!baseline)
         return;
-
-    //cerr << "findPeakBounds:" << apex << " " << rt[apex] << endl;
 
     int directionality = 0;
     float lastValue = spline[apex];
@@ -434,12 +420,10 @@ void EIC::findPeakBounds(Peak &peak)
 
     peak.minpos = lb;
     peak.maxpos = rb;
-    //cerr << "\tfindPeakBounds:" << lb << " " << rb << " " << rb-lb+1 << endl;
 }
 
 void EIC::getPeakDetails(Peak &peak)
 {
-    // Merged to 776
     unsigned int N = intensity.size();
 
     if (N == 0)
@@ -566,7 +550,6 @@ void EIC::getPeakDetails(Peak &peak)
     {
         peak.medianMz = peak.peakMz;
     }
-    //cerr << peak.peakMz << " " << peak.medianMz << " " << bitstring << endl;
 
     mzPattern p(bitstring);
     if (peak.width >= 5)
@@ -576,7 +559,6 @@ void EIC::getPeakDetails(Peak &peak)
 
 void EIC::getPeakWidth(Peak &peak)
 {
-    // Merged to 776
     int width = 1;
     int left = 0;
     int right = 0;
@@ -620,7 +602,6 @@ void EIC::filterPeaks()
 
 vector<mzPoint> EIC::getIntensityVector(Peak &peak)
 {
-    // Merged to 776
     vector<mzPoint> y;
 
     if (intensity.size() > 0)
@@ -632,6 +613,7 @@ vector<mzPoint> EIC::getIntensityVector(Peak &peak)
 
         for (unsigned int i = mini; i <= maxi; i++)
         {
+            //TODO all intensity points are being pushed
             if (baseline and intensity[i] > baseline[i])
             {
                 y.push_back(mzPoint(rt[i], intensity[i], mz[i]));
@@ -647,7 +629,6 @@ vector<mzPoint> EIC::getIntensityVector(Peak &peak)
 
 void EIC::checkGaussianFit(Peak &peak)
 {
-    // Merged to 776
     peak.gaussFitSigma = 0;
     peak.gaussFitR2 = 0.03;
     int left = peak.pos - peak.minpos;
@@ -658,7 +639,7 @@ void EIC::checkGaussianFit(Peak &peak)
     if (moves < 3)
         return;
 
-    //copy intensities into seperate vector
+    //copy intensities into separate vector
     //dim
     vector<float> pints(moves * 2 + 1);
 
@@ -678,12 +659,10 @@ void EIC::checkGaussianFit(Peak &peak)
         k++;
     }
     mzUtils::gaussFit(pints, &(peak.gaussFitSigma), &(peak.gaussFitR2));
-    //cerr << "\tcheckGaussianFit(): Best Sigma=" << peak.gaussFitSigma <<  " minRsqr=" << peak.gaussFitR2 << endl;
 }
 
 void EIC::getPeakStatistics()
 {
-    // Merged to 776
     for (unsigned int i = 0; i < peaks.size(); i++)
     {
         findPeakBounds(peaks[i]);
@@ -710,7 +689,6 @@ void EIC::getPeakStatistics()
 
 void EIC::deletePeak(unsigned int i)
 {
-    // Merged to 776
     if (i < peaks.size())
     {
         peaks.erase(peaks.begin() + i);
@@ -719,7 +697,6 @@ void EIC::deletePeak(unsigned int i)
 
 void EIC::summary()
 {
-    // Merged to 776
     cerr << "EIC: mz=" << mzmin << "-" << mzmax << " rt=" << rtmin << "-" << rtmax << endl;
     cerr << "   : maxIntensity=" << maxIntensity << endl;
     cerr << "   : peaks=" << peaks.size() << endl;
@@ -752,8 +729,6 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   bool useOverlap,
                                   double minSignalBaselineDifference)
 {
-    // Merged to 776
-
     //list filled and return by this function
     vector<PeakGroup> pgroups;
 
@@ -1033,7 +1008,8 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
         switch ((EIC::EicType)eicType)
         {
 
-        case EIC::MAX:
+        //takes the maximum intensity for given m/z range in a scan
+            case EIC::MAX:
         {
             for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
             {
@@ -1051,8 +1027,8 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
             break;
         }
 
-        //calculate the weighted average(with intensities as weights)
-        //while finding the eicMz for the whole EIC.
+        //takes the sum of all intensities for given m/z range in a scan
+        //associated m/z is the weighted average(with intensities as weights)
         case EIC::SUM:
         {
             float n = 0;
