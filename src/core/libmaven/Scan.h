@@ -5,8 +5,10 @@ class mzSample;
 class ChargedSpecies;
 
 /**
-*@brief Scan contains information about retention time, m/z, intensity   
-*@details Each scan stores  m/z and it's corresponding intensity for a particular Retention time.
+* @class Scan
+* @ingroup libmaven
+* @brief Scan contains information about retention time, m/z, intensity
+* @details Each scan stores  m/z and it's corresponding intensity for a particular Retention time.
 There are multiple m/z and intenstities in one scan
 */
 
@@ -33,7 +35,7 @@ class Scan
 
     /**
     *@brief In a given m/z range (mz + ppm) return the position of Highest intensity present in the scan
-    *@param m/z and ppm(parts per million). Together they define the m/z range 
+    *@param m/z and ppm(parts per million). Together they define the m/z range
     */
     int findHighestIntensityPos(float mz, float ppm);
 
@@ -48,14 +50,14 @@ class Scan
     bool hasMz(float mz, float ppm);
 
     /**
-    * @brief check if the data is centroided  
-    * @return return true if data is centroided else false]
+    * @brief check if the data is centroided
+    * @return return true if data is centroided else false
     */
     bool isCentroided() const { return centroided; }
 
     //TODO: This function is not needed, isCentroided can be used
     /**
-    * @brief check if the data is centroided 
+    * @brief check if the data is centroided
     * @return returns true if data is not centroided else false
     */
     bool isProfile() const { return !centroided; }
@@ -86,7 +88,7 @@ class Scan
         return sum;
     }
 
-  
+
     //TODO: basePeakIntensity value in every scan of mzXml file represents maxIntensity. Use it rather than looping over all the  intensities
     /**
     * @brief return the maxIntensity in scan
@@ -109,7 +111,7 @@ class Scan
     */
     vector<pair<float, float>> getTopPeaks(float minFracCutoff, float minSigNoiseRatio, int dropTopX);
 
-    vector<int> assignCharges(float ppmTolr); 
+    vector<int> assignCharges(float ppmTolr);
 
     vector<float> chargeSeries(float Mx, unsigned int Zx); //TODO what does this do chargeSeries?
 
@@ -118,7 +120,7 @@ class Scan
     string toMGF();
 
     /**
-    *@brief  return position of intensities in descending order(highest to lowest) 
+    *@brief  return position of intensities in descending order(highest to lowest)
     */
     vector<int> intensityOrderDesc();
 
