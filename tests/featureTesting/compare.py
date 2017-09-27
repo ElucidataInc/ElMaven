@@ -17,15 +17,17 @@ List of functions:
 5. remove_outliers_using_score: Remove outliers in pandas dataframe
     on the basis of score and duplicates
 
-6. plot: Plot scatter plot for comparison single sample from two pandas
-        dataframes
+6. plot: scatter plot for comparing single sample from two pandas
+    dataframes
 
 7. get_layout: Returns layout for plotly
 
 """
 import os
+
 import plotly.graph_objs as go
 from plotly.offline import plot
+
 from helper import helper
 from config import config
 
