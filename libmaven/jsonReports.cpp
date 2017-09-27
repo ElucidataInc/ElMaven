@@ -4,9 +4,18 @@ JSONReports::JSONReports(MavenParameters* _mp){
     mavenParameters=_mp;
 }
 
+
+//TODO: Refactor this function : Sahil (Keeping in mind multiprocessing)
 void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mzSample*> vsamples) {
 
     double mz,mzmin,mzmax,rtmin,rtmax;
+
+    int charge = mavenParameters->getCharge(grp.compound);
+    mz = grp.getExpectedMz(charge, mavenParameters->isotopeAtom, mavenParameters->noOfIsotopes);
+
+    if (mz == -1) {
+        mz = grp.meanMz;
+    }
 
     myfile << setprecision(10);
     myfile << "{\n";
@@ -30,15 +39,6 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
         myfile << ",\n" << "\"formula\": "<< sanitizeJSONstring(formula);
 
         myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
-
-        mz = grp.compound->mass;
-        if (!grp.compound->formula.empty()) {
-            int charge = mavenParameters->getCharge(grp.compound);
-            float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula, charge);
-            if(formula_mz) {
-                mz = formula_mz;
-            }
-        }
 
         myfile << ",\n" << "\"expectedMz\": " << mz ;
 
@@ -128,6 +128,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
 
         EIC* eic=NULL;
         //TODO: replace this by putting mzSlice pointer in peakgroup and using that
+        //TODO: Refactor the code :Sahil
         if (grp.hasCompoundLink()) {
             if ( !grp.srmId.empty() ) { //MS-MS case 1
                 eic = (*it)->getEIC(grp.srmId, mavenParameters->eicType);
@@ -142,14 +143,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
                 //TODO: same problem here: need the ppm that was used, or the slice object
                 //for mz could rely on same computation being done way above
                 //redoing it only for code clarity
-                mz = grp.compound->mass;
-                if (!grp.compound->formula.empty()) {
-                    int charge = mavenParameters->getCharge(grp.compound);
-                    float formula_mz =  mavenParameters->mcalc.computeMass(grp.compound->formula, charge);
-                    if(formula_mz) {
-                        mz = formula_mz;
-                    }
-                }
+
                 float ppm=mavenParameters->compoundPPMWindow;
                 mzmin = mz - mz / 1e6 * ppm;
                 mzmax = mz + mz / 1e6 * ppm;
