@@ -12,12 +12,12 @@ done
 make -j $(nproc)
 
 
-if [ -f MavenTests/test.xml ]; then
+if [ -f tests/MavenTests/test.xml ]; then
 	rm test*.xml
 fi
 
-if [ -f bin/MavenTests ]; then
-	./bin/MavenTests -xml
+if [ -f ./../build/bin/MavenTests ]; then
+	./../build/bin/MavenTests -xml
 fi
 
 type="$(uname)" 
