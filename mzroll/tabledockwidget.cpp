@@ -586,17 +586,15 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
     return temp;
 }
 
-void TableDockWidget::exportGroupsToSpreadsheet() {
-    LOGD;
-    //Merged to Maven776 - Kiran
-    // CSVReports* csvreport = new CSVReports;
+CSVReports* TableDockWidget::prepareCsvReport()
+{
     vector<mzSample*> samples = _mainwindow->getSamples();
     CSVReports* csvreports = new CSVReports(samples);
     csvreports->setMavenParameters(_mainwindow->mavenParameters);
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
-        return;
+        return NULL;
     }
 
     QString dir = ".";
@@ -605,7 +603,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
     QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
-    QString groupsSTAB = "Groups Summary Matrix Format Without Set Name (*.tab)";    
+    QString groupsSTAB = "Groups Summary Matrix Format Without Set Name (*.tab)";
     QString peaksTAB =  "Peaks Detailed Format (*.tab)";
     QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
     QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited Without Set Name (*.csv)";
@@ -615,12 +613,12 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
 
     QString sFilterSel;
-    QString fileName = QFileDialog::getSaveFileName(this, 
-            tr("Export Groups"), dir, 
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Export Groups"), dir,
             groupsTAB + ";;" + groupsSTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + groupsSCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
             &sFilterSel);
 
-    if(fileName.isEmpty()) return;
+    if(fileName.isEmpty()) return NULL;
 
     if ( sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
         if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
@@ -640,19 +638,19 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         csvreports->flag = 0;
         cerr <<"tab without:1";
     }
-    
-    if ( samples.size() == 0) return;
+
+    if ( samples.size() == 0) return NULL;
 
     //Added when Merging to Maven776 - Kiran
-	if (sFilterSel == peaksListQE ) { 
-		writeQEInclusionList(fileName); 
-		return;
+    if (sFilterSel == peaksListQE ) {
+        writeQEInclusionList(fileName);
+        return NULL;
     } else if (sFilterSel == mascotMGF ) {
         writeMascotGeneric(fileName);
-        return;
+        return NULL;
     }
 
-   
+
     csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
 
     //Added to pass into csvreports file when merged with Maven776 - Kiran
@@ -671,22 +669,51 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     }
 
-    QList<PeakGroup*> selectedGroups = getSelectedGroups();
     csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+    return csvreports;
+}
 
-    for(int i=0; i<allgroups.size(); i++ ) {
-        if (selectedGroups.contains(&allgroups[i])) {
-            PeakGroup& group = allgroups[i];
-            csvreports->addGroup(&group);
+void  TableDockWidget::exportAllGroups()
+{
+    LOGD;
+    CSVReports* csvreports = prepareCsvReport();
+
+    if(csvreports) {
+        for(int i=0; i<allgroups.size(); i++ ) {
+            csvreports->addGroup(&allgroups[i]);
+        }
+        csvreports->closeFiles();
+
+        if (csvreports->getErrorReport() != "") {
+            QMessageBox msgBox(_mainwindow);
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText(csvreports->getErrorReport());
+            msgBox.exec();
         }
     }
-    csvreports->closeFiles();
+}
 
-    if (csvreports->getErrorReport() != "") {
-        QMessageBox msgBox(_mainwindow);
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText(csvreports->getErrorReport());
-        msgBox.exec();
+void TableDockWidget::exportGroupsToSpreadsheet() {
+    LOGD;
+    //Merged to Maven776 - Kiran
+    // CSVReports* csvreport = new CSVReports;
+    CSVReports* csvreports = prepareCsvReport();
+    if(csvreports) {
+        QList<PeakGroup*> selectedGroups = getSelectedGroups();
+        for(int i=0; i<allgroups.size(); i++ ) {
+            if (selectedGroups.contains(&allgroups[i])) {
+                PeakGroup& group = allgroups[i];
+                csvreports->addGroup(&group);
+            }
+        }
+        csvreports->closeFiles();
+
+        if (csvreports->getErrorReport() != "") {
+            QMessageBox msgBox(_mainwindow);
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText(csvreports->getErrorReport());
+            msgBox.exec();
+        }
     }
 }
 
@@ -2102,7 +2129,7 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         
         connect(exportAll, SIGNAL(triggered()), td,  SLOT(wholePeakSet()));
         connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-        connect(exportAll, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
+        connect(exportAll, SIGNAL(triggered()), td,  SLOT(exportAllGroups()));
 
         connect(exportGood, SIGNAL(triggered()), td,  SLOT(goodPeakSet()));
         connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
