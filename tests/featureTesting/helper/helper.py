@@ -55,7 +55,7 @@ def list_files(dir_path, file_extension):
             returned
 
     Returns:
-        files (list): List of files with specified extenstion
+        files (list): List of files with specified extension
             and directory
     """
     files = []
