@@ -813,7 +813,7 @@ class mzSample
     int injectionOrder;
 
     /**  srm to scan mapping */
-    map<string, vector<int>> srmScans;
+    map<string, vector<int> > srmScans;
 
     /** tags associated with this sample */
     map<string, string> instrumentInfo;

@@ -109,7 +109,7 @@ class Scan
     * @param minFracCutoff specfies mininum relative intensity; for example
     * 0.05, filters out all intensites below 5% of maxium scan intensity]
     */
-    vector<pair<float, float>> getTopPeaks(float minFracCutoff, float minSigNoiseRatio, int dropTopX);
+    vector<pair<float, float> > getTopPeaks(float minFracCutoff, float minSigNoiseRatio, int dropTopX);
 
     vector<int> assignCharges(float ppmTolr);
 
