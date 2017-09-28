@@ -1884,8 +1884,3 @@ mzLink::mzLink(float a, float b, string n) : mz1(a), mz2(b), note(n)
 	data1 = data2 = NULL;
 	correlation = 0;
 }
-void PeakGroup::addPeak(const Peak &peak)
-{
-	peaks.push_back(peak);
-	peaks.back().groupNum = groupId;
-}
