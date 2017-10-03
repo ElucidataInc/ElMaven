@@ -16,6 +16,7 @@ class AlignmentVizWidget;
 class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
+class ListView;
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -42,7 +43,7 @@ public:
 	~TableDockWidget();
 
 	int  groupCount() { return allgroups.size(); }
-	bool hasPeakGroup(PeakGroup* group);
+    bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
     int tableId;
     //Added when Merging to Maven776 - Kiran
@@ -203,6 +204,14 @@ class TableToolBarWidgetAction : public QWidgetAction
 
     private:
         QString btnName;
+};
+
+class ListView: public QListView{
+private:
+    QAbstractItemModel* itemModel;
+    QStringList strings;
+public:
+    virtual void keyPressEvent(QKeyEvent *event) ;
 };
 
 #endif
