@@ -51,10 +51,10 @@ mzroll/qrc_mzroll.cpp
 # Compiled Binaries
 bin/maven_dev_769
 bin/mzWatcher
-bin/peakdetector
-bin/MavenTests
-bin/El_Maven*
-bin/CrashReporter*
+target/peakdetector
+target/MavenTests
+target/El_Maven*
+target/CrashReporter*
 
 #Documentation files
 docs/html
