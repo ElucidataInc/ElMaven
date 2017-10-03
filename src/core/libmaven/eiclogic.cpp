@@ -66,7 +66,7 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
 							double minQuality,
 							double distXWeight,
 							double distYWeight,
-							double overlapWeight,
+							double minPeakRtDiff,
 							bool useOverlap,
 							double minSignalBaselineDifference) {
 
@@ -76,7 +76,7 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
 								minQuality,
                                 distXWeight,
                                 distYWeight,
-                                overlapWeight,
+                                minPeakRtDiff,
                                 useOverlap,
 								minSignalBaselineDifference);
 

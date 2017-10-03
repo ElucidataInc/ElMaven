@@ -948,7 +948,7 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                                                 mavenParameters->minQuality,
                                                                 mavenParameters->distXWeight,
                                                                 mavenParameters->distYWeight,
-                                                                mavenParameters->overlapWeight,
+                                                                mavenParameters->minPeakRtDiff,
                                                                 mavenParameters->useOverlap,
                                                                 mavenParameters->minSignalBaselineDifference);
 

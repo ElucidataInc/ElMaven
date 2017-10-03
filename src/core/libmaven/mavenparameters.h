@@ -241,7 +241,7 @@ public:
 	//options dialog::peak grouping tab-widget
 	double distXWeight;
 	double distYWeight;
-	double overlapWeight;
+	double minPeakRtDiff;
 	bool useOverlap;
 
 };

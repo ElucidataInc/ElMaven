@@ -725,7 +725,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   double minQuality,
                                   double distXWeight,
                                   double distYWeight,
-                                  double overlapWeight,
+                                  double minPeakRtDiff,
                                   bool useOverlap,
                                   double minSignalBaselineDifference)
 {
@@ -796,6 +796,24 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             for (unsigned int k = 0; k < m->peaks.size(); k++)
             {
                 Peak &a = m->peaks[k];
+                
+                bool skipNextPeak = false; //If true, skip next iteration
+
+                int nextIndex = k + 1; //Next index to access next peak
+
+                // Skips the current or next peak of merged EIC
+                // If peak is skipped, it won't be used in grouping.
+                if (nextIndex < m->peaks.size()) {
+                    Peak &c = m->peaks[nextIndex]; 
+                    if (abs(c.rt - a.rt) < minPeakRtDiff) {
+                        if (c.peakIntensity > a.peakIntensity)
+                            continue;
+                        else
+                            skipNextPeak = true;
+
+                    }
+
+                }
 
                 float score;
 
@@ -814,7 +832,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                     if (distx > maxRtDiff && overlap < 0.2)
                         continue;
 
-                    score = 1.0 / (distXWeight * distx + 0.01) / (distYWeight * disty + 0.01) * (overlapWeight * overlap);
+                    score = 1.0 / (distXWeight * distx + 0.01) / (distYWeight * disty + 0.01) * overlap;
                 }
                 else
                 {
@@ -830,6 +848,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                     b.groupNum = k;
                     b.groupOverlap = score;
                 }
+                if (skipNextPeak == true) k++;
             }
 
             /*

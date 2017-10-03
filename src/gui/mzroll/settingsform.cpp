@@ -60,9 +60,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(distYSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
-    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(setWeightStatus()));
-    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
-    connect(overlapSlider, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
+    connect(minPeakDiffComboBox, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
+    connect(minPeakDiffComboBox, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(getFormValues()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(recomputeEIC()));
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(toggleOverlap()));
@@ -136,17 +135,14 @@ void SettingsForm::setWeightStatus() {
     // slider int values to double
     double distX = distXSlider->value()*1.0;
     double distY = distYSlider->value()*1.0;
-    double overlap = overlapSlider->value()*1.0;
 
     // normalizing slider values from 0-100 (int) to 0-10 (double) 
     distX = distX/10;
     distY = distY/10;
-    overlap = overlap/10;
 
     // updating slider status
     distXStatus->setText(QString::number(distX));
     distYStatus->setText(QString::number(distY));
-    overlapStatus->setText(QString::number(overlap));
 
 }
 
@@ -160,9 +156,6 @@ void SettingsForm::toggleOverlap() {
     }
     formulaWithOverlap->setVisible(statusOverlap);
     formulaWithoutOverlap->setVisible(!statusOverlap);
-    overlapSlider->setEnabled(statusOverlap);
-    label_30->setEnabled(statusOverlap);
-    overlapStatus->setEnabled(statusOverlap);
 }
 
 void SettingsForm::recomputeIsotopes() { 
@@ -262,8 +255,8 @@ void SettingsForm::updateSettingFormGUI() {
     if (settings->contains("distYWeight"))
     distYSlider->setValue(settings->value("distYWeight").toFloat()*10);
 
-    if (settings->contains("overlapWeight"))
-    overlapSlider->setValue(settings->value("overlapWeight").toFloat()*10);
+    if (settings->contains("minPeakRtDiff"))
+    minPeakDiffComboBox->setValue(settings->value("minPeakRtDiff").toFloat());
 
     if (settings->contains("useOverlap"))
     useOverlap->setCheckState( (Qt::CheckState) settings->value("useOverlap").toInt());
@@ -376,7 +369,7 @@ void SettingsForm::getFormValues() {
     //peak grouping tab
     settings->setValue("distXWeight", (distXSlider->value()*1.0)/10);
     settings->setValue("distYWeight", (distYSlider->value()*1.0)/10);
-    settings->setValue("overlapWeight", (overlapSlider->value()*1.0)/10);
+    settings->setValue("minPeakRtDiff", minPeakDiffComboBox->value());
     settings->setValue("useOverlap", useOverlap->checkState());
 
     mzSample::setFilter_centroidScans( centroid_scan_flag->checkState() == Qt::Checked );
@@ -462,7 +455,7 @@ void SettingsForm::setMavenParameters() {
         //peak grouping tab
         mavenParameters->distXWeight = settings->value("distXWeight").toFloat();
         mavenParameters->distYWeight = settings->value("distYWeight").toFloat();
-        mavenParameters->overlapWeight = settings->value("overlapWeight").toFloat();
+        mavenParameters->minPeakRtDiff = settings->value("minPeakRtDiff").toFloat();
         mavenParameters->useOverlap = false;
         if (settings->value("useOverlap").toInt() > 0) mavenParameters->useOverlap = true;
 
