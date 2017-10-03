@@ -206,7 +206,8 @@ private:
           void heatmapBackground(QTreeWidgetItem* item);
 	  PeakGroup* readGroupXML(QXmlStreamReader& xml,PeakGroup* parent);
           void writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g);
-	  void readPeakXML(QXmlStreamReader& xml,PeakGroup* parent);
+      void readPeakXML(QXmlStreamReader& xml,PeakGroup* parent);
+      void readSamplesXML(QXmlStreamReader &xml,PeakGroup* group);
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
 
