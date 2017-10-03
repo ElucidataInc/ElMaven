@@ -1,5 +1,5 @@
 include($$mzroll_pri)
-DESTDIR = $$top_builddir/bin/
+DESTDIR = $$top_builddir/
 
 MOC_DIR=$$top_builddir/tmp/maven_tests/
 OBJECTS_DIR=$$top_builddir/tmp/maven_tests/

@@ -15,7 +15,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CrashReporter
 TEMPLATE = app
 
-DESTDIR = $$top_builddir/bin/
+DESTDIR = $$top_builddir/
 
 SOURCES += main.cpp\
         mainwindow.cpp
