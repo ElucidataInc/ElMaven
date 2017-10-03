@@ -1592,6 +1592,23 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("formula", QString(c->id.c_str()));
     }
 
+    stream.writeStartElement("SamplesUsed");
+    vector<mzSample*> samples=_mainwindow->getSamples();
+    for (unsigned int j = 0; j < samples.size(); j++){
+        QString name=QString::fromStdString(samples[j]->sampleName);
+        for(int i=0;i<g->samples.size();++i){
+            if(samples[j]->sampleName==g->samples[i]->sampleName){
+                stream.writeAttribute('s'+name,"Used");
+                break;
+            }
+            else if(i==g->samples.size()-1){
+                
+                stream.writeAttribute('s'+name,"NotUsed");
+            }
+        }   
+    }
+    stream.writeEndElement();
+
     for(int j=0; j < g->peaks.size(); j++ ) {
         Peak& p = g->peaks[j];
         stream.writeStartElement("Peak");
@@ -1867,10 +1884,10 @@ void TableDockWidget::loadPeakTable(QString fileName) {
     PeakGroup* group=NULL;
     PeakGroup* parent=NULL;
     QStack<PeakGroup*>stack;
-
+    
     while (!xml.atEnd()) {
         xml.readNext();
-        if (xml.isStartElement()) {
+        if (xml.isStartElement()) {   
             if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
             if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
             if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
