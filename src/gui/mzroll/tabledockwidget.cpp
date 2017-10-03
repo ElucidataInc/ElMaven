@@ -1870,6 +1870,16 @@ void TableDockWidget::loadPeakTable() {
 
 // }
 
+void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
+    vector<mzSample*> samples= _mainwindow->getSamples();
+    for(int i=0;i<samples.size();++i){
+        QString name=QString::fromStdString(samples[i]->sampleName);
+        if( xml.attributes().value('s'+name).toString()=="Used"){
+            group->samples.push_back(samples[i]);
+        }
+    }
+}
+
 void TableDockWidget::loadPeakTable(QString fileName) {
 
 
@@ -1889,6 +1899,7 @@ void TableDockWidget::loadPeakTable(QString fileName) {
         xml.readNext();
         if (xml.isStartElement()) {   
             if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
+            if (xml.name() == "SamplesUsed" && group){ readSamplesXML(xml,group); }
             if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
             if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
         }
