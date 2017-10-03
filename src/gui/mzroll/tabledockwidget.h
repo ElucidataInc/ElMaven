@@ -207,7 +207,10 @@ private:
 	  PeakGroup* readGroupXML(QXmlStreamReader& xml,PeakGroup* parent);
           void writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g);
       void readPeakXML(QXmlStreamReader& xml,PeakGroup* parent);
-      void readSamplesXML(QXmlStreamReader &xml,PeakGroup* group);
+      void readSamplesXML(QXmlStreamReader &xml,PeakGroup* group);  /**@brief- it will add samples used
+                                                                                                                            *to group being generated while creating
+                                                                                                                            *from mzroll file
+                                                                                                                            */
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
 

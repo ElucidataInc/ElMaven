@@ -1592,6 +1592,13 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("formula", QString(c->id.c_str()));
     }
 
+    /**@detail-
+    *Write about whether a sample is used while peak detection. Here
+    *if sample is used, it will be mentioned as an xml attribute with
+    *preceding 's'  since most sample name starts with a numeric  character but
+    *xml attribute should not start with numeric character and it's value
+    *will be "Used" and if it is not used value will be "NotUsed"
+    */
     stream.writeStartElement("SamplesUsed");
     vector<mzSample*> samples=_mainwindow->getSamples();
     for (unsigned int j = 0; j < samples.size(); j++){
@@ -1871,6 +1878,11 @@ void TableDockWidget::loadPeakTable() {
 // }
 
 void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
+    /**@detail-
+    *This method will add all sample to group being
+    *created from mzroll file. It will read SamplesUsed attribute of a group
+    *and if it's value is "Used", then assign this mzSample to that group
+    */
     vector<mzSample*> samples= _mainwindow->getSamples();
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
