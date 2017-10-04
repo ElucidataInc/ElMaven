@@ -22,7 +22,7 @@ permalink: /Manuals/
     </ul>
     <br>
     <br>
-     <h5><a href="https://github.com/ElucidataInc/ElMaven">Developer Manual</a></h5>
+     <h5><a href="https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md">Developer Manual</a></h5>
     <br>
    
 
