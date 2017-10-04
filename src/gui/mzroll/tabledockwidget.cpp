@@ -113,11 +113,11 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     promptDialog=new QDialog(this);
     promptDialogLayout=new QVBoxLayout();
 
-    QPushButton *cancel=new QPushButton();
+    cancel=new QPushButton();
     cancel->setText("cancel");
     connect(cancel,SIGNAL(clicked()),this,SLOT(rejectGroup()));
 
-    QPushButton * save=new QPushButton();
+    save=new QPushButton();
     save->setText("save");
     connect(save,SIGNAL(clicked()),this, SLOT(acceptGroup()));
 
@@ -492,16 +492,21 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 }
 
 void TableDockWidget::acceptGroup(){
+    addSameMzRtGroup=true;
     qDebug()<<"acceptedddddddddd";
     promptDialog->close();
 }
 
 void TableDockWidget::rejectGroup(){
+    addSameMzRtGroup=false;
     qDebug()<<"rejectedddddddddd";
     promptDialog->close();
 }
 
-void TableDockWidget::showSameGroup(){
+void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
+    for(int i=0;i<sameMzRtGroups[sameMzRtGroupIndexHash].size();++i){
+        qDebug()<<sameMzRtGroups[sameMzRtGroupIndexHash][i];
+    }
     promptDialogLayout->insertWidget(0,upperLabel);
     promptDialogLayout->insertWidget(1,lowerLabel);
     promptDialogLayout->insertLayout(2,buttonLayout);
@@ -511,13 +516,37 @@ void TableDockWidget::showSameGroup(){
 }
 
 bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
+
+    int intMz=std::ceil(group->meanMz);
+    int intRt=std::ceil(group->meanRt);
+    int sameMzRtGroupIndexHash=intMz*intRt;
+    QString compoundName=QString::fromStdString(group->compound->name);
+
+    if(allgroups.size()==0){
+        sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+    }
+
     for(int i=0; i < allgroups.size(); i++ ) {
         if ( &allgroups[i] == group ) return true;
         if ((double) std::abs(group->meanMz - allgroups[i].meanMz) < 1e-5 && (double)
             std::abs(group->meanRt-allgroups[i].meanRt) < 1e-5) {
+
+            addSameMzRtGroup=false;
+            if( !sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)){
+                showSameGroup(sameMzRtGroupIndexHash);
+
+                QEventLoop loop;
+                connect(save,SIGNAL(clicked()),&loop,SLOT(quit()));
+                connect(cancel,SIGNAL(clicked()),&loop,SLOT(quit()));
+            }
+            if(addSameMzRtGroup){
+                sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+            }
+
             return true;
         }
     }
+
     return false;
 }
 
