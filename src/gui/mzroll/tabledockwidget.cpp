@@ -130,6 +130,9 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     lowerLabel=new QLabel();
     lowerLabel->setText("Add this group too ?");
 
+    listTextView=new ListView();
+    stringModel=new QStringListModel(promptDialog);
+
 }
 
 TableDockWidget::~TableDockWidget() { 
@@ -493,23 +496,40 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 
 void TableDockWidget::acceptGroup(){
     addSameMzRtGroup=true;
-    qDebug()<<"acceptedddddddddd";
     promptDialog->close();
 }
 
 void TableDockWidget::rejectGroup(){
     addSameMzRtGroup=false;
-    qDebug()<<"rejectedddddddddd";
     promptDialog->close();
 }
 
+void ListView::keyPressEvent(QKeyEvent * event){
+    if (event->matches(QKeySequence::Copy)) {
+        QApplication::clipboard()->setText(strings.join("\n"));
+      }
+}
+
 void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
+
+    QStringList list;
+
     for(int i=0;i<sameMzRtGroups[sameMzRtGroupIndexHash].size();++i){
+        list.append(sameMzRtGroups[sameMzRtGroupIndexHash][i]);
         qDebug()<<sameMzRtGroups[sameMzRtGroupIndexHash][i];
     }
+
+    stringModel->setStringList(list);
+
+    listTextView->setModel(stringModel);
+    listTextView->setData(list);
+    listTextView->setSelectionMode(QAbstractItemView::MultiSelection);
+    listTextView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
     promptDialogLayout->insertWidget(0,upperLabel);
-    promptDialogLayout->insertWidget(1,lowerLabel);
-    promptDialogLayout->insertLayout(2,buttonLayout);
+    promptDialogLayout->insertWidget(1,listTextView);
+    promptDialogLayout->insertWidget(2,lowerLabel);
+    promptDialogLayout->insertLayout(3,buttonLayout);
     promptDialog->setLayout(promptDialogLayout);
     promptDialog->exec();
 
@@ -541,6 +561,7 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
             }
             if(addSameMzRtGroup){
                 sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+                return false;
             }
 
             return true;

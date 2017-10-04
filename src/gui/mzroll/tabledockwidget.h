@@ -30,7 +30,8 @@ public:
     QLabel* lowerLabel;
     QPushButton *cancel;
     QPushButton * save;
-    //ListView listTextView;
+    ListView *listTextView;
+    QStringListModel* stringModel;
 
     MainWindow* _mainwindow;
     QWidget 	*dockWidgetContents;
@@ -226,6 +227,7 @@ private:
     QStringList strings;
 public:
     virtual void keyPressEvent(QKeyEvent *event) ;
+    void setData(QStringList vstrings){strings=vstrings;}
 };
 
 #endif
