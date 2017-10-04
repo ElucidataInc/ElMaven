@@ -110,6 +110,26 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     setAcceptDrops(true);
 
+    promptDialog=new QDialog(this);
+    promptDialogLayout=new QVBoxLayout();
+
+    QPushButton *cancel=new QPushButton();
+    cancel->setText("cancel");
+    connect(cancel,SIGNAL(clicked()),this,SLOT(rejectGroup()));
+
+    QPushButton * save=new QPushButton();
+    save->setText("save");
+    connect(save,SIGNAL(clicked()),this, SLOT(acceptGroup()));
+
+    buttonLayout=new QHBoxLayout();
+    buttonLayout->addWidget(cancel);
+    buttonLayout->addWidget(save);
+
+    upperLabel=new QLabel();
+    upperLabel->setText("Groups with same mz and rt.\nSelect and (ctrl+c) to copy");
+    lowerLabel=new QLabel();
+    lowerLabel->setText("Add this group too ?");
+
 }
 
 TableDockWidget::~TableDockWidget() { 
@@ -469,6 +489,25 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     if ( group->childCount() > 0 ) {
         for( int i=0; i < group->childCount(); i++ ) addRow(&(group->children[i]), item);
     }
+}
+
+void TableDockWidget::acceptGroup(){
+    qDebug()<<"acceptedddddddddd";
+    promptDialog->close();
+}
+
+void TableDockWidget::rejectGroup(){
+    qDebug()<<"rejectedddddddddd";
+    promptDialog->close();
+}
+
+void TableDockWidget::showSameGroup(){
+    promptDialogLayout->insertWidget(0,upperLabel);
+    promptDialogLayout->insertWidget(1,lowerLabel);
+    promptDialogLayout->insertLayout(2,buttonLayout);
+    promptDialog->setLayout(promptDialogLayout);
+    promptDialog->exec();
+
 }
 
 bool TableDockWidget::hasPeakGroup(PeakGroup* group) {

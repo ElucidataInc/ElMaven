@@ -23,6 +23,13 @@ class TableDockWidget: public QDockWidget {
       Q_OBJECT
 
 public:
+    QDialog* promptDialog;
+    QHBoxLayout * buttonLayout;
+    QVBoxLayout* promptDialogLayout;
+    QLabel *upperLabel;
+    QLabel* lowerLabel;
+    //ListView listTextView;
+
     MainWindow* _mainwindow;
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
@@ -95,6 +102,8 @@ public Q_SLOTS:
         peakTableSelection = peakTableSelectionType::Bad;
     };
     
+    void acceptGroup();
+    void rejectGroup();
     void exportJson();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
@@ -160,6 +169,7 @@ protected Q_SLOTS:
 	  void contextMenuEvent ( QContextMenuEvent * event );
 
 private:
+    void showSameGroup();
           void deletePeaks();
           void addRow(PeakGroup* group, QTreeWidgetItem* root);
           void heatmapBackground(QTreeWidgetItem* item);
