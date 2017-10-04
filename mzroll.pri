@@ -1,6 +1,3 @@
-#OBJECTS_DIR=$$top_builddir/tmp/
-#MOC_DIR=$$top_builddir/tmp/
-
 CONFIG(debug, debug|release){
     message("running in debug mode  ")
     unix:!macx {
@@ -12,6 +9,14 @@ CONFIG(debug, debug|release){
 
 QT += sql core  gui opengl
 
+CONFIG += silent exceptions
+
+# this is important. Used in mzUtils to make use of correct mkdir function
+win32 {
+    message("using win32 config")
+    DEFINES += MINGW
+    DEFINES += WIN32
+}
 
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
 #unix {
@@ -32,7 +37,7 @@ QT += sql core  gui opengl
 #win32: LIBS += -lboost_signals-mt
 #
 #QT += core
-#CONFIG += silent exceptions
+
 #
 #QMAKE_CC = gcc
 #QMAKE_CXX = g++
@@ -43,12 +48,7 @@ QT += sql core  gui opengl
 #    LIBS -= -lz -lcdfread -lnetcdf
 #}
 #
-#win32 {
-#    message("using win32 config")
-#    DEFINES += MINGW
-#    DEFINES += WIN32
-#}
-#
+
 #mac {
 #    message("using mac config")
 #    DEFINES += CDFPARSER
