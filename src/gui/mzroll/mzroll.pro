@@ -42,6 +42,13 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
+# we need this flag  since on windows libpillow is built as a dynamic lib
+win32 {
+
+    QMAKE_LFLAGS += -L$$top_srcdir/bin/
+}
+
+
 LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
 message($$LDFLAGS)
 

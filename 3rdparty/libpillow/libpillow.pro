@@ -9,7 +9,7 @@ unix {
 }
 
 win32 {
-    DESTDIR=$$top_srcdir/libs/
+    DESTDIR=$$top_srcdir/bin/
 }
 
 TARGET = $$PILLOWCORE_LIB_NAME
