@@ -4,8 +4,13 @@ include(config.pri)
 MOC_DIR=$$top_builddir/tmp/pillow/
 OBJECTS_DIR=$$top_builddir/tmp/pillow/
 
-DESTDIR=$$top_builddir/libs/
+unix {
+    DESTDIR=$$top_builddir/libs/
+}
 
+win32 {
+    DESTDIR=$$top_srcdir/libs/
+}
 
 TARGET = $$PILLOWCORE_LIB_NAME
 
