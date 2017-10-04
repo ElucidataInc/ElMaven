@@ -495,26 +495,50 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 }
 
 void TableDockWidget::acceptGroup(){
+    /**
+     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
+     * to show already bookmarked group with same mz and rt value.
+     * If user press <save> button <addSameMzRtGroup> sets to true which will be used
+     * to add this group's corresponding compound name to already bookmarked group
+     * of same rt and mz value.
+    */
     addSameMzRtGroup=true;
     promptDialog->close();
 }
 
 void TableDockWidget::rejectGroup(){
+    /**
+     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
+     * to show already bookmarked group with same mz and rt value.
+     * If user press <cancel> button <addSameMzRtGroup> sets to false which will be used
+     * to reject this group's corresponding compound name.
+    */
     addSameMzRtGroup=false;
     promptDialog->close();
 }
 
 void ListView::keyPressEvent(QKeyEvent * event){
+    /**
+     * @details- this method will execute when user select and press <ctrl + c> to copy
+     * list of compound from prompt dialog which show already bookmarked group
+     * with same rt and mz value.
+    */
     if (event->matches(QKeySequence::Copy)) {
+        /**set all selected compound name to clipboard*/
         QApplication::clipboard()->setText(strings.join("\n"));
       }
 }
 
 void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
+    /**
+     * @details- this method will set the prompt dialog to show already bookmared
+     * groups.
+    */
 
     QStringList list;
 
     for(int i=0;i<sameMzRtGroups[sameMzRtGroupIndexHash].size();++i){
+        /**saving all compound name of same rt and mz value to <list> variable*/
         list.append(sameMzRtGroups[sameMzRtGroupIndexHash][i]);
         qDebug()<<sameMzRtGroups[sameMzRtGroupIndexHash][i];
     }
@@ -526,6 +550,7 @@ void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
     listTextView->setSelectionMode(QAbstractItemView::MultiSelection);
     listTextView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    /**set all widget and labels to prompt dailog*/
     promptDialogLayout->insertWidget(0,upperLabel);
     promptDialogLayout->insertWidget(1,listTextView);
     promptDialogLayout->insertWidget(2,lowerLabel);
@@ -537,12 +562,27 @@ void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
 
 bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 
+    /**
+     * @detail- this function return true if this group already present in
+     * bookmrked group <allgroups>.
+     * In case of groups with same mz and rt value, this will holds its execution
+     * by QEventLoop <loop> and show a prompt to user whether he wants to add
+     * this group to bookmarked groups or not by executing method <showSameGroup>.
+     * <loop> will hold execution of this funtion till user press a button on prompt
+     * dialog.
+    */
+
+
     int intMz=std::ceil(group->meanMz);
     int intRt=std::ceil(group->meanRt);
     int sameMzRtGroupIndexHash=intMz*intRt;
     QString compoundName=QString::fromStdString(group->compound->name);
 
     if(allgroups.size()==0){
+        /**
+         * add this group corresponding compound name to list of string which all share
+         * same mz and rt value. Both mz and rt are hashed in sameMzRtGroupIndexHash.
+        */
         sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
     }
 
@@ -553,14 +593,28 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 
             addSameMzRtGroup=false;
             if( !sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)){
-                showSameGroup(sameMzRtGroupIndexHash);
 
+                showSameGroup(sameMzRtGroupIndexHash);
+                /**
+                 * if bookmarked list has group with same mz and rt, loop will hold the execution
+                 * of this method after showing the prompt dialog to choose whether to add this group
+                 * by above method <showSameGroup>.
+                */
                 QEventLoop loop;
                 connect(save,SIGNAL(clicked()),&loop,SLOT(quit()));
                 connect(cancel,SIGNAL(clicked()),&loop,SLOT(quit()));
             }
             if(addSameMzRtGroup){
+                /**
+                 * if user pressed <save> button <addSameMzRtGroup> will be set to true otherwise false.
+                 * if it is true, this groups corresponding compound name will we saved by an index of 
+                 * sameMzRtGroupIndexHash to show all these string next time if a group with same rt
+                 * and mz is encountered.
+                */
                 sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+                /**
+                 * return false such that calling method will add this group to bookmarked group.
+                */
                 return false;
             }
 

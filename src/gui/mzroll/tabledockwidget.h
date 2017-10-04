@@ -23,15 +23,20 @@ class TableDockWidget: public QDockWidget {
       Q_OBJECT
 
 public:
+    /**
+     * @param- promptDialog is main dialog box to show user prompt for already bookmarked
+     * groups with same mz and rt value. It will hold <save> ,<cancel>,text labels (<upperLabel>
+     * and <lowerLabel>), list of already bookmarked groups <listTextView>.
+    */
     QDialog* promptDialog;
     QHBoxLayout * buttonLayout;
-    QVBoxLayout* promptDialogLayout;
+    QVBoxLayout* promptDialogLayout;    /**@param- holds all widget (upperLabel,listTextView,lowerLabel) and <buttonLayout>*/
     QLabel *upperLabel;
     QLabel* lowerLabel;
     QPushButton *cancel;
     QPushButton * save;
-    ListView *listTextView;
-    QStringListModel* stringModel;
+    ListView *listTextView; /**@param-  holds all already group's correcponding compound name*/
+    QStringListModel* stringModel;  /**@param-  model of compound name,will be set to <listTextView>*/
 
     MainWindow* _mainwindow;
     QWidget 	*dockWidgetContents;
@@ -223,7 +228,6 @@ class TableToolBarWidgetAction : public QWidgetAction
 
 class ListView: public QListView{
 private:
-    QAbstractItemModel* itemModel;
     QStringList strings;
 public:
     virtual void keyPressEvent(QKeyEvent *event) ;
