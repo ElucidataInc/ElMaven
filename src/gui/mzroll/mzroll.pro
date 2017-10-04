@@ -3,7 +3,7 @@ include($$mzroll_pri)
 MOC_DIR=$$top_builddir/tmp/mzroll/
 OBJECTS_DIR=$$top_builddir/tmp/mzroll/
 
-DESTDIR = $$top_builddir/bin/
+DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
 CONFIG += qt thread warn_off sql svg console precompile_header
