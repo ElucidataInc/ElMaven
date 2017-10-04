@@ -19,11 +19,46 @@
     <link rel="canonical" href="http://localhost:4000/ElMaven/Features/" />
     <link rel="alternate" type="application/rss+xml" title="El Maven" href="/ElMaven/feed.xml" />
   
-    
-</head>
+    </head>
 
-
+    <head>
+        <style>
+        body {margin:0;}
+        
+        .navbar {
+          overflow: hidden;
+          background-color: orange;
+          position: fixed;
+          top: 0;
+          width: 100%;
+        }
+        
+        .navbar a {
+          float: left;
+          display: block;
+          color: #f2f2f2;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-size: 17px;
+        }
+        
+        .main {
+          padding: 16px;
+          margin-bottom: 30px;
+          height: 1500px; /* Used in this example to enable scrolling */
+        }
+        </style>
+        </head>
+        
   <body>
+
+      <div class="navbar">
+          <a href="#supported_file_format">Supported File Format</a>
+          <a href="#raw_data_processing">Raw Data Processing</a>
+          <a href="#statistical_analysis">Statistical Analysis</a>
+          <a href="#visualizations">Visualizations</a>
+        </div>
 
     <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper" style="padding-left: 40px; padding-right: 40px; background-color: #8985db;"><a id="logo-container" class="brand-logo" href="/ElMaven/">ElMaven</a>
@@ -31,22 +66,24 @@
     
 
           <ul class="right hide-on-med-and-down cdn-nav" style="background-color:#8985db;">
+
+              
             <li class="links"><a href="/ElMaven/" style="color:white;">Home</a></li>
             
                 
                     
                     
-                
+             
                     
                     
                     <li class="links"><a href="/ElMaven/Why-ElMaven/" style="color:white;">Why ElMaven</a></li>
                     
                 
+               
+                    <li class="links"><a class="dropbtn" href="/ElMaven/Features/" style="color:white;">Features</a></li>
                     
                     
-                    <li class="links"><a href="/ElMaven/Features/" style="color:white;">Features</a></li>
-                    
-                
+                     
                     
                     
                     <li class="links"><a href="/ElMaven/Manuals/" style="color:white;">Manuals</a></li>
@@ -103,11 +140,11 @@
                 
              
           </ul>        
-
+          
       <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
 </nav>
-
+<div class="main">
 
         <div class="container">
 
@@ -117,9 +154,9 @@
 
 <br />
 <br />
-<h4 class="cdn-h2" style="color: #8985db;">Supported File Formats</h4>
+<h4 class="cdn-h2" id="supported_file_format" style="color: #8985db;">Supported File Formats</h4>
 <br />
-<h5 class="cdn-h3">Raw Data Files:</h5>
+<h5 id="raw_data_files" class="cdn-h3">Raw Data Files:</h5>
 <p class="cdn-content">
 ElMaven can read import raw data and export processed data in the following formats:</p>
 <br />
@@ -195,7 +232,7 @@ ElMaven can read import raw data and export processed data in the following form
 <br />
 <img class="img-res" src=" /ElMaven/assets/peak_group.png" /></p>
 <br />
-<h4 class=" cdn-h2" style="color: #8985db;">Statistical Analysis</h4>
+<h4 class=" cdn-h2" id="statistical_analysis" style="color: #8985db;">Statistical Analysis</h4>
 <br />
 <h4 class="cdn-h3">Scatter Plot:</h4>
 
@@ -214,7 +251,7 @@ ElMaven can read import raw data and export processed data in the following form
  The cluster analysis is used to give a visual representation of the correlation between the metabolites in all the samples.</p>
 <br />
 <br />
-<h4 class="cdn-h2" style="color: #8985db;">Visualizations</h4>
+<h4 class="cdn-h2" id="visualizations" style="color: #8985db;">Visualizations</h4>
 <br />
 <h4 class="cdn-h3">Chromatogram Plot:</h4>
 
@@ -326,7 +363,7 @@ Mass Spectra plot displays each peak, its mass, and intensity for a scan. This f
 <script src="/ElMaven/js/jquery.min.js"></script>
 <script src="/ElMaven/js/materialize.min.js"></script>
 <script src="/ElMaven/js/init.js"></script>
-
+</div>
   </body>
 
 </html>
