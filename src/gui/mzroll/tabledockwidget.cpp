@@ -990,6 +990,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             }
 
             allgroups.erase(allgroups.begin()+pos);
+            vallgroups.erase(vallgroups.begin()+pos);
             break;
         }
         ++it;
@@ -997,6 +998,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
     for(unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
+        vallgroups[i].groupId = i + 1;
     }
     updateTable();
 }
