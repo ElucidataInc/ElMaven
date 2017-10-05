@@ -729,6 +729,10 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   bool useOverlap,
                                   double minSignalBaselineDifference)
 {
+    vector<mzSample*> samples;
+    for(int i=0;i<eics.size();++i){
+            samples.push_back(eics[i]->sample); //collect all mzSample into vector samples 
+    }
     //list filled and return by this function
     vector<PeakGroup> pgroups;
 
@@ -743,22 +747,13 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             grp.groupId = i;
             grp.addPeak(m->peaks[i]);
             grp.groupStatistics();
-            if (m->sample->isSelected)
-                grp.samples.push_back(m->sample);
+            grp.setSelectedSamples(samples);
             pgroups.push_back(grp);
         }
         return pgroups;
     }
 
     //create EIC compose from all sample eics
-    vector<mzSample *> samples;
-    for (int i = 0; i < eics.size(); ++i)
-    {
-        if (eics[i]->sample->isSelected)
-        {
-            samples.push_back(eics[i]->sample);
-        }
-    }
     EIC *m = EIC::eicMerge(eics);
     if (!m)
         return pgroups;
@@ -772,7 +767,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     {
         PeakGroup grp;
         grp.groupId = i;
-        grp.samples = samples;
+        grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }
 
