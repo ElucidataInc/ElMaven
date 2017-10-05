@@ -990,7 +990,9 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             }
 
             allgroups.erase(allgroups.begin()+pos);
-            vallgroups.erase(vallgroups.begin()+pos);
+            vallgroups.erase(vallgroups.begin()+pos);   /**delete group also from list of groups 
+                                                                                    *stored for json export.
+                                                                                    */
             break;
         }
         ++it;
