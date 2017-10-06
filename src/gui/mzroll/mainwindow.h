@@ -140,6 +140,7 @@ public:
 	QComboBox *ionizationModeComboBox;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
+	QComboBox *transitionList;
 	QLabel *statusText;
 	QStringList pathlist;
 	QString currentIntensityName;

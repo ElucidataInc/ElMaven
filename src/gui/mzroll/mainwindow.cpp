@@ -2602,6 +2602,8 @@ void MainWindow::createToolBars() {
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
 	connect(quantType, SIGNAL(currentIndexChanged(int)), SLOT(refreshIntensities()));
 
+	transitionList = new QComboBox(hBox);
+
 	settings->beginGroup("searchHistory");
 	QStringList keys = settings->childKeys();
 	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
