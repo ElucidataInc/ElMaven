@@ -502,8 +502,13 @@ void LigandWidget::showLigand() {
             Compound*  c =  v.value<Compound*>();
             if (c)  _mw->setCompoundFocus(c);
             if (c)   matchFragmentation();
-            if (c && c->precursorMz && c->productMz) _mw->populateTransitionList(c->precursorMz, c->productMz);
-
+            if (c && c->precursorMz && c->productMz) {
+                _mw->populateTransitionList(c->precursorMz, c->productMz);
+                if (c && !c->srmId.empty()) {
+                    int pos = _mw->transitionList->findText(QString::fromStdString(c->srmId));
+                    _mw->transitionList->setCurrentIndex(pos);
+                }
+            }
     }
 }
 
