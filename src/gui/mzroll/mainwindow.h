@@ -308,6 +308,7 @@ public Q_SLOTS:
 	void showButtonLog();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
+	void updateEIC(QString q);	
 
 	void setQComboBox();
 	void setFilterLine();

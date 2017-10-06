@@ -1561,10 +1561,11 @@ void EicWidget::setPPM(double ppm) {
 	setMzSlice(x);
 }
 
-void EicWidget::setMzSlice(float mz1, float mz2) {
+void EicWidget::setMzSlice(float mz1, float mz2, string srmId) {
 
 	double ppm = getMainWindow()->getUserPPM();
 	mzSlice x = eicParameters->setMzSlice(mz1, ppm, mz2);
+	if (srmId != "") x.srmId = srmId;
 	setMzSlice(x);
 }
 

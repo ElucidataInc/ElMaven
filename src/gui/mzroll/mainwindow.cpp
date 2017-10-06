@@ -3625,6 +3625,11 @@ void MainWindow::populateTransitionList(float precursorMz, float productMz) {
 		if (abs(Q3 - productMz) > amuQ3) continue;
 		transitionList->addItem(QString::fromStdString(slice->srmId));
 	}
+	connect(transitionList, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEIC(QString)));
+}
+
+void MainWindow::updateEIC(QString q){
+	getEicWidget()->setMzSlice(0.0,0.0,q.toStdString());
 }
 
 void MainWindow::markGroup(PeakGroup* group, char label) {
