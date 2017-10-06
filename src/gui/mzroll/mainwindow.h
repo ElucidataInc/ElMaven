@@ -252,6 +252,8 @@ public:
 
 	PeakGroup::QType getUserQuantType();
 
+	void populateTransitionList(float precursorMz, float productMz);	
+
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// QSqlDatabase* getLocalDB() {
 	// 	return &localDB;
