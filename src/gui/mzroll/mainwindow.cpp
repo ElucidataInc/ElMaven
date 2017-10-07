@@ -1436,8 +1436,10 @@ void MainWindow::setMzValue() {
 	}
 
 	if (isDouble) {
-		if (eicWidget->isVisible())
+		if (eicWidget->isVisible()) {
 			eicWidget->setMzSlice(mz1, mz2);
+			populateTransitionList(mz1, mz2);
+		}
 		if (massCalcWidget->isVisible())
 			massCalcWidget->setMass(mz1);
 		if (fragPanel->isVisible())
