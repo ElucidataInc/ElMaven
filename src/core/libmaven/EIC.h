@@ -31,9 +31,9 @@ class EIC
 
     enum SmootherType /**<Enumeration to select the smoothing algorithm */
     {
-        GAUSSIAN = 0,
-        AVG = 1,
-        SAVGOL = 2
+        SAVGOL = 0,
+        GAUSSIAN = 1,
+        AVG = 2
     };
     enum EicType /**<Enumeration to select how intensity and/or mass is calculated at a particular retention time */
     {
