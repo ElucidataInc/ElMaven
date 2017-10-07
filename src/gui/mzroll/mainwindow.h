@@ -252,6 +252,12 @@ public:
 
 	PeakGroup::QType getUserQuantType();
 
+	/**
+	 * @brief display available transitions/scan types for an MRM
+	 * @details populate transition list for selected MRM from compound db or search box
+	 * @param precursorMz precursor m/z 
+	 * @param productMz product m/z
+	 */
 	void populateTransitionList(float precursorMz, float productMz);	
 
 	//TODO: Sahil - Kiran, removed while merging mainwindow

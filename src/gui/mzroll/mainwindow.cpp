@@ -3616,13 +3616,14 @@ void MainWindow::populateTransitionList(float precursorMz, float productMz) {
 	transitionList->clear();
 	for (int i = 0; i < slices.size(); i++) {
 		mzSlice* slice = slices[i];
-		// 
 		std::size_t posQ1 = slice->srmId.find('Q1=') + 1;
 		if (posQ1-1 == std::string::npos) continue;
+		//extract precursor m/z from srm id
 		double Q1 = stod(slice->srmId.substr(posQ1, slice->srmId.find(' ', posQ1) - posQ1)); 
 		if (abs(Q1 - precursorMz) > amuQ1) continue;
 		std::size_t posQ3 = slice->srmId.find('Q3=', posQ1) + 1;
 		if (posQ3-1 == std::string::npos) continue;
+		//extract product m/z from srm id
 		double Q3 = stod(slice->srmId.substr(posQ3, slice->srmId.find(' ', posQ3) - posQ3));
 		if (abs(Q3 - productMz) > amuQ3) continue;
 		transitionList->addItem(QString::fromStdString(slice->srmId));
