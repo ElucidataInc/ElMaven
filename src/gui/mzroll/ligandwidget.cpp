@@ -500,7 +500,6 @@ void LigandWidget::showLigand() {
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
             QVariant v = item->data(0,Qt::UserRole);
             Compound*  c =  v.value<Compound*>();
-            if (c)  _mw->setCompoundFocus(c);
             if (c)   matchFragmentation();
             if (c && c->precursorMz && c->productMz) {
                 _mw->populateTransitionList(c->precursorMz, c->productMz);
@@ -509,6 +508,7 @@ void LigandWidget::showLigand() {
                     _mw->transitionList->setCurrentIndex(pos);
                 }
             }
+            if (c)  _mw->setCompoundFocus(c);
     }
 }
 
