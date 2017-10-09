@@ -72,7 +72,11 @@ public:
     bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
     int tableId;
-    bool mzrollv_0_1_5;
+    bool mzrollv_0_1_5; /**
+                                        *@param-    for making old mzroll compatible, this will act as a flag
+                                        *whether loaded mzroll file is old or new one. this will be set by class
+                                        *method <markv_0_1_5mzroll>
+                                        */
     //Added when Merging to Maven776 - Kiran
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
@@ -212,7 +216,9 @@ private:
                                                                                                                             *to group being generated while creating
                                                                                                                             *from mzroll file
                                                                                                                             */
-    void markv_0_1_5mzroll(QString fileName);
+    void markv_0_1_5mzroll(QString fileName);       /**@brief-mark varible <mzrollv_0_1_5> true or false
+                                                                                       * @see- defintion of this method
+                                                                                       */
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
 

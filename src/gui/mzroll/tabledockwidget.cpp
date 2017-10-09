@@ -1890,15 +1890,30 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
         if(mzrollv_0_1_5 && samples[i]->isSelected){
+            /**
+             * if mzroll is from old version, just insert sample in group from checking
+             * whether it is selected or not at time of exporting. This can give erroneous
+             * result for old version if at time of exporting mzroll user has selected diffrent
+             * samples from samples were used at time of peak finding which was inherent problem
+             * of old version of ElMaven.
+            */
             group->samples.push_back(samples[i]);
         }
         else if( xml.attributes().value('s'+name).toString()=="Used"){
+            /**
+             * if mzroll file is of new version, it's sample name will precede by 's'
+             * and has value of <Used> or <NotUsed>
+            */
             group->samples.push_back(samples[i]);
         }
     }
 }
 void TableDockWidget::markv_0_1_5mzroll(QString fileName){
-
+    /**@details-
+     * this method marks varible <mzrollv_0_1_5> true if loaded mzroll
+     * file is of old version 0.1.5 otherwise false based on one attribute
+     * <SamplesUsed> which is introduced here.
+    */
     mzrollv_0_1_5=true;
     
     QFile data(fileName);
@@ -1912,6 +1927,7 @@ void TableDockWidget::markv_0_1_5mzroll(QString fileName){
         xml.readNext();
         if (xml.isStartElement()) {   
             if (xml.name() == "SamplesUsed"){
+                /**mark false if <SamplesUsed> which is only in new version*/
                 mzrollv_0_1_5=false;
                 break;
             }
@@ -1924,7 +1940,7 @@ void TableDockWidget::markv_0_1_5mzroll(QString fileName){
 }
 void TableDockWidget::loadPeakTable(QString fileName) {
 
-    markv_0_1_5mzroll(fileName);
+    markv_0_1_5mzroll(fileName);    /**@brief- mark varible <mzrollv_0_1_5>*/
 
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
