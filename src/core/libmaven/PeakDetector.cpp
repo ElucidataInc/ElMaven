@@ -67,30 +67,30 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 //Init EIC by pointing it to NULL
                 EIC* e = NULL;
 
-                //TODO: Find a better way to send precursor and product mz for MRM search
-                float precursorMz = slice->mzmin;
-                float productMz = slice->mzmax;
-                //TODO: what is SRM again going here?
-                if (!slice->srmId.empty()) {
-                        //if srmId of the slice is present, get EICs on the basis of srmId
-                        //cout << "computeEIC srm:" << slice->srmId << endl;
+                float precursorMz = 0;
+                float productMz = 0;
 
+                if (c != NULL) {
+                    precursorMz = c->precursorMz;
+                    productMz = c->productMz;
+                }
 
-                        e = sample->getEIC(slice->srmId, eicType);
-                        
-                        //TODO this is for MS/MS?
-                } else if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
-                        //mzmax/productmz will be smaller than mzmin/precursorMz only when it is for MRM search
-                        //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
+                if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
+                    //mzmax/productmz will be smaller than mzmin/precursorMz only when it is for MRM search
+                    //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
 
-                        float collisionEnergy = 0;
-                        if (c && c->precursorMz > 0 && c->productMz > 0) {
-                            collisionEnergy = c->collisionEnergy;
-                            precursorMz = c->precursorMz;
-                            productMz = c->productMz;
-                        }
-                        e = sample->getEIC(precursorMz, collisionEnergy, productMz, eicType,
-                                        filterline, amuQ1, amuQ3);
+                    float collisionEnergy = 0;
+                    if (c && c->precursorMz > 0 && c->productMz > 0) {
+                        collisionEnergy = c->collisionEnergy;
+                        precursorMz = c->precursorMz;
+                        productMz = c->productMz;
+                    }
+                    e = sample->getEIC(precursorMz, collisionEnergy, productMz, eicType,
+                                    filterline, amuQ1, amuQ3);
+
+                } else if (!slice->srmId.empty()) {
+
+                    e = sample->getEIC(slice->srmId, eicType);
 
                 } else {
                         //This is the usual case where we are going peakpicking
@@ -241,11 +241,14 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
                 slice->setSRMId();
 
-                // //Calculating the mzmin and mzmax
-                int charge = mavenParameters->getCharge(c);
-                bool success  = \
-                slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, charge);
-                if (!success) continue;
+                if (c->precursorMz == 0 || c->productMz == 0) {
+
+                    //Calculating the mzmin and mzmax
+                    int charge = mavenParameters->getCharge(c);
+                    bool success  = \
+                    slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, charge);
+                    if (!success) continue;
+                }
 
                 //calculating the min and max RT
                 slice->calculateRTMinMax(mavenParameters->matchRtFlag, \

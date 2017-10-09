@@ -544,13 +544,11 @@ int Database::loadCompoundCSVFile(string filename){
 
         }
 
-        //cerr << "Loading: " << id << " " << formula << "mz=" << mz << " rt=" << rt << " charge=" << charge << endl;
 
-        if (mz == 0) mz=precursormz;
         if (id.empty()&& !name.empty()) id=name;
         if (id.empty() && name.empty()) id="cmpd:" + integer2string(loadCount);
 
-        if ( mz > 0 || ! formula.empty() ) {
+        if ( mz > 0 || ! formula.empty() || precursormz > 0) {
             Compound* compound = new Compound(id,name,formula,charge);
 
             compound->expectedRt = rt;
