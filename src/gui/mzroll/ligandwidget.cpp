@@ -336,14 +336,24 @@ void LigandWidget::showTable() {
         parent->setText(0,name.toUpper());  //Feng note: sort names after capitalization
 
         float mz;
+        float precursorMz = compound->precursorMz;
+        float productMz = compound->productMz;
+
         if (compound->formula.length()) {
             int charge = _mw->mavenParameters->getCharge(compound);
             mz = compound->ajustedMass(charge);
-        } else {
+        } 
+        else {
             mz = compound->mass;
         }
 
-        parent->setText(1,QString::number(mz,'f',6));
+        if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
+            parent->setText(1,QString::number(precursorMz,'f',3) + "/" + QString::number(productMz,'f',3));
+        } else {
+            parent->setText(1,QString::number(mz,'f',6));            
+        }
+
+
         if(compound->expectedRt > 0) parent->setText(2,QString::number(compound->expectedRt));
         parent->setData(0, Qt::UserRole, QVariant::fromValue(compound));
         parent->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsEnabled);
