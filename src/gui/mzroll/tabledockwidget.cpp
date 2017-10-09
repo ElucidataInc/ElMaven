@@ -1883,17 +1883,48 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     *created from mzroll file. It will read SamplesUsed attribute of a group
     *and if it's value is "Used", then assign this mzSample to that group
     */
+    if(xml.name() == "PeakGroup" || xml.name() =="children" || xml.name() == "Peak"){
+        return;
+    }
     vector<mzSample*> samples= _mainwindow->getSamples();
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
-        if( xml.attributes().value('s'+name).toString()=="Used"){
+        if(mzrollv_0_1_5 && samples[i]->isSelected){
+            group->samples.push_back(samples[i]);
+        }
+        else if( xml.attributes().value('s'+name).toString()=="Used"){
             group->samples.push_back(samples[i]);
         }
     }
 }
+void TableDockWidget::markv_0_1_5mzroll(QString fileName){
 
+    mzrollv_0_1_5=true;
+    
+    QFile data(fileName);
+    
+    if ( !data.open(QFile::ReadOnly) ) {
+        return;
+    }
+
+    QXmlStreamReader xml(&data);
+    while(!xml.atEnd()){
+        xml.readNext();
+        if (xml.isStartElement()) {   
+            if (xml.name() == "SamplesUsed"){
+                mzrollv_0_1_5=false;
+                break;
+            }
+        }
+    }
+
+    data.close();
+   
+    return;
+}
 void TableDockWidget::loadPeakTable(QString fileName) {
 
+    markv_0_1_5mzroll(fileName);
 
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
@@ -1911,7 +1942,7 @@ void TableDockWidget::loadPeakTable(QString fileName) {
         xml.readNext();
         if (xml.isStartElement()) {   
             if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
-            if (xml.name() == "SamplesUsed" && group){ readSamplesXML(xml,group); }
+            if (group){ readSamplesXML(xml,group); }
             if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
             if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
         }
