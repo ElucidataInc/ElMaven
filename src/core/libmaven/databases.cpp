@@ -108,8 +108,6 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
     charge = getChargeFromDB(fields, header);
     //If Some of the imp fields are not present here is th way it will be
     //assigned
-    if (mz == 0) 
-        mz = precursormz;
 
     if (id.empty() && !name.empty()) 
         id = name;
@@ -119,7 +117,7 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
 
     //The compound should atleast have formula so that
     //mass can be calculated from the formula
-    if ( mz > 0 || !formula.empty() ) {
+    if ( mz > 0 || !formula.empty() || precursormz > 0) {
         Compound* compound = new Compound(id,name,formula,charge);
 
         compound->expectedRt = rt;
