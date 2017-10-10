@@ -8,6 +8,7 @@
 
 #include "PeakDetector.h"
 #include "mzSample.h"
+#include "Compound.h"
 
 class EICLogic {
 public:
