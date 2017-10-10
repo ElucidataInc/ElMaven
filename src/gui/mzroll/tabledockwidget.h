@@ -161,7 +161,8 @@ public Q_SLOTS:
 	  void markGroupIgnored();
           void showAllGroups();
 	  void showHeatMap();
-	  void showGallery();
+      void showGallery();
+      void cleanString(QString &name);
           void showTreeMap();
 	  void showScatterPlot();
 	  void setClipboard();

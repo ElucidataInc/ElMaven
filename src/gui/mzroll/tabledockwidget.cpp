@@ -1566,7 +1566,10 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
     file.close();
 }
 
-
+void TableDockWidget::cleanString(QString &name){
+    name.replace('#','_');
+    name='s'+name;
+}
 void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) { 
     if (!g)return;
 
@@ -1603,14 +1606,15 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
     vector<mzSample*> samples=_mainwindow->getSamples();
     for (unsigned int j = 0; j < samples.size(); j++){
         QString name=QString::fromStdString(samples[j]->sampleName);
+        cleanString(name);
         for(int i=0;i<g->samples.size();++i){
             if(samples[j]->sampleName==g->samples[i]->sampleName){
-                stream.writeAttribute('s'+name,"Used");
+                stream.writeAttribute(name,"Used");
                 break;
             }
             else if(i==g->samples.size()-1){
                 
-                stream.writeAttribute('s'+name,"NotUsed");
+                stream.writeAttribute(name,"NotUsed");
             }
         }   
     }
@@ -1889,6 +1893,7 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     vector<mzSample*> samples= _mainwindow->getSamples();
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
+        cleanString(name);
         if(mzrollv_0_1_5 && samples[i]->isSelected){
             /**
              * if mzroll is from old version, just insert sample in group from checking
@@ -1899,7 +1904,7 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
             */
             group->samples.push_back(samples[i]);
         }
-        else if( xml.attributes().value('s'+name).toString()=="Used"){
+        else if( xml.attributes().value(name).toString()=="Used"){
             /**
              * if mzroll file is of new version, it's sample name will precede by 's'
              * and has value of <Used> or <NotUsed>
@@ -1956,6 +1961,7 @@ void TableDockWidget::loadPeakTable(QString fileName) {
     
     while (!xml.atEnd()) {
         xml.readNext();
+        if(xml.hasError()){qDebug()<<"Error in xml reading: "<<xml.errorString();}
         if (xml.isStartElement()) {   
             if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
             if (group){ readSamplesXML(xml,group); }
