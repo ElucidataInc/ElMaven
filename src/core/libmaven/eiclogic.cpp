@@ -92,7 +92,7 @@ mzSlice EICLogic::setMzSlice(float mz1, double ppm, float mz2) {
 	x.mzmin = mz1 - mz1 / 1e6 * ppm;
 	x.mzmax = mz1 + mz1 / 1e6 * ppm;
 	if (mz2 > 0) {
-		Compound* c = new Compound("1", "c", "C", 0);
+		Compound* c = new Compound("1", "", "C", 0);
 		c->precursorMz = mz1;
 		c->productMz = mz2;
 		x.compound = c;
