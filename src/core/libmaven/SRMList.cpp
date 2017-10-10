@@ -6,16 +6,7 @@ SRMList::SRMList(vector<mzSample*>samples, deque<Compound*> compoundsDB){
 }
 
 vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolarity, bool associateCompoundNames) {
-	//Merged with Maven776 - Kiran
     QMap<QString, Scan*>seenMRMS;
-    //+118.001@cid34.00 [57.500-58.500]
-    //+ c ESI SRM ms2 102.000@cid19.00 [57.500-58.500]
-    //-87.000 [42.500-43.500]
-    //- c ESI SRM ms2 159.000 [113.500-114.500]
-
-    QRegExp rx1a("[+/-](\\d+\\.\\d+)");
-    QRegExp rx1b("ms2\\s*(\\d+\\.\\d+)");
-    QRegExp rx2("(\\d+\\.\\d+)-(\\d+\\.\\d+)");
     int countMatches=0;
 
     vector<mzSlice*>slices;
@@ -38,10 +29,10 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
     }
 
     for (auto filterLine: seenMRMS.keys()){
-		
+
         Scan* scan = seenMRMS.value(filterLine);
         mzSlice* s = new mzSlice(0,0,0,0);
-		s->srmId = scan->filterLine.c_str();
+        s->srmId = scan->filterLine.c_str();
         slices.push_back(s);
 
         if (associateCompoundNames) {
@@ -55,19 +46,11 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             if (userPolarity) polarity=userPolarity;  //user specified ionization mode
 
             if ( precursorMz == 0 ) {
-                if( rx1a.indexIn(filterLine) != -1 ) {
-                    precursorMz = rx1a.capturedTexts()[1].toDouble();
-                } else if ( rx1b.indexIn(filterLine) != -1 ) {
-                    precursorMz = rx1b.capturedTexts()[1].toDouble();
-                }
+                precursorMz = getPrecursorOfSrm(filterLine.toStdString());
             }
 
             if (productMz == 0) {
-                if ( rx2.indexIn(filterLine) != -1 ) {
-                    float lb = rx2.capturedTexts()[1].toDouble();
-                    float ub = rx2.capturedTexts()[2].toDouble();
-                    productMz = lb+(ub-lb)/2;
-                }
+                productMz = getProductOfSrm(filterLine.toStdString());
             }
 
             if (precursorMz != 0 && productMz != 0 ) {
@@ -80,9 +63,9 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
                 s->rt = compound->expectedRt;
                 countMatches++;
             }
-        }                       
-	}
-	return slices;
+        }
+    }
+    return slices;
 }
 
 Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {
@@ -108,4 +91,59 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
             }
     }
     return x;
+}
+
+double SRMList::getPrecursorOfSrm(string srmId)
+{
+
+    QRegExp precursorA("Q1\=([0-9]+)");
+    QRegExp precursorB("Q1\=([0-9]+\.[0-9]+)");
+    QRegExp precursorC("ms2\\s*([0-9]+\.[0-9]+)");
+
+    QString srmID = QString::fromStdString(srmId);
+
+    double precursorMz = 0;
+
+    if (precursorA.indexIn(srmID) != -1)
+    {
+        precursorMz = precursorA.capturedTexts()[1].toDouble();
+    }
+    else if (precursorB.indexIn(srmID) != -1)
+    {
+        precursorMz = precursorB.capturedTexts()[1].toDouble();
+    }
+    else if (precursorC.indexIn(srmID) != -1)
+    {
+        precursorMz = precursorC.capturedTexts()[1].toDouble();
+    }
+
+    return precursorMz;
+}
+
+double SRMList::getProductOfSrm(string srmId)
+{
+    QString srmID = QString::fromStdString(srmId);
+
+    QRegExp productA("Q3\=([0-9]+)");
+    QRegExp productB("Q3\=([0-9]+\.[0-9]+)");
+    QRegExp productC("([0-9]+\.[0-9]+)-([0-9]+\.[0-9]+)");
+
+    double productMz = 0;
+
+    if (productA.indexIn(srmID) != -1)
+    {
+        productMz = productA.capturedTexts()[1].toDouble();
+    }
+    else if (productB.indexIn(srmID) != -1)
+    {
+        productMz = productB.capturedTexts()[1].toDouble();
+    }
+    else if (productC.indexIn(srmID) != -1)
+    {
+        double lb = productC.capturedTexts()[1].toDouble();
+        double ub = productC.capturedTexts()[2].toDouble();
+        productMz = lb + (ub - lb) / 2;
+    }
+
+    return productMz;
 }
