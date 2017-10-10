@@ -1444,6 +1444,7 @@ void MainWindow::setMzValue() {
 			showFragmentationScans(mz1);
 	}
 	suggestPopup->addToHistory(QString::number(mz1, 'f', 5));
+	connect(searchText, SIGNAL(returnPressed()), getEicWidget(), SLOT(resetZoom()));	
 }
 
 void MainWindow::setMzValue(float mz1, float mz2) {
