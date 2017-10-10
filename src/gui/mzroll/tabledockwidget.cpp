@@ -1894,18 +1894,11 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     *created from mzroll file. It will read SamplesUsed attribute of a group
     *and if it's value is "Used", then assign this mzSample to that group
     */
-    if(xml.name() == "PeakGroup" || xml.name() =="children" || xml.name() == "Peak"){
-        /**
-         * Since here stream is pointing to start element in xml file, if it's not pointing to "SamplesUsed"
-         * then return
-        */
-        return;
-    }
     vector<mzSample*> samples= _mainwindow->getSamples();
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
         cleanString(name);
-        if(mzrollv_0_1_5 && samples[i]->isSelected){
+        if(xml.name() == "PeakGroup" && mzrollv_0_1_5 && samples[i]->isSelected){
             /**
              * if mzroll is from old version, just insert sample in group from checking
              * whether it is selected or not at time of exporting. This can give erroneous
@@ -1915,7 +1908,7 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
             */
             group->samples.push_back(samples[i]);
         }
-        else if( xml.attributes().value(name).toString()=="Used"){
+        else if(xml.name() == "SamplesUsed" && xml.attributes().value(name).toString()=="Used"){
             /**
              * if mzroll file is of new version, it's sample name will precede by 's'
              * and has value of <Used> or <NotUsed>
