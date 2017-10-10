@@ -730,14 +730,25 @@ void BackgroundPeakUpdate::computePeaks() {
         processCompounds(mavenParameters->compounds, "compounds");
 }
 
+//TODO: Not being used anywhere right now - Sahil
 void BackgroundPeakUpdate::findPeaksQQQ() {
-        //Merged with Maven776 - Kiran
-	if(mainwindow == NULL) return;
+
+        if(mainwindow == NULL) return;
+
+        int userPolarity = 0;
+	if (mainwindow->getIonizationMode()) userPolarity = mainwindow->getIonizationMode();
+        
+        bool associateCompoundNames = false;
+
+        deque<Compound*> compoundsDB = DB.getCompoundsDB();
+
         double amuQ1 = mainwindow->getSettings()->value("amuQ1").toDouble();
         double amuQ3 = mainwindow->getSettings()->value("amuQ3").toDouble();
-        bool associateCompoundNames=false;
-        vector<mzSlice*>slices = mainwindow->getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
-	processSlices(slices,"QQQ Peaks");
+
+        SRMList *srmList = new SRMList(mainwindow->samples, compoundsDB);
+	vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
+
+        processSlices(slices,"QQQ Peaks");
 	delete_all(slices);
 	slices.clear();
 }

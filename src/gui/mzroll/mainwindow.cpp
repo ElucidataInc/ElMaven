@@ -2728,37 +2728,30 @@ bool MainWindow::addSample(mzSample* sample) {
 	}
 }
 
-/*
-@author: Sahil-Kiran\
-*/
-//TODO: Sahil-Kiran, Added while merging mainwindow
 void MainWindow::showPeakdetectionDialog() {
 	LOGD;
     peakDetectionDialog->show();      
 }
 
-// void MainWindow::showMassSlices() {
-//    peakDetectionDialog->initPeakDetectionDialogWindow(
-//    PeakDetectionDialog::FullSpectrum );
-//    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging
-//    mainwindow
-//}
-
-// void MainWindow::compoundDatabaseSearch() {
-//    peakDetectionDialog->initPeakDetectionDialogWindow(PeakDetectionDialog::CompoundDB);
-//    peakDetectionDialog->show(); //TODO: Sahil-Kiran, Added while merging
-//    mainwindow
-//}
-
 void MainWindow::showSRMList() {
 	LOGD;
-     //added while merging with Maven776 - Kiran
-     if (srmDockWidget->isVisible()) {
-        double amuQ1 = getSettings()->value("amuQ1").toDouble();
+
+	if (srmDockWidget->isVisible()) {
+
+        int userPolarity = 0;
+		if (getIonizationMode()) userPolarity = getIonizationMode();
+
+		bool associateCompoundNames = true;
+
+        deque<Compound*> compoundsDB = DB.getCompoundsDB();
+
+		double amuQ1 = getSettings()->value("amuQ1").toDouble();
         double amuQ3 = getSettings()->value("amuQ3").toDouble();
-        bool associateCompoundNames=true;
-        vector<mzSlice*>slices = getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
-        if (slices.size() ==  0 ) return;
+
+		SRMList *srmList = new SRMList(samples, compoundsDB);
+		vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
+
+		if (slices.size() ==  0 ) return;
         srmDockWidget->setInfo(slices);
         delete_all(slices);
      }
@@ -2905,15 +2898,6 @@ void MainWindow::UndoAlignment() {
 
 	Q_EMIT(undoAlignment(listGroups));
 
-}
-
-vector<mzSlice*> MainWindow::getSrmSlices(double amuQ1, double amuQ3, bool associateCompoundNames){
-	int userPolarity = 0;
-	if (getIonizationMode()) userPolarity=getIonizationMode();
-	deque<Compound*> compoundsDB = DB.getCompoundsDB();
-	SRMList *srmList = new SRMList(samples, compoundsDB);
-	vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1,amuQ3,userPolarity,associateCompoundNames);
-	return slices;
 }
 
 
