@@ -162,7 +162,7 @@ public Q_SLOTS:
           void showAllGroups();
 	  void showHeatMap();
       void showGallery();
-      void cleanString(QString &name);
+      void cleanString(QString &name);  /**@brief- modify name appropriate for xml attribute naming*/
           void showTreeMap();
 	  void showScatterPlot();
 	  void setClipboard();

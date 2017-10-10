@@ -1567,6 +1567,13 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
 }
 
 void TableDockWidget::cleanString(QString &name){
+    /**
+     * This method makes sample name appropriate for using in attribute naming in mzroll file
+     * It is just replacing '#' with '_' and adding 's' for letting sample name start with english letter
+     * In future, if sample name has some other special character, we have to replace those also
+     * with appropriate character
+     * Error can be seen at compilation time
+    */
     name.replace('#','_');
     name='s'+name;
 }
@@ -1888,6 +1895,10 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     *and if it's value is "Used", then assign this mzSample to that group
     */
     if(xml.name() == "PeakGroup" || xml.name() =="children" || xml.name() == "Peak"){
+        /**
+         * Since here stream is pointing to start element in xml file, if it's not pointing to "SamplesUsed"
+         * then return
+        */
         return;
     }
     vector<mzSample*> samples= _mainwindow->getSamples();
