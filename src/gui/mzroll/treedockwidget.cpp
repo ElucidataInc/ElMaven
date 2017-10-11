@@ -455,19 +455,24 @@ void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
     associateCompounds->setMenu(matchCompoundMenu);
     associateCompounds->setPopupMode(QToolButton::InstantPopup);
 
-    SRMList *srmList = new SRMList(_mainWindow->samples, DB.getCompoundsDB());
 
     double amuq1 = amuQ1->value();
     double amuq3 = amuQ3->value();
 
-    deque<Compound*> matchedCompounds = srmList->getMatchedCompounds(srmId, amuq1, amuq3);
+    deque<Compound*> matchedCompounds = _mainWindow->srmList->getMatchedCompounds(srmId, amuq1, amuq3);
 
     matchCompoundMenu->clear();
+    connect(matchCompoundMenu, SIGNAL(triggered(QAction*)), SLOT(annotateCompound(QAction*)));
 
     for (unsigned int i=0; i< matchedCompounds.size(); i++) {
         QAction* action = matchCompoundMenu->addAction(QString::fromStdString(matchedCompounds[i]->name));
-        connect(action, SIGNAL(triggered(QAction*)), SLOT(annotateCompound(QAction*)));
     }
+
+
+}
+
+void TreeDockWidget::annotateCompound(QAction* action) {
+    
 
 
 }

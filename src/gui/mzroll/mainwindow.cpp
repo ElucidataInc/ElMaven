@@ -2748,7 +2748,7 @@ void MainWindow::showSRMList() {
 		double amuQ1 = getSettings()->value("amuQ1").toDouble();
         double amuQ3 = getSettings()->value("amuQ3").toDouble();
 
-		SRMList *srmList = new SRMList(samples, compoundsDB);
+		srmList = new SRMList(samples, compoundsDB);
 		vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
 
 		if (slices.size() ==  0 ) return;

@@ -144,6 +144,8 @@ public:
 	QStringList pathlist;
 	QString currentIntensityName;
 
+	SRMList *srmList;
+
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	AlignmentVizWidget *alignmentVizWidget;

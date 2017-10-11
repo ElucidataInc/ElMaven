@@ -745,8 +745,7 @@ void BackgroundPeakUpdate::findPeaksQQQ() {
         double amuQ1 = mainwindow->getSettings()->value("amuQ1").toDouble();
         double amuQ3 = mainwindow->getSettings()->value("amuQ3").toDouble();
 
-        SRMList *srmList = new SRMList(mainwindow->samples, compoundsDB);
-	vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
+	vector<mzSlice*>slices = mainwindow->srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
 
         processSlices(slices,"QQQ Peaks");
 	delete_all(slices);

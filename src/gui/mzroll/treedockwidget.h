@@ -57,6 +57,7 @@ public Q_SLOTS:
 
       void unlinkGroup();
       void manualAnnotation(QTreeWidgetItem * item);
+      void annotateCompound(QAction* action);
 
     private:
       //Added while merging with Maven776 - Kiran
