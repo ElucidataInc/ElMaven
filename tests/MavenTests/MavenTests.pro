@@ -43,6 +43,7 @@ HEADERS += \
     testMzAligner.h \
     testCLI.h \
     testCharge.h \
+    testSRMList.h \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.h \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
@@ -64,6 +65,7 @@ SOURCES += \
     testMzAligner.cpp \
     testCLI.cpp \
     testCharge.cpp \
+    testSRMList.cpp \
     main.cpp \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.cpp  \
     $$top_srcdir/src/cli/peakdetector/options.cpp \

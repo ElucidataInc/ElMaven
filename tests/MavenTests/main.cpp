@@ -18,9 +18,6 @@ int readLog(QString);
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
-    // QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-    // QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
 
     int result = 0;
 
@@ -72,9 +69,9 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestCSVReports, argc, argv);
     result|=readLog("testCSVReports.xml");
 
-    // if(freopen("testMzAligner.xml",  "w", stdout))
-    //     result |= QTest::qExec(new TestMzAligner, argc, argv);
-    // result|=readLog("testMzAligner.xml");
+    if (freopen("testSRMList.xml", "w", stdout))
+        result |= QTest::qExec(new TestSRMList, argc, argv);
+    result|=readLog("testSRMList.xml");
 
     return result;
 }
