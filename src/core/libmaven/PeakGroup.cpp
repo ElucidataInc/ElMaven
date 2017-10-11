@@ -771,6 +771,10 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
 
 void PeakGroup::setSelectedSamples(vector<mzSample*> vsamples){
     samples.clear();
+    /**
+     * @details- this method used for assigning samples to this group based on whether that samples
+     * are marked as selected.
+    */
     for(int i=0;i<vsamples.size();++i){
         if(vsamples[i]->isSelected) {
             samples.push_back(vsamples[i]);

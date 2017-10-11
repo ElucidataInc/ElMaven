@@ -541,6 +541,6 @@ class PeakGroup{
                             int intensityWeight,
                             int deltaRTWeight);
 
-        void setSelectedSamples(vector<mzSample*> vsamples);
+        void setSelectedSamples(vector<mzSample*> vsamples);    /**take list of sample and filter those which are marked as selected*/
 };
 #endif
