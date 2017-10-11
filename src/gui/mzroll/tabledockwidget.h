@@ -45,10 +45,15 @@ public:
     QToolButton *btnMerge;
     QMenu* btnMergeMenu;
     QLabel *titlePeakTable;
+ 
     QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
     bool addSameMzRtGroup;
-    vector<PeakGroup> vallgroups;  //vallgroups will be used by libmaven/jsonReports.cpp
-                                //for json export
+
+    vector<PeakGroup> vallgroups;  /**@param-  vallgroups will be used by libmaven/jsonReports.cpp
+                                                        *for json export. Since libmaven is wriiten only standard cpp, all groups
+                                                        *from <allgroups> get copied to <vallgroups> at time of json exporting
+                                                        *@see- <TableDockWidget::exportJson>
+                                                         */
     QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;

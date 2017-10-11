@@ -599,12 +599,10 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 PeakGroup* TableDockWidget::addPeakGroup(PeakGroup* group) {
     if (group != NULL ) {
         allgroups.push_back(*group);
-        vallgroups.push_back(*group);
         if ( allgroups.size() > 0 ) {
             PeakGroup& g = allgroups[ allgroups.size()-1 ];
             for (unsigned int i = 0; i <  allgroups.size(); i++) {
                 allgroups[i].groupId = i + 1;
-                vallgroups[i].groupId = i + 1;
             }
             //g.groupId = allgroups.size();
             return &g;
@@ -811,6 +809,16 @@ void TableDockWidget::exportJson() {
         QMessageBox::warning(this, tr("Error"), msg);
         return;
     }
+
+    /**
+     * copy all groups from <allgroups> to <vallgroups> which is used by
+     * < libmaven/jsonReports.cpp>
+    */
+    vallgroups.clear();
+    for(int i=0;i<allgroups.size();++i){
+        vallgroups.push_back(allgroups[i]);
+    }
+
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
@@ -990,9 +998,6 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             }
 
             allgroups.erase(allgroups.begin()+pos);
-            vallgroups.erase(vallgroups.begin()+pos);   /**delete group also from list of groups 
-                                                                                    *stored for json export.
-                                                                                    */
             break;
         }
         ++it;
@@ -1000,7 +1005,6 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
     for(unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
-        vallgroups[i].groupId = i + 1;
     }
     updateTable();
 }
