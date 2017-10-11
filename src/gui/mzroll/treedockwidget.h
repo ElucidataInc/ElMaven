@@ -56,11 +56,16 @@ public Q_SLOTS:
       QTreeWidgetItem* addLink(mzLink* s,  QTreeWidgetItem* parent);
 
       void unlinkGroup();
+      void manualAnnotation(QTreeWidgetItem * item);
 
     private:
       //Added while merging with Maven776 - Kiran
       MainWindow* _mainWindow;
       void itemToClipboard(QTreeWidgetItem* item, QString& clipboardtext);
+      QDoubleSpinBox* amuQ1;
+      QDoubleSpinBox* amuQ3;
+      QToolButton* associateCompounds;
+      QMenu* matchCompoundMenu;
 
 };
 

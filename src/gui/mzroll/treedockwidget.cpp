@@ -8,8 +8,8 @@ TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {
 		treeWidget->setColumnCount(numColms);
 		treeWidget->setObjectName(title);
 		connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showInfo()));
-        connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
-		treeWidget->setHeaderHidden(true);
+        connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));        
+        treeWidget->setHeaderHidden(true);
 
         //QShortcut* ctrlA = new QShortcut(QKeySequence(tr("Ctrl+A", "Select All")), this);
         //connect(ctrlA,SIGNAL(activated()),treeWidget,SLOT(selectAll())); 
@@ -110,6 +110,7 @@ void TreeDockWidget::showInfo() {
                                         mzSlice slice =  v.value<mzSlice>();
                                         mainwindow->getEicWidget()->setMzSlice(slice);
                                         mainwindow->getEicWidget()->resetZoom();
+                                        manualAnnotation(item);
                                         qDebug() << "showInfo() mzSlice: " << slice.srmId.c_str();
                         } else {
                                 cerr << "UNKNOWN TYPE=" << v.type() << endl;
@@ -402,13 +403,12 @@ void TreeDockWidget::itemToClipboard(QTreeWidgetItem* item, QString& clipboardte
 
 
 void TreeDockWidget::setQQQToolBar() {
-    //Merged with Maven776 - Kiran
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    QDoubleSpinBox* amuQ1 = new QDoubleSpinBox(toolBar);
+    amuQ1 = new QDoubleSpinBox(toolBar);
     amuQ1->setRange(0.001, 2.0);
     amuQ1->setValue(_mainWindow->getSettings()->value("amuQ1").toDouble());
     amuQ1->setSingleStep(0.1);	//amu step
@@ -419,7 +419,7 @@ void TreeDockWidget::setQQQToolBar() {
     connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ1Tollrance(double)));
     connect(amuQ1, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
 
-    QDoubleSpinBox* amuQ3 = new QDoubleSpinBox(toolBar);
+    amuQ3 = new QDoubleSpinBox(toolBar);
     amuQ3->setRange(0.001, 2.0);
     amuQ3->setValue(_mainWindow->getSettings()->value("amuQ3").toDouble());
     amuQ3->setSingleStep(0.1);	//amu step
@@ -429,11 +429,10 @@ void TreeDockWidget::setQQQToolBar() {
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow,SLOT(showSRMList()));
 
-    QToolButton* associateCompounds = new QToolButton(toolBar);
+    associateCompounds = new QToolButton(toolBar);
     associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
     associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
-    connect(associateCompounds,SIGNAL(clicked()),_mainWindow,SLOT(showSRMList()));
-
+    
     toolBar->addWidget(new QLabel("Q1"));
     toolBar->addWidget(amuQ1);
     toolBar->addWidget(new QLabel("Q3"));
@@ -441,5 +440,34 @@ void TreeDockWidget::setQQQToolBar() {
     toolBar->addWidget(associateCompounds);
 
     setTitleBarWidget(toolBar);
+
+}
+
+void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
+
+    QVariant v =   item->data(0,Qt::UserRole);
+
+	mzSlice slice = v.value<mzSlice>();
+    string srmId = slice.srmId;
+    if (srmId.empty()) return;
+
+    matchCompoundMenu = new QMenu("Manual Annotation");
+    associateCompounds->setMenu(matchCompoundMenu);
+    associateCompounds->setPopupMode(QToolButton::InstantPopup);
+
+    SRMList *srmList = new SRMList(_mainWindow->samples, DB.getCompoundsDB());
+
+    double amuq1 = amuQ1->value();
+    double amuq3 = amuQ3->value();
+
+    deque<Compound*> matchedCompounds = srmList->getMatchedCompounds(srmId, amuq1, amuq3);
+
+    matchCompoundMenu->clear();
+
+    for (unsigned int i=0; i< matchedCompounds.size(); i++) {
+        QAction* action = matchCompoundMenu->addAction(QString::fromStdString(matchedCompounds[i]->name));
+        connect(action, SIGNAL(triggered(QAction*)), SLOT(annotateCompound(QAction*)));
+    }
+
 
 }
