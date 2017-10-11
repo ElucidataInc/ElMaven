@@ -45,7 +45,7 @@ public:
     QToolButton *btnMerge;
     QMenu* btnMergeMenu;
     QLabel *titlePeakTable;
-    QMap<int,QList<QString> > sameMzRtGroups;
+    QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
     bool addSameMzRtGroup;
     vector<PeakGroup> vallgroups;  //vallgroups will be used by libmaven/jsonReports.cpp
                                 //for json export
@@ -179,7 +179,7 @@ protected Q_SLOTS:
 	  void contextMenuEvent ( QContextMenuEvent * event );
 
 private:
-    void showSameGroup(int sameMzRtGroupIndexHash);
+    void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
           void deletePeaks();
           void addRow(PeakGroup* group, QTreeWidgetItem* root);
           void heatmapBackground(QTreeWidgetItem* item);

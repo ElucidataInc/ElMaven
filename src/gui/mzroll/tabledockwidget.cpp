@@ -529,7 +529,7 @@ void ListView::keyPressEvent(QKeyEvent * event){
       }
 }
 
-void TableDockWidget::showSameGroup(int sameMzRtGroupIndexHash){
+void TableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash){
     /**
      * @details- this method will set the prompt dialog to show already bookmared
      * groups.
@@ -573,9 +573,9 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
     */
 
 
-    int intMz=std::ceil(group->meanMz);
-    int intRt=std::ceil(group->meanRt);
-    int sameMzRtGroupIndexHash=intMz*intRt;
+    int intMz=group->meanMz*1e5;
+    int intRt=group->meanRt*1e5;
+    QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
     QString compoundName=QString::fromStdString(group->compound->name);
 
     if(allgroups.size()==0){
