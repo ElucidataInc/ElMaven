@@ -36,8 +36,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
         #pragma omp parallel default(shared)
         #endif
         {
-                //Selecting only the samples that is been selected by the user
-                // double start=omp_get_wtime();
+
                 #ifndef __APPLE__
                 #pragma omp for
                 #endif
@@ -51,10 +50,10 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         #endif
                         vsamples.push_back(samples[i]);
                 }
-                // cerr<<"\n Time take by PeakDetector::pullEICs Loop1: "<<omp_get_wtime()-start<<"\n";
+
                 // single threaded version - getting EICs of selected samples.
                 // #pragma omp parallel for ordered
-                // start=omp_get_wtime();
+
                 #ifndef __APPLE__
                 #pragma omp for
                 #endif
@@ -64,28 +63,11 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 //getting the slice with which EIC has to be pulled
                 Compound* c = slice->compound;
 
-                //Init EIC by pointing it to NULL
                 EIC* e = NULL;
 
-                float precursorMz = 0;
-                float productMz = 0;
+                if (c && c->precursorMz > 0 && c->productMz > 0) {
 
-                if (c != NULL) {
-                    precursorMz = c->precursorMz;
-                    productMz = c->productMz;
-                }
-
-                if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
-                    //mzmax/productmz will be smaller than mzmin/precursorMz only when it is for MRM search
-                    //if product and parent ion's m/z of the compound in slice is present, get EICs for QQQ mode
-
-                    float collisionEnergy = 0;
-                    if (c && c->precursorMz > 0 && c->productMz > 0) {
-                        collisionEnergy = c->collisionEnergy;
-                        precursorMz = c->precursorMz;
-                        productMz = c->productMz;
-                    }
-                    e = sample->getEIC(precursorMz, collisionEnergy, productMz, eicType,
+                    e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
                                     filterline, amuQ1, amuQ3);
 
                 } else if (!slice->srmId.empty()) {
