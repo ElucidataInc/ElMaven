@@ -80,7 +80,7 @@ class SRMList{
      * @return deque<Compound*> List of compounds
      * @see Compound
      */
-    deque<Compound*> getMatchedCompounds(string srmId, double amuQ1, double amuQ3);
+    deque<Compound*> getMatchedCompounds(string srmId, double amuQ1, double amuQ3, int polarity);
 
     /**
      * @brief store manual annotation

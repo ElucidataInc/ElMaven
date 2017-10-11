@@ -412,7 +412,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ1->setRange(0.001, 2.0);
     amuQ1->setValue(_mainWindow->getSettings()->value("amuQ1").toDouble());
     amuQ1->setSingleStep(0.1);	//amu step
-    amuQ1->setToolTip("PrecursorMz Tollarance");
+    amuQ1->setToolTip("PrecursorMz Tolerance");
     amuQ1->setSuffix(" amu");
     amuQ1->setMinimumWidth(20);
 
@@ -423,7 +423,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ3->setRange(0.001, 2.0);
     amuQ3->setValue(_mainWindow->getSettings()->value("amuQ3").toDouble());
     amuQ3->setSingleStep(0.1);	//amu step
-    amuQ3->setToolTip("ProductMz Tollarance");
+    amuQ3->setToolTip("ProductMz Tolerance");
     amuQ3->setSuffix(" amu");
     amuQ3->setMinimumWidth(20);
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
@@ -459,7 +459,10 @@ void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
     double amuq1 = amuQ1->value();
     double amuq3 = amuQ3->value();
 
-    deque<Compound*> matchedCompounds = _mainWindow->srmList->getMatchedCompounds(srmId, amuq1, amuq3);
+    int polarity = 0;
+    if (_mainWindow->getIonizationMode()) polarity = _mainWindow->getIonizationMode();
+
+    deque<Compound*> matchedCompounds = _mainWindow->srmList->getMatchedCompounds(srmId, amuq1, amuq3, polarity);
 
     matchCompoundMenu->clear();
     connect(matchCompoundMenu, SIGNAL(triggered(QAction*)), SLOT(annotateCompound(QAction*)));

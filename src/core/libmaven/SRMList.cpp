@@ -83,9 +83,9 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
             //cerr << polarity << " " << compoundsDB[i]->charge << endl;
             if ((int) compoundsDB[i]->charge != polarity && compoundsDB[i]->charge != 0) continue;
             float a = abs(compoundsDB[i]->precursorMz - precursorMz);
-            if ( a > amuQ1 ) continue; // q1 tollorance
+            if ( a > amuQ1 ) continue; // q1 tolerance
             float b = abs(compoundsDB[i]->productMz - productMz);
-            if ( b > amuQ3 ) continue; // q2 tollarance
+            if ( b > amuQ3 ) continue; // q2 tolerance
             float dMz = sqrt(a*a+b*b);
             float dRt = abs(compoundsDB[i]->expectedRt - rt);
             if (  ( dMz < distMz)  ||   ((dMz == distMz) && (dRt < distRt))  ) { 
@@ -152,7 +152,7 @@ double SRMList::getProductOfSrm(string srmId)
     return productMz;
 }
 
-deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double amuQ3) {
+deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double amuQ3, int polarity) {
 
     deque<Compound*> matchedCompounds;
 
@@ -160,11 +160,12 @@ deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double
     float productMz = getProductOfSrm(srmId);
 
     for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
+        if ((int) compoundsDB[i]->charge != polarity && compoundsDB[i]->charge != 0) continue;
         if (compoundsDB[i]->precursorMz == 0 ) continue;
         float a = abs(compoundsDB[i]->precursorMz - precursorMz);
-        if ( a > amuQ1 ) continue; // q1 tollorance
+        if ( a > amuQ1 ) continue; // q1 tolerance
         float b = abs(compoundsDB[i]->productMz - productMz);
-        if ( b > amuQ3 ) continue; // q2 tollarance
+        if ( b > amuQ3 ) continue; // q2 tolerance
 
         matchedCompounds.push_back(compoundsDB[i]);
     }
