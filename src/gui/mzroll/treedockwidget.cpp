@@ -472,7 +472,28 @@ void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
 }
 
 void TreeDockWidget::annotateCompound(QAction* action) {
-    
 
+    QTreeWidgetItem *item = treeWidget->currentItem();
+    QVariant v =   item->data(0,Qt::UserRole);
+    
+    QTreeWidgetItem *childItem = item->child(0);
+    string existingCompound = childItem->text(0).toStdString();
+
+    mzSlice slice = v.value<mzSlice>();
+    string srmId = slice.srmId;
+    if (srmId.empty()) return;
+
+    string compoundName = action->text().toStdString();
+
+    if (compoundName == existingCompound) return;
+
+    Q_FOREACH(Compound* compound, _mainWindow->srmList->compoundsDB) {
+
+        if(compoundName == compound->name) {
+            _mainWindow->annotation[srmId] = compound;
+        }
+    }
+
+    _mainWindow->showSRMList();
 
 }

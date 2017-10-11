@@ -2749,6 +2749,7 @@ void MainWindow::showSRMList() {
         double amuQ3 = getSettings()->value("amuQ3").toDouble();
 
 		srmList = new SRMList(samples, compoundsDB);
+		srmList->setAnnotation(annotation);
 		vector<mzSlice*>slices = srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
 
 		if (slices.size() ==  0 ) return;

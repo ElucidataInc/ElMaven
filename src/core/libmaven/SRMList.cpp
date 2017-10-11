@@ -56,6 +56,10 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             if (precursorMz != 0 && productMz != 0 ) {
                 compound = findSpeciesByPrecursor(precursorMz,productMz,rt,polarity,amuQ1,amuQ3);
             }
+            
+            if (annotation[string(filterLine.toStdString())]) {
+                compound = annotation[filterLine.toStdString()];
+            }
 
             if (compound) {
                 compound->srmId = filterLine.toStdString();

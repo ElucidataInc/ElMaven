@@ -145,7 +145,8 @@ public:
 	QString currentIntensityName;
 
 	SRMList *srmList;
-
+    map<string, Compound*> annotation;
+	
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	AlignmentVizWidget *alignmentVizWidget;
