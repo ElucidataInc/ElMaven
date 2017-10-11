@@ -56,7 +56,23 @@ public Q_SLOTS:
       QTreeWidgetItem* addLink(mzLink* s,  QTreeWidgetItem* parent);
 
       void unlinkGroup();
+
+      /**
+       * @brief Add compound selection menu to annotate compounds manually
+       * @details This slot insert menu items which contains compounds. Compounds
+       * are selected on the basis of filterline of item selected. Precursor and
+       * product m/z are calculated for the filterline and then matched with
+       * compounds in compound database with some tolerance.
+       * @param item Selected item from the qtreewidget
+       * @see SRMList
+       */
       void manualAnnotation(QTreeWidgetItem * item);
+
+      /**
+       * @brief Annotate filterline with the selected compound from the menu
+       * @param action This QAction updates the annotation of the mzSlice (filterline)
+       * @see manualAnnotation
+       */
       void annotateCompound(QAction* action);
 
     private:

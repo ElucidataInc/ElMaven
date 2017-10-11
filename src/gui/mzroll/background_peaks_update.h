@@ -218,7 +218,10 @@ private:
 	void findPeaksOrbi(void);
 
 	/**
-	 * [find Peaks for QQQ mode]
+	 * @brief Find peaks using SRM Slices
+	 * @details SRM Slices are calculated on the basis of filterline (srm id).
+	 * These mzSlices are then used to find peaks.
+	 * @see SRMList
 	 */
 	void findPeaksQQQ(void);
 
