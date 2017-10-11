@@ -1920,7 +1920,7 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
 void TableDockWidget::markv_0_1_5mzroll(QString fileName){
     /**@details-
      * this method marks varible <mzrollv_0_1_5> true if loaded mzroll
-     * file is of old version 0.1.5 otherwise false based on one attribute
+     * file is of v0.1.5 or older otherwise false based on one attribute
      * <SamplesUsed> which is introduced here.
     */
     mzrollv_0_1_5=true;
