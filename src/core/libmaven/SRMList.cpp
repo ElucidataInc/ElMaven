@@ -147,3 +147,23 @@ double SRMList::getProductOfSrm(string srmId)
 
     return productMz;
 }
+
+deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double amuQ3) {
+
+    deque<Compound*> matchedCompounds;
+
+    float precursorMz = getPrecursorOfSrm(srmId);
+    float productMz = getProductOfSrm(srmId);
+
+    for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
+        if (compoundsDB[i]->precursorMz == 0 ) continue;
+        float a = abs(compoundsDB[i]->precursorMz - precursorMz);
+        if ( a > amuQ1 ) continue; // q1 tollorance
+        float b = abs(compoundsDB[i]->productMz - productMz);
+        if ( b > amuQ3 ) continue; // q2 tollarance
+
+        matchedCompounds.push_back(compoundsDB[i]);
+    }
+
+    return matchedCompounds;
+}

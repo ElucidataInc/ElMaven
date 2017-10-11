@@ -19,6 +19,7 @@ class SRMList{
     Compound* findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3);
     static double getPrecursorOfSrm(string srmId);
     static double getProductOfSrm(string srmId);
-};
+    deque<Compound*> getMatchedCompounds(string srmId, double amuQ1, double amuQ3);
+  };
 
 #endif
