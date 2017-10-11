@@ -20,6 +20,11 @@ class SRMList{
   public:
 
     /**
+     * @brief Constructor with no input parameters
+     */
+    SRMList();
+
+    /**
      * @brief Constructor of class SRMList
      * @param samples Samples used
      * @param compoundsDB Compounds from reference compound database

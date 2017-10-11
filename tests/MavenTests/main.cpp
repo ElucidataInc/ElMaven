@@ -13,6 +13,7 @@
 #include "testMzAligner.h"
 #include "testCLI.h"
 #include "testCharge.h"
+#include "testSRMList.h"
 
 int readLog(QString);
 
