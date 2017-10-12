@@ -59,7 +59,16 @@ public:
     TableDockWidget(MainWindow* mw, QString title, int numColms, int bookmarkFlag = 0);
 	~TableDockWidget();
 
-	int  groupCount() { return allgroups.size(); }
+    int  groupCount() { return allgroups.size(); }
+    /**
+     * @detail- this function return true if this group already present in
+     * bookmrked group <allgroups>.
+     * In case of groups with same mz and rt value, this will holds its execution
+     * by QEventLoop <loop> and show a prompt to user whether he wants to add
+     * this group to bookmarked groups or not by executing method <showSameGroup>.
+     * <loop> will hold execution of this funtion till user press a button on prompt
+     * dialog.
+    */
     bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
     int tableId;
@@ -111,8 +120,20 @@ public Q_SLOTS:
     inline void badPeakSet () {
         peakTableSelection = peakTableSelectionType::Bad;
     };
-    
+    /**
+     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
+     * to show already bookmarked group with same mz and rt value.
+     * If user press <save> button <addSameMzRtGroup> sets to true which will be used
+     * to add this group's corresponding compound name to already bookmarked group
+     * of same rt and mz value.
+    */
     void acceptGroup();
+    /**
+     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
+     * to show already bookmarked group with same mz and rt value.
+     * If user press <cancel> button <addSameMzRtGroup> sets to false which will be used
+     * to reject this group's corresponding compound name.
+    */
     void rejectGroup();
     void exportJson();
 	  void showSelectedGroup();
@@ -230,6 +251,11 @@ class ListView: public QListView{
 private:
     QStringList strings;
 public:
+     /**
+     * @details- this method will execute when user select and press <ctrl + c> to copy
+     * list of compound from prompt dialog which show already bookmarked group
+     * with same rt and mz value.
+    */
     virtual void keyPressEvent(QKeyEvent *event) ;
     void setData(QStringList vstrings){strings=vstrings;}
 };

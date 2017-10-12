@@ -495,34 +495,16 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 }
 
 void TableDockWidget::acceptGroup(){
-    /**
-     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
-     * to show already bookmarked group with same mz and rt value.
-     * If user press <save> button <addSameMzRtGroup> sets to true which will be used
-     * to add this group's corresponding compound name to already bookmarked group
-     * of same rt and mz value.
-    */
     addSameMzRtGroup=true;
     promptDialog->close();
 }
 
 void TableDockWidget::rejectGroup(){
-    /**
-     * @details-this is a slot tied with <save> button of prompt dialog <promptDialog>
-     * to show already bookmarked group with same mz and rt value.
-     * If user press <cancel> button <addSameMzRtGroup> sets to false which will be used
-     * to reject this group's corresponding compound name.
-    */
     addSameMzRtGroup=false;
     promptDialog->close();
 }
 
 void ListView::keyPressEvent(QKeyEvent * event){
-    /**
-     * @details- this method will execute when user select and press <ctrl + c> to copy
-     * list of compound from prompt dialog which show already bookmarked group
-     * with same rt and mz value.
-    */
     if (event->matches(QKeySequence::Copy)) {
         /**set all selected compound name to clipboard*/
         QApplication::clipboard()->setText(strings.join("\n"));
@@ -562,21 +544,10 @@ void TableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash){
 
 bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 
-    /**
-     * @detail- this function return true if this group already present in
-     * bookmrked group <allgroups>.
-     * In case of groups with same mz and rt value, this will holds its execution
-     * by QEventLoop <loop> and show a prompt to user whether he wants to add
-     * this group to bookmarked groups or not by executing method <showSameGroup>.
-     * <loop> will hold execution of this funtion till user press a button on prompt
-     * dialog.
-    */
-
-
     int intMz=group->meanMz*1e5;
     int intRt=group->meanRt*1e5;
     QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
-    QString compoundName=QString::fromStdString(group->compound->name);
+    QString compoundName=QString::fromStdString(group->compound->name);//
     
     if(allgroups.size()==0 || sameMzRtGroups[sameMzRtGroupIndexHash].size()==0){
         /**
@@ -1000,6 +971,24 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             //Deleteing
             int posTree = treeWidget->indexOfTopLevelItem(item);
             if (posTree != -1) treeWidget->takeTopLevelItem(posTree);
+
+            /**
+             * delete name of compound associated with this group stored in <sameMzRtGroups> with
+             * given mz and rt
+             */
+            int intMz=group->meanMz*1e5;
+            int intRt=group->meanRt*1e5;
+            QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
+            QString compoundName=QString::fromStdString(groupX->compound->name);
+            if( sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)){
+                for(int i=0;i<sameMzRtGroups[sameMzRtGroupIndexHash].size();++i){
+                    if(sameMzRtGroups[sameMzRtGroupIndexHash][i]==compoundName){
+                        sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+                        break;
+                    }
+                }
+            }
+
             allgroups.erase(allgroups.begin()+pos);
             break;
         }
