@@ -540,7 +540,11 @@ class PeakGroup{
                             int qualityWeight,
                             int intensityWeight,
                             int deltaRTWeight);
-
-        void setSelectedSamples(vector<mzSample*> vsamples);    /**take list of sample and filter those which are marked as selected*/
+        /**
+         * @brief take list of sample and filter those which are marked as selected
+         * @details this method used for assigning samples to this group based on whether that samples
+         * are marked as selected.
+        */
+        void setSelectedSamples(vector<mzSample*> vsamples);
 };
 #endif
