@@ -577,8 +577,8 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
     int intRt=group->meanRt*1e5;
     QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
     QString compoundName=QString::fromStdString(group->compound->name);
-
-    if(allgroups.size()==0){
+    
+    if(allgroups.size()==0 || sameMzRtGroups[sameMzRtGroupIndexHash].size()==0){
         /**
          * add this group corresponding compound name to list of string which all share
          * same mz and rt value. Both mz and rt are hashed in sameMzRtGroupIndexHash.
