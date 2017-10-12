@@ -93,7 +93,7 @@ MavenParameters::MavenParameters() {
         //options dialog::peak grouping tab-widget
 	distXWeight = 1.0;
 	distYWeight = 1.0;
-	overlapWeight = 1.0;
+	minPeakRtDiff = 0.0;
 	bool useOverlap = true;
 
 }
@@ -180,6 +180,6 @@ void MavenParameters::printSettings() {
         //peak grouping score
         cerr << "#distXWeight=" << distXWeight << endl;
         cerr << "#distYWeight=" << distYWeight << endl; 
-        cerr << "#overlapWeight=" << overlapWeight << endl; 
+        cerr << "#minPeakRtDiff=" << minPeakRtDiff << endl; 
         cerr << "#useOverlap=" << useOverlap << endl;              
 }

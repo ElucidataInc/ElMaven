@@ -223,7 +223,7 @@ class EIC
                                         double minQuality,
                                         double distXWeight,
                                         double distYWeight,
-                                        double overlapWeight,
+                                        double minPeakRtDiff,
                                         bool useOverlap,
                                         double minSignalBaselineDifference);
     /**

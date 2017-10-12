@@ -1000,7 +1000,7 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     _mainwindow->mavenParameters->minQuality,
                                                     _mainwindow->mavenParameters->distXWeight,
                                                     _mainwindow->mavenParameters->distYWeight,
-                                                    _mainwindow->mavenParameters->overlapWeight,
+                                                    _mainwindow->mavenParameters->minPeakRtDiff,
                                                     _mainwindow->mavenParameters->useOverlap,
                                                     _mainwindow->mavenParameters->minSignalBaselineDifference);
 

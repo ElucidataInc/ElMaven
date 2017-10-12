@@ -194,7 +194,7 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->grouping_maxRtWindow = 0.5;
     mavenparameters->distXWeight = 1;
     mavenparameters->distYWeight = 5;
-    mavenparameters->overlapWeight = 2;
+    mavenparameters->minPeakRtDiff = 0;
     mavenparameters->useOverlap = 0;
 
 
@@ -214,7 +214,7 @@ void TestEIC:: testgroupPeaks() {
                                                     mavenparameters->minQuality,
                                                     mavenparameters->distXWeight,
                                                     mavenparameters->distYWeight,
-                                                    mavenparameters->overlapWeight,
+                                                    mavenparameters->minPeakRtDiff,
                                                     mavenparameters->useOverlap,
                                                     mavenparameters->minSignalBaselineDifference);
 

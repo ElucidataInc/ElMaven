@@ -1582,7 +1582,7 @@ void EicWidget::groupPeaks() {
 								settings->value("minQuality").toDouble(),
 								getMainWindow()->mavenParameters->distXWeight,
 								getMainWindow()->mavenParameters->distYWeight,
-								getMainWindow()->mavenParameters->overlapWeight,
+								getMainWindow()->mavenParameters->minPeakRtDiff,
 								getMainWindow()->mavenParameters->useOverlap,
 								getMainWindow()->mavenParameters->minSignalBaselineDifference);
 

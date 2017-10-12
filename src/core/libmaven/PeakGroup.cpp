@@ -768,3 +768,9 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
     }
 
 }
+
+void PeakGroup::addPeak(const Peak &peak)
+{
+	peaks.push_back(peak);
+	peaks.back().groupNum = groupId;
+}
