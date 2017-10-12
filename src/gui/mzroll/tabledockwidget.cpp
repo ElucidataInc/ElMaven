@@ -1567,13 +1567,6 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
 }
 
 void TableDockWidget::cleanString(QString &name){
-    /**
-     * This method makes sample name appropriate for using in attribute naming in mzroll file
-     * It is just replacing '#' with '_' and adding 's' for letting sample name start with english letter
-     * In future, if sample name has some other special character, we have to replace those also
-     * with appropriate character
-     * Error can be seen at compilation time
-    */
     name.replace('#','_');
     name='s'+name;
 }
@@ -1889,11 +1882,7 @@ void TableDockWidget::loadPeakTable() {
 // }
 
 void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
-    /**@detail-
-    *This method will add all sample to group being
-    *created from mzroll file. It will read SamplesUsed attribute of a group
-    *and if it's value is "Used", then assign this mzSample to that group
-    */
+
     vector<mzSample*> samples= _mainwindow->getSamples();
     for(int i=0;i<samples.size();++i){
         QString name=QString::fromStdString(samples[i]->sampleName);
@@ -1918,11 +1907,6 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
     }
 }
 void TableDockWidget::markv_0_1_5mzroll(QString fileName){
-    /**@details-
-     * this method marks varible <mzrollv_0_1_5> true if loaded mzroll
-     * file is of v0.1.5 or older otherwise false based on one attribute
-     * <SamplesUsed> which is introduced here.
-    */
     mzrollv_0_1_5=true;
     
     QFile data(fileName);

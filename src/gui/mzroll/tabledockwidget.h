@@ -72,11 +72,11 @@ public:
     bool hasPeakGroup(PeakGroup* group);
 	QList<PeakGroup*> getGroups();
     int tableId;
-    bool mzrollv_0_1_5; /**
-                                        *@param-    for making old mzroll compatible, this will act as a flag
-                                        *whether loaded mzroll file is old or new one. this will be set by class
-                                        *method <markv_0_1_5mzroll>
-                                        */
+    /**< for making old mzroll compatible, this will act as a flag
+    *whether loaded mzroll file is old or new one. this will be set by class
+    *method <markv_0_1_5mzroll>
+    */
+    bool mzrollv_0_1_5;
     //Added when Merging to Maven776 - Kiran
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample*>& samples, PeakGroup::QType qtype);
@@ -162,7 +162,15 @@ public Q_SLOTS:
           void showAllGroups();
 	  void showHeatMap();
       void showGallery();
-      void cleanString(QString &name);  /**@brief- modify name appropriate for xml attribute naming*/
+    /**
+     * @brief  modify name appropriate for xml attribute naming
+     * @detail This method makes sample name appropriate for using in attribute naming in mzroll file
+     * It is just replacing '#' with '_' and adding 's' for letting sample name start with english letter
+     * In future, if sample name has some other special character, we have to replace those also
+     * with appropriate character
+     * Error can be seen at compilation time
+    */
+      void cleanString(QString &name);
           void showTreeMap();
 	  void showScatterPlot();
 	  void setClipboard();
@@ -213,13 +221,19 @@ private:
 	  PeakGroup* readGroupXML(QXmlStreamReader& xml,PeakGroup* parent);
           void writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g);
       void readPeakXML(QXmlStreamReader& xml,PeakGroup* parent);
-      void readSamplesXML(QXmlStreamReader &xml,PeakGroup* group);  /**@brief- it will add samples used
-                                                                                                                            *to group being generated while creating
-                                                                                                                            *from mzroll file
-                                                                                                                            */
-    void markv_0_1_5mzroll(QString fileName);       /**@brief-mark varible <mzrollv_0_1_5> true or false
-                                                                                       * @see- defintion of this method
-                                                                                       */
+    /**
+     * @brief- it will add samples used to group being generated while creating from mzroll file
+    * @detail This method will add all sample to group being
+    *created from mzroll file. It will read SamplesUsed attribute of a group
+    *and if it's value is "Used", then assign this mzSample to that group
+    */
+      void readSamplesXML(QXmlStreamReader &xml,PeakGroup* group);
+    /**@brief-mark varible <mzrollv_0_1_5> true or false
+     *@details  this method marks varible <mzrollv_0_1_5> true if loaded mzroll
+     * file is of v0.1.5 or older otherwise false based on one attribute
+     * <SamplesUsed> which is introduced here.
+    */
+    void markv_0_1_5mzroll(QString fileName);
 	  void setupFiltersDialog();
 	  QString groupTagString(PeakGroup* group);
 
