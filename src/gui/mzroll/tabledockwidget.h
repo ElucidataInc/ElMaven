@@ -49,11 +49,15 @@ public:
     QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
     bool addSameMzRtGroup;
 
-    vector<PeakGroup> vallgroups;  /**@param-  vallgroups will be used by libmaven/jsonReports.cpp
-                                                        *for json export. Since libmaven is wriiten only standard cpp, all groups
-                                                        *from <allgroups> get copied to <vallgroups> at time of json exporting
-                                                        *@see- <TableDockWidget::exportJson>
-                                                         */
+    /**
+     * @brief vallgroups will be used by libmaven/jsonReports.cpp
+     * @detail For json export. Since libmaven is written only standard
+     * cpp, all groups from <allgroups> get copied to <vallgroups> at
+     * time of json exporting
+     * @see- <TableDockWidget::exportJson>
+     */
+    vector<PeakGroup> vallgroups;
+
     QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;
