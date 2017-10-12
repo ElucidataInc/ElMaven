@@ -1,6 +1,3 @@
-/*
-@author: Sahil
-*/
 
 #include "eicwidget.h"
 
@@ -1486,10 +1483,9 @@ void EicWidget::setMzRtWindow(float mzmin, float mzmax, float rtmin,
 }
 
 void EicWidget::setPeakGroup(PeakGroup* group) {
-	//qDebug <<"EicWidget::setPeakGroup(PeakGroup* group) ";
 
-	if (group == NULL)
-		return;
+	if (group == NULL) return;
+
 	int charge = getMainWindow()->mavenParameters->getCharge(group->compound);
 	if (group->getExpectedMz(charge, 
 			getMainWindow()->mavenParameters->isotopeAtom, getMainWindow()->mavenParameters->noOfIsotopes) != -1) {

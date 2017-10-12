@@ -65,18 +65,16 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
                 EIC* e = NULL;
 
-                if (c && c->precursorMz > 0 && c->productMz > 0) {
+                if (!slice->srmId.empty()) {
+                    
+                    e = sample->getEIC(slice->srmId, eicType);
+                }
+                else if (c && c->precursorMz > 0 && c->productMz > 0) {
 
                     e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
                                     filterline, amuQ1, amuQ3);
-
-                } else if (!slice->srmId.empty()) {
-
-                    e = sample->getEIC(slice->srmId, eicType);
-
                 } else {
-                        //This is the usual case where we are going peakpicking
-                        //with DB. This is a general enough senerio
+
                         e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
                                         slice->rtmax, 1, eicType, filterline);
                 }

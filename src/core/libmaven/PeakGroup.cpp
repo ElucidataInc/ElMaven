@@ -410,7 +410,7 @@ void PeakGroup::updateQuality() {
 
 double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int noOfIsotopes) {
 
-    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty()) {
+    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) {
  
         float mz = 0;
         vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom, noOfIsotopes);
@@ -423,7 +423,7 @@ double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int n
 
         return mz;
     }
-    else if (!isIsotope() && compound) {
+    else if (!isIsotope() && compound && compound->mass > 0) {
         float mz = 0;
         if (!compound->formula.empty()) {
             mz = compound->ajustedMass(charge);
@@ -431,6 +431,12 @@ double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int n
             mz = compound->mass;
         }
 
+        return mz;
+    }
+    else if (compound && compound->mass == 0 && compound->productMz > 0) {
+
+        float mz = 0;
+        mz = compound->productMz;
         return mz;
     }
 
