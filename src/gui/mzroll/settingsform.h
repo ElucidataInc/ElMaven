@@ -52,7 +52,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             * @method setWeightStatus 
             */
             void setWeightStatus();
-            void updateSmoothingWindowValue(double value);
+            void updateSmoothingWindowValue(int value);
             inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
             inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }
             inline void showPeakDetectionTab()   { tabWidget->setCurrentIndex(2); }

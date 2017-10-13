@@ -1568,8 +1568,8 @@ void EicWidget::groupPeaks() {
 	//qDebug() << "EicWidget::groupPeaks() " << endl;
 	//delete previous set of pointers to groups
 	QSettings *settings = getMainWindow()->getSettings();
-	float eic_smoothingWindow =
-			settings->value("eic_smoothingWindow").toDouble();
+	int eic_smoothingWindow =
+			settings->value("eic_smoothingWindow").toInt();
 	float grouping_maxRtWindow =
 			settings->value("grouping_maxRtWindow").toDouble();
 

@@ -209,7 +209,7 @@ void SettingsForm::recomputeEIC() {
     }
 }
 
-void SettingsForm::updateSmoothingWindowValue(double value) {
+void SettingsForm::updateSmoothingWindowValue(int value) {
     settings->setValue("eic_smoothingWindow",value);
     eic_smoothingWindow->setValue(value);
     recomputeEIC();
@@ -221,7 +221,7 @@ void SettingsForm::updateSettingFormGUI() {
 
     if (settings == NULL) return;
     eic_smoothingAlgorithm->setCurrentIndex(settings->value("eic_smoothingAlgorithm").toInt());
-    eic_smoothingWindow->setValue(settings->value("eic_smoothingWindow").toDouble());
+    eic_smoothingWindow->setValue(settings->value("eic_smoothingWindow").toInt());
     grouping_maxRtWindow->setValue(settings->value("grouping_maxRtWindow").toDouble());
     maxNaturalAbundanceErr->setValue(settings->value("maxNaturalAbundanceErr").toDouble());
     maxIsotopeScanDiff->setValue(settings->value("maxIsotopeScanDiff").toDouble());
@@ -475,7 +475,7 @@ void SettingsForm::setMavenParameters() {
         //EIC Processing: Baseline Calculation and Smoothing
         mavenParameters->eic_smoothingAlgorithm = settings->value(
                 "eic_smoothingAlgorithm").toInt();
-        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
 
         mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
         mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();

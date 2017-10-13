@@ -2104,7 +2104,7 @@ void MainWindow::readSettings() {
         settings->setValue("eic_smoothingAlgorithm", 0);
 
     if (!settings->contains("eic_smoothingWindow"))
-		settings->setValue("eic_smoothingWindow", 5);
+		settings->setValue("eic_smoothingWindow", 10);
 
     if (!settings->contains("grouping_maxRtWindow"))
         settings->setValue("grouping_maxRtWindow", 0.5);
@@ -2824,7 +2824,8 @@ void MainWindow::Align() {
 
 	if (settings != NULL) {
 		mavenParameters->eic_smoothingAlgorithm = settings->value(
-				"eic_smoothingWindow").toInt();
+				"eic_smoothingAlgorithm").toInt();
+		mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
 	}
 
 	//mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -2841,8 +2842,8 @@ void MainWindow::Align() {
 			alignmentDialog->maxIntensity->value();
 
 	//TODO: Sahil Re-verify this two parameters. Values are same
-	mavenParameters->eic_smoothingWindow =
-			alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+	// mavenParameters->eic_smoothingWindow =
+	// 		alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 	mavenParameters->rtStepSize =
 			alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
