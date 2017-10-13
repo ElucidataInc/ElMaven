@@ -9,7 +9,7 @@ TARGET = peakdetector
 
 CONFIG += warn_off xml -std=c++14
 
-LIBS += -fopenmp
+!macx: LIBS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
 				$$top_srcdir/3rdparty/libcsvparser

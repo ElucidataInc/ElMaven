@@ -2,4 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered qt thread
 
 
-SUBDIRS += libneural libcdfread libplog libcsvparser pugixml/src  libpillow libpls
+SUBDIRS += libneural libcdfread  libcsvparser pugixml/src  libpillow libpls
+!macx {
+    SUBDIRS += libplog
+}

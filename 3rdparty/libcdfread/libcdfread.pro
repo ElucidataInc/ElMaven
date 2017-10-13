@@ -13,6 +13,12 @@ INCLUDEPATH += ./include
 
 LIBS += -lnetcdf
 
+macx {
+        INCLUDEPATH += /usr/local/opt/netcdf/include
+        QMAKE_LFLAGS += -L/usr/local/opt/netcdf/lib
+        LIBS += -lnetcdf
+}
+
 SOURCES=ms10aux.c ms10enum.c ms10io.c
 HEADERS=ms10.h ms10io.h
 

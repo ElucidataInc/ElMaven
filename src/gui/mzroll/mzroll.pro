@@ -12,8 +12,8 @@ CONFIG += qt thread warn_off sql svg console precompile_header
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
+!macx: LIBS += -fopenmp
 
 
 QMAKE_STRIP=echo
@@ -50,6 +50,9 @@ win32 {
 
 
 LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
+macx {
+    LIBS -= -lplog
+}
 message($$LDFLAGS)
 
 INSTALLS += sources target

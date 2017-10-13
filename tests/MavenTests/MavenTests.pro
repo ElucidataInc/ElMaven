@@ -16,7 +16,7 @@ CONFIG += qtestlib warn_off
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
-QMAKE_CXXFLAGS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
 				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector
@@ -24,7 +24,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -fopenmp
+LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls
+!macx: LIBS += -fopenmp
 
 
 # Input

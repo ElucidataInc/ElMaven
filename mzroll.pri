@@ -18,6 +18,12 @@ win32 {
     DEFINES += WIN32
 }
 
+unix: {
+    INCLUDEPATH += /usr/local/include/
+    QMAKE_LFLAGS += -L/usr/local/lib/
+    LIBS +=  -lboost_signals
+}
+
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
 #unix {
 #  !mac {

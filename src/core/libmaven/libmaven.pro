@@ -14,8 +14,8 @@ CONFIG += staticlib warn_off console silent
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+!macx: QMAKE_CXXFLAGS += -fopenmp
+!macx: LIBS += -fopenmp
 
 TARGET = maven
 
@@ -23,6 +23,14 @@ LIBS += -L. -lcsvparser
 
 INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ $$top_srcdir/3rdparty/libcdfread/  $$top_srcdir/src/gui/mzroll/ $$top_srcdir/3rdparty/libneural/ \
                 $$top_srcdir/3rdparty/libcsvparser
+
+
+macx{
+
+    INCLUDEPATH += /usr/local/include/
+    QMAKE_LFLAGS += -L/usr/local/lib/
+    LIBS +=  -lboost_signals
+}
 
 message($$INCLUDEPATH)
 SOURCES = 	base64.cpp \
