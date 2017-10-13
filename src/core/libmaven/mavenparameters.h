@@ -126,7 +126,7 @@ public:
 	/**
 	 * smoothing window
 	 */
-	float eic_smoothingWindow;
+	int eic_smoothingWindow;
 	int eic_smoothingAlgorithm;
 	int baseline_smoothingWindow;
 	int baseline_dropTopX;

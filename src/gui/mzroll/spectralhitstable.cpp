@@ -927,7 +927,7 @@ void SpectralHitsDockWidget::integrateMS1() {
    float rtWinMin = 3;
 
    QSettings *settings 		= _mainwindow->getSettings();
-   float eic_smoothingWindow = settings->value("eic_smoothingWindow").toDouble();
+   int eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
    int   eic_smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
    float amuQ1 = settings->value("amuQ1").toDouble();
    float amuQ3 = settings->value("amuQ3").toDouble();

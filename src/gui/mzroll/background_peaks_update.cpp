@@ -190,7 +190,7 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         xml.attributes().value("eic_smoothingAlgorithm").toString().toInt());
 
                 settings->setValue("eic_smoothingWindow",
-                        xml.attributes().value("eic_smoothingWindow").toString().toFloat());
+                        xml.attributes().value("eic_smoothingWindow").toString().toInt());
 
                 settings->setValue("grouping_maxRtWindow",
                         xml.attributes().value("grouping_maxRtWindow").toString().toFloat());

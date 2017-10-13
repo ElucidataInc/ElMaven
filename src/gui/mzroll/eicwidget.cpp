@@ -309,7 +309,7 @@ void EicWidget::computeEICs() {
 		return;
 
 	QSettings *settings = getMainWindow()->getSettings();
-	float eic_smoothingWindow =
+	int eic_smoothingWindow =
 			getMainWindow()->mavenParameters->eic_smoothingWindow;
 	int eic_smoothingAlgorithm =
 			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
