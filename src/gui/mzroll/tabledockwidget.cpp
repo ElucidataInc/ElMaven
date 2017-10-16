@@ -320,7 +320,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
     Classifier* clsf = _mainwindow->getClassifier();
     if (clsf != NULL) {
         clsf->classify(group);
-        group->updateQuality();
+        group->updateQuality();        
         //Added when Merging to Maven776 - Kiran
         if(viewType == groupView) item->setText(10,QString::number(group->maxQuality,'f',2));
         item->setText(1,groupTagString(group));
@@ -486,7 +486,12 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         }
         heatmapBackground(item);
     }
-    if ( root == NULL ) treeWidget->addTopLevelItem(item);
+    if ( root == NULL ) {
+        treeWidget->addTopLevelItem(item);
+        if(expandedItems[group]){
+            item->setExpanded(true);
+        }
+    }
     updateItem(item);
 
     if ( group->childCount() > 0 ) {
@@ -951,9 +956,21 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     if(!groupX) return;
 
     int pos=-1;
+    PeakGroup* parent=NULL;
+    parent=groupX->parent;
     for(int i=0; i < allgroups.size(); i++) {
         if ( &allgroups[i] == groupX ) {
             pos=i; break;
+        }
+
+        if(parent != NULL && &allgroups[i] == parent){
+            vector<PeakGroup>& children=allgroups[i].children;
+            for(int j=0;j<children.size();++j){
+                if(&children[j]==groupX){
+                    allgroups[i].deleteChild(j);
+                    return;
+                }
+            }
         }
     }
     if (pos == -1) return;
@@ -1011,11 +1028,35 @@ void TableDockWidget::deleteGroups() {
         return;
     }
 
+    QTreeWidgetItemIterator it(treeWidget);
+    int cnt=0;
+    while (*it) {
+        QTreeWidgetItem* vitem = (*it);
+        QVariant v = vitem->data(0,Qt::UserRole);
+        PeakGroup*  g =  v.value<PeakGroup*>();
+
+        if(vitem->isExpanded() ){
+            expandedItems[g]=true;
+        }
+        else{
+            expandedItems[g]=false;
+        }
+
+        ++it;
+    }
+
+
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
         if (item) {
             nextItem = treeWidget->itemBelow(item);
             QVariant v = item->data(0,Qt::UserRole);
             PeakGroup*  group =  v.value<PeakGroup*>();
+
+            deleteGroup(group);
+            showAllGroups();
+        }
+    }
+            /*
             if ( group != NULL ) {
                 PeakGroup* parentGroup = group->parent;
                 int childrenNum = -1;
@@ -1051,6 +1092,7 @@ void TableDockWidget::deleteGroups() {
         }
     }
     if(nextItem) treeWidget->setCurrentItem(nextItem,0);
+    */
     _mainwindow->getEicWidget()->replotForced();
     showSelectedGroup();
     _mainwindow->getEicWidget()->addPeakPositions();
