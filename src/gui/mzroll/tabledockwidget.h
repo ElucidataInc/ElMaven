@@ -46,6 +46,10 @@ public:
     QMenu* btnMergeMenu;
     QLabel *titlePeakTable;
     QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
+    /**
+     * @param- <expandedItems> will hold all those group, which are
+     * expanded in bookmark table- showing all its children, before deleting anyone of these
+     */
     QMap<PeakGroup*, bool> expandedItems;
     bool addSameMzRtGroup;
     vector<PeakGroup> vallgroups;  //vallgroups will be used by libmaven/jsonReports.cpp

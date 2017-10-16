@@ -488,6 +488,11 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     }
     if ( root == NULL ) {
         treeWidget->addTopLevelItem(item);
+        /**
+         * <expandedItems> will restore its expanded form whether this group
+         * was in expanded before deteting operation.
+         * @see- deleteGroup()
+         */
         if(expandedItems[group]){
             item->setExpanded(true);
         }
@@ -1028,8 +1033,12 @@ void TableDockWidget::deleteGroups() {
         return;
     }
 
+    /**
+     * this iterator <it> will mark all group whether its in expanded before
+     * deleting any group. Latter, this info will be used to store group status
+     * in <addRow> method.
+     */
     QTreeWidgetItemIterator it(treeWidget);
-    int cnt=0;
     while (*it) {
         QTreeWidgetItem* vitem = (*it);
         QVariant v = vitem->data(0,Qt::UserRole);
@@ -1057,6 +1066,9 @@ void TableDockWidget::deleteGroups() {
         }
     }
             /*
+            //this commented out block was used for deletion of a group from bookmark table
+            //but was showing some error.
+            //TODO- check if its rasing an error. 
             if ( group != NULL ) {
                 PeakGroup* parentGroup = group->parent;
                 int childrenNum = -1;
