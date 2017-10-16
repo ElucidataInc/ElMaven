@@ -46,6 +46,7 @@ public:
     QMenu* btnMergeMenu;
     QLabel *titlePeakTable;
     QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
+    QMap<PeakGroup*, bool> expandedItems;
     bool addSameMzRtGroup;
     vector<PeakGroup> vallgroups;  //vallgroups will be used by libmaven/jsonReports.cpp
                                 //for json export
