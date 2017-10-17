@@ -547,7 +547,7 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
     int intMz=group->meanMz*1e5;
     int intRt=group->meanRt*1e5;
     QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
-    QString compoundName=QString::fromStdString(group->compound->name);//
+    QString compoundName=QString::fromStdString(group->getName());//
     
     if(allgroups.size()==0 || sameMzRtGroups[sameMzRtGroupIndexHash].size()==0){
         /**
