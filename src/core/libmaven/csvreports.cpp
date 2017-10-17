@@ -299,8 +299,13 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
-            ppmDist = mzUtils::ppmDist((double) group->compound->adjustedMass(charge),
+            if (group->parent != NULL) {
+                ppmDist = mzUtils::ppmDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom, getMavenParameters()->noOfIsotopes), (double) group->meanMz);
+            }
+            else {
+                ppmDist = mzUtils::ppmDist((double) group->compound->adjustedMass(charge),
                 (double) group->meanMz);
+            }
         }
         else {
             ppmDist = mzUtils::ppmDist((double) group->compound->mass, (double) group->meanMz);
