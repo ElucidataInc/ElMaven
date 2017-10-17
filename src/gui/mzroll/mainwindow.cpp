@@ -1306,7 +1306,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
 
 	float mz = c->mass;
 	if (!c->formula.empty())
-		mz = c->ajustedMass(charge);
+		mz = c->adjustedMass(charge);
 
 	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
 	//  pathwayWidget->clear();
@@ -3105,7 +3105,7 @@ bool MainWindow::checkCompoundExistance(Compound* c) {
 	// if (getIonizationMode())
 	// 	charge = getIonizationMode(); //user specified ionization mode
 	charge = mavenParameters->getCharge(c);
-	float mz = c->ajustedMass(charge);
+	float mz = c->adjustedMass(charge);
 	float mzmin = mz - mz / 1e6 * 3;
 	float mzmax = mz + mz / 1e6 * 3;
 

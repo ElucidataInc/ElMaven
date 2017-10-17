@@ -81,7 +81,7 @@ class Compound{
         vector<float>fragment_intensity;    /**@param  -  intensities of fragments generated from this compund     */
         vector<string> category;    /**@param  -   categories of this compund- peptide etc.   */
 
-        float ajustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
+        float adjustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
         void addReaction(Reaction* r) { reactions.push_back(r); }   /**  add reaction of this compound   */
         /**
         *@brief   -  utility function to compare compound by mass

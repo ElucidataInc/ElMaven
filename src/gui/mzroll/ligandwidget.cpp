@@ -341,7 +341,7 @@ void LigandWidget::showTable() {
 
         if (compound->formula.length()) {
             int charge = _mw->mavenParameters->getCharge(compound);
-            mz = compound->ajustedMass(charge);
+            mz = compound->adjustedMass(charge);
         } 
         else {
             mz = compound->mass;
@@ -583,7 +583,7 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
                 if (remoteCompound !=NULL) {
 
                     if (!remoteCompound->formula.empty()) {
-                        remoteCompound->mass=remoteCompound->ajustedMass(0);
+                        remoteCompound->mass=remoteCompound->adjustedMass(0);
                     }
 
 					if (remoteCompound->name == "Unknown") {
@@ -686,7 +686,7 @@ void LigandWidget::matchFragmentation() {
 
     int charge = _mw->mavenParameters->getCharge(c); //user specified ionization mode
 	float precursorMz = c->precursorMz;
-    if (!c->formula.empty()) precursorMz = c->ajustedMass(charge);
+    if (!c->formula.empty()) precursorMz = c->adjustedMass(charge);
 
     for(int i=0; i < mzCount; i++ ) {
 			float mz = c->fragment_mzs[i];

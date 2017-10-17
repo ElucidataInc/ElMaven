@@ -297,8 +297,14 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         // TODO: Added this while merging this file
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
-        ppmDist = mzUtils::ppmDist((double) group->compound->mass,
+        if (!group->compound->formula.empty()) {
+            int charge = getMavenParameters()->getCharge(group->compound);
+            ppmDist = mzUtils::ppmDist((double) group->compound->adjustedMass(charge),
                 (double) group->meanMz);
+        }
+        else {
+            ppmDist = mzUtils::ppmDist((double) group->compound->mass, (double) group->meanMz);
+        }
         expectedRtDiff = group->expectedRtDiff;
 
         // TODO: Added this while merging this file

@@ -1402,7 +1402,7 @@ void EicWidget::setCompound(Compound* c) {
 
 	if (!c->formula.empty()) {
 		int charge = getMainWindow()->mavenParameters->getCharge(c);
-		mz = c->ajustedMass(charge);
+		mz = c->adjustedMass(charge);
 	} else {
 		mz = c->mass;
 	}

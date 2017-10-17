@@ -426,7 +426,7 @@ double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int n
     else if (!isIsotope() && compound && compound->mass > 0) {
         float mz = 0;
         if (!compound->formula.empty()) {
-            mz = compound->ajustedMass(charge);
+            mz = compound->adjustedMass(charge);
         } else {
             mz = compound->mass;
         }

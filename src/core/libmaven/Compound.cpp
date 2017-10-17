@@ -19,7 +19,7 @@ Compound::Compound(string id, string name, string formula, int charge ) {
     _groupUnlinked=false;
 }
 
-float Compound::ajustedMass(int charge) { 
+float Compound::adjustedMass(int charge) { 
      /**   
     *@return    -    total mass by formula minus loss of electrons' mass 
     *@see  -  double MassCalculator::computeMass(string formula, int charge) in mzMassCalculator.cpp
