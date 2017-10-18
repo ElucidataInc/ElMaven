@@ -979,7 +979,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
             int intMz=group->meanMz*1e5;
             int intRt=group->meanRt*1e5;
             QPair<int,int> sameMzRtGroupIndexHash(intMz,intRt);
-            QString compoundName=QString::fromStdString(groupX->compound->name);
+            QString compoundName=QString::fromStdString(groupX->getName());
             if( sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)){
                 for(int i=0;i<sameMzRtGroups[sameMzRtGroupIndexHash].size();++i){
                     if(sameMzRtGroups[sameMzRtGroupIndexHash][i]==compoundName){

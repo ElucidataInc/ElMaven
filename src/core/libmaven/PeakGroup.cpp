@@ -629,8 +629,8 @@ void PeakGroup::reorderSamples() {
 string PeakGroup::getName() {
     string tag;
     if (compound) tag = compound->name;
-    if (tagString.empty()) tag += " | " + tagString;
-    if (srmId.empty()) tag +=  " | " + srmId;
+    if (!tagString.empty()) tag += " | " + tagString;
+    if (!srmId.empty()) tag +=  " | " + srmId;
     if (tag.empty()) tag = integer2string(groupId);
     return tag;
 }
