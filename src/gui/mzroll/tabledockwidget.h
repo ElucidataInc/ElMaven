@@ -169,6 +169,15 @@ public Q_SLOTS:
           void showAllGroups();
 	  void showHeatMap();
       void showGallery();
+      /**
+       * @brief- updateGroupsToExport will update <vallgroups> which is holding all
+       * groups to export either into csv or json file.
+       * this method is added to solve deleting a children group from peaktable or bookmark
+       * table. If we are deleting a child group directly from <allgroups>, its showing some
+       * kind of indexing problem and not actually getting deleted.
+       * To solve this <vallgroups> will be used as secondary vaiable to hold those groups which
+       * have to be exported.
+       */
       void updateGroupsToExport();
     /**
      * @brief  modify name appropriate for xml attribute naming

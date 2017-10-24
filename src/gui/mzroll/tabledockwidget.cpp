@@ -698,6 +698,12 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
     return temp;
 }
 void TableDockWidget::updateGroupsToExport(){
+    /**
+     * @detail- this method will iterate through all groups and create a group and will
+     * insert its children.These groups will be held in <vallgroups> which is used to
+     * export csv or json file.
+     * This method will be called every time befor exporting json or csv
+     */
     vallgroups.clear();
     bool groupPushed=true;
     PeakGroup pgroup;
@@ -708,24 +714,49 @@ void TableDockWidget::updateGroupsToExport(){
         QVariant v = item->data(0,Qt::UserRole);
         PeakGroup*  group =  v.value<PeakGroup*>();
         if(group->parent==NULL){
+            /**
+             * if parent of this group is NULL, it will be a parent group
+             */
             if(!groupPushed){
+                /**
+                 * this condition will hold true when a group is already created but not pushed in vallgroups
+                 */
                 vallgroups.push_back(pgroup);
+                /**
+                 * mark this group is pushed
+                 */
                 groupPushed=true;
             }
+            /**
+             * now create a new group <pgroup> from group and clear its all children
+             * which could include those children which are not deleted from <allgroups>
+             * but been deleted from bookmark table or peak table
+             */
             pgroup=*group;
             pgroup.children.clear();
         }
         else{
+            /**
+             * in this case it will be a child group- insert it to its parent's children vector
+             */
             pgroup.children.push_back(*group);
             groupPushed=false;
         }
 
         if(pgroup.childCount()==0){
+            /**
+             * this is for the case when there is groups with zero children which are not get pushed
+             * into <vallgroups> by above if-else statement.
+             */
             vallgroups.push_back(pgroup);
         }
         ++itr;
     }
     if(!groupPushed && pgroup.childCount()!=0){
+        /**
+         * this is for last group which wont be pushed into <vallgroups> by above iteration, if it doesn't have
+         * zero children.
+         */
         vallgroups.push_back(pgroup);
     }
 }
