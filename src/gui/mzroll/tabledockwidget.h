@@ -49,11 +49,13 @@ public:
     QMap<QPair<int, int>,QList<QString> > sameMzRtGroups;
     bool addSameMzRtGroup;
 
-    vector<PeakGroup> vallgroups;  /**@param-  vallgroups will be used by libmaven/jsonReports.cpp
-                                                        *for json export. Since libmaven is wriiten only standard cpp, all groups
-                                                        *from <allgroups> get copied to <vallgroups> at time of json exporting
-                                                        *@see- <TableDockWidget::exportJson>
-                                                         */
+    /** vallgroups will be used by libmaven/jsonReports.cpp
+    *for json export and csv export and also. Since libmaven is wriiten only standard cpp, all groups
+    *from <allgroups> get copied to <vallgroups> at time of json exporting.
+    *it will also get update everytime we export these two
+    *@see- <TableDockWidget::exportJson>, <updateGroupsToExport> and <exportGroupsToSpreadsheet>
+    */
+    vector<PeakGroup> vallgroups;
     QMap<QAction*,int> mergeAction;
     //QAction *hell;
     bool bookmarkPeaksTAble = false;
@@ -167,6 +169,7 @@ public Q_SLOTS:
           void showAllGroups();
 	  void showHeatMap();
       void showGallery();
+      void updateGroupsToExport();
     /**
      * @brief  modify name appropriate for xml attribute naming
      * @detail This method makes sample name appropriate for using in attribute naming in mzroll file

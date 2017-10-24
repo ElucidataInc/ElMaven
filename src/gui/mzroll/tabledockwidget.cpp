@@ -697,7 +697,38 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
     group->currentIntensity = temp;
     return temp;
 }
+void TableDockWidget::updateGroupsToExport(){
+    vallgroups.clear();
+    bool groupPushed=true;
+    PeakGroup pgroup;
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item = (*itr);
+        if (item->isHidden()) { ++itr; continue; }
+        QVariant v = item->data(0,Qt::UserRole);
+        PeakGroup*  group =  v.value<PeakGroup*>();
+        if(group->parent==NULL){
+            if(!groupPushed){
+                vallgroups.push_back(pgroup);
+                groupPushed=true;
+            }
+            pgroup=*group;
+            pgroup.children.clear();
+        }
+        else{
+            pgroup.children.push_back(*group);
+            groupPushed=false;
+        }
 
+        if(pgroup.childCount()==0){
+            vallgroups.push_back(pgroup);
+        }
+        ++itr;
+    }
+    if(!groupPushed && pgroup.childCount()!=0){
+        vallgroups.push_back(pgroup);
+    }
+}
 void TableDockWidget::exportGroupsToSpreadsheet() {
     LOGD;
     //Merged to Maven776 - Kiran
@@ -705,7 +736,8 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     vector<mzSample*> samples = _mainwindow->getSamples();
     CSVReports* csvreports = new CSVReports(samples);
     csvreports->setMavenParameters(_mainwindow->mavenParameters);
-    if (allgroups.size() == 0 ) {
+    updateGroupsToExport();
+    if (vallgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
         return;
@@ -786,11 +818,9 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     QList<PeakGroup*> selectedGroups = getSelectedGroups();
     csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
-    for(int i=0; i<allgroups.size(); i++ ) {
-        if (selectedGroups.contains(&allgroups[i])) {
-            PeakGroup& group = allgroups[i];
+    for(int i=0; i<vallgroups.size(); i++ ) {
+            PeakGroup& group = vallgroups[i];
             csvreports->addGroup(&group);
-        }
     }
     csvreports->closeFiles();
 
@@ -814,10 +844,7 @@ void TableDockWidget::exportJson() {
      * copy all groups from <allgroups> to <vallgroups> which is used by
      * < libmaven/jsonReports.cpp>
     */
-    vallgroups.clear();
-    for(int i=0;i<allgroups.size();++i){
-        vallgroups.push_back(allgroups[i]);
-    }
+    updateGroupsToExport();
 
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
