@@ -998,6 +998,56 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabwidget</tabstop>
+  <tabstop>featureOptions</tabstop>
+  <tabstop>ppmStep</tabstop>
+  <tabstop>mzMin</tabstop>
+  <tabstop>mzMax</tabstop>
+  <tabstop>rtStep</tabstop>
+  <tabstop>rtMin</tabstop>
+  <tabstop>rtMax</tabstop>
+  <tabstop>ignoreIsotopes</tabstop>
+  <tabstop>minIntensity</tabstop>
+  <tabstop>maxIntensity</tabstop>
+  <tabstop>chargeMin</tabstop>
+  <tabstop>chargeMax</tabstop>
+  <tabstop>dbOptions</tabstop>
+  <tabstop>compoundDatabase</tabstop>
+  <tabstop>compoundPPMWindow</tabstop>
+  <tabstop>matchRt</tabstop>
+  <tabstop>compoundRTWindow</tabstop>
+  <tabstop>eicMaxGroups</tabstop>
+  <tabstop>matchFragmentatioOptions</tabstop>
+  <tabstop>doubleSpinBox_2</tabstop>
+  <tabstop>doubleSpinBox</tabstop>
+  <tabstop>minFragMatchScore</tabstop>
+  <tabstop>reportIsotopesOptions</tabstop>
+  <tabstop>changeIsotopeOptions</tabstop>
+  <tabstop>minGroupIntensity</tabstop>
+  <tabstop>peakQuantitation</tabstop>
+  <tabstop>quantileIntensity</tabstop>
+  <tabstop>doubleSpinBoxMinQuality</tabstop>
+  <tabstop>quantileQuality</tabstop>
+  <tabstop>sigBlankRatio</tabstop>
+  <tabstop>quantileSignalBlankRatio</tabstop>
+  <tabstop>sigBaselineRatio</tabstop>
+  <tabstop>quantileSignalBaselineRatio</tabstop>
+  <tabstop>minNoNoiseObs</tabstop>
+  <tabstop>minGoodGroupCount</tabstop>
+  <tabstop>classificationModelFilename</tabstop>
+  <tabstop>loadModelButton</tabstop>
+  <tabstop>computeButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>saveMethodButton</tabstop>
+  <tabstop>loadMethodButton</tabstop>
+  <tabstop>methodSummary</tabstop>
+  <tabstop>groupBox</tabstop>
+  <tabstop>outputTableComboBox</tabstop>
+  <tabstop>groupBox_3</tabstop>
+  <tabstop>outputDirName</tabstop>
+  <tabstop>setOutputDirButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
