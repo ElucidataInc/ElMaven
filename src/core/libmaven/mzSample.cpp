@@ -392,7 +392,7 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList)
 	std::sort(scans.begin(), scans.end(), Scan::compRt);
 	for (unsigned int i = 0; i < scans.size(); i++)
 	{
-		scans[i]->scannum = i + 1;
+		scans[i]->scannum = i;
 	}
 }
 
