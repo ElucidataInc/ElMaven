@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>663</height>
+    <height>667</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -354,6 +354,24 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>minGoodPeakCount</tabstop>
+  <tabstop>limitGroupCount</tabstop>
+  <tabstop>groupingWindow</tabstop>
+  <tabstop>minGroupIntensity</tabstop>
+  <tabstop>minSN</tabstop>
+  <tabstop>minPeakWidth</tabstop>
+  <tabstop>peakDetectionAlgo</tabstop>
+  <tabstop>selectDatabaseComboBox</tabstop>
+  <tabstop>minIntensity</tabstop>
+  <tabstop>maxIntensity</tabstop>
+  <tabstop>alignAlgo</tabstop>
+  <tabstop>maxItterations</tabstop>
+  <tabstop>polynomialDegree</tabstop>
+  <tabstop>UndoAlignment</tabstop>
+  <tabstop>alignButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
