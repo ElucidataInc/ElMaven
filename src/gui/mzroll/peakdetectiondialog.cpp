@@ -402,32 +402,60 @@ void PeakDetectionDialog::findPeaks() {
 void PeakDetectionDialog::showIntensityQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileIntensity= value;
     settings->setValue("quantileIntensity", (quantileIntensity->value()));
-    std::string stat(std::to_string(value) + "% peaks above minimum intensity");
-    QString qstat = QString::fromStdString(stat);
+    QString qstat;
+    if (value) {
+        std::string stat(std::to_string(value) + "% peaks above minimum intensity");
+        qstat = QString::fromStdString(stat);
+    }
+    else {
+        std::string stat("1 peak above minimum intensity");
+        qstat = QString::fromStdString(stat);
+    }
     intensityQuantileStatus->setText(qstat);
 }
 
 void PeakDetectionDialog::showQualityQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileQuality= value;
     settings->setValue("quantileQuality", (quantileQuality->value()));
-    std::string stat(std::to_string(value) + "% peaks above minimum quality");
-    QString qstat = QString::fromStdString(stat);
+    QString qstat;
+    if (value) {
+        std::string stat(std::to_string(value) + "% peaks above minimum quality");
+        qstat = QString::fromStdString(stat);
+    }
+    else {
+        std::string stat("1 peak above minimum quality");
+        qstat = QString::fromStdString(stat);
+    }
     qualityQuantileStatus->setText(qstat);
 }
 
 void PeakDetectionDialog::showBaselineQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileSignalBaselineRatio= value;
     settings->setValue("quantileSignalBaselineRatio", (quantileSignalBaselineRatio->value()));
-    std::string stat(std::to_string(value) + "% peaks above minimum signal/baseline ratio");
-    QString qstat = QString::fromStdString(stat);
+    QString qstat;
+    if (value) {
+        std::string stat(std::to_string(value) + "% peaks above minimum signal/baseline ratio");        
+        qstat = QString::fromStdString(stat);
+    }
+    else {
+        std::string stat("1 peak above minimum signal/baseline ratio");
+        qstat = QString::fromStdString(stat);
+    }
     baselineQuantileStatus->setText(qstat);
 }
 
 void PeakDetectionDialog::showBlankQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileSignalBlankRatio= value;
     settings->setValue("quantileSignalBlankRatio", (quantileSignalBlankRatio->value()));
-    std::string stat(std::to_string(value) + "% peaks above minimum signal/blank ratio");
-    QString qstat = QString::fromStdString(stat);
+    QString qstat;
+    if (value) {
+        std::string stat(std::to_string(value) + "% peaks above minimum signal/blank ratio");
+        qstat = QString::fromStdString(stat);
+    }
+    else {
+        std::string stat("1 peak above minimum signal/blank ratio");
+        qstat = QString::fromStdString(stat);
+    }
     blankQuantileStatus->setText(qstat);
 }
 
