@@ -1262,14 +1262,15 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 void MainWindow::setFormulaFocus(QString formula) {
 	int charge = 0;
 	mavenParameters->formulaFlag = true;
-	//if (getIonizationMode())
-	charge = mavenParameters->getCharge(); //user specified ionization mode
+	charge = mavenParameters->getCharge();
 	mavenParameters->formulaFlag = false;
-	// MassCalculator mcalc;
-	double parentMass = MassCalculator::computeMass(formula.toStdString(), charge);
-	if (eicWidget->isVisible())
-		eicWidget->setMzSlice(parentMass);
-	isotopeWidget->setFormula(formula);
+
+	if (eicWidget->isVisible()) {
+		string compoundName = "Compound-" + formula.toStdString();
+		string compoundId = compoundName;
+		Compound* c = new Compound(compoundId, compoundName, formula.toStdString(), charge);
+		setCompoundFocus(c);
+	}		
 }
 
 void MainWindow::setPathwayFocus(Pathway* p) {
