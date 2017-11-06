@@ -135,7 +135,8 @@ public:
 	QSet<QString> SaveMzrollListvar;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
-	QDoubleSpinBox *ppmWindowBox;
+	QDoubleSpinBox *massCutoffWindowBox;
+	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
 	QComboBox *ionizationModeComboBox;
 	QSpinBox *ionChargeBox;

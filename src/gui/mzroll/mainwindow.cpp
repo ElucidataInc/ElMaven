@@ -2341,7 +2341,7 @@ void MainWindow::readSettings() {
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
-	settings->setValue("ppmWindowBox", ppmWindowBox->value());
+	settings->setValue("ppmWindowBox", massCutoffWindowBox->value());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
@@ -2537,15 +2537,20 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QWidget(hBox), 15); // spacer
 
 	//ppmValue
-	ppmWindowBox = new QDoubleSpinBox(hBox);
-	ppmWindowBox->setRange(0.00, 100000.0);
-	ppmWindowBox->setValue(settings->value("ppmWindowBox").toDouble());
-	ppmWindowBox->setSingleStep(0.5);	//ppm step
-	ppmWindowBox->setToolTip("PPM (parts per million) Window");
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)), this,
+	massCutoffWindowBox = new QDoubleSpinBox(hBox);
+	massCutoffWindowBox->setRange(0.00, 100000.0);
+	massCutoffWindowBox->setValue(settings->value("ppmWindowBox").toDouble());
+	massCutoffWindowBox->setSingleStep(0.5);	//ppm step
+	massCutoffWindowBox->setToolTip("mass cutoff");
+	connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
 			SLOT(setUserPPM(double)));
-	connect(ppmWindowBox, SIGNAL(valueChanged(double)), eicWidget,
+	connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
 			SLOT(setPPM(double)));
+
+	massCutoffComboBox=  new QComboBox(hBox);
+	massCutoffComboBox->addItem("ppm");
+	massCutoffComboBox->addItem("mDa");
+	massCutoffComboBox->setToolTip("mass cutoff unit");
 
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
@@ -2616,7 +2621,8 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QLabel("[m/z]", hBox), 0);
 	layout->addWidget(searchText, 0);
 	layout->addWidget(new QLabel("+/-", 0, 0));
-	layout->addWidget(ppmWindowBox, 0);
+	layout->addWidget(massCutoffWindowBox, 0);
+	layout->addWidget(massCutoffComboBox,0);
 
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");

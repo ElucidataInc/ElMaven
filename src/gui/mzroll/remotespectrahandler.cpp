@@ -123,7 +123,7 @@ int RemoteSpectraHandler::doCommand(QString path, QString queryString, QString c
     else if (path.startsWith("/setPPM/") and fieldCount == 2) {
          bool ok=false; double ppm = command[1].toDouble(&ok);
          if (ok) {
-            _mw->ppmWindowBox->setValue(ppm);
+            _mw->massCutoffWindowBox->setValue(ppm);
             _mw->setUserPPM(ppm);
             responce =  "OK: ppm changed";  return 200;
          }
