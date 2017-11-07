@@ -15,6 +15,8 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 #ifndef __APPLE__
 #include <omp.h>
@@ -29,8 +31,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "constants.h"
-#include <boost/signals2.hpp>
-#include <boost/bind.hpp>
+#include "pullEics.h"
 
 /**
  * @class PeakDetector
@@ -141,11 +142,6 @@ public:
 	 * @return [vector of pointer to mzSlice]
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
-
-	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
-			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
-			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
 
 private:
 

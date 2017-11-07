@@ -979,7 +979,7 @@ void SpectralHitsDockWidget::integrateMS1() {
 
        //qDebug() << "group: " << peptide << " rt=" << slice->rt;
 
-       vector<EIC*> eics = PeakDetector::pullEICs(slice,
+       vector<EIC*> eics = PullEICs::pullEICs(slice,
                                                     samples,
                                                     EicLoader::PeakDetection,
                                                     eic_smoothingWindow,

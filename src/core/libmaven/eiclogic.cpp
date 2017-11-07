@@ -110,7 +110,7 @@ void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
 	slice.rtmax = bounds.rtmax;
 
 	//get eics
-	eics = PeakDetector::pullEICs(&slice, samples, EicLoader::PeakDetection,
+	eics = PullEICs::pullEICs(&slice, samples, EicLoader::PeakDetection,
 			eic_smoothingWindow, eic_smoothingAlgorithm, amuQ1, amuQ3,
 			baseline_smoothing, baseline_quantile, minSignalBaselineDifference, eicType,
 			filterline);

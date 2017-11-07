@@ -198,7 +198,7 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->useOverlap = 0;
 
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
+    vector<EIC*> eics = PullEICs::pullEICs(slice, mavenparameters->samples,
                                     1, mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
@@ -265,7 +265,7 @@ void TestEIC:: testeicMerge() {
     mavenparameters->baseline_dropTopX = 80;
     //mavenparameters->grouping_maxRtWindow = 0.5;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
+    vector<EIC*> eics = PullEICs::pullEICs(slice, mavenparameters->samples,
                                     1, mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
