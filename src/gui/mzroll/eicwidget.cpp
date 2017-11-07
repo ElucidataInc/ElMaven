@@ -707,10 +707,8 @@ void EicWidget::addMergedEIC() {
 
 	EIC* eic = EIC::eicMerge(eicParameters->eics);
 	eic->setSmootherType((EIC::SmootherType) eic_smoothingAlgorithm);
-	eic->setBaselineSmoothingWindow(baseline_smoothing);
-	eic->setBaselineDropTopX(baseline_quantile);
-	eic->setFilterSignalBaselineDiff(minSignalBaselineDifference);
-	eic->getPeakPositions(eic_smoothingWindow);
+	eic->computeSpline(eic_smoothingWindow);
+
 
 	for (int j = 0; j < eic->size(); j++) {
 		if (eic->rt[j] < eicParameters->_slice.rtmin)
