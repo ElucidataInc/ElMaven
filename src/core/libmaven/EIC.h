@@ -217,6 +217,19 @@ class EIC
     */
     inline mzSample *getSample() { return sample; }
 
+    /**
+     * @brief return list of groups given a set of EICs
+     * @details assigns every peak to a group based on the best matching merged EIC
+     * @param smoothingWindow number of scans read at a time for smoothing
+     * @param maxRtDiff maximum retention time difference between peaks in a group
+     * @param minQuality minimum peak quality for every group. used for calculation of good peaks
+     * @param distXWeight weight of rt difference between a peak and merged EIC
+     * @param distYWeight weight of intensity difference between a peak and merged EIC
+     * @param overlapWeight weight of peak overlap between a peak and merged EIC
+     * @param userOverlap flag to determine which group score formula is used
+     * @param minSignalBaselineDifference minimum difference between peak and baseline for peak to be marked
+     * @return vector of peak groups found
+    **/
     static vector<PeakGroup> groupPeaks(vector<EIC *> &eics,
                                         int smoothingWindow,
                                         float maxRtDiff,

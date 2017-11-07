@@ -737,21 +737,21 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     vector<PeakGroup> pgroups;
 
     //case there is only a single EIC, there is nothing to group
-    if (eics.size() == 1 && eics[0] != NULL)
-    {
-        EIC *m = eics[0];
-        for (unsigned int i = 0; i < m->peaks.size(); i++)
-        {
-            PeakGroup grp;
-            grp.minQuality = minQuality;
-            grp.groupId = i;
-            grp.addPeak(m->peaks[i]);
-            grp.groupStatistics();
-            grp.setSelectedSamples(samples);
-            pgroups.push_back(grp);
-        }
-        return pgroups;
-    }
+    // if (eics.size() == 1 && eics[0] != NULL)
+    // {
+    //     EIC *m = eics[0];
+    //     for (unsigned int i = 0; i < m->peaks.size(); i++)
+    //     {
+    //         PeakGroup grp;
+    //         grp.minQuality = minQuality;
+    //         grp.groupId = i;
+    //         grp.addPeak(m->peaks[i]);
+    //         grp.groupStatistics();
+    //         grp.setSelectedSamples(samples);
+    //         pgroups.push_back(grp);
+    //     }
+    //     return pgroups;
+    // }
 
     //create EIC compose from all sample eics
     EIC *m = EIC::eicMerge(eics);
