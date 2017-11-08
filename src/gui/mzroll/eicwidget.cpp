@@ -699,9 +699,6 @@ void EicWidget::addMergedEIC() {
 	int eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
 	int eic_smoothingAlgorithm =
 			settings->value("eic_smoothingAlgorithm").toInt();
-	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
-	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
-	int minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
 
 	EicLine* line = new EicLine(0, scene());
 
