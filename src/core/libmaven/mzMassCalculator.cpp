@@ -10,7 +10,7 @@ ElementMass MassCalculator::elementMass;
 
 double MassCalculator::getElementMass(string elmnt) {
     double val_atome(0);
-    if (elementMass.elementMassMap.count(elmnt)  == 1) { 
+    if (elementMass.elementMassMap.count(elmnt)  == 1) {
         val_atome = elementMass.elementMassMap[elmnt];
     }
     return val_atome;
@@ -127,6 +127,20 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
                     string name = C13S34_LABEL + integer2string(i) + "-" + integer2string(j);
                     double mass = parentMass + (j * S_MASS_DELTA) + (i * C_MASS_DELTA);
                     Isotope x(name, mass, i, 0, j, 0);
+                    isotopes.push_back(x);
+                    count2++;
+                    if(count2 >= noOfIsotopes) break;
+                }
+                if(count2 >= noOfIsotopes) break;
+            }
+        }
+
+        if(isotopeAtom["C13Labeled_BPE"] && isotopeAtom["D2Labeled_BPE"]) {
+            for (int i = 1; i <= CatomCount; i++) {
+                for (int j = 1; j <= HatomCount; j++) {
+                    string name = C13H2_LABEL + integer2string(i) + "-" + integer2string(j);
+                    double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
+                    Isotope x(name, mass, i, 0, 0, j);
                     isotopes.push_back(x);
                     count2++;
                     if(count2 >= noOfIsotopes) break;
