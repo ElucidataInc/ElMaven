@@ -567,6 +567,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Isotope detection in peakdetection dialogue box
         mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
+        mavenParameters->isotopeAtom["ShowIsotopes"] = settings->value("pullIsotopesFlag").toBool();
 
         mavenParameters->maxIsotopeScanDiff = settings->value(
                 "maxIsotopeScanDiff").toDouble();
