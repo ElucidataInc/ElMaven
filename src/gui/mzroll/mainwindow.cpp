@@ -2546,8 +2546,8 @@ void MainWindow::createToolBars() {
 	//ppmValue
 	massCutoffWindowBox = new QDoubleSpinBox(hBox);
 	massCutoffWindowBox->setRange(0.00, 100000.0);
+	massCutoffWindowBox->setDecimals(6);
 	massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
-	massCutoffWindowBox->setSingleStep(0.05);	//increment step
 	massCutoffWindowBox->setToolTip("mass cutoff");
 	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
 	// 		SLOT(setUserPPM(double)));
@@ -2707,8 +2707,10 @@ void MainWindow::setMassCutoffType(QString massCutoffType){
 	settings->setValue("massCutoffType", massCutoffType);
 	double cutoff=massCutoffWindowBox->value();
 	string type=massCutoffType.toStdString();
+	if(type=="ppm")	massCutoffWindowBox->setSingleStep(0.05);	//increment step
+	else 	massCutoffWindowBox->setSingleStep(0.000001);	//increment step
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
-	eicWidget->setMassCutoff(_massCutoffWindow);	
+	eicWidget->setMassCutoff(_massCutoffWindow);
 }
 
 void MainWindow::refreshIntensities() {
