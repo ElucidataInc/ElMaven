@@ -19,10 +19,11 @@ MavenParameters::MavenParameters() {
 
         alignButton = 0;
 
-        fragmentMatchPPMTolr = 1000;
+        fragmentMatchMassCutoffTolr = new MassCutoff();
+        fragmentMatchMassCutoffTolr->setMassCutoff(1000);
         mzBinStep = 0.01;
         rtStepSize = 20;
-        massCutoffMerge = NULL;
+        massCutoffMerge = new MassCutoff();
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -54,7 +55,7 @@ MavenParameters::MavenParameters() {
 	deltaRTWeight=10;
         deltaRtCheckFlag = false;
 
-        compoundMassCutoffWindow=NULL;
+        compoundMassCutoffWindow=new MassCutoff();
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
 

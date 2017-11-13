@@ -162,7 +162,6 @@ void TestEIC:: testgroupPeaks() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;
 
@@ -239,7 +238,6 @@ void TestEIC:: testeicMerge() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;
 

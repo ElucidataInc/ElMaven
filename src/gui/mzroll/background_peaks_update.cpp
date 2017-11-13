@@ -56,7 +56,7 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
             << "\n";
-    summary << "fragmentMatchPPMTolr=" << mavenParameters->fragmentMatchPPMTolr
+    summary << "fragmentMatchMassCutoffTolr=" << mavenParameters->fragmentMatchMassCutoffTolr->getMassCutoff()
             << "\n";
 
     summary << "------------------------------EIC CONSTRUCTION"
@@ -141,7 +141,7 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "compoundMassCutoffWindow" ,QString::number( mavenParameters->compoundMassCutoffWindow->getMassCutoff()));
     stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
     stream.writeAttribute( "matchFragmentation" ,QString::number( mavenParameters->matchFragmentation));
-    stream.writeAttribute( "fragmentMatchPPMTolr" ,QString::number( mavenParameters->fragmentMatchPPMTolr));
+    stream.writeAttribute( "fragmentMatchMassCutoffTolr" ,QString::number( mavenParameters->fragmentMatchMassCutoffTolr->getMassCutoff()));
 
     stream.writeAttribute( "eic_smoothingWindow" ,QString::number( mavenParameters->eic_smoothingWindow));
     stream.writeAttribute( "eic_smoothingAlgorithm" ,QString::number( mavenParameters->eic_smoothingAlgorithm));
@@ -264,9 +264,9 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         .toString()
                         .toInt());
 
-                settings->setValue("fragmentMatchPPMTolr",
+                settings->setValue("fragmentMatchMassCutoffTolr",
                         xml.attributes()
-                        .value("fragmentMatchPPMTolr")
+                        .value("fragmentMatchMassCutoffTolr")
                         .toString()
                         .toFloat());
 

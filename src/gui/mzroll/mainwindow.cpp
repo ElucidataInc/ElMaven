@@ -694,7 +694,7 @@ void MainWindow::saveSettingsToLog() {
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
             << "\n";
-    summary << "fragmentMatchPPMTolr=" << mavenParameters->fragmentMatchPPMTolr
+    summary << "fragmentMatchMassCutoffTolr=" << mavenParameters->fragmentMatchMassCutoffTolr->getMassCutoff()
             << "\n";
 
     summary << "------------------------------EIC CONSTRUCTION"

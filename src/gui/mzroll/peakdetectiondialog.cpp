@@ -523,8 +523,6 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
-    mavenParameters->massCutoffMerge=new MassCutoff();
-	mavenParameters->compoundMassCutoffWindow=new MassCutoff();
     if (settings != NULL) {
         // Peak Scoring and Filtering
         mavenParameters->minQuality = settings->value("minQuality").toDouble();

@@ -84,7 +84,6 @@ void TestScan::testfindHighestIntensityPos() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->massCutoffMerge=new MassCutoff();
     mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
     int bestpos=scan->findHighestIntensityPos(2.1, mavenparameters->massCutoffMerge);
     QVERIFY(bestpos==2);
@@ -167,7 +166,6 @@ void TestScan::testhasMz() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->massCutoffMerge=new MassCutoff();
     mavenparameters->massCutoffMerge->setMassCutoffAndType(10000,"ppm");
 
     QVERIFY(scan->hasMz(2.1,mavenparameters->massCutoffMerge));
@@ -221,7 +219,6 @@ void TestScan::testdeconvolute() {
                      88.04099,88.04099,88.04099,88.04099,88.04096,88.04095};
     scan->mz.assign(mzarr,mzarr+34);
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->massCutoffMerge=new MassCutoff();
     mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
     ChargedSpecies* x=scan->deconvolute(87,4,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);
     ChargedSpecies* x1=scan->deconvolute(87,1,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);

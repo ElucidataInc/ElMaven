@@ -232,7 +232,7 @@ public:
 
     float minFragmentMatchScore;
     bool matchFragmentation;
-    float fragmentMatchPPMTolr;
+    MassCutoff* fragmentMatchMassCutoffTolr;
     /**
      * [print parameter Settings]
      * @method printSettings

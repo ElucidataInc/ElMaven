@@ -62,7 +62,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 		
 		case 'C':
-			mavenParameters->compoundMassCutoffWindow->setMassCutoff(atof(optarg));
+			mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(atof(optarg),"ppm");
 			break;
 
 		case 'd':
@@ -129,7 +129,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 	
 		case 'p':
-			mavenParameters->massCutoffMerge->setMassCutoff(atof(optarg));
+			mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(optarg),"ppm");
 			break;
 			
 		case 'q':
@@ -274,7 +274,7 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 			mavenParameters->charge = atoi(node.attribute("value").value());
 		}
 		else if (strcmp(node.name(), "compoundPPMWindow") == 0) {
-			mavenParameters->compoundMassCutoffWindow->setMassCutoff(atof(node.attribute("value").value()));
+			mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(atof(node.attribute("value").value()),"ppm");
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
@@ -353,7 +353,7 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 		}
 		else if (strcmp(node.name(),"ppmMerge") == 0) {
 
-			mavenParameters->massCutoffMerge->setMassCutoff(atof(node.attribute("value").value()));
+			mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(node.attribute("value").value()),"ppm");
 
 		}
 		else if (strcmp(node.name(),"minQuality") == 0) {

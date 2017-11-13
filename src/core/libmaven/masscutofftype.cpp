@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "masscutofftype.h"
 
 double MassCutoff::massCutoffValue(double mz){
@@ -11,7 +12,8 @@ double MassCutoff::massCutoffValue(double mz){
         return _massCutoff;
     }
     else {
-        //cerr<<"mass cutoff type:  "<<"unknown"<<"  value: "<<0<<endl;
+        cerr<<"mass cutoff type:  "<<"unknown"<<"  value: "<<0<<endl;
+        //assert(false);
         return 0;
     }
 }

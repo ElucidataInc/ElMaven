@@ -30,7 +30,6 @@ void TestPeakDetection::testProcessCompound() {
     vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
 
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
@@ -58,7 +57,6 @@ void TestPeakDetection::testPullEICs() {
     }
 
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
 
     vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
@@ -152,7 +150,6 @@ void TestPeakDetection::testpullIsotopes() {
     }
 
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/default.model";
