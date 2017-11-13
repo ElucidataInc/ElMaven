@@ -678,7 +678,7 @@ vector<Scan*> PeakGroup::getFragmenationEvents() {
    @author: Sahil
    */
 //TODO: Sahil, Added while merging spectrawidget
-Scan* PeakGroup::getAverageFragmenationScan(float resolution) {
+Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
 
     int scanCount=0;
     map<float,double> mz_intensity_map;
@@ -700,7 +700,7 @@ Scan* PeakGroup::getAverageFragmenationScan(float resolution) {
         //vector<int>positions = scan->intensityOrderDesc();
         //for(unsigned int p=0; p <positions.size() and p<100; p++ ) {
         for(unsigned int i=0; i < scan->nobs(); i++ ) {
-            int pos = avgScan->findClosestHighestIntensityPos(scan->mz[i],resolution);
+            int pos = avgScan->findClosestHighestIntensityPos(scan->mz[i],massCutoff);
             float bin;
             if (pos >= 0) {
                 bin = FLOATROUND(avgScan->mz[pos],1000);

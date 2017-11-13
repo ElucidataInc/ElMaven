@@ -12,6 +12,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "Compound.h"
+#include "masscutofftype.h"
 
 class Classifier;
 
@@ -119,7 +120,7 @@ public:
 	float mzBinStep;
 	float rtStepSize;
 	float avgScanTime;
-	float ppmMerge;
+	MassCutoff *massCutoffMerge;
 
 	//peak detection
 
@@ -153,7 +154,7 @@ public:
 	/**
 	 * eic window around compound, compound detection setting
 	 */
-	float compoundPPMWindow;
+	MassCutoff *compoundMassCutoffWindow;
 	float compoundRTWindow;
 	int eicMaxGroups;
 

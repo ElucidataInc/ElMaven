@@ -255,6 +255,7 @@ using namespace mzUtils;
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 	mavenParameters = new MavenParameters();
+	_massCutoffWindow = new MassCutoff();
 	QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
 
 	if (QFile::exists(clsfModelFilename)) {
@@ -541,9 +542,9 @@ using namespace mzUtils;
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
   // value
-	setUserPPM(5);
-	if (settings->contains("ppmWindowBox")) {
-		setUserPPM(settings->value("ppmWindowBox").toDouble());
+    setUserMassCutoff(5);
+	if (settings->contains("massCutoffWindowBox")) {
+		setUserMassCutoff(settings->value("massCutoffWindowBox").toDouble());
 	}
 
 	QRectF view = settings->value("mzslice").value<QRectF>();
@@ -669,7 +670,7 @@ void MainWindow::saveSettingsToLog() {
 
     summary << "--------------------------------MASS SLICING"<< "\n";
     summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
-    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "massCutoffMerge=" << mavenParameters->massCutoffMerge->getMassCutoff()<< "\n";
     summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
 
     summary << "minMz=" << mavenParameters->minMz << "\n";
@@ -688,7 +689,7 @@ void MainWindow::saveSettingsToLog() {
 
     summary << "ionizationMode=" << mavenParameters->ionizationMode << "\n";
     summary << "matchRtFlag=" << mavenParameters->matchRtFlag << "\n";
-    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow
+    summary << "compoundMassCutoffWindow=" << mavenParameters->compoundMassCutoffWindow->getMassCutoff()
             << "\n";
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
@@ -1098,8 +1099,13 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 // 	return panel;
 // }
 
-void MainWindow::setUserPPM(double x) {
-	_ppmWindow = x;
+void MainWindow::setUserMassCutoff(double x) {
+	double cutoff=x;
+	string type=massCutoffComboBox->currentText().toStdString();
+	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
+	eicWidget->setMassCutoff(_massCutoffWindow);
+	cerr<<"set user mass cutoff, type:"<<type<<"  value:"<<x<<endl;
+	
 }
 
 void MainWindow::setIonizationMode(int x) {
@@ -2172,8 +2178,8 @@ void MainWindow::readSettings() {
     if (!settings->contains("matchRtFlag"))
         settings->setValue("matchRtFlag", 0);
 
-    if (!settings->contains("compoundPPMWindow"))
-        settings->setValue("compoundPPMWindow", 20);
+    if (!settings->contains("compoundMassCutoffWindow"))
+        settings->setValue("compoundMassCutoffWindow", 20);
 
     if (!settings->contains("compoundRTWindow"))
         settings->setValue("compoundRTWindow", 2);
@@ -2189,8 +2195,8 @@ void MainWindow::readSettings() {
         settings->setValue("featureOptions", 0);
 
     // Automated Peak Detection
-    if (!settings->contains("ppmMerge"))
-        settings->setValue("ppmMerge", 20);
+    if (!settings->contains("massCutoffMerge"))
+        settings->setValue("massCutoffMerge", 20);
 
     if (!settings->contains("rtStepSize"))
         settings->setValue("rtStepSize", 10);
@@ -2300,8 +2306,8 @@ void MainWindow::readSettings() {
 		settings->setValue("useOverlap", 2);
 
     //Main window right hand top
-    if (!settings->contains("ppmWindowBox"))
-        settings->setValue("ppmWindowBox", 5);
+    if (!settings->contains("massCutoffWindowBox"))
+        settings->setValue("massCutoffWindowBox", 5);
 
     if (!settings->contains("mzslice"))
         settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
@@ -2341,7 +2347,8 @@ void MainWindow::readSettings() {
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
-	settings->setValue("ppmWindowBox", massCutoffWindowBox->value());
+	settings->setValue("massCutoffWindowBox", massCutoffWindowBox->value());
+	settings->setValue("massCutoffType",massCutoffComboBox->currentText());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
@@ -2539,18 +2546,27 @@ void MainWindow::createToolBars() {
 	//ppmValue
 	massCutoffWindowBox = new QDoubleSpinBox(hBox);
 	massCutoffWindowBox->setRange(0.00, 100000.0);
-	massCutoffWindowBox->setValue(settings->value("ppmWindowBox").toDouble());
-	massCutoffWindowBox->setSingleStep(0.5);	//ppm step
+	massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
+	massCutoffWindowBox->setSingleStep(0.05);	//increment step
 	massCutoffWindowBox->setToolTip("mass cutoff");
+	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
+	// 		SLOT(setUserPPM(double)));
+	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
+	// 		SLOT(setPPM(double)));
 	connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
-			SLOT(setUserPPM(double)));
-	connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
-			SLOT(setPPM(double)));
+	SLOT(setUserMassCutoff(double)));
 
 	massCutoffComboBox=  new QComboBox(hBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
+	if(settings->value("massCutoffType")=="mDa"){
+		massCutoffComboBox->setCurrentText("mDa");
+	}
+	else{
+		massCutoffComboBox->setCurrentText("ppm");
+	}
 	massCutoffComboBox->setToolTip("mass cutoff unit");
+	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
 
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
@@ -2685,6 +2701,14 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::setMassCutoffType(QString massCutoffType){
+	settings->setValue("massCutoffType", massCutoffType);
+	double cutoff=massCutoffWindowBox->value();
+	string type=massCutoffType.toStdString();
+	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
+	eicWidget->setMassCutoff(_massCutoffWindow);	
 }
 
 void MainWindow::refreshIntensities() {
@@ -2834,7 +2858,7 @@ void MainWindow::Align() {
 		mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
 	}
 
-	//mavenParameters->eic_ppmWindow = getUserPPM(); //TODO: Sahil-Kiran, Added while merging mainwindow
+	//mavenParameters->eic_ppmWindow = getUserMassCutoff(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();
@@ -3079,7 +3103,7 @@ void MainWindow::showFragmentationScans(float pmz) {
 
 	if (!fragPanel || fragPanel->isVisible() == false)
 		return;
-	float ppm = getUserPPM();
+	MassCutoff *massCutoff = getUserMassCutoff();
 
 	if (samples.size() <= 0)
 		return;
@@ -3087,7 +3111,7 @@ void MainWindow::showFragmentationScans(float pmz) {
 	for (unsigned int i = 0; i < samples.size(); i++) {
 		for (unsigned int j = 0; j < samples[i]->scans.size(); j++) {
 			if (samples[i]->scans[j]->mslevel > 1
-					&& ppmDist(samples[i]->scans[j]->precursorMz, pmz) < ppm) {
+					&& massCutoffDist(samples[i]->scans[j]->precursorMz, pmz,massCutoff) < massCutoff->getMassCutoff()) {
 				fragPanel->addScanItem(samples[i]->scans[j]);
 			}
 		}
@@ -3535,10 +3559,10 @@ void MainWindow::getLinks(Peak* peak) {
 	if (getIonizationMode())
 		ionizationMode = getIonizationMode(); //user specified ionization mode
 
-	float ppm = getUserPPM();
+	MassCutoff *massCutoff = getUserMassCutoff();
 
 	vector<mzLink> links = peak->findCovariants();
-	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, ppm,
+	vector<mzLink> linksX = SpectraWidget::findLinks(peak->peakMz, scan, massCutoff,
 			ionizationMode);
 	for (int i = 0; i < linksX.size(); i++)
 		links.push_back(linksX[i]);
@@ -3548,13 +3572,13 @@ void MainWindow::getLinks(Peak* peak) {
 	float rtmax = peak->rtmax + 1;
 	for (int i = 0; i < links.size(); i++) {
 		links[i].correlation = sample->correlation(links[i].mz1, links[i].mz2,
-				5, rtmin, rtmax, mavenParameters->eicType, mavenParameters->filterline);
+			massCutoff, rtmin, rtmax, mavenParameters->eicType, mavenParameters->filterline);
 	}
 
 	//matching compounds
 	for (int i = 0; i < links.size(); i++) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
-				links[i].mz2, ppm, mavenParameters->getCharge());
+				links[i].mz2, massCutoff, mavenParameters->getCharge());
 		if (compunds.size() > 0)
 			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
 	}

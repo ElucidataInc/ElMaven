@@ -21,6 +21,7 @@
 #include "SavGolSmoother.h"
 #include "csvparser.h"
 #include "statistics.h"
+#include "masscutofftype.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -401,7 +402,7 @@ namespace mzUtils {
      * @param  mz2     []
      * @return []
      */
-    float ppmDist(const float mz1, const float mz2);
+    float massCutoffDist(const float mz1, const float mz2,MassCutoff *massCutoff);
 
     /**
      * [ppmDist ]
@@ -410,7 +411,7 @@ namespace mzUtils {
      * @param  mz2     []
      * @return []
      */
-    double ppmDist(const double mz1, const double mz2);
+    double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff);
 
     /**
      * [ppmround ]
@@ -429,7 +430,7 @@ namespace mzUtils {
      * @param  ppmWindow  []
      * @return []
      */
-    bool withinXppm(float mz1, float mz2, int ppmWindow);
+    bool withinXMassCutoff(float mz1, float mz2, MassCutoff *massCutoff);
 
     /* file system functions */
     /**

@@ -22,7 +22,7 @@ MavenParameters::MavenParameters() {
         fragmentMatchPPMTolr = 1000;
         mzBinStep = 0.01;
         rtStepSize = 20;
-        ppmMerge = 30;
+        massCutoffMerge = NULL;
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -54,7 +54,7 @@ MavenParameters::MavenParameters() {
 	deltaRTWeight=10;
         deltaRtCheckFlag = false;
 
-        compoundPPMWindow = 10;
+        compoundMassCutoffWindow=NULL;
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
 
@@ -156,7 +156,7 @@ void MavenParameters::printSettings() {
         cerr << "#showProgressFlag=" << showProgressFlag << endl;
 
         cerr << "#rtStepSize=" << rtStepSize << endl;
-        cerr << "#ppmMerge=" << ppmMerge << endl;
+        cerr << "#massCutoffMerge=" << massCutoffMerge->getMassCutoff() << endl;
         cerr << "#avgScanTime=" << avgScanTime << endl;
 
         //peak detection
@@ -174,7 +174,7 @@ void MavenParameters::printSettings() {
 
 
         //compound detection setting
-        cerr << "#compoundPPMWindow=" << compoundPPMWindow << endl;
+        cerr << "#compoundMassCutoffWindow=" << compoundMassCutoffWindow->getMassCutoff() << endl;
         cerr << "#compoundRTWindow=" << compoundRTWindow << endl;
 
         //peak grouping score

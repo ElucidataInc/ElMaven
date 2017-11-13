@@ -207,7 +207,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
 }
 
 void MassCalculator::enumerateMasses(double inputMass, double charge,
-        double maxdiff, vector<Match*>& matches) {
+    MassCutoff *massCutoff, vector<Match*>& matches) {
     if (charge > 0)
         inputMass = inputMass * abs(charge) - H_MASS * abs(charge);
     if (charge < 0)
@@ -242,10 +242,10 @@ void MassCalculator::enumerateMasses(double inputMass, double charge,
                                 p * P31_MASS +
                                 h * H_MASS +
                                 s * S32_MASS;
-                            double diff = ppmDist(
-                                    c12, inputMass);
+                            double diff = massCutoffDist(
+                                    c12, inputMass,massCutoff);
 
-                            if (diff < maxdiff) {
+                            if (diff < massCutoff->getMassCutoff()) {
                                 string name =
                                     prettyName(
                                             c, h, n,

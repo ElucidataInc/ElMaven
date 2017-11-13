@@ -19,7 +19,7 @@ protected:
 public Q_SLOTS: 
  	  void setPeptideSequence(QString sequence);
 	  void setCharge(float charge);
-	  void setResolution(float resolution);
+	  void setResolution(MassCutoff *massCutoff);
       void setScan(Scan*);
 
 private Q_SLOTS:
@@ -31,7 +31,7 @@ private:
       MainWindow* _mw;
       QString _sequence;
 	  double _charge;
-	  double _resolution;
+      MassCutoff *_massCutoff;
       Scan* _scan;
       
 };

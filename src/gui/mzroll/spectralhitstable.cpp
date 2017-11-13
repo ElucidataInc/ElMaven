@@ -135,9 +135,9 @@ bool SpectralHitsDockWidget::hasSpectralHit(SpectralHit* group) {
 */
 //TODO: Sahil, Added while merging mzfileio
 void SpectralHitsDockWidget::limitPrecursorMz(float pMZ) {
-    float ppm = _mainwindow->getUserPPM();
+    MassCutoff *massCutoff = _mainwindow->getUserMassCutoff();
     for(int i=0; i < allhits.size(); i++ ) {
-        if (mzUtils::withinXppm(pMZ,allhits[i]->precursorMz,ppm) ) {
+        if (mzUtils::withinXMassCutoff(pMZ,allhits[i]->precursorMz,massCutoff) ) {
             allhits[i]->isFocused=true;
         } else {
             allhits[i]->isFocused=false;
@@ -343,9 +343,9 @@ void SpectralHitsDockWidget::showSelectedGroup() {
 
         _mainwindow->setPeptideSequence( hit->getModPeptideString() );
 
-        float ppmWindow=hit->precursorMz/1e6*_mainwindow->getUserPPM();
-        float mzmin = hit->precursorMz -ppmWindow;
-        float mzmax = hit->precursorMz +ppmWindow;
+        MassCutoff *massCutoff=_mainwindow->getUserMassCutoff();
+        float mzmin = hit->precursorMz -massCutoff->massCutoffValue(hit->precursorMz);
+        float mzmax = hit->precursorMz +massCutoff->massCutoffValue(hit->precursorMz);
 
         if(hit->rt > 0) {
              mzSlice slice(mzmin,mzmax,hit->rt-3,hit->rt+3);
@@ -923,7 +923,7 @@ void SpectralHitsDockWidget::integrateMS1() {
     vector <mzSample*> samples = _mainwindow->getVisibleSamples();
     if (samples.size() == 0) return;
 
-   float ppm = _mainwindow->getUserPPM();
+    MassCutoff *massCutoff = _mainwindow->getUserMassCutoff();
    float rtWinMin = 3;
 
    QSettings *settings 		= _mainwindow->getSettings();
@@ -944,7 +944,7 @@ void SpectralHitsDockWidget::integrateMS1() {
        QString peptideId = hit->fragmentId;
 
        if(! peptideMap.count(peptideId)) {
-           float amuTol = hit->precursorMz/1e6*ppm;
+           float amuTol = massCutoff->massCutoffValue(hit->precursorMz);
            mzSlice slice(hit->precursorMz-amuTol,hit->precursorMz+amuTol, hit->rt-rtWinMin, hit->rt+rtWinMin);
            slice.rt = hit->rt;
            slice.ionCount = 1;

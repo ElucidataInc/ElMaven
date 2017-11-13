@@ -3,6 +3,7 @@
 #include "mzSample.h"
 class mzSample;
 class ChargedSpecies;
+class MassCutoff;
 
 /**
 * @class Scan
@@ -37,17 +38,17 @@ class Scan
     *@brief In a given m/z range (mz + ppm) return the position of Highest intensity present in the scan
     *@param m/z and ppm(parts per million). Together they define the m/z range
     */
-    int findHighestIntensityPos(float mz, float ppm);
+    int findHighestIntensityPos(float mz, MassCutoff *massCutoff);
 
 
-    int findClosestHighestIntensityPos(float mz, float ppm); //TODO: Sahil, Added while merging point
+    int findClosestHighestIntensityPos(float mz, MassCutoff *massCutoff); //TODO: Sahil, Added while merging point
 
     /**
     * @brief checks if an input m/z value is present in the scan
     * @param  mz(input m/z value) and ppm(prats per million)
     * @return returns true if input m/z exists, otherwise false
     */
-    bool hasMz(float mz, float ppm);
+    bool hasMz(float mz, MassCutoff *massCutoff);
 
     /**
     * @brief check if the data is centroided
@@ -111,11 +112,11 @@ class Scan
     */
     vector<pair<float, float> > getTopPeaks(float minFracCutoff, float minSigNoiseRatio, int dropTopX);
 
-    vector<int> assignCharges(float ppmTolr);
+    vector<int> assignCharges(MassCutoff *massCutoffTolr);
 
     vector<float> chargeSeries(float Mx, unsigned int Zx); //TODO what does this do chargeSeries?
 
-    ChargedSpecies *deconvolute(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
+    ChargedSpecies *deconvolute(float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, float minSigNoiseRatio, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
 
     string toMGF();
 
@@ -197,10 +198,10 @@ class Scan
     ofstream file;
     BrotherData *brotherdata, b;
     void initialiseBrotherData(int z, float mzfocus);
-    void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, float ppmMerge);
-    void updateChargedSpeciesDataAndFindQScore(ChargedSpecies *x, int z, float mzfocus, float noiseLevel, float ppmMerge, int minChargedStates);
-    void findBrotherPeaks(ChargedSpecies *x, float mzfocus, float noiseLevel, float ppmMerge, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
-    bool setParentPeakData(float mzfocus, float noiseLevel, float ppmMerge, float minSigNoiseRatio);
+    void updateBrotherDataIfPeakFound(int loopdirection, int ii, bool *flag, bool *lastMatched, float *lastIntensity, float noiseLevel, MassCutoff *massCutoffMerge);
+    void updateChargedSpeciesDataAndFindQScore(ChargedSpecies *x, int z, float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, int minChargedStates);
+    void findBrotherPeaks(ChargedSpecies *x, float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
+    bool setParentPeakData(float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, float minSigNoiseRatio);
     void findError(ChargedSpecies *x);
 
     vector<float> smoothenIntensitites();

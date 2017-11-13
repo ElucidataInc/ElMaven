@@ -52,8 +52,8 @@ private:
 	  GraphWidget* _graph;
 	  Scan* _scan;
 
-	  bool linkExists(float mz1, float mz2, float ppm);
-      float getIntensity(float mz, float ppm);
+	  bool linkExists(float mz1, float mz2, MassCutoff *massCutoff);
+      float getIntensity(float mz,MassCutoff *massCutoff);
       
 };
 

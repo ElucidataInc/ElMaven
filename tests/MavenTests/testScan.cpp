@@ -83,8 +83,10 @@ void TestScan::testdeepcopy() {
 void TestScan::testfindHighestIntensityPos() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
-
-    int bestpos=scan->findHighestIntensityPos(2.1, 10000);
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->massCutoffMerge=new MassCutoff();
+    mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
+    int bestpos=scan->findHighestIntensityPos(2.1, mavenparameters->massCutoffMerge);
     QVERIFY(bestpos==2);
 
 }
@@ -164,9 +166,13 @@ void TestScan::testhasMz() {
 
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
-    QVERIFY(scan->hasMz(2.1,10000));
-    QVERIFY(!scan->hasMz(1.0,10000));
-    QVERIFY(!scan->hasMz(9,10000));
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->massCutoffMerge=new MassCutoff();
+    mavenparameters->massCutoffMerge->setMassCutoffAndType(10000,"ppm");
+
+    QVERIFY(scan->hasMz(2.1,mavenparameters->massCutoffMerge));
+    QVERIFY(!scan->hasMz(1.0,mavenparameters->massCutoffMerge));
+    QVERIFY(!scan->hasMz(9,mavenparameters->massCutoffMerge));
 }
 
 void TestScan::testchargeSeries() {
@@ -214,9 +220,11 @@ void TestScan::testdeconvolute() {
                      88.04099,88.04096,88.04095,88.04093,88.04098,88.04099,88.04099,
                      88.04099,88.04099,88.04099,88.04099,88.04096,88.04095};
     scan->mz.assign(mzarr,mzarr+34);
-
-    ChargedSpecies* x=scan->deconvolute(87,4,100000,2,3,100,500,2e5,3);
-    ChargedSpecies* x1=scan->deconvolute(87,1,10000,2,3,100,500,2e5,3);
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->massCutoffMerge=new MassCutoff();
+    mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
+    ChargedSpecies* x=scan->deconvolute(87,4,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);
+    ChargedSpecies* x1=scan->deconvolute(87,1,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);
 
     QVERIFY(common::floatCompare(x->totalIntensity, 3423.70849609375));
     QVERIFY(x->countMatches==18);

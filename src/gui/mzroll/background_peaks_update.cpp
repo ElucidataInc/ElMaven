@@ -32,7 +32,7 @@ QString BackgroundPeakUpdate::printSettings() {
 
     summary << "--------------------------------MASS SLICING"<< "\n";
     summary << "rtStepSize=" << mavenParameters->rtStepSize<< "\n";
-    summary << "ppmMerge=" << mavenParameters->ppmMerge<< "\n";
+    summary << "massCutoffMerge=" << mavenParameters->massCutoffMerge->getMassCutoff()<< "\n";
     summary << "limitGroupCount=" << mavenParameters->limitGroupCount<< "\n";
 
     summary << "minMz=" << mavenParameters->minMz << "\n";
@@ -51,7 +51,7 @@ QString BackgroundPeakUpdate::printSettings() {
 
     summary << "ionizationMode=" << mavenParameters->ionizationMode << "\n";
     summary << "matchRtFlag=" << mavenParameters->matchRtFlag << "\n";
-    summary << "compoundPPMWindow=" << mavenParameters->compoundPPMWindow
+    summary << "compoundMassCutoffWindow=" << mavenParameters->compoundMassCutoffWindow->getMassCutoff()
             << "\n";
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentation=" << mavenParameters->matchFragmentation
@@ -121,7 +121,7 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "alignSamplesFlag"  ,   QString::number(mavenParameters->alignSamplesFlag));
 
     stream.writeAttribute( "rtStepSize" ,QString::number( mavenParameters->rtStepSize));
-    stream.writeAttribute( "ppmMerge" ,QString::number( mavenParameters->ppmMerge));
+    stream.writeAttribute( "massCutoffMerge" ,QString::number( mavenParameters->massCutoffMerge->getMassCutoff()));
     stream.writeAttribute( "limitGroupCount" ,QString::number( mavenParameters->limitGroupCount));
 
     stream.writeAttribute( "minMz" ,QString::number( mavenParameters->minMz));
@@ -138,7 +138,7 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
 
     stream.writeAttribute( "ionizationMode" ,QString::number(mavenParameters->ionizationMode));
     stream.writeAttribute( "matchRtFlag" ,QString::number( mavenParameters->matchRtFlag));
-    stream.writeAttribute( "compoundPPMWindow" ,QString::number( mavenParameters->compoundPPMWindow));
+    stream.writeAttribute( "compoundMassCutoffWindow" ,QString::number( mavenParameters->compoundMassCutoffWindow->getMassCutoff()));
     stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
     stream.writeAttribute( "matchFragmentation" ,QString::number( mavenParameters->matchFragmentation));
     stream.writeAttribute( "fragmentMatchPPMTolr" ,QString::number( mavenParameters->fragmentMatchPPMTolr));
@@ -213,13 +213,13 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         xml.attributes().value("minGroupIntensity").toString().toFloat());
                 // Compound DB search
                 settings->setValue("matchRtFlag", xml.attributes().value("matchRtFlag").toString().toInt());
-                settings->setValue("compoundPPMWindow",
-                        xml.attributes().value("compoundPPMWindow").toString().toFloat());
+                settings->setValue("compoundMassCutoffWindow",
+                        xml.attributes().value("compoundMassCutoffWindow").toString().toFloat());
                 settings->setValue("compoundRTWindow",
                         xml.attributes().value("compoundRTWindow").toString().toFloat());
                 settings->setValue("eicMaxGroups", xml.attributes().value("eicMaxGroups").toString().toInt());
                 // Automated Peak Detection
-                settings->setValue("ppmMerge", xml.attributes().value("ppmMerge").toString().toFloat());
+                settings->setValue("massCutoffMerge", xml.attributes().value("massCutoffMerge").toString().toFloat());
                 settings->setValue("rtStepSize", xml.attributes().value("rtStepSize").toString().toFloat());
                 settings->setValue("minRT", xml.attributes().value("minRt").toString().toFloat());
                 settings->setValue("maxRT", xml.attributes().value("maxRt").toString().toFloat());

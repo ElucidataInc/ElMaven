@@ -28,8 +28,8 @@ class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
         MainWindow *mainwindow;
         int _msScanType;
         double _precursorMz;
-        float _precursorPPM;
-        float _productPPM;
+        MassCutoff *_precursorMassCutoff;
+        MassCutoff *_productMassCutoff;
         QVector<double> _mzsList;
         QVector<double> _intensityList;
         QVector<double> _intensityMinErr;

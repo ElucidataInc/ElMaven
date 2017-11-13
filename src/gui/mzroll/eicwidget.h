@@ -40,7 +40,7 @@ public:
 
 public Q_SLOTS:
 	void setMzSlice(float mz1, float mz2 = 0.0);
-	void setPPM(double ppm);
+	void setMassCutoff(MassCutoff *massCutoff);
 	void resetZoom();
 	void zoom(float factor);
 	void setMzRtWindow(float mzmin, float mzmax, float rtmin, float rtmax);

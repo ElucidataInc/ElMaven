@@ -76,11 +76,12 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     }
 
     MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->compoundPPMWindow = 10;
     mavenparameters->ionizationMode = -1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;

@@ -51,14 +51,14 @@ void MassSlices::stopSlicing() {
  * @param userPPM      The user defined PPM for MZ range
  * @param rtStep       Minimum RT range for RT window
  */
-void MassSlices::algorithmB(float userPPM,int rtStep) {
+void MassSlices::algorithmB( MassCutoff *massCutoff,int rtStep ) {
     //clear all previous data
     delete_all(slices);
     slices.clear();
     cache.clear();
 
 	float rtWindow=2.0;
-	this->_precursorPPM=userPPM;
+	this->massCutoff=massCutoff;
 
     int totalScans = 0,currentScans = 0;
 
@@ -112,7 +112,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
             float rt = scan->rt;
 
             vector<int> charges;
-            if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(userPPM);
+            if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(massCutoff);
 
             // Looping over every observation in the scan
             for(unsigned int k=0; k < scan->nobs(); k++ ) {
@@ -124,8 +124,8 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 
                 // Define mz max and min for this slice
                 float mz = scan->mz[k];
-                float mzmax = mz + mz / 1e6 * _precursorPPM;
-                float mzmin = mz - mz / 1e6 * _precursorPPM;
+                float mzmax = mz + massCutoff->massCutoffValue(mz);
+                float mzmin = mz - massCutoff->massCutoffValue(mz);
 
                 // #pragma omp ordered
                 // sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
@@ -142,8 +142,8 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
 
 
                     //make sure that mz windown doesn't get out of control
-                    if (Z->mzmin < mz-(mz/1e6*userPPM)) Z->mzmin =  mz-(mz/1e6*userPPM);
-                    if (Z->mzmax > mz+(mz/1e6*userPPM)) Z->mzmax =  mz+(mz/1e6*userPPM);
+                    if (Z->mzmin < mz-massCutoff->massCutoffValue(mz)) Z->mzmin =  mz-massCutoff->massCutoffValue(mz);
+                    if (Z->mzmax > mz+massCutoff->massCutoffValue(mz)) Z->mzmax =  mz+massCutoff->massCutoffValue(mz);
                     Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
                     //cerr << Z->mz << " " << Z->mzmin << " " << Z->mzmax << " " << ppmDist((float)Z->mzmin,mz) << endl;
                 } else {
@@ -171,7 +171,7 @@ void MassSlices::algorithmB(float userPPM,int rtStep) {
     }
     cerr << "Found=" << slices.size() << " slices" << endl;
     float threshold = 100;
-    removeDuplicateSlices(userPPM, threshold);
+    removeDuplicateSlices(massCutoff, threshold);
     sort(slices.begin(),slices.end(), mzSlice::compIntensity);
     cerr << "After removing duplicate slices. Threshold : "<< threshold <<", Found="<< slices.size()<< " slices" <<endl;
     sendSignal("Mass Slices Processed", 1 , 1);
@@ -231,7 +231,7 @@ mzSlice*  MassSlices::sliceExists(float mz, float rt) {
     return best;
 }
 
-void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
+void MassSlices::removeDuplicateSlices(MassCutoff *massCutoff, float threshold){
 
     vector<mzSlice*> returnSlices;
     mzSlice* slice;
@@ -285,8 +285,8 @@ void MassSlices::removeDuplicateSlices(float userPPM, float threshold){
             Z->mzmin = std::min((float)Z->mzmin, (float)slice->mzmin);
 
             //make sure that mz windown doesn't get out of control
-            if (Z->mzmin < mz-(mz/1e6*userPPM)) Z->mzmin =  mz-(mz/1e6*userPPM);
-            if (Z->mzmax > mz+(mz/1e6*userPPM)) Z->mzmax =  mz+(mz/1e6*userPPM);
+            if (Z->mzmin < mz-massCutoff->massCutoffValue(mz)) Z->mzmin =  mz-massCutoff->massCutoffValue(mz);
+            if (Z->mzmax > mz+massCutoff->massCutoffValue(mz)) Z->mzmax =  mz+massCutoff->massCutoffValue(mz);
             Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
         }
         else{

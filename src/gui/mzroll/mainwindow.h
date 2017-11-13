@@ -285,6 +285,7 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
 	void autosaveMzRoll();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
@@ -367,9 +368,9 @@ public Q_SLOTS:
 	}
 	void setTotalCharge();
 
-	void setUserPPM(double x);
-	double getUserPPM() {
-		return _ppmWindow;
+	void setUserMassCutoff(double x);
+	MassCutoff * getUserMassCutoff() {
+		return _massCutoffWindow;
 	}
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
@@ -426,7 +427,7 @@ private:
 	History history;
 
 	int _ionizationMode;
-	double _ppmWindow;
+	MassCutoff *_massCutoffWindow;
 
 	QToolBar* sideBar;
 

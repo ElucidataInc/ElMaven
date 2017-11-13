@@ -271,7 +271,7 @@ class mzSlice
     * @param charge Charge of the compound
     * @return bool True if compound mass exists
     */
-    bool calculateMzMinMax(float CompoundppmWindow, int charge);
+    bool calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge);
 
     /**
     * @brief Calculate rtmin and rtmax of mzSlice using rt window
@@ -477,7 +477,7 @@ class mzSample
     * @param filterline selected filterline
     * @return correlation
     */
-    float correlation(float mz1, float mz2, float ppm, float rt1, float rt2, int eicType, string filterline);
+    float correlation(float mz1, float mz2, MassCutoff *massCutoff, float rt1, float rt2, int eicType, string filterline);
 
     /**
     * @brief Get normalization constant

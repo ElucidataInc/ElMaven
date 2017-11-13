@@ -27,9 +27,9 @@ protected:
 public Q_SLOTS: 
  	  void setMass(float mz);
 	  void setCharge(float charge);
-	  void setPPM(float ppm);
+	  void setMassCutoff(MassCutoff *massCutoff);
       void compute();
-	  QSet<Compound*> findMathchingCompounds(float mz, float ppm, float charge);
+	  QSet<Compound*> findMathchingCompounds(float mz, MassCutoff *massCutoff, float charge);
 
 private Q_SLOTS:
       void showCellInfo(int row, int col, int lrow, int lcol);
@@ -44,7 +44,7 @@ private:
 
 	  double _mz;
 	  double _charge;
-	  double _ppm;
+	  MassCutoff* _massCutoff;
 
       void pubChemLink(QString formula);
       void keggLink(QString formula);

@@ -31,7 +31,7 @@ class MassSlices {
             _minRt=FLT_MIN; _minMz=FLT_MIN; _minIntensity=FLT_MIN;
             _maxRt=FLT_MAX; _maxMz=FLT_MAX; _maxIntensity=FLT_MAX;
             _minCharge=0; _maxCharge=INT_MAX;
-            _precursorPPM=1000;
+            massCutoff=NULL;
         }
         ~MassSlices() { delete_all(slices); cache.clear(); }
 
@@ -43,7 +43,7 @@ class MassSlices {
         vector<mzSlice*> slices;
         mzSlice* sliceExists(float mz,float rt);
 
-        void removeDuplicateSlices(float userPPM, float threshold);
+        void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
         /**
          * [This is function is called when mass Slicing using 
@@ -64,7 +64,7 @@ class MassSlices {
          * @param userPPM      The user defined PPM for MZ range
          * @param rtStep       Minimum RT range for RT window
          */
-        void algorithmB(float ppm, int step);
+        void algorithmB( MassCutoff *massCutoff, int step);
 
 
         void algorithmC(float ppm, float minIntensity, float rtStep);
@@ -90,7 +90,7 @@ class MassSlices {
         void setMinMz	    ( float v) {  _minMz = v; }
         void setMinCharge   ( float v) {  _minCharge = v; }
         void setMaxCharge   ( float v) {  _maxCharge = v; }
-        void setPrecursorPPMTolr (float v) { _precursorPPM = v; }
+        void setPrecursorPPMTolr (MassCutoff* v) { massCutoff = v; }
 	    void setMavenParameters(MavenParameters* mp) { mavenParameters = mp;}
         void stopSlicing();
 
@@ -104,7 +104,7 @@ class MassSlices {
         float _minIntensity;
         int _minCharge;
         int _maxCharge;
-        float _precursorPPM;
+        MassCutoff *massCutoff;
 
         vector<mzSample*> samples;
         multimap<int,mzSlice*>cache;

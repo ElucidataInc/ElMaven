@@ -78,7 +78,7 @@ void SpectraWidget::setCurrentScan(Scan* scan) {
         _scanset.clear();
 
         if (scan->mslevel == 1) {
-            chargeStates=_currentScan->assignCharges(mainwindow->getUserPPM());
+            chargeStates=_currentScan->assignCharges(mainwindow->getUserMassCutoff());
         }
     }
 }
@@ -182,8 +182,8 @@ void SpectraWidget::setScan(Peak* peak) {
 @author: Sahil
 */
 //TODO: Sahil, Added while merging point
-void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,float productAmuToll) {
-    qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productAmuToll << endl;
+void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff) {
+    qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productMassCutoff->getMassCutoff() << endl;
     if(!_currentScan) return;
 	if(peptideSeq.isEmpty()) return;
 
@@ -194,15 +194,15 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,float product
 	SpectralHit hit;
 	hit.score = 0;
 	hit.matchCount=0;
-	hit.sampleName="";
-    hit.productPPM=1;
+    hit.sampleName="";
+    hit.productMassCutoff=productMassCutoff;
     hit.precursorMz=record.monoisotopicMZ();
 	hit.scan = _currentScan;
 	
     vector<bool>seen(_currentScan->nobs(),false);
 	for(unsigned int i=0; i < ions.size(); i++) {
 		FragmentIon* ion = ions[i];
-        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz,productAmuToll);
+        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz,productMassCutoff);
         if(pos != -1 and seen[pos] == false) {
             ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
             qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
@@ -230,7 +230,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
         hit.precursorMz = c->precursorMz;
         hit.matchCount=0;
         hit.sampleName="";
-        hit.productPPM=1000;
+        hit.productMassCutoff=mainwindow->getUserMassCutoff();
         hit.scan=NULL;
         for(int i=0; i < c->fragment_mzs.size();i++)        hit.mzList << c->fragment_mzs[i];
         for(int i=0; i < c->fragment_intensity.size();i++)  hit.intensityList<< c->fragment_intensity[i];
@@ -259,7 +259,7 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         repaint();
 
         double focusMz = hit.mzList.first();
-        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productPPM);
+        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productMassCutoff);
         if(pos>=0) {
                 _focusCoord.setX(focusMz);
                 _focusCoord.setY(_currentScan->intensity[pos]);
@@ -272,7 +272,7 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
     qDebug() << "showConsensusSpectra()";
     _scanset.clear();
 
-    Scan* cons = group->getAverageFragmenationScan(0.1);
+    Scan* cons = group->getAverageFragmenationScan(mainwindow->getUserMassCutoff());
 
     if (cons) {
         _scanset = group->getFragmenationEvents();
@@ -286,15 +286,15 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
 
 void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
 
-    float ppmWindow = hit.productPPM;
+    MassCutoff *massCutoffWindow=hit.productMassCutoff;
     double maxIntensityHit= hit.getMaxIntensity();
 
-    qDebug() << "overlaySpectra() started.." <<  ppmWindow << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
+    qDebug() << "overlaySpectra() started.." <<  massCutoffWindow->getMassCutoff() << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
     QPen redpen(Qt::red, 3);
     QPen bluepen(Qt::blue, 3);
 
     for(int i=0; i < hit.mzList.size(); i++) {
-        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],ppmWindow);
+        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],massCutoffWindow);
 
 
         double hitIntensity=0;
@@ -780,10 +780,10 @@ void SpectraWidget::setMzFocus(float mz) {
     //int bestMatch=-1;
     //float bestMatchDiff=FLT_MAX;
 
-	float ppm= mainwindow->getUserPPM();
+	MassCutoff *massCutoff= mainwindow->getUserMassCutoff();
 
 	if (_currentScan->mslevel==1) {
-		int pos = _currentScan->findHighestIntensityPos(mz,ppm);
+		int pos = _currentScan->findHighestIntensityPos(mz,massCutoff);
 		if(pos>=0) { 
 			float bestMz = _currentScan->mz[pos];
 			mainwindow->setMzValue(bestMz);
@@ -798,8 +798,8 @@ void SpectraWidget::setMzFocus(float mz) {
 			mainwindow->massCalcWidget->setMass(bestMz);
 
 	} else if (!_currentScan->filterLine.empty() ) {
-		float mzmin = mz - mz/1e6*ppm;
-		float mzmax = mz + mz/1e6*ppm;
+		float mzmin = mz - massCutoff->massCutoffValue(mz);
+		float mzmax = mz + massCutoff->massCutoffValue(mz);
     	mzSlice eicSlice = mainwindow->getEicWidget()->getParameters()->getMzSlice();
         mzSlice slice(mzmin,mzmax,eicSlice.rtmin,eicSlice.rtmax); 
 		slice.srmId=_currentScan->filterLine;
@@ -903,7 +903,7 @@ void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float inte
     int y3 = toY(_focusCoord.y());
     float mz3 = _focusCoord.x();
 
-    if ( ppmDist(mz1,mz2) < 0.1 ) return;
+    if ( massCutoffDist(mz1,mz2,mainwindow->getUserMassCutoff()) < 0.1 ) return;
 
 
     if (_arrow != NULL ) {
@@ -976,7 +976,7 @@ void SpectraWidget::annotateScan() {
 */
 
 void SpectraWidget::assignCharges() {
-    chargeStates = _currentScan->assignCharges(mainwindow->getUserPPM());
+    chargeStates = _currentScan->assignCharges(mainwindow->getUserMassCutoff());
 }
 
 void SpectraWidget::annotateScan() {
@@ -984,7 +984,8 @@ void SpectraWidget::annotateScan() {
     float mzfocus = _focusCoord.x();
     if (mzfocus==0 || _currentScan == NULL || _currentScan->nobs() < 2 ) return;
     float noiseLevel=1;
-    float ppmMerge=100;
+    MassCutoff massCutoffMerge=*mainwindow->getUserMassCutoff();
+    massCutoffMerge.setMassCutoff(100);
     float minSigNoiseRatio=3;
     int minDeconvolutionCharge=100;
     int maxDeconvolutionCharge=500;
@@ -994,7 +995,7 @@ void SpectraWidget::annotateScan() {
 
     ChargedSpecies* x = _currentScan->deconvolute(mzfocus,
                                                   noiseLevel,
-                                                  ppmMerge,
+                                                  &massCutoffMerge,
                                                   minSigNoiseRatio,
                                                   minDeconvolutionCharge,
                                                   maxDeconvolutionCharge,
@@ -1130,7 +1131,7 @@ void SpectraWidget::gotoScan() {
 		}
 }
 
-vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, int ionizationMode) {
+vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode) {
 
     vector<mzLink> links;
     //check for possible C13s
@@ -1163,12 +1164,12 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
     	if(frag->charge != 0 && SIGN(frag->charge) != SIGN(ionizationMode) ) continue;
         float mzMinus=centerMz-frag->mass;
         float mzPlus =centerMz+frag->mass;
-        if( scan->hasMz(mzPlus,ppm)) {
+        if( scan->hasMz(mzPlus,massCutoff)) {
             QString noteText = tr("%1 Fragment").arg(QString(DB.fragmentsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,mzPlus,noteText.toStdString()));
         }
 
-        if( scan->hasMz(mzMinus,ppm)) {
+        if( scan->hasMz(mzMinus,massCutoff)) {
             QString noteText = tr("%1 Fragment").arg(QString(DB.fragmentsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,mzMinus,noteText.toStdString()));
         }
@@ -1180,7 +1181,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
         float parentMass=DB.adductsDB[i]->computeParentMass(centerMz);
         parentMass += ionizationMode*HMASS;   //adjusted mass
 
-        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,ppm)) {
+        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,massCutoff)) {
             cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
             QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,parentMass,noteText.toStdString()));
@@ -1192,7 +1193,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, float ppm, i
     	if ( SIGN(DB.adductsDB[i]->charge) != SIGN(ionizationMode) ) continue;
         float parentMass = centerMz-ionizationMode*HMASS;   //adjusted mass
         float adductMass=DB.adductsDB[i]->computeAdductMass(parentMass);
-        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,ppm)) {
+        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,massCutoff)) {
             QString noteText = tr("Adduct %1").arg(QString(DB.adductsDB[i]->name.c_str()));
             links.push_back(mzLink(centerMz,adductMass,noteText.toStdString()));
         }

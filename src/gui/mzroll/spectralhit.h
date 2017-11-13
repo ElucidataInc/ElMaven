@@ -29,7 +29,7 @@ class SpectralHit {
 		QVector<double>mzList;
 		QVector<double>intensityList;
         QVector<QString>annotations; //TODO: Sahil, Added whiler merging point
-		float productPPM;
+		MassCutoff *productMassCutoff;
 		int matchCount;
 		float precursorMz;
 		float xcorr;
@@ -55,7 +55,7 @@ class SpectralHit {
 		scan = NULL; 
 		precursorMz=0;
 		matchCount=0; 
-		productPPM=0; 
+		productMassCutoff=NULL; 
 		score=0;
 		xcorr=0; 
 		massdiff=0;

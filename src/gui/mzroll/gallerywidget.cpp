@@ -86,7 +86,7 @@ void GalleryWidget::fileGallery(const QString &fromDir) {
 void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 
 	MassCalculator  mcalc;
-	float compoundPPMWindow=mainwindow->getUserPPM();
+	MassCutoff *massCutoff=mainwindow->getUserMassCutoff();
 	int   ionizationMode=mainwindow->getIonizationMode();
 
 	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
@@ -105,9 +105,9 @@ void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 		if (!c->formula.empty()) {
 			int charge = mainwindow->mavenParameters->getCharge(c);
 			double mass = mcalc.computeMass(c->formula,charge);
-            double ppmW = mass/1e6*compoundPPMWindow;
-            slice.mzmin = mass-ppmW;
-            slice.mzmax = mass+ppmW;
+            double massCutoffW = massCutoff->massCutoffValue(mass);
+            slice.mzmin = mass-massCutoffW;
+            slice.mzmax = mass+massCutoffW;
 		}
 
     /*	if (c->expectedRt > 0 ) {
@@ -168,7 +168,7 @@ void GalleryWidget::addEicPlots(std::vector<mzLink>&links) {
 	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
 	if (samples.size() == 0 ) return;
 
-	float compoundPPMWindow=mainwindow->getUserPPM();
+	MassCutoff *compoundMassCutoff=mainwindow->getUserMassCutoff();
         mzSlice& current = mainwindow->getEicWidget()->getParameters()->getMzSlice();
 
 	sort(links.begin(), links.end(), mzLink::compCorrelation);
@@ -177,8 +177,8 @@ void GalleryWidget::addEicPlots(std::vector<mzLink>&links) {
 		mzLink link = links[i];
    		mzSlice slice;
 		float mass = link.mz2;
-		slice.mzmin = mass - compoundPPMWindow * mass/1e6;
-		slice.mzmax = mass + compoundPPMWindow * mass/1e6;
+		slice.mzmin = mass - compoundMassCutoff->massCutoffValue(mass);
+		slice.mzmax = mass + compoundMassCutoff->massCutoffValue(mass);
 		slice.rtmin = current.rtmin;
 		slice.rtmax = current.rtmax;
 		TinyPlot* plot = addEicPlot(slice);

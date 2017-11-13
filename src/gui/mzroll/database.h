@@ -57,7 +57,7 @@ class Database {
 	Compound* findSpeciesById(string id, string dbName);
 
 	deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
-	set<Compound*> findSpeciesByMass(float mz, float ppm);
+	set<Compound*> findSpeciesByMass(float mz, MassCutoff *massCutoff);
 	vector<Compound*> findSpeciesByName(string name, string dbname);
 
 	void loadRetentionTimes(QString method);

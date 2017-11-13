@@ -64,14 +64,15 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 	if (recursionLevel > 2) return;
 	if (!_scan) return;
 	Scan* scan = _scan;
-	float ppm = _mw->getUserPPM();
+	MassCutoff *massCutoff = _mw->getUserMassCutoff();
+	
 	mzSample* sample = scan->getSample();
  
 	int ionizationMode = scan->getPolarity();
 	ionizationMode = _mw->mavenParameters->ionizationMode; //user specified ionization mode
 
     QVector<float>newMzs;
-    float intensity1 = getIntensity(centerMz,ppm);
+    float intensity1 = getIntensity(centerMz,massCutoff);
 
 	//figure out charge
 	int chargeCounts[4] = { 0, 0, 0, 0 };
@@ -83,7 +84,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 
 		for(int i=1; i<100; i++ ) { 
 			float mz=centerMz-(i*1.0034)/c;
-			bool found =_scan->hasMz(mz,ppm);
+			bool found =_scan->hasMz(mz,massCutoff);
 			//cerr << "Parent Checking : " << mz << " " << c << " " << found << endl;
 			if (found) { pMz = mz; } else { break; }
 		}
@@ -92,7 +93,7 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 		for(int i=1; i<10; i++ ) {
 			if ( i != c || i == 1) {
 				float mz=pMz+(i*1.0034)/c;
-				bool found =_scan->hasMz(mz,ppm);
+				bool found =_scan->hasMz(mz,massCutoff);
 				//cerr << "Charge Checking : " << mz << " " << c << " " << found << endl;
 				if (!found) break;
 				chargeCounts[c]++; 
@@ -161,13 +162,13 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
         float parentMass=DB.adductsDB[i]->computeParentMass(centerMz);
 		parentMass += ionizationMode*HMASS;   //adjusted mass
 		cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
-        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,ppm)) {
+        if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,massCutoff)) {
             QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
-			float correlation  = sample->correlation(centerMz, parentMass, 5, scan->rt-1, scan->rt+1,
+			float correlation  = sample->correlation(centerMz, parentMass, massCutoff, scan->rt-1, scan->rt+1,
 													_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
-            float parentIntensity = getIntensity(parentMass,ppm);
+            float parentIntensity = getIntensity(parentMass,massCutoff);
 
-			if ( correlation > 0.3 && !linkExists(centerMz,parentMass,5) && parentIntensity > intensity1) {
+			if ( correlation > 0.3 && !linkExists(centerMz,parentMass,massCutoff) && parentIntensity > intensity1) {
 					mzLink* l = new mzLink(parentMass,centerMz,noteText.toStdString());
 					l->correlation = correlation;
 					links.push_back(l);
@@ -183,13 +184,13 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 		float parentMass = centerMz-ionizationMode*HMASS;   //adjusted mass
         float adductMass=DB.adductsDB[i]->computeAdductMass(parentMass);
 
-        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,ppm)) {
+        if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,massCutoff)) {
             QString noteText = tr("Adduct %1").arg(QString(DB.adductsDB[i]->name.c_str()));
-			float correlation  = sample->correlation(centerMz, adductMass, 5, scan->rt-1, scan->rt+1,
+			float correlation  = sample->correlation(centerMz, adductMass, massCutoff, scan->rt-1, scan->rt+1,
 												_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
-            float childIntensity = getIntensity(adductMass,ppm);
+            float childIntensity = getIntensity(adductMass,massCutoff);
 
-			if (correlation > 0.5 && ! linkExists(adductMass, centerMz,5) && childIntensity < intensity1) {
+			if (correlation > 0.5 && ! linkExists(adductMass, centerMz,massCutoff) && childIntensity < intensity1) {
 				mzLink* l = new mzLink(centerMz,adductMass,noteText.toStdString());
 				l->correlation = correlation;
 				links.push_back(l);
@@ -211,12 +212,12 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 }
 
 
-bool AdductWidget::linkExists(float mz1, float mz2, float ppm) {
+bool AdductWidget::linkExists(float mz1, float mz2, MassCutoff *massCutoff) {
 	Q_FOREACH( mzLink* link, links ) {
-		if ( mzUtils::ppmDist(link->mz1,mz1) < ppm  && mzUtils::ppmDist(link->mz2,mz2) < ppm) {
+		if ( mzUtils::massCutoffDist(link->mz1,mz1,massCutoff) < massCutoff->getMassCutoff()  && mzUtils::massCutoffDist(link->mz2,mz2,massCutoff) < massCutoff->getMassCutoff()) {
 				return true;
 		}
-		if ( mzUtils::ppmDist(link->mz2,mz1) < ppm && mzUtils::ppmDist(link->mz1,mz2) < ppm) {
+		if ( mzUtils::massCutoffDist(link->mz2,mz1,massCutoff) < massCutoff->getMassCutoff() && mzUtils::massCutoffDist(link->mz1,mz2,massCutoff) < massCutoff->getMassCutoff()) {
 				return true;
 		}
 	} 
@@ -256,12 +257,12 @@ void AdductWidget::showLink(Node* n) {
     }
 }
 
-float AdductWidget::getIntensity(float mz, float ppm) {
+float AdductWidget::getIntensity(float mz, MassCutoff *massCutoff) {
     if (!_scan) return 0;
 
     float x=0;
-    float mzmin = mz - mz/1e6*ppm;
-    float mzmax = mz + mz/1e6*ppm;
+    float mzmin = mz - massCutoff->massCutoffValue(mz);
+    float mzmax = mz + massCutoff->massCutoffValue(mz);
 
    vector<int>matches = _scan->findMatchingMzs(mzmin, mzmax);
    for(int i=0; i < matches.size(); i++ ) {
@@ -278,25 +279,25 @@ mzLink* AdductWidget::checkConnection(float mz1, float mz2, string note) {
 	mzSample* sample = _scan->getSample();
 
 	if(!sample) return NULL;
-	float ppm = _mw->getUserPPM();
+	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 
-	if (linkExists(mz1,mz2,ppm)) return NULL;
+	if (linkExists(mz1,mz2,massCutoff)) return NULL;
 
-    float intensity1 = getIntensity(mz1,ppm);
-    float intensity2 = getIntensity(mz2,ppm);
+    float intensity1 = getIntensity(mz1,massCutoff);
+    float intensity2 = getIntensity(mz2,massCutoff);
 	if (intensity1 < intensity2) swap(mz1,mz2);
 
 	if (links.size() > 1 ) {
 		for(int i=0; i < links.size(); i++ ) {
-			if ( sample->correlation(links[i]->mz1, mz2, 5, _scan->rt-1, _scan->rt+1,
+			if ( sample->correlation(links[i]->mz1, mz2, massCutoff, _scan->rt-1, _scan->rt+1,
 				_mw->mavenParameters->eicType, _mw->mavenParameters->filterline) < 0.0 ) return NULL;
-			if ( sample->correlation(links[i]->mz1, mz1, 5, _scan->rt-1, _scan->rt+1,
+			if ( sample->correlation(links[i]->mz1, mz1, massCutoff, _scan->rt-1, _scan->rt+1,
 				_mw->mavenParameters->eicType, _mw->mavenParameters->filterline) < 0.0 ) return NULL;
 		}
 	}
 
-	if( _scan->hasMz(mz2,ppm) ) {
-		float correlation  = sample->correlation(mz1, mz2, 5, _scan->rt-1, _scan->rt+1,
+	if( _scan->hasMz(mz2,massCutoff) ) {
+		float correlation  = sample->correlation(mz1, mz2, massCutoff, _scan->rt-1, _scan->rt+1,
 												_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
 
 		if ( correlation > 0.3) {
@@ -320,21 +321,21 @@ void AdductWidget::addLink(mzLink* l) {
 	Node* n1 = NULL;
 	Node* n2 = NULL;
 
+	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 	Q_FOREACH (Node* item, _graph->getNodes(Node::Unassigned)) {
 	        QVariant v= item->data(0); float mz = v.toFloat();
             if (n1 && n2) break;
-            if ( ppmDist(mz,l->mz1) < 10 ) n1=item;
-            if ( ppmDist(mz,l->mz2) < 10 ) n2=item;
+            if ( massCutoffDist(mz,l->mz1,massCutoff) < 10 ) n1=item;
+            if ( massCutoffDist(mz,l->mz2,massCutoff) < 10 ) n2=item;
     }
 
-	float ppm = _mw->getUserPPM();
 	if (!n1) {
 		n1 = _graph->addNode(name1.toStdString(),0);
 		n1->setVisible(true); 
         n1->setBrush(QColor::fromRgbF(0.2,0.2,0.8,1.0));
         QVariant v(l->mz1);
         n1->setData(0,v);
-        n1->setConcentration( getIntensity(l->mz1,ppm)); 
+        n1->setConcentration( getIntensity(l->mz1,massCutoff)); 
 		connect(n1,SIGNAL(nodePressed(Node*)),SLOT(showLink(Node*)));
 		connect(n1,SIGNAL(nodeDoubleClicked(Node*)),SLOT(expandNode(Node*)));
 
@@ -346,7 +347,7 @@ void AdductWidget::addLink(mzLink* l) {
         n2->setBrush(QColor::fromRgbF(0.2,0.2,0.8,1.0));
         QVariant v(l->mz2);
         n2->setData(0,v);
-        n2->setConcentration( getIntensity(l->mz2,ppm)); 
+        n2->setConcentration( getIntensity(l->mz2,massCutoff)); 
 		connect(n2,SIGNAL(nodePressed(Node*)),SLOT(showLink(Node*)));
 		connect(n2,SIGNAL(nodeDoubleClicked(Node*)),SLOT(expandNode(Node*)));
 

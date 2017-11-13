@@ -161,7 +161,9 @@ void TestEIC:: testGetPeakDetails() {
 void TestEIC:: testgroupPeaks() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -181,9 +183,8 @@ void TestEIC:: testgroupPeaks() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;
@@ -237,7 +238,9 @@ void TestEIC:: testgroupPeaks() {
 void TestEIC:: testeicMerge() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -253,9 +256,8 @@ void TestEIC:: testeicMerge() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;

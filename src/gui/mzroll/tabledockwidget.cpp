@@ -1501,12 +1501,12 @@ void TableDockWidget::saveModel() {
 
 void TableDockWidget::findMatchingCompounds() { 
     //matching compounds
-    float ppm = _mainwindow->getUserPPM();
+    MassCutoff *massCutoff = _mainwindow->getUserMassCutoff();
     float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
     for(int i=0; i < allgroups.size(); i++ ) {
         PeakGroup& g = allgroups[i];
         int charge = _mainwindow->mavenParameters->getCharge(g.compound);
-        QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, ppm, 
+        QSet<Compound*>compounds = _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz, massCutoff, 
                     charge);
         if (compounds.size() > 0 ) Q_FOREACH( Compound*c, compounds) { g.tagString += " |" + c->name; break; }
         //cerr << g.meanMz << " " << compounds.size() << endl;
@@ -1554,7 +1554,7 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
     QTextStream out(&file);
     for(int i=0; i < selected.size(); i++ ) {
         PeakGroup* g = selected[i];
-        Scan* cons = g->getAverageFragmenationScan(0.01);
+        Scan* cons = g->getAverageFragmenationScan(_mainwindow->getUserMassCutoff());
 
         if (cons) {
             string scandata = cons->toMGF();
@@ -2005,7 +2005,7 @@ void TableDockWidget::clusterGroups() {
     double maxRtDiff =  clusterDialog->maxRtDiff_2->value();
     double minSampleCorrelation =  clusterDialog->minSampleCorr->value();
     double minRtCorrelation = clusterDialog->minRt->value();
-    double ppm	= _mainwindow->getUserPPM();
+    MassCutoff* massCutoff	= _mainwindow->getUserMassCutoff();
 
     vector<mzSample*> samples = _mainwindow->getSamples();
 
@@ -2054,7 +2054,7 @@ void TableDockWidget::clusterGroups() {
             if (cor < minSampleCorrelation) continue;
 
             //peak shape correlation
-            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,ppm,grup1.minRt,grup1.maxRt,
+            float cor2 = largestSample->correlation(grup1.meanMz,grup2.meanMz,massCutoff,grup1.minRt,grup1.maxRt,
                                                     _mainwindow->mavenParameters->eicType,
                                                     _mainwindow->mavenParameters->filterline);
             if (cor2 < minRtCorrelation) continue;

@@ -27,16 +27,17 @@ void TestMzSlice::testCalculateMzMaxMinWithCF() {
     vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
-    
-    float compoundPPMWindow = 10;
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
+
     int ionizationMode = +1;
-    float ppmScale = 1e6;
 
     float mass = 663.109131 + 1.007;
-    float mzMin = mass - compoundPPMWindow * mass / ppmScale;
-    float mzMax = mass + compoundPPMWindow * mass / ppmScale;
+    float mzMin = mass - mavenparameters->compoundMassCutoffWindow->massCutoffValue(mass);
+    float mzMax = mass + mavenparameters->compoundMassCutoffWindow->massCutoffValue(mass);
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
     QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
     common::floatCompare(slice->mzmax,mzMax));
@@ -46,16 +47,19 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
     vector<Compound*> compounds = common::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
-    float compoundPPMWindow = 10;
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
+
     int ionizationMode = +1;
     float ppmScale = 1e6;
 
-    float mzMin = compounds[0]->mass - compoundPPMWindow * compounds[0]->mass / ppmScale;
-    float mzMax = compounds[0]->mass + compoundPPMWindow * compounds[0]->mass / ppmScale;
+    float mzMin = compounds[0]->mass - mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mass);
+    float mzMax = compounds[0]->mass + mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mass);
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
     QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
     common::floatCompare(slice->mzmax,mzMax));
@@ -67,10 +71,12 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[1];
     compounds[1]->mass = 0;
-    float compoundPPMWindow = 10;
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;
 
-    QVERIFY(!slice->calculateMzMinMax(compoundPPMWindow, ionizationMode));
+    QVERIFY(!slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode));
 }
 
 void TestMzSlice::testcalculateRTMinMaxWithRTandEnabled() {

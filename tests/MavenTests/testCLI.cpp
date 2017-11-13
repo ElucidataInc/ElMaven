@@ -67,7 +67,7 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->minGroupIntensity == 500);
     QVERIFY(peakdetectorCLI->mavenParameters->quantileIntensity == 50);
     QVERIFY(peakdetectorCLI->mavenParameters->eicMaxGroups == 4);
-    QVERIFY(peakdetectorCLI->mavenParameters->ppmMerge == 32);
+    QVERIFY(peakdetectorCLI->mavenParameters->massCutoffMerge->getMassCutoff() == 32);
 
     QVERIFY(peakdetectorCLI->mavenParameters->quantileQuality == 32);
     QVERIFY(peakdetectorCLI->mavenParameters->rtStepSize == 25);

@@ -219,7 +219,7 @@ class PeakGroup{
 
         vector<Scan*> getFragmenationEvents();
 
-        Scan* getAverageFragmenationScan(float resolution);
+        Scan* getAverageFragmenationScan(MassCutoff* massCutoff);
 
         
         double getExpectedMz(int charge, map<string,bool> isotopeAtom, int noOfIsotopes);
@@ -244,7 +244,7 @@ class PeakGroup{
          * @param  cmass   []
          * @return []
          */
-        inline float ppmDist(float cmass) { return mzUtils::ppmDist(cmass,meanMz); }
+        inline float massCutoffDist(float cmass,MassCutoff *massCutoff) { return mzUtils::massCutoffDist(cmass,meanMz,massCutoff); }
 
         /**
          * [addPeak ]

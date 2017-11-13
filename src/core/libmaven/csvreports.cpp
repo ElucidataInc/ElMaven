@@ -300,15 +300,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
             if (group->parent != NULL) {
-                ppmDist = mzUtils::ppmDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom, getMavenParameters()->noOfIsotopes), (double) group->meanMz);
+                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom, getMavenParameters()->noOfIsotopes),
+                (double) group->meanMz,getMavenParameters()->massCutoffMerge);
             }
             else {
-                ppmDist = mzUtils::ppmDist((double) group->compound->adjustedMass(charge),
-                (double) group->meanMz);
+                ppmDist = mzUtils::massCutoffDist((double) group->compound->adjustedMass(charge),
+                (double) group->meanMz,getMavenParameters()->massCutoffMerge);
             }
         }
         else {
-            ppmDist = mzUtils::ppmDist((double) group->compound->mass, (double) group->meanMz);
+            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass, (double) group->meanMz,getMavenParameters()->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff;
 

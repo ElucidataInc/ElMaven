@@ -157,7 +157,7 @@ void PeakDetector::processMassSlices() {
     massSlices.setMinRt (mavenParameters->minRt);
     massSlices.setMaxMz (mavenParameters->maxMz);
     massSlices.setMinMz	(mavenParameters->minMz);
-    massSlices.algorithmB(mavenParameters->ppmMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
+    massSlices.algorithmB(mavenParameters->massCutoffMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
 
     if (massSlices.slices.size() == 0)
         massSlices.algorithmA();  // if no slices present, perform algorithmA
@@ -226,7 +226,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                     //Calculating the mzmin and mzmax
                     int charge = mavenParameters->getCharge(c);
                     bool success  = \
-                    slice->calculateMzMinMax(mavenParameters->compoundPPMWindow, charge);
+                    slice->calculateMzMinMax(mavenParameters->compoundMassCutoffWindow, charge);
                     if (!success) continue;
                 }
 
@@ -272,12 +272,8 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            float mzmin = isotopeMass -
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
-            float mzmax = isotopeMass +
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
+            float mzmin = isotopeMass -mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
 
             float rt = parentgroup->medianRt();
             float rtmin = parentgroup->minRt;
@@ -343,7 +339,7 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                 * mavenParameters->avgScanTime;
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
-                    mavenParameters->compoundPPMWindow, rtmin - w,
+                    mavenParameters->compoundMassCutoffWindow, rtmin - w,
                     rtmax + w, mavenParameters->eicType,
                     mavenParameters->filterline);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
@@ -485,12 +481,8 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             double isotopeMass = x.mass;
             double expectedAbundance = x.abundance;
 
-            float mzmin = isotopeMass -
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
-            float mzmax = isotopeMass +
-                isotopeMass / 1e6 *
-                mavenParameters->compoundPPMWindow;
+            float mzmin = isotopeMass -mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
 
             float rt = parentgroup->medianRt();
             float rtmin = parentgroup->minRt;
@@ -563,7 +555,7 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
                 * mavenParameters->avgScanTime;
             double c = sample->correlation(
                     isotopeMass, parentgroup->meanMz,
-                    mavenParameters->compoundPPMWindow, rtmin - w,
+                    mavenParameters->compoundMassCutoffWindow, rtmin - w,
                     rtmax + w, mavenParameters->eicType,
                     mavenParameters->filterline);  // find correlation for isotopes
             if (c < mavenParameters->minIsotopicCorrelation)
@@ -1059,8 +1051,8 @@ bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
                 float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
                                                         grup2.minRt, grup2.maxRt);
                 if (rtoverlap > 0.9
-                    && ppmDist(grup2.meanMz, grup1.meanMz)
-                    < mavenParameters->ppmMerge) {
+                    && massCutoffDist(grup2.meanMz, grup1.meanMz,mavenParameters->massCutoffMerge)
+                    < mavenParameters->massCutoffMerge->getMassCutoff()) {
                         noOverlap = false;
 //       #pragma omp cancel for
                 break;

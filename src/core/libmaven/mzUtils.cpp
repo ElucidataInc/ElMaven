@@ -392,12 +392,18 @@ Series:  Prentice-Hall Series in Automatic Computation
         return(str);
     }
 
-    float ppmDist(const float mz1, const float mz2) {
-        return ( abs((mz2-mz1)/(mz1/1e6)) );
+    float massCutoffDist(const float mz1, const float mz2,MassCutoff *massCutoff) {
+        if(massCutoff->getMassCutoffType()=="ppm"){
+            return ( abs((mz2-mz1)/(mz1/1e6)) );
+        }
+        return ( abs((mz2-mz1)/(mz1/1e3)) );
     }
 
-    double ppmDist(const double mz1, const double mz2) {
-        return ( abs((mz2-mz1)/(mz1/1e6)) );
+    double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
+        if(massCutoff->getMassCutoffType()=="ppm"){
+            return ( abs((mz2-mz1)/(mz1/1e6)) );
+        }
+        return ( abs((mz2-mz1)/(mz1/1e3)) );
     }
 
 
@@ -410,8 +416,8 @@ Series:  Prentice-Hall Series in Automatic Computation
         return( round(mz1*resolution)/resolution);
     }
 
-    bool withinXppm( float mz1, float mz2, int ppmWindow ) {
-        if ( mz2 > (mz1 - (mz1/1e6)*ppmWindow) && mz2 < (mz1 + (mz1/1e6)*ppmWindow) ) return(true);
+    bool withinXMassCutoff( float mz1, float mz2, MassCutoff *massCutoff ) {
+        if ( mz2 > (mz1 - massCutoff->massCutoffValue(mz1)) && mz2 < (mz1 + massCutoff->massCutoffValue(mz1)) ) return(true);
         else return(false);
     }
 

@@ -124,7 +124,7 @@ int RemoteSpectraHandler::doCommand(QString path, QString queryString, QString c
          bool ok=false; double ppm = command[1].toDouble(&ok);
          if (ok) {
             _mw->massCutoffWindowBox->setValue(ppm);
-            _mw->setUserPPM(ppm);
+            _mw->setUserMassCutoff(ppm);
             responce =  "OK: ppm changed";  return 200;
          }
     }

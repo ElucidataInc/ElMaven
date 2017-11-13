@@ -30,7 +30,8 @@ void TestPeakDetection::testProcessCompound() {
     vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
 
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundPPMWindow = 10;
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;
@@ -46,7 +47,6 @@ void TestPeakDetection::testProcessCompound() {
 void TestPeakDetection::testPullEICs() {
     bool matchRtFlag = true;
     float compoundRTWindow = 2;
-    float compoundPPMWindow = 10;
     int ionizationMode = +1;
 
     vector<mzSample*> samplesToLoad;
@@ -57,13 +57,16 @@ void TestPeakDetection::testPullEICs() {
         samplesToLoad.push_back(mzsample);
     }
 
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
+
     vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[2];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
-    slice->calculateMzMinMax(compoundPPMWindow, ionizationMode);
+    slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;
@@ -149,11 +152,12 @@ void TestPeakDetection::testpullIsotopes() {
     }
 
     MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow=new MassCutoff();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->compoundPPMWindow = 10;
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;

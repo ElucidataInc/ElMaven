@@ -144,9 +144,9 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
                 //for mz could rely on same computation being done way above
                 //redoing it only for code clarity
 
-                float ppm=mavenParameters->compoundPPMWindow;
-                mzmin = mz - mz / 1e6 * ppm;
-                mzmax = mz + mz / 1e6 * ppm;
+                MassCutoff *massCutoff=mavenParameters->compoundMassCutoffWindow;
+                mzmin = mz - massCutoff->massCutoffValue(mz);
+                mzmax = mz + massCutoff->massCutoffValue(mz);
                 rtmin = grp.minRt - outputRtWindow;
                 rtmax = grp.maxRt + outputRtWindow;
                 eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1,
@@ -158,9 +158,9 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
         else {//no compound information
             //TODO: same problem here: need the ppm that was used, or the slice object
             mz=grp.meanMz;
-            float ppm=mavenParameters->compoundPPMWindow;
-            mzmin = mz - mz / 1e6 * ppm;
-            mzmax = mz + mz / 1e6 * ppm;
+            MassCutoff *massCutoff=mavenParameters->compoundMassCutoffWindow;
+            mzmin = mz - massCutoff->massCutoffValue(mz);
+            mzmax = mz + massCutoff->massCutoffValue(mz);
             rtmin = grp.minRt - outputRtWindow;
             rtmax = grp.maxRt + outputRtWindow;
             eic = (*it)->getEIC(mzmin,mzmax,rtmin,rtmax,1,

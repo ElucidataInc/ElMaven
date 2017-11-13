@@ -139,11 +139,11 @@ void Database::loadSpecies(string db) {
 		}
 }
 
-set<Compound*> Database::findSpeciesByMass(float mz, float ppm) {
+set<Compound*> Database::findSpeciesByMass(float mz, MassCutoff *massCutoff) {
 	set<Compound*>uniqset;
 
     Compound x("find", "", "",0);
-    x.mass = mz-(mz/1e6*ppm);;
+    x.mass = mz-massCutoff->massCutoffValue(mz);
     deque<Compound*>::iterator itr = lower_bound(
             compoundsDB.begin(),compoundsDB.end(),
             &x, Compound::compMass );
@@ -152,7 +152,7 @@ set<Compound*> Database::findSpeciesByMass(float mz, float ppm) {
         Compound* c = *itr;
         if (c->mass > mz+1) break;
 
-        if ( mzUtils::ppmDist(c->mass,mz) < ppm ) {
+        if ( mzUtils::massCutoffDist(c->mass,mz,massCutoff) < massCutoff->getMassCutoff() ) {
 			if (uniqset.count(c)) continue;
             uniqset.insert(c);
         }

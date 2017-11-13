@@ -12,7 +12,7 @@ class SpectraWidget : public QGraphicsView
     Q_OBJECT
 public:
     SpectraWidget(MainWindow* mw);
-    static vector<mzLink> findLinks(float centerMz, Scan* scan, float ppm, int ionizationMode);
+    static vector<mzLink> findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode);
 
         public Q_SLOTS:
                     void setScan(Scan* s);
@@ -31,7 +31,7 @@ public:
                     void replot();
                     void spectraToClipboard();
                     void spectraToClipboardTop();
-                    void overlayPeptideFragmentation(QString proteinSeq,float productAmuTolr); //TODO: Sahil, Added while merging point
+                    void overlayPeptideFragmentation(QString proteinSeq,MassCutoff *productMassCutoff); //TODO: Sahil, Added while merging point
                     void overlayCompoundFragmentation(Compound* c); //TODO: Sahil, Added while merging spectrawidget
                     void showConsensusSpectra(PeakGroup* group); //TODO: Sahil, Added while merging spectrawidget
                     void overlaySpectralHit(SpectralHit& hit);

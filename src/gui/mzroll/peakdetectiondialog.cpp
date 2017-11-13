@@ -243,13 +243,13 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             // Compound DB search
             matchRt->setChecked(settings->value("matchRtFlag").toBool());
             compoundPPMWindow->setValue(
-                settings->value("compoundPPMWindow").toDouble());
+                settings->value("compoundMassCutoffWindow").toDouble());
             compoundRTWindow->setValue(
                 settings->value("compoundRTWindow").toDouble());
             eicMaxGroups->setValue(settings->value("eicMaxGroups").toInt());
 
             // Automated Peak Detection
-            ppmStep->setValue(settings->value("ppmMerge").toDouble());
+            ppmStep->setValue(settings->value("massCutoffMerge").toDouble());
             rtStep->setValue(settings->value("rtStepSize").toDouble());
             rtMin->setValue(settings->value("minRT").toDouble());
             rtMax->setValue(settings->value("maxRT").toDouble());
@@ -305,7 +305,11 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         // EIC extraction windows ppm value that is set in the main
         // window is been set to the GUI
-        compoundPPMWindow->setValue(mainwindow->getUserPPM());
+        compoundPPMWindow->setValue(mainwindow->getUserMassCutoff()->getMassCutoff());
+        string userMassCutoffType=mainwindow->getUserMassCutoff()->getMassCutoffType();
+        compoundPPMWindow->setSuffix(QApplication::translate("PeakDetectionDialog", &userMassCutoffType[0], 0));
+        string userResolution="Mass Domain Resolution ("+userMassCutoffType+")";
+        label_7->setText(QApplication::translate("PeakDetectionDialog", &userResolution[0], 0));
         QDialog::exec();
     }
 }
@@ -474,11 +478,11 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("quantileIntensity", quantileIntensity->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
-    settings->setValue("compoundPPMWindow", compoundPPMWindow->value());
+    settings->setValue("compoundMassCutoffWindow", compoundPPMWindow->value());
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
     settings->setValue("eicMaxGroups", eicMaxGroups->value());
     // Automated Peak Detection
-    settings->setValue("ppmMerge", ppmStep->value());
+    settings->setValue("massCutoffMerge", ppmStep->value());
     settings->setValue("rtStepSize", rtStep->value());
     settings->setValue("minRT", rtMin->value());
     settings->setValue("maxRT", rtMax->value());
@@ -519,6 +523,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
+    mavenParameters->massCutoffMerge=new MassCutoff();
+	mavenParameters->compoundMassCutoffWindow=new MassCutoff();
     if (settings != NULL) {
         // Peak Scoring and Filtering
         mavenParameters->minQuality = settings->value("minQuality").toDouble();
@@ -541,12 +547,12 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        mavenParameters->compoundPPMWindow = settings->value("compoundPPMWindow").toDouble();
+        mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),settings->value("massCutoffType").toString().toStdString());
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
 
         // Automated Peak Detection
-        mavenParameters->ppmMerge = settings->value("ppmMerge").toDouble();
+        mavenParameters->massCutoffMerge->setMassCutoffAndType(settings->value("massCutoffMerge").toDouble(),settings->value("massCutoffType").toString().toStdString());
         mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
         mavenParameters->minRt = settings->value("minRT").toDouble();
         mavenParameters->maxRt = settings->value("maxRT").toDouble();

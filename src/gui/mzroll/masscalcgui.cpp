@@ -7,7 +7,7 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   _mw = mw;
   _mz = 0;
   setCharge(-1);
-  setPPM(5);
+  setMassCutoff(mw->getUserMassCutoff());
 
   connect(computeButton, SIGNAL(clicked(bool)), SLOT(compute()));
   connect(lineEdit,SIGNAL(returnPressed()),SLOT(compute()));
@@ -31,14 +31,14 @@ void MassCalcWidget::setCharge(float charge) {
                 ionization->setValue(charge);
                 _charge=charge;
 }
-void MassCalcWidget::setPPM(float diff) { maxppmdiff->setValue(diff); _ppm=diff; }
+void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff; }
 
 void MassCalcWidget::compute() {
     LOGD;
 	 bool isDouble =false;
 	 _mz = 		lineEdit->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
-  	 _ppm = 	maxppmdiff->value();
+       _massCutoff->setMassCutoff(maxppmdiff->value());
 
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
@@ -46,7 +46,7 @@ void MassCalcWidget::compute() {
      delete_all(matches);
 
 	_mw->setStatusText("Searching for formulas..");
-     mcalc.enumerateMasses(_mz,_charge,_ppm, matches);
+     mcalc.enumerateMasses(_mz,_charge,_massCutoff, matches);
 	 getMatches();
 	_mw->setStatusText(tr("Found %1 formulas").arg(matches.size()));
 
@@ -60,7 +60,7 @@ void MassCalcWidget::showTable() {
     p->clear();
     p->setColumnCount( 5 );
     p->setRowCount(  matches.size() ) ;
-    p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << "ppmDiff" << "DB");
+    p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << "massCutoffDiff" << "DB");
     p->setSortingEnabled(false);
     p->setUpdatesEnabled(false);
 
@@ -100,7 +100,7 @@ void MassCalcWidget::setupSortedCompoundsDB() {
     sort(sortedcompounds.begin(), sortedcompounds.end(), Compound::compMass);
 }
 
-QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, float charge) {
+QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, MassCutoff *massCutoff, float charge) {
 	if (sortedcompounds.size() != DB.compoundsDB.size() ) { setupSortedCompoundsDB(); }
 
 	QSet<Compound*>uniqset;
@@ -113,7 +113,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
     for(;itr != sortedcompounds.end(); itr++ ) {
         Compound* c = *itr; if (!c) continue;
         double cmass = MassCalculator::computeMass(c->formula, charge);
-        if ( mzUtils::ppmDist((double) cmass, (double) mz) < ppm && !uniqset.contains(c) ) uniqset << c;
+        if ( mzUtils::massCutoffDist((double) cmass, (double) mz,massCutoff) < massCutoff->getMassCutoff() && !uniqset.contains(c) ) uniqset << c;
         if (cmass > mz+2) break;
 	}
 	return uniqset;
@@ -121,12 +121,12 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, float ppm, floa
 
 void MassCalcWidget::getMatches() {
     int charge = _mw->mavenParameters->getCharge();
-	QSet<Compound*> compounds = findMathchingCompounds(_mz,_ppm,charge);
+	QSet<Compound*> compounds = findMathchingCompounds(_mz,_massCutoff,charge);
 	Q_FOREACH(Compound* c, compounds) {
           MassCalculator::Match* m = new MassCalculator::Match();
           m->name = c->formula;
           m->mass = MassCalculator::computeMass(c->formula,_mw->mavenParameters->getCharge(c));
-          m->diff = mzUtils::ppmDist((double) m->mass,(double) _mz);
+          m->diff = mzUtils::massCutoffDist((double) m->mass,(double) _mz,_massCutoff);
           m->compoundLink = c;
           matches.push_back(m);
     }

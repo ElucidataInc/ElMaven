@@ -5,7 +5,7 @@ using namespace std;
 PeptideFragmentationWidget::PeptideFragmentationWidget(MainWindow* mw) { 
   setupUi(this);
   setCharge(+1);
-  setResolution(0.5);
+  setResolution(mw->getUserMassCutoff());
   _scan = new Scan(NULL,0,0,0,0,0);
   _mw = mw;
 
@@ -36,10 +36,9 @@ void PeptideFragmentationWidget::setCharge(float c) {
     }
 }
 
-void PeptideFragmentationWidget::setResolution(float res) {
-    if (res > 0 ) {
-	 resolution->setValue(res); 
-     _resolution=res;
+void PeptideFragmentationWidget::setResolution(MassCutoff *massCutoff) {
+    if (massCutoff->getMassCutoff() > 0 ) {
+     _massCutoff=massCutoff;
     }
 }
 
@@ -56,13 +55,12 @@ void PeptideFragmentationWidget::compute() {
     LOGD;
      _sequence = 	peptideSequence->text();
   	 _charge =  	charge->value();
-     _resolution = 		resolution->value();
 
      Peptide pept(_sequence.toStdString(),_charge,"");
      if(pept.isGood()) {
         showTable();
         if (_scan) {
-            _mw->spectraWidget->overlayPeptideFragmentation(_sequence,_resolution);
+            _mw->spectraWidget->overlayPeptideFragmentation(_sequence,_massCutoff);
         }
 
      } else {
@@ -78,7 +76,7 @@ void PeptideFragmentationWidget::focusPrecursorMz() {
 
 
 void PeptideFragmentationWidget::showTable() {
-    qDebug() << "PeptideFragmentationWidget::showTable: " << _sequence << " " << _resolution;
+    qDebug() << "PeptideFragmentationWidget::showTable: " << _sequence << " " << _massCutoff->getMassCutoff();
 
     Peptide pept(_sequence.toStdString(),_charge,"");
     QString precMz = QString::number(pept.monoisotopicMZ(),'f',5);
@@ -102,7 +100,7 @@ void PeptideFragmentationWidget::showTable() {
         if (ion->m_loss>0)  { ionType += "-";  ionType += QString::number(ion->m_loss); }
 
         if (_scan) {
-            int matchedPos = _scan->findClosestHighestIntensityPos(ion->m_mz,_resolution);
+            int matchedPos = _scan->findClosestHighestIntensityPos(ion->m_mz,_massCutoff);
             if (matchedPos>0) {
                 ion->m_mzDiff = abs(_scan->mz[matchedPos]-ion->m_mz);
                 qDebug() << "showTable IONS: " << ion->m_ion.c_str() << " ->" << ionType << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
@@ -172,7 +170,7 @@ void PeptideFragmentationWidget::showTable() {
                 item->setFont(fnt);
 
                 if (ion->m_mzDiff != -1) {
-                    float alpha = (_resolution-ion->m_mzDiff)/_resolution;
+                    float alpha = (_massCutoff->getMassCutoff()-ion->m_mzDiff)/_massCutoff->getMassCutoff();
                     if (alpha > 0) {
                          item->setBackground(QBrush(QColor::fromHsvF(0.3,alpha,0.8,1)));
                     }

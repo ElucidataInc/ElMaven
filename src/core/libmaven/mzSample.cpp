@@ -1030,7 +1030,7 @@ mzSlice mzSample::getMinMaxDimentions(const vector<mzSample *> &samples)
 	return d;
 }
 
-bool mzSlice::calculateMzMinMax(float CompoundppmWindow, int charge)
+bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
 
 	float ppmScale = 1e6;
@@ -1040,16 +1040,16 @@ bool mzSlice::calculateMzMinMax(float CompoundppmWindow, int charge)
 	{
 		//Computing the mass if the formula is given
 		double mass = MassCalculator::computeMass(this->compound->formula, charge);
-		this->mzmin = mass - CompoundppmWindow * mass / ppmScale;
-		this->mzmax = mass + CompoundppmWindow * mass / ppmScale;
+		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
+		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}
 	else if (this->compound->mass > 0)
 	{
 		// Mass already present in the compound DB then using
 		// it to find the mzmin and mzmax
 		double mass = this->compound->mass;
-		this->mzmin = mass - CompoundppmWindow * mass / ppmScale;
-		this->mzmax = mass + CompoundppmWindow * mass / ppmScale;
+		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
+		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}
 	else
 	{
@@ -1532,11 +1532,11 @@ EIC *mzSample::getBIC(float rtmin, float rtmax, int mslevel)
 }
 
 //compute correlation between two mzs within some retention time window
-float mzSample::correlation(float mz1, float mz2, float ppm, float rt1, float rt2, int eicType, string filterline)
+float mzSample::correlation(float mz1, float mz2, MassCutoff *massCutoff, float rt1, float rt2, int eicType, string filterline)
 {
 
-	float ppm1 = ppm * mz1 / 1e6;
-	float ppm2 = ppm * mz2 / 1e6;
+	float ppm1 = massCutoff->massCutoffValue(mz1);
+	float ppm2 = massCutoff->massCutoffValue(mz2);
 	int mslevel = 1;
 	EIC *e1 = mzSample::getEIC(mz1 - ppm1, mz1 + ppm1, rt1, rt2, mslevel, eicType, filterline);
 	EIC *e2 = mzSample::getEIC(mz2 - ppm2, mz2 + ppm1, rt1, rt2, mslevel, eicType, filterline);

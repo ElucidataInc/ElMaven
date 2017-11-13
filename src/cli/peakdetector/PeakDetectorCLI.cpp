@@ -62,7 +62,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 		
 		case 'C':
-			mavenParameters->compoundPPMWindow = atof(optarg);
+			mavenParameters->compoundMassCutoffWindow->setMassCutoff(atof(optarg));
 			break;
 
 		case 'd':
@@ -129,7 +129,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 	
 		case 'p':
-			mavenParameters->ppmMerge = atof(optarg);
+			mavenParameters->massCutoffMerge->setMassCutoff(atof(optarg));
 			break;
 			
 		case 'q':
@@ -274,7 +274,7 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 			mavenParameters->charge = atoi(node.attribute("value").value());
 		}
 		else if (strcmp(node.name(), "compoundPPMWindow") == 0) {
-			mavenParameters->compoundPPMWindow = atof(node.attribute("value").value());
+			mavenParameters->compoundMassCutoffWindow->setMassCutoff(atof(node.attribute("value").value()));
 		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
@@ -353,7 +353,7 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 		}
 		else if (strcmp(node.name(),"ppmMerge") == 0) {
 
-			mavenParameters->ppmMerge = atof(node.attribute("value").value());
+			mavenParameters->massCutoffMerge->setMassCutoff(atof(node.attribute("value").value()));
 
 		}
 		else if (strcmp(node.name(),"minQuality") == 0) {
@@ -702,10 +702,10 @@ void PeakDetectorCLI::reduceGroups() {
             if( grup2.deletedFlag) continue;
 
 			float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt, grup2.minRt, grup2.maxRt );
-			float ppmdist = ppmDist(grup2.meanMz, grup1.meanMz);
-		    if ( ppmdist > mavenParameters->ppmMerge ) break;
+			float masscutoffdist = massCutoffDist(grup2.meanMz, grup1.meanMz,mavenParameters->massCutoffMerge);
+		    if ( masscutoffdist > mavenParameters->massCutoffMerge->getMassCutoff() ) break;
 
-			if (rtoverlap > 0.8 && ppmdist < mavenParameters->ppmMerge) {
+			if (rtoverlap > 0.8 && masscutoffdist < mavenParameters->massCutoffMerge->getMassCutoff()) {
 				if (grup1.maxIntensity <= grup2.maxIntensity) {
                      grup1.deletedFlag = true;
 					 //allgroups.erase(allgroups.begin()+i);
@@ -783,7 +783,7 @@ void PeakDetectorCLI::writeParametersXML(xml_node& parent) {
 			mavenParameters->ligandDbFilename.c_str();
 	p.append_attribute("clsfModelFilename") = clsfModelFilename.c_str();
 	p.append_attribute("rtStepSize") = mavenParameters->rtStepSize;
-	p.append_attribute("ppmMerge") = mavenParameters->ppmMerge;
+	p.append_attribute("massCutoffMerge") = mavenParameters->massCutoffMerge->getMassCutoff();
 	p.append_attribute("eic_smoothingWindow") =
 			mavenParameters->eic_smoothingWindow;
 	p.append_attribute("grouping_maxRtWindow") =
