@@ -8,33 +8,33 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 	//command line options
 	const char * optv[] = {
-							"a?alignSamples <int>",
-							"b?minGoodGroupCount <int>",
-							"c?matchRtFlag <int>",
-							"C?compoundPPMWindow <float>",							
-							"d?db <string>",
-							"e?processAllSlices <int>",
-							"f?pullIsotopes <int>",				//C13(1st bit), S34i(2nd bit), N15i(3rd bit), D2(4th bit)
-							"g?grouping_maxRtWindow <float>",
+							"a?alignSamples: Enter non-zero integer to run alignment <int>",
+							"b?minGoodGroupCount: Enter minimum number of good peaks per group <int>",
+							"c?matchRtFlag: Enter non-zero integer to match retention time to the database values <int>",
+							"C?compoundPPMWindow: Enter ppm window for m/z <float>",							
+							"d?db: Enter full path to database file <string>",
+							"e?processAllSlices: Enter non-zero integer to run untargeted peak detection <int>",
+							"f?pullIsotopes: Enter 1111 to pull all isotopic labels, 0000 for no isotopes. Refer the GitHub wiki document for more details <int>",				//C13(1st bit), S34i(2nd bit), N15i(3rd bit), D2(4th bit)
+							"g?grouping_maxRtWindow: Enter the maximum Rt difference between peaks in a group <float>",
 							"h?help",
-							"i?minGroupIntensity <float>",
-							"I?quantileIntensity <float>",
-                            "j?saveEicJson <int>",
-							"k?charge <int>",
-							"m?model <string>",
-							"n?eicMaxGroups <int>",
-							"o?outputdir <string>",
-							"p?ppmMerge <float>",
-							"q?minQuality <float>",
-							"Q?quantileQuality <float>",
-							"r?rtStepSize <float>",
-                            "s?savemzroll <int>",
-                            "v?ionizationMode <int>",
-							"w?minPeakWidth <int>",
-							"x?xml <string>",
-							"X|defaultXml",
-							"y?eicSmoothingWindow <int>",
-							"z?minSignalBaseLineRatio <float>",
+							"i?minGroupIntensity: Enter min group intensity threshold for a group <float>",
+							"I?quantileIntensity: Specify required percentage of peaks above the intensity threshold <float>",
+                            "j?saveEicJson: Enter non-zero integer to save EIC JSON in the output folder <int>",
+							"k?charge: Enter the magnitude of charge on each compound <int>",
+							"m?model: Enter full path to the model file <string>",
+							"n?eicMaxGroups: Enter maximum number of groups reported per compound <int>",
+							"o?outputdir: Enter full path to output folder <string>",
+							"p?ppmMerge: Enter ppm window for untargeted peak detection and removing duplicate groups <float>",
+							"q?minQuality: Enter min peak quality threshold for a group <float>",
+							"Q?quantileQuality: Specify required percentage of peaks above quality threshold <float>",
+							"r?rtStepSize: Enter retention time window for untargeted peak detection <float>",
+                            "s?savemzroll: Enter non-zero integer to save mzroll in the output folder <int>",
+                            "v?ionizationMode: Enter 0, -1 or 1 ionization mode <int>",
+							"w?minPeakWidth: Enter min peak width threshold in a group <int>",
+							"x?xml: Enter full path to the config file <string>",
+							"X?defaultXml: Create a template config file",
+							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
+							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
 							NULL 
 	};
 
@@ -95,7 +95,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 
 		case 'h':
-			opts.usage(cerr, "files ...");
+			opts.usage(cerr, "files --Enter full path to each sample file");
 			exit(0);
 			break;
 
