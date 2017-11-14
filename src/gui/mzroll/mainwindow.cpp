@@ -2561,9 +2561,11 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox->addItem("mDa");
 	if(settings->value("massCutoffType")=="mDa"){
 		massCutoffComboBox->setCurrentText("mDa");
+		massCutoffWindowBox->setSingleStep(0.000001);
 	}
 	else{
 		massCutoffComboBox->setCurrentText("ppm");
+		massCutoffWindowBox->setSingleStep(0.05);
 	}
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
