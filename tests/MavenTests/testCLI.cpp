@@ -125,8 +125,8 @@ void TestCLI::testReduceGroups() {
 	if (!peakdetectorCLI->status) {
 		cerr << peakdetectorCLI->textStatus;
 		return;
-	}
-
+    }
+    
 	peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
 	peakdetectorCLI->peakDetector->setMavenParameters(peakdetectorCLI->mavenParameters);
 	peakdetectorCLI->loadCompoundsFile();

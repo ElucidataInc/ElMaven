@@ -13,7 +13,7 @@ double MassCutoff::massCutoffValue(double mz){
     }
     else {
         cerr<<"mass cutoff type:  "<<"unknown"<<"  value: "<<0<<endl;
-        //assert(false);
+        assert(false);
         return 0;
     }
 }

@@ -111,7 +111,7 @@ void TestCSVReports::testaddGroups() {
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
     mavenparameters->clsf = clsf;
-    mavenparameters->compoundMassCutoffWindow->setMassCutoff(10);
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
     mavenparameters->compoundRTWindow = 2;

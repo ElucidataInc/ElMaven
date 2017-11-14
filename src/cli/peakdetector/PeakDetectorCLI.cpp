@@ -222,6 +222,7 @@ void PeakDetectorCLI::processXML(const char* fileName){
 		xml_node peaksArgs = argsNode.child("PeaksDialogArguments");
 		xml_node generalArgs = argsNode.child("GeneralArguments");
 
+
 		processOptionsArgsXML(optionsArgs);
 		processPeaksArgsXML(peaksArgs);
 		processGeneralArgsXML(generalArgs);
@@ -287,7 +288,7 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 
 	for (xml_node node = peaksArgs.first_child(); node; node = node.next_sibling()) {
-  
+		
 		if (strcmp(node.name(),"minGoodGroupCount") == 0) {
 
 			mavenParameters->minGoodGroupCount = atoi(node.attribute("value").value());
@@ -354,7 +355,12 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 		else if (strcmp(node.name(),"ppmMerge") == 0) {
 
 			mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(node.attribute("value").value()),"ppm");
-
+			mavenParameters->compoundMassCutoffWindow->setMassCutoffType("ppm");
+			/**
+			 * DOTO-
+			 * < mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(atof(node.attribute("value").value()),"ppm"); > has to be removed
+			 * later when <compoundMassCutoffWindow> attribute is added in test.xml file.
+			 */
 		}
 		else if (strcmp(node.name(),"minQuality") == 0) {
 

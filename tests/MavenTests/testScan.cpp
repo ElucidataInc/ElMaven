@@ -84,7 +84,7 @@ void TestScan::testfindHighestIntensityPos() {
     Scan* scan=new Scan (sample,1,2,3.3,4.4,1);;
     initScan (scan);
     MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
+    mavenparameters->massCutoffMerge->setMassCutoffAndType(10000,"ppm");
     int bestpos=scan->findHighestIntensityPos(2.1, mavenparameters->massCutoffMerge);
     QVERIFY(bestpos==2);
 
@@ -221,6 +221,7 @@ void TestScan::testdeconvolute() {
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->massCutoffMerge->setMassCutoffAndType(100000,"ppm");
     ChargedSpecies* x=scan->deconvolute(87,4,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);
+    mavenparameters->massCutoffMerge->setMassCutoffAndType(10000,"ppm");
     ChargedSpecies* x1=scan->deconvolute(87,1,mavenparameters->massCutoffMerge,2,3,100,500,2e5,3);
 
     QVERIFY(common::floatCompare(x->totalIntensity, 3423.70849609375));

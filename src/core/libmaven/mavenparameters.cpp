@@ -24,6 +24,7 @@ MavenParameters::MavenParameters() {
         mzBinStep = 0.01;
         rtStepSize = 20;
         massCutoffMerge = new MassCutoff();
+        massCutoffMerge->setMassCutoff(30);
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -56,6 +57,7 @@ MavenParameters::MavenParameters() {
         deltaRtCheckFlag = false;
 
         compoundMassCutoffWindow=new MassCutoff();
+        compoundMassCutoffWindow->setMassCutoff(10);
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
 
