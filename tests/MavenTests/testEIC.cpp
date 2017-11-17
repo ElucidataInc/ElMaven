@@ -228,13 +228,9 @@ void TestEIC:: testgroupPeaks() {
     QVERIFY(14.8468 < peakgroups[2].meanRt < 14.847);
     QVERIFY(744.0849 < peakgroups[2].meanMz < 744.0851);
 
-    unsigned int maxPeakNum = 0;
-    for(unsigned int j = 0; j < peakgroups.size(); j++) {   
-        if (maxPeakNum < peakgroups[j].peaks.size())
-            maxPeakNum = peakgroups[j].peaks.size();
-    }
-
-    QVERIFY(maxPeakNum == 2);    
+    QVERIFY(peakgroups[0].peaks.size() == 2);
+    QVERIFY(peakgroups[1].peaks.size() == 1);
+    QVERIFY(peakgroups[2].peaks.size() == 1);
 }
 
 
@@ -292,7 +288,7 @@ void TestEIC:: testeicMerge() {
     QVERIFY(maxEICsize == m->rt.size());
     QVERIFY(maxEICsize == m->scannum.size());
     QVERIFY(maxEICsize == m->mz.size());
-    QVERIFY(m->rtmin > 0);
-    QVERIFY(m->rtmax > 0);
+    QVERIFY(13.041 < m->rtmin < 13.042);
+    QVERIFY(17.039 < m->rtmax < 17.040);
 }
 
