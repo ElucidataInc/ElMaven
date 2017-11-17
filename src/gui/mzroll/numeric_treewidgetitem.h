@@ -21,15 +21,33 @@ public:
 	bool operator< ( const QTreeWidgetItem & other ) const  
 	{
 		int sortCol = treeWidget()->sortColumn();
-		bool isFloat;
-		float a = text(sortCol).toFloat(&isFloat);
+		bool isaFloat;
+		bool isbFloat;
+		float a = text(sortCol).toFloat(&isaFloat);
+		float b = other.text(sortCol).toFloat(&isbFloat);
 
-		if (isFloat) {
-			return  a < other.text(sortCol).toFloat();
-		} else {
-			return  text(sortCol) < other.text(sortCol);
+		if (isaFloat & isbFloat) {
+			return  a < b;
 		}
-        }
+		else if(a){
+			return true;
+		}
+		else if(b){
+			return false;
+		}
+
+
+		QString text1=text(sortCol);
+		QString text2=other.text(sortCol);
+		int length1=text1.length();
+		int length2=text2.length();
+
+		if(length1==length2) {
+			return text1<text2;
+		}
+		else return length1<length2;
+
+    }
 
 
 };
