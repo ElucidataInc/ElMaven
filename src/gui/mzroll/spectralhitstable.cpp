@@ -979,7 +979,10 @@ void SpectralHitsDockWidget::integrateMS1() {
 
        //qDebug() << "group: " << peptide << " rt=" << slice->rt;
 
-       vector<EIC*> eics = PullEICs::pullEICs(slice,
+        set<string> multipleTransitions;
+        string currentTransition;
+
+        vector<EIC*> eics = PullEICs::pullEICs(slice,
                                                     samples,
                                                     EicLoader::PeakDetection,
                                                     eic_smoothingWindow,
@@ -990,7 +993,9 @@ void SpectralHitsDockWidget::integrateMS1() {
                                                     baseline_quantile,
                                                     minSignalBaselineDifference,
                                                     eic_type,
-                                                    filterline);
+                                                    filterline,
+                                                    multipleTransitions,
+                                                    currentTransition);
 
        //qDebug() << "here.. .here.. here " << eics.size();
 

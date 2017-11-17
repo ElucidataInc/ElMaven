@@ -486,7 +486,6 @@ using namespace mzUtils;
 
 	connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveMzRoll()));
 
-    //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
@@ -1183,38 +1182,15 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	}
 	return vsamples;
 }
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup() {
-// 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
-// 	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
-// 	if (eicWidget)
-// 		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
-// }
+
 
 PeakGroup* MainWindow::bookmarkPeakGroup() {
 	LOGD;
-    //qDebug() << "MainWindow::bookmarkPeakGroup()";
+
     if ( eicWidget ) {
        return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
     }
 }
-
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
-
-// 	if (bookmarkedPeaks == NULL)
-// 		return;
-
-// 	if (bookmarkedPeaks->isVisible() == false) {
-// 		bookmarkedPeaks->setVisible(true);
-// 	}
-
-// 	if (bookmarkedPeaks->hasPeakGroup(group) == false) {
-// 		bookmarkedPeaks->addPeakGroup(group);
-// 		bookmarkedPeaks->showAllGroups();
-// 	}
-// 	bookmarkedPeaks->updateTable();
-// }
 
 
 PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
@@ -3152,6 +3128,14 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
 
+	QWidget* spacer = new QWidget();
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	multipleTransitionSelectionBox = new QComboBox();
+	multipleTransitionSelectionBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+	connect(multipleTransitionSelectionBox, SIGNAL(activated(QString)), eicWidget, SLOT(setTransition(QString)));
+
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
 	toolBar->addAction(btnCopyCSV);
@@ -3179,11 +3163,13 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
+	toolBar->addWidget(spacer);
+
+	toolBar->addWidget(multipleTransitionSelectionBox);
 
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setMargin(0);
-	layout->setSpacing(0);
 	layout->setContentsMargins(QMargins(0, 0, 0, 0));
 	layout->addWidget(toolBar);
 	layout->addWidget(eicWidget);

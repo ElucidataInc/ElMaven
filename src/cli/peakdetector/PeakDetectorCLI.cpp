@@ -536,27 +536,6 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 }
 
-
-vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
-	vector<EIC*> eics;
-	for (int i = 0; i < grp.peaks.size(); i++) {
-		float mzmin = grp.meanMz - 0.2;
-		float mzmax = grp.meanMz + 0.2;
-		//cerr <<setprecision(5) << "getEICs: mz:" << mzmin << "-" << mzmax << " rt:" << rtmin << "-" << rtmax << endl;
-
-		for (unsigned int j = 0; j < samples.size(); j++) {
-			if (!grp.srmId.empty()) {
-				EIC* eic = mavenParameters->samples[j]->getEIC(grp.srmId, mavenParameters->eicType);
-				eics.push_back(eic);
-			} else {
-				EIC* eic = samples[j]->getEIC(mzmin, mzmax, rtmin, rtmax, 1, mavenParameters->eicType, mavenParameters->filterline);
-				eics.push_back(eic);
-			}
-		}
-	}
-	return (eics);
-}
-
 string PeakDetectorCLI::cleanSampleName(string sampleName) {
         QString out(sampleName.c_str());
         out.replace(QRegExp(".*/"),"");

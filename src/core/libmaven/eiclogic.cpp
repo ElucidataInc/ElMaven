@@ -6,7 +6,6 @@ EICLogic::EICLogic() {
 }
 
 void EICLogic::addPeakGroup(PeakGroup& group) {
-	//qDebug <<" EicWidget::addPeakGroup(PeakGroup& group)";
 	peakgroups.push_back(group);
 }
 
@@ -100,25 +99,23 @@ mzSlice EICLogic::setMzSlice(float mz1, double ppm, float mz2) {
 	return x;
 }
 
+// TODO - redudant function? - Sahil
 void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
 		int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
 		float amuQ3, int baseline_smoothing, int baseline_quantile,
-		double minSignalBaselineDifference, int eicType, string filterline) {
+		double minSignalBaselineDifference, int eicType, string filterline,
+		set<string> &multipleTransitions, string &currentTransition) {
 
 	mzSlice slice = _slice;
 	slice.rtmin = bounds.rtmin;
 	slice.rtmax = bounds.rtmax;
 
-	//get eics
+
 	eics = PullEICs::pullEICs(&slice, samples, EicLoader::PeakDetection,
 			eic_smoothingWindow, eic_smoothingAlgorithm, amuQ1, amuQ3,
 			baseline_smoothing, baseline_quantile, minSignalBaselineDifference, eicType,
-			filterline);
+			filterline, multipleTransitions, currentTransition);
 
-	//find peaks
-	//for(int i=0; i < eics.size(); i++ )  eics[i]->getPeakPositions(eic_smoothingWindow);
-	//for(int i=0; i < eics.size(); i++ ) mzUtils::printF(eics[i]->intensity);
-	////qDebug << tr("computeEICs() Done. ElepsTime=%1 msec").arg(timer.elapsed());
 
 }
 

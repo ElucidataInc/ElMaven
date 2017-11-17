@@ -136,8 +136,10 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
             else if((grp.compound->precursorMz > 0) & (grp.compound->productMz > 0)) { //MS-MS case 2
                 //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
                 //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
+                set<string> multipleTransitions;
+                string currentTransition;
                 eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,mavenParameters->eicType,
-                                   mavenParameters->filterline, mavenParameters->amuQ1, mavenParameters->amuQ3);
+                                   mavenParameters->filterline, multipleTransitions, currentTransition, mavenParameters->amuQ1, mavenParameters->amuQ3);
             }
             else {//MS1 case
                 //TODO: same problem here: need the ppm that was used, or the slice object

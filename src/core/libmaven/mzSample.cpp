@@ -1158,7 +1158,7 @@ Scan *mzSample::getScan(unsigned int scanNum)
 	}
 }
 
-EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1 = 0.1, float amuQ2 = 0.5)
+EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, set<string> &multipleTransitions, string &currentTransition, float amuQ1 = 0.1, float amuQ2 = 0.5)
 {
 	EIC *e = new EIC();
 	e->sampleName = sampleName;
@@ -1167,6 +1167,13 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 	e->maxIntensity = 0;
 	e->mzmin = 0;
 	e->mzmax = 0;
+
+	string srmID;
+
+	// If a specific transition is selected
+	if (!currentTransition.empty()) {
+		srmID = currentTransition;
+	}
 
 	for (unsigned int i = 0; i < scans.size(); i++)
 	{
@@ -1180,6 +1187,19 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		if (productMz && abs(scan->productMz - productMz) > amuQ2)
 			continue;
 		//if (collisionEnergy && abs(scan->collisionEnergy-collisionEnergy) > 0.5) continue;
+
+		// Store the filterlines of all the transitions for the Q1/Q3 pair
+		multipleTransitions.insert(scan->filterLine);
+
+		// set srmID for the first iteration
+		if (srmID.empty()) {
+			srmID = scan->filterLine;
+		}
+
+		// Only pass scans of one filterline
+		if (srmID != scan->filterLine) continue;
+
+		currentTransition = srmID;
 
 		float eicMz = 0;
 		float eicIntensity = 0;

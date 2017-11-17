@@ -795,10 +795,12 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                         foundGroups = mavenParameters->allgroups.size();
                 }
 
-//		qDebug() << "Pulling EICs";
+
+                set<string> multipleTransitions;
+                string currentTransition;
 
                 vector<EIC*> eics;
-                // for all the slies, find EICs
+                // for all the slices, find EICs
                 // #pragma omp ordered
                 //TODO: all the settings from this are not connected to the main
                 //window parameters which are not connected are they are
@@ -813,7 +815,9 @@ void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
                                 mavenParameters->baseline_dropTopX,
                                 mavenParameters->minSignalBaselineDifference,
                                 mavenParameters->eicType,
-                                mavenParameters->filterline);
+                                mavenParameters->filterline,
+                                multipleTransitions,
+                                currentTransition);
 
                 float eicMaxIntensity = 0;
 

@@ -12,7 +12,9 @@ vector<EIC*> PullEICs::pullEICs(mzSlice* slice,
 								 int baseline_dropTopX,
 								 double minSignalBaselineDifference,
 								 int eicType,
-								 string filterline)
+								 string filterline,
+								 set<string> &multipleTransitions,
+								 string &currentTransition)
 {
 
 	vector<EIC*> eics;
@@ -61,7 +63,7 @@ vector<EIC*> PullEICs::pullEICs(mzSlice* slice,
 			{
 
 				e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-								   filterline, amuQ1, amuQ3);
+								   filterline, multipleTransitions, currentTransition, amuQ1, amuQ3);
 			}
 			else
 			{

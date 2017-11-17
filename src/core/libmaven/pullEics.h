@@ -37,7 +37,8 @@ class PullEICs
         static vector<EIC*> pullEICs(mzSlice* slice, vector<mzSample*>&samples,
             int peakDetect, int smoothingWindow, int smoothingAlgorithm,
             float amuQ1, float amuQ3, int baselineSmoothingWindow,
-            int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
+            int baselineDropTopX, double minSignalBaselineDifference, int eicType,
+            string filterline, set<string> &multipleTransitions, string &currentTransition);
 
 
 };
