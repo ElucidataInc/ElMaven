@@ -25,6 +25,8 @@
 #include "mzfileio.h"
 #include "libplog/Log.h"
 #include "libplog/Appenders/CustomAppender.h"
+#include "controller.h"
+
 #include <list>
 
 
@@ -46,16 +48,17 @@ int main(int argc, char *argv[])
     splash.showMessage(QString("Ver:") + STR(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
     app.processEvents();
 
-    MainWindow* mainWindow = new MainWindow();
+
+    Controller* contrl = new Controller();
     qInstallMessageHandler(customMessageHandler);
 
     //updated while merging with Maven776 - Kiran
     for (int i = 1; i < argc; ++i)
-        mainWindow->fileLoader->addFileToQueue(QString(argv[i]));
+        contrl->getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
 
-    splash.finish(mainWindow);
-    mainWindow->show();
-    mainWindow->fileLoader->start();
+    splash.finish(contrl->getMainWindow());
+    contrl->getMainWindow()->show();
+    contrl->getMainWindow()->fileLoader->start();
     int rv = app.exec();
     return rv;
 

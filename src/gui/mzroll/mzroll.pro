@@ -135,7 +135,8 @@ HEADERS +=  stable.h \
                     saveJson.h \
                     messageBoxResize.h \
                     awsbucketcredentialsdialog.h \
-                    alignmentpolyvizdockwidget.h
+                    alignmentpolyvizdockwidget.h \
+                    controller.h
 
 
 
@@ -196,7 +197,8 @@ database.cpp \
  qcustomplot.cpp \
  saveJson.cpp \
     awsbucketcredentialsdialog.cpp \
-    alignmentpolyvizdockwidget.cpp
+    alignmentpolyvizdockwidget.cpp \
+    controller.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
