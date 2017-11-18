@@ -52,6 +52,7 @@ const string S34_LABEL = "S34-label-";
 const string H2_LABEL = "D2-label-";
 const string C13N15_LABEL = "C13N15-label-";
 const string C13S34_LABEL = "C13S34-label-";
+const string C13H2_LABEL = "C13D2-label-";
 const string H_STRING_ID = "H";
 const string H2_STRING_ID = "D";
 const string C_STRING_ID = "C";
