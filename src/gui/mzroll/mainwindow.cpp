@@ -1437,8 +1437,10 @@ void MainWindow::setMzValue() {
 	}
 
 	if (isDouble) {
-		if (eicWidget->isVisible())
+		if (eicWidget->isVisible()) {
 			eicWidget->setMzSlice(mz1, mz2);
+			populateTransitionList(mz1, mz2);
+		}
 		if (massCalcWidget->isVisible())
 			massCalcWidget->setMass(mz1);
 		if (fragPanel->isVisible())
@@ -2604,6 +2606,8 @@ void MainWindow::createToolBars() {
 	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
 	connect(quantType, SIGNAL(currentIndexChanged(int)), SLOT(refreshIntensities()));
 
+	transitionList = new QComboBox(hBox);
+
 	settings->beginGroup("searchHistory");
 	QStringList keys = settings->childKeys();
 	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
@@ -2617,6 +2621,7 @@ void MainWindow::createToolBars() {
 	layout->addWidget(searchText, 0);
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(ppmWindowBox, 0);
+	layout->addWidget(transitionList, 0);
 
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
@@ -3589,6 +3594,33 @@ PeakGroup::QType MainWindow::getUserQuantType() {
 			return PeakGroup::SNRatio;
 	}
 	return PeakGroup::AreaTop;
+}
+
+void MainWindow::populateTransitionList(float precursorMz, float productMz) {
+	double amuQ1 = getSettings()->value("amuQ1").toDouble();
+	double amuQ3 = getSettings()->value("amuQ3").toDouble();
+	bool associateCompoundNames = false;
+	vector<mzSlice*>slices = getSrmSlices(amuQ1,amuQ3,associateCompoundNames);
+	transitionList->clear();
+	for (int i = 0; i < slices.size(); i++) {
+		mzSlice* slice = slices[i];
+		std::size_t posQ1 = slice->srmId.find('Q1=') + 1;
+		if (posQ1-1 == std::string::npos) continue;
+		//extract precursor m/z from srm id
+		double Q1 = stod(slice->srmId.substr(posQ1, slice->srmId.find(' ', posQ1) - posQ1)); 
+		if (abs(Q1 - precursorMz) > amuQ1) continue;
+		std::size_t posQ3 = slice->srmId.find('Q3=', posQ1) + 1;
+		if (posQ3-1 == std::string::npos) continue;
+		//extract product m/z from srm id
+		double Q3 = stod(slice->srmId.substr(posQ3, slice->srmId.find(' ', posQ3) - posQ3));
+		if (abs(Q3 - productMz) > amuQ3) continue;
+		transitionList->addItem(QString::fromStdString(slice->srmId));
+	}
+	connect(transitionList, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEIC(QString)));
+}
+
+void MainWindow::updateEIC(QString q){
+	getEicWidget()->setMzSlice(0.0,0.0,q.toStdString());
 }
 
 void MainWindow::markGroup(PeakGroup* group, char label) {
