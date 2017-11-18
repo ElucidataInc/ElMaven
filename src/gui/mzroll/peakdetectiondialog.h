@@ -50,6 +50,10 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showBaselineQuantileStatus(int);
 				 void showBlankQuantileStatus(int);
 
+
+                Q_SIGNALS:
+                    void updateSettings(PeakDetectionSettings* pd);
+
 		private:
 				QSettings *settings;
 				MainWindow *mainwindow;
@@ -69,6 +73,7 @@ class PeakDetectionSettings: public QObject
     Q_OBJECT
     public:
         PeakDetectionSettings(PeakDetectionDialog* dialog);
+        QMap<QString,QVariant>& getPeakSettings() { return settings; }
 
 
     private:

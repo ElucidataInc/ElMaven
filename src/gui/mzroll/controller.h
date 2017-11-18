@@ -1,6 +1,8 @@
 #include <QObject>
+#include <QVariant>
 
 class MainWindow;
+class PeakDetectionSettings;
 
 class Controller:  public QObject
 {
@@ -9,8 +11,12 @@ class Controller:  public QObject
         Controller();
         MainWindow* getMainWindow() { return mw; }
 
+    public Q_SLOTS:
+      void updatePeakDetectionSettings(PeakDetectionSettings* pd);
 
 
+    private:
+        void updateMavenParameters(const QString& key, const QVariant& value);
 
 
     private:

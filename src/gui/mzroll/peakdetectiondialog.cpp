@@ -387,6 +387,11 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 // RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks() {
     LOGD;
+
+    // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
+    // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
+    emit updateSettings(pdSettings);
+    
     if (mainwindow == NULL) return;
     if (peakupdater == NULL) return;
     if (peakupdater->isRunning()) cancel();
