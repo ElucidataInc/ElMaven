@@ -1,13 +1,9 @@
 #include <math.h>
+#include <algorithm>
 
 namespace mzUtils
 {
 
-    template <typename T>  inline T __min (T a, T b)
-    {
-        if (a<b) return a ;
-        return b ;
-    }
 
     const float TINY = 1.0e-20f ;
 
@@ -126,7 +122,7 @@ namespace mzUtils
             sum = (ipj ? 0.0f : 1.0f);
             for(int k=1;k<=nr;k++) sum += (float) pow((double)k,(double)ipj);
             for(int k=1;k<=nl;k++) sum += (float) pow((double)-k,(double)ipj);
-            mm=__min(ipj,2*m-ipj);
+            mm= std::min(ipj,2*m-ipj);
             for(int imj = -mm;imj<=mm;imj+=2) a[(ipj+imj)/2][(ipj-imj)/2]=sum;
         }
         int ret_val = ludcmp(a,m+1,indx,&d) ;
