@@ -5,10 +5,13 @@
 #include "stable.h"
 #include "database.h"
 #include "mainwindow.h"
+#include <QMap>
 
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
+
+class PeakDetectionSettings;
 extern Database DB;
 
 
@@ -52,10 +55,26 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				MainWindow *mainwindow;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
+                PeakDetectionSettings* pdSettings;
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings);
+
+
+};
+
+class PeakDetectionSettings: public QObject
+{
+    Q_OBJECT
+    public:
+        PeakDetectionSettings(PeakDetectionDialog* dialog);
+
+
+    private:
+        QMap<QString, QVariant> settings;
+        PeakDetectionDialog* pd;
+
 };
 
 #endif

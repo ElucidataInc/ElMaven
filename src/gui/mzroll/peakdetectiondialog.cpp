@@ -1,13 +1,69 @@
 #include "peakdetectiondialog.h"
+#include <string>
+#include <QVariant>
+
+PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
+{
+    // automated feature detection settings
+    settings.insert("automatedDetection", QVariant::fromValue(pd->featureOptions));
+    settings.insert("ppmStep", QVariant::fromValue(pd->ppmStep));
+    settings.insert("rtStep", QVariant::fromValue(pd->rtStep));
+    settings.insert("mzMin", QVariant::fromValue(pd->mzMin));
+    settings.insert("mzMax", QVariant::fromValue(pd->mzMax));
+    settings.insert("rtMin", QVariant::fromValue(pd->rtMin));
+    settings.insert("rtMax", QVariant::fromValue(pd->rtMax));
+    settings.insert("minIntensity", QVariant::fromValue(pd->minIntensity));
+    settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
+    settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
+    settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
+
+    // db search settings
+    settings.insert("dbDetection", QVariant::fromValue(pd->dbOptions));
+    settings.insert("compoundPPMWindow", QVariant::fromValue(pd->compoundPPMWindow));
+    settings.insert("compoundRTWindow", QVariant::fromValue(pd->compoundRTWindow));
+    settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
+    settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
+
+    // fragmentation settings
+    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentatioOptions));
+
+    // isotope detection
+    settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
+
+    // group filtering settings
+    settings.insert("minGroupIntensity", QVariant::fromValue(pd->minGroupIntensity));
+    settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
+    settings.insert("quantileIntensity", QVariant::fromValue(pd->quantileIntensity));
+
+    settings.insert("minQuality", QVariant::fromValue(pd->doubleSpinBoxMinQuality));
+    settings.insert("quantileQuality", QVariant::fromValue(pd->quantileQuality));
+
+    settings.insert("sigBlankRatio", QVariant::fromValue(pd->sigBlankRatio));
+    settings.insert("quantileSignalBlankRatio", QVariant::fromValue(pd->quantileSignalBlankRatio));
+
+    settings.insert("sigBaselineRatio", QVariant::fromValue(pd->sigBaselineRatio));
+    settings.insert("quantileSignalBaselineRatio", QVariant::fromValue(pd->quantileSignalBaselineRatio));
+
+    settings.insert("minNoNoiseObs", QVariant::fromValue(pd->minNoNoiseObs));
+    settings.insert("minGoodGroupCount", QVariant::fromValue(pd->minGoodGroupCount));
+
+
+
+}
+
+
 
 PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
-        QDialog(parent) {
+        QDialog(parent)
+{
         setupUi(this);
         settings = NULL;
         mainwindow = NULL;
 
         setModal(false);
         peakupdater = NULL;
+
+        pdSettings = new PeakDetectionSettings(this);
 
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
