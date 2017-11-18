@@ -1,6 +1,20 @@
 #include "mavenparameters.h"
+#include "settings.h"
 
-MavenParameters::MavenParameters() {
+#include <pugixml.hpp>
+
+#include <cstdlib>
+
+
+MavenParameters::MavenParameters()
+{
+    /* default_settings_xml is a  character array generated using Default_Settings.xml file
+     * It's present in settings.h header file
+     */
+    defaultSettingsData = (char*)default_settings_xml;
+    loadSettings(defaultSettingsData);
+
+
 	clsf = NULL;
 	alignSamplesFlag = false;
         processAllSlices = false;
@@ -107,6 +121,138 @@ MavenParameters::MavenParameters() {
 	overlapWeight = 1.0;
 	bool useOverlap = true;
 
+}
+
+std::map<string, string>& MavenParameters::getSettings()
+{
+    return mavenSettings;
+}
+
+void  MavenParameters::setPeakDetectionSettings(const char* key, const char* value)
+{
+    mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
+
+    if(strcmp(key, "automatedDetection") == 0 )
+        processAllSlices = atof(value);
+
+    if(strcmp(key, "ppmStep") == 0 )
+        ppmMerge = atof(value);
+
+    if(strcmp(key,"rtStep") == 0)
+        rtStepSize = atof(value);
+
+    if(strcmp(key,"mzMin") == 0)
+        minMz = atof(value);
+
+    if(strcmp(key,"mzMax") == 0)
+        maxMz = atof(value);
+
+    if(strcmp(key,"rtMin") == 0)
+        minRt = atof(value);
+
+    if(strcmp(key,"rtMax") == 0)
+        maxRt = atof(value);
+
+    if(strcmp(key,"minIntensity") == 0)
+        minIntensity = atof(value);
+
+    if(strcmp(key,"maxIntensity") == 0)
+        maxIntensity = atof(value);
+
+    if(strcmp(key,"chargeMin") == 0)
+        minCharge = atof(value);
+
+    if(strcmp(key,"chargeMax") == 0)
+        maxCharge = atof(value);
+
+    if(strcmp(key, "dbDetection") == 0 )
+        //TODO
+
+    if(strcmp(key, "compoundPPMWindow") == 0 )
+        compoundPPMWindow = atof(value);
+
+    if(strcmp(key, "compoundRTWindow") == 0 )
+        compoundRTWindow = atof(value);
+
+    if(strcmp(key, "matchRt") == 0 )
+        matchRtFlag = atof(value);
+
+    if(strcmp(key, "eicMaxGroups") == 0 )
+        eicMaxGroups = atof(value);
+
+    if(strcmp(key, "matchFragmentationOptions") == 0 )
+        matchFragmentation = atof(value);
+
+    if(strcmp(key, "reportIsotopesOptions") == 0 )
+        pullIsotopesFlag = atof(value);
+
+    if(strcmp(key, "minGroupIntensity") == 0 )
+        minGroupIntensity = atof(value);
+
+    if(strcmp(key, "peakQuantitation") == 0 )
+        peakQuantitation = atof(value);
+
+
+    if(strcmp(key, "quantileIntensity") == 0 )
+        quantileIntensity = atof(value);
+
+    if(strcmp(key, "minQuality") == 0 )
+        minQuality = atof(value);
+
+    if(strcmp(key, "quantileQuality") == 0 )
+        quantileQuality = atof(value);
+
+
+    if(strcmp(key, "sigBlankRatio") == 0 )
+        minSignalBlankRatio = atof(value);
+
+    if(strcmp(key, "quantileSignalBlankRatio") == 0 )
+        quantileSignalBlankRatio = atof(value);
+
+    if(strcmp(key, "sigBaselineRatio") == 0 )
+        minSignalBaseLineRatio = atof(value);
+
+    if(strcmp(key, "quantileSignalBaselineRatio") == 0 )
+        quantileSignalBaselineRatio = atof(value);
+
+
+    if(strcmp(key, "minNoNoiseObs") == 0 )
+        minNoNoiseObs = atof(value);
+
+    if(strcmp(key, "minGoodGroupCount") == 0 )
+        minGoodGroupCount = atof(value);
+
+    std::cerr << std::endl << " value of compoundPPMWindow " << compoundPPMWindow << std::endl;
+}
+
+bool MavenParameters::loadSettings(const char* data)
+{
+
+    pugi::xml_document xmlDoc;
+    pugi::xml_parse_result parseResult = xmlDoc.load_string(data);
+
+    // return if parsing the xml failed
+    if(parseResult.status != pugi::xml_parse_status::status_ok) {
+
+        std::cout << parseResult.description() << endl;
+        return false;
+    }
+
+    pugi::xml_node pnode = xmlDoc.child("Settings");
+
+    for(pugi::xml_node& node: pnode.children()) {
+
+
+        if(strcmp(node.name(), "Peak_Detection")== 0) {
+
+            for(pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it) {
+
+                setPeakDetectionSettings(it->name(), it->text().get());
+
+            }
+
+        }
+    }
 }
 
 vector<mzSample*> MavenParameters::getVisibleSamples() {

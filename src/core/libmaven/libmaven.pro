@@ -100,4 +100,5 @@ HEADERS += 	constants.h \
                 PeptideRecord.h \
                 PolyAligner.h \
                 jsonReports.h \
-                masscutofftype.h
+                masscutofftype.h \
+                settings.h

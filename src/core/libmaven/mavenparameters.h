@@ -7,6 +7,7 @@
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <map>
 
 #include "mzMassCalculator.h"
 #include "mzSample.h"
@@ -245,6 +246,24 @@ class MavenParameters
         double distYWeight;
         double overlapWeight;
         bool useOverlap;
+
+
+        /*
+         * @breif load user defined or default settings(Default_Settings.xml)
+         * @param data constains the settings to be loaded
+         */
+        bool loadSettings(const char* data);
+
+        /*
+         * @brief update maveSettings(map) and settings related to peak detection
+         */
+        void setPeakDetectionSettings(const char* key, const char* value);
+
+        std::map<string, string>& getSettings();
+
+    private:
+        const char* defaultSettingsData;
+        std::map<string, string> mavenSettings;
 
 };
 
