@@ -5,6 +5,12 @@
 using namespace std;
 
 class MassCutoff{
+	/**
+	 * this class is used for mass cutoff type. previously, mass cutoff type was ppm 
+	 * only which has float type. 
+	 * 		But now, mass cutoff type can be given in ppm or mDa value based on value of
+	 * _massCutoffType string. In future also, this kind of type can be added very easily
+	 */
 private:
 	string _massCutoffType;
 	double _massCutoff;
