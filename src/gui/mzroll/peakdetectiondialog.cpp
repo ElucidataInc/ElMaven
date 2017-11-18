@@ -51,12 +51,40 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
 }
 
+void PeakDetectionSettings::updatePeakSettings(string key, string value)
+{
 
+    if(settings.find(QString(key.c_str())) != settings.end()) {
+
+        const QVariant& v = settings[QString(key.c_str())];
+        // convert the val to proper type;
+        if(QString(v.typeName()).contains("QDoubleSpinBox"))
+            v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QGroupBox"))
+            v.value<QGroupBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QCheckBox"))
+            v.value<QCheckBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QSpinBox"))
+            v.value<QSpinBox*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QSlider"))
+            v.value<QSlider*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QComboBox"))
+            v.value<QComboBox*>()->setCurrentText(value.c_str());
+
+    }
+
+}
 
 PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         QDialog(parent)
 {
         setupUi(this);
+
         settings = NULL;
         mainwindow = NULL;
 
@@ -67,6 +95,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
+
 
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -83,9 +112,6 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
         connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
-        //connect(qualityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
-        //connect(intensityWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
-        //connect(deltaRTWeight,SIGNAL(valueChanged(int)), this,SLOT(showMethodSummary()));
 
         label_20->setVisible(false);
         chargeMin->setVisible(false);
@@ -100,7 +126,10 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
         connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
 
+        connect(this, &PeakDetectionDialog::settingsChanged, pdSettings, &PeakDetectionSettings::updatePeakSettings);
+
 }
+
 
 void PeakDetectionDialog::showSettingsForm() {
     LOGD;

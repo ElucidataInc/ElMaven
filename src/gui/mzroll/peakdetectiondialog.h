@@ -53,6 +53,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
+                    void settingsChanged(string key, string value);
 
 		private:
 				QSettings *settings;
@@ -75,6 +76,8 @@ class PeakDetectionSettings: public QObject
         PeakDetectionSettings(PeakDetectionDialog* dialog);
         QMap<QString,QVariant>& getPeakSettings() { return settings; }
 
+    public Q_SLOTS:
+        void updatePeakSettings(string key, string value);
 
     private:
         QMap<QString, QVariant> settings;

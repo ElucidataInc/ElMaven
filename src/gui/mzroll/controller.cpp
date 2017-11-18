@@ -7,6 +7,7 @@
 Controller::Controller()
 {
     mw = new MainWindow();
+    updateUi();
     connect(mw->peakDetectionDialog, SIGNAL(updateSettings(PeakDetectionSettings*)), this, SLOT(updatePeakDetectionSettings(PeakDetectionSettings*)));
 }
 
@@ -51,6 +52,14 @@ void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
     }
 }
 
+void Controller::updateUi()
+{
+    std::map<std::string, std::string>& mavenSettings = mw->mavenParameters->getSettings();
+
+    for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
+        emit mw->peakDetectionDialog->settingsChanged(it->first, it->second);
+    }
+}
 
 void Controller::updateMavenParameters(const QString& key,  const QVariant& value)
 {

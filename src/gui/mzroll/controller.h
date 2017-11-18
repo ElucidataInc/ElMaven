@@ -13,6 +13,7 @@ class Controller:  public QObject
 
     public Q_SLOTS:
       void updatePeakDetectionSettings(PeakDetectionSettings* pd);
+      void updateUi();
 
 
     private:
