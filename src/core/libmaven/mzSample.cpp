@@ -1158,7 +1158,7 @@ Scan *mzSample::getScan(unsigned int scanNum)
 	}
 }
 
-EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1 = 0.1, float amuQ2 = 0.5)
+EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1 = 0.5, float amuQ3 = 0.5)
 {
 	EIC *e = new EIC();
 	e->sampleName = sampleName;
@@ -1177,7 +1177,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 			continue;
 		if (precursorMz && abs(scan->precursorMz - precursorMz) > amuQ1)
 			continue;
-		//if (productMz && abs(scan->productMz - productMz) > amuQ2)
+		//if (productMz && abs(scan->productMz - productMz) > amuQ3)
 		//	continue;
 		//if (collisionEnergy && abs(scan->collisionEnergy-collisionEnergy) > 0.5) continue;
 
@@ -1191,7 +1191,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		{
 			for (unsigned int k = 0; k < scan->nobs(); k++)
 			{
-				if (abs(productMz - scan->mz[k]) > amuQ2) continue;
+				if (abs(productMz - scan->mz[k]) > amuQ3) continue;
 				if (scan->intensity[k] > eicIntensity)
 				{
 					eicIntensity = scan->intensity[k];
@@ -1208,7 +1208,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 			float n = 0;
 			for (unsigned int k = 0; k < scan->nobs(); k++)
 			{
-				if (abs(productMz - scan->mz[k]) > amuQ2) continue;
+				if (abs(productMz - scan->mz[k]) > amuQ3) continue;
 				eicIntensity += scan->intensity[k];
 				eicMz += (scan->mz[k]) * (scan->intensity[k]);
 				n += scan->intensity[k];
@@ -1222,7 +1222,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		{
 			for (unsigned int k = 0; k < scan->nobs(); k++)
 			{
-				if (abs(productMz - scan->mz[k]) > amuQ2) continue;
+				if (abs(productMz - scan->mz[k]) > amuQ3) continue;
 				if (scan->intensity[k] > eicIntensity)
 				{
 					eicIntensity = scan->intensity[k];

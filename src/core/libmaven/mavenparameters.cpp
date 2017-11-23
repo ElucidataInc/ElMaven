@@ -58,8 +58,8 @@ MavenParameters::MavenParameters() {
         compoundRTWindow = 2;
         eicMaxGroups = INT_MAX;
 
-        amuQ1 = 0.25;
-        amuQ3 = 0.3;
+        amuQ1 = 0.5;
+        amuQ3 = 0.5;
         filterline = "";
 
         maxIsotopeScanDiff = 10;

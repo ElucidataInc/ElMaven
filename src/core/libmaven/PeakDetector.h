@@ -171,7 +171,7 @@ struct EicLoader {
 
 	EicLoader(mzSlice* islice, int eic_type, string filter_line, PeakDetectionFlag iflag = NoPeakDetection,
 			int smoothingWindow = 5, int smoothingAlgorithm = 0, float amuQ1 =
-					0.1, float amuQ2 = 0.5, int baselineSmoothingWindow = 5,
+					0.5, float amuQ3 = 0.5, int baselineSmoothingWindow = 5,
 			int baselineDropTopX = 40, double minSignalBaselineDiff = 0) {
 
 		slice = islice;
@@ -181,7 +181,7 @@ struct EicLoader {
 		eic_smoothingWindow = smoothingWindow;
 		eic_smoothingAlgorithm = smoothingAlgorithm;
 		eic_amuQ1 = amuQ1;
-		eic_amuQ2 = amuQ2;
+		eic_amuQ3 = amuQ3;
 		eic_baselne_dropTopX = baselineDropTopX;
 		eic_baselne_smoothingWindow = baselineSmoothingWindow;
 		minSignalBaselineDifference = minSignalBaselineDiff;
@@ -203,7 +203,7 @@ struct EicLoader {
 		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
 			//cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-					filterline, eic_amuQ1, eic_amuQ2);
+					filterline, eic_amuQ1, eic_amuQ3);
 		} else {
 			//cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
@@ -230,7 +230,7 @@ struct EicLoader {
 	int eic_smoothingWindow;
 	int eic_smoothingAlgorithm;
 	float eic_amuQ1;
-	float eic_amuQ2;
+	float eic_amuQ3;
 	int eic_baselne_smoothingWindow;
 	int eic_baselne_dropTopX;
 	double minSignalBaselineDifference;

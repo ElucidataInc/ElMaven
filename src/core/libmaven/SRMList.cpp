@@ -85,7 +85,7 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
             float a = abs(compoundsDB[i]->precursorMz - precursorMz);
             if ( a > amuQ1 ) continue; // q1 tolerance
             float b = abs(compoundsDB[i]->productMz - productMz);
-            if ( b > amuQ3 ) continue; // q2 tolerance
+            if ( b > amuQ3 ) continue; // q3 tolerance
             float dMz = sqrt(a*a+b*b);
             float dRt = abs(compoundsDB[i]->expectedRt - rt);
             if (  ( dMz < distMz)  ||   ((dMz == distMz) && (dRt < distRt))  ) { 
@@ -165,7 +165,7 @@ deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double
         float a = abs(compoundsDB[i]->precursorMz - precursorMz);
         if ( a > amuQ1 ) continue; // q1 tolerance
         float b = abs(compoundsDB[i]->productMz - productMz);
-        if ( b > amuQ3 ) continue; // q2 tolerance
+        if ( b > amuQ3 ) continue; // q3 tolerance
 
         matchedCompounds.push_back(compoundsDB[i]);
     }

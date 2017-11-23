@@ -547,10 +547,10 @@ class mzSample
     * @param eicType Type of EIC (max or sum)
     * @param filterline selected filterline
     * @param amuQ1 delta difference in Q1
-    * @param amuQ2 delta difference in Q3
+    * @param amuQ3 delta difference in Q3
     * @return EIC class object
     */
-    EIC *getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1, float amuQ2);
+    EIC *getEIC(float precursorMz, float collisionEnergy, float productMz, int eicType, string filterline, float amuQ1, float amuQ3);
 
     /**
     * @brief Get Total Ion Chromatogram
