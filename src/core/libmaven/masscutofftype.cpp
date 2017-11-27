@@ -9,7 +9,7 @@ double MassCutoff::massCutoffValue(double mz){
     }
     else if(_massCutoffType=="mDa"){
         //cerr<<"mass cutoff type:  "<<_massCutoffType<<"  value: "<<_massCutoff<<endl;
-        return _massCutoff;
+        return _massCutoff/1e3;
     }
     else {
         cerr<<"mass cutoff type:  "<<"unknown"<<"  value: "<<0<<endl;

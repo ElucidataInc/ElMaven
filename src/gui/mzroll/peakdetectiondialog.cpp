@@ -478,6 +478,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("quantileIntensity", quantileIntensity->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
+    QString massCutoffType=QString::fromStdString(mainwindow->getUserMassCutoff()->getMassCutoffType());
+    settings->setValue("massCutoffType",massCutoffType);
     settings->setValue("compoundMassCutoffWindow", compoundPPMWindow->value());
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
     settings->setValue("eicMaxGroups", eicMaxGroups->value());
@@ -545,6 +547,9 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
+        cerr<<"==================\n";
+        cerr<<settings->value("massCutoffType").toString().toStdString();
+        cerr<<endl;
         mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),settings->value("massCutoffType").toString().toStdString());
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();

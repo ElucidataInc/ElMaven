@@ -396,14 +396,28 @@ Series:  Prentice-Hall Series in Automatic Computation
         if(massCutoff->getMassCutoffType()=="ppm"){
             return ( abs((mz2-mz1)/(mz1/1e6)) );
         }
-        return ( abs((mz2-mz1)/(mz1/1e3)) );
+        else if(massCutoff->getMassCutoffType()=="mDa"){
+            return abs((mz2-mz1)*1e3) ;
+        }
+        else{
+            assert(false);
+            return 0;
+        }
     }
 
     double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
+        cerr<<"================\n";
+        cerr<<massCutoff->getMassCutoffType()<<"     xx"<<endl;
         if(massCutoff->getMassCutoffType()=="ppm"){
             return ( abs((mz2-mz1)/(mz1/1e6)) );
         }
-        return ( abs((mz2-mz1)/(mz1/1e3)) );
+        else if(massCutoff->getMassCutoffType()=="mDa"){
+            return abs((mz2-mz1)*1e3) ;
+        }
+        else{
+            assert(false);
+            return 0;
+        }
     }
 
 

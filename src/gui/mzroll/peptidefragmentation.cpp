@@ -55,7 +55,7 @@ void PeptideFragmentationWidget::compute() {
     LOGD;
      _sequence = 	peptideSequence->text();
   	 _charge =  	charge->value();
-
+       _massCutoff->setMassCutoff(resolution->value());
      Peptide pept(_sequence.toStdString(),_charge,"");
      if(pept.isGood()) {
         showTable();

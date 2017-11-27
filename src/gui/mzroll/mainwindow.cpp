@@ -1104,7 +1104,6 @@ void MainWindow::setUserMassCutoff(double x) {
 	string type=massCutoffComboBox->currentText().toStdString();
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
 	eicWidget->setMassCutoff(_massCutoffWindow);
-	cerr<<"set user mass cutoff, type:"<<type<<"  value:"<<x<<endl;
 	
 }
 
@@ -2548,7 +2547,7 @@ void MainWindow::createToolBars() {
 	massCutoffWindowBox->setRange(0.00, 100000.0);
 	massCutoffWindowBox->setDecimals(6);
 	massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
-	massCutoffWindowBox->setToolTip("mass cutoff");
+	massCutoffWindowBox->setToolTip("Mass Cut-off Unit");
 	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
 	// 		SLOT(setUserPPM(double)));
 	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
@@ -2559,13 +2558,12 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox=  new QComboBox(hBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
+	massCutoffWindowBox->setSingleStep(0.5);
 	if(settings->value("massCutoffType")=="mDa"){
 		massCutoffComboBox->setCurrentText("mDa");
-		massCutoffWindowBox->setSingleStep(0.000001);
 	}
 	else{
 		massCutoffComboBox->setCurrentText("ppm");
-		massCutoffWindowBox->setSingleStep(0.05);
 	}
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
@@ -2709,8 +2707,6 @@ void MainWindow::setMassCutoffType(QString massCutoffType){
 	settings->setValue("massCutoffType", massCutoffType);
 	double cutoff=massCutoffWindowBox->value();
 	string type=massCutoffType.toStdString();
-	if(type=="ppm")	massCutoffWindowBox->setSingleStep(0.05);	//increment step
-	else 	massCutoffWindowBox->setSingleStep(0.000001);	//increment step
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
 	eicWidget->setMassCutoff(_massCutoffWindow);
 }

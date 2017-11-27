@@ -163,7 +163,8 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 		parentMass += ionizationMode*HMASS;   //adjusted mass
 		cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
         if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,massCutoff)) {
-            QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
+			QString noteText = tr("Possible Parent %1").arg(QString(DB.adductsDB[i]->name.c_str()));
+			massCutoff->setMassCutoff(5);
 			float correlation  = sample->correlation(centerMz, parentMass, massCutoff, scan->rt-1, scan->rt+1,
 													_mw->mavenParameters->eicType, _mw->mavenParameters->filterline);
             float parentIntensity = getIntensity(parentMass,massCutoff);

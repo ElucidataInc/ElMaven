@@ -289,7 +289,7 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
     MassCutoff *massCutoffWindow=hit.productMassCutoff;
     double maxIntensityHit= hit.getMaxIntensity();
 
-    qDebug() << "overlaySpectra() started.." <<  massCutoffWindow->getMassCutoff() << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
+   // qDebug() << "overlaySpectra() started.." <<  massCutoffWindow->getMassCutoff() << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
     QPen redpen(Qt::red, 3);
     QPen bluepen(Qt::blue, 3);
 
@@ -594,6 +594,7 @@ void SpectraWidget::drawGraph() {
     drawMzLabels(_currentScan);
     drawAnnotations();
 
+    
     // overlay spectra
     if ( fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5 ) {
           drawSpectralHit(_spectralHit);

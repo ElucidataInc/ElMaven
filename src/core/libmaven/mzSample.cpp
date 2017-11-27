@@ -1032,9 +1032,7 @@ mzSlice mzSample::getMinMaxDimentions(const vector<mzSample *> &samples)
 
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
-
-	float ppmScale = 1e6;
-
+	
 	//Calculating the mzmin and mzmax
 	if (!this->compound->formula.empty())
 	{
