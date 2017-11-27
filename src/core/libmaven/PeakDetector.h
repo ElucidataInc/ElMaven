@@ -15,6 +15,8 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 #ifndef __APPLE__
 #include <omp.h>
@@ -29,8 +31,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "constants.h"
-#include <boost/signals2.hpp>
-#include <boost/bind.hpp>
+#include "pullEics.h"
 
 /**
  * @class PeakDetector
@@ -118,10 +119,15 @@ public:
 	void pullIsotopesBarPlot(PeakGroup* group);
 
 	/**
-	 * [process Slices]
-	 * @method processSlices
-	 * @param  slices        [pointer to vector of pointer to mzSlice]
-	 * @param  setName       [name of set]
+	 * @brief Find and filter groups from slices
+	 * @detail Find EICs from vector of slices. Find groups using the EICs.
+	 * These groups are filtered on the basis of user parameters (min group
+	 * intensity, min signal to baseline difference etc).
+	 * @param slices vector of slice
+	 * @param setName Set name
+	 * @see mzSlice
+	 * @see EIC
+	 * @see PeakGroup
 	 */
 	void processSlices(vector<mzSlice*>&slices, string setName);
 
@@ -141,11 +147,6 @@ public:
 	 * @return [vector of pointer to mzSlice]
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
-
-	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
-			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
-			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
 
 private:
 
@@ -198,14 +199,11 @@ struct EicLoader {
 		Compound* c = slice->compound;
 
 		if (!slice->srmId.empty()) {
-			//cout << "computeEIC srm:" << slice->srmId << endl;
 			e = sample->getEIC(slice->srmId, eicType);
 		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
-			//cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
 			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-					filterline, eic_amuQ1, eic_amuQ2);
+					filterline, multipleTransitions, currentTransition, eic_amuQ1, eic_amuQ2);
 		} else {
-			//cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
 			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
 					slice->rtmax, 1, eicType, filterline);
 		}
@@ -231,6 +229,8 @@ struct EicLoader {
 	int eic_smoothingAlgorithm;
 	float eic_amuQ1;
 	float eic_amuQ2;
+	set<string> multipleTransitions;
+	string currentTransition;
 	int eic_baselne_smoothingWindow;
 	int eic_baselne_dropTopX;
 	double minSignalBaselineDifference;

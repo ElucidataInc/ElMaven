@@ -64,7 +64,8 @@ SOURCES = 	base64.cpp \
                 databases.cpp \
                 Peptide.cpp \
                 PolyAligner.cpp \
-                jsonReports.cpp
+                jsonReports.cpp \
+                pullEics.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -98,4 +99,5 @@ HEADERS += 	constants.h \
                 Peptide.hpp \
                 PeptideRecord.h \
                 PolyAligner.h \
-                jsonReports.h
+                jsonReports.h \
+                pullEics.h

@@ -258,7 +258,10 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 
 	//qDebug() << "addEicPlot(slice)";
 
-        vector<EIC*> eics = PeakDetector::pullEICs(&slice,
+		set<string> multipleTransitions;
+		string currentTransition;
+
+        vector<EIC*> eics = PullEICs::pullEICs(&slice,
                                                            samples,
                                                            EicLoader::NoPeakDetection,
                                                            smoothingWindow,
@@ -269,7 +272,9 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
                                                            baseline_quantile,
 														   minSignalBaselineDifference,
 														   eic_type,
-														   filterline);
+														   filterline,
+														   multipleTransitions,
+														   currentTransition);
 	TinyPlot* plot = addEicPlot(eics);
 	delete_all(eics);
 	return plot;
@@ -459,7 +464,6 @@ void GalleryWidget::copyImageToClipboard() {
 
 // new features added - Kiran
 void GalleryWidget::contextMenuEvent(QContextMenuEvent * event) {
- //qDebug <<"EicWidget::contextMenuEvent(QContextMenuEvent * event) ";
 
     event->ignore();
     QMenu menu;

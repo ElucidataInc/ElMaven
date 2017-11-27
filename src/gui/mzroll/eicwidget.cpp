@@ -323,14 +323,39 @@ void EicWidget::computeEICs() {
 
 	mzSlice bounds = visibleSamplesBounds();
 
+	set<string> multipleTransitions;
+
 	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
 			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
 			baseline_quantile, minSignalBaselineDifference, eic_type,
-			filterline);
+			filterline, multipleTransitions, _currentTransition);
+	
+	getMainWindow()->multipleTransitionSelectionBox->clear();
 
+	if(multipleTransitions.size() > 1) {
 
-	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
+		set<string>::iterator it;
+		for (it = multipleTransitions.begin(); it != multipleTransitions.end(); ++it)
+		{
+
+			QString transition = QString::fromStdString(*it);
+			getMainWindow()->multipleTransitionSelectionBox->addItem(transition);
+			getMainWindow()->multipleTransitionSelectionBox->setCurrentText(QString::fromStdString(_currentTransition));
+			_currentTransition.clear();
+		}
+	}
+
+	if(_groupPeaks) groupPeaks();
 	eicParameters->associateNameWithPeakGroups();
+
+}
+
+void EicWidget::setTransition(QString srmId) {
+
+	_currentTransition = srmId.toStdString();
+	recompute();
+	resetZoom();
+	replot();
 
 }
 
@@ -342,7 +367,6 @@ mzSlice EicWidget::visibleSamplesBounds() {
 }
 
 void EicWidget::findPlotBounds() {
-	//qDebug <<" EicWidget::findPlotBounds()";
 
 	//mzSlice bounds = eicParameters->visibleEICBounds();
 
@@ -351,7 +375,6 @@ void EicWidget::findPlotBounds() {
 		return;
 	if (eicParameters->_slice.rtmin == 0 && eicParameters->_slice.rtmax == 0)
 		return;
-	//qDebug() << "EicWidget::findPlotBounds()";
 
 	_minX = eicParameters->_slice.rtmin;
 	_maxX = eicParameters->_slice.rtmax;

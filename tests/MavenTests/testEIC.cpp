@@ -197,8 +197,10 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->overlapWeight = 2;
     mavenparameters->useOverlap = 0;
 
+    set<string> multipleTransitions;
+    string currentTransition;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
+    vector<EIC*> eics = PullEICs::pullEICs(slice, mavenparameters->samples,
                                     1, mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
@@ -206,7 +208,9 @@ void TestEIC:: testgroupPeaks() {
                                     mavenparameters->baseline_dropTopX,
                                     mavenparameters->minSignalBaselineDifference,
                                     mavenparameters->eicType,
-                                    mavenparameters->filterline);
+                                    mavenparameters->filterline,
+                                    multipleTransitions,
+                                    currentTransition);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
                                                     mavenparameters->eic_smoothingWindow,
@@ -265,7 +269,10 @@ void TestEIC:: testeicMerge() {
     mavenparameters->baseline_dropTopX = 80;
     //mavenparameters->grouping_maxRtWindow = 0.5;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
+    set<string> multipleTransitions;
+    string currentTransition;
+
+    vector<EIC*> eics = PullEICs::pullEICs(slice, mavenparameters->samples,
                                     1, mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
@@ -273,7 +280,9 @@ void TestEIC:: testeicMerge() {
                                     mavenparameters->baseline_dropTopX,
                                     mavenparameters->minSignalBaselineDifference,
                                     mavenparameters->eicType,
-                                    mavenparameters->filterline);
+                                    mavenparameters->filterline,
+                                    multipleTransitions,
+                                    currentTransition);
 
     EIC* m = EIC::eicMerge(eics);
 

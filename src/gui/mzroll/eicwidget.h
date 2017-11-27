@@ -158,6 +158,7 @@ public Q_SLOTS:
 		_autoZoom = f;
 	}
 
+	void setTransition(QString srmId);
 	void markGroupGood();
 	void showIsotopicBarPlot(bool);
 	void markGroupBad();
@@ -214,6 +215,8 @@ private:
 	BoxPlot* _boxplot;
 	IsotopePlot* _isotopeplot;
 	Note* _statusText;
+
+	string _currentTransition;
 
 	bool _showEIC;
 	bool _showSpline;

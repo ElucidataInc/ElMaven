@@ -52,10 +52,28 @@ public:
 	//	find absolute min and max for samples
 	mzSlice visibleSamplesBounds(vector<mzSample*> samples);
 
+	/**
+	 * @param slice mzSlice object
+	 * @param samples vector of samples
+	 * @param eic_smoothingWindow EIC smoothing window (in Scans)
+	 * @param eic_smoothingAlgorithm Smoothing algorithm
+	 * @param amuQ1 precusor m/z delta
+	 * @param amuQ3 product m/z delta
+	 * @param baseline_smoothing Baseline smoothing window
+	 * @param baseline_quantile Drop top x% of intensities in an EIC
+	 *  for calculating baseline
+	 * @param minSignalBaselineDifference Minimun Signal to baseline
+	 *  difference
+	 * @param eicType Sum or Max
+	 * @param filterline Select filterline (srmId) (others will be rejected)
+	 * @see mzSlice
+	 * @see EIC
+	 * @return vector<EIC*> vector of EICs
+	 */
 	void getEIC(mzSlice bounds, vector<mzSample*> samples,
 			int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
 			float amuQ3, int baseline_smoothing, int baseline_quantile,
-			double minSignalBaselineDifference, int eicType, string filterline);
+			double minSignalBaselineDifference, int eicType, string filterline, set<string> &multipleTransitions, string &currentTransition);
 
 	//associate compound names with peak groups
 	void associateNameWithPeakGroups();

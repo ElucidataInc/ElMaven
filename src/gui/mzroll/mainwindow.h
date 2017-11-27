@@ -138,6 +138,7 @@ public:
 	QDoubleSpinBox *ppmWindowBox;
 	QLineEdit *searchText;
 	QComboBox *ionizationModeComboBox;
+	QComboBox* multipleTransitionSelectionBox;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
