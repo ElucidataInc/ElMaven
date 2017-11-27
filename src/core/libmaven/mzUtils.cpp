@@ -406,8 +406,7 @@ Series:  Prentice-Hall Series in Automatic Computation
     }
 
     double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
-        cerr<<"================\n";
-        cerr<<massCutoff->getMassCutoffType()<<"     xx"<<endl;
+
         if(massCutoff->getMassCutoffType()=="ppm"){
             return ( abs((mz2-mz1)/(mz1/1e6)) );
         }

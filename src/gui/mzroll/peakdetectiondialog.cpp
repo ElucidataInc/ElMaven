@@ -547,9 +547,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Compound DB search
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        cerr<<"==================\n";
-        cerr<<settings->value("massCutoffType").toString().toStdString();
-        cerr<<endl;
         mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),settings->value("massCutoffType").toString().toStdString());
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
