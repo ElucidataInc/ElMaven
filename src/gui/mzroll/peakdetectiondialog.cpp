@@ -478,8 +478,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     settings->setValue("quantileIntensity", quantileIntensity->value());
     // Compound DB search
     settings->setValue("matchRtFlag", matchRt->isChecked());
-    QString massCutoffType=QString::fromStdString(mainwindow->getUserMassCutoff()->getMassCutoffType());
-    settings->setValue("massCutoffType",massCutoffType);
+    settings->setValue("massCutoffType",mainwindow->massCutoffComboBox->currentText());
     settings->setValue("compoundMassCutoffWindow", compoundPPMWindow->value());
     settings->setValue("compoundRTWindow", compoundRTWindow->value());
     settings->setValue("eicMaxGroups", eicMaxGroups->value());
@@ -546,13 +545,14 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool();
 
         // Compound DB search
+        string massCutoffType=mainwindow->massCutoffComboBox->currentText().toStdString();
         mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
-        mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),settings->value("massCutoffType").toString().toStdString());
+        mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),massCutoffType);
         mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
         mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
 
         // Automated Peak Detection
-        mavenParameters->massCutoffMerge->setMassCutoffAndType(settings->value("massCutoffMerge").toDouble(),settings->value("massCutoffType").toString().toStdString());
+        mavenParameters->massCutoffMerge->setMassCutoffAndType(settings->value("massCutoffMerge").toDouble(),massCutoffType);
         mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
         mavenParameters->minRt = settings->value("minRT").toDouble();
         mavenParameters->maxRt = settings->value("maxRT").toDouble();

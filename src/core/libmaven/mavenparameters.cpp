@@ -18,11 +18,16 @@ MavenParameters::MavenParameters() {
         showProgressFlag = true;
 
         alignButton = 0;
-
+        /*
+        * Whenever we create an instance of this class, massCutoffType must be set for fragmentMatchMassCutoffTolr
+        */
         fragmentMatchMassCutoffTolr = new MassCutoff();
         fragmentMatchMassCutoffTolr->setMassCutoff(1000);
         mzBinStep = 0.01;
         rtStepSize = 20;
+        /*
+        * Whenever we create an instance of this class, massCutoffType must be set for massCutoffMerge
+        */
         massCutoffMerge = new MassCutoff();
         massCutoffMerge->setMassCutoff(30);
         avgScanTime = 0.2;
@@ -56,6 +61,9 @@ MavenParameters::MavenParameters() {
 	deltaRTWeight=10;
         deltaRtCheckFlag = false;
 
+        /*
+        * Whenever we create an instance of this class, massCutoffType must be set for compoundMassCutoffWindow
+        */
         compoundMassCutoffWindow=new MassCutoff();
         compoundMassCutoffWindow->setMassCutoff(10);
         compoundRTWindow = 2;

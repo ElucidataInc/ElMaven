@@ -16,6 +16,7 @@ private:
 	string _massCutoffType;
 	double _massCutoff;
 public:
+	MassCutoff();
 	void setMassCutoffAndType(double massCutoff, string massCutoffType);
 	void setMassCutoffType(string massCutoffType){_massCutoffType=massCutoffType;}
 	string getMassCutoffType(){return _massCutoffType;}
