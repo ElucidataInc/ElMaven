@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     splash.finish(mainWindow);
     mainWindow->show();
     mainWindow->fileLoader->start();
+    mainWindow->settingsForm->getFormValues();
     int rv = app.exec();
     return rv;
 
