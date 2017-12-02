@@ -57,26 +57,25 @@ unix: {
 #}
 #
 
-#mac {
-#    message("using mac config")
-#    DEFINES += CDFPARSER
-#    DEFINES += ZLIB
-#    DEFINES += unix
-#    LIBS += -lz -lcdfread -lnetcdf
-#    DEFINES += MAC
-#}
-#
-#unix {
-#   message("using unix config")
-#   DEFINES -= LITTLE_ENDIAN
-#   DEFINES += UNIX
-# #  DEFINES += CDFPARSER
-# #  LIBS += -lcdfread -lnetcdf
-# #  DEFINES += ZLIB
-# #  LIBS += -lz -lcdfread -lnetcdf
-#}
-#
-#
+mac {
+    message("using mac config")
+    DEFINES += CDFPARSER
+    DEFINES += ZLIB
+    DEFINES += unix
+    LIBS += -lcdfread -lnetcdf -lz 
+    DEFINES += MAC
+}
+
+unix {
+   message("using unix config")
+   DEFINES -= LITTLE_ENDIAN
+   DEFINES += UNIX
+   DEFINES += CDFPARSER
+   DEFINES += ZLIB
+   LIBS += -lcdfread -lnetcdf -lz
+}
+
+
 ##TOPLEVELDIR = $$PWD
 ##INCLUDEPATH += $$TOPLEVELDIR
 #

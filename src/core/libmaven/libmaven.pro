@@ -19,8 +19,12 @@ TARGET = maven
 
 LIBS += -L. -lcsvparser -ldate -lErrorHandling
 
-INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ $$top_srcdir/3rdparty/libcdfread/  $$top_srcdir/src/gui/mzroll/ $$top_srcdir/3rdparty/libneural/ \
-                $$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate/ $$top_srcdir/3rdparty/ErrorHandling
+INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
+                $$top_srcdir/3rdparty/libcdfread/  \
+                $$top_srcdir/src/gui/mzroll/ \
+                $$top_srcdir/3rdparty/libneural/ \
+                $$top_srcdir/3rdparty/libcsvparser \
+                $$top_srcdir/3rdparty/libdate/
 
 
 macx{
@@ -66,7 +70,7 @@ SOURCES = 	base64.cpp \
                 masscutofftype.cpp \
                 peakFiltering.cpp \
                 groupFiltering.cpp \
-                isotopeDetection.cpp 
+                isotopeDetection.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
