@@ -85,6 +85,7 @@ maven_opensource.kdev4
 *.XML
 !test.xml
 !tests/featureTesting/data/*.xml
+!src/core/libmaven/default_settings.xml
 
 #Mzroll File
 *.mzroll

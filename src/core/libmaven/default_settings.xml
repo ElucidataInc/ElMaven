@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings>
+    <Peak_Detection>
+        <automatedDetection>0</automatedDetection>
+        <ppmStep>20.000</ppmStep>
+        <rtStep>10</rtStep>
+        <mzMin>0</mzMin>
+        <mzMax>1000000000.00</mzMax>
+        <rtMin>0.00</rtMin>
+        <rtMax>1000000000.00</rtMax>
+        <minIntensity>50000.00</minIntensity>
+        <maxIntensity>9999999999.000000</maxIntensity>
+        <chargeMin>0</chargeMin>
+        <chargeMax>0</chargeMax>        
+        <dbDetection>1</dbDetection> 
+        <compoundPPMWindow>5</compoundPPMWindow>
+        <compoundRTWindow>2</compoundRTWindow>
+        <matchRt>0</matchRt>
+        <eicMaxGroups>10</eicMaxGroups>
+        <matchFragmentationOptions>0</matchFragmentationOptions>
+        <reportIsotopesOptions>0</reportIsotopesOptions>
+        <minGroupIntensity>5000</minGroupIntensity>
+        <peakQuantitation>0</peakQuantitation>
+        <quantileIntensity>0</quantileIntensity> 
+        <minQuality>0.50</minQuality>
+        <quantileQuality>0</quantileQuality>
+        <sigBlankRatio>2</sigBlankRatio>
+        <quantileSignalBlankRatio>0</quantileSignalBlankRatio>        
+        <sigBaselineRatio>2</sigBaselineRatio>
+        <quantileSignalBaselineRatio>0</quantileSignalBaselineRatio>
+        <minNoNoiseObs>3</minNoNoiseObs>
+        <minGoodGroupCount>1</minGoodGroupCount>
+    </Peak_Detection>
+</Settings>
+        
