@@ -6,7 +6,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 {
     // automated feature detection settings
     settings.insert("automatedDetection", QVariant::fromValue(pd->featureOptions));
-    settings.insert("ppmStep", QVariant::fromValue(pd->ppmStep));
+
+    //TODO: replace with massCutoffMerge
+//     settings.insert("ppmStep", QVariant::fromValue(pd->ppmStep));
+
     settings.insert("rtStep", QVariant::fromValue(pd->rtStep));
     settings.insert("mzMin", QVariant::fromValue(pd->mzMin));
     settings.insert("mzMax", QVariant::fromValue(pd->mzMax));
@@ -19,7 +22,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
     // db search settings
     settings.insert("dbDetection", QVariant::fromValue(pd->dbOptions));
-    settings.insert("compoundPPMWindow", QVariant::fromValue(pd->compoundPPMWindow));
+
+    //TODO: replace with compoundMassCutoffWindow.
+//     settings.insert("compoundPPMWindow", QVariant::fromValue(pd->compoundPPMWindow));
+
     settings.insert("compoundRTWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
@@ -63,6 +69,7 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
 
         if(QString(v.typeName()).contains("QGroupBox"))
             v.value<QGroupBox*>()->setChecked(std::stod(value));
+
 
         if(QString(v.typeName()).contains("QCheckBox"))
             v.value<QCheckBox*>()->setChecked(std::stod(value));
@@ -130,6 +137,13 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 }
 
+
+void PeakDetectionDialog::closeEvent(QCloseEvent* event)
+{
+    // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
+    // cancel in turn calls close();
+    emit updateSettings(pdSettings);
+}
 
 void PeakDetectionDialog::showSettingsForm() {
     LOGD;

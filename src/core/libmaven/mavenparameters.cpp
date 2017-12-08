@@ -132,11 +132,13 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 {
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
+
     if(strcmp(key, "automatedDetection") == 0 )
         processAllSlices = atof(value);
 
-    if(strcmp(key, "ppmStep") == 0 )
-        ppmMerge = atof(value);
+//     TODO: replace with massCutoffMerge. remove ppmMerge from default_settings_xml as well. and regenerate settings.h 
+//     if(strcmp(key, "ppmStep") == 0 )
+//         ppmMerge = atof(value);
 
     if(strcmp(key,"rtStep") == 0)
         rtStepSize = atof(value);
@@ -168,8 +170,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "dbDetection") == 0 )
         //TODO
 
-    if(strcmp(key, "compoundPPMWindow") == 0 )
-        compoundPPMWindow = atof(value);
+        //TODO: replace with compoundMassCutoffWindow. replace compoundPPMWindow in default_settings_xml. regenerate settings.h
+//     if(strcmp(key, "compoundPPMWindow") == 0 )
+//         compoundPPMWindow = atof(value);
 
     if(strcmp(key, "compoundRTWindow") == 0 )
         compoundRTWindow = atof(value);
@@ -222,7 +225,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "minGoodGroupCount") == 0 )
         minGoodGroupCount = atof(value);
 
-    std::cerr << std::endl << " value of compoundPPMWindow " << compoundPPMWindow << std::endl;
 }
 
 bool MavenParameters::loadSettings(const char* data)

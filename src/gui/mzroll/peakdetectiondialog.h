@@ -49,7 +49,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showQualityQuantileStatus(int);
 				 void showBaselineQuantileStatus(int);
 				 void showBlankQuantileStatus(int);
-
+                virtual void closeEvent(QCloseEvent* event) override;
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);

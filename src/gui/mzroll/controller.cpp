@@ -64,6 +64,21 @@ void Controller::updateUi()
 void Controller::updateMavenParameters(const QString& key,  const QVariant& value)
 {
 
-    mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),value.toByteArray().data());
+    /*TODO: can this be solved in a better way?.
+     * In case of bool, "value.toByteArray().data()" retruns "false" for 0 and "true" for 1  but "false"  and "true" cant be converted 
+     * to float(@see MavenParameters::setPeakDetectionSettings) and double(@see  PeakDetectionSettings::updatePeakSettings), hence we explicitly convert them 
+     * to 0 and 1.
+    */
+    if(value.type() == QVariant::Bool) {
 
+        bool val = value.toBool();
+        if(val)
+            mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"1");
+        else
+            mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"0");
+
+        return;
+    }
+
+    mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),value.toByteArray().data());
 }
