@@ -138,9 +138,19 @@ void IsotopeWidget::computeIsotopes(string f) {
 	bool N15Labeled = settings->value("N15Labeled_BPE").toBool();
 	bool S34Labeled = settings->value("S34Labeled_BPE").toBool();
 	bool D2Labeled = settings->value("D2Labeled_BPE").toBool();
-
+	/**
+	 * We want always to list all isotopes  in Isotopes Widget .
+	 * mark _mw->mavenParameters->isotopeAtom["ShowIsotopes"] as true and after getting all isotopes, restore it's original
+	 * value to avoid error in other section of codebase.
+	 */
+	bool originalShowIsotopes=_mw->mavenParameters->isotopeAtom["ShowIsotopes"];
+	_mw->mavenParameters->isotopeAtom["ShowIsotopes"]=true;
 	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
 												_mw->mavenParameters->isotopeAtom, _mw->mavenParameters->noOfIsotopes);
+	/**
+	 * restore _mw->mavenParameters->isotopeAtom["ShowIsotopes"] to it's orignal value now.
+	 */
+	_mw->mavenParameters->isotopeAtom["ShowIsotopes"]=originalShowIsotopes;
 	showTable();
 }
 
