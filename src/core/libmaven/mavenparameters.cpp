@@ -227,6 +227,120 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
 }
 
+void MavenParameters::setOptionsDialogSettings(const char* key, const char* value)
+{
+    mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
+
+    if(strcmp(key, "ionizationMode") == 0)
+        ionizationMode = atof(value);
+
+    if(strcmp(key, "amuQ1") == 0)
+        amuQ1 = atof(value);
+
+    if(strcmp(key, "amuQ3") == 0)
+        amuQ3 = atof(value);
+
+//     if(strcmp(key, "filterline") == 0)
+//         filterline = atof(value);
+
+    if(strcmp(key, "eic_smoothingAlgorithm") == 0)
+        eic_smoothingAlgorithm = atof(value);
+
+    if(strcmp(key, "eic_smoothingWindow") == 0)
+        eic_smoothingWindow = atof(value);
+
+    if(strcmp(key, "grouping_maxRtWindow") == 0)
+        grouping_maxRtWindow = atof(value);
+
+    if(strcmp(key, "baseline_quantile") == 0)
+        baseline_dropTopX = atof(value);
+
+    if(strcmp(key, "baseline_smoothing") == 0)
+        baseline_smoothingWindow = atof(value);
+
+    if(strcmp(key, "minSignalBaselineDifference") == 0)
+        minSignalBaselineDifference = atof(value);
+
+    if(strcmp(key, "D2Labeled_BPE") == 0)
+        D2Labeled_BPE = atof(value);
+
+    if(strcmp(key, "C13Labeled_BPE") == 0)
+        C13Labeled_BPE = atof(value);
+
+    if(strcmp(key, "N15Labeled_BPE") == 0)
+        N15Labeled_BPE = atof(value);
+
+    if(strcmp(key, "S34Labeled_BPE") == 0)
+        S34Labeled_BPE = atof(value);
+
+    if(strcmp(key, "D2Labeled_Barplot") == 0)
+        D2Labeled_Barplot = atof(value);
+
+    if(strcmp(key, "C13Labeled_Barplot") == 0)
+        C13Labeled_Barplot = atof(value);
+
+    if(strcmp(key, "N15Labeled_Barplot") == 0)
+        N15Labeled_Barplot = atof(value);
+
+    if(strcmp(key, "S34Labeled_Barplot") == 0)
+        S34Labeled_Barplot = atof(value);
+
+    if(strcmp(key, "D2Labeled_IsoWidget") == 0)
+        D2Labeled_IsoWidget = atof(value);
+
+    if(strcmp(key, "C13Labeled_IsoWidget") == 0)
+        C13Labeled_IsoWidget = atof(value);
+
+    if(strcmp(key, "N15Labeled_IsoWidget") == 0)
+        N15Labeled_IsoWidget = atof(value);
+
+    if(strcmp(key, "S34Labeled_IsoWidget") == 0)
+        S34Labeled_IsoWidget = atof(value);
+
+    if(strcmp(key, "noOfIsotopes") == 0)
+        noOfIsotopes = atof(value);
+
+    if(strcmp(key, "minIsotopicCorrelation") == 0)
+        minIsotopicCorrelation = atof(value);
+
+    if(strcmp(key, "maxIsotopeScanDiff") == 0)
+        maxIsotopeScanDiff = atof(value);
+
+    if(strcmp(key, "maxNaturalAbundanceErr") == 0)
+        maxNaturalAbundanceErr = atof(value);
+
+    if(strcmp(key, "isotopicMinSignalBaselineDifference") == 0)
+        isotopicMinSignalBaselineDifference = atof(value);
+
+    if(strcmp(key, "eicType") == 0)
+        eicType = atof(value);
+
+    if(strcmp(key, "useOverlap") == 0)
+        useOverlap = atof(value);
+
+    if(strcmp(key, "distXWeight") == 0)
+        distXWeight = atof(value);
+
+    if(strcmp(key, "distYWeight") == 0)
+        distYWeight = atof(value);
+
+    if(strcmp(key, "overlapWeight") == 0)
+        overlapWeight = atof(value);
+
+    if(strcmp(key, "qualityWeight") == 0)
+        qualityWeight = atof(value);
+
+    if(strcmp(key, "intensityWeight") == 0)
+        intensityWeight = atof(value);
+
+    if(strcmp(key, "deltaRTWeight") == 0)
+        deltaRTWeight = atof(value);
+
+    if(strcmp(key, "deltaRTCheck") == 0)
+        deltaRtCheckFlag = atof(value);
+
+}
+
 bool MavenParameters::loadSettings(const char* data)
 {
 
@@ -254,7 +368,17 @@ bool MavenParameters::loadSettings(const char* data)
             }
 
         }
+
+        if(strcmp(node.name(), "Settings_Form") == 0 ) {
+
+            for(pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it) {
+
+                setOptionsDialogSettings(it->name(), it->text().get());
+
+            }
+        }
     }
+
 }
 
 vector<mzSample*> MavenParameters::getVisibleSamples() {

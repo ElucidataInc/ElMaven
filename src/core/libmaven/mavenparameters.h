@@ -259,6 +259,11 @@ class MavenParameters
          */
         void setPeakDetectionSettings(const char* key, const char* value);
 
+        /*
+         * @brief update maveSettings(map) and settings related to options Dialog
+         */
+        void setOptionsDialogSettings(const char* key, const char* value);
+
         std::map<string, string>& getSettings();
 
     private:
