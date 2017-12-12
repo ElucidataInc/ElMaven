@@ -58,6 +58,7 @@ void Controller::updateUi()
 
     for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
         emit mw->peakDetectionDialog->settingsChanged(it->first, it->second);
+        emit mw->settingsForm->settingsChanged(it->first, it->second);
     }
 }
 

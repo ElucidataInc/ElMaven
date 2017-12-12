@@ -48,6 +48,31 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 
 }
 
+void OptionsDialogSettings::updateOptionsDialog(string key, string value)
+{
+        if(settings.find(QString(key.c_str())) != settings.end()) {
+
+        const QVariant& v = settings[QString(key.c_str())];
+        // convert the val to proper type;
+        if(QString(v.typeName()).contains("QDoubleSpinBox"))
+            v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QGroupBox"))
+            v.value<QGroupBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QCheckBox"))
+            v.value<QCheckBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QSpinBox"))
+            v.value<QSpinBox*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QSlider"))
+            v.value<QSlider*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QComboBox"))
+            v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
+    }
+}
 
 
 
@@ -152,6 +177,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
     connect(deltaRTCheck, SIGNAL(toggled(bool)), this,SLOT(getFormValues()));
     toggleDeltaRtWeight();
+
+    connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
