@@ -1,5 +1,56 @@
 #include "settingsform.h"
 
+OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
+{
+
+    settings.insert("ionizationMode", QVariant::fromValue(sf->ionizationMode));
+    settings.insert("amuQ1", QVariant::fromValue(sf->amuQ1));
+    settings.insert("amuQ3", QVariant::fromValue(sf->amuQ3));
+    settings.insert("eic_smoothingAlgorithm", QVariant::fromValue(sf->eic_smoothingAlgorithm));
+    settings.insert("eic_smoothingWindow", QVariant::fromValue(sf->eic_smoothingWindow));
+    settings.insert("grouping_maxRtWindow", QVariant::fromValue(sf->grouping_maxRtWindow));
+
+    settings.insert("baseline_quantile", QVariant::fromValue(sf->baseline_quantile));
+    settings.insert("baseline_smoothing", QVariant::fromValue(sf->baseline_smoothing));
+    settings.insert("minSignalBaselineDifference", QVariant::fromValue(sf->minSignalBaselineDifference));
+
+    settings.insert("D2Labeled_BPE", QVariant::fromValue(sf->D2Labeled_BPE));
+    settings.insert("C13Labeled_BPE", QVariant::fromValue(sf->C13Labeled_BPE));
+    settings.insert("N15Labeled_BPE", QVariant::fromValue(sf->N15Labeled_BPE));
+    settings.insert("S34Labeled_BPE", QVariant::fromValue(sf->S34Labeled_BPE));
+
+    settings.insert("D2Labeled_Barplot", QVariant::fromValue(sf->D2Labeled_Barplot));
+    settings.insert("C13Labeled_Barplot", QVariant::fromValue(sf->C13Labeled_Barplot));
+    settings.insert("N15Labeled_Barplot", QVariant::fromValue(sf->N15Labeled_Barplot));
+    settings.insert("S34Labeled_Barplot", QVariant::fromValue(sf->S34Labeled_Barplot));
+
+    settings.insert("D2Labeled_IsoWidget", QVariant::fromValue(sf->D2Labeled_IsoWidget));
+    settings.insert("C13Labeled_IsoWidget", QVariant::fromValue(sf->C13Labeled_IsoWidget));
+    settings.insert("N15Labeled_IsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
+    settings.insert("S34Labeled_IsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
+
+    settings.insert("noOfIsotopes", QVariant::fromValue(sf->noOfIsotopes));
+    settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
+    settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->minIsotopicCorrelation));
+    settings.insert("maxNaturalAbundanceErr", QVariant::fromValue(sf->maxNaturalAbundanceErr));
+    settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
+
+    settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
+    settings.insert("useOverlap", QVariant::fromValue(sf->useOverlap));
+    settings.insert("distXWeight", QVariant::fromValue(sf->distXSlider));
+    settings.insert("distYWeight", QVariant::fromValue(sf->distYSlider));
+
+    settings.insert("overlapWeight", QVariant::fromValue(sf->overlapSlider));
+    settings.insert("qualityWeight", QVariant::fromValue(sf->qualityWeight));
+    settings.insert("intensityWeight", QVariant::fromValue(sf->intensityWeight));
+    settings.insert("deltaRTWeight", QVariant::fromValue(sf->deltaRTWeight));
+    settings.insert("deltaRTCheck", QVariant::fromValue(sf->deltaRTCheck));
+
+}
+
+
+
+
 SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
     setupUi(this);
     settings = s;
@@ -8,6 +59,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     updateSettingFormGUI();
     setIsotopeAtom();
     setMavenParameters();
+
+    odSettings = new OptionsDialogSettings(this);
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
 

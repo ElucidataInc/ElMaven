@@ -5,7 +5,7 @@
 #include "mainwindow.h"
 
 class MainWindow;
-
+class OptionsDialogSettings;
 
 class SettingsForm : public QDialog, public Ui_SettingsForm
 {
@@ -68,9 +68,26 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
       private:
             QSettings *settings;
             MainWindow *mainwindow;
+            OptionsDialogSettings* odSettings;
+
       
       public:
             bool deltaRtCheckFlag;
+};
+
+class OptionsDialogSettings: public QObject
+{
+    Q_OBJECT
+    public:
+        OptionsDialogSettings(SettingsForm* dialog);
+
+
+
+    private:
+        QMap<QString, QVariant> settings;
+        SettingsForm* sf;
+
+
 };
 
 #endif
