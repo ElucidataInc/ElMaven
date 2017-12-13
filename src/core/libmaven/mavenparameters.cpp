@@ -240,6 +240,7 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "amuQ3") == 0)
         amuQ3 = atof(value);
 
+    //TODO
 //     if(strcmp(key, "filterline") == 0)
 //         filterline = atof(value);
 

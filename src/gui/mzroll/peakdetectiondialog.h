@@ -74,7 +74,7 @@ class PeakDetectionSettings: public QObject
     Q_OBJECT
     public:
         PeakDetectionSettings(PeakDetectionDialog* dialog);
-        QMap<QString,QVariant>& getPeakSettings() { return settings; }
+        QMap<QString,QVariant>& getSettings() { return settings; }
 
     public Q_SLOTS:
         void updatePeakSettings(string key, string value);

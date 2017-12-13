@@ -15,7 +15,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             SettingsForm(QSettings* s, MainWindow *w);
             void setIsotopeAtom();
             protected:
-            void closeEvent       (QCloseEvent* e) { getFormValues(); QDialog::closeEvent(e);}
+            void closeEvent       (QCloseEvent* e);
             void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
             void mouseReleaseEvent(QMouseEvent* e) {QDialog::mouseReleaseEvent(e); getFormValues(); }
 
@@ -65,8 +65,11 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             inline void setQ1Tollrance(double value) { setNumericValue("amuQ1",value); }
             inline void setQ3Tollrance(double value) { setNumericValue("amuQ3",value); }
 
+
+
     Q_SIGNALS:
         void settingsChanged(string key, string value);
+        void updateSettings(OptionsDialogSettings* od);
 
 
       private:
@@ -84,6 +87,7 @@ class OptionsDialogSettings: public QObject
     Q_OBJECT
     public:
         OptionsDialogSettings(SettingsForm* dialog);
+        QMap<QString, QVariant>& getSettings() { return settings; }
 
     public Q_SLOTS:
         void updateOptionsDialog(string key, string value);

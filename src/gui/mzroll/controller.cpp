@@ -8,14 +8,17 @@ Controller::Controller()
 {
     mw = new MainWindow();
     updateUi();
-    connect(mw->peakDetectionDialog, SIGNAL(updateSettings(PeakDetectionSettings*)), this, SLOT(updatePeakDetectionSettings(PeakDetectionSettings*)));
+    connect(mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
+    connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
 }
 
-void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
+
+template <typename T>
+void Controller::syncMpWithUi(T* dialogPtr)
 {
-    // update settings in maven parameters
-    // iterate on the map and call maven parameters
-    QMap<QString, QVariant>& settings = pd->getPeakSettings();
+
+
+    QMap<QString, QVariant>& settings = dialogPtr->getSettings();
 
     for(const QString& key: settings.keys()) {
 
@@ -50,6 +53,18 @@ void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
         }
 
     }
+
+}
+
+void Controller::updateOptionsDialogSettings(OptionsDialogSettings* od)
+{
+    syncMpWithUi(od);
+}
+
+void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
+{
+    syncMpWithUi(pd);
+
 }
 
 void Controller::updateUi()
@@ -66,20 +81,27 @@ void Controller::updateMavenParameters(const QString& key,  const QVariant& valu
 {
 
     /*TODO: can this be solved in a better way?.
-     * In case of bool, "value.toByteArray().data()" retruns "false" for 0 and "true" for 1  but "false"  and "true" cant be converted 
+     * In case of bool(if QVariant holds a bool val), "value.toByteArray().data()" retruns "false" for 0 and "true" for 1  but "false"  and "true" cant be converted 
      * to float(@see MavenParameters::setPeakDetectionSettings) and double(@see  PeakDetectionSettings::updatePeakSettings), hence we explicitly convert them 
      * to 0 and 1.
     */
     if(value.type() == QVariant::Bool) {
 
         bool val = value.toBool();
-        if(val)
+        if(val) {
             mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"1");
-        else
+            mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),"1");
+        }
+
+        else {
             mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"0");
+            mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),"0");
+        }
+
 
         return;
     }
 
     mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),value.toByteArray().data());
+    mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),value.toByteArray().data());
 }

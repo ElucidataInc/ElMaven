@@ -3,6 +3,7 @@
 
 class MainWindow;
 class PeakDetectionSettings;
+class OptionsDialogSettings;
 
 class Controller:  public QObject
 {
@@ -13,11 +14,14 @@ class Controller:  public QObject
 
     public Q_SLOTS:
       void updatePeakDetectionSettings(PeakDetectionSettings* pd);
+      void updateOptionsDialogSettings(OptionsDialogSettings* od);
       void updateUi();
 
 
     private:
         void updateMavenParameters(const QString& key, const QVariant& value);
+        template <typename T>
+        void syncMpWithUi(T* dialogPtr);
 
 
     private:

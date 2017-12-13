@@ -181,6 +181,13 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
 }
 
+void SettingsForm::closeEvent(QCloseEvent* event)
+{
+     getFormValues();
+    emit updateSettings(odSettings);
+     QDialog::closeEvent(event);
+}
+
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
 
     if      (ionMode.contains("Neutral"))   ionizationMode->setCurrentIndex(1);
