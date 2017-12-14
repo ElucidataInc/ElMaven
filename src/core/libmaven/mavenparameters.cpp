@@ -357,29 +357,13 @@ bool MavenParameters::loadSettings(const char* data)
 
     pugi::xml_node pnode = xmlDoc.child("Settings");
 
-    for(pugi::xml_node& node: pnode.children()) {
-
-
-        if(strcmp(node.name(), "Peak_Detection")== 0) {
-
-            for(pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it) {
+    for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
 
                 setPeakDetectionSettings(it->name(), it->text().get());
-
-            }
-
-        }
-
-        if(strcmp(node.name(), "Settings_Form") == 0 ) {
-
-            for(pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it) {
-
                 setOptionsDialogSettings(it->name(), it->text().get());
-
-            }
-        }
     }
 
+    return true;
 }
 
 vector<mzSample*> MavenParameters::getVisibleSamples() {

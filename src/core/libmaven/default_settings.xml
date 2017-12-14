@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
-    <Peak_Detection>
         <automatedDetection>0</automatedDetection>
         <ppmStep>20.000</ppmStep>
         <rtStep>10</rtStep>
@@ -30,8 +29,6 @@
         <quantileSignalBaselineRatio>0</quantileSignalBaselineRatio>
         <minNoNoiseObs>3</minNoNoiseObs>
         <minGoodGroupCount>1</minGoodGroupCount>
-    </Peak_Detection>
-    <Settings_Form>
         <ionizationMode>0</ionizationMode>
         <amuQ1>0.50</amuQ1>
         <amuQ3>0.50</amuQ3>
@@ -68,6 +65,5 @@
         <intensityWeight>10</intensityWeight>
         <deltaRTWeight>10</deltaRTWeight>
         <deltaRTCheck>0</deltaRTCheck>
-    </Settings_Form>
 </Settings>
         
