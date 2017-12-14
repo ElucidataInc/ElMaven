@@ -382,6 +382,7 @@ public Q_SLOTS:
 	BackgroundPeakUpdate* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
+    void saveSettings();
 
 private Q_SLOTS:
 	void createMenus();

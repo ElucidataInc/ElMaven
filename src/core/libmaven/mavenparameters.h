@@ -254,6 +254,8 @@ class MavenParameters
          */
         bool loadSettings(const char* data);
 
+        bool saveSettings(const char* path);
+
         /*
          * @brief update maveSettings(map) and settings related to peak detection
          */

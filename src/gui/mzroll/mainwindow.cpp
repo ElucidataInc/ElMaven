@@ -2407,6 +2407,11 @@ void MainWindow::createMenus() {
 			SLOT(saveProject()));
 	fileMenu->addAction(saveProjectFile);
 
+    QAction* saveSettings = new QAction("Save Settings", this);
+    connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
+    fileMenu->addAction(saveSettings);
+
+
 	QAction* settingsAct = new QAction(tr("Options"), this);
 	settingsAct->setToolTip(tr("Set program options"));
 	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
@@ -2469,6 +2474,19 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 			SLOT(setChecked(bool)));
 	dockwidget->setWindowIcon(icon);
 	return btn;
+}
+
+void MainWindow::saveSettings()
+{
+    QString fileName = QFileDialog::getSaveFileName(Q_NULLPTR,"Save Settings",QString());
+
+    if(!mavenParameters->saveSettings(fileName.toStdString().c_str())) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("Failed to save the file");
+        msgBox.exec();
+    }
+
 }
 
 void MainWindow::showButtonLog() {

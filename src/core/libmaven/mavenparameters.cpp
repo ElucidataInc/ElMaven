@@ -342,6 +342,29 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
 }
 
+bool MavenParameters::saveSettings(const char* path)
+{
+    cerr << "\n\n saving the settings at  " << path << "\n";
+    pugi::xml_document xmlDoc;
+
+    pugi::xml_node pNode = xmlDoc.append_child("Settings");
+
+
+
+    for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
+
+        pugi::xml_node cNode = pNode.append_child(it->first.c_str());
+        cNode.append_child(pugi::node_pcdata).set_value(it->second.c_str());
+
+    }
+
+
+    if(!xmlDoc.save_file(path,"\t", format_default, pugi::xml_encoding::encoding_utf8))
+        return false;
+
+    return true;
+}
+
 bool MavenParameters::loadSettings(const char* data)
 {
 
