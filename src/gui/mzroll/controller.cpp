@@ -49,7 +49,7 @@ void Controller::syncMpWithUi(T* dialogPtr)
         }
 
         if(QString(v.typeName()).contains("QComboBox")) {
-            updateMavenParameters(key, v.value<QComboBox*>()->currentText());
+            updateMavenParameters(key, v.value<QComboBox*>()->currentIndex());
         }
 
     }
@@ -85,23 +85,12 @@ void Controller::updateMavenParameters(const QString& key,  const QVariant& valu
      * to float(@see MavenParameters::setPeakDetectionSettings) and double(@see  PeakDetectionSettings::updatePeakSettings), hence we explicitly convert them 
      * to 0 and 1.
     */
-    if(value.type() == QVariant::Bool) {
 
-        bool val = value.toBool();
-        if(val) {
-            mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"1");
-            mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),"1");
-        }
+    string data = value.toByteArray().data();
 
-        else {
-            mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),"0");
-            mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),"0");
-        }
+    if(value.type() == QVariant::Bool)
+        data = std::to_string(value.toBool());
 
-
-        return;
-    }
-
-    mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),value.toByteArray().data());
-    mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),value.toByteArray().data());
+    mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),data.c_str());
+    mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),data.c_str());
 }

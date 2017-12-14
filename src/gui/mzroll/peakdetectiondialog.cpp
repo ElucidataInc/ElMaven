@@ -81,7 +81,7 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
             v.value<QSlider*>()->setValue(std::stod(value));
 
         if(QString(v.typeName()).contains("QComboBox"))
-            v.value<QComboBox*>()->setCurrentText(value.c_str());
+            v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
 
     }
 
