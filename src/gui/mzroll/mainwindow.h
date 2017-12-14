@@ -278,6 +278,7 @@ Q_SIGNALS:
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
     void metaCsvFileLoaded();
+    void loadedSettings();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -383,6 +384,7 @@ public Q_SLOTS:
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
     void saveSettings();
+    void loadSettings();
 
 private Q_SLOTS:
 	void createMenus();

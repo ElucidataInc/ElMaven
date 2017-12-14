@@ -2411,6 +2411,9 @@ void MainWindow::createMenus() {
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
     fileMenu->addAction(saveSettings);
 
+    QAction* loadSettings = new QAction("Load Settings", this);
+    connect(loadSettings, &QAction::triggered, this ,&MainWindow::loadSettings);
+    fileMenu->addAction(loadSettings);
 
 	QAction* settingsAct = new QAction(tr("Options"), this);
 	settingsAct->setToolTip(tr("Set program options"));
@@ -2489,6 +2492,34 @@ void MainWindow::saveSettings()
 
 }
 
+void MainWindow::loadSettings()
+{
+    bool fileLoaded = false;
+    QString fileName = QFileDialog::getOpenFileName(Q_NULLPTR, "Load Settings", QString());
+
+    QFile file(fileName);
+
+    if(file.open(QIODevice::ReadOnly)) {
+
+        QByteArray bArr = file.readAll();
+        file.close();
+
+        if(mavenParameters->loadSettings(bArr.data()))
+            fileLoaded = true;
+
+    }
+
+    if(fileLoaded)
+        emit loadedSettings();
+
+    else {
+        // display an error message
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("Loading the file failed");
+        msgBox.exec();
+    }
+}
 void MainWindow::showButtonLog() {
 	QObject* obj = sender();
 	LOGD << obj->objectName().toStdString();

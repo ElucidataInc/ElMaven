@@ -10,6 +10,7 @@ Controller::Controller()
     updateUi();
     connect(mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
+    connect(mw,  &MainWindow::loadedSettings, this, &Controller::updateUi);
 }
 
 
