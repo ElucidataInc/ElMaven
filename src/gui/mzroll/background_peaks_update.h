@@ -108,7 +108,8 @@ public:
 
     void readDataFromPython(QByteArray& data);
     void runPythonProg(Aligner* aligner);
-    void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
+	void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
+	void writeToPythonProcess( QByteArray data);
 
     PeakDetector peakDetector;
 	MavenParameters* mavenParameters;
