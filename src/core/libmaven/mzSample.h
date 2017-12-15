@@ -426,14 +426,20 @@ class mzSample
     static map<string, string> mzML_cvParams(xml_node node);
 
     /**
+     * @brief Update injection time stamp
+     * @param xml_node xml_node object of pugixml library
+     */
+    void parseMzMLInjectionTimeStamp(xml_node);
+
+    /**
     * @brief Parse mzML chromatogrom list
-    * @param xml_node xml_node object of pugixml lirary
+    * @param xml_node xml_node object of pugixml library
     */
     void parseMzMLChromatogromList(xml_node);
 
     /**
     * @brief Parse mzML spectrum list
-    * @param xml_node xml_node object of pugixml lirary
+    * @param xml_node xml_node object of pugixml library
     */
     void parseMzMLSpectrumList(xml_node);
 
@@ -798,22 +804,20 @@ class mzSample
     float minIntensity;
     float totalIntensity;
 
-    /** sample display order */
-    int _sampleOrder;
+    int _sampleOrder; //Sample display order
+
     bool _C13Labeled;
     bool _N15Labeled;
+    bool _S34Labeled; //Feng note: added to track S34 labeling state
+    bool _D2Labeled; //Feng note: added to track D2 labeling state
 
-    /**  Feng note: added to track S34 labeling state */
-    bool _S34Labeled;
-
-    /** Feng note: added to track D2 labeling state */
-    bool _D2Labeled;
     float _normalizationConstant;
     string _setName;
-    int injectionOrder;
 
-    /**  srm to scan mapping */
-    map<string, vector<int> > srmScans;
+    time_t injectionTime; //Injection Time Stamp
+    int injectionOrder; //Injection order
+
+    map<string, vector<int> > srmScans; //SRM to scan mapping
 
     /** tags associated with this sample */
     map<string, string> instrumentInfo;
