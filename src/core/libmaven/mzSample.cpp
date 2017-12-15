@@ -294,6 +294,13 @@ void mzSample::parseMzML(const char *filename)
 		return;
 	}
 
+	//Get injection time stamp
+	xml_node experimentRun = doc.first_child().first_element_by_path("mzML/run");
+	if (!experimentRun.empty())
+	{
+		parseMzMLInjectionTimeStamp(experimentRun);
+	}
+
 	//Get a spectrumstore node
 	xml_node chromatogramList = doc.first_child().first_element_by_path("mzML/run/chromatogramList");
 	xml_node spectrumList = doc.first_child().first_element_by_path("mzML/run/spectrumList");
@@ -305,6 +312,20 @@ void mzSample::parseMzML(const char *filename)
 	else if (!chromatogramList.empty())
 	{
 		parseMzMLChromatogromList(chromatogramList);
+	}
+}
+
+void mzSample::parseMzMLInjectionTimeStamp(xml_node experimentRun)
+{
+	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
+
+	if (!injectionTimeStamp.empty())
+	{
+		const char *time_details = injectionTimeStamp.value();
+		struct tm tm;
+		strptime(time_details, "", &tm);
+		injectionTime = mktime(&tm);
+  
 	}
 }
 
