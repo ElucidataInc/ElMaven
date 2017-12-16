@@ -34,7 +34,7 @@
         <amuQ3>0.50</amuQ3>
         <filterline></filterline>
         <eic_smoothingAlgorithm>0</eic_smoothingAlgorithm>
-        <eic_smoothingWindow>1</eic_smoothingWindow>
+        <eic_smoothingWindow>10</eic_smoothingWindow>
         <grouping_maxRtWindow>0.25</grouping_maxRtWindow>
         <baseline_quantile>80</baseline_quantile>
         <baseline_smoothing>5</baseline_smoothing>
