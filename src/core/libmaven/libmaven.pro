@@ -19,10 +19,10 @@ QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
 TARGET = maven
 
-LIBS += -L. -lcsvparser
+LIBS += -L. -lcsvparser -ldate
 
 INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ $$top_srcdir/3rdparty/libcdfread/  $$top_srcdir/src/gui/mzroll/ $$top_srcdir/3rdparty/libneural/ \
-                $$top_srcdir/3rdparty/libcsvparser
+                $$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate/
 
 
 macx{
