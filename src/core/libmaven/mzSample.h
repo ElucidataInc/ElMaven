@@ -28,6 +28,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <chrono_io.h>
+#include <date.h>
+
 #ifdef ZLIB
 #include <zlib.h>
 #endif
@@ -814,7 +817,7 @@ class mzSample
     float _normalizationConstant;
     string _setName;
 
-    time_t injectionTime; //Injection Time Stamp
+    unsigned long int injectionTime; //Injection Time Stamp
     int injectionOrder; //Injection order
 
     map<string, vector<int> > srmScans; //SRM to scan mapping

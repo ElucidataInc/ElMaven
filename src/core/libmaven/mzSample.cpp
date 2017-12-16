@@ -19,6 +19,7 @@ mzSample::mzSample()
 	minIntensity = 0;
 	totalIntensity = 0;
 	_normalizationConstant = 1; //TODO: Sahil Not being used anywhere
+	injectionTime = 0;
 	_sampleOrder = 0;
 	_C13Labeled = false;
 	_N15Labeled = false;
@@ -321,10 +322,13 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node experimentRun)
 
 	if (!injectionTimeStamp.empty())
 	{
-		const char *time_details = injectionTimeStamp.value();
-		struct tm tm;
-		strptime(time_details, "", &tm);
-		injectionTime = mktime(&tm);
+		using namespace date;
+		string time_details = injectionTimeStamp.value();
+		istringstream in;
+		in.str(time_details);
+		sys_seconds timeStamp;
+		in >> parse("%Y-%m-%dT%T", timeStamp);
+		injectionTime = timeStamp.time_since_epoch().count();
   
 	}
 }
