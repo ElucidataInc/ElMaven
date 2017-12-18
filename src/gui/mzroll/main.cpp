@@ -79,7 +79,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 				cerr << "Critical: " << msg.toStdString() << endl;
                 break;
         	case QtFatalMsg:
-                cerr << "Fetal: " << msg.toStdString() << endl;
+                cerr << "Fatal: " << msg.toStdString() << endl;
 				break;
                 //abort();
         }
