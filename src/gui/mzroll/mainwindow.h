@@ -314,6 +314,7 @@ public Q_SLOTS:
 
 	void setQComboBox();
 	void setFilterLine();
+	void setInjectionOrderFromTimeStamp();
 
     void mzrollLoadDB(QString dbname);
 
