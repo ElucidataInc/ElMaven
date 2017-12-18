@@ -34,6 +34,7 @@ class TestLoadSamples : public QObject {
         void testMinMaxRT();
         void testSampleName();
         void testBlankSample();
+        void testParseMzMLInjectionTimeStamp();
 };
 
 #endif // TESTLOADSAMPLES_H
