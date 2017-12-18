@@ -13,7 +13,7 @@ mzFileIO::mzFileIO(QWidget*) {
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
-    //Merged with Maven776 - Kiran
+
     _mainwindow=mw;
     //connect(this,SIGNAL(finished()),_mainwindow,SLOT(setupSampleColors()));
     //connect(this,SIGNAL(finished()),_mainwindow->projectDockWidget,SLOT(updateSampleList()));
@@ -27,10 +27,10 @@ void mzFileIO::setMainWindow(MainWindow* mw) {
 }
 
 void mzFileIO::loadSamples(QStringList& files) {
-	Q_FOREACH(QString file, files){ addFileToQueue(file); } //TODO: Sahil, addeed this part while merging mzfile
-	if (filelist.size() > 0) start(); //TODO: Sahil, addeed this part while merging mzfile
-    //setFileList(filenames); //TODO: Sahil, commented this part while merging mzfile
-    //start(); //TODO: Sahil, commented this part while merging mzfile
+	Q_FOREACH(QString file, files){ addFileToQueue(file); }
+	if (filelist.size() > 0) start();
+    //setFileList(filenames);
+    //start();
 }
 
 mzSample* mzFileIO::loadSample(QString filename){
@@ -88,10 +88,6 @@ mzSample* mzFileIO::loadSample(QString filename){
     return NULL;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, addeed this part while merging mzfileio
 int mzFileIO::loadMassBankLibrary(QString fileName) {
     qDebug() << "Loading Nist Libary: " << fileName;
     QFile data(fileName);
@@ -611,10 +607,8 @@ void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples
         Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_samples, total_samples));
 
 }
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
+
+
 bool mzFileIO::isKnownFileType(QString filename) {
     if (isSampleFileType(filename))  return true;
     if (isProjectFileType(filename)) return true;
@@ -623,10 +617,6 @@ bool mzFileIO::isKnownFileType(QString filename) {
     return false;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 bool mzFileIO::isSampleFileType(QString filename) {
     QStringList extList;
     extList << "mzXML" << "cdf" << "nc" << "mzML" << "mzData" << "mzML";
@@ -636,19 +626,11 @@ bool mzFileIO::isSampleFileType(QString filename) {
     return false;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 bool mzFileIO::isProjectFileType(QString filename) {
     if (filename.endsWith("mzroll",Qt::CaseInsensitive)) return true;
     return false;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 bool mzFileIO::isSpectralHitType(QString filename) {
     QStringList extList;
     extList << "pep.xml" << "pepXML" << "idpDB";
@@ -658,10 +640,6 @@ bool mzFileIO::isSpectralHitType(QString filename) {
     return false;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 bool mzFileIO::isPeakListType(QString filename) {
     QStringList extList;
     extList << "mzPeaks";
@@ -671,10 +649,6 @@ bool mzFileIO::isPeakListType(QString filename) {
     return false;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 void mzFileIO::readThermoRawFileImport() {
     if(process) {
         QByteArray data = process->readAllStandardOutput();
@@ -682,10 +656,6 @@ void mzFileIO::readThermoRawFileImport() {
     }
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 void mzFileIO::addFileToQueue(QString f)
 {
     if (isKnownFileType(f)) filelist << f;
@@ -695,10 +665,6 @@ void mzFileIO::removeAllFilefromQueue() {
     filelist.clear();
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging mzfileio
 int mzFileIO::ThermoRawFileImport(QString fileName) {
 
     if (process->pid()){
