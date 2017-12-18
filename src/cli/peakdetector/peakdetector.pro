@@ -7,12 +7,14 @@ OBJECTS_DIR=$$top_builddir/tmp/peakdetector/
 TEMPLATE = app
 TARGET = peakdetector
 
-CONFIG += warn_off xml -std=c++14
+CONFIG += warn_off xml
+
+QMAKE_CXXFLAGS += -std=c++11
 
 !macx: LIBS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
-				$$top_srcdir/3rdparty/libcsvparser
+				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
