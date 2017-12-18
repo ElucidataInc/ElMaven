@@ -253,7 +253,7 @@ class mzSlice
     {
         return a->rt < b->rt;
     }
-
+    
     /**
     * @brief operator overloading for less than operator in class mzSlice
     * @param b object of class mzSlice
@@ -710,6 +710,15 @@ class mzSample
     static bool compSampleOrder(const mzSample *a, const mzSample *b) { return a->_sampleOrder < b->_sampleOrder; }
 
     static bool compSampleSort(const mzSample *a, const mzSample *b) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName); }
+
+    /**
+    * @brief Compare injection time (in epoch seconds) of two samples
+    * @param a object of class mzSample
+    * @param b object of class mzSample
+    * @return True if mzSample a has lower injection time than mzSample b
+    */
+    static bool compInjectionTime(const mzSample *a, const mzSample *b) { return a->injectionTime < b->injectionTime; }
+
 
     /**
                           * [getMinMaxDimentions ]
