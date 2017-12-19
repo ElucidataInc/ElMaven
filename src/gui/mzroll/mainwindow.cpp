@@ -3803,14 +3803,14 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
 	}
 
-	int numberofCarbons = 0;
-	if (group->compound && !group->compound->formula.empty()) {
-		map<string, int> composition = MassCalculator::getComposition(
-				group->compound->formula);
-		numberofCarbons = composition["C"];
-	}
+	// int numberofCarbons = 0;
+	// if (group->compound && !group->compound->formula.empty()) {
+	// 	map<string, int> composition = MassCalculator::getComposition(
+	// 			group->compound->formula);
+	// 	numberofCarbons = composition["C"];
+	// }
 
-	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
+	// isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
 	return MM;
 }
 
