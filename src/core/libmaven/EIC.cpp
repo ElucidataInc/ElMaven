@@ -333,8 +333,13 @@ void EIC::findPeakBounds(Peak &peak)
 
     int ii = apex - 1;
     int jj = apex + 1;
-    int lb = ii;
-    int rb = jj;
+    int lb = ii; // left bound 
+    int rb = jj; // right bound
+
+    // this will be used to calculate spline area
+    int slb = ii; // spline left bound
+    int srb = jj; // spline right bound
+
 
     unsigned int N = intensity.size();
     if (N == 0)
@@ -353,6 +358,8 @@ void EIC::findPeakBounds(Peak &peak)
         //if (spline[ii]<=spline[lb] ) lb=ii;
         if (intensity[ii] <= intensity[lb])
             lb = ii;
+        if (spline[ii] <= spline[slb])
+            slb = ii;
         if (spline[ii] == 0)
             break;
         if (spline[ii] <= baseline[ii])
@@ -376,6 +383,8 @@ void EIC::findPeakBounds(Peak &peak)
         //if (spline[jj]<=spline[rb] ) rb=jj;
         if (intensity[jj] <= intensity[rb])
             rb = jj;
+        if (spline[jj] <= spline[srb])
+            srb = jj;
         if (spline[jj] == 0)
             break;
         if (spline[jj] <= baseline[ii])
@@ -420,6 +429,8 @@ void EIC::findPeakBounds(Peak &peak)
 
     peak.minpos = lb;
     peak.maxpos = rb;
+    peak.splineminpos = slb;
+    peak.splinemaxpos = srb;
 }
 
 void EIC::getPeakDetails(Peak &peak)

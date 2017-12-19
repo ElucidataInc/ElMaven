@@ -3139,6 +3139,7 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 				<< QString::number(peak.quality, 'f', 4)
 				<< QString::number(peak.peakIntensity, 'f', 4)
 				<< QString::number(peak.peakArea, 'f', 4)
+				<< QString::number(peak.peakSplineArea, 'f', 4)
 				<< QString::number(peak.peakAreaTop, 'f', 4)
 				<< QString::number(peak.peakAreaCorrected, 'f', 4)
 				<< QString::number(peak.noNoiseObs, 'f', 4)
