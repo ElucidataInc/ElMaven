@@ -80,6 +80,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
             myfile << ",\n" << "\"peakIntensity\": " << peak->peakIntensity ;
             myfile << ",\n" << "\"peakBaseLineLevel\": " << peak->peakBaseLineLevel ;
             myfile << ",\n" << "\"peakArea\": " << peak->peakAreaCorrected ;
+            myfile << ",\n" << "\"peakSplineArea\": " << peak->peakSplineArea ;
             myfile << ",\n" << "\"peakAreaTop\": " << peak->peakAreaTopCorrected;
             myfile << ",\n" << "\"peakAreaNotCorrected\": " << peak->peakArea;
             myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << peak->peakAreaTop;
@@ -110,6 +111,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
             myfile << ",\n" << "\"peakIntensity\": " << "\"NA\"" ;
             myfile << ",\n" << "\"peakBaseLineLevel\": " << "\"NA\"" ;
             myfile << ",\n" << "\"peakArea\": " << "\"NA\"" ;
+            myfile << ",\n" << "\"peakSplineArea\": " << "\"NA\"" ;
             myfile << ",\n" << "\"peakAreaTop\": " << "\"NA\"";
             myfile << ",\n" << "\"peakAreaNotCorrected\": " << "\"NA\"";
             myfile << ",\n" << "\"peakAreaTopNotCorrected\": " << "\"NA\"";

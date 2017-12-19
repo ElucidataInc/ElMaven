@@ -1634,6 +1634,8 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("pos",  QString::number(p.pos,'f', 6));
         stream.writeAttribute("minpos",  QString::number(p.minpos,'f', 6));
         stream.writeAttribute("maxpos",  QString::number(p.maxpos,'f', 6));
+        stream.writeAttribute("splineminpos",  QString::number(p.splineminpos,'f', 6));
+        stream.writeAttribute("splinemaxpos",  QString::number(p.splinemaxpos,'f', 6));
         stream.writeAttribute("rt",  QString::number(p.rt,'f',6));
         stream.writeAttribute("rtmin",  QString::number(p.rtmin,'f',6));
         stream.writeAttribute("rtmax",  QString::number(p.rtmax,'f',6));
@@ -1643,6 +1645,7 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("minscan",   QString::number(p.minscan));
         stream.writeAttribute("maxscan",   QString::number(p.maxscan));
         stream.writeAttribute("peakArea",  QString::number(p.peakArea,'f',6));
+        stream.writeAttribute("peakSplineArea",  QString::number(p.peakSplineArea,'f',6));        
         stream.writeAttribute("peakAreaCorrected",  QString::number(p.peakAreaCorrected,'f',6));
         stream.writeAttribute("peakAreaTop",  QString::number(p.peakAreaTop,'f',6));
         stream.writeAttribute("peakAreaTopCorrected",  QString::number(p.peakAreaTopCorrected,'f',6));
@@ -1765,6 +1768,8 @@ void TableDockWidget::readPeakXML(QXmlStreamReader& xml,PeakGroup* parent) {
     p.pos = xml.attributes().value("pos").toString().toInt();
     p.minpos = xml.attributes().value("minpos").toString().toInt();
     p.maxpos = xml.attributes().value("maxpos").toString().toInt();
+    p.splineminpos = xml.attributes().value("splineminpos").toString().toInt();
+    p.splinemaxpos = xml.attributes().value("splinemaxpos").toString().toInt();
     p.rt = xml.attributes().value("rt").toString().toDouble();
     p.rtmin = xml.attributes().value("rtmin").toString().toDouble();
     p.rtmax = xml.attributes().value("rtmax").toString().toDouble();
@@ -1774,6 +1779,7 @@ void TableDockWidget::readPeakXML(QXmlStreamReader& xml,PeakGroup* parent) {
     p.minscan = xml.attributes().value("minscan").toString().toInt();
     p.maxscan = xml.attributes().value("maxscan").toString().toInt();
     p.peakArea = xml.attributes().value("peakArea").toString().toDouble();
+    p.peakSplineArea = xml.attributes().value("peakSplineArea").toString().toDouble();
     p.peakAreaCorrected = xml.attributes().value("peakAreaCorrected").toString().toDouble();
     p.peakAreaTop = xml.attributes().value("peakAreaTop").toString().toDouble();
     p.peakAreaTopCorrected = xml.attributes().value("peakAreaTopCorrected").toString().toDouble();

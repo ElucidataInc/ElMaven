@@ -837,6 +837,8 @@ void PeakDetectorCLI::writeGroupXML(xml_node& parent, PeakGroup* g) {
 		peak.append_attribute("pos") = ((int) p.pos);
 		peak.append_attribute("minpos") = (int) p.minpos;
 		peak.append_attribute("maxpos") = (int) p.maxpos;
+		peak.append_attribute("splineminpos") = (int) p.splineminpos;
+		peak.append_attribute("splinemaxpos") = (int) p.splinemaxpos;
 		peak.append_attribute("rt") = p.rt;
 		peak.append_attribute("rtmin") = p.rtmin;
 		peak.append_attribute("rtmax") = p.rtmax;
@@ -846,6 +848,7 @@ void PeakDetectorCLI::writeGroupXML(xml_node& parent, PeakGroup* g) {
 		peak.append_attribute("minscan") = (int) p.minscan;
 		peak.append_attribute("maxscan") = (int) p.maxscan;
 		peak.append_attribute("peakArea") = p.peakArea;
+		peak.append_attribute("peakSplineArea") = p.peakSplineArea;
 		peak.append_attribute("peakAreaCorrected") = p.peakAreaCorrected;
 		peak.append_attribute("peakAreaTop") = p.peakAreaTop;
         peak.append_attribute("peakAreaTopCorrected") = p.peakAreaTopCorrected;
