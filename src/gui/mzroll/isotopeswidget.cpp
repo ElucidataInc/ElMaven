@@ -321,7 +321,7 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
                 isotopes.push_back(isotope);
 			}
 		}
-		std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
+		//std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
 
 		if (isotopes.size() > 0 ) {
 				MatrixXf MM = _mw->getIsotopicMatrixIsoWidget(group);
