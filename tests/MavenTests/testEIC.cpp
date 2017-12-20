@@ -141,6 +141,12 @@ void TestEIC:: testGetPeakDetails() {
          if (e->intensity[i] > e->baseline[i]) noNoiseObs ++;
     }
 
+    float peakSplineArea = 0.0;
+    for (unsigned int j = e->peaks[10].splineminpos; j <= e->peaks[10].splinemaxpos; j++)
+    {
+        peakSplineArea += e->spline[j];
+    }
+
     float peakAreaCorrected = peakArea - baselineArea;
 
     QVERIFY(common::floatCompare(*max_element(intensity.begin(), intensity.end()), e->peaks[10].peakIntensity));
@@ -148,6 +154,8 @@ void TestEIC:: testGetPeakDetails() {
     QVERIFY(e->peaks[10].noNoiseObs == noNoiseObs);
 
     QVERIFY(common::floatCompare(peakArea, e->peaks[10].peakArea));
+
+    QVERIFY(common::floatCompare(peakSplineArea, e->peaks[10].peakSplineArea));
 
     QVERIFY(common::floatCompare(peakAreaCorrected, e->peaks[10].peakAreaCorrected));
 
