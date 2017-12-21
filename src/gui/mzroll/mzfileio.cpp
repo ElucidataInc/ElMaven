@@ -546,7 +546,7 @@ void mzFileIO::fileImport(void) {
                             sample->isBlank = true;   //check if this is a blank sample
 
                     if (sample->scans.size()>0)
-                            _mainwindow->addSample(sample);
+                        emit addNewSample(sample);
 
             }
             #ifndef __APPLE__
