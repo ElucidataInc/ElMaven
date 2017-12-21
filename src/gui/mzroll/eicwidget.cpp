@@ -1832,10 +1832,11 @@ QString EicWidget::eicToTextBuffer() {
 
         for(int j=0;  j<e->size(); j++ ) {
                 if (e->rt[j] >= eicParameters->_slice.rtmin && e->rt[j] <= eicParameters->_slice.rtmax ) {
-                        eicText += tr("%1,%2,%3,%4\n").arg(
+                        eicText += tr("%1,%2,%3,%4,%5\n").arg(
                                 QString::number(i),
                                 QString::number(e->rt[j], 'f', 2),
                                 QString::number(e->intensity[j], 'f', 4),
+                                QString::number(e->spline[j], 'f', 4),
                                 QString::number(e->mz[j], 'f', 4)
                         );
                 }
