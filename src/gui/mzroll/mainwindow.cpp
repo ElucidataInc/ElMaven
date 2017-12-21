@@ -489,16 +489,18 @@ using namespace mzUtils;
 
     //added while merging with Maven776 - Kiran
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(checkSRMList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(setQComboBox()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this,SLOT(setFilterLine()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(checkSRMList()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
 	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(spectraLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
@@ -506,6 +508,7 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setQComboBox()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -1136,6 +1139,18 @@ void MainWindow::setQComboBox() {
 
 	}
 	else ionizationModeComboBox->setCurrentIndex(2);
+}
+
+void MainWindow::setInjectionOrderFromTimeStamp() {
+
+    vector<mzSample*> samples = getSamples();
+    std::sort(samples.begin(), samples.end(), mzSample::compInjectionTime);
+
+    for (unsigned int i = 1; i <= samples.size(); i++)
+    {
+        mzSample *sample = samples[i-1];
+		if (sample->injectionTime > 0) sample->setInjectionOrder(i);
+    }
 }
 
 void MainWindow::setFilterLine() {

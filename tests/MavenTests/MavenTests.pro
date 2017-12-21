@@ -12,14 +12,14 @@ TARGET = MavenTests
 QT += testlib
 QT -= gui
 
-CONFIG += qtestlib warn_off
+CONFIG += qtestlib warn_off 
 
 QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
-				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector
+				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector $$top_srcdir/3rdparty/libdate
 
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
