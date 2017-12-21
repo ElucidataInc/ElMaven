@@ -19,6 +19,7 @@ mzSample::mzSample()
 	minIntensity = 0;
 	totalIntensity = 0;
 	_normalizationConstant = 1; //TODO: Sahil Not being used anywhere
+	injectionTime = 0;
 	_sampleOrder = 0;
 	_C13Labeled = false;
 	_N15Labeled = false;
@@ -294,6 +295,13 @@ void mzSample::parseMzML(const char *filename)
 		return;
 	}
 
+	//Get injection time stamp
+	xml_node experimentRun = doc.first_child().first_element_by_path("mzML/run");
+	if (!experimentRun.empty())
+	{
+		parseMzMLInjectionTimeStamp(experimentRun);
+	}
+
 	//Get a spectrumstore node
 	xml_node chromatogramList = doc.first_child().first_element_by_path("mzML/run/chromatogramList");
 	xml_node spectrumList = doc.first_child().first_element_by_path("mzML/run/spectrumList");
@@ -308,7 +316,24 @@ void mzSample::parseMzML(const char *filename)
 	}
 }
 
-void mzSample::parseMzMLChromatogromList(xml_node chromatogramList)
+void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
+{
+	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
+
+	if (!injectionTimeStamp.empty())
+	{
+		using namespace date;
+		string time_details = injectionTimeStamp.value();
+		istringstream in;
+		in.str(time_details);
+		sys_seconds timeStamp;
+		in >> parse("%Y-%m-%dT%T", timeStamp);
+		injectionTime = timeStamp.time_since_epoch().count();
+  
+	}
+}
+
+void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 {
 
 	int scannum = 0;
@@ -396,7 +421,7 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList)
 	}
 }
 
-void mzSample::parseMzMLSpectrumList(xml_node spectrumList)
+void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)
 {
 
 	//Iterate through spectrums

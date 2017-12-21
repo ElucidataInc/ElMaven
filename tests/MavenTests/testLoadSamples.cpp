@@ -137,3 +137,56 @@ void TestLoadSamples:: testBlankSample() {
     mzsample.loadSample(loadFile);
     QVERIFY(!mzsample.isBlank);
 }
+
+void TestLoadSamples::testParseMzMLInjectionTimeStamp() {
+
+    // Different format of time stamps
+    vector<string> test_cases{
+        "2001-10-26T19:32:52Z",
+        "2001-10-26T21:32:52",
+        "2001-10-26T21:32:52+02:00",
+        "2001-10-26T19:32:52+00:00",
+        "2001-10-26T21:32:52.12679"
+    };
+
+    // Expected output - epoch time
+    vector<long unsigned int> expected_output{
+        1004124772,
+        1004131972,
+        1004131972,
+        1004124772,
+        1004131972
+    };
+
+    // check if input and expected output vector size is same
+    if (test_cases.size() != expected_output.size()) QVERIFY(0);
+
+
+    for (vector<string>::iterator it = test_cases.begin(); it != test_cases.end(); it++) {
+
+        // creating xml document from scratch
+        pugi::xml_document doc;
+
+        // add node with name mzML
+        pugi::xml_node node = doc.append_child("mzML");
+
+        // add node with name run with parent node mzML
+        pugi::xml_node run = node.append_child("run");
+        run.append_child(pugi::node_pcdata).set_value("experiment run");
+
+        // add attribute & corresponding value startTimeStamp to node
+        string str = *it;
+        run.append_attribute("startTimeStamp") = str.c_str();
+
+        // using the "parseMzMLInjectionTimeStamp" function to get time stamp
+        mzSample* sample = new mzSample();
+        xml_node experimentRun = doc.first_child().first_element_by_path("run");
+        sample->parseMzMLInjectionTimeStamp(experimentRun);
+
+        // comparing expected output with observed output
+        unsigned int index_itr = it - test_cases.begin();
+        QVERIFY(sample->injectionTime == expected_output[index_itr]);
+
+    }
+
+}

@@ -28,6 +28,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <chrono_io.h>
+#include <date.h>
+
 #ifdef ZLIB
 #include <zlib.h>
 #endif
@@ -250,7 +253,7 @@ class mzSlice
     {
         return a->rt < b->rt;
     }
-
+    
     /**
     * @brief operator overloading for less than operator in class mzSlice
     * @param b object of class mzSlice
@@ -426,16 +429,22 @@ class mzSample
     static map<string, string> mzML_cvParams(xml_node node);
 
     /**
+     * @brief Update injection time stamp
+     * @param xml_node xml_node object of pugixml library
+     */
+    void parseMzMLInjectionTimeStamp(xml_node&);
+
+    /**
     * @brief Parse mzML chromatogrom list
-    * @param xml_node xml_node object of pugixml lirary
+    * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLChromatogromList(xml_node);
+    void parseMzMLChromatogromList(xml_node&);
 
     /**
     * @brief Parse mzML spectrum list
-    * @param xml_node xml_node object of pugixml lirary
+    * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLSpectrumList(xml_node);
+    void parseMzMLSpectrumList(xml_node&);
 
     /**
     * @brief Print info about sample 
@@ -703,6 +712,15 @@ class mzSample
     static bool compSampleSort(const mzSample *a, const mzSample *b) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName); }
 
     /**
+    * @brief Compare injection time (in epoch seconds) of two samples
+    * @param a object of class mzSample
+    * @param b object of class mzSample
+    * @return True if mzSample a has lower injection time than mzSample b
+    */
+    static bool compInjectionTime(const mzSample *a, const mzSample *b) { return a->injectionTime < b->injectionTime; }
+
+
+    /**
                           * [getMinMaxDimentions ]
                           * @method getMinMaxDimentions
                           * @param  samples             []
@@ -798,22 +816,20 @@ class mzSample
     float minIntensity;
     float totalIntensity;
 
-    /** sample display order */
-    int _sampleOrder;
+    int _sampleOrder; //Sample display order
+
     bool _C13Labeled;
     bool _N15Labeled;
+    bool _S34Labeled; //Feng note: added to track S34 labeling state
+    bool _D2Labeled; //Feng note: added to track D2 labeling state
 
-    /**  Feng note: added to track S34 labeling state */
-    bool _S34Labeled;
-
-    /** Feng note: added to track D2 labeling state */
-    bool _D2Labeled;
     float _normalizationConstant;
     string _setName;
-    int injectionOrder;
 
-    /**  srm to scan mapping */
-    map<string, vector<int> > srmScans;
+    unsigned long int injectionTime; //Injection Time Stamp
+    int injectionOrder; //Injection order
+
+    map<string, vector<int> > srmScans; //SRM to scan mapping
 
     /** tags associated with this sample */
     map<string, string> instrumentInfo;
