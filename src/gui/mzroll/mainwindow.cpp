@@ -279,6 +279,7 @@ using namespace mzUtils;
     fileLoader = new mzFileIO(this);
     fileLoader->setMainWindow(this);
 	connect(fileLoader, SIGNAL(createPeakTableSignal(QString)), this,  SLOT(createPeakTable(QString)));
+    connect(fileLoader, &mzFileIO::addNewSample, this, &MainWindow::addSample);
 	//settings dialog
 	settingsForm = new SettingsForm(settings, this);
 	//progress Bar on the bottom of the page
