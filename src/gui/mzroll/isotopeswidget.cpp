@@ -335,6 +335,19 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
 						}
 						isotopeInfo += groupInfo.join("\t") + "\n";
 				}
+				if (MM.cols() > isotopes.size()) {
+					isotopeInfo += "Natural Abundance\n";
+					for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
+						QStringList groupInfo;
+                        groupInfo << tag + " " + QString(isotopes[i]->tagString.c_str());
+						for( unsigned int j=0; j < vsamples.size(); j++) {
+								//qDebug() << i << " " << j << " " << MM(j,i);
+								groupInfo << QString::number(MM(j,k), 'f', 2 );
+						}
+						isotopeInfo += groupInfo.join("\t") + "\n";
+					}
+				}
+				
 				_mw->setStatusText("Clipboard set to isotope summary");
 		} else {
                 isotopeInfo += tag + groupTextEport(group) + "\n";
