@@ -60,11 +60,12 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
         setToolTip( "<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
                           "<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
                             "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
+                            "<br> <b>Spline Area: </b>" + 		  QString::number(_peak->peakSplineArea) +
                             "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
                             "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) + 
                             "<br> <b>sample number: </b>" +   QString::number(_peak->getScan()->sampleNumber) + 
                             "<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
-							);
+                        );
 
 		update();
 		/*

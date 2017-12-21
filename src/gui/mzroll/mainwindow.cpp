@@ -3119,7 +3119,7 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 	sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleOrder);
 
 	groupInfo
-			<< "sample\tgroupId\tcompoundName\texpectedRt\tpeakMz\tmedianMz\trt\trtmin\trtmax\tquality\tpeakIntensity\tpeakArea\tpeakAreaTop\tpeakAreaCorrected\tnoNoiseObs\tsignalBaseLineRatio\tfromBlankSample";
+			<< "sample\tgroupId\tcompoundName\texpectedRt\tpeakMz\tmedianMz\trt\trtmin\trtmax\tquality\tpeakIntensity\tpeakArea\tpeakSplineArea\tpeakAreaTop\tpeakAreaCorrected\tnoNoiseObs\tsignalBaseLineRatio\tfromBlankSample";
 	for (int j = 0; j < group->peaks.size(); j++) {
 		QStringList peakinfo;
 		Peak& peak = group->peaks[j];
@@ -3139,6 +3139,7 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 				<< QString::number(peak.quality, 'f', 4)
 				<< QString::number(peak.peakIntensity, 'f', 4)
 				<< QString::number(peak.peakArea, 'f', 4)
+				<< QString::number(peak.peakSplineArea, 'f', 4)
 				<< QString::number(peak.peakAreaTop, 'f', 4)
 				<< QString::number(peak.peakAreaCorrected, 'f', 4)
 				<< QString::number(peak.noNoiseObs, 'f', 4)

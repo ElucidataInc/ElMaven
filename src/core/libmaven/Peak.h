@@ -25,8 +25,10 @@ class Peak {
         void copyObj(const Peak& o);
 
         unsigned int pos;
-        unsigned int minpos;
-        unsigned int maxpos;
+        unsigned int minpos; // left bound of peak
+        unsigned int maxpos; // right bound of peak
+        unsigned int splineminpos; // left bound of spline peak
+        unsigned int splinemaxpos; // right bound of spline peak
 
         float rt;
         float rtmin;
@@ -40,6 +42,8 @@ class Peak {
 
         /** non corrected sum of all intensities */
         float peakArea;
+        /** are of spline */
+        float peakSplineArea;
         /** baseline substracted area */
         float peakAreaCorrected;
         /** top 3 points of the peak */
