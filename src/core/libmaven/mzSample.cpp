@@ -316,7 +316,7 @@ void mzSample::parseMzML(const char *filename)
 	}
 }
 
-void mzSample::parseMzMLInjectionTimeStamp(xml_node experimentRun)
+void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 {
 	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
 
@@ -333,7 +333,7 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node experimentRun)
 	}
 }
 
-void mzSample::parseMzMLChromatogromList(xml_node chromatogramList)
+void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 {
 
 	int scannum = 0;
@@ -421,7 +421,7 @@ void mzSample::parseMzMLChromatogromList(xml_node chromatogramList)
 	}
 }
 
-void mzSample::parseMzMLSpectrumList(xml_node spectrumList)
+void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)
 {
 
 	//Iterate through spectrums

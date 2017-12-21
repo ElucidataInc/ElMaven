@@ -432,19 +432,19 @@ class mzSample
      * @brief Update injection time stamp
      * @param xml_node xml_node object of pugixml library
      */
-    void parseMzMLInjectionTimeStamp(xml_node);
+    void parseMzMLInjectionTimeStamp(xml_node&);
 
     /**
     * @brief Parse mzML chromatogrom list
     * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLChromatogromList(xml_node);
+    void parseMzMLChromatogromList(xml_node&);
 
     /**
     * @brief Parse mzML spectrum list
     * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLSpectrumList(xml_node);
+    void parseMzMLSpectrumList(xml_node&);
 
     /**
     * @brief Print info about sample 
