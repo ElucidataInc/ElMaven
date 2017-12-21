@@ -30,6 +30,7 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("S34Labeled_IsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
 
     settings.insert("noOfIsotopes", QVariant::fromValue(sf->noOfIsotopes));
+    settings.insert("isotopeC13Correction", QVariant::fromValue(sf->isotopeC13Correction));
     settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxNaturalAbundanceErr", QVariant::fromValue(sf->maxNaturalAbundanceErr));
@@ -429,7 +430,7 @@ void SettingsForm::getFormValues() {
     settings->setValue("S34Labeled_IsoWidget", S34Labeled_IsoWidget->checkState());
     settings->setValue("D2Labeled_IsoWidget", D2Labeled_IsoWidget->checkState());
 
-    settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState()  );
+    settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState());
     settings->setValue("amuQ1", amuQ1->value());
     settings->setValue("amuQ3", amuQ3->value());
     settings->setValue("filterlineComboBox", filterlineComboBox->currentText());

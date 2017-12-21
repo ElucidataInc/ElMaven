@@ -324,31 +324,28 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
 		//std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
 
 		if (isotopes.size() > 0 ) {
-				MatrixXf MM = _mw->getIsotopicMatrixIsoWidget(group);
-				///qDebug() << "MM row=" << MM.rows() << " " << MM.cols() << " " << isotopes.size() <<  " " << vsamples.size() << endl;
-				for (int i=0; i < isotopes.size(); i++ ) {
-						QStringList groupInfo;
-                        groupInfo << tag + " " + QString(isotopes[i]->tagString.c_str());
-						for( unsigned int j=0; j < vsamples.size(); j++) {
-								//qDebug() << i << " " << j << " " << MM(j,i);
-								groupInfo << QString::number(MM(j,i), 'f', 2 );
-						}
-						isotopeInfo += groupInfo.join("\t") + "\n";
+			MatrixXf MM = _mw->getIsotopicMatrixIsoWidget(group);
+			for (int i=0; i < isotopes.size(); i++ ) {
+				QStringList groupInfo;
+                groupInfo << tag + " " + QString(isotopes[i]->tagString.c_str());
+				for( unsigned int j=0; j < vsamples.size(); j++) {
+					groupInfo << QString::number(MM(j,i), 'f', 2 );
 				}
-				if (MM.cols() > isotopes.size()) {
-					isotopeInfo += "Natural Abundance\n";
-					for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
-						QStringList groupInfo;
-                        groupInfo << tag + " " + QString(isotopes[i]->tagString.c_str());
-						for( unsigned int j=0; j < vsamples.size(); j++) {
-								//qDebug() << i << " " << j << " " << MM(j,i);
-								groupInfo << QString::number(MM(j,k), 'f', 2 );
-						}
-						isotopeInfo += groupInfo.join("\t") + "\n";
+				isotopeInfo += groupInfo.join("\t") + "\n";
+			}
+			if (_mw->mavenParameters->isotopeAtom["ShowIsotopes"] && _mw->mavenParameters->isotopeC13Correction) {
+				isotopeInfo += "Natural Abundance\n";
+				for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
+					QStringList groupInfo;
+                    groupInfo << tag + " " + QString(isotopes[i]->tagString.c_str());
+					for( unsigned int j=0; j < vsamples.size(); j++) {
+						groupInfo << QString::number(MM(j,k), 'f', 2 );
 					}
+					isotopeInfo += groupInfo.join("\t") + "\n";
 				}
-				
-				_mw->setStatusText("Clipboard set to isotope summary");
+			}
+
+			_mw->setStatusText("Clipboard set to isotope summary");
 		} else {
                 isotopeInfo += tag + groupTextEport(group) + "\n";
 				_mw->setStatusText("Clipboard to group summary");

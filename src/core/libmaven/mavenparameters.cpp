@@ -91,6 +91,7 @@ MavenParameters::MavenParameters()
         maxNaturalAbundanceErr = 100;
         minIsotopicCorrelation = 0;
         noOfIsotopes = 1000000;
+        isotopeC13Correction = 0;
 
 	C13Labeled_BPE = false;
 	N15Labeled_BPE = false;
@@ -300,6 +301,9 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
     if(strcmp(key, "noOfIsotopes") == 0)
         noOfIsotopes = atof(value);
+
+    if(strcmp(key, "isotopeC13Correction") == 0)
+        isotopeC13Correction = atof(value);
 
     if(strcmp(key, "minIsotopicCorrelation") == 0)
         minIsotopicCorrelation = atof(value);
