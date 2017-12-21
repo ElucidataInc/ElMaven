@@ -2254,7 +2254,7 @@ void MainWindow::readSettings() {
 
     //Pull Isotopes in options
     if (!settings->contains("isotopeC13Correction"))
-        settings->setValue("isotopeC13Correction", 2);
+        settings->setValue("isotopeC13Correction", 0);
 
 	if (!settings->contains("maxNaturalAbundanceErr"))
 		settings->setValue("maxNaturalAbundanceErr", 100);
