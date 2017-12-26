@@ -256,6 +256,10 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 	mavenParameters = new MavenParameters();
 	_massCutoffWindow = new MassCutoff();
+
+	double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
+	string massCutoffType=settings->value("massCutoffType").toString().toStdString();
+	_massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
 	QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
 
 	if (QFile::exists(clsfModelFilename)) {
@@ -2194,7 +2198,7 @@ void MainWindow::readSettings() {
         settings->setValue("matchRtFlag", 0);
 
     if (!settings->contains("compoundMassCutoffWindow"))
-        settings->setValue("compoundMassCutoffWindow", 20);
+        settings->setValue("compoundMassCutoffWindow", 5);
 
     if (!settings->contains("compoundRTWindow"))
         settings->setValue("compoundRTWindow", 2);
@@ -2322,7 +2326,12 @@ void MainWindow::readSettings() {
 
     //Main window right hand top
     if (!settings->contains("massCutoffWindowBox"))
-        settings->setValue("massCutoffWindowBox", 5);
+		settings->setValue("massCutoffWindowBox", 5);
+	if (!settings->contains("compoundMassCutoffWindow"))
+		settings->setValue("compoundMassCutoffWindow", 5);
+
+	if (!settings->contains("massCutoffType"))
+	settings->setValue("massCutoffType","ppm");
 
     if (!settings->contains("mzslice"))
         settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
