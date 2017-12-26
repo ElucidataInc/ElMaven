@@ -190,6 +190,7 @@ class MavenParameters
         double maxNaturalAbundanceErr;
         double minIsotopicCorrelation;
         int noOfIsotopes;
+        bool isotopeC13Correction;
         bool C13Labeled_BPE;
         bool N15Labeled_BPE;
         bool S34Labeled_BPE;

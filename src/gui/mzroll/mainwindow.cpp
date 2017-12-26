@@ -2254,7 +2254,7 @@ void MainWindow::readSettings() {
 
     //Pull Isotopes in options
     if (!settings->contains("isotopeC13Correction"))
-        settings->setValue("isotopeC13Correction", 2);
+        settings->setValue("isotopeC13Correction", 0);
 
 	if (!settings->contains("maxNaturalAbundanceErr"))
 		settings->setValue("maxNaturalAbundanceErr", 100);
@@ -3808,7 +3808,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	}
 	//std::sort(isotopes.begin(), isotopes.end(), PeakGroup::compC13);
 
-	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
+	MatrixXf MM((int) vsamples.size(), (int) 2*isotopes.size() ); //rows=samples, cols=isotopes
+	MatrixXf MMabundance((int) vsamples.size(), (int) isotopes.size());
+	MMabundance.setZero();
 	MM.setZero();
 
 	for (int i = 0; i < isotopes.size(); i++) {
@@ -3816,8 +3818,10 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 			continue;
 		vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
 				qtype); //sort isotopes by sample
-		for (int j = 0; j < values.size(); j++)
+		for (int j = 0; j < values.size(); j++) {
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
+			MMabundance(j, i) = values[j];
+		}
 	}
 
 	int numberofCarbons = 0;
@@ -3827,7 +3831,16 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 		numberofCarbons = composition["C"];
 	}
 
-	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
+	isotopeC13Correct(MMabundance, numberofCarbons, carbonIsotopeSpecies);
+	if (settings && settings->value("isotopeC13Correction").toBool() == true) {
+		for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
+			if (!isotopes[i])
+				continue;
+			for (int j = 0; j < vsamples.size(); j++) {
+				MM(j, k) = MMabundance(j,i);  //rows=samples, columns=isotopes
+			}
+		}
+	}
 	return MM;
 }
 
