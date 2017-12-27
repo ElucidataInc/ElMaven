@@ -196,16 +196,17 @@ def processData(json_obj):
         samples_data)
     output_json = json.dumps(output_dict)
     return output_json
-
-
-for line in iter(sys.stdin.readline, ''):
-    if 'start processing' in line:
-        continue
-    if 'end processing' in line:
-        json_obj = json.loads(input_json)
-        processedData = processData(json_obj)
-        print processedData
-        sys.stdout.flush()
-        print 'stop'
-        sys.stdout.flush()
+# read input till the EOF
+for line in iter(sys.stdin.readline,''):
     input_json += line
+
+# process data
+json_obj = json.loads(input_json)
+processedData = processData(json_obj)
+
+# sent back processed data
+sys.stdout.write(processedData)
+sys.stdout.flush()
+
+# must exit the program manully
+sys.exit(0)
