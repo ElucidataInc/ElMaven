@@ -52,7 +52,7 @@
         <N15Labeled_IsoWidget>1</N15Labeled_IsoWidget>
         <S34Labeled_IsoWidget>1</S34Labeled_IsoWidget>
         <noOfIsotopes>1000000</noOfIsotopes>
-        <isotopeC13Correction>0<isotopeC13Correction>
+        <isotopeC13Correction>0</isotopeC13Correction>
         <minIsotopicCorrelation>0.20</minIsotopicCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>
         <maxNaturalAbundanceErr>100.00</maxNaturalAbundanceErr>
