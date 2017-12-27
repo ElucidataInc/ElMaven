@@ -397,7 +397,7 @@ void BackgroundPeakUpdate::readDataFromPython()
 {
         while(pythonProg->bytesAvailable())
                 processedDataFromPython += pythonProg->readLine(1024);
-
+        
 }
 void BackgroundPeakUpdate::writeToPythonProcess(QByteArray data){
 
@@ -406,10 +406,9 @@ void BackgroundPeakUpdate::writeToPythonProcess(QByteArray data){
                 return;
         }
         QTextStream stream(pythonProg);
-        int written=0;
-        for(int i=0;i<data.size();i+=1024){
-                written+=pythonProg->write(data.mid(i,1024));
-                pythonProg->waitForBytesWritten(-1);
+        int quantumOfData=1024*1024;
+        for(int i=0;i<data.size();i+=quantumOfData){
+                stream<<data.mid(i,quantumOfData);
         }
         stream.flush();
         pythonProg->closeWriteChannel();
@@ -475,7 +474,7 @@ void BackgroundPeakUpdate::align() {
                          */
                         runPythonProg(&aligner);
                         // wait for processing of data by python program
-                        pythonProg->waitForFinished(-1);
+                        pythonProg->waitForFinished(-1);                        
 
                         // convert the data to json
                         QJsonDocument jDoc;
