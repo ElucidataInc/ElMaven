@@ -139,11 +139,14 @@ protected:
 	 * [run method for a thread]
 	 */
 	void run(void);
-
+private Q_SLOTS:
+	void readDataFromPython();
+	
 private:
 	string runFunction;
 	MainWindow *mainwindow;
-    QProcess* pythonProg;
+	QProcess* pythonProg;
+	QByteArray processedDataFromPython;
 
 	/**
 	 * [align function]
