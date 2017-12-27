@@ -13,6 +13,19 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
         peakDetector.boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
+
+        /**
+         * create one python program for running alignment
+         */
+        pythonProg = new QProcess();
+        QString programPath;
+        #if defined(Q_OS_LINUX)
+                programPath =  QCoreApplication::applicationDirPath() + QDir::separator() + "linux" + QDir::separator() + "python_exe";
+        #elif defined(Q_OS_WIN)
+                programPath = QCoreApplication::applicationDirPath() + QDir::separator() + "windows" + QDir::separator() + "python_exe.exe";
+        #endif
+        pythonProg->setProgram(programPath);
+        connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
 }
 
 
@@ -376,78 +389,49 @@ void BackgroundPeakUpdate::sendDataToPython(QJsonObject& grpJson, QJsonObject& r
     QJsonDocument jDoc(jObj);
     QByteArray data = jDoc.toJson();
 
-
-    pythonProg->write("start processing");
-    pythonProg->write("\n");
-
-
-    pythonProg->write(data);
-    pythonProg->write("\n");
-
-    // tell python that we are done sending the data
-    pythonProg->write("end processing");
-    pythonProg->write("\n");
-
+    writeToPythonProcess(data);
 
 }
 
-void BackgroundPeakUpdate::readDataFromPython(QByteArray& data)
+void BackgroundPeakUpdate::readDataFromPython()
 {
-    // wait for python to send the processed data
-    // kill the python process once we recieve the processed data
+        while(pythonProg->bytesAvailable())
+                processedDataFromPython += pythonProg->readLine(1024);
 
-    bool stopProcessing = false;
+}
+void BackgroundPeakUpdate::writeToPythonProcess(QByteArray data){
 
-    while(true) {
-
-        if(pythonProg->waitForReadyRead(-1)) {
-
-            while(pythonProg->bytesAvailable()) {
-                data += pythonProg->readLine();
-
-                if(data.contains("stop"))
-                    stopProcessing = true;
-
-            }
+        if(pythonProg->state()!=QProcess::Running){
+                qDebug()<<"Error in pipe- data sent to be written but python process is not running";
+                return;
         }
-        if(stopProcessing)
-            break;
-    }
-
-    // we have recived all the data. clean it , kill the python process
-    data.replace("stop", "");
-    data = data.simplified();
-
-    pythonProg->kill();
-
-
+        QTextStream stream(pythonProg);
+        int written=0;
+        for(int i=0;i<data.size();i+=1024){
+                written+=pythonProg->write(data.mid(i,1024));
+                pythonProg->waitForBytesWritten(-1);
+        }
+        stream.flush();
+        pythonProg->closeWriteChannel();
 }
 
 void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
 {
-    if(pythonProg == 0) {
-        pythonProg = new QProcess;
-        QString programPath;
-        #if defined(Q_OS_LINUX)
-            programPath =  QCoreApplication::applicationDirPath() + QDir::separator() + "linux" + QDir::separator() + "python_exe";
 
-        #elif defined(Q_OS_WIN)
-            programPath = QCoreApplication::applicationDirPath() + QDir::separator() + "windows" + QDir::separator() + "python_exe.exe";
-
-        #endif
-        pythonProg->setProgram(programPath);
-    }
-
-    // check that the program is not in a running state
-    if(pythonProg->state() == QProcess::Running)
+    if(pythonProg->state() != QProcess::NotRunning)
         pythonProg->kill();
 
     pythonProg->start();
 
+    /**
+     * wait for python to start otherwise exit
+     */
     if(pythonProg->waitForStarted(-1)) {
-        // we can start sending data to python
+        qDebug()<<"python program is running...";
         sendDataToPython(aligner->groupsJson, aligner->rtsJson);
-
+    }
+    else{
+        qDebug()<<"Python program did not start. Check availability of execcutable";
     }
 
 }
@@ -483,19 +467,15 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
                 } else if (alignAlgo == 1) {
                         aligner.preProcessing(groups);
-
+                        // initialize processedDataFromPython with null 
+                        processedDataFromPython="";
                          /**runPythonProg()
                          * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
                          * python exe is going to correct the rts and send it back to us in json format
                          */
                         runPythonProg(&aligner);
-
-                        /**readDataFromPython(data)
-                         * it will wait for python to send the corrected rts
-                         * once we receive the corrected rts, we kill the python exe and update the rts in maven
-                         */
-                        QByteArray data;
-                        readDataFromPython(data);
+                        // wait for processing of data by python program
+                        pythonProg->waitForFinished(-1);
 
                         // convert the data to json
                         QJsonDocument jDoc;
@@ -503,38 +483,25 @@ void BackgroundPeakUpdate::align() {
 
                         // if jDoc is null that means the json returned from python is malformed
                         // in such a case our rts wont update with new values
-                        jDoc = QJsonDocument::fromJson(data);
-                        if(!jDoc.isNull())
-                        parentObj = jDoc.object();
+                        jDoc = QJsonDocument::fromJson(processedDataFromPython);
+                        if(!jDoc.isNull()){
+                                parentObj = jDoc.object();
+                        }
+                        else{
+                                qDebug()<<"Error: alignment- data is not complete";
+                                return;
+                        }
 
-                        if(!parentObj.isEmpty())
-                        aligner.updateRts(parentObj);
+                        if(!parentObj.isEmpty()){
+                                aligner.updateRts(parentObj);
+                                qDebug()<<"Alignment complete";
+                        }
+                        else{
+                                qDebug()<<"Error: alignment- no json object could be decoded";
+                                return;
+                        }
                 }
 
-
-
-
-
-//                Py_Initialize();
-//                PyRun_SimpleString("exec(open('/home/ubuntu/Desktop/ElMaven/bin/alignment.py').read())");
-//                Py_Finalize();
-//                char c; // to eat the commas
-//                std::string sample, group;
-//                int num, gn, rt;
-//                std::vector<int> rts;
-//                std::vector<std::string> sampNam, groupName;
-//                std::ifstream file("rts_out.csv");
-//                std::string line;
-//                std::getline(file, line);
-//                std::istringstream ss(line);
-//                ss >> num >> c >> gn >> c >> group >> c >> sample >> c >> rt;
-//                map<pair<string, string>, double> deltaRt;
-
-//                while (std::getline(file, line)) {
-//                    std::istringstream ss(line);
-//                    ss >> num >> c >> gn >> c >> group >> c >> sample >> c >> rt;
-//                    deltaRt[make_pair(group, sample)] = rt;
-//                }  
                 mainwindow->deltaRt = aligner.getDeltaRt();
                 mavenParameters->alignSamplesFlag = false;
 
@@ -542,9 +509,7 @@ void BackgroundPeakUpdate::align() {
         QList<PeakGroup> listGroups;
         for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
                 listGroups.append(mavenParameters->allgroups.at(i));
-        }
-
-	
+        }	
 
         Q_EMIT(alignmentComplete(listGroups));
 }
