@@ -232,8 +232,15 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 {
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
-    if(strcmp(key, "ionizationMode") == 0)
-        ionizationMode = atof(value);
+    if(strcmp(key, "ionizationMode") == 0){
+        int indexOfIonizationMode=*value-'0';
+        /**
+         * map index of ionization-mode to value (-1,0,1) of ionizationMode
+         */
+        if(indexOfIonizationMode==1) ionizationMode=0;
+        else if(indexOfIonizationMode==2) ionizationMode=+1;
+        else if(indexOfIonizationMode==3) ionizationMode=-1;
+    }
 
     if(strcmp(key, "amuQ1") == 0)
         amuQ1 = atof(value);
