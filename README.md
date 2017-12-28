@@ -6,9 +6,11 @@
 	<img src="http://www.elucidata.io/static/images/logo.png">
   </a>
 
-<p align="center">
-  <a href="https://travis-ci.org/ElucidataInc/ElMaven"><img alt="Travis Status" 
-  src="https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop"></a> </p>
+## Travis Build
+[![Build Status](https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop)](https://travis-ci.org/ElucidataInc/ElMaven)
+
+## Digital Object Identifier (DOI) 
+[![DOI](https://zenodo.org/badge/70220005.svg)](https://zenodo.org/badge/latestdoi/70220005)
 
 ## Table of contents
 - [Download](#download) 
