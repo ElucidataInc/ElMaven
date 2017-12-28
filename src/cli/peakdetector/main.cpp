@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 	peakdetectorCLI->mavenParameters->allgroups.clear();
 
      #ifndef __APPLE__
-     cerr << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
+     cout << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
      #endif
 	return(0);
 }

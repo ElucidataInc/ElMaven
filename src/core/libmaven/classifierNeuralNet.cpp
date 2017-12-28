@@ -45,7 +45,7 @@ void ClassifierNeuralNet::loadModel(string filename) {
 		delete (brain);
 	brain = new nnwork(num_features, hidden_layer, num_outputs);
 	brain->load((char*) filename.c_str());
-	cerr << "Read in classification model " << filename << endl;
+	cout << "Read in classification model " << filename << endl;
 }
 
 vector<float> ClassifierNeuralNet::getFeatures(Peak& p) {

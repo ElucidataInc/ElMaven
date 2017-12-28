@@ -493,7 +493,7 @@ Series:  Prentice-Hall Series in Automatic Computation
 
     int createDir(const char* path) {
         if (isDir(path)) return 0;
-        cerr << "Creating path: " << path << endl;
+        cout << "Creating path: " << path << endl;
         mode_t old_mask = umask(0);
 #ifdef MINGW
         int retval = mkdir(path);

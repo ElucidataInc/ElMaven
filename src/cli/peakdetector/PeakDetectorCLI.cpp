@@ -95,7 +95,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			break;
 
 		case 'h':
-			opts.usage(cerr, "files --Enter full path to each sample file");
+			opts.usage(cout, "files --Enter full path to each sample file");
 			exit(0);
 			break;
 
@@ -182,12 +182,12 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 		}
 	}
 
-	cerr << "\n\nCommand:  ";
+	cout << "\n\nCommand:  ";
 
 	for (int i = 0; i < argc; i++)
-		cerr << argv[i] << " ";
+		cout << argv[i] << " ";
 
-	cerr << "\n\n\n"; 
+	cout << "\n\n\n"; 
 
 	if (iter.index() < argc) {
 		for (int i = iter.index(); i < argc; i++)
@@ -211,8 +211,8 @@ void PeakDetectorCLI::processXML(const char* fileName){
 	if (xmlFile)
 	{
 
-		cerr << endl << "Found " << fileName << endl;
-		cerr << endl << "Processing..." << endl;
+		cout << endl << "Found " << fileName << endl;
+		cout << endl << "Processing..." << endl;
 
 		xml_document doc;
 		doc.load_file(fileName, pugi::parse_minimal);
@@ -278,7 +278,7 @@ void PeakDetectorCLI::processOptionsArgsXML(xml_node& optionsArgs) {
 			mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(atof(node.attribute("value").value()),"ppm");
 		}
 		else {
-			cerr << endl << "Unknown node : " << node.name() << endl;
+			cout << endl << "Unknown node : " << node.name() << endl;
 		}
 
 	}
@@ -435,7 +435,7 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 		}
 		
 		else {
-			cerr << endl << "Unknown node : " << node.name() << endl;
+			cout << endl << "Unknown node : " << node.name() << endl;
 		}
 
 	}
@@ -475,7 +475,7 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 			filenames.push_back(sampleStr);
 		}
 		else {
-			cerr << endl << "Unknown node : " << node.name() << endl;
+			cout << endl << "Unknown node : " << node.name() << endl;
 		}
 
 	}
@@ -484,8 +484,8 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 
 void PeakDetectorCLI::loadClassificationModel(string clsfModelFilename) {
 
-	cerr << "Loading classifiation model" << endl;
-	cerr << "clsfModelFilename " << clsfModelFilename << endl;
+	cout << "Loading classifiation model" << endl;
+	cout << "clsfModelFilename " << clsfModelFilename << endl;
 	mavenParameters->clsf = new ClassifierNeuralNet();
 	mavenParameters->clsf->loadModel(clsfModelFilename);
 }
@@ -495,10 +495,10 @@ void PeakDetectorCLI::loadCompoundsFile() {
 	//load compound list
 	if (!mavenParameters->ligandDbFilename.empty()) {
 		mavenParameters->processAllSlices = false;
-		cerr << "\nLoading ligand database" << endl;
+		cout << "\nLoading ligand database" << endl;
 		int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
 		mavenParameters->compounds = DB.compoundsDB;
-		cerr << "Total Compounds Loaded : " << loadCount << endl;
+		cout << "Total Compounds Loaded : " << loadCount << endl;
 	}
 
 }
@@ -508,7 +508,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
     #ifndef __APPLE__
     double startLoadingTime = getTime();
     #endif
-    cerr << "\nLoading samples" << endl;
+    cout << "\nLoading samples" << endl;
 
 	for (unsigned int i = 0; i < filenames.size(); i++) {
 		mzSample* sample = new mzSample();
@@ -517,7 +517,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
         sample->isSelected=true;
 		if (sample->scans.size() >= 1) {
 			mavenParameters->samples.push_back(sample);
-			cerr << endl << "Loaded Sample : " << sample->getSampleName() << endl;
+			cout << endl << "Loaded Sample : " << sample->getSampleName() << endl;
 		} else {
 			if (sample != NULL) {
 				delete sample;
@@ -528,16 +528,16 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 
 	if (mavenParameters->samples.size() == 0) {
-		cerr << "Exiting .. nothing to process " << endl;
+		cout << "Exiting .. nothing to process " << endl;
 		exit(1);
 	}
 
 	sort(mavenParameters->samples.begin(), mavenParameters->samples.end(),mzSample::compSampleSort);
 
-	cerr << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples";
+	cout << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples";
 
     #ifndef __APPLE__
-    cerr << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
+    cout << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
     #endif
 
 }
@@ -548,7 +548,7 @@ vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
 	for (int i = 0; i < grp.peaks.size(); i++) {
 		float mzmin = grp.meanMz - 0.2;
 		float mzmax = grp.meanMz + 0.2;
-		//cerr <<setprecision(5) << "getEICs: mz:" << mzmin << "-" << mzmax << " rt:" << rtmin << "-" << rtmax << endl;
+		//cout <<setprecision(5) << "getEICs: mz:" << mzmin << "-" << mzmax << " rt:" << rtmin << "-" << rtmax << endl;
 
 		for (unsigned int j = 0; j < samples.size(); j++) {
 			if (!grp.srmId.empty()) {
@@ -584,7 +584,7 @@ void PeakDetectorCLI::writeReport(string setName) {
 	//create an output folder
 	mzUtils::createDir(mavenParameters->outputdir.c_str());
 
-	cerr << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
+	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
 
 	//reduce groups
 	groupReduction();
@@ -611,7 +611,7 @@ void PeakDetectorCLI::groupReduction() {
          reduceGroups();
 
         #ifndef __APPLE__
-         cerr << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
+         cout << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
         #endif
 	}
 }
@@ -627,7 +627,7 @@ void PeakDetectorCLI::saveJson(string setName) {
 		jsonReports->saveMzEICJson(mavenParameters->outputdir + setName + ".json",
 									mavenParameters->allgroups,mavenParameters->samples);
 		#ifndef __APPLE__
-		cerr << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
+		cout << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
 		#endif
 	}
 }
@@ -643,7 +643,7 @@ void PeakDetectorCLI::saveMzRoll(string setName) {
          writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
 
         #ifndef __APPLE__
-         cerr << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
+         cout << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
         #endif
 	
     }
@@ -661,7 +661,7 @@ void PeakDetectorCLI::saveCSV(string setName) {
     csvreports->setMavenParameters(mavenParameters);
 
     if (mavenParameters->allgroups.size() == 0 ) {
-		cerr << "Writing to CSV Failed: No Groups found" << endl;
+		cout << "Writing to CSV Failed: No Groups found" << endl;
         return;
     }
 
@@ -684,17 +684,17 @@ void PeakDetectorCLI::saveCSV(string setName) {
     csvreports->closeFiles();
 
     if (csvreports->getErrorReport() != "") {
-        cerr << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
+        cout << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
     }
 
     #ifndef __APPLE__
-     cerr << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
+     cout << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
     #endif
 }
 
 void PeakDetectorCLI::reduceGroups() {
 	sort(mavenParameters->allgroups.begin(), mavenParameters->allgroups.end(), PeakGroup::compMz);
-	cerr << "\nreduceGroups(): " << mavenParameters->allgroups.size();
+	cout << "\nreduceGroups(): " << mavenParameters->allgroups.size();
 	//init deleteFlag 
 	for(unsigned int i=0; i<mavenParameters->allgroups.size(); i++) {
 			mavenParameters->allgroups[i].deletedFlag=false;
@@ -737,9 +737,9 @@ void PeakDetectorCLI::reduceGroups() {
             reducedGroupCount++;
         }
     }
-    cerr << "\nReduced count of groups : " << reducedGroupCount << " \n";
+    cout << "\nReduced count of groups : " << reducedGroupCount << " \n";
     mavenParameters->allgroups = allgroups_;
-	cerr << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
+	cout << "Done final group count(): " << mavenParameters->allgroups.size() << endl;
 }
 
 void PeakDetectorCLI::writeSampleListXML(xml_node& parent) {
