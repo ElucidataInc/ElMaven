@@ -1,4 +1,4 @@
-<h3 align="center">Elmaven</h3>
+<h3 align="center">El-MAVEN</h3>
 <p align="center">An intuitive, opensource LC-MS data processing engine </p>
 <p align="center">from </p>
 <p align="center">
@@ -25,16 +25,16 @@
 - [Copyright and license](#copyright-and-license)
 
 ## Download
-Elmaven is supported on both 32 and 64 bit architectures on Windows and Ubuntu.
-Download [Elmaven](https://elucidatainc.github.io/ElMaven/) latest version or daily build depending on your OS and architecture
+El-MAVEN is supported on both 32 and 64 bit architectures on Windows and Ubuntu.
+Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build depending on your OS and architecture
 
 ## Compilation
 
-Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.  
+Install El-MAVEN on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.  
 
 ### Windows
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
-- Open MSYS2 and give the following commands to set up libraries and tool chains for Elmaven. Reopen MSYS2 when required:  
+- Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:  
 - **For 64 bit**:  
 `pacman --force -Sy`  
 `pacman --force -Syu`  
@@ -53,10 +53,10 @@ Install Elmaven on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02
 `./run.sh`  
 `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`  
 
-Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.  
+El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.  
 
 ### Ubuntu  
-- Open the terminal and give the following commands to set up libraries and tool chains for Elmaven.
+- Open the terminal and give the following commands to set up libraries and tool chains for El-MAVEN.
 `sudo apt-get update`  
 `sudo apt-get install g++`  
 `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov`  
@@ -65,8 +65,7 @@ Elmaven loads with two windows: one for logging the application status and anoth
 `./run.sh`  
 `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
 
-Elmaven loads with two windows: one for logging the application status and another Elmaven application window for data analysis.
-
+El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
 
 ### Mac
 
@@ -109,8 +108,8 @@ This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under 
 
 `make -j4`
 
-## Elmaven features
-[Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [Elmaven](https://elucidatainc.github.io/ElMaven/)  share following features:
+## El-MAVEN features
+[Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [El-MAVEN](https://elucidatainc.github.io/ElMaven/)  share following features:
 * Multi-file chromatographic aligner
 * Peak-feature detector
 * Isotope and adduct calculator
@@ -118,17 +117,17 @@ This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under 
 * Pathway visualizer
 * Isotopic flux animator
 
-Elmaven is robust, faster and with more user friendly features compared to Maven.
+El-MAVEN is robust, faster and with more user friendly features compared to Maven.
 
 ## Bugs and feature requests
 
-Existing bugs and feature requests can be found on [El-maven github issue page](https://github.com/ElucidataInc/ElMaven/issues). Please search existing bugs and feature requests before you file a bug or request a feature.
+Existing bugs and feature requests can be found on [El-MAVEN github issue page](https://github.com/ElucidataInc/ElMaven/issues). Please search existing bugs and feature requests before you file a bug or request a feature.
 
 ## Documentation
-Elmaven user documentation can be found on the [GitWiki](https://github.com/ElucidataInc/ElMaven/wiki) page.
+El-MAVEN user documentation can be found on the [GitWiki](https://github.com/ElucidataInc/ElMaven/wiki) page.
 
 ## Contributing
-You are welcome to contribute. Please go through our [contributing guidelines](https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md) and [code of conduct](https://github.com/ElucidataInc/ElMaven/blob/develop/CODE_OF_CONDUCT.md). These guidelines include directions for coding standards, opening issues and development guidelines.
+You are welcome to contribute. Please go through our [contributing guidelines](https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md) and [code of conduct](https://github.com/ElucidataInc/ElMaven/blob/develop/CODE_OF_CONDUCT.md). These guidelines include directions for coding standards, filing issues and development guidelines.
 
 Pull requests must include relevant unit tests. All the functional features are to be tested before committing the code.
 ## Contributors
@@ -149,13 +148,12 @@ Pull requests must include relevant unit tests. All the functional features are 
 
 
 ## References
-To understand [Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [Elmaven](https://elucidatainc.github.io/ElMaven/) workflows and features, please refer to following literature on Maven:
+To understand [Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [El-MAVEN](https://elucidatainc.github.io/ElMaven/) workflows and features, please refer to following literature on Maven:
 
 * [Metabolomic Analysis and Visualization Engine for LC-MSData](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
 * [LC-MS Data Processing with MAVEN: A Metabolomic Analysis and Visualization Engine](http://onlinelibrary.wiley.com/doi/10.1002/0471250953.bi1411s37/abstract), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
 ## Acknowledgment
-Elmaven would not have been possible without the unwavering support, constant feedback and financial support from [Agios](http://www.agios.com/). Elmaven thanks metabolomics community for it’s immense contribution in taking the tool forward and a great sucess.
+El-MAVEN would not have been possible without the unwavering support, constant feedback and financial support from [Agios](http://www.agios.com/). El-MAVEN thanks the metabolomics community for its immense contribution in taking the tool forward and making it a great sucess.
 
 ## Copyright and license
-Code and documentation copyright  2017 [Elucidata  Inc](http://www.elucidata.io/). Code released under the [GPL v2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html). Documentation is released under [MIT license](https://opensource.org/licenses/MIT).
-
+Code and documentation copyright  2017 [Elucidata Inc](http://www.elucidata.io/). Code released under the [GPL v2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html). Documentation is released under [MIT license](https://opensource.org/licenses/MIT).
