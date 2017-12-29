@@ -14,8 +14,7 @@
 
 ## Table of contents
 - [Download](#download) 
-- [Compilation](#compilation)
-- [Upgrading](#upgrading)
+- [Build](#build)
 - [ElMaven features](#elmaven-features)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Documentation](#documentation)
@@ -30,7 +29,7 @@
 El-MAVEN is supported on both 32 and 64 bit architectures on Windows and Ubuntu.
 Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build depending on your OS and architecture
 
-## Compilation
+## Build
 
 Install El-MAVEN on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.  
 
@@ -126,7 +125,7 @@ Users can switch between versions once they have compiled El-MAVEN successfully 
 `git checkout develop`
 `git pull`
 `git checkout v0.x.y` (Eg. v0.1.5)
-- Compile the new version using the following command:
+- Build the new version using the following command:
 
 For Windows and Ubuntu: 
 `./run.sh`
