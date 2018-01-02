@@ -1168,6 +1168,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 
 	for (unsigned int i = 0; i < scans.size(); i++)
 	{
+		bool productFound = false;
 		Scan *scan = scans[i];
 		if (!(scan->filterLine == filterline || filterline == ""))
 			continue;
@@ -1195,6 +1196,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 					eicIntensity = scan->intensity[k];
 					eicMz = scan->mz[k];
 				}
+				productFound = true;
 			}
 			break;
 		}
@@ -1210,6 +1212,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 				eicIntensity += scan->intensity[k];
 				eicMz += (scan->mz[k]) * (scan->intensity[k]);
 				n += scan->intensity[k];
+				productFound = true;
 			}
 
 			eicMz /= n;
@@ -1226,18 +1229,21 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 					eicIntensity = scan->intensity[k];
 					eicMz = scan->mz[k];
 				}
+				productFound = true;
 			}
 			break;
 		}
 		}
 
-		e->scannum.push_back(scan->scannum);
-		e->rt.push_back(scan->rt);
-		e->intensity.push_back(eicIntensity);
-		e->mz.push_back(eicMz);
-		e->totalIntensity += eicIntensity;
-		if (eicIntensity > e->maxIntensity)
-			e->maxIntensity = eicIntensity;
+		if (productFound) {
+			e->scannum.push_back(scan->scannum);
+			e->rt.push_back(scan->rt);
+			e->intensity.push_back(eicIntensity);
+			e->mz.push_back(eicMz);
+			e->totalIntensity += eicIntensity;
+			if (eicIntensity > e->maxIntensity)
+				e->maxIntensity = eicIntensity;
+		}
 	}
 
 	if (e->rt.size() > 0)
