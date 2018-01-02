@@ -190,7 +190,7 @@ To understand [Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [
 
 ## Acknowledgment
 
-El-MAVEN would not have been possible without the unwavering support, constant feedback and financial support from [Agios](http://www.agios.com/). El-MAVEN thanks the metabolomics community for its immense contribution in taking the tool forward and making it a great sucess.
+El-MAVEN would not have been possible without the unwavering support, constant feedback and financial support from [Agios](http://www.agios.com/). El-MAVEN thanks the metabolomics community for its immense contribution in taking the tool forward and making it a great success.
 
 ## Copyright and license
 
