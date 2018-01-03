@@ -12,10 +12,13 @@ class CompareCsvs(object):
         This class compares different outputs of Cli generated using
         different configuration files
         """
-    def __init__(self, file_list,sample_list):
+    def __init__(self, file_list, config_name, sample_list=cs.SAMPLE_LIST):
         self.file_list = file_list
         self.col_list=[cs.COMPOUND,cs.compoundId]
+        self.config_name = config_name
         self.sample_list = sample_list
+
+        hf.make_dir(cs.RESULT_DIR)
 
     def compare(self):
         """
@@ -160,7 +163,8 @@ class CompareCsvs(object):
 
         fig = go.Figure(data=data, layout=layout)
 
-        plot_fig = plot(fig)
+        plot_fig = plot(fig, filename= os.path.join(
+            cs.RESULT_DIR, self.config_name + cs.PLOT_RESULT))
         return plot_fig
 
 
