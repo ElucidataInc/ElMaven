@@ -12,18 +12,19 @@ List of all the functions in this module:
 
 """
 
-from helper import helper
-from config import config
-
+from helper import helper_functions as hf
+import constants_feature_testing as cs
 
 class RunCli(object):
     """
-    This class runs multiple instances of peakdetector cli and generates
-    the output
-    """
+        This class runs multiple instances of peakdetector cli and generates
+        the output
+        """
 
     def __init__(self):
-        self.config = config.Config()
+        self.peakdetector_path = cs.PEAK_DETECTOR_PATH
+
+
 
     def run(self):
         """
@@ -33,21 +34,21 @@ class RunCli(object):
         config_files = self.get_config_paths()
         self.run_multiple_cli(config_files)
 
+
     def run_cli(self, xml_path):
         """
         Runs one instance of peakdetector with specified arguments
-
         Args:
             xml_path: Path of configuration xml file
-
         """
-        exe_path = self.config.peakdetector_path
-        if helper.check_exe_exists(exe_path):
+        exe_path = self.peakdetector_path
+        if hf.check_exe_exists(exe_path):
             args = ["--xml"]
             args.append(xml_path)
-            helper.run_exe(exe_path, args)
+            hf.run_exe(exe_path, args)
         else:
             raise ValueError("Peakdetector CLI exe not found")
+
 
     def run_multiple_cli(self, xml_paths):
         """
@@ -61,11 +62,9 @@ class RunCli(object):
     def get_config_paths(self):
         """
         Get paths of configuration files
-
         Returns:
             config_files: List of paths of config files
         """
-        config_path = self.config.cli_configs_path
 
-        config_files = helper.list_files(config_path, ".xml")
+        config_files = hf.list_files(cs.CLI_CONFIGS_PATH, ".xml")
         return config_files
