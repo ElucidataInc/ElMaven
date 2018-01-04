@@ -26,7 +26,7 @@ MavenParameters::MavenParameters()
         outputdir = "reports" + string(DIR_SEPARATOR_STR);
 
         writeCSVFlag = false;
-        ionizationMode = -1;
+        ionizationMode = 1;
         charge = 1;
         keepFoundGroups = true;
         showProgressFlag = true;
@@ -240,8 +240,15 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
         if(indexOfIonizationMode==1) ionizationMode=0;
         else if(indexOfIonizationMode==2) ionizationMode=+1;
         else if(indexOfIonizationMode==3) ionizationMode=-1;
-        // set auto to zero
-        else ionizationMode=0;
+        else {
+            // auto-detection
+            if(samples.empty()){
+                ionizationMode=+1;
+            }
+            else{
+                ionizationMode=samples[0]->getPolarity();
+            }
+        }
     }
 
     if(strcmp(key, "amuQ1") == 0)
@@ -438,10 +445,10 @@ int MavenParameters::getCharge(Compound* compound){
  * at the first sample polarity
  */
 void MavenParameters::setIonizationMode() {
-        if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-                ionizationMode = +1;
+        if (samples.size() > 0)
+            ionizationMode=samples[0]->getPolarity();
         else
-                ionizationMode = -1;  //set ionization mode for compound matching
+                ionizationMode = 1;  //set ionization mode for compound matching
 }
 
 void MavenParameters::setSamples(vector<mzSample*>&set) {
