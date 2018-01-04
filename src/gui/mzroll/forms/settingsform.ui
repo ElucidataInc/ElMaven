@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1341</width>
+    <width>1560</width>
     <height>318</height>
    </rect>
   </property>
@@ -341,80 +341,8 @@
       <attribute name="title">
        <string>Peak Detection</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_7">
-       <item row="0" column="1">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>Baseline Calculation</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Baseline Smoothing </string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Drop top x%  intensities from chromatogram</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="baseline_quantile">
-            <property name="suffix">
-             <string>%</string>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>80</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="baseline_smoothing">
-            <property name="suffix">
-             <string> scans</string>
-            </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
-            <property name="value">
-             <number>5</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>Peak Filtering</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_13">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_34">
-            <property name="text">
-             <string>Min. Signal Baseline Difference</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="minSignalBaselineDifference">
-            <property name="maximum">
-             <double>100000000000000000000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0" rowspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Peak Detection and Grouping Settings</string>
@@ -495,6 +423,114 @@
               <string>Moving Average</string>
              </property>
             </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Baseline Calculation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Baseline Smoothing </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Drop top x%  intensities from chromatogram</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="baseline_quantile">
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>80</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="baseline_smoothing">
+            <property name="suffix">
+             <string> scans</string>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="peakFilteringTab">
+      <attribute name="title">
+       <string>Peak Filtering</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>Peak Filtering</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_34">
+            <property name="text">
+             <string>Min. Signal Baseline Difference</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="minSignalBaselineDifference">
+            <property name="maximum">
+             <double>100000000000000000000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="title">
+          <string>Isotope Filtering</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_36">
+            <property name="text">
+             <string>Min. Signal Baseline Difference</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="isotopicMinSignalBaselineDifference">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="maximum">
+             <double>100000000000000000000.000000000000000</double>
+            </property>
            </widget>
           </item>
          </layout>
@@ -748,30 +784,10 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="2">
+          <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="isotopeC13Correction">
             <property name="text">
              <string>Correct for Natural C13 Isotope Abundance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QDoubleSpinBox" name="isotopicMinSignalBaselineDifference">
-            <property name="font">
-             <font>
-              <family>Ubuntu</family>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="maximum">
-             <double>100000000000000000000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_35">
-            <property name="text">
-             <string>Min. Signal Baseline Difference</string>
             </property>
            </widget>
           </item>
@@ -1367,7 +1383,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>grouping_maxRtWindow</tabstop>
   <tabstop>baseline_quantile</tabstop>
   <tabstop>baseline_smoothing</tabstop>
-  <tabstop>minSignalBaselineDifference</tabstop>
   <tabstop>D2Labeled_BPE</tabstop>
   <tabstop>C13Labeled_BPE</tabstop>
   <tabstop>N15Labeled_BPE</tabstop>
@@ -1385,7 +1400,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>minIsotopicCorrelation</tabstop>
   <tabstop>maxIsotopeScanDiff</tabstop>
   <tabstop>maxNaturalAbundanceErr</tabstop>
-  <tabstop>isotopicMinSignalBaselineDifference</tabstop>
   <tabstop>isotopeC13Correction</tabstop>
   <tabstop>eicTypeComboBox</tabstop>
   <tabstop>formulaWithOverlap</tabstop>
@@ -1414,6 +1428,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>Rprogram</tabstop>
  </tabstops>
  <resources>
+  <include location="../mzroll.qrc"/>
   <include location="../mzroll.qrc"/>
  </resources>
  <connections/>
