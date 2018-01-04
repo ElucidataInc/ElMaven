@@ -99,7 +99,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
-    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
+    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setIonizationModeLable()));
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(amuQ1, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
     connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
