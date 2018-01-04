@@ -498,20 +498,20 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(checkSRMList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLable()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
-	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setIonizationModeLable()));
 	connect(fileLoader,SIGNAL(spectraLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
-	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setQComboBox()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLable()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
@@ -542,9 +542,8 @@ using namespace mzUtils;
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
 
-	setQComboBox();
+	setIonizationModeLable();
 	setTotalCharge();
-	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setTotalCharge()));
 	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
   // This been set here why is this here; beacuse of this
@@ -1117,33 +1116,30 @@ void MainWindow::setUserMassCutoff(double x) {
 
 void MainWindow::setIonizationMode(int x) {
 	_ionizationMode = x;
+	mavenParameters->ionizationMode=x;
 	massCalcWidget->setCharge(_ionizationMode);
 	isotopeWidget->setCharge(_ionizationMode);
+	setTotalCharge();
 }
 
-void MainWindow::setQComboBox() {
+void MainWindow::setIonizationModeLable() {
 
 	QString ionMode = settingsForm->ionizationMode->currentText();
-
-    if		(ionMode.contains("Positive")) 		ionizationModeComboBox->setCurrentIndex(0);
-    else if	(ionMode.contains("Negative")) 		ionizationModeComboBox->setCurrentIndex(1);
-    else if	(ionMode.contains("Neutral")) 		ionizationModeComboBox->setCurrentIndex(2);
-	else if	(ionMode.contains("Auto Detect")) 	{
-
-		disconnect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), 0, 0);
-
-		if(!samples.empty()) {
-			int mode = samples[0]->getPolarity();
-			if (mode == 0) ionizationModeComboBox->setCurrentIndex(2);
-			else if (mode == -1) ionizationModeComboBox->setCurrentIndex(1);
-			else if (mode == 1) ionizationModeComboBox->setCurrentIndex(0);
-			else ionizationModeComboBox->setCurrentIndex(2);
+	if(ionMode.contains("Auto Detect") ){
+		QString mode;
+		if(samples.size()){
+			mode=QString::number(samples[0]->getPolarity());
+			if(mode=="1") mode="+1";
 		}
-
-		connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
-
+		else mode="+1";
+		
+		ionMode=ionMode+"("+mode+")";
 	}
-	else ionizationModeComboBox->setCurrentIndex(2);
+	ionizationModeLabel->setText(ionMode);
+
+	if(ionMode.contains("-1")) setIonizationMode(-1);
+	else if(ionMode.contains("1")) setIonizationMode(1);
+	else setIonizationMode(0);
 }
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
@@ -1186,13 +1182,8 @@ void MainWindow::setFilterLine() {
 
 void MainWindow::setTotalCharge() {
 
-	int temp = 0;
-	if(ionizationModeComboBox->currentIndex() == 0) temp = 1;
-	else if(ionizationModeComboBox->currentIndex() == 1) temp = -1;
-	else if(ionizationModeComboBox->currentIndex() == 2) temp = 0;
-	mavenParameters->ionizationMode = temp;
 	mavenParameters->charge = ionChargeBox->value();
-	totalCharge = temp * ionChargeBox->value();
+	totalCharge = mavenParameters->ionizationMode * ionChargeBox->value();
 
 	ligandWidget->updateTable();
 
@@ -2677,12 +2668,11 @@ void MainWindow::createToolBars() {
 			SLOT(setDatabase(QString)));
 	layout->addSpacing(10);
 
-	ionizationModeComboBox = new QComboBox(hBox);
-	ionizationModeComboBox->addItem("Positive (+)");
-	ionizationModeComboBox->addItem("Negative (-)");
-	ionizationModeComboBox->addItem("Neutral (0)");
-	ionizationModeComboBox->setToolTip("Select Ionization Mode");
-	connect(ionizationModeComboBox, SIGNAL(currentIndexChanged(QString)), settingsForm, SLOT(setSettingsIonizationMode(QString)));
+	ionizationModeLabel = new QLabel(hBox);
+	ionizationModeLabel->setToolTip("Ionization Mode");
+	ionizationModeLabel->setFrameShape(QFrame::Panel);
+	ionizationModeLabel->setFrameShadow(QFrame::Raised);
+	
 
 	ionChargeBox = new QSpinBox(hBox);
 	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
@@ -2704,7 +2694,7 @@ void MainWindow::createToolBars() {
 	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
 	settings->endGroup();
 
-	layout->addWidget(ionizationModeComboBox, 0);
+	layout->addWidget(ionizationModeLabel, 0);
 	layout->addWidget(new QLabel("Charge", hBox), 0);
 	layout->addWidget(ionChargeBox, 0);
 	layout->addWidget(quantType, 0);
@@ -2825,8 +2815,11 @@ void MainWindow::addToHistory(const mzSlice& slice) {
 bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
 		samples.push_back(sample);
-		if (sample->getPolarity())
+		if (sample->getPolarity()){
 			setIonizationMode(sample->getPolarity());
+			settingsForm->setSettingsIonizationMode("Auto Detect");
+		}
+			
 		return true;
 	} else {
 		delete (sample);

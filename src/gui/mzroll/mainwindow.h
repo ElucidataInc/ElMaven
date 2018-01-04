@@ -138,7 +138,7 @@ public:
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
-	QComboBox *ionizationModeComboBox;
+	QLabel *ionizationModeLabel;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
@@ -312,7 +312,7 @@ public Q_SLOTS:
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
 
-	void setQComboBox();
+	void setIonizationModeLable();
 	void setFilterLine();
 	void setInjectionOrderFromTimeStamp();
 
