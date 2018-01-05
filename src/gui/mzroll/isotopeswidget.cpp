@@ -347,9 +347,13 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
 			}
 
 			_mw->setStatusText("Clipboard set to isotope summary");
-		} else {
-                isotopeInfo += tag + " | " + groupTextEport(group) + "\n";
-				_mw->setStatusText("Clipboard to group summary");
+		} 
+		else {
+			// non-isotopic group
+            if (!group->isIsotope()) isotopeInfo += tag + groupTextEport(group) + "\n";
+			// for isotopic children
+			else isotopeInfo += tag + " | " + groupTextEport(group) + "\n";
+			_mw->setStatusText("Clipboard to group summary");
 		}
         return isotopeInfo;
 
