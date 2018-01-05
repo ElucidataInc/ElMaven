@@ -123,6 +123,7 @@ Q_SIGNALS:
 	 * @param int     [total value]
 	 */
 	void updateProgressBar(QString, int, int);
+	void alignmentError(QString);
 
 	/**
 	 * [new PeakGroup]

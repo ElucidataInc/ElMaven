@@ -194,6 +194,7 @@ public:
 	PeakDetectionDialog *peakDetectionDialog;
 	AwsBucketCredentialsDialog *awsBucketCredentialsDialog;
 	AlignmentDialog* alignmentDialog;
+	QErrorMessage* alignmentErrorDialog;
 	// RconsoleWidget* rconsoleDockWidget;
 	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
     //Added when merged with Maven776 - Kiran
