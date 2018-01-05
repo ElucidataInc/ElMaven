@@ -332,7 +332,6 @@ void SettingsForm::updateSettingFormGUI() {
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
     baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
 
-    isIsotopeEqualPeakFilter->setCheckState( (Qt::CheckState) settings->value("isIsotopeEqualPeakFilter").toInt() );
     minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
     isotopicMinSignalBaselineDifference->setValue(settings->value("isotopicMinSignalBaselineDifference").toInt());
 
