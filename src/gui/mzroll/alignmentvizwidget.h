@@ -37,7 +37,7 @@ public Q_SLOTS:
     double getRefRt(PeakGroup);
 
     void drawMessageBox(PeakGroup, PeakGroup);
-    float calculateRsquare(PeakGroup);
+    float calculateRsquare(PeakGroup,PeakGroup);
 
     PeakGroup getNewGroup(PeakGroup);
     void setCurrentGroups(QList<PeakGroup> groups) {currentGroups = groups;}

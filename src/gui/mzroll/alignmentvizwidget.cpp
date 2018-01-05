@@ -105,14 +105,14 @@ double AlignmentVizWidget::getRefRt(PeakGroup group) {
 
 void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
-    float newGroupR2 = calculateRsquare(newGroup);
-    float groupR2 = calculateRsquare(group);
+    float newGroupR2 = calculateRsquare(newGroup,group);
+    // float groupR2 = calculateRsquare(group);
     double refRt = getRefRt(group);
 
     QString message;
 
-    message = "previous R2 = " + QString::number(groupR2, 'f', 5);
-    message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
+    message = "R-squared = " + QString::number(newGroupR2, 'f', 5);
+    // message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
  
     if(group.hasCompoundLink()) {
         message += "\nCompound RT = " + QString::number(refRt, 'f', 5);
@@ -130,15 +130,33 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::calculateRsquare(PeakGroup group) {
+float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup group) {
 
-    float r2 = 0;
+    float e2 = 0;
+    float var=0;
+    float mean=0;
 
-    Q_FOREACH(Peak peak, group.getPeaks()) {
-
-        float diff = peak.rt - getRefRt(group);
-        r2 += pow(diff, 2);
+    vector<mzSample*> samples = getSamplesFromGroup(group);
+    vector<mzSample*> newSamples = getSamplesFromGroup(newGroup);
+    vector<float> newRts,oldRts;
+    for(int i=0;i<samples.size();++i){
+        float rtNew=getRetentionTime(samples[i], newGroup);
+        float rtOld=getRetentionTime(samples[i], group);
+        if(rtNew==-1 || rtOld==-1) continue;
+        oldRts.push_back(rtOld);
+        newRts.push_back(rtNew);
     }
+
+    for(int i=0;i<oldRts.size();++i){
+        mean+=oldRts[i];
+    }
+    mean=1.0*mean/oldRts.size();
+    for(int i=0;i<oldRts.size();++i){
+        e2+=(newRts[i]-oldRts[i])*(newRts[i]-oldRts[i]);
+        var+=(oldRts[i]-mean)*(oldRts[i]-mean);
+    }
+
+    float r2=1-e2/var;
 
     return r2;
 
