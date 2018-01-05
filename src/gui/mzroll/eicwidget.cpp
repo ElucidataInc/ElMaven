@@ -145,7 +145,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 
 	eicParameters->_integratedGroup.clear();
 	QSettings *settings = getMainWindow()->getSettings();
-	eicParameters->_integratedGroup.minQuality = settings->value("minQuality").toDouble();
+    eicParameters->_integratedGroup.minQuality = getMainWindow()->mavenParameters->minQuality;
 	eicParameters->_integratedGroup.compound = eicParameters->_slice.compound;
 	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
 	eicParameters->_integratedGroup.setSelectedSamples(getMainWindow()->samples);
@@ -1570,7 +1570,7 @@ void EicWidget::groupPeaks() {
 
 	eicParameters->groupPeaks(eic_smoothingWindow,
 								grouping_maxRtWindow,
-								settings->value("minQuality").toDouble(),
+                                getMainWindow()->mavenParameters->minQuality,
 								getMainWindow()->mavenParameters->distXWeight,
 								getMainWindow()->mavenParameters->distYWeight,
 								getMainWindow()->mavenParameters->overlapWeight,

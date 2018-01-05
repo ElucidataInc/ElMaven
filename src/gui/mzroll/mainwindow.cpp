@@ -2138,8 +2138,6 @@ void MainWindow::readSettings() {
     if(!settings->contains("isotopicMinSignalBaselineDifference"))
 	   	settings->setValue("isotopicMinSignalBaselineDifference",0);
 
-	if (!settings->contains("minQuality"))
-        settings->setValue("minQuality", 0.50);
 
 	if (!settings->contains("quantileQuality"))
         settings->setValue("quantileQuality", 0.0);
