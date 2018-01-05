@@ -312,8 +312,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         if (settings) {
 
             // Peak Scoring and Filtering
-            doubleSpinBoxMinQuality->setValue(
-                settings->value("minQuality").toDouble());
             quantileQuality->setValue(
                 settings->value("quantileQuality").toDouble());
             showQualityQuantileStatus(quantileQuality->value());
@@ -570,7 +568,6 @@ void PeakDetectionDialog::showBlankQuantileStatus(int value) {
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // Peak Scoring and Filtering
     settings->setValue("quantileQuality", quantileQuality->value());
-    settings->setValue("minQuality",doubleSpinBoxMinQuality->value());
     settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
     settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
     settings->setValue("minSignalBaseLineRatio", sigBaselineRatio->value());
@@ -630,7 +627,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
         // Peak Scoring and Filtering
-        mavenParameters->minQuality = settings->value("minQuality").toDouble();
         mavenParameters->quantileQuality = settings->value("quantileQuality").toDouble();
         mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
         mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
