@@ -483,9 +483,22 @@
       <attribute name="title">
        <string>Peak Filtering</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QGroupBox" name="groupBox_9">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="isIsotopeEqualPeakFilter">
+         <property name="text">
+          <string>Isotope Peak Filtering is same as Peak Filtering</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="peakFilteringGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Peak Filtering</string>
          </property>
@@ -507,8 +520,14 @@
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_10">
+       <item row="1" column="1">
+        <widget class="QGroupBox" name="isotopeFilteringGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Isotope Filtering</string>
          </property>
@@ -1431,5 +1450,22 @@ p, li { white-space: pre-wrap; }
   <include location="../mzroll.qrc"/>
   <include location="../mzroll.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>isIsotopeEqualPeakFilter</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>isotopeFilteringGroupBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1159</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

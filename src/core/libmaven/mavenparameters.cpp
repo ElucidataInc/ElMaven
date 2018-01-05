@@ -50,6 +50,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         eic_smoothingAlgorithm = 0;
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 80;
+
+        isIsotopeEqualPeakFilter = false;
         minSignalBaselineDifference = 0;
         isotopicMinSignalBaselineDifference=0;
 
@@ -323,8 +325,14 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "baseline_smoothing") == 0)
         baseline_smoothingWindow = atof(value);
 
+    if(strcmp(key, "isIsotopeEqualPeakFilter") == 0)
+        isIsotopeEqualPeakFilter = atof(value);    
+
     if(strcmp(key, "minSignalBaselineDifference") == 0)
         minSignalBaselineDifference = atof(value);
+
+    if(strcmp(key, "isotopicMinSignalBaselineDifference") == 0)
+        isotopicMinSignalBaselineDifference = atof(value);
 
     if(strcmp(key, "D2Labeled_BPE") == 0)
         D2Labeled_BPE = atof(value);
@@ -376,9 +384,6 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
     if(strcmp(key, "maxNaturalAbundanceErr") == 0)
         maxNaturalAbundanceErr = atof(value);
-
-    if(strcmp(key, "isotopicMinSignalBaselineDifference") == 0)
-        isotopicMinSignalBaselineDifference = atof(value);
 
     if(strcmp(key, "eicType") == 0)
         eicType = atof(value);
