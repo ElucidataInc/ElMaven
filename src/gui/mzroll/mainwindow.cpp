@@ -348,8 +348,10 @@ using namespace mzUtils;
 	logWidget = new LogWidget(this, std::cout);
 	// rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
-    peptideFragmentation = new PeptideFragmentationWidget(this);
-
+	peptideFragmentation = new PeptideFragmentationWidget(this);
+	alignmentErrorDialog=new QErrorMessage(this);
+	alignmentErrorDialog->setWindowTitle("Alignment Error");
+	
 	setIsotopicPlotStyling();
 
 	// prepare x axis:

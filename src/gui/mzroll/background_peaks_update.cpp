@@ -267,7 +267,7 @@ void BackgroundPeakUpdate::run(void) {
                 quit();
                 return;
         }
-
+        connect(this,SIGNAL(alignmentError(QString)),mainwindow->alignmentErrorDialog,SLOT(showMessage(QString)));
         if (mavenParameters->alignSamplesFlag) {
                 connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
         }
@@ -396,7 +396,7 @@ void BackgroundPeakUpdate::sendDataToPython(QJsonObject& grpJson, QJsonObject& r
 void BackgroundPeakUpdate::readDataFromPython()
 {
         while(pythonProg->bytesAvailable())
-                processedDataFromPython += pythonProg->readLine(1024);
+                processedDataFromPython += pythonProg->readLine(1024*1024);
         
 }
 void BackgroundPeakUpdate::writeToPythonProcess(QByteArray data){
@@ -483,11 +483,21 @@ void BackgroundPeakUpdate::align() {
                         // if jDoc is null that means the json returned from python is malformed
                         // in such a case our rts wont update with new values
                         jDoc = QJsonDocument::fromJson(processedDataFromPython);
+
+                        QString errorMessage=QString::number(processedDataFromPython.size());
+                        errorMessage="Received data: "+errorMessage+" bytes";
+
                         if(!jDoc.isNull()){
                                 parentObj = jDoc.object();
                         }
                         else{
-                                qDebug()<<"Error: alignment- data is not complete";
+                                if(processedDataFromPython.size()==0){
+                                        errorMessage=errorMessage+"<br>"+"Check parameters' value";
+                                }
+                                else{
+                                        errorMessage=errorMessage+"<br>"+"Incomplete data";
+                                }
+                                Q_EMIT alignmentError(errorMessage);
                                 return;
                         }
 
@@ -496,7 +506,8 @@ void BackgroundPeakUpdate::align() {
                                 qDebug()<<"Alignment complete";
                         }
                         else{
-                                qDebug()<<"Error: alignment- no json object could be decoded";
+                                errorMessage=errorMessage+"<br>"+"Json could not decoded";
+                                Q_EMIT alignmentError(errorMessage);
                                 return;
                         }
                 }
