@@ -38,7 +38,9 @@
         <grouping_maxRtWindow>0.25</grouping_maxRtWindow>
         <baseline_quantile>80</baseline_quantile>
         <baseline_smoothing>5</baseline_smoothing>
+        <isIsotopeEqualPeakFilter>0</isIsotopeEqualPeakFilter>
         <minSignalBaselineDifference>0.00</minSignalBaselineDifference>
+        <isotopicMinSignalBaselineDifference>0.00</isotopicMinSignalBaselineDifference>
         <D2Labeled_BPE>1</D2Labeled_BPE>
         <C13Labeled_BPE>1</C13Labeled_BPE>
         <N15Labeled_BPE>1</N15Labeled_BPE>
@@ -56,7 +58,6 @@
         <minIsotopicCorrelation>0.20</minIsotopicCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>
         <maxNaturalAbundanceErr>100.00</maxNaturalAbundanceErr>
-        <isotopicMinSignalBaselineDifference>0.00</isotopicMinSignalBaselineDifference>
         <eicType>0</eicType>
         <useOverlap>1</useOverlap>
         <distXWeight>10</distXWeight>

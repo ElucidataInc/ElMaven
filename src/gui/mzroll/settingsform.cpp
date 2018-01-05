@@ -12,7 +12,10 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 
     settings.insert("baseline_quantile", QVariant::fromValue(sf->baseline_quantile));
     settings.insert("baseline_smoothing", QVariant::fromValue(sf->baseline_smoothing));
+
+    settings.insert("isIsotopeEqualPeakFilter", QVariant::fromValue(sf->isIsotopeEqualPeakFilter));
     settings.insert("minSignalBaselineDifference", QVariant::fromValue(sf->minSignalBaselineDifference));
+    settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
 
     settings.insert("D2Labeled_BPE", QVariant::fromValue(sf->D2Labeled_BPE));
     settings.insert("C13Labeled_BPE", QVariant::fromValue(sf->C13Labeled_BPE));
@@ -34,7 +37,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxNaturalAbundanceErr", QVariant::fromValue(sf->maxNaturalAbundanceErr));
-    settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
 
     settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
     settings.insert("useOverlap", QVariant::fromValue(sf->useOverlap));
@@ -95,7 +97,12 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(grouping_maxRtWindow, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
     connect(baseline_smoothing, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
+
+    connect(isIsotopeEqualPeakFilter, SIGNAL(toggled(bool)), SLOT(setIsotopicPeakFiltering()));
+    connect(isIsotopeEqualPeakFilter, SIGNAL(toggled(bool)), SLOT(recomputeEIC()));
+    connect(minSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
     connect(minSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
+    connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
     connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
@@ -180,6 +187,14 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     toggleDeltaRtWeight();
 
     connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
+}
+
+void SettingsForm::setIsotopicPeakFiltering()
+{
+    if(isIsotopeEqualPeakFilter->isChecked())
+    {
+        isotopicMinSignalBaselineDifference->setValue(minSignalBaselineDifference->value());
+    }
 }
 
 void SettingsForm::closeEvent(QCloseEvent* event)
@@ -316,8 +331,11 @@ void SettingsForm::updateSettingFormGUI() {
     minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
     baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
     baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
+
+    isIsotopeEqualPeakFilter->setCheckState( (Qt::CheckState) settings->value("isIsotopeEqualPeakFilter").toInt() );
     minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
     isotopicMinSignalBaselineDifference->setValue(settings->value("isotopicMinSignalBaselineDifference").toInt());
+
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 

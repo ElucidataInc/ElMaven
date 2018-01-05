@@ -33,6 +33,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setSettingsIonizationMode(QString);
             void setGroupRankStatus();
             void setInitialGroupRank();
+            void setIsotopicPeakFiltering();
 
             /*
             * [Enable/disable deltaRtWeight slider and display appropriate group rank formula in UI]

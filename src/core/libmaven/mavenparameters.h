@@ -135,6 +135,7 @@ class MavenParameters
         int baseline_smoothingWindow;
         int baseline_dropTopX;
 
+        bool isIsotopeEqualPeakFilter;
         double minSignalBaselineDifference;
         double isotopicMinSignalBaselineDifference;
 
