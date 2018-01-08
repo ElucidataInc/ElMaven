@@ -242,12 +242,7 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
         else if(indexOfIonizationMode==3) ionizationMode=-1;
         else {
             // auto-detection
-            if(samples.empty()){
-                ionizationMode=+1;
-            }
-            else{
-                ionizationMode=samples[0]->getPolarity();
-            }
+            setIonizationMode();
         }
     }
 
