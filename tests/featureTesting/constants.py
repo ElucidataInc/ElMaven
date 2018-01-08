@@ -64,3 +64,4 @@ CSV_SCATTER_PLOT_Y_TITLE = "Log Intensities of metabolites"
 RESULT_DIR = "results/"
 PLOT_RESULT = "Results.html"
 SAMPLE_LIST = ["testsample_1", "testsample_2", "testsample_3"]
+ISOTOP_LABEL="isotopeLabel"
