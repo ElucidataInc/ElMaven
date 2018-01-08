@@ -27,9 +27,11 @@ class CompareCsvs(object):
         cli instances
         """
         df_list = self.load_files()
+
         merged_df = hf.merge_dfs(df_list, self.col_list)
-        correlation_and_wilcox_df = self.get_correlation_and_wilcox_df(merged_df)
         merged_df = self.remove_outliers(merged_df)
+        correlation_and_wilcox_df = self.get_correlation_and_wilcox_df(merged_df)
+
         self.plot(merged_df)
         hf.get_correlation_plot(correlation_and_wilcox_df, self.config_name)
 
@@ -225,8 +227,7 @@ class CompareCsvs(object):
             average_intensity_list_x.append(average_x)
             average_intensity_list_y.append(average_y)
 
-            corr_pval_tuple = hf.get_corr_coff_and_pval(average_intensity_list_x,
-                                                        average_intensity_list_y)
+            corr_pval_tuple = hf.get_corr_coff_and_pval(x,y)
             row_list = [unique_identifier_x, unique_identifier_y, corr_pval_tuple[0],
                         corr_pval_tuple[1], corr_pval_tuple[2],
                         corr_pval_tuple[3], corr_pval_tuple[4]]
@@ -239,3 +240,5 @@ class CompareCsvs(object):
                                                    cs.corr_coff, cs.p_val, cs.logfc_auto_to_man,
                                              cs.avg_intensity_man, cs.avg_intensity_auto])
         return corr_wilcox_df
+
+
