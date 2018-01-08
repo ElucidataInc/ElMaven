@@ -5,7 +5,8 @@ from plotly.offline import plot
 import pandas
 import numpy
 import constants as cs
-from helper import helper_functions as hf
+import helper_functions as hf
+
 
 class CompareCsvs(object):
     """
@@ -14,7 +15,7 @@ class CompareCsvs(object):
         """
     def __init__(self, file_list, config_name, sample_list=cs.SAMPLE_LIST):
         self.file_list = file_list
-        self.col_list=[cs.COMPOUND,cs.compoundId]
+        self.col_list=[cs.ISOTOP_LABEL,cs.compoundId]
         self.config_name = config_name
         self.sample_list = sample_list
 
@@ -25,15 +26,13 @@ class CompareCsvs(object):
         Compare all the outputs generated from multiple
         cli instances
         """
-
         df_list = self.load_files()
         merged_df = hf.merge_dfs(df_list, self.col_list)
         correlation_and_wilcox_df = self.get_correlation_and_wilcox_df(merged_df)
         merged_df = self.remove_outliers(merged_df)
-        plot_fig = self.plot(merged_df)
+        self.plot(merged_df)
+        hf.get_correlation_plot(correlation_and_wilcox_df, self.config_name)
 
-        cor_plot = hf.get_correlation_plot(correlation_and_wilcox_df)
-        return plot_fig
 
 
     def load_files(self):
@@ -211,8 +210,8 @@ class CompareCsvs(object):
                 x.append(row[sample_name_x])
                 y.append(row[sample_name_y])
 
-            unique_identifier_columns_x = ["compound", "label_x", "medRt_x"]
-            unique_identifier_columns_y = ["compound", "label_y", "medRt_y"]
+            unique_identifier_columns_x = ["compound_x", "isotopeLabel", "medRt_x"]
+            unique_identifier_columns_y = ["compound_y", "isotopeLabel", "medRt_y"]
             for (column_name_x, column_name_y) in zip(unique_identifier_columns_x,
                                                       unique_identifier_columns_y):
                 unique_identifier_x_list.append(row[column_name_x])
@@ -231,6 +230,7 @@ class CompareCsvs(object):
             row_list = [unique_identifier_x, unique_identifier_y, corr_pval_tuple[0],
                         corr_pval_tuple[1], corr_pval_tuple[2],
                         corr_pval_tuple[3], corr_pval_tuple[4]]
+
             rows_list.append(row_list)
 
         corr_wilcox_df = pandas.DataFrame(rows_list,
