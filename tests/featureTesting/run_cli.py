@@ -12,7 +12,7 @@ List of all the functions in this module:
 
 """
 
-from helper import helper_functions as hf
+from helper import helper as hf
 import constants_feature_testing as cs
 
 class RunCli(object):
@@ -23,7 +23,6 @@ class RunCli(object):
 
     def __init__(self):
         self.peakdetector_path = cs.PEAK_DETECTOR_PATH
-
 
 
     def run(self):
