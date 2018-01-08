@@ -214,7 +214,7 @@ def plot_layout(plot_object, title, x_title, y_title, plot_file_name):
 
     )
     figure = dict(data=plot_object, layout=layout)
-    output_plot = plot(figure, filename= "".join([plot_file_name, ".html"]))
+    output_plot = plot(figure, filename= "".join([plot_file_name, ".html"]),auto_open=False)
     return output_plot
 
 
@@ -574,7 +574,7 @@ def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list
     return corr_wilcox_test_df
 
 
-def correlation_scatter_plot(list_man,list_auto,hover_text,cor_list):
+def correlation_scatter_plot(list_man,list_auto,hover_text,cor_list,config_name):
     trace = go.Scatter(x=list_auto, y=list_man, mode=cs.MARKERS,marker=dict(
         size= cs.cor_plot_datapoint_size,
         color = cor_list,
@@ -588,18 +588,21 @@ def correlation_scatter_plot(list_man,list_auto,hover_text,cor_list):
         yaxis=dict(title= cs.cor_plot_y_title),showlegend=False,hovermode= cs.cor_plot_hover_mode)
 
     figure = dict(data=data, layout=layout)
-    cor_plot = plot(figure,filename='correlation_plot',auto_open=False)
+    make_dir("results/")
+    cor_plot = plot(figure,filename=os.path.join(
+            cs.RESULT_DIR, config_name + "correlation_plot.html"),auto_open=False)
     return cor_plot
 
 
-def get_correlation_plot(df_to_plot):
+def get_correlation_plot(df_to_plot, config_name):
     list_man = df_to_plot[cs.avg_intensity_man].tolist()
     list_auto = df_to_plot[cs.avg_intensity_auto].tolist()
     log_intensity_man = [log(value,10) for value in list_man]
     log_intensity_auto = [log(value,10) for value in list_auto]
     cor_list = df_to_plot[cs.corr_coff].tolist()
     hover_text = list(df_to_plot[cs.unique_identifier_man].map(str)+ '<->' + df_to_plot[cs.unique_identifier_auto].map(str)+ cs.br +df_to_plot[cs.corr_coff].map(str))
-    cor_plot = correlation_scatter_plot(log_intensity_man,log_intensity_auto,hover_text,cor_list)
+    cor_plot = correlation_scatter_plot(log_intensity_man,log_intensity_auto,hover_text,cor_list,
+                                        config_name)
     return cor_plot
 
 
