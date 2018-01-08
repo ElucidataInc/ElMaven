@@ -1,13 +1,13 @@
 import constants as cs
 
-from helper import helper_functions as hf
+import helper_functions as hf
 
 import pandas as pd
 
 
 class CompareJsons(object):
     def __init__(self, man_path, auto_path, analysis_type = cs.by_delta_rt_and_mz, n_rt=5,
-                 n_mz = 2,delta_rt = 15, delta_mz =100,corr_cutoff = 1, p_val_cutoff = 0.7,
+                 n_mz = 2,delta_rt = 0.2, delta_mz =0.3,corr_cutoff = 1, p_val_cutoff = 0.7,
                  comparater_list= None,unique_identifier_list= None):
         if unique_identifier_list is None:
             unique_identifier_list = []
@@ -27,19 +27,14 @@ class CompareJsons(object):
         self.unique_identifier_list = unique_identifier_list
 
 
+
     def summary_report(self):
         correlation_and_wilcox_df = self.correlation_and_wilcox()
-        correlation_and_wilcox_df_below_cutoff = hf.get_corr_and_pval_cutoff_df(self.corr_cutoff,
-                                                                           self.p_val_cutoff,
-                                                                         correlation_and_wilcox_df)
-        plots_list = self.get_outlier_plots(correlation_and_wilcox_df_below_cutoff)
         correlation_plot_url = self.correlation_plot()
-        wilcox_plot_url = self.wilcox_plot()
-        correlation_and_wilcox_df = correlation_and_wilcox_df.to_html().replace\
-            ('<table border="1" class="dataframe">', '<table class="table table-striped">')
-        report_html = hf.get_summary_report(correlation_and_wilcox_df, correlation_plot_url,
-                                            wilcox_plot_url, plots_list)
-        return report_html
+
+
+
+
 
 
     def correlation_and_wilcox(self):
@@ -66,8 +61,9 @@ class CompareJsons(object):
         correlation_and_wilcox_df = self.correlation_and_wilcox()
         correlation_df = correlation_and_wilcox_df[[cs.unique_identifier_man,
                                                     cs.unique_identifier_auto, cs.corr_coff,
-                                                    cs.avg_intensity_man, cs.avg_intensity_auto]]
-        cor_plot = hf.get_correlation_plot(correlation_df)
+                                                   cs.avg_intensity_man, cs.avg_intensity_auto]]
+        config_name = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path)
+        cor_plot = hf.get_correlation_plot(correlation_df,config_name)
         return cor_plot
 
 
@@ -103,6 +99,7 @@ class CompareJsons(object):
                 (self.unique_identifier_list,comp_dict_man, comp_dict_auto, self.comparater_list,
                  self.n_rt, self.n_mz,self.delta_rt,self.delta_mz,self.analysis_type)
         return correlation_and_wilcox_df
+
 
 
     def get_outlier_plots(self, correlation_and_wilcox_df_below_cutoff):
