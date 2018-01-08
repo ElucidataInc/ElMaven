@@ -4,8 +4,10 @@ This runs the feature testing
 import os
 import run_cli
 import compare_csv
-from helper import helper_functions as hf
+from helper import helper as hf
 import constants_feature_testing as cs
+import compare_json
+
 
 
 def main():
@@ -27,18 +29,20 @@ def compare_output(config_path):
     """
 
     output_dir = cs.OUTPUT_PATH
-
     hf.delete_dir(output_dir)
     hf.make_dir(output_dir)
     cli = run_cli.RunCli()
     cli.run_cli(config_path)
-
-    file_list = []
-    file_list.append(os.path.join(output_dir, cs.OUTPUT_FILE_NAME))
-    file_list.append(os.path.splitext(cs.CLI_CONFIGS_PATH)[0] + ".csv")
-    comp = compare_csv.CompareCsvs(file_list, os.path.basename(cs.CLI_CONFIGS_PATH))
-    comp.compare()
+    file_list_csv = []
+    file_list_csv.append(os.path.join(output_dir,cs.OUTPUT_FILE_NAME_CSV))
+    file_list_csv.append(os.path.splitext(config_path)[0] + ".csv")
+    comp_csv = compare_csv.CompareCsvs(file_list_csv, os.path.basename(config_path))
+    comp_csv.compare()
+    file_list_json = []
+    file_list_json.append(os.path.join(output_dir,cs.OUTPUT_FILE_NAME_JSON))
+    file_list_json.append(os.path.splitext(config_path)[0] + ".json")
+    comp_json = compare_json.CompareJsons(file_list_json[0],file_list_json[1])
+    comp_json.summary_report()
     hf.delete_dir(output_dir)
-
 
 main()
