@@ -33,7 +33,7 @@
 	</PeaksDialogArguments>
 	<GeneralArguments>
 		<alignSamples type="int" value="0" />
-		<saveEicJson type="int" value="0" />
+		<saveEicJson type="int" value="1" />
 		<outputdir type="string" value="tmp/" />
 		<savemzroll type="int" value="0" />
 		<samples type="string" value="../../bin/methods/testsample_1.mzxml" />
