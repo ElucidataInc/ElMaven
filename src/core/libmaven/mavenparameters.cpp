@@ -233,16 +233,9 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
     if(strcmp(key, "ionizationMode") == 0){
-        int indexOfIonizationMode=atoi(value);
-        Polarity polarity;
-        /**
-         * map index of ionization-mode to value (-1,0,1) of ionizationMode
-         */
-        if(indexOfIonizationMode==1) polarity=Neutral;
-        else if(indexOfIonizationMode==2) polarity=Positive;
-        else if(indexOfIonizationMode==3) polarity=Negative;
-        else polarity =AutoDetect;
-        setIonizationMode(polarity);
+        int polarity=atoi(value);
+        setIonizationMode((Polarity)polarity);
+
     }
 
     if(strcmp(key, "amuQ1") == 0)
