@@ -312,7 +312,7 @@ public Q_SLOTS:
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
 
-	void setIonizationModeLable();
+	void setIonizationModeLabel();
 	void setFilterLine();
 	void setInjectionOrderFromTimeStamp();
 

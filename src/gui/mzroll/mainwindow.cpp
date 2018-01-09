@@ -498,20 +498,20 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(checkSRMList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLable()));
+	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
-	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setIonizationModeLable()));
+	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(spectraLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
-	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLable()));
+	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
@@ -542,7 +542,7 @@ using namespace mzUtils;
 		setIonizationMode(settings->value("ionizationMode").toInt());
 	}
 
-	setIonizationModeLable();
+	setIonizationModeLabel();
 	setTotalCharge();
 	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
@@ -1122,7 +1122,7 @@ void MainWindow::setIonizationMode(int x) {
 	setTotalCharge();
 }
 
-void MainWindow::setIonizationModeLable() {
+void MainWindow::setIonizationModeLabel() {
 
 	QString ionMode = settingsForm->ionizationMode->currentText();
 	if(ionMode.contains("Auto Detect") ){
