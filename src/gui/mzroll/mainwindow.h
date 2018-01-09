@@ -363,10 +363,8 @@ public Q_SLOTS:
 	void markGroup(PeakGroup* group, char label);
     //Added when merged with Maven776 - Kiran
     void startEmbededHttpServer();
-
-	void setIonizationMode(int x);
 	int getIonizationMode() {
-		return _ionizationMode;
+		return mavenParameters->ionizationMode;
 	}
 	void setTotalCharge();
 
@@ -430,7 +428,6 @@ private:
 	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 
-	int _ionizationMode;
 	MassCutoff *_massCutoffWindow;
 
 	QToolBar* sideBar;

@@ -536,11 +536,11 @@ using namespace mzUtils;
 	alignmentVizAllGroupsDockWidget->raise();	
 
 	createToolBars();
-	setIonizationMode(0);
+	// setIonsizationMode(0);
 	currentIntensityName = "Max "+quantType->currentText();
-	if (settings->contains("ionizationMode")) {
-		setIonizationMode(settings->value("ionizationMode").toInt());
-	}
+	// if (settings->contains("ionizationMode")) {
+	// 	setIonizationMode(settings->value("ionizationMode").toInt());
+	// }
 
 	setIonizationModeLabel();
 	setTotalCharge();
@@ -1114,32 +1114,31 @@ void MainWindow::setUserMassCutoff(double x) {
 	
 }
 
-void MainWindow::setIonizationMode(int x) {
-	_ionizationMode = x;
-	mavenParameters->ionizationMode=x;
-	massCalcWidget->setCharge(_ionizationMode);
-	isotopeWidget->setCharge(_ionizationMode);
-	setTotalCharge();
-}
 
 void MainWindow::setIonizationModeLabel() {
 
 	QString ionMode = settingsForm->ionizationMode->currentText();
-	if(ionMode.contains("Auto Detect") ){
-		QString mode;
-		if(samples.size()){
-			mode=QString::number(samples[0]->getPolarity());
-			if(mode=="1") mode="+1";
-		}
-		else mode="+1";
-		
-		ionMode=ionMode+"("+mode+")";
+
+	MavenParameters::Polarity polarity;
+	if(ionMode.contains("Positive")) polarity=MavenParameters::Positive;
+	else if (ionMode.contains("Negative")) polarity=MavenParameters::Negative;
+	else if(ionMode.contains("Neutral")) polarity=MavenParameters::Neutral;
+	else polarity=MavenParameters::AutoDetect;
+
+	mavenParameters->setIonizationMode(polarity);
+
+	int mode=getIonizationMode();
+	if(polarity==MavenParameters::AutoDetect ){
+		QString polarityLabel=QString::number(mode);
+		if(mode==1) polarityLabel="+1";
+		ionMode=ionMode+"("+polarityLabel+")";
 	}
+	
 	ionizationModeLabel->setText(ionMode);
 
-	if(ionMode.contains("-1")) setIonizationMode(-1);
-	else if(ionMode.contains("1")) setIonizationMode(1);
-	else setIonizationMode(0);
+	massCalcWidget->setCharge(mode);
+	isotopeWidget->setCharge(mode);
+	setTotalCharge();
 }
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
@@ -2815,11 +2814,8 @@ void MainWindow::addToHistory(const mzSlice& slice) {
 bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
 		samples.push_back(sample);
-		if (sample->getPolarity()){
-			setIonizationMode(sample->getPolarity());
-			settingsForm->setSettingsIonizationMode("Auto Detect");
-		}
-			
+		mavenParameters->samples.push_back(sample);	
+		settingsForm->setSettingsIonizationMode("Auto Detect");		
 		return true;
 	} else {
 		delete (sample);

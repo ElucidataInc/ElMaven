@@ -21,6 +21,7 @@ class MavenParameters
 {
     public:
         MavenParameters();
+        enum Polarity{AutoDetect,Neutral, Positive, Negative};
         boost::signals2::signal< void (const string&,unsigned int , int ) > sig;
 
         /**
@@ -80,7 +81,7 @@ class MavenParameters
         * [set Ionization Mode]
         * @method setIonizationMode
         */
-        void setIonizationMode();
+        void setIonizationMode(Polarity polarity);
 
         /**
         * [set Samples]
