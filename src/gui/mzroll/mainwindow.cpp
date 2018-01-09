@@ -2952,7 +2952,7 @@ void MainWindow::Align() {
     mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
 	mavenParameters->alignSamplesFlag = true;
 	mavenParameters->keepFoundGroups = true;
-	mavenParameters->eicMaxGroups = 5;
+    mavenParameters->eicMaxGroups = peakDetectionDialog->eicMaxGroups->value();
 
 	mavenParameters->samples = getSamples();
 	mavenParameters->stop = false;
