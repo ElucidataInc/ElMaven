@@ -1,4 +1,4 @@
-from helper import helper_functions as hf
+import helper_functions as hf
 
 
 class CompareParameters(object):
