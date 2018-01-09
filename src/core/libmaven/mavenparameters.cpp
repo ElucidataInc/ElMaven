@@ -168,7 +168,7 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key,"chargeMax") == 0)
         maxCharge = atof(value);
 
-    if(strcmp(key, "dbDetection") == 0 )
+    if(strcmp(key, "dbDetection") == 0 );
         //TODO
 
         //TODO: replace with compoundMassCutoffWindow. replace compoundPPMWindow in default_settings_xml. regenerate settings.h

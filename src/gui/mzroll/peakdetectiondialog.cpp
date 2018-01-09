@@ -312,55 +312,20 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         if (settings) {
 
             // Peak Scoring and Filtering
-            quantileQuality->setValue(
-                settings->value("quantileQuality").toDouble());
             showQualityQuantileStatus(quantileQuality->value());
-            minGoodGroupCount->setValue(
-                settings->value("minGoodGroupCount").toInt());
-            minNoNoiseObs->setValue(
-                settings->value("minNoNoiseObs").toDouble());  // minPeakWidth
-            sigBaselineRatio->setValue(
-                settings->value("minSignalBaseLineRatio").toDouble());
-            quantileSignalBaselineRatio->setValue(
-                settings->value("quantileSignalBaselineRatio").toDouble());
             showBaselineQuantileStatus(quantileSignalBaselineRatio->value());
-            sigBlankRatio->setValue(
-                settings->value("minSignalBlankRatio").toDouble());
-            quantileSignalBlankRatio->setValue(
-                settings->value("quantileSignalBlankRatio").toDouble());
             showBlankQuantileStatus(quantileSignalBlankRatio->value());
-            minGroupIntensity->setValue(
-                settings->value("minGroupIntensity").toDouble());
-            peakQuantitation->setCurrentIndex(
-                settings->value("peakQuantitation").toInt());
-            quantileIntensity->setValue(
-                settings->value("quantileIntensity").toDouble());
             showIntensityQuantileStatus(quantileIntensity->value());
 
             // Compound DB search
-            matchRt->setChecked(settings->value("matchRtFlag").toBool());
             compoundPPMWindow->setValue(
                 settings->value("compoundMassCutoffWindow").toDouble());
-            compoundRTWindow->setValue(
-                settings->value("compoundRTWindow").toDouble());
-            eicMaxGroups->setValue(settings->value("eicMaxGroups").toInt());
 
             // Automated Peak Detection
             ppmStep->setValue(settings->value("massCutoffMerge").toDouble());
-            rtStep->setValue(settings->value("rtStepSize").toDouble());
-            rtMin->setValue(settings->value("minRT").toDouble());
-            rtMax->setValue(settings->value("maxRT").toDouble());
-            mzMin->setValue(settings->value("minMz").toDouble());
-            mzMax->setValue(settings->value("maxMz").toDouble());
-            minIntensity->setValue(settings->value("minIntensity").toDouble());
-            maxIntensity->setValue(settings->value("maxIntensity").toDouble());
-            chargeMin->setValue(settings->value("minCharge").toDouble());
-            chargeMax->setValue(settings->value("maxCharge").toDouble());
             classificationModelFilename->setText(settings->value("clsfModelFilename").toString());
 
             // Isotope detection in peakdetection dialogue box
-            reportIsotopesOptions->setChecked(
-                settings->value("pullIsotopesFlag").toBool());
             // checkBox->setChecked(settings->value("checkBox").toBool());  // C13
             // checkBox_2->setChecked(
             //     settings->value("checkBox_2").toBool());  // N15
@@ -375,10 +340,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             matchFragmentatioOptions->setChecked(
                 settings->value("matchFragmentation").toBool());
 
-            // Enabling feature detection or compound search
-            dbOptions->setChecked(settings->value("dbOptions").toBool());
-            featureOptions->setChecked(
-                settings->value("featureOptions").toBool());
         }
         /**
          * Getting the database present and updating in the dropdown of the
@@ -626,17 +587,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
-        // Peak Scoring and Filtering
-        mavenParameters->quantileQuality = settings->value("quantileQuality").toDouble();
-        mavenParameters->minGoodGroupCount = settings->value("minGoodGroupCount").toInt();
-        mavenParameters->minNoNoiseObs = settings->value("minNoNoiseObs").toDouble();
-        mavenParameters->minSignalBaseLineRatio = settings->value("minSignalBaseLineRatio").toDouble();
-        mavenParameters->quantileSignalBaselineRatio = settings->value("quantileSignalBaselineRatio").toDouble();
-        mavenParameters->minSignalBlankRatio = settings->value("minSignalBlankRatio").toDouble();
-        mavenParameters->quantileSignalBlankRatio = settings->value("quantileSignalBlankRatio").toDouble();
-        mavenParameters->minGroupIntensity = settings->value("minGroupIntensity").toDouble();
-        mavenParameters->peakQuantitation = settings->value("peakQuantitation").toInt();
-        mavenParameters->quantileIntensity = settings->value("quantileIntensity").toDouble();
 
         // Peak Group Rank
         mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
@@ -646,28 +596,10 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         // Compound DB search
         string massCutoffType=mainwindow->massCutoffComboBox->currentText().toStdString();
-        mavenParameters->matchRtFlag = settings->value("matchRtFlag").toBool();
         mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),massCutoffType);
-        mavenParameters->compoundRTWindow = settings->value("compoundRTWindow").toDouble();
-        mavenParameters->eicMaxGroups = settings->value("eicMaxGroups").toInt();
 
         // Automated Peak Detection
         mavenParameters->massCutoffMerge->setMassCutoffAndType(settings->value("massCutoffMerge").toDouble(),massCutoffType);
-        mavenParameters->rtStepSize = settings->value("rtStepSize").toDouble();
-        mavenParameters->minRt = settings->value("minRT").toDouble();
-        mavenParameters->maxRt = settings->value("maxRT").toDouble();
-        mavenParameters->minMz = settings->value("minMz").toDouble();
-        mavenParameters->maxMz = settings->value("maxMz").toDouble();
-        mavenParameters->minIntensity =
-            settings->value("minIntensity").toDouble();
-        mavenParameters->maxIntensity =
-            settings->value("maxIntensity").toDouble();
-        mavenParameters->minCharge = settings->value("minCharge").toDouble();
-        mavenParameters->maxCharge = settings->value("maxCharge").toDouble();
-
-        // Isotope detection in peakdetection dialogue box
-        mavenParameters->pullIsotopesFlag = settings->value("pullIsotopesFlag").toBool();
-        mavenParameters->isotopeAtom["ShowIsotopes"] = settings->value("pullIsotopesFlag").toBool();
 
         mavenParameters->maxIsotopeScanDiff = settings->value(
                 "maxIsotopeScanDiff").toDouble();
