@@ -428,12 +428,21 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 			mavenParameters->maxIntensity = atof(node.attribute("value").value());
 
 		}
-		else if (strcmp(node.name(),"minSignalBaseLineDifference") == 0) {
+		else if (strcmp(node.name(),"minSignalBaselineDifference") == 0) {
 
 			mavenParameters->minSignalBaselineDifference = atof(node.attribute("value").value());
 			
 		}
-		
+		else if (strcmp(node.name(),"minPeakQuality") == 0) {
+
+			mavenParameters->minPeakQuality = atof(node.attribute("value").value());
+
+		}
+		else if (strcmp(node.name(),"minIsotopicPeakQuality") == 0) {
+
+			mavenParameters->minIsotopicPeakQuality = atof(node.attribute("value").value());
+
+		}
 		else {
 			cerr << endl << "Unknown node : " << node.name() << endl;
 		}

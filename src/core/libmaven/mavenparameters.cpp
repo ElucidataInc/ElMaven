@@ -57,6 +57,8 @@ MavenParameters::MavenParameters()
         isIsotopeEqualPeakFilter = false;
         minSignalBaselineDifference = 0;
         isotopicMinSignalBaselineDifference=0;
+        minPeakQuality = 0.0;
+        minIsotopicPeakQuality = 0.0;
 
         eicType = 0;
 
@@ -273,6 +275,12 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
     if(strcmp(key, "isotopicMinSignalBaselineDifference") == 0)
         isotopicMinSignalBaselineDifference = atof(value);
+
+    if(strcmp(key, "minPeakQuality") == 0)
+        minPeakQuality = atof(value);
+
+    if(strcmp(key, "minIsotopicPeakQuality") == 0)
+        minIsotopicPeakQuality = atof(value);
 
     if(strcmp(key, "D2Labeled_BPE") == 0)
         D2Labeled_BPE = atof(value);
