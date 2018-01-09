@@ -140,6 +140,8 @@ class MavenParameters
         bool isIsotopeEqualPeakFilter;
         double minSignalBaselineDifference;
         double isotopicMinSignalBaselineDifference;
+        double minPeakQuality;
+        double minIsotopicPeakQuality;
 
         int eicType;
 
