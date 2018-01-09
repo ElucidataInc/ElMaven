@@ -41,6 +41,8 @@
         <isIsotopeEqualPeakFilter>0</isIsotopeEqualPeakFilter>
         <minSignalBaselineDifference>0.00</minSignalBaselineDifference>
         <isotopicMinSignalBaselineDifference>0.00</isotopicMinSignalBaselineDifference>
+        <minPeakQuality>0.00</minPeakQuality>
+        <minIsotopicPeakQuality>0.00</minIsotopicPeakQuality>
         <D2Labeled_BPE>1</D2Labeled_BPE>
         <C13Labeled_BPE>1</C13Labeled_BPE>
         <N15Labeled_BPE>1</N15Labeled_BPE>

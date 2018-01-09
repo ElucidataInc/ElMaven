@@ -16,6 +16,8 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("isIsotopeEqualPeakFilter", QVariant::fromValue(sf->isIsotopeEqualPeakFilter));
     settings.insert("minSignalBaselineDifference", QVariant::fromValue(sf->minSignalBaselineDifference));
     settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
+    settings.insert("minPeakQuality", QVariant::fromValue(sf->minPeakQuality));
+    settings.insert("minIsotopicPeakQuality", QVariant::fromValue(sf->minIsotopicPeakQuality));
 
     settings.insert("D2Labeled_BPE", QVariant::fromValue(sf->D2Labeled_BPE));
     settings.insert("C13Labeled_BPE", QVariant::fromValue(sf->C13Labeled_BPE));
@@ -104,6 +106,10 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(minSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
     connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
     connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
+    connect(minPeakQuality, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
+    connect(minPeakQuality, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
+    connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
+    connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
     connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setIonizationModeLabel()));
@@ -194,6 +200,7 @@ void SettingsForm::setIsotopicPeakFiltering()
     if(isIsotopeEqualPeakFilter->isChecked())
     {
         isotopicMinSignalBaselineDifference->setValue(minSignalBaselineDifference->value());
+        minIsotopicPeakQuality->setValue(minPeakQuality->value());
     }
 }
 
