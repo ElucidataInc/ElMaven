@@ -130,18 +130,18 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup group) {
+float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
 
-    float e2 = 0;
-    float var=0;
+    float SSres = 0;
+    float SStot=0;
     float mean=0;
 
-    vector<mzSample*> samples = getSamplesFromGroup(group);
+    vector<mzSample*> oldSamples = getSamplesFromGroup(oldGroup);
     vector<mzSample*> newSamples = getSamplesFromGroup(newGroup);
     vector<float> newRts,oldRts;
-    for(int i=0;i<samples.size();++i){
-        float rtNew=getRetentionTime(samples[i], newGroup);
-        float rtOld=getRetentionTime(samples[i], group);
+    for(int i=0;i<oldSamples.size();++i){
+        float rtNew=getRetentionTime(newSamples[i], newGroup);
+        float rtOld=getRetentionTime(oldSamples[i], oldGroup);
         if(rtNew==-1 || rtOld==-1) continue;
         oldRts.push_back(rtOld);
         newRts.push_back(rtNew);
@@ -151,14 +151,15 @@ float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup group) {
         mean+=oldRts[i];
     }
     mean=1.0*mean/oldRts.size();
+    
     for(int i=0;i<oldRts.size();++i){
-        e2+=(newRts[i]-oldRts[i])*(newRts[i]-oldRts[i]);
-        var+=(oldRts[i]-mean)*(oldRts[i]-mean);
+        SSres+=(newRts[i]-oldRts[i])*(newRts[i]-oldRts[i]);
+        SStot+=(oldRts[i]-mean)*(oldRts[i]-mean);
     }
 
-    float r2=1-e2/var;
+    float RSquared=1-SSres/SStot;
 
-    return r2;
+    return RSquared;
 
 }
 
