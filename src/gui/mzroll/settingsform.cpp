@@ -99,7 +99,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(isotopicMinSignalBaselineDifference, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
     connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
-    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setQComboBox()));
+    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setIonizationModeLabel()));
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(amuQ1, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
     connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
@@ -450,11 +450,10 @@ void SettingsForm::getFormValues() {
 
 
     //change ionization mode
-    int mode=0;
-    if (ionizationMode->currentText().contains("+1") )     mode=1;
-    else if ( ionizationMode->currentText().contains("-1") ) mode=-1;
-    else if (ionizationMode->currentText().contains("Auto Detect") && !mainwindow->samples.empty()) mode=mainwindow->samples[0]->getPolarity();
-    if(mainwindow) mainwindow->setIonizationMode(mode);
+    if (ionizationMode->currentText().contains("+1") )      settings->setValue("ionizationMode", 1);
+    else if ( ionizationMode->currentText().contains("-1") ) settings->setValue("ionizationMode", -1);
+    else if (ionizationMode->currentText().contains("Auto Detect") && !mainwindow->samples.empty()) 
+        settings->setValue("ionizationMode", mainwindow->samples[0]->getPolarity());
 
     //change ionization type
 

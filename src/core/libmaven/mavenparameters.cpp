@@ -26,7 +26,7 @@ MavenParameters::MavenParameters()
         outputdir = "reports" + string(DIR_SEPARATOR_STR);
 
         writeCSVFlag = false;
-        ionizationMode = -1;
+        ionizationMode = 1;
         charge = 1;
         keepFoundGroups = true;
         showProgressFlag = true;
@@ -233,15 +233,9 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
     if(strcmp(key, "ionizationMode") == 0){
-        int indexOfIonizationMode=atoi(value);
-        /**
-         * map index of ionization-mode to value (-1,0,1) of ionizationMode
-         */
-        if(indexOfIonizationMode==1) ionizationMode=0;
-        else if(indexOfIonizationMode==2) ionizationMode=+1;
-        else if(indexOfIonizationMode==3) ionizationMode=-1;
-        // set auto to zero
-        else ionizationMode=0;
+        int polarity=atoi(value);
+        setIonizationMode((Polarity)polarity);
+
     }
 
     if(strcmp(key, "amuQ1") == 0)
@@ -437,11 +431,25 @@ int MavenParameters::getCharge(Compound* compound){
  * MavenParameters::setIonizationMode In this the mode is selected my looking
  * at the first sample polarity
  */
-void MavenParameters::setIonizationMode() {
-        if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-                ionizationMode = +1;
-        else
-                ionizationMode = -1;  //set ionization mode for compound matching
+void MavenParameters::setIonizationMode(Polarity polarity) {
+    switch(polarity){
+        case Neutral:
+            ionizationMode=0;
+            break;
+        case Positive:
+            ionizationMode=1;
+            break;
+        case Negative:
+            ionizationMode=-1;
+            break;
+        default:
+            if (samples.size() > 0)
+                ionizationMode=samples[0]->getPolarity();
+            else
+                ionizationMode = 1;
+            break;
+    }
+
 }
 
 void MavenParameters::setSamples(vector<mzSample*>&set) {

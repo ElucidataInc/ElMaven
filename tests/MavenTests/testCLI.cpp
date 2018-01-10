@@ -132,7 +132,7 @@ void TestCLI::testReduceGroups() {
 	peakdetectorCLI->loadCompoundsFile();
 	peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
 	peakdetectorCLI->mavenParameters->setAverageScanTime();
-	peakdetectorCLI->mavenParameters->setIonizationMode();
+	peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
@@ -166,7 +166,7 @@ void TestCLI::testWriteReport() {
 	peakdetectorCLI->loadCompoundsFile();
 	peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
 	peakdetectorCLI->mavenParameters->setAverageScanTime();
-	peakdetectorCLI->mavenParameters->setIonizationMode();
+	peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(

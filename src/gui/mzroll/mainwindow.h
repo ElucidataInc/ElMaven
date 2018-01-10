@@ -138,7 +138,7 @@ public:
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
-	QComboBox *ionizationModeComboBox;
+	QLabel *ionizationModeLabel;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
@@ -312,7 +312,7 @@ public Q_SLOTS:
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
 
-	void setQComboBox();
+	void setIonizationModeLabel();
 	void setFilterLine();
 	void setInjectionOrderFromTimeStamp();
 
@@ -363,10 +363,8 @@ public Q_SLOTS:
 	void markGroup(PeakGroup* group, char label);
     //Added when merged with Maven776 - Kiran
     void startEmbededHttpServer();
-
-	void setIonizationMode(int x);
 	int getIonizationMode() {
-		return _ionizationMode;
+		return mavenParameters->ionizationMode;
 	}
 	void setTotalCharge();
 
@@ -430,7 +428,6 @@ private:
 	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 
-	int _ionizationMode;
 	MassCutoff *_massCutoffWindow;
 
 	QToolBar* sideBar;
