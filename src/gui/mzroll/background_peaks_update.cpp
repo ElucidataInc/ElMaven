@@ -202,37 +202,13 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         xml.attributes().value("baseline_dropTopX").toString().toFloat());
 
                 // Peak Scoring and Filtering
-                settings->setValue("minGoodGroupCount",
-                        xml.attributes().value("minGoodGroupCount").toString().toInt());
-                settings->setValue("minNoNoiseObs", xml.attributes().value("minNoNoiseObs").toString().toInt());
-                settings->setValue("minSignalBaseLineRatio",
-                        xml.attributes().value("minSignalBaseLineRatio").toString().toFloat());
-                settings->setValue("minSignalBlankRatio",
-                        xml.attributes().value("minSignalBlankRatio").toString().toFloat());
-                settings->setValue("minGroupIntensity",
-                        xml.attributes().value("minGroupIntensity").toString().toFloat());
                 // Compound DB search
-                settings->setValue("matchRtFlag", xml.attributes().value("matchRtFlag").toString().toInt());
                 settings->setValue("compoundMassCutoffWindow",
                         xml.attributes().value("compoundMassCutoffWindow").toString().toFloat());
-                settings->setValue("compoundRTWindow",
-                        xml.attributes().value("compoundRTWindow").toString().toFloat());
-                settings->setValue("eicMaxGroups", xml.attributes().value("eicMaxGroups").toString().toInt());
                 // Automated Peak Detection
                 settings->setValue("massCutoffMerge", xml.attributes().value("massCutoffMerge").toString().toFloat());
-                settings->setValue("rtStepSize", xml.attributes().value("rtStepSize").toString().toFloat());
-                settings->setValue("minRT", xml.attributes().value("minRt").toString().toFloat());
-                settings->setValue("maxRT", xml.attributes().value("maxRt").toString().toFloat());
-                settings->setValue("minMz", xml.attributes().value("minMz").toString().toFloat());
-                settings->setValue("maxMz", xml.attributes().value("maxMz").toString().toFloat());
-                settings->setValue("minIntensity", xml.attributes().value("minIntensity").toString().toFloat());
-                settings->setValue("maxIntensity", xml.attributes().value("maxIntensity").toString().toFloat());
-                settings->setValue("minCharge", xml.attributes().value("minCharge").toString().toInt());
-                settings->setValue("maxCharge", xml.attributes().value("maxCharge").toString().toInt());
 
                 // Isotope detection in peakdetection dialogue box
-                // settings->setValue("pullIsotopesFlag",
-                //                    reportIsotopesOptions->isChecked());
                 // settings->setValue("checkBox", checkBox->isChecked());  // C13
                 // settings->setValue("checkBox_2",
                 //                    checkBox_2->isChecked());  // N15
@@ -253,9 +229,6 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         .toString()
                         .toInt());
                 // Enabling feature detection or compound search
-                //settings->setValue("dbOptions", dbOptions->isChecked());
-                //settings->setValue("featureOptions",
-                //        featureOptions->isChecked());
                 // mavenParameters->runFunction =
                 // xml.attributes().value("runFunction").toString();
                 settings->setValue("limitGroupCount",
