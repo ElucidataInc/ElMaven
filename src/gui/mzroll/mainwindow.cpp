@@ -201,17 +201,6 @@ using namespace mzUtils;
 
 	readSettings();
 
-	if (settings->value("bucket_name", -1) == -1 ||
-		settings->value("access_key", -1) == -1 ||
-		settings->value("secret_key", -1) == -1) {
-
-		awsBucketCredentialsDialog = new AwsBucketCredentialsDialog(this);
-		awsBucketCredentialsDialog->show();
-		awsBucketCredentialsDialog->setMainWindow(this);
-		awsBucketCredentialsDialog->setSettings(settings);
-
-	}
-
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
@@ -889,6 +878,16 @@ void MainWindow::autosaveMzRoll() {
 	} else if (this->doAutosave) {
 		autosave->saveMzRollWorker();
 	}
+}
+
+void MainWindow::openAWSDialog()
+{
+
+	awsBucketCredentialsDialog = new AwsBucketCredentialsDialog(this);
+	awsBucketCredentialsDialog->show();
+	awsBucketCredentialsDialog->setMainWindow(this);
+	awsBucketCredentialsDialog->setSettings(settings);
+
 }
 
 void MainWindow::saveMzRoll() {
@@ -2434,6 +2433,10 @@ void MainWindow::createMenus() {
 	settingsAct->setToolTip(tr("Set program options"));
 	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
 	fileMenu->addAction(settingsAct);
+
+	QAction* awsDialog = new QAction(tr("Add S3 credentials"), this);
+	connect(awsDialog, SIGNAL(triggered()), SLOT(openAWSDialog()));
+	fileMenu->addAction(awsDialog);
 
 	QAction* reportBug = new QAction(tr("Report Bugs!"), this);
 	connect(reportBug, SIGNAL(triggered()), SLOT(reportBugs()));

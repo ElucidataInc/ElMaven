@@ -289,6 +289,7 @@ public Q_SLOTS:
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
 	void autosaveMzRoll();
+	void openAWSDialog();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
