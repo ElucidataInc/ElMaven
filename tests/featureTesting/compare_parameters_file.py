@@ -2,6 +2,9 @@ import helper_functions as hf
 
 
 class CompareParameters(object):
+    """
+    This class compares two parameters files and gives the differences as a dict.
+    """
     def __init__(self, file_1_path, file_2_path):
         self.file_1_path = file_1_path
         self.file_2_path = file_2_path
