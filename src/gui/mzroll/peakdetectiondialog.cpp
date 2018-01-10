@@ -468,7 +468,6 @@ void PeakDetectionDialog::findPeaks() {
 
 void PeakDetectionDialog::showIntensityQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileIntensity= value;
-    settings->setValue("quantileIntensity", (quantileIntensity->value()));
     QString qstat;
     if (value) {
         std::string stat(std::to_string(value) + "% peaks above minimum intensity");
@@ -483,7 +482,6 @@ void PeakDetectionDialog::showIntensityQuantileStatus(int value) {
 
 void PeakDetectionDialog::showQualityQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileQuality= value;
-    settings->setValue("quantileQuality", (quantileQuality->value()));
     QString qstat;
     if (value) {
         std::string stat(std::to_string(value) + "% peaks above minimum quality");
@@ -498,7 +496,6 @@ void PeakDetectionDialog::showQualityQuantileStatus(int value) {
 
 void PeakDetectionDialog::showBaselineQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileSignalBaselineRatio= value;
-    settings->setValue("quantileSignalBaselineRatio", (quantileSignalBaselineRatio->value()));
     QString qstat;
     if (value) {
         std::string stat(std::to_string(value) + "% peaks above minimum signal/baseline ratio");        
@@ -513,7 +510,6 @@ void PeakDetectionDialog::showBaselineQuantileStatus(int value) {
 
 void PeakDetectionDialog::showBlankQuantileStatus(int value) {
     mainwindow->mavenParameters->quantileSignalBlankRatio= value;
-    settings->setValue("quantileSignalBlankRatio", (quantileSignalBlankRatio->value()));
     QString qstat;
     if (value) {
         std::string stat(std::to_string(value) + "% peaks above minimum signal/blank ratio");
@@ -528,36 +524,13 @@ void PeakDetectionDialog::showBlankQuantileStatus(int value) {
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // Peak Scoring and Filtering
-    settings->setValue("quantileQuality", quantileQuality->value());
-    settings->setValue("minGoodGroupCount", minGoodGroupCount->value());
-    settings->setValue("minNoNoiseObs", minNoNoiseObs->value());
-    settings->setValue("minSignalBaseLineRatio", sigBaselineRatio->value());
-    settings->setValue("quantileSignalBaselineRatio", quantileSignalBaselineRatio->value());
-    settings->setValue("minSignalBlankRatio", sigBlankRatio->value());
-    settings->setValue("quantileSignalBlankRatio", quantileSignalBlankRatio->value());
-    settings->setValue("minGroupIntensity", minGroupIntensity->value());
-    settings->setValue("peakQuantitation", peakQuantitation->currentIndex());
-    settings->setValue("quantileIntensity", quantileIntensity->value());
     // Compound DB search
-    settings->setValue("matchRtFlag", matchRt->isChecked());
     settings->setValue("massCutoffType",mainwindow->massCutoffComboBox->currentText());
     settings->setValue("compoundMassCutoffWindow", compoundPPMWindow->value());
-    settings->setValue("compoundRTWindow", compoundRTWindow->value());
-    settings->setValue("eicMaxGroups", eicMaxGroups->value());
     // Automated Peak Detection
     settings->setValue("massCutoffMerge", ppmStep->value());
-    settings->setValue("rtStepSize", rtStep->value());
-    settings->setValue("minRT", rtMin->value());
-    settings->setValue("maxRT", rtMax->value());
-    settings->setValue("minMz", mzMin->value());
-    settings->setValue("maxMz", mzMax->value());
-    settings->setValue("minIntensity", minIntensity->value());
-    settings->setValue("maxIntensity", maxIntensity->value());
-    settings->setValue("minCharge", chargeMin->value());
-    settings->setValue("maxCharge", chargeMax->value());
 
     // Isotope detection in peakdetection dialogue box
-    settings->setValue("pullIsotopesFlag", reportIsotopesOptions->isChecked());
     // settings->setValue("checkBox", checkBox->isChecked());      // C13
     // settings->setValue("checkBox_2", checkBox_2->isChecked());  // N15
     // settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
@@ -569,9 +542,6 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
                        matchFragmentatioOptions->isChecked());
 
     // Enabling feature detection or compound search
-    settings->setValue("dbOptions", dbOptions->isChecked());
-    settings->setValue("featureOptions",
-            featureOptions->isChecked());
     ////////////////////////////////////////////////////////////
     // TODO: what is this?
     vector<mzSample*> samples = mainwindow->getSamples();

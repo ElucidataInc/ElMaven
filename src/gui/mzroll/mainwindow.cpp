@@ -2139,33 +2139,11 @@ void MainWindow::readSettings() {
 	   	settings->setValue("isotopicMinSignalBaselineDifference",0);
 
 
-	if (!settings->contains("quantileQuality"))
-        settings->setValue("quantileQuality", 0.0);
 
     // Peak Scoring and Fitering
-    if (!settings->contains("minGoodGroupCount"))
-        settings->setValue("minGoodGroupCount", 1);
 
-    if (!settings->contains("minNoNoiseObs"))
-        settings->setValue("minNoNoiseObs", 3);
-
-    if (!settings->contains("minSignalBaseLineRatio"))
-        settings->setValue("minSignalBaseLineRatio", 2);
 	
-	if (!settings->contains("quantileSignalBaselineRatio"))
-		settings->setValue("quantileSignalBaselineRatio", 0.0);
 
-    if (!settings->contains("minSignalBlankRatio"))
-        settings->setValue("minSignalBlankRatio", 2);
-	
-	if (!settings->contains("quantileSignalBlankRatio"))
-		settings->setValue("quantileSignalBlankRatio", 0.0);
-
-    if (!settings->contains("minGroupIntensity"))
-        settings->setValue("minGroupIntensity", 5000);
-	
-	if (!settings->contains("quantileIntensity"))
-        settings->setValue("quantileIntensity", 0.0);
 
 	// Peak Group Rank
 	if (!settings->contains("qualityWeight"))
@@ -2181,55 +2159,19 @@ void MainWindow::readSettings() {
 		settings->setValue("deltaRtCheckFlag", false);
 
     // Compound DB Search
-    if (!settings->contains("matchRtFlag"))
-        settings->setValue("matchRtFlag", 0);
 
     if (!settings->contains("compoundMassCutoffWindow"))
         settings->setValue("compoundMassCutoffWindow", 5);
 
-    if (!settings->contains("compoundRTWindow"))
-        settings->setValue("compoundRTWindow", 2);
-
-    if (!settings->contains("eicMaxGroups"))
-        settings->setValue("eicMaxGroups", 10);
 
     //Setting to enable or disable compund or Auto Detection 
-    if (!settings->contains("dbOptions"))
-        settings->setValue("dbOptions", 2);
     
-    if (!settings->contains("featureOptions"))
-        settings->setValue("featureOptions", 0);
 
     // Automated Peak Detection
     if (!settings->contains("massCutoffMerge"))
         settings->setValue("massCutoffMerge", 20);
 
-    if (!settings->contains("rtStepSize"))
-        settings->setValue("rtStepSize", 10);
-
-    if(!settings->contains("minRT"))
-        settings->setValue("minRT", 0);
-
-    if(!settings->contains("maxRT"))
-        settings->setValue("maxRT", 9999999999.000000);
-
-    if (!settings->contains("minMz")) settings->setValue("minMz", 0);
-
-    if (!settings->contains("maxMz")) settings->setValue("maxMz", 9999999999.000000);
-
-    if (!settings->contains("minIntensity"))
-        settings->setValue("minIntensity", 50000.000000);
-
-    if (!settings->contains("maxIntensity"))
-        settings->setValue("maxIntensity", 9999999999.000000);
-
-    if (!settings->contains("minCharge")) settings->setValue("minCharge", 0);
-
-    if(!settings->contains("maxCharge")) settings->setValue("maxCharge", 0);
-
     //Isotope Detection in peakDetection Dialogue
-    if (!settings->contains("pullIsotopesFlag"))
-        settings->setValue("pullIsotopesFlag", 0);
         
     // if (!settings->contains("checkBox"))
     //     settings->setValue("checkBox", 0);
