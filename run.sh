@@ -21,4 +21,3 @@ if [ -f ./bin/MavenTests ]; then
         echo "Running tests"
 	./bin/MavenTests -xml
 fi
-
