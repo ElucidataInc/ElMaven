@@ -33,6 +33,7 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void setDatabase(QString db);
 		void setProgressBar(QString text, int progress, int totalSteps);
 		void showInfo(QString text);
+		void setAlignWrtExpectedRt(bool checked);
 };
 
 #endif

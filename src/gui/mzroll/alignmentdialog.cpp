@@ -18,12 +18,15 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 		connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 		connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
+		connect(alignWrtExpectedRt,SIGNAL(clicked(bool)),SLOT(setAlignWrtExpectedRt(bool)));
 }
 
 AlignmentDialog::~AlignmentDialog() {
 	if (workerThread) delete (workerThread);
 }
-
+void AlignmentDialog::setAlignWrtExpectedRt(bool checked){
+	_mw->mavenParameters->alignWrtExpectedRt=checked;
+}
 void AlignmentDialog::cancel() {
     if (workerThread) {
         if (workerThread->isRunning()) {
