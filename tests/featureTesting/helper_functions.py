@@ -361,7 +361,7 @@ def add_comparater_to_group(comparater_list, data_dict):
         for comparater in comparater_list:
             key_comaprater_list.append(str(data_dict[key][comparater]))
         comparater_name = "_".join(key_comaprater_list)
-        data_dict[key][cs.comparatername] = comparater_name
+        data_dict[key][cs.COMPARATER_NAME] = comparater_name
     return data_dict
 
 
@@ -377,7 +377,7 @@ def get_comparater_list(data_dict):
     """
     comparater_list = []
     for key in data_dict.keys():
-        comparater_list.append(data_dict[key][cs.comparatername])
+        comparater_list.append(data_dict[key][cs.COMPARATER_NAME])
     unique_comparater_list = list(set(comparater_list))
     return unique_comparater_list
 
@@ -393,7 +393,7 @@ def get_comparater_name_dict(comparater_name, data_dict):
     """
     comparater_name_dict = {}
     for key in data_dict.keys():
-        if data_dict[key][cs.comparatername] == comparater_name:
+        if data_dict[key][cs.COMPARATER_NAME] == comparater_name:
             comparater_name_dict[key] = data_dict[key]
     return comparater_name_dict
 
@@ -459,20 +459,20 @@ def get_delta_rt_and_mz_df(comparater_dict_man, comparater_dict_auto, delta_rt, 
     rows_list = []
     for key_man in comparater_dict_man.keys():
         for key_auto in comparater_dict_auto.keys():
-            if abs(comparater_dict_man[key_man][cs.meanRt] - comparater_dict_auto[key_auto][
-                cs.meanRt]) <= delta_rt and abs(comparater_dict_man[key_man][cs.meanMz] -
+            if abs(comparater_dict_man[key_man][cs.MEAN_RT] - comparater_dict_auto[key_auto][
+                cs.MEAN_RT]) <= delta_rt and abs(comparater_dict_man[key_man][cs.MEAN_MZ] -
                                                         comparater_dict_auto[key_auto][
-                                                            cs.meanMz]) <= delta_mz:
+                                                            cs.MEAN_MZ]) <= delta_mz:
                 intensity_list_man = []
                 intensity_list_auto = []
-                sample_names = comparater_dict_man[key_man][cs.peaks].keys()
+                sample_names = comparater_dict_man[key_man][cs.PEAKS].keys()
                 for sample in sample_names:
                     intensity_list_auto.append(
-                        comparater_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
+                        comparater_dict_auto[key_auto][cs.PEAKS][sample][cs.PEAK_INTENSITY])
                     intensity_list_man.append(
-                        comparater_dict_man[key_man][cs.peaks][sample][cs.peakIntensity])
-                numeric_intensity_list_man = [i if i != cs.na else 0 for i in intensity_list_man]
-                numeric_intensity_list_auto = [i if i != cs.na else 0 for i in intensity_list_auto]
+                        comparater_dict_man[key_man][cs.PEAKS][sample][cs.PEAK_INTENSITY])
+                numeric_intensity_list_man = [i if i != cs.NA else 0 for i in intensity_list_man]
+                numeric_intensity_list_auto = [i if i != cs.NA else 0 for i in intensity_list_auto]
 
                 corr_pval_tuple = get_corr_coff_and_pval(numeric_intensity_list_man,
                                                          numeric_intensity_list_auto)
@@ -481,9 +481,9 @@ def get_delta_rt_and_mz_df(comparater_dict_man, comparater_dict_auto, delta_rt, 
                             corr_pval_tuple[4]]
                 rows_list.append(row_list)
     corr_wilcox_df = pd.DataFrame(rows_list,
-                                  columns=[cs.unique_identifier_man, cs.unique_identifier_auto,
-                                           cs.corr_coff, cs.p_val, cs.logfc_auto_to_man,
-                                           cs.avg_intensity_man, cs.avg_intensity_auto])
+                                  columns=[cs.UNIQUE_IDENTIFIER_MAN, cs.UNIQUE_IDENTIFIER_AUTO,
+                                           cs.CORR_COFF, cs.P_VAL, cs.LOGFC_AUTO_TO_MAN,
+                                           cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO])
     return corr_wilcox_df
 
 
@@ -506,17 +506,17 @@ def find_correlation_and_wilcox_test_df(unique_identifier_list, man_dict, auto_d
         unique_label_dict_man = unique_label_dict(unique_identifier_list, man_dict)
         unique_label_dict_auto = unique_label_dict(unique_identifier_list, auto_dict)
     else:
-        unique_label_dict_man = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+        unique_label_dict_man = unique_label_dict([cs.COMPOUND_ID, cs.TAG_STRING, cs.MEAN_RT],
                                                   man_dict)
-        unique_label_dict_auto = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+        unique_label_dict_auto = unique_label_dict([cs.COMPOUND_ID, cs.TAG_STRING, cs.MEAN_RT],
                                                    auto_dict)
     if len(comparater_list) != 0:
         unique_dict_man = add_comparater_to_group(comparater_list, unique_label_dict_man)
         unique_dict_auto = add_comparater_to_group(comparater_list, unique_label_dict_auto)
     else:
-        unique_dict_man = add_comparater_to_group([cs.compoundId, cs.tagstring],
+        unique_dict_man = add_comparater_to_group([cs.COMPOUND_ID, cs.TAG_STRING],
                                                   unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group([cs.compoundId, cs.tagstring],
+        unique_dict_auto = add_comparater_to_group([cs.COMPOUND_ID, cs.TAG_STRING],
                                                    unique_label_dict_auto)
 
     comparater_list_man = get_comparater_list(unique_dict_man)
@@ -552,18 +552,18 @@ def get_closest_rt_and_mz_df(key_auto, unique_dict_auto, man_closest_rt_and_mz_d
 
     for key_man in man_closest_rt_and_mz_dict.keys():
         if man_closest_rt_and_mz_dict[key_man][cs.COMPOUND_NAME] == unique_dict_auto[key_auto][
-            cs.COMPOUND_NAME] and man_closest_rt_and_mz_dict[key_man][cs.tagstring] == \
-                unique_dict_auto[key_auto][cs.tagstring]:
+            cs.COMPOUND_NAME] and man_closest_rt_and_mz_dict[key_man][cs.TAG_STRING] == \
+                unique_dict_auto[key_auto][cs.TAG_STRING]:
             intensity_list_man = []
             intensity_list_auto = []
-            sample_names = unique_dict_auto[key_auto][cs.peaks]
+            sample_names = unique_dict_auto[key_auto][cs.PEAKS]
             for sample in sample_names:
                 intensity_list_auto.append(
-                    unique_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
+                    unique_dict_auto[key_auto][cs.PEAKS][sample][cs.PEAK_INTENSITY])
                 intensity_list_man.append(
-                    man_closest_rt_and_mz_dict[key_man][cs.peaks][sample][cs.peakIntensity])
-            numeric_intensity_list_man = [i if i != cs.na else 0 for i in intensity_list_man]
-            numeric_intensity_list_auto = [i if i != cs.na else 0 for i in intensity_list_auto]
+                    man_closest_rt_and_mz_dict[key_man][cs.PEAKS][sample][cs.PEAK_INTENSITY])
+            numeric_intensity_list_man = [i if i != cs.NA else 0 for i in intensity_list_man]
+            numeric_intensity_list_auto = [i if i != cs.NA else 0 for i in intensity_list_auto]
             corr_pval_tuple = get_corr_coff_and_pval(numeric_intensity_list_man,
                                                      numeric_intensity_list_auto)
             row_list = [key_man, key_auto, corr_pval_tuple[0], corr_pval_tuple[1],
@@ -572,10 +572,10 @@ def get_closest_rt_and_mz_df(key_auto, unique_dict_auto, man_closest_rt_and_mz_d
             rows_list.append(row_list)
 
     corr_wilcox_df = pd.DataFrame(rows_list,
-                                  columns=[cs.unique_identifier_man, cs.unique_identifier_auto,
-                                           cs.corr_coff, cs.p_val,
-                                           cs.logfc_auto_to_man, cs.avg_intensity_man,
-                                           cs.avg_intensity_auto])
+                                  columns=[cs.UNIQUE_IDENTIFIER_MAN, cs.UNIQUE_IDENTIFIER_AUTO,
+                                           cs.CORR_COFF, cs.P_VAL,
+                                           cs.LOGFC_AUTO_TO_MAN, cs.AVERAGE_INTENSITY_MAN,
+                                           cs.AVERAGE_INTENSITY_AUTO])
 
     return corr_wilcox_df
 
@@ -604,17 +604,17 @@ def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list
         unique_label_dict_man = unique_label_dict(unique_identifier_list, man_dict)
         unique_label_dict_auto = unique_label_dict(unique_identifier_list, auto_dict)
     else:
-        unique_label_dict_man = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+        unique_label_dict_man = unique_label_dict([cs.COMPOUND_ID, cs.TAG_STRING, cs.MEAN_RT],
                                                   man_dict)
-        unique_label_dict_auto = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+        unique_label_dict_auto = unique_label_dict([cs.COMPOUND_ID, cs.TAG_STRING, cs.MEAN_RT],
                                                    auto_dict)
     if len(comparater_list) != 0:
         unique_dict_man = add_comparater_to_group(comparater_list, unique_label_dict_man)
         unique_dict_auto = add_comparater_to_group(comparater_list, unique_label_dict_auto)
     else:
-        unique_dict_man = add_comparater_to_group([cs.compoundId, cs.tagstring],
+        unique_dict_man = add_comparater_to_group([cs.COMPOUND_ID, cs.TAG_STRING],
                                                   unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group([cs.compoundId, cs.tagstring],
+        unique_dict_auto = add_comparater_to_group([cs.COMPOUND_ID, cs.TAG_STRING],
                                                    unique_label_dict_auto)
 
     comparater_list_man = get_comparater_list(unique_dict_man)
@@ -629,29 +629,29 @@ def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list
                     comparater_dict_man.keys()[comparater_dict_man.values().index(value)] for value
                     in
                     nsmallest(n_rt, comparater_dict_man.values(), key=lambda x: abs(
-                        x[cs.meanRt] - comparater_dict_auto[key_auto][cs.meanRt]))]
+                        x[cs.MEAN_RT] - comparater_dict_auto[key_auto][cs.MEAN_RT]))]
                 man_closest_rt_dict = {key: comparater_dict_man[key] for key in man_closest_rt_keys}
                 man_closest_rt_and_mz_keys = [
                     man_closest_rt_dict.keys()[man_closest_rt_dict.values().index(value)] for
                     value in nsmallest(n_mz, man_closest_rt_dict.values(), key=lambda x: abs(
-                        x[cs.meanMz] - comparater_dict_auto[key_auto][cs.meanMz]))]
+                        x[cs.MEAN_MZ] - comparater_dict_auto[key_auto][cs.MEAN_MZ]))]
                 man_closest_rt_and_mz_dict = {key: man_closest_rt_dict[key] for key in
                                               man_closest_rt_and_mz_keys}
-                if analysis_type == cs.by_n_closest_rt_and_mz:
+                if analysis_type == cs.BY_N_CLOSEST_RT_AND_MZ:
                     comparison_corr_wilcox_df = get_closest_rt_and_mz_df(key_auto,
                                                                          comparater_dict_auto,
                                                                          man_closest_rt_and_mz_dict)
                     corr_wilcox_test_df = pd.concat(
                         [corr_wilcox_test_df, comparison_corr_wilcox_df], ignore_index=True)
-                elif analysis_type == cs.by_closest_and_delta_rt_and_mz:
+                elif analysis_type == cs.BY_CLOSEST_AND_DELTA_RT_AND_MZ:
                     man_closest_and_delta_rt_mz_dict = {}
                     for key_man in man_closest_rt_and_mz_dict.keys():
-                        if abs(man_closest_rt_and_mz_dict[key_man][cs.meanRt] -
+                        if abs(man_closest_rt_and_mz_dict[key_man][cs.MEAN_RT] -
                                        comparater_dict_auto[key_auto][
-                                           cs.meanRt]) <= delta_rt and abs(
-                                    man_closest_rt_and_mz_dict[key_man][cs.meanMz] -
+                                           cs.MEAN_RT]) <= delta_rt and abs(
+                                    man_closest_rt_and_mz_dict[key_man][cs.MEAN_MZ] -
                                     comparater_dict_auto[key_auto][
-                                        cs.meanMz]) <= delta_mz:
+                                        cs.MEAN_MZ]) <= delta_mz:
                             man_closest_and_delta_rt_mz_dict[key_man] = man_closest_rt_and_mz_dict[
                                 key_man]
 
@@ -675,16 +675,16 @@ def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, config_n
     :return: a plotly plot
     """
     trace = go.Scatter(x=list_auto, y=list_man, mode=cs.MARKERS, marker=dict(
-        size=cs.cor_plot_datapoint_size,
+        size=cs.COR_PLOT_DATAPOINT_SIZE,
         color=cor_list,
-        colorscale=cs.cor_plot_color_scale,
+        colorscale=cs.COR_PLOT_COLOR_SCALE,
         showscale=True
     ), text=hover_text, hoverinfo=cs.TEXT)
     data = [trace]
     layout = go.Layout(
-        title=cs.cor_plot_main_title,
-        xaxis=dict(title=cs.cor_plot_x_title),
-        yaxis=dict(title=cs.cor_plot_y_title), showlegend=False, hovermode=cs.cor_plot_hover_mode)
+        title=cs.COR_PLOT_MAIN_TITLE,
+        xaxis=dict(title=cs.COR_PLOT_X_TITLE),
+        yaxis=dict(title=cs.COR_PLOT_Y_TITLE), showlegend=False, hovermode=cs.COR_PLOT_HOVER_MODE)
 
     figure = dict(data=data, layout=layout)
     make_dir(cs.OUTPUT_DIR)
@@ -701,13 +701,13 @@ def get_correlation_plot(df_to_plot, config_name):
     :param config_name: configuration file name, just to give a unique name to the output plot file
     :return: a correlation scatter plot
     """
-    list_man = df_to_plot[cs.avg_intensity_man].tolist()
-    list_auto = df_to_plot[cs.avg_intensity_auto].tolist()
+    list_man = df_to_plot[cs.AVERAGE_INTENSITY_MAN].tolist()
+    list_auto = df_to_plot[cs.AVERAGE_INTENSITY_AUTO].tolist()
     log_intensity_man = [log(value, 10) for value in list_man]
     log_intensity_auto = [log(value, 10) for value in list_auto]
-    cor_list = df_to_plot[cs.corr_coff].tolist()
-    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str) + '<->' + df_to_plot[
-        cs.unique_identifier_auto].map(str) + cs.br + df_to_plot[cs.corr_coff].map(str))
+    cor_list = df_to_plot[cs.CORR_COFF].tolist()
+    hover_text = list(df_to_plot[cs.UNIQUE_IDENTIFIER_MAN].map(str) + '<->' + df_to_plot[
+        cs.UNIQUE_IDENTIFIER_AUTO].map(str) + cs.BREAK_LINE_TAG + df_to_plot[cs.CORR_COFF].map(str))
     cor_plot = correlation_scatter_plot(log_intensity_man, log_intensity_auto, hover_text, cor_list,
                                         config_name)
     return cor_plot
@@ -722,16 +722,16 @@ def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text):
     :return: a scatter plot (wilcox plot)
     """
     trace = go.Scatter(x=log2_fc_list, y=neg_log10_pval_list, mode=cs.MARKERS, marker=dict(
-        size=cs.cor_plot_datapoint_size,
-        color=cs.orange_color,
+        size=cs.CORRELATION_PLOT_NAME,
+        color=cs.ORANGE_COLOR,
         colorscale=False,
         showscale=False
     ), text=hover_text, hoverinfo=cs.TEXT)
     data = [trace]
     layout = go.Layout(
-        title=cs.wilcox_plot_title,
-        xaxis=dict(title=cs.log2_fc),
-        yaxis=dict(title=cs.neg_log10_pval), showlegend=False, hovermode=cs.cor_plot_hover_mode)
+        title=cs.WILCOX_PLOT_TITLE,
+        xaxis=dict(title=cs.LOG2_FC),
+        yaxis=dict(title=cs.NEG_LOG10_PVAL), showlegend=False, hovermode=cs.COR_PLOT_HOVER_MODE)
 
     figure = dict(data=data, layout=layout)
     wilcox_plot = plot(figure, filename='wilcox_plot', auto_open=False)
@@ -745,10 +745,10 @@ def get_wilcox_plot(df_to_plot):
     :param df_to_plot: data frame to be plotted
     :return: a plotly plot (wilcox plot)
     """
-    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str) + '<->' + df_to_plot[
-        cs.unique_identifier_auto].map(str))
-    p_val_list = df_to_plot[cs.p_val].tolist()
-    log2_fc_list = df_to_plot[cs.logfc_auto_to_man].tolist()
+    hover_text = list(df_to_plot[cs.UNIQUE_IDENTIFIER_MAN].map(str) + '<->' + df_to_plot[
+        cs.UNIQUE_IDENTIFIER_AUTO].map(str))
+    p_val_list = df_to_plot[cs.P_VAL].tolist()
+    log2_fc_list = df_to_plot[cs.LOGFC_AUTO_TO_MAN].tolist()
     neg_log10_pval = [-log(value, 10) for value in p_val_list]
     wilcox_plot = wilcox_scatter_plot(neg_log10_pval, log2_fc_list, hover_text)
     return wilcox_plot
@@ -873,7 +873,7 @@ def get_corr_and_pval_cutoff_df(corr_cutoff, p_val_cutoff, input_df):
     :return: data frame with rows having correlation and p-value below user defined cut offs
     """
     output_df = input_df[
-        (input_df[cs.corr_coff] <= corr_cutoff) & (input_df[cs.p_val] <= p_val_cutoff)]
+        (input_df[cs.CORR_COFF] <= corr_cutoff) & (input_df[cs.P_VAL] <= p_val_cutoff)]
     return output_df
 
 
