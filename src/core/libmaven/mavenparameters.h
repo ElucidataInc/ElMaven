@@ -106,6 +106,7 @@ class MavenParameters
         bool showProgressFlag;
         bool matchRtFlag;
         bool checkConvergance;
+        bool alignWrtExpectedRt;
 
         /**
         * default ionization mode used by mass spec

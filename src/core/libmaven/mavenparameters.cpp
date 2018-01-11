@@ -11,7 +11,8 @@
 MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
 
-	clsf = NULL;
+    clsf = NULL;
+    alignWrtExpectedRt=false;
 	alignSamplesFlag = false;
         processAllSlices = false;
         pullIsotopesFlag = false;

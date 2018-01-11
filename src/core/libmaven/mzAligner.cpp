@@ -13,7 +13,7 @@ Aligner::Aligner() {
        polynomialDegree=3;
 }
 
-void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
+void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
 
     if (peakgroups.size() == 0) return;
     
@@ -28,7 +28,8 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
 
         QJsonObject expectedRtObj;
         QString expectedRtKey="expectedRt";
-        if(grp->compound!=NULL){
+        cerr<<"insize mzAligner-----------:  "<<alignWrtExpectedRt<<endl;
+        if(alignWrtExpectedRt && grp->compound!=NULL){
             expectedRtObj.insert(expectedRtKey,grp->compound->expectedRt);
         }
         else{
