@@ -16,7 +16,7 @@ class CompareCsvs(object):
 
     def __init__(self, file_list, config_name, sample_list=cs.SAMPLE_LIST):
         self.file_list = file_list
-        self.col_list = [cs.ISOTOP_LABEL, cs.compoundId]
+        self.col_list = [cs.ISOTOP_LABEL, cs.COMPOUND_ID]
         self.config_name = config_name
         self.sample_list = sample_list
         hf.make_dir(cs.RESULT_DIR)
@@ -217,8 +217,8 @@ class CompareCsvs(object):
             rows_list.append(row_list)
 
         corr_wilcox_df = pandas.DataFrame(rows_list,
-                                          columns=[cs.unique_identifier_man,
-                                                   cs.unique_identifier_auto,
-                                                   cs.corr_coff, cs.p_val, cs.logfc_auto_to_man,
-                                                   cs.avg_intensity_man, cs.avg_intensity_auto])
+                                          columns=[cs.UNIQUE_IDENTIFIER_MAN,
+                                                   cs.UNIQUE_IDENTIFIER_AUTO,
+                                                   cs.CORR_COFF, cs.P_VAL, cs.LOGFC_AUTO_TO_MAN,
+                                                   cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO])
         return corr_wilcox_df
