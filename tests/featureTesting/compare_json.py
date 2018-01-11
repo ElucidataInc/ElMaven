@@ -11,7 +11,7 @@ class CompareJsons(object):
     instance for a configuration file and makes a correlation plot between same compounds.
     """
 
-    def __init__(self, man_path, auto_path, analysis_type=cs.by_delta_rt_and_mz, n_rt=5,
+    def __init__(self, man_path, auto_path, analysis_type=cs.BY_DELTA_RT_AND_MZ, n_rt=5,
                  n_mz=2, delta_rt=0.2, delta_mz=0.3, corr_cutoff=1, p_val_cutoff=0.7,
                  comparater_list=None, unique_identifier_list=None):
         if unique_identifier_list is None:
@@ -44,9 +44,9 @@ class CompareJsons(object):
         :return: It returns a scatter plot which we generally  call correlation plot.
         """
         correlation_and_wilcox_df = self.correlation_and_wilcox()
-        correlation_df = correlation_and_wilcox_df[[cs.unique_identifier_man,
-                                                    cs.unique_identifier_auto, cs.corr_coff,
-                                                   cs.avg_intensity_man, cs.avg_intensity_auto]]
+        correlation_df = correlation_and_wilcox_df[[cs.UNIQUE_IDENTIFIER_MAN,
+                                                    cs.UNIQUE_IDENTIFIER_AUTO, cs.CORR_COFF,
+                                                   cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO]]
         config_name = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path)
         cor_plot = hf.get_correlation_plot(correlation_df, config_name)
         return cor_plot
@@ -58,13 +58,13 @@ class CompareJsons(object):
         :return: returns wilcox plot
         """
         correlation_and_wilcox_df = self.correlation_and_wilcox()
-        wilcox_df = pd.DataFrame(correlation_and_wilcox_df, columns=[cs.unique_identifier_man,
-                                                                     cs.unique_identifier_auto,
-                                                                     cs.corr_coff, cs.p_val,
-                                                                     cs.logfc_auto_to_man,
-                                                                     cs.avg_intensity_man,
-                                                                     cs.avg_intensity_auto])
-        wilcox_df[[cs.p_val, cs.logfc_auto_to_man]] = wilcox_df[[cs.p_val, cs.logfc_auto_to_man]].\
+        wilcox_df = pd.DataFrame(correlation_and_wilcox_df, columns=[cs.UNIQUE_IDENTIFIER_MAN,
+                                                                     cs.UNIQUE_IDENTIFIER_AUTO,
+                                                                     cs.CORR_COFF, cs.P_VAL,
+                                                                     cs.LOGFC_AUTO_TO_MAN,
+                                                                     cs.AVERAGE_INTENSITY_MAN,
+                                                                     cs.AVERAGE_INTENSITY_AUTO])
+        wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]] = wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]].\
             apply(pd.to_numeric, errors='coerce')
         wilcox_df = wilcox_df.dropna()
         wilcox_plot = hf.get_wilcox_plot(wilcox_df)
@@ -87,15 +87,15 @@ class CompareJsons(object):
         """
         comp_dict_man = hf.json_comp_data(self.man_path)
         comp_dict_auto = hf.json_comp_data(self.auto_path)
-        if self.analysis_type == cs.by_delta_rt_and_mz:
+        if self.analysis_type == cs.BY_DELTA_RT_AND_MZ:
             correlation_and_wilcox_df = hf.find_correlation_and_wilcox_test_df\
                 (self.unique_identifier_list, comp_dict_man, comp_dict_auto, self.comparater_list,
                  self.analysis_type, self.delta_rt, self.delta_mz)
-        elif self.analysis_type == cs.by_n_closest_rt_and_mz:
+        elif self.analysis_type == cs.BY_N_CLOSEST_RT_AND_MZ:
             correlation_and_wilcox_df = hf.find_correlation_and_wilcox_test_df_closest_rt_and_mz(
                 self.unique_identifier_list, comp_dict_man, comp_dict_auto, self.comparater_list,
                 self.n_rt, self.n_mz, self.delta_rt, self.delta_mz, self.analysis_type)
-        elif self.analysis_type == cs.by_closest_and_delta_rt_and_mz:
+        elif self.analysis_type == cs.BY_CLOSEST_AND_DELTA_RT_AND_MZ:
             correlation_and_wilcox_df = hf.find_correlation_and_wilcox_test_df_closest_rt_and_mz(
                 self.unique_identifier_list, comp_dict_man, comp_dict_auto, self.comparater_list,
                 self.n_rt, self.n_mz, self.delta_rt, self.delta_mz, self.analysis_type)
@@ -114,10 +114,10 @@ class CompareJsons(object):
         third list has intensity scatter plots between groups satisfying from json file one and two.
         """
         unique_identifier_list_man_eic = correlation_and_wilcox_df_below_cutoff[
-            cs.unique_identifier_man]
+            cs.UNIQUE_IDENTIFIER_MAN]
         unique_identifier_list_auto_eic = correlation_and_wilcox_df_below_cutoff[
-            cs.unique_identifier_auto]
-        unique_identifier_list_eic = [cs.compoundId, cs.tagstring, cs.meanRt]
+            cs.UNIQUE_IDENTIFIER_AUTO]
+        unique_identifier_list_eic = [cs.COMPOUND_ID, cs.TAG_STRING, cs.MEAN_RT]
         eic_plots_man_list = []
         eic_plots_auto_list = []
         scatter_plots_list = []
