@@ -1,26 +1,24 @@
-import json
 import os
-
-import types
+from heapq import nsmallest
+import itertools
+import json
 import math
 import shutil
-import itertools
 import subprocess
+import types
+from math import log
+from urlparse import urlparse
 
-
-import xmltodict
-from scipy.stats.stats import pearsonr
-from scipy.stats import wilcoxon
-from plotly.offline import plot
-import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
-from heapq import nsmallest
-from math import log
+import plotly.graph_objs as go
+import xmltodict
+from plotly.offline import plot
+from posixpath import basename, dirname
+from scipy.stats.stats import pearsonr
+from scipy.stats import wilcoxon
 
 import constants as cs
-from urlparse import urlparse
-from posixpath import basename, dirname
 
 
 def xml_to_dict(path):
@@ -132,13 +130,9 @@ def json_comp_data(path):
         This function reads a json file for a dataset and returns a dict having keys as groupId and
         values as dict( this dict has all information (except information about eic) as key value
         pairs for that particular group).
-
         :param path: path of the data file
-
-
         :return: A dict which has all the details (except information about eic data) for all the
         groups in that json file.
-
         """
     data = json_parser(path)
     key = data.keys()[0]
@@ -214,7 +208,7 @@ def plot_layout(plot_object, title, x_title, y_title, plot_file_name):
 
     )
     figure = dict(data=plot_object, layout=layout)
-    output_plot = plot(figure, filename= "".join([plot_file_name, ".html"]),auto_open=False)
+    output_plot = plot(figure, filename="".join([plot_file_name, ".html"]), auto_open=False)
     return output_plot
 
 
@@ -242,10 +236,10 @@ def unique_identifier_data(unique_identifier_list, data_dict):
         for i in range(len(data_dict)):
             k = 0
             for j in range(len(parameters_name)):
-                if(parameters_name[j], parameters_value[j]) in data_dict[i+1].items():
-                    k = k+1
+                if (parameters_name[j], parameters_value[j]) in data_dict[i + 1].items():
+                    k = k + 1
             if k == len(parameters_name):
-                unique_dict[data_dict[i+1][cs.COMPOUND_NAME]] = data_dict[i+1]
+                unique_dict[data_dict[i + 1][cs.COMPOUND_NAME]] = data_dict[i + 1]
     return unique_dict
 
 
@@ -355,8 +349,10 @@ def unique_label_dict(unique_identifier_list, data_dict):
 
 def add_comparater_to_group(comparater_list, data_dict):
     """
-    It adds a key value pair(for example:- comparatername : Citrate Label-1 2.8745) to each value in the data_dict dictionary.
-    :param comparater_list: It is a list of parameters using which we make the comparater name for each key in data_dict.
+    It adds a key value pair(for example:- comparatername : Citrate Label-1 2.8745) to each value
+    in the data_dict dictionary.
+    :param comparater_list: It is a list of parameters using which we make the comparater name
+    for each key in data_dict.
     :param data_dict: dict of dicts which has all the data extracted from the json file.
     :return: It is a dict which now has newly added comparatername and and it's value for that key.
     """
@@ -371,11 +367,13 @@ def add_comparater_to_group(comparater_list, data_dict):
 
 def get_comparater_list(data_dict):
     """
-    This function gives appends all the comparater name for each key in the input dict and gives a list having unique
-    comparater names.
-    :param data_dict: It is a dict which has comparater name for each key. This comparater name is present in the value for each key in the dict.
+    This function gives appends all the comparater name for each key in the input dict and gives a
+    list having unique comparater names.
+    :param data_dict: It is a dict which has comparater name for each key. This comparater name is
+    present in the value for each key in the dict.
 
-    :return: It is a list which has unique comparater names from all the keys present in the data_dict.
+    :return: It is a list which has unique comparater names from all the keys present in the
+    data_dict.
     """
     comparater_list = []
     for key in data_dict.keys():
@@ -384,101 +382,142 @@ def get_comparater_list(data_dict):
     return unique_comparater_list
 
 
-def get_comparater_name_dict(comparater_name,data_dict):
+def get_comparater_name_dict(comparater_name, data_dict):
     """
     This function renturns the only key value pairs in the data_dict which has the comparater_name.
-    :param comparater_name: It is combination of some parameter for a element in the dict. let's say if we want all the
-    key value pairs which has the comparater_name equal to "Citrate label-1 2.893".
+    :param comparater_name: It is combination of some parameter for a element in the dict. let's
+    say if we want all the key value pairs which has the comparater_name equal to
+    "Citrate label-1 2.893".
     :param data_dict: dict which has all the groups as key value pairs for a Dataset.
     :return: It is a dict which has keys which have the input comparater_name in their value.
     """
     comparater_name_dict = {}
     for key in data_dict.keys():
-        if data_dict[key][cs.comparatername]== comparater_name:
+        if data_dict[key][cs.comparatername] == comparater_name:
             comparater_name_dict[key] = data_dict[key]
     return comparater_name_dict
 
 
 def get_corr_coff_and_pval(numeric_intensity_list_man, numeric_intensity_list_auto):
+    """
+     This function calculates correlation and p-val between two lists.
+    :param numeric_intensity_list_man: sample intensities list for a group from file one
+    :param numeric_intensity_list_auto: sample intensities list for a group from file two
+    :return: returns a list of correlation, p-val, logfc, mean intensity
+    """
     if not any(numeric_intensity_list_man) and not any(numeric_intensity_list_auto):
         cor_coff = 1
-        p_val = "undefined"
+        p_val = cs.UNDEFINED
         mean_intensity_man = np.mean(numeric_intensity_list_man)
         mean_intensity_auto = np.mean(numeric_intensity_list_auto)
-        fc = "undefined"
-        logfc = "undefined"
-        return (cor_coff ,p_val ,logfc ,mean_intensity_man, mean_intensity_auto)
+        fc = cs.UNDEFINED
+        logfc = cs.UNDEFINED
+        return cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto
 
     elif not any(numeric_intensity_list_man) or not any(numeric_intensity_list_auto):
-        cor_coff = "undefined"
+        cor_coff = cs.UNDEFINED
         p_val = \
-        wilcoxon(numeric_intensity_list_man, numeric_intensity_list_auto, zero_method='wilcox')[1]
+            wilcoxon(numeric_intensity_list_man, numeric_intensity_list_auto, zero_method='wilcox')[1]
         mean_intensity_man = np.mean(numeric_intensity_list_man)
         mean_intensity_auto = np.mean(numeric_intensity_list_auto)
-        fc = "undefined"
-        logfc = "undefined"
-        return (cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto)
-
+        fc = cs.UNDEFINED
+        logfc = cs.UNDEFINED
+        return cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto
 
     elif numeric_intensity_list_man == numeric_intensity_list_auto:
         cor_coff = 1
-        p_val = "undefined"
+        p_val = cs.UNDEFINED
         mean_intensity_man = np.mean(numeric_intensity_list_man)
         mean_intensity_auto = np.mean(numeric_intensity_list_auto)
         fc = mean_intensity_man / mean_intensity_auto
         logfc = math.log(fc, 2)
-        return (cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto)
-
+        return cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto
 
     else:
         cor_coff = pearsonr(numeric_intensity_list_man, numeric_intensity_list_auto)[0]
         p_val = \
-        wilcoxon(numeric_intensity_list_man, numeric_intensity_list_auto, zero_method='wilcox')[1]
+            wilcoxon(numeric_intensity_list_man, numeric_intensity_list_auto, zero_method='wilcox')[
+                1]
         mean_intensity_man = np.mean(numeric_intensity_list_man)
         mean_intensity_auto = np.mean(numeric_intensity_list_auto)
         fc = mean_intensity_man / mean_intensity_auto
         logfc = math.log(fc, 2)
-        return (cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto)
+        return cor_coff, p_val, logfc, mean_intensity_man, mean_intensity_auto
 
 
-def get_delta_rt_and_mz_df(comparater_dict_man,comparater_dict_auto,delta_rt,delta_mz):
+def get_delta_rt_and_mz_df(comparater_dict_man, comparater_dict_auto, delta_rt, delta_mz):
+    """
+    This function compares groups between two dictionaries within a delta rt and mz range.
+    :param comparater_dict_man: First json file converted to a dictionary with unique identifier
+    name for each group.
+    :param comparater_dict_auto: Second json file converted to a dictionary with unique identifier
+    name for each group.
+    :param delta_rt: user defined delta rt range
+    :param delta_mz: user defined delta mz range
+    :return: returns a df satisfying the delta rt and delta mz ranges for a comparison
+    """
     rows_list = []
     for key_man in comparater_dict_man.keys():
         for key_auto in comparater_dict_auto.keys():
-            if abs(comparater_dict_man[key_man][cs.meanRt]-comparater_dict_auto[key_auto][cs.meanRt]) <= delta_rt and abs(comparater_dict_man[key_man][cs.meanMz]-comparater_dict_auto[key_auto][cs.meanMz]) <= delta_mz:
+            if abs(comparater_dict_man[key_man][cs.meanRt] - comparater_dict_auto[key_auto][
+                cs.meanRt]) <= delta_rt and abs(comparater_dict_man[key_man][cs.meanMz] -
+                                                        comparater_dict_auto[key_auto][
+                                                            cs.meanMz]) <= delta_mz:
                 intensity_list_man = []
                 intensity_list_auto = []
                 sample_names = comparater_dict_man[key_man][cs.peaks].keys()
                 for sample in sample_names:
-                    intensity_list_auto.append(comparater_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
-                    intensity_list_man.append(comparater_dict_man[key_man][cs.peaks][sample][cs.peakIntensity])
-                numeric_intensity_list_man = [i if i!=cs.na else 0 for i in intensity_list_man]
-                numeric_intensity_list_auto = [i if i!=cs.na else 0 for i in intensity_list_auto]
+                    intensity_list_auto.append(
+                        comparater_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
+                    intensity_list_man.append(
+                        comparater_dict_man[key_man][cs.peaks][sample][cs.peakIntensity])
+                numeric_intensity_list_man = [i if i != cs.na else 0 for i in intensity_list_man]
+                numeric_intensity_list_auto = [i if i != cs.na else 0 for i in intensity_list_auto]
 
-                corr_pval_tuple = get_corr_coff_and_pval(numeric_intensity_list_man,numeric_intensity_list_auto)
+                corr_pval_tuple = get_corr_coff_and_pval(numeric_intensity_list_man,
+                                                         numeric_intensity_list_auto)
                 row_list = [key_man, key_auto, corr_pval_tuple[0], corr_pval_tuple[1],
                             corr_pval_tuple[2], corr_pval_tuple[3],
                             corr_pval_tuple[4]]
                 rows_list.append(row_list)
-    corr_wilcox_df = pd.DataFrame(rows_list, columns=[cs.unique_identifier_man,cs.unique_identifier_auto,cs.corr_coff,cs.p_val,cs.logfc_auto_to_man,cs.avg_intensity_man,cs.avg_intensity_auto])
+    corr_wilcox_df = pd.DataFrame(rows_list,
+                                  columns=[cs.unique_identifier_man, cs.unique_identifier_auto,
+                                           cs.corr_coff, cs.p_val, cs.logfc_auto_to_man,
+                                           cs.avg_intensity_man, cs.avg_intensity_auto])
     return corr_wilcox_df
 
 
-
-def find_correlation_and_wilcox_test_df(unique_identifier_list,man_dict, auto_dict, comparater_list, analysis_type, delta_rt, delta_mz):
-
-    if len(unique_identifier_list) !=0 :
-        unique_label_dict_man = unique_label_dict(unique_identifier_list,man_dict)
-        unique_label_dict_auto = unique_label_dict(unique_identifier_list,auto_dict)
+def find_correlation_and_wilcox_test_df(unique_identifier_list, man_dict, auto_dict,
+                                        comparater_list, analysis_type, delta_rt, delta_mz):
+    """
+    This function will return a dataframe with only groups which satisfies delta rt and delta mz
+    range.
+    :param unique_identifier_list: unique identifier names for which the group would be given a
+    unique name
+    :param man_dict: First JSON file converted to a dict
+    :param auto_dict: Second JSON file converted to a dict
+    :param comparater_list: list of parameters on which groups should be compared
+    :param analysis_type: type of analysis
+    :param delta_rt: delta rt range
+    :param delta_mz: delta mz range
+    :return: a data frame
+    """
+    if len(unique_identifier_list) != 0:
+        unique_label_dict_man = unique_label_dict(unique_identifier_list, man_dict)
+        unique_label_dict_auto = unique_label_dict(unique_identifier_list, auto_dict)
     else:
-        unique_label_dict_man = unique_label_dict([cs.compoundId,cs.tagstring, cs.meanRt],man_dict)
-        unique_label_dict_auto = unique_label_dict([cs.compoundId,cs.tagstring, cs.meanRt],auto_dict)
-    if len(comparater_list)!=0:
-        unique_dict_man = add_comparater_to_group(comparater_list,unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group(comparater_list,unique_label_dict_auto)
+        unique_label_dict_man = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+                                                  man_dict)
+        unique_label_dict_auto = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+                                                   auto_dict)
+    if len(comparater_list) != 0:
+        unique_dict_man = add_comparater_to_group(comparater_list, unique_label_dict_man)
+        unique_dict_auto = add_comparater_to_group(comparater_list, unique_label_dict_auto)
     else:
-        unique_dict_man = add_comparater_to_group([cs.compoundId,cs.tagstring], unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group([cs.compoundId,cs.tagstring], unique_label_dict_auto)
+        unique_dict_man = add_comparater_to_group([cs.compoundId, cs.tagstring],
+                                                  unique_label_dict_man)
+        unique_dict_auto = add_comparater_to_group([cs.compoundId, cs.tagstring],
+                                                   unique_label_dict_auto)
 
     comparater_list_man = get_comparater_list(unique_dict_man)
     comparater_list_auto = get_comparater_list(unique_dict_auto)
@@ -486,26 +525,43 @@ def find_correlation_and_wilcox_test_df(unique_identifier_list,man_dict, auto_di
     corr_wilcox_test_df = pd.DataFrame()
 
     for comparater_name in comparater_list_combined:
-        comparater_dict_man = get_comparater_name_dict(comparater_name,unique_dict_man)
+        comparater_dict_man = get_comparater_name_dict(comparater_name, unique_dict_man)
         comparater_dict_auto = get_comparater_name_dict(comparater_name, unique_dict_auto)
-        if (len(comparater_dict_man)>=1 and len(comparater_dict_auto)>=1):
-            comparison_corr_wilcox_df = get_delta_rt_and_mz_df(comparater_dict_man,comparater_dict_auto,delta_rt,delta_mz)
-            corr_wilcox_test_df = pd.concat([corr_wilcox_test_df, comparison_corr_wilcox_df],ignore_index=True)
+        if (len(comparater_dict_man) >= 1 and len(comparater_dict_auto) >= 1):
+            comparison_corr_wilcox_df = get_delta_rt_and_mz_df(comparater_dict_man,
+                                                               comparater_dict_auto, delta_rt,
+                                                               delta_mz)
+            corr_wilcox_test_df = pd.concat([corr_wilcox_test_df, comparison_corr_wilcox_df],
+                                            ignore_index=True)
 
     return corr_wilcox_test_df
 
 
 def get_closest_rt_and_mz_df(key_auto, unique_dict_auto, man_closest_rt_and_mz_dict):
+    """
+    :param key_auto: unique identifier for a group from one dataset
+    (for example:  a combined string of compoundID, tagString and mean rt value
+    "HMDB00292_Label-1_1.86")
+    :param unique_dict_auto: A dictionary with unique identifier names for each group from second
+    dataset
+    :param man_closest_rt_and_mz_dict: a dictionary with unique identifier names for all the groups
+    for first dataset
+    :return: a data frame
+    """
     rows_list = []
 
     for key_man in man_closest_rt_and_mz_dict.keys():
-        if man_closest_rt_and_mz_dict[key_man][cs.COMPOUND_NAME] == unique_dict_auto[key_auto][cs.COMPOUND_NAME] and man_closest_rt_and_mz_dict[key_man][cs.tagstring]== unique_dict_auto[key_auto][cs.tagstring]:
+        if man_closest_rt_and_mz_dict[key_man][cs.COMPOUND_NAME] == unique_dict_auto[key_auto][
+            cs.COMPOUND_NAME] and man_closest_rt_and_mz_dict[key_man][cs.tagstring] == \
+                unique_dict_auto[key_auto][cs.tagstring]:
             intensity_list_man = []
             intensity_list_auto = []
-            sample_names= unique_dict_auto[key_auto][cs.peaks]
+            sample_names = unique_dict_auto[key_auto][cs.peaks]
             for sample in sample_names:
-                intensity_list_auto.append(unique_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
-                intensity_list_man.append(man_closest_rt_and_mz_dict[key_man][cs.peaks][sample][cs.peakIntensity])
+                intensity_list_auto.append(
+                    unique_dict_auto[key_auto][cs.peaks][sample][cs.peakIntensity])
+                intensity_list_man.append(
+                    man_closest_rt_and_mz_dict[key_man][cs.peaks][sample][cs.peakIntensity])
             numeric_intensity_list_man = [i if i != cs.na else 0 for i in intensity_list_man]
             numeric_intensity_list_auto = [i if i != cs.na else 0 for i in intensity_list_auto]
             corr_pval_tuple = get_corr_coff_and_pval(numeric_intensity_list_man,
@@ -516,26 +572,50 @@ def get_closest_rt_and_mz_df(key_auto, unique_dict_auto, man_closest_rt_and_mz_d
             rows_list.append(row_list)
 
     corr_wilcox_df = pd.DataFrame(rows_list,
-                                  columns=[cs.unique_identifier_man, cs.unique_identifier_auto, cs.corr_coff, cs.p_val,
-                                           cs.logfc_auto_to_man,cs.avg_intensity_man,cs.avg_intensity_auto])
+                                  columns=[cs.unique_identifier_man, cs.unique_identifier_auto,
+                                           cs.corr_coff, cs.p_val,
+                                           cs.logfc_auto_to_man, cs.avg_intensity_man,
+                                           cs.avg_intensity_auto])
 
     return corr_wilcox_df
 
 
-def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list,man_dict, auto_dict, comparater_list, n_rt, n_mz, delta_rt, delta_mz, analysis_type):
+def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list, man_dict,
+                                                          auto_dict, comparater_list, n_rt, n_mz,
+                                                          delta_rt, delta_mz, analysis_type):
+    """
+    Compare groups in two dictionaries with n closest rt and mz
+    :param unique_identifier_list:unique identifier names for which the group would be given a
+    unique name
+    :param man_dict:A dictionary with unique identifier names for each group from first
+    dataset
+    :param auto_dict: A dictionary with unique identifier names for each group from second
+    dataset
+    :param comparater_list: list of parameters on which groups should be compared
+    :param n_rt: number of closeset rt groups
+    :param n_mz: number of closest mz groups
+    :param delta_rt: delta rt range
+    :param delta_mz: delta mz range
+    :param analysis_type: type of analysis
+    :return: a data frame
+    """
     corr_wilcox_test_df = pd.DataFrame()
-    if len(unique_identifier_list) !=0 :
-        unique_label_dict_man = unique_label_dict(unique_identifier_list,man_dict)
-        unique_label_dict_auto = unique_label_dict(unique_identifier_list,auto_dict)
+    if len(unique_identifier_list) != 0:
+        unique_label_dict_man = unique_label_dict(unique_identifier_list, man_dict)
+        unique_label_dict_auto = unique_label_dict(unique_identifier_list, auto_dict)
     else:
-        unique_label_dict_man = unique_label_dict([cs.compoundId,cs.tagstring, cs.meanRt],man_dict)
-        unique_label_dict_auto = unique_label_dict([cs.compoundId,cs.tagstring, cs.meanRt],auto_dict)
-    if len(comparater_list)!=0:
-        unique_dict_man = add_comparater_to_group(comparater_list,unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group(comparater_list,unique_label_dict_auto)
+        unique_label_dict_man = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+                                                  man_dict)
+        unique_label_dict_auto = unique_label_dict([cs.compoundId, cs.tagstring, cs.meanRt],
+                                                   auto_dict)
+    if len(comparater_list) != 0:
+        unique_dict_man = add_comparater_to_group(comparater_list, unique_label_dict_man)
+        unique_dict_auto = add_comparater_to_group(comparater_list, unique_label_dict_auto)
     else:
-        unique_dict_man = add_comparater_to_group([cs.compoundId,cs.tagstring], unique_label_dict_man)
-        unique_dict_auto = add_comparater_to_group([cs.compoundId,cs.tagstring], unique_label_dict_auto)
+        unique_dict_man = add_comparater_to_group([cs.compoundId, cs.tagstring],
+                                                  unique_label_dict_man)
+        unique_dict_auto = add_comparater_to_group([cs.compoundId, cs.tagstring],
+                                                   unique_label_dict_auto)
 
     comparater_list_man = get_comparater_list(unique_dict_man)
     comparater_list_auto = get_comparater_list(unique_dict_auto)
@@ -543,70 +623,104 @@ def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list
     for comparater_name in comparater_list_combined:
         comparater_dict_man = get_comparater_name_dict(comparater_name, unique_dict_man)
         comparater_dict_auto = get_comparater_name_dict(comparater_name, unique_dict_auto)
-        if (len(comparater_dict_man)>=1 and len(comparater_dict_auto)>=1):
+        if (len(comparater_dict_man) >= 1 and len(comparater_dict_auto) >= 1):
             for key_auto in comparater_dict_auto:
-                man_closest_rt_keys = [comparater_dict_man.keys()[comparater_dict_man.values().index(value)] for value in
-                                       nsmallest(n_rt, comparater_dict_man.values(), key=lambda x: abs(
-                                           x[cs.meanRt] - comparater_dict_auto[key_auto][cs.meanRt]))]
+                man_closest_rt_keys = [
+                    comparater_dict_man.keys()[comparater_dict_man.values().index(value)] for value
+                    in
+                    nsmallest(n_rt, comparater_dict_man.values(), key=lambda x: abs(
+                        x[cs.meanRt] - comparater_dict_auto[key_auto][cs.meanRt]))]
                 man_closest_rt_dict = {key: comparater_dict_man[key] for key in man_closest_rt_keys}
-                man_closest_rt_and_mz_keys = [man_closest_rt_dict.keys()[man_closest_rt_dict.values().index(value)] for
-                                              value in nsmallest(n_mz, man_closest_rt_dict.values(), key=lambda x: abs(
+                man_closest_rt_and_mz_keys = [
+                    man_closest_rt_dict.keys()[man_closest_rt_dict.values().index(value)] for
+                    value in nsmallest(n_mz, man_closest_rt_dict.values(), key=lambda x: abs(
                         x[cs.meanMz] - comparater_dict_auto[key_auto][cs.meanMz]))]
-                man_closest_rt_and_mz_dict = {key: man_closest_rt_dict[key] for key in man_closest_rt_and_mz_keys}
+                man_closest_rt_and_mz_dict = {key: man_closest_rt_dict[key] for key in
+                                              man_closest_rt_and_mz_keys}
                 if analysis_type == cs.by_n_closest_rt_and_mz:
-                    comparison_corr_wilcox_df = get_closest_rt_and_mz_df(key_auto, comparater_dict_auto,
+                    comparison_corr_wilcox_df = get_closest_rt_and_mz_df(key_auto,
+                                                                         comparater_dict_auto,
                                                                          man_closest_rt_and_mz_dict)
-                    corr_wilcox_test_df = pd.concat([corr_wilcox_test_df, comparison_corr_wilcox_df], ignore_index=True)
+                    corr_wilcox_test_df = pd.concat(
+                        [corr_wilcox_test_df, comparison_corr_wilcox_df], ignore_index=True)
                 elif analysis_type == cs.by_closest_and_delta_rt_and_mz:
                     man_closest_and_delta_rt_mz_dict = {}
                     for key_man in man_closest_rt_and_mz_dict.keys():
-                        if abs(man_closest_rt_and_mz_dict[key_man][cs.meanRt] - comparater_dict_auto[key_auto][
-                            cs.meanRt]) <= delta_rt and abs(
-                                    man_closest_rt_and_mz_dict[key_man][cs.meanMz] - comparater_dict_auto[key_auto][
-                                cs.meanMz]) <= delta_mz:
-                            man_closest_and_delta_rt_mz_dict[key_man] = man_closest_rt_and_mz_dict[key_man]
+                        if abs(man_closest_rt_and_mz_dict[key_man][cs.meanRt] -
+                                       comparater_dict_auto[key_auto][
+                                           cs.meanRt]) <= delta_rt and abs(
+                                    man_closest_rt_and_mz_dict[key_man][cs.meanMz] -
+                                    comparater_dict_auto[key_auto][
+                                        cs.meanMz]) <= delta_mz:
+                            man_closest_and_delta_rt_mz_dict[key_man] = man_closest_rt_and_mz_dict[
+                                key_man]
 
-                    comparison_corr_wilcox_df = get_closest_rt_and_mz_df(key_auto, comparater_dict_auto,
+                    comparison_corr_wilcox_df = get_closest_rt_and_mz_df(key_auto,
+                                                                         comparater_dict_auto,
                                                                          man_closest_and_delta_rt_mz_dict)
-                    corr_wilcox_test_df = pd.concat([corr_wilcox_test_df, comparison_corr_wilcox_df], ignore_index=True)
-
+                    corr_wilcox_test_df = pd.concat(
+                        [corr_wilcox_test_df, comparison_corr_wilcox_df], ignore_index=True)
 
     return corr_wilcox_test_df
 
 
-def correlation_scatter_plot(list_man,list_auto,hover_text,cor_list,config_name):
-    trace = go.Scatter(x=list_auto, y=list_man, mode=cs.MARKERS,marker=dict(
-        size= cs.cor_plot_datapoint_size,
-        color = cor_list,
-        colorscale= cs.cor_plot_color_scale,
+def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, config_name):
+    """
+    This function plots a scatter plot between averaged intensities of groups form two datasets
+    :param list_man: list of average intensities for all groups from dataset one
+    :param list_auto: list of average intensities for all groups from dataset two
+    :param hover_text: list of texts to be shown while hovering on a data point
+    :param cor_list: list of correlation values for all the group comparisons
+    :param config_name: configuration file name
+    :return: a plotly plot
+    """
+    trace = go.Scatter(x=list_auto, y=list_man, mode=cs.MARKERS, marker=dict(
+        size=cs.cor_plot_datapoint_size,
+        color=cor_list,
+        colorscale=cs.cor_plot_color_scale,
         showscale=True
     ), text=hover_text, hoverinfo=cs.TEXT)
     data = [trace]
     layout = go.Layout(
-        title = cs.cor_plot_main_title,
-        xaxis=dict(title= cs.cor_plot_x_title),
-        yaxis=dict(title= cs.cor_plot_y_title),showlegend=False,hovermode= cs.cor_plot_hover_mode)
+        title=cs.cor_plot_main_title,
+        xaxis=dict(title=cs.cor_plot_x_title),
+        yaxis=dict(title=cs.cor_plot_y_title), showlegend=False, hovermode=cs.cor_plot_hover_mode)
 
     figure = dict(data=data, layout=layout)
-    make_dir("results/")
-    cor_plot = plot(figure,filename=os.path.join(
-            cs.RESULT_DIR, config_name + "correlation_plot.html"),auto_open=False)
+    make_dir(cs.OUTPUT_DIR)
+    cor_plot = plot(figure, filename=os.path.join(
+        cs.RESULT_DIR, config_name + cs.CORRELATION_PLOT_NAME), auto_open=False)
     return cor_plot
 
 
 def get_correlation_plot(df_to_plot, config_name):
+    """
+    This function is wrapper function to make a correlation plot. Which takes a data frame which
+    columns are to be plotted.
+    :param df_to_plot: a data frame
+    :param config_name: configuration file name, just to give a unique name to the output plot file
+    :return: a correlation scatter plot
+    """
     list_man = df_to_plot[cs.avg_intensity_man].tolist()
     list_auto = df_to_plot[cs.avg_intensity_auto].tolist()
-    log_intensity_man = [log(value,10) for value in list_man]
-    log_intensity_auto = [log(value,10) for value in list_auto]
+    log_intensity_man = [log(value, 10) for value in list_man]
+    log_intensity_auto = [log(value, 10) for value in list_auto]
     cor_list = df_to_plot[cs.corr_coff].tolist()
-    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str)+ '<->' + df_to_plot[cs.unique_identifier_auto].map(str)+ cs.br +df_to_plot[cs.corr_coff].map(str))
-    cor_plot = correlation_scatter_plot(log_intensity_man,log_intensity_auto,hover_text,cor_list,
+    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str) + '<->' + df_to_plot[
+        cs.unique_identifier_auto].map(str) + cs.br + df_to_plot[cs.corr_coff].map(str))
+    cor_plot = correlation_scatter_plot(log_intensity_man, log_intensity_auto, hover_text, cor_list,
                                         config_name)
     return cor_plot
 
 
-def wilcox_scatter_plot(neg_log10_pval_list,log2_fc_list,hover_text):
+def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text):
+    """
+    Plots a scatter plot between negative log10 p values and their log fold changes.
+    :param neg_log10_pval_list: list of negative log10 p values
+    :param log2_fc_list: list of log2 fold chnage values
+    :param hover_text: list of hover text for all the data points
+    :return: a scatter plot (wilcox plot)
+    """
     trace = go.Scatter(x=log2_fc_list, y=neg_log10_pval_list, mode=cs.MARKERS, marker=dict(
         size=cs.cor_plot_datapoint_size,
         color=cs.orange_color,
@@ -620,26 +734,50 @@ def wilcox_scatter_plot(neg_log10_pval_list,log2_fc_list,hover_text):
         yaxis=dict(title=cs.neg_log10_pval), showlegend=False, hovermode=cs.cor_plot_hover_mode)
 
     figure = dict(data=data, layout=layout)
-    wilcox_plot = plot(figure,filename='wilcox_plot',auto_open=False)
+    wilcox_plot = plot(figure, filename='wilcox_plot', auto_open=False)
     return wilcox_plot
 
 
 def get_wilcox_plot(df_to_plot):
-    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str) + '<->' + df_to_plot[cs.unique_identifier_auto].map(str))
+
+    """
+    This function is a wrapper function for wilcox plot.
+    :param df_to_plot: data frame to be plotted
+    :return: a plotly plot (wilcox plot)
+    """
+    hover_text = list(df_to_plot[cs.unique_identifier_man].map(str) + '<->' + df_to_plot[
+        cs.unique_identifier_auto].map(str))
     p_val_list = df_to_plot[cs.p_val].tolist()
     log2_fc_list = df_to_plot[cs.logfc_auto_to_man].tolist()
-    neg_log10_pval = [-log(value,10) for value in p_val_list]
+    neg_log10_pval = [-log(value, 10) for value in p_val_list]
     wilcox_plot = wilcox_scatter_plot(neg_log10_pval, log2_fc_list, hover_text)
     return wilcox_plot
 
 
 def get_basename_url(url):
+    """
+    This function gives basename of a URL
+    :param url: URL to get basename for
+    :return: basename of the url
+    """
     parse_object = urlparse(url)
     url_basename = basename(parse_object.path)
     return url_basename
 
 
-def get_summary_report(correlation_and_wilcox_df, correlation_plot_url, wilcox_plot_url, outlier_plots):
+def get_summary_report(correlation_and_wilcox_df, correlation_plot_url, wilcox_plot_url,
+                       outlier_plots):
+    """
+    This function gives a summary report of comparison between two json files. This report consists
+    of Correlation plot, wilcox plot, comparison data table and EIC and Scatter plots for groups
+    below user defined cut offs for Correlation and p-value.
+    :param correlation_and_wilcox_df: This data frame has columns for unique identifier names,
+    correlation and p-value for a comparison, logfc, average intensities.
+    :param correlation_plot_url: Url of Correlation plot
+    :param wilcox_plot_url: url of wilcox plot
+    :param outlier_plots: list of three lists
+    :return: an html report
+    """
     correlation_plot_basename = get_basename_url(correlation_plot_url)
     wilcox_plot_basename = get_basename_url(wilcox_plot_url)
     html_string = '''
@@ -652,37 +790,37 @@ def get_summary_report(correlation_and_wilcox_df, correlation_plot_url, wilcox_p
         <body>
             <h1>Summary Report of your Analysis</h1>
             <h2>Section 1: Correlation Plot</h2>
-            <iframe id="correlation_plot" src='''+correlation_plot_basename+''' height="600" width="800"></iframe>
+            <iframe id="correlation_plot" src=''' + correlation_plot_basename + ''' height="600" width="800"></iframe>
             <h2>Section 2: Wilcox plot </h2>
-            <iframe id="wilcox_plot" src='''+ wilcox_plot_basename +''' height="600" width="800"></iframe>
+            <iframe id="wilcox_plot" src=''' + wilcox_plot_basename + ''' height="600" width="800"></iframe>
             <h3>Correlation and P-val dataframe</h3>
             ''' + correlation_and_wilcox_df + ''' '''
 
-
-
     for i in range(0, len(outlier_plots[0])):
-        html_string = html_string + '''<h4>'''+ get_basename_url(outlier_plots[0][i]).split(".html")[0]\
-                      + " eic plot"+ '''</h4>'''+ '''<br>'''
-        html_string = html_string + '''<br>'''+ '''<iframe id=''' +'''eic_plot_man''' + \
-                      str(i) + ''' '''+ '''src='''+ get_basename_url(outlier_plots[0][i]) \
-                      +''' ''' + ''' height="600" width="800"></iframe>'''
-
-        html_string = html_string + '''<h4>'''+ get_basename_url(outlier_plots[1][i]).split(".html")[0]\
-                      +" eic plot"+'''</h4>'''+ '''<br>'''
-
-        html_string = html_string + '''<br>''' + '''<iframe id=''' + '''eic_plot_auto''' +\
-                      str(i) + ''' ''' + '''src=''' + get_basename_url(outlier_plots[1][i])\
+        html_string = html_string + '''<h4>''' + \
+                      get_basename_url(outlier_plots[0][i]).split(".html")[0] \
+                      + " eic plot" + '''</h4>''' + '''<br>'''
+        html_string = html_string + '''<br>''' + '''<iframe id=''' + '''eic_plot_man''' + \
+                      str(i) + ''' ''' + '''src=''' + get_basename_url(outlier_plots[0][i]) \
                       + ''' ''' + ''' height="600" width="800"></iframe>'''
 
-        html_string = html_string + '''<h4>''' + get_basename_url(outlier_plots[2][i]).split(".html")[0]\
+        html_string = html_string + '''<h4>''' + \
+                      get_basename_url(outlier_plots[1][i]).split(".html")[0] \
+                      + " eic plot" + '''</h4>''' + '''<br>'''
+
+        html_string = html_string + '''<br>''' + '''<iframe id=''' + '''eic_plot_auto''' + \
+                      str(i) + ''' ''' + '''src=''' + get_basename_url(outlier_plots[1][i]) \
+                      + ''' ''' + ''' height="600" width="800"></iframe>'''
+
+        html_string = html_string + '''<h4>''' + \
+                      get_basename_url(outlier_plots[2][i]).split(".html")[0] \
                       + " scatter plot" + '''</h4>''' + '''<br>'''
 
-        html_string = html_string + '''<br>''' + '''<iframe id=''' + '''scatter_plot_man''' +\
-                      str(i) + ''' ''' + '''src=''' + get_basename_url(outlier_plots[2][i])\
+        html_string = html_string + '''<br>''' + '''<iframe id=''' + '''scatter_plot_man''' + \
+                      str(i) + ''' ''' + '''src=''' + get_basename_url(outlier_plots[2][i]) \
                       + ''' ''' + ''' height="600" width="800"></iframe>'''
 
-
-    html_string = html_string + '''</body>'''+ '''<br>'''+'''</html>'''
+    html_string = html_string + '''</body>''' + '''<br>''' + '''</html>'''
     f = open('report.html', 'w')
     f.write(html_string)
     f.close()
@@ -699,15 +837,14 @@ def load_df(fpath):
     """
     fname, fextension = os.path.splitext(fpath)
 
-
-    if fextension == ".tab":
+    if fextension == cs.TAB_EXTENSION:
         pdataframe = pd.read_csv(fpath, sep='\t')
         return pdataframe
-    elif fextension == ".csv":
+    elif fextension == cs.CSV_EXTENSION:
         pdataframe = pd.read_csv(fpath, sep=',')
         return pdataframe
     else:
-        raise ValueError(fextension + " file format not supported")
+        raise ValueError(fextension + cs.FILE_FORMAT_NOT_SUPPORTED)
 
 
 def merge_dfs(df_list, col_list):
@@ -726,8 +863,17 @@ def merge_dfs(df_list, col_list):
 
     return merged_df
 
+
 def get_corr_and_pval_cutoff_df(corr_cutoff, p_val_cutoff, input_df):
-    output_df = input_df[(input_df[cs.corr_coff] <= corr_cutoff) & (input_df[cs.p_val] <= p_val_cutoff)]
+    """
+    This function subsets the input dataframe based on correlation and p-value cut offs.
+    :param corr_cutoff: Correlation cutoff for a outlier
+    :param p_val_cutoff: p-val cut off for a outlier
+    :param input_df: Input dataframe having comaprison details
+    :return: data frame with rows having correlation and p-value below user defined cut offs
+    """
+    output_df = input_df[
+        (input_df[cs.corr_coff] <= corr_cutoff) & (input_df[cs.p_val] <= p_val_cutoff)]
     return output_df
 
 
@@ -760,7 +906,7 @@ def eicplot(unique_identifier, file_path, plot_file_name):
         rt_range.append(unique_data[group_name][cs.PEAKS][key][cs.RT])
         mz_range.append(unique_data[group_name][cs.PEAKS][key][cs.PEAK_MZ])
         rt_list.append(unique_data[group_name][cs.PEAKS][key][cs.EIC][cs.RT])
-    eic_plot = lineplot(intensity_list,rt_list, sample_names, group_name, plot_file_name)
+    eic_plot = lineplot(intensity_list, rt_list, sample_names, group_name, plot_file_name)
     return eic_plot
 
 
@@ -802,7 +948,7 @@ def intensityscatterplot(unique_identifier_man, unique_identifier_auto, file_pat
 
     plot = scatterplot(intensity_list_man, intensity_list_auto, sample_names)
     scatter_plot = plot_layout(plot, group_name, cs.AUTOMATED_INTENSITY,
-                                  cs.MANUAL_INTENSITY, plot_file_name)
+                               cs.MANUAL_INTENSITY, plot_file_name)
     return scatter_plot
 
 
@@ -863,7 +1009,7 @@ def parse_arguments(arguments):
             if value:
                 list_args.append(value)
     else:
-        raise ValueError("Type not supported for arguments")
+        raise ValueError(cs.TYPE_NOT_SUPPORTED_FOR_ARGUMENTS)
 
     return list_args
 
@@ -914,7 +1060,7 @@ def delete_dir(dir_path):
     except OSError:
         pass
     except:
-        print "Not able to delete " + dir_path
+        print cs.NOT_ABLE_TO_DELETE + dir_path
 
 
 def make_dir(dir_path):
@@ -929,6 +1075,4 @@ def make_dir(dir_path):
     except OSError:
         pass
     except:
-        print "Not able to create " + dir_path
-
-
+        print cs.NOT_ABLE_TO_DELETE + dir_path
