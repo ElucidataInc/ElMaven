@@ -25,6 +25,17 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups) {
     for (unsigned int ii=0; ii<allgroups.size();ii++) {
         PeakGroup* grp = allgroups.at(ii);
         QJsonArray jArr;
+
+        QJsonObject expectedRtObj;
+        QString expectedRtKey="expectedRt";
+        if(grp->compound!=NULL){
+            expectedRtObj.insert(expectedRtKey,grp->compound->expectedRt);
+        }
+        else{
+            expectedRtObj.insert(expectedRtKey,-1);
+        }
+        jArr.push_back(QJsonValue(expectedRtObj));
+
         for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
             Peak peak = grp->getPeaks().at(jj);
             deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
