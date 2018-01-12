@@ -8,7 +8,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("automatedDetection", QVariant::fromValue(pd->featureOptions));
 
     //TODO: replace with massCutoffMerge
-//     settings.insert("ppmStep", QVariant::fromValue(pd->ppmStep));
+    settings.insert("massCutoffMerge", QVariant::fromValue(pd->ppmStep));
 
     settings.insert("rtStep", QVariant::fromValue(pd->rtStep));
     settings.insert("mzMin", QVariant::fromValue(pd->mzMin));
@@ -23,8 +23,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     // db search settings
     settings.insert("dbDetection", QVariant::fromValue(pd->dbOptions));
 
-    //TODO: replace with compoundMassCutoffWindow.
-//     settings.insert("compoundPPMWindow", QVariant::fromValue(pd->compoundPPMWindow));
+    settings.insert("compoundMassCutoffWindow", QVariant::fromValue(pd->compoundPPMWindow));
 
     settings.insert("compoundRTWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
@@ -53,14 +52,19 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("minNoNoiseObs", QVariant::fromValue(pd->minNoNoiseObs));
     settings.insert("minGoodGroupCount", QVariant::fromValue(pd->minGoodGroupCount));
 
-
-
+    /* special case: there is no Ui element defined inside Peaks dialog that can be used
+     * to change/access massCutOfftype. the only way to change massCutofftype is to change it from mainWindow(top right corner).
+     * PeakDetectionDialog::masCutOffType is a variable that stores the value of MassCutOfftype defined in mainWindow
+     * Better would be to have a ui element that allows to change/access massCutoff from peaks dialog
+     */
+    settings.insert("massCutoffType", QVariant::fromValue(&pd->massCutoffType));
 }
 
 void PeakDetectionSettings::updatePeakSettings(string key, string value)
 {
 
     if(settings.find(QString(key.c_str())) != settings.end()) {
+
 
         const QVariant& v = settings[QString(key.c_str())];
         // convert the val to proper type;
@@ -82,6 +86,21 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
 
         if(QString(v.typeName()).contains("QComboBox"))
             v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
+
+        /* IMPORTANT
+         * special case: only pd->massCutOfftype  and the places where it is used are updated here
+         * there is no other Ui element that with  typeName as "QString".
+         * Better solution is to have a Ui element in Peaks Dialog that can be used to
+         * change/access massCutoff type
+         */
+        if(QString(v.typeName()).contains("QString")) {
+            *v.value<QString*>() = value.c_str();
+            pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
+            pd->label_7->setText(QString("Mass Domain Resolution (%1)").arg(pd->massCutoffType));
+            pd->compoundPPMWindow->setSuffix(pd->massCutoffType);
+
+        }
+
 
     }
 
@@ -137,6 +156,19 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 }
 
+
+void PeakDetectionDialog::setMassCutoffType(QString type)
+{
+    /* we are changing in peaks dialog from an event that occurs outside of peaks dialog
+     * (@see in MainWindow masscutoffCombox::currentIndexChanged), and since we have to keep mavenParamters
+     * synced with the changes happening in UI, we emit updateSettings here
+     */
+    massCutoffType = type;
+    label_7->setText(QString("Mass Domain Resolution (%1)").arg(type));
+    compoundPPMWindow->setSuffix(type);
+
+    emit updateSettings(pdSettings);
+}
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 {
@@ -317,12 +349,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             showBlankQuantileStatus(quantileSignalBlankRatio->value());
             showIntensityQuantileStatus(quantileIntensity->value());
 
-            // Compound DB search
-            compoundPPMWindow->setValue(
-                settings->value("compoundMassCutoffWindow").toDouble());
-
-            // Automated Peak Detection
-            ppmStep->setValue(settings->value("massCutoffMerge").toDouble());
             classificationModelFilename->setText(settings->value("clsfModelFilename").toString());
 
             // Isotope detection in peakdetection dialogue box
@@ -361,13 +387,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         compoundDatabase->setCurrentIndex(
             compoundDatabase->findText(selectedDB));
 
-        // EIC extraction windows ppm value that is set in the main
-        // window is been set to the GUI
-        compoundPPMWindow->setValue(mainwindow->getUserMassCutoff()->getMassCutoff());
-        string userMassCutoffType=mainwindow->getUserMassCutoff()->getMassCutoffType();
-        compoundPPMWindow->setSuffix(QApplication::translate("PeakDetectionDialog", &userMassCutoffType[0], 0));
-        string userResolution="Mass Domain Resolution ("+userMassCutoffType+")";
-        label_7->setText(QApplication::translate("PeakDetectionDialog", &userResolution[0], 0));
         QDialog::exec();
     }
 }
@@ -563,13 +582,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
         mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
         mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool();
-
-        // Compound DB search
-        string massCutoffType=mainwindow->massCutoffComboBox->currentText().toStdString();
-        mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(settings->value("compoundMassCutoffWindow").toDouble(),massCutoffType);
-
-        // Automated Peak Detection
-        mavenParameters->massCutoffMerge->setMassCutoffAndType(settings->value("massCutoffMerge").toDouble(),massCutoffType);
 
         mavenParameters->maxIsotopeScanDiff = settings->value(
                 "maxIsotopeScanDiff").toDouble();

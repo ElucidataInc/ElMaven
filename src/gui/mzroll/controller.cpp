@@ -29,7 +29,6 @@ void Controller::syncMpWithUi(T* dialogPtr)
         it's containing and then convert to it. can't say if this can be considered as a HACK or not **/
 
         if(QString(v.typeName()).contains("QDoubleSpinBox")) {
-            qDebug() << v.value<QDoubleSpinBox*>()->value();
             updateMavenParameters(key, v.value<QDoubleSpinBox*>()->value());
         }
 
@@ -53,8 +52,18 @@ void Controller::syncMpWithUi(T* dialogPtr)
             updateMavenParameters(key, v.value<QComboBox*>()->currentIndex());
         }
 
-    }
+        /*note: this updates massCutOffType of
+         * - massCutoffMerge
+         * - compoundMassCutoffWindow
+         * - fragmentMatchMassCutoffTolr
+         * @see PeakDetectionSettings::updatePeakSettings
+         */
 
+        if(QString(v.typeName()).contains("QString")) {
+            updateMavenParameters(key, *v.value<QString*>());
+        }
+
+    }
 }
 
 void Controller::updateOptionsDialogSettings(OptionsDialogSettings* od)

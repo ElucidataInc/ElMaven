@@ -25,6 +25,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 ~PeakDetectionDialog();
 				 void setSettings(QSettings* settings) { this->settings = settings; }
 				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
+                 MainWindow* getMainWindow() {return mainwindow;}
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void setMavenParameters(QSettings *settings);
 
@@ -49,13 +50,16 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showQualityQuantileStatus(int);
 				 void showBaselineQuantileStatus(int);
 				 void showBlankQuantileStatus(int);
+                 void setMassCutoffType(QString type);
                 virtual void closeEvent(QCloseEvent* event) override;
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
                     void settingsChanged(string key, string value);
+        public:
+                QString massCutoffType;
 
-		private:
+        private:
 				QSettings *settings;
 				MainWindow *mainwindow;
                 BackgroundPeakUpdate* peakupdater;
@@ -68,6 +72,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 
 
 };
+
+Q_DECLARE_METATYPE(QString*)
 
 class PeakDetectionSettings: public QObject
 {
