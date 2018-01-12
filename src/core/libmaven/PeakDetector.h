@@ -126,6 +126,15 @@ public:
 	void processSlices(vector<mzSlice*>&slices, string setName);
 
 	/**
+	 * @brief Filter groups on the basis of user-defined parameters
+	 * @param peakgroups vector of Peakgroup objects
+	 * @param slice mzSlice object bound to PeakGroup
+	 * @return filteredGroups Filtered PeakGroups
+	 * @see PeakGroup
+	 */
+	vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
+
+	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
 	 * @method quantileFilters
 	 * @param  group        [pointer to PeakGroup]

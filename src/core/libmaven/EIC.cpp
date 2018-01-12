@@ -877,6 +877,8 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         //grp.fillInPeaks(eics);
         //Feng note: fillInPeaks is unecessary
         grp.groupStatistics();
+        grp.computeAvgBlankArea(eics);
+
     }
 
     //now merge overlapping groups
