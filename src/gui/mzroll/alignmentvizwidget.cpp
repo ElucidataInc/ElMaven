@@ -153,7 +153,7 @@ float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup
     mean=1.0*mean/oldRts.size();
     
     for(int i=0;i<oldRts.size();++i){
-        SSres+=(newRts[i]-oldRts[i])*(newRts[i]-oldRts[i]);
+        SSres+=(newRts[i]-mean)*(newRts[i]-mean);
         SStot+=(oldRts[i]-mean)*(oldRts[i]-mean);
     }
 
