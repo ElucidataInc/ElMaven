@@ -8,12 +8,6 @@
 
 MavenParameters::MavenParameters()
 {
-    /* default_settings_xml is a  character array generated using Default_Settings.xml file
-     * It's present in settings.h header file
-     */
-    defaultSettingsData = (char*)default_settings_xml;
-    loadSettings(defaultSettingsData);
-
 
 	clsf = NULL;
 	alignSamplesFlag = false;
@@ -122,6 +116,13 @@ MavenParameters::MavenParameters()
 	overlapWeight = 1.0;
 	bool useOverlap = true;
 
+    /* default_settings_xml is a  character array generated using Default_Settings.xml file
+     * It's present in settings.h header file
+     * TODO: stop assigning values in constructor. just use loadSettings
+     */
+    defaultSettingsData = (char*)default_settings_xml;
+    loadSettings(defaultSettingsData);
+
 }
 
 std::map<string, string>& MavenParameters::getSettings()
@@ -137,9 +138,29 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "automatedDetection") == 0 )
         processAllSlices = atof(value);
 
-//     TODO: replace with massCutoffMerge. remove ppmMerge from default_settings_xml as well. and regenerate settings.h 
-//     if(strcmp(key, "ppmStep") == 0 )
-//         ppmMerge = atof(value);
+
+     if(strcmp(key, "massCutoffType") == 0 ) {
+
+         if(massCutoffMerge != nullptr)
+             massCutoffMerge->setMassCutoffType(value);
+
+         if(compoundMassCutoffWindow != nullptr)
+             compoundMassCutoffWindow->setMassCutoffType(value);
+
+         if(fragmentMatchMassCutoffTolr != nullptr)
+             fragmentMatchMassCutoffTolr->setMassCutoffType(value);
+     }
+
+
+     if(strcmp(key, "massCutoffMerge") == 0 ) {
+
+
+         if(massCutoffMerge != nullptr) {
+             massCutoffMerge->setMassCutoff(atof(value));
+         }
+
+     }
+
 
     if(strcmp(key,"rtStep") == 0)
         rtStepSize = atof(value);
@@ -171,9 +192,13 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "dbDetection") == 0 );
         //TODO
 
-        //TODO: replace with compoundMassCutoffWindow. replace compoundPPMWindow in default_settings_xml. regenerate settings.h
-//     if(strcmp(key, "compoundPPMWindow") == 0 )
-//         compoundPPMWindow = atof(value);
+     if(strcmp(key, "compoundMassCutoffWindow") == 0 ) {
+
+         if(compoundMassCutoffWindow != nullptr) {
+            compoundMassCutoffWindow->setMassCutoff(atof(value));
+         }
+
+     }
 
     if(strcmp(key, "compoundRTWindow") == 0 )
         compoundRTWindow = atof(value);

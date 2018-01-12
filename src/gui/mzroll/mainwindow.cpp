@@ -2575,6 +2575,9 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
 
+    /* note: on changing mass cut off type from mainwindow, it's important that it's also changed in peaks dialog */
+    connect(massCutoffComboBox, &QComboBox::currentTextChanged, peakDetectionDialog, &PeakDetectionDialog::setMassCutoffType);
+
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
     searchText->setPlaceholderText("MW / Compound");   

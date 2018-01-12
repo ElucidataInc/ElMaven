@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
         <automatedDetection>0</automatedDetection>
-        <ppmStep>20.000</ppmStep>
+        <massCutoffType>ppm</massCutoffType>
+        <massCutoffMerge>20</massCutoffMerge>
         <rtStep>10</rtStep>
         <mzMin>0</mzMin>
         <mzMax>1000000000.00</mzMax>
@@ -12,7 +13,7 @@
         <chargeMin>0</chargeMin>
         <chargeMax>0</chargeMax>        
         <dbDetection>1</dbDetection> 
-        <compoundPPMWindow>5</compoundPPMWindow>
+        <compoundMassCutoffWindow>5</compoundMassCutoffWindow>
         <compoundRTWindow>2</compoundRTWindow>
         <matchRt>0</matchRt>
         <eicMaxGroups>10</eicMaxGroups>
