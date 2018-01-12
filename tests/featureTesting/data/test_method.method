@@ -1,0 +1,4 @@
+
+<Settings>
+    <PeakDetectionSettings alignSamplesFlag="0" rtStepSize="10" ppmMerge="20" limitGroupCount="2147483647" minMz="150.01" maxMz="300" minRt="0" maxRt="20" minIntensity="1000" maxIntensity="1e+9" minCharge="0" maxCharge="0" ionizationMode="-1" matchRtFlag="0" compoundPPMWindow="10" compoundRTWindow="5" matchFragmentation="0" fragmentMatchPPMTolr="1000" eic_smoothingWindow="5" eic_smoothingAlgorithm="0" baseline_smoothingWindow="1" baseline_dropTopX="80" grouping_maxRtWindow="0.5" eicMaxGroups="1" minSignalBlankRatio="1" minNoNoiseObs="3" minSignalBaseLineRatio="2" minGroupIntensity="1e+6" outputdir="reports\" writeCSVFlag="0" keepFoundGroups="1" showProgressFlag="1"/>
+</Settings>
