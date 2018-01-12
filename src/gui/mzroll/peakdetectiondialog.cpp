@@ -96,9 +96,6 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
         if(QString(v.typeName()).contains("QString")) {
             *v.value<QString*>() = value.c_str();
             pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
-            pd->label_7->setText(QString("Mass Domain Resolution (%1)").arg(pd->massCutoffType));
-            pd->compoundPPMWindow->setSuffix(pd->massCutoffType);
-
         }
 
 
@@ -160,14 +157,11 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 void PeakDetectionDialog::setMassCutoffType(QString type)
 {
     /* we are changing in peaks dialog from an event that occurs outside of peaks dialog
-     * (@see in MainWindow masscutoffCombox::currentIndexChanged), and since we have to keep mavenParamters
-     * synced with the changes happening in UI, we emit updateSettings here
+     * (@see in MainWindow masscutoffCombox::currentIndexChanged)
      */
     massCutoffType = type;
     label_7->setText(QString("Mass Domain Resolution (%1)").arg(type));
     compoundPPMWindow->setSuffix(type);
-
-    emit updateSettings(pdSettings);
 }
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
@@ -544,11 +538,7 @@ void PeakDetectionDialog::showBlankQuantileStatus(int value) {
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // Peak Scoring and Filtering
     // Compound DB search
-    settings->setValue("massCutoffType",mainwindow->massCutoffComboBox->currentText());
-    settings->setValue("compoundMassCutoffWindow", compoundPPMWindow->value());
     // Automated Peak Detection
-    settings->setValue("massCutoffMerge", ppmStep->value());
-
     // Isotope detection in peakdetection dialogue box
     // settings->setValue("checkBox", checkBox->isChecked());      // C13
     // settings->setValue("checkBox_2", checkBox_2->isChecked());  // N15

@@ -203,10 +203,7 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
 
                 // Peak Scoring and Filtering
                 // Compound DB search
-                settings->setValue("compoundMassCutoffWindow",
-                        xml.attributes().value("compoundMassCutoffWindow").toString().toFloat());
                 // Automated Peak Detection
-                settings->setValue("massCutoffMerge", xml.attributes().value("massCutoffMerge").toString().toFloat());
 
                 // Isotope detection in peakdetection dialogue box
                 // settings->setValue("checkBox", checkBox->isChecked());  // C13
