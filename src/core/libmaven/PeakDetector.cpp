@@ -839,7 +839,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
     int foundGroups = 0;
 
     int eicCount = 0;
-    int groupCount = 0;
     for (unsigned int s = 0; s < slices.size(); s++)
     {
 
@@ -928,76 +927,19 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                             mavenParameters->useOverlap,
                             mavenParameters->minSignalBaselineDifference);
 
-        vector<PeakGroup *> groupsToAppend;
-        for (unsigned int j = 0; j < peakgroups.size(); j++)
-        {
-
-            PeakGroup &group = peakgroups[j];
-            group.setQuantitationType((PeakGroup::QType)mavenParameters->peakQuantitation);
-            group.minQuality = mavenParameters->minQuality;
-            group.minIntensity = mavenParameters->minGroupIntensity;
-            group.computeAvgBlankArea(eics);
-            group.groupStatistics();
-            groupCount++;
-
-            if (mavenParameters->clsf->hasModel())
-            {
-                mavenParameters->clsf->classify(&group);
-                group.groupStatistics();
-            }
-            if (mavenParameters->clsf->hasModel() && group.goodPeakCount < mavenParameters->minGoodGroupCount)
-                continue;
-
-            if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
-                continue;
-            if (quantileFilters(&group))
-                continue;
-
-            if (compound)
-                group.compound = compound;
-            if (!slice->srmId.empty())
-                group.srmId = slice->srmId;
-
-            float rtDiff = -1;
-
-            if (compound != NULL && compound->expectedRt > 0)
-            {
-                rtDiff = abs(compound->expectedRt - (group.meanRt));
-                group.expectedRtDiff = rtDiff;
-            }
-
-            double A = (double)mavenParameters->qualityWeight / 10;
-            double B = (double)mavenParameters->intensityWeight / 10;
-            double C = (double)mavenParameters->deltaRTWeight / 10;
-
-            if (compound != NULL && compound->expectedRt > 0)
-            {
-                if (mavenParameters->deltaRtCheckFlag)
-                {
-                    group.groupRank = pow(rtDiff, 2 * C) * pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
-                }
-                if (mavenParameters->matchRtFlag && group.expectedRtDiff > mavenParameters->compoundRTWindow)
-                    continue;
-            }
-
-            if (!mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0)
-            {
-                group.groupRank = pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B)));
-            }
-            groupsToAppend.push_back(&group);
-        }
+        vector<PeakGroup*> filteredGroups = groupFiltering(peakgroups, slice);
 
         //sort groups according to their rank
-        std::sort(groupsToAppend.begin(), groupsToAppend.end(),
+        std::sort(filteredGroups.begin(), filteredGroups.end(),
                   PeakGroup::compRankPtr);
 
-        for (unsigned int j = 0; j < groupsToAppend.size(); j++)
+        for (unsigned int j = 0; j < filteredGroups.size(); j++)
         {
             //check for duplicates	and append group
             if (j >= mavenParameters->eicMaxGroups)
                 break;
 
-            PeakGroup *group = groupsToAppend[j];
+            PeakGroup *group = filteredGroups[j];
             addPeakGroup(*group);
         }
 
@@ -1023,6 +965,70 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
         }
     }
+}
+
+vector<PeakGroup*> PeakDetector::groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice)
+{
+
+    Compound* compound = slice->compound;
+    vector<PeakGroup*> filteredGroups;
+    for (int i = 0; i < peakgroups.size(); i++)
+    {
+        PeakGroup &group = peakgroups[i];
+        group.setQuantitationType((PeakGroup::QType)mavenParameters->peakQuantitation);
+        group.minQuality = mavenParameters->minQuality;
+        group.minIntensity = mavenParameters->minGroupIntensity;
+
+        if (mavenParameters->clsf->hasModel())
+        {
+            mavenParameters->clsf->classify(&group);
+        }
+        group.groupStatistics();
+
+        if (mavenParameters->clsf->hasModel() && group.goodPeakCount < mavenParameters->minGoodGroupCount)
+            continue;
+
+        if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
+            continue;
+        if (quantileFilters(&group))
+            continue;
+
+        if (compound)
+            group.compound = compound;
+        if (!slice->srmId.empty())
+            group.srmId = slice->srmId;
+
+        float rtDiff = -1;
+
+        if (compound != NULL && compound->expectedRt > 0)
+        {
+            rtDiff = abs(compound->expectedRt - (group.meanRt));
+            group.expectedRtDiff = rtDiff;
+        }
+
+        double A = (double)mavenParameters->qualityWeight / 10;
+        double B = (double)mavenParameters->intensityWeight / 10;
+        double C = (double)mavenParameters->deltaRTWeight / 10;
+
+        if (compound != NULL && compound->expectedRt > 0)
+        {
+            if (mavenParameters->deltaRtCheckFlag)
+            {
+                group.groupRank = pow(rtDiff, 2 * C) * pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
+            }
+            if (mavenParameters->matchRtFlag && group.expectedRtDiff > mavenParameters->compoundRTWindow)
+                continue;
+        }
+
+        if (!mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0)
+        {
+            group.groupRank = pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B)));
+        }
+
+        filteredGroups.push_back(&group);
+    }
+
+    return filteredGroups;
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
