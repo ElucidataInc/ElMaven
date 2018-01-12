@@ -246,10 +246,14 @@ using namespace mzUtils;
 	mavenParameters = new MavenParameters();
 	_massCutoffWindow = new MassCutoff();
 
-	double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
-	string massCutoffType=settings->value("massCutoffType").toString().toStdString();
-	_massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
-	QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
+
+
+   /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
+      string massCutoffType=settings->value("massCutoffType").toString().toStdString();
+      _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
+    */
+
+    QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
 
 	if (QFile::exists(clsfModelFilename)) {
 		settings->setValue("clsfModelFilename", clsfModelFilename);
@@ -2160,16 +2164,12 @@ void MainWindow::readSettings() {
 
     // Compound DB Search
 
-    if (!settings->contains("compoundMassCutoffWindow"))
-        settings->setValue("compoundMassCutoffWindow", 5);
 
 
     //Setting to enable or disable compund or Auto Detection 
     
 
     // Automated Peak Detection
-    if (!settings->contains("massCutoffMerge"))
-        settings->setValue("massCutoffMerge", 20);
 
     //Isotope Detection in peakDetection Dialogue
         
@@ -2256,11 +2256,8 @@ void MainWindow::readSettings() {
     //Main window right hand top
     if (!settings->contains("massCutoffWindowBox"))
 		settings->setValue("massCutoffWindowBox", 5);
-	if (!settings->contains("compoundMassCutoffWindow"))
-		settings->setValue("compoundMassCutoffWindow", 5);
 
-	if (!settings->contains("massCutoffType"))
-	settings->setValue("massCutoffType","ppm");
+
 
     if (!settings->contains("mzslice"))
         settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
@@ -2301,7 +2298,6 @@ void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
 	settings->setValue("size", size());
 	settings->setValue("massCutoffWindowBox", massCutoffWindowBox->value());
-	settings->setValue("massCutoffType",massCutoffComboBox->currentText());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
@@ -2566,12 +2562,12 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
 	massCutoffWindowBox->setSingleStep(0.5);
-	if(settings->value("massCutoffType")=="mDa"){
-		massCutoffComboBox->setCurrentText("mDa");
-	}
-	else{
-		massCutoffComboBox->setCurrentText("ppm");
-	}
+    /*if(settings->value("massCutoffType")=="mDa"){
+        massCutoffComboBox->setCurrentText("mDa");
+    }
+    else{
+        massCutoffComboBox->setCurrentText("ppm");
+    }*/
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
 
@@ -2713,7 +2709,6 @@ void MainWindow::createToolBars() {
 }
 
 void MainWindow::setMassCutoffType(QString massCutoffType){
-	settings->setValue("massCutoffType", massCutoffType);
 	double cutoff=massCutoffWindowBox->value();
 	string type=massCutoffType.toStdString();
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
