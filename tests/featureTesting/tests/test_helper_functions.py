@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from tests.featureTesting import helper_functions as hf
 
 
@@ -18,9 +16,12 @@ def test_get_basename_url():
     expected_result = "test_config1.csv"
     assert result == expected_result
 
+
 def test_list_files():
     dir_path = "../data/"
     file_extenson = ".csv"
     result = hf.list_files(dir_path, file_extenson)
     expected_result = ["../data/test_config1.csv","../data/test_config2.csv"]
     assert result == expected_result
+
+
