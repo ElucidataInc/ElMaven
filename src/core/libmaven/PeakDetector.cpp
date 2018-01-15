@@ -885,6 +885,13 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             eicCount++;
             float max = 0;
 
+            if (mavenParameters->clsf->hasModel())
+            {
+                for (unsigned int k=0; k < eics[j]->peaks.size(); k++ ) {
+                    eics[j]->peaks[k].quality = mavenParameters->clsf->scorePeak(eics[j]->peaks[k]);
+                }
+            }
+
             switch ((PeakGroup::QType)mavenParameters->peakQuantitation)
             {
             case PeakGroup::AreaTop:
@@ -979,10 +986,6 @@ vector<PeakGroup*> PeakDetector::groupFiltering(vector<PeakGroup> &peakgroups, m
         group.minQuality = mavenParameters->minQuality;
         group.minIntensity = mavenParameters->minGroupIntensity;
 
-        if (mavenParameters->clsf->hasModel())
-        {
-            mavenParameters->clsf->classify(&group);
-        }
         group.groupStatistics();
 
         if (mavenParameters->clsf->hasModel() && group.goodPeakCount < mavenParameters->minGoodGroupCount)

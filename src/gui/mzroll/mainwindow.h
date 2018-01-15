@@ -226,7 +226,7 @@ public:
 
     QList< QPointer<TableDockWidget> > getPeakTableList() { return groupTables; } //TODO: Sahil - Kiran, Added while merging mainwindow
 
-	Classifier* getClassifier() {
+	ClassifierNeuralNet* getClassifier() {
 		return clsf;
 	}
 
@@ -421,7 +421,7 @@ private Q_SLOTS:
 private:
 	int m_value;
 	QSettings* settings;
-	Classifier* clsf;
+	ClassifierNeuralNet* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
