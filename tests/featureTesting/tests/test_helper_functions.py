@@ -12,3 +12,15 @@ def test_dict_diff():
     assert result == expected_result
 
 
+def test_get_basename_url():
+    url = "../data/test_config1.csv"
+    result = hf.get_basename_url(url)
+    expected_result = "test_config1.csv"
+    assert result == expected_result
+
+def test_list_files():
+    dir_path = "../data/"
+    file_extenson = ".csv"
+    result = hf.list_files(dir_path, file_extenson)
+    expected_result = ["../data/test_config1.csv","../data/test_config2.csv"]
+    assert result == expected_result
