@@ -127,17 +127,11 @@ void IsotopeWidget::computeIsotopes(string f) {
 	QSettings* settings = _mw->getSettings();
 	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 
-	//N TODO:remove unneeded settings
-	double maxIsotopeScanDiff =
-			settings->value("maxIsotopeScanDiff").toDouble();
-	double minIsotopicCorrelation =
-			settings->value("minIsotopicCorrelation").toDouble();
-	double maxNaturalAbundanceErr =
-			settings->value("maxNaturalAbundanceErr").toDouble();
-	bool C13Labeled = settings->value("C13Labeled_BPE").toBool();
-	bool N15Labeled = settings->value("N15Labeled_BPE").toBool();
-	bool S34Labeled = settings->value("S34Labeled_BPE").toBool();
-	bool D2Labeled = settings->value("D2Labeled_BPE").toBool();
+    double maxNaturalAbundanceErr = _mw->mavenParameters->maxNaturalAbundanceErr;
+    bool C13Labeled = _mw->mavenParameters->C13Labeled_BPE;
+    bool N15Labeled = _mw->mavenParameters->N15Labeled_BPE;
+    bool S34Labeled = _mw->mavenParameters->S34Labeled_BPE;
+    bool D2Labeled = _mw->mavenParameters->D2Labeled_BPE;
 	/**
 	 * We want always to list all isotopes  in Isotopes Widget .
 	 * mark _mw->mavenParameters->isotopeAtom["ShowIsotopes"] as true and after getting all isotopes, restore it's original

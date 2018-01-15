@@ -298,7 +298,7 @@ void SettingsForm::recomputeEIC() {
 }
 
 void SettingsForm::updateSmoothingWindowValue(int value) {
-    settings->setValue("eic_smoothingWindow",value);
+
     eic_smoothingWindow->setValue(value);
     recomputeEIC();
 }
@@ -308,63 +308,11 @@ void SettingsForm::updateSettingFormGUI() {
    // qDebug() << "SettingsForm::updateSettingFormGUI()";
 
     if (settings == NULL) return;
-    eic_smoothingAlgorithm->setCurrentIndex(settings->value("eic_smoothingAlgorithm").toInt());
-    eic_smoothingWindow->setValue(settings->value("eic_smoothingWindow").toInt());
-    grouping_maxRtWindow->setValue(settings->value("grouping_maxRtWindow").toDouble());
-    maxNaturalAbundanceErr->setValue(settings->value("maxNaturalAbundanceErr").toDouble());
-    maxIsotopeScanDiff->setValue(settings->value("maxIsotopeScanDiff").toDouble());
-    minIsotopicCorrelation->setValue(settings->value("minIsotopicCorrelation").toDouble());
-    baseline_smoothing->setValue(settings->value("baseline_smoothing").toInt());
-    baseline_quantile->setValue(settings->value("baseline_quantile").toInt());
-    minSignalBaselineDifference->setValue(settings->value("minSignalBaselineDifference").toInt());
-    isotopicMinSignalBaselineDifference->setValue(settings->value("isotopicMinSignalBaselineDifference").toInt());
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
-    C13Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("C13Labeled_BPE").toInt() );
-    N15Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("N15Labeled_BPE").toInt()  );
-    S34Labeled_BPE->setCheckState( (Qt::CheckState) settings->value("S34Labeled_BPE").toInt() );
-    D2Labeled_BPE->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_BPE").toInt()  );
-    
-    C13Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("C13Labeled_Barplot").toInt() );
-    N15Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("N15Labeled_Barplot").toInt()  );
-    S34Labeled_Barplot->setCheckState( (Qt::CheckState) settings->value("S34Labeled_Barplot").toInt() );
-    D2Labeled_Barplot->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_Barplot").toInt()  );
+
     doubleSpinBoxAbThresh->setValue(settings->value("AbthresholdBarplot").toDouble());
-    noOfIsotopes->setValue(settings->value("noOfIsotopes").toInt());
-
-    C13Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("C13Labeled_IsoWidget").toInt() );
-    N15Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("N15Labeled_IsoWidget").toInt()  );
-    S34Labeled_IsoWidget->setCheckState( (Qt::CheckState) settings->value("S34Labeled_IsoWidget").toInt() );
-    D2Labeled_IsoWidget->setCheckState(  (Qt::CheckState) settings->value("D2Labeled_IsoWidget").toInt()  );
-
-
-    isotopeC13Correction->setCheckState(  (Qt::CheckState) settings->value("isotopeC13Correction").toInt()  );
-
-    eicTypeComboBox->setCurrentIndex(settings->value("eicTypeComboBox").toInt());
-
-    //peak grouping tab
-    if (settings->contains("distXWeight"))
-    distXSlider->setValue(settings->value("distXWeight").toFloat()*10);
-
-    if (settings->contains("distYWeight"))
-    distYSlider->setValue(settings->value("distYWeight").toFloat()*10);
-
-    if (settings->contains("overlapWeight"))
-    overlapSlider->setValue(settings->value("overlapWeight").toFloat()*10);
-
-    if (settings->contains("useOverlap"))
-    useOverlap->setCheckState( (Qt::CheckState) settings->value("useOverlap").toInt());
-
-    //group rank tab
-    if (settings->contains("qualityWeight"))
-    qualityWeight->setValue(settings->value("qualityWeight").toInt());
-
-    if (settings->contains("intensityWeight"))
-    intensityWeight->setValue(settings->value("intensityWeight").toInt());
-
-    if (settings->contains("deltaRTWeight"))
-    deltaRTWeight->setValue(settings->value("deltaRTWeight").toInt());
 
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
     scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
@@ -399,43 +347,15 @@ void SettingsForm::getFormValues() {
     //qDebug() << "SettingsForm::getFormValues() ";
 
 
-    settings->setValue("eic_smoothingAlgorithm",eic_smoothingAlgorithm->currentIndex());
-    settings->setValue("eic_smoothingWindow",eic_smoothingWindow->value());
-    settings->setValue("grouping_maxRtWindow",grouping_maxRtWindow->value());
-    settings->setValue("maxNaturalAbundanceErr",maxNaturalAbundanceErr->value());
-    settings->setValue("baseline_quantile", baseline_quantile->value());
-    settings->setValue("baseline_smoothing", baseline_smoothing->value());
-    settings->setValue("maxIsotopeScanDiff",maxIsotopeScanDiff->value());
-    settings->setValue("minIsotopicCorrelation",minIsotopicCorrelation->value());
-    settings->setValue("minSignalBaselineDifference", minSignalBaselineDifference->value());
-    settings->setValue("isotopicMinSignalBaselineDifference",isotopicMinSignalBaselineDifference->value());
 
     /*Isotopic settings for barplot*/
-    settings->setValue("C13Labeled_Barplot", C13Labeled_Barplot->checkState());
-    settings->setValue("N15Labeled_Barplot", N15Labeled_Barplot->checkState());
-    settings->setValue("S34Labeled_Barplot", S34Labeled_Barplot->checkState());
-    settings->setValue("D2Labeled_Barplot", D2Labeled_Barplot->checkState());
     settings->setValue("AbthresholdBarplot",  doubleSpinBoxAbThresh->value());
-    settings->setValue("noOfIsotopes", noOfIsotopes->value());
 
-    /*Isotopic settings for bookmark, peak detection and save csv*/
-    settings->setValue("C13Labeled_BPE", C13Labeled_BPE->checkState());
-    settings->setValue("N15Labeled_BPE", N15Labeled_BPE->checkState());
-    settings->setValue("S34Labeled_BPE", S34Labeled_BPE->checkState());
-    settings->setValue("D2Labeled_BPE", D2Labeled_BPE->checkState());
 
-    /*Isotopic settings for bookmark, peak detection and save csv*/
-    settings->setValue("C13Labeled_IsoWidget", C13Labeled_IsoWidget->checkState());
-    settings->setValue("N15Labeled_IsoWidget", N15Labeled_IsoWidget->checkState());
-    settings->setValue("S34Labeled_IsoWidget", S34Labeled_IsoWidget->checkState());
-    settings->setValue("D2Labeled_IsoWidget", D2Labeled_IsoWidget->checkState());
 
-    settings->setValue("isotopeC13Correction", isotopeC13Correction->checkState());
-    settings->setValue("amuQ1", amuQ1->value());
-    settings->setValue("amuQ3", amuQ3->value());
+
     settings->setValue("filterlineComboBox", filterlineComboBox->currentText());
 
-    settings->setValue("eicTypeComboBox",eicTypeComboBox->currentIndex());
 
     settings->setValue("centroid_scan_flag", centroid_scan_flag->checkState() );
     settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
@@ -450,21 +370,11 @@ void SettingsForm::getFormValues() {
 
 
     //change ionization mode
-    if (ionizationMode->currentText().contains("+1") )      settings->setValue("ionizationMode", 1);
-    else if ( ionizationMode->currentText().contains("-1") ) settings->setValue("ionizationMode", -1);
-    else if (ionizationMode->currentText().contains("Auto Detect") && !mainwindow->samples.empty()) 
-        settings->setValue("ionizationMode", mainwindow->samples[0]->getPolarity());
 
     //change ionization type
 
     if (ionizationType->currentText() == "EI")  MassCalculator::ionizationType = MassCalculator::EI;
     else MassCalculator::ionizationType = MassCalculator::ESI;
-
-    //peak grouping tab
-    settings->setValue("distXWeight", (distXSlider->value()*1.0)/10);
-    settings->setValue("distYWeight", (distYSlider->value()*1.0)/10);
-    settings->setValue("overlapWeight", (overlapSlider->value()*1.0)/10);
-    settings->setValue("useOverlap", useOverlap->checkState());
 
     mzSample::setFilter_centroidScans( centroid_scan_flag->checkState() == Qt::Checked );
     mzSample::setFilter_minIntensity( scan_filter_min_intensity->value() );
@@ -486,11 +396,6 @@ void SettingsForm::getFormValues() {
     	mzSample::setFilter_mslevel(0);
     }
 
-    //group rank tab
-    settings->setValue("qualityWeight", qualityWeight->value());
-    settings->setValue("intensityWeight", intensityWeight->value());
-    settings->setValue("deltaRTWeight", deltaRTWeight->value());
-    settings->setValue("deltaRTCheckFlag", deltaRTCheck->isChecked());
     setMavenParameters();
 }
 
@@ -525,7 +430,6 @@ void SettingsForm::toggleDeltaRtWeight() {
     else {
         deltaRtCheckFlag = false;
     }
-    settings->setValue("deltaRtCheckFlag", deltaRtCheckFlag);
     deltaRTWeight->setEnabled(deltaRtCheckFlag);
     deltaRTWeightStatus->setEnabled(deltaRtCheckFlag);
     label_drtWeight->setEnabled(deltaRtCheckFlag);
@@ -544,31 +448,6 @@ void SettingsForm::setMavenParameters() {
         } else {
             mavenParameters->filterline = settings->value("filterlineComboBox").toString().toStdString();
         }
-
-        mavenParameters->eicType = settings->value("eicTypeComboBox").toInt();
-        //peak grouping tab
-        mavenParameters->distXWeight = settings->value("distXWeight").toFloat();
-        mavenParameters->distYWeight = settings->value("distYWeight").toFloat();
-        mavenParameters->overlapWeight = settings->value("overlapWeight").toFloat();
-        mavenParameters->useOverlap = false;
-        if (settings->value("useOverlap").toInt() > 0) mavenParameters->useOverlap = true;
-
-        //group rank tab
-        mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
-        mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
-        mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
-        mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool();
-
-        //EIC Processing: Baseline Calculation and Smoothing
-        mavenParameters->eic_smoothingAlgorithm = settings->value(
-                "eic_smoothingAlgorithm").toInt();
-        mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
-
-        mavenParameters->grouping_maxRtWindow = settings->value("grouping_maxRtWindow").toDouble();
-        mavenParameters->baseline_smoothingWindow = settings->value("baseline_smoothing").toDouble();
-        mavenParameters->baseline_dropTopX = settings->value("baseline_quantile").toDouble();
-        mavenParameters->minSignalBaselineDifference = settings->value("minSignalBaselineDifference").toDouble();
-        mavenParameters->isotopicMinSignalBaselineDifference=settings->value("isotopicMinSignalBaselineDifference").toDouble();
 
     }
 }

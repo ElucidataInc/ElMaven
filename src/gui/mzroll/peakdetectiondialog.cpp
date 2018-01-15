@@ -566,50 +566,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
-
-        // Peak Group Rank
-        mavenParameters->qualityWeight = settings->value("qualityWeight").toInt();
-        mavenParameters->intensityWeight = settings->value("intensityWeight").toInt();
-        mavenParameters->deltaRTWeight = settings->value("deltaRTWeight").toInt();
-        mavenParameters->deltaRtCheckFlag = settings->value("deltaRtCheckFlag").toBool();
-
-        mavenParameters->maxIsotopeScanDiff = settings->value(
-                "maxIsotopeScanDiff").toDouble();
-        mavenParameters->minIsotopicCorrelation = settings->value(
-                "minIsotopicCorrelation").toDouble();
-        mavenParameters->maxNaturalAbundanceErr = settings->value(
-                "maxNaturalAbundanceErr").toDouble();
-        mavenParameters->noOfIsotopes = settings->value(
-                "noOfIsotopes").toInt();
-        mavenParameters->isotopeC13Correction = settings->value(
-                "isotopeC13Correction").toBool();
-
-        mavenParameters->C13Labeled_BPE =
-                settings->value("C13Labeled_BPE").toBool();
-        mavenParameters->N15Labeled_BPE =
-                settings->value("N15Labeled_BPE").toBool();
-        mavenParameters->S34Labeled_BPE =
-                settings->value("S34Labeled_BPE").toBool();
-        mavenParameters->D2Labeled_BPE = 
-                settings->value("D2Labeled_BPE").toBool();
-
-        mavenParameters->C13Labeled_Barplot =
-                settings->value("C13Labeled_Barplot").toBool();
-        mavenParameters->N15Labeled_Barplot =
-                settings->value("N15Labeled_Barplot").toBool();
-        mavenParameters->S34Labeled_Barplot =
-                settings->value("S34Labeled_Barplot").toBool();
-        mavenParameters->D2Labeled_Barplot = 
-                settings->value("D2Labeled_Barplot").toBool();
-
-        mavenParameters->C13Labeled_IsoWidget =
-                settings->value("C13Labeled_IsoWidget").toBool();
-        mavenParameters->N15Labeled_IsoWidget =
-                settings->value("N15Labeled_IsoWidget").toBool();
-        mavenParameters->S34Labeled_IsoWidget =
-                settings->value("S34Labeled_IsoWidget").toBool();
-        mavenParameters->D2Labeled_IsoWidget = 
-                settings->value("D2Labeled_IsoWidget").toBool();
         // Fragment Score
         mavenParameters->minFragmentMatchScore =
            settings->value("minFragmentMatchScore").toDouble();
@@ -663,9 +619,7 @@ void PeakDetectionDialog::runBackgroupJob(QString funcName) {
         // Making sure that the already some peakdetector thread is not
         // working
         if (peakupdater->isRunning()) {
-    if (!settings->contains("eic_smoothingAlgorithm"))
-        settings->setValue("eic_smoothingAlgorithm", 0);
-                cancel();
+                 cancel();
         }
         //Starting the thread
         if (!peakupdater->isRunning()) {

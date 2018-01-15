@@ -531,9 +531,6 @@ using namespace mzUtils;
 	createToolBars();
 	// setIonsizationMode(0);
 	currentIntensityName = "Max "+quantType->currentText();
-	// if (settings->contains("ionizationMode")) {
-	// 	setIonizationMode(settings->value("ionizationMode").toInt());
-	// }
 
 	setIonizationModeLabel();
 	setTotalCharge();
@@ -2117,61 +2114,7 @@ void MainWindow::readSettings() {
 	if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0)
     	settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
 
-    // EIC Processing: Baseline and calculation
-    if (!settings->contains("eic_smoothingAlgorithm"))
-        settings->setValue("eic_smoothingAlgorithm", 0);
 
-    if (!settings->contains("eic_smoothingWindow"))
-		settings->setValue("eic_smoothingWindow", 10);
-
-    if (!settings->contains("grouping_maxRtWindow"))
-        settings->setValue("grouping_maxRtWindow", 0.5);
-
-    if (!settings->contains("eicTypeComboBox"))
-        settings->setValue("eicTypeComboBox", 0);
-
-    // BaseLine Calculation
-    if (!settings->contains("baseline_smoothing"))
-        settings->setValue("baseline_smoothing", 5);
-
-    if (!settings->contains("baseline_quantile"))
-        settings->setValue("baseline_quantile", 80);
-
-    if (!settings->contains("minSignalBaselineDifference"))
-        settings->setValue("minSignalBaselineDifference", 0);
-    if(!settings->contains("isotopicMinSignalBaselineDifference"))
-	   	settings->setValue("isotopicMinSignalBaselineDifference",0);
-
-
-
-    // Peak Scoring and Fitering
-
-	
-
-
-	// Peak Group Rank
-	if (!settings->contains("qualityWeight"))
-        settings->setValue("qualityWeight", 10);
-	
-	if (!settings->contains("intensityWeight"))
-        settings->setValue("intensityWeight", 10);
-
-	if (!settings->contains("deltaRTWeight"))
-        settings->setValue("deltaRTWeight", 10);
-
-	if (!settings->contains("deltaRtCheckFlag"))
-		settings->setValue("deltaRtCheckFlag", false);
-
-    // Compound DB Search
-
-
-
-    //Setting to enable or disable compund or Auto Detection 
-    
-
-    // Automated Peak Detection
-
-    //Isotope Detection in peakDetection Dialogue
         
     // if (!settings->contains("checkBox"))
     //     settings->setValue("checkBox", 0);
@@ -2186,72 +2129,11 @@ void MainWindow::readSettings() {
     //     settings->setValue("checkBox_4", 0);
 
     //Pull Isotopes in options
-    if (!settings->contains("isotopeC13Correction"))
-        settings->setValue("isotopeC13Correction", 0);
 
-	if (!settings->contains("maxNaturalAbundanceErr"))
-		settings->setValue("maxNaturalAbundanceErr", 100);
-
-	if (!settings->contains("maxIsotopeScanDiff"))
-		settings->setValue("maxIsotopeScanDiff", 10);
-
-	if (!settings->contains("minIsotopicCorrelation"))
-		settings->setValue("minIsotopicCorrelation", 0.1);
-
-	if (!settings->contains("C13Labeled_Barplot"))
-		settings->setValue("C13Labeled_Barplot", 2);
-	
-	if (!settings->contains("N15Labeled_Barplot"))
-		settings->setValue("N15Labeled_Barplot", 2);
-    
-	if (!settings->contains("S34Labeled_Barplot"))
-		settings->setValue("S34Labeled_Barplot", 2);
-    
-	if (!settings->contains("D2Labeled_Barplot"))
-		settings->setValue("D2Labeled_Barplot", 2);
 
 	if (!settings->contains("AbthresholdBarplot"))
 		settings->setValue("AbthresholdBarplot", 1);
 
-	if (!settings->contains("noOfIsotopes"))
-		settings->setValue("noOfIsotopes", 1000000);
-
-	if (!settings->contains("C13Labeled_BPE"))
-		settings->setValue("C13Labeled_BPE", 2);
-
-	if (!settings->contains("N15Labeled_BPE"))
-		settings->setValue("N15Labeled_BPE", 2);
-
-	if (!settings->contains("S34Labeled_BPE"))
-		settings->setValue("S34Labeled_BPE", 2);
-
-	if (!settings->contains("D2Labeled_BPE"))
-		settings->setValue("D2Labeled_BPE", 2);
-
-	if (!settings->contains("C13Labeled_IsoWidget"))
-		settings->setValue("C13Labeled_IsoWidget", 2);
-	
-	if (!settings->contains("N15Labeled_IsoWidget"))
-		settings->setValue("N15Labeled_IsoWidget", 2);
-
-	if (!settings->contains("S34Labeled_IsoWidget"))
-		settings->setValue("S34Labeled_IsoWidget", 2);
-
-	if (!settings->contains("D2Labeled_IsoWidget"))
-		settings->setValue("D2Labeled_IsoWidget", 2);
-
-    //peak grouping tab
-    if (!settings->contains("distXWeight"))
-		settings->setValue("distXWeight", 1);
-
-    if (!settings->contains("distYWeight"))
-		settings->setValue("distYWeight", 1);
-
-    if (!settings->contains("overlapWeight"))
-		settings->setValue("overlapWeight", 1);
-
-    if (!settings->contains("useOverlap"))
-		settings->setValue("useOverlap", 2);
 
     //Main window right hand top
     if (!settings->contains("massCutoffWindowBox"))
@@ -2263,8 +2145,6 @@ void MainWindow::readSettings() {
         settings->setValue("mzslice", QRectF(100.0, 100.01, 0, 30));
 
     //Options tab 
-    if (!settings->contains("ionizationMode"))
-        settings->setValue("ionizationMode", -1);
 
 	if (!settings->contains("ionChargeBox"))
         settings->setValue("ionChargeBox", 1);
@@ -2301,7 +2181,6 @@ void MainWindow::writeSettings() {
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
-	settings->setValue("ionizationMode", getIonizationMode());
 
 	mzSlice slice = eicWidget->getParameters()->getMzSlice();
 	settings->setValue("mzslice",
@@ -2855,14 +2734,6 @@ void MainWindow::Align() {
 
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
-
-	if (settings != NULL) {
-		mavenParameters->eic_smoothingAlgorithm = settings->value(
-				"eic_smoothingAlgorithm").toInt();
-		mavenParameters->eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
-	}
-
-	//mavenParameters->eic_ppmWindow = getUserMassCutoff(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
 	mavenParameters->minGoodGroupCount =
 			alignmentDialog->minGoodPeakCount->value();
@@ -3771,7 +3642,7 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	}
 
 	isotopeC13Correct(MMabundance, numberofCarbons, carbonIsotopeSpecies);
-	if (settings && settings->value("isotopeC13Correction").toBool() == true) {
+    if (mavenParameters && mavenParameters->isotopeC13Correction == true) {
 		for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
 			if (!isotopes[i])
 				continue;
@@ -3789,7 +3660,7 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 
 	qDebug() << "IsotopePlot::isotopeC13Correct() " << MM.rows() << " "
 			<< MM.cols() << " nCarbons=" << numberofCarbons << endl;
-	if (settings && settings->value("isotopeC13Correction").toBool() == false)
+    if (mavenParameters && mavenParameters->isotopeC13Correction == false)
 		return;
 
 	for (int i = 0; i < MM.rows(); i++) {		//samples
@@ -3826,7 +3697,6 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 }
 
 void MainWindow::updateEicSmoothingWindow(int value) {
-	settings->setValue("eic_smoothingWindow", value);
 	getEicWidget()->recompute();
 	getEicWidget()->replot();
 }

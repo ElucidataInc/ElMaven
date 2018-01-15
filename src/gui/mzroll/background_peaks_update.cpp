@@ -186,24 +186,6 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
             if (xml.name() == "PeakDetectionSettings") {
                 settings->setValue("alignSamplesFlag", xml.attributes().value("alignSamplesFlag").toString().toInt());
                 // EIC Processing: Baseline calculation and Smoothing
-                settings->setValue("eic_smoothingAlgorithm",
-                        xml.attributes().value("eic_smoothingAlgorithm").toString().toInt());
-
-                settings->setValue("eic_smoothingWindow",
-                        xml.attributes().value("eic_smoothingWindow").toString().toInt());
-
-                settings->setValue("grouping_maxRtWindow",
-                        xml.attributes().value("grouping_maxRtWindow").toString().toFloat());
-
-                // BaseLine Calculation
-                settings->setValue("baseline_smoothingWindow",
-                        xml.attributes().value("baseline_smoothingWindow").toString().toFloat());
-                settings->setValue("baseline_dropTopX",
-                        xml.attributes().value("baseline_dropTopX").toString().toFloat());
-
-                // Peak Scoring and Filtering
-                // Compound DB search
-                // Automated Peak Detection
 
                 // Isotope detection in peakdetection dialogue box
                 // settings->setValue("checkBox", checkBox->isChecked());  // C13
@@ -220,11 +202,6 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                 settings->setValue("matchFragmentation",
                         xml.attributes().value("matchFragmentation").toString().toInt());
 
-                settings->setValue("ionizationMode",
-                        xml.attributes()
-                        .value("ionizationMode")
-                        .toString()
-                        .toInt());
                 // Enabling feature detection or compound search
                 // mavenParameters->runFunction =
                 // xml.attributes().value("runFunction").toString();
@@ -368,48 +345,6 @@ void BackgroundPeakUpdate::getPullIsotopeSettings() {
         if (mainwindow) {
                 QSettings* settings = mainwindow->getSettings();
                 if (settings) {
-                        mavenParameters->maxIsotopeScanDiff = settings->value(
-                                "maxIsotopeScanDiff").toDouble();
-                        mavenParameters->minIsotopicCorrelation = settings->value(
-                                "minIsotopicCorrelation").toDouble();
-                        mavenParameters->maxNaturalAbundanceErr = settings->value(
-                                "maxNaturalAbundanceErr").toDouble();
-                        mavenParameters->noOfIsotopes = settings->value(
-                                "noOfIsotopes").toInt();
-                        mavenParameters->isotopeC13Correction = settings->value(
-                                "isotopeC13Correction").toBool();
-
-                        mavenParameters->C13Labeled_BPE =
-                                settings->value("C13Labeled_BPE").toBool();
-                        mavenParameters->N15Labeled_BPE =
-                                settings->value("N15Labeled_BPE").toBool();
-                        mavenParameters->S34Labeled_BPE =
-                                settings->value("S34Labeled_BPE").toBool();
-                        mavenParameters->D2Labeled_BPE = 
-                                settings->value("D2Labeled_BPE").toBool();
-
-                        mavenParameters->C13Labeled_Barplot =
-                                settings->value("C13Labeled_Barplot").toBool();
-                        mavenParameters->N15Labeled_Barplot =
-                                settings->value("N15Labeled_Barplot").toBool();
-                        mavenParameters->S34Labeled_Barplot =
-                                settings->value("S34Labeled_Barplot").toBool();
-                        mavenParameters->D2Labeled_Barplot = 
-                                settings->value("D2Labeled_Barplot").toBool();
-
-                        mavenParameters->C13Labeled_IsoWidget =
-                                settings->value("C13Labeled_IsoWidget").toBool();
-                        mavenParameters->N15Labeled_IsoWidget =
-                                settings->value("N15Labeled_IsoWidget").toBool();
-                        mavenParameters->S34Labeled_IsoWidget =
-                                settings->value("S34Labeled_IsoWidget").toBool();
-                        mavenParameters->D2Labeled_IsoWidget = 
-                                settings->value("D2Labeled_IsoWidget").toBool();
-
-
-                        QSettings* settings = mainwindow->getSettings();
-                        mavenParameters->eic_smoothingAlgorithm = settings->value(
-                                "eic_smoothingAlgorithm").toInt();
                 }
         }
 }
@@ -428,8 +363,7 @@ void BackgroundPeakUpdate::processSlice(mzSlice& slice) {
 //window and should be called where the settings are been called
 void BackgroundPeakUpdate::getProcessSlicesSettings() {
         QSettings* settings = mainwindow->getSettings();
-        mavenParameters->amuQ1 = settings->value("amuQ1").toDouble();
-        mavenParameters->amuQ3 = settings->value("amuQ3").toDouble();
+
         // To Do: Are these lines required. The same is already being done in PeakDetectionDialog.cpp
         // mavenParameters->baseline_smoothingWindow = settings->value(
         //         "baseline_smoothing").toInt();

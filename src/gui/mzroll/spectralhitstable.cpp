@@ -927,14 +927,16 @@ void SpectralHitsDockWidget::integrateMS1() {
    float rtWinMin = 3;
 
    QSettings *settings 		= _mainwindow->getSettings();
-   int eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
-   int   eic_smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
-   float amuQ1 = settings->value("amuQ1").toDouble();
-   float amuQ3 = settings->value("amuQ3").toDouble();
+
+   int eic_smoothingWindow = _mainwindow->mavenParameters->eic_smoothingWindow;
+   int   eic_smoothingAlgorithm = _mainwindow->mavenParameters->eic_smoothingAlgorithm;
+   float amuQ1 = _mainwindow->mavenParameters->amuQ1;
+   float amuQ3 = _mainwindow->mavenParameters->amuQ3;
+
    int baseline_smoothing = _mainwindow->mavenParameters->baseline_smoothingWindow;
    int baseline_quantile =  _mainwindow->mavenParameters->baseline_dropTopX;
    double minSignalBaselineDifference = _mainwindow->mavenParameters->minSignalBaselineDifference;
-   float grouping_maxRtWindow =  settings->value("grouping_maxRtWindow").toDouble();
+   float grouping_maxRtWindow = _mainwindow->mavenParameters->grouping_maxRtWindow;
    int eic_type = _mainwindow->mavenParameters->eicType;
    string filterline = _mainwindow->mavenParameters->filterline;
 

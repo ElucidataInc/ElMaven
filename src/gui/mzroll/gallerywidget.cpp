@@ -246,10 +246,11 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
 	if (samples.size() == 0 ) return NULL;
         QSettings* settings = mainwindow->getSettings();
-        float amuQ1 = settings->value("amuQ1").toDouble();
-        float amuQ3 = settings->value("amuQ3").toDouble();
-        int smoothingWindow = settings->value("eic_smoothingWindow").toInt();
-        int smoothingAlgorithm = settings->value("eic_smoothingAlgorithm").toInt();
+        float amuQ1 = mainwindow->mavenParameters->amuQ1;
+        float amuQ3 = mainwindow->mavenParameters->amuQ3;
+        int smoothingWindow = mainwindow->mavenParameters->eic_smoothingWindow;
+        int smoothingAlgorithm = mainwindow->mavenParameters->eic_smoothingAlgorithm;
+
         int baseline_smoothing = mainwindow->mavenParameters->baseline_smoothingWindow;
 		int baseline_quantile =  mainwindow->mavenParameters->baseline_dropTopX;
 		double minSignalBaselineDifference = mainwindow->mavenParameters->minSignalBaselineDifference;

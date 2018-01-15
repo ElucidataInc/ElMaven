@@ -313,8 +313,8 @@ void EicWidget::computeEICs() {
 			getMainWindow()->mavenParameters->eic_smoothingWindow;
 	int eic_smoothingAlgorithm =
 			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
-	float amuQ1 = settings->value("amuQ1").toDouble();
-	float amuQ3 = settings->value("amuQ3").toDouble();
+    float amuQ1 = getMainWindow()->mavenParameters->amuQ1;
+    float amuQ3 = getMainWindow()->mavenParameters->amuQ3;
 	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
 	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 	double minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
@@ -696,11 +696,11 @@ void EicWidget::addMergedEIC() {
 	//qDebug <<" EicWidget::addMergedEIC()";
 
 	QSettings* settings = this->getMainWindow()->getSettings();
-	int eic_smoothingWindow = settings->value("eic_smoothingWindow").toInt();
-	int eic_smoothingAlgorithm =
-			settings->value("eic_smoothingAlgorithm").toInt();
 
-	EicLine* line = new EicLine(0, scene());
+    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
+    int eic_smoothingAlgorithm = getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
+
+    EicLine* line = new EicLine(0, scene());
 
 	EIC* eic = EIC::eicMerge(eicParameters->eics);
 	eic->setSmootherType((EIC::SmootherType) eic_smoothingAlgorithm);
@@ -732,8 +732,8 @@ void EicWidget::addMergedEIC() {
 
 void EicWidget::addBaseLine(EIC* eic) {
     QSettings* settings = this->getMainWindow()->getSettings();
-    int baseline_smoothing = settings->value("baseline_smoothing").toInt();
-    int baseline_quantile = settings->value("baseline_quantile").toInt();
+    int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
+    int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
     eic->computeBaseLine(baseline_smoothing, baseline_quantile);
 //        //debug
@@ -1563,10 +1563,8 @@ void EicWidget::groupPeaks() {
 	//qDebug() << "EicWidget::groupPeaks() " << endl;
 	//delete previous set of pointers to groups
 	QSettings *settings = getMainWindow()->getSettings();
-	int eic_smoothingWindow =
-			settings->value("eic_smoothingWindow").toInt();
-	float grouping_maxRtWindow =
-			settings->value("grouping_maxRtWindow").toDouble();
+    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
+    float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
 
 	eicParameters->groupPeaks(eic_smoothingWindow,
 								grouping_maxRtWindow,
