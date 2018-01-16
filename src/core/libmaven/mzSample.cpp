@@ -1256,13 +1256,26 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		}
 		}
 
-		e->scannum.push_back(scan->scannum);
-		e->rt.push_back(scan->rt);
-		e->intensity.push_back(eicIntensity);
-		e->mz.push_back(eicMz);
+		int lastIndex = e->rt.size()-1;
+		if (lastIndex != -1 && scan->rt == e->rt[lastIndex]) {
+			if (eicIntensity <= e->intensity[lastIndex]) 
+				continue;
+			else {
+				//to prevent duplicate RT and append only relevant intensities
+				e->scannum[lastIndex] = scan->scannum;
+				e->intensity[lastIndex] = eicIntensity;
+				e->mz[lastIndex] = eicMz;
+			}
+		}
+		else {
+			e->scannum.push_back(scan->scannum);
+			e->rt.push_back(scan->rt);
+			e->intensity.push_back(eicIntensity);
+			e->mz.push_back(eicMz);
+		}
 		e->totalIntensity += eicIntensity;
-		if (eicIntensity > e->maxIntensity)
-			e->maxIntensity = eicIntensity;
+			if (eicIntensity > e->maxIntensity)
+				e->maxIntensity = eicIntensity;
 	}
 
 	if (e->rt.size() > 0)
