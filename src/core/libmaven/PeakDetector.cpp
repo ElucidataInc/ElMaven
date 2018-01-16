@@ -879,18 +879,17 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                         mavenParameters->eicType,
                         mavenParameters->filterline);
 
+
+        if (mavenParameters->clsf->hasModel())
+        {
+            mavenParameters->clsf->scoreEICs(eics);
+        }
+
         float eicMaxIntensity = 0;
         for (unsigned int j = 0; j < eics.size(); j++)
         {
             eicCount++;
             float max = 0;
-
-            if (mavenParameters->clsf->hasModel())
-            {
-                for (unsigned int k=0; k < eics[j]->peaks.size(); k++ ) {
-                    eics[j]->peaks[k].quality = mavenParameters->clsf->scorePeak(eics[j]->peaks[k]);
-                }
-            }
 
             switch ((PeakGroup::QType)mavenParameters->peakQuantitation)
             {

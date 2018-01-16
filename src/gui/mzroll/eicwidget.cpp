@@ -188,8 +188,6 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	}
 
 	eicParameters->_integratedGroup.groupStatistics();
-	//setSelectedGroup (&eicParameters->_integratedGroup);
-	//getMainWindow()->isotopeWidget->integrationFlag = true;
 	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
 	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
 }
@@ -328,6 +326,11 @@ void EicWidget::computeEICs() {
 			baseline_quantile, minSignalBaselineDifference, eic_type,
 			filterline);
 
+	//score peak quality
+	ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
+	if (clsf != NULL) {
+		clsf->scoreEICs(eicParameters->eics);
+	}
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
 	eicParameters->associateNameWithPeakGroups();
@@ -882,15 +885,6 @@ void EicWidget::replot(PeakGroup* group) {
 
 	//qDebug << "EicWidget::replot() " << " group=" << group << " mz: " << _slice.mzmin << "-" << _slice.mzmax << " rt: " << _slice.rtmin << "-" << _slice.rtmax;
 	clearPlot();
-
-	//score peak quality
-	Classifier* clsf = getMainWindow()->getClassifier();
-	if (clsf != NULL) {
-		for (int i = 0; i < eicParameters->peakgroups.size(); i++) {
-			clsf->classify(&eicParameters->peakgroups[i]);
-			eicParameters->peakgroups[i].updateQuality();
-		}
-	}
 	
 	setSelectedGroup(group);
 	setTitle();
