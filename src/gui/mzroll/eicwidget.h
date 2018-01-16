@@ -15,6 +15,7 @@
 #include "plot_axes.h"
 #include "libplog/Log.h"
 #include "eiclogic.h"
+#include "PeakDetector.h"
 
 class PeakGroup;
 class EIC;
