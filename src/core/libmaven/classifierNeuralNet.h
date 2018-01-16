@@ -9,6 +9,7 @@
 #include <math.h>
 #include <vector>
 #include "classifier.h"
+#include "EIC.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ public:
 	bool hasModel();
     vector<float> getFeatures(Peak& p);
 	float scorePeak(Peak& p);
+	void scoreEICs(vector<EIC*> &eics);
 private:
 	
 
