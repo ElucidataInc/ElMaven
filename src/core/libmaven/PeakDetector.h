@@ -21,6 +21,7 @@
 #endif
 
 #include "Compound.h"
+#include "Peak.h"
 #include "classifier.h"
 #include "mavenparameters.h"
 #include "mzAligner.h"
@@ -38,6 +39,13 @@
  * @brief all peak detection logic resides here.
  * @author Elucidata
  */
+
+struct PeakFiltering
+{
+	public:
+		double minPeakQuality = 0;
+
+};
 
 class PeakDetector {
 public:
@@ -140,7 +148,9 @@ public:
 	 * @param  group        [pointer to PeakGroup]
 	 * @return [True if group has to be rejected, else False]
 	 */
-	 bool quantileFilters(PeakGroup *group);
+	bool quantileFilters(PeakGroup *group);
+
+	void peakFiltering(vector<Peak> &peaks, PeakFiltering *peakFilteringArgs);
 
 	/**
 	 * [process Compounds]

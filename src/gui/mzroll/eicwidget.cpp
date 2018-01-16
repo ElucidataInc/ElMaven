@@ -332,6 +332,17 @@ void EicWidget::computeEICs() {
 		clsf->scoreEICs(eicParameters->eics);
 	}
 
+	PeakFiltering* peakFilterArgs = new PeakFiltering();
+	peakFilterArgs->minPeakQuality = getMainWindow()->mavenParameters->minPeakQuality;
+
+	for (unsigned int ii = 0; ii < eicParameters->eics.size(); ii++)
+	{
+		EIC *eic = eicParameters->eics[ii];
+		PeakDetector* peakDetect = new PeakDetector();
+		peakDetect->peakFiltering(eic->peaks, peakFilterArgs);
+	}
+
+
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
 	eicParameters->associateNameWithPeakGroups();
 
