@@ -12,6 +12,15 @@ done
 
 make -j $(getconf _NPROCESSORS_ONLN)
 
+if [ "$(uname)" == "Darwin" ]; then
+      make -j $(sysctl -n hw.ncpu)
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    make -j $(nproc)
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+    make -j $(nproc)
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+    make -j $(nproc)
+fi
 
 if [ -f tests/MavenTests/test.xml ]; then
 	rm test*.xml
