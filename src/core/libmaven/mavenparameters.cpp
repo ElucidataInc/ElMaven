@@ -5,7 +5,6 @@
 
 #include <cstdlib>
 
-
 MavenParameters::MavenParameters()
 {
 
@@ -122,7 +121,10 @@ MavenParameters::MavenParameters()
      */
     defaultSettingsData = (char*)default_settings_xml;
     loadSettings(defaultSettingsData);
+}
 
+MavenParameters::~MavenParameters()
+{
 }
 
 std::map<string, string>& MavenParameters::getSettings()
@@ -483,7 +485,6 @@ void MavenParameters::setSamples(vector<mzSample*>&set) {
 }
 
 void MavenParameters::cleanup() {
-        allgroups.clear();
 }
 
 void MavenParameters::printSettings() {

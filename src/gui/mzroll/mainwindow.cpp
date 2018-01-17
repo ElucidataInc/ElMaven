@@ -654,6 +654,11 @@ using namespace mzUtils;
 
 }
 
+MainWindow::~MainWindow()
+{
+    delete mavenParameters;
+}
+
 void MainWindow::saveSettingsToLog() {
 
     QString buffer;

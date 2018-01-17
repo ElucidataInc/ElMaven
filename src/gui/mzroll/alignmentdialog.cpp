@@ -22,7 +22,6 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 
 AlignmentDialog::~AlignmentDialog() {
 	if (workerThread) delete (workerThread);
-	_mw->UndoAlignment();
     cancel();
 }
 

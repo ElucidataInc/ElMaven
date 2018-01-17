@@ -198,7 +198,6 @@ void PeakDetectionDialog::featureOptionsClicked() {
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
-    cancel();
     if (peakupdater) delete (peakupdater);
 }
 /**

@@ -21,6 +21,7 @@ class MavenParameters
 {
     public:
         MavenParameters();
+        ~MavenParameters();
         enum Polarity{AutoDetect,Neutral, Positive, Negative};
         boost::signals2::signal< void (const string&,unsigned int , int ) > sig;
 
