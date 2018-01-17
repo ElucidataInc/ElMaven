@@ -15,6 +15,11 @@ void PeakFiltering::filter(vector<EIC*> &eics)
 
 }
 
+void PeakFiltering::filter(EIC *eic)
+{
+    filter(eic->peaks)
+}
+
 void PeakFiltering::filter(vector<Peak> &peaks)
 {
 
