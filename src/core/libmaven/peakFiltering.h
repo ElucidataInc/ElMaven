@@ -3,22 +3,20 @@
 
 #include <iostream>
 
+#include "Peak.h"
+#include "mavenparameters.h"
+
 using namespace std;
-
-
-struct PeakFilteringParameters
-{
-	public:
-		double minPeakQuality = 0;
-
-};
 
 class PeakFiltering
 {
+  public:
+	PeakFiltering(MavenParameters *mavenParameters);
+	void filter(vector<Peak> &peaks);
 
-
+  private:
+	MavenParameters *_mavenParameters;
 
 };
-
 
 #endif //PEAKFILTERING_H

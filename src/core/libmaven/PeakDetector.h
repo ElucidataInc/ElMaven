@@ -1,37 +1,37 @@
 #ifndef PEAKDETECTOR_H
 #define PEAKDETECTOR_H
 
+#include <map>
+#include <deque>
+#include <cmath>
 #include <string>
+#include <cfloat>
 #include <vector>
-#include <qdatetime.h>
+#include <utility>
+#include <climits>
+#include <iomanip>
 #include <qdebug.h>
+#include <iostream>
 #include <qstring.h>
 #include <algorithm>
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <deque>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <utility>
+#include <qdatetime.h>
+#include <boost/bind.hpp>
+#include <boost/signals2.hpp>
 
 #ifndef __APPLE__
 #include <omp.h>
 #endif
 
-#include "Compound.h"
-#include "Peak.h"
-#include "classifier.h"
-#include "mavenparameters.h"
-#include "mzAligner.h"
-#include "mzMassCalculator.h"
-#include "mzMassSlicer.h"
-#include "mzSample.h"
 #include "mzUtils.h"
+#include "Compound.h"
+#include "mzSample.h"
+#include "mzAligner.h"
 #include "constants.h"
-#include <boost/signals2.hpp>
-#include <boost/bind.hpp>
+#include "classifier.h"
+#include "mzMassSlicer.h"
+#include "peakFiltering.h"
+#include "mavenparameters.h"
+#include "mzMassCalculator.h"
 
 /**
  * @class PeakDetector
@@ -39,14 +39,6 @@
  * @brief all peak detection logic resides here.
  * @author Elucidata
  */
-
-struct PeakFiltering
-{
-	public:
-		double minPeakQuality = 0;
-
-};
-
 class PeakDetector {
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
@@ -149,8 +141,6 @@ public:
 	 * @return [True if group has to be rejected, else False]
 	 */
 	bool quantileFilters(PeakGroup *group);
-
-	void peakFiltering(vector<Peak> &peaks, PeakFiltering *peakFilteringArgs);
 
 	/**
 	 * [process Compounds]
