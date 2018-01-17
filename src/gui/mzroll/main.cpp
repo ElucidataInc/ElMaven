@@ -49,16 +49,16 @@ int main(int argc, char *argv[])
     app.processEvents();
 
 
-    Controller* contrl = new Controller();
+    Controller contrl;
     qInstallMessageHandler(customMessageHandler);
 
     //updated while merging with Maven776 - Kiran
     for (int i = 1; i < argc; ++i)
-        contrl->getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
+        contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
 
-    splash.finish(contrl->getMainWindow());
-    contrl->getMainWindow()->show();
-    contrl->getMainWindow()->fileLoader->start();
+    splash.finish(contrl.getMainWindow());
+    contrl.getMainWindow()->show();
+    contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
     return rv;
 

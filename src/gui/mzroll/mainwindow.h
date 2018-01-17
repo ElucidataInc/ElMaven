@@ -119,6 +119,7 @@ Q_OBJECT
 public:
 	int value() const { return m_value; }
 	MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 	QSettings* getSettings() {
 		return settings;
 	}

@@ -10,6 +10,7 @@ class Controller:  public QObject
     Q_OBJECT
     public:
         Controller();
+        ~Controller();
         MainWindow* getMainWindow() { return mw; }
 
     public Q_SLOTS:

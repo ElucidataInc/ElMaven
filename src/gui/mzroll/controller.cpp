@@ -14,6 +14,11 @@ Controller::Controller()
 }
 
 
+Controller::~Controller()
+{
+    delete mw;
+}
+
 template <typename T>
 void Controller::syncMpWithUi(T* dialogPtr)
 {
