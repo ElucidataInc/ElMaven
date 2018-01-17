@@ -919,13 +919,12 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             continue;
         }
 
-        PeakFiltering* peakFilterArgs = new PeakFiltering();
-        peakFilterArgs->minPeakQuality = mavenParameters->minPeakQuality;
+        PeakFiltering peakFiltering(mavenParameters);
 
         for (unsigned int ii = 0; ii < eics.size(); ii++)
         {
             EIC *eic = eics[ii];
-            peakFiltering(eic->peaks, peakFilterArgs);
+            peakFiltering.filter(eic->peaks);
         }
 
         vector<PeakGroup> peakgroups =
@@ -975,23 +974,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 
             string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
-        }
-    }
-}
-
-void PeakDetector::peakFiltering(vector<Peak> &peaks, PeakFiltering *peakFilterArgs)
-{
-
-    unsigned int i = 0;
-    while (i < peaks.size())
-    {
-        if (peakFilterArgs->minPeakQuality > peaks[i].quality)
-        {
-            peaks.erase(peaks.begin() + i);
-        }
-        else
-        {
-            ++i;
         }
     }
 }
