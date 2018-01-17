@@ -11,6 +11,7 @@ List of all the functions in this module:
 4. get_config_paths: Get paths of configuration files
 
 """
+from sys import platform
 
 from helper import helper as hf
 import constants_feature_testing as cs
@@ -22,8 +23,15 @@ class RunCli(object):
         """
 
     def __init__(self):
-        self.peakdetector_path = cs.PEAK_DETECTOR_PATH
 
+        if platform == "linux" or platform == "linux2":
+            self.peakdetector_path = cs.PEAK_DETECTOR_PATH_LINUX
+
+        elif platform == "darwin":
+            self.peakdetector_path = cs.PEAK_DETECTOR_PATH_MAC
+
+        elif platform.lower().startswith('win'):
+            self.peakdetector_path = cs.PEAK_DETECTOR_PATH_WINDOWS
 
     def run(self):
         """
