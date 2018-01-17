@@ -20,7 +20,7 @@ class Classifier;
 class MavenParameters 
 {
     public:
-        MavenParameters();
+        MavenParameters(string settingsPath="");
         ~MavenParameters();
         enum Polarity{AutoDetect,Neutral, Positive, Negative};
         boost::signals2::signal< void (const string&,unsigned int , int ) > sig;
@@ -272,8 +272,10 @@ class MavenParameters
         std::map<string, string>& getSettings();
 
     private:
-        const char* defaultSettingsData;
+        char* defaultSettingsData;
+        string lastUsedSettingsPath;
         std::map<string, string> mavenSettings;
+
 
 };
 
