@@ -11,6 +11,7 @@
 #include "mainwindow.h"
 #include "isotopeplot.h"
 #include "libplog/Log.h"
+#include "peakFiltering.h"
 
 class EIC;
 class Note;

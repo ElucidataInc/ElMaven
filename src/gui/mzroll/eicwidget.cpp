@@ -178,12 +178,23 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 			}
 		}
 		if (peak.pos > 0) {
-			//qDebug << "details" << peak.pos << " " << peak.minpos << " " << peak.maxpos;
+
 			eic->getPeakDetails(peak);
-			eicParameters->_integratedGroup.addPeak(peak);
-			qDebug() << eic->sampleName.c_str() << " " << peak.peakArea << " "
-					<< peak.peakAreaCorrected;
-			this->showPeakArea(&peak);
+
+			ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
+			if (clsf != NULL) {
+				peak.quality = clsf->scorePeak(peak);
+			}
+
+			PeakFiltering peakFiltering(getMainWindow()->mavenParameters);
+
+			if (!peakFiltering.filter(peak))
+			{
+				eicParameters->_integratedGroup.addPeak(peak);
+				qDebug() << eic->sampleName.c_str() << " " << peak.peakArea << " "
+						<< peak.peakAreaCorrected;
+				this->showPeakArea(&peak);
+			}
 		}
 	}
 
