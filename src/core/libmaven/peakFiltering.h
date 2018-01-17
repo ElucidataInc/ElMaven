@@ -13,10 +13,10 @@ class PeakFiltering
   public:
 	PeakFiltering(MavenParameters *mavenParameters);
 	void filter(vector<Peak> &peaks);
+	bool filter(Peak &peak);
 
   private:
 	MavenParameters *_mavenParameters;
-
 };
 
 #endif //PEAKFILTERING_H

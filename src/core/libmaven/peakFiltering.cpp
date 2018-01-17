@@ -11,7 +11,7 @@ void PeakFiltering::filter(vector<Peak> &peaks)
     unsigned int i = 0;
     while (i < peaks.size())
     {
-        if (_mavenParameters->minPeakQuality > peaks[i].quality)
+        if (filter(peaks[i]))
         {
             peaks.erase(peaks.begin() + i);
         }
@@ -20,4 +20,15 @@ void PeakFiltering::filter(vector<Peak> &peaks)
             ++i;
         }
     }
+}
+
+bool PeakFiltering::filter(Peak &peak)
+{
+
+    if (_mavenParameters->minPeakQuality > peak.quality)
+    {
+        return true;
+    }
+
+    return false;
 }
