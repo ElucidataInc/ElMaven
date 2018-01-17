@@ -920,12 +920,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         }
 
         PeakFiltering peakFiltering(mavenParameters);
-
-        for (unsigned int ii = 0; ii < eics.size(); ii++)
-        {
-            EIC *eic = eics[ii];
-            peakFiltering.filter(eic->peaks);
-        }
+        peakFiltering.filter(eics);
 
         vector<PeakGroup> peakgroups =
             EIC::groupPeaks(eics,

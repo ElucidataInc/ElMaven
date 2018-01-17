@@ -12,6 +12,7 @@ class PeakFiltering
 {
   public:
 	PeakFiltering(MavenParameters *mavenParameters);
+	void filter(vector<EIC*> &eics);
 	void filter(vector<Peak> &peaks);
 	bool filter(Peak &peak);
 
