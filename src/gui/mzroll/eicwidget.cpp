@@ -333,13 +333,7 @@ void EicWidget::computeEICs() {
 	}
 
 	PeakFiltering peakFiltering(getMainWindow()->mavenParameters);
-
-	for (unsigned int ii = 0; ii < eicParameters->eics.size(); ii++)
-	{
-		EIC *eic = eicParameters->eics[ii];
-		peakFiltering.filter(eic->peaks);
-	}
-
+	peakFiltering.filter(eicParameters->eics);
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
 	eicParameters->associateNameWithPeakGroups();
