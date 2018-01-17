@@ -201,6 +201,9 @@ using namespace mzUtils;
 
 	readSettings();
 
+    if(!settings->contains("lastUsedSettings"))
+        settings->setValue("lastUsedSettings",QString(QCoreApplication::applicationDirPath() + "%1%2").arg(QDir::separator()).arg("lastRun.xml"));
+
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
@@ -243,7 +246,7 @@ using namespace mzUtils;
 
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
-	mavenParameters = new MavenParameters();
+    mavenParameters = new MavenParameters(settings->value("lastUsedSettings").toString().toStdString());
 	_massCutoffWindow = new MassCutoff();
 
 

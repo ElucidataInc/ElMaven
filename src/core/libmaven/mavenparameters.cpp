@@ -4,8 +4,11 @@
 #include <pugixml.hpp>
 
 #include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <cstring>
 
-MavenParameters::MavenParameters()
+MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
 
 	clsf = NULL;
@@ -120,11 +123,26 @@ MavenParameters::MavenParameters()
      * TODO: stop assigning values in constructor. just use loadSettings
      */
     defaultSettingsData = (char*)default_settings_xml;
-    loadSettings(defaultSettingsData);
+
+    if(!lastUsedSettingsPath.empty()) {
+        ifstream ifs(lastUsedSettingsPath, std::ios_base::in);
+        if(ifs.is_open()) {
+            stringstream ss;
+            ss << ifs.rdbuf();
+            if(!ss.str().empty()){
+                loadSettings(ss.str().c_str());
+            }
+            ifs.close();
+        }
+     }
+
+    else
+        loadSettings(defaultSettingsData);
 }
 
 MavenParameters::~MavenParameters()
 {
+    saveSettings(lastUsedSettingsPath.c_str());
 }
 
 std::map<string, string>& MavenParameters::getSettings()
