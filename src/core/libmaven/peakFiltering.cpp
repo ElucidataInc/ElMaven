@@ -1,7 +1,8 @@
 #include "peakFiltering.h"
 
-PeakFiltering::PeakFiltering(MavenParameters *mavenParameters)
+PeakFiltering::PeakFiltering(MavenParameters *mavenParameters, bool isIsotope)
 {
+    _isIsotope = isIsotope; 
     _mavenParameters = mavenParameters;
 }
 
@@ -40,9 +41,19 @@ void PeakFiltering::filter(vector<Peak> &peaks)
 bool PeakFiltering::filter(Peak &peak)
 {
 
-    if (_mavenParameters->minPeakQuality > peak.quality)
+    if (_isIsotope)
     {
-        return true;
+        if (_mavenParameters->minIsotopicPeakQuality > peak.quality)
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (_mavenParameters->minPeakQuality > peak.quality)
+        {
+            return true;
+        }
     }
 
     return false;

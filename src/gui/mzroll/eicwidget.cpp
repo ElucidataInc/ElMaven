@@ -186,7 +186,8 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 				peak.quality = clsf->scorePeak(peak);
 			}
 
-			PeakFiltering peakFiltering(getMainWindow()->mavenParameters);
+			bool isIsotope = false;
+			PeakFiltering peakFiltering(getMainWindow()->mavenParameters, isIsotope);
 
 			if (!peakFiltering.filter(peak))
 			{
@@ -343,7 +344,8 @@ void EicWidget::computeEICs() {
 		clsf->scoreEICs(eicParameters->eics);
 	}
 
-	PeakFiltering peakFiltering(getMainWindow()->mavenParameters);
+	bool isIsotope = false;
+	PeakFiltering peakFiltering(getMainWindow()->mavenParameters, isIsotope);
 	peakFiltering.filter(eicParameters->eics);
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
