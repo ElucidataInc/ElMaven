@@ -66,7 +66,8 @@ SOURCES = 	base64.cpp \
                 PolyAligner.cpp \
                 jsonReports.cpp \
                 masscutofftype.cpp \
-                peakFiltering.cpp
+                peakFiltering.cpp \
+                groupFiltering.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -103,4 +104,5 @@ HEADERS += 	constants.h \
                 jsonReports.h \
                 masscutofftype.h \
                 peakFiltering.h \
+                groupFiltering.h \
                 settings.h
