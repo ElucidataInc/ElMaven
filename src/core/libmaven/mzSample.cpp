@@ -1274,8 +1274,8 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 			e->mz.push_back(eicMz);
 		}
 		e->totalIntensity += eicIntensity;
-			if (eicIntensity > e->maxIntensity)
-				e->maxIntensity = eicIntensity;
+		if (eicIntensity > e->maxIntensity)
+			e->maxIntensity = eicIntensity;
 	}
 
 	if (e->rt.size() > 0)
