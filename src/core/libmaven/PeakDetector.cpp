@@ -361,6 +361,10 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
 
+            bool isIsotope = true;
+			PeakFiltering peakFiltering(mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
             delete(eic);
             // find nearest peak as long as it is within RT window
             float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
@@ -576,6 +580,10 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
+
+            bool isIsotope = true;
+			PeakFiltering peakFiltering(mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
 
             delete(eic);
             // find nearest peak as long as it is within RT window
