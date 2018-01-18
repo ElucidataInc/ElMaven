@@ -17,7 +17,7 @@ class PeakFiltering
 	 * @see MavenParameters
 	 * @see Peak
 	 */
-	PeakFiltering(MavenParameters *mavenParameters);
+	PeakFiltering(MavenParameters *mavenParameters, bool isIsotope);
 
 	/**
 	 * @brief Filter peaks in vector of EICs
@@ -48,6 +48,7 @@ class PeakFiltering
 	bool filter(Peak &peak);
 
   private:
+	bool _isIsotope;
 	MavenParameters *_mavenParameters;
 };
 

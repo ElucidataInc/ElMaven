@@ -919,7 +919,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             continue;
         }
 
-        PeakFiltering peakFiltering(mavenParameters);
+        bool isIsotope = false;
+
+        PeakFiltering peakFiltering(mavenParameters, isIsotope);
         peakFiltering.filter(eics);
 
         vector<PeakGroup> peakgroups =
