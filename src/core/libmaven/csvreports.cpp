@@ -101,7 +101,7 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
         QStringList peakReportcolnames;
         peakReportcolnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
                 << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
-                << "peakIntensity" << "peakArea" << "peakAreaTop"
+                << "peakIntensity" << "peakArea" << "peakSplineArea" << "peakAreaTop"
                 << "peakAreaCorrected" << "peakAreaTopCorrected"
                 << "noNoiseObs" << "signalBaseLineRatio"
                 << "fromBlankSample";
@@ -401,6 +401,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                 << peak.quality << SEP
                 << peak.peakIntensity << SEP
                 << peak.peakArea <<  SEP
+                << peak.peakSplineArea <<  SEP                
                 << peak.peakAreaTop <<  SEP
                 << peak.peakAreaCorrected <<  SEP
                 << peak.peakAreaTopCorrected << SEP
