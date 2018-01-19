@@ -894,9 +894,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                             mavenParameters->useOverlap,
                             mavenParameters->minSignalBaselineDifference);
 
-        GroupFiltering groupFiltering(mavenParameters);
+        GroupFiltering groupFiltering(mavenParameters, slice);
 
-        vector<PeakGroup*> filteredGroups = groupFiltering.groupFiltering(peakgroups, slice);
+        vector<PeakGroup*> filteredGroups = groupFiltering.groupFiltering(peakgroups);
 
         //sort groups according to their rank
         std::sort(filteredGroups.begin(), filteredGroups.end(),
