@@ -61,8 +61,8 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->processAllSlices == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->C13Labeled_BPE == true);
     QVERIFY(peakdetectorCLI->mavenParameters->N15Labeled_BPE == true);
-    QVERIFY(peakdetectorCLI->mavenParameters->S34Labeled_BPE == false);
-    QVERIFY(peakdetectorCLI->mavenParameters->D2Labeled_BPE == false);
+    QVERIFY(peakdetectorCLI->mavenParameters->S34Labeled_BPE == true);
+    QVERIFY(peakdetectorCLI->mavenParameters->D2Labeled_BPE == true);
     QVERIFY(peakdetectorCLI->mavenParameters->grouping_maxRtWindow == 2.5);
     QVERIFY(peakdetectorCLI->mavenParameters->minGroupIntensity == 500);
     QVERIFY(peakdetectorCLI->mavenParameters->quantileIntensity == 50);
@@ -138,9 +138,10 @@ void TestCLI::testReduceGroups() {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
 				peakdetectorCLI->mavenParameters->compounds, "compounds");
         peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 21);
+
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 22);
         peakdetectorCLI->reduceGroups();
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 19);
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 20);
 		delete_all(slices);
 	}
 
