@@ -63,7 +63,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 void PeakDetectionSettings::updatePeakSettings(string key, string value)
 {
 
-    if(settings.find(QString(key.c_str())) != settings.end()) {
+    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
 
 
         const QVariant& v = settings[QString(key.c_str())];

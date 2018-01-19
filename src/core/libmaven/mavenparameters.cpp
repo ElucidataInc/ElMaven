@@ -152,6 +152,9 @@ std::map<string, string>& MavenParameters::getSettings()
 
 void  MavenParameters::setPeakDetectionSettings(const char* key, const char* value)
 {
+    if(key[0] == '\0' || value[0] == '\0')
+        return;
+
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
 
@@ -275,6 +278,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
 void MavenParameters::setOptionsDialogSettings(const char* key, const char* value)
 {
+    if(key[0] == '\0' || value[0] == '\0')
+        return;
+
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
     if(strcmp(key, "ionizationMode") == 0){
