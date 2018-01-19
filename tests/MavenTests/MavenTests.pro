@@ -30,6 +30,7 @@ LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls
 
 # Input
 HEADERS += \
+    testMzUtils.h\
     common.h \
     testLoadSamples.h \
     testMassCalculator.h \
@@ -52,6 +53,7 @@ HEADERS += \
     $$top_srcdir/src/cli/peakdetector/options.h
 
 SOURCES += \
+    testMzUtils.cpp\
     common.cpp \
     testLoadSamples.cpp \
     testMassCalculator.cpp \

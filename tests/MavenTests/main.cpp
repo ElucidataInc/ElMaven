@@ -14,6 +14,7 @@
 #include "testCLI.h"
 #include "testCharge.h"
 #include "testSRMList.h"
+#include "testMzUtils.h"
 
 int readLog(QString);
 
@@ -74,6 +75,10 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestSRMList, argc, argv);
     result|=readLog("testSRMList.xml");
 
+    if (freopen("testMzUtils.xml","w",stdout))
+        result |= QTest::qExec(new TestMzUtils,argc,argv);
+    result|=readLog("testMzUtils.xml");
+    
     return result;
 }
 
