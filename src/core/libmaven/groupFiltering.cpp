@@ -1,5 +1,11 @@
 #include "groupFiltering.h"
 
+GroupFiltering::GroupFiltering(MavenParameters *mavenParameters)
+{
+    _slice = nullptr;
+    _mavenParameters = mavenParameters;
+}
+
 GroupFiltering::GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice)
 {
     _slice = slice;

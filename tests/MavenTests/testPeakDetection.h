@@ -34,8 +34,7 @@ class TestPeakDetection : public QObject {
         void testProcessCompound();
         void testPullEICs();
         void testprocessSlices();
-        void testquantileFilters();
-	void testpullIsotopes();
+        void testpullIsotopes();
 };
 
 #endif // TESTPEAKDETECTION_H

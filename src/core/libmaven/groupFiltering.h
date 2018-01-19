@@ -18,6 +18,16 @@ class GroupFiltering
 	 * @see MavenParameters
 	 * @see PeakGroup
 	 */
+    GroupFiltering(MavenParameters *mavenParameters);
+
+	/**
+	 * @brief Constructor of class GroupFiltering
+	 * @param mavenParameters Pointer to class MavenParameters
+	 * @param slice Pointer to class mzSlice
+	 * @see MavenParameters
+	 * @see PeakGroup
+	 * @see mzSlice
+	 */
     GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice);
 
     vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups);
