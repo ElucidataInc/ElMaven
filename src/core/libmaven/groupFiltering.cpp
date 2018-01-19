@@ -1,14 +1,15 @@
 #include "groupFiltering.h"
 
-GroupFiltering::GroupFiltering(MavenParameters *mavenParameters)
+GroupFiltering::GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice)
 {
+    _slice = slice;
     _mavenParameters = mavenParameters;
 }
 
-vector<PeakGroup*> GroupFiltering::groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice)
+vector<PeakGroup*> GroupFiltering::groupFiltering(vector<PeakGroup> &peakgroups)
 {
 
-    Compound* compound = slice->compound;
+    Compound* compound = _slice->compound;
     vector<PeakGroup*> filteredGroups;
     for (int i = 0; i < peakgroups.size(); i++)
     {
@@ -29,8 +30,8 @@ vector<PeakGroup*> GroupFiltering::groupFiltering(vector<PeakGroup> &peakgroups,
 
         if (compound)
             group.compound = compound;
-        if (!slice->srmId.empty())
-            group.srmId = slice->srmId;
+        if (!_slice->srmId.empty())
+            group.srmId = _slice->srmId;
 
         float rtDiff = -1;
 

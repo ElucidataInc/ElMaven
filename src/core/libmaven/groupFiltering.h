@@ -18,9 +18,9 @@ class GroupFiltering
 	 * @see MavenParameters
 	 * @see PeakGroup
 	 */
-    GroupFiltering(MavenParameters *mavenParameters);
+    GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice);
 
-    vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
+    vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups);
 
 	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
@@ -31,6 +31,7 @@ class GroupFiltering
 	bool quantileFilters(PeakGroup *group);
 
   private:
+		mzSlice *_slice;
     MavenParameters *_mavenParameters;
 
 };
