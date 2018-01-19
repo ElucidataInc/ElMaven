@@ -2,6 +2,12 @@
 #define TESTGROUPFILTERING_H
 
 #include <iostream>
+#include <QtTest>
+
+#include "common.h"
+#include "PeakGroup.h"
+#include "groupFiltering.h"
+#include "mavenparameters.h"
 
 using namespace std;
 
@@ -11,6 +17,9 @@ class TestGroupFiltering : public QObject
 
   public:
     TestGroupFiltering();
+
+  private Q_SLOT:
+    void testquantileFilters();
 
 
 };
