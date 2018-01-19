@@ -30,6 +30,7 @@
 #include "classifier.h"
 #include "mzMassSlicer.h"
 #include "peakFiltering.h"
+#include "groupFiltering.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
 
@@ -133,14 +134,6 @@ public:
 	 * @see PeakGroup
 	 */
 	vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
-
-	/**
-	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
-	 * @method quantileFilters
-	 * @param  group        [pointer to PeakGroup]
-	 * @return [True if group has to be rejected, else False]
-	 */
-	bool quantileFilters(PeakGroup *group);
 
 	/**
 	 * [process Compounds]

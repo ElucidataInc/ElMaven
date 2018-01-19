@@ -782,55 +782,6 @@ void PeakDetector::alignSamples() {
         }
 }
 
-bool PeakDetector::quantileFilters(PeakGroup *group) {
-    if (group->maxIntensity < mavenParameters->minGroupIntensity){
-        return true;
-    }
-    if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
-        return true;
-    }
-    if (mavenParameters->clsf->hasModel() && 
-        group->maxQuality < mavenParameters->minQuality) {
-            return true;
-    }
-    if (group->maxIntensity < group->blankMax * mavenParameters->minSignalBlankRatio){
-        return true;
-    }
-    vector<Peak> peaks = group->getPeaks();
-    int peaksAboveMinIntensity = 0;
-    int peaksAboveBaselineRatio = 0;
-    int peaksAboveBlankRatio = 0;
-    int peaksAboveMinQuality = 0;
-    for (int i = 0; i < peaks.size(); i++) {
-        if (peaks[i].peakIntensity > mavenParameters->minGroupIntensity) {
-            peaksAboveMinIntensity++;
-        }
-        if (peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio) {
-            peaksAboveBaselineRatio++;
-        }
-        if (peaks[i].peakIntensity > group->blankMax * mavenParameters->minSignalBlankRatio){
-            peaksAboveBlankRatio++;
-        }
-        if (peaks[i].quality > mavenParameters->minQuality) {
-            peaksAboveMinQuality++;
-        }
-    }
-    int noVisibleSamples = mavenParameters->getVisibleSamples().size();
-    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileIntensity) {
-        return true;
-    }
-    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileQuality) {
-        return true;
-    }
-    if ((1.0*peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
-        return true;
-    }
-    if ((1.0*peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
-        return true;
-    }
-    return false;
-}
-
 void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 {
 
@@ -943,7 +894,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                             mavenParameters->useOverlap,
                             mavenParameters->minSignalBaselineDifference);
 
-        vector<PeakGroup*> filteredGroups = groupFiltering(peakgroups, slice);
+        GroupFiltering groupFiltering(mavenParameters);
+
+        vector<PeakGroup*> filteredGroups = groupFiltering.groupFiltering(peakgroups, slice);
 
         //sort groups according to their rank
         std::sort(filteredGroups.begin(), filteredGroups.end(),
@@ -981,66 +934,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
         }
     }
-}
-
-vector<PeakGroup*> PeakDetector::groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice)
-{
-
-    Compound* compound = slice->compound;
-    vector<PeakGroup*> filteredGroups;
-    for (int i = 0; i < peakgroups.size(); i++)
-    {
-        PeakGroup &group = peakgroups[i];
-        group.setQuantitationType((PeakGroup::QType)mavenParameters->peakQuantitation);
-        group.minQuality = mavenParameters->minQuality;
-        group.minIntensity = mavenParameters->minGroupIntensity;
-
-        group.groupStatistics();
-
-        if (mavenParameters->clsf->hasModel() && group.goodPeakCount < mavenParameters->minGoodGroupCount)
-            continue;
-
-        if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
-            continue;
-        if (quantileFilters(&group))
-            continue;
-
-        if (compound)
-            group.compound = compound;
-        if (!slice->srmId.empty())
-            group.srmId = slice->srmId;
-
-        float rtDiff = -1;
-
-        if (compound != NULL && compound->expectedRt > 0)
-        {
-            rtDiff = abs(compound->expectedRt - (group.meanRt));
-            group.expectedRtDiff = rtDiff;
-        }
-
-        double A = (double)mavenParameters->qualityWeight / 10;
-        double B = (double)mavenParameters->intensityWeight / 10;
-        double C = (double)mavenParameters->deltaRTWeight / 10;
-
-        if (compound != NULL && compound->expectedRt > 0)
-        {
-            if (mavenParameters->deltaRtCheckFlag)
-            {
-                group.groupRank = pow(rtDiff, 2 * C) * pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
-            }
-            if (mavenParameters->matchRtFlag && group.expectedRtDiff > mavenParameters->compoundRTWindow)
-                continue;
-        }
-
-        if (!mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0)
-        {
-            group.groupRank = pow((1.1 - group.maxQuality), A) * (1 / (pow(log(group.maxIntensity + 1), B)));
-        }
-
-        filteredGroups.push_back(&group);
-    }
-
-    return filteredGroups;
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
