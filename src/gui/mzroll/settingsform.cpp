@@ -32,7 +32,7 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("noOfIsotopes", QVariant::fromValue(sf->noOfIsotopes));
     settings.insert("isotopeC13Correction", QVariant::fromValue(sf->isotopeC13Correction));
     settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
-    settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->minIsotopicCorrelation));
+    settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->maxIsotopeScanDiff));
     settings.insert("maxNaturalAbundanceErr", QVariant::fromValue(sf->maxNaturalAbundanceErr));
     settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
 
