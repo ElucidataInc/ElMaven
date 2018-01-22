@@ -12,7 +12,7 @@ class CompareJsons(object):
     """
 
     def __init__(self, man_path, auto_path, analysis_type=cs.BY_DELTA_RT_AND_MZ, n_rt=5,
-                 n_mz=2, delta_rt=0.2, delta_mz=0.3, corr_cutoff=1, p_val_cutoff=0.7,
+                 n_mz=2, delta_rt=0.001, delta_mz=0.3, corr_cutoff=1, p_val_cutoff=0.7,
                  comparater_list=None, unique_identifier_list=None):
         if unique_identifier_list is None:
             unique_identifier_list = []
@@ -35,7 +35,12 @@ class CompareJsons(object):
         Compares EIC JSON files and makes a correlation plot between same compounds
         :return:
         """
-        correlation_plot_url = self.correlation_plot()
+        correlation_and_wilcox_df = self.correlation_and_wilcox()
+        wilcox_plot_name_json = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path) + "_json" + "_wilcox_plot"
+        self.correlation_plot()
+        self.wilcox_plot(correlation_and_wilcox_df, wilcox_plot_name_json)
+
+
 
     def correlation_plot(self):
         """
@@ -49,15 +54,16 @@ class CompareJsons(object):
                                                    cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO]]
         config_name = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path)
         cor_plot = hf.get_correlation_plot(correlation_df, config_name)
+
         return cor_plot
 
-    def wilcox_plot(self):
+    def wilcox_plot(self, correlation_and_wilcox_df, wilcox_plot_name):
         """
         This function returns a wilcox plot, which is basically a plot betweeen logfc and
         -log10p-val for a group comparison from both the json files.
         :return: returns wilcox plot
         """
-        correlation_and_wilcox_df = self.correlation_and_wilcox()
+
         wilcox_df = pd.DataFrame(correlation_and_wilcox_df, columns=[cs.UNIQUE_IDENTIFIER_MAN,
                                                                      cs.UNIQUE_IDENTIFIER_AUTO,
                                                                      cs.CORR_COFF, cs.P_VAL,
@@ -67,7 +73,8 @@ class CompareJsons(object):
         wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]] = wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]].\
             apply(pd.to_numeric, errors='coerce')
         wilcox_df = wilcox_df.dropna()
-        wilcox_plot = hf.get_wilcox_plot(wilcox_df)
+        print "wilcox_df json ...", wilcox_df
+        wilcox_plot = hf.get_wilcox_plot(wilcox_df, wilcox_plot_name)
         return wilcox_plot
 
     def correlation_and_wilcox(self):
