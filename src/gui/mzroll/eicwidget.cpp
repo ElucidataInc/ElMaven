@@ -179,6 +179,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 		}
 		if (peak.pos > 0) {
 			//qDebug << "details" << peak.pos << " " << peak.minpos << " " << peak.maxpos;
+			eic->findPeakBounds(peak);
 			eic->getPeakDetails(peak);
 			eicParameters->_integratedGroup.addPeak(peak);
 			qDebug() << eic->sampleName.c_str() << " " << peak.peakArea << " "
