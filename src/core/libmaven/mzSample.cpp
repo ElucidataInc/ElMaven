@@ -1256,17 +1256,16 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		}
 		}
 
-		int lastIndex = e->rt.size()-1;
 		//if rt is already present save the higher intensity for that rt
 		//this can happen when there are multiple product m/z for the same precursor
-		if (lastIndex != -1 && scan->rt == e->rt[lastIndex]) {
-			if (eicIntensity <= e->intensity[lastIndex]) 
+		if (!e->rt.empty() && e->rt.back() == scan->rt) {
+			if (eicIntensity <= e->intensity.back()) 
 				continue;
 			else {
-				//save the new intensity
-				e->scannum[lastIndex] = scan->scannum;
-				e->intensity[lastIndex] = eicIntensity;
-				e->mz[lastIndex] = eicMz;
+				//replace old values for the rt
+				e->scannum.back() = scan->scannum;
+				e->intensity.back() = eicIntensity;
+				e->mz.back() = eicMz;
 			}
 		}
 		//save values for new rt
