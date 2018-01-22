@@ -664,7 +664,7 @@ def find_correlation_and_wilcox_test_df_closest_rt_and_mz(unique_identifier_list
     return corr_wilcox_test_df
 
 
-def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, config_name):
+def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, plot_name):
     """
     This function plots a scatter plot between averaged intensities of groups form two datasets
     :param list_man: list of average intensities for all groups from dataset one
@@ -674,6 +674,7 @@ def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, config_n
     :param config_name: configuration file name
     :return: a plotly plot
     """
+
     trace = go.Scatter(x=list_auto, y=list_man, mode=cs.MARKERS, marker=dict(
         size=cs.COR_PLOT_DATAPOINT_SIZE,
         color=cor_list,
@@ -689,11 +690,11 @@ def correlation_scatter_plot(list_man, list_auto, hover_text, cor_list, config_n
     figure = dict(data=data, layout=layout)
     make_dir(cs.OUTPUT_DIR)
     cor_plot = plot(figure, filename=os.path.join(
-        cs.RESULT_DIR, config_name + cs.CORRELATION_PLOT_NAME), auto_open=False)
+        cs.RESULT_DIR, plot_name), auto_open=False)
     return cor_plot
 
 
-def get_correlation_plot(df_to_plot, config_name):
+def get_correlation_plot(df_to_plot, plot_name):
     """
     This function is wrapper function to make a correlation plot. Which takes a data frame which
     columns are to be plotted.
@@ -709,7 +710,7 @@ def get_correlation_plot(df_to_plot, config_name):
     hover_text = list(df_to_plot[cs.UNIQUE_IDENTIFIER_MAN].map(str) + '<->' + df_to_plot[
         cs.UNIQUE_IDENTIFIER_AUTO].map(str) + cs.BREAK_LINE_TAG + df_to_plot[cs.CORR_COFF].map(str))
     cor_plot = correlation_scatter_plot(log_intensity_man, log_intensity_auto, hover_text, cor_list,
-                                        config_name)
+                                        plot_name)
     return cor_plot
 
 
@@ -734,7 +735,7 @@ def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text, plot_name
         yaxis=dict(title=cs.NEG_LOG10_PVAL), showlegend=False, hovermode=cs.COR_PLOT_HOVER_MODE)
 
     figure = dict(data=data, layout=layout)
-    wilcox_plot = plot(figure, filename=plot_name, auto_open=False)
+    wilcox_plot = plot(figure, filename=os.path.join(cs.RESULT_DIR, plot_name), auto_open=False)
     return wilcox_plot
 
 
