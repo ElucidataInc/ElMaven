@@ -30,8 +30,9 @@ class CompareCsvs(object):
         removed_outliers_df = self.remove_outliers(merged_df)
         correlation_and_wilcox_df = self.get_correlation_and_wilcox_df(removed_outliers_df)
         self.plot(removed_outliers_df)
-        hf.get_correlation_plot(correlation_and_wilcox_df, self.config_name)
-        wilcox_plot_name_csv = hf.get_basename_url(self.config_name) + "_csv" + "wilcox_plot"
+        correlation_plot_name = hf.get_basename_url(self.config_name).split(".")[0] + "_csv" + "_correlation_plot"
+        hf.get_correlation_plot(correlation_and_wilcox_df, correlation_plot_name)
+        wilcox_plot_name_csv = hf.get_basename_url(self.config_name).split(".")[0] + "_csv" + "_wilcox_plot"
         self.wilcox_plot(correlation_and_wilcox_df, wilcox_plot_name_csv)
 
     def load_files(self):
@@ -151,7 +152,8 @@ class CompareCsvs(object):
         layout = self.get_layout(cs.CSV_SCATTER_PLOT_TITLE, cs.CSV_SCATTER_PLOT_X_TITLE,
                                  cs.CSV_SCATTER_PLOT_Y_TITLE)
         fig = go.Figure(data=data, layout=layout)
-        plot_fig = plot(fig, filename=os.path.join(cs.RESULT_DIR, self.config_name + cs.PLOT_RESULT))
+
+        plot_fig = plot(fig, filename=os.path.join(cs.RESULT_DIR, hf.get_basename_url(self.config_name).split(".")[0] + "_csv" + cs.SCATTER_PLOT_RESULT))
         return plot_fig
 
     def get_layout(self, plot_title, x_title, y_title):
@@ -229,7 +231,8 @@ class CompareCsvs(object):
         This function returns a wilcox plot, which is basically a plot betweeen logfc and
         -log10p-val for a group comparison from both the json files.
         :return: returns wilcox plot
-        """
+       """
+        total_n_groups = len(correlation_and_wilcox_df.index)
 
         wilcox_df = pandas.DataFrame(correlation_and_wilcox_df, columns=[cs.UNIQUE_IDENTIFIER_MAN,
                                                                      cs.UNIQUE_IDENTIFIER_AUTO,
@@ -240,6 +243,7 @@ class CompareCsvs(object):
         wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]] = wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]].\
             apply(pandas.to_numeric, errors='coerce')
         wilcox_df = wilcox_df.dropna()
-        print "wilcox_df csv ...", wilcox_df
+        n_outliers = len(wilcox_df.index)
+        outlier_percentage = float(n_outliers)/total_n_groups*100
         wilcox_plot = hf.get_wilcox_plot(wilcox_df, wilcox_plot_name)
         return wilcox_plot
