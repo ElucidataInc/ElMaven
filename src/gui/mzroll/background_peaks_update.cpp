@@ -267,7 +267,7 @@ void BackgroundPeakUpdate::run(void) {
                 quit();
                 return;
         }
-        connect(this,SIGNAL(alignmentError(QString)),mainwindow->alignmentErrorDialog,SLOT(showMessage(QString)));
+        connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
         if (mavenParameters->alignSamplesFlag) {
                 connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
         }
@@ -497,6 +497,7 @@ void BackgroundPeakUpdate::align() {
                                 else{
                                         errorMessage=errorMessage+"<br>"+"Incomplete data";
                                 }
+                                qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
                                 return;
                         }
@@ -507,6 +508,7 @@ void BackgroundPeakUpdate::align() {
                         }
                         else{
                                 errorMessage=errorMessage+"<br>"+"Json could not decoded";
+                                qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
                                 return;
                         }

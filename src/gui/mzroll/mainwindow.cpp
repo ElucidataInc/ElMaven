@@ -349,8 +349,6 @@ using namespace mzUtils;
 	// rconsoleDockWidget = new RconsoleWidget(this);
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
 	peptideFragmentation = new PeptideFragmentationWidget(this);
-	alignmentErrorDialog=new QErrorMessage(this);
-	alignmentErrorDialog->setWindowTitle("Alignment Error");
 	
 	setIsotopicPlotStyling();
 
@@ -864,7 +862,12 @@ void AutoSave::saveMzRollWorker() {
 void AutoSave::run() {
 	_mainwindow->saveMzRoll();
 }
-
+void MainWindow::showAlignmetErrorDialog(QString errorMessage){
+	QErrorMessage alignmentErrorDialog;
+	alignmentErrorDialog.setWindowTitle("Alignment Error");
+	alignmentErrorDialog.showMessage(errorMessage);
+	alignmentErrorDialog.exec();
+}
 void MainWindow::autosaveMzRoll() {
 	if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
 		this->askAutosaveMain++;

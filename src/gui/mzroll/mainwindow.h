@@ -194,7 +194,6 @@ public:
 	PeakDetectionDialog *peakDetectionDialog;
 	AwsBucketCredentialsDialog *awsBucketCredentialsDialog;
 	AlignmentDialog* alignmentDialog;
-	QErrorMessage* alignmentErrorDialog;
 	// RconsoleWidget* rconsoleDockWidget;
 	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
     //Added when merged with Maven776 - Kiran
@@ -288,6 +287,7 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
 	void autosaveMzRoll();
