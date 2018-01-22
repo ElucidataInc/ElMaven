@@ -30,7 +30,9 @@ class GroupFiltering
 	 */
     GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice);
 
-    vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups);
+    void filter(vector<PeakGroup> &peakgroups);
+
+	bool filter(PeakGroup &peakgroup);
 
 	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
