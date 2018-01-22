@@ -3,7 +3,6 @@ import os
 import pandas
 import plotly.graph_objs as go
 from plotly.offline import plot
-
 import constants as cs
 import helper_functions as hf
 
@@ -32,6 +31,8 @@ class CompareCsvs(object):
         correlation_and_wilcox_df = self.get_correlation_and_wilcox_df(removed_outliers_df)
         self.plot(removed_outliers_df)
         hf.get_correlation_plot(correlation_and_wilcox_df, self.config_name)
+        wilcox_plot_name_csv = hf.get_basename_url(self.config_name) + "_csv" + "wilcox_plot"
+        self.wilcox_plot(correlation_and_wilcox_df, wilcox_plot_name_csv)
 
     def load_files(self):
         """
@@ -67,7 +68,7 @@ class CompareCsvs(object):
             mz_diff = abs(mz_2 - mz_1)
             rt_diff = abs(rt_2 - rt_1)
 
-            if mz_diff < 0.3 and rt_diff < 0.2:
+            if mz_diff < 0.3 and rt_diff < 0.001:
                 score_list.append((mz_diff+rt_diff))
                 pass
             else:
@@ -222,3 +223,23 @@ class CompareCsvs(object):
                                                    cs.CORR_COFF, cs.P_VAL, cs.LOGFC_AUTO_TO_MAN,
                                                    cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO])
         return corr_wilcox_df
+
+    def wilcox_plot(self,correlation_and_wilcox_df, wilcox_plot_name):
+        """
+        This function returns a wilcox plot, which is basically a plot betweeen logfc and
+        -log10p-val for a group comparison from both the json files.
+        :return: returns wilcox plot
+        """
+
+        wilcox_df = pandas.DataFrame(correlation_and_wilcox_df, columns=[cs.UNIQUE_IDENTIFIER_MAN,
+                                                                     cs.UNIQUE_IDENTIFIER_AUTO,
+                                                                     cs.CORR_COFF, cs.P_VAL,
+                                                                     cs.LOGFC_AUTO_TO_MAN,
+                                                                     cs.AVERAGE_INTENSITY_MAN,
+                                                                     cs.AVERAGE_INTENSITY_AUTO])
+        wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]] = wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]].\
+            apply(pandas.to_numeric, errors='coerce')
+        wilcox_df = wilcox_df.dropna()
+        print "wilcox_df csv ...", wilcox_df
+        wilcox_plot = hf.get_wilcox_plot(wilcox_df, wilcox_plot_name)
+        return wilcox_plot
