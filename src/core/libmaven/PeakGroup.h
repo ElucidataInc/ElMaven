@@ -490,15 +490,6 @@ class PeakGroup{
         static bool compRank(const PeakGroup& a, const PeakGroup& b ) { return(a.groupRank > b.groupRank); }
 
         /**
-         * [compRankPtr ]
-         * @method compRankPtr
-         * @param  a           []
-         * @param  b           []
-         * @return []
-         */
-        static bool compRankPtr(const PeakGroup* a, const PeakGroup* b ) { return(a->groupRank < b->groupRank); }
-
-        /**
          * [compRatio ]
          * @method compRatio
          * @param  a         []

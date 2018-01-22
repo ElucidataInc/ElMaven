@@ -895,21 +895,20 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                             mavenParameters->minSignalBaselineDifference);
 
         GroupFiltering groupFiltering(mavenParameters, slice);
-
-        vector<PeakGroup*> filteredGroups = groupFiltering.groupFiltering(peakgroups);
+        groupFiltering.filter(peakgroups);
 
         //sort groups according to their rank
-        std::sort(filteredGroups.begin(), filteredGroups.end(),
-                  PeakGroup::compRankPtr);
+        std::sort(peakgroups.begin(), peakgroups.end(),
+                  PeakGroup::compRank);
 
-        for (unsigned int j = 0; j < filteredGroups.size(); j++)
+        for (unsigned int j = 0; j < peakgroups.size(); j++)
         {
             //check for duplicates	and append group
             if (j >= mavenParameters->eicMaxGroups)
                 break;
 
-            PeakGroup *group = filteredGroups[j];
-            addPeakGroup(*group);
+            PeakGroup group = peakgroups[j];
+            addPeakGroup(group);
         }
 
         //cleanup
@@ -939,7 +938,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
         bool noOverlap = true;
 
-//   #pragma omp parallel for
         for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
                 PeakGroup& grup2 = mavenParameters->allgroups[i];
                 float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
@@ -948,7 +946,6 @@ bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
                     && massCutoffDist(grup2.meanMz, grup1.meanMz,mavenParameters->massCutoffMerge)
                     < mavenParameters->massCutoffMerge->getMassCutoff()) {
                         noOverlap = false;
-//       #pragma omp cancel for
                 break;
                 }
         }
