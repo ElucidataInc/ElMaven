@@ -36,7 +36,7 @@ class CompareJsons(object):
         :return:
         """
         correlation_and_wilcox_df = self.correlation_and_wilcox()
-        wilcox_plot_name_json = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path) + "_json" + "_wilcox_plot"
+        wilcox_plot_name_json = hf.get_basename_url(self.auto_path).split(".")[0] + "_json" + "_wilcox_plot"
         self.correlation_plot()
         self.wilcox_plot(correlation_and_wilcox_df, wilcox_plot_name_json)
 
@@ -52,8 +52,8 @@ class CompareJsons(object):
         correlation_df = correlation_and_wilcox_df[[cs.UNIQUE_IDENTIFIER_MAN,
                                                     cs.UNIQUE_IDENTIFIER_AUTO, cs.CORR_COFF,
                                                    cs.AVERAGE_INTENSITY_MAN, cs.AVERAGE_INTENSITY_AUTO]]
-        config_name = hf.get_basename_url(self.man_path) + hf.get_basename_url(self.auto_path)
-        cor_plot = hf.get_correlation_plot(correlation_df, config_name)
+        correlation_plot_name_json = hf.get_basename_url(self.auto_path).split(".")[0] + "_json" + "_correlation_plot"
+        cor_plot = hf.get_correlation_plot(correlation_df, correlation_plot_name_json)
 
         return cor_plot
 
@@ -63,7 +63,6 @@ class CompareJsons(object):
         -log10p-val for a group comparison from both the json files.
         :return: returns wilcox plot
         """
-
         wilcox_df = pd.DataFrame(correlation_and_wilcox_df, columns=[cs.UNIQUE_IDENTIFIER_MAN,
                                                                      cs.UNIQUE_IDENTIFIER_AUTO,
                                                                      cs.CORR_COFF, cs.P_VAL,
@@ -73,7 +72,6 @@ class CompareJsons(object):
         wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]] = wilcox_df[[cs.P_VAL, cs.LOGFC_AUTO_TO_MAN]].\
             apply(pd.to_numeric, errors='coerce')
         wilcox_df = wilcox_df.dropna()
-        print "wilcox_df json ...", wilcox_df
         wilcox_plot = hf.get_wilcox_plot(wilcox_df, wilcox_plot_name)
         return wilcox_plot
 
