@@ -713,7 +713,7 @@ def get_correlation_plot(df_to_plot, config_name):
     return cor_plot
 
 
-def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text):
+def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text, plot_name):
     """
     Plots a scatter plot between negative log10 p values and their log fold changes.
     :param neg_log10_pval_list: list of negative log10 p values
@@ -734,11 +734,11 @@ def wilcox_scatter_plot(neg_log10_pval_list, log2_fc_list, hover_text):
         yaxis=dict(title=cs.NEG_LOG10_PVAL), showlegend=False, hovermode=cs.COR_PLOT_HOVER_MODE)
 
     figure = dict(data=data, layout=layout)
-    wilcox_plot = plot(figure, filename='wilcox_plot', auto_open=False)
+    wilcox_plot = plot(figure, filename=plot_name, auto_open=False)
     return wilcox_plot
 
 
-def get_wilcox_plot(df_to_plot):
+def get_wilcox_plot(df_to_plot, plot_name='wilcox_plot'):
 
     """
     This function is a wrapper function for wilcox plot.
@@ -750,7 +750,7 @@ def get_wilcox_plot(df_to_plot):
     p_val_list = df_to_plot[cs.P_VAL].tolist()
     log2_fc_list = df_to_plot[cs.LOGFC_AUTO_TO_MAN].tolist()
     neg_log10_pval = [-log(value, 10) for value in p_val_list]
-    wilcox_plot = wilcox_scatter_plot(neg_log10_pval, log2_fc_list, hover_text)
+    wilcox_plot = wilcox_scatter_plot(neg_log10_pval, log2_fc_list, hover_text, plot_name)
     return wilcox_plot
 
 
