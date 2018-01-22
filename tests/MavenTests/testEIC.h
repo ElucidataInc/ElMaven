@@ -21,6 +21,7 @@ class TestEIC : public QObject {
         const char* loadFile;
         const char* loadGoodSample;
         QStringList files;
+        QStringList files_ms2;
 
     private Q_SLOTS:
         // functions executed by QtTest before and after test suite
@@ -34,6 +35,7 @@ class TestEIC : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testgetEIC();
+        void testgetEICms2();
         void testcomputeSpline();
         void testgetPeakPositions();
         void testcomputeBaseLine();

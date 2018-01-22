@@ -5,6 +5,7 @@ TestEIC::TestEIC() {
     loadGoodSample = "bin/methods/testsample_2.mzxml";
 
     files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
+    files_ms2 << "bin/methods/ms2test1.mzML" << "bin/methods/ms2test2.mzML";
 
 }
 
@@ -35,6 +36,32 @@ void TestEIC::testgetEIC() {
 
     bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0, "");
     QVERIFY(e.intensity.size() == numberOfScans && status);
+}
+
+void TestEIC::testgetEICms2() {
+    mzSample* mzsample = new mzSample();
+    mzSample* mzsample_2 = new mzSample();
+    
+    mzsample->loadSample(files_ms2.at(1).toLatin1().data());
+    EIC* e = NULL;
+    e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
+    QVERIFY(e->rt.size() == 305);
+    QVERIFY(e->scannum[e->scannum.size()-1] == 3351);
+    QVERIFY(e->maxIntensity == 20200);
+
+    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
+    EIC* e2 = NULL;
+    e2 = mzsample_2->getEIC(195,0,69,1,"",0.5,0.5);
+    QVERIFY(e2->rt.size() == 305);
+    QVERIFY(e2->scannum[e2->scannum.size()-1] == 3041);
+    QVERIFY(e2->maxIntensity == 10600);
+
+    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
+    EIC* e3 = NULL;
+    e3 = mzsample_2->getEIC(195,0,69,1,"",2,2);
+    QVERIFY(e3->rt.size() == 305);
+    QVERIFY(e3->scannum[e3->scannum.size()-1] == 6080);
+    QVERIFY(e3->maxIntensity == 49400);
 }
 
 void TestEIC::testcomputeSpline() {
