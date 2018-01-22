@@ -151,11 +151,6 @@ private:
 	void alignUsingDatabase();
 
 	/**
-	 * [get PullIsotope Settings]
-	 */
-	void getPullIsotopeSettings();
-
-	/**
 	 * [write CSV Report]
 	 * @param setName [name of the set]
 	 */

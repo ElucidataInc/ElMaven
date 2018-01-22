@@ -341,14 +341,6 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
         Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
-void BackgroundPeakUpdate::getPullIsotopeSettings() {
-        if (mainwindow) {
-                QSettings* settings = mainwindow->getSettings();
-                if (settings) {
-                }
-        }
-}
-
 void BackgroundPeakUpdate::processSlices() {
         processSlices(mavenParameters->_slices, "sliceset");
 }
@@ -668,11 +660,9 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
 }
 
 void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
-        getPullIsotopeSettings();
         peakDetector.pullIsotopes(parentgroup);
 }
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
-        getPullIsotopeSettings();
         peakDetector.pullIsotopesBarPlot(parentgroup);
 }
 
