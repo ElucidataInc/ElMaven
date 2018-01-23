@@ -94,7 +94,7 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
          * change/access massCutoff type
          */
         if(QString(v.typeName()).contains("QString")) {
-            *v.value<QString*>() = value.c_str();
+            pd->massCutoffType = value.c_str();
             pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
         }
 
@@ -114,6 +114,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         setModal(false);
         peakupdater = NULL;
 
+        massCutoffType = "ppm";
         pdSettings = new PeakDetectionSettings(this);
 
         peakupdater = new BackgroundPeakUpdate(this);
