@@ -11,7 +11,8 @@
 MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
 
-	clsf = NULL;
+    clsf = NULL;
+    alignWrtExpectedRt=false;
 	alignSamplesFlag = false;
         processAllSlices = false;
         pullIsotopesFlag = false;
@@ -76,7 +77,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         */
         compoundMassCutoffWindow=new MassCutoff();
         compoundMassCutoffWindow->setMassCutoff(10);
-        compoundRTWindow = 2;
+        compoundRTWindow = 1;
         eicMaxGroups = INT_MAX;
 
         amuQ1 = 0.5;

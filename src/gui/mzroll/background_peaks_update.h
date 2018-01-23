@@ -108,7 +108,8 @@ public:
 
     void readDataFromPython(QByteArray& data);
     void runPythonProg(Aligner* aligner);
-    void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
+	void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
+	void writeToPythonProcess( QByteArray data);
 
     PeakDetector peakDetector;
 	MavenParameters* mavenParameters;
@@ -122,6 +123,7 @@ Q_SIGNALS:
 	 * @param int     [total value]
 	 */
 	void updateProgressBar(QString, int, int);
+	void alignmentError(QString);
 
 	/**
 	 * [new PeakGroup]
@@ -138,11 +140,14 @@ protected:
 	 * [run method for a thread]
 	 */
 	void run(void);
-
+private Q_SLOTS:
+	void readDataFromPython();
+	
 private:
 	string runFunction;
 	MainWindow *mainwindow;
-    QProcess* pythonProg;
+	QProcess* pythonProg;
+	QByteArray processedDataFromPython;
 
 	/**
 	 * [align function]

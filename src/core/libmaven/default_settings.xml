@@ -14,7 +14,7 @@
         <chargeMax>0</chargeMax>        
         <dbDetection>1</dbDetection> 
         <compoundMassCutoffWindow>5</compoundMassCutoffWindow>
-        <compoundRTWindow>2</compoundRTWindow>
+        <compoundRTWindow>1</compoundRTWindow>
         <matchRt>0</matchRt>
         <eicMaxGroups>10</eicMaxGroups>
         <matchFragmentationOptions>0</matchFragmentationOptions>

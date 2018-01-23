@@ -105,14 +105,14 @@ double AlignmentVizWidget::getRefRt(PeakGroup group) {
 
 void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
-    float newGroupR2 = calculateRsquare(newGroup);
-    float groupR2 = calculateRsquare(group);
+    float newGroupR2 = calculateRsquare(newGroup,group);
+    // float groupR2 = calculateRsquare(group);
     double refRt = getRefRt(group);
 
     QString message;
 
-    message = "previous R2 = " + QString::number(groupR2, 'f', 5);
-    message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
+    message = "R-squared = " + QString::number(newGroupR2, 'f', 5);
+    // message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
  
     if(group.hasCompoundLink()) {
         message += "\nCompound RT = " + QString::number(refRt, 'f', 5);
@@ -130,17 +130,36 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::calculateRsquare(PeakGroup group) {
+float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
 
-    float r2 = 0;
+    float SSres = 0;
+    float SStot=0;
+    float mean=0;
 
-    Q_FOREACH(Peak peak, group.getPeaks()) {
-
-        float diff = peak.rt - getRefRt(group);
-        r2 += pow(diff, 2);
+    vector<mzSample*> oldSamples = getSamplesFromGroup(oldGroup);
+    vector<mzSample*> newSamples = getSamplesFromGroup(newGroup);
+    vector<float> newRts,oldRts;
+    for(int i=0 ; i < oldSamples.size() ; ++i){
+        float rtNew = getRetentionTime(newSamples[i], newGroup);
+        float rtOld = getRetentionTime(oldSamples[i], oldGroup);
+        if(rtNew == -1 || rtOld == -1) continue;
+        oldRts.push_back(rtOld);
+        newRts.push_back(rtNew);
     }
 
-    return r2;
+    for(int i=0 ; i < oldRts.size() ; ++i){
+        mean += oldRts[i];
+    }
+    mean = 1.0*mean/oldRts.size();
+    
+    for( int i = 0 ; i < oldRts.size() ; ++i ){
+        SSres += pow(newRts[i]-mean,2);
+        SStot += pow(oldRts[i]-mean,2);
+    }
+
+    float RSquared = 1-SSres/SStot;
+
+    return RSquared;
 
 }
 

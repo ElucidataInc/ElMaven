@@ -83,7 +83,7 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     mavenparameters->clsf = clsf;
     mavenparameters->ionizationMode = -1;
     mavenparameters->matchRtFlag = true;
-    mavenparameters->compoundRTWindow = 2;
+    mavenparameters->compoundRTWindow = 1;
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;

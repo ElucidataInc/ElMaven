@@ -114,12 +114,24 @@ def groups_json_to_df(
     """
 
     vec_group_json_to_df = np.vectorize(group_json_to_df)
+    """
+    Take expectedRt of the group, if it is -1 then do alignment with median rt of group
+    otherwise do this w.r.t. expectedRt
+    """
+    expectedRt=-1
+    if  "expectedRt" in groups_data[g][0].keys():
+        expectedRt=groups_data[g][0]["expectedRt"]
+        del groups_data[g][0]
     groups_array = vec_group_json_to_df(g, range(len(groups_data[g])),
             groups_data)
     sub_groups = pd.concat(groups_array)
     sub_grp_samp = sub_groups['sample'].unique()
     nsamp = len(sub_grp_samp)
-    sub_groups = sub_groups.assign(rt_dev=sub_groups.rt
+    if expectedRt!=-1:
+        sub_groups = sub_groups.assign(rt_dev=sub_groups.rt
+                                   - expectedRt)
+    else:
+        sub_groups = sub_groups.assign(rt_dev=sub_groups.rt
                                    - np.median(sub_groups.rt))
     if nsamp >= minSample:
         flag = False
@@ -196,16 +208,17 @@ def processData(json_obj):
         samples_data)
     output_json = json.dumps(output_dict)
     return output_json
-
-
-for line in iter(sys.stdin.readline, ''):
-    if 'start processing' in line:
-        continue
-    if 'end processing' in line:
-        json_obj = json.loads(input_json)
-        processedData = processData(json_obj)
-        print processedData
-        sys.stdout.flush()
-        print 'stop'
-        sys.stdout.flush()
+# read input till the EOF
+for line in iter(sys.stdin.readline,''):
     input_json += line
+
+# process data
+json_obj = json.loads(input_json)
+processedData = processData(json_obj)
+
+# sent back processed data
+sys.stdout.write(processedData)
+sys.stdout.flush()
+
+# must exit the program manully
+sys.exit(0)

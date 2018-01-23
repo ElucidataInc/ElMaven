@@ -287,6 +287,7 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
 	void autosaveMzRoll();
