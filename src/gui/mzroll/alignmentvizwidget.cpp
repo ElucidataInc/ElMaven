@@ -139,25 +139,25 @@ float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup
     vector<mzSample*> oldSamples = getSamplesFromGroup(oldGroup);
     vector<mzSample*> newSamples = getSamplesFromGroup(newGroup);
     vector<float> newRts,oldRts;
-    for(int i=0;i<oldSamples.size();++i){
-        float rtNew=getRetentionTime(newSamples[i], newGroup);
-        float rtOld=getRetentionTime(oldSamples[i], oldGroup);
-        if(rtNew==-1 || rtOld==-1) continue;
+    for(int i=0 ; i < oldSamples.size() ; ++i){
+        float rtNew = getRetentionTime(newSamples[i], newGroup);
+        float rtOld = getRetentionTime(oldSamples[i], oldGroup);
+        if(rtNew == -1 || rtOld == -1) continue;
         oldRts.push_back(rtOld);
         newRts.push_back(rtNew);
     }
 
-    for(int i=0;i<oldRts.size();++i){
-        mean+=oldRts[i];
+    for(int i=0 ; i < oldRts.size() ; ++i){
+        mean += oldRts[i];
     }
-    mean=1.0*mean/oldRts.size();
+    mean = 1.0*mean/oldRts.size();
     
-    for(int i=0;i<oldRts.size();++i){
-        SSres+=(newRts[i]-mean)*(newRts[i]-mean);
-        SStot+=(oldRts[i]-mean)*(oldRts[i]-mean);
+    for( int i = 0 ; i < oldRts.size() ; ++i ){
+        SSres += pow(newRts[i]-mean,2);
+        SStot += pow(oldRts[i]-mean,2);
     }
 
-    float RSquared=1-SSres/SStot;
+    float RSquared = 1-SSres/SStot;
 
     return RSquared;
 
