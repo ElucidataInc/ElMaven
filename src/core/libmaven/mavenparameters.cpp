@@ -125,6 +125,11 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
      */
     defaultSettingsData = (char*)default_settings_xml;
 
+
+    /*TODO: find a clean way to implement this. just check if
+    * the 'lastUsedSettingsPath'is not empty and the file
+    * actually exits. If not, then load defaultSettingsData
+    */
     if(!lastUsedSettingsPath.empty()) {
         ifstream ifs(lastUsedSettingsPath, std::ios_base::in);
         if(ifs.is_open()) {
@@ -134,6 +139,9 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
                 loadSettings(ss.str().c_str());
             }
             ifs.close();
+        }
+        else {
+            loadSettings(defaultSettingsData);
         }
      }
 
