@@ -162,6 +162,8 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
      */
     massCutoffType = type;
     label_7->setText(QString("Mass Domain Resolution (%1)").arg(type));
+    string EICExtractionWindow="EIC Extraction Window  +/- "+type.toStdString();
+    label_11->setText(QApplication::translate("PeakDetectionDialog", &EICExtractionWindow[0], 0));
     compoundPPMWindow->setSuffix(type);
 }
 

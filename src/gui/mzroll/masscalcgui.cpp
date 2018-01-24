@@ -31,7 +31,14 @@ void MassCalcWidget::setCharge(float charge) {
                 ionization->setValue(charge);
                 _charge=charge;
 }
-void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff; }
+void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff;
+    maxppmdiff->setValue(massCutoff->getMassCutoff());
+    string massCutoffType=massCutoff->getMassCutoffType();
+
+    label_3->setText(QApplication::translate("MassCalcWidget", &massCutoffType[0], 0));
+    cerr<<massCutoffType<<endl;
+    showTable();
+ }
 
 void MassCalcWidget::compute() {
     LOGD;
@@ -39,7 +46,6 @@ void MassCalcWidget::compute() {
 	 _mz = 		lineEdit->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
        _massCutoff->setMassCutoff(maxppmdiff->value());
-
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
@@ -60,7 +66,8 @@ void MassCalcWidget::showTable() {
     p->clear();
     p->setColumnCount( 5 );
     p->setRowCount(  matches.size() ) ;
-    p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << "massCutoffDiff" << "DB");
+    QString massCutoffDiff=label_3->text()+"Diff";
+    p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << massCutoffDiff << "DB");
     p->setSortingEnabled(false);
     p->setUpdatesEnabled(false);
 

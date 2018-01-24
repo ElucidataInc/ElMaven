@@ -1123,8 +1123,9 @@ void MainWindow::setUserMassCutoff(double x) {
 	double cutoff=x;
 	string type=massCutoffComboBox->currentText().toStdString();
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
+	massCalcWidget->setMassCutoff(_massCutoffWindow);
 	eicWidget->setMassCutoff(_massCutoffWindow);
-	
+
 }
 
 
@@ -2604,6 +2605,7 @@ void MainWindow::setMassCutoffType(QString massCutoffType){
 	double cutoff=massCutoffWindowBox->value();
 	string type=massCutoffType.toStdString();
 	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
+	massCalcWidget->setMassCutoff(_massCutoffWindow);
 	eicWidget->setMassCutoff(_massCutoffWindow);
 }
 
