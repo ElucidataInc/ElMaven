@@ -479,9 +479,9 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         QTreeWidgetItem *item=NULL;
 
         if (parent) { 
-            item = new QTreeWidgetItem(parent,SampleType); 
+            item = new NumericTreeWidgetItem(parent,SampleType); 
         } else {
-            item = new QTreeWidgetItem(_treeWidget,SampleType); 
+            item = new NumericTreeWidgetItem(_treeWidget,SampleType); 
         }
 
         QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], sample->color[3] );
