@@ -863,7 +863,7 @@ void AutoSave::run() {
 	_mainwindow->saveMzRoll();
 }
 void MainWindow::showAlignmetErrorDialog(QString errorMessage){
-	QErrorMessage alignmentErrorDialog;
+	QErrorMessage alignmentErrorDialog(this);
 	alignmentErrorDialog.setWindowTitle("Alignment Error");
 	alignmentErrorDialog.showMessage(errorMessage);
 	alignmentErrorDialog.exec();
