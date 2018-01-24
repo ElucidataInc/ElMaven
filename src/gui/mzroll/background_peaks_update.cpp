@@ -541,7 +541,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         peakDetector.processSlices(slices, setName);
 
-        align();
+        if (runFunction == "alignUsingDatabase") align();
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
