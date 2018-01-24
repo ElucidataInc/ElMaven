@@ -36,7 +36,6 @@ void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValu
     string massCutoffType=massCutoff->getMassCutoffType();
 
     label_3->setText(QApplication::translate("MassCalcWidget", &massCutoffType[0], 0));
-    cerr<<massCutoffType<<endl;
     showTable();
  }
 
