@@ -109,11 +109,15 @@ void AlignmentDialog::algoChanged() {
 		maxItterations->setVisible(true);
 		label_8->setVisible(true);
 		polynomialDegree->setVisible(true);
+		label_13->setVisible(false);
+		alignWrtExpectedRt->setVisible(false);
 	} else {
 		label_7->setVisible(false);
 		maxItterations->setVisible(false);
 		label_8->setVisible(false);
 		polynomialDegree->setVisible(false);
+		label_13->setVisible(true);
+		alignWrtExpectedRt->setVisible(true);
 	}
 }
 
