@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+
+#include <QStandardPaths>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -200,10 +202,6 @@ using namespace mzUtils;
 	threadCompound = NULL;
 
 	readSettings();
-
-    if(!settings->contains("lastUsedSettings"))
-        settings->setValue("lastUsedSettings",QString(QCoreApplication::applicationDirPath() + "%1%2").arg(QDir::separator()).arg("lastRun.xml"));
-
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
@@ -250,7 +248,7 @@ using namespace mzUtils;
 
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
-    mavenParameters = new MavenParameters(settings->value("lastUsedSettings").toString().toStdString());
+		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
 
 
