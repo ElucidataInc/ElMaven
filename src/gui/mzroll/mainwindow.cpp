@@ -217,13 +217,17 @@ using namespace mzUtils;
 		QFile test(d+"/ADDUCTS.csv");
 		if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
 	}
-	
+
 	setWindowTitle(programName + " " + STR(EL_MAVEN_VERSION));
 
 	//locations of common files and directories
 	QString methodsFolder = settings->value("methodsFolder").value<QString>();
-	if (!QFile::exists(methodsFolder))
+	if (!QFile::exists(methodsFolder)) {
 		methodsFolder = dataDir + "/" + "methods";
+		#ifdef Q_OS_MAC
+			methodsFolder = QCoreApplication::applicationDirPath() + "/../../../methods/";
+		#endif
+	}
 
 	QString pathwaysFolder = settings->value("pathwaysFolder").value<QString>();
 	if (!QFile::exists(pathwaysFolder))
