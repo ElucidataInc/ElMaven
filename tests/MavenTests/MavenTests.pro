@@ -12,9 +12,9 @@ TARGET = MavenTests
 QT += testlib
 QT -= gui
 
-CONFIG += qtestlib warn_off 
+CONFIG += qtestlib warn_off
 
-QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -Ofast -ffast-math  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 

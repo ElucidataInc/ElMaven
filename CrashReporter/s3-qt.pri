@@ -1,5 +1,5 @@
 INCLUDEPATH += $$PWD/include
-QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
+QMAKE_CXXFLAGS += -Ofast -ffast-math  -std=c++11
 QT += network
 
 HEADERS += \
@@ -9,4 +9,3 @@ HEADERS += \
 SOURCES += \
     $$PWD/src/qs3/qs3.cpp \
     $$PWD/src/qs3/qbucket.cpp
-
