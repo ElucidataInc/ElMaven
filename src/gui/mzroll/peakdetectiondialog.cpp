@@ -137,6 +137,8 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
         connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
 
+        connect(this, &QDialog::rejected, this, &PeakDetectionDialog::dialogRejected);
+
         label_20->setVisible(false);
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
@@ -188,6 +190,12 @@ void PeakDetectionDialog::dbOptionsClicked() {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
     }
+}
+
+void PeakDetectionDialog::dialogRejected()
+{
+  // happens when users presses 'esc' key; 
+  emit updateSettings(pdSettings);
 }
 
 void PeakDetectionDialog::featureOptionsClicked() {

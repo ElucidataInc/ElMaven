@@ -181,6 +181,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     toggleDeltaRtWeight();
 
     connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
+    connect(this, &QDialog::rejected, this, &SettingsForm::dialogRejected);
 }
 
 void SettingsForm::closeEvent(QCloseEvent* event)
@@ -188,6 +189,12 @@ void SettingsForm::closeEvent(QCloseEvent* event)
      getFormValues();
     emit updateSettings(odSettings);
      QDialog::closeEvent(event);
+}
+
+void SettingsForm::dialogRejected()
+{
+  // happens when user presses 'esc' key
+  emit updateSettings(odSettings);
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
