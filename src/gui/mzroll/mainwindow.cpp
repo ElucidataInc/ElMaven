@@ -190,7 +190,7 @@ using namespace mzUtils;
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
 	dir.cdUp();
 	dir.cd("plugins");
