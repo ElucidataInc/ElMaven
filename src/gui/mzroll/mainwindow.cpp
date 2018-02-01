@@ -248,7 +248,7 @@ using namespace mzUtils;
 
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
-		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
+		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
 
 
