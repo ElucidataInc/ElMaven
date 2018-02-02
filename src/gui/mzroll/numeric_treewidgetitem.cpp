@@ -10,6 +10,3 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const{
     return collator.compare(thisText , otherText) < 0;
 
 }
-void NumericTreeWidgetItem::setExpanded(bool expand){
-    qDebug()<<"==========: "<<expand;
-}

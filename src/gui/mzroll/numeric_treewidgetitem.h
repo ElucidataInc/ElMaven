@@ -19,7 +19,6 @@ public:
 
 
 	bool operator< ( const QTreeWidgetItem & other ) const ;
-	void setExpanded(bool expand);
 };
 
 #endif
