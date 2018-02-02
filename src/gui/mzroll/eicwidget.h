@@ -49,6 +49,11 @@ public Q_SLOTS:
 	void setRtWindow(float rtmin, float rtmax);
 	void setSrmId(string srmId);
 	void setPeakGroup(PeakGroup* group);
+	/**
+	 * @brief updates EIC widget for the selected compound
+	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
+	 * @param selected compound object
+	 **/
 	void setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* group);

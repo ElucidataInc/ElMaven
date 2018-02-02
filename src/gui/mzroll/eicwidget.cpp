@@ -1436,6 +1436,13 @@ void EicWidget::setCompound(Compound* c) {
 		setFocusLine(c->expectedRt);
 		selectGroupNearRt(c->expectedRt);
 	}
+	else {
+		//remove previous focusline
+		if (_focusLine && _focusLine->scene()) {
+			scene()->removeItem(_focusLine);
+			resetZoom();
+		}
+	}
 
 //   clock_gettime(CLOCK_REALTIME, &tE);
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
