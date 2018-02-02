@@ -18,19 +18,8 @@ public:
 	NumericTreeWidgetItem(QTreeWidget *tree, const QStringList & strings) : QTreeWidgetItem (tree,strings){}
 
 
-	bool operator< ( const QTreeWidgetItem & other ) const  
-	{
-		int sortCol = treeWidget()->sortColumn();
-		QString thisText=text(sortCol);
-		QString otherText=other.text(sortCol);
-		
-		QCollator collator;
-		collator.setNumericMode(true);
-		return collator.compare(thisText , otherText) < 0;
-
-    }
-
-
+	bool operator< ( const QTreeWidgetItem & other ) const ;
+	void setExpanded(bool expand);
 };
 
 #endif
