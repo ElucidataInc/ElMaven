@@ -897,10 +897,9 @@ void EicWidget::replot(PeakGroup* group) {
 	addEICLines(_showSpline, _showEIC);
 	showAllPeaks();
 
-	if (group) {
-		if (group->compound != NULL && group->compound->expectedRt > 0)
+	if (group && group->compound != NULL && group->compound->expectedRt > 0)
 			_focusLineRt = group->compound->expectedRt;
-	}
+	else _focusLineRt = 0;
 
     if(_showCubicSpline) addCubicSpline();
     if(_showBaseline)  addBaseLine();   //qDebug() << "\tshowBaseLine msec=" << timerX.elapsed();
@@ -1010,9 +1009,9 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->compound != NULL and group->compound->expectedRt > 0) {
+	if (group->compound != NULL and group->compound->expectedRt > 0)
 		_focusLineRt = group->compound->expectedRt;
-	}
+	else _focusLineRt = 0;
 
 	if (group->peaks.size() > 0) {
 		Peak& selPeak = group->peaks[0];
@@ -1438,10 +1437,9 @@ void EicWidget::setCompound(Compound* c) {
 	}
 	else {
 		//remove previous focusline
-		if (_focusLine && _focusLine->scene()) {
+		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
-			resetZoom();
-		}
+		resetZoom();
 	}
 
 //   clock_gettime(CLOCK_REALTIME, &tE);
