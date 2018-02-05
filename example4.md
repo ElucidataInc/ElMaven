@@ -20,7 +20,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.1</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href="https://s3-us-west-2.amazonaws.com/elmaven-installers/Windows/El-Maven_v0.2.1_Windows_Installer.exe">
+                <a href="http://bit.ly/2sdEPSA">
                 <button class="btn-flat waves-effect waves-light" style="background-color:#8985db;"><font color="white">
                     <i class="zmdi zmdi-download"></i></font>
                 </button>
@@ -32,7 +32,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.4</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href="https://www.dropbox.com/s/jxooynswdog0npg/El-Maven-v0.2.4.exe?dl=1">
+                <a href="http://bit.ly/2BXfvzV">
                 <button class="btn-flat waves-effect waves-light" style="background-color:#8985db;"><font color="white">
                     <i class="zmdi zmdi-download"></i></font>
                 </button>
@@ -58,7 +58,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.1</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href="https://s3-us-west-2.amazonaws.com/elmaven-installers/Mac/El-Maven_v0.2.1_mac_Installer.zip">
+                <a href="http://bit.ly/2EjKTxI">
                 <button class="btn-flat waves-effect waves-light" style="background-color:#8985db;"><font color="white">
                     <i class="zmdi zmdi-download"></i></font>
                 </button>
@@ -70,7 +70,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.4</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href="https://www.dropbox.com/s/azs0q7e9nzt4aku/El-Maven-v0.2.4.zip?dl=1">
+                <a href="http://bit.ly/2E2ikFE">
                 <button class="btn-flat waves-effect waves-light" style="background-color:#8985db;"><font color="white">
                     <i class="zmdi zmdi-download"></i></font>
                 </button>
