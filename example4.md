@@ -20,7 +20,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.1</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href="http://bit.ly/2sdEPSA">
+                <a href="https://s3-us-west-2.amazonaws.com/elmaven-installers/Windows/El-Maven_v0.2.1_Windows_Installer.exe">
                 <button class="btn-flat waves-effect waves-light" style="background-color:#8985db;"><font color="white">
                     <i class="zmdi zmdi-download"></i></font>
                 </button>
