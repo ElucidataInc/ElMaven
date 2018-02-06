@@ -32,6 +32,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     connect(traindialog->trainButton,SIGNAL(clicked(bool)),SLOT(Train()));
     connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)),SLOT(showSelectedGroup()));
     connect(treeWidget, SIGNAL(itemSelectionChanged()),SLOT(showSelectedGroup()));
+    connect(treeWidget, SIGNAL(itemExpanded(QTreeWidgetItem * )),this,SLOT(sortChildrenAscending(QTreeWidgetItem*)));
 
     clusterDialog = new ClusterDialog(this);
     connect(clusterDialog->clusterButton,SIGNAL(clicked(bool)),SLOT(clusterGroups()));
@@ -138,7 +139,9 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 TableDockWidget::~TableDockWidget() { 
     if(traindialog != NULL) delete traindialog;
 }
-
+void TableDockWidget::sortChildrenAscending(QTreeWidgetItem* item){
+    item->sortChildren(1, Qt::AscendingOrder);
+}
 void TableDockWidget::showLog() {
     LOGD << "Table " << this->tableId;
 }

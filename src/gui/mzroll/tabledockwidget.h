@@ -96,7 +96,8 @@ public:
 
 public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
-	  PeakGroup* addPeakGroup(PeakGroup* group);
+      PeakGroup* addPeakGroup(PeakGroup* group);
+      void sortChildrenAscending(QTreeWidgetItem* item);
 	  void setupPeakTable();
       void showLog();
 	  PeakGroup* getSelectedGroup();
