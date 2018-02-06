@@ -43,7 +43,7 @@ public Q_SLOTS:
     void setCurrentGroups(QList<PeakGroup> groups) {currentGroups = groups;}
     float checkGroupEquality(PeakGroup, PeakGroup);
 
-    void plotIndividualGraph(PeakGroup, QColor);
+    void plotIndividualGraph(PeakGroup, int alpha);
 
     vector<mzSample*> getSamplesFromGroup(PeakGroup);
     float getWidthOfBar(PeakGroup);
