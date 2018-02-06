@@ -472,14 +472,13 @@ void BackgroundPeakUpdate::align() {
                         jDoc = QJsonDocument::fromJson(processedDataFromPython);
 
                         QString errorMessage=QString::number(processedDataFromPython.size());
-                        errorMessage="Received data: "+errorMessage+" bytes";
 
                         if(!jDoc.isNull()){
                                 parentObj = jDoc.object();
                         }
                         else{
                                 if(processedDataFromPython.size()==0){
-                                        errorMessage=errorMessage+"<br>"+"Check parameters' value";
+                                        errorMessage=errorMessage + " Good groups found" +"<br>"+"Check parameters' value";
                                 }
                                 else{
                                         errorMessage=errorMessage+"<br>"+"Incomplete data";
