@@ -74,7 +74,7 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 
 - Install Xcode from App store
 
-- Download and Install Qt5.6 from  http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang5.6.2.dmg.mirrorlist. 
+- Download and Install Qt5.6 from  http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang-5.6.2.dmg. 
 
 This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under the directory /Users/Your_User_Name/
 
