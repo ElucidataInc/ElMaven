@@ -15,7 +15,7 @@
 ## Table of contents
 - [Download](#download) 
 - [Build](#build)
-- [ElMaven features](#elmaven-features)
+- [El-MAVEN features](#el-maven-features)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -26,12 +26,12 @@
 
 ## Download
 
-El-MAVEN is supported on both 32 and 64 bit architectures on Windows and Ubuntu.
-Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build depending on your OS and architecture
+El-MAVEN installers are available for Windows (7, 8, 10) and Mac.
+Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build for your preferred environment.
 
 ## Build
 
-Install El-MAVEN on [Windows](https://elucidatainc.github.io/ElMaven/main/2016/02/12/windows-installation.html) or on [Ubuntu](https://elucidatainc.github.io/ElMaven/main/2016/02/12/ubuntu-installation.html) by following the installation instructions.  
+Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. Users are recommended to download the installers provided on the El-MAVEN website. 
 
 ### Windows
 
@@ -74,7 +74,7 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 
 - Install Xcode from App store
 
-- Download and Install Qt5.6 from  http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang-5.6.2.dmg. 
+- Download and Install Qt5.6 from http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang-5.6.2.dmg.
 
 This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under the directory /Users/Your_User_Name/
 
@@ -119,18 +119,18 @@ Users can switch between versions once they have compiled El-MAVEN successfully 
 - Choose the version you wish to install from the list of releases. (We recommend the version tagged "Latest release". Pre-releases are not stable and should be avoided)
 - Find the version tag (v0.2.x, 0.1.x, etc) on the left of release notes.
 - Open your terminal and move to the installation folder
-- Give the following commands in the terminal:
-`cd ElMaven`
-`./uninstall.sh` (to uninstall your current version)
-`git checkout develop`
-`git pull`
+- Give the following commands in the terminal:  
+`cd ElMaven`  
+`./uninstall.sh` (to uninstall your current version)  
+`git checkout develop`  
+`git pull`  
 `git checkout v0.x.y` (Eg. v0.1.5)
 - Build the new version using the following command:
 
 For Windows and Ubuntu: 
 `./run.sh`
 
-For Mac: 
+For Mac:  
 `source ~/.profile`
 
 `qmake CONFIG+=debug -o Makefile build.pro`
