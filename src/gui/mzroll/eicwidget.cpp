@@ -1322,7 +1322,11 @@ void EicWidget::resetZoom() {
 	//qDebug <<"EicWidget::resetZoom() ";
 	mzSlice bounds(0, 0, 0, 0);
 
-	if (eicParameters->eics.size() > 0) {
+	bool hasData = false;
+	for (int i = 0; i < eicParameters->eics.size(); i++)
+		if (eicParameters->eics[i]->size() > 0) hasData = true;
+
+	if (hasData) {
 		bounds = eicParameters->visibleEICBounds();
 	} else if (getMainWindow()->sampleCount() > 0) {
 		vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
