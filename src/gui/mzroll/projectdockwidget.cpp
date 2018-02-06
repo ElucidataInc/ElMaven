@@ -139,6 +139,7 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
 
       _treeWidget->update();
       _mainwindow->getEicWidget()->replot();
+      _mainwindow->bookmarkedPeaks->showSelectedGroup();
 
 }
 

@@ -20,12 +20,9 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     drawMessageBox(newGroup, grp);
 
-    QColor colorCurrentGrp = QColor(150, 10, 250, 100);
-    QColor colorShadowGrp  = QColor (0, 0, 0, 50);
+    plotIndividualGraph(newGroup, 100);
 
-    plotIndividualGraph(newGroup, colorCurrentGrp);
-
-    plotIndividualGraph(grp, colorShadowGrp);
+    plotIndividualGraph(grp, 40);
 
     float rtRange = grp.medianRt();
     vector<mzSample*> samples = getSamplesFromGroup(grp);
@@ -202,7 +199,7 @@ float AlignmentVizWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
 
 }
 
-void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
+void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
     // QVector<double> retentionTimes = getRetentionTime(samples, group);
@@ -212,7 +209,7 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
 
     int i = 1;
     Q_FOREACH(mzSample* sample, samples) {
-
+        QColor color = QColor(255*sample->color[0],255*sample->color[1],255*sample->color[2] ,alpha* sample->color[3]);
         bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         bar->setAntialiased(false);
         QPen pen;
@@ -254,7 +251,7 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
         mzSample* s = peaks[i].getSample();
         samples.push_back(s);
     }
-    sort (samples.begin(), samples.end());
+    sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
     return samples;
 }
 
