@@ -254,6 +254,7 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
         samples.push_back(s);
     }
     sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
+    reverse(samples.begin(),samples.end());
     return samples;
 }
 

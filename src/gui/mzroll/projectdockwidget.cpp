@@ -30,6 +30,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setObjectName("Samples");
     _treeWidget->setHeaderHidden(true);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
+    connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
    // _treeWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MaximumExpanding);
 
     //_splitter->addWidget(_treeWidget);
@@ -139,8 +140,7 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
 
       _treeWidget->update();
       _mainwindow->getEicWidget()->replot();
-      _mainwindow->bookmarkedPeaks->showSelectedGroup();
-
+      _mainwindow->alignmentVizWidget->updateGraph();
 }
 
 void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
@@ -231,7 +231,7 @@ void ProjectDockWidget::changeSampleOrder() {
 
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         _mainwindow->alignmentPolyVizDockWidget->plotGraph();
-
+        _mainwindow->alignmentVizWidget->updateGraph();
         _mainwindow->getEicWidget()->replot();
     }
 }
@@ -446,7 +446,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     //_mainwindow->setupSampleColors();
     float N = samples.size();
-
+    sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+    reverse(samples.begin(),samples.end());
     for(int i=0; i < samples.size(); i++ ) {
 
         mzSample* sample = samples[i];
