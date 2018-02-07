@@ -717,7 +717,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     QString sFilterSel;
     QString fileName = QFileDialog::getSaveFileName(this, 
             tr("Export Groups"), dir, 
-            groupsTAB + ";;" + groupsSTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + groupsSCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
+            groupsCSV + ";;" + groupsSCSV + ";;" + groupsTAB + ";;" + groupsSTAB + ";;" + peaksCSV + ";;" + peaksTAB + ";;" + peaksListQE + ";;" + mascotMGF,
             &sFilterSel);
 
     if(fileName.isEmpty()) return;
