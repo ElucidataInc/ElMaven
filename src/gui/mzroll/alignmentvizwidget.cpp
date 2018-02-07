@@ -10,7 +10,7 @@ AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
 void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     if (!_mw->alignmentVizDockWidget->isVisible()) return;
-
+    currentDisplayedGroup=group;
     intialSetup();
     PeakGroup grp = *group;
 
@@ -31,7 +31,9 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
     _mw->alignmentVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
     _mw->alignmentVizPlot->replot();
 }
-
+void AlignmentVizWidget::updateGraph(){
+    if(currentDisplayedGroup) plotGraph(currentDisplayedGroup);
+}
 void AlignmentVizWidget::intialSetup() {
     _mw->alignmentVizPlot->clearPlottables();
 

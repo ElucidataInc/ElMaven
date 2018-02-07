@@ -19,6 +19,7 @@ class AlignmentVizWidget : public QObject
     Q_OBJECT
 public:
     AlignmentVizWidget(MainWindow* mw);
+    void updateGraph();
     QCPBars *bar;
     map<int, mzSample*> mapSample;
     map<int, pair<double, double> > mapXAxis;
@@ -53,6 +54,7 @@ public Q_SLOTS:
 
 private:
     MainWindow* _mw;
+    PeakGroup* currentDisplayedGroup;
 
 };
 
