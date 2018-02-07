@@ -704,11 +704,11 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
-    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
-    QString groupsSTAB = "Groups Summary Matrix Format Without Set Name (*.tab)";    
+    QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
+    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";    
     QString peaksTAB =  "Peaks Detailed Format (*.tab)";
+    QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
     QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-    QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited Without Set Name (*.csv)";
     QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
     //Added when Merging to Maven776 - Kiran
     QString peaksListQE= "Inclusion List QE (*.csv)";
@@ -722,19 +722,19 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
     if(fileName.isEmpty()) return;
 
-    if ( sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
+    if ( sFilterSel == groupsSCSV || sFilterSel == peaksCSV) {
         if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
     }
-    if ( sFilterSel == groupsSCSV) {
+    if ( sFilterSel == groupsCSV) {
         if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
         cerr <<"csv without:";
         csvreports->flag = 0;
         cerr <<"csv without:1";
     }
-    if ( sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
+    if ( sFilterSel == groupsSTAB || sFilterSel == peaksTAB) {
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
     }
-    if ( sFilterSel == groupsSTAB) {
+    if ( sFilterSel == groupsTAB) {
         cerr <<"tab without:";
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
         csvreports->flag = 0;
@@ -758,9 +758,9 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     //Added to pass into csvreports file when merged with Maven776 - Kiran
     bool includeSetNamesLines=true;
 
-    if (sFilterSel == groupsCSV) {
+    if (sFilterSel == groupsSCSV) {
         csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    } else if (sFilterSel == groupsTAB )  {
+    } else if (sFilterSel == groupsSTAB )  {
         csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
     } else if (sFilterSel == peaksCSV )  {
         csvreports->openPeakReport(fileName.toStdString());
