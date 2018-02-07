@@ -43,7 +43,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.4</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-                <a href='http://bit.ly/2BXfvzV' style='display:hidden' id='win_0.2.4'></a>
+                <a href='https://www.dropbox.com/s/vbc68cln9h7xyc6/El-Maven-v0.2.4.exe?dl=1' style='display:hidden' id='win_0.2.4'></a>
                 <button style="background-color:#8985db;" onClick="setLink('win_0.2.4')" data-target="modal1" class="btn modal-trigger"><font color="white"><i class="zmdi zmdi-download"></i></font></button>
             </td>
 
@@ -75,7 +75,7 @@ permalink: /Downloads/
           <tr>
             <td style="padding-top: 2%; padding-bottom: 2%"><font color="#8985db">v0.2.4</font></td>
             <td style="padding-top: 2%; padding-bottom: 2%">
-            <a href='http://bit.ly/2E2ikFE' style='display:hidden' id='mac_0.2.4'></a>
+            <a href='https://www.dropbox.com/s/zdqfjhx0f678z2p/El-Maven-v0.2.4.zip?dl=1' style='display:hidden' id='mac_0.2.4'></a>
                 <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4')" data-target="modal1" class="btn modal-trigger"><font color="white"><i class="zmdi zmdi-download"></i></font></button>
             </td>
 
