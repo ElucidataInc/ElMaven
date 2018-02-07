@@ -722,23 +722,12 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
     if(fileName.isEmpty()) return;
 
-    if ( sFilterSel == groupsSCSV || sFilterSel == peaksCSV) {
+    if ( sFilterSel == groupsSCSV || sFilterSel == peaksCSV || sFilterSel == groupsCSV) {
         if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
     }
-    if ( sFilterSel == groupsCSV) {
-        if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
-        cerr <<"csv without:";
-        csvreports->flag = 0;
-        cerr <<"csv without:1";
-    }
-    if ( sFilterSel == groupsSTAB || sFilterSel == peaksTAB) {
+    
+    if ( sFilterSel == groupsSTAB || sFilterSel == peaksTAB || sFilterSel == groupsTAB) {
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
-    }
-    if ( sFilterSel == groupsTAB) {
-        cerr <<"tab without:";
-        if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
-        csvreports->flag = 0;
-        cerr <<"tab without:1";
     }
     
     if ( samples.size() == 0) return;
@@ -768,7 +757,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         csvreports->openPeakReport(fileName.toStdString());
     } else { 	//default to group summary
         //Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
+        csvreports->openGroupReport(fileName.toStdString());
     }
 
     QList<PeakGroup*> selectedGroups = getSelectedGroups();
