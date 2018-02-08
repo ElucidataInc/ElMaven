@@ -140,6 +140,7 @@ public:
 	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
 	QLabel *ionizationModeLabel;
+	QLabel *check_polly_login;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
@@ -316,6 +317,8 @@ public Q_SLOTS:
 	void createPeakTable(QString);
 
 	void setIonizationModeLabel();
+	void setcheck_polly_login();
+
 	void setFilterLine();
 	void setInjectionOrderFromTimeStamp();
 

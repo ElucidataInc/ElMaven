@@ -497,6 +497,7 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLabel()));
+
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
 
     connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
@@ -1130,7 +1131,6 @@ void MainWindow::setUserMassCutoff(double x) {
 
 }
 
-
 void MainWindow::setIonizationModeLabel() {
 
 	QString ionMode = settingsForm->ionizationMode->currentText();
@@ -1156,6 +1156,12 @@ void MainWindow::setIonizationModeLabel() {
 	isotopeWidget->setCharge(mode);
 	setTotalCharge();
 }
+
+void MainWindow::setcheck_polly_login() {
+
+	check_polly_login->setText("Log in info");
+}
+
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
 
@@ -1834,7 +1840,10 @@ void MainWindow::loadCompoundsFile() {
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
 	if(!loadCompoundsFile(filelist[0])) {
 		string dbfilename = filelist[0].toStdString();
+		cerr <<"dbfilename   "<<dbfilename;
 		string dbname = mzUtils::cleanFilename(dbfilename);
+		cerr <<"dbname   "<<dbname;
+		
 		string notFoundColumns = "Following are the unknown column name(s) found: ";
 
 		QMessageBoxResize msgBox;
@@ -2509,6 +2518,14 @@ void MainWindow::createToolBars() {
 	ionizationModeLabel->setFrameShape(QFrame::Panel);
 	ionizationModeLabel->setFrameShadow(QFrame::Raised);
 	
+	check_polly_login = new QLabel(hBox);
+	check_polly_login->setToolTip("Status of connection to Polly");
+	check_polly_login->setFrameShape(QFrame::Panel);
+	check_polly_login->setFrameShadow(QFrame::Raised);
+	check_polly_login->setText("not connected");
+	check_polly_login->setStyleSheet("QLabel { background-color : white; color : red; }");
+	
+
 
 	ionChargeBox = new QSpinBox(hBox);
 	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
@@ -2539,7 +2556,7 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(massCutoffWindowBox, 0);
 	layout->addWidget(massCutoffComboBox,0);
-
+	layout->addWidget(check_polly_login, 0);
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
 
