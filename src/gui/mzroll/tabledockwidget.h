@@ -118,6 +118,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+    void exportGroupsToSpreadsheet_polly();
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {
@@ -151,6 +152,15 @@ public Q_SLOTS:
     */
     void rejectGroup();
     void exportJson();
+    QByteArray run_qt_process(QString command);
+    QByteArray run_system_process(QString command);
+    QString get_urls(QByteArray result);
+    QStringList get_system_urls(QString filename);
+    QStringList get_project_upload_url_commands(QByteArray result2,QStringList filenames);
+    QString get_run_id(QByteArray result);
+    QString get_patch_id(QByteArray result);    
+    int authenticate_login();
+    void exportPolly();
 	  void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
