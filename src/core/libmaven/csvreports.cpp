@@ -83,8 +83,8 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         groupReport << endl;
         //TODO: Remove this to remove row in csv reports --@Giridhari
         if (includeSetNamesLine){
-             for(unsigned int i=0; i < 12; i++) { groupReport << SEP; }
-             for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
+             for(unsigned int i = 0; i < 13; i++) { groupReport << SEP; }
+             for(unsigned int i = 0; i < samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
              groupReport << endl;
          }
     }
