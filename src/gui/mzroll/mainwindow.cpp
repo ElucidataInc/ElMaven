@@ -3309,8 +3309,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopePlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot(bool)));
-		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
-
 		btnShowIsotopeplot->setChecked(mw->isotopePlotsDockWidget->isVisible());
 		connect(mw->isotopePlotsDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
 				SLOT(setChecked(bool)));
