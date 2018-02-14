@@ -77,22 +77,56 @@ void TestMassCalculator::testComputeMass() {
 }
 
 void TestMassCalculator::testComputeIsotopes() {
-    string XanthosineChe = "C10H12N4O6";
-
+    string formula = "C12H18N4O4PS";
     map <string, bool> isotopeAtom;
+
+    //test for all labels
+    isotopeAtom["ShowIsotopes"] = true;
     isotopeAtom["D2Labeled_BPE"] = true;
     isotopeAtom["C13Labeled_BPE"] = true;
     isotopeAtom["N15Labeled_BPE"] = true;
     isotopeAtom["S34Labeled_BPE"] = true;
 
-    vector<Isotope> isotopesXanthosine = MassCalculator::computeIsotopes(XanthosineChe, +1, isotopeAtom, 2);
+    vector<Isotope> isotopes = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 500);
 
-    //TODO: have to add a test case here
-    for(vector<Isotope>::iterator it = isotopesXanthosine.begin(); it != isotopesXanthosine.end(); ++it) {
-         //cerr << it->name << endl;
-    }
+    //verify number of isotopes
+    QVERIFY(isotopes.size() == 312);
+    //verify C12 parent mass
+    QVERIFY(floor(isotopes[0].mass) == 346);
+    //verify C13 mass
+    QVERIFY(floor(isotopes[277].mass) == 347);
+    //verify N15 mass
+    QVERIFY(floor(isotopes[290].mass) == 348);
+    //verify D2 mass
+    QVERIFY(floor(isotopes[294].mass) == 347);
+    //verify S34 mass
+    QVERIFY(floor(isotopes[293].mass) == 348);
+    //verify C13N15 dual label mass
+    QVERIFY(floor(isotopes[1].mass) == 348);
+    //verify C13D2 dual label mass
+    QVERIFY(floor(isotopes[61].mass) == 348);
+    //verify C13S34 dual label mass
+    QVERIFY(floor(isotopes[49].mass) == 349);
+    //verify abundance calculation
+    QVERIFY(isotopes[294].abundance > 0.00169 && isotopes[294].abundance < 0.0017);
 
-    QVERIFY(true);
+    //test for isotopeAtom condition statements
+    isotopeAtom["C13Labeled_BPE"] = true;
+    isotopeAtom["N15Labeled_BPE"] = false;
+    isotopeAtom["D2Labeled_BPE"] = false;
+
+    vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 200);
+
+    //verify number of isotopes
+    QVERIFY(isotopes1.size() == 26);
+
+    //test for isotope detection off
+    isotopeAtom["ShowIsotopes"] = false;
+
+    vector<Isotope> isotopes2 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 200);
+
+    //verify number of isotopes. Only C12 parent should be present
+    QVERIFY(isotopes2.size() == 1);
 }
 
 void TestMassCalculator::testenumerateMasses() {
