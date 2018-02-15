@@ -6,6 +6,8 @@
 #include <omp.h>
 #endif
 
+#include <MavenException.h>
+
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
     _stopped = true;
@@ -68,7 +70,7 @@ mzSample* mzFileIO::loadSample(QString filename){
             sample->loadSample( filename.toLatin1().data() );
             if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
         }
-    } catch(...) {
+    } catch(MavenException& excp) {
         qDebug() << "mzFileIO::loadSample() " << filename << " failed..";
     }
 
@@ -478,7 +480,13 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 }
 
 void mzFileIO::run(void) {
-    fileImport();
+    try {
+        fileImport();
+    }
+    catch (MavenException& excp) {
+        qDebug () << excp.what() ;
+    }
+
     quit();
 }
 
@@ -505,6 +513,8 @@ void mzFileIO::fileImport(void) {
         } else if (isSpectralHitType(filename)) {
             spectralhits << filename;
         }
+        else
+            throw MavenException("Incorrect file format");
     }
 
     Q_FOREACH(QString filename, projects ) {
