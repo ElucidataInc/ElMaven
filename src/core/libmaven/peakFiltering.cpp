@@ -21,6 +21,9 @@ void PeakFiltering::filter(EIC *eic)
     filter(eic->peaks);
 }
 
+// TODO: Erasing takes linear time. We can make copy
+// of filtered peaks and return these to caller method
+// or should do something else.
 void PeakFiltering::filter(vector<Peak> &peaks)
 {
 
