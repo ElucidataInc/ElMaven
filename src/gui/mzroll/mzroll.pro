@@ -37,7 +37,7 @@ INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-lin
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural  $$top_srcdir/3rdparty/Eigen/ \
                 $$top_srcdir/3rdparty/libpls $$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/ $$top_srcdir/3rdparty/libplog/ $$top_srcdir/3rdparty/libpillow \
-                $$top_srcdir/3rdparty/libdate/
+                $$top_srcdir/3rdparty/libdate/ $$top_srcdir/3rdparty/ErrorHandling
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
