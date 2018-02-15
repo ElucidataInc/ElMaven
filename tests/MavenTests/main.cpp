@@ -14,6 +14,7 @@
 #include "testCLI.h"
 #include "testCharge.h"
 #include "testSRMList.h"
+#include "testIsotopeLogic.h"
 
 int readLog(QString);
 
@@ -73,6 +74,10 @@ int main(int argc, char** argv) {
     if (freopen("testSRMList.xml", "w", stdout))
         result |= QTest::qExec(new TestSRMList, argc, argv);
     result|=readLog("testSRMList.xml");
+
+    if (freopen("testIsotopeLogic.xml", "w", stdout))
+        result |= QTest::qExec(new TestIsotopeLogic, argc, argv);
+    result|=readLog("testIsotopeLogic.xml");
 
     return result;
 }

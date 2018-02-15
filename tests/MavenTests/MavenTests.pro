@@ -46,6 +46,7 @@ HEADERS += \
     testCharge.h \
     testSRMList.h \
     testGroupFiltering.h \
+    testIsotopeLogic.h \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.h \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
@@ -69,6 +70,7 @@ SOURCES += \
     testCharge.cpp \
     testSRMList.cpp \
     testGroupFiltering.cpp \
+    testIsotopeLogic.cpp \
     main.cpp \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.cpp  \
     $$top_srcdir/src/cli/peakdetector/options.cpp \
