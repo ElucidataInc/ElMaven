@@ -2,6 +2,7 @@
 
 TestPeakDetection::TestPeakDetection() {
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+    loadCompoundDB1 = "bin/methods/KNOWNS.csv";
     files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
 
 }
@@ -93,8 +94,8 @@ void TestPeakDetection::testprocessSlices() {
 }
 
 void TestPeakDetection::testpullIsotopes() {
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    DBS.loadCompoundCSVFile(loadCompoundDB1);
+    vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
     vector<mzSample*> samplesToLoad;
 
     for (int i = 0; i < files.size(); ++i) {
@@ -130,5 +131,36 @@ void TestPeakDetection::testpullIsotopes() {
     PeakGroup& parent = mavenparameters->allgroups[0];
     peakDetector.pullIsotopes(&parent);
     
-    QVERIFY(parent.childCount() == 12);
+    //verify number of isotopes
+    QVERIFY(parent.childCount() == 7);
+
+    //verify if isotopic correlation filter works
+    mavenparameters->minIsotopicCorrelation = 1;
+    parent = mavenparameters->allgroups[1];
+    peakDetector.pullIsotopes(&parent);
+
+    //childCount for this group is 3 for minIsotopicCorrelation = 0.2
+    QVERIFY(parent.childCount() == 1);
+
+    //verify if peaks are within specified rt distance
+    mavenparameters->minIsotopicCorrelation = 0.2;
+    mavenparameters->maxIsotopeScanDiff = 2;
+    mavenparameters->avgScanTime = 0.5;
+    parent = mavenparameters->allgroups[3];
+    mzSample* sample = mavenparameters->samples[0];
+    Peak* parentPeak = parent.getPeak(sample);
+    float parentRt = parentPeak->rt;
+    float maxRtDiff = mavenparameters->maxIsotopeScanDiff*mavenparameters->avgScanTime;
+    
+    peakDetector.pullIsotopes(&parent);
+    
+    int outlier = 0;
+    for(int i = 0; i < parent.children.size(); i++) 
+    {
+        PeakGroup& child = parent.children[i];
+        Peak* childPeak = child.getPeak(sample);
+        float rtDiff = abs(parentRt - childPeak->rt);
+        if (rtDiff > maxRtDiff) outlier++;
+    }
+    QVERIFY(outlier == 0);
 }
