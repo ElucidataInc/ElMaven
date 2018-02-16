@@ -14,20 +14,21 @@ using namespace std;
 
 class IsotopeDetection
 {
-  public:
-    IsotopeDetection(MavenParameters *mavenParameters);
+public:
+  IsotopeDetection(MavenParameters *mavenParameters);
 
-    /**
+  /**
 	 * [pull Isotopes for metabolites]
 	 * @method pullIsotopes
 	 * @param  group        [group]
 	 */
-    void pullIsotopes(PeakGroup *group);
+  void pullIsotopes(PeakGroup *group);
 
-    void pullIsotopesBarPlot(PeakGroup *group);
+  void pullIsotopesBarPlot(PeakGroup *group);
 
-  private:
-    MavenParameters *_mavenParameters;
+private:
+  MavenParameters *_mavenParameters;
+  void addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes);
 };
 
 #endif // ISOTOPEDETECTION_H

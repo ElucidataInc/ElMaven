@@ -238,9 +238,7 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
 
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
-    map<string, PeakGroup>::iterator itr2;
 
-    //   #pragma omp parallel for ordered
     for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
         mzSample* sample = _mavenParameters->samples[s];
         for (unsigned int k = 0; k < masslist.size(); k++) {
@@ -388,10 +386,17 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
         }
     }
 
+    addIsotopes(parentgroup, isotopes);
+}
+
+void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)
+{
+
     //fill peak group list with the compound and its isotopes.
     // peak group list would be filled with the parent group, with its isotopes as children
     // click on + to see children == isotopes
     // parentgroup->children.clear();
+    map<string, PeakGroup>::iterator itr2;
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
@@ -529,4 +534,5 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
         if (!childExist) parentgroup->addChildIsoWidget(child);
 
     }
+
 }
