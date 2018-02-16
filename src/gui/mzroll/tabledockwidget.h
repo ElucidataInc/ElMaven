@@ -10,6 +10,8 @@
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
 #include "saveJson.h"
+#include "pollyintegration.h"
+
 
 class MainWindow;
 class AlignmentVizWidget;
@@ -17,6 +19,7 @@ class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
 class ListView;
+class PollyIntegration;
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -39,6 +42,7 @@ public:
     QStringListModel* stringModel;  /**@param-  model of compound name,will be set to <listTextView>*/
 
     MainWindow* _mainwindow;
+    PollyIntegration* _pollyIntegration;
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
@@ -69,6 +73,7 @@ public:
 	~TableDockWidget();
 
     int  groupCount() { return allgroups.size(); }
+    QList<PeakGroup> getAllGroups(){ return allgroups;}
     /**
      * @detail- this function return true if this group already present in
      * bookmrked group <allgroups>.
@@ -118,7 +123,6 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
-    void exportGroupsToSpreadsheet_polly();
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {
@@ -152,16 +156,8 @@ public Q_SLOTS:
     */
     void rejectGroup();
     void exportJson();
-    QByteArray run_qt_process(QString command);
-    QByteArray run_system_process(QString command);
-    QString get_urls(QByteArray result);
-    QStringList get_system_urls(QString filename);
-    QStringList get_project_upload_url_commands(QByteArray result2,QStringList filenames);
-    QString get_run_id(QByteArray result);
-    QString get_patch_id(QByteArray result);    
-    int authenticate_login();
     void exportPolly();
-	  void showSelectedGroup();
+    void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
 	  void showLastGroup();
