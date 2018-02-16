@@ -637,10 +637,12 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
 }
 
 void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
-        peakDetector.pullIsotopes(parentgroup);
+        IsotopeDetection isotopeDetection(mavenParameters);
+        isotopeDetection.pullIsotopes(parentgroup);
 }
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
-        peakDetector.pullIsotopesBarPlot(parentgroup);
+        IsotopeDetection isotopeDetection(mavenParameters);
+        isotopeDetection.pullIsotopesBarPlot(parentgroup);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

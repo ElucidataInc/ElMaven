@@ -33,6 +33,7 @@
 #include "groupFiltering.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
+#include "isotopeDetection.h"
 
 /**
  * @class PeakDetector
@@ -108,15 +109,6 @@ public:
 	 * @method processMassSlices
 	 */
 	void processMassSlices();
-
-	/**
-	 * [pull Isotopes for metabolites]
-	 * @method pullIsotopes
-	 * @param  group        [group]
-	 */
-	void pullIsotopes(PeakGroup *group);
-
-	void pullIsotopesBarPlot(PeakGroup* group);
 
 	/**
 	 * [process Slices]
