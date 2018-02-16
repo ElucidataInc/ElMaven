@@ -71,6 +71,7 @@ FORMS = forms/settingsform.ui  \
         forms/noteswidget.ui   \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
+        forms/loginform.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
@@ -131,6 +132,8 @@ HEADERS +=  stable.h \
                     alignmentvizallgroupswidget.h \
                    spectralhitstable.h\
                     clusterdialog.h \
+                    loginform.h \
+                    pollyintegration.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
@@ -187,6 +190,8 @@ database.cpp \
  highlighter.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
+ loginform.cpp \
+ pollyintegration.cpp \
  widgets/qprog.cpp \
  projectdockwidget.cpp \
  spectramatching.cpp \
