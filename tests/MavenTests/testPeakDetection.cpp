@@ -94,8 +94,7 @@ void TestPeakDetection::testprocessSlices() {
 
 void TestPeakDetection::testpullIsotopes() {
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds =
-        DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
     vector<mzSample*> samplesToLoad;
 
     for (int i = 0; i < files.size(); ++i) {
@@ -107,8 +106,7 @@ void TestPeakDetection::testpullIsotopes() {
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/default.model";
-    clsf->loadModel(loadmodel);
+    clsf->loadModel("bin/default.model");
     mavenparameters->clsf = clsf;
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
@@ -116,17 +114,21 @@ void TestPeakDetection::testpullIsotopes() {
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;
-    mavenparameters->amuQ1 = 0.25;
-    mavenparameters->amuQ3 = 0.30;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
+    mavenparameters->isotopeAtom["ShowIsotopes"] = true;
+    mavenparameters->isotopeAtom["C13Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["N15Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["D2Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["S34Labeled_BPE"] = true;
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = 
-	    peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
     peakDetector.processSlices(slices, "compounds");
+    
     PeakGroup& parent = mavenparameters->allgroups[0];
     peakDetector.pullIsotopes(&parent);
-    QVERIFY(parent.childCount() > 0);
+    
+    QVERIFY(parent.childCount() == 12);
 }
