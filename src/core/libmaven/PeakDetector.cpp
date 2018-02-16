@@ -1,15 +1,12 @@
 #include "PeakDetector.h"
 
 PeakDetector::PeakDetector() {
-    mavenParameters = NULL; //naman: wasn't initialized
+    mavenParameters = NULL;
 }
+
 PeakDetector::PeakDetector(MavenParameters* mp) {
 	mavenParameters = mp;
 }
-
-/**
- * TODO
- */
 
 void PeakDetector::resetProgressBar() {
 	zeroStatus = true;
@@ -364,6 +361,10 @@ void PeakDetector::pullIsotopesBarPlot(PeakGroup* parentgroup) {
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
 
+            bool isIsotope = true;
+			PeakFiltering peakFiltering(mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
             delete(eic);
             // find nearest peak as long as it is within RT window
             float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
@@ -580,6 +581,10 @@ void PeakDetector::pullIsotopes(PeakGroup* parentgroup) {
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
 
+            bool isIsotope = true;
+			PeakFiltering peakFiltering(mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
             delete(eic);
             // find nearest peak as long as it is within RT window
             float maxRtDiff=mavenParameters->maxIsotopeScanDiff * mavenParameters->avgScanTime;
@@ -777,275 +782,162 @@ void PeakDetector::alignSamples() {
         }
 }
 
-bool PeakDetector::quantileFilters(PeakGroup *group) {
-    if (group->maxIntensity < mavenParameters->minGroupIntensity){
-        return true;
-    }
-    if (group->maxSignalBaselineRatio < mavenParameters->minSignalBaseLineRatio) {
-        return true;
-    }
-    if (mavenParameters->clsf->hasModel() && 
-        group->maxQuality < mavenParameters->minQuality) {
-            return true;
-    }
-    if (group->maxIntensity < group->blankMax * mavenParameters->minSignalBlankRatio){
-        return true;
-    }
-    vector<Peak> peaks = group->getPeaks();
-    int peaksAboveMinIntensity = 0;
-    int peaksAboveBaselineRatio = 0;
-    int peaksAboveBlankRatio = 0;
-    int peaksAboveMinQuality = 0;
-    for (int i = 0; i < peaks.size(); i++) {
-        if (peaks[i].peakIntensity > mavenParameters->minGroupIntensity) {
-            peaksAboveMinIntensity++;
-        }
-        if (peaks[i].signalBaselineRatio > mavenParameters->minSignalBaseLineRatio) {
-            peaksAboveBaselineRatio++;
-        }
-        if (peaks[i].peakIntensity > group->blankMax * mavenParameters->minSignalBlankRatio){
-            peaksAboveBlankRatio++;
-        }
-        if (peaks[i].quality > mavenParameters->minQuality) {
-            peaksAboveMinQuality++;
-        }
-    }
-    int noVisibleSamples = mavenParameters->getVisibleSamples().size();
-    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileIntensity) {
-        return true;
-    }
-    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < mavenParameters->quantileQuality) {
-        return true;
-    }
-    if ((1.0*peaksAboveBaselineRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBaselineRatio){
-        return true;
-    }
-    if ((1.0*peaksAboveBlankRatio/noVisibleSamples)*100 < mavenParameters->quantileSignalBlankRatio){
-        return true;
-    }
-    return false;
-}
+void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
+{
 
-void PeakDetector::processSlices(vector<mzSlice*>&slices, string setName) {
+    if (slices.size() == 0)
+        return;
+    mavenParameters->allgroups.clear();
 
-        if (slices.size() == 0)
-                return;
-        mavenParameters->allgroups.clear();
+    sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
-	//TODO: All the ion counts are 0 there is no use in sorting
-        sort(slices.begin(), slices.end(), mzSlice::compIntensity);
+    int converged = 0;
+    int foundGroups = 0;
 
-	//process KNOWNS
-        QTime timer;
-        timer.start();
-        // qDebug() << "Proessing slices: setName=" << setName.c_str() << " slices="
-        //          << slices.size();
+    int eicCount = 0;
+    for (unsigned int s = 0; s < slices.size(); s++)
+    {
 
-        int converged = 0;
-        int foundGroups = 0;
+        if (mavenParameters->stop)
+            break;
+        mzSlice *slice = slices[s];
 
-        int eicCount = 0;
-        int groupCount = 0;
-        // int peakCount = 0; //naman: not being used anywhere TODO comment it out 
+        Compound *compound = slice->compound;
 
-        // for all the slies, find EICs and score quality and rank ofpeaks in the EICs
-        // using the classifier
-        // #pragma omp parallel for ordered
-        for (unsigned int s = 0; s < slices.size(); s++) {
+        if (compound != NULL && compound->hasGroup())
+            compound->unlinkGroup();
 
-                if (mavenParameters->stop) break;
-                mzSlice* slice = slices[s];
-
-                Compound* compound = slice->compound;
-
-                if (compound != NULL && compound->hasGroup())
-                        compound->unlinkGroup();
-
-                //TODO: what is this for? this is not used
-                //mavenParameters->checkConvergance is not always 0
-                if (mavenParameters->checkConvergance) {
-                        mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
-                                0 :
-                                converged++;
-                        if (converged > 1000) {
-                        break;
-                        }
-                        foundGroups = mavenParameters->allgroups.size();
-                }
-
-//		qDebug() << "Pulling EICs";
-
-                vector<EIC*> eics;
-                // for all the slies, find EICs
-                // #pragma omp ordered
-                //TODO: all the settings from this are not connected to the main
-                //window parameters which are not connected are they are
-                //connected from options settings
-                //mavenParameters->baseline_smoothingWindow
-                //mavenParameters->baseline_dropTopX
-                eics = pullEICs(slice, mavenParameters->samples,
-                                EicLoader::PeakDetection, mavenParameters->eic_smoothingWindow,
-                                mavenParameters->eic_smoothingAlgorithm, mavenParameters->amuQ1,
-                                mavenParameters->amuQ3,
-                                mavenParameters->baseline_smoothingWindow,
-                                mavenParameters->baseline_dropTopX,
-                                mavenParameters->minSignalBaselineDifference,
-                                mavenParameters->eicType,
-                                mavenParameters->filterline);
-
-                float eicMaxIntensity = 0;
-
-                for (unsigned int j = 0; j < eics.size(); j++) {
-                    eicCount++;
-                    float max = 0;
-
-                    switch((PeakGroup::QType) mavenParameters->peakQuantitation) {
-                        case PeakGroup::AreaTop: max = eics[j]->maxAreaTopIntensity; break;
-                        case PeakGroup::Area: max =  eics[j]->maxAreaIntensity; break;
-                        case PeakGroup::Height: max = eics[j]->maxIntensity; break;
-                        case PeakGroup::AreaNotCorrected: max = eics[j]->maxAreaNotCorrectedIntensity; break;
-                        case PeakGroup::AreaTopNotCorrected: max = eics[j]->maxAreaTopNotCorrectedIntensity; break;
-                        default: max = eics[j]->maxIntensity; break;
-                    }
-
-                    if (max > eicMaxIntensity)
-                        eicMaxIntensity = max;
-                }
-                if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
-                        delete_all(eics);
-                        continue;
-                }
-
-                //for ( unsigned int j=0; j < eics.size(); j++ )	eics[j]->getPeakPositions(eic_smoothingWindow);
-                vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                                mavenParameters->eic_smoothingWindow,
-                                                                mavenParameters->grouping_maxRtWindow,
-                                                                mavenParameters->minQuality,
-                                                                mavenParameters->distXWeight,
-                                                                mavenParameters->distYWeight,
-                                                                mavenParameters->overlapWeight,
-                                                                mavenParameters->useOverlap,
-                                                                mavenParameters->minSignalBaselineDifference);
-
-
-		//score quality of each group using classifier
-                vector<PeakGroup*> groupsToAppend;
-                for (unsigned int j = 0; j < peakgroups.size(); j++) {
-
-                        PeakGroup& group = peakgroups[j];
-                        group.setQuantitationType((PeakGroup::QType) mavenParameters->peakQuantitation);
-                        group.minQuality = mavenParameters->minQuality;
-                        group.minIntensity = mavenParameters->minGroupIntensity;
-                        group.computeAvgBlankArea(eics);
-                        group.groupStatistics();
-                        groupCount++;
-                        // peakCount += group.peakCount(); //naman: not being used anywhere TODO comment it out 
-
-			if (mavenParameters->clsf->hasModel()) {
-				mavenParameters->clsf->classify(&group);
-                                group.groupStatistics();
-                        }
-                        if (mavenParameters->clsf->hasModel()
-                            && group.goodPeakCount < mavenParameters->minGoodGroupCount)
-                                continue;
-                        // if (group.blankMean*minBlankRatio > group.sampleMean ) continue;
-                        
-                        if (group.maxNoNoiseObs < mavenParameters->minNoNoiseObs)
-                                continue;
-                        if (quantileFilters(&group))
-                                continue;
-                                
-                        if (compound)
-                                group.compound = compound;
-                        if (!slice->srmId.empty())
-                                group.srmId = slice->srmId;
-
-                        
-                        float rtDiff = -1;
-
-                        if (compound != NULL && compound->expectedRt > 0)
-                        {
-                            rtDiff = abs(compound->expectedRt - (group.meanRt));
-                            group.expectedRtDiff = rtDiff;
-                        }
-
-                        // Peak Group Rank accoording to given weightage
-                        double A = (double) mavenParameters->qualityWeight/10;
-                        double B = (double) mavenParameters->intensityWeight/10;
-                        double C = (double) mavenParameters->deltaRTWeight/10;
-
-                        if (compound != NULL && compound->expectedRt > 0) {
-                            if(mavenParameters->deltaRtCheckFlag) {
-                            group.groupRank = pow(rtDiff, 2*C) * pow((1.1 - group.maxQuality), A)
-                                                  * (1 /( pow(log(group.maxIntensity + 1), B))); //TODO Formula to rank groups
-                            }
-                            if (mavenParameters->matchRtFlag && group.expectedRtDiff > mavenParameters->compoundRTWindow) continue;
-
-                        } 
-                        
-                        if (!mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0) {
-                            group.groupRank = pow((1.1 - group.maxQuality), A)
-                                                  * (1 /(pow(log(group.maxIntensity + 1), B)));
-                        }
-                        groupsToAppend.push_back(&group);
-                }
-
-		//sort groups according to their rank
-                std::sort(groupsToAppend.begin(), groupsToAppend.end(),
-                          PeakGroup::compRankPtr);
-
-                for (unsigned int j = 0; j < groupsToAppend.size(); j++) {
-                        //check for duplicates	and append group
-                        if (j >= mavenParameters->eicMaxGroups)
-                                break;
-
-                        PeakGroup* group = groupsToAppend[j];
-                        // bool ok = addPeakGroup(*group); //naman: unused, maybe used below.
-                        addPeakGroup(*group); //naman: unused, maybe used below.
-
-                        //TODO: commended by sabu
-                        // //force insert when processing compounds.. even if duplicated
-                        // if (ok == false && compound != NULL)
-                        //         mavenParameters->allgroups.push_back(*group);
-                }
-
-                //cleanup
-                delete_all(eics);
-
-                if (mavenParameters->allgroups.size()
-                    > mavenParameters->limitGroupCount) {
-                        cerr << "Group limit exceeded!" << endl;
-//       #pragma omp cancel for
-                        break;
-                }
-
-                if (zeroStatus){
-					sendBoostSignal("Status", 0 , 1);
-					zeroStatus = false;
-                }
-
-                if (mavenParameters->showProgressFlag && s % 10 == 0) {
-
-                        string progressText = "Found "
-                                               + to_string(mavenParameters->allgroups.size())
-                                               + " groups";
-                sendBoostSignal(progressText,s + 1, std::min((int) slices.size(), mavenParameters->limitGroupCount));
-
-                        /*TODO: Fix Q_EMIT update progress of slices.
-                           Q_EMIT(
-                           updateProgressBar(progressText, s + 1,
-                           std::min((int) slices.size(), limitGroupCount)));
-                         */
-                }
+        //TODO: what is this for? this is not used
+        //mavenParameters->checkConvergance is not always 0
+        if (mavenParameters->checkConvergance)
+        {
+            mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
+                                                                      0
+                                                                : converged++;
+            if (converged > 1000)
+            {
+                break;
+            }
+            foundGroups = mavenParameters->allgroups.size();
         }
 
-        //cleanup();
+        vector<EIC *> eics;
+        eics = pullEICs(slice,
+                        mavenParameters->samples,
+                        EicLoader::PeakDetection,
+                        mavenParameters->eic_smoothingWindow,
+                        mavenParameters->eic_smoothingAlgorithm,
+                        mavenParameters->amuQ1,
+                        mavenParameters->amuQ3,
+                        mavenParameters->baseline_smoothingWindow,
+                        mavenParameters->baseline_dropTopX,
+                        mavenParameters->minSignalBaselineDifference,
+                        mavenParameters->eicType,
+                        mavenParameters->filterline);
+
+
+        if (mavenParameters->clsf->hasModel())
+        {
+            mavenParameters->clsf->scoreEICs(eics);
+        }
+
+        float eicMaxIntensity = 0;
+        for (unsigned int j = 0; j < eics.size(); j++)
+        {
+            eicCount++;
+            float max = 0;
+
+            switch ((PeakGroup::QType)mavenParameters->peakQuantitation)
+            {
+            case PeakGroup::AreaTop:
+                max = eics[j]->maxAreaTopIntensity;
+                break;
+            case PeakGroup::Area:
+                max = eics[j]->maxAreaIntensity;
+                break;
+            case PeakGroup::Height:
+                max = eics[j]->maxIntensity;
+                break;
+            case PeakGroup::AreaNotCorrected:
+                max = eics[j]->maxAreaNotCorrectedIntensity;
+                break;
+            case PeakGroup::AreaTopNotCorrected:
+                max = eics[j]->maxAreaTopNotCorrectedIntensity;
+                break;
+            default:
+                max = eics[j]->maxIntensity;
+                break;
+            }
+
+            if (max > eicMaxIntensity)
+                eicMaxIntensity = max;
+        }
+        if (eicMaxIntensity < mavenParameters->minGroupIntensity)
+        {
+            delete_all(eics);
+            continue;
+        }
+
+        bool isIsotope = false;
+
+        PeakFiltering peakFiltering(mavenParameters, isIsotope);
+        peakFiltering.filter(eics);
+
+        vector<PeakGroup> peakgroups =
+            EIC::groupPeaks(eics,
+                            mavenParameters->eic_smoothingWindow,
+                            mavenParameters->grouping_maxRtWindow,
+                            mavenParameters->minQuality,
+                            mavenParameters->distXWeight,
+                            mavenParameters->distYWeight,
+                            mavenParameters->overlapWeight,
+                            mavenParameters->useOverlap,
+                            mavenParameters->minSignalBaselineDifference);
+
+        GroupFiltering groupFiltering(mavenParameters, slice);
+        groupFiltering.filter(peakgroups);
+
+        //sort groups according to their rank
+        std::sort(peakgroups.begin(), peakgroups.end(),
+                  PeakGroup::compRank);
+
+        for (unsigned int j = 0; j < peakgroups.size(); j++)
+        {
+            //check for duplicates	and append group
+            if (j >= mavenParameters->eicMaxGroups)
+                break;
+
+            PeakGroup group = peakgroups[j];
+            addPeakGroup(group);
+        }
+
+        //cleanup
+        delete_all(eics);
+
+        if (mavenParameters->allgroups.size() > mavenParameters->limitGroupCount)
+        {
+            cerr << "Group limit exceeded!" << endl;
+            break;
+        }
+
+        if (zeroStatus)
+        {
+            sendBoostSignal("Status", 0, 1);
+            zeroStatus = false;
+        }
+
+        if (mavenParameters->showProgressFlag && s % 10 == 0)
+        {
+
+            string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
+            sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
+        }
+    }
 }
 
 bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
         bool noOverlap = true;
 
-//   #pragma omp parallel for
         for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
                 PeakGroup& grup2 = mavenParameters->allgroups[i];
                 float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
@@ -1054,7 +946,6 @@ bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
                     && massCutoffDist(grup2.meanMz, grup1.meanMz,mavenParameters->massCutoffMerge)
                     < mavenParameters->massCutoffMerge->getMassCutoff()) {
                         noOverlap = false;
-//       #pragma omp cancel for
                 break;
                 }
         }

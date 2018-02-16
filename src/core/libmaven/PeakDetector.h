@@ -1,36 +1,38 @@
 #ifndef PEAKDETECTOR_H
 #define PEAKDETECTOR_H
 
+#include <map>
+#include <deque>
+#include <cmath>
 #include <string>
+#include <cfloat>
 #include <vector>
-#include <qdatetime.h>
+#include <utility>
+#include <climits>
+#include <iomanip>
 #include <qdebug.h>
+#include <iostream>
 #include <qstring.h>
 #include <algorithm>
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <deque>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <utility>
+#include <qdatetime.h>
+#include <boost/bind.hpp>
+#include <boost/signals2.hpp>
 
 #ifndef __APPLE__
 #include <omp.h>
 #endif
 
-#include "Compound.h"
-#include "classifier.h"
-#include "mavenparameters.h"
-#include "mzAligner.h"
-#include "mzMassCalculator.h"
-#include "mzMassSlicer.h"
-#include "mzSample.h"
 #include "mzUtils.h"
+#include "Compound.h"
+#include "mzSample.h"
+#include "mzAligner.h"
 #include "constants.h"
-#include <boost/signals2.hpp>
-#include <boost/bind.hpp>
+#include "classifier.h"
+#include "mzMassSlicer.h"
+#include "peakFiltering.h"
+#include "groupFiltering.h"
+#include "mavenparameters.h"
+#include "mzMassCalculator.h"
 
 /**
  * @class PeakDetector
@@ -38,7 +40,6 @@
  * @brief all peak detection logic resides here.
  * @author Elucidata
  */
-
 class PeakDetector {
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
@@ -126,12 +127,13 @@ public:
 	void processSlices(vector<mzSlice*>&slices, string setName);
 
 	/**
-	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
-	 * @method quantileFilters
-	 * @param  group        [pointer to PeakGroup]
-	 * @return [True if group has to be rejected, else False]
+	 * @brief Filter groups on the basis of user-defined parameters
+	 * @param peakgroups vector of Peakgroup objects
+	 * @param slice mzSlice object bound to PeakGroup
+	 * @return filteredGroups Filtered PeakGroups
+	 * @see PeakGroup
 	 */
-	 bool quantileFilters(PeakGroup *group);
+	vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
 
 	/**
 	 * [process Compounds]

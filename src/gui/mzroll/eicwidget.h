@@ -1,28 +1,25 @@
-/*
-@author: Sahil
-*/
-
 #ifndef PLOT_WIDGET_H
 #define PLOT_WIDGET_H
 
-#include "stable.h"
-#include "mainwindow.h"
 #include "line.h"
-#include "barplot.h"
-#include "boxplot.h"
-#include "isotopeplot.h"
 #include "point.h"
-#include "plot_axes.h"
-#include "libplog/Log.h"
+#include "stable.h"
+#include "boxplot.h"
+#include "barplot.h"
 #include "eiclogic.h"
+#include "plot_axes.h"
+#include "mainwindow.h"
+#include "isotopeplot.h"
+#include "libplog/Log.h"
+#include "peakFiltering.h"
 
-class PeakGroup;
 class EIC;
-class MainWindow;
-class BarPlot;
-class BoxPlot;
-class IsotopePlot;
 class Note;
+class BoxPlot;
+class BarPlot;
+class PeakGroup;
+class MainWindow;
+class IsotopePlot;
 
 class EicWidget: public QGraphicsView {
 Q_OBJECT

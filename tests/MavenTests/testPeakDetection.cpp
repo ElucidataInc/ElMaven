@@ -92,51 +92,6 @@ void TestPeakDetection::testprocessSlices() {
 
 }
 
-void TestPeakDetection::testquantileFilters() {
-    vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
-    PeakGroup group = allgroups[0];
-    PeakDetector peakDetector;
-    MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->minGroupIntensity = group.maxIntensity + 1;
-    peakDetector.setMavenParameters(mavenparameters);
-    QVERIFY(peakDetector.quantileFilters(&group) == true);
-
-    mavenparameters->minGroupIntensity = -1;
-    mavenparameters->minSignalBaseLineRatio = group.maxSignalBaselineRatio + 1;
-    peakDetector.setMavenParameters(mavenparameters);
-    QVERIFY(peakDetector.quantileFilters(&group) == true);
-
-    ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/default.model";
-    clsf->loadModel(loadmodel);
-    mavenparameters->clsf = clsf;
-    mavenparameters->minGroupIntensity = -1;
-    mavenparameters->minSignalBaseLineRatio = -1;
-    mavenparameters->minQuality = group.maxQuality + 1;
-    peakDetector.setMavenParameters(mavenparameters);
-    QVERIFY(peakDetector.quantileFilters(&group) == true);
-
-    mavenparameters->minGroupIntensity = -1;
-    mavenparameters->minSignalBaseLineRatio = -1;
-    mavenparameters->minQuality = -1;
-    group.blankMax = 1;
-    mavenparameters->minSignalBlankRatio = group.maxIntensity + 1;
-    peakDetector.setMavenParameters(mavenparameters);
-    QVERIFY(peakDetector.quantileFilters(&group) == true);
-
-    mavenparameters->minGroupIntensity = -1;
-    mavenparameters->minSignalBaseLineRatio = -1;
-    mavenparameters->minQuality = -1;
-    group.blankMax = 1;
-    mavenparameters->minSignalBlankRatio = -1;
-    mavenparameters->quantileIntensity = 0;
-    mavenparameters->quantileQuality = 0;
-    mavenparameters->quantileSignalBaselineRatio = 0;
-    mavenparameters->quantileSignalBlankRatio = 0;
-    peakDetector.setMavenParameters(mavenparameters);
-    QVERIFY(peakDetector.quantileFilters(&group) == false);
-}
-
 void TestPeakDetection::testpullIsotopes() {
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds =

@@ -71,7 +71,7 @@ vector<float> ClassifierNeuralNet::getFeatures(Peak& p) {
 }
 
 void ClassifierNeuralNet::classify(PeakGroup* grp) {
-    //Merged with Maven776 - Kiran
+
 	if (brain == NULL)
 		return;
 
@@ -80,6 +80,16 @@ void ClassifierNeuralNet::classify(PeakGroup* grp) {
 	}
 }
 
+void ClassifierNeuralNet::scoreEICs(vector<EIC*> &eics)
+{
+
+	for (unsigned int i = 0; i < eics.size(); i++)
+	{
+		for (unsigned int j = 0; j < eics[i]->peaks.size(); j++ ) {
+			eics[i]->peaks[j].quality = scorePeak(eics[i]->peaks[j]);
+		}
+	}
+}
 
 float ClassifierNeuralNet::scorePeak(Peak& p) {
    //Merged with Maven776 - Kiran

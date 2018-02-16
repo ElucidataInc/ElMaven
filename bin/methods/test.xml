@@ -22,7 +22,9 @@
 		<minPeakWidth type="int" value="3" />
 		<eicSmoothingWindow type="int" value="20" />
 		<minSignalBaseLineRatio type="float" value="4" />
-		<minSignalBaseLineDifference type="float" value="100" />
+		<minSignalBaselineDifference type="float" value="100" />
+		<minPeakQuality type="float" value="0" />
+		<minIsotopicPeakQuality type="float" value="0" />
 		<quantitationType type="int" value="2" />
 		<minScanMz type="float" value="10.51" />
 		<maxScanMz type="float" value="99.97" />

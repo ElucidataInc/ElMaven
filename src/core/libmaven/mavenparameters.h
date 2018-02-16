@@ -14,8 +14,8 @@
 #include "mzUtils.h"
 #include "Compound.h"
 #include "masscutofftype.h"
+#include "classifierNeuralNet.h"
 
-class Classifier;
 
 class MavenParameters 
 {
@@ -137,8 +137,11 @@ class MavenParameters
         int baseline_smoothingWindow;
         int baseline_dropTopX;
 
+        bool isIsotopeEqualPeakFilter;
         double minSignalBaselineDifference;
         double isotopicMinSignalBaselineDifference;
+        double minPeakQuality;
+        double minIsotopicPeakQuality;
 
         int eicType;
 
@@ -225,7 +228,7 @@ class MavenParameters
         vector<PeakGroup> undoAlignmentGroups;
         int alignButton;
         MassCalculator mcalc;
-        Classifier* clsf;
+        ClassifierNeuralNet* clsf;
         PeakGroup* _group;
         vector<mzSample*> samples;
         vector<Compound*> compounds;
