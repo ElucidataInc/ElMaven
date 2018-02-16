@@ -155,7 +155,7 @@ void TestPeakDetection::testpullIsotopes() {
     peakDetector.pullIsotopes(&parent);
     
     int outlier = 0;
-    for(int i = 0; i < parent.children.size(); i++) 
+    for (int i = 0; i < parent.children.size(); i++) 
     {
         PeakGroup& child = parent.children[i];
         Peak* childPeak = child.getPeak(sample);
@@ -163,4 +163,34 @@ void TestPeakDetection::testpullIsotopes() {
         if (rtDiff > maxRtDiff) outlier++;
     }
     QVERIFY(outlier == 0);
+    
+    //test for different labels
+    mavenparameters->C13Labeled_BPE = true;
+    mavenparameters->N15Labeled_BPE = false;
+    mavenparameters->D2Labeled_BPE = false;
+    mavenparameters->S34Labeled_BPE = true;
+    mavenparameters->minIsotopicCorrelation = 0.2;
+    mavenparameters->maxIsotopeScanDiff = 5;
+    mavenparameters->avgScanTime = 0.2;
+    parent = mavenparameters->allgroups[4];
+
+    peakDetector.pullIsotopes(&parent);
+
+    int N15_BPE = 0;
+    int D2_BPE = 0;
+    int C13_BPE = 0;
+    for (int i = 0; i < parent.children.size(); i++)
+    {
+        PeakGroup& child = parent.children[i];
+        string isotopeName = child.tagString;
+        if (isotopeName.find(N15_LABEL) != string::npos || isotopeName.find(C13N15_LABEL) != string::npos)
+            N15_BPE++;
+        if (isotopeName.find(H2_LABEL) != string::npos || isotopeName.find(C13H2_LABEL) != string::npos)
+            D2_BPE++;
+        if (isotopeName.find(C13_LABEL) != string::npos)
+            C13_BPE++;
+    }
+    QVERIFY(N15_BPE == 0);
+    QVERIFY(D2_BPE == 0);
+    QVERIFY(C13_BPE > 0);
 }
