@@ -1,17 +1,20 @@
 #ifndef TESTCSVREPORTS_H
 #define TESTCSVREPORTS_H
+
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <string.h>
+
+#include "EIC.h"
 #include "common.h"
 #include "mzSample.h"
 #include "csvreports.h"
-#include "mavenparameters.h"
 #include "PeakDetector.h"
-#include "EIC.h"
+#include "mavenparameters.h"
+#include "isotopeDetection.h"
 #include "classifierNeuralNet.h"
 
 

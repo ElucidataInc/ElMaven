@@ -130,7 +130,8 @@ void TestCSVReports::testaddGroups() {
         peakDetector.processCompounds(compounds, "compounds");
     peakDetector.processSlices(slices, "compounds");
     PeakGroup& parent = mavenparameters->allgroups[0];
-    peakDetector.pullIsotopes(&parent);
+    IsotopeDetection isotopeDetection(mavenparameters);
+    isotopeDetection.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
     csvreports->setMavenParameters(mavenparameters);    
