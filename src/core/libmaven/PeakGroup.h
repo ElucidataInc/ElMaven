@@ -61,7 +61,6 @@ class PeakGroup{
         vector<Peak> peaks;
         vector<PeakGroup> children;
         vector<PeakGroup> childrenBarPlot;
-        vector<PeakGroup> childrenIsoWidget;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been 
                                     //used for peak detection
         string srmId;
@@ -194,8 +193,6 @@ class PeakGroup{
 
         inline unsigned int childCountBarPlot() const { return childrenBarPlot.size(); }
 
-        inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
-
         /**
          * [getCompound ]
          * @method getCompound
@@ -262,8 +259,6 @@ class PeakGroup{
         inline void addChild(const PeakGroup& child) { children.push_back(child); children.back().parent = this;   }
 
         inline void addChildBarPlot(const PeakGroup& child) { childrenBarPlot.push_back(child); childrenBarPlot.back().parent = this;   }
-
-        inline void addChildIsoWidget(const PeakGroup& child) { childrenIsoWidget.push_back(child); childrenIsoWidget.back().parent = this;   }
 
         /**
          * [getPeak ]

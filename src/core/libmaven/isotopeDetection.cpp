@@ -432,11 +432,6 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
         PeakGroup& child = (*itr2).second;
         child.metaGroupId = parentgroup->metaGroupId;
 
-        bool C13Flag = _mavenParameters->C13Labeled_BPE;
-        bool N15Flag = _mavenParameters->N15Labeled_BPE;
-        bool S34Flag = _mavenParameters->S34Labeled_BPE;
-        bool D2Flag = _mavenParameters->D2Labeled_BPE;
-
         bool isotopeAdded = addIsotopes(parentgroup, child, isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
         if (!isotopeAdded) continue;
 
@@ -449,31 +444,6 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
         }
 
         if (!childExist) parentgroup->addChild(child);
-    }
-
-    // parentgroup->childrenIsoWidget.clear();
-    for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
-        string isotopeName = (*itr2).first;
-        PeakGroup& child = (*itr2).second;
-        child.metaGroupId = parentgroup->metaGroupId;
-
-        bool C13Flag = _mavenParameters->C13Labeled_IsoWidget;
-        bool N15Flag = _mavenParameters->N15Labeled_IsoWidget;
-        bool S34Flag = _mavenParameters->S34Labeled_IsoWidget;
-        bool D2Flag = _mavenParameters->D2Labeled_IsoWidget;
-
-        bool isotopeAdded = addIsotopes(parentgroup, child, isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
-        if (!isotopeAdded) continue;
-
-        bool childExist = false;
-        for (unsigned int ii = 0; ii < parentgroup->childrenIsoWidget.size(); ii++) {
-            if (parentgroup->childrenIsoWidget[ii].tagString == isotopeName) {
-                childExist = true;
-            }
-        }
-
-        if (!childExist) parentgroup->addChildIsoWidget(child);
-
     }
 
 }
