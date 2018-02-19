@@ -44,13 +44,17 @@ class IsotopeDetection
 					bool N15Flag,
 					bool S34Flag,
 					bool D2Flag);
-	bool addIsotopes(PeakGroup* parentgroup,
-	                  PeakGroup &child,
-    				  string isotopeName,
-					  bool C13Flag,
-					  bool N15Flag,
-					  bool S34Flag,
-					  bool D2Flag);
+
+	void childStatistics(PeakGroup* parentgroup,
+	     				 PeakGroup &child,
+						 string isotopeName);
+
+	bool filterLabel(
+				string isotopeName,
+				bool C13Flag,
+				bool N15Flag,
+				bool S34Flag,
+				bool D2Flag);
 };
 
 #endif // ISOTOPEDETECTION_H

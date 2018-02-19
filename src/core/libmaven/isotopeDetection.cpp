@@ -432,9 +432,9 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
         PeakGroup& child = (*itr2).second;
         child.metaGroupId = parentgroup->metaGroupId;
 
-        bool isotopeAdded = addIsotopes(parentgroup, child, isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
+        childStatistics(parentgroup, child, isotopeName);
+        bool isotopeAdded = filterLabel(isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
         if (!isotopeAdded) continue;
-
 
         bool childExist = false;
         for (unsigned int ii = 0; ii < parentgroup->children.size(); ii++) {
@@ -448,13 +448,10 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
 
 }
 
-bool IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
-                                   PeakGroup &child,
-                                   string isotopeName,
-                                   bool C13Flag,
-                                   bool N15Flag,
-                                   bool S34Flag,
-                                   bool D2Flag)
+void IsotopeDetection::childStatistics(
+                        PeakGroup* parentgroup,
+                        PeakGroup &child,
+                        string isotopeName)
 {
 
     child.tagString = isotopeName;
@@ -479,6 +476,16 @@ bool IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
                        qualityWeight,
                        intensityWeight,
                        deltaRTWeight);
+
+}
+
+bool IsotopeDetection::filterLabel(
+                        string isotopeName,
+                        bool C13Flag,
+                        bool N15Flag,
+                        bool S34Flag,
+                        bool D2Flag)
+{
 
     if (!C13Flag) {
         if (isotopeName.find(C13_LABEL) != string::npos)
