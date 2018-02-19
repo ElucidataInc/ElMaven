@@ -363,6 +363,11 @@ void IsotopeWidget::showTable() {
 
 	double isotopeIntensitySum=0;
     double maxAbundance=0;
+	//link.value1 is abundance
+	//link.value2 is intensity
+	//link.note is isotope label
+	//link.mz2 is isotope m/z
+	//link.mz1 is parent m/z
 	for (unsigned int i = 0; i < isotopeParameters->links.size(); i++) {
 		isotopeIntensitySum += isotopeParameters->links[i].value2;
         if( isotopeParameters->links[i].value1 > maxAbundance) maxAbundance= isotopeParameters->links[i].value1;
