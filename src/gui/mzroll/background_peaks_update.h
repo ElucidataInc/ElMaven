@@ -172,6 +172,8 @@ private:
 	 */
 	void pullIsotopes(PeakGroup *group);
 
+	void pullIsotopesIsoWidget(PeakGroup *group);
+
 	void pullIsotopesBarPlot(PeakGroup *group);
 
 	/**

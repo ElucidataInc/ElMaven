@@ -218,7 +218,12 @@ void IsotopeDetection::pullIsotopesBarPlot(PeakGroup* parentgroup) {
     }
 }
 
-void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
+void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup,
+                                    bool C13Flag,
+                                    bool N15Flag,
+                                    bool S34Flag,
+                                    bool D2Flag)
+{
     // FALSE CONDITIONS
     if (parentgroup == NULL)
         return;
@@ -235,12 +240,27 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
     vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
                                                         _mavenParameters->isotopeAtom, _mavenParameters->noOfIsotopes);
 
-    map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
+    map<string, PeakGroup> isotopes = getIsotopes(parentgroup,
+                                                  masslist,
+                                                  C13Flag,
+                                                  N15Flag,
+                                                  S34Flag,
+                                                  D2Flag);
 
-    addIsotopes(parentgroup, isotopes);
+    addIsotopes(parentgroup,
+                isotopes,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
 }
 
-map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
+map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup,
+                                                     vector<Isotope> masslist,
+                                                     bool C13Flag,
+                                                     bool N15Flag,
+                                                     bool S34Flag,
+                                                     bool D2Flag)
 {
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
@@ -299,10 +319,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
             //so we could just eliminate maxNaturalAbundanceErr parameter in this case
             //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
-            if ((x.C13 > 0 && _mavenParameters->C13Labeled_BPE == false) //if isotope is not C13Labeled
-                    || (x.N15 > 0 && _mavenParameters->N15Labeled_BPE == false) //if isotope is not N15 Labeled
-                    || (x.S34 > 0 && _mavenParameters->S34Labeled_BPE == false) //if isotope is not S34 Labeled
-                    || (x.H2 > 0 && _mavenParameters->D2Labeled_BPE == false) //if isotope is not D2 Labeled
+            if ((x.C13 > 0 && C13Flag == false) //if isotope is not C13Labeled
+                    || (x.N15 > 0 && N15Flag == false) //if isotope is not N15 Labeled
+                    || (x.S34 > 0 && S34Flag == false) //if isotope is not S34 Labeled
+                    || (x.H2 > 0 && D2Flag == false) //if isotope is not D2 Labeled
 
                ) {
                 if (expectedAbundance < 1e-8)
@@ -394,7 +414,12 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
     return isotopes;
 }
 
-void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)
+void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
+                                   map<string, PeakGroup> isotopes,
+                                   bool C13Flag,
+                                   bool N15Flag,
+                                   bool S34Flag,
+                                   bool D2Flag)
 {
 
     //fill peak group list with the compound and its isotopes.

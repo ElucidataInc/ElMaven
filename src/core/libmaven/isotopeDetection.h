@@ -22,14 +22,28 @@ class IsotopeDetection
 	 * @method pullIsotopes
 	 * @param  group        [group]
 	 */
-	void pullIsotopes(PeakGroup *group);
+	void pullIsotopes(PeakGroup *group,
+					  bool C13Flag,
+					  bool N15Flag,
+					  bool S34Flag,
+					  bool D2Flag);
 
 	void pullIsotopesBarPlot(PeakGroup *group);
 
   private:
 	MavenParameters *_mavenParameters;
-	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist);
-	void addIsotopes(PeakGroup *parentgroup, map<string, PeakGroup> isotopes);
+	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup,
+									   vector<Isotope> masslist,
+									   bool C13Flag,
+									   bool N15Flag,
+									   bool S34Flag,
+									   bool D2Flag);
+	void addIsotopes(PeakGroup *parentgroup,
+					 map<string, PeakGroup> isotopes,
+					bool C13Flag,
+					bool N15Flag,
+					bool S34Flag,
+					bool D2Flag);
 	bool addIsotopes(PeakGroup* parentgroup,
 	                  PeakGroup &child,
     				  string isotopeName,
