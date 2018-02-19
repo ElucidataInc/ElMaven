@@ -375,6 +375,7 @@ void IsotopeWidget::showTable() {
 
 	for (unsigned int i = 0; i < isotopeParameters->links.size(); i++) {
 		float frac = 0;
+		if (isotopeParameters->links[i].value2 == 0 && floor(isotopeParameters->links[i].value1 * 1e+6) == 0) continue;
 		if (isotopeIntensitySum > 0)
 			frac = isotopeParameters->links[i].value2 / isotopeIntensitySum
 					* 100;
