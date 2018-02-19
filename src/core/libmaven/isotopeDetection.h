@@ -28,6 +28,7 @@ class IsotopeDetection
 
   private:
 	MavenParameters *_mavenParameters;
+	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist);
 	void addIsotopes(PeakGroup *parentgroup, map<string, PeakGroup> isotopes);
 	bool addIsotopes(PeakGroup* parentgroup,
 	                  PeakGroup &child,

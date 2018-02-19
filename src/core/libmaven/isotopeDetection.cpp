@@ -235,7 +235,13 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
     vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
                                                         _mavenParameters->isotopeAtom, _mavenParameters->noOfIsotopes);
 
+    map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 
+    addIsotopes(parentgroup, isotopes);
+}
+
+map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
 
@@ -385,8 +391,7 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup) {
             vector<Peak>().swap(allPeaks);
         }
     }
-
-    addIsotopes(parentgroup, isotopes);
+    return isotopes;
 }
 
 void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)
