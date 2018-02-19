@@ -361,11 +361,11 @@ void IsotopeWidget::showTable() {
 	p->setUpdatesEnabled(true);
 	p->setSortingEnabled(true);
 
-    double isotopeIntensitySum=0;
-    double maxIntensity=0;
+	double isotopeIntensitySum=0;
+    double maxAbundance=0;
 	for (unsigned int i = 0; i < isotopeParameters->links.size(); i++) {
 		isotopeIntensitySum += isotopeParameters->links[i].value2;
-        if( isotopeParameters->links[i].value1 > maxIntensity) maxIntensity= isotopeParameters->links[i].value1;
+        if( isotopeParameters->links[i].value1 > maxAbundance) maxAbundance= isotopeParameters->links[i].value1;
     }
 
 	for (unsigned int i = 0; i < isotopeParameters->links.size(); i++) {
@@ -381,10 +381,13 @@ void IsotopeWidget::showTable() {
 				5);
 		QString item3 = QString::number(isotopeParameters->links[i].value2, 'f',
 				4);
+		//%labeling
 		QString item4 = QString::number(frac, 'f', 4);
+		//%Expected abundance
 		QString item5 = QString::number(
 				isotopeParameters->links[i].value1 * 100, 'f', 4);
-        QString item6 = QString::number(isotopeParameters->links[i].value1/maxIntensity*100, 'f', 4 );
+		//%Relative abundance
+        QString item6 = QString::number(isotopeParameters->links[i].value1/maxAbundance*100, 'f', 4 );
 
 		item->setText(0, item1);
 		item->setText(1, item2);
