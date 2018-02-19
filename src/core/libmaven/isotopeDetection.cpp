@@ -400,73 +400,16 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
-        child.minQuality = _mavenParameters->minQuality;
-        child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
-        //TODO: isn't this a bug? shouldn't it get a new groupId?
-        child.groupId = parentgroup->groupId;
-        child.compound = parentgroup->compound;
-        child.parent = parentgroup;
-        child.setType(PeakGroup::Isotope);
-        child.groupStatistics();
-        if (_mavenParameters->clsf->hasModel()) {
-            _mavenParameters->clsf->classify(&child);
-            child.groupStatistics();
-        }
 
+        bool C13Flag = _mavenParameters->C13Labeled_BPE;
+        bool N15Flag = _mavenParameters->N15Labeled_BPE;
+        bool S34Flag = _mavenParameters->S34Labeled_BPE;
+        bool D2Flag = _mavenParameters->D2Labeled_BPE;
 
-        float rtDiff = -1;
+        bool isotopeAdded = addIsotopes(parentgroup, child, isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
+        if (!isotopeAdded) continue;
 
-        if (child.compound != NULL && child.compound->expectedRt > 0)
-        {
-            rtDiff = abs(child.compound->expectedRt - (child.meanRt));
-            child.expectedRtDiff = rtDiff;
-        }
-
-        double A = (double) _mavenParameters->qualityWeight/10;
-        double B = (double) _mavenParameters->intensityWeight/10;
-        double C = (double) _mavenParameters->deltaRTWeight/10;
-
-        if (_mavenParameters->deltaRtCheckFlag && child.compound != NULL && child.compound->expectedRt > 0)
-        {
-            child.groupRank = pow(rtDiff, 2*C) * pow((1.1 - child.maxQuality), A)
-                                                  * (1 /( pow(log(child.maxIntensity + 1), B)));
-        }
-        else
-        {
-            child.groupRank = pow((1.1 - child.maxQuality), A)
-                                                  * (1 /(pow(log(child.maxIntensity + 1), B)));
-
-        }
-
-
-        if (!_mavenParameters->C13Labeled_BPE) {
-            if (isotopeName.find(C13_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13N15_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13S34_LABEL) != string::npos)
-                continue;
-        }
-
-        if (!_mavenParameters->N15Labeled_BPE) {
-            if (isotopeName.find(N15_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13N15_LABEL) != string::npos)
-                continue;
-        }
-
-        if (!_mavenParameters->S34Labeled_BPE) {
-            if (isotopeName.find(S34_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13S34_LABEL) != string::npos)
-                continue;
-        }
-
-        if (!_mavenParameters->D2Labeled_BPE) {
-            if (isotopeName.find(H2_LABEL) != string::npos)
-                continue;
-        }
 
         bool childExist = false;
         for (unsigned int ii = 0; ii < parentgroup->children.size(); ii++) {
@@ -482,47 +425,15 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup
     for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
         string isotopeName = (*itr2).first;
         PeakGroup& child = (*itr2).second;
-        child.minQuality = _mavenParameters->minQuality;
-        child.tagString = isotopeName;
         child.metaGroupId = parentgroup->metaGroupId;
-        child.groupId = parentgroup->groupId;
-        child.compound = parentgroup->compound;
-        child.parent = parentgroup;
-        child.setType(PeakGroup::Isotope);
-        child.groupStatistics();
-        
-        if (_mavenParameters->clsf->hasModel()) {
-            _mavenParameters->clsf->classify(&child);
-            child.groupStatistics();
-        }
-        
-        if (!_mavenParameters->C13Labeled_IsoWidget) {
-            if (isotopeName.find(C13_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13N15_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13S34_LABEL) != string::npos)
-                continue;
-        }
-        
-        if (!_mavenParameters->N15Labeled_IsoWidget) {
-            if (isotopeName.find(N15_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13N15_LABEL) != string::npos)
-                continue;
-        }
-        
-        if (!_mavenParameters->S34Labeled_IsoWidget) {
-            if (isotopeName.find(S34_LABEL) != string::npos)
-                continue;
-            else if (isotopeName.find(C13S34_LABEL) != string::npos)
-                continue;
-        }
-        
-        if (!_mavenParameters->D2Labeled_IsoWidget) {
-            if (isotopeName.find(H2_LABEL) != string::npos)
-                continue;
-        }
+
+        bool C13Flag = _mavenParameters->C13Labeled_IsoWidget;
+        bool N15Flag = _mavenParameters->N15Labeled_IsoWidget;
+        bool S34Flag = _mavenParameters->S34Labeled_IsoWidget;
+        bool D2Flag = _mavenParameters->D2Labeled_IsoWidget;
+
+        bool isotopeAdded = addIsotopes(parentgroup, child, isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
+        if (!isotopeAdded) continue;
 
         bool childExist = false;
         for (unsigned int ii = 0; ii < parentgroup->childrenIsoWidget.size(); ii++) {
@@ -534,5 +445,69 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup
         if (!childExist) parentgroup->addChildIsoWidget(child);
 
     }
+
+}
+
+bool IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
+                                   PeakGroup &child,
+                                   string isotopeName,
+                                   bool C13Flag,
+                                   bool N15Flag,
+                                   bool S34Flag,
+                                   bool D2Flag)
+{
+
+    child.tagString = isotopeName;
+    child.groupId = parentgroup->groupId;
+    child.compound = parentgroup->compound;
+    child.parent = parentgroup;
+    child.setType(PeakGroup::Isotope);
+    child.groupStatistics();
+    if (_mavenParameters->clsf->hasModel()) {
+        _mavenParameters->clsf->classify(&child);
+        child.groupStatistics();
+    }
+
+    bool deltaRtCheckFlag = _mavenParameters->deltaRtCheckFlag;
+    float compoundRTWindow = _mavenParameters->compoundRTWindow;
+    int qualityWeight = _mavenParameters->qualityWeight;
+    int intensityWeight = _mavenParameters->intensityWeight;
+    int deltaRTWeight = _mavenParameters->deltaRTWeight;
+
+    child.calGroupRank(deltaRtCheckFlag,
+                       compoundRTWindow,
+                       qualityWeight,
+                       intensityWeight,
+                       deltaRTWeight);
+
+    if (!C13Flag) {
+        if (isotopeName.find(C13_LABEL) != string::npos)
+            return false;
+        else if (isotopeName.find(C13N15_LABEL) != string::npos)
+            return false;
+        else if (isotopeName.find(C13S34_LABEL) != string::npos)
+            return false;
+    }
+
+    if (!N15Flag) {
+        if (isotopeName.find(N15_LABEL) != string::npos)
+            return false;
+        else if (isotopeName.find(C13N15_LABEL) != string::npos)
+            return false;
+    }
+
+    if (!S34Flag) {
+        if (isotopeName.find(S34_LABEL) != string::npos)
+            return false;
+        else if (isotopeName.find(C13S34_LABEL) != string::npos)
+            return false;
+    }
+
+    if (!D2Flag) {
+        if (isotopeName.find(H2_LABEL) != string::npos)
+            return false;
+    }
+
+    return true;
 
 }
