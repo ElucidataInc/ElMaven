@@ -404,7 +404,7 @@ void IsotopeWidget::showTable() {
 	}
 	p->resizeColumnToContents(0);
 	p->setSortingEnabled(true);
-	p->sortByColumn(1, Qt::AscendingOrder);
+	p->sortByColumn(0, Qt::AscendingOrder);
 	p->setUpdatesEnabled(true);
 }
 
