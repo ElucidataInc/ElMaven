@@ -20,10 +20,10 @@ if [ -f ./bin/MavenTests ]; then
 	./bin/MavenTests -xml
 fi
 
-type="$(uname)" 
+type="$(uname)"
 systemType="$(echo "$type"  |  tr '[:upper:]'  '[:lower:]')"
 if [ $systemType == "linux" ] && [ $flag == 10 ]; then
-    lcov --capture --directory ./ --output-file coverage.info
-    genhtml coverage.info --output-directory coverage
+    lcov --capture --directory ./ --output-file ../coverage.info --no-external
+    genhtml ../coverage.info --output-directory ../coverage
 fi
 
