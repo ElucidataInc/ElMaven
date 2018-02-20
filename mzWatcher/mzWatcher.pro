@@ -1,9 +1,9 @@
-include(../mzroll.pri)
+
 
 TEMPLATE = app
 TARGET = mzWatcher
 DESTDIR = ../bin
-
+include(../mzroll.pri)
 CONFIG += warn_off gui network
 #CONFIG += console
 CONFIG -= opengl

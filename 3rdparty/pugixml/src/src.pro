@@ -1,7 +1,6 @@
-include($$mzroll_pri)
-
 MOC_DIR=$$top_builddir/tmp/pugixml/
 OBJECTS_DIR=$$top_builddir/tmp/pugixml/
+include($$mzroll_pri)
 
 DESTDIR=$$top_builddir/libs/
 

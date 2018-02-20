@@ -1,8 +1,6 @@
-include($$mzroll_pri)
-
 MOC_DIR=$$top_builddir/tmp/maven/
 OBJECTS_DIR=$$top_builddir/tmp/maven/
-
+include($$mzroll_pri)
 DESTDIR=$$top_builddir/libs/
 
 QT+= sql network

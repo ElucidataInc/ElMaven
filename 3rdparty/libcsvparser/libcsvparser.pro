@@ -1,9 +1,9 @@
-include($$mzroll_pri)
+
 
 
 MOC_DIR=$$top_builddir/tmp/csv_parser/
 OBJECTS_DIR=$$top_builddir/tmp/csv_parser/
-
+include($$mzroll_pri)
 DESTDIR=$$top_builddir/libs/
 
 TEMPLATE = lib

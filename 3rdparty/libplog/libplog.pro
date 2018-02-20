@@ -1,8 +1,7 @@
-include($$mzroll_pri)
 
 MOC_DIR=$$top_builddir/tmp/plog/
 OBJECTS_DIR=$$top_builddir/tmp/plog/
-
+include($$mzroll_pri)
 DESTDIR=$$top_builddir/libs/
 
 TEMPLATE = lib
