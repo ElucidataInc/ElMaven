@@ -1,9 +1,9 @@
-include($$mzroll_pri)
+
 include(config.pri)
 
 MOC_DIR=$$top_builddir/tmp/pillow/
 OBJECTS_DIR=$$top_builddir/tmp/pillow/
-
+include($$mzroll_pri)
 unix {
     DESTDIR=$$top_builddir/libs/
 }

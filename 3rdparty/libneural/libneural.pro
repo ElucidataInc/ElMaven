@@ -1,8 +1,8 @@
-include($$mzroll_pri)
+
 
 MOC_DIR=$$top_builddir/tmp/neural/
 OBJECTS_DIR=$$top_builddir/tmp/neural/
-
+include($$mzroll_pri)
 DESTDIR=$$top_builddir/libs/
 
 TEMPLATE = lib

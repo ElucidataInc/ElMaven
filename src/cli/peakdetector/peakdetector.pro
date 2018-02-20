@@ -1,9 +1,8 @@
-include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin
 
 MOC_DIR=$$top_builddir/tmp/peakdetector/
 OBJECTS_DIR=$$top_builddir/tmp/peakdetector/
-
+include($$mzroll_pri)
 TEMPLATE = app
 TARGET = peakdetector
 

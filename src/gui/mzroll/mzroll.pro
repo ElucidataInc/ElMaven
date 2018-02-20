@@ -1,8 +1,6 @@
-include($$mzroll_pri)
-
 MOC_DIR=$$top_builddir/tmp/mzroll/
 OBJECTS_DIR=$$top_builddir/tmp/mzroll/
-
+include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
