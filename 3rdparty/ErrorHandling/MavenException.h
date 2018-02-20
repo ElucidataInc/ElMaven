@@ -5,8 +5,29 @@ using namespace std;
 class MavenException: public exception
 {
     public:
-        MavenException(const string& msg): message(msg)
+        enum Error {
+            FileNotFound,
+            UnsupportedFileFormat,
+            ParseError,
+        };
+        MavenException(const Error& err)
         {
+            switch (err) {
+
+                case FileNotFound:  {
+                    message = "File not found";
+                    break;
+                }
+                case UnsupportedFileFormat: {
+                    message = "File format not supported";
+                    break;
+                }
+
+                case ParseError: {
+                    message = "Parisng the file failed";
+                    break;
+                }
+            }
         }
 
         virtual ~MavenException() throw()
