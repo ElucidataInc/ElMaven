@@ -631,6 +631,11 @@ string PeakGroup::getName() {
     if (compound) tag = compound->name;
     if (!tagString.empty()) tag += " | " + tagString;
     if (!srmId.empty()) tag +=  " | " + srmId;
+    if (tag.empty() && meanMz && meanRt) {
+        stringstream stream;
+        stream << fixed << setprecision(6) << meanMz << "@" << setprecision(2) << meanRt;
+        tag = stream.str();
+    }
     if (tag.empty()) tag = integer2string(groupId);
     return tag;
 }

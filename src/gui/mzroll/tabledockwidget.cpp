@@ -326,7 +326,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         group->updateQuality();
         //Added when Merging to Maven776 - Kiran
         if(viewType == groupView) item->setText(10,QString::number(group->maxQuality,'f',2));
-        item->setText(1,groupTagString(group));
+        item->setText(1,QString(group->getName().c_str()));
     }
 
     //Updating the peakid
@@ -443,7 +443,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 
     //Updated when Merging to Maven776 - Kiran
     item->setText(0,QString::number(group->groupId));
-    item->setText(1,groupTagString(group));
+    item->setText(1,QString(group->getName().c_str()));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
     int charge = _mainwindow->mavenParameters->getCharge(group->compound);
 
