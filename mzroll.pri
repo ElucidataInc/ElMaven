@@ -4,6 +4,8 @@ CONFIG(debug, debug|release){
         QMAKE_CCFLAGS+= -fprofile-arcs -ftest-coverage
         QMAKE_CXXFLAGS+= -fprofile-arcs -ftest-coverage
         QMAKE_LFLAGS+= -fprofile-arcs -ftest-coverage
+        MOC_DIR=tmp/
+        OBJECTS_DIR=tmp/
     }
 }
 
