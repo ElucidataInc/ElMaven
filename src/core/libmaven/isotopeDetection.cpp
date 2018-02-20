@@ -442,10 +442,26 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
                 childExist = true;
             }
         }
-
-        if (!childExist) parentgroup->addChild(child);
+        
+        if (!childExist) addChild(parentgroup, child);
     }
 
+}
+
+void IsotopeDetection::addChild(PeakGroup *parentgroup, PeakGroup &child)
+{
+    switch (_isoType)
+    {
+        case IsotopeDetectionType::PeakDetection:
+            parentgroup->addChild(child);
+            break;
+        case IsotopeDetectionType::IsoWidget:
+            parentgroup->addChildIsoWidget(child);
+            break;
+        case IsotopeDetectionType::BarPlot:
+            parentgroup->addChildBarPlot(child);
+            break;        
+    }
 }
 
 void IsotopeDetection::childStatistics(

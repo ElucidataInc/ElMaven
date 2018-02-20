@@ -59,6 +59,8 @@ class IsotopeDetection
 				bool N15Flag,
 				bool S34Flag,
 				bool D2Flag);
+
+	void addChild(PeakGroup *parentgroup, PeakGroup &child);
 };
 
 #endif // ISOTOPEDETECTION_H
