@@ -127,12 +127,12 @@ void PeakDetector::pullAllIsotopes() {
 
             IsotopeDetection isotopeDetection(
                 mavenParameters,
-                isoType);
-            isotopeDetection.pullIsotopes(&group,
-                                          C13Flag,
-                                          N15Flag,
-                                          S34Flag,
-                                          D2Flag);
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+            isotopeDetection.pullIsotopes(&group);
         }
 
         if (compound) {

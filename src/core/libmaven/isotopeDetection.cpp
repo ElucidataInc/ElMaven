@@ -2,17 +2,22 @@
 
 IsotopeDetection::IsotopeDetection(
     MavenParameters *mavenParameters,
-    IsotopeDetectionType isoType)
+    IsotopeDetectionType isoType,
+    bool C13Flag,
+    bool N15Flag,
+    bool S34Flag,
+    bool D2Flag)
 {
     _mavenParameters = mavenParameters;
     _isoType = isoType;
+    _C13Flag = C13Flag;
+    _N15Flag = N15Flag;
+    _S34Flag = S34Flag;
+    _D2Flag = D2Flag;
+
 }
 
-void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup,
-                                    bool C13Flag,
-                                    bool N15Flag,
-                                    bool S34Flag,
-                                    bool D2Flag)
+void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
 {
     // FALSE CONDITIONS
     if (parentgroup == NULL)
@@ -30,27 +35,13 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup,
     vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
                                                         _mavenParameters->isotopeAtom, _mavenParameters->noOfIsotopes);
 
-    map<string, PeakGroup> isotopes = getIsotopes(parentgroup,
-                                                  masslist,
-                                                  C13Flag,
-                                                  N15Flag,
-                                                  S34Flag,
-                                                  D2Flag);
+    map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 
-    addIsotopes(parentgroup,
-                isotopes,
-                C13Flag,
-                N15Flag,
-                S34Flag,
-                D2Flag);
+    addIsotopes(parentgroup, isotopes);
+
 }
 
-map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup,
-                                                     vector<Isotope> masslist,
-                                                     bool C13Flag,
-                                                     bool N15Flag,
-                                                     bool S34Flag,
-                                                     bool D2Flag)
+map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
 {
     //iterate over samples to find properties for parent's isotopes.
     map<string, PeakGroup> isotopes;
@@ -109,10 +100,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup,
             //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
             //so we could just eliminate maxNaturalAbundanceErr parameter in this case
             //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
-            if ((x.C13 > 0 && C13Flag == false) //if isotope is not C13Labeled
-                    || (x.N15 > 0 && N15Flag == false) //if isotope is not N15 Labeled
-                    || (x.S34 > 0 && S34Flag == false) //if isotope is not S34 Labeled
-                    || (x.H2 > 0 && D2Flag == false) //if isotope is not D2 Labeled
+            if ((x.C13 > 0 && _C13Flag == false) //if isotope is not C13Labeled
+                    || (x.N15 > 0 && _N15Flag == false) //if isotope is not N15 Labeled
+                    || (x.S34 > 0 && _S34Flag == false) //if isotope is not S34 Labeled
+                    || (x.H2 > 0 && _D2Flag == false) //if isotope is not D2 Labeled
 
                ) {
                 if (expectedAbundance < 1e-8)
@@ -204,12 +195,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup,
     return isotopes;
 }
 
-void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
-                                   map<string, PeakGroup> isotopes,
-                                   bool C13Flag,
-                                   bool N15Flag,
-                                   bool S34Flag,
-                                   bool D2Flag)
+void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)
 {
 
     map<string, PeakGroup>::iterator itrIsotope;
@@ -220,7 +206,7 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
         child.metaGroupId = index;
 
         childStatistics(parentgroup, child, isotopeName);
-        bool isotopeAdded = filterLabel(isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
+        bool isotopeAdded = filterLabel(isotopeName);
         if (!isotopeAdded) continue;
         
         addChild(parentgroup, child, isotopeName);
@@ -293,15 +279,10 @@ void IsotopeDetection::childStatistics(
 
 }
 
-bool IsotopeDetection::filterLabel(
-                        string isotopeName,
-                        bool C13Flag,
-                        bool N15Flag,
-                        bool S34Flag,
-                        bool D2Flag)
+bool IsotopeDetection::filterLabel(string isotopeName)
 {
 
-    if (!C13Flag) {
+    if (!_C13Flag) {
         if (isotopeName.find(C13_LABEL) != string::npos)
             return false;
         else if (isotopeName.find(C13N15_LABEL) != string::npos)
@@ -310,21 +291,21 @@ bool IsotopeDetection::filterLabel(
             return false;
     }
 
-    if (!N15Flag) {
+    if (!_N15Flag) {
         if (isotopeName.find(N15_LABEL) != string::npos)
             return false;
         else if (isotopeName.find(C13N15_LABEL) != string::npos)
             return false;
     }
 
-    if (!S34Flag) {
+    if (!_S34Flag) {
         if (isotopeName.find(S34_LABEL) != string::npos)
             return false;
         else if (isotopeName.find(C13S34_LABEL) != string::npos)
             return false;
     }
 
-    if (!D2Flag) {
+    if (!_D2Flag) {
         if (isotopeName.find(H2_LABEL) != string::npos)
             return false;
     }

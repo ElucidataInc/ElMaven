@@ -634,12 +634,12 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
 
 	IsotopeDetection isotopeDetection(
                 mavenParameters,
-                isoType);
-	isotopeDetection.pullIsotopes(parentgroup,
-									C13Flag,
-									N15Flag,
-									S34Flag,
-									D2Flag);
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+	isotopeDetection.pullIsotopes(parentgroup);
 }
 
 void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
@@ -653,12 +653,12 @@ void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
 
 	IsotopeDetection isotopeDetection(
                 mavenParameters,
-                isoType);
-	isotopeDetection.pullIsotopes(parentgroup,
-									C13Flag,
-									N15Flag,
-									S34Flag,
-									D2Flag);
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+	isotopeDetection.pullIsotopes(parentgroup);
 }
 
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
@@ -673,12 +673,12 @@ void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
 	IsotopeDetection isotopeDetection(
                 mavenParameters,
-                isoType);
-        isotopeDetection.pullIsotopes(parentgroup,
-									C13Flag,
-									N15Flag,
-									S34Flag,
-									D2Flag);	
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+        isotopeDetection.pullIsotopes(parentgroup);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

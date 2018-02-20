@@ -141,12 +141,12 @@ void TestCSVReports::testaddGroups() {
 
 	IsotopeDetection isotopeDetection(
                 mavenparameters,
-                isoType);
-    isotopeDetection.pullIsotopes(&parent,
-                                  C13Flag,
-                                  N15Flag,
-                                  S34Flag,
-                                  D2Flag);
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+    isotopeDetection.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
     csvreports->setMavenParameters(mavenparameters);    
