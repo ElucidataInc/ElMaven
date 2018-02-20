@@ -675,16 +675,14 @@ void PeakDetectorCLI::saveCSV(string setName) {
     }
 
     if(fileName.empty()) return;
-
-	csvreports->flag = 0;
     
     if (mavenParameters->samples.size() == 0) return;
 
     csvreports->setUserQuantType(quantitationType);
 
     //Added to pass into csvreports file when merged with Maven776 - Kiran
-    bool includeSetNamesLines=true;
-	csvreports->openGroupReport(fileName, includeSetNamesLines);
+    //CLI exports the default Group Summary Matrix Format (without set Names)
+    csvreports->openGroupReport(fileName);
 
     for(int i=0; i<mavenParameters->allgroups.size(); i++ ) {
 		PeakGroup& group = mavenParameters->allgroups[i];

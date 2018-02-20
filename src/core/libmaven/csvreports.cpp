@@ -35,7 +35,7 @@ QString CSVReports::sanitizeString(const char* s) {
     return out;
 }
 
-void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine = false) {
+void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine) {
 
     initialCheck(outputfile);                                                                                               /**@brief-  if number of sample is zero, output file will not open*/
     openGroupReportCSVFile(outputfile);                                                                        /**@brief-  after checking initial check, open output file*/
@@ -75,6 +75,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
                 << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
                 << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" << "parent";
+        int cohort_offset = groupReportcolnames.size() - 1;
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
@@ -82,10 +83,9 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         }
         groupReport << endl;
         //TODO: Remove this to remove row in csv reports --@Giridhari
-        if (includeSetNamesLine && flag){
-            cerr <<"setname: ";
-             for(unsigned int i=0; i < 12; i++) { groupReport << SEP; }
-             for(unsigned int i=0; i< samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
+        if (includeSetNamesLine){
+             for(unsigned int i = 0; i < cohort_offset; i++) { groupReport << SEP; }
+             for(unsigned int i = 0; i < samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
              groupReport << endl;
          }
     }

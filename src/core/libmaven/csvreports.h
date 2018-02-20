@@ -38,7 +38,7 @@ public:
     /**
     * @brief-   open output file in which group info will be written
     */
-    void openGroupReport(string filename,bool includeSetNamesLine);
+    void openGroupReport(string filename,bool includeSetNamesLine = false);
     /**
     * @brief-   open output file in which peak info will be written
     */
@@ -108,7 +108,6 @@ public:
     QString sanitizeString(const char* s);
     ofstream groupReport;       /**@param-  output file for groups report*/
     ofstream peakReport;         /**@param-  output file for peaks report*/
-    int flag=1;                           /**@param-    TODO, not sure what this flag for*/
 private:
     void writeGroupInfo(PeakGroup* group);      /**@brief-  helper function to write group info*/
     void writePeakInfo(PeakGroup* group);           /**@brief-  helper function to write peak info*/

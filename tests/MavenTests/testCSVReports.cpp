@@ -60,7 +60,7 @@ void TestCSVReports::testopenGroupReport() {
     colnames.clear();
     getline(ifile, temp);
     remove(outputfile.c_str());
-    for(unsigned int i=0; i < 14; i++) { colnames << ","; }
+    for(unsigned int i=0; i < 15; i++) { colnames << ","; }
     header = colnames.join("");
     QVERIFY(header.toStdString()==temp);
 }
