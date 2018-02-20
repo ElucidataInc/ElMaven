@@ -28,11 +28,6 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 QString BackgroundPeakUpdate::printSettings() {
 
     QString buffer;
@@ -116,11 +111,6 @@ QString BackgroundPeakUpdate::printSettings() {
     return x;
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 void BackgroundPeakUpdate::saveSettings(QString fileName) {
     QFile file(fileName);
     if ( !file.open(QFile::WriteOnly) )return; //error
@@ -181,11 +171,6 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     file.close();
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 void BackgroundPeakUpdate::loadSettings(QString fileName) {
     QFile file(fileName);
     if ( !file.open(QFile::ReadOnly) )return; //error
@@ -678,13 +663,22 @@ void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
 
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
+	bool C13Flag = mavenParameters->C13Labeled_Barplot;
+	bool N15Flag = mavenParameters->N15Labeled_Barplot;
+	bool S34Flag = mavenParameters->S34Labeled_Barplot;
+	bool D2Flag = mavenParameters->D2Labeled_Barplot;
+
         IsotopeDetection::IsotopeDetectionType isoType;
         isoType = IsotopeDetection::BarPlot;
 
 	IsotopeDetection isotopeDetection(
                 mavenParameters,
                 isoType);
-        isotopeDetection.pullIsotopesBarPlot(parentgroup);
+        isotopeDetection.pullIsotopes(parentgroup,
+									C13Flag,
+									N15Flag,
+									S34Flag,
+									D2Flag);	
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

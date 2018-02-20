@@ -31,8 +31,6 @@ class IsotopeDetection
 					  bool S34Flag,
 					  bool D2Flag);
 
-	void pullIsotopesBarPlot(PeakGroup *group);
-
   private:
 	MavenParameters *_mavenParameters;
 	IsotopeDetectionType _isoType;
@@ -60,7 +58,10 @@ class IsotopeDetection
 				bool S34Flag,
 				bool D2Flag);
 
-	void addChild(PeakGroup *parentgroup, PeakGroup &child);
+	void addChild(PeakGroup *parentgroup, PeakGroup &child, string isotopeName);
+
+	bool checkChildExist(vector<PeakGroup> &children, string isotopeName);
+
 };
 
 #endif // ISOTOPEDETECTION_H
