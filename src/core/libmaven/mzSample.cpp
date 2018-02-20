@@ -1,6 +1,7 @@
 #include "mzSample.h"
 #include "Compound.h"
 #include <MavenException.h>
+#include <Log.h>
 
 //global options
 int mzSample::filter_minIntensity = -1;
@@ -48,11 +49,13 @@ void mzSample::addScan(Scan *s)
 	//skip scans that do not match mslevel
 	if (mzSample::filter_mslevel and s->mslevel != mzSample::filter_mslevel)
 	{
+        LOGD << "failed to add scan: ms levels do not match";
 		return;
 	}
 	//skip scans that do not match polarity
 	if (mzSample::filter_polarity and s->getPolarity() != mzSample::filter_polarity)
 	{
+        LOGD << "failed to add scan: polarity does not match";
 		return;
 	}
 
@@ -162,6 +165,16 @@ void mzSample::loadSample(const char *filename)
 
         loadAnySample(filename);
     }
+    catch (FileException& fexcp) {
+
+        LOGD << static_cast<MavenException*>(&fexcp)->what() << " : " <<  fexcp.what();
+    }
+
+    catch (ParseException& pexcp) {
+
+        LOGD << static_cast<MavenException*>(&pexcp)->what() << " : " << pexcp.what();
+    }
+
     catch(MavenException& excp) {
         LOGD << excp.what();
     }
@@ -188,7 +201,7 @@ void mzSample::parseMzCSV(const char *filename)
 
 	ifstream myfile(filename);
 	if (!myfile.is_open())
-        throw (MavenException::FileNotFound);
+        throw (FileException(FileException::notFound));
 
 
 	std::stringstream ss;
@@ -301,7 +314,7 @@ void mzSample::parseMzML(const char *filename)
     pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
     if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-        throw MavenException(MavenException::ParseError);
+        throw ParseException(ParseException::mzMl);
 //		return;
 	}
 
@@ -328,6 +341,7 @@ void mzSample::parseMzML(const char *filename)
 
 void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 {
+    LOGD << "parsing mzML Injection time stamp";
 	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
 
 	if (!injectionTimeStamp.empty())
@@ -345,6 +359,7 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 
 void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 {
+    LOGD << "parsing MzMl chromatogram list ";
 
 	int scannum = 0;
 	for (xml_node chromatogram = chromatogramList.child("chromatogram");
@@ -434,6 +449,7 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)
 {
 
+    LOGD << "parsing mzML spectrum list ";
 	//Iterate through spectrums
 	int scannum = 0;
 
@@ -552,7 +568,7 @@ void mzSample::parseMzData(const char *filename)
     pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
     if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-        throw (MavenException(MavenException::ParseError));
+        throw (ParseException(ParseException::mzData));
 //		cerr << "Failed to load " << filename << endl;
 //		return;
 	}
@@ -734,7 +750,7 @@ void mzSample::parseMzXML(const char *filename)
         parseMzXMLData(doc, spectrumstore);
     }
     else
-        throw (MavenException::ParseError);
+        throw (ParseException(ParseException::mzXml));
 }
 
 /**

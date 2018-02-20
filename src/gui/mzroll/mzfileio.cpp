@@ -42,7 +42,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
     if (!file.exists() ) { 	//couldn't find this file.. check local directory
-        throw MavenException(MavenException::FileNotFound);
+        return nullptr;
     }
 
     sampleName.replace(QRegExp(".*/"),"");
@@ -479,7 +479,19 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 
 void mzFileIO::run(void) {
 
-    fileImport();
+    try {
+        fileImport();
+    }
+    catch (std::exception& excp) {
+
+        // ask user to send back the logs
+        LOGD << excp.what();
+    }
+    catch (...) {
+        // ask user to send back the logs
+        qDebug() << "uploading samples failed";
+    }
+
 
     quit();
 }
@@ -498,7 +510,7 @@ void mzFileIO::fileImport(void) {
         try {
             QFileInfo fileInfo(filename);
             if (!fileInfo.exists())
-                throw MavenException(MavenException::FileNotFound);
+                throw (FileException(FileException::notFound));
 
             if (isSampleFileType(filename)) {
                 samples << filename;
@@ -510,10 +522,15 @@ void mzFileIO::fileImport(void) {
                 spectralhits << filename;
             }
             else
-                throw MavenException(MavenException::UnsupportedFileFormat);
+                throw (MavenException(MavenException::FormatError));
         }
+
+        catch (FileException& fexcp) {
+            LOGD << filename << " : " << fexcp.what();
+        }
+
         catch (MavenException& excp) {
-            LOGD << excp.what();
+            LOGD << filename << " : " << excp.what();
         }
     }
 
