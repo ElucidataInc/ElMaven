@@ -37,7 +37,7 @@ plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender.
 
 int main(int argc, char *argv[])
 {
-    plog::init(plog::debug, &myAppender); // Initialize the logger with our appender.
+    plog::init(plog::verbose, "/home/rishabh/logging.txt"); // Initialize the logger with our appender.
 
     QApplication app(argc, argv);
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);

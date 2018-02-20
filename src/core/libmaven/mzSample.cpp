@@ -1,5 +1,6 @@
 #include "mzSample.h"
 #include "Compound.h"
+#include <MavenException.h>
 
 //global options
 int mzSample::filter_minIntensity = -1;
@@ -101,6 +102,7 @@ string mzSample::getFileName(const string &filename)
 
 void mzSample::loadAnySample(const char *filename)
 {
+    LOGD << " loading sample " << filename;
 
 	if (mystrcasestr(filename, "mzCSV") != NULL)
 	{
@@ -116,7 +118,7 @@ void mzSample::loadAnySample(const char *filename)
 	}
 	else if (mystrcasestr(filename, "mzml") != NULL)
 	{
-		parseMzML(filename);
+        parseMzML(filename);
 	}
 	else if (mystrcasestr(filename, "cdf") != NULL)
 	{
@@ -155,7 +157,15 @@ void mzSample::loadSample(const char *filename)
 {
 
 	//Loading and Decoding the file
-	loadAnySample(filename);
+    //catch any error while parsing
+    try {
+
+        loadAnySample(filename);
+    }
+    catch(MavenException& excp) {
+        LOGD << excp.what();
+    }
+
 
 	//getting the SRM scan type
 	enumerateSRMScans();
@@ -172,15 +182,14 @@ void mzSample::loadSample(const char *filename)
 
 void mzSample::parseMzCSV(const char *filename)
 {
+    LOGD << "parsing mzCSV: " << filename;
 	// file structure: scannum,rt,mz,intensity,mslevel,precursorMz,polarity,srmid
 	int lineNum = 0;
-	cerr << "Loading " << filename << endl;
+
 	ifstream myfile(filename);
 	if (!myfile.is_open())
-	{
-		cerr << "Can't open file " << filename;
-		return;
-	}
+        throw (MavenException::FileNotFound);
+
 
 	std::stringstream ss;
 	std::string line;
@@ -284,15 +293,16 @@ int mzSample::getPolarity()
 }
 void mzSample::parseMzML(const char *filename)
 {
+    LOGD << "parsing mzMl file: " << filename;
 	xml_document doc;
 
 	const unsigned int parse_options = parse_minimal;
 
-	bool loadok = doc.load_file(filename, parse_options);
-	if (!loadok)
+    pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
+    if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-		cerr << "Failed to load " << filename << endl;
-		return;
+        throw MavenException(MavenException::ParseError);
+//		return;
 	}
 
 	//Get injection time stamp
@@ -534,15 +544,17 @@ map<string, string> mzSample::mzML_cvParams(xml_node node)
 
 void mzSample::parseMzData(const char *filename)
 {
+    LOGD << "parsing mzData: " << filename;
 	xml_document doc;
 
 	const unsigned int parse_options = parse_minimal;
 
-	bool loadok = doc.load_file(filename, parse_options);
-	if (!loadok)
+    pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
+    if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-		cerr << "Failed to load " << filename << endl;
-		return;
+        throw (MavenException(MavenException::ParseError));
+//		cerr << "Failed to load " << filename << endl;
+//		return;
 	}
 
 	//Get a spectrumstore node
@@ -684,7 +696,7 @@ void mzSample::setInstrumentSettigs(xml_document &doc, xml_node spectrumstore)
 
 void mzSample::parseMzXMLData(xml_document &doc, xml_node spectrumstore)
 {
-
+    LOGD << "parsing mzXML data" ;
 	//Iterate through spectrums
 	int scannum = 0;
 
@@ -709,29 +721,20 @@ void mzSample::parseMzXMLData(xml_document &doc, xml_node spectrumstore)
 
 void mzSample::parseMzXML(const char *filename)
 {
+    LOGD << "parsing mzXML: " << filename;
 	xml_document doc;
-	try
-	{
 
-		xml_node spectrumstore = getmzXMLSpectrumData(doc, filename);
+    xml_node spectrumstore = getmzXMLSpectrumData(doc, filename);
 
-		if (!spectrumstore.empty())
-		{
-			//Setting the instrument related information
-			setInstrumentSettigs(doc, spectrumstore);
-			//parse mzXML information from the scan
-			parseMzXMLData(doc, spectrumstore);
-		}
-		else
-		{
-			return;
-		}
-	}
-	catch (char *err)
-	{
-
-		cerr << "Failed to load file: " << filename << " " << err << endl;
-	}
+    if (!spectrumstore.empty())
+    {
+        //Setting the instrument related information
+        setInstrumentSettigs(doc, spectrumstore);
+        //parse mzXML information from the scan
+        parseMzXMLData(doc, spectrumstore);
+    }
+    else
+        throw (MavenException::ParseError);
 }
 
 /**
@@ -890,7 +893,7 @@ void mzSample::populateFilterline(string filterLine, Scan *_scan)
 void mzSample::parseMzXMLScan(const xml_node &scan, int scannum)
 {
 
-	float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;
+    float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;
 	int scanpolarity = 0, msLevel = 1;
 	string filterLine, scanType;
 	vector<float> mzint;
@@ -950,8 +953,12 @@ void mzSample::parseMzXMLScan(const xml_node &scan, int scannum)
 
 	//no m/z intensity values
 	mzint = parsePeaksFromMzXML(scan);
-	if (mzint.empty())
-		return;
+    if (mzint.empty()) {
+        LOGD << " parsing scan number: " << scannum << "failed ";
+        LOGD << " failed to get m/z intensity values";
+
+        return;
+    }
 
 	Scan *_scan = new Scan(this, scannum, msLevel, rt, precursorMz, scanpolarity);
 

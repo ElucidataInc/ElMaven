@@ -42,7 +42,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
     if (!file.exists() ) { 	//couldn't find this file.. check local directory
-        qDebug() << "Can't find file " << filename; return 0;
+        throw MavenException(MavenException::FileNotFound);
     }
 
     sampleName.replace(QRegExp(".*/"),"");
@@ -59,20 +59,18 @@ mzSample* mzFileIO::loadSample(QString filename){
     if (sampleName.isEmpty()) return NULL;
     mzSample* sample = NULL;
 
-    try {
-        if (filename.contains("mzdata",Qt::CaseInsensitive)) {            
-            // mzFileIO::loadPepXML(filename);
-            sample = mzFileIO::parseMzData(filename);
-        } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
-            mzFileIO::ThermoRawFileImport(filename);
-        } else {
-            sample = new mzSample();
-            sample->loadSample( filename.toLatin1().data() );
-            if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
-        }
-    } catch(MavenException& excp) {
-        qDebug() << "mzFileIO::loadSample() " << filename << " failed..";
+    if (filename.contains("mzdata",Qt::CaseInsensitive)) {
+        // mzFileIO::loadPepXML(filename);
+        sample = mzFileIO::parseMzData(filename);
+    } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
+        mzFileIO::ThermoRawFileImport(filename);
+    } else {
+        sample = new mzSample();
+        sample->loadSample( filename.toLatin1().data() );
+        if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
     }
+
+
 
     if ( sample && sample->scans.size() > 0 ) {
         sample->sampleName = string( sampleName.toLatin1().data() );
@@ -480,12 +478,8 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 }
 
 void mzFileIO::run(void) {
-    try {
-        fileImport();
-    }
-    catch (MavenException& excp) {
-        qDebug () << excp.what() ;
-    }
+
+    fileImport();
 
     quit();
 }
@@ -501,20 +495,26 @@ void mzFileIO::fileImport(void) {
     QStringList spectralhits;
 
     Q_FOREACH(QString filename, filelist ) {
-        QFileInfo fileInfo(filename);
-        if (!fileInfo.exists()) continue;
+        try {
+            QFileInfo fileInfo(filename);
+            if (!fileInfo.exists())
+                throw MavenException(MavenException::FileNotFound);
 
-        if (isSampleFileType(filename)) {
-            samples << filename;
-        } else if (isProjectFileType(filename)) {
-            projects << filename;
-        } else if (isPeakListType(filename)) {
-            peaks << filename;
-        } else if (isSpectralHitType(filename)) {
-            spectralhits << filename;
+            if (isSampleFileType(filename)) {
+                samples << filename;
+            } else if (isProjectFileType(filename)) {
+                projects << filename;
+            } else if (isPeakListType(filename)) {
+                peaks << filename;
+            } else if (isSpectralHitType(filename)) {
+                spectralhits << filename;
+            }
+            else
+                throw MavenException(MavenException::UnsupportedFileFormat);
         }
-        else
-            throw MavenException("Incorrect file format");
+        catch (MavenException& excp) {
+            LOGD << excp.what();
+        }
     }
 
     Q_FOREACH(QString filename, projects ) {
@@ -668,7 +668,8 @@ void mzFileIO::readThermoRawFileImport() {
 
 void mzFileIO::addFileToQueue(QString f)
 {
-    if (isKnownFileType(f)) filelist << f;
+//    if (isKnownFileType(f)) filelist << f;
+    filelist << f;
 }
 
 void mzFileIO::removeAllFilefromQueue() {
