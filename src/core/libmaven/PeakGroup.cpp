@@ -628,14 +628,20 @@ void PeakGroup::reorderSamples() {
 
 string PeakGroup::getName() {
     string tag;
+    //compound is assigned in case of targeted search
     if (compound) tag = compound->name;
+    //add isotopic label
     if (!tagString.empty()) tag += " | " + tagString;
+    //add SRM ID for MS/MS data 
     if (!srmId.empty()) tag +=  " | " + srmId;
+    //no compound in case of untargeted peak detection
+    //group is referenced as MeanMz@MeanRT
     if (tag.empty() && meanMz && meanRt) {
         stringstream stream;
         stream << fixed << setprecision(6) << meanMz << "@" << setprecision(2) << meanRt;
         tag = stream.str();
     }
+    //if all else fails, use group ID
     if (tag.empty()) tag = integer2string(groupId);
     return tag;
 }
