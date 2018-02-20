@@ -326,7 +326,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         group->updateQuality();
         //Added when Merging to Maven776 - Kiran
         if(viewType == groupView) item->setText(10,QString::number(group->maxQuality,'f',2));
-        item->setText(1,groupTagString(group));
+        item->setText(1,QString(group->getName().c_str()));
     }
 
     //Updating the peakid
@@ -415,21 +415,6 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
 }
 
 
-QString TableDockWidget::groupTagString(PeakGroup* group){ 
-    if (!group) return QString();
-	QString tag(group->tagString.c_str());
-    if (group->compound) tag = QString(group->compound->name.c_str());
-    //Added when Merging to Maven776 - Kiran
-    if (! group->tagString.empty() and tag.toStdString() != group->tagString) tag += " | " + QString(group->tagString.c_str());
-    if (! group->srmId.empty()) tag +=  " | " + QString(group->srmId.c_str());
-    //Added when Merging to Maven776 - Kiran
-    if ( tag.isEmpty() && group->meanMz > 0) tag = QString::number(group->meanMz,'f',6) + "@" + QString::number(group->meanRt,'f',2);
-    if ( tag.isEmpty() ) tag = QString::number(group->groupId);     
-    return tag;
-
-    qDebug() << "groupTagString() tagString:" << tag;
-}
-
 void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) { 
 
     if (group == NULL) return;
@@ -443,7 +428,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
 
     //Updated when Merging to Maven776 - Kiran
     item->setText(0,QString::number(group->groupId));
-    item->setText(1,groupTagString(group));
+    item->setText(1,QString(group->getName().c_str()));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
     int charge = _mainwindow->mavenParameters->getCharge(group->compound);
 
@@ -1539,7 +1524,7 @@ void TableDockWidget::writeQEInclusionList(QString filename) {
 		out << g->meanRt+window << ",";
 		out << 25 << ",";     //default CE set to 25
 		out << 2  << ",";
-		out << groupTagString(g);
+		out << QString(g->getName().c_str());
 		out << endl;
 	}
     file.close();

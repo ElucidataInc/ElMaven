@@ -245,7 +245,6 @@ private:
     */
     void markv_0_1_5mzroll(QString fileName);
 	  void setupFiltersDialog();
-	  QString groupTagString(PeakGroup* group);
 
           QList<PeakGroup>allgroups;
 

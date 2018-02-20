@@ -290,11 +290,9 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
+    compoundName = sanitizeString(group->getName().c_str()).toStdString();
 
     if (group->compound != NULL) {
-        // TODO: Added this while merging this file
-        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
-        // TODO: Added this while merging this file
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
@@ -356,10 +354,9 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    compoundName = sanitizeString(group->getName().c_str()).toStdString();
 
     if (group->compound != NULL) {
-        // TODO: Added this while merging this file
-        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
     }
