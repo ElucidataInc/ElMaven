@@ -69,9 +69,10 @@ class PeakGroup{
         /** classification label */
         char label;
         /**
-         * [compound name + tagString + srmid]
+         * @brief returns group name
          * @method getName
-         * @return []
+         * @detail returns compound name, tagString, srmID, meanMz@meanRt or groupId in this order of preference
+         * @return string
          */
         string getName();
 
