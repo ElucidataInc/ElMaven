@@ -422,15 +422,12 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup,
                                    bool D2Flag)
 {
 
-    //fill peak group list with the compound and its isotopes.
-    // peak group list would be filled with the parent group, with its isotopes as children
-    // click on + to see children == isotopes
-    // parentgroup->children.clear();
-    map<string, PeakGroup>::iterator itr2;
-    for (itr2 = isotopes.begin(); itr2 != isotopes.end(); ++itr2) {
-        string isotopeName = (*itr2).first;
-        PeakGroup& child = (*itr2).second;
-        child.metaGroupId = parentgroup->metaGroupId;
+    map<string, PeakGroup>::iterator itrIsotope;
+    unsigned int index = 1;
+    for (itrIsotope = isotopes.begin(); itrIsotope != isotopes.end(); ++itrIsotope, index++) {
+        string isotopeName = (*itrIsotope).first;
+        PeakGroup& child = (*itrIsotope).second;
+        child.metaGroupId = index;
 
         childStatistics(parentgroup, child, isotopeName);
         bool isotopeAdded = filterLabel(isotopeName, C13Flag, N15Flag, S34Flag, D2Flag);
