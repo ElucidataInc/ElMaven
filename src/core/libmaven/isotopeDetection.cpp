@@ -1,8 +1,11 @@
 #include "isotopeDetection.h"
 
-IsotopeDetection::IsotopeDetection(MavenParameters *mavenParameters)
+IsotopeDetection::IsotopeDetection(
+    MavenParameters *mavenParameters,
+    IsotopeDetectionType isoType)
 {
     _mavenParameters = mavenParameters;
+    _isoType = isoType;
 }
 
 //TODO: lots of code duplicated between this and PullIsotopes(PeakGroup*). See comments for that function

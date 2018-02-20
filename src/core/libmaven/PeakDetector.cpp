@@ -122,7 +122,12 @@ void PeakDetector::pullAllIsotopes() {
             bool S34Flag = mavenParameters->S34Labeled_BPE;
             bool D2Flag = mavenParameters->D2Labeled_BPE;
 
-            IsotopeDetection isotopeDetection(mavenParameters);
+            IsotopeDetection::IsotopeDetectionType isoType;
+            isoType = IsotopeDetection::PeakDetection;
+
+            IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType);
             isotopeDetection.pullIsotopes(&group,
                                           C13Flag,
                                           N15Flag,

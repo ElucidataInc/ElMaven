@@ -136,7 +136,12 @@ void TestCSVReports::testaddGroups() {
     bool S34Flag = mavenparameters->S34Labeled_BPE;
     bool D2Flag = mavenparameters->D2Labeled_BPE;
 
-    IsotopeDetection isotopeDetection(mavenparameters);
+    IsotopeDetection::IsotopeDetectionType isoType;
+    isoType = IsotopeDetection::PeakDetection;
+
+	IsotopeDetection isotopeDetection(
+                mavenparameters,
+                isoType);
     isotopeDetection.pullIsotopes(&parent,
                                   C13Flag,
                                   N15Flag,

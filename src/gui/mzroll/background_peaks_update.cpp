@@ -643,7 +643,13 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
 	bool N15Flag = mavenParameters->N15Labeled_BPE;
 	bool S34Flag = mavenParameters->S34Labeled_BPE;
 	bool D2Flag = mavenParameters->D2Labeled_BPE;
-	IsotopeDetection isotopeDetection(mavenParameters);
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::PeakDetection;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType);
 	isotopeDetection.pullIsotopes(parentgroup,
 									C13Flag,
 									N15Flag,
@@ -656,7 +662,13 @@ void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
 	bool N15Flag = mavenParameters->N15Labeled_IsoWidget;
 	bool S34Flag = mavenParameters->S34Labeled_IsoWidget;
 	bool D2Flag = mavenParameters->D2Labeled_IsoWidget;
-	IsotopeDetection isotopeDetection(mavenParameters);
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::IsoWidget;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType);
 	isotopeDetection.pullIsotopes(parentgroup,
 									C13Flag,
 									N15Flag,
@@ -665,7 +677,13 @@ void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
 }
 
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
-        IsotopeDetection isotopeDetection(mavenParameters);
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::BarPlot;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType);
         isotopeDetection.pullIsotopesBarPlot(parentgroup);
 }
 

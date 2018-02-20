@@ -15,7 +15,10 @@ using namespace std;
 class IsotopeDetection
 {
   public:
-	IsotopeDetection(MavenParameters *mavenParameters);
+	enum IsotopeDetectionType {PeakDetection=0, IsoWidget=1, BarPlot=2};
+	IsotopeDetection(
+    	MavenParameters *mavenParameters,
+    	IsotopeDetectionType isoType);
 
 	/**
 	 * [pull Isotopes for metabolites]
@@ -32,6 +35,7 @@ class IsotopeDetection
 
   private:
 	MavenParameters *_mavenParameters;
+	IsotopeDetectionType _isoType;
 	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup,
 									   vector<Isotope> masslist,
 									   bool C13Flag,
