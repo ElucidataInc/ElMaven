@@ -159,6 +159,7 @@ void TestPeakDetection::testpullIsotopes() {
     {
         PeakGroup& child = parent.children[i];
         Peak* childPeak = child.getPeak(sample);
+        if (!childPeak) continue;
         float rtDiff = abs(parentRt - childPeak->rt);
         if (rtDiff > maxRtDiff) outlier++;
     }
