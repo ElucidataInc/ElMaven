@@ -325,7 +325,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         clsf->classify(group);
         group->updateQuality();
         //Added when Merging to Maven776 - Kiran
-        if(viewType == groupView) item->setText(10,QString::number(group->maxQuality,'f',2));
+        if(viewType == groupView) item->setText(11,QString::number(group->maxQuality,'f',2));
         item->setText(1,QString(group->getName().c_str()));
     }
 
