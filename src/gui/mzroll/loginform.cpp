@@ -4,7 +4,7 @@
 
 
 LoginForm::LoginForm(MainWindow *parent,PollyIntegration* pollyintegration) :
-    QWidget(parent),
+    QWidget(0),
     ui(new Ui::LoginForm)
 {
     ui->setupUi(this);
@@ -30,14 +30,15 @@ void LoginForm::on_pushButton_clicked()
         // w->hide();
         QMessageBox::information(this,"Login","username and password are correct..logged in");
         qDebug() << "logged in, you can now send data to polly....\n\n";
+        hide();
+        qDebug() << "popup deleted....\n\n";
         _mainwindow->check_polly_login->setText("connected");
         _mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
         // status=1;
         qDebug() << "status changed....\n\n";
-        _pollyintegration->exportData();
+        _pollyintegration->get_project_name();
         qDebug() << "logged in, data sent to polly....\n\n";
-        hide();
-        qDebug() << "popup deleted....\n\n";
+        
         
     }
     else{
