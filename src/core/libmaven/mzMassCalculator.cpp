@@ -87,7 +87,7 @@ double MassCalculator::computeMass(string formula, int charge) {
     return adjustMass(mass, charge);
 }
 
-vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<string, bool> isotopeAtom, int noOfIsotopes) {
+vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<string, bool> isotopeAtom) {
     map<string, int> atoms = getComposition(formula);
     int CatomCount = atoms[C_STRING_ID];
     int NatomCount = atoms[N_STRING_ID];
@@ -99,8 +99,6 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
 
     vector<Isotope> isotopes;
     double parentMass = computeNeutralMass(formula);
-
-    int count1 = 0, count2 = 0;
 
     Isotope parent(C12_PARENT_LABEL, parentMass);
     isotopes.push_back(parent);
@@ -114,10 +112,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
                     double mass = parentMass + (j * N_MASS_DELTA) + (i * C_MASS_DELTA);
                     Isotope x(name, mass, i, j, 0, 0);
                     isotopes.push_back(x);
-                    count1++;
-                    if(count1 >= noOfIsotopes) break;
                 }
-                if(count1 >= noOfIsotopes) break;
             }
         }
 
@@ -128,10 +123,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
                     double mass = parentMass + (j * S_MASS_DELTA) + (i * C_MASS_DELTA);
                     Isotope x(name, mass, i, 0, j, 0);
                     isotopes.push_back(x);
-                    count2++;
-                    if(count2 >= noOfIsotopes) break;
                 }
-                if(count2 >= noOfIsotopes) break;
             }
         }
 
@@ -142,15 +134,12 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
                     double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
                     Isotope x(name, mass, i, 0, 0, j);
                     isotopes.push_back(x);
-                    count2++;
-                    if(count2 >= noOfIsotopes) break;
                 }
-                if(count2 >= noOfIsotopes) break;
             }
         }
 
         if(isotopeAtom["C13Labeled_BPE"]) {
-            for (int i = 1; i <= CatomCount && i <= noOfIsotopes; i++) {
+            for (int i = 1; i <= CatomCount; i++) {
                 Isotope x(C13_LABEL + integer2string(i),
                         parentMass + (i * C_MASS_DELTA), i, 0, 0, 0);
                 isotopes.push_back(x);
@@ -158,7 +147,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
         }
 
         if(isotopeAtom["N15Labeled_BPE"]) {
-            for (int i = 1; i <= NatomCount && i <= noOfIsotopes; i++) {
+            for (int i = 1; i <= NatomCount; i++) {
                 Isotope x(N15_LABEL + integer2string(i),
                         parentMass + (i * N_MASS_DELTA), 0, i, 0, 0);
                 isotopes.push_back(x);
@@ -166,7 +155,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
         }
 
         if(isotopeAtom["S34Labeled_BPE"]) {
-            for (int i = 1; i <= SatomCount && i <= noOfIsotopes; i++) {
+            for (int i = 1; i <= SatomCount; i++) {
                 Isotope x(S34_LABEL + integer2string(i),
                         parentMass + (i * S_MASS_DELTA), 0, 0, i, 0);
                 isotopes.push_back(x);
@@ -174,7 +163,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
         }
 
         if(isotopeAtom["D2Labeled_BPE"]) {
-            for (int i = 1; i <= HatomCount && i <= noOfIsotopes; i++) {
+            for (int i = 1; i <= HatomCount; i++) {
                 Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
                         0, 0, 0, i);
                 isotopes.push_back(x);

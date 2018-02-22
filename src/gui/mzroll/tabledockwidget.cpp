@@ -433,9 +433,9 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     int charge = _mainwindow->mavenParameters->getCharge(group->compound);
 
     if (group->getExpectedMz(charge, 
-            _mainwindow->mavenParameters->isotopeAtom, _mainwindow->mavenParameters->noOfIsotopes) != -1) {
+            _mainwindow->mavenParameters->isotopeAtom) != -1) {
         float mz = group->getExpectedMz(charge, 
-                _mainwindow->mavenParameters->isotopeAtom, _mainwindow->mavenParameters->noOfIsotopes);
+                _mainwindow->mavenParameters->isotopeAtom);
 
         item->setText(3,QString::number(mz,'f', 4));
     } else {

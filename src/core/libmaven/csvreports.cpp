@@ -169,9 +169,7 @@ vector<Isotope> CSVReports::computeIsotopes (PeakGroup* group, int ionizationMod
       MassCalculator *masscalc;
       string formula = group->compound->formula;
       int charge = getMavenParameters()->getCharge(group->compound);
-      vector<Isotope> masslist = masscalc->computeIsotopes(formula,charge,getMavenParameters()->isotopeAtom, 
-                                                                    getMavenParameters()->noOfIsotopes);
-
+      vector<Isotope> masslist = masscalc->computeIsotopes(formula,charge,getMavenParameters()->isotopeAtom);
       return masslist;
 }
 
@@ -298,7 +296,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
             if (group->parent != NULL) {
-                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom, getMavenParameters()->noOfIsotopes),
+                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom),
                 (double) group->meanMz,getMavenParameters()->massCutoffMerge);
             }
             else {
