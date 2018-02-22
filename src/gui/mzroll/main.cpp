@@ -37,9 +37,12 @@ plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender.
 
 int main(int argc, char *argv[])
 {
-    plog::init(plog::verbose, &myAppender); // Initialize the logger with our appender.
 
     QApplication app(argc, argv);
+
+    std::string loggerFile = QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "ElMavenLogger.txt").toStdString();
+    plog::init(plog::verbose, loggerFile.c_str()); // Initialize the logger with our appender.
+
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
     splash.setMask(pixmap.mask());
