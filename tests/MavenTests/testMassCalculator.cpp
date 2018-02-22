@@ -87,7 +87,7 @@ void TestMassCalculator::testComputeIsotopes() {
     isotopeAtom["N15Labeled_BPE"] = true;
     isotopeAtom["S34Labeled_BPE"] = true;
 
-    vector<Isotope> isotopes = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 500);
+    vector<Isotope> isotopes = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
 
     //verify number of isotopes
     QVERIFY(isotopes.size() == 312);
@@ -115,7 +115,7 @@ void TestMassCalculator::testComputeIsotopes() {
     isotopeAtom["N15Labeled_BPE"] = false;
     isotopeAtom["D2Labeled_BPE"] = false;
 
-    vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 200);
+    vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
 
     //verify number of isotopes
     QVERIFY(isotopes1.size() == 26);
@@ -123,7 +123,7 @@ void TestMassCalculator::testComputeIsotopes() {
     //test for isotope detection off
     isotopeAtom["ShowIsotopes"] = false;
 
-    vector<Isotope> isotopes2 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom, 200);
+    vector<Isotope> isotopes2 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
 
     //verify number of isotopes. Only C12 parent should be present
     QVERIFY(isotopes2.size() == 1);

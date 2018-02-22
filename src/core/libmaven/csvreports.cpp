@@ -169,9 +169,7 @@ vector<Isotope> CSVReports::computeIsotopes (PeakGroup* group, int ionizationMod
       MassCalculator *masscalc;
       string formula = group->compound->formula;
       int charge = getMavenParameters()->getCharge(group->compound);
-      vector<Isotope> masslist = masscalc->computeIsotopes(formula,charge,getMavenParameters()->isotopeAtom, 
-                                                                    getMavenParameters()->noOfIsotopes);
-
+      vector<Isotope> masslist = masscalc->computeIsotopes(formula,charge,getMavenParameters()->isotopeAtom);
       return masslist;
 }
 

@@ -413,7 +413,7 @@ double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int n
     if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) {
  
         float mz = 0;
-        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom, noOfIsotopes);
+        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom);
 
         for (unsigned int i = 0; i<masslist.size();i++) {
             if (masslist[i].name == tagString) {
