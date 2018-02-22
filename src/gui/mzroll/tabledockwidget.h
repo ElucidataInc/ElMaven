@@ -100,9 +100,9 @@ public:
     float outputRtWindow = 2.0;
 
 public Q_SLOTS: 
+    void sortChildrenAscending(QTreeWidgetItem* item);
 	  //void showInfo(PeakGroup* group);
-      PeakGroup* addPeakGroup(PeakGroup* group);
-      void sortChildrenAscending(QTreeWidgetItem* item);
+	  PeakGroup* addPeakGroup(PeakGroup* group);
 	  void setupPeakTable();
       void showLog();
 	  PeakGroup* getSelectedGroup();
@@ -123,6 +123,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+      void exportGroupsToSpreadsheet_polly();
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {
