@@ -28,11 +28,6 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 QString BackgroundPeakUpdate::printSettings() {
 
     QString buffer;
@@ -116,11 +111,6 @@ QString BackgroundPeakUpdate::printSettings() {
     return x;
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 void BackgroundPeakUpdate::saveSettings(QString fileName) {
     QFile file(fileName);
     if ( !file.open(QFile::WriteOnly) )return; //error
@@ -181,11 +171,6 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     file.close();
 }
 
-
-/*
-@author: Sahil, Kiran
-*/
-//TODO: Sahil - Kiran, Added while merging mainwindow
 void BackgroundPeakUpdate::loadSettings(QString fileName) {
     QFile file(fileName);
     if ( !file.open(QFile::ReadOnly) )return; //error
@@ -305,6 +290,8 @@ void BackgroundPeakUpdate::run(void) {
                 processMassSlices();
         } else if (runFunction == "pullIsotopes") {
                 pullIsotopes(mavenParameters->_group);
+        } else if (runFunction == "pullIsotopesIsoWidget") {
+                pullIsotopesIsoWidget(mavenParameters->_group);
         } else if (runFunction == "pullIsotopesBarPlot") {
                 pullIsotopesBarPlot(mavenParameters->_group);
         } else if (runFunction == "computePeaks") {
@@ -637,10 +624,61 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
 }
 
 void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
-        peakDetector.pullIsotopes(parentgroup);
+	bool C13Flag = mavenParameters->C13Labeled_BPE;
+	bool N15Flag = mavenParameters->N15Labeled_BPE;
+	bool S34Flag = mavenParameters->S34Labeled_BPE;
+	bool D2Flag = mavenParameters->D2Labeled_BPE;
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::PeakDetection;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+	isotopeDetection.pullIsotopes(parentgroup);
 }
+
+void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
+	bool C13Flag = mavenParameters->C13Labeled_IsoWidget;
+	bool N15Flag = mavenParameters->N15Labeled_IsoWidget;
+	bool S34Flag = mavenParameters->S34Labeled_IsoWidget;
+	bool D2Flag = mavenParameters->D2Labeled_IsoWidget;
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::IsoWidget;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+	isotopeDetection.pullIsotopes(parentgroup);
+}
+
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
-        peakDetector.pullIsotopesBarPlot(parentgroup);
+
+	bool C13Flag = mavenParameters->C13Labeled_Barplot;
+	bool N15Flag = mavenParameters->N15Labeled_Barplot;
+	bool S34Flag = mavenParameters->S34Labeled_Barplot;
+	bool D2Flag = mavenParameters->D2Labeled_Barplot;
+
+        IsotopeDetection::IsotopeDetectionType isoType;
+        isoType = IsotopeDetection::BarPlot;
+
+	IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+        isotopeDetection.pullIsotopes(parentgroup);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

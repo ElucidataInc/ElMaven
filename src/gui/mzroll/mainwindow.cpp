@@ -3743,11 +3743,6 @@ void MainWindow::dropEvent(QDropEvent *event) {
     fileLoader->start();
  }
 
-
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added this while merging mzfileio
 mzSample* MainWindow::getSampleByName(QString name) {
 
     //perfect matching

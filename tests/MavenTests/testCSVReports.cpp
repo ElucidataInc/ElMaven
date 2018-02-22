@@ -130,7 +130,23 @@ void TestCSVReports::testaddGroups() {
         peakDetector.processCompounds(compounds, "compounds");
     peakDetector.processSlices(slices, "compounds");
     PeakGroup& parent = mavenparameters->allgroups[0];
-    peakDetector.pullIsotopes(&parent);
+
+    bool C13Flag = mavenparameters->C13Labeled_BPE;
+    bool N15Flag = mavenparameters->N15Labeled_BPE;
+    bool S34Flag = mavenparameters->S34Labeled_BPE;
+    bool D2Flag = mavenparameters->D2Labeled_BPE;
+
+    IsotopeDetection::IsotopeDetectionType isoType;
+    isoType = IsotopeDetection::PeakDetection;
+
+	IsotopeDetection isotopeDetection(
+                mavenparameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+    isotopeDetection.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
     csvreports->setMavenParameters(mavenparameters);    

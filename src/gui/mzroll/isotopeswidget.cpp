@@ -19,7 +19,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	MavenParameters* mavenParameters = mw->mavenParameters;
 
 	workerThread = new BackgroundPeakUpdate(mw);
-	workerThread->setRunFunction("pullIsotopes");
+	workerThread->setRunFunction("pullIsotopesIsoWidget");
 	workerThread->setMainWindow(mw);
 
 	workerThread->setMavenParameters(mavenParameters);

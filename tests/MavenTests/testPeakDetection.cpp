@@ -129,7 +129,17 @@ void TestPeakDetection::testpullIsotopes() {
     peakDetector.processSlices(slices, "compounds");
     
     PeakGroup& parent = mavenparameters->allgroups[0];
-    peakDetector.pullIsotopes(&parent);
+
+    IsotopeDetection isotopeDetection1(
+        mavenparameters,
+        IsotopeDetection::PeakDetection,
+        mavenparameters->C13Labeled_BPE,
+        mavenparameters->N15Labeled_BPE,
+        mavenparameters->S34Labeled_BPE,
+        mavenparameters->D2Labeled_BPE
+    );
+
+    isotopeDetection1.pullIsotopes(&parent);
     
     //verify number of isotopes
     QVERIFY(parent.childCount() == 7);
@@ -137,7 +147,17 @@ void TestPeakDetection::testpullIsotopes() {
     //verify if isotopic correlation filter works
     mavenparameters->minIsotopicCorrelation = 1;
     parent = mavenparameters->allgroups[1];
-    peakDetector.pullIsotopes(&parent);
+
+    IsotopeDetection isotopeDetection2(
+        mavenparameters,
+        IsotopeDetection::PeakDetection,
+        mavenparameters->C13Labeled_BPE,
+        mavenparameters->N15Labeled_BPE,
+        mavenparameters->S34Labeled_BPE,
+        mavenparameters->D2Labeled_BPE
+    );
+
+    isotopeDetection2.pullIsotopes(&parent);
 
     //childCount for this group is 3 for minIsotopicCorrelation = 0.2
     QVERIFY(parent.childCount() == 1);
@@ -151,8 +171,17 @@ void TestPeakDetection::testpullIsotopes() {
     Peak* parentPeak = parent.getPeak(sample);
     float parentRt = parentPeak->rt;
     float maxRtDiff = mavenparameters->maxIsotopeScanDiff*mavenparameters->avgScanTime;
-    
-    peakDetector.pullIsotopes(&parent);
+
+    IsotopeDetection isotopeDetection3(
+        mavenparameters,
+        IsotopeDetection::PeakDetection,
+        mavenparameters->C13Labeled_BPE,
+        mavenparameters->N15Labeled_BPE,
+        mavenparameters->S34Labeled_BPE,
+        mavenparameters->D2Labeled_BPE
+    );
+
+    isotopeDetection3.pullIsotopes(&parent);
     
     int outlier = 0;
     for (int i = 0; i < parent.children.size(); i++) 
@@ -175,7 +204,16 @@ void TestPeakDetection::testpullIsotopes() {
     mavenparameters->avgScanTime = 0.2;
     parent = mavenparameters->allgroups[4];
 
-    peakDetector.pullIsotopes(&parent);
+    IsotopeDetection isotopeDetection4(
+        mavenparameters,
+        IsotopeDetection::PeakDetection,
+        mavenparameters->C13Labeled_BPE,
+        mavenparameters->N15Labeled_BPE,
+        mavenparameters->S34Labeled_BPE,
+        mavenparameters->D2Labeled_BPE
+    );
+
+    isotopeDetection4.pullIsotopes(&parent);
 
     int N15_BPE = 0;
     int D2_BPE = 0;

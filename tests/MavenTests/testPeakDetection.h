@@ -1,14 +1,17 @@
 #ifndef TESTPEAKDETECTION_H
 #define TESTPEAKDETECTION_H
+
 #include <iostream>
 #include <QtTest>
 #include <string>
 #include <sstream>
+
+#include "EIC.h"
 #include "common.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"
-#include "EIC.h"
+#include "isotopeDetection.h"
 #include "classifierNeuralNet.h"
 
 class TestPeakDetection : public QObject {
