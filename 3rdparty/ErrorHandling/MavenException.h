@@ -1,5 +1,6 @@
 #include <exception>
 #include <map>
+#include <string>
 
 struct ErrorCodes
 {
