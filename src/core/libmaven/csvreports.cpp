@@ -296,7 +296,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
             if (group->parent != NULL) {
-                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom, getMavenParameters()->noOfIsotopes),
+                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, getMavenParameters()->isotopeAtom),
                 (double) group->meanMz,getMavenParameters()->massCutoffMerge);
             }
             else {

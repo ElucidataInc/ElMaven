@@ -91,7 +91,6 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         maxIsotopeScanDiff = 10;
         maxNaturalAbundanceErr = 100;
         minIsotopicCorrelation = 0;
-        noOfIsotopes = 1000000;
         isotopeC13Correction = 0;
 
 	C13Labeled_BPE = false;

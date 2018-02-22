@@ -140,7 +140,7 @@ void IsotopeWidget::computeIsotopes(string f) {
 	bool originalShowIsotopes=_mw->mavenParameters->isotopeAtom["ShowIsotopes"];
 	_mw->mavenParameters->isotopeAtom["ShowIsotopes"]=true;
 	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
-												_mw->mavenParameters->isotopeAtom, _mw->mavenParameters->noOfIsotopes);
+												_mw->mavenParameters->isotopeAtom);
 	/**
 	 * restore _mw->mavenParameters->isotopeAtom["ShowIsotopes"] to it's orignal value now.
 	 */

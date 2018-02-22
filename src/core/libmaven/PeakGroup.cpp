@@ -408,7 +408,7 @@ void PeakGroup::updateQuality() {
     }
 }
 
-double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom, int noOfIsotopes) {
+double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom) {
 
     if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) {
  
