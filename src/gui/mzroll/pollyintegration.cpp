@@ -1,6 +1,4 @@
 #include "pollyintegration.h"
-#include <QMessageBox>
-#include <QObject>
 
 PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget)
 {
@@ -16,123 +14,6 @@ PollyIntegration::~PollyIntegration()
 {
     qDebug()<<"exiting PollyIntegration now....";
 }
-
-
-
-
-
-void PollyIntegration::exportGroupsToSpreadsheet_polly() {
-    qDebug()<<"inside exportGroupsToSpreadsheet_polly now.......";
-    // LOGD;
-    // //Merged to Maven776 - Kiran
-    // // CSVReports* csvreport = new CSVReports;
-    // vector<mzSample*> samples = _mainwindow->getSamples();
-    // CSVReports* csvreports = new CSVReports(samples);
-    // csvreports->setMavenParameters(_mainwindow->mavenParameters);
-    // if (allgroups.size() == 0 ) {
-    //     QString msg = "Peaks Table is Empty";
-    //     QMessageBox::warning(this, tr("Error"), msg);
-    //     return;
-    // }
-
-    // QString dir = ".";
-    // QSettings* settings = _mainwindow->getSettings();
-
-    // if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
-
-    // QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
-    // QString groupsSTAB = "Groups Summary Matrix Format Without Set Name (*.tab)";    
-    // QString peaksTAB =  "Peaks Detailed Format (*.tab)";
-    // QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-    // QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited Without Set Name (*.csv)";
-    // QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
-    // //Added when Merging to Maven776 - Kiran
-    // QString peaksListQE= "Inclusion List QE (*.csv)";
-    // QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
-
-    // QString sFilterSel = groupsCSV;
-    // QDir().mkdir(dir+QString("/tmp_files"));
-    // QString fileName = dir+QString("/tmp_files/export_all_groups.csv");
-    // qDebug()<<"saving exported files to this dir...."<<fileName;
-    // // QString fileName = QFileDialog::getSaveFileName(this, 
-    // //         tr("Export Groups"), dir, 
-    // //         groupsTAB + ";;" + groupsSTAB + ";;" + peaksTAB + ";;" + groupsCSV + ";;" + groupsSCSV + ";;" + peaksCSV + ";;" + peaksListQE + ";;" + mascotMGF,
-    // //         &sFilterSel);
-
-    // if(fileName.isEmpty()) return;
-
-    // if ( sFilterSel == groupsCSV || sFilterSel == peaksCSV) {
-    //     if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
-    // }
-    // if ( sFilterSel == groupsSCSV) {
-    //     if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
-    //     cerr <<"csv without:";
-    //     csvreports->flag = 0;
-    //     cerr <<"csv without:1";
-    // }
-    // if ( sFilterSel == groupsTAB || sFilterSel == peaksTAB) {
-    //     if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
-    // }
-    // if ( sFilterSel == groupsSTAB) {
-    //     cerr <<"tab without:";
-    //     if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
-    //     csvreports->flag = 0;
-    //     cerr <<"tab without:1";
-    // }
-    
-    // if ( samples.size() == 0) return;
-
-    // //Added when Merging to Maven776 - Kiran
-    // if (sFilterSel == peaksListQE ) { 
-    //     writeQEInclusionList(fileName); 
-    //     return;
-    // } else if (sFilterSel == mascotMGF ) {
-    //     writeMascotGeneric(fileName);
-    //     return;
-    // }
-
-   
-    // csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
-
-    // //Added to pass into csvreports file when merged with Maven776 - Kiran
-    // bool includeSetNamesLines=true;
-
-    // if (sFilterSel == groupsCSV) {
-    //     csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    // } else if (sFilterSel == groupsTAB )  {
-    //     csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    // } else if (sFilterSel == peaksCSV )  {
-    //     csvreports->openPeakReport(fileName.toStdString());
-    // } else if (sFilterSel == peaksTAB )  {
-    //     csvreports->openPeakReport(fileName.toStdString());
-    // } else {    //default to group summary
-    //     //Updated when csvreports file was merged with Maven776 - Kiran
-    //     csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    // }
-
-    // QList<PeakGroup*> selectedGroups = getSelectedGroups();
-    // csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
-
-    // for(int i=0; i<allgroups.size(); i++ ) {
-    //     if (selectedGroups.contains(&allgroups[i])) {
-    //         PeakGroup& group = allgroups[i];
-    //         csvreports->addGroup(&group);
-    //     }
-    // }
-    // csvreports->closeFiles();
-
-    // if (csvreports->getErrorReport() != "") {
-    //     QMessageBox msgBox(_mainwindow);
-    //     msgBox.setIcon(QMessageBox::Critical);
-    //     msgBox.setText(csvreports->getErrorReport());
-    //     msgBox.exec();
-    // }
-    qDebug()<<"hopefully the csv files are saved now..";
-    // QDir qdir(dir+QString("/tmp_files/"));
-    // qdir.removeRecursively();
-    
-}
-
 
 QByteArray PollyIntegration::run_qt_process(QString command){
     qDebug() << "command -   " << command;
@@ -212,20 +93,30 @@ QStringList PollyIntegration::get_system_urls(QString filename){
 
 QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2,QStringList filenames){
     QStringList upload_commands ;
+    qDebug()<<"filenames inside get_project_upload_url_commands  "<<filenames;
     qDebug()<<"result2  "<<result2;
+
     QList<QByteArray> test_list = result2.split('\n');
     int size = test_list.size();
     QByteArray url_jsons = test_list[size-2];
-    qDebug()<<"url_jsons  "<<url_jsons;
+    // qDebug()<<"url_jsons  "<<url_jsons;
     QJsonDocument doc(QJsonDocument::fromJson(url_jsons));
     // Get JSON object
     QJsonObject json = doc.object();
     QVariantMap json_map = json.toVariantMap();
-    QString url_with_wildcard =  json_map["file_upload_urls"].toString();
+    // QString url_with_wildcard =  json_map["file_upload_urls"].toString();
     for (int i=0; i < filenames.size(); ++i){
         QString filename = filenames.at(i);
-        QString random_filename = "demo_file_name.json";
-        QString url_map_json = url_with_wildcard.replace("*",random_filename) ;
+        // QString random_filename = filename;
+        
+        QStringList test_files_list = filename.split('/');
+        int size = test_files_list.size();
+        QString new_filename = test_files_list[size-1];
+        qDebug()<<"new_filename  "<<new_filename;
+        QString url_with_wildcard =  json_map["file_upload_urls"].toString();
+        qDebug()<<" url_with_wildcard  "<<url_with_wildcard;
+        QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
+        qDebug()<<"url_map_json  "<<url_map_json;
         QString command= QString("mithoo upload_project_data \"%1\" \"%2\"").arg(url_map_json).arg(filename);
         upload_commands.append(command);
         
@@ -276,10 +167,12 @@ void PollyIntegration::transferData(){
     if (status==0){
         qDebug()<<"not logged in....";
         login_user();
+        // get_project_name();
     }
     else {
         qDebug("user is already logged in... sending data to polly now..");
-        exportData();
+        get_project_name();
+        // exportData();
     }
 
 
@@ -295,13 +188,61 @@ void PollyIntegration::login_user(){
     
     // QEventLoop loop;
 }
-void PollyIntegration::exportData() {
+
+void PollyIntegration::get_project_name(){
+    qDebug()<<"inside get_project_name now...";
+    ProjectForm *popup=new ProjectForm(_tableDockWidget->_mainwindow,this);
+    qDebug()<< "calling popup.show now........";
+    popup->show();
+    // connect(w,SIGNAL(),&loop,SLOT(quit()));
+    
+    // QEventLoop loop;
+}
+
+QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
+    QVariantMap user_projects;
+    QList<QByteArray> test_list = result2.split('\n');
+    // qDebug()<<" test_list "<<test_list;
+    int size = test_list.size();
+    QByteArray result_jsons = test_list[size-2];
+    // qDebug()<<" result_jsons "<<result_jsons;
+    QJsonDocument doc(QJsonDocument::fromJson(result_jsons));
+    // Get JSON object
+    // qDebug()<<"is array - "<<doc.isArray();
+    // qDebug()<<"is object - "<<doc.isObject();
+    QJsonArray json_array = doc.array();
+    for (int i=0; i < json_array.size(); ++i){
+        QJsonValue project_json = json_array.at(i);
+        QJsonObject project_json_object = project_json.toObject();
+        // qDebug()<<"  project_json object"<<project_json.toObject();
+        QVariantMap project_json_object_map = project_json_object.toVariantMap();
+        user_projects[project_json_object_map["id"].toString()] = project_json_object_map["name"].toString();
+    }
+    // QJsonObject json = doc.object();
+    // QVariantMap json_map = json.toVariantMap();
+    // QString url_with_wildcard =  json_map["file_upload_urls"].toString()
+    // qDebug()<<" json_map.keys() "<<json_map.keys();
+    // QVariantMap user_projects;
+    // user_projects["506"] = "new_get_project1";
+    // user_projects["507"] = "new_get_project2";
+    return user_projects;
+}
+
+QVariantMap PollyIntegration::getUserProjects(){
+    // qDebug()<<"inside getUserProject() now...";
+    QString get_projects_command = QString("mithoo get_Project_names");
+    QByteArray result2 = run_qt_process(get_projects_command);
+    QVariantMap user_projects = getUserProjectsMap(result2);
+    return user_projects;
+}
+
+QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     QList<PeakGroup> allgroups =  _tableDockWidget->getAllGroups();
     
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty, can't export to POLLY";
         QMessageBox::warning(_tableDockWidget, "Error", msg);
-        return;
+        return QString("None");
     }
 
     /**
@@ -326,6 +267,7 @@ void PollyIntegration::exportData() {
     // qDebug()<<"fileName - "<<fileName;
     QDir qdir(dir+QString("/tmp_files/"));
     if (!qdir.exists()){
+    qDebug()<<"making the temp dir";
      QDir().mkdir(dir+QString("/tmp_files"));   
      QDir qdir(dir+QString("/tmp_files/"));
     }
@@ -340,7 +282,7 @@ void PollyIntegration::exportData() {
     qDebug()<<"filenames   "<<filenames;
     // QDir().mkdir(dir+QString("/tmp_files"));
     QString jsonfileName = dir+QString("/tmp_files/export_json.json");
-    if (jsonfileName.isEmpty()) return;
+    if (jsonfileName.isEmpty()) return QString("None");
     if(!jsonfileName.endsWith(".json",Qt::CaseInsensitive)) jsonfileName = jsonfileName + ".json";
     saveJson * jsonSaveThread = new saveJson();
     jsonSaveThread->setMainwindow(_tableDockWidget->_mainwindow);
@@ -349,9 +291,16 @@ void PollyIntegration::exportData() {
     jsonSaveThread->start();
     filenames.append(jsonfileName);
     // QString command2 = QString("mithoo createRun %1 %2 %3 %4").arg("sampleqc_uploader").arg("22").arg("129").arg("exp_name");
-    QString command2 = QString("mithoo createProject %1").arg("demo_Elmaven_Polly_project_internal");
-    QByteArray result1 = run_qt_process(command2);
-    QString run_id = get_run_id(result1);
+    qDebug()<<"ProjectId    "<<ProjectId;
+    QString run_id;
+    if (ProjectId==""){
+        QString command2 = QString("mithoo createProject %1").arg(projectname);
+        QByteArray result1 = run_qt_process(command2);
+        run_id = get_run_id(result1);
+    }
+    else{
+        run_id = ProjectId;
+    }
     // QString filename = "test_postrun.txt";
     // QString postrun_command = QString("mithoo postRun --file_name '{\"%1\":\"%2\",\"%3\" :\"%4\"}' --sub_component SampleQC --id %5 --\"file_type\" raw_input_files > %6").arg("sample_cohort").arg("sample-cohort.csv").arg("lcms_conv").arg("intensity.csv").arg(run_id).arg(filename);
     QString get_upload_Project_urls = QString("mithoo get_upload_Project_urls --id %1").arg(run_id);
@@ -359,6 +308,7 @@ void PollyIntegration::exportData() {
     QStringList upload_project_data_commands = get_project_upload_url_commands(result2,filenames);
     // run_system_process(postrun_command);
     // QStringList put_commands = get_system_urls(filename);
+    qDebug()<<"upload_project_data_commands  "<<upload_project_data_commands;
     for (int i = 0; i < upload_project_data_commands.size(); ++i){
         QString command = upload_project_data_commands.at(i);    
         QByteArray patch_id_result = run_qt_process(command);
@@ -368,8 +318,10 @@ void PollyIntegration::exportData() {
     
     qdir.removeRecursively();
     qDebug()<<"removed the tmp dir ..";
+
     // QString command5 = QString(" mithoo createPatchRequest %1").arg(run_id);
     // run_qt_process(command5);
     qDebug()<<" All 5 commands completed\n";
+    return run_id;
 
 }
