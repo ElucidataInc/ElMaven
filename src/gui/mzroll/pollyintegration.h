@@ -2,6 +2,7 @@
 #define POLLYINTEGRATION_H
 
 #include <loginform.h>
+#include <projectform.h>
 #include <tabledockwidget.h>
 #include "saveJson.h"
 // class TableDockWidget;
@@ -25,8 +26,11 @@ class PollyIntegration
 	    int authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 	    void transferData();
-	    void exportData();
+	    QString exportData(QString projectname,QString ProjectId);
+	    void get_project_name();
 		void login_user();
+		QVariantMap getUserProjects();
+		QVariantMap getUserProjectsMap(QByteArray result2);
 	private:
 		TableDockWidget* _tableDockWidget;
 };
