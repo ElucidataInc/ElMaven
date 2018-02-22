@@ -20,7 +20,7 @@
    <string>Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -716,29 +716,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="6">
-           <widget class="QLabel" name="label_26">
-            <property name="text">
-             <string>Abundance Threshold</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxAbThresh">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>100.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
@@ -748,10 +725,10 @@
           <string>Filter Isotopic Peaks based on these criteria</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_11">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_26">
             <property name="text">
-             <string>Isotope is within [X] scans of parent</string>
+             <string>Abundance Threshold</string>
             </property>
            </widget>
           </item>
@@ -762,10 +739,10 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
             <property name="text">
-             <string>Minimum Isotope-parent correlation</string>
+             <string>Isotope is within [X] scans of parent</string>
             </property>
            </widget>
           </item>
@@ -791,6 +768,39 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="minIsotopicCorrelation">
+            <property name="showGroupSeparator" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <double>-1.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value">
+             <double>0.200000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Minimum Isotope-parent correlation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QCheckBox" name="isotopeC13Correction">
+            <property name="text">
+             <string>Correct for Natural C13 Isotope Abundance</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="maxIsotopeScanDiff">
             <property name="suffix">
@@ -807,26 +817,19 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QCheckBox" name="isotopeC13Correction">
-            <property name="text">
-             <string>Correct for Natural C13 Isotope Abundance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="minIsotopicCorrelation">
-            <property name="minimum">
-             <double>-1.000000000000000</double>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxAbThresh">
+            <property name="decimals">
+             <number>1</number>
             </property>
             <property name="maximum">
-             <double>1.000000000000000</double>
+             <double>100.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>0.500000000000000</double>
             </property>
             <property name="value">
-             <double>0.200000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -1404,7 +1407,6 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
   <tabstop>ionizationMode</tabstop>
   <tabstop>amuQ1</tabstop>
   <tabstop>ionizationType</tabstop>
@@ -1422,6 +1424,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>grouping_maxRtWindow</tabstop>
   <tabstop>baseline_quantile</tabstop>
   <tabstop>baseline_smoothing</tabstop>
+  <tabstop>isIsotopeEqualPeakFilter</tabstop>
+  <tabstop>minSignalBaselineDifference</tabstop>
+  <tabstop>minPeakQuality</tabstop>
+  <tabstop>isotopicMinSignalBaselineDifference</tabstop>
+  <tabstop>minIsotopicPeakQuality</tabstop>
   <tabstop>D2Labeled_BPE</tabstop>
   <tabstop>C13Labeled_BPE</tabstop>
   <tabstop>N15Labeled_BPE</tabstop>
@@ -1436,23 +1443,19 @@ p, li { white-space: pre-wrap; }
   <tabstop>S34Labeled_IsoWidget</tabstop>
   <tabstop>minIsotopicCorrelation</tabstop>
   <tabstop>maxIsotopeScanDiff</tabstop>
+  <tabstop>doubleSpinBoxAbThresh</tabstop>
   <tabstop>maxNaturalAbundanceErr</tabstop>
   <tabstop>isotopeC13Correction</tabstop>
   <tabstop>eicTypeComboBox</tabstop>
-  <tabstop>formulaWithOverlap</tabstop>
-  <tabstop>formulaWithoutOverlap</tabstop>
   <tabstop>useOverlap</tabstop>
   <tabstop>distXSlider</tabstop>
   <tabstop>distYSlider</tabstop>
   <tabstop>overlapSlider</tabstop>
-  <tabstop>formulaWithRt</tabstop>
-  <tabstop>formulaWithoutRt</tabstop>
   <tabstop>deltaRTCheck</tabstop>
   <tabstop>qualityWeight</tabstop>
   <tabstop>intensityWeight</tabstop>
   <tabstop>deltaRTWeight</tabstop>
   <tabstop>data_server_url</tabstop>
-  <tabstop>fetchCompounds</tabstop>
   <tabstop>methodsFolderSelect</tabstop>
   <tabstop>methodsFolder</tabstop>
   <tabstop>pathwaysFolderSelect</tabstop>
@@ -1463,6 +1466,12 @@ p, li { white-space: pre-wrap; }
   <tabstop>RawExtractProgram</tabstop>
   <tabstop>RProgramSelect</tabstop>
   <tabstop>Rprogram</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>formulaWithOverlap</tabstop>
+  <tabstop>fetchCompounds</tabstop>
+  <tabstop>formulaWithoutRt</tabstop>
+  <tabstop>formulaWithRt</tabstop>
+  <tabstop>formulaWithoutOverlap</tabstop>
  </tabstops>
  <resources>
   <include location="../mzroll.qrc"/>
