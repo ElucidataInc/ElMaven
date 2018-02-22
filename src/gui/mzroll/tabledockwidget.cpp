@@ -788,6 +788,74 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     }
 }
 
+
+
+
+void TableDockWidget::exportGroupsToSpreadsheet_polly() {
+    qDebug()<<"inside exportGroupsToSpreadsheet_polly now.......";
+    // LOGD;
+    // //Merged to Maven776 - Kiran
+    // // CSVReports* csvreport = new CSVReports;
+    vector<mzSample*> samples = _mainwindow->getSamples();
+    CSVReports* csvreports = new CSVReports(samples);
+    csvreports->setMavenParameters(_mainwindow->mavenParameters);
+    
+    if (allgroups.size() == 0 ) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+
+    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
+
+    QString sFilterSel = "Groups Summary Matrix Format Comma Delimited (*.csv)";
+    QDir().mkdir(dir+QString("/tmp_files"));
+    QString fileName = dir+QString("/tmp_files/export_all_groups.csv");
+    qDebug()<<"saving exported files to this dir...."<<fileName;
+    
+    if(fileName.isEmpty()) return;
+
+    if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
+    cerr <<"csv without:";
+    csvreports->flag = 0;
+    cerr <<"csv without:1";
+    
+    if ( samples.size() == 0) return;
+
+    csvreports->setUserQuantType(_mainwindow->getUserQuantType() );
+
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
+    bool includeSetNamesLines=true;
+
+    csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
+
+    QList<PeakGroup*> selectedGroups = getSelectedGroups();
+    csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+
+    for(int i=0; i<allgroups.size(); i++ ) {
+        if (selectedGroups.contains(&allgroups[i])) {
+            PeakGroup& group = allgroups[i];
+            csvreports->addGroup(&group);
+        }
+    }
+    csvreports->closeFiles();
+
+    if (csvreports->getErrorReport() != "") {
+        QMessageBox msgBox(_mainwindow);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText(csvreports->getErrorReport());
+        msgBox.exec();
+    }
+    qDebug()<<"hopefully the csv files are saved now..";
+    // QDir qdir(dir+QString("/tmp_files/"));
+    // qdir.removeRecursively();
+    
+}
+
+
 void TableDockWidget::exportJson() {
     LOGD;
     if (allgroups.size() == 0 ) {
