@@ -2,6 +2,7 @@
 
 TestPeakDetection::TestPeakDetection() {
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+    loadCompoundDB1 = "bin/methods/KNOWNS.csv";
     files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
 
 }
@@ -93,9 +94,8 @@ void TestPeakDetection::testprocessSlices() {
 }
 
 void TestPeakDetection::testpullIsotopes() {
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds =
-        DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    DBS.loadCompoundCSVFile(loadCompoundDB1);
+    vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
     vector<mzSample*> samplesToLoad;
 
     for (int i = 0; i < files.size(); ++i) {
@@ -107,8 +107,7 @@ void TestPeakDetection::testpullIsotopes() {
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/default.model";
-    clsf->loadModel(loadmodel);
+    clsf->loadModel("bin/default.model");
     mavenparameters->clsf = clsf;
     mavenparameters->ionizationMode = +1;
     mavenparameters->matchRtFlag = true;
@@ -116,17 +115,83 @@ void TestPeakDetection::testpullIsotopes() {
     mavenparameters->samples = samplesToLoad;
     mavenparameters->eic_smoothingWindow = 10;
     mavenparameters->eic_smoothingAlgorithm = 1;
-    mavenparameters->amuQ1 = 0.25;
-    mavenparameters->amuQ3 = 0.30;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
+    mavenparameters->isotopeAtom["ShowIsotopes"] = true;
+    mavenparameters->isotopeAtom["C13Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["N15Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["D2Labeled_BPE"] = true;
+    mavenparameters->isotopeAtom["S34Labeled_BPE"] = true;
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = 
-	    peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
     peakDetector.processSlices(slices, "compounds");
+    
     PeakGroup& parent = mavenparameters->allgroups[0];
     peakDetector.pullIsotopes(&parent);
-    QVERIFY(parent.childCount() > 0);
+    
+    //verify number of isotopes
+    QVERIFY(parent.childCount() == 7);
+
+    //verify if isotopic correlation filter works
+    mavenparameters->minIsotopicCorrelation = 1;
+    parent = mavenparameters->allgroups[1];
+    peakDetector.pullIsotopes(&parent);
+
+    //childCount for this group is 3 for minIsotopicCorrelation = 0.2
+    QVERIFY(parent.childCount() == 1);
+
+    //verify if peaks are within specified rt distance
+    mavenparameters->minIsotopicCorrelation = 0.2;
+    mavenparameters->maxIsotopeScanDiff = 2;
+    mavenparameters->avgScanTime = 0.5;
+    parent = mavenparameters->allgroups[3];
+    mzSample* sample = mavenparameters->samples[0];
+    Peak* parentPeak = parent.getPeak(sample);
+    float parentRt = parentPeak->rt;
+    float maxRtDiff = mavenparameters->maxIsotopeScanDiff*mavenparameters->avgScanTime;
+    
+    peakDetector.pullIsotopes(&parent);
+    
+    int outlier = 0;
+    for (int i = 0; i < parent.children.size(); i++) 
+    {
+        PeakGroup& child = parent.children[i];
+        Peak* childPeak = child.getPeak(sample);
+        if (!childPeak) continue;
+        float rtDiff = abs(parentRt - childPeak->rt);
+        if (rtDiff > maxRtDiff) outlier++;
+    }
+    QVERIFY(outlier == 0);
+    
+    //test for different labels
+    mavenparameters->C13Labeled_BPE = true;
+    mavenparameters->N15Labeled_BPE = false;
+    mavenparameters->D2Labeled_BPE = false;
+    mavenparameters->S34Labeled_BPE = true;
+    mavenparameters->minIsotopicCorrelation = 0.2;
+    mavenparameters->maxIsotopeScanDiff = 5;
+    mavenparameters->avgScanTime = 0.2;
+    parent = mavenparameters->allgroups[4];
+
+    peakDetector.pullIsotopes(&parent);
+
+    int N15_BPE = 0;
+    int D2_BPE = 0;
+    int C13_BPE = 0;
+    for (int i = 0; i < parent.children.size(); i++)
+    {
+        PeakGroup& child = parent.children[i];
+        string isotopeName = child.tagString;
+        if (isotopeName.find(N15_LABEL) != string::npos || isotopeName.find(C13N15_LABEL) != string::npos)
+            N15_BPE++;
+        if (isotopeName.find(H2_LABEL) != string::npos || isotopeName.find(C13H2_LABEL) != string::npos)
+            D2_BPE++;
+        if (isotopeName.find(C13_LABEL) != string::npos)
+            C13_BPE++;
+    }
+    QVERIFY(N15_BPE == 0);
+    QVERIFY(D2_BPE == 0);
+    QVERIFY(C13_BPE > 0);
 }

@@ -18,6 +18,7 @@ class TestPeakDetection : public QObject {
         TestPeakDetection();
     private:
         const char* loadCompoundDB;
+        const char* loadCompoundDB1;
         QStringList files;
 
     private Q_SLOTS:
