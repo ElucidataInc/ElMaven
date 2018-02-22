@@ -378,9 +378,6 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "S34Labeled_IsoWidget") == 0)
         S34Labeled_IsoWidget = atof(value);
 
-    if(strcmp(key, "noOfIsotopes") == 0)
-        noOfIsotopes = atof(value);
-
     if(strcmp(key, "isotopeC13Correction") == 0)
         isotopeC13Correction = atof(value);
 

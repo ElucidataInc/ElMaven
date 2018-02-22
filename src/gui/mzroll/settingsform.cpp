@@ -34,7 +34,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("N15Labeled_IsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
     settings.insert("S34Labeled_IsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
 
-    settings.insert("noOfIsotopes", QVariant::fromValue(sf->noOfIsotopes));
     settings.insert("isotopeC13Correction", QVariant::fromValue(sf->isotopeC13Correction));
     settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->maxIsotopeScanDiff));
@@ -130,7 +129,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(S34Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(D2Labeled_Barplot, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(doubleSpinBoxAbThresh, SIGNAL(valueChanged(double)),SLOT(recomputeIsotopes()));
-    connect(noOfIsotopes, SIGNAL(valueChanged(int)),SLOT(recomputeIsotopes()));
         //isotope detection setting
     connect(C13Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(N15Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
