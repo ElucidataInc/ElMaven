@@ -165,18 +165,9 @@ void mzSample::loadSample(const char *filename)
 
         loadAnySample(filename);
     }
-    catch (FileException& fexcp) {
-
-        LOGD << static_cast<MavenException*>(&fexcp)->what() << " : " <<  fexcp.what();
-    }
-
-    catch (ParseException& pexcp) {
-
-        LOGD << static_cast<MavenException*>(&pexcp)->what() << " : " << pexcp.what();
-    }
 
     catch(MavenException& excp) {
-        LOGD << excp.what();
+        cerr << endl << "Error: " << excp.what() << endl;
     }
 
 
@@ -201,7 +192,7 @@ void mzSample::parseMzCSV(const char *filename)
 
 	ifstream myfile(filename);
 	if (!myfile.is_open())
-        throw (FileException(FileException::notFound));
+        throw (MavenException(ErrorCodes::FileNotFound, filename));
 
 
 	std::stringstream ss;
@@ -314,8 +305,7 @@ void mzSample::parseMzML(const char *filename)
     pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
     if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-        throw ParseException(ParseException::mzMl);
-//		return;
+        throw MavenException(ErrorCodes::ParsemzMl, filename);
 	}
 
 	//Get injection time stamp
@@ -568,9 +558,7 @@ void mzSample::parseMzData(const char *filename)
     pugi::xml_parse_result parseResult = doc.load_file(filename, parse_options);
     if (parseResult.status != pugi::xml_parse_status::status_ok)
 	{
-        throw (ParseException(ParseException::mzData));
-//		cerr << "Failed to load " << filename << endl;
-//		return;
+        throw (MavenException(ErrorCodes::ParsemzData, filename));
 	}
 
 	//Get a spectrumstore node
@@ -750,7 +738,7 @@ void mzSample::parseMzXML(const char *filename)
         parseMzXMLData(doc, spectrumstore);
     }
     else
-        throw (ParseException(ParseException::mzXml));
+        throw MavenException(ErrorCodes::ParsemzXml, filename);
 }
 
 /**
