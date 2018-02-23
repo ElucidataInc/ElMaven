@@ -11,7 +11,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
     double mz,mzmin,mzmax,rtmin,rtmax;
 
     int charge = mavenParameters->getCharge(grp.compound);
-    mz = grp.getExpectedMz(charge, mavenParameters->isotopeAtom);
+    mz = grp.getExpectedMz(charge);
 
     if (mz == -1) {
         mz = grp.meanMz;

@@ -432,10 +432,8 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setText(2,QString::number(group->meanMz, 'f', 4));
     int charge = _mainwindow->mavenParameters->getCharge(group->compound);
 
-    if (group->getExpectedMz(charge, 
-            _mainwindow->mavenParameters->isotopeAtom) != -1) {
-        float mz = group->getExpectedMz(charge, 
-                _mainwindow->mavenParameters->isotopeAtom);
+    if (group->getExpectedMz(charge) != -1) {
+        float mz = group->getExpectedMz(charge);
 
         item->setText(3,QString::number(mz,'f', 4));
     } else {
