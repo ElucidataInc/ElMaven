@@ -87,7 +87,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     mainwindow = w;
     deltaRtCheckFlag = false;
     updateSettingFormGUI();
-    setIsotopeAtom();
     setMavenParameters();
 
     odSettings = new OptionsDialogSettings(this);
@@ -262,7 +261,6 @@ void SettingsForm::toggleOverlap() {
 void SettingsForm::recomputeIsotopes() { 
     getFormValues();
     if (!mainwindow) return;
-    setIsotopeAtom();
 
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {

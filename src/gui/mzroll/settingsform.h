@@ -13,8 +13,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
 
       public:
             SettingsForm(QSettings* s, MainWindow *w);
-            void setIsotopeAtom();
-            protected:
+      protected:
             void closeEvent       (QCloseEvent* e);
             void keyPressEvent    (QKeyEvent* e) { QDialog::keyPressEvent(e); getFormValues(); }
             void mouseReleaseEvent(QMouseEvent* e) {QDialog::mouseReleaseEvent(e); getFormValues(); }

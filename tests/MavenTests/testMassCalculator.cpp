@@ -128,7 +128,6 @@ void TestMassCalculator::testComputeIsotopes() {
         D2Labeled_BPE
     );
 
-    cerr << endl << endl << isotopes1.size() << endl;
     //verify number of isotopes
     QVERIFY(isotopes1.size() == 26);
 
