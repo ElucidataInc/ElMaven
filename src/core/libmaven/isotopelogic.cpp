@@ -41,7 +41,7 @@ float IsotopeLogic::getIsotopeIntensity(float mz, MassCutoff *massCutoff) {
 
 void IsotopeLogic::computeIsotopes(string f, MassCutoff *massCutoff,
 		double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, bool S34Labeled, 
-		bool D2Labeled, map<string, bool> isotopeAtom) {
+		bool D2Labeled) {
 
 	double parentMass = MassCalculator::computeMass(f, _charge);
 	float parentPeakIntensity = getIsotopeIntensity(parentMass, massCutoff);

@@ -132,19 +132,9 @@ void IsotopeWidget::computeIsotopes(string f) {
     bool N15Labeled = _mw->mavenParameters->N15Labeled_BPE;
     bool S34Labeled = _mw->mavenParameters->S34Labeled_BPE;
     bool D2Labeled = _mw->mavenParameters->D2Labeled_BPE;
-	/**
-	 * We want always to list all isotopes  in Isotopes Widget .
-	 * mark _mw->mavenParameters->isotopeAtom["ShowIsotopes"] as true and after getting all isotopes, restore it's original
-	 * value to avoid error in other section of codebase.
-	 */
-	bool originalShowIsotopes=_mw->mavenParameters->isotopeAtom["ShowIsotopes"];
-	_mw->mavenParameters->isotopeAtom["ShowIsotopes"]=true;
-	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled,
-												_mw->mavenParameters->isotopeAtom);
-	/**
-	 * restore _mw->mavenParameters->isotopeAtom["ShowIsotopes"] to it's orignal value now.
-	 */
-	_mw->mavenParameters->isotopeAtom["ShowIsotopes"]=originalShowIsotopes;
+
+	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled);
+
 	showTable();
 }
 
@@ -328,7 +318,7 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
 				}
 				isotopeInfo += groupInfo.join("\t") + "\n";
 			}
-			if (_mw->mavenParameters->isotopeAtom["ShowIsotopes"] && _mw->mavenParameters->isotopeC13Correction) {
+			if (_mw->mavenParameters->pullIsotopesFlag && _mw->mavenParameters->isotopeC13Correction) {
 				isotopeInfo += "Natural Abundance\n";
 				for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
 					QStringList groupInfo;

@@ -117,11 +117,6 @@ void TestPeakDetection::testpullIsotopes() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
-    mavenparameters->isotopeAtom["ShowIsotopes"] = true;
-    mavenparameters->isotopeAtom["C13Labeled_BPE"] = true;
-    mavenparameters->isotopeAtom["N15Labeled_BPE"] = true;
-    mavenparameters->isotopeAtom["D2Labeled_BPE"] = true;
-    mavenparameters->isotopeAtom["S34Labeled_BPE"] = true;
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);

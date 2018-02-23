@@ -78,7 +78,6 @@ void TestMassCalculator::testComputeMass() {
 
 void TestMassCalculator::testComputeIsotopes() {
     string formula = "C12H18N4O4PS";
-    map <string, bool> isotopeAtom;
 
     bool C13Labeled_BPE = true;
     bool N15Labeled_BPE = true;
@@ -115,7 +114,6 @@ void TestMassCalculator::testComputeIsotopes() {
     //verify abundance calculation
     QVERIFY(isotopes[294].abundance > 0.00169 && isotopes[294].abundance < 0.0017);
 
-    //test for isotopeAtom condition statements
     C13Labeled_BPE = true;
     N15Labeled_BPE = false;
     S34Labeled_BPE = true;

@@ -12,7 +12,7 @@ class IsotopeLogic {
 public:
 	IsotopeLogic();
 	void computeIsotopes(string f, MassCutoff *massCutoff, double maxNaturalAbundanceErr, bool C13Labeled, bool N15Labeled, 
-		bool S34Labeled, bool D2Labeled, map<string, bool> isotopeAtom);
+		bool S34Labeled, bool D2Labeled);
 	void userChangedFormula();
 
 	string _formula;
