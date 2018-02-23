@@ -18,6 +18,7 @@ PeakGroup::PeakGroup()  {
     currentIntensity = 0;
     meanRt=0;
     meanMz=0;
+    expectedMz=0;
 
     blankMax=0;
     blankSampleCount=0;
@@ -85,6 +86,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     currentIntensity = o.currentIntensity;
     meanRt=o.meanRt;
     meanMz=o.meanMz;
+    expectedMz=o.expectedMz;
 
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
@@ -152,6 +154,7 @@ void PeakGroup::clear() {
     deletePeaks();
     deleteChildren();
     meanMz  = 0;
+    expectedMz = 0;
     groupRank=INT_MAX;
 }
 
@@ -565,6 +568,7 @@ void PeakGroup::summary() {
     cerr
         <<"\t" << "meanRt=" << meanRt << endl
         <<"\t" << "meanMz=" << meanMz << endl
+        <<"\t" << "expectedMz=" << expectedMz << endl
         <<"\t" << "goodPeakCount=" << goodPeakCount << endl
         <<"\t" << "maxQuality=" <<  maxQuality << endl
         <<"\t" << "maxNoNoiseObs=" << maxNoNoiseObs << endl

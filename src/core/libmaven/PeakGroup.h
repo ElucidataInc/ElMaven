@@ -95,6 +95,7 @@ class PeakGroup{
         float currentIntensity;
         float meanRt;
         float meanMz;
+        float expectedMz;
         int totalSampleCount;
 
         //isotopic information
