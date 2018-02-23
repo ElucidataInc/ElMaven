@@ -411,20 +411,11 @@ void PeakGroup::updateQuality() {
     }
 }
 
+// TODO: Remove this function as expected mz should be calculated while creating the group - Sahil
 double PeakGroup::getExpectedMz(int charge, map<string, bool> isotopeAtom) {
 
-    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) {
- 
-        float mz = 0;
-        vector<::Isotope> masslist = MassCalculator::computeIsotopes(compound->formula, charge, isotopeAtom);
-
-        for (unsigned int i = 0; i<masslist.size();i++) {
-            if (masslist[i].name == tagString) {
-                mz = masslist[i].mass;
-            }
-        }
-
-        return mz;
+    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) { 
+        return expectedMz;
     }
     else if (!isIsotope() && compound && compound->mass > 0) {
         float mz = 0;
