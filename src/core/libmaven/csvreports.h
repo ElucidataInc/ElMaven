@@ -121,7 +121,7 @@ private:
                                                                                                                 */
     void insertGroupInformationIntoCSVFile (PeakGroup* group);  /**@brief-  after performing some checks, it writes group info to output file*/
     int getIonisationMode();            /**@brief- determine ionization mode (+1 or -1) and return it*/
-    /**next four methods computeIsotopes, insertIsotopes, insertUserSelectedIsotopes and insertIsotpesFoundInSamples work together to write isotope to output file*/
+
     void insertIsotopes (PeakGroup* group, vector<Isotope> masslist);                   /**@brief-  through sequencials method calls for isotope detection, write group info into output file*/
     void insertUserSelectedIsotopes(PeakGroup* group, string isotopeName);        /**@brief-   iterate through all isotope of a group and calls insertIsotpesFoundInSamples
                                                                                                                                     *to write isotopes info to group

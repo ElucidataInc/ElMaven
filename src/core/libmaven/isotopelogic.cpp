@@ -46,7 +46,15 @@ void IsotopeLogic::computeIsotopes(string f, MassCutoff *massCutoff,
 	double parentMass = MassCalculator::computeMass(f, _charge);
 	float parentPeakIntensity = getIsotopeIntensity(parentMass, massCutoff);
 
-	vector<Isotope> isotopes = MassCalculator::computeIsotopes(f, _charge, isotopeAtom);
+	vector<Isotope> isotopes = MassCalculator::computeIsotopes(
+		f,
+		_charge,
+		C13Labeled,
+		N15Labeled,
+		S34Labeled,
+		D2Labeled
+	);
+
 	for (unsigned int i = 0; i < isotopes.size(); i++) {
 		Isotope& x = isotopes[i];
 

@@ -80,14 +80,19 @@ void TestMassCalculator::testComputeIsotopes() {
     string formula = "C12H18N4O4PS";
     map <string, bool> isotopeAtom;
 
-    //test for all labels
-    isotopeAtom["ShowIsotopes"] = true;
-    isotopeAtom["D2Labeled_BPE"] = true;
-    isotopeAtom["C13Labeled_BPE"] = true;
-    isotopeAtom["N15Labeled_BPE"] = true;
-    isotopeAtom["S34Labeled_BPE"] = true;
+    bool C13Labeled_BPE = true;
+    bool N15Labeled_BPE = true;
+    bool S34Labeled_BPE = true;
+    bool D2Labeled_BPE = true;
 
-    vector<Isotope> isotopes = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
+    vector<Isotope> isotopes = MassCalculator::computeIsotopes(
+        formula,
+        +1,
+        C13Labeled_BPE,
+        N15Labeled_BPE,
+        S34Labeled_BPE,
+        D2Labeled_BPE
+    );
 
     //verify number of isotopes
     QVERIFY(isotopes.size() == 312);
@@ -111,22 +116,24 @@ void TestMassCalculator::testComputeIsotopes() {
     QVERIFY(isotopes[294].abundance > 0.00169 && isotopes[294].abundance < 0.0017);
 
     //test for isotopeAtom condition statements
-    isotopeAtom["C13Labeled_BPE"] = true;
-    isotopeAtom["N15Labeled_BPE"] = false;
-    isotopeAtom["D2Labeled_BPE"] = false;
+    C13Labeled_BPE = true;
+    N15Labeled_BPE = false;
+    S34Labeled_BPE = true;
+    D2Labeled_BPE = false;
 
-    vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
+    vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(
+        formula,
+        +1,
+        C13Labeled_BPE,
+        N15Labeled_BPE,
+        S34Labeled_BPE,
+        D2Labeled_BPE
+    );
 
+    cerr << endl << endl << isotopes1.size() << endl;
     //verify number of isotopes
     QVERIFY(isotopes1.size() == 26);
 
-    //test for isotope detection off
-    isotopeAtom["ShowIsotopes"] = false;
-
-    vector<Isotope> isotopes2 = MassCalculator::computeIsotopes(formula, +1, isotopeAtom);
-
-    //verify number of isotopes. Only C12 parent should be present
-    QVERIFY(isotopes2.size() == 1);
 }
 
 void TestMassCalculator::testenumerateMasses() {

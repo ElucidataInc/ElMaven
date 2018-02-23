@@ -87,15 +87,20 @@ double MassCalculator::computeMass(string formula, int charge) {
     return adjustMass(mass, charge);
 }
 
-vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<string, bool> isotopeAtom) {
+vector<Isotope> MassCalculator::computeIsotopes(
+    string formula,
+    int charge,
+    bool C13Flag,
+    bool N15Flag,
+    bool S34Flag,
+    bool D2Flag
+)
+{
     map<string, int> atoms = getComposition(formula);
     int CatomCount = atoms[C_STRING_ID];
     int NatomCount = atoms[N_STRING_ID];
     int SatomCount = atoms[S_STRING_ID];
     int HatomCount = atoms[H_STRING_ID];
-
-    // charge = abs(charge);
-    // if (charge == 0) charge = 1;
 
     vector<Isotope> isotopes;
     double parentMass = computeNeutralMass(formula);
@@ -103,73 +108,69 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula, int charge, map<
     Isotope parent(C12_PARENT_LABEL, parentMass);
     isotopes.push_back(parent);
 
-    if(isotopeAtom["ShowIsotopes"]) {
-
-        if(isotopeAtom["C13Labeled_BPE"] && isotopeAtom["N15Labeled_BPE"]) {
-            for (int i = 1; i <= CatomCount; i++) {
-                for (int j = 1; j <= NatomCount; j++) {
-                    string name = C13N15_LABEL + integer2string(i) + "-" + integer2string(j);
-                    double mass = parentMass + (j * N_MASS_DELTA) + (i * C_MASS_DELTA);
-                    Isotope x(name, mass, i, j, 0, 0);
-                    isotopes.push_back(x);
-                }
-            }
-        }
-
-        if(isotopeAtom["C13Labeled_BPE"] && isotopeAtom["S34Labeled_BPE"]) {
-            for (int i = 1; i <= CatomCount; i++) {
-                for (int j = 1; j <= SatomCount; j++) {
-                    string name = C13S34_LABEL + integer2string(i) + "-" + integer2string(j);
-                    double mass = parentMass + (j * S_MASS_DELTA) + (i * C_MASS_DELTA);
-                    Isotope x(name, mass, i, 0, j, 0);
-                    isotopes.push_back(x);
-                }
-            }
-        }
-
-        if(isotopeAtom["C13Labeled_BPE"] && isotopeAtom["D2Labeled_BPE"]) {
-            for (int i = 1; i <= CatomCount; i++) {
-                for (int j = 1; j <= HatomCount; j++) {
-                    string name = C13H2_LABEL + integer2string(i) + "-" + integer2string(j);
-                    double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
-                    Isotope x(name, mass, i, 0, 0, j);
-                    isotopes.push_back(x);
-                }
-            }
-        }
-
-        if(isotopeAtom["C13Labeled_BPE"]) {
-            for (int i = 1; i <= CatomCount; i++) {
-                Isotope x(C13_LABEL + integer2string(i),
-                        parentMass + (i * C_MASS_DELTA), i, 0, 0, 0);
+    if(C13Flag && N15Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            for (int j = 1; j <= NatomCount; j++) {
+                string name = C13N15_LABEL + integer2string(i) + "-" + integer2string(j);
+                double mass = parentMass + (j * N_MASS_DELTA) + (i * C_MASS_DELTA);
+                Isotope x(name, mass, i, j, 0, 0);
                 isotopes.push_back(x);
             }
         }
+    }
 
-        if(isotopeAtom["N15Labeled_BPE"]) {
-            for (int i = 1; i <= NatomCount; i++) {
-                Isotope x(N15_LABEL + integer2string(i),
-                        parentMass + (i * N_MASS_DELTA), 0, i, 0, 0);
+    if(C13Flag && S34Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            for (int j = 1; j <= SatomCount; j++) {
+                string name = C13S34_LABEL + integer2string(i) + "-" + integer2string(j);
+                double mass = parentMass + (j * S_MASS_DELTA) + (i * C_MASS_DELTA);
+                Isotope x(name, mass, i, 0, j, 0);
                 isotopes.push_back(x);
             }
         }
+    }
 
-        if(isotopeAtom["S34Labeled_BPE"]) {
-            for (int i = 1; i <= SatomCount; i++) {
-                Isotope x(S34_LABEL + integer2string(i),
-                        parentMass + (i * S_MASS_DELTA), 0, 0, i, 0);
+    if(C13Flag && D2Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            for (int j = 1; j <= HatomCount; j++) {
+                string name = C13H2_LABEL + integer2string(i) + "-" + integer2string(j);
+                double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
+                Isotope x(name, mass, i, 0, 0, j);
                 isotopes.push_back(x);
             }
         }
+    }
 
-        if(isotopeAtom["D2Labeled_BPE"]) {
-            for (int i = 1; i <= HatomCount; i++) {
-                Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
-                        0, 0, 0, i);
-                isotopes.push_back(x);
-            }
+    if(C13Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            Isotope x(C13_LABEL + integer2string(i),
+                    parentMass + (i * C_MASS_DELTA), i, 0, 0, 0);
+            isotopes.push_back(x);
         }
+    }
 
+    if(N15Flag) {
+        for (int i = 1; i <= NatomCount; i++) {
+            Isotope x(N15_LABEL + integer2string(i),
+                    parentMass + (i * N_MASS_DELTA), 0, i, 0, 0);
+            isotopes.push_back(x);
+        }
+    }
+
+    if(S34Flag) {
+        for (int i = 1; i <= SatomCount; i++) {
+            Isotope x(S34_LABEL + integer2string(i),
+                    parentMass + (i * S_MASS_DELTA), 0, 0, i, 0);
+            isotopes.push_back(x);
+        }
+    }
+
+    if(D2Flag) {
+        for (int i = 1; i <= HatomCount; i++) {
+            Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
+                    0, 0, 0, i);
+            isotopes.push_back(x);
+        }
     }
 
     for (unsigned int i = 0; i < isotopes.size(); i++) {
