@@ -624,6 +624,11 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
 }
 
 void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
+
+	bool isotopeFlag = mavenParameters->pullIsotopesFlag;
+
+        if (!isotopeFlag) return;
+
 	bool C13Flag = mavenParameters->C13Labeled_BPE;
 	bool N15Flag = mavenParameters->N15Labeled_BPE;
 	bool S34Flag = mavenParameters->S34Labeled_BPE;

@@ -3620,8 +3620,8 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	string delimIsotopic = "C13-label-";
 	string delimParent = "C12 PARENT";
 	for (int i = 0; i < group->childCount(); i++) {
-		if (group->childrenIsoWidget[i].isIsotope()) {
-			PeakGroup* isotope = &(group->childrenIsoWidget[i]);
+		if (group->children[i].isIsotope()) {
+			PeakGroup* isotope = &(group->children[i]);
 			isotopes.push_back(isotope);
 			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
 				if (isotope->tagString.find(delimParent) != string::npos) {
