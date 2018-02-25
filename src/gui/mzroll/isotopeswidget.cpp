@@ -128,10 +128,10 @@ void IsotopeWidget::computeIsotopes(string f) {
 	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 
     double maxNaturalAbundanceErr = _mw->mavenParameters->maxNaturalAbundanceErr;
-    bool C13Labeled = _mw->mavenParameters->C13Labeled_BPE;
-    bool N15Labeled = _mw->mavenParameters->N15Labeled_BPE;
-    bool S34Labeled = _mw->mavenParameters->S34Labeled_BPE;
-    bool D2Labeled = _mw->mavenParameters->D2Labeled_BPE;
+    bool C13Labeled = _mw->mavenParameters->C13Labeled_IsoWidget;
+    bool N15Labeled = _mw->mavenParameters->N15Labeled_IsoWidget;
+    bool S34Labeled = _mw->mavenParameters->S34Labeled_IsoWidget;
+    bool D2Labeled = _mw->mavenParameters->D2Labeled_IsoWidget;
 
 	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled);
 
@@ -168,11 +168,6 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
-		// if (_mw->getIonizationMode()) {
-		// 	mavenParameters->ionizationMode = _mw->getIonizationMode();
-		// } else {
-		// 	mavenParameters->setIonizationMode();
-		// }
 		workerThread->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}
@@ -301,8 +296,8 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
        //get isotopic groups
 		vector<PeakGroup*>isotopes;
 		for(int i=0; i < group->childCount(); i++ ) {
-			if (group->children[i].isIsotope() ) {
-                PeakGroup* isotope = &(group->children[i]);
+			if (group->childrenIsoWidget[i].isIsotope() ) {
+                PeakGroup* isotope = &(group->childrenIsoWidget[i]);
                 isotopes.push_back(isotope);
 			}
 		}

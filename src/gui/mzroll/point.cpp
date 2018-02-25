@@ -123,7 +123,6 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     if (_peak)  Q_EMIT peakSelected(_peak);
 
     if ( _group && _group->isIsotope() == false ) {
-        //_mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
     }
 
