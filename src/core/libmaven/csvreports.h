@@ -116,19 +116,7 @@ private:
     void openPeakReportCSVFile(string outputfile);        /**@brief-  after performing initial check, it will open output file for peaks report*/
     void insertGroupReportColumnNamesintoCSVFile(string outputfile, bool includeSetNamesLine);  /**@brief-  write column name in output file for group report*/
     void insertPeakReportColumnNamesintoCSVFile();          /**@brief-  write column name in output file for group report*/
-    void insertPeakInformationIntoCSVFile(PeakGroup* group);        /**@brief-  TODO, not a required method, it's just calling another function. Maybe
-                                                                                                                *written to look consistent with   insertGroupInformationIntoCSVFile
-                                                                                                                */
-    void insertGroupInformationIntoCSVFile (PeakGroup* group);  /**@brief-  after performing some checks, it writes group info to output file*/
-    int getIonisationMode();            /**@brief- determine ionization mode (+1 or -1) and return it*/
-
-    void insertIsotopes (PeakGroup* group, vector<Isotope> masslist);                   /**@brief-  through sequencials method calls for isotope detection, write group info into output file*/
-    void insertUserSelectedIsotopes(PeakGroup* group, string isotopeName);        /**@brief-   iterate through all isotope of a group and calls insertIsotpesFoundInSamples
-                                                                                                                                    *to write isotopes info to group
-                                                                                                                                    */
-    int insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k);     /**@brief-  tke child of group and write about it to csv file*/
-
-
+    
     int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
     string SEP;     /**@param-  separator in output file*/
 
