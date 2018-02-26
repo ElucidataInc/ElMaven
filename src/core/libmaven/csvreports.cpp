@@ -115,14 +115,18 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
 
 void CSVReports::addGroup (PeakGroup* group) {
 
-      insertPeakInformationIntoCSVFile(group);
+    if(peakReport.is_open())
+        writePeakInfo(group);
 
-      if(!groupReport.is_open()) {
-		return;
-	  }
-      //get ionization mode
-      insertGroupInformationIntoCSVFile(group);
+    if(groupReport.is_open()){
+        if( group->children.size() == 0 )
+            writeGroupInfo(group);
 
+        for( int i = 0 ; i < group->children.size() ; ++i ){
+            group->children[i].metaGroupId = group->metaGroupId;
+            writeGroupInfo(&group->children[i]);
+        }        
+    }
 }
 
 void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group) {
