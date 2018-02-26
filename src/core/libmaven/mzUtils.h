@@ -63,6 +63,11 @@ using namespace std;
 namespace mzUtils {
 
     /**
+     * join all string by sep
+     */
+    vector<string> join(vector<string> v,string sep);
+
+    /**
      * [round ]
      * @method round
      * @param  val   []

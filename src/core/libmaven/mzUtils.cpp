@@ -6,6 +6,15 @@
  */
 namespace mzUtils {
 
+    vector<string> join(vector<string> v,string sep){
+        vector<string> res;
+        for(int i=0 ; i < v.size() ; ++i){
+            res.push_back(v[i]);
+            res.push_back(sep);
+        }
+        res.pop_back();
+        return res;
+    }
     std::string makeLowerCase(string &s) {
         for (unsigned int i=0; i != s.length(); ++i ) {
             s[i] = std::tolower(s[i]);

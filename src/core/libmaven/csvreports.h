@@ -22,6 +22,7 @@ class CSVReports {
     *such as rt,mz, samples used, compound it, formula, etc
     */
 public:
+    enum ExportType{ GroupExport, PeakExport};
     /**
     *empty constructor
     */
@@ -34,7 +35,21 @@ public:
     /**
     *@brief-    destructor, just close all open output files opened for writing csv or tab file
     */
+    CSVReports(vector<mzSample*>& insamples,
+                MavenParameters* mp,
+                PeakGroup::QType t,
+                string fileName,
+                ExportType exportType,
+                int selectionFlag,
+                bool includeSetNamesLine = false
+                );
     ~CSVReports();
+
+    inline void addItem(PeakGroup* group){
+        groups.push_back(group);
+    }
+
+    bool exportGroup();
     /**
     * @brief-   open output file in which group info will be written
     */
@@ -117,6 +132,8 @@ private:
     void insertGroupReportColumnNamesintoCSVFile(string outputfile, bool includeSetNamesLine);  /**@brief-  write column name in output file for group report*/
     void insertPeakReportColumnNamesintoCSVFile();          /**@brief-  write column name in output file for group report*/
     
+    void addColumnNames();
+
     int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
     string SEP;     /**@param-  separator in output file*/
 
@@ -126,6 +143,12 @@ private:
     PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
     MavenParameters * mavenparameters;
     int selectionFlag;      /**@param-  TODO*/
+    ofstream outFileStream;
+    string _fileName;
+    ExportType _exportType;
+    vector<PeakGroup*> groups;
+    bool _includeSetNamesLine;
+    int _selectionFlag;
 };
 
 #endif

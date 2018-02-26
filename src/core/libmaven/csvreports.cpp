@@ -18,6 +18,27 @@ CSVReports::CSVReports(vector<mzSample*>&insamples) {
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
     errorReport = "";
 }
+CSVReports::CSVReports(vector<mzSample*>& insamples,
+                        MavenParameters* mp,
+                        PeakGroup::QType t,
+                        string fileName,
+                        ExportType exportType,
+                        int selectionFlag,
+                        bool includeSetNamesLine
+                        ){
+    samples = insamples;
+    mavenparameters = mp;
+    qtype = t;
+    _fileName = fileName;
+    _exportType = exportType;
+    _selectionFlag = selectionFlag;
+    _includeSetNamesLine = includeSetNamesLine;
+    groups.clear();
+    groupId = 0;
+    errorReport = "";
+
+    sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+}
 
 CSVReports::~CSVReports() {
     /**
@@ -26,6 +47,88 @@ CSVReports::~CSVReports() {
     closeFiles();
 }
 
+bool CSVReports::exportGroup(){
+
+    if(_fileName.length() < 4){
+        errorReport="invalid file name";
+        return 0;
+    }
+    string fileFormat = _fileName.substr(_fileName.length()-4 , 4 );
+    if( fileFormat == ".csv" )
+        SEP = ",";
+    if( fileFormat == ".tab" )
+        SEP = "\t";
+    outFileStream.open(_fileName);
+    if(!outFileStream.is_open()){
+        errorReport="file can't open to write";
+        return 0;
+    }
+    else{
+        addColumnNames();
+        for(int i=0 ; i<groups.size(); ++i){
+            PeakGroup* group=groups[i];
+
+            if(_exportType == PeakExport)
+                writePeakInfo(group);
+
+            if(_exportType == GroupExport){
+                if( group->children.size() == 0 )
+                    writeGroupInfo(group);
+
+                for( int i = 0 ; i < group->children.size() ; ++i ){
+                    group->children[i].metaGroupId = group->metaGroupId;
+                    writeGroupInfo(&group->children[i]);
+                }      
+            }
+        }
+
+        outFileStream.close();
+    }
+    
+}
+
+void CSVReports::addColumnNames(){
+    vector<string> columnNames;
+    if(_exportType == GroupExport){
+        string columns[]={"label" , "metaGroupId" , "groupId" , "goodPeakCount" , "medMz" , "medRt" ,
+                         "maxQuality" , "isotopeLabel" , "compound" , "compoundId" , "formula"
+                         , "expectedRtDiff" , "ppmDiff" , "parent"};
+                         
+        columnNames.assign(columns,columns + sizeof(columns)/sizeof(string));
+        int cohort_offset = columnNames.size() - 1;
+
+        columnNames = mzUtils::join(columnNames , SEP);
+
+        for (unsigned int i = 0; i < samples.size(); i++) {
+            columnNames.push_back(SEP);
+            columnNames.push_back(sanitizeString(samples[i]->sampleName.c_str()).toStdString());
+        }
+        columnNames.push_back("\n");
+        if (_includeSetNamesLine){
+            for(unsigned int i = 0; i < cohort_offset; i++) { columnNames.push_back(SEP); }
+            for(unsigned int i = 0; i < samples.size(); i++) {
+                columnNames.push_back(SEP);
+                columnNames.push_back(sanitizeString(samples[i]->sampleName.c_str()).toStdString());
+            }
+            columnNames.push_back("\n");
+        }
+
+    }
+
+    if(_exportType == PeakExport){
+        string columns[]={ "groupId" , "compound" , "compoundId" , "formula" , "sample" , "peakMz" ,
+                         "medianMz" , "baseMz" , "rt" , "rtmin" , "rtmax" , "quality" , "peakIntensity" ,
+                         "peakArea" , "peakSplineArea" , "peakAreaTop" , "peakAreaCorrected" ,
+                         "peakAreaTopCorrected" , "noNoiseObs" , "signalBaseLineRatio" , "fromBlankSample"
+                          };
+        columnNames.assign(columns,columns + sizeof(columns)/sizeof(string));
+        columnNames = mzUtils::join(columnNames , SEP);
+        columnNames.push_back("\n");
+    }
+
+    for(int i=0 ; i < columnNames.size();++i)
+        outFileStream << columnNames[i];
+}
 QString CSVReports::sanitizeString(const char* s) {
     QString out=s;
     out.replace(QString("\""),QString("\"\""));
