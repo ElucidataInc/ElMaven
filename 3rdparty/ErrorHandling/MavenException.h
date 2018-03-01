@@ -1,37 +1,7 @@
+#include "errorcodes.h"
+
 #include <exception>
-#include <map>
 #include <string>
-
-struct ErrorCodes
-{
-    enum Errors {
-        UnsupportedFormat,
-        FileNotFound,
-        Blank,
-        ParsemzXml,
-        ParsemzMl,
-        ParsemzData,
-        ParseCsv
-    };
-
-};
-
-//singleton
-class ErrorMsg
-{
-    public:
-        ErrorMsg();
-
-        static ErrorMsg* getInstance();
-
-        std::map<ErrorCodes::Errors, std::string> getErrmessages();
-
-    private:
-        static ErrorMsg* errMsg;
-        std::map<ErrorCodes::Errors, std::string> errMessages;
-};
-
-
 
 class MavenException: public std::exception
 {

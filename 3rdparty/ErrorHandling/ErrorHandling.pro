@@ -9,5 +9,5 @@ CONFIG += staticlib
 
 INCLUDEPATH += $$top_srcdir/3rdparty/libplog
 
-SOURCES += MavenException.cpp
-HEADERS += MavenException.h
+SOURCES += MavenException.cpp errorcodes.cpp
+HEADERS += MavenException.h errorcodes.h
