@@ -19,11 +19,11 @@ class ErrorMsg
 {
     public:
 
-        static ErrorMsg* getInstance();
-        std::map<ErrorCodes::Errors, std::string> getErrmessages();
+        static const ErrorMsg* getInstance();
+        const std::map<ErrorCodes::Errors, std::string>& getErrmessages() const;
 
     private:
         ErrorMsg();
-        static ErrorMsg* errMsg;
+        static const ErrorMsg* errMsg;
         std::map<ErrorCodes::Errors, std::string> errMessages;
 };
