@@ -49,6 +49,10 @@ CSVReports::~CSVReports() {
 
 bool CSVReports::exportGroup(){
 
+    if(groups.size() == 0){
+        errorReport = "No groups found!";
+        return 0;
+    }
     if(_fileName.length() < 4){
         errorReport="invalid file name";
         return 0;
@@ -60,7 +64,7 @@ bool CSVReports::exportGroup(){
         SEP = "\t";
     outFileStream.open(_fileName);
     if(!outFileStream.is_open()){
-        errorReport="file can't open to write";
+        errorReport="file can't open to write\ncheck write permission";
         return 0;
     }
     else{
@@ -84,7 +88,7 @@ bool CSVReports::exportGroup(){
 
         outFileStream.close();
     }
-    
+    return 1;
 }
 
 void CSVReports::addColumnNames(){
@@ -108,7 +112,7 @@ void CSVReports::addColumnNames(){
             for(unsigned int i = 0; i < cohort_offset; i++) { columnNames.push_back(SEP); }
             for(unsigned int i = 0; i < samples.size(); i++) {
                 columnNames.push_back(SEP);
-                columnNames.push_back(sanitizeString(samples[i]->sampleName.c_str()).toStdString());
+                columnNames.push_back(sanitizeString(samples[i]->getSetName().c_str()).toStdString());
             }
             columnNames.push_back("\n");
         }
@@ -116,6 +120,7 @@ void CSVReports::addColumnNames(){
     }
 
     if(_exportType == PeakExport){
+        columnNames.clear();
         string columns[]={ "groupId" , "compound" , "compoundId" , "formula" , "sample" , "peakMz" ,
                          "medianMz" , "baseMz" , "rt" , "rtmin" , "rtmax" , "quality" , "peakIntensity" ,
                          "peakArea" , "peakSplineArea" , "peakAreaTop" , "peakAreaCorrected" ,
@@ -147,7 +152,7 @@ void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine) {
 }
 
 void CSVReports::openPeakReport(string outputfile) {
-
+    
     initialCheck(outputfile);                                           /**@brief-  if number of sample is zero, output file will not open*/
     openPeakReportCSVFile(outputfile);                      /**@brief-  after checking initial check, open output file*/
     insertPeakReportColumnNamesintoCSVFile();      /**@brief-  write name of column  if output file is open */
@@ -240,7 +245,7 @@ void CSVReports::closeFiles() {
 }
 
 void CSVReports::writeGroupInfo(PeakGroup* group) {
-    if (!groupReport.is_open())
+    if (!outFileStream.is_open())
         return;
     groupId++;
 
@@ -271,7 +276,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     char label[2];
     sprintf(label, "%c", group->label);
 
-    groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
+    outFileStream << label << SEP << setprecision(7) << group->metaGroupId << SEP
             << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
             << tagString;
@@ -311,37 +316,37 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
     }
 
-    groupReport << SEP << compoundName;
-    groupReport << SEP << compoundID;
-    groupReport << SEP << formula;
+    outFileStream << SEP << compoundName;
+    outFileStream << SEP << compoundID;
+    outFileStream << SEP << formula;
     //groupReport << SEP << categoryString;
-    groupReport << SEP << expectedRtDiff;
-    groupReport << SEP << ppmDist;
+    outFileStream << SEP << expectedRtDiff;
+    outFileStream << SEP << ppmDist;
 
     if (group->parent != NULL) {
-        groupReport << SEP << group->parent->meanMz;
+        outFileStream << SEP << group->parent->meanMz;
     } else {
-        groupReport << SEP << group->meanMz;
+        outFileStream << SEP << group->meanMz;
     }
 
     for (unsigned int j = 0; j < samples.size(); j++){
         for(int i=0;i<group->samples.size();++i){
             if(samples[j]->sampleName==group->samples[i]->sampleName){
-                groupReport << SEP << yvalues[j];
+                outFileStream << SEP << yvalues[j];
                 break;
             }
             else if(i==group->samples.size()-1){
-                groupReport << SEP << "NA";
+                outFileStream << SEP << "NA";
             }
         }   
     }
 
-    groupReport << endl;
+    outFileStream << endl;
 
 }
 
 void CSVReports::writePeakInfo(PeakGroup* group) {
-    if (!peakReport.is_open())
+    if (!outFileStream.is_open())
         return;
     string compoundName = "";
     string compoundID = "";
@@ -374,7 +379,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         }
 
 
-        peakReport << setprecision(8)
+        outFileStream << setprecision(8)
                 << groupId << SEP
                 << compoundName << SEP
                 << compoundID << SEP
