@@ -148,24 +148,30 @@ void TestCSVReports::testaddGroups() {
                 D2Flag);
     isotopeDetection.pullIsotopes(&parent);
 
-    CSVReports* csvreports =  new CSVReports(samplesToLoad);
-    csvreports->setMavenParameters(mavenparameters);    
-    csvreports->openGroupReport(outputfile,true);
-    csvreports->addGroup(&(parent));
+    PeakGroup::QType quantitationType = PeakGroup::AreaTop;
+    CSVReports::ExportType exportType = CSVReports::GroupExport;
+    int selectionFlag = -1;
+    bool includeSetNamesLine = false;
+
+    CSVReports* csvExport = new CSVReports(samplesToLoad, mavenparameters, quantitationType,
+                                     outputfile, exportType, selectionFlag, includeSetNamesLine);
+
+    csvExport->addItem(&(parent));
+    if(csvExport->exportGroup() == false){
+        cerr << "error " << csvExport->getErrorReport().toStdString() << endl;
+    }
+
 
     ifstream ifile(outputfile.c_str());
     string temp;
-    getline(ifile, temp);
-    getline(ifile, temp);
-    getline(ifile, temp);
-    remove(outputfile.c_str());
 
-    //check if group with this id has been added to csvreport
-    std::size_t found = temp.find("HMDB01248");
+    getline(ifile, temp);
     vector<std::string> header;
     mzUtils::splitNew(temp, "," , header);
+    QVERIFY(header.size() == 16);
 
-    //check if number of columns is correct
-    QVERIFY(found != std::string::npos && header.size() == 16);
+    getline(ifile, temp);
+    std::size_t found = temp.find("HMDB01248");
+    QVERIFY(found != std::string::npos);
 
 }

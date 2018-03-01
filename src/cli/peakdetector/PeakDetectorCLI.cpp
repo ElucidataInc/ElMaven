@@ -663,35 +663,31 @@ void PeakDetectorCLI::saveCSV(string setName) {
     #endif
 
 	string fileName = mavenParameters->outputdir + setName + ".csv";
-
-    CSVReports* csvreports = new CSVReports(mavenParameters->samples);
-    csvreports->setMavenParameters(mavenParameters);
-
+	if(fileName.empty()) return;
+	
     if (mavenParameters->allgroups.size() == 0 ) {
 		cout << "Writing to CSV Failed: No Groups found" << endl;
         return;
     }
 
-    if(fileName.empty()) return;
-    
-    if (mavenParameters->samples.size() == 0) return;
+    vector<mzSample*> samples = mavenParameters->samples;
+    if ( samples.size() == 0) return;
 
-    csvreports->setUserQuantType(quantitationType);
+    MavenParameters* mp = mavenParameters;
+    PeakGroup::QType t = quantitationType;
+    CSVReports::ExportType exportType = CSVReports::GroupExport;
+    int selectionFlag = -1;
+    bool includeSetNamesLine = false;
 
-    //Added to pass into csvreports file when merged with Maven776 - Kiran
-    //CLI exports the default Group Summary Matrix Format (without set Names)
-    csvreports->openGroupReport(fileName);
+    CSVReports* csvExport = new CSVReports(samples, mp, t, fileName, exportType, selectionFlag, includeSetNamesLine);
 
     for(int i=0; i<mavenParameters->allgroups.size(); i++ ) {
 		PeakGroup& group = mavenParameters->allgroups[i];
-		csvreports->addGroup(&group);
+		csvExport->addItem(&group);
     }
-    csvreports->closeFiles();
-
-    if (csvreports->getErrorReport() != "") {
-        cout << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
+    if (csvExport->exportGroup() == false ) {
+        cout << endl << "Writing to CSV Failed : " << csvExport->getErrorReport().toStdString() << endl;
     }
-
     #ifndef __APPLE__
      cout << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
     #endif

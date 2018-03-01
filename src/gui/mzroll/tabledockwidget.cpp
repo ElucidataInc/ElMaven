@@ -686,11 +686,6 @@ float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
 
 void TableDockWidget::exportGroupsToSpreadsheet() {
     LOGD; 
-    //Merged to Maven776 - Kiran
-    // CSVReports* csvreport = new CSVReports;
-    // vector<mzSample*> samples = _mainwindow->getSamples();
-    // CSVReports* csvreports = new CSVReports(samples);
-    // csvreports->setMavenParameters(_mainwindow->mavenParameters);
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
@@ -708,7 +703,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
     QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
     QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
-    
     QString peaksListQE= "Inclusion List QE (*.csv)";
     QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
 
@@ -728,9 +722,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         if(!fileName.endsWith(".tab",Qt::CaseInsensitive)) fileName = fileName + ".tab";
     }
 
-    // if ( samples.size() == 0) return;
-
- //Added when Merging to Maven776 - Kiran
 	if (sFilterSel == peaksListQE ) { 
 		writeQEInclusionList(fileName); 
 		return;
@@ -738,32 +729,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
         writeMascotGeneric(fileName);
         return;
     }
-
-   
-    // csvreports->setUserQuantType( _mainwindow->getUserQuantType() );
-
-    //Added to pass into csvreports file when merged with Maven776 - Kiran
-    // bool includeSetNamesLines=true;
-    // qDebug()<<sFilterSel<<"  ;;;;;;;;;;;;;;;;;;";
-    // if (sFilterSel == groupsSCSV) {
-    //                 std::cout<<"came----------groupCSV-"<<endl;
-
-    //     csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    // } else if (sFilterSel == groupsSTAB )  {
-    //                 std::cerr<<"came----------groupsSTAB-"<<endl;
-
-    //     csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
-    // } else if (sFilterSel == peaksCSV )  {
-    //     qDebug()<<"++++++++++++++++++ peaksCSV";
-    //     csvreports->openPeakReport(fileName.toStdString());
-    // } else if (sFilterSel == peaksTAB )  {
-    //     qDebug()<<"++++++++++++++++++peaksTAB";
-    //     csvreports->openPeakReport(fileName.toStdString());
-    // } else { 	//default to group summary
-    // qDebug()<<"++++++++++++++++++else";
-    //     //Updated when csvreports file was merged with Maven776 - Kiran
-    //     csvreports->openGroupReport(fileName.toStdString());
-    // }
     
     vector<mzSample*> samples = _mainwindow->getSamples();
     if ( samples.size() == 0) return;
@@ -783,12 +748,10 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     CSVReports* csvExport = new CSVReports(samples, mp, t, fileName.toStdString(), exportType, selectionFlag, includeSetNamesLine);
 
     QList<PeakGroup*> selectedGroups = getSelectedGroups();
-    // csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
     for(int i=0; i<allgroups.size(); i++ ) {
         if (selectedGroups.contains(&allgroups[i])) {
             PeakGroup& group = allgroups[i];
-            // csvreports->addGroup(&group);
             csvExport->addItem(&group);
         }
     }
