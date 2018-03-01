@@ -1,6 +1,6 @@
 #include "errorcodes.h"
 
-ErrorMsg* ErrorMsg::errMsg = nullptr;
+const ErrorMsg* ErrorMsg::errMsg = nullptr;
 
 
 ErrorMsg::ErrorMsg()
@@ -14,7 +14,7 @@ ErrorMsg::ErrorMsg()
     errMessages[ErrorCodes::ParsemzXml]= "Unable to parse mzXml file";
 }
 
-ErrorMsg* ErrorMsg::getInstance()
+const ErrorMsg* ErrorMsg::getInstance()
 {
 
     if(errMsg == nullptr) {
@@ -23,7 +23,7 @@ ErrorMsg* ErrorMsg::getInstance()
     return errMsg;
 }
 
-std::map<ErrorCodes::Errors, std::string> ErrorMsg::getErrmessages()
+const std::map<ErrorCodes::Errors, std::string>& ErrorMsg::getErrmessages() const
 {
     return errMessages;
 }
