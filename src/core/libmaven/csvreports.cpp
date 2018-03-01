@@ -1,23 +1,5 @@
 #include "csvreports.h"
 
-CSVReports::CSVReports(vector<mzSample*>&insamples) {
-    /*
-    *@detail -   constructor for instantiating class by all samples uploaded,
-    *different from samples vector of PeakGroup which will hold
-    *samples used for that particular group. it will be used to export group info
-    *only for samples used by a group and for other group, fields will be marked NA.
-    *Note that these samples are represented by pointers which will change their state
-    *even after group has been determine and detected. Only way to get those samples
-    *used for particular group by comparing these sample and samples from PeakGroup
-    */
-    samples = insamples;
-    groupId = 0;
-    /**@brief-  set user quant type-  generally represent intensity but not always check QType enum in PeaKGroup.h  */
-    setUserQuantType(PeakGroup::AreaTop);
-    setTabDelimited();      /**@brief-  set output file separator as tab*/
-    sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-    errorReport = "";
-}
 CSVReports::CSVReports(vector<mzSample*>& insamples,
                         MavenParameters* mp,
                         PeakGroup::QType t,
@@ -41,10 +23,7 @@ CSVReports::CSVReports(vector<mzSample*>& insamples,
 }
 
 CSVReports::~CSVReports() {
-    /**
-    *@details-    close all open output files opened for writing csv or tab file
-    */
-    closeFiles();
+
 }
 
 bool CSVReports::exportGroup(){
@@ -143,106 +122,6 @@ QString CSVReports::sanitizeString(const char* s) {
     return out;
 }
 
-void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine) {
-
-    initialCheck(outputfile);                                                                                               /**@brief-  if number of sample is zero, output file will not open*/
-    openGroupReportCSVFile(outputfile);                                                                        /**@brief-  after checking initial check, open output file*/
-    insertGroupReportColumnNamesintoCSVFile(outputfile, includeSetNamesLine);   /**@brief-  write name of column  if output file is open */
-
-}
-
-void CSVReports::openPeakReport(string outputfile) {
-    
-    initialCheck(outputfile);                                           /**@brief-  if number of sample is zero, output file will not open*/
-    openPeakReportCSVFile(outputfile);                      /**@brief-  after checking initial check, open output file*/
-    insertPeakReportColumnNamesintoCSVFile();      /**@brief-  write name of column  if output file is open */
-
-}
-
-void CSVReports::initialCheck(string outputfile) {
-
-    if (samples.size() == 0)
-        return;
-    if (QString(outputfile.c_str()).endsWith(".csv", Qt::CaseInsensitive))
-        setCommaDelimited();
-}
-
-void CSVReports::openGroupReportCSVFile(string outputfile) {
-
-     groupReport.open(outputfile.c_str());
-}
-
-void CSVReports::openPeakReportCSVFile(string outputfile) {
-
-     peakReport.open(outputfile.c_str());
-}
-
-void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool includeSetNamesLine){
-    if (groupReport.is_open()) {
-        QStringList groupReportcolnames;
-        groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
-                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" << "parent";
-        int cohort_offset = groupReportcolnames.size() - 1;
-        QString header = groupReportcolnames.join(SEP.c_str());
-        groupReport << header.toStdString();
-        for (unsigned int i = 0; i < samples.size(); i++) {
-            groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
-        }
-        groupReport << endl;
-        //TODO: Remove this to remove row in csv reports --@Giridhari
-        if (includeSetNamesLine){
-             for(unsigned int i = 0; i < cohort_offset; i++) { groupReport << SEP; }
-             for(unsigned int i = 0; i < samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
-             groupReport << endl;
-         }
-    }
-    else {
-        errorReport = "Unable to write to file \"" + QString::fromStdString(outputfile) + "\"\n";
-        errorReport += "Please check if you have permission to write to the specified location or the file is not in use";
-    }
-}
-
-void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
-
-    if (peakReport.is_open()) {
-        QStringList peakReportcolnames;
-        peakReportcolnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
-                << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
-                << "peakIntensity" << "peakArea" << "peakSplineArea" << "peakAreaTop"
-                << "peakAreaCorrected" << "peakAreaTopCorrected"
-                << "noNoiseObs" << "signalBaseLineRatio"
-                << "fromBlankSample";
-        QString header = peakReportcolnames.join(SEP.c_str());
-        peakReport << header.toStdString() << endl;
-    }
-}
-
-//Feng note: CSVReports::addGroup modified to (1) output only C12 data without labeling or wen compound is unknown, (2) output all related isotopic forms with labeling,
-//even when peak height is zero
-
-void CSVReports::addGroup (PeakGroup* group) {
-
-    if(peakReport.is_open())
-        writePeakInfo(group);
-
-    if(groupReport.is_open()){
-        if( group->children.size() == 0 )
-            writeGroupInfo(group);
-
-        for( int i = 0 ; i < group->children.size() ; ++i ){
-            group->children[i].metaGroupId = group->metaGroupId;
-            writeGroupInfo(&group->children[i]);
-        }        
-    }
-}
-
-void CSVReports::closeFiles() {
-    if (groupReport.is_open())
-        groupReport.close();
-    if (peakReport.is_open())
-        peakReport.close();
-}
 
 void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (!outFileStream.is_open())
@@ -259,9 +138,9 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         }
     }
 
-    if (selectionFlag == 2) {
+    if (_selectionFlag == 2) {
         if(lab !='g') return;
-    } else if (selectionFlag == 3) {
+    } else if (_selectionFlag == 3) {
         if(lab !='b') return;
     } else {
 
@@ -293,18 +172,18 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
-            int charge = getMavenParameters()->getCharge(group->compound);
+            int charge = mavenparameters->getCharge(group->compound);
             if (group->parent != NULL) {
-                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge),
-                (double) group->meanMz,getMavenParameters()->massCutoffMerge);
+                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge, mavenparameters->isotopeAtom),
+                (double) group->meanMz,mavenparameters->massCutoffMerge);
             }
             else {
                 ppmDist = mzUtils::massCutoffDist((double) group->compound->adjustedMass(charge),
-                (double) group->meanMz,getMavenParameters()->massCutoffMerge);
+                (double) group->meanMz,mavenparameters->massCutoffMerge);
             }
         }
         else {
-            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass, (double) group->meanMz,getMavenParameters()->massCutoffMerge);
+            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass, (double) group->meanMz,mavenparameters->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff;
 
@@ -358,9 +237,9 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
     }
 
-    if (selectionFlag == 2) {
+    if (_selectionFlag == 2) {
         if(group->label !='g') return;
-    } else if (selectionFlag == 3) {
+    } else if (_selectionFlag == 3) {
         if(group->label !='b') return;
     } else {
 

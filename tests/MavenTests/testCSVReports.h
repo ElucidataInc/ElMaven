@@ -42,11 +42,7 @@ class TestCSVReports : public QObject {
         void init();
         void cleanup();
 
-        // test functions - all functions prefixed with "test" will be ran as tests
-        // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testopenGroupReport();
-        void testopenPeakReport();
-        void testaddGroups();
+        void testExport();
 };
 
 #endif // TESTCSVREPORTS_H

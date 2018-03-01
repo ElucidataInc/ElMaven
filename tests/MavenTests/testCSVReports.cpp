@@ -34,61 +34,7 @@ void TestCSVReports::cleanup() {
     // This function is executed after each test
 }
 
-void TestCSVReports::testopenGroupReport() {
-
-
-
-    CSVReports* csvreports =  new CSVReports(mzsamples);
-
-    csvreports->openGroupReport(outputfile,true);
-
-    ifstream ifile(outputfile.c_str());
-    string temp;
-    getline(ifile, temp);
-    
-    
-
-    QStringList colnames;
-    colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
-                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" 
-                << "parent" << "testsample_1" << "bk_#sucyxpe_1_10";
-
-    QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);
-
-    colnames.clear();
-    getline(ifile, temp);
-    remove(outputfile.c_str());
-    for(unsigned int i=0; i < 15; i++) { colnames << ","; }
-    header = colnames.join("");
-    QVERIFY(header.toStdString()==temp);
-}
-
-void TestCSVReports::testopenPeakReport() {
-
-    CSVReports* csvreports =  new CSVReports(mzsamples);
-
-    csvreports->openPeakReport(outputfile);
-
-    ifstream ifile(outputfile.c_str());
-    string temp;
-    getline(ifile, temp);
-    remove(outputfile.c_str());
-
-
-    QStringList colnames;
-    colnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
-             << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
-             << "peakIntensity" << "peakArea" << "peakSplineArea" << "peakAreaTop"
-             << "peakAreaCorrected" << "peakAreaTopCorrected" << "noNoiseObs" << "signalBaseLineRatio"
-             << "fromBlankSample";
-
-    QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);    
-}
-
-void TestCSVReports::testaddGroups() {
+void TestCSVReports::testExport() {
 
     const char* loadCompoundDB;
     QStringList files;
