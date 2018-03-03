@@ -1,3 +1,7 @@
+#ifndef MAVENEXCEPTION_H
+#define MAVENEXCEPTION_H
+
+
 #include "errorcodes.h"
 
 #include <exception>
@@ -20,3 +24,6 @@ class MavenException: public std::exception
     private:
         std::string message;
 };
+
+
+#endif

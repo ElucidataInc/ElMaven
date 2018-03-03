@@ -7,6 +7,7 @@
 #endif
 
 #include <MavenException.h>
+#include <errorcodes.h>
 
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
