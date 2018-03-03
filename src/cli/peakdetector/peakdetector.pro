@@ -17,7 +17,7 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
-LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling
+LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger
 
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \
