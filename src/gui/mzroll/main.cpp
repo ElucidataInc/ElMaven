@@ -26,6 +26,7 @@
 #include "libplog/Log.h"
 #include "libplog/Appenders/CustomAppender.h"
 #include "controller.h"
+#include "elmavenlogger.h"
 
 #include <list>
 
@@ -39,6 +40,8 @@ int main(int argc, char *argv[])
 {
 
     QApplication app(argc, argv);
+
+    ElMavenLogger::init();
 
     std::string loggerFile = QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "ElMavenLogger.txt").toStdString();
     plog::init(plog::verbose, loggerFile.c_str()); // Initialize the logger with our appender.

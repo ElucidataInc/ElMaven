@@ -1,6 +1,7 @@
 #include "MavenException.h"
+#include <elmavenlogger.h>
+#include <iostream>
 
-#include <Log.h>
 
 MavenException::MavenException(ErrorCodes::Errors errCd, const std::string& details)
 {
@@ -9,7 +10,7 @@ MavenException::MavenException(ErrorCodes::Errors errCd, const std::string& deta
     message += details;
     message += "\n";
 
-    LOGD << message;
+    ElMavenLogger::getInstance()->logErr(message, ElMavenLogger::info);
 }
 
 

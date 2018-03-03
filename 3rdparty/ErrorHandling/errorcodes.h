@@ -1,3 +1,6 @@
+#ifndef ERRORCODES_H
+#define ERRORCODES_H
+
 #include <map>
 
 struct ErrorCodes
@@ -27,3 +30,4 @@ class ErrorMsg
         static const ErrorMsg* errMsg;
         std::map<ErrorCodes::Errors, std::string> errMessages;
 };
+#endif
