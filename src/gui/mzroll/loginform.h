@@ -10,7 +10,7 @@ namespace Ui {
 class LoginForm;
 }
 
-class LoginForm : public QWidget
+class LoginForm : public QDialog
 {
     Q_OBJECT
 
