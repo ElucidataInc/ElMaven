@@ -124,33 +124,21 @@ QString CSVReports::sanitizeString(const char* s) {
 
 
 void CSVReports::writeGroupInfo(PeakGroup* group) {
-    if (!outFileStream.is_open())
-        return;
     groupId++;
 
     char lab;
     lab = group->label;
 
     PeakGroup* parentGroup = group->getParent();
-    if (parentGroup) {
-        if (group->label == '\0') {
-            lab = parentGroup->label;
-        }
-    }
+    if(parentGroup && group->label == '\0')
+        lab = parentGroup->label;
 
-    if (_selectionFlag == 2) {
-        if(lab !='g') return;
-    } else if (_selectionFlag == 3) {
-        if(lab !='b') return;
-    } else {
-
-    }
+    if( (_selectionFlag == 2 &&  lab != 'g') || (_selectionFlag == 3 && lab != 'b'))
+        return;
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
-    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
-    // using the new funtionality added - Kiran
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
@@ -187,18 +175,11 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         }
         expectedRtDiff = group->expectedRtDiff;
 
-        // TODO: Added this while merging this file
-        //for(int i=0;i<group->compound->category.size(); i++) {
-        //    categoryString += group->compound->category[i] + ";";
-        //}
-        //categoryString=sanitizeString(categoryString.c_str()).toStdString();
-
     }
 
     outFileStream << SEP << compoundName;
     outFileStream << SEP << compoundID;
     outFileStream << SEP << formula;
-    //groupReport << SEP << categoryString;
     outFileStream << SEP << expectedRtDiff;
     outFileStream << SEP << ppmDist;
 
@@ -217,7 +198,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
             else if(i==group->samples.size()-1){
                 outFileStream << SEP << "NA";
             }
-        }   
+        }
     }
 
     outFileStream << endl;
@@ -225,38 +206,29 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 }
 
 void CSVReports::writePeakInfo(PeakGroup* group) {
-    if (!outFileStream.is_open())
-        return;
-    string compoundName = "";
     string compoundID = "";
     string formula = "";
-    compoundName = sanitizeString(group->getName().c_str()).toStdString();
+    string compoundName = sanitizeString(group->getName().c_str()).toStdString();
 
     if (group->compound != NULL) {
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
     }
 
-    if (_selectionFlag == 2) {
-        if(group->label !='g') return;
-    } else if (_selectionFlag == 3) {
-        if(group->label !='b') return;
-    } else {
+    if( (_selectionFlag == 2 &&  group->label != 'g') || (_selectionFlag == 3 && group->label != 'b'))
+        return;
 
-    }
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();
         string sampleName;
         if (sample != NULL) {
 
-            string sampleId = "";
-            sampleId = sample->sampleName;
+            string sampleId = sample->sampleName;
             if (peak.getScan()->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
 
             sampleName = sanitizeString(sampleId.c_str()).toStdString();
         }
-
 
         outFileStream << setprecision(8)
                 << groupId << SEP

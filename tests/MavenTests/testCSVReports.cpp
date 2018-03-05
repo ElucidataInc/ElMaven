@@ -104,7 +104,7 @@ void TestCSVReports::testExport() {
 
     csvExport->addItem(&(parent));
     if(csvExport->exportGroup() == false){
-        cerr << "error " << csvExport->getErrorReport().toStdString() << endl;
+        cerr << "error " << csvExport->getErrorReport() << endl;
     }
 
 

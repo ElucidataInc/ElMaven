@@ -686,7 +686,7 @@ void PeakDetectorCLI::saveCSV(string setName) {
 		csvExport->addItem(&group);
     }
     if (csvExport->exportGroup() == false ) {
-        cout << endl << "Writing to CSV Failed : " << csvExport->getErrorReport().toStdString() << endl;
+        cout << endl << "Writing to CSV Failed : " << csvExport->getErrorReport() << endl;
     }
     #ifndef __APPLE__
      cout << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";

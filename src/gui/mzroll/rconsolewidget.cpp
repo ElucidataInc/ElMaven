@@ -268,7 +268,8 @@ void RconsoleWidget::exportGroupsToTable() {
             csvExport->addItem(groups[i]);
         }
         if(csvExport->exportGroup() == false){
-            errorLog->appendPlainText(csvExport->getErrorReport());
+            QString error = QString::fromStdString(csvExport->getErrorReport());
+            errorLog->appendPlainText(error);
         }
 
         peaks.close();

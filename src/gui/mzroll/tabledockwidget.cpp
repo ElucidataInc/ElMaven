@@ -758,7 +758,8 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     if (csvExport->exportGroup() == false) {
         QMessageBox msgBox(_mainwindow);
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText(csvExport->getErrorReport());
+        QString error = QString::fromStdString(csvExport->getErrorReport());
+        msgBox.setText(error);
         msgBox.exec();
     }
     delete csvExport;

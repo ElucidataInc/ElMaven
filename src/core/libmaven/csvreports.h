@@ -26,6 +26,13 @@ public:
     /**
     *empty constructor
     */
+
+
+    /**
+     * 1. move some calculation of group into PeakGroup.cpp
+     * 2. remove Qt code
+     * 3. write test cases
+     */
     CSVReports();
 
     CSVReports(vector<mzSample*>& insamples,
@@ -43,7 +50,7 @@ public:
     }
 
     bool exportGroup();
-    QString getErrorReport(void) {
+    string getErrorReport(void) {
         /**
         *@brief-    return error occured during csv writing
         *TODO-  libmaven is written in standard c++ but here QString is returned.
@@ -60,7 +67,7 @@ private:
     int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
     string SEP;     /**@param-  separator in output file*/
 
-    QString errorReport;    /**@param-  error message, TODO- QString should not be in libmaven folder, only standard C++ statement should be here*/
+    string errorReport;    /**@param-  error message, TODO- QString should not be in libmaven folder, only standard C++ statement should be here*/
 
     vector<mzSample*> samples;      /**@param-  pointers to all mz samples uploaded*/
     PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
