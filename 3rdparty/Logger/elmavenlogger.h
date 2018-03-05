@@ -3,7 +3,6 @@
 
 #include "spdlog/spdlog.h"
 
-
 class ElMavenLogger
 {
     public:
@@ -14,7 +13,7 @@ class ElMavenLogger
             info,
             fatal
         };
-        static void init();
+        static void init(const std::string& path);
         static ElMavenLogger* getInstance();
         std::shared_ptr<spdlog::logger> get() { return _logger; }
         void logErr(const std::string& errMessage, const ErrorType& type);
@@ -22,6 +21,7 @@ class ElMavenLogger
         ElMavenLogger();
         std::shared_ptr<spdlog::logger> _logger;
         static ElMavenLogger* _dlog;
+        static std::string _path;
 
         
 };

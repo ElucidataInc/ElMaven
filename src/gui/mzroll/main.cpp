@@ -28,6 +28,7 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
+#include <QDir>
 #include <list>
 
 
@@ -36,12 +37,27 @@ Database DB;
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
 
+void initializeLogger()
+{
+    QDir dir;
+    QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
+                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
+                   + QDir::separator() ;
+
+    // Logs  won't be saved anywhere if this mkpath returns False;
+    dir.mkpath(path);
+    ElMavenLogger::init(path.toStdString());
+}
+
+
 int main(int argc, char *argv[])
 {
 
     QApplication app(argc, argv);
+    qApp->setOrganizationName("ElucidataInc");
+    qApp->setApplicationName("El-Maven");
 
-    ElMavenLogger::init();
+    initializeLogger();
 
     std::string loggerFile = QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "ElMavenLogger.txt").toStdString();
     plog::init(plog::verbose, loggerFile.c_str()); // Initialize the logger with our appender.
