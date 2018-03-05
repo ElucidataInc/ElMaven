@@ -230,7 +230,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
             sampleName = sanitizeString(sampleId);
         }
-
+        ++groupId;
         outFileStream << setprecision(8)
                 << groupId << SEP
                 << compoundName << SEP
