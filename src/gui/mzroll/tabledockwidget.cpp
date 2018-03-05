@@ -792,7 +792,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
 
 void TableDockWidget::exportGroupsToSpreadsheet_polly() {
-    qDebug()<<"inside exportGroupsToSpreadsheet_polly now.......";
     // LOGD;
     // //Merged to Maven776 - Kiran
     // // CSVReports* csvreport = new CSVReports;
@@ -814,15 +813,9 @@ void TableDockWidget::exportGroupsToSpreadsheet_polly() {
     QString sFilterSel = "Groups Summary Matrix Format Comma Delimited (*.csv)";
     QDir().mkdir(dir+QString("/tmp_files"));
     QString fileName = dir+QString("/tmp_files/export_all_groups.csv");
-    qDebug()<<"saving exported files to this dir...."<<fileName;
-    
     if(fileName.isEmpty()) return;
 
     if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
-    cerr <<"csv without:";
-    csvreports->flag = 0;
-    cerr <<"csv without:1";
-    
     if ( samples.size() == 0) return;
 
     csvreports->setUserQuantType(_mainwindow->getUserQuantType() );
@@ -849,10 +842,6 @@ void TableDockWidget::exportGroupsToSpreadsheet_polly() {
         msgBox.setText(csvreports->getErrorReport());
         msgBox.exec();
     }
-    qDebug()<<"hopefully the csv files are saved now..";
-    // QDir qdir(dir+QString("/tmp_files/"));
-    // qdir.removeRecursively();
-    
 }
 
 
