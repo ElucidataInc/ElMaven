@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LoginForm</class>
- <widget class="QWidget" name="LoginForm">
+ <widget class="QDialog" name="LoginForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -85,6 +85,19 @@
       </widget>
      </item>
     </layout>
+    </widget>
+     <widget class="QLabel" name="login_label">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>160</y>
+        <width>281</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
    </widget>
   </widget>
  </widget>
