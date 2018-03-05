@@ -84,14 +84,14 @@ void CSVReports::addColumnNames(){
 
         for (unsigned int i = 0; i < samples.size(); i++) {
             columnNames.push_back(SEP);
-            columnNames.push_back(sanitizeString(samples[i]->sampleName.c_str()).toStdString());
+            columnNames.push_back(sanitizeString(samples[i]->sampleName));
         }
         columnNames.push_back("\n");
         if (_includeSetNamesLine){
             for(unsigned int i = 0; i < cohort_offset; i++) { columnNames.push_back(SEP); }
             for(unsigned int i = 0; i < samples.size(); i++) {
                 columnNames.push_back(SEP);
-                columnNames.push_back(sanitizeString(samples[i]->getSetName().c_str()).toStdString());
+                columnNames.push_back(sanitizeString(samples[i]->getSetName()));
             }
             columnNames.push_back("\n");
         }
@@ -113,13 +113,14 @@ void CSVReports::addColumnNames(){
     for(int i=0 ; i < columnNames.size();++i)
         outFileStream << columnNames[i];
 }
-QString CSVReports::sanitizeString(const char* s) {
-    QString out=s;
-    out.replace(QString("\""),QString("\"\""));
-    if(out.contains(SEP.c_str())){
-        out="\""+out+"\"";
-    }
-    return out;
+string CSVReports::sanitizeString(string str) {
+
+    str=mzUtils::replaceAll("\"", str, "\"\"");
+    if(str.find(SEP) != string::npos)
+        str = "\"" + str + "\"";
+    return str;
+
+
 }
 
 
@@ -139,7 +140,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
 
     string tagString = group->srmId + group->tagString;
-    tagString = sanitizeString(tagString.c_str()).toStdString();
+    tagString = sanitizeString(tagString);
     char label[2];
     sprintf(label, "%c", group->label);
 
@@ -154,11 +155,11 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
-    compoundName = sanitizeString(group->getName().c_str()).toStdString();
+    compoundName = sanitizeString(group->getName());
 
     if (group->compound != NULL) {
-        compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
-        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        compoundID   = sanitizeString(group->compound->id);
+        formula = sanitizeString(group->compound->formula);
         if (!group->compound->formula.empty()) {
             int charge = mavenparameters->getCharge(group->compound);
             if (group->parent != NULL) {
@@ -208,11 +209,11 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundID = "";
     string formula = "";
-    string compoundName = sanitizeString(group->getName().c_str()).toStdString();
+    string compoundName = sanitizeString(group->getName());
 
     if (group->compound != NULL) {
-        compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
-        formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        compoundID   = sanitizeString(group->compound->id);
+        formula = sanitizeString(group->compound->formula);
     }
 
     if( (_selectionFlag == 2 &&  group->label != 'g') || (_selectionFlag == 3 && group->label != 'b'))
@@ -227,7 +228,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
             string sampleId = sample->sampleName;
             if (peak.getScan()->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
 
-            sampleName = sanitizeString(sampleId.c_str()).toStdString();
+            sampleName = sanitizeString(sampleId);
         }
 
         outFileStream << setprecision(8)
