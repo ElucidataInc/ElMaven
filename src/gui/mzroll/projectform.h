@@ -10,7 +10,7 @@ namespace Ui {
 class ProjectForm;
 }
 
-class ProjectForm : public QWidget
+class ProjectForm : public QDialog
 {
     Q_OBJECT
 
