@@ -3,12 +3,13 @@
 
 
 ElMavenLogger* ElMavenLogger::_dlog = nullptr;
+std::string ElMavenLogger::_path = "";
 
 ElMavenLogger::ElMavenLogger()
 {
     try {
         spdlog::set_async_mode(8192);
-        _logger = spdlog::rotating_logger_mt("ElMavLogger", "/home/rishabh/.elmaven/logs/elMavLogs", 1048576 * 5, 3);
+        _logger = spdlog::rotating_logger_mt("ElMavLogger", _path, 1048576 * 5, 3);
         _logger->set_level(spdlog::level::info);
     }
     catch(const spdlog::spdlog_ex& exp) {
@@ -19,8 +20,10 @@ ElMavenLogger::ElMavenLogger()
 
 }
 
-void ElMavenLogger::init()
+void ElMavenLogger::init(const std::string& path)
 {
+    _path = path;
+    _path += "elMavLogs";
     getInstance();
 }
 
