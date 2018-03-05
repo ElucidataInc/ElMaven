@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ProjectForm</class>
- <widget class="QWidget" name="ProjectForm">
+ <widget class="QDialog" name="ProjectForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -27,7 +27,7 @@
      <string>Upload to Polly</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_username">
     <property name="geometry">
      <rect>
       <x>110</x>
@@ -96,6 +96,19 @@
       <widget class="QComboBox" name="comboBox_1"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="status_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>180</y>
+      <width>371</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
