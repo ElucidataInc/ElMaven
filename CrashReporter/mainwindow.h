@@ -27,18 +27,21 @@ public:
     int windowState;
     void onStart();
 
+protected:
+    virtual void closeEvent(QCloseEvent *event) override;
+
 public slots:
     void readOutput();
     void readError();
     void finished(int exitCode);
     void started();
     void processError(QProcess::ProcessError perr);
+    void uploadLogs();
 
 private:
     Ui::MainWindow *ui;
     void startElMaven();
     void processLogs();
-    void uploadLogs();
 
 private Q_SLOTS:
     void uploadToS3Done();
