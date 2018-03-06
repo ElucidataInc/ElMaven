@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->restartApplicationPath = "";
 
+
     QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
                    qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
                    + QDir::separator();
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _process->setProgram(QStandardPaths::findExecutable("node"));
 
 
+
     connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
     connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
     connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
@@ -36,9 +38,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "deleting UI" << endl;
+    if(_process->state() != QProcess::NotRunning ) {
+        qDebug() << "waiting to finish";
+        _process->waitForFinished();
+    }
+
+
     delete ui;
 }
 
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    uploadLogs();
+}
 
 void MainWindow::readOutput()
 {
@@ -52,7 +66,10 @@ void MainWindow::processError(QProcess::ProcessError perr)
     qDebug() << "process Error " << perr  << endl;
     qDebug() << _process->program() << " " <<  _process->arguments();
 
+    QCoreApplication::quit();
+
 }
+
 void MainWindow::readError()
 {
     qDebug() << _process->readAllStandardError() << endl;
@@ -69,7 +86,7 @@ void MainWindow::finished(int exitCode)
     // check the exit status and exit code.
     // if the node program failed to upload the logs, inform the user about it
     qDebug() << endl << " process finished : " << exitCode << endl;
-
+    QCoreApplication::quit();
 
 }
 
@@ -108,6 +125,9 @@ void MainWindow::uploadLogs()
 
     _process->setArguments(args);
 
+    if(_process->state() == QProcess::Running)
+        _process->kill();
+
     _process->start();
 }
 
@@ -117,7 +137,7 @@ void MainWindow::startElMaven()
         QProcess * myProcess = new QProcess();
         myProcess->start(this->restartApplicationPath);
     }
-    QCoreApplication::quit();
+
 }
 
 void MainWindow::uploadToS3Done() {
@@ -125,6 +145,8 @@ void MainWindow::uploadToS3Done() {
     ui->statusBar->showMessage("Report is sent. Our team will get back to you as soon as possible.");
     this->startElMaven();
 }
+
+
 
 void MainWindow::onStart()
 {
@@ -142,14 +164,13 @@ void MainWindow::onStart()
 
 void MainWindow::on_restart_clicked()
 {
-    this->startElMaven();
+
+    uploadLogs();
 }
 
 void MainWindow::on_cancel_clicked()
 {
-    //send log
     uploadLogs();
-    QCoreApplication::quit();
 }
 
 void MainWindow::on_reportRestart_clicked()
