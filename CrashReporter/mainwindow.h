@@ -27,14 +27,33 @@ public:
     int windowState;
     void onStart();
 
+public slots:
+    void readOutput();
+    void readError();
+    void finished(int exitCode);
+    void started();
+    void processError(QProcess::ProcessError perr);
+
 private:
     Ui::MainWindow *ui;
     void startElMaven();
+    void processLogs();
+    void uploadLogs();
+
 private Q_SLOTS:
-    void on_pushButton_clicked();
-    void on_pushButton_3_clicked();
-    void on_pushButton_2_clicked();
     void uploadToS3Done();
+
+    void on_restart_clicked();
+
+    void on_cancel_clicked();
+
+    void on_reportRestart_clicked();
+
+private:
+    QProcess* _process;
+    QString _script;
+    QString _logs;
+    QStringList _logsPath;
 };
 
 #endif // MAINWINDOW_H
