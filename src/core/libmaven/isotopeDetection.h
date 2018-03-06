@@ -26,7 +26,7 @@ class IsotopeDetection
 		bool D2Flag);
 
 	void pullIsotopes(PeakGroup *group);
-	bool filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity);
+	bool filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
 
   private:
 	bool _C13Flag;
