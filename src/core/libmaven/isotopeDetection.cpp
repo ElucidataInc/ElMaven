@@ -101,19 +101,8 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             }
             //if(isotopePeakIntensity==0) continue;
 
-            if (filterIsotope(x, _C13Flag, _N15Flag, _S34Flag, _D2Flag, parentPeakIntensity, isotopePeakIntensity)) continue;
-            //TODO: this is really an abuse of the maxIsotopeScanDiff parameter
-            //I can easily imagine you might set maxIsotopeScanDiff to something much less than the peak width
-            //here w should really be determined by the minRt and maxRt for the parent and child peaks
-            float w = _mavenParameters->maxIsotopeScanDiff
-                * _mavenParameters->avgScanTime;
-            double c = sample->correlation(
-                    isotopeMass, parentgroup->meanMz,
-                    _mavenParameters->compoundMassCutoffWindow, rtmin - w,
-                    rtmax + w, _mavenParameters->eicType,
-                    _mavenParameters->filterline);  // find correlation for isotopes
-            if (c < _mavenParameters->minIsotopicCorrelation)
-                continue;
+            if (filterIsotope(x, _C13Flag, _N15Flag, _S34Flag, _D2Flag, 
+                parentPeakIntensity, isotopePeakIntensity, sample, parentgroup)) continue;
 
             vector<Peak> allPeaks;
 
@@ -175,7 +164,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
     return isotopes;
 }
 
-bool IsotopeDetection::filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity) 
+bool IsotopeDetection::filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity, mzSample* sample, PeakGroup *parentGroup) 
 {
     float expectedAbundance = x.abundance;
     //natural abundance check
@@ -203,6 +192,27 @@ bool IsotopeDetection::filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool
                     _mavenParameters->maxNaturalAbundanceErr)
                 return true;
         }
+    //perform correlation check if parent group is present
+    if (parentGroup) 
+    {
+        //TODO: this is really an abuse of the maxIsotopeScanDiff parameter
+        //I can easily imagine you might set maxIsotopeScanDiff to something much less than the peak width
+        //here w should really be determined by the minRt and maxRt for the parent and child peaks
+        float w = _mavenParameters->maxIsotopeScanDiff
+            * _mavenParameters->avgScanTime;
+        float isotopeMass = x.mass;
+        Peak* parentPeak = parentGroup->getPeak(sample);
+        float rtmin = parentPeak->rtmin;
+        float rtmax = parentPeak->rtmax;
+        float parentMass = parentGroup->meanMz;
+        double c = sample->correlation(
+                isotopeMass, parentMass,
+                _mavenParameters->compoundMassCutoffWindow, rtmin - w,
+                rtmax + w, _mavenParameters->eicType,
+                _mavenParameters->filterline);  // find correlation for isotopes
+        if (c < _mavenParameters->minIsotopicCorrelation)
+            return true;
+    }
     return false;
 }
 
