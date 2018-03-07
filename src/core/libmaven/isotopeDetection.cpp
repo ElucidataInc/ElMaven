@@ -82,22 +82,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             if (parentPeak) {
                 parentPeakIntensity = parentPeak->peakIntensity;
-                int scannum = parentPeak->getScan()->scannum;
-                for (int i = scannum - 3; i < scannum + 3; i++) {
-                    Scan* s = sample->getScan(i);
-
-                    //look for isotopic mass in the same spectrum
-                    vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-
-                    for (unsigned int i = 0; i < matches.size(); i++) {
-                        int pos = matches[i];
-                        if (s->intensity[pos] > isotopePeakIntensity) {
-                            isotopePeakIntensity = s->intensity[pos];
-                            rt = s->rt;
-                        }
-                    }
-                }
-
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
             }
             //if(isotopePeakIntensity==0) continue;
 
@@ -214,6 +202,23 @@ bool IsotopeDetection::filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool
             return true;
     }
     return false;
+std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, float mzmax)
+{
+    float highestIntensity = 0;
+    float rt = 0;
+    mzSample* sample = scan->getSample();
+    //TODO: use maxIsotopeScanDiff instead of arbitrary number
+    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
+		Scan* s = sample->getScan(i);
+		vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
+		for (unsigned int i = 0; i < matches.size(); i++) {
+			int pos = matches[i];
+			if (s->intensity[pos] > highestIntensity)
+				highestIntensity = s->intensity[pos];
+                rt = s->rt;
+		}
+	}
+    return std::make_pair(highestIntensity, rt);
 }
 
 void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)
