@@ -17,6 +17,13 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	ionization->setValue(isotopeParameters->_charge);
 	bookmarkflag = true;
 	MavenParameters* mavenParameters = mw->mavenParameters;
+	bool C13Flag = mavenParameters->C13Labeled_IsoWidget;
+	bool N15Flag = mavenParameters->N15Labeled_IsoWidget;
+	bool S34Flag = mavenParameters->S34Labeled_IsoWidget;
+	bool D2Flag = mavenParameters->D2Labeled_IsoWidget;
+	IsotopeDetection::IsotopeDetectionType isoType;
+	isoType = IsotopeDetection::IsoWidget;
+	isotopeDetector = new IsotopeDetection(mavenParameters, isoType, C13Flag, N15Flag, S34Flag, D2Flag);
 
 	workerThread = new BackgroundPeakUpdate(mw);
 	workerThread->setRunFunction("pullIsotopes");
@@ -141,7 +148,10 @@ void IsotopeWidget::computeIsotopes(string f) {
 		D2Labeled
 	);
 	double parentMass = MassCalculator::computeMass(f, isotopeParameters->_charge);
-	float parentPeakIntensity = isotopeParameters->getIsotopeIntensity(parentMass, massCutoff);
+	float mzWindow = massCutoff->massCutoffValue(parentMass);
+	if (isotopeParameters->_scan == NULL) return;
+	std::pair<float, float> parent = isotopeDetector->getIntensity(isotopeParameters->_scan, parentMass-mzWindow, parentMass+mzWindow);
+	float parentPeakIntensity = parent.first;
 	for (unsigned int i = 0; i < isotopes.size(); i++) {
 		Isotope& x = isotopes[i];
 
@@ -156,7 +166,9 @@ void IsotopeWidget::computeIsotopes(string f) {
 			if (expectedAbundance < 1e-8)
 				continue;
 			// if (expectedAbundance * parentPeakIntensity < 500) continue;
-			float isotopePeakIntensity = isotopeParameters->getIsotopeIntensity(x.mass, massCutoff);
+			mzWindow = massCutoff->massCutoffValue(x.mass);
+			std::pair<float, float> child = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
+			float isotopePeakIntensity = child.first;
 
 			float observedAbundance = isotopePeakIntensity
 					/ (parentPeakIntensity + isotopePeakIntensity);
@@ -170,7 +182,9 @@ void IsotopeWidget::computeIsotopes(string f) {
 		link.mz2 = x.mass;
 		link.note = x.name;
 		link.value1 = x.abundance;
-		link.value2 = isotopeParameters->getIsotopeIntensity(x.mass, massCutoff);
+		mzWindow = massCutoff->massCutoffValue(x.mass);
+		std::pair<float, float> isotope = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
+		link.value2 = isotope.first;
 		isotopeParameters->links.push_back(link);
 	}
 	sort(isotopeParameters->links.begin(), isotopeParameters->links.end(), mzLink::compMz);

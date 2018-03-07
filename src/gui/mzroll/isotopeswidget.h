@@ -53,6 +53,7 @@ private Q_SLOTS:
 private:
 	  IsotopeLogic* isotopeParameters;
 	  IsotopeLogic* isotopeParametersBarPlot;
+	  IsotopeDetection* isotopeDetector;
       MainWindow* _mw;
 	  bool bookmarkflag;
 
