@@ -2519,7 +2519,7 @@ void MainWindow::createToolBars() {
 	ionizationModeLabel->setFrameShadow(QFrame::Raised);
 	
 	check_polly_login = new QLabel(hBox);
-	check_polly_login->setToolTip("Status of connection to Polly");
+	check_polly_login->setToolTip("Polly connection Status");
 	check_polly_login->setFrameShape(QFrame::Panel);
 	check_polly_login->setFrameShadow(QFrame::Raised);
 	check_polly_login->setText("not connected");
