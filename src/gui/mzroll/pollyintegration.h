@@ -1,11 +1,13 @@
 #ifndef POLLYINTEGRATION_H
 #define POLLYINTEGRATION_H
 
-#include <loginform.h>
-#include <projectform.h>
-#include <tabledockwidget.h>
+#include "loginform.h"
+#include "projectform.h"
+#include "tabledockwidget.h"
 #include "saveJson.h"
-// class TableDockWidget;
+
+class LoginForm;
+class ProjectForm;// class TableDockWidget;
 
 class PollyIntegration
 {
@@ -31,6 +33,8 @@ class PollyIntegration
 		void login_user();
 		QVariantMap getUserProjects();
 		QVariantMap getUserProjectsMap(QByteArray result2);
+		LoginForm* _loginform;
+		ProjectForm* _projectform;
 	private:
 		TableDockWidget* _tableDockWidget;
 };

@@ -9,6 +9,8 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget)
 PollyIntegration::~PollyIntegration()
 {
     qDebug()<<"exiting PollyIntegration now....";
+    delete _loginform;
+    delete _projectform;
 }
 
 QByteArray PollyIntegration::run_qt_process(QString command){
@@ -37,7 +39,6 @@ QString PollyIntegration::get_run_id(QByteArray result){
     QJsonObject json = doc.object();
     QVariantMap json_map = json.toVariantMap();
     QString run_id =  json_map["id"].toString();
-    qDebug() << run_id;
     return run_id;
 }
 
@@ -154,15 +155,15 @@ void PollyIntegration::transferData(){
 
 
 void PollyIntegration::login_user(){
-    LoginForm *w=new LoginForm(_tableDockWidget->_mainwindow,this);
-    w->setModal(true);
-    w->show();
+    _loginform =new LoginForm(_tableDockWidget->_mainwindow,this);
+    _loginform->setModal(true);
+    _loginform->show();
 }
 
 void PollyIntegration::get_project_name(){
-    ProjectForm *popup=new ProjectForm(_tableDockWidget->_mainwindow,this);
-    popup->setModal(true);
-    popup->show();
+    _projectform=new ProjectForm(_tableDockWidget->_mainwindow,this);
+    _projectform->setModal(true);
+    _projectform->show();
 }
 
 QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
@@ -238,7 +239,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     jsonSaveThread->setfileName(jsonfileName.toStdString());
     jsonSaveThread->start();
     while(jsonSaveThread->isRunning()){
-        qDebug()<<"not saved yet..";
+        ;
     }
     filenames.append(jsonfileName);
     QString run_id;
