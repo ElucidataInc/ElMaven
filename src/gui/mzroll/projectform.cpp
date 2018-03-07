@@ -57,7 +57,7 @@ void ProjectForm::on_pushButton_clicked()
     
     if (new_project_id!=QString("None")){
         msgBox.close();
-        QString redirection_url = QString("<a href='http://devpolly.elucidata.io/projects/%1#auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
+        QString redirection_url = QString("<a href='https://polly.elucidata.io/projects/%1#auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
         QMessageBox msgBox(this);
         msgBox.setWindowTitle("Redirecting to polly..");
         msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
