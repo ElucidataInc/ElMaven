@@ -146,6 +146,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 }
 
 TableDockWidget::~TableDockWidget() { 
+    delete _pollyIntegration;
     if(traindialog != NULL) delete traindialog;
 }
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem* item){
