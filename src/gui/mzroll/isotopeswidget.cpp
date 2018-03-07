@@ -132,8 +132,48 @@ void IsotopeWidget::computeIsotopes(string f) {
     bool N15Labeled = _mw->mavenParameters->N15Labeled_IsoWidget;
     bool S34Labeled = _mw->mavenParameters->S34Labeled_IsoWidget;
     bool D2Labeled = _mw->mavenParameters->D2Labeled_IsoWidget;
+	vector<Isotope> isotopes = MassCalculator::computeIsotopes(
+		f,
+		isotopeParameters->_charge,
+		C13Labeled,
+		N15Labeled,
+		S34Labeled,
+		D2Labeled
+	);
+	double parentMass = MassCalculator::computeMass(f, isotopeParameters->_charge);
+	float parentPeakIntensity = isotopeParameters->getIsotopeIntensity(parentMass, massCutoff);
+	for (unsigned int i = 0; i < isotopes.size(); i++) {
+		Isotope& x = isotopes[i];
 
-	isotopeParameters->computeIsotopes(f, massCutoff, maxNaturalAbundanceErr, C13Labeled, N15Labeled, S34Labeled, D2Labeled);
+		float expectedAbundance = x.abundance;
+
+		mzLink link;
+		if ((x.C13 > 0 && C13Labeled == false)
+				|| (x.N15 > 0 && N15Labeled == false)
+				|| (x.S34 > 0 && S34Labeled == false)
+				|| (x.H2 > 0 && D2Labeled == false)) {
+
+			if (expectedAbundance < 1e-8)
+				continue;
+			// if (expectedAbundance * parentPeakIntensity < 500) continue;
+			float isotopePeakIntensity = isotopeParameters->getIsotopeIntensity(x.mass, massCutoff);
+
+			float observedAbundance = isotopePeakIntensity
+					/ (parentPeakIntensity + isotopePeakIntensity);
+			float naturalAbundanceError = abs(
+					observedAbundance - expectedAbundance) / expectedAbundance
+					* 100;
+			if (naturalAbundanceError > maxNaturalAbundanceErr)
+				continue;
+		}
+		link.mz1 = parentMass;
+		link.mz2 = x.mass;
+		link.note = x.name;
+		link.value1 = x.abundance;
+		link.value2 = isotopeParameters->getIsotopeIntensity(x.mass, massCutoff);
+		isotopeParameters->links.push_back(link);
+	}
+	sort(isotopeParameters->links.begin(), isotopeParameters->links.end(), mzLink::compMz);
 
 	showTable();
 }
