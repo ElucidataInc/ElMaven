@@ -12,7 +12,6 @@ class IsotopeLogic {
 public:
 	IsotopeLogic();
 	void userChangedFormula();
-	float getIsotopeIntensity(float mz, MassCutoff *massCutoff);
 
 	string _formula;
 	float _charge;
