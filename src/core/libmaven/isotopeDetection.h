@@ -27,11 +27,19 @@ class IsotopeDetection
 
 	void pullIsotopes(PeakGroup *group);
 	bool filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
+	
 	/**
 	* @brief find highest intensity for given m/z and scan ranges
 	* @return pair of two values. Intensity and rt at which given intensity was found
 	**/
 	std::pair<float, float> getIntensity(Scan* scan, float mzmin, float mzmax);
+	
+	/**
+	 * @brief checks for natural abundance error and parent-isotope correlation
+	 * @details if parent group is not available, correlation check if skipped
+	 * @return bool. true if isotope has to be skipped. false if it passes the checks
+	 **/
+	bool filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
 
   private:
 	bool _C13Flag;
