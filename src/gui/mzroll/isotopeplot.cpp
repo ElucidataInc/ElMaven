@@ -1,26 +1,17 @@
 #include "isotopeplot.h"
 
-// import most common Eigen types
-//USING_PART_OF_NAMESPACE_EIGEN
 using namespace Eigen;
 
 
-IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
-    :QGraphicsItem(parent) {
-	// Initialised existing values - Kiran
+IsotopePlot::IsotopePlot(QCustomPlot* customPlot){
+
 	_barwidth=10;
-	_mw=NULL;
 	_group=NULL;
     mpMouseText = NULL;
     title = NULL;
     bottomAxisRect = NULL;
-    if ( scene != NULL ) {
-        _width = scene->width()*0.25;
-        _height = 10;
-    }
+    this->customPlot = customPlot;
 }
-
-void IsotopePlot::setMainWindow(MainWindow* mw) { _mw = mw; }
 
 void IsotopePlot::clear() { 
     QList<QGraphicsItem *> mychildren = QGraphicsItem::childItems();
@@ -30,21 +21,18 @@ void IsotopePlot::clear() {
             delete(child);
         }
     }
-    if (_mw) {
-        if (_mw->customPlot) {
-            if(mpMouseText) {
-                _mw->customPlot->removeItem(mpMouseText);
-            }
-            disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
-            _mw->customPlot->plotLayout()->clear();
-            _mw->customPlot->clearPlottables();
-            _mw->customPlot->replot();
+    if (customPlot) {
+        if(mpMouseText) {
+            customPlot->removeItem(mpMouseText);
         }
+        disconnect(customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+        customPlot->plotLayout()->clear();
+        customPlot->clearPlottables();
+        customPlot->replot();
     }
 }
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
-    //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
 
     if ( group == NULL ) return;
 
@@ -66,12 +54,6 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
             _isotopes.push_back(isotope);
         }
     }
-    //std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
-	/*
-	for(int i=0; i < _isotopes.size(); i++ )  {
-		cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl; 
-	}
-	*/
 
     showBars();
 }
@@ -128,32 +110,28 @@ void IsotopePlot::showBars() {
     }
 
     labels.resize(0);
-    for(int i=0; i<MM.rows(); i++ ) {		//samples
-        //float sum= MM.row(i).sum();
+    for(int i=0; i<MM.rows(); i++ )
         labels << QString::fromStdString(_samples[i]->sampleName.c_str());
-        //if (sum == 0) continue;
-        //MM.row(i) /= sum;
-        //ticks << i ;
-    }
+
 
     MMDuplicate = MM;
 
-    _mw->customPlot->plotLayout()->clear();
-    _mw->customPlot->clearPlottables();
+    customPlot->plotLayout()->clear();
+    customPlot->clearPlottables();
 
-    title = new QCPTextElement(_mw->customPlot);
+    title = new QCPTextElement(customPlot);
 
     title->setText(_isotopes[0]->compound->name.c_str());
     title->setFont(QFont("Helvetica", 12, QFont::Bold));
-    _mw->customPlot->plotLayout()->addElement(0, 0, title); 
+    customPlot->plotLayout()->addElement(0, 0, title); 
 
-    bottomAxisRect = new QCPAxisRect(_mw->customPlot);
+    bottomAxisRect = new QCPAxisRect(customPlot);
 
-    _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
+    customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
     isotopesType.resize(MM.cols());
 
     for(int j=0; j < MM.cols(); j++ ) {
-        isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
+        isotopesType[j] = new QCPBars(customPlot->xAxis, customPlot->yAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
         int h = j % 20;
@@ -176,13 +154,12 @@ void IsotopePlot::showBars() {
     }
 
     if(mpMouseText) {
-        _mw->customPlot->removeItem(mpMouseText);
+        customPlot->removeItem(mpMouseText);
     }
-    mpMouseText = new QCPItemText(_mw->customPlot);
+    mpMouseText = new QCPItemText(customPlot);
 
     if(!mpMouseText) return;
 
-    //_mw->customPlot->addItem(mpMouseText); 
     mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
     mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
     mpMouseText->setPositionAlignment(Qt::AlignLeft);
@@ -191,25 +168,24 @@ void IsotopePlot::showBars() {
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
 
     _mw->setIsotopicPlotStyling();
-    //_mw->customPlot->rescaleAxes();
-    _mw->customPlot->xAxis->setRange(-0.5, MM.rows());
+    customPlot->xAxis->setRange(-0.5, MM.rows());
 
-    disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
-    connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
+    disconnect(customPlot, SIGNAL(mouseMove(QMouseEvent*)));
+    connect(customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
 
-    _mw->customPlot->replot();
+    customPlot->replot();
 }
 
 void IsotopePlot::showPointToolTip(QMouseEvent *event) {
 
     if (!event) return;
-    if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
+    if (customPlot->plotLayout()->elementCount() <= 0) return;
 
-    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
-    double keyPixel =  _mw->customPlot->xAxis->coordToPixel(x);
-    double shiftRight =  _mw->customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
-    x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
-    int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    int x = customPlot->xAxis->pixelToCoord(event->pos().x());
+    double keyPixel =  customPlot->xAxis->coordToPixel(x);
+    double shiftRight =  customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
+    x = customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
+    int y = customPlot->yAxis->pixelToCoord(event->pos().y());
 
     if (x < labels.count() && x >= 0) {
         QString name = labels.at(x);
@@ -233,7 +209,7 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
 
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
     }
-    _mw->customPlot->replot();
+    customPlot->replot();
 }
 
 
@@ -248,38 +224,5 @@ void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
 
     menu.exec(event->globalPos());
 
-}
-
-void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) { return; }
-
-/*
-void IsotopeBar::mouseDoubleClickEvent (QGraphicsSceneMouseEvent*event) {
-	QVariant v = data(1);
-   	PeakGroup*  x = v.value<PeakGroup*>();
-}
-
-void IsotopeBar::mousePressEvent (QGraphicsSceneMouseEvent*event) {}
-*/
-
-
-void IsotopeBar::hoverEnterEvent (QGraphicsSceneHoverEvent*event) {
-    QVariant v = data(0);
-    QString note = v.value<QString>();
-    if (note.length() == 0 ) return;
-
-    QString htmlNote = note;
-    setToolTip(note);
-    QPointF posG = mapToScene(event->pos());
-    Q_EMIT(showInfo(htmlNote, posG.x(), posG.y()+5));
-}
-
-void IsotopeBar::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace ) {
-        QVariant v = data(1);
-    	PeakGroup*  g = v.value<PeakGroup*>();
-        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); Q_EMIT(groupUpdated(g->parent)); }
-        IsotopePlot* parent = (IsotopePlot*) parentItem();
-        if (parent) parent->showBars();
-    }
 }
 

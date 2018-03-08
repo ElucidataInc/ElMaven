@@ -1141,21 +1141,17 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 }
 
 void EicWidget::addIsotopicPlot(PeakGroup* group) {
-	//qDebug <<" EicWidget::addIsotopicPlot(PeakGroup* group)";
-	if (group == NULL)
+
+	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+	if (group == NULL || group->childCountBarPlot() == 0 || samples.size() == 0)
 		return;
 	if (_isotopeplot == NULL)
-		_isotopeplot = new IsotopePlot(0, scene());
+		_isotopeplot = new IsotopePlot(getMainWindow()->customPlot );
 	if (_isotopeplot->scene() != scene())
 		scene()->addItem(_isotopeplot);
 	_isotopeplot->hide();
 
-	if (group->childCountBarPlot() == 0)
-		return;
-
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (samples.size() == 0)
-		return;
+	
 
 	_isotopeplot->setPos(scene()->width() * 0.10, scene()->height() * 0.10);
 	_isotopeplot->setZValue(1000);
