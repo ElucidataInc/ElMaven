@@ -11,6 +11,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
+    _pollyIntegration=nullptr;
     setObjectName(title);
 
     numColms=11;
@@ -146,7 +147,9 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 }
 
 TableDockWidget::~TableDockWidget() { 
-    delete _pollyIntegration;
+    if (_pollyIntegration!=nullptr){
+        delete _pollyIntegration;
+    }
     if(traindialog != NULL) delete traindialog;
 }
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem* item){
