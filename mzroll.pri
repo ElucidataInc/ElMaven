@@ -7,7 +7,7 @@ CONFIG(debug, debug|release){
     }
 }
 
-QT += sql core  gui opengl webkitwidgets
+QT += sql core  gui opengl
 
 CONFIG += silent exceptions
 
