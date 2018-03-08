@@ -166,9 +166,19 @@ void IsotopeWidget::computeIsotopes(string f) {
 
 		mzLink link;
 		mzSample* sample = isotopeParameters->_scan->getSample();
+		bool filterIsotope = false;
 		
-		if (isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample))
-			continue;
+		if (isotopeParameters->_group)
+		{
+			filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, isotopeParameters->_group);
+		}
+		else
+		{
+			filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample);
+		}
+
+		if (filterIsotope)
+			isotopePeakIntensity = 0;
 		
 		link.mz1 = parentMass;
 		link.mz2 = x.mass;
