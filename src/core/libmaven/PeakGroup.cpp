@@ -158,6 +158,7 @@ void PeakGroup::clear() {
     groupRank=INT_MAX;
 }
 
+//TODO: a duplicate function getPeak exists. Delete this function
 Peak* PeakGroup::getSamplePeak(mzSample* sample) {
     for (unsigned int i=0; i< peaks.size(); i++ ) {
         if (peaks[i].getSample() == sample ) return &peaks[i];

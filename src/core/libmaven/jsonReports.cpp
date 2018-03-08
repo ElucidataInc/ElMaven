@@ -63,6 +63,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
         if (it!=vsamples.begin()) {
             myfile << ",\n";
         }
+        //TODO: Use getPeak()
         Peak* peak = grp.getSamplePeak(*it);
         if(peak) {
             //TODO: add slice information here: e.g. what ppm was used
