@@ -32,7 +32,7 @@ public Q_SLOTS:
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
 	void computeIsotopes(string f);
-	void setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg);
+	void setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg = false);
 	void setCompound(Compound* compound);
 	void setIonizationMode(int mode);
 	void setPeak(Peak* peak);

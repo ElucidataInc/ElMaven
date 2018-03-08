@@ -144,6 +144,11 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 
     if ( _group && _group->isIsotope() == false ) {
         _mw->isotopeWidget->updateIsotopicBarplot(_group);
+        _mw->isotopeWidget->setPeakGroupAndMore(_group);
+    }
+    else
+    {
+        _mw->isotopeWidget->setPeakGroupAndMore(NULL);
     }
 
     if(_scan) {
