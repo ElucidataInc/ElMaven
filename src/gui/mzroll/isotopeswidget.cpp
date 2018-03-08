@@ -182,14 +182,6 @@ void IsotopeWidget::computeIsotopes(string f) {
 	showTable();
 }
 
-Peak* IsotopeWidget::getSamplePeak(PeakGroup* group, mzSample* sample) {
-	for (int i = 0; i < group->peaks.size(); i++) {
-		if (group->peaks[i].getSample() == sample) {
-			return &(group->peaks[i]);
-		}
-	}
-	return NULL;
-}
 void IsotopeWidget::pullIsotopes(PeakGroup* group) {
 	if (!group)
 		return;

@@ -43,7 +43,6 @@ public Q_SLOTS:
 	void pullIsotopesForBarplot(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* grp);
 	void updateIsotopicBarplot();
-	Peak* getSamplePeak(PeakGroup* group, mzSample* sample);
 
 private Q_SLOTS:
 	void showInfo();
