@@ -1,24 +1,32 @@
 #include "pollyintegration.h"
+#include <QElapsedTimer>
+
 
 PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget)
 {
-
+    _loginform = nullptr;
+    _projectform = nullptr;
     _tableDockWidget = tableDockWidget;
 }
 
 PollyIntegration::~PollyIntegration()
 {
     qDebug()<<"exiting PollyIntegration now....";
-    delete _loginform;
+    if(_loginform!=nullptr){
+        delete _loginform;
+    }
+    if(_projectform!=nullptr){
     delete _projectform;
+    }
 }
 
 QByteArray PollyIntegration::run_qt_process(QString command){
     QProcess process;
     process.start(command);
-    process.waitForFinished();
+    process.waitForFinished(600000);
     QByteArray result = process.readAllStandardOutput();
     QByteArray result2 = process.readAllStandardError();
+    qDebug()<<"error is - "<<result2;
     return result;
 }
 
@@ -238,9 +246,12 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     jsonSaveThread->setPeakTable(_tableDockWidget);
     jsonSaveThread->setfileName(jsonfileName.toStdString());
     jsonSaveThread->start();
+    QElapsedTimer timer;
+    timer.start();
     while(jsonSaveThread->isRunning()){
         ;
     }
+    qDebug() << "time taken in writing json file, by Elmaven is - "<<timer.elapsed();
     filenames.append(jsonfileName);
     QString run_id;
     if (ProjectId==""){
@@ -251,13 +262,15 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     else{
         run_id = ProjectId;
     }
+    timer.start();
     QString get_upload_Project_urls = QString("mithoo get_upload_Project_urls --id %1").arg(run_id);
     QByteArray result2 = run_qt_process(get_upload_Project_urls);
     QStringList upload_project_data_commands = get_project_upload_url_commands(result2,filenames);
     for (int i = 0; i < upload_project_data_commands.size(); ++i){
-        QString command = upload_project_data_commands.at(i);    
+        QString command = upload_project_data_commands.at(i);
         QByteArray patch_id_result = run_qt_process(command);
     }
+    qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
     qdir.removeRecursively();
     return run_id;
 
