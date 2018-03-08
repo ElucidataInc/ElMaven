@@ -147,44 +147,34 @@ void IsotopeWidget::computeIsotopes(string f) {
 		S34Labeled,
 		D2Labeled
 	);
+	
 	double parentMass = MassCalculator::computeMass(f, isotopeParameters->_charge);
 	float mzWindow = massCutoff->massCutoffValue(parentMass);
-	if (isotopeParameters->_scan == NULL) return;
+	
+	if (isotopeParameters->_scan == NULL) 
+		return;
+	
 	std::pair<float, float> parent = isotopeDetector->getIntensity(isotopeParameters->_scan, parentMass-mzWindow, parentMass+mzWindow);
 	float parentPeakIntensity = parent.first;
-	for (unsigned int i = 0; i < isotopes.size(); i++) {
+	
+	for (unsigned int i = 0; i < isotopes.size(); i++)
+	{
 		Isotope& x = isotopes[i];
-
-		float expectedAbundance = x.abundance;
+		mzWindow = massCutoff->massCutoffValue(x.mass);
+		std::pair<float, float> child = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
+		float isotopePeakIntensity = child.first;
 
 		mzLink link;
-		if ((x.C13 > 0 && C13Labeled == false)
-				|| (x.N15 > 0 && N15Labeled == false)
-				|| (x.S34 > 0 && S34Labeled == false)
-				|| (x.H2 > 0 && D2Labeled == false)) {
-
-			if (expectedAbundance < 1e-8)
-				continue;
-			// if (expectedAbundance * parentPeakIntensity < 500) continue;
-			mzWindow = massCutoff->massCutoffValue(x.mass);
-			std::pair<float, float> child = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
-			float isotopePeakIntensity = child.first;
-
-			float observedAbundance = isotopePeakIntensity
-					/ (parentPeakIntensity + isotopePeakIntensity);
-			float naturalAbundanceError = abs(
-					observedAbundance - expectedAbundance) / expectedAbundance
-					* 100;
-			if (naturalAbundanceError > maxNaturalAbundanceErr)
-				continue;
-		}
+		mzSample* sample = isotopeParameters->_scan->getSample();
+		
+		if (isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample))
+			continue;
+		
 		link.mz1 = parentMass;
 		link.mz2 = x.mass;
 		link.note = x.name;
 		link.value1 = x.abundance;
-		mzWindow = massCutoff->massCutoffValue(x.mass);
-		std::pair<float, float> isotope = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
-		link.value2 = isotope.first;
+		link.value2 = isotopePeakIntensity;
 		isotopeParameters->links.push_back(link);
 	}
 	sort(isotopeParameters->links.begin(), isotopeParameters->links.end(), mzLink::compMz);
