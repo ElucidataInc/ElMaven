@@ -134,7 +134,7 @@ public:
 
 	AutoSave* autosave;
 	QSet<QString> SaveMzrollListvar;
-	MavenParameters* mavenParameters;
+	static MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
@@ -233,7 +233,7 @@ public:
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
-	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
+	static void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
 	void autoSaveSignal();
 	void normalizeIsotopicMatrix(MatrixXf &MM);
 

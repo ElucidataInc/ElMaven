@@ -32,6 +32,7 @@ public:
     void clear();
     void showBars();
     void normalizeIsotopicMatrix(MatrixXf &MM);
+    MatrixXf getIsotopicMatrix(PeakGroup* group);
     void setBelowAbThresholdMatrixEntries(MatrixXf &MM,MainWindow* _mw);
     void setIsotopicPlotStyling();
 
@@ -56,6 +57,7 @@ private:
     QCPAxisRect * bottomAxisRect;
     QCustomPlot *customPlot;
 
+    PeakGroup::QType qtype;
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;
     MatrixXf MMDuplicate;

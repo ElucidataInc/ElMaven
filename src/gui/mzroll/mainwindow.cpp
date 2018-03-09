@@ -664,6 +664,7 @@ MainWindow::~MainWindow()
     delete mavenParameters;
 }
 
+MavenParameters* MainWindow::mavenParameters=NULL;
 void MainWindow::saveSettingsToLog() {
 
     QString buffer;
