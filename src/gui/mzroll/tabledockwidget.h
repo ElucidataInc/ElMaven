@@ -10,6 +10,8 @@
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
 #include "saveJson.h"
+#include "pollyintegration.h"
+
 
 class MainWindow;
 class AlignmentVizWidget;
@@ -17,6 +19,7 @@ class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
 class ListView;
+class PollyIntegration;
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -39,6 +42,7 @@ public:
     QStringListModel* stringModel;  /**@param-  model of compound name,will be set to <listTextView>*/
 
     MainWindow* _mainwindow;
+    PollyIntegration* _pollyIntegration;
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
@@ -69,6 +73,7 @@ public:
 	~TableDockWidget();
 
     int  groupCount() { return allgroups.size(); }
+    QList<PeakGroup> getAllGroups(){ return allgroups;}
     /**
      * @detail- this function return true if this group already present in
      * bookmrked group <allgroups>.
@@ -95,9 +100,9 @@ public:
     float outputRtWindow = 2.0;
 
 public Q_SLOTS: 
+    void sortChildrenAscending(QTreeWidgetItem* item);
 	  //void showInfo(PeakGroup* group);
-      PeakGroup* addPeakGroup(PeakGroup* group);
-      void sortChildrenAscending(QTreeWidgetItem* item);
+	  PeakGroup* addPeakGroup(PeakGroup* group);
 	  void setupPeakTable();
       void showLog();
 	  PeakGroup* getSelectedGroup();
@@ -118,6 +123,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+      void exportGroupsToSpreadsheet_polly();
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {
@@ -151,7 +157,8 @@ public Q_SLOTS:
     */
     void rejectGroup();
     void exportJson();
-	  void showSelectedGroup();
+    void exportPolly();
+    void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);
 	  void showLastGroup();
