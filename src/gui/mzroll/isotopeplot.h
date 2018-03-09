@@ -33,6 +33,7 @@ public:
     void showBars();
     void normalizeIsotopicMatrix(MatrixXf &MM);
     void setBelowAbThresholdMatrixEntries(MatrixXf &MM,MainWindow* _mw);
+    void setIsotopicPlotStyling();
 
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);

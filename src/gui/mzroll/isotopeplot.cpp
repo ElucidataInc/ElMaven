@@ -167,7 +167,7 @@ void IsotopePlot::showBars() {
     mpMouseText->setText("");
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
 
-    _mw->setIsotopicPlotStyling();
+    setIsotopicPlotStyling();
     customPlot->xAxis->setRange(-0.5, MM.rows());
 
     disconnect(customPlot, SIGNAL(mouseMove(QMouseEvent*)));
@@ -226,3 +226,17 @@ void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
 
 }
 
+void IsotopePlot::setIsotopicPlotStyling() {
+	//prepare x axis
+	customPlot->xAxis->setTickLabels( false );
+	customPlot->xAxis->setTicks( false );
+	customPlot->xAxis->setBasePen(QPen(Qt::white));
+	customPlot->xAxis->grid()->setVisible(false);	
+	// prepare y axis:
+	customPlot->yAxis->grid()->setVisible(false);
+	customPlot->yAxis->setTickLabels( false );
+	customPlot->yAxis->setTicks( false );
+	customPlot->yAxis->setBasePen(QPen(Qt::white));
+	customPlot->yAxis->setRange(0, 1);
+	
+}
