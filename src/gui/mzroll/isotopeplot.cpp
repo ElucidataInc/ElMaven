@@ -13,6 +13,23 @@ IsotopePlot::IsotopePlot(QCustomPlot* customPlot){
     this->customPlot = customPlot;
 }
 
+IsotopePlot::IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
+                vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype){
+
+	_barwidth=10;
+	_group=NULL;
+    mpMouseText = NULL;
+    title = NULL;
+    bottomAxisRect = NULL;
+    this->customPlot = customPlot;
+    this->_width = width;
+    this->_height = height;
+    setZValue(stackingZValue); // inherited from QGraphicsItem, refer qt-doc
+    _samples = samples;
+    _abundanceThresold = abundanceThresold;
+    _qtype = qtype;
+}
+
 void IsotopePlot::clear() { 
     QList<QGraphicsItem *> mychildren = QGraphicsItem::childItems();
     if (mychildren.size() > 0 ) {
@@ -93,9 +110,6 @@ void IsotopePlot::showBars() {
 
     int visibleSamplesCount = _samples.size();
     sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
-
-    PeakGroup::QType qtype = PeakGroup::AreaTop;
-    if ( _mw ) qtype = _mw->getUserQuantType();
 
     MatrixXf MM = getIsotopicMatrix(_group);
     setBelowAbThresholdMatrixEntries(MM,_mw);
@@ -273,7 +287,7 @@ MatrixXf IsotopePlot::getIsotopicMatrix(PeakGroup* group) {
 		if (!isotopes[i])
 			continue;
 		vector<float> values = isotopes[i]->getOrderedIntensityVector(_samples,
-				qtype); //sort isotopes by sample
+				_qtype); //sort isotopes by sample
 		for (int j = 0; j < values.size(); j++)
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
 	}

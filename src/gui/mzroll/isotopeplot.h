@@ -22,6 +22,8 @@ class IsotopePlot : public QObject, public QGraphicsItem
 
 public:
     IsotopePlot(QCustomPlot* customPlot);
+    IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
+                vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype);
     ~IsotopePlot();
 
     void setPeakGroup(PeakGroup* group);
@@ -48,6 +50,7 @@ private:
     float _width;
     float _height;
     float _barwidth;
+    float _abundanceThresold;
     vector<mzSample*> _samples;
     MainWindow* _mw;
     QVector<QString> labels;
@@ -57,7 +60,7 @@ private:
     QCPAxisRect * bottomAxisRect;
     QCustomPlot *customPlot;
 
-    PeakGroup::QType qtype;
+    PeakGroup::QType _qtype;
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;
     MatrixXf MMDuplicate;
