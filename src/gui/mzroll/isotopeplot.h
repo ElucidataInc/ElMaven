@@ -27,15 +27,12 @@ public:
     ~IsotopePlot();
 
     void setPeakGroup(PeakGroup* group);
-    void setMainWindow(MainWindow* mw){
-        _mw=mw;
-    }
     QRectF boundingRect() const;
     void clear();
     void showBars();
     void normalizeIsotopicMatrix(MatrixXf &MM);
     MatrixXf getIsotopicMatrix(PeakGroup* group);
-    void setBelowAbThresholdMatrixEntries(MatrixXf &MM,MainWindow* _mw);
+    void setBelowAbThresholdMatrixEntries(MatrixXf &MM);
     void setIsotopicPlotStyling();
 
 private Q_SLOTS:

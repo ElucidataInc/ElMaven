@@ -1142,20 +1142,21 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 
 void EicWidget::addIsotopicPlot(PeakGroup* group) {
 
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (group == NULL || group->childCountBarPlot() == 0 || samples.size() == 0)
+	if (group == NULL || group->childCountBarPlot() == 0)
 		return;
-	if (_isotopeplot == NULL)
-		_isotopeplot = new IsotopePlot(getMainWindow()->customPlot );
+	if (_isotopeplot == NULL){
+		vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+		if(samples.size() == 0)
+			return;
+		float abundanceThresold = getMainWindow()->getSettings()->value("AbthresholdBarplot").toDouble();
+		PeakGroup::QType qtype = getMainWindow()->getUserQuantType();
+		_isotopeplot = new IsotopePlot(getMainWindow()->customPlot, scene()->width() * 0.10, scene()->height() * 0.10,
+										1000, samples, abundanceThresold, qtype );
+	}
+
 	if (_isotopeplot->scene() != scene())
 		scene()->addItem(_isotopeplot);
-	_isotopeplot->hide();
 
-	
-
-	_isotopeplot->setPos(scene()->width() * 0.10, scene()->height() * 0.10);
-	_isotopeplot->setZValue(1000);
-	_isotopeplot->setMainWindow(getMainWindow());
 	_isotopeplot->setPeakGroup(group);
 	_isotopeplot->show();
 	return;

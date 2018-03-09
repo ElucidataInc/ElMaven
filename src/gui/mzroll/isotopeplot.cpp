@@ -59,9 +59,6 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
     if ( isVisible() == true && group == _group) return;
     _group = group;
-
-	_samples.clear();
-	_samples = _mw->getVisibleSamples();
 	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
 
     _isotopes.clear();
@@ -83,11 +80,11 @@ QRectF IsotopePlot::boundingRect() const
     return(QRectF(0,0,_width,_height));
 }
 
-void IsotopePlot::setBelowAbThresholdMatrixEntries(MatrixXf &MM, MainWindow* _mw) {
+void IsotopePlot::setBelowAbThresholdMatrixEntries(MatrixXf &MM) {
     for(int i = 0; i < MM.rows(); i++) {
         for(int j = 0; j < MM.cols(); j++) {
             double percent = (double) (MM(i,j)*100);
-            if(percent <= _mw->getSettings()->value("AbthresholdBarplot").toDouble()) MM(i,j) = 0;
+            if(percent <= _abundanceThresold) MM(i,j) = 0;
         }
     }
 }
@@ -112,7 +109,7 @@ void IsotopePlot::showBars() {
     sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
 
     MatrixXf MM = getIsotopicMatrix(_group);
-    setBelowAbThresholdMatrixEntries(MM,_mw);
+    setBelowAbThresholdMatrixEntries(MM);
     normalizeIsotopicMatrix(MM);
 
     if (scene()) {
@@ -207,7 +204,7 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
             if (x  >= MMDuplicate.rows()) return;
-            if (MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
+            if (MMDuplicate(x,j)*100 > _abundanceThresold) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                                                     QString::number(MMDuplicate(x,j)*100));
