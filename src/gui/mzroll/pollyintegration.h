@@ -24,7 +24,7 @@ class PollyIntegration
 	    QStringList get_system_urls(QString filename);
 	    QStringList get_project_upload_url_commands(QByteArray result2,QStringList filenames);
 	    QString get_run_id(QByteArray result);
-	    QString get_patch_id(QByteArray result);    
+	    QString get_patch_id(QByteArray result);
 	    int authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 	    void transferData();
@@ -37,6 +37,8 @@ class PollyIntegration
 		ProjectForm* _projectform;
 	private:
 		TableDockWidget* _tableDockWidget;
+		QString nodePath;
+		QString jsPath;
 };
 
 #endif // POLLYINTEGRATION_H

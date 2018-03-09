@@ -5,17 +5,17 @@
 
 ProjectForm::ProjectForm(MainWindow *parent,PollyIntegration* pollyintegration) :
     QDialog(parent),
-    ui(new Ui::ProjectForm)
+    ui(new Ui::ProjectForm),
+    _mainwindow(parent),
+    _pollyintegration(pollyintegration)
 {
     ui->setupUi(this);
+
     projectnames_id = _pollyintegration->getUserProjects();
     QStringList keys= projectnames_id.keys();
     for (int i=0; i < keys.size(); ++i){
             ui->comboBox_1->addItem(projectnames_id[keys.at(i)].toString());
     }
-    _mainwindow=parent;
-    _pollyintegration = pollyintegration;
-    
 }
 
 ProjectForm::~ProjectForm()
@@ -40,7 +40,7 @@ void ProjectForm::on_pushButton_clicked()
     if (new_projectname==""){
         ui->status_label->setStyleSheet("QLabel {color : green; }");
         ui->status_label->setText("Uploading files to new project..");
-    
+
         QStringList keys= projectnames_id.keys();
         for (int i=0; i < keys.size(); ++i){
             if (projectnames_id[keys.at(i)].toString()==projectname){
@@ -52,9 +52,9 @@ void ProjectForm::on_pushButton_clicked()
     else{
         ui->status_label->setStyleSheet("QLabel {color : green; }");
         ui->status_label->setText("Uploading files to existing project..");
-        new_project_id = _pollyintegration->exportData(new_projectname,project_id);       
+        new_project_id = _pollyintegration->exportData(new_projectname,project_id);
     }
-    
+
     if (new_project_id!=QString("None")){
         msgBox.close();
         QString redirection_url = QString("<a href='https://polly.elucidata.io/projects/%1#auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
@@ -67,6 +67,6 @@ void ProjectForm::on_pushButton_clicked()
     else{
         ui->status_label->setStyleSheet("QLabel {color : red; }");
         ui->status_label->setText("error in uploading files..");
-    
+
     }
 }
