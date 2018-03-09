@@ -2,17 +2,6 @@
 
 using namespace Eigen;
 
-
-IsotopePlot::IsotopePlot(QCustomPlot* customPlot){
-
-	_barwidth=10;
-	_group=NULL;
-    mpMouseText = NULL;
-    title = NULL;
-    bottomAxisRect = NULL;
-    this->customPlot = customPlot;
-}
-
 IsotopePlot::IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
                 vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype){
 
@@ -221,20 +210,6 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
     }
     customPlot->replot();
-}
-
-
-void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
-    QMenu menu;
-
-    SettingsForm* settingsForm = _mw->settingsForm;
-
-    QAction* d = menu.addAction("Isotope Detection Options");
-    connect(d, SIGNAL(triggered()), settingsForm, SLOT(showIsotopeDetectionTab()));
-    connect(d, SIGNAL(triggered()), settingsForm, SLOT(show()));
-
-    menu.exec(event->globalPos());
-
 }
 
 void IsotopePlot::setIsotopicPlotStyling() {

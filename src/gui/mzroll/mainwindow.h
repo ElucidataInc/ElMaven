@@ -235,8 +235,6 @@ public:
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	static void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
 	void autoSaveSignal();
-	void normalizeIsotopicMatrix(MatrixXf &MM);
-
 	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile

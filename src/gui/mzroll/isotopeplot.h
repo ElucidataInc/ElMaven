@@ -21,7 +21,18 @@ class IsotopePlot : public QObject, public QGraphicsItem
 #endif
 
 public:
-    IsotopePlot(QCustomPlot* customPlot);
+    /**
+     * details- This class is used to display isotopic bar plot for a group.
+     *  To use this class create one instance of this class.
+     * => customPlot is field that will be used to draw all isotopic bars
+     * => widht and height are window width and height
+     * => stackingZValue is stacking parameters of different graphr, refer Qt-doc
+     * => abundanceThresold is abundanc thresold for isotopes to display
+     * 
+     * After creating this object, set this object to scene that is holding this isotope-plot,(scene()->addItem(This Obejct))
+     * Now specify a group by setPeakGroup method to be show
+     * now call show() method on this object that is inherited from QGraphicsItem
+     */
     IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
                 vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype);
     ~IsotopePlot();
@@ -40,7 +51,6 @@ private Q_SLOTS:
 	
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){}
-    void contextMenuEvent(QContextMenuEvent * event);
 
 
 private:
@@ -49,7 +59,6 @@ private:
     float _barwidth;
     float _abundanceThresold;
     vector<mzSample*> _samples;
-    MainWindow* _mw;
     QVector<QString> labels;
     QCPItemText * mpMouseText;
     QVector<QCPBars *> isotopesType;
