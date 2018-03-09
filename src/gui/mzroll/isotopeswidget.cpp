@@ -19,7 +19,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 	MavenParameters* mavenParameters = mw->mavenParameters;
 
 	workerThread = new BackgroundPeakUpdate(mw);
-	workerThread->setRunFunction("pullIsotopesIsoWidget");
+	workerThread->setRunFunction("pullIsotopes");
 	workerThread->setMainWindow(mw);
 
 	workerThread->setMavenParameters(mavenParameters);
@@ -296,8 +296,8 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup* group, bool includeSa
        //get isotopic groups
 		vector<PeakGroup*>isotopes;
 		for(int i=0; i < group->childCount(); i++ ) {
-			if (group->childrenIsoWidget[i].isIsotope() ) {
-                PeakGroup* isotope = &(group->childrenIsoWidget[i]);
+			if (group->children[i].isIsotope() ) {
+                PeakGroup* isotope = &(group->children[i]);
                 isotopes.push_back(isotope);
 			}
 		}
