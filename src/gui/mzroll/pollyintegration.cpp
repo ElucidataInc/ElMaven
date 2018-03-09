@@ -1,12 +1,23 @@
 #include "pollyintegration.h"
 #include <QElapsedTimer>
+#include <QStandardPaths>
+#include <QDir>
 
-
-PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget)
+PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath(""), jsPath("")
 {
     _loginform = nullptr;
     _projectform = nullptr;
     _tableDockWidget = tableDockWidget;
+    #ifdef Q_OS_WIN
+      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+        nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
+
+      if(nodePath.isEmpty())
+        nodePath = QStandardPaths::findExecutable("node");
+
+      jsPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator() + "mithoo-service" + QDir::separator() + \
+              "index.js";
+    #endif
 }
 
 PollyIntegration::~PollyIntegration()
@@ -23,10 +34,9 @@ PollyIntegration::~PollyIntegration()
 QByteArray PollyIntegration::run_qt_process(QString command){
     QProcess process;
     process.start(command);
-    process.waitForFinished(600000);
+    process.waitForFinished(-1);
     QByteArray result = process.readAllStandardOutput();
     QByteArray result2 = process.readAllStandardError();
-    qDebug()<<"error is - "<<result2;
     return result;
 }
 
@@ -78,8 +88,9 @@ QStringList PollyIntegration::get_system_urls(QString filename){
             for (int i = 0; i < keys.size(); ++i){
                 QString key=keys.at(i).toLocal8Bit().constData();
                 QString url_map_json =  url_map[key].toList()[0].toString();
-                QString key2= "test.csv";        
-                QString command= QString("mithoo createPutRequest \"%1\" \"%2\"").arg(url_map_json).arg(key2);
+                QString key2= "test.csv";
+
+                QString command= QString("%1 %2 createPutRequest \"%3\" \"%4\"").arg(nodePath).arg(jsPath).arg(url_map_json).arg(key2);
                 upload_commands.append(command);
             }
         }
@@ -105,13 +116,13 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
         QString new_filename = test_files_list[size-1];
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
-        QString command= QString("mithoo upload_project_data \"%1\" \"%2\"").arg(url_map_json).arg(filename);
+        QString command= QString("%1 %2 upload_project_data \"%3\" \"%4\"").arg(nodePath).arg(jsPath).arg(url_map_json).arg(filename);
         upload_commands.append(command);
     }
     return upload_commands;
 }
 
-QString PollyIntegration::get_urls(QByteArray result){    
+QString PollyIntegration::get_urls(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
     int size = test_list.size();
     QByteArray result2 = test_list[size-2];
@@ -126,7 +137,7 @@ QString PollyIntegration::get_urls(QByteArray result){
 
 int PollyIntegration::check_already_logged_in(){
     int status;
-    QString command = QString("mithoo authenticate");
+    QString command = QString("%1 %2 authenticate").arg(nodePath).arg(jsPath);
     QByteArray result2 = run_qt_process(command);
     QList<QByteArray> test_list = result2.split('\n');
     QByteArray status_line = test_list[0];
@@ -141,7 +152,7 @@ int PollyIntegration::check_already_logged_in(){
 
 
 int PollyIntegration::authenticate_login(QString username,QString password){
-    QString command = QString("mithoo authenticate %1 %2").arg(username).arg(password);
+    QString command = QString("%1 %2 authenticate %3 %4").arg(nodePath).arg(jsPath).arg(username).arg(password);
     QByteArray result = run_qt_process(command);
     int status_inside = check_already_logged_in();
     return status_inside;
@@ -192,7 +203,7 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 }
 
 QVariantMap PollyIntegration::getUserProjects(){
-    QString get_projects_command = QString("mithoo get_Project_names");
+    QString get_projects_command = QString("%1 %2 get_Project_names").arg(nodePath).arg(jsPath);
     QByteArray result2 = run_qt_process(get_projects_command);
     QVariantMap user_projects = getUserProjectsMap(result2);
     return user_projects;
@@ -200,7 +211,7 @@ QVariantMap PollyIntegration::getUserProjects(){
 
 QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     QList<PeakGroup> allgroups =  _tableDockWidget->getAllGroups();
-    
+
     if (allgroups.size() == 0 ) {
         QString msg = "Peaks Table is Empty, can't export to POLLY";
         QMessageBox::warning(_tableDockWidget, "Error", msg);
@@ -227,7 +238,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     QStringList filenames;
     QDir qdir(dir+QString("/tmp_files/"));
     if (!qdir.exists()){
-        QDir().mkdir(dir+QString("/tmp_files"));   
+        QDir().mkdir(dir+QString("/tmp_files"));
         QDir qdir(dir+QString("/tmp_files/"));
     }
     qdir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -255,7 +266,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     filenames.append(jsonfileName);
     QString run_id;
     if (ProjectId==""){
-        QString command2 = QString("mithoo createProject %1").arg(projectname);
+        QString command2 = QString("%1 %2 createProject %3").arg(nodePath).arg(jsPath).arg(projectname);
         QByteArray result1 = run_qt_process(command2);
         run_id = get_run_id(result1);
     }
@@ -263,7 +274,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
         run_id = ProjectId;
     }
     timer.start();
-    QString get_upload_Project_urls = QString("mithoo get_upload_Project_urls --id %1").arg(run_id);
+    QString get_upload_Project_urls = QString("%1 %2 get_upload_Project_urls --id %3").arg(nodePath).arg(jsPath).arg(run_id);
     QByteArray result2 = run_qt_process(get_upload_Project_urls);
     QStringList upload_project_data_commands = get_project_upload_url_commands(result2,filenames);
     for (int i = 0; i < upload_project_data_commands.size(); ++i){

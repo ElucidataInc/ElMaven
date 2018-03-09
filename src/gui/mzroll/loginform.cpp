@@ -5,13 +5,12 @@
 
 LoginForm::LoginForm(MainWindow *parent,PollyIntegration* pollyintegration) :
     QDialog(parent),
-    ui(new Ui::LoginForm)
+    ui(new Ui::LoginForm),
+    _mainwindow(parent),
+    _pollyintegration(pollyintegration)
 {
 
     ui->setupUi(this);
-    _mainwindow=parent;
-    _pollyintegration = pollyintegration;
-    
 }
 
 LoginForm::~LoginForm()
