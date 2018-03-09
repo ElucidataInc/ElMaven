@@ -87,7 +87,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     mainwindow = w;
     deltaRtCheckFlag = false;
     updateSettingFormGUI();
-    setIsotopeAtom();
     setMavenParameters();
 
     odSettings = new OptionsDialogSettings(this);
@@ -225,28 +224,6 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
     else                                    ionizationMode->setCurrentIndex(0);
 }
 
-void SettingsForm::setIsotopeAtom() {
-
-    if(!mainwindow) return;
-    mainwindow->mavenParameters->isotopeAtom.clear();
-
-    if(D2Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["D2Labeled_BPE"] = false;
-    
-    if(C13Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["C13Labeled_BPE"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["C13Labeled_BPE"] = false;
-
-    if(N15Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["N15Labeled_BPE"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["N15Labeled_BPE"] = false;
-
-    if(S34Labeled_BPE->isChecked()) mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["S34Labeled_BPE"] = false;
-
-    if(mainwindow->mavenParameters->pullIsotopesFlag) mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = true;
-    else mainwindow->mavenParameters->isotopeAtom["ShowIsotopes"] = false;
-    
-}
-
 void SettingsForm::setWeightStatus() {
 
     // slider int values to double
@@ -284,7 +261,6 @@ void SettingsForm::toggleOverlap() {
 void SettingsForm::recomputeIsotopes() { 
     getFormValues();
     if (!mainwindow) return;
-    setIsotopeAtom();
 
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {

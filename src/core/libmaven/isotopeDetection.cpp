@@ -32,8 +32,14 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
     string formula = parentgroup->compound->formula; //parent formula
     int charge = _mavenParameters->getCharge(parentgroup->compound);//generate isotope list for parent mass
 
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(formula, charge, 
-                                                        _mavenParameters->isotopeAtom);
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(
+        formula,
+        charge,
+        _C13Flag,
+        _N15Flag,
+        _S34Flag,
+        _D2Flag
+    );
 
     map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 

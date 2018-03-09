@@ -81,11 +81,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 				label = atoi(optarg);
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
-					mavenParameters->isotopeAtom["ShowIsotopes"] = true;
-					if (label & 1) mavenParameters->C13Labeled_BPE = true; mavenParameters->isotopeAtom["C13Labeled_BPE"] = true; 
-					if (label & 2) mavenParameters->S34Labeled_BPE = true; mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
-					if (label & 4) mavenParameters->N15Labeled_BPE = true; mavenParameters->isotopeAtom["N15Labeled_BPE"] = true;
-					if (label & 8) mavenParameters->D2Labeled_BPE  = true; mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
+					if (label & 1) mavenParameters->C13Labeled_BPE = true;
+					if (label & 2) mavenParameters->S34Labeled_BPE = true;
+					if (label & 4) mavenParameters->N15Labeled_BPE = true;
+					if (label & 8) mavenParameters->D2Labeled_BPE  = true;
 				}
 			}
 			break;
@@ -319,11 +318,10 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 				label = atoi(node.attribute("value").value());
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
-					mavenParameters->isotopeAtom["ShowIsotopes"] = true;
-					if (label & 1) mavenParameters->C13Labeled_BPE = true; mavenParameters->isotopeAtom["C13Labeled_BPE"] = true; 
-					if (label & 2) mavenParameters->S34Labeled_BPE = true; mavenParameters->isotopeAtom["S34Labeled_BPE"] = true;
-					if (label & 4) mavenParameters->N15Labeled_BPE = true; mavenParameters->isotopeAtom["N15Labeled_BPE"] = true;
-					if (label & 8) mavenParameters->D2Labeled_BPE  = true; mavenParameters->isotopeAtom["D2Labeled_BPE"] = true;
+					if (label & 1) mavenParameters->C13Labeled_BPE = true;
+					if (label & 2) mavenParameters->S34Labeled_BPE = true;
+					if (label & 4) mavenParameters->N15Labeled_BPE = true;
+					if (label & 8) mavenParameters->D2Labeled_BPE  = true;
 				}
 
 		}

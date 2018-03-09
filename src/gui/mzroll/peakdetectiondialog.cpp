@@ -424,7 +424,6 @@ void PeakDetectionDialog::findPeaks() {
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
-    mainwindow->settingsForm->setIsotopeAtom();
 
     mainwindow->setTotalCharge();
 
@@ -676,7 +675,6 @@ void PeakDetectionDialog::showMethodSummary() {
     //TODO: why does settings need to be updated right after reportIsotopes is checked/unchecked?
     //updateSettings after dialog close does not affect isotope detection but this does
     emit updateSettings(pdSettings);
-    mainwindow->settingsForm->setIsotopeAtom();
 }
 
 

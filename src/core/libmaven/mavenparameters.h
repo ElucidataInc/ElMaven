@@ -232,7 +232,6 @@ class MavenParameters
         vector<mzSample*> samples;
         vector<Compound*> compounds;
         vector<mzSlice*> _slices;
-        map <string, bool> isotopeAtom;
         bool stop;
 
         int alignMaxItterations; //TODO: Sahil - Kiran, Added while merging mainwindow

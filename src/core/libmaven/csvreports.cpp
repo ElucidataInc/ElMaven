@@ -141,10 +141,21 @@ void CSVReports::insertGroupInformationIntoCSVFile (PeakGroup* group) {
 
     else {
 
-        //int ionizationMode = getIonisationMode();
+        string formula = group->compound->formula;
+        int charge = getMavenParameters()->getCharge(group->compound);
+        bool C13Flag = getMavenParameters()->C13Labeled_BPE;
+        bool N15Flag = getMavenParameters()->N15Labeled_BPE;
+        bool S34Flag = getMavenParameters()->S34Labeled_BPE;
+        bool D2Flag = getMavenParameters()->D2Labeled_BPE;
 
-        vector<Isotope> masslist = computeIsotopes(group, mavenparameters->ionizationMode);
-
+        vector<Isotope> masslist = MassCalculator::computeIsotopes(
+            formula,
+            charge,
+            C13Flag,
+            N15Flag,
+            S34Flag,
+            D2Flag
+        );
         insertIsotopes(group,masslist);
 
     }
@@ -160,17 +171,6 @@ int CSVReports::getIonisationMode() {
           ionizationMode = -1;
 
       return ionizationMode;
-}
-
-
-
-vector<Isotope> CSVReports::computeIsotopes (PeakGroup* group, int ionizationMode) {
-
-      MassCalculator *masscalc;
-      string formula = group->compound->formula;
-      int charge = getMavenParameters()->getCharge(group->compound);
-      vector<Isotope> masslist = masscalc->computeIsotopes(formula,charge,getMavenParameters()->isotopeAtom);
-      return masslist;
 }
 
 void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
