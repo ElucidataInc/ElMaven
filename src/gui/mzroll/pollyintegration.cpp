@@ -8,6 +8,7 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath("
     _loginform = nullptr;
     _projectform = nullptr;
     _tableDockWidget = tableDockWidget;
+    credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
     #ifdef Q_OS_WIN
       if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
         nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
@@ -18,6 +19,9 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath("
       jsPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator() + "mithoo-service" + QDir::separator() + \
               "index.js";
     #endif
+
+    qDebug() << "node path : " << nodePath <<  "js path: "<< jsPath << endl;
+
 }
 
 PollyIntegration::~PollyIntegration()
@@ -31,12 +35,29 @@ PollyIntegration::~PollyIntegration()
     }
 }
 
-QByteArray PollyIntegration::run_qt_process(QString command){
+QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
+
+    // e.g: command = "authenticate", "get_Project_names" etc
+    // e.g: args = username, password, projectName  etc
     QProcess process;
-    process.start(command);
+    QStringList arg;
+    arg << jsPath; // where index.js files is placed
+    arg << command; // what command to pass to index.js. eg. authenticate
+    arg << args; // required params by that command . eg username, password
+
+    // nodePath = "PATH_OF_MAVEN/bin/node.exe"
+    process.setProgram(nodePath);
+    process.setArguments(arg);
+
+    qDebug () << "program: " <<  process.program()  << "args: " << process.arguments();
+
+    process.start();
     process.waitForFinished(-1);
     QByteArray result = process.readAllStandardOutput();
     QByteArray result2 = process.readAllStandardError();
+
+    qDebug() << "output: " << result << endl;
+    qDebug()<< "error: " << result2 << endl;
     return result;
 }
 
@@ -117,6 +138,7 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString command= QString("%1 %2 upload_project_data \"%3\" \"%4\"").arg(nodePath).arg(jsPath).arg(url_map_json).arg(filename);
+        QString command = "upload_project_data";
         upload_commands.append(command);
     }
     return upload_commands;
@@ -137,8 +159,8 @@ QString PollyIntegration::get_urls(QByteArray result){
 
 int PollyIntegration::check_already_logged_in(){
     int status;
-    QString command = QString("%1 %2 authenticate").arg(nodePath).arg(jsPath);
-    QByteArray result2 = run_qt_process(command);
+    QString command = QString("authenticate");
+    QByteArray result2 = run_qt_process(command, QStringList() << credFile);
     QList<QByteArray> test_list = result2.split('\n');
     QByteArray status_line = test_list[0];
     if (status_line=="already logged in"){
@@ -152,8 +174,8 @@ int PollyIntegration::check_already_logged_in(){
 
 
 int PollyIntegration::authenticate_login(QString username,QString password){
-    QString command = QString("%1 %2 authenticate %3 %4").arg(nodePath).arg(jsPath).arg(username).arg(password);
-    QByteArray result = run_qt_process(command);
+    QString command = "authenticate";
+    QByteArray result = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
     return status_inside;
 }
@@ -203,7 +225,7 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 }
 
 QVariantMap PollyIntegration::getUserProjects(){
-    QString get_projects_command = QString("%1 %2 get_Project_names").arg(nodePath).arg(jsPath);
+    QString get_projects_command = "get_Project_names";
     QByteArray result2 = run_qt_process(get_projects_command);
     QVariantMap user_projects = getUserProjectsMap(result2);
     return user_projects;
@@ -266,16 +288,16 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     filenames.append(jsonfileName);
     QString run_id;
     if (ProjectId==""){
-        QString command2 = QString("%1 %2 createProject %3").arg(nodePath).arg(jsPath).arg(projectname);
-        QByteArray result1 = run_qt_process(command2);
+        QString command2 = "createProject";
+        QByteArray result1 = run_qt_process(command2, QStringList() << projectname);
         run_id = get_run_id(result1);
     }
     else{
         run_id = ProjectId;
     }
     timer.start();
-    QString get_upload_Project_urls = QString("%1 %2 get_upload_Project_urls --id %3").arg(nodePath).arg(jsPath).arg(run_id);
-    QByteArray result2 = run_qt_process(get_upload_Project_urls);
+    QString get_upload_Project_urls = "get_upload_Project_urls";
+    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << "--id" << run_id);
     QStringList upload_project_data_commands = get_project_upload_url_commands(result2,filenames);
     for (int i = 0; i < upload_project_data_commands.size(); ++i){
         QString command = upload_project_data_commands.at(i);
