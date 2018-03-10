@@ -19,7 +19,6 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath("
       jsPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator() + "mithoo-service" + QDir::separator() + \
               "index.js";
     #endif
-
     qDebug() << "node path : " << nodePath <<  "js path: "<< jsPath << endl;
 
 }
@@ -122,7 +121,7 @@ QStringList PollyIntegration::get_system_urls(QString filename){
 
 
 QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2,QStringList filenames){
-    QStringList upload_commands ;
+    QStringList patch_ids ;
     QList<QByteArray> test_list = result2.split('\n');
     int size = test_list.size();
     QByteArray url_jsons = test_list[size-2];
@@ -137,11 +136,11 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
         QString new_filename = test_files_list[size-1];
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
-        QString command= QString("%1 %2 upload_project_data \"%3\" \"%4\"").arg(nodePath).arg(jsPath).arg(url_map_json).arg(filename);
-        QString command = "upload_project_data";
-        upload_commands.append(command);
+        QString upload_command = "upload_project_data";
+        QByteArray patch_id_result = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        patch_ids.append(patch_id_result);
     }
-    return upload_commands;
+    return patch_ids;
 }
 
 QString PollyIntegration::get_urls(QByteArray result){
@@ -298,11 +297,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
     QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << "--id" << run_id);
-    QStringList upload_project_data_commands = get_project_upload_url_commands(result2,filenames);
-    for (int i = 0; i < upload_project_data_commands.size(); ++i){
-        QString command = upload_project_data_commands.at(i);
-        QByteArray patch_id_result = run_qt_process(command);
-    }
+    QStringList patch_ids = get_project_upload_url_commands(result2,filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
     qdir.removeRecursively();
     return run_id;
