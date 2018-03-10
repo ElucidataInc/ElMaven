@@ -18,7 +18,7 @@ class PollyIntegration
 	    QString username;
 	    QString password;
         void exportGroupsToSpreadsheet_polly();
-		QByteArray run_qt_process(QString command);
+		QByteArray run_qt_process(QString command, QStringList args = QStringList());
 	    QByteArray run_system_process(QString command);
 	    QString get_urls(QByteArray result);
 	    QStringList get_system_urls(QString filename);
@@ -39,6 +39,7 @@ class PollyIntegration
 		TableDockWidget* _tableDockWidget;
 		QString nodePath;
 		QString jsPath;
+		QString credFile;
 };
 
 #endif // POLLYINTEGRATION_H
