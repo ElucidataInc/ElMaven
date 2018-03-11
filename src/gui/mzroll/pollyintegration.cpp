@@ -225,7 +225,7 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 
 QVariantMap PollyIntegration::getUserProjects(){
     QString get_projects_command = "get_Project_names";
-    QByteArray result2 = run_qt_process(get_projects_command);
+    QByteArray result2 = run_qt_process(get_projects_command,QStringList() << credFile);
     QVariantMap user_projects = getUserProjectsMap(result2);
     return user_projects;
 }
@@ -288,7 +288,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     QString run_id;
     if (ProjectId==""){
         QString command2 = "createProject";
-        QByteArray result1 = run_qt_process(command2, QStringList() << projectname);
+        QByteArray result1 = run_qt_process(command2, QStringList() << credFile<< projectname);
         run_id = get_run_id(result1);
     }
     else{
@@ -296,7 +296,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     }
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << "--id" << run_id);
+    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << credFile << run_id);
     QStringList patch_ids = get_project_upload_url_commands(result2,filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
     qdir.removeRecursively();
