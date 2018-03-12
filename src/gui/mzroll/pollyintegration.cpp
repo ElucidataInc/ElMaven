@@ -9,17 +9,28 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath("
     _projectform = nullptr;
     _tableDockWidget = tableDockWidget;
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
+
+    nodePath = QStandardPaths::findExecutable("node");
+    jsPath = qApp->applicationDirPath() + QDir::separator() + "index.js";
+
     #ifdef Q_OS_WIN
       if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
         nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
-
-      if(nodePath.isEmpty())
-        nodePath = QStandardPaths::findExecutable("node");
-
-      jsPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator() + "mithoo-service" + QDir::separator() + \
-              "index.js";
     #endif
-    qDebug() << "node path : " << nodePath <<  "js path: "<< jsPath << endl;
+
+    #ifdef Q_OS_LINUX
+      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+          nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
+    #endif
+
+    #ifdef Q_OS_MAC
+      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+        nodePath = binDir + "node_bin" + QDir::separator() + "node";
+
+      jsPath = binDir  + "index.js";
+    #endif
+
 
 }
 
