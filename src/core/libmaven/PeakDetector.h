@@ -33,7 +33,7 @@
 #include "groupFiltering.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
-#include "isotopeDetection.h"
+#include "IsotopeDetection.h"
 
 /**
  * @class PeakDetector

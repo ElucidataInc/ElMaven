@@ -66,7 +66,7 @@ SOURCES = 	base64.cpp \
                 masscutofftype.cpp \
                 peakFiltering.cpp \
                 groupFiltering.cpp \
-                isotopeDetection.cpp 
+                IsotopeDetection.cpp 
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -104,5 +104,5 @@ HEADERS += 	constants.h \
                 masscutofftype.h \
                 peakFiltering.h \
                 groupFiltering.h \
-                isotopeDetection.h \
+                IsotopeDetection.h \
                 settings.h

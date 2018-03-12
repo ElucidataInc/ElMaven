@@ -1,4 +1,4 @@
-#include "isotopeDetection.h"
+#include "IsotopeDetection.h"
 
 IsotopeDetection::IsotopeDetection(
     MavenParameters *mavenParameters,

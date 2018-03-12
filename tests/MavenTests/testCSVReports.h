@@ -14,7 +14,7 @@
 #include "csvreports.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"
-#include "isotopeDetection.h"
+#include "IsotopeDetection.h"
 #include "classifierNeuralNet.h"
 
 
