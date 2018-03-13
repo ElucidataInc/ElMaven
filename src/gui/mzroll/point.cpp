@@ -173,6 +173,10 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
         _mw->adductWidget->setPeak(_peak);
     }
 
+    if (_peak && _mw->isotopeWidget->isVisible()) {
+        _mw->isotopeWidget->setPeak(_peak);
+    }
+
     scene()->update();
 }
 
