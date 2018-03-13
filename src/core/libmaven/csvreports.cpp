@@ -218,7 +218,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
     if( (_selectionFlag == 2 &&  group->label != 'g') || (_selectionFlag == 3 && group->label != 'b'))
         return;
-
+    ++groupId;
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();
@@ -230,7 +230,6 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
             sampleName = sanitizeString(sampleId);
         }
-        ++groupId;
         outFileStream << setprecision(8)
                 << groupId << SEP
                 << compoundName << SEP
