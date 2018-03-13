@@ -185,6 +185,9 @@ void ProjectDockWidget::updateSampleList() {
     if ( _mainwindow->getEicWidget() ) {
         _mainwindow->getEicWidget()->replotForced();
     }
+    if (_mainwindow->isotopeWidget->isVisible()) {
+        _mainwindow->isotopeWidget->updateSampleList();
+    }
 }
 
 
@@ -326,6 +329,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
       }
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
+     _mainwindow->isotopeWidget->updateSampleList();
      if (_mainwindow->samples.size() < 1) {
 		QMessageBox* msgBox = new QMessageBox( this );
 		msgBox->setAttribute( Qt::WA_DeleteOnClose );
@@ -551,6 +555,7 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
             if(changed) {
                 cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
                 _mainwindow->getEicWidget()->replotForced();
+                _mainwindow->isotopeWidget->updateSampleList();
             }
         }
     }
