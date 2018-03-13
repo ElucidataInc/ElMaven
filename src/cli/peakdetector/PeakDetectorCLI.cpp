@@ -679,7 +679,8 @@ void PeakDetectorCLI::saveCSV(string setName) {
     int selectionFlag = -1;
     bool includeSetNamesLine = false;
 
-    CSVReports* csvExport = new CSVReports(samples, mp, t, fileName, exportType, selectionFlag, includeSetNamesLine);
+    CSVReports* csvExport = new CSVReports(samples, mp, t, fileName, 
+								exportType, selectionFlag, includeSetNamesLine);
 
     for(int i=0; i<mavenParameters->allgroups.size(); i++ ) {
 		PeakGroup& group = mavenParameters->allgroups[i];
