@@ -27,7 +27,8 @@ class IsotopeDetection
 
 	void pullIsotopes(PeakGroup *group);
 	bool filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
-	
+	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist);
+
 	/**
 	* @brief find highest intensity for given m/z and scan ranges
 	* @return pair of two values. Intensity and rt at which given intensity was found
@@ -49,7 +50,6 @@ class IsotopeDetection
 	MavenParameters *_mavenParameters;
 	IsotopeDetectionType _isoType;
 
-	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist);
 	void addIsotopes(PeakGroup *parentgroup, map<string, PeakGroup> isotopes);
 	void childStatistics(PeakGroup* parentgroup, PeakGroup &child, string isotopeName);
 	bool filterLabel(string isotopeName);

@@ -156,33 +156,70 @@ void IsotopeWidget::computeIsotopes(string f) {
 	
 	std::pair<float, float> parent = isotopeDetector->getIntensity(isotopeParameters->_scan, parentMass-mzWindow, parentMass+mzWindow);
 	float parentPeakIntensity = parent.first;
-	
-	for (unsigned int i = 0; i < isotopes.size(); i++)
+
+	if (isotopeParameters->_group && !isotopeParameters->_group->isIsotope())
 	{
-		Isotope& x = isotopes[i];
-		mzWindow = massCutoff->massCutoffValue(x.mass);
-		std::pair<float, float> child = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
-		float isotopePeakIntensity = child.first;
+		populateByParentGroup(isotopes, parentMass);
+	}
+	
+	else
+	{
+		for (unsigned int i = 0; i < isotopes.size(); i++)
+		{
+			Isotope& x = isotopes[i];
+			mzWindow = massCutoff->massCutoffValue(x.mass);
+			std::pair<float, float> child = isotopeDetector->getIntensity(isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
+			float isotopePeakIntensity = child.first;
 
-		mzLink link;
-		mzSample* sample = isotopeParameters->_scan->getSample();
-		bool filterIsotope = false;
-		
-		filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, isotopeParameters->_group);
+			mzLink link;
+			mzSample* sample = isotopeParameters->_scan->getSample();
+			bool filterIsotope = false;
+	
+			filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, isotopeParameters->_group);
 
-		if (filterIsotope)
-			isotopePeakIntensity = 0;
+			if (filterIsotope)
+				isotopePeakIntensity = 0;
 		
-		link.mz1 = parentMass;
-		link.mz2 = x.mass;
-		link.note = x.name;
-		link.value1 = x.abundance;
-		link.value2 = isotopePeakIntensity;
-		isotopeParameters->links.push_back(link);
+			link.mz1 = parentMass;
+			link.mz2 = x.mass;
+			link.note = x.name;
+			link.value1 = x.abundance;
+			link.value2 = isotopePeakIntensity;
+			isotopeParameters->links.push_back(link);
+		}
 	}
 	sort(isotopeParameters->links.begin(), isotopeParameters->links.end(), mzLink::compMz);
 
 	showTable();
+}
+
+void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double parentMass)
+{
+	PeakGroup* parentGroup = isotopeParameters->_group;
+	if (!(parentGroup && parentGroup->isIsotope() == false)) return;
+	if (!isotopeParameters->_scan) return;
+
+	map<string, PeakGroup> isotopes = isotopeDetector->getIsotopes(parentGroup, masslist);
+
+	map<string, PeakGroup>::iterator itrIsotope;
+    unsigned int index = 1;
+	for(itrIsotope = isotopes.begin(); itrIsotope != isotopes.end(); ++itrIsotope, index++)
+	{
+		string isotopeName = (*itrIsotope).first;
+		PeakGroup& child = (*itrIsotope).second;
+		mzSample* sample = isotopeParameters->_scan->getSample();
+		Peak* peak = child.getPeak(sample);
+		
+		if (!peak) continue;
+
+		mzLink link;
+		link.mz1 = parentMass;
+		link.mz2 = child.expectedMz;
+		link.note = isotopeName;
+		link.value1 = child.expectedAbundance;
+		link.value2 = peak->peakIntensity;
+		isotopeParameters->links.push_back(link);
+	}
 }
 
 void IsotopeWidget::pullIsotopes(PeakGroup* group) {
