@@ -43,6 +43,7 @@ public Q_SLOTS:
 	void pullIsotopesForBarplot(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* grp);
 	void updateIsotopicBarplot();
+	void updateSampleList();
 
 private Q_SLOTS:
 	void showInfo();
@@ -55,6 +56,7 @@ private:
 	  IsotopeDetection* isotopeDetector;
       MainWindow* _mw;
 	  bool bookmarkflag;
+	  mzSample* _selectedSample;
 
 	  void populateByParentGroup(vector<Isotope> masslist, double parentMass);
       QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget

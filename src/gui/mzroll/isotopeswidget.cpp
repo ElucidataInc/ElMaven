@@ -112,6 +112,19 @@ void IsotopeWidget::userChangedFormula(QString f) {
 
 }
 
+void IsotopeWidget::updateSampleList() {
+	vector<mzSample*> samples = _mw->getVisibleSamples();
+	vector<mzSample*>::iterator it;
+	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+	QStringList sampleNames;
+	for (it = samples.begin(); it != samples.end(); it++)
+	{
+		sampleNames << QString::fromStdString((*it)->sampleName);
+	}
+	sampleList->clear();
+	sampleList->insertItems(1, sampleNames);
+}
+
 void IsotopeWidget::setFormula(QString f) {
 	formula->setText(f);
 	userChangedFormula(f);
