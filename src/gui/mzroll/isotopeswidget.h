@@ -56,7 +56,8 @@ private:
       MainWindow* _mw;
 	  bool bookmarkflag;
 
-     QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
+	  void populateByParentGroup(vector<Isotope> masslist, double parentMass);
+      QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
 
 };
 
