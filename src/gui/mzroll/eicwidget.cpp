@@ -1877,6 +1877,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 	if (selGroup) {
 		//Sabu Iso
 		setSelectedGroup(selGroup);
+		getMainWindow()->isotopeWidget->setPeakGroupAndMore(selGroup);
 	}
 }
 
