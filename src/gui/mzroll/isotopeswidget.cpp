@@ -62,7 +62,6 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 	if (grp && grp->type() != PeakGroup::Isotope)
 	{
 		if (bookmarkflg) pullIsotopes(grp);
-		else computeIsotopes(isotopeParameters->_formula);
 	}
 }
 
@@ -132,6 +131,7 @@ void IsotopeWidget::updateSampleList() {
 
 void IsotopeWidget::updateSelectedSample(int index) {
 	_selectedSample = sampleList->itemData(index).value<mzSample*>();
+	computeIsotopes(isotopeParameters->_formula);
 }
 
 void IsotopeWidget::setFormula(QString f) {
