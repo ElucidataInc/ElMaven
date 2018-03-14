@@ -13,6 +13,7 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 			SLOT(userChangedFormula(QString)));
 	connect(ionization, SIGNAL(valueChanged(double)), this,
 			SLOT(setCharge(double)));
+	connect(sampleList, SIGNAL(currentIndexChanged(int)), SLOT(updateSelectedSample(int)));
 
 	ionization->setValue(isotopeParameters->_charge);
 	bookmarkflag = true;
@@ -73,11 +74,10 @@ void IsotopeWidget::setPeak(Peak* peak) {
 	if (peak == NULL)
 		return;
 
-	mzSample* sample = peak->getSample();
-	if (sample == NULL)
-		return;
+	_selectedSample = peak->getSample();
+	sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
 
-	Scan* scan = sample->getScan(peak->scan);
+	Scan* scan = _selectedSample->getScan(peak->scan);
 	if (scan == NULL)
 		return;
 	isotopeParameters->_scan = scan;
@@ -116,13 +116,18 @@ void IsotopeWidget::updateSampleList() {
 	vector<mzSample*> samples = _mw->getVisibleSamples();
 	vector<mzSample*>::iterator it;
 	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-	QStringList sampleNames;
-	for (it = samples.begin(); it != samples.end(); it++)
-	{
-		sampleNames << QString::fromStdString((*it)->sampleName);
-	}
+	QString sampleName;
 	sampleList->clear();
-	sampleList->insertItems(1, sampleNames);
+	int index = 0;
+	for (it = samples.begin(); it != samples.end(); it++, index++)
+	{
+		sampleName = QString::fromStdString((*it)->sampleName);
+		sampleList->insertItem(index, sampleName, QVariant::fromValue(*it));
+	}
+}
+
+void IsotopeWidget::updateSelectedSample(int index) {
+	_selectedSample = sampleList->itemData(index).value<mzSample*>();
 }
 
 void IsotopeWidget::setFormula(QString f) {
@@ -185,10 +190,9 @@ void IsotopeWidget::computeIsotopes(string f) {
 			float isotopePeakIntensity = child.first;
 
 			mzLink link;
-			mzSample* sample = isotopeParameters->_scan->getSample();
 			bool filterIsotope = false;
 	
-			filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, isotopeParameters->_group);
+			filterIsotope = isotopeDetector->filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, _selectedSample, isotopeParameters->_group);
 
 			if (filterIsotope)
 				isotopePeakIntensity = 0;
@@ -220,8 +224,7 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
 	{
 		string isotopeName = (*itrIsotope).first;
 		PeakGroup& child = (*itrIsotope).second;
-		mzSample* sample = isotopeParameters->_scan->getSample();
-		Peak* peak = child.getPeak(sample);
+		Peak* peak = child.getPeak(_selectedSample);
 		
 		if (!peak) continue;
 
