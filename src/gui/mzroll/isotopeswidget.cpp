@@ -58,8 +58,12 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 		return;
 	bookmarkflag = bookmarkflg;
 	isotopeParameters->_group = grp;
+	isotopeParameters->_formula = grp->compound->formula;
 	if (grp && grp->type() != PeakGroup::Isotope)
-		pullIsotopes(grp);
+	{
+		if (bookmarkflg) pullIsotopes(grp);
+		else computeIsotopes(isotopeParameters->_formula);
+	}
 }
 
 void IsotopeWidget::updateIsotopicBarplot(PeakGroup* grp) {
