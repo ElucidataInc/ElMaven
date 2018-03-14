@@ -43,12 +43,20 @@ public Q_SLOTS:
 	void pullIsotopesForBarplot(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* grp);
 	void updateIsotopicBarplot();
-	void updateSampleList();
 
 private Q_SLOTS:
 	void showInfo();
 	void showTable();
 	QString groupTextEport(PeakGroup* group);
+	/**
+	 * @brief Add sample names to sample drop-down list
+	 * @details List is updated whenever a sample is loaded/deleted/checked/unchecked
+	**/
+	void updateSampleList();
+	/**
+	 * @brief Set private member sample to the selected sample in drop-down list
+	**/
+	void updateSelectedSample(int index);
 
 private:
 	  IsotopeLogic* isotopeParameters;
