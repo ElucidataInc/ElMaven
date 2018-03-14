@@ -2737,8 +2737,9 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && group->compound != NULL) {
+	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
 		isotopeWidget->setCompound(group->compound);
+		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
 	//TODO: Sahil-Kiran, Added while merging mainwindow
