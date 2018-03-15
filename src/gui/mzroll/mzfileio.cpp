@@ -511,7 +511,7 @@ void mzFileIO::fileImport(void) {
         try {
             QFileInfo fileInfo(filename);
             if (!fileInfo.exists())
-                throw MavenException(ErrorCodes::FileNotFound, filename.toStdString());
+                throw MavenException(ErrorMsg::FileNotFound, filename.toStdString());
 
             if (isSampleFileType(filename)) {
                 samples << filename;
@@ -523,7 +523,7 @@ void mzFileIO::fileImport(void) {
                 spectralhits << filename;
             }
             else
-                throw (MavenException(ErrorCodes::UnsupportedFormat, filename.toStdString()));
+                throw (MavenException(ErrorMsg::UnsupportedFormat, filename.toStdString()));
         }
 
         catch (MavenException& excp) {

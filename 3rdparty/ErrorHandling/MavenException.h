@@ -11,7 +11,7 @@ class MavenException: public std::exception
 {
     public:
 
-        MavenException(ErrorCodes::Errors, const std::string& details = "");
+        MavenException(ErrorMsg::Errors, const std::string& details = "");
 
         virtual ~MavenException() throw()
         {}

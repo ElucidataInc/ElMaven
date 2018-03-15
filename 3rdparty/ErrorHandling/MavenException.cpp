@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-MavenException::MavenException(ErrorCodes::Errors errCd, const std::string& details)
+MavenException::MavenException(ErrorMsg::Errors errCd, const std::string& details)
 {
     message = ErrorMsg::getInstance()->getErrmessages().at(errCd);
     message += " : ";
