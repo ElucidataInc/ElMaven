@@ -23,7 +23,7 @@ const ErrorMsg* ErrorMsg::getInstance()
     return errMsg;
 }
 
-const std::map<ErrorMsg::Errors, std::string>& ErrorMsg::getErrmessages() const
+std::string ErrorMsg::getErrmessages(const ErrorMsg::Errors& err) const
 {
-    return errMessages;
+    return errMessages.at(err);
 }
