@@ -1,4 +1,5 @@
 #include "errorcodes.h"
+#include <string>
 
 const ErrorMsg* ErrorMsg::errMsg = nullptr;
 
