@@ -18,7 +18,7 @@ class ErrorMsg
         };
 
         static const ErrorMsg* getInstance();
-        const std::map<Errors, std::string>& getErrmessages() const;
+        std::string getErrmessages(const Errors& err) const;
 
     private:
         ErrorMsg();

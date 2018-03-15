@@ -3,9 +3,9 @@
 #include <iostream>
 
 
-MavenException::MavenException(ErrorMsg::Errors errCd, const std::string& details)
+MavenException::MavenException(const ErrorMsg::Errors& errCd, const std::string& details)
 {
-    message = ErrorMsg::getInstance()->getErrmessages().at(errCd);
+    message = ErrorMsg::getInstance()->getErrmessages(errCd);
     message += " : ";
     message += details;
     message += "\n";
