@@ -1,13 +1,20 @@
 #include "pollyintegration.h"
+#include "tabledockwidget.h"
+
 #include <QElapsedTimer>
 #include <QStandardPaths>
 #include <QDir>
 
-PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath(""), jsPath("")
+PollyIntegration::PollyIntegration(MainWindow* mw,PollyElmavenInterfaceDialog* EPI): nodePath(""), jsPath("")
 {
+    qDebug()<<"inside PollyIntegration now..";
+    _mainwindow = mw;
+    _pollyelmaveninterfacedialog = EPI;
+    qDebug()<<"initialized mainwindow ";
     _loginform = nullptr;
-    _projectform = nullptr;
-    _tableDockWidget = tableDockWidget;
+    _tableDockWidget = nullptr;
+    
+    qDebug()<<"crashed..";
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
     nodePath = QStandardPaths::findExecutable("node");
@@ -30,7 +37,7 @@ PollyIntegration::PollyIntegration(TableDockWidget* tableDockWidget): nodePath("
 
       jsPath = binDir  + "index.js";
     #endif
-
+    qDebug()<<"PollyIntegration class initialised...";
 
 }
 
@@ -39,9 +46,6 @@ PollyIntegration::~PollyIntegration()
     qDebug()<<"exiting PollyIntegration now....";
     if(_loginform!=nullptr){
         delete _loginform;
-    }
-    if(_projectform!=nullptr){
-    delete _projectform;
     }
 }
 
@@ -153,6 +157,35 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
     }
     return patch_ids;
 }
+QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames){
+    QStringList patch_ids ;
+    QList<QByteArray> test_list = result2.split('\n');
+    int size = test_list.size();
+    QByteArray url_jsons = test_list[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(url_jsons));
+    // Get JSON object
+    QJsonObject json = doc.object();
+    QVariantMap json_map = json.toVariantMap();
+    for (int i=0; i < filenames.size(); ++i){
+        QString filename = filenames.at(i);
+        QStringList test_files_list = filename.split('/');
+        int size = test_files_list.size();
+        QString new_filename = test_files_list[size-1];
+        QString url_with_wildcard =  json_map["file_upload_urls"].toString();
+        QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
+        QString upload_command = "download_project_data";
+        QByteArray patch_id_result = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        patch_ids.append(patch_id_result);
+        qDebug()<<"going to load settings now..";
+        qDebug()<<"new_filename.split('.')   "<<new_filename.split('.');
+        if (new_filename.split('.')[new_filename.split('.').size()-1]=="xml"){
+            _mainwindow->loadPollySettings(filename);
+        }
+
+    }
+    return patch_ids;
+}
+
 
 QString PollyIntegration::get_urls(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
@@ -206,15 +239,13 @@ void PollyIntegration::transferData(){
 
 
 void PollyIntegration::login_user(){
-    _loginform =new LoginForm(_tableDockWidget->_mainwindow,this);
+    _loginform =new LoginForm(this);
     _loginform->setModal(true);
     _loginform->show();
 }
 
 void PollyIntegration::get_project_name(){
-    _projectform=new ProjectForm(_tableDockWidget->_mainwindow,this);
-    _projectform->setModal(true);
-    _projectform->show();
+_pollyelmaveninterfacedialog->loadFormData();
 }
 
 QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
@@ -241,7 +272,56 @@ QVariantMap PollyIntegration::getUserProjects(){
     return user_projects;
 }
 
+QStringList PollyIntegration::getUserProjectFilesMap(QByteArray result2){
+    qDebug()<<"inside getUserProjectFilesMap....";
+    QStringList user_projectfiles;
+    QList<QByteArray> test_list = result2.split('\n');
+    int size = test_list.size();
+    QByteArray result_jsons = test_list[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(result_jsons));
+    // Get JSON object
+    QJsonObject project_json_object = doc.object();
+    QVariantMap project_json_object_map = project_json_object.toVariantMap();
+    qDebug()<<"project files.."<<project_json_object_map["project_files"].toStringList();
+    // user_projectfilesmap[project_json_object_map["id"].toString()] = project_json_object_map["name"].toString();
+    user_projectfiles = project_json_object_map["project_files"].toStringList();
+
+    // QJsonArray json_array = doc.array();
+    // for (int i=0; i < json_array.size(); ++i){
+    //     QJsonValue project_json = json_array.at(i);
+    //     QJsonObject project_json_object = project_json.toObject();
+    //     QVariantMap project_json_object_map = project_json_object.toVariantMap();
+    //     qDebug()<<"project files.."<<project_json_object_map["project_files"].toStringList();
+    //     // user_projectfilesmap[project_json_object_map["id"].toString()] = project_json_object_map["name"].toString();
+    //     user_projectfiles = project_json_object_map["project_files"].toStringList();
+    // }
+    return user_projectfiles;
+}
+
+QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
+    QVariantMap user_projectfilesmap;
+    for (int i=0; i < ProjectIds.size(); ++i){
+        QString ProjectId = ProjectIds.at(i);
+        QString get_projects_command = "get_Project_files";
+        QByteArray result2 = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
+        QStringList user_projectfiles = getUserProjectFilesMap(result2);
+        user_projectfilesmap[ProjectId] = user_projectfiles;
+    }
+    return user_projectfilesmap;
+}
+
 QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
+    qDebug()<<"inside exportData now..";
+    QList<QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
+    qDebug()<<"peaks table are here..";
+    int n = peaksTableList.size();
+    qDebug()<<"size  of list "<<n<<endl;
+    if (n>0){
+            _tableDockWidget = peaksTableList.at(n-1);
+    }
+    else{
+        return QString("nullptr");
+    }
     QList<PeakGroup> allgroups =  _tableDockWidget->getAllGroups();
 
     if (allgroups.size() == 0 ) {
@@ -249,7 +329,7 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
         QMessageBox::warning(_tableDockWidget, "Error", msg);
         return QString("None");
     }
-
+    qDebug()<<"everything clear... trying to upload to polly now..";
     /**
      * copy all groups from <allgroups> to <vallgroups> which is used by
      * < libmaven/jsonReports.cpp>
@@ -260,42 +340,53 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     }
 
     QString dir = ".";
-    QSettings* settings = _tableDockWidget->_mainwindow->getSettings();
+    QSettings* settings = _mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
 
     qDebug() << "going to write polly cli code here....\n\n";
     qDebug() << "valid credentials,sending data to polly now....\n\n";
-    _tableDockWidget->_mainwindow->check_polly_login->setText("connected");
-    _tableDockWidget->_mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
+    _mainwindow->check_polly_login->setText("connected");
+    _mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
+    
+    _tableDockWidget->wholePeakSet();
+    _tableDockWidget->treeWidget->selectAll();
+    _tableDockWidget->exportGroupsToSpreadsheet_polly();
+    
     QStringList filenames;
     QDir qdir(dir+QString("/tmp_files/"));
     if (!qdir.exists()){
         QDir().mkdir(dir+QString("/tmp_files"));
         QDir qdir(dir+QString("/tmp_files/"));
     }
+
+    QByteArray ba = (dir+QString("/tmp_files/maven_analysis_settings.xml")).toLatin1();
+    const char *save_path = ba.data();
+    _mainwindow->mavenParameters->saveSettings(save_path);
     qdir.setFilter(QDir::Files | QDir::NoSymLinks);
     QFileInfoList file_list = qdir.entryInfoList();
+    // qDebug()<<"files in temp dir..."<<file_list<<endl;
     for (int i = 0; i < file_list.size(); ++i){
         QFileInfo fileInfo = file_list.at(i);
         QString tmp_filename = dir+QString("/tmp_files/")+fileInfo.fileName();
         filenames.append(tmp_filename);
 
     }
-    QString jsonfileName = dir+QString("/tmp_files/export_json.json");
-    if (jsonfileName.isEmpty()) return QString("None");
-    if(!jsonfileName.endsWith(".json",Qt::CaseInsensitive)) jsonfileName = jsonfileName + ".json";
-    saveJson * jsonSaveThread = new saveJson();
-    jsonSaveThread->setMainwindow(_tableDockWidget->_mainwindow);
-    jsonSaveThread->setPeakTable(_tableDockWidget);
-    jsonSaveThread->setfileName(jsonfileName.toStdString());
-    jsonSaveThread->start();
+    qDebug()<<"filenames   "<<filenames;
+    // QString jsonfileName = dir+QString("/tmp_files/export_json.json");
+    // if (jsonfileName.isEmpty()) return QString("None");
+    // if(!jsonfileName.endsWith(".json",Qt::CaseInsensitive)) jsonfileName = jsonfileName + ".json";
+    // saveJson * jsonSaveThread = new saveJson();
+    // jsonSaveThread->setMainwindow(_mainwindow);
+    // jsonSaveThread->setPeakTable(_tableDockWidget);
+    // jsonSaveThread->setfileName(jsonfileName.toStdString());
+    // jsonSaveThread->start();
     QElapsedTimer timer;
     timer.start();
-    while(jsonSaveThread->isRunning()){
-        ;
-    }
-    qDebug() << "time taken in writing json file, by Elmaven is - "<<timer.elapsed();
-    filenames.append(jsonfileName);
+    // while(jsonSaveThread->isRunning()){
+    //     ;
+    // }
+    // qDebug() << "time taken in writing json file, by Elmaven is - "<<timer.elapsed();
+    // filenames.append(jsonfileName);
     QString run_id;
     if (ProjectId==""){
         QString command2 = "createProject";
@@ -310,7 +401,42 @@ QString PollyIntegration::exportData(QString projectname,QString ProjectId) {
     QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << credFile << run_id);
     QStringList patch_ids = get_project_upload_url_commands(result2,filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
-    qdir.removeRecursively();
+    // qdir.removeRecursively();
     return run_id;
 
 }
+
+
+QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filenames) {
+    
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
+
+    qDebug() << "going to write polly cli code here....\n\n";
+    qDebug() << "valid credentials,loading data from polly now....\n\n";
+    
+    QDir qdir(dir+QString("/tmp_files/"));
+    if (!qdir.exists()){
+        QDir().mkdir(dir+QString("/tmp_files"));
+        QDir qdir(dir+QString("/tmp_files/"));
+    }
+    
+    QElapsedTimer timer;
+    timer.start();
+    QStringList full_path_filenames;
+    for (int i = 0; i < filenames.size(); ++i){
+        QString tmp_filename = dir+QString("/tmp_files/")+filenames.at(i);;
+        full_path_filenames.append(tmp_filename);
+    }
+
+    QString run_id;
+    QString get_upload_Project_urls = "get_upload_Project_urls";
+    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
+    QStringList patch_ids = get_projectFiles_download_url_commands(result2,full_path_filenames);
+    qDebug() << "time taken in loading data by polly cli is - "<<timer.elapsed();
+    // qdir.removeRecursively();
+    return run_id;
+
+}
+

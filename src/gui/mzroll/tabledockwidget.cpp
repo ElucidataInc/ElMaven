@@ -909,8 +909,8 @@ void TableDockWidget::exportJson() {
 
 void TableDockWidget::exportPolly() {
     LOGD;
-    _pollyIntegration = new PollyIntegration(this);
-    _pollyIntegration->transferData();
+    // _pollyIntegration = new PollyIntegration(this);
+    // _pollyIntegration->transferData();
 
 }
 
@@ -2428,20 +2428,22 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
         return btnSaveJson;
 
-    } else if (btnName == "btnSavePolly") {
+    } 
+    // else if (btnName == "btnSavePolly") {
 
-        QToolButton* btnSavePolly = new QToolButton(parent);
-        btnSavePolly->setIcon(QIcon(rsrcPath + "/POLLY.png"));
-        btnSavePolly->setToolTip(tr("Export EICs to Polly (.json and .CSVs)"));
-        connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(wholePeakSet()));
-        connect(btnSavePolly, SIGNAL(clicked()), td->treeWidget, SLOT(selectAll()));
-        connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(exportGroupsToSpreadsheet_polly()));
+        // QToolButton* btnSavePolly = new QToolButton(parent);
+        // btnSavePolly->setIcon(QIcon(rsrcPath + "/POLLY.png"));
+        // btnSavePolly->setToolTip(tr("Export EICs to Polly (.json and .CSVs)"));
+        // // connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(wholePeakSet()));
+        // connect(btnSavePolly, SIGNAL(clicked()), td->treeWidget, SLOT(selectAll()));
+        // connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(exportGroupsToSpreadsheet_polly()));
 
-        connect(btnSavePolly, SIGNAL(clicked()), td, SLOT(exportPolly()));
+        // connect(btnSavePolly, SIGNAL(clicked()), td, SLOT(exportPolly()));
         // connect(btnSavePolly, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
-        return btnSavePolly;
+        // return btnSavePolly;
 
-    } else if (btnName == "btnGallery") {
+    // }
+     else if (btnName == "btnGallery") {
 
         QToolButton* btnGallery = new QToolButton(parent);
         btnGallery->setIcon(QIcon(rsrcPath + "/gallery.png"));
