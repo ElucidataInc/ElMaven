@@ -45,8 +45,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 				void cancel();
                 //  void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				void on_comboBox_load_projects_activated(const QString &arg1);
-                virtual void closeEvent(QCloseEvent* event) override;
-				void dialogRejected();
+                // virtual void closeEvent(QCloseEvent* event) override;
+				// void dialogRejected();
 
                 Q_SIGNALS:
                     void updateSettings(PollyElmavenInterfaceSettings* pd);

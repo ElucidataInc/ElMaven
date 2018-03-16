@@ -112,12 +112,12 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         pdSettings = new PollyElmavenInterfaceSettings(this);
         _pollyIntegration = new PollyIntegration(mainwindow,this);
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
-        connect(this, SIGNAL(isVisible(bool)), SLOT(initialSetup()));
+        // connect(this, SIGNAL(isVisible()), SLOT(initialSetup()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(pushButton_load, SIGNAL(clicked(bool)), SLOT(loadDataFromPolly()));
         connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(comboBox_load_projects, SIGNAL(clicked(bool)), SLOT(loadsettings()));
-        connect(this, &QDialog::rejected, this, &PollyElmavenInterfaceDialog::dialogRejected);
+        // connect(comboBox_load_projects, SIGNAL(clicked(bool)), SLOT(loadsettings()));
+        // connect(this, &QDialog::rejected, this, &PollyElmavenInterfaceDialog::dialogRejected);
         // connect(this, &PollyElmavenInterfaceDialog::settingsChanged, pdSettings, &PollyElmavenInterfaceSettings::updatePollySettings);
 
 }
@@ -127,22 +127,30 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
 //     initialSetup();
 //     qDebug()<<"is visible now ?- "<<isVisible();
 // }
+
 void PollyElmavenInterfaceDialog::initialSetup()
 {
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowModality(Qt::NonModal);
-        msgBox.setWindowTitle("Connecting to polly..");
-        msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-        msgBox.setText("uploading..please wait..");
-        msgBox.show();
-        qDebug()<<"yoyo";
+        // QMessageBox msgBox(NULL);
+        // msgBox.setWindowModality(Qt::NonModal);
+        // msgBox.setWindowTitle("Connecting to polly..");
+        // msgBox.show();
+        // qDebug()<<"yoyo";
+        // QProgressDialog progress("Getting data from Polly...", "Cancle", 0, 100, this);
+        // progress.setWindowModality(Qt::WindowModal);
+        // for (int i = 0; i < 1; i++) {
+        //     _pollyIntegration->transferData();
+        //     if (progress.wasCanceled())
+        //         break;
+        // }
+        // progress.setValue(100);
         _pollyIntegration->transferData();
         qDebug()<<"outside tranfer data now..";
-        msgBox.close();
+        
+        // msgBox.close();
 }
 
 QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
-    QMessageBox msgBox(mainwindow);
+    QMessageBox msgBox(NULL);
     msgBox.setWindowModality(Qt::NonModal);
     msgBox.setWindowTitle("getting data from polly..");
     msgBox.show();
@@ -168,7 +176,7 @@ QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
     comboBox_collaborators->addItem("Swetabh");
     comboBox_collaborators->addItem("Nikita");
     comboBox_collaborators->addItem("Sahil");
-    msgBox.close();
+    // msgBox.close();
     return projectnames_id;
 }
 
@@ -281,17 +289,17 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
     // emit updateSettings(pdSettings);
     progressBar_load_project->setValue(100);
 }
-void PollyElmavenInterfaceDialog::closeEvent(QCloseEvent* event)
-{
+// void PollyElmavenInterfaceDialog::closeEvent(QCloseEvent* event)
+// {
     // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
     // cancel in turn calls close();
     // emit updateSettings(pdSettings);
-}
+// }
 void PollyElmavenInterfaceDialog::cancel() {
     LOGD;
-    
+    close();   
 }
-void PollyElmavenInterfaceDialog::dialogRejected() {
-    LOGD;
+// void PollyElmavenInterfaceDialog::dialogRejected() {
+//     LOGD;
     
-}
+// }
