@@ -64,6 +64,7 @@ FORMS = forms/settingsform.ui  \
         forms/adductwidget.ui \
         forms/isotopeswidget.ui \
         forms/peakdetectiondialog.ui \
+        forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
         forms/trainingdialog.ui \
         forms/alignmentdialog.ui \
@@ -106,6 +107,7 @@ HEADERS +=  stable.h \
                     ligandwidget.h \
                     eicwidget.h \
                     peakdetectiondialog.h \
+                    pollyelmaveninterface.h \
                     comparesamplesdialog.h \
                     traindialog.h \
                     tabledockwidget.h  \
@@ -175,6 +177,7 @@ database.cpp \
  plot_axes.cpp \
  tabledockwidget.cpp \
  peakdetectiondialog.cpp \
+ pollyelmaveninterface.cpp \
  comparesamplesdialog.cpp \
  traindialog.cpp \
  line.cpp  \
