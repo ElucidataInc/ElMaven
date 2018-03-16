@@ -3,14 +3,17 @@
 #include <QMessageBox>
 
 
-LoginForm::LoginForm(MainWindow *parent,PollyIntegration* pollyintegration) :
-    QDialog(parent),
-    ui(new Ui::LoginForm),
-    _mainwindow(parent),
-    _pollyintegration(pollyintegration)
+LoginForm::LoginForm(PollyIntegration* pollyintegration) :
+    QDialog(),
+    ui(new Ui::LoginForm)
+    
 {
-
+    _pollyintegration = pollyintegration;
     ui->setupUi(this);
+    ui->login_label->setText("<a href=\"https://polly.elucidata.io/#/signup\">Register on Polly</a>");
+    ui->login_label->setTextFormat(Qt::RichText);
+    ui->login_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->login_label->setOpenExternalLinks(true); 
 }
 
 LoginForm::~LoginForm()
@@ -29,8 +32,7 @@ void LoginForm::on_pushButton_clicked()
     status_inside = _pollyintegration->authenticate_login(username,password);
     if (status_inside==1){
         hide();
-        _mainwindow->check_polly_login->setText("connected");
-        _mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
+        qDebug()<<"Logged in, moving on now....";
         _pollyintegration->get_project_name();
     }
     else{
