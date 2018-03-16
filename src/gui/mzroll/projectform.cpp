@@ -10,12 +10,15 @@ ProjectForm::ProjectForm(MainWindow *parent,PollyIntegration* pollyintegration) 
     _pollyintegration(pollyintegration)
 {
     ui->setupUi(this);
-
     projectnames_id = _pollyintegration->getUserProjects();
     QStringList keys= projectnames_id.keys();
     for (int i=0; i < keys.size(); ++i){
-            ui->comboBox_1->addItem(projectnames_id[keys.at(i)].toString());
+            ui->comboBox_projects->addItem(projectnames_id[keys.at(i)].toString());
     }
+    ui->comboBox_collaborators->addItem("sabu");
+    ui->comboBox_collaborators->addItem("Aman");
+    ui->comboBox_collaborators->addItem("Rajat");
+    
 }
 
 ProjectForm::~ProjectForm()
@@ -26,8 +29,8 @@ ProjectForm::~ProjectForm()
 void ProjectForm::on_pushButton_clicked()
 {
     QString new_project_id;
-    QString new_projectname = ui->lineEdit_projectname->text();
-    projectname = ui->comboBox_1->currentText();
+    QString new_projectname = ui->lineEdit_newprojectname->text();
+    projectname = ui->comboBox_projects->currentText();
     QString project_id;
     hide();
     QMessageBox msgBox(this);
@@ -38,9 +41,6 @@ void ProjectForm::on_pushButton_clicked()
     msgBox.show();
 
     if (new_projectname==""){
-        ui->status_label->setStyleSheet("QLabel {color : green; }");
-        ui->status_label->setText("Uploading files to new project..");
-
         QStringList keys= projectnames_id.keys();
         for (int i=0; i < keys.size(); ++i){
             if (projectnames_id[keys.at(i)].toString()==projectname){
@@ -50,11 +50,9 @@ void ProjectForm::on_pushButton_clicked()
         new_project_id = _pollyintegration->exportData(projectname,project_id);
     }
     else{
-        ui->status_label->setStyleSheet("QLabel {color : green; }");
-        ui->status_label->setText("Uploading files to existing project..");
-        new_project_id = _pollyintegration->exportData(new_projectname,project_id);
+        new_project_id = _pollyintegration->exportData(new_projectname,project_id);       
     }
-
+    
     if (new_project_id!=QString("None")){
         msgBox.close();
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
@@ -65,8 +63,11 @@ void ProjectForm::on_pushButton_clicked()
         msgBox.exec();
     }
     else{
-        ui->status_label->setStyleSheet("QLabel {color : red; }");
-        ui->status_label->setText("error in uploading files..");
-
+        msgBox.close();
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Error");
+        msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+        msgBox.setText("Unable to upload data.");
+        msgBox.exec();
     }
 }
