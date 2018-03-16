@@ -43,6 +43,7 @@ public Q_SLOTS:
 	void pullIsotopesForBarplot(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* grp);
 	void updateIsotopicBarplot();
+	void peakSelected(Peak* peak, PeakGroup* group);
 	/**
 	 * @brief Add sample names to sample drop-down list
 	 * @details List is updated whenever a sample is loaded/deleted/checked/unchecked
