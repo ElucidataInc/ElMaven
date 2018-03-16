@@ -419,6 +419,10 @@ using namespace mzUtils;
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setMainWindow(this);
 	peakDetectionDialog->setSettings(settings);
+	// pollyelmavengui dialog
+	pollyElmavenInterfaceDialog = new PollyElmavenInterfaceDialog(this);
+	pollyElmavenInterfaceDialog->setMainWindow(this);
+	pollyElmavenInterfaceDialog->setSettings(settings);
 
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
@@ -616,7 +620,7 @@ using namespace mzUtils;
 
 	settings->setValue("closeEvent", 0);
 	peakDetectionDialog->setMavenParameters(settings);
-
+	// pollyElmavenInterfaceDialog->setMavenParameters(settings);
 
 	readSettings();
 
@@ -1082,6 +1086,7 @@ void MainWindow::setUrl(Reaction* r) {
 }
 
 TableDockWidget* MainWindow::addPeaksTable(QString title) {
+	qDebug() << "creating new peaks table" ;
 	TableDockWidget* panel = new TableDockWidget(this, title, 0);
 
 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
@@ -2350,6 +2355,33 @@ void MainWindow::saveSettings()
 
 }
 
+void MainWindow::loadPollySettings(QString fileName)
+{
+    bool fileLoaded = false;
+    QFile file(fileName);
+
+    if(file.open(QIODevice::ReadOnly)) {
+
+        QByteArray bArr = file.readAll();
+        file.close();
+
+        if(mavenParameters->loadSettings(bArr.data()))
+            fileLoaded = true;
+
+    }
+
+    if(fileLoaded)
+        emit loadedSettings();
+
+    else {
+        // display an error message
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("Loading the file failed");
+        msgBox.exec();
+    }
+}
+
 void MainWindow::loadSettings()
 {
     bool fileLoaded = false;
@@ -2414,6 +2446,12 @@ void MainWindow::createToolBars() {
 	btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnFeatureDetect->setToolTip(tr("Feature Detection"));
 
+	QToolButton *btnPollyBridge = new QToolButton(toolBar);
+	btnPollyBridge->setText("Polly");
+	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
+	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnPollyBridge->setToolTip(tr("Elmaven polly interface"));
+
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
 	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
@@ -2432,6 +2470,7 @@ void MainWindow::createToolBars() {
 	// connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
+	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
 	connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
 
@@ -2439,6 +2478,7 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnAlign);
 	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	toolBar->addWidget(btnFeatureDetect);
+	toolBar->addWidget(btnPollyBridge);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 
@@ -2477,7 +2517,7 @@ void MainWindow::createToolBars() {
 
     /* note: on changing mass cut off type from mainwindow, it's important that it's also changed in peaks dialog */
     connect(massCutoffComboBox, &QComboBox::currentTextChanged, peakDetectionDialog, &PeakDetectionDialog::setMassCutoffType);
-
+	// connect(massCutoffComboBox, &QComboBox::currentTextChanged, pollyElmavenInterfaceDialog, &PollyElmavenInterfaceDialog::setMassCutoffType);
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
     searchText->setPlaceholderText("MW / Compound");   
@@ -2679,7 +2719,12 @@ bool MainWindow::addSample(mzSample* sample) {
 
 void MainWindow::showPeakdetectionDialog() {
 	LOGD;
-    peakDetectionDialog->show();      
+    peakDetectionDialog->show();
+}
+
+void MainWindow::showPollyElmavenInterfaceDialog() {
+	pollyElmavenInterfaceDialog->show();
+	pollyElmavenInterfaceDialog->initialSetup();
 }
 
 void MainWindow::showSRMList() {
@@ -2798,7 +2843,7 @@ void MainWindow::Align() {
 	mavenParameters->alignSamplesFlag = true;
 	mavenParameters->keepFoundGroups = true;
     mavenParameters->eicMaxGroups = peakDetectionDialog->eicMaxGroups->value();
-
+	// mavenParameters->eicMaxGroups = pollyElmavenInterfaceDialog->eicMaxGroups->value();
 	mavenParameters->samples = getSamples();
 	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
