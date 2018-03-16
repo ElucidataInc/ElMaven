@@ -53,16 +53,41 @@ IsotopeWidget::~IsotopeWidget() {
 	isotopeParametersBarPlot->links.clear();
 }
 
+void IsotopeWidget::peakSelected(Peak* peak, PeakGroup* group) {
+	if (!peak || !group)
+		return;
+	_selectedSample = peak->getSample();
+	isotopeParameters->_scan = peak->getScan();
+	isotopeParameters->_group = group;
+	if (group->type() == PeakGroup::Isotope)
+	{
+		isotopeParameters->_group = group->parent;
+		isotopeParameters->_scan = NULL;
+	}
+	if (group->compound)
+	{
+		isotopeParameters->_compound = group->compound;
+		isotopeParameters->_formula = group->compound->formula;
+	}
+	computeIsotopes(isotopeParameters->_formula);
+}
+
 void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 	if (!grp)
 		return;
 	bookmarkflag = bookmarkflg;
-	isotopeParameters->_group = grp;
-	isotopeParameters->_formula = grp->compound->formula;
-	if (grp && grp->type() != PeakGroup::Isotope)
+	if (grp->type() != PeakGroup::Isotope)
 	{
-		if (bookmarkflg) pullIsotopes(grp);
+		isotopeParameters->_group = grp;
 	}
+	else 
+	{
+		isotopeParameters->_group = grp->parent;
+		return;
+	}
+	if (bookmarkflg) pullIsotopes(isotopeParameters->_group);
+	isotopeParameters->_formula = grp->compound->formula;
+	computeIsotopes(isotopeParameters->_formula);
 }
 
 void IsotopeWidget::updateIsotopicBarplot(PeakGroup* grp) {
