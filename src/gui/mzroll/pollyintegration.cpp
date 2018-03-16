@@ -245,7 +245,19 @@ void PollyIntegration::login_user(){
 }
 
 void PollyIntegration::get_project_name(){
-_pollyelmaveninterfacedialog->loadFormData();
+    // QProgressDialog progress("Getting data from Polly...", "Cancle", 0, 100, _mainwindow);
+    //     qDebug()<<"QProgressDialog initialized...";
+    //     progress.setMinimumDuration(0);
+    //     progress.setWindowModality(Qt::WindowModal);
+    //     for (int i = 0; i < 1; i++) {
+    //         _pollyelmaveninterfacedialog->loadFormData();
+    //         qDebug()<<"form data loaded....";
+    //         // _pollyIntegration->transferData();
+    //         if (progress.wasCanceled())
+    //             break;
+    //     }
+    //     progress.setValue(100);
+    _pollyelmaveninterfacedialog->loadFormData();
 }
 
 QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
