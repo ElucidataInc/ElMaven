@@ -239,6 +239,39 @@ module.exports.get_Project_names = function (token_filename) {
     });
 }
 
+module.exports.get_Project_files = function (token_filename,id) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var options = {
+        method: 'GET',
+        url: 'https://polly.elucidata.io/api/project',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header                
+            },
+        body:
+            {
+                id: id,
+            },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`PostRun Response: `));
+        if (response.statusCode != 200) {
+            console.log(chalk.red.bold("Unable to get Project upload urls. Please authenticate. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
 
 module.exports.createPutRequest = function (token_filename,url, filePath) {
     if (has_id_token(token_filename)) {
@@ -291,6 +324,39 @@ module.exports.upload_project_data = function (url, filePath) {
         console.log(chalk.green.bold(response.statusCode));
     });
 }
+
+module.exports.download_project_data = function (url, filePath) {
+    var options = {
+        method: 'GET',
+        url: url,
+        headers:
+            {
+                'x-amz-acl': 'bucket-owner-full-control',                
+            },
+        // body: {
+
+        // }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        if (response.statusCode != 200) {
+            console.log(chalk.red.bold("Unable to get project data.Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            return;
+        }
+        dataToWrite = response.body
+        fs.writeFile(filePath, dataToWrite, 'utf8', function (err) {
+            if (err) {
+              console.log('Some error occured - file either not saved or corrupted file saved.');
+            } else{
+              console.log('It\'s saved!');
+            }
+        });
+        console.log(chalk.green.bold(response.statusCode));
+    });
+}
+
 
 require('make-runnable/custom')({
     printOutputFrame: false
