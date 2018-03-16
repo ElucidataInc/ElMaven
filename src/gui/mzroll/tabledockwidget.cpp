@@ -69,7 +69,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QWidgetAction *btnSwitchView = new TableToolBarWidgetAction(toolBar, this,  "btnSwitchView");
     QWidgetAction *btnGroupCSV = new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
     QWidgetAction *btnSaveJson = new TableToolBarWidgetAction(toolBar, this,  "btnSaveJson");
-    QWidgetAction *btnSavePolly = new TableToolBarWidgetAction(toolBar, this,  "btnSavePolly");
+    // QWidgetAction *btnSavePolly = new TableToolBarWidgetAction(toolBar, this,  "btnSavePolly");
     QWidgetAction *btnGallery = new TableToolBarWidgetAction(toolBar, this,  "btnGallery");
     QWidgetAction *btnScatter = new TableToolBarWidgetAction(toolBar, this,  "btnScatter");
     QWidgetAction *btnCluster = new TableToolBarWidgetAction(toolBar, this,  "btnCluster");
@@ -103,7 +103,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     toolBar->addAction(btnPDF);
     toolBar->addAction(btnGroupCSV);
     toolBar->addAction(btnSaveJson);
-    toolBar->addAction(btnSavePolly);
+    // toolBar->addAction(btnSavePolly);
 
 
     toolBar->addSeparator();
