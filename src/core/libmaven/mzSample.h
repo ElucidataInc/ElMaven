@@ -906,7 +906,7 @@ class Isotope
         N15 = n;
         S34 = s;
         H2 = h;
-        abundance = 0; //naman: was unintialized
+        abundance = 0;
     }
 
     Isotope()
@@ -921,7 +921,7 @@ class Isotope
 
     Isotope(const Isotope &b)
     {
-        name = b.name; //naman: Consider performing initialization in initialization list.
+        name = b.name;
         mass = b.mass;
         abundance = b.abundance;
         N15 = b.N15;

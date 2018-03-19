@@ -55,8 +55,9 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
     for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
         mzSample* sample = _mavenParameters->samples[s];
         for (unsigned int k = 0; k < masslist.size(); k++) {
-            //			if (stopped())
-            //				break; TODO: stop
+            // if (stopped())
+            //     break; TODO: stop
+    
             Isotope& x = masslist[k];
             string isotopeName = x.name;
             double isotopeMass = x.mass;
@@ -66,16 +67,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
 
             float rt = parentgroup->medianRt();
-            float rtmin = parentgroup->minRt;
-            float rtmax = parentgroup->maxRt;
 
             Peak* parentPeak = parentgroup->getPeak(sample);
             if (parentPeak)
                 rt = parentPeak->rt;
-            if (parentPeak)
-                rtmin = parentPeak->rtmin;
-            if (parentPeak)
-                rtmax = parentPeak->rtmax;
 
             float isotopePeakIntensity = 0;
             float parentPeakIntensity = 0;
@@ -87,7 +82,6 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
                 isotopePeakIntensity = isotope.first;
                 rt = isotope.second;
             }
-            //if(isotopePeakIntensity==0) continue;
 
             if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
                 continue;
@@ -154,22 +148,29 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
 bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup)
 {
-    //natural abundance check
+
     //TODO: I think this loop will never run right? Since we're now only pulling the relevant isotopes
     //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
     //so we could just eliminate maxNaturalAbundanceErr parameter in this case
     //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
-    if ((x.C13 > 0 && _C13Flag == false) //if isotope is not C13Labeled
-            || (x.N15 > 0 && _N15Flag == false) //if isotope is not N15 Labeled
-            || (x.S34 > 0 && _S34Flag == false) //if isotope is not S34 Labeled
-            || (x.H2 > 0 && _D2Flag == false) //if isotope is not D2 Labeled
+    if ((x.C13 > 0 && _C13Flag == false)
+        || (x.N15 > 0 && _N15Flag == false)
+        || (x.S34 > 0 && _S34Flag == false)
+        || (x.H2 > 0 && _D2Flag == false)
         )
     {
         float expectedAbundance = x.abundance;
         if (expectedAbundance < 1e-8)
             return true;
-        if (expectedAbundance * parentPeakIntensity < 1) //TODO: In practice this is probably fine but in general I don't like these types of intensity checks -- the actual absolute value depends on the type of instrument, etc
+
+        /**
+         * TODO: In practice this is probably fine but in general 
+         * I don't like these types of intensity checks -- the actual
+         * absolute value depends on the type of instrument, etc
+         */
+        if (expectedAbundance * parentPeakIntensity < 1)
             return true;
+
         float observedAbundance = isotopePeakIntensity
             / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
 
