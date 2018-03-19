@@ -62,8 +62,9 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             float mzmin = x.mass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
             float mzmax = x.mass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
-
             float rt = parentgroup->medianRt();
+            float rtmin = sample->minRt;
+            float rtmax = sample->maxRt;
 
             Peak* parentPeak = parentgroup->getPeak(sample);
             if (parentPeak)
@@ -85,7 +86,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+            EIC * eic = sample->getEIC(mzmin, mzmax, rtmin, rtmax, 1, _mavenParameters->eicType,
                                         _mavenParameters->filterline);
             //actually last parameter should probably be deepest MS level?
             //TODO: decide how isotope children should even work in MS mode
