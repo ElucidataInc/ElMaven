@@ -59,12 +59,9 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             //     break; TODO: stop
     
             Isotope& x = masslist[k];
-            string isotopeName = x.name;
-            double isotopeMass = x.mass;
-            double expectedAbundance = x.abundance;
 
-            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
-            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmin = x.mass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
+            float mzmax = x.mass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
 
             float rt = parentgroup->medianRt();
 
@@ -128,17 +125,17 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             //delete (nearestPeak);
             if (nearestPeak) { //if nearest peak is present
-                if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                if (isotopes.count(x.name) == 0) { //label the peak of isotope
                     PeakGroup g;
-                    g.meanMz = isotopeMass; //This get's updated in groupStatistics function
-                    g.expectedMz = isotopeMass;
-                    g.tagString = isotopeName;
-                    g.expectedAbundance = expectedAbundance;
+                    g.meanMz = x.mass; //This get's updated in groupStatistics function
+                    g.expectedMz = x.mass;
+                    g.tagString = x.name;
+                    g.expectedAbundance = x.abundance;
                     g.isotopeC13count = x.C13;
                     g.setSelectedSamples(parentgroup->samples);
-                    isotopes[isotopeName] = g;
+                    isotopes[x.name] = g;
                 }
-                isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+                isotopes[x.name].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
             }
             vector<Peak>().swap(allPeaks);
         }
