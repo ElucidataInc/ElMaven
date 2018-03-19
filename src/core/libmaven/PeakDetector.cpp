@@ -15,7 +15,6 @@ void PeakDetector::resetProgressBar() {
 //TODO: Refactor this function. Too many parameters - Sahil
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     std::vector<mzSample*>&samples,
-                                    int peakDetect, 
                                     int smoothingWindow,
                                     int smoothingAlgorithm, 
                                     float amuQ1, 
@@ -315,7 +314,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         vector<EIC *> eics;
         eics = pullEICs(slice,
                         mavenParameters->samples,
-                        EicLoader::PeakDetection,
                         mavenParameters->eic_smoothingWindow,
                         mavenParameters->eic_smoothingAlgorithm,
                         mavenParameters->amuQ1,

@@ -261,7 +261,6 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 
         vector<EIC*> eics = PeakDetector::pullEICs(&slice,
                                                            samples,
-                                                           EicLoader::NoPeakDetection,
                                                            smoothingWindow,
                                                            smoothingAlgorithm,
                                                            amuQ1,

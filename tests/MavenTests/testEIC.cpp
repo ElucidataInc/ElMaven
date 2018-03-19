@@ -234,7 +234,7 @@ void TestEIC:: testgroupPeaks() {
 
 
     vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
+                                    mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
                                     mavenparameters->baseline_smoothingWindow,
@@ -301,7 +301,7 @@ void TestEIC:: testeicMerge() {
     //mavenparameters->grouping_maxRtWindow = 0.5;
 
     vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
+                                    mavenparameters->eic_smoothingWindow,
                                     mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
                                     mavenparameters->amuQ3,
                                     mavenparameters->baseline_smoothingWindow,

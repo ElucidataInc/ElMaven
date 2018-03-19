@@ -136,10 +136,18 @@ public:
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
 
-	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
-			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
-			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
+	static vector<EIC*> pullEICs(
+		mzSlice* slice,
+		std::vector<mzSample*>&samples,
+		int smoothingWindow,
+		int smoothingAlgorithm,
+		float amuQ1,
+		float amuQ3,
+		int baselineSmoothingWindow,
+		int baselineDropTopX,
+		double minSignalBaselineDifference,
+		int eicType,
+		string filterline);
 
 private:
 

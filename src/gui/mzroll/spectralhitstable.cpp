@@ -983,7 +983,6 @@ void SpectralHitsDockWidget::integrateMS1() {
 
        vector<EIC*> eics = PeakDetector::pullEICs(slice,
                                                     samples,
-                                                    EicLoader::PeakDetection,
                                                     eic_smoothingWindow,
                                                     eic_smoothingAlgorithm,
                                                     amuQ1,
