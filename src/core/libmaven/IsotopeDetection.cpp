@@ -70,6 +70,9 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             if (parentPeak)
                 rt = parentPeak->rt;
 
+            mzSlice* slice = new mzSlice(mzmin, mzmax, rtmin, rtmax);
+            slice->rt = rt;
+
             float isotopePeakIntensity = 0;
             float parentPeakIntensity = 0;
 
@@ -86,19 +89,24 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             
             vector<Peak> allPeaks;
 
-            EIC * eic = sample->getEIC(mzmin, mzmax, rtmin, rtmax, 1, _mavenParameters->eicType,
-                                        _mavenParameters->filterline);
-            //actually last parameter should probably be deepest MS level?
-            //TODO: decide how isotope children should even work in MS mode
 
-            // smooth fond eic TODO: null check for found
-            eic->setSmootherType(
-                    (EIC::SmootherType)
-                    _mavenParameters->eic_smoothingAlgorithm);
-            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
-            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
-            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
-            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            vector<mzSample*> samples;
+            samples.push_back(sample);
+
+            //TODO: pullEICs should be able to have mzSample as an argument
+            EIC *eic = PeakDetector::pullEICs(
+                slice,
+                samples,
+                _mavenParameters->eic_smoothingWindow,
+                _mavenParameters->eic_smoothingAlgorithm, 
+                _mavenParameters->amuQ1,
+                _mavenParameters->amuQ3,
+                _mavenParameters->baseline_smoothingWindow,
+                _mavenParameters->baseline_dropTopX, 
+                _mavenParameters->isotopicMinSignalBaselineDifference,
+                _mavenParameters->eicType,
+                _mavenParameters->filterline)[0]; 
+
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
