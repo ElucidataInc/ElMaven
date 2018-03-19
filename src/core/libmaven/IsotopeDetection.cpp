@@ -62,16 +62,14 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             float mzmin = x.mass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
             float mzmax = x.mass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(x.mass);
-            float rt = parentgroup->medianRt();
             float rtmin = sample->minRt;
             float rtmax = sample->maxRt;
+            mzSlice* slice = new mzSlice(mzmin, mzmax, rtmin, rtmax);
 
+            slice->rt = parentgroup->medianRt();
             Peak* parentPeak = parentgroup->getPeak(sample);
             if (parentPeak)
-                rt = parentPeak->rt;
-
-            mzSlice* slice = new mzSlice(mzmin, mzmax, rtmin, rtmax);
-            slice->rt = rt;
+                slice->rt = parentPeak->rt;
 
             float isotopePeakIntensity = 0;
             float parentPeakIntensity = 0;
@@ -81,7 +79,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
                 Scan* scan = parentPeak->getScan();
                 std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
                 isotopePeakIntensity = isotope.first;
-                rt = isotope.second;
+                slice->rt = isotope.second;
             }
 
             if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
@@ -123,7 +121,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             float d = FLT_MAX;
             for (unsigned int i = 0; i < allPeaks.size(); i++) {
                 Peak& x = allPeaks[i];
-                float dist = abs(x.rt - rt);
+                float dist = abs(x.rt - slice->rt);
                 if (dist > maxRtDiff)
                     continue;
                 if (dist < d) {
