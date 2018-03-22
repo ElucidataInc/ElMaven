@@ -16,6 +16,7 @@ TARGET = $$PILLOWCORE_LIB_NAME
 
 TEMPLATE = lib
 
+LIBS -= -lcdfread
 
 QT       += core network script
 QT       -= gui

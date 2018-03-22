@@ -552,7 +552,17 @@ void mzFileIO::fileImport(void) {
         tableX->loadPeakTable(filename);
     }
 
-    if (_mainwindow->getSettings()->value("uploadMultiprocessing").toInt()) {
+    // check if the user is trying to upload any cdf file. if, yes then disable
+    // mulitprocessing. store the value in temp and restore it once done
+    int uploadMultiprocessing = _mainwindow->getSettings()->value("uploadMultiprocessing").toInt();
+    Q_FOREACH(const QString& filename, samples) {
+      if(filename.endsWith(".nc", Qt::CaseInsensitive) || filename.endsWith(".cdf", Qt::CaseInsensitive)) {
+          uploadMultiprocessing = 0;
+          break;
+      }
+    }
+    qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
+    if (uploadMultiprocessing) {
         int iter = 0;
         #ifndef __APPLE__
         #pragma omp parallel for shared(iter)
