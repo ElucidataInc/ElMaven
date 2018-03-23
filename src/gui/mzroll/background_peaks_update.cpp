@@ -478,10 +478,10 @@ void BackgroundPeakUpdate::align() {
                         }
                         else{
                                 if(processedDataFromPython.size()==0){
-                                        errorMessage=errorMessage + " Good groups found" +"<br>"+"Check parameters' value";
+                                        errorMessage=errorMessage + " good groups found." +"<br>"+"Relax parameters for better result";
                                 }
                                 else{
-                                        errorMessage=errorMessage+"<br>"+"Incomplete data";
+                                        errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
                                 }
                                 qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
@@ -493,7 +493,7 @@ void BackgroundPeakUpdate::align() {
                                 qDebug()<<"Alignment complete";
                         }
                         else{
-                                errorMessage=errorMessage+"<br>"+"Json could not decoded";
+                                errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
                                 qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
                                 return;
