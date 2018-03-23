@@ -74,6 +74,11 @@ mzSample* mzFileIO::loadSample(QString filename){
 
 
     if ( sample && sample->scans.size() > 0 ) {
+        if (sample->sampleNumber > 0){
+            qDebug() << sampleName;
+            QString sampleNumberInfo = " | Sample Number=" + QString::number(sample->sampleNumber);
+            sampleName = sampleName + sampleNumberInfo;
+        }
         sample->sampleName = string( sampleName.toLatin1().data() );
         sample->enumerateSRMScans();
 

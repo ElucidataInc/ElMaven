@@ -374,7 +374,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
             string sampleId = "";
             sampleId = sample->sampleName;
-            if (peak.getScan()->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
+            if (sample->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(sample->sampleNumber);
 
             sampleName = sanitizeString(sampleId.c_str()).toStdString();
         }

@@ -22,6 +22,7 @@ mzSample::mzSample()
 	_normalizationConstant = 1; //TODO: Sahil Not being used anywhere
 	injectionTime = 0;
 	_sampleOrder = 0;
+	sampleNumber = -1;
 	_C13Labeled = false;
 	_N15Labeled = false;
 	_S34Labeled = false; //Feng note: added to track S34 labeling state
@@ -410,7 +411,7 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 				scan->mz.push_back(productMz);
 				scan->filterLine = chromatogramId;
 				if (!listSampleNo.isEmpty())
-					scan->sampleNumber = listSampleNo[0].toInt();
+					sampleNumber = listSampleNo[0].toInt();
 				scan->intensity.push_back(intsVector[i]);
 				addScan(scan);
 			}

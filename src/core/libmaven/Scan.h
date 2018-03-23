@@ -163,7 +163,6 @@ class Scan
     vector<float> mz; /**< m/z's found in one scan */
     string scanType;
     string filterLine;
-    int sampleNumber;
     mzSample *sample; /**< sample corresponding to the scan */
     int polarity; /**< +1 for positively charged, -1 for negatively charged, 0 for neutral*/
 
