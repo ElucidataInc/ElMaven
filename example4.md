@@ -129,4 +129,16 @@ permalink: /Downloads/
             </table>
         </div>
     </div>
+<br />
+            <div class="col-6">
+                <h4>
+                    <font color="">
+                        <i class="zmdi zmdi-download">
+                        Demo Datasets:</i>
+                    </font>
+                </h4>
+                <br />
+                <a style="color:#8985db" class="download-files" href="http://genomics-pubs.princeton.edu/mzroll/datasets/exampleProject.zip">Download example dataset</a>
+                <br />
+            </div>
 </div>

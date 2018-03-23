@@ -24,6 +24,9 @@ permalink: /Manuals/
     <br>
      <h5><a href="https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md">Developer Manual</a></h5>
     <br>
+     <br>
+     <h5><a target="_blank" href="https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos">Video Tutorial</a></h5>
+    <br>
    
 
  </div>
