@@ -12,20 +12,20 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
     if (!_mw->alignmentVizDockWidget->isVisible()) return;
     currentDisplayedGroup=group;
     intialSetup();
-    PeakGroup grp = *group;
+    PeakGroup groupUnalignedShadowed = *group;
 
-    refRtLine(grp);
+    refRtLine(groupUnalignedShadowed);
 
-    PeakGroup newGroup = getNewGroup(grp);
+    PeakGroup groupAlignedBrightened = getNewGroup(groupUnalignedShadowed);
 
-    drawMessageBox(newGroup, grp);
+    drawMessageBox(groupAlignedBrightened, groupUnalignedShadowed);
 
-    plotIndividualGraph(newGroup, 100);
+    plotIndividualGraph(groupAlignedBrightened, 100);
 
-    plotIndividualGraph(grp, 40);
+    plotIndividualGraph(groupUnalignedShadowed, 40);
 
-    float rtRange = grp.medianRt();
-    vector<mzSample*> samples = getSamplesFromGroup(grp);
+    float rtRange = groupUnalignedShadowed.medianRt();
+    vector<mzSample*> samples = getSamplesFromGroup(groupUnalignedShadowed);
 
     _mw->alignmentVizPlot->yAxis->setRange(0, samples.size() + 1);
     _mw->alignmentVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
