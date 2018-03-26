@@ -211,6 +211,9 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
 
     int i = 1;
     Q_FOREACH(mzSample* sample, samples) {
+        /** choose color of corresponding sample, older(with unaligned rt) group will have 40% of brightness and new group
+         * will be 100% bright (alpha =40,100).
+         */
         QColor color = QColor(255*sample->color[0],255*sample->color[1],255*sample->color[2] ,alpha* sample->color[3]);
         bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         bar->setAntialiased(false);
@@ -255,6 +258,10 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
     }
     sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
     reverse(samples.begin(),samples.end());
+    /** Alignment visualization plot will show peaks from different samples in corresponding sample color.
+     * ordering of peaks( and their color) start from top to down as sample are shown. If we don't reverse sample here,
+     * reverse will happen which is not so consistent.
+     */
     return samples;
 }
 
