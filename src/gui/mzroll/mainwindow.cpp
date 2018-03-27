@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-
 #include <QStandardPaths>
 #ifdef WIN32
 #include <windows.h>
@@ -71,56 +70,51 @@ void MainWindow::setValue(int value)
 }
 
 void MainWindow::printvalue() {
-	if (samples.size() > 0 ) {
-		settings->setValue("closeEvent", 1);
-		QFileInfo fi(QString::fromStdString(samples[0]->fileName));
-		QString samplePath = fi.absolutePath() + QDir::separator();
-		const QDateTime nowTime = QDateTime::currentDateTime(); 
-		const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
-		QString AutosavePath = samplePath + timestamp + ".mzroll";
-		this->fileName = AutosavePath;
-		this->doAutosave = true;
-		this->saveMzRoll();
-		saveSettingsToLog();
-		//Starting the crash reporter
-		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-		QProcess *myProcess = new QProcess();
-		QStringList arguments;
-		QString path;
-		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
-		arguments << path;
-		arguments << settings->value("bucket_name").toString();
-		arguments << settings->value("access_key").toString();
-		arguments << settings->value("secret_key").toString();
-		arguments <<  myAppender.getMessageQList();
-		arguments << "1";
-    	myProcess->start(crashReporterPath, arguments);
-  		//process of crash reporting ended
-		unsigned int countCrashState = 0;
-		settings->beginWriteArray("crashTables");
-		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
-			settings->setArrayIndex(countCrashState++);
-			settings->setValue("crashTable", newFileName);
-		}
-		settings->endArray();
-		settings->sync();
-	} else {
-		//Starting the crash reporter
-		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-		QProcess *myProcess = new QProcess();
-		QStringList arguments;
-		QString path;
-		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
-		arguments << path;
-		saveSettingsToLog();
-		arguments << settings->value("bucket_name").toString();
-		arguments << settings->value("access_key").toString();
-		arguments << settings->value("secret_key").toString();
-		arguments <<  myAppender.getMessageQList();
-		arguments << "1";
-    	myProcess->start(crashReporterPath, arguments);
-  		//process of crash reporting ended
-	}
+
+    // TODO: hide all this ugliness somewhere. OS dependent paths are used in a lot of places and hence
+    // this should be abstracted out somewhere
+
+    QString crashReporterPath;
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
+    #endif
+
+    #if defined(Q_OS_MAC)
+        QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+            + QDir::separator() + ".." + QDir::separator();
+        crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
+    #endif
+
+
+    if (samples.size() > 0 ) {
+        settings->setValue("closeEvent", 1);
+        QFileInfo fi(QString::fromStdString(samples[0]->fileName));
+        QString samplePath = fi.absolutePath() + QDir::separator();
+        const QDateTime nowTime = QDateTime::currentDateTime();
+        const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
+        QString AutosavePath = samplePath + timestamp + ".mzroll";
+        this->fileName = AutosavePath;
+        this->doAutosave = true;
+        this->saveMzRoll();
+        unsigned int countCrashState = 0;
+        settings->beginWriteArray("crashTables");
+        Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+            settings->setArrayIndex(countCrashState++);
+            settings->setValue("crashTable", newFileName);
+        }
+        settings->endArray();
+        settings->sync();
+    }
+
+    saveSettingsToLog();
+
+    //IMP: start the process in detached mode otherwise
+    // crashreporter gets killed as soon as parent dies
+    QProcess *pr = new QProcess;
+    pr->setProgram(crashReporterPath);
+    pr->setProcessChannelMode(QProcess::SeparateChannels);
+    pr->startDetached(crashReporterPath);
+
 }
 
 #ifdef WIN32
