@@ -17,7 +17,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _logsPath << ( basePath + "elMavLogs") << (basePath + "elMavLogs.1") << (basePath + "elMavLogs.2");
     // won't work on mac;
-    _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
+     #ifdef defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
+    #endif
+
+    #ifdef Q_OS_MAC
+        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
+    #endif
+
 
     // set up the process
     _process  = new QProcess(this);
