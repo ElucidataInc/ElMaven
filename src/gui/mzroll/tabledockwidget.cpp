@@ -1650,28 +1650,11 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("formula", QString(c->id.c_str()));
     }
 
-    /**@detail-
-    *Write about whether a sample is used while peak detection. Here
-    *if sample is used, it will be mentioned as an xml attribute with
-    *preceding 's'  since most sample name starts with a numeric  character but
-    *xml attribute should not start with numeric character and it's value
-    *will be "Used" and if it is not used value will be "NotUsed"
-    */
     stream.writeStartElement("SamplesUsed");
-    vector<mzSample*> samples=_mainwindow->getSamples();
-    for (unsigned int j = 0; j < samples.size(); j++){
-        QString name=QString::fromStdString(samples[j]->sampleName);
-        cleanString(name);
-        for(int i=0;i<g->samples.size();++i){
-            if(samples[j]->sampleName==g->samples[i]->sampleName){
-                stream.writeAttribute(name,"Used");
-                break;
-            }
-            else if(i==g->samples.size()-1){
-                
-                stream.writeAttribute(name,"NotUsed");
-            }
-        }   
+    for(int i=0; i < g->samples.size(); ++i) {
+        stream.writeStartElement("sample");
+        stream.writeAttribute("id", QString::number(g->samples[i]->id));
+        stream.writeEndElement();
     }
     stream.writeEndElement();
 
