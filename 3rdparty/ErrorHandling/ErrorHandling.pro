@@ -7,7 +7,7 @@ MOC_DIR=$$top_builddir/tmp/error_handling
 QMAKE_CXXFLAGS += -std=c++11
 CONFIG += staticlib
 
-INCLUDEPATH += $$top_srcdir/3rdparty/libplog $$top_srcdir/3rdparty/Logger
+INCLUDEPATH += $$top_srcdir/3rdparty/Logger
 
 LIBS += -lLogger
 
