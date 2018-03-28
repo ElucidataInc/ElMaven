@@ -177,7 +177,7 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 }
 
 void PeakDetectionDialog::showSettingsForm() {
-    LOGD;
+    
     mainwindow->settingsForm->exec();
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
@@ -215,7 +215,7 @@ PeakDetectionDialog::~PeakDetectionDialog() {
  * PeakDetectionDialog::cancel Stoping the peak detection process
  */
 void PeakDetectionDialog::cancel() {
-    LOGD;
+    
     if (peakupdater) {
         if (peakupdater->isRunning()) {
             peakupdater->completeStop();
@@ -286,7 +286,7 @@ void PeakDetectionDialog::show() {
  * from which they can seect the model that is been trained
  */
 void PeakDetectionDialog::loadModel() {
-    LOGD;
+    
     // This gives the name of the file that is selected by the user
     const QString name = QFileDialog::getOpenFileName(
         this, "Select Classification Model", ".", tr("Model File (*.model)"));
@@ -305,7 +305,7 @@ void PeakDetectionDialog::loadModel() {
 */
 // TODO: Sahil - Kiran, Added while merging mainwindow
 void PeakDetectionDialog::loadMethod() {
-    LOGD;
+    
     const QString filename = QFileDialog::getOpenFileName(
         this, "Load Settings", ".", tr("Settings File (*.method)"));
     peakupdater->loadSettings(filename);
@@ -317,7 +317,7 @@ void PeakDetectionDialog::loadMethod() {
 */
 // TODO: Sahil - Kiran, Added while merging mainwindow
 void PeakDetectionDialog::saveMethod() {
-    LOGD;
+    
     const QString filename = QFileDialog::getSaveFileName(
         this, "Save Settings", ".", tr("Settings File (*.method)"));
     peakupdater->saveSettings(filename);
@@ -411,7 +411,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 // TODO: Sahil. Refactored this whole function. Merged with mainwindow of 776.
 // RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks() {
-    LOGD;
+    
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
@@ -664,7 +664,7 @@ void PeakDetectionDialog::setProgressBar(QString text, int progress,
 @author:Sahil-Kiran
 */
 void PeakDetectionDialog::showMethodSummary() {
-    LOGD;
+    
     //Merged to 776
     if(peakupdater) {
         updateQSettingsWithUserInput(settings);
@@ -682,7 +682,7 @@ void PeakDetectionDialog::showMethodSummary() {
 @author:Sahil-Kiran
 */
 void PeakDetectionDialog::updatePeakTableList() {
-    LOGD;
+    
     //merged to 776
     if(mainwindow) {
         QList< QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();

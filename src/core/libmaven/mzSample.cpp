@@ -1,7 +1,6 @@
 #include "mzSample.h"
 #include "Compound.h"
 #include <MavenException.h>
-#include <Log.h>
 
 //global options
 int mzSample::filter_minIntensity = -1;
@@ -48,16 +47,10 @@ void mzSample::addScan(Scan *s)
 
 	//skip scans that do not match mslevel
 	if (mzSample::filter_mslevel and s->mslevel != mzSample::filter_mslevel)
-	{
-        LOGD << "failed to add scan: ms levels do not match";
-		return;
-	}
+        return;
 	//skip scans that do not match polarity
 	if (mzSample::filter_polarity and s->getPolarity() != mzSample::filter_polarity)
-	{
-        LOGD << "failed to add scan: polarity does not match";
-		return;
-	}
+        return;
 
 	//unsigned int sizeBefore = s->intensity.size();
 	if (mzSample::filter_centroidScans == true)
@@ -105,7 +98,6 @@ string mzSample::getFileName(const string &filename)
 
 void mzSample::loadAnySample(const char *filename)
 {
-    LOGD << " loading sample " << filename;
 
 	if (mystrcasestr(filename, "mzCSV") != NULL)
 	{
@@ -186,7 +178,7 @@ void mzSample::loadSample(const char *filename)
 
 void mzSample::parseMzCSV(const char *filename)
 {
-    LOGD << "parsing mzCSV: " << filename;
+
 	// file structure: scannum,rt,mz,intensity,mslevel,precursorMz,polarity,srmid
 	int lineNum = 0;
 
@@ -297,7 +289,6 @@ int mzSample::getPolarity()
 }
 void mzSample::parseMzML(const char *filename)
 {
-    LOGD << "parsing mzMl file: " << filename;
 	xml_document doc;
 
 	const unsigned int parse_options = parse_minimal;
@@ -331,7 +322,6 @@ void mzSample::parseMzML(const char *filename)
 
 void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 {
-    LOGD << "parsing mzML Injection time stamp";
 	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
 
 	if (!injectionTimeStamp.empty())
@@ -349,7 +339,6 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 
 void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 {
-    LOGD << "parsing MzMl chromatogram list ";
 
 	int scannum = 0;
 	for (xml_node chromatogram = chromatogramList.child("chromatogram");
@@ -439,7 +428,6 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)
 {
 
-    LOGD << "parsing mzML spectrum list ";
 	//Iterate through spectrums
 	int scannum = 0;
 
@@ -550,7 +538,7 @@ map<string, string> mzSample::mzML_cvParams(xml_node node)
 
 void mzSample::parseMzData(const char *filename)
 {
-    LOGD << "parsing mzData: " << filename;
+
 	xml_document doc;
 
 	const unsigned int parse_options = parse_minimal;
@@ -700,7 +688,6 @@ void mzSample::setInstrumentSettigs(xml_document &doc, xml_node spectrumstore)
 
 void mzSample::parseMzXMLData(xml_document &doc, xml_node spectrumstore)
 {
-    LOGD << "parsing mzXML data" ;
 	//Iterate through spectrums
 	int scannum = 0;
 
@@ -725,7 +712,6 @@ void mzSample::parseMzXMLData(xml_document &doc, xml_node spectrumstore)
 
 void mzSample::parseMzXML(const char *filename)
 {
-    LOGD << "parsing mzXML: " << filename;
 	xml_document doc;
 
     xml_node spectrumstore = getmzXMLSpectrumData(doc, filename);
@@ -958,9 +944,6 @@ void mzSample::parseMzXMLScan(const xml_node &scan, int scannum)
 	//no m/z intensity values
 	mzint = parsePeaksFromMzXML(scan);
     if (mzint.empty()) {
-        LOGD << " parsing scan number: " << scannum << "failed ";
-        LOGD << " failed to get m/z intensity values";
-
         return;
     }
 
