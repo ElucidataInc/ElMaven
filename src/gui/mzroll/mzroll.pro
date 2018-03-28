@@ -36,6 +36,7 @@ QT += sql network xml printsupport
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
+                $$top_srcdir/3rdparty/obiwarp   \
                 $$top_srcdir/3rdparty/pugixml/src \
                 $$top_srcdir/3rdparty/libneural \
                 $$top_srcdir/3rdparty/Eigen/ \
@@ -57,7 +58,7 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz                #64bit
+LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz                #64bit
 message($$LDFLAGS)
 
 INSTALLS += sources target
