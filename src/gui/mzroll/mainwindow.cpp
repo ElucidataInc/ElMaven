@@ -744,7 +744,6 @@ void MainWindow::saveSettingsToLog() {
 
     QString mavenParametersSummary = summary.readAll();
 
-	LOGD  << mavenParametersSummary;
 
 	QString qsettingsSummary;
 
@@ -758,9 +757,6 @@ void MainWindow::saveSettingsToLog() {
 			qsettingsSummary += "\n" + key + "=" + settings->value(key).toString();
 		}
 	}
-
-
-	LOGD << qsettingsSummary;
 
 }
 
@@ -778,10 +774,8 @@ bool MainWindow::askAutosave() {
 	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
 								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes) {
-		LOGD;
 		doAutosave = true;
 	} else {
-		LOGD;
 		doAutosave = false;
 	}
 	return doAutosave;
@@ -1006,8 +1000,8 @@ void MainWindow::mzrollLoadDB(QString dbname) {
 	ligandWidget->setDatabaseNames();
     ligandWidget->setDatabase(dbname);
 }
+
 void MainWindow::reportBugs() {
-	LOGD;
 	QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
 	QProcess *myProcess = new QProcess();
 	QStringList arguments;
@@ -1015,7 +1009,7 @@ void MainWindow::reportBugs() {
 	arguments << settings->value("bucket_name").toString();
 	arguments << settings->value("access_key").toString();
 	arguments << settings->value("secret_key").toString();
-	arguments <<  myAppender.getMessageQList();
+//	arguments <<  myAppender.getMessageQList();
 	arguments << "0";
 	myProcess->start(crashReporterPath, arguments);
 
@@ -1217,7 +1211,6 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 // }
 
 PeakGroup* MainWindow::bookmarkPeakGroup() {
-	LOGD;
     //qDebug() << "MainWindow::bookmarkPeakGroup()";
     if ( eicWidget ) {
        return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
@@ -1484,7 +1477,6 @@ void MainWindow::setMzValue(float mz1, float mz2) {
 }
 
 void MainWindow::print() {
-	LOGD;
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -1503,7 +1495,6 @@ void MainWindow::print() {
 
 void MainWindow::open() {
 
-	LOGD;
 	QString dir = ".";
 
 	if (settings->contains("lastDir")) {
@@ -1686,7 +1677,6 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 
 void MainWindow::checkCorruptedSampleInjectionOrder()
 {
-    LOGD;
 
     vector<mzSample*> samples = getSamples();
 
@@ -1819,7 +1809,6 @@ bool MainWindow::loadMetaInformation(QString filename) {
 }
 
 void MainWindow::loadCompoundsFile() {
-	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
 					".",
@@ -1861,7 +1850,6 @@ void MainWindow::loadCompoundsFile() {
 
 // open function for set csv
 void MainWindow::loadMetaInformation() {
-	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
 					".",
@@ -2040,7 +2028,6 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
  */
 
 void MainWindow::exportPDF() {
-	LOGD;
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -2062,7 +2049,7 @@ void MainWindow::exportPDF() {
 }
 
 void MainWindow::exportSVG() {
-	LOGD;
+
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);
 	//eicWidget->print(&image);
@@ -2363,9 +2350,9 @@ void MainWindow::loadSettings()
         msgBox.exec();
     }
 }
+
 void MainWindow::showButtonLog() {
-	QObject* obj = sender();
-	LOGD << obj->objectName().toStdString();
+    //TODO: get rid of it
 }
 
 void MainWindow::createToolBars() {
@@ -2614,25 +2601,25 @@ void MainWindow::refreshIntensities() {
 }
 
 void MainWindow::showspectraMatchingForm() {
-	LOGD;
+
 	spectraMatchingForm->exec();
 }
 
 void MainWindow::showsettingsForm() {
-	LOGD;
+
 	settingsForm->setInitialGroupRank();
 	settingsForm->exec();
 }
 
 void MainWindow::historyLast() {
-	LOGD;
+
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.last());
 }
 
 void MainWindow::historyNext() {
-	LOGD;
+
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.next());
@@ -2655,12 +2642,12 @@ bool MainWindow::addSample(mzSample* sample) {
 }
 
 void MainWindow::showPeakdetectionDialog() {
-	LOGD;
+
     peakDetectionDialog->show();      
 }
 
 void MainWindow::showSRMList() {
-	LOGD;
+
 
 	if (srmDockWidget->isVisible()) {
 

@@ -96,7 +96,6 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 	if (_areaIntegration
 			|| (event->button() == Qt::LeftButton
 					&& event->modifiers() == Qt::ShiftModifier)) {
-		LOGD;
 		toggleAreaIntegration(false);
 		//minimum size for region to integrate is 0.01 seconds
 		if (rtmax - rtmin > 0.01)
@@ -206,7 +205,6 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	//qDebug <<" EicWidget::mouseDoubleClickEvent(QMouseEvent* event)";
-	LOGD;
 	QGraphicsView::mouseDoubleClickEvent(event);
 
 	QPointF pos = event->pos();
@@ -455,7 +453,6 @@ void EicWidget::replotForced() {
 }
 
 void EicWidget::replot() {
-	LOGD;
 	//qDebug <<" EicWidget::replot()";
 	if (isVisible()) {	
 		replot(eicParameters->getSelectedGroup());
@@ -1328,7 +1325,6 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 }
 
 void EicWidget::resetZoom() {
-	LOGD;
 	//qDebug <<"EicWidget::resetZoom() ";
 	mzSlice bounds(0, 0, 0, 0);
 
@@ -1885,7 +1881,6 @@ void EicWidget::selectGroupNearRt(float rt) {
 }
 
 void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
-	LOGD;
 	if (_showIsotopicBarPlot) {
 		getMainWindow()->isotopePlotsDockWidget->show();
 		//addIsotopicPlot(group);
@@ -1895,7 +1890,6 @@ void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
 }
 
 void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
-	LOGD;
 	if (_frozen || group == NULL)
 		return;
 
@@ -1922,7 +1916,6 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 }
 
 void EicWidget::setGallaryToEics() {
-	LOGD;
 	//todo fix spelling
 	if (getMainWindow()->galleryDockWidget->isVisible()) {
 		getMainWindow()->galleryWidget->addIdividualEicPlots(
@@ -2013,19 +2006,16 @@ void EicWidget::setStatusText(QString text) {
 }
 
 void EicWidget::markGroupGood() {
-	LOGD;
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'g');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
 }
 void EicWidget::markGroupBad() {
-	LOGD;
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'b');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
 }
 void EicWidget::copyToClipboard() {
-	LOGD;
 	getMainWindow()->setClipboardToGroup(eicParameters->getSelectedGroup());
 }
 
