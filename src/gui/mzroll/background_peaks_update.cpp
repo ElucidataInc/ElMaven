@@ -472,17 +472,16 @@ void BackgroundPeakUpdate::align() {
                         jDoc = QJsonDocument::fromJson(processedDataFromPython);
 
                         QString errorMessage=QString::number(processedDataFromPython.size());
-                        errorMessage="Received data: "+errorMessage+" bytes";
 
                         if(!jDoc.isNull()){
                                 parentObj = jDoc.object();
                         }
                         else{
                                 if(processedDataFromPython.size()==0){
-                                        errorMessage=errorMessage+"<br>"+"Check parameters' value";
+                                        errorMessage=errorMessage + " good groups found." +"<br>"+"Relax parameters for better result";
                                 }
                                 else{
-                                        errorMessage=errorMessage+"<br>"+"Incomplete data";
+                                        errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
                                 }
                                 qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
@@ -494,7 +493,7 @@ void BackgroundPeakUpdate::align() {
                                 qDebug()<<"Alignment complete";
                         }
                         else{
-                                errorMessage=errorMessage+"<br>"+"Json could not decoded";
+                                errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
                                 qDebug()<<errorMessage;
                                 Q_EMIT alignmentError(errorMessage);
                                 return;

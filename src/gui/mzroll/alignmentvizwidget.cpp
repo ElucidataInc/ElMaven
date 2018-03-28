@@ -10,31 +10,30 @@ AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
 void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
 
     if (!_mw->alignmentVizDockWidget->isVisible()) return;
-
+    currentDisplayedGroup=group;
     intialSetup();
-    PeakGroup grp = *group;
+    PeakGroup groupUnalignedShadowed = *group;
 
-    refRtLine(grp);
+    refRtLine(groupUnalignedShadowed);
 
-    PeakGroup newGroup = getNewGroup(grp);
+    PeakGroup groupAlignedBrightened = getNewGroup(groupUnalignedShadowed);
 
-    drawMessageBox(newGroup, grp);
+    drawMessageBox(groupAlignedBrightened, groupUnalignedShadowed);
 
-    QColor colorCurrentGrp = QColor(150, 10, 250, 100);
-    QColor colorShadowGrp  = QColor (0, 0, 0, 50);
+    plotIndividualGraph(groupAlignedBrightened, 100);
 
-    plotIndividualGraph(newGroup, colorCurrentGrp);
+    plotIndividualGraph(groupUnalignedShadowed, 40);
 
-    plotIndividualGraph(grp, colorShadowGrp);
-
-    float rtRange = grp.medianRt();
-    vector<mzSample*> samples = getSamplesFromGroup(grp);
+    float rtRange = groupUnalignedShadowed.medianRt();
+    vector<mzSample*> samples = getSamplesFromGroup(groupUnalignedShadowed);
 
     _mw->alignmentVizPlot->yAxis->setRange(0, samples.size() + 1);
     _mw->alignmentVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
     _mw->alignmentVizPlot->replot();
 }
-
+void AlignmentVizWidget::updateGraph(){
+    if(currentDisplayedGroup) plotGraph(currentDisplayedGroup);
+}
 void AlignmentVizWidget::intialSetup() {
     _mw->alignmentVizPlot->clearPlottables();
 
@@ -202,7 +201,7 @@ float AlignmentVizWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
 
 }
 
-void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
+void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
     // QVector<double> retentionTimes = getRetentionTime(samples, group);
@@ -212,7 +211,10 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, QColor color) {
 
     int i = 1;
     Q_FOREACH(mzSample* sample, samples) {
-
+        /** choose color of corresponding sample, older(with unaligned rt) group will have 40% of brightness and new group
+         * will be 100% bright (alpha =40,100).
+         */
+        QColor color = QColor(255*sample->color[0],255*sample->color[1],255*sample->color[2] ,alpha* sample->color[3]);
         bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
         bar->setAntialiased(false);
         QPen pen;
@@ -254,7 +256,12 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
         mzSample* s = peaks[i].getSample();
         samples.push_back(s);
     }
-    sort (samples.begin(), samples.end());
+    sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
+    reverse(samples.begin(),samples.end());
+    /** Alignment visualization plot will show peaks from different samples in corresponding sample color.
+     * ordering of peaks( and their color) start from top to down as sample are shown. If we don't reverse sample here,
+     * reverse will happen which is not so consistent.
+     */
     return samples;
 }
 
