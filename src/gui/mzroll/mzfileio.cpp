@@ -486,7 +486,6 @@ void mzFileIO::run(void) {
     catch (std::exception& excp) {
 
         // ask user to send back the logs
-        LOGD << excp.what();
     }
     catch (...) {
         // ask user to send back the logs

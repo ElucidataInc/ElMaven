@@ -40,7 +40,6 @@ void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValu
  }
 
 void MassCalcWidget::compute() {
-    LOGD;
 	 bool isDouble =false;
 	 _mz = 		lineEdit->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
