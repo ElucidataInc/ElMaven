@@ -4,7 +4,7 @@
 
 TestLoadSamples::TestLoadSamples() {
     loadFile = "bin/methods/testsample_1.mzxml";
-    blankSample = "bin/methods/blan_1.mzxml";
+    blankSample = "bin/methods/blank_1.mzxml";
 }
 
 void TestLoadSamples::initTestCase() {
