@@ -3,20 +3,38 @@
 
 ObiWarp::ObiWarp(){
     std::cerr<<"===========mission successful============"<<std::endl;
+
+    score = (char *)"cor";
+    local = 0;
+    factor_diag = 2.f;
+    factor_gap = 1.f;
+    gap_init = 0.f;
+    gap_extend = 0.f;
+    init_penalty = 0.f;
+    response = 100.f;
+    nostdnrm = 0;
+
+    tmPoint = NULL;
+    mzPoint = NULL;
+
 }
 ObiWarp::~ObiWarp(){
     //release memory from all places
+    // if(tmPoint)
+    //     delete[] tmPoint;
+    // if(mzPoint)
+    //     delete[] mzPoint;
 }
 
 void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
     _tm_vals = rtPoints.size();
-    float* tmPoint = new float[_tm_vals];
+    tmPoint = new float[_tm_vals];
     for(int i=0; i < _tm_vals ; ++i)
         tmPoint[i] = rtPoints[i];
     _tm.take(_tm_vals, tmPoint);
 
     _mz_vals = mzPoints.size();
-    float* mzPoint = new float[_mz_vals];
+    mzPoint = new float[_mz_vals];
     for(int i = 0; i < _mz_vals; ++i)
         mzPoint[i] = mzPoints[i];
     _mz.take(_mz_vals, mzPoint);
@@ -31,7 +49,11 @@ void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints,
     _mat.take(mat);
 }
 
-vector<float>& alignRt(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
+vector<float> ObiWarp::alignRt(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
+    
+    vector<float> alignedRts;
+    if(rtPoints.size() == 0 || mzPoints.size() == 0)
+        return alignedRts;
     VecF tm;
     int tm_vals = rtPoints.size();
     float* tmPoint = new float[tm_vals];
@@ -54,13 +76,60 @@ vector<float>& alignRt(vector<float> &rtPoints, vector<float> &mzPoints, vector<
             mat(i,j)=intMat[i][j];
     }
 
+    MatF smat;
+    dyn.score(_mat, mat, smat, score);
+
+    if (!nostdnrm) {
+        if (!smat.all_equal()) { 
+            smat.std_normal();
+        }
+    }
+
+    int gp_length = smat.rows() + smat.cols();
+
+    VecF gp_array;
+    dyn.linear_less_before(gap_extend,gap_init,gp_length,gp_array);
+
+    int minimize = 0;
+    dyn.find_path(smat, gp_array, minimize, factor_diag, factor_gap, local, init_penalty);
+
+    VecI mOut;
+    VecI nOut;
+    dyn.warp_map(mOut, nOut, response, minimize);
+
+    VecF nOutF;
+    VecF mOutF;
+    tm_axis_vals(mOut, mOutF, _tm,_tm_vals);
+    tm_axis_vals(nOut, nOutF, tm,tm_vals); //
+    warp_tm(nOutF, mOutF, tm);
+    
+    float* rts = tm.pointer();
+    for(int i = 0; i < tm_vals; ++i)
+        alignedRts.push_back(rts[i]);
+    
+    // delete[] tmPoint;
+    // delete[] mzPoint;
+
+    return alignedRts;
 }
 
 
 void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
-
+    VecF tmp(tmCoords.length());
+    for (int i = 0; i < tmCoords.length(); ++i) {
+        if (tmCoords[i] < _tm_vals) {
+            tmp[i] = _tm[tmCoords[i]];
+        }
+        else {
+            printf("asking for time value at index: %d (length: %d)\n", tmCoords[i], _tm_vals);
+            exit(1);
+        }
+    }
+    tmVals.take(tmp);
 }
 
 void ObiWarp::warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm){
-
+    VecF out;
+    VecF::chfe(selfTimes, equivTimes, _tm, out, 1);  // run with sort option
+    _tm.take(out);
 }
