@@ -455,15 +455,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         sample->setSampleOrder(i);
 
-		//set blank to non transparent red
-		if (sample->isBlank) {
-			sample->color[0] = 0.9;
-			sample->color[1] = 0.0;
-			sample->color[2] = 0.0;
-			sample->color[3] = 1.0;
-			continue;
-		}
-
 		float hue = 1 - 0.6 * ((float) (i + 1) / N);
 		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
 		//qDebug() << "SAMPLE COLOR=" << c;
@@ -512,6 +503,14 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
         item->setExpanded(true);
+        
+        //set blank to black italics
+		if (sample->isBlank) {
+            setSampleColor(item, QColor(Qt::black));
+            QFont font;
+            font.setItalic(true); 
+            item->setFont(0,font);
+		}
     }
 
     _treeWidget->resizeColumnToContents(0);
