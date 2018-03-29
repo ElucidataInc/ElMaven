@@ -195,7 +195,7 @@ using namespace mzUtils;
 
 	threadCompound = NULL;
 
-	readSettings();
+    readSettings();
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
@@ -2108,8 +2108,17 @@ void MainWindow::readSettings() {
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 			
-	if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0)
-    	settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
+    if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0) {
+        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+          settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
+        #endif
+        #if defined(Q_OS_MAC)
+          QString binPath = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
+                  + QDir::separator() + "default.model";
+          settings->setValue("clsfModelFilename", binPath);
+        #endif
+    }
+
 
 
         

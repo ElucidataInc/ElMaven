@@ -93,12 +93,15 @@ void ClassifierNeuralNet::scoreEICs(vector<EIC*> &eics)
 
 float ClassifierNeuralNet::scorePeak(Peak& p) {
    //Merged with Maven776 - Kiran
-    float fts[1000];
     float result[2] = {0.1,0.1};
-    vector<float> features = getFeatures(p);
-    for(int k=0;k<num_features;k++) 
-	fts[k]=features[k];
-    brain->run(fts, result);
+    if(brain != NULL) {
+        float fts[1000];
+        vector<float> features = getFeatures(p);
+        for(int k=0;k<num_features;k++)
+        fts[k]=features[k];
+        brain->run(fts, result);
+    }
+
     return result[0];
 }
 
