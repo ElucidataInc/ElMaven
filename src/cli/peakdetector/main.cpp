@@ -1,8 +1,13 @@
 #include "PeakDetectorCLI.h"
 
 int main(int argc, char *argv[]) {
+    QStringList jsPathlist = QString(argv[0]).split(QDir::separator());
+	QStringList jsPathlist_bin;
+	for (int i = 0; i < jsPathlist.size()-1; ++i)
+         jsPathlist_bin << jsPathlist.at(i);
+	QString jsPath = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"index.js";
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+	PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
 
      #ifndef __APPLE__
      double programStartTime = getTime();
@@ -59,7 +64,7 @@ int main(int argc, char *argv[]) {
 
 	//write report
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
-		peakdetectorCLI->writeReport("compounds");
+		peakdetectorCLI->writeReport("compounds",jsPath);
 	}
 
 	//cleanup

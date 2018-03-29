@@ -25,10 +25,12 @@ SOURCES	= 	PeakDetectorCLI.cpp  \
 			$$top_srcdir/src/core/libmaven/classifier.cpp \
 			$$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
 			parseOptions.cpp \
+			pollyintegration.cpp \
 			main.cpp
 
 HEADERS += 	PeakDetectorCLI.h \
 			$$top_srcdir/src/core/libmaven/classifier.h \
 			$$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
 			parseOptions.h \
+			pollyintegration.h \
 			options.h

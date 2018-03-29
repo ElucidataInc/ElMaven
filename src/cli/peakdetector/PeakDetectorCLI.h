@@ -16,6 +16,7 @@
 
 #include "QMap"
 #include "QString"
+#include <QDebug>
 #include "QStringList"
 #include "QByteArray"
 
@@ -29,6 +30,7 @@
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
 #include "jsonReports.h"
+#include "pollyintegration.h"
 
 #include <QtCore>
 
@@ -36,6 +38,7 @@
 
 using namespace std;
 
+class PollyIntegration;
 class ParseOptions;
 
 #ifndef __APPLE__
@@ -51,6 +54,13 @@ class PeakDetectorCLI {
 
 	public:
 		PeakDetectorCLI();
+		QString username;
+		QString password;
+		QString projectname;
+		QString pollyArgs;
+		QString filedir;
+		QStringList test_list;
+		PollyIntegration* _pollyIntegration;
 
 		vector<mzSample*> samples;
 		vector<Compound*> compoundsDB;
@@ -76,6 +86,7 @@ class PeakDetectorCLI {
 
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
+		bool uploadToPolly_bool = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;
@@ -138,7 +149,7 @@ class PeakDetectorCLI {
 		* [write multiple types of Reports]
 		* @param setName [name of the set]
 		*/
-		void writeReport(string setName);
+		void writeReport(string setName,QString jsPath);
 
 		void groupReduction();
 
@@ -147,6 +158,10 @@ class PeakDetectorCLI {
 		void saveMzRoll(string setName);
 
 		void saveCSV(string setName);
+		/**
+		 * Upload Maven data to Polly and redirect the user to polly..
+		*/
+		QString UploadToPolly(QString jsPath);
 
 		/**
 		* [write Sample List in XML]

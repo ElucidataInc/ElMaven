@@ -2,10 +2,10 @@
 
 PeakDetectorCLI::PeakDetectorCLI() {
 	parseOptions = new ParseOptions();
+	_pollyIntegration = new PollyIntegration();
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
-
 	//command line options
 	const char * optv[] = {
 							"a?alignSamples: Enter non-zero integer to run alignment <int>",
@@ -35,6 +35,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"X?defaultXml: Create a template config file",
 							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
 							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
+							"P?pollyCred: Polly sign in credentials,username,password <string>",
 							NULL 
 	};
 
@@ -42,10 +43,8 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 	Options opts(*argv, optv);
 	OptArgvIter iter(--argc, ++argv);
 	const char * optarg;
-
 	while (const char optchar = opts(iter, optarg)) {
 		switch (optchar) {
-
 		case 'a':
 			mavenParameters->alignSamplesFlag = true;
 			if (atoi(optarg) == 0) mavenParameters->alignSamplesFlag = false;
@@ -131,7 +130,27 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 		case 'p':
 			mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(optarg),"ppm");
 			break;
-			
+		case 'P':
+			//parse polly specific arguments here.
+			uploadToPolly_bool = true;
+			{
+			pollyArgs = QString(optarg);
+			test_list = pollyArgs.split(",");
+			if (test_list.size()==2)//Assuming that user has not provided project name, just the username and password
+			{
+					username = test_list.at(0);//order is very specific here, first argument is supposed to be username
+					password = test_list.at(1);//second argument is password
+					projectname = "Default project";//upload to default project if no project name is specified
+					break;		
+			}
+			else if(2<test_list.size()){
+				username = test_list.at(0);
+				password = test_list.at(1);
+				projectname = test_list.at(2);
+			}
+			}
+			break;
+
 		case 'q':
 			mavenParameters->minQuality = atof(optarg);
 			break;
@@ -578,7 +597,7 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
-void PeakDetectorCLI::writeReport(string setName) {
+void PeakDetectorCLI::writeReport(string setName,QString jsPath) {
 
 
 	//create an output folder
@@ -597,6 +616,25 @@ void PeakDetectorCLI::writeReport(string setName) {
 
 	//save output CSV
 	saveCSV(setName);
+	//Try to upload to polly now..
+	try {
+		QString upload_project_id = UploadToPolly(jsPath);
+		if (upload_project_id!=""){
+			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
+			qDebug()<<"redirection url - \n"<<redirection_url;
+			filedir = QString::fromStdString(mavenParameters->outputdir);			
+			QString filename=filedir+"/url.txt";
+			QFile file( filename );
+			if ( file.open(QIODevice::ReadWrite) )
+			{
+				QTextStream stream( &file );
+				stream << redirection_url << endl;
+			}
+		}
+		else{qDebug()<<"Unable to upload data to polly";}
+	} catch(...) {
+		qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
+	}
 
 }
 
@@ -630,6 +668,41 @@ void PeakDetectorCLI::saveJson(string setName) {
 		cout << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
 		#endif
 	}
+}
+
+QString PeakDetectorCLI::UploadToPolly(QString jsPath) {
+	QString upload_project_id;
+	if (uploadToPolly_bool){
+		_pollyIntegration->jsPath = jsPath;
+		int status_inside = _pollyIntegration->authenticate_login(username,password);
+		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
+		QStringList keys= projectnames_id.keys();
+        QString projectId;
+		QString defaultprojectId;
+		for (int i=0; i < keys.size(); ++i){
+			if (projectnames_id[keys.at(i)].toString()==projectname){
+                projectId= keys.at(i);
+            }
+			else if (projectnames_id[keys.at(i)].toString()=="Default project"){
+				defaultprojectId=keys.at(i);
+			}
+        }
+		if (status_inside==1){
+			filedir = QString::fromStdString(mavenParameters->outputdir);
+			if (projectId==""){
+				_pollyIntegration->exportData(filedir,defaultprojectId);
+				upload_project_id = defaultprojectId;
+			}
+			else{
+				_pollyIntegration->exportData(filedir,projectId);
+				upload_project_id = projectId;
+			}
+		}
+		else{
+			qDebug()<<"Incorrect credentials...Please check..";
+		}
+	}
+	return upload_project_id;
 }
 
 void PeakDetectorCLI::saveMzRoll(string setName) {
