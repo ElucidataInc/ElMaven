@@ -46,6 +46,7 @@ HEADERS += \
     testCharge.h \
     testSRMList.h \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.h \
+    $$top_srcdir/src/cli/peakdetector/pollyintegration.h  \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
     $$top_srcdir/src/cli/peakdetector/parseOptions.h \
@@ -69,6 +70,7 @@ SOURCES += \
     testSRMList.cpp \
     main.cpp \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.cpp  \
+    $$top_srcdir/src/cli/peakdetector/pollyintegration.cpp  \
     $$top_srcdir/src/cli/peakdetector/options.cpp \
     $$top_srcdir/src/core/libmaven/classifier.cpp \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
