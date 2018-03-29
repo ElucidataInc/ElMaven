@@ -524,10 +524,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         
         //set blank to black italics
 		if (sample->isBlank) {
-            setSampleColor(item, QColor(Qt::black));
-            QFont font;
-            font.setItalic(true); 
-            item->setFont(0,font);
+            markBlank(item);
 		}
     }
 
