@@ -664,9 +664,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QXmlStreamReader xml(&data);
     mzSample* currentSample=NULL;
 
-
-
-
     QString projectDescription;
     QStringRef currentXmlElement;
 
@@ -689,8 +686,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
 
 
             if (xml.name() == "sample") {
-                QString fname   = xml.attributes().value("filename").toString();
+                unsigned int id = 0;
                 QString sname   = xml.attributes().value("name").toString();
+                id = xml.attributes().value("id").toInt();
+                QString fname   = xml.attributes().value("filename").toString();
                 QString setname   = xml.attributes().value("setName").toString();
                 QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
                 QString isSelected   = xml.attributes().value("isSelected").toString();
@@ -730,10 +729,11 @@ void ProjectDockWidget::loadProject(QString fileName) {
                     if (sample) {
                         _mainwindow->addSample(sample);
                         currentSample=sample;
-                        if (!sname.isEmpty() )  		sample->sampleName = sname.toStdString();
-                        if (!setname.isEmpty() )  		sample->setSetName(setname.toStdString());
-                        if (!sampleOrder.isEmpty())     sample->setSampleOrder(sampleOrder.toInt());
-                        if (!isSelected.isEmpty()) 		sample->isSelected = isSelected.toInt();
+                        if (!sname.isEmpty() ) sample->sampleName = sname.toStdString();
+                        if (id > 0) sample->id = id;
+                        if (!setname.isEmpty() ) sample->setSetName(setname.toStdString());
+                        if (!sampleOrder.isEmpty()) sample->setSampleOrder(sampleOrder.toInt());
+                        if (!isSelected.isEmpty()) sample->isSelected = isSelected.toInt();
                     } else {
                         currentSample=NULL;
                     }

@@ -1904,77 +1904,25 @@ void TableDockWidget::loadPeakTable() {
 	showAllGroups();
 }
 
-// void TableDockWidget::runScript() {
-//     QString dir = ".";
-//     QSettings* settings = _mainwindow->getSettings();
-
-//     treeWidget->selectAll();
-//     _mainwindow->getRconsoleWidget()->linkTable(this);
-//     _mainwindow->getRconsoleWidget()->updateStatus();
-//     _mainwindow->getRconsoleWidget()->show();
-//     _mainwindow->getRconsoleWidget()->raise();
-
-//     //find R executable
-//     QString Rprogram = "R.exe";
-//     if (settings->contains("Rprogram") ) Rprogram = settings->value("Rprogram").value<QString>();
-//     if (!QFile::exists( Rprogram)) { QErrorMessage dialog(this); dialog.showMessage("Can't find R executable"); return; }
-
-
-// }
-
 void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
 
     vector<mzSample*> samples= _mainwindow->getSamples();
-    for(int i=0;i<samples.size();++i){
-        QString name=QString::fromStdString(samples[i]->sampleName);
-        cleanString(name);
-        if(xml.name() == "PeakGroup" && mzrollv_0_1_5 && samples[i]->isSelected){
-            /**
-             * if mzroll is from old version, just insert sample in group from checking
-             * whether it is selected or not at time of exporting. This can give erroneous
-             * result for old version if at time of exporting mzroll user has selected diffrent
-             * samples from samples were used at time of peak finding which was inherent problem
-             * of old version of ElMaven.
-            */
-            group->samples.push_back(samples[i]);
-        }
-        else if(xml.name() == "SamplesUsed" && xml.attributes().value(name).toString()=="Used"){
-            /**
-             * if mzroll file is of new version, it's sample name will precede by 's'
-             * and has value of <Used> or <NotUsed>
-            */
-            group->samples.push_back(samples[i]);
-        }
-    }
-}
-void TableDockWidget::markv_0_1_5mzroll(QString fileName){
-    mzrollv_0_1_5=true;
-    
-    QFile data(fileName);
-    
-    if ( !data.open(QFile::ReadOnly) ) {
-        return;
-    }
-
-    QXmlStreamReader xml(&data);
-    while(!xml.atEnd()){
-        xml.readNext();
-        if (xml.isStartElement()) {   
-            if (xml.name() == "SamplesUsed"){
-                /**mark false if <SamplesUsed> which is only in new version*/
-                mzrollv_0_1_5=false;
-                break;
+    if (xml.name() == "SamplesUsed") {
+        xml.readNextStartElement();
+        while (xml.name() == "sample") {
+            unsigned int id = xml.attributes().value("id").toString().toInt();
+            for(int i=0;i < samples.size();++i){
+                mzSample *sample = samples[i];
+                if (id == sample->id) {
+                    group->samples.push_back(sample);
+                }
             }
+            xml.readNextStartElement();
         }
     }
-
-    data.close();
-   
-    return;
 }
-void TableDockWidget::loadPeakTable(QString fileName) {
 
-    markv_0_1_5mzroll(fileName);    /**@brief- mark varible <mzrollv_0_1_5>*/
+void TableDockWidget::loadPeakTable(QString fileName) {
 
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
@@ -1991,10 +1939,10 @@ void TableDockWidget::loadPeakTable(QString fileName) {
     while (!xml.atEnd()) {
         xml.readNext();
         if(xml.hasError()){qDebug()<<"Error in xml reading: "<<xml.errorString();}
-        if (xml.isStartElement()) {   
-            if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
-            if (group){ readSamplesXML(xml,group); }
-            if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
+        if (xml.isStartElement()) {
+            if (xml.name() == "PeakGroup") { group=readGroupXML(xml, parent); }
+            if (xml.name() == "SamplesUsed" && group){ readSamplesXML(xml, group); }
+            if (xml.name() == "Peak" && group) { readPeakXML(xml, group); }
             if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
         }
 
