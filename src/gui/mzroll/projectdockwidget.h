@@ -64,6 +64,8 @@ private Q_SLOTS:
 
 private:
     QTreeWidgetItem* getParentFolder(QString filename);
+    void markBlank(QTreeWidgetItem* item);
+    void unmarkBlank(QTreeWidgetItem* item);
     QMap<QString,QTreeWidgetItem*> parentMap;
     QTextEdit* _editor;
     MainWindow* _mainwindow;
