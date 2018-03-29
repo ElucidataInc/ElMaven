@@ -145,7 +145,7 @@ void mzSample::checkSampleBlank(const char *filename)
 	this->isBlank = false;
 
 	makeLowerCase(filenameString);
-	if (filenameString.find("blan") != string::npos)
+	if (filenameString.find("blank") != string::npos)
 	{
 		this->isBlank = true;
 	}

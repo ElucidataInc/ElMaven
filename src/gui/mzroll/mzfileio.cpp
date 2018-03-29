@@ -82,7 +82,7 @@ mzSample* mzFileIO::loadSample(QString filename){
         //set file path
         sample->fileName = filename.toStdString();
 
-        if (filename.contains("blan",Qt::CaseInsensitive)) sample->isBlank = true;
+        if (filename.contains("blank",Qt::CaseInsensitive)) sample->isBlank = true;
         return sample;
     }
     return NULL;
@@ -542,7 +542,7 @@ void mzFileIO::fileImport(void) {
                     sample->calculateMzRtRange();    //set min and max values for rt
                     sample->fileName = filename.toStdString();
 
-                    if ( filename.contains("blan",Qt::CaseInsensitive))
+                    if ( filename.contains("blank",Qt::CaseInsensitive))
                             sample->isBlank = true;   //check if this is a blank sample
 
                     if (sample->scans.size()>0)
@@ -567,7 +567,7 @@ void mzFileIO::fileImport(void) {
                     sample->calculateMzRtRange();    //set min and max values for rt
                     sample->fileName = filename.toStdString();
 
-                    if ( filename.contains("blan",Qt::CaseInsensitive))
+                    if ( filename.contains("blank",Qt::CaseInsensitive))
                             sample->isBlank = true;   //check if this is a blank sample
 
                     if (sample->scans.size()>0)
