@@ -617,8 +617,11 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath) {
 	//save output CSV
 	saveCSV(setName);
 	//Try to upload to polly now..
+	cout<<"uploding to polly now.."<<endl;
 	try {
-		QString upload_project_id = UploadToPolly(jsPath);
+		filedir = QString::fromStdString(mavenParameters->outputdir);
+		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";
+		QString upload_project_id = UploadToPolly(jsPath,filename);
 		if (upload_project_id!=""){
 			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 			qDebug()<<"redirection url - \n"<<redirection_url;
@@ -670,7 +673,7 @@ void PeakDetectorCLI::saveJson(string setName) {
 	}
 }
 
-QString PeakDetectorCLI::UploadToPolly(QString jsPath) {
+QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString filename) {
 	QString upload_project_id;
 	if (uploadToPolly_bool){
 		_pollyIntegration->jsPath = jsPath;
@@ -688,13 +691,12 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath) {
 			}
         }
 		if (status_inside==1){
-			filedir = QString::fromStdString(mavenParameters->outputdir);
 			if (projectId==""){
-				_pollyIntegration->exportData(filedir,defaultprojectId);
+				_pollyIntegration->exportData(filename,defaultprojectId);
 				upload_project_id = defaultprojectId;
 			}
 			else{
-				_pollyIntegration->exportData(filedir,projectId);
+				_pollyIntegration->exportData(filename,projectId);
 				upload_project_id = projectId;
 			}
 		}

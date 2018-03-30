@@ -32,7 +32,7 @@ class PollyIntegration
 	    int authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 	    QString login_required();
-	    QStringList exportData(QString filedir,QString projectId);
+	    QStringList exportData(QString filename,QString projectId);
 		QString loadDataFromPolly(QString ProjectId,QStringList filenames);
 		QVariantMap getUserProjects();
 		QVariantMap getUserProjectFiles(QStringList ProjectIds);

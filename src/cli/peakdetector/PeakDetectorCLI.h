@@ -161,7 +161,7 @@ class PeakDetectorCLI {
 		/**
 		 * Upload Maven data to Polly and redirect the user to polly..
 		*/
-		QString UploadToPolly(QString jsPath);
+		QString UploadToPolly(QString jsPath,QString filename);
 
 		/**
 		* [write Sample List in XML]

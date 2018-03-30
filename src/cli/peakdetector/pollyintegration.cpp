@@ -160,18 +160,19 @@ QVariantMap PollyIntegration::getUserProjects(){
     return user_projects;
 }
 
-QStringList PollyIntegration::exportData(QString filedir,QString projectId) {
-    QDir qdir(filedir);
+QStringList PollyIntegration::exportData(QString filename,QString projectId) {
+    // QDir qdir(filedir);
     QStringList filenames;
-    qdir.setFilter(QDir::Files | QDir::NoSymLinks);
-    QFileInfoList file_list = qdir.entryInfoList();
+    filenames<<filename;
+    // qdir.setFilter(QDir::Files | QDir::NoSymLinks);
+    // QFileInfoList file_list = qdir.entryInfoList();
     // qDebug()<<"files in temp dir..."<<file_list<<endl;
-    for (int i = 0; i < file_list.size(); ++i){
-        QFileInfo fileInfo = file_list.at(i);
-        QString tmp_filename = filedir+fileInfo.fileName();
-        filenames.append(tmp_filename);
+    // for (int i = 0; i < file_list.size(); ++i){
+    //     QFileInfo fileInfo = file_list.at(i);
+    //     QString tmp_filename = filedir+fileInfo.fileName();
+    //     filenames.append(tmp_filename);
 
-    }
+    // }
     qDebug()<<"files to be uploaded   "<<filenames;
     QElapsedTimer timer;
     timer.start();
