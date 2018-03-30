@@ -7,7 +7,7 @@ OBJECTS_DIR=$$top_builddir/tmp/peakdetector/
 TEMPLATE = app
 TARGET = peakdetector
 
-CONFIG += warn_off xml
+CONFIG += warn_off xml console
 
 QMAKE_CXXFLAGS += -std=c++11
 

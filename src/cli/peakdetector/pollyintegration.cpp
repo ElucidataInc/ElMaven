@@ -130,6 +130,8 @@ int PollyIntegration::check_already_logged_in(){
 
 
 int PollyIntegration::authenticate_login(QString username,QString password){
+    QFile file (credFile);
+    file.remove();
     QString command = "authenticate";
     QByteArray result = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
