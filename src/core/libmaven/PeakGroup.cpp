@@ -414,11 +414,12 @@ void PeakGroup::updateQuality() {
 // TODO: Remove this function as expected mz should be calculated while creating the group - Sahil
 double PeakGroup::getExpectedMz(int charge) {
 
+    float mz = 0;
+
     if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) { 
         return expectedMz;
     }
     else if (!isIsotope() && compound && compound->mass > 0) {
-        float mz = 0;
         if (!compound->formula.empty()) {
             mz = compound->adjustedMass(charge);
         } else {
@@ -428,8 +429,6 @@ double PeakGroup::getExpectedMz(int charge) {
         return mz;
     }
     else if (compound && compound->mass == 0 && compound->productMz > 0) {
-
-        float mz = 0;
         mz = compound->productMz;
         return mz;
     }
