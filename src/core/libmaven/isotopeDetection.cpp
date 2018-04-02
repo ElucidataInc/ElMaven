@@ -219,11 +219,10 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
     for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
 		Scan* s = sample->getScan(i);
 		vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-		for (unsigned int i = 0; i < matches.size(); i++) {
-			int pos = matches[i];
+		for (auto pos:matches) {
 			if (s->intensity[pos] > highestIntensity)
 				highestIntensity = s->intensity[pos];
-                rt = s->rt;
+            rt = s->rt;
 		}
 	}
     return std::make_pair(highestIntensity, rt);
