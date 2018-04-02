@@ -618,54 +618,54 @@ void mzFileIO::fileImport(void) {
 
         }
     }
-    QFile before("before.txt");
-    before.open(QIODevice::WriteOnly);
-    QTextStream bs(&before);
+    // QFile before("before.txt");
+    // before.open(QIODevice::WriteOnly);
+    // QTextStream bs(&before);
 
-    for(int i=0;i<_mainwindow->samples.size();++i){
-        mzSample* sample=_mainwindow->samples[i];
-        for(int j=0;j<sample->scans.size();++j){
-            // for(int k=0;k<sample->scans[j]->intensity.size();++k){
-            //     bs<<sample->scans[j]->intensity[k]<<" ";
-            //     bs<<sample->scans[j]->mz[k]<<" ";
-            // }
+    // for(int i=0;i<_mainwindow->samples.size();++i){
+    //     mzSample* sample=_mainwindow->samples[i];
+    //     for(int j=0;j<sample->scans.size();++j){
+    //         // for(int k=0;k<sample->scans[j]->intensity.size();++k){
+    //         //     bs<<sample->scans[j]->intensity[k]<<" ";
+    //         //     bs<<sample->scans[j]->mz[k]<<" ";
+    //         // }
             
-            // bs<<endl;
-            bs<<sample->scans[j]->rt<<" ";
-        }
-        bs<<endl<<endl;
-    }
-    bs.flush();
-    before.close();
+    //         // bs<<endl;
+    //         bs<<sample->scans[j]->rt<<" ";
+    //     }
+    //     bs<<endl<<endl;
+    // }
+    // bs.flush();
+    // before.close();
 
-    Aligner *aligner = new Aligner();
-    aligner->alignWithObiWarp(_mainwindow->samples);
-    for(int i=0; i< _mainwindow->samples.size(); ++i){
-        _mainwindow->samples[i]->enumerateSRMScans();
-        _mainwindow->samples[i]->calculateMzRtRange();
-    }
-    delete aligner;
+    // Aligner *aligner = new Aligner();
+    // aligner->alignWithObiWarp(_mainwindow->samples);
+    // for(int i=0; i< _mainwindow->samples.size(); ++i){
+    //     _mainwindow->samples[i]->enumerateSRMScans();
+    //     _mainwindow->samples[i]->calculateMzRtRange();
+    // }
+    // delete aligner;
     
-    QFile after("after.txt");
-    after.open(QIODevice::WriteOnly);
-    QTextStream as(&after);
+    // QFile after("after.txt");
+    // after.open(QIODevice::WriteOnly);
+    // QTextStream as(&after);
 
-    for(int i=0;i<_mainwindow->samples.size();++i){
-        mzSample* sample=_mainwindow->samples[i];
-        for(int j=0;j<sample->scans.size();++j){
-            // for(int k=0;k<sample->scans[j]->intensity.size();++k){
-            //     as<<sample->scans[j]->intensity[k]<<" ";
-            //     as<<sample->scans[j]->mz[k]<<" ";
-            // }
-            // as<<endl;
-            as<<sample->scans[j]->rt<<" ";
-        }
-        as<<endl<<endl;
-    }
-    as.flush();
-    after.close();
+    // for(int i=0;i<_mainwindow->samples.size();++i){
+    //     mzSample* sample=_mainwindow->samples[i];
+    //     for(int j=0;j<sample->scans.size();++j){
+    //         // for(int k=0;k<sample->scans[j]->intensity.size();++k){
+    //         //     as<<sample->scans[j]->intensity[k]<<" ";
+    //         //     as<<sample->scans[j]->mz[k]<<" ";
+    //         // }
+    //         // as<<endl;
+    //         as<<sample->scans[j]->rt<<" ";
+    //     }
+    //     as<<endl<<endl;
+    // }
+    // as.flush();
+    // after.close();
 
-    qDebug()<<"=============complete============";
+    // qDebug()<<"=============complete============";
     Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {
             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);

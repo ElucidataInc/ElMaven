@@ -422,45 +422,6 @@ void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
 
 }
 
-// void BackgroundPeakUpdate::alignSampleRts(mzSample* sample, QSet<int> &roundMz,ObiWarp& obiWarp, bool setAsReference){
-
-//         vector<vector<float> > mxn(sample->scans.size());
-
-//         for(int i=0;i < sample->scans.size();++i)
-//                 mxn[i]=vector<float>(roundMz.size());
-
-
-//         QSet<int> ::iterator it=roundMz.begin();
-//         vector<float> v;
-//         for(;it!=roundMz.end();++it){
-//                 v.push_back(*it);
-//         }
-                
-//         sort(v.begin(),v.end());
-
-//         map<int,int> roundMzToIndex;
-//         for(int i=0;i<v.size();++i)
-//                 roundMzToIndex[int(v[i])] = i;
-
-//         vector<float> rts;
-//         for(int j=0;j<sample->scans.size();++j){
-//                 for(int k=0;k<sample->scans[j]->mz.size();++k){
-//                         int index = roundMzToIndex[qRound(sample->scans[j]->mz[k])];
-//                         mxn[j][index] =  sample->scans[j]->intensity[k];
-//                 }
-//                 rts.push_back(sample->scans[j]->rt);
-//         }
-
-//         if(setAsReference)
-//                 obiWarp.setReferenceData(rts, v, mxn);  
-//         else{
-//                 rts = obiWarp.align(rts, v, mxn);
-//                 for(int i = 0; i < sample->scans.size(); ++i)
-//                         sample->scans[i]->rt = rts[i];
-//         }
-
-// }
-
 void BackgroundPeakUpdate::align() {
 
         //These else if statements will take care of all corner cases of undoAlignment
@@ -541,30 +502,7 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->deltaRt = aligner.getDeltaRt();
                 }
                 else{
-                        // qDebug()<<"cameeeeeeeeeeeeee";
-                        // ObiWarp obiWarp;
-                        // qDebug()<<"outtttttttttttttt";
-                        // for(int i=0 ; i < mavenParameters->samples.size();++i){
-                        //         mzSample* sample=mavenParameters->samples[i];
-                        //         QSet<int> roundMz = QSet<int>();
-                        //         for(int j=0;j<sample->scans.size();++j){
-                        //                 for(int k=0;k<sample->scans[j]->mz.size();++k)
-                        //                         roundMz.insert(qRound(sample->scans[j]->mz[k]));
-                        //         }
-                        //         if(i == 0)
-                        //                 alignSampleRts(sample, roundMz, obiWarp, true);
-                        //         else
-                        //                 alignSampleRts(sample, roundMz, obiWarp, false);
-                        // }
-                        // for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
-                        //         PeakGroup* grp = &mavenParameters->allgroups[i];
-                        //         for (int peakIndex=0; peakIndex<grp->getPeaks().size(); peakIndex++) {
-                        //                 Peak& peak = grp->getPeaks().at(peakIndex);
-                        //                 Peak* p = grp->getPeak(peak.getSample());
-                        //                 p->rt = peak.getSample()->scans[peak.scan]->rt;
-                        //         }
-                        // }	
-                        // qDebug()<<"alignment complete";
+                        aligner.alignWithObiWarp(mavenParameters->samples);
                 }
                 
                 mavenParameters->alignSamplesFlag = false;
