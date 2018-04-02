@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include "PeakDetector.h"
 #include "mavenparameters.h"
+// #include "obiwarp.h"
 
 class MainWindow;
 class Database;
@@ -153,6 +154,7 @@ private:
 	 * [align function]
 	 */
 	void align();
+	// void alignSampleRts(mzSample* sample, QSet<int> &roundMz,ObiWarp& obiWarp, bool setAsReference);
 	void alignUsingDatabase();
 
 	/**
