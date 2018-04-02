@@ -23,7 +23,7 @@ win32 {
 unix: {
     INCLUDEPATH += /usr/local/include/
     QMAKE_LFLAGS += -L/usr/local/lib/
-    LIBS +=  -lboost_signals
+    LIBS +=  -lboost_signals -lErrorHandling
 }
 
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
