@@ -13,7 +13,9 @@ using namespace std;
 
 class ObiWarp{
 public:
-    ObiWarp();
+    ObiWarp(string score="cor",bool local = false, float factor_diag = 2.f, float factor_gap = 1.f, 
+            float gap_init = 0.2f,float gap_extend = 3.4f, float init_penalty = 0.f, 
+            float response = 100.f, bool nostdnrm = false  );
     ~ObiWarp();
     void setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
     vector<float> align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);

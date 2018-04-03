@@ -1,17 +1,18 @@
 #include "obiwarp.h"
 
 
-ObiWarp::ObiWarp(){
-    
-    score = (char *)"cor";
-    local = 0;
-    factor_diag = 2.f;
-    factor_gap = 1.f;
-    gap_init = 0.2f;
-    gap_extend = 3.4f;
-    init_penalty = 0.f;
-    response = 100.f;
-    nostdnrm = 0;
+ObiWarp::ObiWarp(string score,bool local, float factor_diag, float, float gap_init,float gap_extend,
+            float init_penalty, float response, bool nostdnrm ){
+
+    this->score = &score[0];
+    this->local = local;
+    this->factor_diag = factor_diag;
+    this->factor_gap = factor_gap;
+    this->gap_init = gap_init;
+    this->gap_extend = gap_extend;
+    this->init_penalty = init_penalty;
+    this->response = response;
+    this->nostdnrm = nostdnrm;
 
     tmPoint = NULL;
     mzPoint = NULL;

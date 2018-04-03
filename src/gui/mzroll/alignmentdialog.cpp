@@ -151,7 +151,6 @@ void AlignmentDialog::hideOthers(){
 }
 void AlignmentDialog::algoChanged() {
 
-	// adjustSize();
 	if(alignAlgo->currentIndex() == 2)
 		hideOthers();
 	else
