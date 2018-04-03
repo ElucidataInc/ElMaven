@@ -85,7 +85,8 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 		   "<br> <b>No NoiseObs: </b>" + QString::number(_peak->noNoiseObs) +
 		   "<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac) +
 		 */
-	} else if (_scan) { 
+	} 
+	if (_scan) { 
 		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
 					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
 					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
@@ -148,7 +149,8 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
     else
     {
-        _mw->isotopeWidget->setPeakGroupAndMore(NULL);
+        //clear widget when isotopic peak is selected
+	_mw->isotopeWidget->setPeakGroupAndMore(NULL);
     }
 
     if(_scan) {
