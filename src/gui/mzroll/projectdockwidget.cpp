@@ -360,28 +360,46 @@ void ProjectDockWidget::SetAsBlankSamples() {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
               if ( sample == NULL) return;
-              if(!sample->isBlank){
-                        sample->isBlank = true; // To selected samples as Blank Samples
-                        QString sampleName = QString::fromStdString(sample->sampleName.c_str());
-                        usedColor = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2], 1.0);
-                        storeColor[sampleName] = usedColor;
-                        if (item->type() == SampleType) setSampleColor(item, QColor(Qt::black));
-                        QFont font;
-                        font.setItalic(true); 
-                        item->setFont(0,font);
-              }
-              else{
-                    sample->isBlank = false; // To unselected samples as Blank Samples
-                    QString sampleName = QString::fromStdString(sample->sampleName.c_str());
-                    if (item->type() == SampleType) setSampleColor(item, storeColor[sampleName]);
-                    QFont font;
-                    font.setItalic(false); 
-                    item->setFont(0,font);
-              }
+              if(!sample->isBlank) markBlank(item);
+              else unmarkBlank(item);
            }
       }
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
+}
+
+void ProjectDockWidget::unmarkBlank(QTreeWidgetItem* item) {
+    QVariant v = item->data(0,Qt::UserRole);
+    mzSample*  sample =  v.value<mzSample*>();
+    if ( sample == NULL) return;
+
+    sample->isBlank = false;
+
+    //restore sample color
+    QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+    setSampleColor(item, storeColor[sampleName]);
+    
+    QFont font;
+    font.setItalic(false); 
+    item->setFont(0,font);
+}
+
+void ProjectDockWidget::markBlank(QTreeWidgetItem* item) {
+    QVariant v = item->data(0,Qt::UserRole);
+    mzSample*  sample =  v.value<mzSample*>();
+    if ( sample == NULL) return;
+    
+    sample->isBlank = true; //for manually marking blanks
+    
+    //Set sample color to black
+    QString sampleName = QString::fromStdString(sample->sampleName.c_str());
+    storeColor[sampleName] = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2], 1.0);
+    setSampleColor(item, QColor(Qt::black));
+    
+    //Sample name in italics
+    QFont font;
+    font.setItalic(true); 
+    item->setFont(0,font);
 }
 
 void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
@@ -455,15 +473,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         sample->setSampleOrder(i);
 
-		//set blank to non transparent red
-		if (sample->isBlank) {
-			sample->color[0] = 0.9;
-			sample->color[1] = 0.0;
-			sample->color[2] = 0.0;
-			sample->color[3] = 1.0;
-			continue;
-		}
-
 		float hue = 1 - 0.6 * ((float) (i + 1) / N);
 		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
 		//qDebug() << "SAMPLE COLOR=" << c;
@@ -512,6 +521,11 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
         item->setExpanded(true);
+        
+        //set blank to black italics
+		if (sample->isBlank) {
+            markBlank(item);
+		}
     }
 
     _treeWidget->resizeColumnToContents(0);
