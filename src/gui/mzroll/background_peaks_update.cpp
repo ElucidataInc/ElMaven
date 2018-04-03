@@ -502,7 +502,21 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->deltaRt = aligner.getDeltaRt();
                 }
                 else{
-                        aligner.alignWithObiWarp(mavenParameters->samples);
+                        qDebug()<<"checkkkkkkkkkkk: "<<mainwindow->alignmentDialog->useDefaultObiWarpParams->isChecked();
+                        ObiParams *obiParams =NULL;
+                        if( mainwindow->alignmentDialog->useDefaultObiWarpParams->isChecked() == false )
+                                obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+                                                        mainwindow->alignmentDialog->local->isChecked(),
+                                                        mainwindow->alignmentDialog->factorDiag->value(),
+                                                        mainwindow->alignmentDialog->factorGap->value(),
+                                                        mainwindow->alignmentDialog->gapInit->value(),
+                                                        mainwindow->alignmentDialog->gapExtend->value(),
+                                                        mainwindow->alignmentDialog->initPenalty->value(),
+                                                        mainwindow->alignmentDialog->responseObiWarp->value(),
+                                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
+                                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
+                                                );
+                        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
                 }
                 
                 mavenParameters->alignSamplesFlag = false;

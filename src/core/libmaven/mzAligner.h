@@ -13,6 +13,23 @@
 #include <QJsonObject>
 
 using namespace std;
+
+struct ObiParams{
+    ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
+            float init_penalty, float response, bool nostdnrm, float binSize);
+
+    string score;
+    bool local;
+    float factor_diag;
+    float factor_gap;
+    float gap_init;
+    float gap_extend;
+    float init_penalty;
+    float response;
+    bool nostdnrm;
+    float binSize;
+};
+
 class Aligner {
    public:
     Aligner();
@@ -26,7 +43,7 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    void alignWithObiWarp(vector<mzSample*> samples,int referenceSampleIndex = 0);
+    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
     void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;

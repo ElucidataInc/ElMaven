@@ -1,7 +1,7 @@
 #include "obiwarp.h"
 
 
-ObiWarp::ObiWarp(string score,bool local, float factor_diag, float, float gap_init,float gap_extend,
+ObiWarp::ObiWarp(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
             float init_penalty, float response, bool nostdnrm ){
 
     this->score = &score[0];
@@ -13,7 +13,7 @@ ObiWarp::ObiWarp(string score,bool local, float factor_diag, float, float gap_in
     this->init_penalty = init_penalty;
     this->response = response;
     this->nostdnrm = nostdnrm;
-
+    
     tmPoint = NULL;
     mzPoint = NULL;
 

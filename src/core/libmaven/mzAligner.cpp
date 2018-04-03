@@ -483,14 +483,33 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     }
 }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,int referenceSampleIndex){
+void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,int referenceSampleIndex){
     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
-    srand(time(NULL));
-    referenceSampleIndex = rand()%samples.size();
+    if(referenceSampleIndex < 0){
+        srand(time(NULL));
+        referenceSampleIndex = rand()%samples.size();
+    }
     assert(referenceSampleIndex < samples.size());
 
-    ObiWarp obiWarp;
+    ObiWarp *obiWarp = NULL;
+    if(obiParams){
+        obiWarp = new ObiWarp( 
+            obiParams->score ,
+            obiParams->local ,
+            obiParams->factor_diag ,
+            obiParams->factor_gap ,
+            obiParams->gap_init ,
+            obiParams->gap_extend ,
+            obiParams->init_penalty ,
+            obiParams->response ,
+            obiParams->nostdnrm
+            
+         );
+    }
+    else
+        obiWarp = new ObiWarp();
+
     float binSize = 0.5f;
     float minMzRange = 1e9;
     float maxMzRange = 0;
@@ -514,14 +533,33 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,int referenceSampleInde
     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(referenceSample, mzPoints, obiWarp, true);
+    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
 
     for(int i=0 ; i < samples.size();++i){
         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
         if(i == referenceSampleIndex)
             continue;
-        alignSampleRts(samples[i], mzPoints, obiWarp, false);
+        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
     }
-
+    
     cerr<<"Alignment complete"<<endl;
+    cerr<<obiParams->binSize<<endl;
+    delete obiWarp;
+    
+    
+}
+
+ObiParams::ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
+            float init_penalty, float response, bool nostdnrm, float binSize){
+
+    this->score = score;
+    this->local = local;
+    this->factor_diag = factor_diag;
+    this->factor_gap = factor_gap;
+    this->gap_init = gap_init;
+    this->gap_extend = gap_extend;
+    this->init_penalty = init_penalty;
+    this->response = response;
+    this->nostdnrm = nostdnrm;
+    this->binSize = binSize;
 }
