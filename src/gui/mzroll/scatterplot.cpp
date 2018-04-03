@@ -26,6 +26,18 @@ ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) {
 
     setupToolBar();
 	setTable(NULL);
+    setPeakTable(w);
+
+}
+
+void ScatterPlot::setPeakTable(QWidget* w) {
+
+    _peakTable = new TableDockWidget((MainWindow*) w, "Bookmarked Groups", 0);
+    _peakTable->setVisible(false);
+    _peakTable->tableId = -1;
+     (((MainWindow*) w)->noOfPeakTables)--;
+    _peakTable->titlePeakTable->setText(" Scatter Plot Peak Table ");
+    ((MainWindow*) w)->addDockWidget(Qt::BottomDockWidgetArea, _peakTable, Qt::Horizontal);
 
 }
 
@@ -62,6 +74,12 @@ void ScatterPlot::setupToolBar() {
     btnDelete->setToolTip("Delete Selected Groups");
     connect(btnDelete,SIGNAL(clicked()),this,SLOT(deleteGroup()));
 
+    btnPeakTable = new QToolButton(toolBar);
+    btnPeakTable->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
+    btnPeakTable->setToolTip("Show Peaks Table");
+    btnPeakTable->setCheckable(true);
+    connect(btnPeakTable,SIGNAL(clicked()),this,SLOT(showPeakTable()));
+
     // merged with maven776 - Kiran
    /* QToolButton *btnCovariants = new QToolButton(toolBar);
 	btnCovariants->setIcon(QIcon(rsrcPath + "/covariants.png"));
@@ -82,6 +100,7 @@ void ScatterPlot::setupToolBar() {
     toolBar->addWidget(btnPLS);
     // new feature added - Kiran
     toolBar->addWidget(btnDelete);
+    toolBar->addWidget(btnPeakTable);
     // merged with maven776 - Kiran
     //  toolBar->addWidget(btnCovariants);
 
@@ -158,7 +177,7 @@ void ScatterPlot::showSelectedGroupGallery(QPointF from, QPointF to) {
 
 void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float>vecB, vector<PeakGroup*>groups) { 
     
-
+    presentGroups.clear();
 	if (vecA.size() == 0 || vecB.size() == 0 ) return;
     if (vecA.size() != vecB.size() ) return;
 
@@ -228,7 +247,7 @@ void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float
 
                 if(group) {
                     QString groupName = group->getSrmId().c_str(); //to implement
-
+                    presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
                     item->setToolTip( tr("(%1,%2) <br>%3 m/z: %4<br>rt: %5<br>pvalue: %6")
                                       .arg(x)
@@ -244,6 +263,7 @@ void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float
 void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
         // new feature added - Kiran
         qDebug() << "ScatterPlot::drawPLS()";
+        presentGroups.clear();
         sort(groups.begin(), groups.end());
         StatisticsVector<float>foldChanges;
         StatisticsVector<float>pValues;
@@ -405,6 +425,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
                 item->setToolTip( tr("%1,%2,%3").arg(x).arg(y) );
 
                 if(group) {
+                    presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
                     item->setToolTip( tr("m/z:%1 rt:%2 pvalue:%3").arg(group->meanMz).arg(group->meanRt).arg(group->changePValue));
                 }
@@ -413,6 +434,7 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
 
 void ScatterPlot::drawFlower(vector<PeakGroup*>groups) {
 
+        presentGroups.clear();
         sort(groups.begin(), groups.end());
 
         StatisticsVector<float>foldChanges;
@@ -492,6 +514,7 @@ void ScatterPlot::drawFlower(vector<PeakGroup*>groups) {
                 item->setToolTip( tr("%1,%2").arg(x).arg(y) );
 
                 if(group) {
+                    presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
                     item->setToolTip( tr("m/z:%1 rt:%2 pvalue:%3").arg(group->meanMz).arg(group->meanRt).arg(group->changePValue));
                 }
@@ -679,3 +702,13 @@ void ScatterPlot::deleteGroup() {
    mw->getEicWidget()->replotForced();
 }
 
+void ScatterPlot::showPeakTable() {
+
+    _peakTable->deleteAll();
+    for(int i=0 ;i < presentGroups.size(); i++) {
+        _peakTable->addPeakGroup(presentGroups[i]);
+    }
+    _peakTable->showAllGroups();
+    _peakTable->setVisible(btnPeakTable->isChecked());
+
+}
