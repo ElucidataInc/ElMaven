@@ -16,12 +16,15 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             Scan* scan = sample->getScan(j);
             if (!scan) continue;
 
+            // skipping empty scans
+            if (scan->totalIntensity() == 0) continue;
+
             QString filterLine(scan->filterLine.c_str());
 
-            if (filterLine.isEmpty())   continue;
+            if (filterLine.isEmpty()) continue;
 
             if (seenMRMS.contains(filterLine)){
-                if(scan->intensity[0] <= seenMRMS.value(filterLine)->intensity[0])    continue;
+                if(scan->intensity[0] <= seenMRMS.value(filterLine)->intensity[0]) continue;
             }
 
             seenMRMS.insert(filterLine, scan);
