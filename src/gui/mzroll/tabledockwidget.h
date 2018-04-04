@@ -10,7 +10,6 @@
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
 #include "saveJson.h"
-#include "pollyintegration.h"
 
 
 class MainWindow;
@@ -19,7 +18,6 @@ class TrainDialog;
 class ClusterDialog;
 class NumericTreeWidgetItem;
 class ListView;
-class PollyIntegration;
 using namespace std;
 
 class TableDockWidget: public QDockWidget {
@@ -42,7 +40,6 @@ public:
     QStringListModel* stringModel;  /**@param-  model of compound name,will be set to <listTextView>*/
 
     MainWindow* _mainwindow;
-    PollyIntegration* _pollyIntegration;
     QWidget 	*dockWidgetContents;
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treeWidget;
@@ -157,7 +154,6 @@ public Q_SLOTS:
     */
     void rejectGroup();
     void exportJson();
-    void exportPolly();
     void showSelectedGroup();
 	  void setGroupLabel(char label);
 	  void showPeakGroup(int row);

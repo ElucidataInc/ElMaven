@@ -8,6 +8,22 @@ int main(int argc, char *argv[]) {
 	QString jsPath = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"index.js";
 
 	PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+	QString nodePath;
+	#ifdef Q_OS_WIN
+      nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node.exe";
+    #endif
+
+    #ifdef Q_OS_LINUX
+      nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node";
+    #endif
+
+    #ifdef Q_OS_MAC
+      QString binDir = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+        nodePath = binDir + "node_bin" + QDir::separator() + "node";
+
+      jsPath = binDir  + "index.js";
+    #endif
 
      #ifndef __APPLE__
      double programStartTime = getTime();
@@ -64,7 +80,7 @@ int main(int argc, char *argv[]) {
 
 	//write report
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
-		peakdetectorCLI->writeReport("compounds",jsPath);
+		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
 
 	//cleanup

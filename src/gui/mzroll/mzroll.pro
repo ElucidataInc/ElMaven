@@ -39,7 +39,7 @@ INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-lin
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural  $$top_srcdir/3rdparty/Eigen/ \
                 $$top_srcdir/3rdparty/libpls $$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/ $$top_srcdir/3rdparty/libplog/ $$top_srcdir/3rdparty/libpillow \
-                $$top_srcdir/3rdparty/libdate/
+                $$top_srcdir/3rdparty/libdate/ $$top_srcdir/src/pollyCLI
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -50,7 +50,7 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog                  #64bit
+LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog  -lpollyCLI            #64bit
 macx {
     LIBS -= -lplog
 }
@@ -73,7 +73,6 @@ FORMS = forms/settingsform.ui  \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/loginform.ui \
-        forms/projectform.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
@@ -136,8 +135,6 @@ HEADERS +=  stable.h \
                    spectralhitstable.h\
                     clusterdialog.h \
                     loginform.h \
-                    projectform.h \
-                    pollyintegration.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
@@ -196,8 +193,6 @@ database.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
  loginform.cpp \
- projectform.cpp \
- pollyintegration.cpp \
  widgets/qprog.cpp \
  projectdockwidget.cpp \
  spectramatching.cpp \

@@ -19,12 +19,12 @@ QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
-				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector $$top_srcdir/3rdparty/libdate
+				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector $$top_srcdir/3rdparty/libdate $$top_srcdir/src/pollyCLI
 
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls
+LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lpollyCLI
 !macx: LIBS += -fopenmp
 
 
@@ -46,7 +46,6 @@ HEADERS += \
     testCharge.h \
     testSRMList.h \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.h \
-    $$top_srcdir/src/cli/peakdetector/pollyintegration.h  \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
     $$top_srcdir/src/cli/peakdetector/parseOptions.h \
@@ -70,7 +69,6 @@ SOURCES += \
     testSRMList.cpp \
     main.cpp \
     $$top_srcdir/src/cli/peakdetector/PeakDetectorCLI.cpp  \
-    $$top_srcdir/src/cli/peakdetector/pollyintegration.cpp  \
     $$top_srcdir/src/cli/peakdetector/options.cpp \
     $$top_srcdir/src/core/libmaven/classifier.cpp \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \

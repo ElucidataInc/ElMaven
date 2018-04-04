@@ -5,84 +5,48 @@
 #include "stable.h"
 #include "database.h"
 #include "mainwindow.h"
+#include "loginform.h"
 #include "pollyintegration.h"
 
 #include <QMap>
 
 class PollyIntegration;
 class MainWindow;
-// class BackgroundPeakUpdate;
-
-class PollyElmavenInterfaceSettings;
-// extern Database DB;
-
+class LoginForm;
+class TableDockWidget;
 
 class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterfaceDialog
 {
-		Q_OBJECT
+	Q_OBJECT
 
-		public:
-				//  enum FeatureDetectionType { FullSpectrum=0, CompoundDB, QQQ };
-				 PollyElmavenInterfaceDialog(MainWindow* mw);
-                 QVariantMap projectnames_id;
-                 QVariantMap userProjectFilesMap;
-                 QString ProjectId; 
-                 QJsonObject project_file_map;
-				//  ~PollyElmavenInterfaceDialog();
-				 void setSettings(QSettings* settings) { this->settings = settings; }
-				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
-                 MainWindow* getMainWindow() {return mainwindow;}
-                //  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
-				//  void setMavenParameters(QSettings *settings);
+        public:
+                PollyElmavenInterfaceDialog(MainWindow* mw);
+                ~PollyElmavenInterfaceDialog();
+                QVariantMap projectnames_id;
+                QVariantMap userProjectFilesMap;
+                QString ProjectId; 
+                QJsonObject project_file_map;
+                void setSettings(QSettings* settings) { this->settings = settings; }
+                void setMainWindow(MainWindow* w) { this->mainwindow = w; }
+                MainWindow* getMainWindow() {return mainwindow;}
                 PollyIntegration* _pollyIntegration;
+                LoginForm* _loginform;
 
-		public Q_SLOTS:
-                // void showEvent( QShowEvent* event );
-				void uploadDataToPolly();
+        public Q_SLOTS:
+                QStringList prepareFilesToUpload();
+                QString uploadDataToPolly();
                 void loadDataFromPolly();
                 void initialSetup();
                 QVariantMap loadFormData();
-				void cancel();
-                //  void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
-				void on_comboBox_load_projects_activated(const QString &arg1);
-                // virtual void closeEvent(QCloseEvent* event) override;
-				// void dialogRejected();
-
-                Q_SIGNALS:
-                    void updateSettings(PollyElmavenInterfaceSettings* pd);
-                    // void settingsChanged(string key, string value);
-        // public:
-                // QString massCutoffType;
+                void call_login_form();
+		void cancel();
+                QStringList readFromFile(QString fileName);
+                void on_comboBox_load_projects_activated(const QString &arg1);
 
         private:
-				QSettings *settings;
-				MainWindow *mainwindow;
-                // BackgroundPeakUpdate* peakupdater;
-				// FeatureDetectionType _featureDetectionType;
-                PollyElmavenInterfaceSettings* pdSettings;
-                // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
-                // void inputInitialValuesPeakDetectionDialog();
-                // void updateQSettingsWithUserInput(QSettings *settings);
-
-
-};
-
-// Q_DECLARE_METATYPE(QString*)
-
-class PollyElmavenInterfaceSettings: public QObject
-{
-    Q_OBJECT
-    public:
-        PollyElmavenInterfaceSettings(PollyElmavenInterfaceDialog* dialog);
-        QMap<QString,QVariant>& getSettings() { return settings; }
-
-    public Q_SLOTS:
-        void updatePollySettings(string key, string value);
-
-    private:
-        QMap<QString, QVariant> settings;
-        PollyElmavenInterfaceDialog* pd;
-
+                QSettings *settings;
+                MainWindow *mainwindow;
+                TableDockWidget* _tableDockWidget;
 };
 
 #endif

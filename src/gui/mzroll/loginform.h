@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include "pollyintegration.h"
+#include "pollyelmaveninterface.h"
 
 class PollyIntegration;
+class PollyElmavenInterfaceDialog;
 namespace Ui {
 class LoginForm;
 }
@@ -14,9 +16,10 @@ class LoginForm : public QDialog
     Q_OBJECT
 
 public:
-    LoginForm(PollyIntegration* pollyintegration);
+    LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog);
     ~LoginForm();
     PollyIntegration* _pollyintegration;
+    PollyElmavenInterfaceDialog* _pollyelmaveninterfacedialog;
     QString username;
     QString password;
 private slots:

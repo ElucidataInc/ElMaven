@@ -597,7 +597,7 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
-void PeakDetectorCLI::writeReport(string setName,QString jsPath) {
+void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 
 
 	//create an output folder
@@ -621,7 +621,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath) {
 	try {
 		filedir = QString::fromStdString(mavenParameters->outputdir);
 		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";
-		QString upload_project_id = UploadToPolly(jsPath,filename);
+		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<filename);
 		if (upload_project_id!=""){
 			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 			qDebug()<<"redirection url - \n"<<redirection_url;
@@ -673,11 +673,19 @@ void PeakDetectorCLI::saveJson(string setName) {
 	}
 }
 
-QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString filename) {
+QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames) {
 	QString upload_project_id;
 	if (uploadToPolly_bool){
 		_pollyIntegration->jsPath = jsPath;
-		int status_inside = _pollyIntegration->authenticate_login(username,password);
+		_pollyIntegration->nodePath = nodePath;
+		// _pollyIntegration->username = username;
+		// _pollyIntegration->password = password;
+		int status = _pollyIntegration->authenticate_login(username,password);
+		if (status!=1){
+			qDebug()<<"Incorrect credentials...Please check..";
+			return upload_project_id;
+		}
+
 		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
 		QStringList keys= projectnames_id.keys();
         QString projectId;
@@ -685,23 +693,18 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString filename) {
 		for (int i=0; i < keys.size(); ++i){
 			if (projectnames_id[keys.at(i)].toString()==projectname){
                 projectId= keys.at(i);
-            }
+            	}
 			else if (projectnames_id[keys.at(i)].toString()=="Default project"){
 				defaultprojectId=keys.at(i);
-			}
-        }
-		if (status_inside==1){
-			if (projectId==""){
-				_pollyIntegration->exportData(filename,defaultprojectId);
-				upload_project_id = defaultprojectId;
-			}
-			else{
-				_pollyIntegration->exportData(filename,projectId);
-				upload_project_id = projectId;
-			}
+				}
+        	}
+		if (projectId==""){
+			_pollyIntegration->exportData(filenames,defaultprojectId);
+			upload_project_id = defaultprojectId;
 		}
 		else{
-			qDebug()<<"Incorrect credentials...Please check..";
+			_pollyIntegration->exportData(filenames,projectId);
+			upload_project_id = projectId;
 		}
 	}
 	return upload_project_id;

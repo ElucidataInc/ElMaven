@@ -2,151 +2,69 @@
 #include <string>
 #include <QVariant>
 
-PollyElmavenInterfaceSettings::PollyElmavenInterfaceSettings(PollyElmavenInterfaceDialog* dialog):pd(dialog)
-{
-    // automated feature detection settings
-    // settings.insert("automatedDetection", QVariant::fromValue(pd->featureOptions));
-
-    // //TODO: replace with massCutoffMerge
-    // settings.insert("massCutoffMerge", QVariant::fromValue(pd->ppmStep));
-
-    // settings.insert("rtStep", QVariant::fromValue(pd->rtStep));
-    // settings.insert("mzMin", QVariant::fromValue(pd->mzMin));
-    // settings.insert("mzMax", QVariant::fromValue(pd->mzMax));
-    // settings.insert("rtMin", QVariant::fromValue(pd->rtMin));
-    // settings.insert("rtMax", QVariant::fromValue(pd->rtMax));
-    // settings.insert("minIntensity", QVariant::fromValue(pd->minIntensity));
-    // settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
-    // settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
-    // settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
-
-    // // db search settings
-    // settings.insert("dbDetection", QVariant::fromValue(pd->dbOptions));
-
-    // settings.insert("compoundMassCutoffWindow", QVariant::fromValue(pd->compoundPPMWindow));
-
-    // settings.insert("compoundRTWindow", QVariant::fromValue(pd->compoundRTWindow));
-    // settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
-    // settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
-
-    // // fragmentation settings
-    // settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentatioOptions));
-
-    // // isotope detection
-    // settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
-
-    // // group filtering settings
-    // settings.insert("minGroupIntensity", QVariant::fromValue(pd->minGroupIntensity));
-    // settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
-    // settings.insert("quantileIntensity", QVariant::fromValue(pd->quantileIntensity));
-
-    // settings.insert("minQuality", QVariant::fromValue(pd->doubleSpinBoxMinQuality));
-    // settings.insert("quantileQuality", QVariant::fromValue(pd->quantileQuality));
-
-    // settings.insert("sigBlankRatio", QVariant::fromValue(pd->sigBlankRatio));
-    // settings.insert("quantileSignalBlankRatio", QVariant::fromValue(pd->quantileSignalBlankRatio));
-
-    // settings.insert("sigBaselineRatio", QVariant::fromValue(pd->sigBaselineRatio));
-    // settings.insert("quantileSignalBaselineRatio", QVariant::fromValue(pd->quantileSignalBaselineRatio));
-
-    // settings.insert("minNoNoiseObs", QVariant::fromValue(pd->minNoNoiseObs));
-    // settings.insert("minGoodGroupCount", QVariant::fromValue(pd->minGoodGroupCount));
-
-    // /* special case: there is no Ui element defined inside Peaks dialog that can be used
-    //  * to change/access massCutOfftype. the only way to change massCutofftype is to change it from mainWindow(top right corner).
-    //  * PeakDetectionDialog::masCutOffType is a variable that stores the value of MassCutOfftype defined in mainWindow
-    //  * Better would be to have a ui element that allows to change/access massCutoff from peaks dialog
-    //  */
-    // settings.insert("massCutoffType", QVariant::fromValue(&pd->massCutoffType));
-}
-
-void PollyElmavenInterfaceSettings::updatePollySettings(string key, string value)
-{
-
-    // if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
-
-
-    //     const QVariant& v = settings[QString(key.c_str())];
-    //     // convert the val to proper type;
-    //     if(QString(v.typeName()).contains("QDoubleSpinBox"))
-    //         v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
-
-    //     if(QString(v.typeName()).contains("QGroupBox"))
-    //         v.value<QGroupBox*>()->setChecked(std::stod(value));
-
-
-    //     if(QString(v.typeName()).contains("QCheckBox"))
-    //         v.value<QCheckBox*>()->setChecked(std::stod(value));
-
-    //     if(QString(v.typeName()).contains("QSpinBox"))
-    //         v.value<QSpinBox*>()->setValue(std::stod(value));
-
-    //     if(QString(v.typeName()).contains("QSlider"))
-    //         v.value<QSlider*>()->setValue(std::stod(value));
-
-    //     if(QString(v.typeName()).contains("QComboBox"))
-    //         v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
-
-    //     /* IMPORTANT
-    //      * special case: only pd->massCutOfftype  and the places where it is used are updated here
-    //      * there is no other Ui element that with  typeName as "QString".
-    //      * Better solution is to have a Ui element in Peaks Dialog that can be used to
-    //      * change/access massCutoff type
-    //      */
-    //     if(QString(v.typeName()).contains("QString")) {
-    //         pd->massCutoffType = value.c_str();
-    //         pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
-    //     }
-
-
-    // }
-
-}
-
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         QDialog(mw),
         mainwindow(mw)
 {
         setupUi(this);
         setModal(true);
-        pdSettings = new PollyElmavenInterfaceSettings(this);
-        _pollyIntegration = new PollyIntegration(mainwindow,this);
+        _pollyIntegration = new PollyIntegration();
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
-        // connect(this, SIGNAL(isVisible()), SLOT(initialSetup()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(pushButton_load, SIGNAL(clicked(bool)), SLOT(loadDataFromPolly()));
         connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
-        // connect(comboBox_load_projects, SIGNAL(clicked(bool)), SLOT(loadsettings()));
-        // connect(this, &QDialog::rejected, this, &PollyElmavenInterfaceDialog::dialogRejected);
-        // connect(this, &PollyElmavenInterfaceDialog::settingsChanged, pdSettings, &PollyElmavenInterfaceSettings::updatePollySettings);
-
 }
 
-// void PollyElmavenInterfaceDialog::showEvent( QShowEvent* event ) {
-//     QWidget::showEvent( event );
-//     initialSetup();
-//     qDebug()<<"is visible now ?- "<<isVisible();
-// }
+PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
+{
+    qDebug()<<"exiting PollyElmavenInterfaceDialog now....";
+    if(_loginform!=nullptr){
+        delete _loginform;
+    }
+}
 
 void PollyElmavenInterfaceDialog::initialSetup()
 {
-        // QMessageBox msgBox(NULL);
-        // msgBox.setWindowModality(Qt::NonModal);
-        // msgBox.setWindowTitle("Connecting to polly..");
-        // msgBox.show();
-        // qDebug()<<"yoyo";
-        // QProgressDialog progress("Getting data from Polly...", "Cancle", 0, 100, this);
-        // progress.setWindowModality(Qt::WindowModal);
-        // for (int i = 0; i < 1; i++) {
-        //     _pollyIntegration->transferData();
-        //     if (progress.wasCanceled())
-        //         break;
-        // }
-        // progress.setValue(100);
-        _pollyIntegration->transferData();
-        qDebug()<<"outside tranfer data now..";
-        
-        // msgBox.close();
+    QString storeCredFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "store_cred_file.txt";
+    QStringList credentials = readFromFile(storeCredFile);
+    if (credentials.isEmpty()){
+        call_login_form();
+    }
+    else{
+        int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
+        if (status!=1){
+            call_login_form();
+        }
+        else{
+            loadFormData();
+        }
+    }
+}
+
+void PollyElmavenInterfaceDialog::call_login_form(){
+    _loginform =new LoginForm(this);
+    _loginform->setModal(true);
+    _loginform->show();
+}
+
+QStringList PollyElmavenInterfaceDialog::readFromFile(QString fileName){
+    QStringList credentials;
+    QFile file(fileName);
+    if(!file.exists()){
+        qDebug() << "credentials not stored..asking the user to log in now.  ";
+    }
+    else{
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+            QTextStream stream(&file);
+            while (!stream.atEnd()){
+                QString line = stream.readLine();
+                qDebug() << "line is- "<<line;
+                credentials<<line;
+            }
+        }
+    }
+    file.close();
+    return credentials;
 }
 
 QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
@@ -165,8 +83,6 @@ QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
     QStringList keys= projectnames_id.keys();
 
     userProjectFilesMap = _pollyIntegration->getUserProjectFiles(keys);
-    qDebug()<<"userProjectFiles    "<<userProjectFilesMap<<endl;
-    
     for (int i=0; i < keys.size(); ++i){
         comboBox_existing_projects->addItem(projectnames_id[keys.at(i)].toString());
         comboBox_load_projects->addItem(projectnames_id[keys.at(i)].toString());
@@ -176,7 +92,6 @@ QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
     comboBox_collaborators->addItem("Swetabh");
     comboBox_collaborators->addItem("Nikita");
     comboBox_collaborators->addItem("Sahil");
-    // msgBox.close();
     return projectnames_id;
 }
 
@@ -184,7 +99,6 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
 {
     comboBox_load_db->clear();
     comboBox_load_settings->clear();
-    // QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
     QStringList keys= projectnames_id.keys();
     QString projectname = comboBox_load_projects->currentText();
     QString ProjectId;
@@ -195,8 +109,6 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
     }
     QStringList userProjectFiles= userProjectFilesMap[ProjectId].toStringList();
     
-    // comboBox_load_settings->addItem("CustomSettings1");
-    // comboBox_load_db->addItem("CustomDB1");
     for (int i=0; i < userProjectFiles.size(); ++i){
         QString filename = userProjectFiles.at(i);
         qDebug()<<"filename  "<<filename;
@@ -210,26 +122,22 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
     }
 }
 
-void PollyElmavenInterfaceDialog::uploadDataToPolly()
+QString PollyElmavenInterfaceDialog::uploadDataToPolly()
 {   
+    QStringList patch_ids;
     QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
     qDebug()<<"inside uploadDataToPolly.....uploading data to polly now.."<<endl;
     QString new_project_id;
     QString new_projectname = lineEdit_new_project_name->text();
     QString projectname = comboBox_existing_projects->currentText();
     QString project_id;
-    // QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
-    // progress.setWindowModality(Qt::WindowModal);
-
-    // for (int i = 0; i < numFiles; i++) {
-    //     progress.setValue(i);
-
-    //     if (progress.wasCanceled())
-    //         break;
-    //     //... copy one file
-    // }
-    // progress.setValue(numFiles);
-    progressBar_upload->setValue(50);
+    QStringList filenames = prepareFilesToUpload();
+    if (filenames.isEmpty()){
+        QMessageBox msgBox(mainwindow);
+        msgBox.setText("Unable to prepare files to upload..");
+        msgBox.exec();
+        return "";
+    }
     if (new_projectname==""){
         QStringList keys= projectnames_id.keys();
         for (int i=0; i < keys.size(); ++i){
@@ -237,20 +145,16 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
                 project_id= keys.at(i);
             }
         }
-            new_project_id = _pollyIntegration->exportData(projectname,project_id);
+            patch_ids = _pollyIntegration->exportData(filenames,project_id);
         }
     else{
-        new_project_id = _pollyIntegration->exportData(new_projectname,project_id);       
+        QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
+        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);       
     }
-    qDebug()<<"result of exportdata...."<<new_project_id;
+    qDebug()<<"result of exportdata...."<<patch_ids;
     progressBar_upload->setValue(100);
-    if (new_project_id==QString("nullptr")){
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("No peaks found");
-        msgBox.exec();
-        return;
-    }
-    if (new_project_id!=QString("None")){
+    
+    if (!patch_ids.isEmpty()){
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         QMessageBox msgBox(mainwindow);
@@ -258,13 +162,77 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
         msgBox.setText(redirection_url);
         msgBox.exec();
+        return "";
     }
     else{
         QMessageBox msgBox(mainwindow);
         msgBox.setText("Unable to upload data.");
         msgBox.exec();
+        return "";
     }
 }
+
+QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
+    QStringList filenames;
+    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+    qDebug()<<"peaks table are here..";
+    int n = peaksTableList.size();
+    qDebug()<<"size  of list "<<n<<endl;
+    if (n>0){
+            _tableDockWidget = peaksTableList.at(n-1);
+    }
+    else{
+        QString msg = "No Peak tables";
+        QMessageBox::warning(_tableDockWidget, "Error", msg);
+        return filenames;
+    }
+    QList<PeakGroup> allgroups =  _tableDockWidget->getAllGroups();
+
+    if (allgroups.size() == 0 ) {
+        QString msg = "Peaks Table is Empty, can't export to POLLY";
+        QMessageBox::warning(_tableDockWidget, "Error", msg);
+        return filenames;
+    }
+    /**
+     * copy all groups from <allgroups> to <vallgroups> which is used by
+     * < libmaven/jsonReports.cpp>
+    */
+    _tableDockWidget->vallgroups.clear();
+    for(int i=0;i<allgroups.size();++i){
+        _tableDockWidget->vallgroups.push_back(allgroups[i]);
+    }
+
+    QString dir = ".";
+    QSettings* settings = mainwindow->getSettings();
+    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
+    
+    mainwindow->check_polly_login->setText("connected");
+    mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
+    
+    _tableDockWidget->wholePeakSet();
+    _tableDockWidget->treeWidget->selectAll();
+    _tableDockWidget->exportGroupsToSpreadsheet_polly();
+    
+    QDir qdir(dir+QString("/tmp_files/"));
+    if (!qdir.exists()){
+        QDir().mkdir(dir+QString("/tmp_files"));
+        QDir qdir(dir+QString("/tmp_files/"));
+    }
+
+    QByteArray ba = (dir+QString("/tmp_files/maven_analysis_settings.xml")).toLatin1();
+    const char *save_path = ba.data();
+    mainwindow->mavenParameters->saveSettings(save_path);
+    qdir.setFilter(QDir::Files | QDir::NoSymLinks);
+    QFileInfoList file_list = qdir.entryInfoList();
+    
+    for (int i = 0; i < file_list.size(); ++i){
+        QFileInfo fileInfo = file_list.at(i);
+        QString tmp_filename = dir+QString("/tmp_files/")+fileInfo.fileName();
+        filenames.append(tmp_filename);
+    }
+    return filenames;
+}
+
 void PollyElmavenInterfaceDialog::loadDataFromPolly()
 {
     QStringList filenames;
@@ -281,25 +249,10 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
         }
     }
     QString run_id = _pollyIntegration->loadDataFromPolly(ProjectId,filenames);
-    // QString fileName = QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml");
-    qDebug()<<"outside _pollyIntegration->loadDataFromPolly now..";
-    // mainwindow->loadPollySettings(settings_file);
-    // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
-    // cancel in turn calls close();
-    // emit updateSettings(pdSettings);
     progressBar_load_project->setValue(100);
 }
-// void PollyElmavenInterfaceDialog::closeEvent(QCloseEvent* event)
-// {
-    // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
-    // cancel in turn calls close();
-    // emit updateSettings(pdSettings);
-// }
+
 void PollyElmavenInterfaceDialog::cancel() {
     LOGD;
     close();   
 }
-// void PollyElmavenInterfaceDialog::dialogRejected() {
-//     LOGD;
-    
-// }

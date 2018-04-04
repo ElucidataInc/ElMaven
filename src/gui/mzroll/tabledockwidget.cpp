@@ -10,7 +10,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
-    _pollyIntegration=nullptr;
     setObjectName(title);
 
     numColms=11;
@@ -69,7 +68,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QWidgetAction *btnSwitchView = new TableToolBarWidgetAction(toolBar, this,  "btnSwitchView");
     QWidgetAction *btnGroupCSV = new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
     QWidgetAction *btnSaveJson = new TableToolBarWidgetAction(toolBar, this,  "btnSaveJson");
-    // QWidgetAction *btnSavePolly = new TableToolBarWidgetAction(toolBar, this,  "btnSavePolly");
     QWidgetAction *btnGallery = new TableToolBarWidgetAction(toolBar, this,  "btnGallery");
     QWidgetAction *btnScatter = new TableToolBarWidgetAction(toolBar, this,  "btnScatter");
     QWidgetAction *btnCluster = new TableToolBarWidgetAction(toolBar, this,  "btnCluster");
@@ -103,8 +101,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     toolBar->addAction(btnPDF);
     toolBar->addAction(btnGroupCSV);
     toolBar->addAction(btnSaveJson);
-    // toolBar->addAction(btnSavePolly);
-
+    
 
     toolBar->addSeparator();
     toolBar->addAction(btnXML);
@@ -146,9 +143,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 }
 
 TableDockWidget::~TableDockWidget() {
-    if (_pollyIntegration!=nullptr){
-        delete _pollyIntegration;
-    }
     if(traindialog != NULL) delete traindialog;
 }
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem* item){
@@ -817,9 +811,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     }
 }
 
-
-
-
 void TableDockWidget::exportGroupsToSpreadsheet_polly() {
     // LOGD;
     // //Merged to Maven776 - Kiran
@@ -873,7 +864,6 @@ void TableDockWidget::exportGroupsToSpreadsheet_polly() {
     }
 }
 
-
 void TableDockWidget::exportJson() {
     LOGD;
     if (allgroups.size() == 0 ) {
@@ -904,14 +894,6 @@ void TableDockWidget::exportJson() {
     jsonSaveThread->setPeakTable(this);
     jsonSaveThread->setfileName(fileName.toStdString());
     jsonSaveThread->start();
-}
-
-
-void TableDockWidget::exportPolly() {
-    LOGD;
-    // _pollyIntegration = new PollyIntegration(this);
-    // _pollyIntegration->transferData();
-
 }
 
 vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp) {
@@ -2429,20 +2411,6 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         return btnSaveJson;
 
     } 
-    // else if (btnName == "btnSavePolly") {
-
-        // QToolButton* btnSavePolly = new QToolButton(parent);
-        // btnSavePolly->setIcon(QIcon(rsrcPath + "/POLLY.png"));
-        // btnSavePolly->setToolTip(tr("Export EICs to Polly (.json and .CSVs)"));
-        // // connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(wholePeakSet()));
-        // connect(btnSavePolly, SIGNAL(clicked()), td->treeWidget, SLOT(selectAll()));
-        // connect(btnSavePolly, SIGNAL(clicked()), td,  SLOT(exportGroupsToSpreadsheet_polly()));
-
-        // connect(btnSavePolly, SIGNAL(clicked()), td, SLOT(exportPolly()));
-        // connect(btnSavePolly, SIGNAL(triggered()), td,  SLOT(exportGroupsToSpreadsheet()));
-        // return btnSavePolly;
-
-    // }
      else if (btnName == "btnGallery") {
 
         QToolButton* btnGallery = new QToolButton(parent);

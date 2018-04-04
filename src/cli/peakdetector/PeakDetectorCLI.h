@@ -149,7 +149,7 @@ class PeakDetectorCLI {
 		* [write multiple types of Reports]
 		* @param setName [name of the set]
 		*/
-		void writeReport(string setName,QString jsPath);
+		void writeReport(string setName,QString jsPath,QString nodePath);
 
 		void groupReduction();
 
@@ -161,7 +161,7 @@ class PeakDetectorCLI {
 		/**
 		 * Upload Maven data to Polly and redirect the user to polly..
 		*/
-		QString UploadToPolly(QString jsPath,QString filename);
+		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames);
 
 		/**
 		* [write Sample List in XML]
