@@ -70,6 +70,12 @@ public Q_SLOTS:
     void setFilterString(QString s);
     void showMatches(QString needle);
     void showGallery();
+
+    /**
+     * @brief reset the color of rows
+     */
+    void resetColor();
+
     void saveCompoundList();
     void updateTable() { showTable(); }
     void updateCurrentItemData();

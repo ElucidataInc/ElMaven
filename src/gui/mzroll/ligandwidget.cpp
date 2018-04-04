@@ -402,6 +402,20 @@ void LigandWidget::markAsDone(Compound* compound) {
     }
 }
 
+void LigandWidget::resetColor() {
+
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item =(*itr);
+        if (item) {
+            for (int col = 0; col < treeWidget->columnCount(); col++) {
+                item->setBackgroundColor(col, QColor(255, 255, 255, 100));
+            }
+        }
+        ++itr;
+    }
+}
+
 QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
 
     QTreeWidgetItem* matchedItem;
