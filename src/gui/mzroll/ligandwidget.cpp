@@ -240,21 +240,19 @@ void LigandWidget::setCompoundFocus(Compound* c) {
 
 	QString filterString(c->name.c_str());
 	setWindowTitle("Compounds: " + filterString);
-	showTable(); 
+	showTable();
 }
 
-
-void LigandWidget::setFilterString(QString s) { 
-	if(s != filterString) { 
-		filterString=s; 
+void LigandWidget::setFilterString(QString s) {
+	if(s != filterString) {
+		filterString=s;
         filterEditor->setText(filterString);
         //showMatches(s);
-	} 
+	}
     //if (s.length() >= 4 ) { showMatches(s); }
 }
 
-void LigandWidget::showMatches(QString needle) { 
-
+void LigandWidget::showMatches(QString needle) {
 
     QRegExp regexp(needle,Qt::CaseInsensitive,QRegExp::RegExp);
     if(! regexp.isValid())return;
@@ -391,6 +389,39 @@ void LigandWidget::showTable() {
 
     }
     treeWidget->setSortingEnabled(true);
+}
+
+void LigandWidget::markAsDone(Compound* compound) {
+
+    QTreeWidgetItem* item = getItem(compound);
+
+    if (item) {
+        for (int col = 0; col < treeWidget->columnCount(); col++) {
+            item->setBackgroundColor(col, QColor(45, 67, 0, 100));
+        }
+    }
+}
+
+QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
+
+    QTreeWidgetItem* matchedItem;
+    QTreeWidgetItemIterator itr(treeWidget);
+
+    while (*itr) {
+        QTreeWidgetItem* item =(*itr);
+        QVariant v = item->data(0,Qt::UserRole);
+        Compound* itemCompound =  v.value<Compound*>();
+        if (itemCompound) {
+            if (itemCompound->name == compound->name) {
+                matchedItem = item;
+                break;
+            }
+        }
+        ++itr;
+    }
+
+    return matchedItem;
+
 }
 
 void LigandWidget::saveCompoundList(){

@@ -54,22 +54,32 @@ public:
     void showNext();
     void showLast();
     void setDatabaseAltered(QString dbame,bool altered);
-    //Added when merged with Maven776 - Kiran
 	Compound* getSelectedCompound();
     void loadCompoundDBMzroll(QString fileName);
+
+    /**
+     * @brief returns QTreeWidgetItem associated with specific compound
+     * @param compound pointer to class Compound
+     * @return QTreeWidgetItem pointer to class QTreeWidgetItem
+     */
+    QTreeWidgetItem* getItem(Compound* compound);
 
 public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
     void setDatabase(QString dbname);
     void setFilterString(QString s);
-    //Moved when merged with Maven776- Kiran
     void showMatches(QString needle);
     void showGallery();
     void saveCompoundList();
     void updateTable() { showTable(); }
     void updateCurrentItemData();
-    //Added when merged with Maven776- Kiran
 	void matchFragmentation();
+
+    /**
+     * @brief change the color of the compound which is present is peaks table
+     * @param compound pointer to class Compound
+     */
+    void markAsDone(Compound* compound);
 
 
 Q_SIGNALS:
@@ -82,7 +92,6 @@ private Q_SLOTS:
     void showLigand();
     void showTable();
     void databaseChanged(int index);
-    //Added when merged with Maven776- Kiran
     void readRemoteData(QNetworkReply* reply);
     void fetchRemoteCompounds();
     QList<Compound*> parseXMLRemoteCompounds();
@@ -94,7 +103,6 @@ private:
     QToolButton *galleryButton;
     QToolButton *saveButton;
     QToolButton *loadButton;
-    //Added when merged with Maven776- Kiran
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
 
@@ -106,8 +114,6 @@ private:
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
     void readCompoundXML(QXmlStreamReader& xml, string dbname);
 
-    //fetching of compounds from remote database
-    //Added when merged with Maven776- Kiran
     QNetworkAccessManager* m_manager;
 
     int connectionId;
