@@ -647,6 +647,7 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
     treeWidget->clear();
+    setFocus();
     if (allgroups.size() == 0 ) {
         if (viewType == groupView) setIntensityColName();
         setVisible(false);
