@@ -221,6 +221,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void focusInEvent(QFocusEvent * event);
+    void focusOutEvent(QFocusEvent * event);
 
 Q_SIGNALS:
 	void peakMarkedTableDock();
@@ -231,6 +232,7 @@ protected Q_SLOTS:
 	  void contextMenuEvent ( QContextMenuEvent * event );
 
 private:
+    QPalette pal;    
     void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
           void deletePeaks();
           void addRow(PeakGroup* group, QTreeWidgetItem* root);

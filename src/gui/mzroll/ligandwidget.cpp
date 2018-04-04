@@ -397,7 +397,7 @@ void LigandWidget::markAsDone(Compound* compound) {
 
     if (item) {
         for (int col = 0; col < treeWidget->columnCount(); col++) {
-            item->setBackgroundColor(col, QColor(45, 67, 0, 100));
+            item->setBackgroundColor(col, QColor(61, 204, 85, 100));
         }
     }
 }

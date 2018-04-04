@@ -6,6 +6,11 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     _mainwindow = mw;
     setObjectName(title);
 
+    pal = palette();
+    setAutoFillBackground(true);
+    pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+    setPalette(pal);
+
     numColms=11;
     viewType = groupView;
 
@@ -1458,10 +1463,20 @@ void TableDockWidget::contextMenuEvent ( QContextMenuEvent * event )
 }
 
 void TableDockWidget::focusInEvent(QFocusEvent * event) {
-    if (event->gotFocus()) {
+    if (event->gotFocus()) {    
+        pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
+        setPalette(pal);
         updateCompoundWidget();
     }
 }
+
+void TableDockWidget::focusOutEvent(QFocusEvent * event) {
+    if (event->lostFocus()) {
+        pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+        setPalette(pal);
+    }
+}
+
 
 void TableDockWidget::saveModel() { 
 
