@@ -96,6 +96,12 @@ public:
 
 public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
+
+      /**
+       * @brief update the color of compounds in ligand widget which are 
+       * present in the tabledockwidget
+       */
+      void updateCompoundWidget();
       PeakGroup* addPeakGroup(PeakGroup* group);
       void sortChildrenAscending(QTreeWidgetItem* item);
 	  void setupPeakTable();
