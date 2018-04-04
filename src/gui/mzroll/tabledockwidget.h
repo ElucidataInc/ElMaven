@@ -220,6 +220,7 @@ public Q_SLOTS:
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+    void focusInEvent(QFocusEvent * event);
 
 Q_SIGNALS:
 	void peakMarkedTableDock();

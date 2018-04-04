@@ -1457,7 +1457,11 @@ void TableDockWidget::contextMenuEvent ( QContextMenuEvent * event )
     QAction *selectedAction = menu.exec(event->globalPos());
 }
 
-
+void TableDockWidget::focusInEvent(QFocusEvent * event) {
+    if (event->gotFocus()) {
+        updateCompoundWidget();
+    }
+}
 
 void TableDockWidget::saveModel() { 
 
