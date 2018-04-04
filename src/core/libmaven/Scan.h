@@ -149,6 +149,9 @@ class Scan
     int mslevel;
     bool centroided;
     float rt; /**< retention time at which the scan was recorded */
+    /** originalRt will hold original retention time when rt is modified in case of alignment
+     */
+    float originalRt;
     int scannum;
 
     float precursorMz;

@@ -37,6 +37,7 @@ void Scan::deepcopy(Scan* b) {
     this->scanType = b->scanType;
     this->filterLine = b->filterLine;
     this->setPolarity( b->getPolarity() );
+    this->originalRt = b->originalRt;
 
 }
 

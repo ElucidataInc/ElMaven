@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>720</height>
+    <height>1039</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -374,7 +374,7 @@
       <item row="4" column="0">
        <widget class="QLabel" name="labelUseDefaultObiWarpParams">
         <property name="text">
-         <string>Use Default Settings</string>
+         <string>Restore Default Values</string>
         </property>
        </widget>
       </item>
@@ -429,10 +429,10 @@
          <double>100.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>5.000000000000000</double>
+         <double>1.000000000000000</double>
         </property>
         <property name="value">
-         <double>79.000000000000000</double>
+         <double>20.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -471,6 +471,9 @@
         <property name="singleStep">
          <double>0.500000000000000</double>
         </property>
+        <property name="value">
+         <double>0.200000000000000</double>
+        </property>
        </widget>
       </item>
       <item row="9" column="0">
@@ -485,10 +488,20 @@
         <property name="singleStep">
          <double>0.500000000000000</double>
         </property>
+        <property name="value">
+         <double>3.500000000000000</double>
+        </property>
        </widget>
       </item>
       <item row="10" column="1">
-       <widget class="QDoubleSpinBox" name="factorDiag"/>
+       <widget class="QDoubleSpinBox" name="factorDiag">
+        <property name="singleStep">
+         <double>0.500000000000000</double>
+        </property>
+        <property name="value">
+         <double>2.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="11" column="0">
        <widget class="QLabel" name="labelFactorGap">
@@ -498,7 +511,14 @@
        </widget>
       </item>
       <item row="11" column="1">
-       <widget class="QDoubleSpinBox" name="factorGap"/>
+       <widget class="QDoubleSpinBox" name="factorGap">
+        <property name="singleStep">
+         <double>0.500000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="13" column="0">
        <widget class="QLabel" name="labelLocal">

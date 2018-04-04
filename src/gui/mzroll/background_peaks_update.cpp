@@ -502,7 +502,7 @@ void BackgroundPeakUpdate::align() {
                         mainwindow->deltaRt = aligner.getDeltaRt();
                 }
                 else{
-                        qDebug()<<"checkkkkkkkkkkk: "<<mainwindow->alignmentDialog->useDefaultObiWarpParams->isChecked();
+
                         ObiParams *obiParams =NULL;
                         if( mainwindow->alignmentDialog->useDefaultObiWarpParams->isChecked() == false )
                                 obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),

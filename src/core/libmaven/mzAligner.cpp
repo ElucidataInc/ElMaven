@@ -458,7 +458,9 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
     for(int j = 0; j < sample->scans.size(); ++j){
-        rtPoints[j] = sample->scans[j]->rt;
+        if(sample->scans[j]->originalRt < 0)
+            sample->scans[j]->originalRt = sample->scans[j]->rt;
+        rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
 
@@ -542,10 +544,8 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
         alignSampleRts(samples[i], mzPoints, *obiWarp, false);
     }
     
-    cerr<<"Alignment complete"<<endl;
-    cerr<<obiParams->binSize<<endl;
     delete obiWarp;
-    
+    cerr<<"Alignment complete"<<endl;    
     
 }
 
