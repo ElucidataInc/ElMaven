@@ -329,7 +329,7 @@
         </item>
         <item>
          <property name="text">
-          <string>OBI-Warp</string>
+          <string>OBI-Warp (beta)</string>
          </property>
         </item>
        </widget>
@@ -371,20 +371,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="labelUseDefaultObiWarpParams">
-        <property name="text">
-         <string>Restore Default Values</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="useDefaultObiWarpParams">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="0">
        <widget class="QLabel" name="labelScoreObi">
         <property name="text">
@@ -411,7 +397,7 @@
         </item>
         <item>
          <property name="text">
-          <string>eud</string>
+          <string>euc</string>
          </property>
         </item>
        </widget>
@@ -489,7 +475,14 @@
          <double>0.500000000000000</double>
         </property>
         <property name="value">
-         <double>3.500000000000000</double>
+         <double>3.400000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="labelFactorDiag">
+        <property name="text">
+         <string>Factor-diag</string>
         </property>
        </widget>
       </item>
@@ -520,23 +513,6 @@
         </property>
        </widget>
       </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="labelLocal">
-        <property name="text">
-         <string>Local</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="labelInitPenalty">
-        <property name="text">
-         <string>Init. penalty</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="1">
-       <widget class="QDoubleSpinBox" name="initPenalty"/>
-      </item>
       <item row="12" column="0">
        <widget class="QLabel" name="labelNoStdNormal">
         <property name="text">
@@ -551,6 +527,13 @@
         </property>
        </widget>
       </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="labelLocal">
+        <property name="text">
+         <string>Local</string>
+        </property>
+       </widget>
+      </item>
       <item row="13" column="1">
        <widget class="QCheckBox" name="local">
         <property name="text">
@@ -558,10 +541,41 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="labelFactorDiag">
+      <item row="14" column="0">
+       <widget class="QLabel" name="labelInitPenalty">
         <property name="text">
-         <string>Factor-diag</string>
+         <string>Init. penalty</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QDoubleSpinBox" name="initPenalty"/>
+      </item>
+      <item row="15" column="0">
+       <widget class="QLabel" name="labelRestoreDefaultObiWarpParams">
+        <property name="text">
+         <string>Restore Default Values</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="1">
+       <widget class="QPushButton" name="restoreDefaultObiWarpParams">
+        <property name="text">
+         <string>OK</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelShowAdvanceParams">
+        <property name="text">
+         <string>Show Advance Params</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="showAdvanceParams">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

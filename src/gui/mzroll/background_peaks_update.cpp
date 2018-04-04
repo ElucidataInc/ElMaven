@@ -503,9 +503,7 @@ void BackgroundPeakUpdate::align() {
                 }
                 else{
 
-                        ObiParams *obiParams =NULL;
-                        if( mainwindow->alignmentDialog->useDefaultObiWarpParams->isChecked() == false )
-                                obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+                        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
                                                         mainwindow->alignmentDialog->local->isChecked(),
                                                         mainwindow->alignmentDialog->factorDiag->value(),
                                                         mainwindow->alignmentDialog->factorGap->value(),

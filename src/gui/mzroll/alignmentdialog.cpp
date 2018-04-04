@@ -20,6 +20,9 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
 		connect(alignWrtExpectedRt,SIGNAL(clicked(bool)),SLOT(setAlignWrtExpectedRt(bool)));
 		connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
+		connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
+		connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
+
 		QRect rec = QApplication::desktop()->screenGeometry();
 		int height = rec.height();
 		setFixedHeight(height-height/10);
@@ -89,73 +92,68 @@ void AlignmentDialog::intialSetup() {
 	minIntensity->setValue(_mw->mavenParameters->minIntensity);
 	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
 }
-void AlignmentDialog::showOthers(){
-	groupBox->setVisible(true);
-	groupBox_2->setVisible(true);
 
-	useDefaultObiWarpParams->setVisible(false);
-	responseObiWarp->setVisible(false);
-	binSizeObiWarp->setVisible(false);
-	gapInit->setVisible(false);
-	gapExtend->setVisible(false);
-	factorDiag->setVisible(false);
-	factorGap->setVisible(false);
+void AlignmentDialog::restorDefaultValues(bool checked){
+
+	scoreObi->setCurrentText("cor");
+	factorGap->setValue(1);
+	factorDiag->setValue(2);
+	gapExtend->setValue(3.4);
+	gapInit->setValue(0.2);
+	binSizeObiWarp->setValue(0.6);
+	responseObiWarp->setValue(20);
+	noStdNormal->setChecked(false);
+	local->setChecked(false);
+	initPenalty->setValue(0);
+	restoreDefaultObiWarpParams->setChecked(false);
 	initPenalty->setVisible(false);
-	noStdNormal->setVisible(false);
-	local->setVisible(false);
-	scoreObi->setVisible(false);
-
-	labelUseDefaultObiWarpParams->setVisible(false);
-	labelResponseObiWarp->setVisible(false);
-	labelBinSizeObiWarp->setVisible(false);
-	labelGapInit->setVisible(false);
-	labelGapExtend->setVisible(false);
-	labelFactorDiag->setVisible(false);
-	labelFactorGap->setVisible(false);
 	labelInitPenalty->setVisible(false);
-	labelNoStdNormal->setVisible(false);
-	labelLocal->setVisible(false);
-	labelScoreObi->setVisible(false);
 
 }
-void AlignmentDialog::hideOthers(){
-	groupBox->setVisible(false);
-	groupBox_2->setVisible(false);
 
-	useDefaultObiWarpParams->setVisible(true);
-	responseObiWarp->setVisible(true);
-	binSizeObiWarp->setVisible(true);
-	gapInit->setVisible(true);
-	gapExtend->setVisible(true);
-	factorDiag->setVisible(true);
-	factorGap->setVisible(true);
-	initPenalty->setVisible(true);
-	noStdNormal->setVisible(true);
-	local->setVisible(true);
-	scoreObi->setVisible(true);
+void AlignmentDialog::showAdvanceParameters(bool checked){
+	toggleObiParams(checked);
+	
+	groupBox->setVisible(0);
+	groupBox_2->setVisible(0);
+}
 
+void AlignmentDialog::toggleObiParams(bool show){
 
-	labelUseDefaultObiWarpParams->setVisible(true);
-	labelResponseObiWarp->setVisible(true);
-	labelBinSizeObiWarp->setVisible(true);
-	labelGapInit->setVisible(true);
-	labelGapExtend->setVisible(true);
-	labelFactorDiag->setVisible(true);
-	labelFactorGap->setVisible(true);
-	labelInitPenalty->setVisible(true);
-	labelNoStdNormal->setVisible(true);
-	labelLocal->setVisible(true);
-	labelScoreObi->setVisible(true);
+	restoreDefaultObiWarpParams->setVisible(show);
+	responseObiWarp->setVisible(show);
+	binSizeObiWarp->setVisible(show);
+	gapInit->setVisible(show);
+	gapExtend->setVisible(show);
+	factorDiag->setVisible(show);
+	factorGap->setVisible(show);
+	initPenalty->setVisible(show);
+	noStdNormal->setVisible(show);
+	local->setVisible(show);
+	scoreObi->setVisible(show);
 
-	setInitPenalty(local->isChecked());
+	labelRestoreDefaultObiWarpParams->setVisible(show);
+	labelResponseObiWarp->setVisible(show);
+	labelBinSizeObiWarp->setVisible(show);
+	labelGapInit->setVisible(show);
+	labelGapExtend->setVisible(show);
+	labelFactorDiag->setVisible(show);
+	labelFactorGap->setVisible(show);
+	labelInitPenalty->setVisible(show);
+	labelNoStdNormal->setVisible(show);
+	labelLocal->setVisible(show);
+	labelScoreObi->setVisible(show);
+
+	if(show)
+		setInitPenalty(local->isChecked());
 }
 void AlignmentDialog::algoChanged() {
 
-	if(alignAlgo->currentIndex() == 2)
-		hideOthers();
-	else
-		showOthers();
-
+	bool obiWarp = (alignAlgo->currentIndex() == 2);
+	toggleObiParams(obiWarp);
+	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
+	showAdvanceParams->setVisible(obiWarp);
+	labelShowAdvanceParams->setVisible(obiWarp);
 
 	if (peakDetectionAlgo->currentIndex() == 0) {
 		selectDatabase->setVisible(true);
@@ -185,6 +183,9 @@ void AlignmentDialog::algoChanged() {
 		label_8->setVisible(false);
 		polynomialDegree->setVisible(false);
 	}
+
+	groupBox->setVisible(!obiWarp);
+	groupBox_2->setVisible(!obiWarp);
 }
 
 void AlignmentDialog::setDatabase() {
