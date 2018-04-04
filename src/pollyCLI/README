@@ -1,0 +1,38 @@
+This library connects ELmaven and POLLY. All the functions needed for this integration, are defined here in details-
+Please refer to this README when adding new features to El-Maven-Polly-Integration.
+
+Steps to use this library-
+1. Include pollyintegration header file in your code.
+2. set polly username, password, jspath for this library
+3. Node_modules folder must be in the location where index.js file resides.
+4. Start implementing your custom functions using functions of this library, detailed documentation for each function is given below -
+
+Variables used in the library -
+
+QString username;
+QString password;
+QString jsPath;
+QString nodePath;
+QString credFile;
+
+
+function used -
+
+QString user_login_required();
+QString createProjectOnPolly(QString projectname);
+QByteArray run_qt_process(QString command, QStringList args = QStringList());
+QByteArray run_system_process(QString command);
+QString get_urls(QByteArray result);
+QStringList get_system_urls(QString filename);
+QStringList get_project_upload_url_commands(QByteArray result2,QStringList filenames);
+QStringList get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames);
+QString get_run_id(QByteArray result);
+QString get_patch_id(QByteArray result);
+int authenticate_login(QString username,QString password);
+int check_already_logged_in();
+QStringList exportData(QStringList filenames,QString projectId);
+QString loadDataFromPolly(QString ProjectId,QStringList filenames);
+QVariantMap getUserProjects();
+QVariantMap getUserProjectFiles(QStringList ProjectIds);
+QVariantMap getUserProjectsMap(QByteArray result2);
+QStringList getUserProjectFilesMap(QByteArray result2);
