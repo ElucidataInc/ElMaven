@@ -57,6 +57,7 @@ void IsotopeWidget::peakSelected(Peak* peak, PeakGroup* group) {
 	if (!peak || !group)
 		return;
 	_selectedSample = peak->getSample();
+	sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
 	isotopeParameters->_scan = peak->getScan();
 	isotopeParameters->_group = group;
 	if (group->type() == PeakGroup::Isotope)
@@ -142,6 +143,7 @@ void IsotopeWidget::userChangedFormula(QString f) {
 
 void IsotopeWidget::updateSampleList() {
 	vector<mzSample*> samples = _mw->getVisibleSamples();
+	if (samples.empty()) return;
 	vector<mzSample*>::iterator it;
 	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
 	QString sampleName;

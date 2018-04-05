@@ -185,7 +185,7 @@ void ProjectDockWidget::updateSampleList() {
     if ( _mainwindow->getEicWidget() ) {
         _mainwindow->getEicWidget()->replotForced();
     }
-    if (_mainwindow->isotopeWidget->isVisible()) {
+    if (_mainwindow->isotopeWidget) {
         _mainwindow->isotopeWidget->updateSampleList();
     }
 }
