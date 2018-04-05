@@ -35,7 +35,6 @@ public Q_SLOTS:
 	void setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg = false);
 	void setCompound(Compound* compound);
 	void setIonizationMode(int mode);
-	void setPeak(Peak* peak);
 	void setClipboard();
 	void setClipboard(PeakGroup* group);
 	void setClipboard(QList<PeakGroup*>& groups);

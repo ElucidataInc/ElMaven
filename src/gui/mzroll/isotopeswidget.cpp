@@ -108,22 +108,6 @@ void IsotopeWidget::updateIsotopicBarplot(PeakGroup* grp) {
 		pullIsotopesForBarplot(grp);
 }
 
-void IsotopeWidget::setPeak(Peak* peak) {
-	if (peak == NULL)
-		return;
-
-	_selectedSample = peak->getSample();
-	sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
-
-	Scan* scan = _selectedSample->getScan(peak->scan);
-	if (scan == NULL)
-		return;
-	isotopeParameters->_scan = scan;
-
-	if (!isotopeParameters->_formula.empty())
-		computeIsotopes(isotopeParameters->_formula);
-}
-
 void IsotopeWidget::setCompound(Compound* cpd) {
 	if (cpd == NULL)
 		return;
