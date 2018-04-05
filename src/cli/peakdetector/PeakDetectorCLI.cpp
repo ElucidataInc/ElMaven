@@ -143,7 +143,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 					projectname = "Default project";//upload to default project if no project name is specified
 					break;		
 			}
-			else if(2<test_list.size()){
+			else if(2<test_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
 				username = test_list.at(0);
 				password = test_list.at(1);
 				projectname = test_list.at(2);
@@ -616,25 +616,26 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 
 	//save output CSV
 	saveCSV(setName);
-	//Try to upload to polly now..
+	//Trying to upload to polly now..
 	cout<<"uploding to polly now.."<<endl;
 	try {
-		filedir = QString::fromStdString(mavenParameters->outputdir);
-		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";
-		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<filename);
-		if (upload_project_id!=""){
+		filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
+		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";// Only uploading the csv file as of now
+		// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
+		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<filename); //add more files to upload, if desired..
+		if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 			qDebug()<<"redirection url - \n"<<redirection_url;
 			filedir = QString::fromStdString(mavenParameters->outputdir);			
 			QString filename=filedir+"/url.txt";
-			QFile file( filename );
+			QFile file( filename );// redirection url will be written to a file..In future it will be replaced by email feature..
 			if ( file.open(QIODevice::ReadWrite) )
 			{
 				QTextStream stream( &file );
 				stream << redirection_url << endl;
 			}
 		}
-		else{qDebug()<<"Unable to upload data to polly";}
+		else{qDebug()<<"Unable to upload data to polly.";}
 	} catch(...) {
 		qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
 	}
@@ -676,29 +677,33 @@ void PeakDetectorCLI::saveJson(string setName) {
 QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames) {
 	QString upload_project_id;
 	if (uploadToPolly_bool){
+		// set jspath and nodepath for _pollyIntegration library .
 		_pollyIntegration->jsPath = jsPath;
 		_pollyIntegration->nodePath = nodePath;
-		// _pollyIntegration->username = username;
-		// _pollyIntegration->password = password;
 		int status = _pollyIntegration->authenticate_login(username,password);
 		if (status!=1){
 			qDebug()<<"Incorrect credentials...Please check..";
 			return upload_project_id;
 		}
+		// user is logged in, now proceed to upload..
+		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
 
-		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
 		QStringList keys= projectnames_id.keys();
         QString projectId;
 		QString defaultprojectId;
 		for (int i=0; i < keys.size(); ++i){
 			if (projectnames_id[keys.at(i)].toString()==projectname){
+				// that means the name provided by the user matches a project.
                 projectId= keys.at(i);
             	}
 			else if (projectnames_id[keys.at(i)].toString()=="Default project"){
+				// Always be ready with the default project id of user..
 				defaultprojectId=keys.at(i);
 				}
         	}
 		if (projectId==""){
+			//In case no project matches with the user defined name or the user has not provided any project name,
+			// upload to default project..
 			_pollyIntegration->exportData(filenames,defaultprojectId);
 			upload_project_id = defaultprojectId;
 		}

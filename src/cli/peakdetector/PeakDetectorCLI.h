@@ -159,7 +159,10 @@ class PeakDetectorCLI {
 
 		void saveCSV(string setName);
 		/**
-		 * Upload Maven data to Polly and redirect the user to polly..
+		 * [Uploads Maven data to Polly and redirects the user to polly]
+		 * @param jspath  [path to index.js file]
+		 * @param nodepath  [path to node executable]
+		 * @param filenames [List of files to be uploaded on polly]
 		*/
 		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames);
 
