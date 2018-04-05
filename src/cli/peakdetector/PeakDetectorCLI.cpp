@@ -2,6 +2,7 @@
 
 PeakDetectorCLI::PeakDetectorCLI() {
 	parseOptions = new ParseOptions();
+	_pollyIntegration = new PollyIntegration();
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
@@ -35,6 +36,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"X?defaultXml: Create a template config file",
 							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
 							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
+							"P?pollyCred: Polly sign in credentials,username,password <string>",
 							NULL 
 	};
 
@@ -130,7 +132,28 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 		case 'p':
 			mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(optarg),"ppm");
 			break;
-			
+
+		case 'P':
+			//parse polly specific arguments here.
+			uploadToPolly_bool = true;
+			{
+			pollyArgs = QString(optarg);
+			test_list = pollyArgs.split(",");
+			if (test_list.size()==2)//Assuming that user has not provided project name, just the username and password
+			{
+					username = test_list.at(0);//order is very specific here, first argument is supposed to be username
+					password = test_list.at(1);//second argument is password
+					projectname = "Default project";//upload to default project if no project name is specified
+					break;		
+			}
+			else if(2<test_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
+				username = test_list.at(0);
+				password = test_list.at(1);
+				projectname = test_list.at(2);
+			}
+			}
+			break;
+
 		case 'q':
 			mavenParameters->minQuality = atof(optarg);
 			break;
@@ -585,7 +608,7 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
-void PeakDetectorCLI::writeReport(string setName) {
+void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 
 
 	//create an output folder
@@ -604,6 +627,29 @@ void PeakDetectorCLI::writeReport(string setName) {
 
 	//save output CSV
 	saveCSV(setName);
+	//Trying to upload to polly now..
+	cout<<"uploding to polly now.."<<endl;
+	try {
+		filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
+		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";// Only uploading the csv file as of now
+		// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
+		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<filename); //add more files to upload, if desired..
+		if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
+			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
+			qDebug()<<"redirection url - \n"<<redirection_url;
+			filedir = QString::fromStdString(mavenParameters->outputdir);			
+			QString filename=filedir+"/url.txt";
+			QFile file( filename );// redirection url will be written to a file..In future it will be replaced by email feature..
+			if ( file.open(QIODevice::ReadWrite) )
+			{
+				QTextStream stream( &file );
+				stream << redirection_url << endl;
+			}
+		}
+		else{qDebug()<<"Unable to upload data to polly.";}
+	} catch(...) {
+		qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
+	}
 
 }
 
@@ -637,6 +683,47 @@ void PeakDetectorCLI::saveJson(string setName) {
 		cout << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
 		#endif
 	}
+}
+
+QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames) {
+	QString upload_project_id;
+	if (uploadToPolly_bool){
+		// set jspath and nodepath for _pollyIntegration library .
+		_pollyIntegration->jsPath = jsPath;
+		_pollyIntegration->nodePath = nodePath;
+		int status = _pollyIntegration->authenticate_login(username,password);
+		if (status!=1){
+			qDebug()<<"Incorrect credentials...Please check..";
+			return upload_project_id;
+		}
+		// user is logged in, now proceed to upload..
+		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
+
+		QStringList keys= projectnames_id.keys();
+        QString projectId;
+		QString defaultprojectId;
+		for (int i=0; i < keys.size(); ++i){
+			if (projectnames_id[keys.at(i)].toString()==projectname){
+				// that means the name provided by the user matches a project.
+                projectId= keys.at(i);
+            	}
+			else if (projectnames_id[keys.at(i)].toString()=="Default project"){
+				// Always be ready with the default project id of user..
+				defaultprojectId=keys.at(i);
+				}
+        	}
+		if (projectId==""){
+			//In case no project matches with the user defined name or the user has not provided any project name,
+			// upload to default project..
+			_pollyIntegration->exportData(filenames,defaultprojectId);
+			upload_project_id = defaultprojectId;
+		}
+		else{
+			_pollyIntegration->exportData(filenames,projectId);
+			upload_project_id = projectId;
+		}
+	}
+	return upload_project_id;
 }
 
 void PeakDetectorCLI::saveMzRoll(string setName) {

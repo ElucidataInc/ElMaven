@@ -2,6 +2,30 @@
 
 int main(int argc, char *argv[]) {
 
+	// setting nodepath and jspath for PollyCLI library..
+	QStringList jsPathlist = QString(argv[0]).split(QDir::separator());
+	QStringList jsPathlist_bin;
+	for (int i = 0; i < jsPathlist.size()-1; ++i)
+         jsPathlist_bin << jsPathlist.at(i);
+	QString jsPath = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"index.js";
+	QString nodePath;
+	#ifdef Q_OS_WIN
+      nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node.exe";
+    #endif
+
+    #ifdef Q_OS_LINUX
+      nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node";
+    #endif
+
+    #ifdef Q_OS_MAC
+      QString binDir = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+        nodePath = binDir + "node_bin" + QDir::separator() + "node";
+
+      jsPath = binDir  + "index.js";
+    #endif
+	// Polly CLI part over..
+
     PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
 
      #ifndef __APPLE__
@@ -59,7 +83,7 @@ int main(int argc, char *argv[]) {
 
 	//write report
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
-		peakdetectorCLI->writeReport("compounds");
+		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
 
 	//cleanup

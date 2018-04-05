@@ -29,6 +29,7 @@
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
 #include "jsonReports.h"
+#include "pollyintegration.h"
 
 #include <QtCore>
 
@@ -36,6 +37,7 @@
 
 using namespace std;
 
+class PollyIntegration;
 class ParseOptions;
 
 #ifndef __APPLE__
@@ -51,6 +53,14 @@ class PeakDetectorCLI {
 
 	public:
 		PeakDetectorCLI();
+
+		QString username;
+		QString password;
+		QString projectname;
+		QString pollyArgs;
+		QString filedir;
+		QStringList test_list;
+		PollyIntegration* _pollyIntegration;
 
 		vector<mzSample*> samples;
 		vector<Compound*> compoundsDB;
@@ -76,6 +86,7 @@ class PeakDetectorCLI {
 
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
+		bool uploadToPolly_bool = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;
@@ -137,8 +148,10 @@ class PeakDetectorCLI {
 		/**
 		* [write multiple types of Reports]
 		* @param setName [name of the set]
+		* @param jsPath [path for index.js file]
+		* @param nodePath [path for node executable]
 		*/
-		void writeReport(string setName);
+		void writeReport(string setName,QString jsPath,QString nodePath);
 
 		void groupReduction();
 
@@ -148,6 +161,14 @@ class PeakDetectorCLI {
 
 		void saveCSV(string setName);
 
+		/**
+		 * [Uploads Maven data to Polly and redirects the user to polly]
+		 * @param jspath  [path to index.js file]
+		 * @param nodepath  [path to node executable]
+		 * @param filenames [List of files to be uploaded on polly]
+		*/
+		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames);
+		
 		/**
 		* [write Sample List in XML]
 		* @param parent [parent node]
