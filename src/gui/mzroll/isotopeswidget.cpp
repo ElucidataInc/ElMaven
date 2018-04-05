@@ -13,10 +13,12 @@ IsotopeWidget::IsotopeWidget(MainWindow* mw) {
 			SLOT(userChangedFormula(QString)));
 	connect(ionization, SIGNAL(valueChanged(double)), this,
 			SLOT(setCharge(double)));
-	connect(sampleList, SIGNAL(currentIndexChanged(int)), SLOT(updateSelectedSample(int)));
+	connect(sampleList, SIGNAL(currentIndexChanged(int)), 
+			SLOT(updateSelectedSample(int)));
 
 	ionization->setValue(isotopeParameters->_charge);
 	bookmarkflag = true;
+	
 	MavenParameters* mavenParameters = mw->mavenParameters;
 	bool C13Flag = mavenParameters->C13Labeled_IsoWidget;
 	bool N15Flag = mavenParameters->N15Labeled_IsoWidget;
@@ -54,32 +56,21 @@ IsotopeWidget::~IsotopeWidget() {
 }
 
 void IsotopeWidget::peakSelected(Peak* peak, PeakGroup* group) {
-	if (!peak || !group)
+	if (!peak || !group || !group->compound)
 		return;
+	
+	//set selectedSample for isotope calculation
 	_selectedSample = peak->getSample();
 	sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
-	isotopeParameters->_scan = peak->getScan();
-	isotopeParameters->_group = group;
-	if (group->type() == PeakGroup::Isotope)
-	{
-		isotopeParameters->_group = group->parent;
-		isotopeParameters->_scan = NULL;
-	}
-	//TODO: use setCompound
-	if (group->compound)
-	{
-		isotopeParameters->_compound = group->compound;
-		isotopeParameters->_formula = group->compound->formula;
-	}
-	computeIsotopes(isotopeParameters->_formula);
+	
+	setPeakGroupAndMore(group);
 }
 
 void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
-	if (!grp)
+	if (!grp && !group->compound)
 		return;
-	bookmarkflag = bookmarkflg;
 
-	if (!grp->compound) return;
+	//set compound, formula, window title
 	setCompound(grp->compound);
 	if (isotopeParameters->_formula.empty())
 		return;
@@ -89,6 +80,8 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 	{
 		isotopeParameters->_group = grp->parent;
 	}
+	
+	//select first sample if no peak or sample is selected
 	if (!_selectedSample) updateSelectedSample(0);
 	Peak* peak = isotopeParameters->_group->getPeak(_selectedSample);
 	if (peak)
@@ -135,18 +128,23 @@ void IsotopeWidget::userChangedFormula(QString f) {
 }
 
 void IsotopeWidget::updateSampleList() {
-	vector<mzSample*> samples = _mw->getVisibleSamples();
-	if (samples.empty()) return;
-	vector<mzSample*>::iterator it;
-	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-	QString sampleName;
 	sampleList->clear();
+	vector<mzSample*> samples = _mw->getVisibleSamples();
+	if (samples.empty())
+		return;
+	
+	sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+	
+	QString sampleName;
 	int index = 0;
+	vector<mzSample*>::iterator it;
 	for (it = samples.begin(); it != samples.end(); it++, index++)
 	{
 		sampleName = QString::fromStdString((*it)->sampleName);
 		sampleList->insertItem(index, sampleName, QVariant::fromValue(*it));
 	}
+	
+	//set 1st sample if no sample is selected 
 	if (sampleList->currentIndex() > -1) 
 	{
 		sampleList->setCurrentIndex(0);
