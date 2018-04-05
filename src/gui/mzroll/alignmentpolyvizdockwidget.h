@@ -34,6 +34,7 @@ public:
 
     void prepareGraphDataLoessFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample);
     void prepareGraphDataPolyFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample);
+    void prepareGraphDataObiWarp(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample);
 
 public Q_SLOTS:
     void plotGraph();

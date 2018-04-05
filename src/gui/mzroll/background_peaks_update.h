@@ -154,6 +154,7 @@ private:
 	 */
 	void align();
 	void alignUsingDatabase();
+	void alignWithObiWarp();
 
 	/**
 	 * [write CSV Report]

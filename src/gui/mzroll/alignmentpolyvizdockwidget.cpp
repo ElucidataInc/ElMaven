@@ -124,6 +124,20 @@ void AlignmentPolyVizDockWidget::prepareGraphDataLoessFit(QVector<double>&xAxis,
     }
 }
 
+void AlignmentPolyVizDockWidget::prepareGraphDataObiWarp(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+{
+    double rt, rtDiff;
+
+    for(unsigned int i=0; i < sample->scans.size(); i++ ) {
+
+        rt = sample->scans[i]->originalRt;
+        xAxis.push_back(rt);
+
+        rtDiff = sample->scans[i]->originalRt - sample->scans[i]->rt;
+        yAxis.push_back(rtDiff);
+    }
+}
+
 void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample)
 {
 
@@ -137,6 +151,9 @@ void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample)
 
     if(alignAlgo == 1)
         prepareGraphDataLoessFit(xAxis, yAxis, sample);
+
+    if(alignAlgo == 2)
+        prepareGraphDataObiWarp(xAxis, yAxis, sample);
 
     if(!xAxis.isEmpty() && !yAxis.isEmpty()){
 

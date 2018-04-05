@@ -296,6 +296,8 @@ void BackgroundPeakUpdate::run(void) {
                 pullIsotopesBarPlot(mavenParameters->_group);
         } else if (runFunction == "computePeaks") {
                 computePeaks();
+        } else if(runFunction == "alignWithObiWarp" ){
+                alignWithObiWarp();
         } else {
                 qDebug() << "Unknown Function " << runFunction.c_str();
         }
@@ -303,7 +305,27 @@ void BackgroundPeakUpdate::run(void) {
         quit();
         return;
 }
+void BackgroundPeakUpdate::alignWithObiWarp(){
+        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+                                        mainwindow->alignmentDialog->local->isChecked(),
+                                        mainwindow->alignmentDialog->factorDiag->value(),
+                                        mainwindow->alignmentDialog->factorGap->value(),
+                                        mainwindow->alignmentDialog->gapInit->value(),
+                                        mainwindow->alignmentDialog->gapExtend->value(),
+                                        mainwindow->alignmentDialog->initPenalty->value(),
+                                        mainwindow->alignmentDialog->responseObiWarp->value(),
+                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
+                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
+                                );
+        Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
 
+        Aligner aligner;
+        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
+        delete obiParams;
+
+        mainwindow->alignmentPolyVizDockWidget->plotGraph();
+
+}
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
 
         //write reports
@@ -451,7 +473,6 @@ void BackgroundPeakUpdate::align() {
                         aligner.doAlignment(groups);
                         mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
                         mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
-                        mainwindow->deltaRt = aligner.getDeltaRt();
                 } else if (alignAlgo == 1) {
                         aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
                         // initialize processedDataFromPython with null 
@@ -499,24 +520,9 @@ void BackgroundPeakUpdate::align() {
                                 Q_EMIT alignmentError(errorMessage);
                                 return;
                         }
-                        mainwindow->deltaRt = aligner.getDeltaRt();
                 }
-                else{
 
-                        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
-                                                        mainwindow->alignmentDialog->local->isChecked(),
-                                                        mainwindow->alignmentDialog->factorDiag->value(),
-                                                        mainwindow->alignmentDialog->factorGap->value(),
-                                                        mainwindow->alignmentDialog->gapInit->value(),
-                                                        mainwindow->alignmentDialog->gapExtend->value(),
-                                                        mainwindow->alignmentDialog->initPenalty->value(),
-                                                        mainwindow->alignmentDialog->responseObiWarp->value(),
-                                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
-                                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
-                                                );
-                        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
-                }
-                
+                mainwindow->deltaRt = aligner.getDeltaRt();
                 mavenParameters->alignSamplesFlag = false;
 
         }

@@ -2733,6 +2733,16 @@ void MainWindow::Align() {
 	aligned = true;
 
 	BackgroundPeakUpdate* workerThread;
+
+	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+		workerThread = newWorkerThread("alignWithObiWarp");
+		workerThread->setMavenParameters(mavenParameters);
+		workerThread->start();
+		connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
+		connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
+		return;
+	}
+	
 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
 		mavenParameters->setCompounds(DB.getCopoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
