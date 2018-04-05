@@ -34,6 +34,15 @@ void LoginForm::on_pushButton_clicked()
     if (status_inside==1){
         hide();
         qDebug()<<"Logged in, moving on now....";
+        QString storeCredFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "store_cred_file.txt";
+        QFile file(storeCredFile);
+        if ( file.open(QIODevice::ReadWrite) ){
+            QTextStream stream( &file );
+            stream << username << endl;
+            stream << password << endl;
+        }
+        file.close();
+        qDebug()<<"writing to this file.."<<storeCredFile;
         _pollyelmaveninterfacedialog->loadFormData();
     }
     else{
