@@ -22,7 +22,6 @@ class PollyIntegration
 	    QStringList get_project_upload_url_commands(QByteArray result2,QStringList filenames);
 		QStringList get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames);
 	    QString get_run_id(QByteArray result);
-	    QString get_patch_id(QByteArray result);
 	    int authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 	    QStringList exportData(QStringList filenames,QString projectId);
