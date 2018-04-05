@@ -2739,7 +2739,6 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
 	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
-		isotopeWidget->setCompound(group->compound);
 		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
@@ -2760,7 +2759,6 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
     if (group->peaks.size() > 0) {
-        showPeakInfo(&(group->peaks[0]));
         vector<Scan*>scanset = group->getRepresentativeFullScans(); //TODO: Sahil-Kiran, Added while merging mainwindow
         spectraWidget->setScanSet(scanset); //TODO: Sahil-Kiran, Added while merging mainwindow
         spectraWidget->replot(); //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -2915,7 +2913,6 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 	if (isotopeWidget->isVisible()) {
 		isotopeWidget->setIonizationMode(ionizationMode);
 		isotopeWidget->setCharge(ionizationMode);
-		isotopeWidget->setPeak(_peak);
 	}
 
 	if (fragPanel->isVisible()) {
