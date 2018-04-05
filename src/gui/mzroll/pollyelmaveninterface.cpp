@@ -205,10 +205,6 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
     QString dir = ".";
     QSettings* settings = mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
-    
-    mainwindow->check_polly_login->setText("connected");
-    mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
-    
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
     _tableDockWidget->exportGroupsToSpreadsheet_polly();
@@ -248,8 +244,29 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
             ProjectId= keys.at(i);
         }
     }
-    QString run_id = _pollyIntegration->loadDataFromPolly(ProjectId,filenames);
+    QString dir = ".";
+    QSettings* settings = mainwindow->getSettings();
+    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
+    qDebug() << "valid credentials,loading data from polly now....\n\n";
+    
+    QDir qdir(dir+QString("/tmp_files/"));
+    if (!qdir.exists()){
+        QDir().mkdir(dir+QString("/tmp_files"));
+        QDir qdir(dir+QString("/tmp_files/"));
+    }
+    QStringList full_path_filenames;
+    for (int i = 0; i < filenames.size(); ++i){
+        QString tmp_filename = dir+QString("/tmp_files/")+filenames.at(i);;
+        full_path_filenames.append(tmp_filename);
+    }
+    QString load_status = _pollyIntegration->loadDataFromPolly(ProjectId,full_path_filenames);
+    if (load_status=="project data loaded"){
+        mainwindow->loadPollySettings(dir+QString("/tmp_files/")+settings_file);
+    }
     progressBar_load_project->setValue(100);
+    QMessageBox msgBox(mainwindow);
+    msgBox.setText(load_status);
+    msgBox.exec();
 }
 
 void PollyElmavenInterfaceDialog::cancel() {
