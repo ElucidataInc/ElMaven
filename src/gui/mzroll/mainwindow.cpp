@@ -2810,6 +2810,18 @@ void MainWindow::showAlignmentWidget() {
 }
 
 void MainWindow::UndoAlignment() {
+	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+		for (int i = 0; i < samples.size(); i++) {
+			for(int j = 0; j < samples[i]->scans.size(); ++j)
+				if(samples[i]->scans[j]->originalRt >= 0)
+					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
+		}
+
+		eicWidget->replotForced();
+		alignmentDialog->close();
+		return;
+	}
+
 	aligned = false;
 	for (int i = 0; i < samples.size(); i++) {
 		if (samples[i])
