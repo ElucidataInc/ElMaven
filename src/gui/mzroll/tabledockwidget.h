@@ -261,7 +261,6 @@ private:
     */
     void readSamplesXML(QXmlStreamReader &xml, PeakGroup *group);
 
-    void markv_0_1_5mzroll(QString fileName);
     void setupFiltersDialog();
 
     QList<PeakGroup> allgroups;
