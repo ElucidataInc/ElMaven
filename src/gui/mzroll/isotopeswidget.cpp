@@ -65,6 +65,7 @@ void IsotopeWidget::peakSelected(Peak* peak, PeakGroup* group) {
 		isotopeParameters->_group = group->parent;
 		isotopeParameters->_scan = NULL;
 	}
+	//TODO: use setCompound
 	if (group->compound)
 	{
 		isotopeParameters->_compound = group->compound;
@@ -77,17 +78,25 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg) {
 	if (!grp)
 		return;
 	bookmarkflag = bookmarkflg;
-	if (grp->type() != PeakGroup::Isotope)
-	{
-		isotopeParameters->_group = grp;
-	}
-	else 
+
+	if (!grp->compound) return;
+	setCompound(grp->compound);
+	if (isotopeParameters->_formula.empty())
+		return;
+	
+	isotopeParameters->_group = grp;
+	if (grp->isIsotope())
 	{
 		isotopeParameters->_group = grp->parent;
-		return;
 	}
+	if (!_selectedSample) updateSelectedSample(0);
+	Peak* peak = isotopeParameters->_group->getPeak(_selectedSample);
+	if (peak)
+		isotopeParameters->_scan = peak->getScan();
+	else
+		return;
+	
 	if (bookmarkflg) pullIsotopes(isotopeParameters->_group);
-	isotopeParameters->_formula = grp->compound->formula;
 	computeIsotopes(isotopeParameters->_formula);
 }
 
@@ -153,6 +162,11 @@ void IsotopeWidget::updateSampleList() {
 	{
 		sampleName = QString::fromStdString((*it)->sampleName);
 		sampleList->insertItem(index, sampleName, QVariant::fromValue(*it));
+	}
+	if (sampleList->currentIndex() > -1) 
+	{
+		sampleList->setCurrentIndex(0);
+		updateSelectedSample(0);
 	}
 }
 
