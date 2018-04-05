@@ -402,8 +402,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                 << peak.peakAreaTopCorrected << SEP
                 << peak.noNoiseObs <<  SEP
                 << peak.signalBaselineRatio <<  SEP
-                << peak.fromBlankSample << SEP
-                << endl;
+                << peak.fromBlankSample << endl;
     }
 }
 
