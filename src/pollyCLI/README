@@ -1,0 +1,8 @@
+This library connects ELmaven and POLLY. All the functions needed for this integration, are defined here in details-
+Please refer to this README when adding new features to El-Maven-Polly-Integration.
+
+Steps to use this library-
+1. Include pollyintegration header file in your code.
+2. set polly username, password, jspath for this library
+3. Node_modules folder must be in the location where index.js file resides.
+4. Start implementing your custom functions using functions of this library, detailed documentation for each function is provided in the header file
