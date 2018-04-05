@@ -186,35 +186,17 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
         QMessageBox::warning(_tableDockWidget, "Error", msg);
         return filenames;
     }
-    QList<PeakGroup> allgroups =  _tableDockWidget->getAllGroups();
-
-    if (allgroups.size() == 0 ) {
-        QString msg = "Peaks Table is Empty, can't export to POLLY";
-        QMessageBox::warning(_tableDockWidget, "Error", msg);
-        return filenames;
-    }
-    /**
-     * copy all groups from <allgroups> to <vallgroups> which is used by
-     * < libmaven/jsonReports.cpp>
-    */
-    _tableDockWidget->vallgroups.clear();
-    for(int i=0;i<allgroups.size();++i){
-        _tableDockWidget->vallgroups.push_back(allgroups[i]);
-    }
-
     QString dir = ".";
     QSettings* settings = mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
-    _tableDockWidget->exportGroupsToSpreadsheet_polly();
-    
     QDir qdir(dir+QString("/tmp_files/"));
     if (!qdir.exists()){
         QDir().mkdir(dir+QString("/tmp_files"));
         QDir qdir(dir+QString("/tmp_files/"));
     }
-
+    _tableDockWidget->exportGroupsToSpreadsheet_polly(dir+QString("/tmp_files/export_all_groups.csv"));
     QByteArray ba = (dir+QString("/tmp_files/maven_analysis_settings.xml")).toLatin1();
     const char *save_path = ba.data();
     mainwindow->mavenParameters->saveSettings(save_path);

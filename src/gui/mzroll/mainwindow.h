@@ -23,6 +23,7 @@
 #include "tabledockwidget.h"
 #include "alignmentpolyvizdockwidget.h"
 #include "peakdetectiondialog.h"
+#include "pollyelmaveninterface.h"
 #include "alignmentdialog.h"
 #include "awsbucketcredentialsdialog.h"
 //#include "rconsoledialog.h"
@@ -56,6 +57,7 @@ class EicWidget;
 class PlotDockWidget;
 class BackgroundPeakUpdate;
 class PeakDetectionDialog;
+class PollyElmavenInterfaceDialog;
 class AwsBucketCredentialsDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
@@ -137,6 +139,7 @@ public:
 	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
 	QLabel *ionizationModeLabel;
+	QLabel *check_polly_login;
 	QSpinBox *ionChargeBox;
 	QComboBox *quantType;
 	QLabel *statusText;
@@ -189,6 +192,7 @@ public:
 
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
+	PollyElmavenInterfaceDialog *pollyElmavenInterfaceDialog;
 	AwsBucketCredentialsDialog *awsBucketCredentialsDialog;
 	AlignmentDialog* alignmentDialog;
 	// RconsoleWidget* rconsoleDockWidget;
@@ -270,6 +274,7 @@ public:
 	void saveMzRoll();
 	bool doAutosave;
 	int askAutosaveMain;
+	void loadPollySettings(QString fileName);
 Q_SIGNALS:
 	void valueChanged(int newValue);
 	void saveSignal();
@@ -313,6 +318,7 @@ public Q_SLOTS:
 	void createPeakTable(QString);
 
 	void setIonizationModeLabel();
+	void setcheck_polly_login();
 	void setFilterLine();
 	void setInjectionOrderFromTimeStamp();
 
@@ -322,6 +328,7 @@ public Q_SLOTS:
         // void compoundDatabaseSearch();
         void showPeakdetectionDialog();  // TODO: Sahil - Kiran, Added while
                                          // merging mainwindow
+		void showPollyElmavenInterfaceDialog();
 	void setUrl(QString url, QString link = QString::null);
 	void setUrl(Compound*);
 	void setUrl(Reaction*);

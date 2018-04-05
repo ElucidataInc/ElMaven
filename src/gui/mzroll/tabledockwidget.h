@@ -124,6 +124,7 @@ public Q_SLOTS:
       //output to csv file
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
+      void exportGroupsToSpreadsheet_polly(QString fileName);
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet() {

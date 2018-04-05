@@ -47,7 +47,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libpillow \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
-                $$top_srcdir/3rdparty/Logger
+                $$top_srcdir/3rdparty/Logger \
+                $$top_srcdir/src/pollyCLI
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -58,7 +59,7 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz                #64bit
+LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lpollyCLI               #64bit
 message($$LDFLAGS)
 
 INSTALLS += sources target
@@ -69,6 +70,7 @@ FORMS = forms/settingsform.ui  \
         forms/adductwidget.ui \
         forms/isotopeswidget.ui \
         forms/peakdetectiondialog.ui \
+        forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
         forms/trainingdialog.ui \
         forms/alignmentdialog.ui \
@@ -76,6 +78,7 @@ FORMS = forms/settingsform.ui  \
         forms/noteswidget.ui   \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
+        forms/loginform.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
@@ -109,6 +112,7 @@ HEADERS +=  stable.h \
                     ligandwidget.h \
                     eicwidget.h \
                     peakdetectiondialog.h \
+                    pollyelmaveninterface.h \
                     comparesamplesdialog.h \
                     traindialog.h \
                     tabledockwidget.h  \
@@ -136,6 +140,7 @@ HEADERS +=  stable.h \
                     alignmentvizallgroupswidget.h \
                    spectralhitstable.h\
                     clusterdialog.h \
+                    loginform.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
@@ -175,6 +180,7 @@ database.cpp \
  plot_axes.cpp \
  tabledockwidget.cpp \
  peakdetectiondialog.cpp \
+ pollyelmaveninterface.cpp \
  comparesamplesdialog.cpp \
  traindialog.cpp \
  line.cpp  \
@@ -192,6 +198,7 @@ database.cpp \
  highlighter.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
+ loginform.cpp \
  widgets/qprog.cpp \
  projectdockwidget.cpp \
  spectramatching.cpp \
