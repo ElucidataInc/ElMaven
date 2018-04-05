@@ -421,9 +421,7 @@ using namespace mzUtils;
 	peakDetectionDialog->setSettings(settings);
 	// pollyelmavengui dialog
 	pollyElmavenInterfaceDialog = new PollyElmavenInterfaceDialog(this);
-	pollyElmavenInterfaceDialog->setMainWindow(this);
-	pollyElmavenInterfaceDialog->setSettings(settings);
-
+	
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
 	alignmentDialog->setMainWindow(this);
