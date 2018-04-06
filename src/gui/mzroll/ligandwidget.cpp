@@ -393,13 +393,16 @@ void LigandWidget::showTable() {
 
 void LigandWidget::markAsDone(Compound* compound) {
 
-    QTreeWidgetItem* item = getItem(compound);
+    if (compound != nullptr) {
+        QTreeWidgetItem* item = getItem(compound);
 
-    if (item) {
-        for (int col = 0; col < treeWidget->columnCount(); col++) {
-            item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+        if (item != nullptr) {
+            for (int col = 0; col < treeWidget->columnCount(); col++) {
+                item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+            }
         }
     }
+
 }
 
 void LigandWidget::resetColor() {
@@ -421,8 +424,10 @@ QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
     QTreeWidgetItem* matchedItem;
     QTreeWidgetItemIterator itr(treeWidget);
 
+    QTreeWidgetItem* item;
+
     while (*itr) {
-        QTreeWidgetItem* item =(*itr);
+        item =(*itr);
         QVariant v = item->data(0,Qt::UserRole);
         Compound* itemCompound =  v.value<Compound*>();
         if (itemCompound) {
