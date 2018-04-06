@@ -6,6 +6,11 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     _mainwindow = mw;
     setObjectName(title);
 
+    pal = palette();
+    setAutoFillBackground(true);
+    pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+    setPalette(pal);
+
     numColms=11;
     viewType = groupView;
 
@@ -367,6 +372,25 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         }
     }
 }
+
+void TableDockWidget::updateCompoundWidget() {
+
+    _mainwindow->ligandWidget->resetColor();
+
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item =(*itr);
+        if (item) {
+            QVariant v = item->data(0,Qt::UserRole);
+            PeakGroup* group =  v.value<PeakGroup*>();
+            if ( group == NULL ) continue;
+
+            _mainwindow->ligandWidget->markAsDone(group->compound);
+        }
+        ++itr;
+    }
+}
+
 void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
     if(viewType != peakView) return;
 
@@ -413,7 +437,6 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
     }
 }
 
-
 void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) { 
 
     if (group == NULL) return;
@@ -424,8 +447,6 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
     item->setFlags(Qt::ItemIsSelectable |  Qt::ItemIsEnabled | Qt::ItemIsDragEnabled);
     item->setData(0,Qt::UserRole,QVariant::fromValue(group));
 
-
-    
     item->setText(0,QString::number(group->groupId));
     item->setText(1,QString(group->getName().c_str()));
     item->setText(2,QString::number(group->meanMz, 'f', 4));
@@ -626,6 +647,7 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
     treeWidget->clear();
+    setFocus();
     if (allgroups.size() == 0 ) {
         if (viewType == groupView) setIntensityColName();
         setVisible(false);
@@ -633,7 +655,7 @@ void TableDockWidget::showAllGroups() {
     }
 
     treeWidget->setSortingEnabled(false);
-     
+
     setupPeakTable();
     if (viewType == groupView) setIntensityColName();
     
@@ -660,12 +682,8 @@ void TableDockWidget::showAllGroups() {
     }
     treeWidget->setSortingEnabled(true);
     updateStatus();
+    updateCompoundWidget();
 
-    /*
-	if (allgroups.size() > 0 ) { //select last item
-		treeWidget->setCurrentItem(treeWidget->topLevelItem(allgroups.size()-1));
-	}
-	(*/
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
@@ -978,6 +996,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         allgroups[i].groupId = i + 1;
     }
     updateTable();
+    updateCompoundWidget();
 }
 
 void TableDockWidget::deleteGroups() {
@@ -1445,6 +1464,20 @@ void TableDockWidget::contextMenuEvent ( QContextMenuEvent * event )
     QAction *selectedAction = menu.exec(event->globalPos());
 }
 
+void TableDockWidget::focusInEvent(QFocusEvent * event) {
+    if (event->gotFocus()) {    
+        pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
+        setPalette(pal);
+        updateCompoundWidget();
+    }
+}
+
+void TableDockWidget::focusOutEvent(QFocusEvent * event) {
+    if (event->lostFocus()) {
+        pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+        setPalette(pal);
+    }
+}
 
 
 void TableDockWidget::saveModel() { 

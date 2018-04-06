@@ -96,6 +96,12 @@ public:
 
 public Q_SLOTS: 
 	  //void showInfo(PeakGroup* group);
+
+      /**
+       * @brief update the color of compounds in ligand widget which are 
+       * present in the tabledockwidget
+       */
+      void updateCompoundWidget();
       PeakGroup* addPeakGroup(PeakGroup* group);
       void sortChildrenAscending(QTreeWidgetItem* item);
 	  void setupPeakTable();
@@ -214,6 +220,8 @@ public Q_SLOTS:
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+    void focusInEvent(QFocusEvent * event);
+    void focusOutEvent(QFocusEvent * event);
 
 Q_SIGNALS:
 	void peakMarkedTableDock();
@@ -224,6 +232,7 @@ protected Q_SLOTS:
 	  void contextMenuEvent ( QContextMenuEvent * event );
 
 private:
+    QPalette pal;    
     void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
           void deletePeaks();
           void addRow(PeakGroup* group, QTreeWidgetItem* root);
