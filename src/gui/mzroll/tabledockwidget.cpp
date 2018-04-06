@@ -996,6 +996,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         allgroups[i].groupId = i + 1;
     }
     updateTable();
+    updateCompoundWidget();
 }
 
 void TableDockWidget::deleteGroups() {
