@@ -102,7 +102,6 @@ void CSVReports::addColumnNames(){
     }
 
     if(_exportType == PeakExport){
-        columnNames.clear();
         string columns[]={ "groupId" , "compound" , "compoundId" , "formula" ,
                         "sample" , "peakMz" , "medianMz" , "baseMz" , "rt" , 
                         "rtmin" , "rtmax" , "quality" , "peakIntensity" ,
