@@ -38,7 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
     connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
     connect(_process, &QProcess::started, this, &MainWindow::started);
-    connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
+    //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
+    //    connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
 }
 
 
@@ -86,7 +87,9 @@ void MainWindow::readError()
 
 void MainWindow::started()
 {
-    qDebug() << "process started " << _process->program() << " " << _process->processId() << endl;
+//TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
+
+//    qDebug() << "process started " << _process->program() << " " << _process->processId() << endl;
 }
 
 void MainWindow::finished(int exitCode)
@@ -104,7 +107,7 @@ void MainWindow::processLogs()
         QFile fptr(path);
 
         if(fptr.open(QIODevice::ReadOnly)) {
-            std::string log = fptr.readAll().toStdString();
+            std::string log = std::string(fptr.readAll().data());
             std::string::size_type n;
 
             while(log.find(' ') != std::string::npos) {
