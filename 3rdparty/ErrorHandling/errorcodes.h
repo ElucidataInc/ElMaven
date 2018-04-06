@@ -4,6 +4,7 @@
 #include <map>
 
 //singleton
+//TODO: make the name of Class and filename same
 class ErrorMsg
 {
     public:
