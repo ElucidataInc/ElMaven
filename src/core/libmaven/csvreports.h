@@ -28,9 +28,10 @@ public:
      * 1. Create one instance of this class by giving required value of
      * all parameters in below constructor.      
      * 2. Add all groups one by one to be exported by calling addItem method of this class
-     * 3. call exportGroup() method of this class which will return true if report is successful
-     *  otherwise false
-     * 4. If returned value from exportGroup() is false call getErrorReport method to get error message
+     * 3. call exportGroup() method of this class which will return true 
+     * if report is successful otherwise false
+     * 4. If returned value from exportGroup() is false call getErrorReport
+     *  method to get error message
      */ 
     /**
      * Note: don't use same instance of this class to export more that one csv file.
@@ -61,24 +62,47 @@ public:
     /**brief-   update string with escape sequence for writing special character    */
     string sanitizeString(string str);
 private:
-    void writeGroupInfo(PeakGroup* group);      /**@brief-  helper function to write group info*/
-    void writePeakInfo(PeakGroup* group);           /**@brief-  helper function to write peak info*/
+    /**@brief-  helper function to write group info
+     */
+    void writeGroupInfo(PeakGroup* group);
+    /**@brief-  helper function to write peak info
+     */      
+    void writePeakInfo(PeakGroup* group);
     void addColumnNames();
+    /**@brief-  incremental group numbering.
+     * Increment by 1 when a group is added for csv report
+     */
+    int groupId;
+    /**@brief-  separator in output file*/
+    string SEP;
 
-    int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
-    string SEP;     /**@param-  separator in output file*/
+    /**@param-  error message, TODO- QString should not be in libmaven folder,
+     * only standard C++ statement should be here
+     */
+    string errorReport;
 
-    string errorReport;    /**@param-  error message, TODO- QString should not be in libmaven folder, only standard C++ statement should be here*/
-
-    vector<mzSample*> samples;      /**@param-  pointers to all mz samples uploaded*/
-    PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
+    /**@param-  pointers to all mz samples uploaded
+     */
+    vector<mzSample*> samples;
+    /**@param-  user quant type, represents intensity of peaks
+     */
+    PeakGroup::QType qtype;
     MavenParameters * mavenparameters;
     ofstream outFileStream;
     string _fileName;
-    ExportType _exportType; /**@param- specify either you want to export group info or peak info, check enum ExportType */
+    /**@param- specify either you want to export group info or peak info, 
+     * check enum ExportType
+     */
+    ExportType _exportType;
     vector<PeakGroup*> groups;
-    bool _includeSetNamesLine;  /**@param- samples can belong to many sets, specify here you want to export set names or not */
-    int _selectionFlag; /**@param- groups can be labelled as good groups or bad groups, default assign it -1 */
+    /**@param- samples can belong to many sets, specify here you want to 
+     * export set names or not
+     */
+    bool _includeSetNamesLine;
+    /**@param- groups can be labelled as good groups or bad groups, 
+     * default assign it -1
+     */
+    int _selectionFlag;
 };
 
 #endif

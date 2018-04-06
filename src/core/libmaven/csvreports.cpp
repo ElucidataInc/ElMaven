@@ -100,11 +100,12 @@ void CSVReports::addColumnNames(){
 
     if(_exportType == PeakExport){
         columnNames.clear();
-        string columns[]={ "groupId" , "compound" , "compoundId" , "formula" , "sample" , "peakMz" ,
-                         "medianMz" , "baseMz" , "rt" , "rtmin" , "rtmax" , "quality" , "peakIntensity" ,
-                         "peakArea" , "peakSplineArea" , "peakAreaTop" , "peakAreaCorrected" ,
-                         "peakAreaTopCorrected" , "noNoiseObs" , "signalBaseLineRatio" , "fromBlankSample"
-                          };
+        string columns[]={ "groupId" , "compound" , "compoundId" , "formula" , "sample" , 
+                        "peakMz" , "medianMz" , "baseMz" , "rt" , "rtmin" , "rtmax" ,
+                        "quality" , "peakIntensity" , "peakArea" , "peakSplineArea" ,
+                        "peakAreaTop" , "peakAreaCorrected" , "peakAreaTopCorrected" ,
+                        "noNoiseObs" , "signalBaseLineRatio" , "fromBlankSample"
+                        };
         columnNames.assign(columns,columns + sizeof(columns)/sizeof(string));
         columnNames = mzUtils::join(columnNames , SEP);
         columnNames.push_back("\n");
@@ -172,7 +173,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
             }
         }
         else {
-            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass, (double) group->meanMz,mavenparameters->massCutoffMerge);
+            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass,
+                                     (double) group->meanMz,mavenparameters->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff;
 
@@ -226,7 +228,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         if (sample != NULL) {
 
             string sampleId = sample->sampleName;
-            if (peak.getScan()->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
+            if (peak.getScan()->sampleNumber != -1) 
+                sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
 
             sampleName = sanitizeString(sampleId);
         }
