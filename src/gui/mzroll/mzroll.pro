@@ -43,9 +43,10 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libcdfread \
                 $$top_srcdir/3rdparty/ \
-                $$top_srcdir/3rdparty/libplog/ \
                 $$top_srcdir/3rdparty/libpillow \
-                $$top_srcdir/3rdparty/libdate/
+                $$top_srcdir/3rdparty/libdate/ \
+                $$top_srcdir/3rdparty/ErrorHandling \
+                $$top_srcdir/3rdparty/Logger
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -56,10 +57,7 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lplog -lcdfread -lnetcdf -lz                #64bit
-macx {
-    LIBS -= -lplog
-}
+LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz                #64bit
 message($$LDFLAGS)
 
 INSTALLS += sources target

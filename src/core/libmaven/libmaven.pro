@@ -24,7 +24,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/src/gui/mzroll/ \
                 $$top_srcdir/3rdparty/libneural/ \
                 $$top_srcdir/3rdparty/libcsvparser \
-                $$top_srcdir/3rdparty/libdate/
+                $$top_srcdir/3rdparty/libdate/ \
+                $$top_srcdir/3rdparty/ErrorHandling
 
 
 macx{
