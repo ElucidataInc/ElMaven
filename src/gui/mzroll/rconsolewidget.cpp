@@ -49,7 +49,7 @@ void RconsoleWidget::newFile()
 
 void RconsoleWidget::openFile()
 {
-    LOGD;
+    
     //get script name
     QString dir;
     if ( _settings->contains("scriptsFolder") )
@@ -127,7 +127,7 @@ void RconsoleWidget::updateStatus() {
 }
 
 void RconsoleWidget::runAnalysis() {
-    LOGD;
+    
     //QString scriptText = editor->toPlainText()
     //save file to temp buffer
     //QTemporaryFile tempScriptFile;

@@ -375,7 +375,7 @@ double SpectraMatching::matchPattern(Scan* scan) {
 }
 
 void SpectraMatching::exportMatches() { 
-    LOGD;
+    
     if (matches.size() == 0 ) { return; }
     QString dir = ".";
     QSettings* settings = mainwindow->getSettings();

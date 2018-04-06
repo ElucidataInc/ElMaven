@@ -6,6 +6,9 @@
 #include <omp.h>
 #endif
 
+#include <MavenException.h>
+#include <errorcodes.h>
+
 mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
     _stopped = true;
@@ -40,7 +43,7 @@ mzSample* mzFileIO::loadSample(QString filename){
     QString sampleName = file.fileName();	//only name of the file, without folder location
 
     if (!file.exists() ) { 	//couldn't find this file.. check local directory
-        qDebug() << "Can't find file " << filename; return 0;
+        return nullptr;
     }
 
     sampleName.replace(QRegExp(".*/"),"");
@@ -57,20 +60,18 @@ mzSample* mzFileIO::loadSample(QString filename){
     if (sampleName.isEmpty()) return NULL;
     mzSample* sample = NULL;
 
-    try {
-        if (filename.contains("mzdata",Qt::CaseInsensitive)) {            
-            // mzFileIO::loadPepXML(filename);
-            sample = mzFileIO::parseMzData(filename);
-        } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
-            mzFileIO::ThermoRawFileImport(filename);
-        } else {
-            sample = new mzSample();
-            sample->loadSample( filename.toLatin1().data() );
-            if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
-        }
-    } catch(...) {
-        qDebug() << "mzFileIO::loadSample() " << filename << " failed..";
+    if (filename.contains("mzdata",Qt::CaseInsensitive)) {
+        // mzFileIO::loadPepXML(filename);
+        sample = mzFileIO::parseMzData(filename);
+    } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
+        mzFileIO::ThermoRawFileImport(filename);
+    } else {
+        sample = new mzSample();
+        sample->loadSample( filename.toLatin1().data() );
+        if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
     }
+
+
 
     if ( sample && sample->scans.size() > 0 ) {
         sample->sampleName = string( sampleName.toLatin1().data() );
@@ -478,7 +479,20 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 }
 
 void mzFileIO::run(void) {
-    fileImport();
+
+    try {
+        fileImport();
+    }
+    catch (std::exception& excp) {
+
+        // ask user to send back the logs
+    }
+    catch (...) {
+        // ask user to send back the logs
+        qDebug() << "uploading samples failed";
+    }
+
+
     quit();
 }
 
@@ -493,17 +507,26 @@ void mzFileIO::fileImport(void) {
     QStringList spectralhits;
 
     Q_FOREACH(QString filename, filelist ) {
-        QFileInfo fileInfo(filename);
-        if (!fileInfo.exists()) continue;
+        try {
+            QFileInfo fileInfo(filename);
+            if (!fileInfo.exists())
+                throw MavenException(ErrorMsg::FileNotFound);
 
-        if (isSampleFileType(filename)) {
-            samples << filename;
-        } else if (isProjectFileType(filename)) {
-            projects << filename;
-        } else if (isPeakListType(filename)) {
-            peaks << filename;
-        } else if (isSpectralHitType(filename)) {
-            spectralhits << filename;
+            if (isSampleFileType(filename)) {
+                samples << filename;
+            } else if (isProjectFileType(filename)) {
+                projects << filename;
+            } else if (isPeakListType(filename)) {
+                peaks << filename;
+            } else if (isSpectralHitType(filename)) {
+                spectralhits << filename;
+            }
+            else
+                throw MavenException(ErrorMsg::UnsupportedFormat);
+        }
+
+        catch (MavenException& excp) {
+            qDebug() << "Error: " << excp.what();
         }
     }
 
@@ -658,7 +681,8 @@ void mzFileIO::readThermoRawFileImport() {
 
 void mzFileIO::addFileToQueue(QString f)
 {
-    if (isKnownFileType(f)) filelist << f;
+//    if (isKnownFileType(f)) filelist << f;
+    filelist << f;
 }
 
 void mzFileIO::removeAllFilefromQueue() {

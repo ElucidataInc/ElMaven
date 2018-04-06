@@ -23,23 +23,40 @@
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
-#include "libplog/Log.h"
-#include "libplog/Appenders/CustomAppender.h"
 #include "controller.h"
+#include "elmavenlogger.h"
 
+#include <QDir>
 #include <list>
 
 
 
 Database DB;
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
-plog::MyAppender<plog::TxtFormatter> myAppender; // Create our custom appender. 
+
+void initializeLogger()
+{
+    QDir dir;
+    QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
+                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
+                   + QDir::separator() ;
+
+    // Logs  won't be saved anywhere if this mkpath returns False;
+    dir.mkpath(path);
+    ElMavenLogger::init(path.toStdString());
+}
+
 
 int main(int argc, char *argv[])
 {
-    plog::init(plog::debug, &myAppender); // Initialize the logger with our appender.
 
     QApplication app(argc, argv);
+    qApp->setOrganizationName("ElucidataInc");
+    qApp->setApplicationName("El-Maven");
+
+    initializeLogger();
+
+
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
     splash.setMask(pixmap.mask());

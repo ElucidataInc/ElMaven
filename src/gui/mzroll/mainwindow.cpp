@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-
 #include <QStandardPaths>
 #ifdef WIN32
 #include <windows.h>
@@ -70,57 +69,54 @@ void MainWindow::setValue(int value)
     }
 }
 
+//TODO: remove this fucntion. use another function to start
+// crashReporter
 void MainWindow::printvalue() {
-	if (samples.size() > 0 ) {
-		settings->setValue("closeEvent", 1);
-		QFileInfo fi(QString::fromStdString(samples[0]->fileName));
-		QString samplePath = fi.absolutePath() + QDir::separator();
-		const QDateTime nowTime = QDateTime::currentDateTime(); 
-		const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
-		QString AutosavePath = samplePath + timestamp + ".mzroll";
-		this->fileName = AutosavePath;
-		this->doAutosave = true;
-		this->saveMzRoll();
-		saveSettingsToLog();
-		//Starting the crash reporter
-		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-		QProcess *myProcess = new QProcess();
-		QStringList arguments;
-		QString path;
-		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
-		arguments << path;
-		arguments << settings->value("bucket_name").toString();
-		arguments << settings->value("access_key").toString();
-		arguments << settings->value("secret_key").toString();
-		arguments <<  myAppender.getMessageQList();
-		arguments << "1";
-    	myProcess->start(crashReporterPath, arguments);
-  		//process of crash reporting ended
-		unsigned int countCrashState = 0;
-		settings->beginWriteArray("crashTables");
-		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
-			settings->setArrayIndex(countCrashState++);
-			settings->setValue("crashTable", newFileName);
-		}
-		settings->endArray();
-		settings->sync();
-	} else {
-		//Starting the crash reporter
-		QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-		QProcess *myProcess = new QProcess();
-		QStringList arguments;
-		QString path;
-		path = "\"" + QCoreApplication::applicationFilePath() + "\"";
-		arguments << path;
-		saveSettingsToLog();
-		arguments << settings->value("bucket_name").toString();
-		arguments << settings->value("access_key").toString();
-		arguments << settings->value("secret_key").toString();
-		arguments <<  myAppender.getMessageQList();
-		arguments << "1";
-    	myProcess->start(crashReporterPath, arguments);
-  		//process of crash reporting ended
-	}
+
+    // TODO: hide all this ugliness somewhere. OS dependent paths are used in a lot of places and hence
+    // this should be abstracted out somewhere
+
+    QString crashReporterPath;
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
+    #endif
+
+    #if defined(Q_OS_MAC)
+        QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+            + QDir::separator() + ".." + QDir::separator();
+        crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
+    #endif
+
+
+    if (samples.size() > 0 ) {
+        settings->setValue("closeEvent", 1);
+        QFileInfo fi(QString::fromStdString(samples[0]->fileName));
+        QString samplePath = fi.absolutePath() + QDir::separator();
+        const QDateTime nowTime = QDateTime::currentDateTime();
+        const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
+        QString AutosavePath = samplePath + timestamp + ".mzroll";
+        this->fileName = AutosavePath;
+        this->doAutosave = true;
+        this->saveMzRoll();
+        unsigned int countCrashState = 0;
+        settings->beginWriteArray("crashTables");
+        Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+            settings->setArrayIndex(countCrashState++);
+            settings->setValue("crashTable", newFileName);
+        }
+        settings->endArray();
+        settings->sync();
+    }
+
+    saveSettingsToLog();
+
+    //IMP: start the process in detached mode otherwise
+    // crashreporter gets killed as soon as parent dies
+    QProcess *pr = new QProcess;
+    pr->setProgram(crashReporterPath);
+    pr->setProcessChannelMode(QProcess::SeparateChannels);
+    pr->startDetached(crashReporterPath);
+
 }
 
 #ifdef WIN32
@@ -201,7 +197,7 @@ using namespace mzUtils;
 
 	threadCompound = NULL;
 
-	readSettings();
+    readSettings();
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
@@ -750,7 +746,6 @@ void MainWindow::saveSettingsToLog() {
 
     QString mavenParametersSummary = summary.readAll();
 
-	LOGD  << mavenParametersSummary;
 
 	QString qsettingsSummary;
 
@@ -764,9 +759,6 @@ void MainWindow::saveSettingsToLog() {
 			qsettingsSummary += "\n" + key + "=" + settings->value(key).toString();
 		}
 	}
-
-
-	LOGD << qsettingsSummary;
 
 }
 
@@ -784,10 +776,8 @@ bool MainWindow::askAutosave() {
 	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
 								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes) {
-		LOGD;
 		doAutosave = true;
 	} else {
-		LOGD;
 		doAutosave = false;
 	}
 	return doAutosave;
@@ -1012,8 +1002,8 @@ void MainWindow::mzrollLoadDB(QString dbname) {
 	ligandWidget->setDatabaseNames();
     ligandWidget->setDatabase(dbname);
 }
+
 void MainWindow::reportBugs() {
-	LOGD;
 	QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
 	QProcess *myProcess = new QProcess();
 	QStringList arguments;
@@ -1021,7 +1011,7 @@ void MainWindow::reportBugs() {
 	arguments << settings->value("bucket_name").toString();
 	arguments << settings->value("access_key").toString();
 	arguments << settings->value("secret_key").toString();
-	arguments <<  myAppender.getMessageQList();
+//	arguments <<  myAppender.getMessageQList();
 	arguments << "0";
 	myProcess->start(crashReporterPath, arguments);
 
@@ -1223,7 +1213,6 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 // }
 
 PeakGroup* MainWindow::bookmarkPeakGroup() {
-	LOGD;
     //qDebug() << "MainWindow::bookmarkPeakGroup()";
     if ( eicWidget ) {
        return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
@@ -1490,7 +1479,6 @@ void MainWindow::setMzValue(float mz1, float mz2) {
 }
 
 void MainWindow::print() {
-	LOGD;
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -1509,7 +1497,6 @@ void MainWindow::print() {
 
 void MainWindow::open() {
 
-	LOGD;
 	QString dir = ".";
 
 	if (settings->contains("lastDir")) {
@@ -1692,7 +1679,6 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 
 void MainWindow::checkCorruptedSampleInjectionOrder()
 {
-    LOGD;
 
     vector<mzSample*> samples = getSamples();
 
@@ -1825,7 +1811,6 @@ bool MainWindow::loadMetaInformation(QString filename) {
 }
 
 void MainWindow::loadCompoundsFile() {
-	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
 					".",
@@ -1867,7 +1852,6 @@ void MainWindow::loadCompoundsFile() {
 
 // open function for set csv
 void MainWindow::loadMetaInformation() {
-	LOGD;
 	QStringList filelist =
 			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
 					".",
@@ -2046,7 +2030,6 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
  */
 
 void MainWindow::exportPDF() {
-	LOGD;
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -2068,7 +2051,7 @@ void MainWindow::exportPDF() {
 }
 
 void MainWindow::exportSVG() {
-	LOGD;
+
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);
 	//eicWidget->print(&image);
@@ -2127,8 +2110,17 @@ void MainWindow::readSettings() {
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 			
-	if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0)
-    	settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
+    if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0) {
+        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+          settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
+        #endif
+        #if defined(Q_OS_MAC)
+          QString binPath = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
+                  + QDir::separator() + "default.model";
+          settings->setValue("clsfModelFilename", binPath);
+        #endif
+    }
+
 
 
         
@@ -2369,9 +2361,9 @@ void MainWindow::loadSettings()
         msgBox.exec();
     }
 }
+
 void MainWindow::showButtonLog() {
-	QObject* obj = sender();
-	LOGD << obj->objectName().toStdString();
+    //TODO: get rid of it
 }
 
 void MainWindow::createToolBars() {
@@ -2620,25 +2612,25 @@ void MainWindow::refreshIntensities() {
 }
 
 void MainWindow::showspectraMatchingForm() {
-	LOGD;
+
 	spectraMatchingForm->exec();
 }
 
 void MainWindow::showsettingsForm() {
-	LOGD;
+
 	settingsForm->setInitialGroupRank();
 	settingsForm->exec();
 }
 
 void MainWindow::historyLast() {
-	LOGD;
+
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.last());
 }
 
 void MainWindow::historyNext() {
-	LOGD;
+
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.next());
@@ -2661,12 +2653,12 @@ bool MainWindow::addSample(mzSample* sample) {
 }
 
 void MainWindow::showPeakdetectionDialog() {
-	LOGD;
+
     peakDetectionDialog->show();      
 }
 
 void MainWindow::showSRMList() {
-	LOGD;
+
 
 	if (srmDockWidget->isVisible()) {
 
