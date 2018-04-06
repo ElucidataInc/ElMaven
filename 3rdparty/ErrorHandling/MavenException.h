@@ -7,6 +7,7 @@
 #include <exception>
 #include <string>
 
+//TODO: move this out of 3rd party folder
 class MavenException: public std::exception
 {
     public:
