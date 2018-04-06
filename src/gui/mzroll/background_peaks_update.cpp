@@ -306,17 +306,24 @@ void BackgroundPeakUpdate::run(void) {
 
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
 
-        //write reports
-        CSVReports* csvreports = NULL;
+    vector<mzSample*> samples;
+    PeakGroup::QType t;
+    string groupfilename;
+    CSVReports::ExportType exportType = CSVReports::GroupExport;
+    int selectionFlag = -1;
+    bool includeSetNamesLine = false;
+
+    CSVReports* csvExport = NULL;
+
         if (mavenParameters->writeCSVFlag) {
                 //Added to pass into csvreports file when merged with Maven776 - Kiran
-                bool includeSetNamesLine=true;
-                string groupfilename = mavenParameters->outputdir + setName + ".csv";
-                csvreports = new CSVReports(mavenParameters->samples);
-                csvreports->setMavenParameters(mavenParameters);
-                csvreports->setUserQuantType(mainwindow->getUserQuantType());
-                //Added to pass into csvreports file when merged with Maven776 - Kiran
-                csvreports->openGroupReport(groupfilename,includeSetNamesLine);
+                includeSetNamesLine=true;
+                t = mainwindow->getUserQuantType();
+                samples = mavenParameters->samples;
+                groupfilename = mavenParameters->outputdir + setName + ".csv";
+
+                csvExport = new CSVReports(samples, mavenParameters, t, groupfilename, exportType, 
+                                        selectionFlag, includeSetNamesLine);
         }
 
         peakDetector.pullAllIsotopes();
@@ -324,7 +331,7 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
         for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
 			PeakGroup& group = mavenParameters->allgroups[j];
 
-			if (csvreports != NULL) csvreports->addGroup(&group);
+			if (csvExport != NULL) csvExport->addItem(&group);
 
 
 			if (mavenParameters->keepFoundGroups) {
@@ -333,11 +340,8 @@ void BackgroundPeakUpdate::writeCSVRep(string setName) {
 			}
         }
 
-        if (csvreports != NULL) {
-                csvreports->closeFiles();
-                delete (csvreports);
-                csvreports = NULL;
-        }
+        if (csvExport != NULL && csvExport->exportGroup())
+                delete csvExport;
         Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 

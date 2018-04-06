@@ -250,17 +250,28 @@ void RconsoleWidget::exportGroupsToTable() {
 	//Added to pass into csvreports file when merged with Maven776 - Kiran
     bool includeSetNames=false;
     if(peaks.open(QFile::WriteOnly | QFile::Truncate)) {
-        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
-        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-        CSVReports* csvreports = new CSVReports(vsamples);
-        csvreports->setTabDelimited();
-        csvreports->setUserQuantType( _mainwindow->getUserQuantType());
-		//Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(groupsTableFile.toStdString(),includeSetNames);
+
+        vector<mzSample*> samples = _mainwindow->getVisibleSamples();
+        sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+        if ( samples.size() == 0) return;
+
+        MavenParameters* mp = _mainwindow->mavenParameters;;
+        PeakGroup::QType t = _mainwindow->getUserQuantType();
+        CSVReports::ExportType exportType = CSVReports::GroupExport;
+        int selectionFlag = -1;
+        bool includeSetNamesLine = false;
+
+        CSVReports* csvExport = new CSVReports(samples, mp, t, groupsTableFile.toStdString(), 
+                                                exportType, selectionFlag, includeSetNamesLine);
+
         for(int i=0; i<groups.size(); i++ ) {
-            csvreports->addGroup(groups[i]);
+            csvExport->addItem(groups[i]);
         }
-        csvreports->closeFiles();
+        if(csvExport->exportGroup() == false){
+            QString error = QString::fromStdString(csvExport->getErrorReport());
+            errorLog->appendPlainText(error);
+        }
+
         peaks.close();
     } else {
        errorLog->appendPlainText("Can't write to " + groupsTableFile);

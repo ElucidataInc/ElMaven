@@ -34,61 +34,7 @@ void TestCSVReports::cleanup() {
     // This function is executed after each test
 }
 
-void TestCSVReports::testopenGroupReport() {
-
-
-
-    CSVReports* csvreports =  new CSVReports(mzsamples);
-
-    csvreports->openGroupReport(outputfile,true);
-
-    ifstream ifile(outputfile.c_str());
-    string temp;
-    getline(ifile, temp);
-    
-    
-
-    QStringList colnames;
-    colnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
-                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" 
-                << "parent" << "testsample_1" << "bk_#sucyxpe_1_10";
-
-    QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);
-
-    colnames.clear();
-    getline(ifile, temp);
-    remove(outputfile.c_str());
-    for(unsigned int i=0; i < 15; i++) { colnames << ","; }
-    header = colnames.join("");
-    QVERIFY(header.toStdString()==temp);
-}
-
-void TestCSVReports::testopenPeakReport() {
-
-    CSVReports* csvreports =  new CSVReports(mzsamples);
-
-    csvreports->openPeakReport(outputfile);
-
-    ifstream ifile(outputfile.c_str());
-    string temp;
-    getline(ifile, temp);
-    remove(outputfile.c_str());
-
-
-    QStringList colnames;
-    colnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
-             << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
-             << "peakIntensity" << "peakArea" << "peakSplineArea" << "peakAreaTop"
-             << "peakAreaCorrected" << "peakAreaTopCorrected" << "noNoiseObs" << "signalBaseLineRatio"
-             << "fromBlankSample";
-
-    QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);    
-}
-
-void TestCSVReports::testaddGroups() {
+void TestCSVReports::testExport() {
 
     const char* loadCompoundDB;
     QStringList files;
@@ -148,24 +94,30 @@ void TestCSVReports::testaddGroups() {
                 D2Flag);
     isotopeDetection.pullIsotopes(&parent);
 
-    CSVReports* csvreports =  new CSVReports(samplesToLoad);
-    csvreports->setMavenParameters(mavenparameters);    
-    csvreports->openGroupReport(outputfile,true);
-    csvreports->addGroup(&(parent));
+    PeakGroup::QType quantitationType = PeakGroup::AreaTop;
+    CSVReports::ExportType exportType = CSVReports::GroupExport;
+    int selectionFlag = -1;
+    bool includeSetNamesLine = false;
+
+    CSVReports* csvExport = new CSVReports(samplesToLoad, mavenparameters, quantitationType,
+                                     outputfile, exportType, selectionFlag, includeSetNamesLine);
+
+    csvExport->addItem(&(parent));
+    if(csvExport->exportGroup() == false){
+        cerr << "error " << csvExport->getErrorReport() << endl;
+    }
+
 
     ifstream ifile(outputfile.c_str());
     string temp;
-    getline(ifile, temp);
-    getline(ifile, temp);
-    getline(ifile, temp);
-    remove(outputfile.c_str());
 
-    //check if group with this id has been added to csvreport
-    std::size_t found = temp.find("HMDB01248");
+    getline(ifile, temp);
     vector<std::string> header;
     mzUtils::splitNew(temp, "," , header);
+    QVERIFY(header.size() == 16);
 
-    //check if number of columns is correct
-    QVERIFY(found != std::string::npos && header.size() == 16);
+    getline(ifile, temp);
+    std::size_t found = temp.find("HMDB01248");
+    QVERIFY(found != std::string::npos);
 
 }

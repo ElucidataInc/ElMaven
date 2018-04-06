@@ -63,6 +63,16 @@ using namespace std;
 namespace mzUtils {
 
     /**
+     * this all occurances of string thisOne from string fromThis with string withThis
+     */
+    string replaceAll(string thisOne, string fromThis, string withThis);
+
+    /**
+     * join all string by sep
+     */
+    vector<string> join(vector<string> v,string sep);
+
+    /**
      * [round ]
      * @method round
      * @param  val   []
