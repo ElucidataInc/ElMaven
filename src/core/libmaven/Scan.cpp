@@ -14,7 +14,6 @@ Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursor
     this->centroided=0;
 	this->precursorCharge=0;
 	this->precursorIntensity=0;
-    this->sampleNumber = -1;
 
     /*if ( polarity != 1 && polarity != -1 ) {
         cerr << "Warning: polarity of scan is not 1 or -1 " << polarity << endl;
@@ -37,7 +36,6 @@ void Scan::deepcopy(Scan* b) {
     this->mz    = b->mz;
     this->scanType = b->scanType;
     this->filterLine = b->filterLine;
-    this->sampleNumber = b->sampleNumber;
     this->setPolarity( b->getPolarity() );
 
 }

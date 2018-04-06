@@ -818,6 +818,8 @@ class mzSample
 
     int _sampleOrder; //Sample display order
 
+    int sampleNumber;
+
     bool _C13Labeled;
     bool _N15Labeled;
     bool _S34Labeled; //Feng note: added to track S34 labeling state
