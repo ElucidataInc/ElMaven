@@ -73,9 +73,10 @@ bool CSVReports::exportGroup(){
 void CSVReports::addColumnNames(){
     vector<string> columnNames;
     if(_exportType == GroupExport){
-        string columns[]={"label" , "metaGroupId" , "groupId" , "goodPeakCount" , "medMz" , "medRt" ,
-                         "maxQuality" , "isotopeLabel" , "compound" , "compoundId" , "formula"
-                         , "expectedRtDiff" , "ppmDiff" , "parent"};
+        string columns[]={"label" , "metaGroupId" , "groupId" , "goodPeakCount" ,
+                         "medMz" , "medRt" , "maxQuality" , "isotopeLabel" , 
+                         "compound" , "compoundId" , "formula" , "expectedRtDiff" ,
+                         "ppmDiff" , "parent"};
                          
         columnNames.assign(columns,columns + sizeof(columns)/sizeof(string));
         int cohort_offset = columnNames.size() - 1;
@@ -88,7 +89,9 @@ void CSVReports::addColumnNames(){
         }
         columnNames.push_back("\n");
         if (_includeSetNamesLine){
-            for(unsigned int i = 0; i < cohort_offset; i++) { columnNames.push_back(SEP); }
+            for(unsigned int i = 0; i < cohort_offset; i++) { 
+                columnNames.push_back(SEP);
+            }
             for(unsigned int i = 0; i < samples.size(); i++) {
                 columnNames.push_back(SEP);
                 columnNames.push_back(sanitizeString(samples[i]->getSetName()));
@@ -100,10 +103,11 @@ void CSVReports::addColumnNames(){
 
     if(_exportType == PeakExport){
         columnNames.clear();
-        string columns[]={ "groupId" , "compound" , "compoundId" , "formula" , "sample" , 
-                        "peakMz" , "medianMz" , "baseMz" , "rt" , "rtmin" , "rtmax" ,
-                        "quality" , "peakIntensity" , "peakArea" , "peakSplineArea" ,
-                        "peakAreaTop" , "peakAreaCorrected" , "peakAreaTopCorrected" ,
+        string columns[]={ "groupId" , "compound" , "compoundId" , "formula" ,
+                        "sample" , "peakMz" , "medianMz" , "baseMz" , "rt" , 
+                        "rtmin" , "rtmax" , "quality" , "peakIntensity" ,
+                        "peakArea" , "peakSplineArea" , "peakAreaTop" , 
+                        "peakAreaCorrected" , "peakAreaTopCorrected" ,
                         "noNoiseObs" , "signalBaseLineRatio" , "fromBlankSample"
                         };
         columnNames.assign(columns,columns + sizeof(columns)/sizeof(string));
@@ -135,7 +139,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     if(parentGroup && group->label == '\0')
         lab = parentGroup->label;
 
-    if( (_selectionFlag == 2 &&  lab != 'g') || (_selectionFlag == 3 && lab != 'b'))
+    if( (_selectionFlag == 2 &&  lab != 'g') || 
+            (_selectionFlag == 3 && lab != 'b'))
         return;
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
@@ -164,17 +169,23 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         if (!group->compound->formula.empty()) {
             int charge = mavenparameters->getCharge(group->compound);
             if (group->parent != NULL) {
-                ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge),
-                (double) group->meanMz,mavenparameters->massCutoffMerge);
+                ppmDist = mzUtils::massCutoffDist(
+                        (double) group->getExpectedMz(charge),
+                        (double) group->meanMz,mavenparameters->massCutoffMerge
+                    );
             }
             else {
-                ppmDist = mzUtils::massCutoffDist((double) group->compound->adjustedMass(charge),
-                (double) group->meanMz,mavenparameters->massCutoffMerge);
+                ppmDist = mzUtils::massCutoffDist(
+                        (double) group->compound->adjustedMass(charge),
+                        (double) group->meanMz,mavenparameters->massCutoffMerge
+                    );
             }
         }
         else {
-            ppmDist = mzUtils::massCutoffDist((double) group->compound->mass,
-                                     (double) group->meanMz,mavenparameters->massCutoffMerge);
+            ppmDist = mzUtils::massCutoffDist(
+                        (double) group->compound->mass,
+                        (double) group->meanMz,mavenparameters->massCutoffMerge
+                    );
         }
         expectedRtDiff = group->expectedRtDiff;
 
@@ -218,7 +229,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         formula = sanitizeString(group->compound->formula);
     }
 
-    if( (_selectionFlag == 2 &&  group->label != 'g') || (_selectionFlag == 3 && group->label != 'b'))
+    if( (_selectionFlag == 2 &&  group->label != 'g') || 
+                    (_selectionFlag == 3 && group->label != 'b'))
         return;
     ++groupId;
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
@@ -229,7 +241,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
             string sampleId = sample->sampleName;
             if (peak.getScan()->sampleNumber != -1) 
-                sampleId = sampleId + " | Sample Number = " + to_string(peak.getScan()->sampleNumber);
+                sampleId = sampleId + " | Sample Number = " + 
+                                to_string(peak.getScan()->sampleNumber);
 
             sampleName = sanitizeString(sampleId);
         }
