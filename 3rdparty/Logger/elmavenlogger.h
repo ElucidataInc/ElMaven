@@ -2,7 +2,7 @@
 #define ELMAVENLOGGER_H
 
 #include "spdlog/spdlog.h"
-
+//TODO: make use of all logging levels
 class ElMavenLogger
 {
     public:
