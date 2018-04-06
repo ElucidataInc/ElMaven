@@ -23,7 +23,7 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lcdfread -lz -lnetcdf
+LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf
 !macx: LIBS += -fopenmp
 
 
