@@ -662,8 +662,9 @@ void PeakDetectorCLI::saveCSV(string setName) {
      double startSavingCSV = getTime();
     #endif
 
+	if(mavenParameters->outputdir.empty()) return;
+	
 	string fileName = mavenParameters->outputdir + setName + ".csv";
-	if(fileName.empty()) return;
 	
     if (mavenParameters->allgroups.size() == 0 ) {
 		cout << "Writing to CSV Failed: No Groups found" << endl;
@@ -673,14 +674,12 @@ void PeakDetectorCLI::saveCSV(string setName) {
     vector<mzSample*> samples = mavenParameters->samples;
     if ( samples.size() == 0) return;
 
-    MavenParameters* mp = mavenParameters;
-    PeakGroup::QType t = quantitationType;
     CSVReports::ExportType exportType = CSVReports::GroupExport;
     int selectionFlag = -1;
     bool includeSetNamesLine = false;
 
-    CSVReports* csvExport = new CSVReports(samples, mp, t, fileName, 
-								exportType, selectionFlag, includeSetNamesLine);
+    CSVReports* csvExport = new CSVReports(samples, mavenParameters, quantitationType,
+								fileName, exportType, selectionFlag, includeSetNamesLine);
 
     for(int i=0; i<mavenParameters->allgroups.size(); i++ ) {
 		PeakGroup& group = mavenParameters->allgroups[i];
