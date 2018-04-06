@@ -69,6 +69,8 @@ void MainWindow::setValue(int value)
     }
 }
 
+//TODO: remove this fucntion. use another function to start
+// crashReporter
 void MainWindow::printvalue() {
 
     // TODO: hide all this ugliness somewhere. OS dependent paths are used in a lot of places and hence
