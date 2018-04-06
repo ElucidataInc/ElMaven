@@ -70,6 +70,7 @@ double MassCalculator::computeNeutralMass(string formula) {
 }
 
 double MassCalculator::adjustMass(double mass, int charge) {
+    if (mass == 0) return 0;
     if (MassCalculator::ionizationType == EI and charge != 0) {
         return ((mass - charge * ELECTRON_MASS) /
                 charge);  // lost of electrons
