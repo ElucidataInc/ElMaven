@@ -5,6 +5,7 @@
 Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursorMz, int polarity) {
     this->sample = sample;
     this->rt = rt;
+    this->originalRt = rt;
     this->scannum = scannum;
     this->precursorMz = precursorMz;
     this->mslevel = mslevel;

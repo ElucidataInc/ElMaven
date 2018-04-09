@@ -1,10 +1,9 @@
 #include "obiwarp.h"
 
+ObiParams::ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
+            float init_penalty, float response, bool nostdnrm, float binSize){
 
-ObiWarp::ObiWarp(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
-            float init_penalty, float response, bool nostdnrm ){
-
-    this->score = &score[0];
+    this->score = score;
     this->local = local;
     this->factor_diag = factor_diag;
     this->factor_gap = factor_gap;
@@ -13,17 +12,27 @@ ObiWarp::ObiWarp(string score,bool local, float factor_diag, float factor_gap, f
     this->init_penalty = init_penalty;
     this->response = response;
     this->nostdnrm = nostdnrm;
+    this->binSize = binSize;
+}
+
+ObiWarp::ObiWarp(ObiParams *obiParams){
+
+    this->score = &obiParams->score[0];
+    this->local = obiParams->local;
+    this->factor_diag = obiParams->factor_diag;
+    this->factor_gap = obiParams->factor_gap;
+    this->gap_init = obiParams->gap_init;
+    this->gap_extend = obiParams->gap_extend;
+    this->init_penalty = obiParams->init_penalty;
+    this->response = obiParams->response;
+    this->nostdnrm = obiParams->nostdnrm;
     
     tmPoint = NULL;
     mzPoint = NULL;
 
 }
 ObiWarp::~ObiWarp(){
-    //release memory from all places
-    // if(tmPoint)
-    //     delete[] tmPoint;
-    // if(mzPoint)
-    //     delete[] mzPoint;
+
 }
 
 void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){

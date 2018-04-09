@@ -458,8 +458,6 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
     for(int j = 0; j < sample->scans.size(); ++j){
-        if(sample->scans[j]->originalRt < 0)
-            sample->scans[j]->originalRt = sample->scans[j]->rt;
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
@@ -489,30 +487,19 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
     if(referenceSampleIndex < 0){
+        /**
+         * currently reference sample is choosen randomly,
+         * TODO: give user options to choose reference sample and pass index of
+         * that sample as referenceSampleIndex
+         */
         srand(time(NULL));
         referenceSampleIndex = rand()%samples.size();
     }
     assert(referenceSampleIndex < samples.size());
 
-    ObiWarp *obiWarp = NULL;
-    if(obiParams){
-        obiWarp = new ObiWarp( 
-            obiParams->score ,
-            obiParams->local ,
-            obiParams->factor_diag ,
-            obiParams->factor_gap ,
-            obiParams->gap_init ,
-            obiParams->gap_extend ,
-            obiParams->init_penalty ,
-            obiParams->response ,
-            obiParams->nostdnrm
-            
-         );
-    }
-    else
-        obiWarp = new ObiWarp();
+    ObiWarp* obiWarp = new ObiWarp(obiParams);
 
-    float binSize = 0.5f;
+    float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
     
@@ -547,19 +534,4 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
     delete obiWarp;
     cerr<<"Alignment complete"<<endl;    
     
-}
-
-ObiParams::ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
-            float init_penalty, float response, bool nostdnrm, float binSize){
-
-    this->score = score;
-    this->local = local;
-    this->factor_diag = factor_diag;
-    this->factor_gap = factor_gap;
-    this->gap_init = gap_init;
-    this->gap_extend = gap_extend;
-    this->init_penalty = init_penalty;
-    this->response = response;
-    this->nostdnrm = nostdnrm;
-    this->binSize = binSize;
 }

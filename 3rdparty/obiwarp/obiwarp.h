@@ -11,11 +11,25 @@
 
 using namespace std;
 
+struct ObiParams{
+    ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
+            float init_penalty, float response, bool nostdnrm, float binSize);
+
+    string score;
+    bool local;
+    float factor_diag;
+    float factor_gap;
+    float gap_init;
+    float gap_extend;
+    float init_penalty;
+    float response;
+    bool nostdnrm;
+    float binSize;
+};
+
 class ObiWarp{
 public:
-    ObiWarp(string score="cor",bool local = false, float factor_diag = 2.f, float factor_gap = 1.f, 
-            float gap_init = 0.2f,float gap_extend = 3.4f, float init_penalty = 0.f, 
-            float response = 100.f, bool nostdnrm = false  );
+    ObiWarp(ObiParams *obiParams);
     ~ObiWarp();
     void setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
     vector<float> align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);

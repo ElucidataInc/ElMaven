@@ -14,22 +14,6 @@
 
 using namespace std;
 
-struct ObiParams{
-    ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
-            float init_penalty, float response, bool nostdnrm, float binSize);
-
-    string score;
-    bool local;
-    float factor_diag;
-    float factor_gap;
-    float gap_init;
-    float gap_extend;
-    float init_penalty;
-    float response;
-    bool nostdnrm;
-    float binSize;
-};
-
 class Aligner {
    public:
     Aligner();
