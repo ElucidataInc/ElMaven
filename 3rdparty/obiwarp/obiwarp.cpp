@@ -61,9 +61,6 @@ void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints,
 
 vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
     
-    vector<float> alignedRts;
-    if(rtPoints.size() == 0 || mzPoints.size() == 0 || _tm.len() == 0 || _mz.len() == 0)
-        return alignedRts;
     VecF tm;
     int tm_vals = rtPoints.size();
     float* tmPoint = new float[tm_vals];
@@ -113,6 +110,7 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
     tm_axis_vals(nOut, nOutF, tm,tm_vals); //
     warp_tm(nOutF, mOutF, tm);
     
+    vector<float> alignedRts;
     float* rts = tm.pointer();
     for(int i = 0; i < tm_vals; ++i)
         alignedRts.push_back(rts[i]);
