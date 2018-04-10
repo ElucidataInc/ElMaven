@@ -27,6 +27,14 @@ void PollyElmavenInterfaceDialog::initialSetup()
 {
     QString storeCredFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "store_cred_file.txt";
     QStringList credentials = readFromFile(storeCredFile);
+    int node_status = _pollyIntegration->check_node_executable();
+    if (node_status==0){
+        QMessageBox msgBox(NULL);
+        msgBox.setWindowModality(Qt::NonModal);
+        msgBox.setWindowTitle("node is not installed on this system");
+        msgBox.show();
+        return;
+    }
     if (credentials.isEmpty()){
         call_login_form();
     }
@@ -72,8 +80,6 @@ QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
     msgBox.setWindowModality(Qt::NonModal);
     msgBox.setWindowTitle("getting data from polly..");
     msgBox.show();
-    mainwindow->check_polly_login->setText("connected");
-    mainwindow->check_polly_login->setStyleSheet("QLabel { background-color : white; color : green; }");
     comboBox_collaborators->clear();
     comboBox_load_projects->clear();
     comboBox_existing_projects->clear();
@@ -252,6 +258,5 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
 }
 
 void PollyElmavenInterfaceDialog::cancel() {
-    LOGD;
     close();   
 }

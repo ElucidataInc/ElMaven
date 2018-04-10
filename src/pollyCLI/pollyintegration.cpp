@@ -200,6 +200,14 @@ int PollyIntegration::authenticate_login(QString username,QString password){
     return status_inside;
 }
 
+// This function checks if node executable path has been defined for the library or not..
+int PollyIntegration::check_node_executable(){
+    if (nodePath==""){
+        return 0;
+    }
+    return 1;
+    
+}
 // name OF FUNCTION: getUserProjectsMap
 // PURPOSE:
 //    This function parses the output of "get_Project_names" command and store it in a json format to be used later..
