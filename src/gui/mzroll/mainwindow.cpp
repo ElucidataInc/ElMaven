@@ -415,6 +415,9 @@ using namespace mzUtils;
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setMainWindow(this);
 	peakDetectionDialog->setSettings(settings);
+	
+	// pollyelmavengui dialog
+	pollyElmavenInterfaceDialog = new PollyElmavenInterfaceDialog(this);
 
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
@@ -1146,6 +1149,7 @@ void MainWindow::setIonizationModeLabel() {
 	isotopeWidget->setCharge(mode);
 	setTotalCharge();
 }
+
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
 
@@ -2333,6 +2337,33 @@ void MainWindow::saveSettings()
 
 }
 
+void MainWindow::loadPollySettings(QString fileName)
+{
+    bool fileLoaded = false;
+    QFile file(fileName);
+
+    if(file.open(QIODevice::ReadOnly)) {
+
+        QByteArray bArr = file.readAll();
+        file.close();
+
+        if(mavenParameters->loadSettings(bArr.data()))
+            fileLoaded = true;
+
+    }
+
+    if(fileLoaded)
+        emit loadedSettings();
+
+    else {
+        // display an error message
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("Loading the file failed");
+        msgBox.exec();
+    }
+}
+
 void MainWindow::loadSettings()
 {
     bool fileLoaded = false;
@@ -2397,6 +2428,12 @@ void MainWindow::createToolBars() {
 	btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnFeatureDetect->setToolTip(tr("Feature Detection"));
 
+	QToolButton *btnPollyBridge = new QToolButton(toolBar);
+	btnPollyBridge->setText("Polly");
+	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
+	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnPollyBridge->setToolTip(tr("Elmaven polly interface"));
+
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
 	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
@@ -2415,6 +2452,7 @@ void MainWindow::createToolBars() {
 	// connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
+	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
 	connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
 
@@ -2422,6 +2460,7 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnAlign);
 	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	toolBar->addWidget(btnFeatureDetect);
+	toolBar->addWidget(btnPollyBridge);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 
@@ -2500,8 +2539,8 @@ void MainWindow::createToolBars() {
 	ionizationModeLabel->setToolTip("Ionization Mode");
 	ionizationModeLabel->setFrameShape(QFrame::Panel);
 	ionizationModeLabel->setFrameShadow(QFrame::Raised);
-	
 
+	
 	ionChargeBox = new QSpinBox(hBox);
 	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
 
@@ -2531,7 +2570,7 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(massCutoffWindowBox, 0);
 	layout->addWidget(massCutoffComboBox,0);
-
+	
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
 
@@ -2655,6 +2694,11 @@ bool MainWindow::addSample(mzSample* sample) {
 void MainWindow::showPeakdetectionDialog() {
 
     peakDetectionDialog->show();      
+}
+
+void MainWindow::showPollyElmavenInterfaceDialog() {
+	pollyElmavenInterfaceDialog->show();
+	pollyElmavenInterfaceDialog->initialSetup();
 }
 
 void MainWindow::showSRMList() {

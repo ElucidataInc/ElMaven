@@ -6,18 +6,19 @@ include($$mzroll_pri)
 TEMPLATE = app
 TARGET = peakdetector
 
-CONFIG += warn_off xml
+CONFIG += warn_off xml console
 
 QMAKE_CXXFLAGS += -std=c++11
 
 !macx: LIBS += -fopenmp
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
-				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread $$top_srcdir/3rdparty/obiwarp
+				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread \
+				$$top_srcdir/src/pollyCLI $$top_srcdir/3rdparty/obiwarp 
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
-LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lobiwarp
+LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lobiwarp -lpollyCLI
 
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \

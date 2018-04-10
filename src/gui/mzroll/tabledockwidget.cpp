@@ -792,6 +792,50 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     }
 }
 
+void TableDockWidget::exportGroupsToSpreadsheet_polly(QString fileName) {
+    
+    vector<mzSample*> samples = _mainwindow->getSamples();
+    CSVReports* csvreports = new CSVReports(samples);
+    csvreports->setMavenParameters(_mainwindow->mavenParameters);
+
+    if (allgroups.size() == 0 ) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+
+    if(fileName.isEmpty()) return;
+
+    if(!fileName.endsWith(".csv",Qt::CaseInsensitive)) fileName = fileName + ".csv";
+    if ( samples.size() == 0) return;
+
+    csvreports->setUserQuantType(_mainwindow->getUserQuantType() );
+
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
+    bool includeSetNamesLines=true;
+
+    csvreports->openGroupReport(fileName.toStdString(),includeSetNamesLines);
+
+    QList<PeakGroup*> selectedGroups = getSelectedGroups();
+    csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+
+    for(int i=0; i<allgroups.size(); i++ ) {
+        if (selectedGroups.contains(&allgroups[i])) {
+            PeakGroup& group = allgroups[i];
+            csvreports->addGroup(&group);
+        }
+    }
+    csvreports->closeFiles();
+
+    if (csvreports->getErrorReport() != "") {
+        QMessageBox msgBox(_mainwindow);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText(csvreports->getErrorReport());
+        msgBox.exec();
+    }
+}
+
+
 void TableDockWidget::exportJson() {
 
     if (allgroups.size() == 0 ) {
