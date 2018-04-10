@@ -609,7 +609,7 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
 }
 
 void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
-
+//TODO kailash, this function should not have jsPath and nodePath as its arguments..
 
 	//create an output folder
 	mzUtils::createDir(mavenParameters->outputdir.c_str());
