@@ -92,7 +92,11 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
 }
 
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
-{   
+{   if (credentials.isEmpty()){
+        call_login_form();
+        return "";
+    }
+    int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
     QStringList patch_ids;
     QString new_project_id;
     QString new_projectname = lineEdit_new_project_name->text();
@@ -179,6 +183,11 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
 
 void PollyElmavenInterfaceDialog::loadDataFromPolly()
 {
+    if (credentials.isEmpty()){
+        call_login_form();
+        return;
+    }
+    int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
     QStringList filenames;
     QString db_file = comboBox_load_db->currentText();
     QString settings_file = comboBox_load_settings->currentText();
