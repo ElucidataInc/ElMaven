@@ -1346,7 +1346,10 @@ void MainWindow::setCompoundFocus(Compound*c) {
 		eicWidget->setCompound(c);
 		//mavenParameters->_group is closest group to expected Rt
 		if (isotopeWidget && isotopeWidget->isVisible())
+		{
+			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(mavenParameters->_group);
+		}
     }
 
 	//TODO: Sahil-Kiran, Added while merging mainwindow
