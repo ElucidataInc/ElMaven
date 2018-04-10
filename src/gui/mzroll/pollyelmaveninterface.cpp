@@ -25,8 +25,6 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 
 void PollyElmavenInterfaceDialog::initialSetup()
 {
-    QString storeCredFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "store_cred_file.txt";
-    QStringList credentials = readFromFile(storeCredFile);
     int node_status = _pollyIntegration->check_node_executable();
     if (node_status==0){
         QMessageBox msgBox(NULL);
@@ -40,12 +38,7 @@ void PollyElmavenInterfaceDialog::initialSetup()
     }
     else{
         int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-        if (status!=1){
-            call_login_form();
-        }
-        else{
-            loadFormData();
-        }
+        loadFormData();
     }
 }
 
@@ -53,26 +46,6 @@ void PollyElmavenInterfaceDialog::call_login_form(){
     _loginform =new LoginForm(this);
     _loginform->setModal(true);
     _loginform->show();
-}
-
-QStringList PollyElmavenInterfaceDialog::readFromFile(QString fileName){
-    QStringList credentials;
-    QFile file(fileName);
-    if(!file.exists()){
-        qDebug() << "credentials not stored..asking the user to log in now.  ";
-    }
-    else{
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-            QTextStream stream(&file);
-            while (!stream.atEnd()){
-                QString line = stream.readLine();
-                qDebug() << "line is- "<<line;
-                credentials<<line;
-            }
-        }
-    }
-    file.close();
-    return credentials;
 }
 
 QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
@@ -93,11 +66,6 @@ QVariantMap PollyElmavenInterfaceDialog::loadFormData(){
         comboBox_existing_projects->addItem(projectnames_id[keys.at(i)].toString());
         comboBox_load_projects->addItem(projectnames_id[keys.at(i)].toString());
     }
-    comboBox_collaborators->addItem("Aman");
-    comboBox_collaborators->addItem("Sabu");
-    comboBox_collaborators->addItem("Swetabh");
-    comboBox_collaborators->addItem("Nikita");
-    comboBox_collaborators->addItem("Sahil");
     return projectnames_id;
 }
 
@@ -117,13 +85,8 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
     
     for (int i=0; i < userProjectFiles.size(); ++i){
         QString filename = userProjectFiles.at(i);
-        qDebug()<<"filename  "<<filename;
-        qDebug()<<"filename.split('.')[filename.split('.').size()-1]   - "<<filename.split('.')[filename.split('.').size()-1];
         if (filename.split('.')[filename.split('.').size()-1]=="xml"){
             comboBox_load_settings->addItem(filename);
-        }
-        else{
-            comboBox_load_db->addItem(filename);
         }
     }
 }
@@ -131,8 +94,6 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
 {   
     QStringList patch_ids;
-    QVariantMap projectnames_id = _pollyIntegration->getUserProjects();
-    qDebug()<<"inside uploadDataToPolly.....uploading data to polly now.."<<endl;
     QString new_project_id;
     QString new_projectname = lineEdit_new_project_name->text();
     QString projectname = comboBox_existing_projects->currentText();
@@ -157,7 +118,6 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
         patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);       
     }
-    qDebug()<<"result of exportdata...."<<patch_ids;
     progressBar_upload->setValue(100);
     
     if (!patch_ids.isEmpty()){

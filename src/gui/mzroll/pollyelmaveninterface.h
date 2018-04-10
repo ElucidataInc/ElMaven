@@ -24,7 +24,10 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 	Q_OBJECT
 
         public:
-
+                /**
+                * @brief credentials required to connect to polly..
+                */
+                QStringList credentials;
                 /**
                 * @brief constructor with mainwindow pointer..
                 * @param mw [pointer to mainwindow, used to create GUI for elmaven-polly-interface]
@@ -127,10 +130,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief This function cancels the polly-elmaven-interface GUI
                  */
 		void cancel();
-                /**
-                 * @brief This function reads credentials file that login form stores..
-                 */
-                QStringList readFromFile(QString fileName);
                 /**
                  * @brief This function changes the values of compound_db, settings combo boxes based on values in load_project combo box
                  * @details this function performs the following tasks in the given order -
