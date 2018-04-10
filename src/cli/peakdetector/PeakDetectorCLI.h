@@ -59,7 +59,7 @@ class PeakDetectorCLI {
 		QString projectname;
 		QString pollyArgs;
 		QString filedir;
-		QStringList test_list;
+		QStringList pollyargs_list;
 		PollyIntegration* _pollyIntegration;
 
 		vector<mzSample*> samples;

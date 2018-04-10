@@ -1150,10 +1150,6 @@ void MainWindow::setIonizationModeLabel() {
 	setTotalCharge();
 }
 
-void MainWindow::setcheck_polly_login() {
-
-	check_polly_login->setText("Log in info");
-}
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
 
@@ -2544,13 +2540,7 @@ void MainWindow::createToolBars() {
 	ionizationModeLabel->setFrameShape(QFrame::Panel);
 	ionizationModeLabel->setFrameShadow(QFrame::Raised);
 
-	check_polly_login = new QLabel(hBox);
-	check_polly_login->setToolTip("Polly connection Status");
-	check_polly_login->setFrameShape(QFrame::Panel);
-	check_polly_login->setFrameShadow(QFrame::Raised);
-	check_polly_login->setText("not connected");
-	check_polly_login->setStyleSheet("QLabel { background-color : white; color : red; }");
-
+	
 	ionChargeBox = new QSpinBox(hBox);
 	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
 
@@ -2580,8 +2570,7 @@ void MainWindow::createToolBars() {
 	layout->addWidget(new QLabel("+/-", 0, 0));
 	layout->addWidget(massCutoffWindowBox, 0);
 	layout->addWidget(massCutoffComboBox,0);
-	layout->addWidget(check_polly_login, 0);
-
+	
 	sideBar = new QToolBar(this);
 	sideBar->setObjectName("sideBar");
 

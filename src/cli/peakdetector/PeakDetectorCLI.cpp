@@ -138,18 +138,18 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			uploadToPolly_bool = true;
 			{
 			pollyArgs = QString(optarg);
-			test_list = pollyArgs.split(",");
-			if (test_list.size()==2)//Assuming that user has not provided project name, just the username and password
+			pollyargs_list = pollyArgs.split(",");
+			if (pollyargs_list.size()==2)//Assuming that user has not provided project name, just the username and password
 			{
-					username = test_list.at(0);//order is very specific here, first argument is supposed to be username
-					password = test_list.at(1);//second argument is password
+					username = pollyargs_list.at(0);//order is very specific here, first argument is supposed to be username
+					password = pollyargs_list.at(1);//second argument is password
 					projectname = "Default project";//upload to default project if no project name is specified
 					break;		
 			}
-			else if(2<test_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
-				username = test_list.at(0);
-				password = test_list.at(1);
-				projectname = test_list.at(2);
+			else if(2<pollyargs_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
+				username = pollyargs_list.at(0);
+				password = pollyargs_list.at(1);
+				projectname = pollyargs_list.at(2);
 			}
 			}
 			break;
