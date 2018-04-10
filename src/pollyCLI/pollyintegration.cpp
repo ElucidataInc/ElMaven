@@ -53,16 +53,12 @@ QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
     process.setProgram(nodePath);
     process.setArguments(arg);
 
-    qDebug () << "program: " <<  process.program()  << "args: " << process.arguments();
-
     process.start();
     //TODO kailash, use threading for this, it should not just run indefinitely 
     process.waitForFinished(-1);
     QByteArray result = process.readAllStandardOutput();
     QByteArray result2 = process.readAllStandardError();
 
-    qDebug() << "output: " << result << endl;
-    qDebug()<< "error: " << result2 << endl;
     return result;
 }
 
