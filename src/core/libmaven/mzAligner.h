@@ -1,3 +1,6 @@
+#ifndef MZALIGNER_H
+#define MZALIGNER_H
+
 #include <cmath>
 #include <cstddef>
 #include <float.h>
@@ -6,9 +9,11 @@
 #include <vector>
 #include "mzSample.h"
 #include "Compound.h"
+#include "obiwarp.h"
 #include <QJsonObject>
 
 using namespace std;
+
 class Aligner {
    public:
     Aligner();
@@ -22,6 +27,8 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
+    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
+    void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;
     vector<vector<float> > fit;
@@ -47,3 +54,6 @@ class Aligner {
     int polynomialDegree;
 
 };
+
+
+#endif

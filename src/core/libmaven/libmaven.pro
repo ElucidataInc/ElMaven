@@ -25,8 +25,11 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libneural/ \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libdate/ \
-                $$top_srcdir/3rdparty/ErrorHandling
+                $$top_srcdir/3rdparty/ErrorHandling \
+                $$top_srcdir/3rdparty/obiwarp
 
+QMAKE_LFLAGS += -L$$top_builddir/libs
+LIBS += -lobiwarp
 
 macx{
 

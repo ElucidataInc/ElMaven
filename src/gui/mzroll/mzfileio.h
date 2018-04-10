@@ -2,6 +2,7 @@
 #define MZFILEIO_H
 #include "globals.h"
 #include "mainwindow.h"
+#include "mzAligner.h"
 
 
 class ProjectDockWidget;
