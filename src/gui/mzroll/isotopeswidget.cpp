@@ -61,9 +61,16 @@ IsotopeWidget::~IsotopeWidget()
 	isotopeParametersBarPlot->links.clear();
 }
 
+void IsotopeWidget::clearWidget()
+{
+	isotopeParameters->links.clear();
+	showTable();
+}
+
 void IsotopeWidget::peakSelected(Peak *peak, PeakGroup *group)
 {
-	if (!peak || !group || !group->compound)
+	clearWidget();
+	if (!(peak && group && group->compound))
 		return;
 
 	//set selectedSample for isotope calculation
@@ -75,7 +82,9 @@ void IsotopeWidget::peakSelected(Peak *peak, PeakGroup *group)
 
 void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 {
-	if (!grp && !group->compound)
+	clearWidget();
+
+	if (!(grp && grp->compound))
 		return;
 
 	//set compound, formula, window title
@@ -114,10 +123,11 @@ void IsotopeWidget::updateIsotopicBarplot(PeakGroup *grp)
 
 void IsotopeWidget::setCompound(Compound *cpd)
 {
+	clearWidget();
 	if (cpd == NULL)
 		return;
 	QString f = QString(cpd->formula.c_str());
-	isotopeParameters->_group = NULL;
+	//isotopeParameters->_group = NULL;
 	isotopeParameters->_compound = cpd;
 	setWindowTitle("Isotopes:" + QString(cpd->name.c_str()));
 	setFormula(f);
@@ -175,7 +185,7 @@ void IsotopeWidget::updateSelectedSample(int index)
 void IsotopeWidget::setFormula(QString f)
 {
 	formula->setText(f);
-	userChangedFormula(f);
+	isotopeParameters->_formula = f.toStdString();
 }
 
 void IsotopeWidget::setCharge(double charge)
@@ -189,11 +199,10 @@ void IsotopeWidget::setCharge(double charge)
 }
 
 void IsotopeWidget::computeIsotopes(string f)
-{
+{	
+	clearWidget();
 	if (f.empty())
 		return;
-	if (isotopeParameters->links.size() > 0)
-		isotopeParameters->links.clear();
 
 	QSettings *settings = _mw->getSettings();
 	MassCutoff *massCutoff = _mw->getUserMassCutoff();
@@ -342,7 +351,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup *group)
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
-		
+
 		workerThreadBarplot->start();
 		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
 	}

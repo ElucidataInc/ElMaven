@@ -1453,6 +1453,7 @@ void EicWidget::setCompound(Compound* c) {
 		//remove previous focusline
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
+		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
 
