@@ -26,9 +26,9 @@ CSVReports::~CSVReports() {
 
 }
 
-bool CSVReports::exportGroup(){
+bool CSVReports::exportGroup(vector<PeakGroup*> &groupsToExport){
 
-    if(groups.size() == 0){
+    if(groupsToExport.size() == 0){
         errorReport = "No groups found!";
         return 0;
     }
@@ -48,7 +48,7 @@ bool CSVReports::exportGroup(){
     }
     else{
         addColumnNames();
-        for(int i=0 ; i<groups.size(); ++i){
+        for(int i=0 ; i<groupsToExport.size(); ++i){
             PeakGroup* group=groups[i];
 
             if(_exportType == PeakExport)

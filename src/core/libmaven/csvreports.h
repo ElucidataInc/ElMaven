@@ -53,8 +53,12 @@ public:
     inline void addItem(PeakGroup* group){
         groups.push_back(group);
     }
-
-    bool exportGroup();
+    bool exportGroup(){ 
+        bool exported = exportGroup(groups);
+        groups.clear();
+        return exported;
+    }
+    bool exportGroup(vector<PeakGroup*> &groupsToExport);
     string getErrorReport(void) {
         /**
         *@brief-    return error occured during csv writing
