@@ -82,66 +82,16 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             if (parentPeak) {
                 parentPeakIntensity = parentPeak->peakIntensity;
-                int scannum = parentPeak->getScan()->scannum;
-                for (int i = scannum - 3; i < scannum + 3; i++) {
-                    Scan* s = sample->getScan(i);
-
-                    //look for isotopic mass in the same spectrum
-                    vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-
-                    for (unsigned int i = 0; i < matches.size(); i++) {
-                        int pos = matches[i];
-                        if (s->intensity[pos] > isotopePeakIntensity) {
-                            isotopePeakIntensity = s->intensity[pos];
-                            rt = s->rt;
-                        }
-                    }
-                }
-
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
             }
             //if(isotopePeakIntensity==0) continue;
 
-            //natural abundance check
-            //TODO: I think this loop will never run right? Since we're now only pulling the relevant isotopes
-            //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
-            //so we could just eliminate maxNaturalAbundanceErr parameter in this case
-            //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
-            if ((x.C13 > 0 && _C13Flag == false) //if isotope is not C13Labeled
-                    || (x.N15 > 0 && _N15Flag == false) //if isotope is not N15 Labeled
-                    || (x.S34 > 0 && _S34Flag == false) //if isotope is not S34 Labeled
-                    || (x.H2 > 0 && _D2Flag == false) //if isotope is not D2 Labeled
-
-               ) {
-                if (expectedAbundance < 1e-8)
-                    continue;
-                if (expectedAbundance * parentPeakIntensity < 1) //TODO: In practice this is probably fine but in general I don't like these types of intensity checks -- the actual absolute value depends on the type of instrument, etc
-                    continue;
-                float observedAbundance = isotopePeakIntensity
-                    / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
-
-                float naturalAbundanceError = abs(
-                        observedAbundance - expectedAbundance) //if observedAbundance is significant wrt expectedAbundance
-                    / expectedAbundance * 100; // compute natural Abundance Error
-
-
-                if (naturalAbundanceError >
-                        _mavenParameters->maxNaturalAbundanceErr)
-                    continue;
-            }
-
-            //TODO: this is really an abuse of the maxIsotopeScanDiff parameter
-            //I can easily imagine you might set maxIsotopeScanDiff to something much less than the peak width
-            //here w should really be determined by the minRt and maxRt for the parent and child peaks
-            float w = _mavenParameters->maxIsotopeScanDiff
-                * _mavenParameters->avgScanTime;
-            double c = sample->correlation(
-                    isotopeMass, parentgroup->meanMz,
-                    _mavenParameters->compoundMassCutoffWindow, rtmin - w,
-                    rtmax + w, _mavenParameters->eicType,
-                    _mavenParameters->filterline);  // find correlation for isotopes
-            if (c < _mavenParameters->minIsotopicCorrelation)
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
                 continue;
-
+            
             vector<Peak> allPeaks;
 
             EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
@@ -200,6 +150,82 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
         }
     }
     return isotopes;
+}
+
+bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup)
+{
+    //natural abundance check
+    //TODO: I think this loop will never run right? Since we're now only pulling the relevant isotopes
+    //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
+    //so we could just eliminate maxNaturalAbundanceErr parameter in this case
+    //original idea (see https://github.com/ElucidataInc/ElMaven/issues/43) was to have different checkboxes for "use this element for natural abundance check"
+    if ((x.C13 > 0 && _C13Flag == false) //if isotope is not C13Labeled
+            || (x.N15 > 0 && _N15Flag == false) //if isotope is not N15 Labeled
+            || (x.S34 > 0 && _S34Flag == false) //if isotope is not S34 Labeled
+            || (x.H2 > 0 && _D2Flag == false) //if isotope is not D2 Labeled
+        )
+    {
+        float expectedAbundance = x.abundance;
+        if (expectedAbundance < 1e-8)
+            return true;
+        if (expectedAbundance * parentPeakIntensity < 1) //TODO: In practice this is probably fine but in general I don't like these types of intensity checks -- the actual absolute value depends on the type of instrument, etc
+            return true;
+        float observedAbundance = isotopePeakIntensity
+            / (parentPeakIntensity + isotopePeakIntensity); //find observedAbundance based on isotopePeakIntensity
+
+        float naturalAbundanceError = abs(
+                observedAbundance - expectedAbundance) //if observedAbundance is significant wrt expectedAbundance
+            / expectedAbundance * 100; // compute natural Abundance Error
+
+        if (naturalAbundanceError >
+                _mavenParameters->maxNaturalAbundanceErr)
+            return true;
+    }
+
+    //TODO: this is really an abuse of the maxIsotopeScanDiff parameter
+    //I can easily imagine you might set maxIsotopeScanDiff to something much less than the peak width
+    //here w should really be determined by the minRt and maxRt for the parent and child peaks
+    if (parentGroup)
+    {
+        Peak* parentPeak = parentGroup->getPeak(sample);
+        float rtmin = parentGroup->minRt;
+        float rtmax = parentGroup->maxRt;
+        if (parentPeak)
+        {
+            rtmin = parentPeak->rtmin;
+            rtmax = parentPeak->rtmax;
+        }
+        float isotopeMass = x.mass;
+        float parentMass = parentGroup->meanMz;
+        float w = _mavenParameters->maxIsotopeScanDiff
+            * _mavenParameters->avgScanTime;
+        double c = sample->correlation(
+                isotopeMass, parentMass,
+                _mavenParameters->compoundMassCutoffWindow, rtmin - w,
+                rtmax + w, _mavenParameters->eicType,
+            _mavenParameters->filterline);  // find correlation for isotopes
+        if (c < _mavenParameters->minIsotopicCorrelation)
+            return true;
+    }
+    return false;
+}
+
+std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, float mzmax)
+{
+    float highestIntensity = 0;
+    float rt = 0;
+    mzSample* sample = scan->getSample();
+    //TODO: use maxIsotopeScanDiff instead of arbitrary number
+    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
+		Scan* s = sample->getScan(i);
+		vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
+		for (auto pos:matches) {
+			if (s->intensity[pos] > highestIntensity)
+				highestIntensity = s->intensity[pos];
+            rt = s->rt;
+		}
+	}
+    return std::make_pair(highestIntensity, rt);
 }
 
 void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup> isotopes)

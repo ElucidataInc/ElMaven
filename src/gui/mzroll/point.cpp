@@ -85,7 +85,8 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 		   "<br> <b>No NoiseObs: </b>" + QString::number(_peak->noNoiseObs) +
 		   "<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac) +
 		 */
-	} else if (_scan) { 
+	} 
+	if (_scan) { 
 		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
 					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
 					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
@@ -124,6 +125,7 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
 
     if ( _group && _group->isIsotope() == false ) {
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
+        _mw->isotopeWidget->peakSelected(_peak, _group);
     }
 
 }
@@ -164,6 +166,10 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 
     if (_peak && _mw->adductWidget->isVisible()) {
         _mw->adductWidget->setPeak(_peak);
+    }
+
+    if (_peak && _group && _mw->isotopeWidget->isVisible()) {
+        _mw->isotopeWidget->peakSelected(_peak, _group);
     }
 
     scene()->update();
@@ -222,6 +228,8 @@ void EicPoint::setClipboardToIsotopes() {
     if (_group &&_group->compound != NULL && ! _group->compound->formula.empty() )  {
         _mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
+        if (_peak)
+            _mw->isotopeWidget->peakSelected(_peak, _group);
     }
 }
 

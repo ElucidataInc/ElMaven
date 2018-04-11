@@ -1449,6 +1449,7 @@ void EicWidget::setCompound(Compound* c) {
 		//remove previous focusline
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
+		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
 
@@ -1878,6 +1879,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 		//Sabu Iso
 		setSelectedGroup(selGroup);
 	}
+	getMainWindow()->mavenParameters->setPeakGroup(selGroup);
 }
 
 void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
