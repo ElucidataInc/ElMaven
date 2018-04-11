@@ -265,8 +265,11 @@ void SettingsForm::recomputeIsotopes() {
     //update isotope plot in EICview
     if (mainwindow->getEicWidget()->isVisible()) {
         PeakGroup* group = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
-        mainwindow->isotopeWidget->updateIsotopicBarplot(group);
-        mainwindow->isotopeWidget->setPeakGroupAndMore(group, false);
+        if (group)
+        {
+            mainwindow->isotopeWidget->updateIsotopicBarplot(group);
+            mainwindow->isotopeWidget->setPeakGroupAndMore(group, false);
+        }
     }
 
     //update isotopes in pathwayview

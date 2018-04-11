@@ -185,6 +185,9 @@ void ProjectDockWidget::updateSampleList() {
     if ( _mainwindow->getEicWidget() ) {
         _mainwindow->getEicWidget()->replotForced();
     }
+    if (_mainwindow->isotopeWidget) {
+        _mainwindow->isotopeWidget->updateSampleList();
+    }
 }
 
 
@@ -313,7 +316,10 @@ void ProjectDockWidget::unloadSelectedSamples() {
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
       if(selected.size() == 0) return;
 
-      Q_FOREACH (QTreeWidgetItem* item, selected) {
+     //reverse loop as size will decrease on deleting sample
+     for (int index = selected.size() - 1; index >= 0; --index)
+      {
+          QTreeWidgetItem* item = selected[index];
           if (item->type() == SampleType) {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
@@ -326,6 +332,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
       }
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
+     _mainwindow->isotopeWidget->updateSampleList();
      if (_mainwindow->samples.size() < 1) {
 		QMessageBox* msgBox = new QMessageBox( this );
 		msgBox->setAttribute( Qt::WA_DeleteOnClose );
@@ -537,6 +544,7 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
             if(changed) {
                 cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
                 _mainwindow->getEicWidget()->replotForced();
+                _mainwindow->isotopeWidget->updateSampleList();
             }
         }
     }

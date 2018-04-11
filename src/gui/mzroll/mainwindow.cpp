@@ -1345,14 +1345,18 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	//    pathwayWidget->setCompound(c);
 	//}
 	
-	if (isotopeWidget && isotopeWidget->isVisible())
-		isotopeWidget->setCompound(c);
 	if (massCalcWidget && massCalcWidget->isVisible()) {
 		massCalcWidget->setMass(mz);
 	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
 		eicWidget->setCompound(c);
+		//mavenParameters->_group is closest group to expected Rt
+		if (isotopeWidget && isotopeWidget->isVisible())
+		{
+			isotopeWidget->setCompound(c);
+			isotopeWidget->setPeakGroupAndMore(mavenParameters->_group);
+		}
     }
 
 	//TODO: Sahil-Kiran, Added while merging mainwindow
@@ -2701,8 +2705,8 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && group->compound != NULL) {
-		isotopeWidget->setCompound(group->compound);
+	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
+		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
 	//TODO: Sahil-Kiran, Added while merging mainwindow
@@ -2722,7 +2726,6 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
     if (group->peaks.size() > 0) {
-        showPeakInfo(&(group->peaks[0]));
         vector<Scan*>scanset = group->getRepresentativeFullScans(); //TODO: Sahil-Kiran, Added while merging mainwindow
         spectraWidget->setScanSet(scanset); //TODO: Sahil-Kiran, Added while merging mainwindow
         spectraWidget->replot(); //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -2855,7 +2858,6 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 	if (isotopeWidget->isVisible()) {
 		isotopeWidget->setIonizationMode(ionizationMode);
 		isotopeWidget->setCharge(ionizationMode);
-		isotopeWidget->setPeak(_peak);
 	}
 
 	if (fragPanel->isVisible()) {
