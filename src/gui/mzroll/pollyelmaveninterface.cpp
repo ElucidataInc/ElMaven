@@ -4,7 +4,8 @@
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         QDialog(mw),
-        mainwindow(mw)
+        mainwindow(mw),
+        _loginform(nullptr)
 {
         setupUi(this);
         setModal(true);
