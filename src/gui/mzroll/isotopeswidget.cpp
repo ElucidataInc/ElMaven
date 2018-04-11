@@ -153,6 +153,7 @@ void IsotopeWidget::userChangedFormula(QString f)
 void IsotopeWidget::updateSampleList()
 {
 	sampleList->clear();
+	reset();
 	vector<mzSample *> samples = _mw->getVisibleSamples();
 	if (samples.empty())
 		return;
@@ -169,15 +170,28 @@ void IsotopeWidget::updateSampleList()
 	}
 
 	//set 1st sample if no sample is selected
-	if (sampleList->currentIndex() > -1)
+	if (sampleList->currentIndex() < 0)
 	{
 		sampleList->setCurrentIndex(0);
 		updateSelectedSample(0);
 	}
 }
 
+void IsotopeWidget::reset()
+{
+	isotopeParameters->_group = NULL;
+	isotopeParameters->_scan = NULL;
+	isotopeParameters->_formula = "";
+}
+
 void IsotopeWidget::updateSelectedSample(int index)
 {
+	if (sampleList->count() == 0) 
+	{
+		_selectedSample = NULL;
+		return;
+	}
+	if (index < 0) index = 0;
 	_selectedSample = sampleList->itemData(index).value<mzSample *>();
 	computeIsotopes(isotopeParameters->_formula);
 }
