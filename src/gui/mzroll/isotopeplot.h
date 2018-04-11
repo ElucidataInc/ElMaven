@@ -33,7 +33,7 @@ public:
      * Now specify a group by setPeakGroup method to be show
      * now call show() method on this object that is inherited from QGraphicsItem
      */
-    IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
+    IsotopePlot(QWidget* parent, float width, float height, float stackingZValue, 
                 vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype);
     ~IsotopePlot();
 

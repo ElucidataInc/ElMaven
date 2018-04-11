@@ -1150,7 +1150,7 @@ void EicWidget::addIsotopicPlot(PeakGroup* group) {
 			return;
 		float abundanceThresold = getMainWindow()->getSettings()->value("AbthresholdBarplot").toDouble();
 		PeakGroup::QType qtype = getMainWindow()->getUserQuantType();
-		_isotopeplot = new IsotopePlot(getMainWindow()->customPlot, scene()->width() * 0.10, scene()->height() * 0.10,
+		_isotopeplot = new IsotopePlot(getMainWindow(), scene()->width() * 0.10, scene()->height() * 0.10,
 										1000, samples, abundanceThresold, qtype );
 	}
 
