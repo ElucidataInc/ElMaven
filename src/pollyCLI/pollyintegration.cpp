@@ -108,7 +108,7 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
     QVariantMap json_map = json.toVariantMap();
     for (int i=0; i < filenames.size(); ++i){
         QString filename = filenames.at(i);
-        QStringList test_files_list = filename.split('/');
+        QStringList test_files_list = filename.split(QDir::separator());
         int size = test_files_list.size();
         QString new_filename = test_files_list[size-1];
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
@@ -140,7 +140,7 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
     QVariantMap json_map = json.toVariantMap();
     for (int i=0; i < filenames.size(); ++i){
         QString filename = filenames.at(i);
-        QStringList test_files_list = filename.split('/');
+        QStringList test_files_list = filename.split(QDir::separator());
         int size = test_files_list.size();
         QString new_filename = test_files_list[size-1];
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
