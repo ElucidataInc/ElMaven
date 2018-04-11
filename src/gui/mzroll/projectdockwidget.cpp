@@ -316,7 +316,10 @@ void ProjectDockWidget::unloadSelectedSamples() {
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
       if(selected.size() == 0) return;
 
-      Q_FOREACH (QTreeWidgetItem* item, selected) {
+     //reverse loop as size will decrease on deleting sample
+     for (int index = selected.size() - 1; index >= 0; --index)
+      {
+          QTreeWidgetItem* item = selected[index];
           if (item->type() == SampleType) {
               QVariant v = item->data(0,Qt::UserRole);
               mzSample*  sample =  v.value<mzSample*>();
