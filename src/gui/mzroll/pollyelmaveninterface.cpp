@@ -99,7 +99,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
     QStringList patch_ids;
-    QString new_project_id;
+    QString upload_project_id;
     QString new_projectname = lineEdit_new_project_name->text();
     QString projectname = comboBox_existing_projects->currentText();
     QString project_id;
@@ -118,15 +118,17 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             }
         }
             patch_ids = _pollyIntegration->exportData(filenames,project_id);
+            upload_project_id = project_id;
         }
     else{
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
-        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);       
+        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);   
+        upload_project_id = new_project_id;    
     }
     progressBar_upload->setValue(100);
     
     if (!patch_ids.isEmpty()){
-        QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
+        QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         QMessageBox msgBox(mainwindow);
         msgBox.setWindowTitle("Redirecting to polly..");
@@ -154,21 +156,22 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
     }
     else{
         QString msg = "No Peak tables";
-        QMessageBox::warning(_tableDockWidget, "Error", msg);
+        QMessageBox msgBox(mainwindow);
+        msgBox.setWindowTitle("Warning!!");
+        msgBox.setText(msg);
+        msgBox.exec();
         return filenames;
     }
-    QString dir = ".";
-    QSettings* settings = mainwindow->getSettings();
-    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
-    QDir qdir(dir+QString("/tmp_files/"));
+    QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_files";
+    QDir qdir(writable_temp_dir);
     if (!qdir.exists()){
-        QDir().mkdir(dir+QString("/tmp_files"));
-        QDir qdir(dir+QString("/tmp_files/"));
+        QDir().mkdir(writable_temp_dir);
+        QDir qdir(writable_temp_dir);
     }
-    _tableDockWidget->exportGroupsToSpreadsheet_polly(dir+QString("/tmp_files/export_all_groups.csv"));
-    QByteArray ba = (dir+QString("/tmp_files/maven_analysis_settings.xml")).toLatin1();
+    _tableDockWidget->exportGroupsToSpreadsheet_polly(writable_temp_dir+QDir::separator()+"export_all_groups.csv");
+    QByteArray ba = (writable_temp_dir+QDir::separator()+"maven_analysis_settings.xml").toLatin1();
     const char *save_path = ba.data();
     mainwindow->mavenParameters->saveSettings(save_path);
     qdir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -176,7 +179,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(){
     
     for (int i = 0; i < file_list.size(); ++i){
         QFileInfo fileInfo = file_list.at(i);
-        QString tmp_filename = dir+QString("/tmp_files/")+fileInfo.fileName();
+        QString tmp_filename = writable_temp_dir+QDir::separator()+fileInfo.fileName();
         filenames.append(tmp_filename);
     }
     return filenames;
@@ -202,24 +205,23 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
             ProjectId= keys.at(i);
         }
     }
-    QString dir = ".";
-    QSettings* settings = mainwindow->getSettings();
-    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
     qDebug() << "valid credentials,loading data from polly now....\n\n";
     
-    QDir qdir(dir+QString("/tmp_files/"));
+    QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_files";
+    QDir qdir(writable_temp_dir);
     if (!qdir.exists()){
-        QDir().mkdir(dir+QString("/tmp_files"));
-        QDir qdir(dir+QString("/tmp_files/"));
+        QDir().mkdir(writable_temp_dir);
+        QDir qdir(writable_temp_dir);
     }
+    
     QStringList full_path_filenames;
     for (int i = 0; i < filenames.size(); ++i){
-        QString tmp_filename = dir+QString("/tmp_files/")+filenames.at(i);;
+        QString tmp_filename = writable_temp_dir+QDir::separator()+filenames.at(i);;
         full_path_filenames.append(tmp_filename);
     }
     QString load_status = _pollyIntegration->loadDataFromPolly(ProjectId,full_path_filenames);
     if (load_status=="project data loaded"){
-        mainwindow->loadPollySettings(dir+QString("/tmp_files/")+settings_file);
+        mainwindow->loadPollySettings(writable_temp_dir+QDir::separator()+settings_file);
     }
     progressBar_load_project->setValue(100);
     QMessageBox msgBox(mainwindow);
