@@ -99,7 +99,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     int status = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
     QStringList patch_ids;
-    QString new_project_id;
+    QString upload_project_id;
     QString new_projectname = lineEdit_new_project_name->text();
     QString projectname = comboBox_existing_projects->currentText();
     QString project_id;
@@ -118,15 +118,17 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             }
         }
             patch_ids = _pollyIntegration->exportData(filenames,project_id);
+            upload_project_id = project_id;
         }
     else{
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
-        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);       
+        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);
+        upload_project_id =   new_project_id;     
     }
     progressBar_upload->setValue(100);
     
     if (!patch_ids.isEmpty()){
-        QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(new_project_id);
+        QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         QMessageBox msgBox(mainwindow);
         msgBox.setWindowTitle("Redirecting to polly..");
