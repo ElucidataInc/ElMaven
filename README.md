@@ -3,7 +3,7 @@
 <p align="center">from </p>
 <p align="center">
   <a href="http://www.elucidata.io"> 
-	<img src="http://www.elucidata.io/static/images/logo.png">
+	<img src="http://elucidata.io/static/images/elucidata-logo-with-text.svg">
   </a>
 
 ## Travis Build
