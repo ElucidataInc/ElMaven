@@ -47,9 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "deleting UI" << endl;
     if(_process->state() != QProcess::NotRunning ) {
-        qDebug() << "waiting to finish";
         _process->waitForFinished();
     }
 
@@ -65,15 +63,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readOutput()
 {
-    qDebug() << _process->readAllStandardOutput() << endl;
 }
 
 
 void MainWindow::processError(QProcess::ProcessError perr)
 {
-
-    qDebug() << "process Error " << perr  << endl;
-    qDebug() << _process->program() << " " <<  _process->arguments();
 
     QCoreApplication::quit();
 
@@ -81,8 +75,6 @@ void MainWindow::processError(QProcess::ProcessError perr)
 
 void MainWindow::readError()
 {
-    qDebug() << _process->readAllStandardError() << endl;
-
 }
 
 void MainWindow::started()
@@ -96,7 +88,6 @@ void MainWindow::finished(int exitCode)
 {
     // check the exit status and exit code.
     // if the node program failed to upload the logs, inform the user about it
-    qDebug() << endl << " process finished : " << exitCode << endl;
     QCoreApplication::quit();
 
 }
