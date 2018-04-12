@@ -1,5 +1,8 @@
 #ifndef SCAN_H
 #define SCAN_H
+
+#include <stack>
+
 #include "mzSample.h"
 class mzSample;
 class ChargedSpecies;
@@ -153,6 +156,8 @@ class Scan
      */
     float originalRt;
     int scannum;
+    stack<float> redoAlignmentRts;
+    stack<float> undoAlginmentRts;
 
     float precursorMz;
     float precursorIntensity;

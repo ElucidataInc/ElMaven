@@ -460,6 +460,10 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     for(int j = 0; j < sample->scans.size(); ++j){
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
+        /**
+         * save rt of scan in a stack to undo alignment
+         */
+        sample->scans[j]->undoAlginmentRts.push(sample->scans[j]->rt);
     }
 
     for(int j=0;j<sample->scans.size();++j){
