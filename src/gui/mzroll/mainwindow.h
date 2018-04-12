@@ -188,6 +188,7 @@ public:
 	ScatterPlot *scatterplot;
 	TreeMap *treemap;
 	SpectralHitsDockWidget *spectralHitsDockWidget;
+	EicWidget *eicWidget; //plot of extractred EIC
 
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
@@ -332,7 +333,7 @@ public Q_SLOTS:
 	void setUrl(Reaction*);
 	void setFormulaFocus(QString formula);
 	void Align();
-	void UndoAlignment();
+	void undoAlignment();
 	void spectaFocused(Peak* _peak);
 	bool checkCompoundExistance(Compound* c);
 	void setCompoundFocus(Compound* c);
@@ -430,7 +431,6 @@ private:
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
-	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 
 	MassCutoff *_massCutoffWindow;

@@ -423,8 +423,8 @@ using namespace mzUtils;
 	alignmentDialog = new AlignmentDialog(this);
 	alignmentDialog->setMainWindow(this);
 	connect(alignmentDialog->alignButton, SIGNAL(clicked()), SLOT(Align()));
-	connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
-			SLOT(UndoAlignment()));
+	connect(alignmentDialog->undoAlignment, SIGNAL(clicked()),
+			SLOT(undoAlignment()));
 
 	//rconsole dialog
 	//rconsoleDialog	 =  new RConsoleDialog(this);
@@ -2856,21 +2856,23 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-void MainWindow::UndoAlignment() {
+void MainWindow::undoAlignment() {
 	if(alignmentDialog->alignAlgo->currentIndex() == 2){
 		for (int i = 0; i < samples.size(); i++) {
 			for(int j = 0; j < samples[i]->scans.size(); ++j){
-				if(!samples[i]->scans[j]->undoAlginmentRts.empty()){
+				if(!samples[i]->scans[j]->undoAlignmentRts.empty()){
+					/**
+					 * save rt value in a stack to redoing alignment
+					 */
 					samples[i]->scans[j]->redoAlignmentRts.push(samples[i]->scans[j]->rt);
-					float rt = samples[i]->scans[j]->undoAlginmentRts.top();
+					float rt = samples[i]->scans[j]->undoAlignmentRts.top();
 					samples[i]->scans[j]->rt = rt;
-					samples[i]->scans[j]->undoAlginmentRts.pop();
+					samples[i]->scans[j]->undoAlignmentRts.pop();
 				}
 			}
 		}
 
 		eicWidget->replotForced();
-		alignmentDialog->close();
 		return;
 	}
 

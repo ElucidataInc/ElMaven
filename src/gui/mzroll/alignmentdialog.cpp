@@ -22,6 +22,7 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
 		connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
 		connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
+		connect(redoAlignment, SIGNAL(clicked()), this, SLOT(redoAlignmentClicked()));
 
 		QRect rec = QApplication::desktop()->screenGeometry();
 		int height = rec.height();
@@ -31,6 +32,24 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 AlignmentDialog::~AlignmentDialog() {
 	if (workerThread) delete (workerThread);
 }
+void AlignmentDialog::redoAlignmentClicked(){
+	for (int i = 0; i < _mw->samples.size(); i++) {
+		mzSample* sample = _mw->samples[i];
+		for(int j = 0; j < sample->scans.size(); ++j){
+			if(!sample->scans[j]->redoAlignmentRts.empty()){
+				/**
+				 * save rt value in a stack to undoing alignment
+				 */
+				sample->scans[j]->undoAlignmentRts.push(sample->scans[j]->rt);
+				float rt = sample->scans[j]->redoAlignmentRts.top();
+				sample->scans[j]->rt = rt;
+				sample->scans[j]->redoAlignmentRts.pop();
+			}
+		}
+	}
+	_mw->eicWidget->replotForced();
+}
+
 void AlignmentDialog::setAlignWrtExpectedRt(bool checked){
 	_mw->mavenParameters->alignWrtExpectedRt=checked;
 }

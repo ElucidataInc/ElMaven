@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>1039</height>
+    <height>1072</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -197,10 +197,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="UndoAlignment">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="undoAlignment">
         <property name="text">
          <string>Undo Aligment</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QToolButton" name="redoAlignment">
+        <property name="text">
+         <string>Redo Alignment</string>
         </property>
        </widget>
       </item>
@@ -598,7 +605,6 @@
   <tabstop>alignAlgo</tabstop>
   <tabstop>maxItterations</tabstop>
   <tabstop>polynomialDegree</tabstop>
-  <tabstop>UndoAlignment</tabstop>
   <tabstop>alignButton</tabstop>
   <tabstop>cancelButton</tabstop>
  </tabstops>

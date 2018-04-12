@@ -157,7 +157,7 @@ class Scan
     float originalRt;
     int scannum;
     stack<float> redoAlignmentRts;
-    stack<float> undoAlginmentRts;
+    stack<float> undoAlignmentRts;
 
     float precursorMz;
     float precursorIntensity;
