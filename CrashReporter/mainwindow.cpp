@@ -27,10 +27,30 @@ MainWindow::MainWindow(QWidget *parent) :
     #endif
 
 
+    QString nodePath = QStandardPaths::findExecutable("node");
+
+    #ifdef Q_OS_WIN
+      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+        nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
+    #endif
+
+    #ifdef Q_OS_LINUX
+      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+          nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
+    #endif
+
+    #ifdef Q_OS_MAC
+      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+        nodePath = binDir + "node_bin" + QDir::separator() + "node";
+    #endif
+
+
+
     // set up the process
     _process  = new QProcess(this);
     _process->setProcessChannelMode(QProcess::SeparateChannels);
-    _process->setProgram(QStandardPaths::findExecutable("node"));
+    _process->setProgram(nodePath);
 
 
 
@@ -39,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
     connect(_process, &QProcess::started, this, &MainWindow::started);
     //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
-    //    connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
+    // connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
 }
 
 
@@ -68,9 +88,7 @@ void MainWindow::readOutput()
 
 void MainWindow::processError(QProcess::ProcessError perr)
 {
-
     QCoreApplication::quit();
-
 }
 
 void MainWindow::readError()
@@ -80,8 +98,6 @@ void MainWindow::readError()
 void MainWindow::started()
 {
 //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
-
-//    qDebug() << "process started " << _process->program() << " " << _process->processId() << endl;
 }
 
 void MainWindow::finished(int exitCode)
