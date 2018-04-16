@@ -319,8 +319,17 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
                                 );
         Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
 
+        int referenceSampleIndex = -1;
+        string sampleName = mainwindow->alignmentDialog->referenceSample->currentText().toStdString();
+        for(int i = 0; i < mavenParameters->samples.size(); ++i){
+                if( mavenParameters->samples[i]->sampleName == sampleName){
+                        referenceSampleIndex = i;
+                        break;
+                }
+        }
+
         Aligner aligner;
-        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
+        aligner.alignWithObiWarp(mavenParameters->samples, obiParams, referenceSampleIndex);
         delete obiParams;
 
         mainwindow->alignmentPolyVizDockWidget->plotGraph();

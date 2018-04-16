@@ -163,8 +163,15 @@ void AlignmentDialog::toggleObiParams(bool show){
 	labelLocal->setVisible(show);
 	labelScoreObi->setVisible(show);
 
-	if(show)
+	if(show){
 		setInitPenalty(local->isChecked());
+		for(int i = referenceSample->count() - 1 ; i > 0; --i)
+			referenceSample->removeItem(i);
+		for(int i = 0; i < _mw->samples.size(); ++i){
+			QString sampleName = QString::fromStdString(_mw->samples[i]->sampleName);
+			referenceSample->addItem(sampleName);
+		}
+	}
 }
 void AlignmentDialog::algoChanged() {
 
@@ -173,6 +180,8 @@ void AlignmentDialog::algoChanged() {
 	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
 	showAdvanceParams->setVisible(obiWarp);
 	labelShowAdvanceParams->setVisible(obiWarp);
+	labelReferenceSample->setVisible(obiWarp);
+	referenceSample->setVisible(obiWarp);
 
 	if (peakDetectionAlgo->currentIndex() == 0) {
 		selectDatabase->setVisible(true);
