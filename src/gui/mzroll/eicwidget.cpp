@@ -1294,11 +1294,9 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 
 		if (peak.getSample() != NULL && peak.getSample()->isSelected == false)
 			continue;
-		
-		float& rt = peak.getSample()->scans[peak.scan]->rt;
 		if (eicParameters->_slice.rtmin != 0 && eicParameters->_slice.rtmax != 0
-				&& (rt < eicParameters->_slice.rtmin
-						|| rt > eicParameters->_slice.rtmax))
+				&& (peak.rt < eicParameters->_slice.rtmin
+						|| peak.rt > eicParameters->_slice.rtmax))
 			continue;
 
 		QColor color = Qt::black;
@@ -1312,7 +1310,7 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 		QBrush brush(color);
 		brush.setStyle(Qt::NoBrush);
 
-		EicPoint* p = new EicPoint(toX(rt), toY(peak.peakIntensity), &peak,
+		EicPoint* p = new EicPoint(toX(peak.rt), toY(peak.peakIntensity), &peak,
 				getMainWindow());
 		if (setZValue)
 			p->setZValue(i);
