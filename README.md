@@ -62,7 +62,7 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 - Open the terminal and give the following commands to set up libraries and tool chains for El-MAVEN.
 `sudo apt-get update`  
 `sudo apt-get install g++`  
-`sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov`  
+`sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov libnetcdf-dev`
 `cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`  
 `git clone https://github.com/ElucidataInc/ElMaven.git`  
 `./run.sh`  
