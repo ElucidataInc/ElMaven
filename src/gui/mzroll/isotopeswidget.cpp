@@ -84,13 +84,11 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 {
 	clearWidget();
 
-	if (!(grp && grp->compound))
+	if (!grp)
 		return;
 
 	//set compound, formula, window title
 	setCompound(grp->compound);
-	if (isotopeParameters->_formula.empty())
-		return;
 
 	isotopeParameters->_group = grp;
 	if (grp->isIsotope())
@@ -107,8 +105,10 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 	else
 		return;
 
+	//TODO: move bookmarking functionality out of isotopeWidget
 	if (bookmarkflg)
 		pullIsotopes(isotopeParameters->_group);
+	
 	computeIsotopes(isotopeParameters->_formula);
 }
 
