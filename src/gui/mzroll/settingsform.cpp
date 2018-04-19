@@ -92,6 +92,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     odSettings = new OptionsDialogSettings(this);
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
+    connect(resetButton, &QPushButton::clicked, this, &SettingsForm::onReset);
 
     connect(eic_smoothingWindow, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(eic_smoothingAlgorithm, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
@@ -192,6 +193,12 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
     connect(this, &QDialog::rejected, this, &SettingsForm::dialogRejected);
+}
+
+void SettingsForm::onReset()
+{
+    emit resetSettings(odSettings->getSettings().keys());
+
 }
 
 void SettingsForm::setIsotopicPeakFiltering()

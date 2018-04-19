@@ -34,6 +34,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setInitialGroupRank();
             void dialogRejected();
             void setIsotopicPeakFiltering();
+            void onReset();
 
             /*
             * [Enable/disable deltaRtWeight slider and display appropriate group rank formula in UI]
@@ -71,6 +72,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
     Q_SIGNALS:
         void settingsChanged(string key, string value);
         void updateSettings(OptionsDialogSettings* od);
+        void resetSettings(QList<QString> keys);
 
 
       private:

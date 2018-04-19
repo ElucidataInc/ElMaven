@@ -11,12 +11,29 @@ Controller::Controller()
     connect(mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
     connect(mw,  &MainWindow::loadedSettings, this, &Controller::updateUi);
+    connect(mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
 }
 
 
 Controller::~Controller()
 {
     delete mw;
+}
+
+void Controller::resetMP(QList<QString> keys)
+{
+
+    QList<std::string> tkeys;
+    auto func = [&keys, &tkeys]() {
+        for(auto key: keys) {
+            tkeys.append(key.toStdString());
+        }
+        return tkeys;
+    };
+    tkeys = func();
+
+    mw->mavenParameters->reset(tkeys.toStdList());
+    updateUi();
 }
 
 template <typename T>
