@@ -78,7 +78,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    uploadLogs();
 }
 
 void MainWindow::readOutput()
@@ -158,37 +157,23 @@ void MainWindow::startElMaven()
 
 }
 
-void MainWindow::uploadToS3Done() {
-    ui->plainTextEdit->clear();
-    ui->statusBar->showMessage("Report is sent. Our team will get back to you as soon as possible.");
-    this->startElMaven();
-}
-
-
 
 void MainWindow::onStart()
 {
     if (this->windowState != 1) {
-        ui->restart->setVisible( false );
-        ui->label->setText("Description of feature/ bug");
         this->setWindowTitle ("Bug reporting and Feature request");
         ui->groupBox->setTitle("");
         ui->label_4->setText( "<b>Make El Maven better by giving us your feedback.</b>");
-        ui->label_5->setText( "If you have a feature wish list or if you identified a bug please get in touch with us. A brief description below would help us a lot. We would love to hear from you." );
+
         ui->reportRestart->setText("Submit Feedback");
     }
     this->show();
 }
 
-void MainWindow::on_restart_clicked()
-{
-
-    uploadLogs();
-}
 
 void MainWindow::on_cancel_clicked()
 {
-    uploadLogs();
+    this->close();
 }
 
 void MainWindow::on_reportRestart_clicked()
