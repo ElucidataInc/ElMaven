@@ -454,18 +454,26 @@ void Aligner::Fit(int ideg) {
 	delete[] d;
 }
 void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
-
+    /**
+     * @detail-here using vector of rt-points, m/z-points and matrix with vector of vector
+     * of intensities. These are converted to raw arrays in ObiWarp. So we can also directly
+     * can pass raw array but I have passed as vector for the sake of easy understanding of code.
+     * OF-COURSE A MEMORY OPTIMIZATION POINT
+     */
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
     for(int j = 0; j < sample->scans.size(); ++j){
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
         /**
-         * save rt of scan in a stack to undo alignment
+         * @brief- save rt of scan in a stack to undo alignment
          */
         sample->scans[j]->undoAlignmentRts.push(sample->scans[j]->rt);
     }
 
+    /**
+     * @brief- make matrix of intensities
+     */
     for(int j=0;j<sample->scans.size();++j){
             for(int k=0;k<sample->scans[j]->mz.size();++k){
                 if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
@@ -477,7 +485,10 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
 
             }
     }
-    
+    /**
+     * @brief- set sample as reference or align this sample w.r.t to already set
+     * reference sample based on value of setAsReference
+     */
     if(setAsReference)
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     else{
@@ -492,18 +503,27 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
 
     if(referenceSampleIndex < 0){
         /**
-         * currently reference sample is choosen randomly,
-         * TODO: give user options to choose reference sample and pass index of
-         * that sample as referenceSampleIndex
+         * @brief-if reference sample is not chosen(referenceSampleIndex < 0), take a randon sample
          */
         srand(time(NULL));
         referenceSampleIndex = rand()%samples.size();
     }
     assert(referenceSampleIndex < samples.size());
 
+    /**
+     * @brief-this instance first take a reference sample and then take other samples to
+     * align w.r.t this reference sample
+     */
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
+    /**
+     * @brief-binSize is used to calculate m/z bin size and all m/z points from
+     * samples are mapped to points calculates with this binSize
+     */
     float binSize = obiParams->binSize;
+    /**
+     * @brief-calculate range of m/z of sample from reference sample
+     */
     float minMzRange = 1e9;
     float maxMzRange = 0;
     
@@ -515,20 +535,38 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
             }
     }
 
+    /**
+     * @detail-Since m/z range is calculated from reference sample, but there could some samples which
+     * can have m/z range larger than this one. That's why here m/z range is increased by 10
+     * from both side to roughly cover m/z range of other samples
+     */
     maxMzRange += 10;
     minMzRange -= 10;
+    /**
+     * @brief-m/z range has to have a positive bound
+     */ 
     if(minMzRange < 0.f)
         minMzRange = 0.f;
     minMzRange = floor(minMzRange);
     maxMzRange = ceil(maxMzRange);
 
     vector<float> mzPoints;
+    /**
+     * @brief-calculate m/z points from binSize
+     */
     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
+    /**
+     * @brief-first set reference sample by passing true as value of setAsReference argument
+     */
     alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
 
     for(int i=0 ; i < samples.size();++i){
+        /**
+         * @brief-now align all other samples by passing false as value of setAsReference argument
+         * except reference sample
+         */
         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
         if(i == referenceSampleIndex)
             continue;

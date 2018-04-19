@@ -27,7 +27,15 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
+    /**
+     * @brief- alignWithObiWarp takes all samples to be aligned and choose a sample from those
+     * with index referenceSampleIndex and align other with this one
+     */
     void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
+    /**
+     * @brief- alignSampleRts either sets one sample as a reference sample or align that based on value
+     * of setAsReference
+     */
     void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;

@@ -36,16 +36,26 @@ ObiWarp::~ObiWarp(){
 }
 
 void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
+    /**
+     * @brief- this method set data set as reference data set along which other data sets are aligned
+     */
     _tm_vals = rtPoints.size();
     tmPoint = new float[_tm_vals];
     for(int i=0; i < _tm_vals ; ++i)
         tmPoint[i] = rtPoints[i];
+    
+    /**
+     * @brief - set rt points as reference
+     */
     _tm.take(_tm_vals, tmPoint);
 
     _mz_vals = mzPoints.size();
     mzPoint = new float[_mz_vals];
     for(int i = 0; i < _mz_vals; ++i)
         mzPoint[i] = mzPoints[i];
+    /**
+     * @brief - set mz points as reference
+     */
     _mz.take(_mz_vals, mzPoint);
 
     assert(_tm_vals == intMat.size());
@@ -55,12 +65,19 @@ void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints,
         for(int j = 0; j < _mz_vals; ++j)
             mat(i,j) = intMat[i][j];
     }
+    /**
+     * @brief - set m/z matrix as reference
+     */
     _mat.take(mat);
 
 }
 
 vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
-    
+    /**
+     * @detail- this method aligns given data set w.r.t to already set data as reference
+     * Please refere to original paper and source-code (http://obi-warp.sourceforge.net) 
+     * to go into more detail
+     */
     VecF tm;
     int tm_vals = rtPoints.size();
     float* tmPoint = new float[tm_vals];

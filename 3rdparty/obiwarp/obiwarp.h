@@ -12,6 +12,10 @@
 using namespace std;
 
 struct ObiParams{
+
+    /**
+     * @brief- this struct holds value of paramters used by obi-warp algorithm
+     */ 
     ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend,
             float init_penalty, float response, bool nostdnrm, float binSize);
 
@@ -28,6 +32,10 @@ struct ObiParams{
 };
 
 class ObiWarp{
+    /**
+     * @brief- This class acts as a intermediary for alignment and uses requred methods from
+     * open-source code (http://obi-warp.sourceforge.net)
+     */
 public:
     ObiWarp(ObiParams *obiParams);
     ~ObiWarp();
