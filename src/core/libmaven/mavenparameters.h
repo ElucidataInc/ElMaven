@@ -271,7 +271,7 @@ class MavenParameters
          */
         void setOptionsDialogSettings(const char* key, const char* value);
 
-        void reset(std::list<std::string> keys);
+        void reset(const std::list<std::string>& keys);
 
         std::map<string, string>& getSettings();
 

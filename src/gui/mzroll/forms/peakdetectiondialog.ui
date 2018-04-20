@@ -996,6 +996,13 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="resetButton">
+     <property name="text">
+      <string>Reset defaults</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>

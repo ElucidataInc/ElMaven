@@ -12,6 +12,7 @@ Controller::Controller()
     connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
     connect(mw,  &MainWindow::loadedSettings, this, &Controller::updateUi);
     connect(mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
+    connect(mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
 }
 
 
@@ -23,16 +24,13 @@ Controller::~Controller()
 void Controller::resetMP(QList<QString> keys)
 {
 
-    QList<std::string> tkeys;
-    auto func = [&keys, &tkeys]() {
-        for(auto key: keys) {
-            tkeys.append(key.toStdString());
-        }
-        return tkeys;
-    };
-    tkeys = func();
+    // we need to change the 'type' from QString to std::string since maven parameters
+    // needs to independent of Qt
+    QList<std::string> _keys;
+    for(auto key: keys)
+        _keys.append(key.toStdString());
 
-    mw->mavenParameters->reset(tkeys.toStdList());
+    mw->mavenParameters->reset(_keys.toStdList());
     updateUi();
 }
 

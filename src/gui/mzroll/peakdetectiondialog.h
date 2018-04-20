@@ -53,10 +53,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void setMassCutoffType(QString type);
                 virtual void closeEvent(QCloseEvent* event) override;
 				void dialogRejected();
+                void onReset();
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
                     void settingsChanged(string key, string value);
+                    void resetSettings(QList<QString> keys);
         public:
                 QString massCutoffType;
 

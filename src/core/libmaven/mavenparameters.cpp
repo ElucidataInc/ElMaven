@@ -468,7 +468,7 @@ bool MavenParameters::loadSettings(const char* data)
 }
 
 
-void MavenParameters::reset(std::list<string> keys)
+void MavenParameters::reset(const std::list<string>& keys)
 {
 
     pugi::xml_document xmlDoc;
@@ -487,6 +487,8 @@ void MavenParameters::reset(std::list<string> keys)
         }
     }
 }
+
+
 vector<mzSample*> MavenParameters::getVisibleSamples() {
 
 	vector<mzSample*> vsamples;

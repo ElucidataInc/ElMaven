@@ -121,6 +121,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
 
+        connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -156,6 +157,11 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 }
 
+
+void PeakDetectionDialog::onReset()
+{
+    emit resetSettings(pdSettings->getSettings().keys());
+}
 
 void PeakDetectionDialog::setMassCutoffType(QString type)
 {
