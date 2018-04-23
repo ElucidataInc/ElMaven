@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // ui->label_4->setText( "<b>El-MAVEN</b> has encountered a problem and needs to close. We are sorry for the inconvenience.\n\n" \
+    // "We have created an error0 report that you can send to us.\n\n<b>This report does not contain your input files or any other personally identifiable information</b>");
     this->restartApplicationPath = "";
 
 
@@ -160,13 +162,13 @@ void MainWindow::startElMaven()
 
 void MainWindow::onStart()
 {
-    if (this->windowState != 1) {
-        this->setWindowTitle ("Bug reporting and Feature request");
-        ui->groupBox->setTitle("");
-        ui->label_4->setText( "<b>Make El Maven better by giving us your feedback.</b>");
-
-        ui->reportRestart->setText("Submit Feedback");
-    }
+    // if (this->windowState != 1) {
+    //     this->setWindowTitle ("Bug reporting and Feature request");
+    //     ui->groupBox->setTitle("");
+    //     ui->label_4->setText( "<b>Make El Maven better by giving us your feedback.</b>");
+    //
+    //     ui->reportRestart->setText("Submit Feedback");
+    // }
     this->show();
 }
 
