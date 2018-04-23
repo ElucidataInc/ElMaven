@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>453</height>
+    <width>586</width>
+    <height>415</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -35,97 +35,64 @@
        </font>
       </property>
       <property name="title">
-       <string>       Oops! We are sorry.</string>
+       <string/>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="2" column="0" colspan="2">
-        <widget class="QLabel" name="label_4">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-           <kerning>true</kerning>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unfortunately, &lt;span style=&quot; font-weight:600;&quot;&gt;El Maven&lt;/span&gt; has &lt;span style=&quot; font-weight:600;&quot;&gt;crashed&lt;/span&gt;. We will try to restore your session upon restart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="scaledContents">
-          <bool>false</bool>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QPushButton" name="reportRestart">
-         <property name="text">
-          <string>Send Report and Restart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="restart">
-         <property name="minimumSize">
-          <size>
-           <width>250</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Restart</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QLabel" name="label_5">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>The tool would also benefit if you share your email and details about the crash with us.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" rowspan="2" colspan="2">
-        <widget class="QPlainTextEdit" name="plainTextEdit"/>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Description of the crash (Optional)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="QPushButton" name="cancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-      <zorder>plainTextEdit</zorder>
-      <zorder>label_4</zorder>
-      <zorder>label_5</zorder>
-      <zorder>label</zorder>
-      <zorder>reportRestart</zorder>
-      <zorder>cancel</zorder>
-      <zorder>restart</zorder>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>12</x>
+         <y>33</y>
+         <width>521</width>
+         <height>221</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;El-MAVEN&lt;/span&gt; has encountered a problem and needs to close. We are sorry for the inconvenience.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;We have created an error report that you can send to us.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;This report does not contain your input files or any other personally identifiable information&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>240</y>
+         <width>501</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="cancel">
+          <property name="text">
+           <string>Don't send</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="reportRestart">
+          <property name="text">
+           <string>Send report</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -138,8 +105,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>594</width>
-     <height>20</height>
+     <width>586</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

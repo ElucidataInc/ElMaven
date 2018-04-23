@@ -44,9 +44,6 @@ private:
     void processLogs();
 
 private Q_SLOTS:
-    void uploadToS3Done();
-
-    void on_restart_clicked();
 
     void on_cancel_clicked();
 
