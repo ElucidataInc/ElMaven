@@ -3,6 +3,31 @@
 #include "masscutofftype.h"
 #include "mzMassCalculator.h"
 
+mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
+{
+	mzmin = minMz;
+	mzmax = maxMz;
+	rtmin = minRt;
+	rtmax = maxRt;
+	mz = minMz + (maxMz - minMz) / 2;
+	rt = minRt + (maxRt - minRt) / 2;
+	compound = NULL;
+	ionCount = 0;
+}
+
+mzSlice::mzSlice(string filterLine)
+{
+	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
+	compound = NULL;
+	srmId = filterLine;
+}
+
+mzSlice::mzSlice()
+{
+	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
+	compound = NULL;
+}
+
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
 	
