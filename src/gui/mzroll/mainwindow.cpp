@@ -115,7 +115,12 @@ void MainWindow::printvalue() {
     QProcess *pr = new QProcess;
     pr->setProgram(crashReporterPath);
     pr->setProcessChannelMode(QProcess::SeparateChannels);
-    pr->startDetached(crashReporterPath);
+
+		#if defined(Q_OS_WIN)
+			pr->start();
+		#else
+			pr->startDetached(crashReporterPath);
+		#endif
 
 }
 
