@@ -6,6 +6,7 @@
 #include "standardincludes.h"
 
 class mzSample;
+class mzSlice;
 class Isotope;
 class MassCalculator;
 class Compound;
@@ -17,6 +18,9 @@ class MassCutoff;
 using namespace std;
 
 class PeakGroup{
+
+    private:
+        mzSlice* slice;
 
     public:
         enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
@@ -50,7 +54,6 @@ class PeakGroup{
         ~PeakGroup();
 
         PeakGroup* parent;
-        Compound* compound;
 
         // have to do this since `GroupType` enum also has an Adduct.
         // In future use "enum class" instead. Also from MAVEN (upstream).
@@ -172,8 +175,7 @@ class PeakGroup{
          * @return []
          */
         inline  string getSrmId() const { return srmId; }
-
-
+    
         /**
          * [isPrimaryGroup ]
          * @method isPrimaryGroup
@@ -186,7 +188,7 @@ class PeakGroup{
          * @method hasCompoundLink
          * @return []
          */
-        inline bool hasCompoundLink() const  { if(compound != NULL) return true ; return false; }
+        inline bool hasCompoundLink() const  { if(slice != NULL && slice->compound != NULL) return true ; return false; }
 
         /**
          * [isEmpty ]
@@ -218,7 +220,22 @@ class PeakGroup{
          * @method getCompound
          * @return []
          */
-        inline Compound* getCompound() { return compound; }
+        inline Compound* getCompound()
+        {
+            if (slice != NULL) {
+                return slice->compound;
+            }
+            return NULL;
+        }
+
+        void setCompound(Compound* compound)
+        {
+            if (slice == NULL) {
+                slice = new mzSlice();
+            }
+
+            slice->compound = compound;
+        }
 
         /**
          * [getParent ]

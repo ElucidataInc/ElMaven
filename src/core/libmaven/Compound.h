@@ -47,7 +47,7 @@ class Compound{
 
         PeakGroup* getPeakGroup() { return &_group; }
         /**@brief   -   set this compound to a group and vice-versa   */
-        void setPeakGroup(const PeakGroup& group ) { _group = group; _group.compound = this; }
+        void setPeakGroup(const PeakGroup& group ) { _group = group; _group.setCompound(this); }
         /**@brief    -  check wether this compound belong to a group or not   */
         bool hasGroup()  const   { if(_group.meanMz != 0 ) return true; return false; }
 

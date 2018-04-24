@@ -1029,8 +1029,8 @@ void SpectralHitsDockWidget::integrateMS1() {
 
            if(peptideCompoundMap.count(peptide)) {
                Compound* cpd = peptideCompoundMap[peptide];
-               nearestGrp->compound = cpd;
-               nearestGrp->compound->expectedRt = slice->rt;
+               nearestGrp->setCompound(cpd);
+               nearestGrp->getCompound()->expectedRt = slice->rt;
 
                if(proteinAccessionMap.contains(cpd->name.c_str())) {
                    ProteinHit* prot = proteinAccessionMap[cpd->name.c_str()];

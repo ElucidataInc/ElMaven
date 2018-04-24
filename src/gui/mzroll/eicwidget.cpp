@@ -171,7 +171,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	eicParameters->_integratedGroup.clear();
 	QSettings *settings = getMainWindow()->getSettings();
     eicParameters->_integratedGroup.minQuality = getMainWindow()->mavenParameters->minQuality;
-	eicParameters->_integratedGroup.compound = eicParameters->_slice.compound;
+	eicParameters->_integratedGroup.setCompound(eicParameters->_slice.compound);
 	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
 	eicParameters->_integratedGroup.setSelectedSamples(getMainWindow()->samples);
 	for (int i = 0; i < eicParameters->eics.size(); i++) {
@@ -935,8 +935,8 @@ void EicWidget::replot(PeakGroup* group) {
 	addEICLines(_showSpline, _showEIC);
 	showAllPeaks();
 
-	if (group && group->compound != NULL && group->compound->expectedRt > 0)
-			_focusLineRt = group->compound->expectedRt;
+	if (group && group->getCompound() != NULL && group->getCompound()->expectedRt > 0)
+			_focusLineRt = group->getCompound()->expectedRt;
 	else _focusLineRt = 0;
 
     if (_showCubicSpline)
@@ -1046,8 +1046,8 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->compound != NULL and group->compound->expectedRt > 0)
-		_focusLineRt = group->compound->expectedRt;
+	if (group->getCompound() != NULL and group->getCompound()->expectedRt > 0)
+		_focusLineRt = group->getCompound()->expectedRt;
 	else _focusLineRt = 0;
 
 	if (group->peaks.size() > 0) {
@@ -1440,7 +1440,7 @@ void EicWidget::setCompound(Compound* c)
 	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++)
-		eicParameters->peakgroups[i].compound = c;
+		eicParameters->peakgroups[i].setCompound(c);
 	if (c->expectedRt > 0) {
 		setFocusLine(c->expectedRt);
 		selectGroupNearRt(c->expectedRt);
@@ -1489,20 +1489,20 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
 	if (group == NULL) return;
 
-	int charge = getMainWindow()->mavenParameters->getCharge(group->compound);
+	int charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
 	if (group->getExpectedMz(charge) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(charge);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
 
-	eicParameters->_slice.compound = group->compound;
+	eicParameters->_slice.compound = group->getCompound();
 	eicParameters->_slice.srmId = group->srmId;
 
 	if (!group->srmId.empty()) {
 		setSrmId(group->srmId);
-	} else if (group->compound) {
-		setCompound(group->compound);
+	} else if (group->getCompound()) {
+		setCompound(group->getCompound());
 	}
 
 	if (_autoZoom && group->parent != NULL) {
@@ -1519,7 +1519,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 		eicParameters->_slice.rtmin = bounds.rtmin;
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
-	charge = getMainWindow()->mavenParameters->getCharge(group->compound);
+	charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
 
 	if (group->getExpectedMz(charge) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(charge);
@@ -1535,9 +1535,9 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	recompute();
 	// }
 
-	if (group->compound)
+	if (group->getCompound())
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
-			eicParameters->peakgroups[i].compound = group->compound;
+			eicParameters->peakgroups[i].setCompound(group->getCompound());
 	if (eicParameters->_slice.srmId.length())
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
 			eicParameters->peakgroups[i].srmId = eicParameters->_slice.srmId;
@@ -1901,14 +1901,14 @@ void EicWidget::setGalleryToEics() {
 void EicWidget::saveRetentionTime() {
 	//qDebug <<"EicWidget::saveRetentionTime() ";
 	if (!eicParameters->selectedGroup
-			|| eicParameters->selectedGroup->compound == NULL)
+			|| eicParameters->selectedGroup->getCompound() == NULL)
 		return;
 
 	QPointF pos = _lastClickPos;
 	float rt = invX(pos.x());
-	eicParameters->selectedGroup->compound->expectedRt = rt;
+	eicParameters->selectedGroup->getCompound()->expectedRt = rt;
 
-	DB.saveRetentionTime(eicParameters->selectedGroup->compound, rt,
+	DB.saveRetentionTime(eicParameters->selectedGroup->getCompound(), rt,
 			"user_method");
 }
 

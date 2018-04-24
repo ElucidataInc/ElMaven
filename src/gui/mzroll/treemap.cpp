@@ -53,7 +53,7 @@ void TreeMap::drawMap() {
 			if ( area > 0 ) {
 					TreemapItem* treeItem = new TreemapItem(log2(area),Qt::gray);
 					treeItem->setGroup(g);
-					if ( g->hasCompoundLink() ) { Compound* c = g->compound; }
+					if ( g->hasCompoundLink() ) { Compound* c = g->getCompound(); }
 					treeItems << treeItem;
 			}
         }
@@ -350,8 +350,8 @@ void TreeMap::renderLeaf(TreemapItem *item, const double *surface)
 		qDebug() << "addRect " << rc << " " <<  rect->pos();
 
 		QString tooltip;
-		if ( group && group->compound != NULL ) {
-			tooltip = QString(group->compound->name.c_str());
+		if ( group && group->getCompound() != NULL ) {
+			tooltip = QString(group->getCompound()->name.c_str());
 		}
 		tooltip += "<br>" + QString::number(item->TmiGetSize());
 		rect->setToolTip(tooltip);

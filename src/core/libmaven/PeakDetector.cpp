@@ -120,7 +120,7 @@ void PeakDetector::pullAllIsotopes() {
     for (unsigned int j = 0; j < mavenParameters->allgroups.size(); j++) {
         if(mavenParameters->stop) break;
         PeakGroup& group = mavenParameters->allgroups[j];
-        Compound* compound = group.compound;
+        Compound* compound = group.getCompound();
 
         if (mavenParameters->pullIsotopesFlag && !group.isIsotope())
         {

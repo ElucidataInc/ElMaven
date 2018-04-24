@@ -86,9 +86,9 @@ void IsotopeWidget::clearWidget()
 
 void IsotopeWidget::peakSelected(Peak *peak, PeakGroup *group)
 {
-    clearWidget();
-    if (!(peak && group && group->compound))
-        return;
+	clearWidget();
+	if (!(peak && group && group->getCompound()))
+		return;
 
     //set selectedSample for isotope calculation
     _selectedSample = peak->getSample();
@@ -105,7 +105,7 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 		return;
 
 	//set compound, formula, window title
-	setCompound(grp->compound);
+	setCompound(grp->getCompound());
 
 	isotopeParameters->_group = grp;
 	if (grp->isIsotope())
@@ -341,7 +341,7 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group)
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->clear(QClipboard::Clipboard);
 
-    if (group->compound == NULL) {
+    if (group->getCompound() == NULL) {
         _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
                                .arg(group->tagString.c_str()));
     }
@@ -367,7 +367,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
     if (!group)
         return;
 
-    if (group->compound == NULL) {
+    if (group->getCompound() == NULL) {
         _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
                                .arg(group->tagString.c_str()));
         return;
@@ -470,8 +470,8 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 	QString tag(group->tagString.c_str());
 	if (group->isIsotope())
 		tag = QString(group->parent->tagString.c_str());
-	if (tag.isEmpty() && group->compound != NULL)
-		tag = QString(group->compound->name.c_str());
+	if (tag.isEmpty() && group->getCompound() != NULL)
+		tag = QString(group->getCompound()->name.c_str());
 	if (tag.isEmpty() && group->srmId.length())
 		tag = QString(group->srmId.c_str());
 	if (tag.isEmpty() && group->meanMz > 0)

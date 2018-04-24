@@ -1417,8 +1417,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
 
 		float rtDiff = -1;
 
-		if (group->compound != NULL && group->compound->expectedRt > 0) {
-			rtDiff = abs(group->compound->expectedRt - (group->meanRt));
+		if (group->getCompound() != NULL && group->getCompound()->expectedRt > 0) {
+			rtDiff = abs(group->getCompound()->expectedRt - (group->meanRt));
 			group->expectedRtDiff = rtDiff;
 		}
 
@@ -1426,11 +1426,11 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
 
-        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && 
-			group->compound->expectedRt > 0) {
-            
-			group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
-                                   				* (1 /( pow(log(group->maxIntensity + 1), B)));
+        if (mavenParameters->deltaRtCheckFlag && group->getCompound() != NULL && 
+            group->getCompound()->expectedRt > 0) {
+            group->groupRank = pow(rtDiff, 2*C)
+                               * pow((1.1 - group->maxQuality), A)
+                               * (1 /( pow(log(group->maxIntensity + 1), B)));
         } else {
             group->groupRank = pow((1.1 - group->maxQuality), A)
                                * (1 /(pow(log(group->maxIntensity + 1), B)));
@@ -3295,16 +3295,16 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
+	if (isotopeWidget && isotopeWidget->isVisible() && group->getCompound() != NULL) {
 		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
-    if ( group->compound != NULL) {
+    if ( group->getCompound() != NULL) {
 		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
 		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->overlayPeakGroup(group);
 		}
-        QString compoundName(group->compound->name.c_str());
+        QString compoundName(group->getCompound()->name.c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->compound);
         }
@@ -3559,8 +3559,8 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 	float expectedRt = -1;
 
 	if (group->hasCompoundLink()) {
-		compoundName = "\"" + QString(group->compound->name.c_str()) + "\"";
-		expectedRt = group->compound->expectedRt;
+		compoundName = "\"" + QString(group->getCompound()->name.c_str()) + "\"";
+		expectedRt = group->getCompound()->expectedRt;
 	}
 
 	if (compoundName.isEmpty() && group->srmId.length()) {
@@ -4158,9 +4158,9 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	}
 
 	int numberofCarbons = 0;
-	if (group->compound && !group->compound->formula.empty()) {
+	if (group->getCompound() && !group->getCompound()->formula.empty()) {
 		map<string, int> composition = MassCalculator::getComposition(
-				group->compound->formula);
+				group->getCompound()->formula);
 		numberofCarbons = composition["C"];
 	}
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
@@ -4213,9 +4213,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	}
 
 	int numberofCarbons = 0;
-	if (group->compound && !group->compound->formula.empty()) {
+	if (group->getCompound() && !group->getCompound()->formula.empty()) {
 		map<string, int> composition = MassCalculator::getComposition(
-				group->compound->formula);
+				group->getCompound()->formula);
 		numberofCarbons = composition["C"];
 	}
 

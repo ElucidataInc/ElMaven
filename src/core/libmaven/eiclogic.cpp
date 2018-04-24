@@ -20,7 +20,7 @@ void EICLogic::associateNameWithPeakGroups() {
 
 	if (_slice.compound) {
 		for (unsigned int i = 0; i < peakgroups.size(); i++) {
-			peakgroups[i].compound = _slice.compound;
+			peakgroups[i].setCompound(_slice.compound);
 		}
 	}
 	if (!_slice.srmId.empty()) {
