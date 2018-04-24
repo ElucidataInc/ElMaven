@@ -2,7 +2,7 @@
 
 using namespace Eigen;
 
-IsotopePlot::IsotopePlot(QWidget* parent, float width, float height, float stackingZValue, 
+IsotopePlot::IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
                 vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype){
 
 	_barwidth=10;
@@ -10,7 +10,7 @@ IsotopePlot::IsotopePlot(QWidget* parent, float width, float height, float stack
     mpMouseText = NULL;
     title = NULL;
     bottomAxisRect = NULL;
-    this->customPlot = new QCustomPlot(parent);
+    this->customPlot = customPlot;
     this->_width = width;
     this->_height = height;
     setZValue(stackingZValue); // inherited from QGraphicsItem, refer qt-doc
@@ -62,9 +62,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 }
 
 
-IsotopePlot::~IsotopePlot() {
-    delete customPlot;
-}
+IsotopePlot::~IsotopePlot() {}
 
 QRectF IsotopePlot::boundingRect() const
 {

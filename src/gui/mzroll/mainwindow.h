@@ -238,6 +238,7 @@ public:
 	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
+	void setIsotopicPlotStyling();
 	//TODO: Sahil - Kiran, Removed while merging mainwindow
 	// mzSample* getSample(int i) {
 	// 	assert(i < samples.size());
