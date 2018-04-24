@@ -352,8 +352,6 @@ using namespace mzUtils;
 	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
 	peptideFragmentation = new PeptideFragmentationWidget(this);
 	
-	setIsotopicPlotStyling();
-
 	// prepare x axis:
 	alignmentVizPlot->xAxis->setTicks(false);
 	alignmentVizPlot->xAxis->setBasePen(QPen(Qt::white));
@@ -992,21 +990,6 @@ QDockWidget* MainWindow::createDockWidgetIsotopes(QString title, QWidget* w) {
 	dock->setWidget(w);
 	return dock;
 
-}
-
-void MainWindow::setIsotopicPlotStyling() {
-	//prepare x axis
-	customPlot->xAxis->setTickLabels( false );
-	customPlot->xAxis->setTicks( false );
-	customPlot->xAxis->setBasePen(QPen(Qt::white));
-	customPlot->xAxis->grid()->setVisible(false);	
-	// prepare y axis:
-	customPlot->yAxis->grid()->setVisible(false);
-	customPlot->yAxis->setTickLabels( false );
-	customPlot->yAxis->setTicks( false );
-	customPlot->yAxis->setBasePen(QPen(Qt::white));
-	customPlot->yAxis->setRange(0, 1);
-	
 }
 
 void MainWindow::mzrollLoadDB(QString dbname) {
