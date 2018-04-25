@@ -30,11 +30,11 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.2.4.1 El-MAVEN Polly Integration</font>
+                            <font color="#8985db">v0.3.0</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/wtc01djphcnsr55/El-Maven-v0.2.4.1.exe?dl=1' style='display:hidden' id='win_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.2.4.1')" data-target="modal1" class="btn modal-trigger">
+                            <a href='https://github.com/ElucidataInc/ElMaven/releases/download/v0.3.0/El-Maven-v0.3.0-Win.exe' style='display:hidden' id='win_0.3.0'></a>
+                            <button style="background-color:#8985db;" onClick="setLink('win_0.3.0')" data-target="modal1" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -88,11 +88,11 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.2.4.1 El-MAVEN Polly Integration</font>
+                            <font color="#8985db">v0.3.0</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/2bvautna8m2mz1e/El-Maven-v0.2.4.1.zip?dl=1' style='display:hidden' id='mac_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="modal1" class="btn modal-trigger">
+                            <a href='https://github.com/ElucidataInc/ElMaven/releases/download/v0.3.0/El-Maven-v0.3.0-Mac.app.zip' style='display:hidden' id='mac_0.3.0'></a>
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.3.0')" data-target="modal1" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
