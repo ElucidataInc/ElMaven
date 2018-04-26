@@ -22,6 +22,7 @@
 #include "treedockwidget.h"
 #include "tabledockwidget.h"
 #include "alignmentpolyvizdockwidget.h"
+#include "isotopeplotdockwidget.h"
 #include "peakdetectiondialog.h"
 #include "pollyelmaveninterface.h"
 #include "alignmentdialog.h"
@@ -75,6 +76,7 @@ class MassCalcWidget;
 class TreeDockWidget;
 class TableDockWidget;
 class AlignmentPolyVizDockWidget;
+class IsotopePlotDockWidget;
 class Classifier;
 class ClassifierNeuralNet;
 class ClassifierNaiveBayes;
@@ -158,6 +160,7 @@ public:
 	AlignmentVizWidget *alignmentVizWidget;
 	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
+	IsotopePlotDockWidget *isotopePlotDockWidget;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
 	QCustomPlot *alignmentPolyVizPlot;
@@ -174,7 +177,6 @@ public:
 	QDockWidget *spectraDockWidget;
 	QDockWidget *alignmentVizDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
-	QDockWidget *isotopePlotsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
 	QDockWidget *scatterDockWidget;

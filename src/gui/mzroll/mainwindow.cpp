@@ -303,12 +303,14 @@ using namespace mzUtils;
 	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
 	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
 
+	isotopePlotDockWidget = new IsotopePlotDockWidget(this);
+	isotopePlotDockWidget->setWidget(customPlot);
+
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
 	alignmentVizDockWidget = createDockWidget("AlignmentVisualization", alignmentVizPlot);
 	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
-	isotopePlotsDockWidget = createDockWidget("IsotopePlots", customPlot);
 	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
@@ -363,7 +365,7 @@ using namespace mzUtils;
 	alignmentVizDockWidget->setVisible(false);
 	alignmentPolyVizDockWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
-	isotopePlotsDockWidget->show();
+	isotopePlotDockWidget->show();
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
@@ -420,7 +422,7 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentPolyVizDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotsDockWidget, Qt::Horizontal);
+	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, adductWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, covariantsPanel, Qt::Horizontal);
@@ -449,7 +451,7 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentPolyVizDockWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
-	tabifyDockWidget(spectraDockWidget, isotopePlotsDockWidget);
+	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
@@ -3354,8 +3356,8 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
 
-		btnShowIsotopeplot->setChecked(mw->isotopePlotsDockWidget->isVisible());
-		connect(mw->isotopePlotsDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
+		btnShowIsotopeplot->setChecked(mw->isotopePlotDockWidget->isVisible());
+		connect(mw->isotopePlotDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
 				SLOT(setChecked(bool)));
 
 		return btnShowIsotopeplot;

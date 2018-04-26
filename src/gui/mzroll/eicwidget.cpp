@@ -1882,10 +1882,10 @@ void EicWidget::selectGroupNearRt(float rt) {
 
 void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
 	if (_showIsotopicBarPlot) {
-		getMainWindow()->isotopePlotsDockWidget->show();
+		getMainWindow()->isotopePlotDockWidget->show();
 		//addIsotopicPlot(group);
 	} else {
-		getMainWindow()->isotopePlotsDockWidget->hide();
+		getMainWindow()->isotopePlotDockWidget->hide();
 	}
 }
 
@@ -1894,11 +1894,11 @@ void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
 		return;
 
 	if (_showIsotopePlot) {
-		getMainWindow()->isotopePlotsDockWidget->show();
-		getMainWindow()->isotopePlotsDockWidget->raise();
+		getMainWindow()->isotopePlotDockWidget->show();
+		getMainWindow()->isotopePlotDockWidget->raise();
 		addIsotopicPlot(group);
 	} else {
-		getMainWindow()->isotopePlotsDockWidget->hide();
+		getMainWindow()->isotopePlotDockWidget->hide();
 	}
 }
 
