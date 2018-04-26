@@ -11,6 +11,7 @@ IsotopePlotDockWidget::IsotopePlotDockWidget(MainWindow *mw) :
 
     setToolBar();
 
+    setWindowTitle("Isotope Plot: ");
 }
 
 IsotopePlotDockWidget::~IsotopePlotDockWidget()
