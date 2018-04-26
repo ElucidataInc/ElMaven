@@ -1142,7 +1142,7 @@ void EicWidget::addIsotopicPlot(PeakGroup* group) {
 	if (group == NULL)
 		return;
 	if (_isotopeplot == NULL)
-		_isotopeplot = new IsotopePlot(0, scene());
+		_isotopeplot = new IsotopePlot();
 	if (_isotopeplot->scene() != scene())
 		scene()->addItem(_isotopeplot);
 	_isotopeplot->hide();

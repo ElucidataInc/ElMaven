@@ -5,8 +5,8 @@
 using namespace Eigen;
 
 
-IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
-    :QGraphicsItem(parent) {
+IsotopePlot::IsotopePlot()
+    :QGraphicsItem() {
 	// Initialised existing values - Kiran
 	_barwidth=10;
 	_mw=NULL;
@@ -14,8 +14,8 @@ IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
     mpMouseText = NULL;
     title = NULL;
     bottomAxisRect = NULL;
-    if ( scene != NULL ) {
-        _width = scene->width()*0.25;
+    if (scene()) {
+        _width = scene()->width()*0.25;
         _height = 10;
     }
 }
