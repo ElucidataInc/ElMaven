@@ -1,4 +1,7 @@
+<<<<<<< c9b211be62274ef911e081ba108599510c814283
 <?xml version="1.0" encoding="UTF-8"?>
+=======
+>>>>>>> [UI] Move isotope plot to a dockwidget
 <ui version="4.0">
  <class>IsotopePlotDockWidget</class>
  <widget class="QDockWidget" name="IsotopePlotDockWidget">
