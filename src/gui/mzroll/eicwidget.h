@@ -64,7 +64,6 @@ public Q_SLOTS:
 	void addFocusLine(PeakGroup*);
 	void addBarPlot(PeakGroup*);
 	void addBoxPlot(PeakGroup*);
-	void addIsotopicPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
     void addMS2Events(float mzmin, float mzmax); //TODO: Sahil Added while merging eicWidget
 	void integrateRegion(float rtmin, float rtmax);

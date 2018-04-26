@@ -1137,31 +1137,6 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 	return;
 }
 
-void EicWidget::addIsotopicPlot(PeakGroup* group) {
-	//qDebug <<" EicWidget::addIsotopicPlot(PeakGroup* group)";
-	if (group == NULL)
-		return;
-	if (_isotopeplot == NULL)
-		_isotopeplot = new IsotopePlot();
-	if (_isotopeplot->scene() != scene())
-		scene()->addItem(_isotopeplot);
-	_isotopeplot->hide();
-
-	if (group->childCountBarPlot() == 0)
-		return;
-
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (samples.size() == 0)
-		return;
-
-	_isotopeplot->setPos(scene()->width() * 0.10, scene()->height() * 0.10);
-	_isotopeplot->setZValue(1000);
-	_isotopeplot->setMainWindow(getMainWindow());
-	_isotopeplot->setPeakGroup(group);
-	_isotopeplot->show();
-	return;
-}
-
 void EicWidget::addBoxPlot(PeakGroup* group) {
 	//qDebug <<" EicWidget::addBoxPlot(PeakGroup* group)";
 	if (group == NULL)
@@ -1896,7 +1871,7 @@ void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
 	if (_showIsotopePlot) {
 		getMainWindow()->isotopePlotDockWidget->show();
 		getMainWindow()->isotopePlotDockWidget->raise();
-		addIsotopicPlot(group);
+		getMainWindow()->addIsotopicPlot(group);
 	} else {
 		getMainWindow()->isotopePlotDockWidget->hide();
 	}

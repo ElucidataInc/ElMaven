@@ -23,6 +23,7 @@
 #include "tabledockwidget.h"
 #include "alignmentpolyvizdockwidget.h"
 #include "isotopeplotdockwidget.h"
+#include "isotopeplot.h"
 #include "peakdetectiondialog.h"
 #include "pollyelmaveninterface.h"
 #include "alignmentdialog.h"
@@ -161,6 +162,7 @@ public:
 	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	IsotopePlotDockWidget *isotopePlotDockWidget;
+	IsotopePlot *isotopePlot;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
 	QCustomPlot *alignmentPolyVizPlot;
@@ -260,6 +262,7 @@ public:
 		Q_EMIT(reBoot());
 	}
 	vector<mzSample*> getVisibleSamples();
+	void addIsotopicPlot(PeakGroup* group);
 
 	PeakGroup::QType getUserQuantType();
 
