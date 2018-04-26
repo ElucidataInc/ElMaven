@@ -288,7 +288,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
-    compoundName = sanitizeString(group->getName().c_str()).toStdString();
+    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
 
     if (group->compound != NULL) {
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
@@ -352,7 +352,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    compoundName = sanitizeString(group->getName().c_str()).toStdString();
+    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
 
     if (group->compound != NULL) {
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
