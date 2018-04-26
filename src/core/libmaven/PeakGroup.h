@@ -20,7 +20,7 @@ using namespace std;
 class PeakGroup{
 
     private:
-        mzSlice* slice;
+        mzSlice* _slice;
 
     public:
         enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
@@ -181,7 +181,7 @@ class PeakGroup{
          * @method hasCompoundLink
          * @return []
          */
-        inline bool hasCompoundLink() const  { if(slice != NULL && slice->compound != NULL) return true ; return false; }
+        inline bool hasCompoundLink() const  { if(_slice != NULL && _slice->compound != NULL) return true ; return false; }
 
         /**
          * [isEmpty ]
@@ -215,20 +215,24 @@ class PeakGroup{
          */
         inline Compound* getCompound()
         {
-            if (slice != NULL) {
-                return slice->compound;
+            if (_slice != NULL) {
+                return _slice->compound;
             }
             return NULL;
         }
 
         void setCompound(Compound* compound)
         {
-            if (slice == NULL) {
-                slice = new mzSlice();
+            if (_slice == NULL) {
+                _slice = new mzSlice();
             }
 
-            slice->compound = compound;
+            _slice->compound = compound;
         }
+
+        void setSlice(mzSlice* slice);
+
+        mzSlice* getSlice();
 
         /**
          * [getParent ]
