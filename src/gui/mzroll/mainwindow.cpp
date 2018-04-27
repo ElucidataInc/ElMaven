@@ -287,6 +287,7 @@ using namespace mzUtils;
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
+	isotopePlot = new IsotopePlot(this);
 
 
 	massCalcWidget = new MassCalcWidget(this);
@@ -3590,30 +3591,6 @@ int MainWindow::versionCheck() {
 			SLOT(append(QString)));
 
 	return 0;
-}
-
-void MainWindow::addIsotopicPlot(PeakGroup* group) {
-	if (!group)
-		return;
-	if (!isotopePlot)
-		isotopePlot = new IsotopePlot();
-	//if (!isotopeplot->scene())
-	//	scene()->addItem(isotopeplot);
-	//isotopeplot->hide();
-
-	if (group->childCountBarPlot() == 0)
-		return;
-
-	vector<mzSample*> samples = getVisibleSamples();
-	if (samples.size() == 0)
-		return;
-
-	//isotopePlot->setPos(scene()->width() * 0.10, scene()->height() * 0.10);
-	isotopePlot->setZValue(1000);
-	isotopePlot->setMainWindow(this);
-	isotopePlot->setPeakGroup(group);
-	isotopePlot->show();
-	return;
 }
 
 void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {

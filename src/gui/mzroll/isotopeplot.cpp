@@ -5,11 +5,11 @@
 using namespace Eigen;
 
 
-IsotopePlot::IsotopePlot()
+IsotopePlot::IsotopePlot(MainWindow *mw)
     :QGraphicsItem() {
 	// Initialised existing values - Kiran
 	_barwidth=10;
-	_mw=NULL;
+	_mw=mw;
 	_group=NULL;
     mpMouseText = NULL;
     title = NULL;
@@ -46,7 +46,9 @@ void IsotopePlot::clear() {
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
 
+    clear();
     if ( group == NULL ) return;
+    if (group->childCountBarPlot() == 0) return;
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
@@ -57,6 +59,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();
+    if (_samples.size() == 0) return;
 	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
 
     _isotopes.clear();
@@ -66,12 +69,6 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
             _isotopes.push_back(isotope);
         }
     }
-    //std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
-	/*
-	for(int i=0; i < _isotopes.size(); i++ )  {
-		cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl; 
-	}
-	*/
 
     showBars();
 }
