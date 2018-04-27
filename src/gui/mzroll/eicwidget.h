@@ -152,7 +152,6 @@ public Q_SLOTS:
 	}
 
 	void markGroupGood();
-	void showIsotopicBarPlot(bool);
 	void markGroupBad();
 	void copyToClipboard();
 	void selectionChangedAction();
