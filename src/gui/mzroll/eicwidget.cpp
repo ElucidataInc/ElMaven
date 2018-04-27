@@ -18,7 +18,6 @@ EicWidget::EicWidget(QWidget *p) {
 
 	_barplot = NULL;
 	_boxplot = NULL;
-	_isotopeplot = NULL;
 	_focusLine = NULL;
 	_selectionLine = NULL;
 	_statusText = NULL;
@@ -32,7 +31,6 @@ EicWidget::EicWidget(QWidget *p) {
 	showTicLine(false);
 	showBicLine(false); //TODO: Sahil, added while merging eicwidget
     showNotes(false); //TODO: Sahil, added while merging eicwidget
-	showIsotopePlot(true);
 	showBarPlot(true);
 	showBoxPlot(false);
     automaticPeakGrouping(true); //TODO: Sahil, added while merging eicwidget
@@ -859,11 +857,7 @@ void EicWidget::setupColors() {
 }
 
 void EicWidget::clearPlot() {
-	//qDebug <<" EicWidget::clearPlot()";
-	if (_isotopeplot && _isotopeplot->scene()) {
-		_isotopeplot->clear();
-		scene()->removeItem(_isotopeplot);
-	}
+
 	if (_barplot && _barplot->scene()) {
 		_barplot->clear();
 		scene()->removeItem(_barplot);
@@ -1773,12 +1767,6 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
     o34->setChecked(_showEICLines);
     connect(o34, SIGNAL(toggled(bool)), SLOT(showEICLines(bool)));
     connect(o34, SIGNAL(toggled(bool)), SLOT(replot()));
-
-	QAction* o6 = options.addAction("Show Isotope Plot");
-	o6->setCheckable(true);
-	o6->setChecked(_showIsotopePlot);
-	connect(o6, SIGNAL(toggled(bool)), SLOT(showIsotopePlot(bool)));
-	connect(o6, SIGNAL(toggled(bool)), SLOT(replot()));
 
 	QAction* o7 = options.addAction("Show Box Plot");
 	o7->setCheckable(true);

@@ -9,7 +9,6 @@
 #include "eiclogic.h"
 #include "plot_axes.h"
 #include "mainwindow.h"
-#include "isotopeplot.h"
 #include "peakFiltering.h"
 
 class EIC;
@@ -18,7 +17,6 @@ class BoxPlot;
 class BarPlot;
 class PeakGroup;
 class MainWindow;
-class IsotopePlot;
 
 class EicWidget: public QGraphicsView {
 Q_OBJECT
@@ -135,9 +133,6 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-	void showIsotopePlot(bool f) {
-		_showIsotopePlot = f;
-	}
 	void showBarPlot(bool f) {
 		_showBarPlot = f;
 	}
@@ -203,7 +198,6 @@ private:
 
 	BarPlot* _barplot;
 	BoxPlot* _boxplot;
-	IsotopePlot* _isotopeplot;
 	Note* _statusText;
 
 	bool _showEIC;
@@ -223,7 +217,6 @@ private:
 	bool _areaIntegration;
 	bool _spectraAveraging;
 
-	bool _showIsotopePlot;
 	bool _showBarPlot;
 	bool _showBoxPlot;
 
