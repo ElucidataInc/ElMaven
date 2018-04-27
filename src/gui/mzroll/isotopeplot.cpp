@@ -45,8 +45,6 @@ void IsotopePlot::clear() {
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
-
-    clear();
     if ( group == NULL ) return;
     if (group->childCountBarPlot() == 0) return;
 
@@ -56,6 +54,8 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
     if ( isVisible() == true && group == _group) return;
     _group = group;
+    //clear plot if new group is selected 
+    clear();
 
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();
