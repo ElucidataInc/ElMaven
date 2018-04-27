@@ -25,6 +25,7 @@
 #include "mzfileio.h"
 #include "controller.h"
 #include "elmavenlogger.h"
+#include "ElmavCrashHandler.h"
 
 #include <QDir>
 #include <list>
@@ -55,6 +56,9 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("El-Maven");
 
     initializeLogger();
+    ElmavCrashHandler elMavCh;
+    Q_UNUSED(elMavCh);
+
 
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);

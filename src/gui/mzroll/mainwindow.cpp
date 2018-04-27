@@ -54,12 +54,7 @@ QDataStream &operator<<(QDataStream &out, const SpectralHit*) {
 QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
 }
-long long mainwindowDummy;
-void signalHandler( int signum ) {
-	MainWindow *pthis = (MainWindow * )mainwindowDummy;
-	pthis->printvalue();
-	exit(signum);
-}
+
 
 void MainWindow::setValue(int value)
 {
@@ -138,29 +133,7 @@ using namespace mzUtils;
  MainWindow::MainWindow(QWidget *parent) :
 		QMainWindow(parent) {
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
-	m_value=0; 	
-	mainwindowDummy = (long long) this;
-	//signal(SIGINT, signalHandler);
-	signal(SIGFPE, signalHandler);
-	signal(SIGILL, signalHandler);
-	signal(SIGABRT, signalHandler);
-	signal(SIGSEGV, signalHandler);
-	signal(SIGTERM, signalHandler);
-	#ifdef UNIX
-	signal(SIGQUIT, signalHandler);
-    signal(SIGBUS, signalHandler);
-	signal(SIGSYS, signalHandler);
-    #endif
-    #ifdef __linux
-    signal(SIGSTKFLT, signalHandler);
-    signal(SIGPWR, signalHandler);
-	#endif
-
-	#ifdef WIN32
-	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-    SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-	SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&exception_handler);
-	#endif
+    m_value=0;
 
 	qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
