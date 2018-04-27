@@ -60,6 +60,13 @@ win32 {
 
 
 LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lpollyCLI               #64bit
+
+macx {
+
+  LIBS -= -lnetcdf
+  LIBS -= -lcdfread
+}
+
 message($$LDFLAGS)
 
 INSTALLS += sources target

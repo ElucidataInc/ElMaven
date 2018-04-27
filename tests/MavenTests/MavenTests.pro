@@ -27,6 +27,10 @@ QMAKE_LFLAGS += -L$$top_builddir/libs/
 LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf -lobiwarp -lpollyCLI
 !macx: LIBS += -fopenmp
 
+macx {
+LIBS -= -lnetcdf -lcdfread
+}
+
 
 # Input
 HEADERS += \
