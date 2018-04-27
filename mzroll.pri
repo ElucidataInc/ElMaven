@@ -61,21 +61,21 @@ unix: {
 #
 
 mac {
-    message("using mac config")
-    DEFINES += CDFPARSER
-    DEFINES += ZLIB
-    DEFINES += unix
-    LIBS += -lcdfread -lnetcdf -lz
-    DEFINES += MAC
+#    message("using mac config")
+#    DEFINES += CDFPARSER
+#    DEFINES += ZLIB
+#    DEFINES += unix
+#    LIBS +=  -lz
+#    DEFINES += MAC
 }
 
 unix {
-   message("using unix config")
-   DEFINES -= LITTLE_ENDIAN
-   DEFINES += UNIX
-   DEFINES += CDFPARSER
-   DEFINES += ZLIB
-   LIBS += -lcdfread -lnetcdf -lz
+#   message("using unix config")
+#   DEFINES -= LITTLE_ENDIAN
+#   DEFINES += UNIX
+#   DEFINES += CDFPARSER
+#   DEFINES += ZLIB
+#   LIBS += -lcdfread  -lz
 }
 
 
