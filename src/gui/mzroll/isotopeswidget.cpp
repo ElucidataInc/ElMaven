@@ -403,9 +403,11 @@ void IsotopeWidget::setClipboard()
 
 void IsotopeWidget::updateIsotopicBarplot()
 {
+	_mw->isotopePlotDockWidget->show();
+	_mw->isotopePlotDockWidget->raise();
 	if (isotopeParametersBarPlot->_group)
 	{
-		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
+		_mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group);
 	}
 	workerThreadBarplot->stop();
 

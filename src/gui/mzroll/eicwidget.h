@@ -52,7 +52,6 @@ public Q_SLOTS:
 	 **/
 	PeakGroup* setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
-	void updateIsotopicBarplot(PeakGroup* group);
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
