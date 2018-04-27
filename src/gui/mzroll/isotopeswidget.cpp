@@ -403,10 +403,8 @@ void IsotopeWidget::setClipboard()
 
 void IsotopeWidget::updateIsotopicBarplot()
 {
-	if (!_mw->isotopePlotDockWidget->isVisible()) 
-		return;
-	else
-		_mw->isotopePlotDockWidget->raise();
+	_mw->isotopePlotDockWidget->show();
+	_mw->isotopePlotDockWidget->raise();
 	if (isotopeParametersBarPlot->_group)
 	{
 		_mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group);
