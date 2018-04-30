@@ -514,6 +514,67 @@ void LigandWidget::saveCompoundList(){
     }
 }
 
+void LigandWidget::saveCompoundListToPolly(QString fileName,QString dbname){
+   if (fileName.isEmpty()) return;
+   QString SEP="\t";
+   if (fileName.endsWith(".csv",Qt::CaseInsensitive)) {
+       SEP=",";
+   } else if (!fileName.endsWith(".tab",Qt::CaseInsensitive)) {
+       fileName = fileName + tr(".tab");
+       SEP="\t";
+   }
+
+    QFile data(fileName);
+    if (data.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream out(&data);
+
+        //header
+        out << "polarity" << SEP;
+        out << "compound" << SEP;
+        //Addiditional headers added when merging with Maven776 - Kiran
+        out << "mz" << SEP;
+        out << "charge" << SEP;
+        out << "precursorMz" << SEP;
+        out << "collisionEnergy" << SEP;
+        out << "productMz" << SEP;
+        out << "expectedRt" << SEP;
+        out << "id" << SEP;
+        out << "formula" << SEP;
+        out << "srmId" << SEP;
+        out << "category" << endl;
+
+        for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
+            Compound* compound = DB.compoundsDB[i];
+            if(compound->db != dbname.toStdString() ) continue;
+
+            QString charpolarity;
+            if (compound->charge > 0) charpolarity = "+";
+            if (compound->charge < 0) charpolarity = "-";
+
+            QStringList category;
+
+            for(int i=0; i < compound->category.size(); i++) {
+                category << QString(compound->category[i].c_str());
+            }
+
+            out << charpolarity << SEP;
+            out << QString(compound->name.c_str()) << SEP;
+            out << compound->mass << SEP;
+            out << compound->charge << SEP;
+            out << compound->precursorMz  << SEP;
+            out << compound->collisionEnergy << SEP;
+            out << compound->productMz    << SEP;
+            out << compound->expectedRt   << SEP;
+            out << compound->id.c_str() <<  SEP;
+            out << compound->formula.c_str() << SEP;
+            out << compound->srmId.c_str() << SEP;
+            out << category.join(";") << SEP;
+            out << "\n";
+        }
+        setDatabaseAltered(databaseSelect->currentText(),false);
+    }
+}
+
 
 void LigandWidget::showGallery() {
 
