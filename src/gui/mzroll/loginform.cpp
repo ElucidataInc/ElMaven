@@ -25,19 +25,23 @@ LoginForm::~LoginForm()
 
 void LoginForm::on_pushButton_clicked()
 {
-    int status_inside;
+    QString status_inside;
     username = ui->lineEdit_username->text();
     password = ui->lineEdit_password->text();
     ui->login_label->setStyleSheet("QLabel {color : green; }");
     ui->login_label->setText("Logging into polly..");
     status_inside = _pollyintegration->authenticate_login(username,password);
-    if (status_inside==1){
+    if (status_inside=="ok"){
         hide();
         qDebug()<<"Logged in, moving on now....";
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
-        _pollyelmaveninterfacedialog->loadFormData();
+        _pollyelmaveninterfacedialog->startup_data_load();
     }
-    else{
+    else if(status_inside=="error"){
+        ui->login_label->setStyleSheet("QLabel {color : red; }");
+        ui->login_label->setText("Please check internet connection");
+    }
+    else {
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Incorrect credentials");
     }

@@ -691,8 +691,8 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 		// set jspath and nodepath for _pollyIntegration library .
 		_pollyIntegration->jsPath = jsPath;
 		_pollyIntegration->nodePath = nodePath;
-		int status = _pollyIntegration->authenticate_login(username,password);
-		if (status!=1){
+		QString status = _pollyIntegration->authenticate_login(username,password);
+		if (status!="ok"){
 			qDebug()<<"Incorrect credentials...Please check..";
 			return upload_project_id;
 		}
