@@ -29,6 +29,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 * @brief credentials required to connect to polly..
                 */
                 QStringList credentials;
+                QStringList organisationSpecificCompoundDB;
                 /**
                 * @brief constructor with mainwindow pointer..
                 * @param mw [pointer to mainwindow, used to create GUI for elmaven-polly-interface]
@@ -116,7 +117,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-
+                void populate_comboBox_compound_db();
                 void initialSetup();
                 /**
                  * @brief This function is responsible for loading the form data on polly-elmaven-interface GUI
