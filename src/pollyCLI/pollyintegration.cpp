@@ -38,6 +38,7 @@ PollyIntegration::~PollyIntegration()
 // CALLS TO: none
 //
 // CALLED FROM: multiple functions in this script
+
 QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
@@ -192,6 +193,9 @@ int PollyIntegration::check_already_logged_in(){
 QString PollyIntegration::authenticate_login(QString username,QString password){
     QString command = "authenticate";
     QString status;
+    QFile file (credFile);
+    file.remove();
+    
     QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
     if (status_inside==1){
@@ -379,3 +383,14 @@ QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filena
     }
 }
 
+QStringList PollyIntegration::parseResultOrganizationalDBs(QString result){
+    QStringList OrganizationalDBs;
+
+    return OrganizationalDBs;
+}
+QStringList PollyIntegration::getOrganizationalDBs(QString organization){
+    QString command = "get_organizational_databases";
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << organization);
+    QStringList OrganizationalDBs = parseResultOrganizationalDBs(result_and_error.at(0));    
+    return OrganizationalDBs;
+}
