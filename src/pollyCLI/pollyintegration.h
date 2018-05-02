@@ -2,7 +2,6 @@
 #define POLLYINTEGRATION_H
 
 #include <QtCore>
-#include <QByteArrayList>
 
 class PollyIntegration
 {
@@ -17,7 +16,7 @@ class PollyIntegration
 		QString nodePath;
 		QString user_login_required();
 		QString createProjectOnPolly(QString projectname);
-        QByteArrayList run_qt_process(QString command, QStringList args = QStringList());
+        QList<QByteArray> run_qt_process(QString command, QStringList args = QStringList());
 	    QByteArray run_system_process(QString command);
 	    QString get_urls(QByteArray result);
 	    QStringList get_system_urls(QString filename);
