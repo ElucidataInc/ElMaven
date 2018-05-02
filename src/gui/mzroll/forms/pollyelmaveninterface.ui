@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -394,9 +394,9 @@
        <widget class="QLabel" name="label_6">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>50</y>
-          <width>221</width>
+          <width>101</width>
           <height>31</height>
          </rect>
         </property>
@@ -410,7 +410,7 @@
        <widget class="QComboBox" name="comboBox_load_projects">
         <property name="geometry">
          <rect>
-          <x>250</x>
+          <x>140</x>
           <y>50</y>
           <width>261</width>
           <height>31</height>
@@ -466,9 +466,9 @@
        <widget class="QLabel" name="label_2">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>130</y>
-          <width>221</width>
+          <width>181</width>
           <height>21</height>
          </rect>
         </property>
@@ -482,10 +482,10 @@
        <widget class="QLabel" name="label_5">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>180</y>
-          <width>221</width>
-          <height>16</height>
+          <width>101</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
@@ -498,9 +498,9 @@
        <widget class="QComboBox" name="comboBox_load_db">
         <property name="geometry">
          <rect>
-          <x>250</x>
+          <x>190</x>
           <y>120</y>
-          <width>261</width>
+          <width>181</width>
           <height>31</height>
          </rect>
         </property>
@@ -508,8 +508,8 @@
        <widget class="QComboBox" name="comboBox_load_settings">
         <property name="geometry">
          <rect>
-          <x>250</x>
-          <y>170</y>
+          <x>140</x>
+          <y>180</y>
           <width>261</width>
           <height>31</height>
          </rect>
@@ -580,13 +580,49 @@
          </property>
         </widget>
        </widget>
+       <widget class="QLabel" name="label_15">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>120</y>
+          <width>31</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>OR</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_organization_DBs">
+        <property name="geometry">
+         <rect>
+          <x>650</x>
+          <y>114</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_16">
+        <property name="geometry">
+         <rect>
+          <x>450</x>
+          <y>120</y>
+          <width>181</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Organizational databases</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QLabel" name="label_welcome_load">
        <property name="geometry">
         <rect>
          <x>9</x>
          <y>9</y>
-         <width>133</width>
+         <width>801</width>
          <height>17</height>
         </rect>
        </property>
