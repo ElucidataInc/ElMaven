@@ -239,6 +239,40 @@ module.exports.get_Project_names = function (token_filename) {
     });
 }
 
+module.exports.get_organizational_databases = function (token_filename,organization) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var options = {
+        method: 'GET',
+        url: 'https://polly.elucidata.io/api/project',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header                
+            },
+        body:
+            {
+                // put state or something here, that will return all the names of compound DBs stored in 
+                // organization folder of Elmaven-Polly-Integration bucket..
+            },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`PostRun Response: `));
+        if (response.statusCode != 200) {
+            console.log(chalk.red.bold("Unable to get Project upload urls. Please authenticate. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
 module.exports.get_Project_files = function (token_filename,id) {
     if (has_id_token(token_filename)) {
         public_token_header = read_id_token(token_filename);
