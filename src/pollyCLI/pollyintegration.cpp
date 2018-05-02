@@ -38,8 +38,7 @@ PollyIntegration::~PollyIntegration()
 // CALLS TO: none
 //
 // CALLED FROM: multiple functions in this script
-
-QByteArrayList PollyIntegration::run_qt_process(QString command, QStringList args){
+QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
@@ -61,7 +60,7 @@ QByteArrayList PollyIntegration::run_qt_process(QString command, QStringList arg
     QByteArray result2 = process.readAllStandardError();
     qDebug()<<"StandardOutput  - "<<result;
     qDebug()<<"StandardError, if any  - "<<result2;
-    return QByteArrayList()<<result<<result2;
+    return QList<QByteArray>()<<result<<result2;
 }
 
 // name OF FUNCTION: get_run_id
@@ -116,7 +115,7 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "upload_project_data";
-        QByteArrayList patch_id_result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
         patch_ids.append(patch_id_result_and_error.at(0));
     }
     return patch_ids;
@@ -148,7 +147,7 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "download_project_data";
-        QByteArrayList result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        QList<QByteArray> result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
         patch_ids.append(result_and_error.at(0));
     }
     return patch_ids;
@@ -166,7 +165,7 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
 int PollyIntegration::check_already_logged_in(){
     int status;
     QString command = QString("authenticate");
-    QByteArrayList result_and_error = run_qt_process(command, QStringList() << credFile);
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile);
     QList<QByteArray> test_list = result_and_error.at(0).split('\n');
     QByteArray status_line = test_list[0];
     if (status_line=="already logged in"){
@@ -193,7 +192,7 @@ int PollyIntegration::check_already_logged_in(){
 QString PollyIntegration::authenticate_login(QString username,QString password){
     QString command = "authenticate";
     QString status;
-    QByteArrayList result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
     if (status_inside==1){
         status="ok";
@@ -264,7 +263,7 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 
 QVariantMap PollyIntegration::getUserProjects(){
     QString get_projects_command = "get_Project_names";
-    QByteArrayList result_and_error = run_qt_process(get_projects_command,QStringList() << credFile);
+    QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile);
     QVariantMap user_projects = getUserProjectsMap(result_and_error.at(0));
     return user_projects;
 }
@@ -308,7 +307,7 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
     for (int i=0; i < ProjectIds.size(); ++i){
         QString ProjectId = ProjectIds.at(i);
         QString get_projects_command = "get_Project_files";
-        QByteArrayList result_and_error = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
+        QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
         QStringList user_projectfiles = getUserProjectFilesMap(result_and_error.at(0));
         user_projectfilesmap[ProjectId] = user_projectfiles;
     }
@@ -326,7 +325,7 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
 
 QString PollyIntegration::createProjectOnPolly(QString projectname){
     QString command2 = "createProject";
-    QByteArrayList result_and_error = run_qt_process(command2, QStringList() << credFile<< projectname);
+    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile<< projectname);
     QString run_id = get_run_id(result_and_error.at(0));
     return run_id;
 }
@@ -348,7 +347,7 @@ QStringList PollyIntegration::exportData(QStringList filenames,QString projectId
     QElapsedTimer timer;
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QByteArrayList result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
+    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
     QStringList patch_ids = get_project_upload_url_commands(result_and_error.at(0),filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
     return patch_ids;
@@ -367,7 +366,7 @@ QStringList PollyIntegration::exportData(QStringList filenames,QString projectId
 
 QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filenames) {
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QByteArrayList result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
+    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
     QStringList patch_ids = get_projectFiles_download_url_commands(result_and_error.at(0),filenames);
     if (0<filenames.size()&&!patch_ids.isEmpty()){
         return "project data loaded";
