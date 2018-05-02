@@ -18,6 +18,7 @@
 #include "QString"
 #include "QStringList"
 #include "QByteArray"
+#include <QDateTime>
 
 #include "parseOptions.h"
 #include "options.h"
