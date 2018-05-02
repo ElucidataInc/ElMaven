@@ -610,7 +610,14 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
 
 void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
-
+	QDateTime current_time;
+    QString datetimestamp= current_time.currentDateTime().toString();
+    datetimestamp.replace(" ","_");
+    
+	filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
+	QString csv_filename = filedir+QDir::separator()+datetimestamp+"_"+QString::fromStdString(setName);// uploading the csv file 
+	QString json_filename = filedir+QDir::separator()+datetimestamp+"_"+QString::fromStdString(setName);//  uploading the json file
+	
 	//create an output folder
 	mzUtils::createDir(mavenParameters->outputdir.c_str());
 
@@ -620,20 +627,19 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	groupReduction();
 
 	//save Eic Json
-	saveJson(setName);
+	saveJson(json_filename.toStdString());
 
 	//save Mzroll File
 	saveMzRoll(setName);
 
 	//save output CSV
-	saveCSV(setName);
+	saveCSV(csv_filename.toStdString());
 	//Trying to upload to polly now..
 	cout<<"uploding to polly now.."<<endl;
+	
 	try {
-		filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
-		QString filename = filedir+QDir::separator()+QString::fromStdString(setName)+".csv";// Only uploading the csv file as of now
 		// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<filename); //add more files to upload, if desired..
+		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"); //add more files to upload, if desired..
 		if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 			qDebug()<<"redirection url - \n"<<redirection_url;
