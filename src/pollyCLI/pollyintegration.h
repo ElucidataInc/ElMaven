@@ -2,6 +2,7 @@
 #define POLLYINTEGRATION_H
 
 #include <QtCore>
+#include <QByteArrayList>
 
 class PollyIntegration
 {
