@@ -282,15 +282,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
             << tagString;
 
-    string compoundName;
-    string compoundID;
-    string formula;
+    string compoundName = "";
+    string compoundID = "";
+    string formula = "";
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
-    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+
 
     if (group->compound != NULL) {
+        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
@@ -352,9 +353,9 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
 
     if (group->compound != NULL) {
+        compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
     }
