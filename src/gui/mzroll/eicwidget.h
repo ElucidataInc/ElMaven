@@ -50,7 +50,7 @@ public Q_SLOTS:
 	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
 	 * @param selected compound object
 	 **/
-	void setCompound(Compound* c);
+	PeakGroup* setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
 	void updateIsotopicBarplot(PeakGroup* group);
 	void addEICLines(bool showSpline, bool showEIC);
