@@ -30,7 +30,7 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.3.1</font>
+                            <font color="#8985db">v0.3.1 (beta)</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://github.com/ElucidataInc/ElMaven/releases/download/v0.3.1/Windows-El-Maven-v0.3.1.exe' style='display:hidden' id='win_0.3.1'></a>
