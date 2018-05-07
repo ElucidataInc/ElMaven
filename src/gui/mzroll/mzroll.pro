@@ -39,6 +39,12 @@ linux {
     LIBS += -lgoogle-breakpad -pthread
 }
 
+win32 {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += -lgoogle-breakpad -pthread
+}
+
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \

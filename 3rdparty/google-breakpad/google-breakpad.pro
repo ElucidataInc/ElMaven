@@ -5,6 +5,30 @@ OBJECTS_DIR=$$top_builddir/tmp/breakpad
 
 CONFIG += staticlib
 
+
+win32 {
+
+    INCLUDEPATH += src/
+
+    HEADERS +=  src/common/windows/string_utils-inl.h \
+                src/common/windows/guid_string.h \
+                src/client/windows/handler/exception_handler.h \
+                src/client/windows/common/ipc_protocol.h \
+                src/google_breakpad/common/minidump_format.h \
+                src/google_breakpad/common/breakpad_types.h \
+                src/client/windows/crash_generation/crash_generation_client.h \
+                src/common/scoped_ptr.h
+
+    SOURCES +=  src/client/windows/handler/exception_handler.cc \
+                src/common/windows/string_utils.cc \
+                src/common/windows/guid_string.cc \
+                src/client/windows/crash_generation/crash_generation_client.cc
+
+
+}
+
+
+
 linux {
 
     INCLUDEPATH += src/

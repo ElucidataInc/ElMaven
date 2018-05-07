@@ -119,15 +119,6 @@ void MainWindow::printvalue() {
 
 }
 
-#ifdef WIN32
-int exception_handler(LPEXCEPTION_POINTERS p)
-{
-   	MainWindow *pthis = (MainWindow * )mainwindowDummy;
-	pthis->printvalue();
-    exit(1);
-}
-#endif
-
 using namespace mzUtils;
 
  MainWindow::MainWindow(QWidget *parent) :
