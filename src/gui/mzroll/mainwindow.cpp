@@ -2751,9 +2751,8 @@ void MainWindow::showPeakdetectionDialog() {
 }
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
-	pollyElmavenInterfaceDialog->show();
-	analytics->hitScreenView("PollyDialog");
 	pollyElmavenInterfaceDialog->initialSetup();
+	analytics->hitScreenView("PollyDialog");
 }
 
 void MainWindow::showSRMList() {
