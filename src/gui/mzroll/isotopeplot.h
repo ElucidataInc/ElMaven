@@ -11,41 +11,6 @@ class PeakGroup;
 class QGraphicsItem;
 class QGraphicsScene;
 
-class IsotopeBar : public QObject, public QGraphicsRectItem
-{
-    Q_OBJECT
-#if QT_VERSION >= 0x040600
-    Q_INTERFACES( QGraphicsItem )
-#endif
-
-	public:
-	IsotopeBar(QGraphicsItem *parent, QGraphicsScene *scene):QGraphicsRectItem(parent){
-			setFlag(ItemIsSelectable);
-			setFlag(ItemIsFocusable);
-			setAcceptHoverEvents(true);
-	}
-
-        QRectF boundingRect() {
-              return QGraphicsRectItem::boundingRect();
-        }
-
-	Q_SIGNALS:
-		void groupSelected(PeakGroup* g);
-		void groupUpdated(PeakGroup*  g);
-		void showInfo(QString,int xpos=0, int ypos=0);
-		void showMiniEICPlot(PeakGroup*g);
-
-	protected:        
-                void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-                    QGraphicsRectItem::paint(painter,option,widget);
-                }
-
-	void hoverEnterEvent (QGraphicsSceneHoverEvent*event);
-//	void mouseDoubleClickEvent (QGraphicsSceneMouseEvent*event);
-//	void mousePressEvent (QGraphicsSceneMouseEvent*event);
-	void keyPressEvent(QKeyEvent *e);
-};
-
 
 class IsotopePlot : public QObject, public QGraphicsItem
 {
@@ -56,37 +21,52 @@ class IsotopePlot : public QObject, public QGraphicsItem
 #endif
 
 public:
-    IsotopePlot(QGraphicsItem *parent, QGraphicsScene *scene);
+    /**
+     * details- This class is used to display isotopic bar plot for a group.
+     *  To use this class create one instance of this class.
+     * => customPlot is field that will be used to draw all isotopic bars
+     * => widht and height are window width and height
+     * => stackingZValue is stacking parameters of different graphr, refer Qt-doc
+     * => abundanceThresold is abundanc thresold for isotopes to display
+     * 
+     * After creating this object, set this object to scene that is holding this isotope-plot,(scene()->addItem(This Obejct))
+     * Now specify a group by setPeakGroup method to be show
+     * now call show() method on this object that is inherited from QGraphicsItem
+     */
+    IsotopePlot(QCustomPlot* customPlot, float width, float height, float stackingZValue, 
+                vector<mzSample*> samples, float abundanceThresold, PeakGroup::QType qtype);
     ~IsotopePlot();
 
     void setPeakGroup(PeakGroup* group);
-    void setMainWindow(MainWindow* mw);
     QRectF boundingRect() const;
     void clear();
     void showBars();
     void normalizeIsotopicMatrix(MatrixXf &MM);
-    void setBelowAbThresholdMatrixEntries(MatrixXf &MM,MainWindow* _mw);
+    MatrixXf getIsotopicMatrix(PeakGroup* group);
+    void setBelowAbThresholdMatrixEntries(MatrixXf &MM);
+    void setIsotopicPlotStyling();
 
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);
 	
 protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void contextMenuEvent(QContextMenuEvent * event);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){}
 
 
 private:
     float _width;
     float _height;
     float _barwidth;
+    float _abundanceThresold;
     vector<mzSample*> _samples;
-    MainWindow* _mw;
     QVector<QString> labels;
     QCPItemText * mpMouseText;
     QVector<QCPBars *> isotopesType;
     QCPTextElement * title;
     QCPAxisRect * bottomAxisRect;
+    QCustomPlot *customPlot;
 
+    PeakGroup::QType _qtype;
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;
     MatrixXf MMDuplicate;
