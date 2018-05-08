@@ -20,8 +20,12 @@ public:
     ~LoginForm();
     PollyIntegration* _pollyintegration;
     PollyElmavenInterfaceDialog* _pollyelmaveninterfacedialog;
-    QString username;
-    QString password;
+    
+    void cancel();
+
+public slots:
+    void handleResults(QStringList results);
+
 private slots:
     /**
      * @brief This function tries to log in the user based on credentials provided by the user
@@ -35,6 +39,20 @@ private slots:
 
 private:
     Ui::LoginForm *ui;
+};
+
+class WorkerThread : public QThread
+{
+    Q_OBJECT
+    public:
+        WorkerThread();
+        ~WorkerThread();
+        PollyIntegration* _pollyintegration;
+        QString username;
+        QString password;
+        void run();
+    signals:
+        void resultReady(QStringList result);
 };
 
 #endif // LOGINFORM_H
