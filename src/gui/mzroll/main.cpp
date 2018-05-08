@@ -39,7 +39,7 @@ void initializeLogger()
 {
     QDir dir;
     QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
-                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
+                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + qApp->sessionId() \
                    + QDir::separator() ;
 
     // Logs  won't be saved anywhere if this mkpath returns False;

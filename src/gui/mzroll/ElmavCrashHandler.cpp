@@ -47,7 +47,7 @@ ElmavCrashHandler::ElmavCrashHandler()
     // set up break pad
     QDir dir;
     QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
-                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "crash_dumps" \
+                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + qApp->sessionId() \
                    + QDir::separator() ;
     dir.mkpath(path);
     std::cerr << " path of crash reporter : " << qApp->applicationDirPath().toStdString() << std::endl;
