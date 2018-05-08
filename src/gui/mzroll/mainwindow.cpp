@@ -2726,7 +2726,7 @@ void MainWindow::showPeakdetectionDialog() {
 }
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
-	pollyElmavenInterfaceDialog->show();
+	// pollyElmavenInterfaceDialog->show();
 	pollyElmavenInterfaceDialog->initialSetup();
 }
 
