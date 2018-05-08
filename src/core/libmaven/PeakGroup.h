@@ -529,7 +529,6 @@ class PeakGroup{
         bool operator< (const PeakGroup* b) const { return this->maxIntensity < b->maxIntensity; }
 
         void calGroupRank(bool deltaRtCheckFlag,
-                            float compoundRTWindow,
                             int qualityWeight,
                             int intensityWeight,
                             int deltaRTWeight);

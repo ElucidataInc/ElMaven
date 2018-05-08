@@ -1869,8 +1869,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 	PeakGroup* selGroup = NULL;
 	selGroup = eicParameters->selectGroupNearRt(rt,
 												selGroup,
-												getMainWindow()->mavenParameters->matchRtFlag,
-												getMainWindow()->mavenParameters->compoundRTWindow,
+												getMainWindow()->mavenParameters->deltaRtCheckFlag,
 												getMainWindow()->mavenParameters->qualityWeight,
 												getMainWindow()->mavenParameters->intensityWeight,
 												getMainWindow()->mavenParameters->deltaRTWeight);

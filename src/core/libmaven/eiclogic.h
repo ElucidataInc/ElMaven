@@ -30,7 +30,6 @@ public:
 	PeakGroup* selectGroupNearRt(float rt,
 								PeakGroup* selGroup,
 								bool matchRtFlag,
-								float compoundRTWindow,
 								int qualityWeight,
 								int intensityWeight,
 								int deltaRTWeight);
