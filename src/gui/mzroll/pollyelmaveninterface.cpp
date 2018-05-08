@@ -5,10 +5,11 @@
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         QDialog(mw),
         mainwindow(mw),
-        _loginform(nullptr)
+        _loginform(NULL)
 {
         setupUi(this);
         setModal(true);
+        
         _pollyIntegration = new PollyIntegration();
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -24,9 +25,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
     qDebug()<<"exiting PollyElmavenInterfaceDialog now....";
-    if(_loginform!=nullptr){
-        delete _loginform;
-    }
+    if (_loginform) delete (_loginform);
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()
@@ -45,6 +44,10 @@ void PollyElmavenInterfaceDialog::initialSetup()
     }
     else{
         QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
+        QMessageBox msgBox(NULL);
+        msgBox.setWindowModality(Qt::NonModal);
+        msgBox.setWindowTitle("fetching data from polly..");
+        msgBox.show();
         startup_data_load();
     }
 }
@@ -71,10 +74,6 @@ void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
 }
 
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
-    QMessageBox msgBox(NULL);
-    msgBox.setWindowModality(Qt::NonModal);
-    msgBox.setWindowTitle("getting data from polly..");
-    msgBox.show();
     label_welcome_load->setStyleSheet("QLabel {color : green; }");
     label_welcome_load->setText("Welcome back "+credentials.at(0));
     comboBox_collaborators->clear();
@@ -118,13 +117,14 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     qDebug()<<"size  of list "<<n<<endl;
     if (n>0){
         for (int i=0; i < n; ++i){
-            QString peak_table_name = QString("Peak Table ")+QString::number(i);
+            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
             peakTableNameMapping[peak_table_name]=peaksTableList.at(i);
             comboBox_table_name->addItem(peak_table_name);
         }        
     }
     qDebug()<<"DB.compoundsDB.size()  - "<<DB.compoundsDB.size();
     populate_comboBox_compound_db();
+    this->show();
     return projectnames_id;
 }
 
@@ -369,6 +369,7 @@ void PollyElmavenInterfaceDialog::loadDataFromPolly()
     if (load_status=="project data loaded"){
         mainwindow->loadPollySettings(writable_temp_dir+QDir::separator()+settings_file);
     }
+    progressBar_load_project->setRange(0, 100);
     progressBar_load_project->setValue(100);
     QMessageBox msgBox(mainwindow);
     msgBox.setText(load_status);
