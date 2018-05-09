@@ -63,7 +63,6 @@ private Q_SLOTS:
     void filterTreeItems(QString filterString);
 
 private:
-    float mzrollVersion;
     QTreeWidgetItem* getParentFolder(QString filename);
     void markBlank(QTreeWidgetItem* item);
     void unmarkBlank(QTreeWidgetItem* item);
