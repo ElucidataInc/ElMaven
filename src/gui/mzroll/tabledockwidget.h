@@ -93,6 +93,11 @@ class TableDockWidget : public QDockWidget
     QList<PeakGroup *> getGroups();
     int tableId;
 
+    /**< for making old mzroll compatible, this will act as a flag
+    *whether loaded mzroll file is old or new one. this will be set by class
+    *method <markv_0_1_5mzroll>
+    */
+    bool mzrollv_0_1_5;
 
     MatrixXf getGroupMatrix();
     MatrixXf getGroupMatrix(vector<mzSample *> &samples, PeakGroup::QType qtype);
@@ -259,7 +264,14 @@ private:
     *created from mzroll file. It will read SamplesUsed attribute of a group
     *and if it's value is "Used", then assign this mzSample to that group
     */
-    void readSamplesXML(QXmlStreamReader &xml, PeakGroup *group);
+    void readSamplesXML(QXmlStreamReader &xml, PeakGroup *group, float mzrollVersion);
+
+    /**@brief-mark varible <mzrollv_0_1_5> true or false
+     *@details  this method marks varible <mzrollv_0_1_5> true if loaded mzroll
+     * file is of v0.1.5 or older otherwise false based on one attribute
+     * <SamplesUsed> which is introduced here.
+    */
+    void markv_0_1_5mzroll(QString fileName);
 
     void setupFiltersDialog();
 

@@ -18,7 +18,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
    // _splitter = new QSplitter(Qt::Vertical,this);
 
-    mzrollVersion = 0;
     _editor = new QTextEdit(this);
     _editor->setFont(font);
     _editor->setToolTip("Project Description.");
@@ -678,9 +677,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     xml.setDevice(xml.device());
     QString progressText;
     while (!xml.atEnd()) {
-        if (xml.name() == "project") {
-            mzrollVersion = xml.attributes().value("mzrollVersion").toFloat();
-        }
+
 
         xml.readNext();
         if (xml.isStartElement()) {
