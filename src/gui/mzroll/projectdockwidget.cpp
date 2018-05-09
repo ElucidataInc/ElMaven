@@ -18,6 +18,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
    // _splitter = new QSplitter(Qt::Vertical,this);
 
+    mzrollVersion = 0;
     _editor = new QTextEdit(this);
     _editor->setFont(font);
     _editor->setToolTip("Project Description.");
@@ -66,18 +67,15 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     colorButton->setToolTip("Change Sample Color");
     connect(colorButton,SIGNAL(clicked()), SLOT(changeColors()));
 
-    //TODO: Sahil, Added this button while merging projectDockWidget
     QToolButton* removeSamples = new QToolButton(toolBar);
     removeSamples->setIcon(QIcon(rsrcPath + "/delete.png"));
     removeSamples->setToolTip("Remove Samples");
     connect(removeSamples,SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
 
-    //TODO: Sahil, Added this button while merging projectDockWidget
     QToolButton* checkUncheck = new QToolButton(toolBar);
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
     checkUncheck->setToolTip("Show / Hide Selected Samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
-    //TODO: Giridhari, Create this button to set samples as Blank samples
     QToolButton* blankButton = new QToolButton(toolBar);
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
     blankButton->setToolTip("Set As a Blank Sample");
@@ -680,6 +678,10 @@ void ProjectDockWidget::loadProject(QString fileName) {
     xml.setDevice(xml.device());
     QString progressText;
     while (!xml.atEnd()) {
+        if (xml.name() == "project") {
+            mzrollVersion = xml.attributes().value("mzrollVersion").toFloat();
+        }
+
         xml.readNext();
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
@@ -794,7 +796,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
     stream.writeStartElement("project");
-
+    stream.writeAttribute("mzrollVersion", "1.0");
     stream.writeStartElement("samples");
 
     vector<mzSample*> samples = _mainwindow->getSamples();
