@@ -3,14 +3,16 @@
 
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, const QString& id) :
     QMainWindow(parent),
+    sessionId(id),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     // ui->label_4->setText( "<b>El-MAVEN</b> has encountered a problem and needs to close. We are sorry for the inconvenience.\n\n" \
     // "We have created an error0 report that you can send to us.\n\n<b>This report does not contain your input files or any other personally identifiable information</b>");
     this->restartApplicationPath = "";
+
 
 
     QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \

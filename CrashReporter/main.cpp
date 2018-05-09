@@ -8,7 +8,9 @@ int main(int argc, char *argv[])
     qApp->setOrganizationName("ElucidataInc");
     qApp->setApplicationName("El-Maven");
 
-    MainWindow w;
+
+    // argv[1] contains the session id of el-maven
+    MainWindow w(nullptr,QString(argv[1]));
 
     w.show();
 
