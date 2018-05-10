@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent,const QString& id );
+    explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QString restartApplicationPath;
     QString accessKey;
@@ -54,8 +54,6 @@ private:
     QString _script;
     QString _logs;
     QStringList _logsPath;
-    // el-maven's session id
-    QString sessionId;
 };
 
 #endif // MAINWINDOW_H

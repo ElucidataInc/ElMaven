@@ -2,10 +2,8 @@
 #include <QStandardPaths>
 
 
-
-MainWindow::MainWindow(QWidget *parent, const QString& id) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    sessionId(id),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);

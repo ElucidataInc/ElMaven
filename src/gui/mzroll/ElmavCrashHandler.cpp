@@ -37,7 +37,7 @@ static bool startCrashReporter(const wchar_t* dump_path,const wchar_t* id, void*
 
     QProcess* cReporter = new QProcess(nullptr);
     cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_WIN);
-    cReporter->setArguments(QStringList() << qApp->sessionId());
+    cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
     cReporter->start();
 
 }
