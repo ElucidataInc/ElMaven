@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include "file_uploader.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,8 +10,9 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("El-Maven");
 
 
-    // argv[1] contains the session id of el-maven
-    MainWindow w(nullptr,QString(argv[1]));
+    // argv[1] contains the path of dump files and logs
+    FileUploader uploader((QString(argv[1])));
+    MainWindow w;
 
     w.show();
 

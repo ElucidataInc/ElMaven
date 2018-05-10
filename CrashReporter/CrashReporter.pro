@@ -30,8 +30,10 @@ CONFIG(debug, debug|release){
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+        file_uploader.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+            file_uploader.h
 
 FORMS    += mainwindow.ui
