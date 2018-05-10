@@ -179,9 +179,9 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
     rt = xml.attributes().value("rt").toString().toFloat();
     charge = xml.attributes().value("Charge").toString().toInt();
     formula = xml.attributes().value("Formula").toString().toStdString();
-    precursormz = xml.attributes().value("Precursor Mz").toString().toFloat();
-    productmz = xml.attributes().value("Product Mz").toString().toFloat();
-    collisionenergy = xml.attributes().value("Collision Energy").toString().toFloat();
+    precursormz = xml.attributes().value("precursorMz").toString().toFloat();
+    productmz = xml.attributes().value("productMz").toString().toFloat();
+    collisionenergy = xml.attributes().value("collisionEnergy").toString().toFloat();
 
     while(xml.readNextStartElement()) {
         if (xml.name() == "categories") {

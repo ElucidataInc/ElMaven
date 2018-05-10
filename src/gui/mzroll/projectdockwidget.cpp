@@ -846,9 +846,9 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
         if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
         if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
-        if (compound->precursorMz) stream.writeAttribute("Precursor Mz", QString::number(compound->precursorMz, 'f', 6));
-        if (compound->productMz) stream.writeAttribute("Product Mz", QString::number(compound->productMz, 'f', 6));
-        if (compound->collisionEnergy) stream.writeAttribute("Collision Energy", QString::number(compound->collisionEnergy, 'f' ,6));
+        if (compound->precursorMz) stream.writeAttribute("precursorMz", QString::number(compound->precursorMz, 'f', 6));
+        if (compound->productMz) stream.writeAttribute("productMz", QString::number(compound->productMz, 'f', 6));
+        if (compound->collisionEnergy) stream.writeAttribute("collisionEnergy", QString::number(compound->collisionEnergy, 'f' ,6));
 
         if(compound->category.size() > 0) {
             stream.writeStartElement("categories");
