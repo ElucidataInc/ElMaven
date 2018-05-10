@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QtDebug>
 #include <QProcess>
-#include "include/qs3/qs3.h"
+//#include "include/qs3/qs3.h"
 #include <QDateTime>
 #include <QEventLoop>
 #include <QStatusBar>
