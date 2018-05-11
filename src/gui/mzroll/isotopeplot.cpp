@@ -148,13 +148,15 @@ void IsotopePlot::showBars() {
 
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
     isotopesType.resize(MM.cols());
+    QPen barPen(Qt::black);
+    barPen.setWidthF(0.5);
 
     for(int j=0; j < MM.cols(); j++ ) {
         isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
         int h = j % 20;
-        isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
+        isotopesType[j]->setPen(barPen);
 	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
@@ -170,6 +172,7 @@ void IsotopePlot::showBars() {
         }
         isotopesType[j]->setData(sampleData, isotopeData);
         isotopesType[j]->rescaleKeyAxis(false);
+        isotopesType[j]->rescaleValueAxis(true);
     }
 
     if(mpMouseText) {
