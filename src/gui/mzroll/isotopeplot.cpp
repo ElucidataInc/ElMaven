@@ -15,9 +15,9 @@ IsotopePlot::IsotopePlot(MainWindow *mw)
     title = NULL;
     bottomAxisRect = NULL;
     if (scene()) {
-        _width = scene()->width()*0.25;
-        _height = 10;
-    }
+         _width = scene()->width()*0.25;
+         _height = 10;
+     }
 }
 
 void IsotopePlot::setMainWindow(MainWindow* mw) { _mw = mw; }
@@ -150,7 +150,7 @@ void IsotopePlot::showBars() {
     isotopesType.resize(MM.cols());
 
     for(int j=0; j < MM.cols(); j++ ) {
-        isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
+        isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
         int h = j % 20;
@@ -169,7 +169,7 @@ void IsotopePlot::showBars() {
             sampleData << i;
         }
         isotopesType[j]->setData(sampleData, isotopeData);
-
+        isotopesType[j]->rescaleKeyAxis(false);
     }
 
     if(mpMouseText) {
@@ -179,7 +179,6 @@ void IsotopePlot::showBars() {
 
     if(!mpMouseText) return;
 
-    //_mw->customPlot->addItem(mpMouseText); 
     mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
     mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
     mpMouseText->setPositionAlignment(Qt::AlignLeft);
@@ -188,8 +187,7 @@ void IsotopePlot::showBars() {
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
 
     _mw->setIsotopicPlotStyling();
-    //_mw->customPlot->rescaleAxes();
-    _mw->customPlot->xAxis->setRange(-0.5, MM.rows());
+    _mw->customPlot->yAxis->setRange(-0.5, MM.rows());
 
     disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
