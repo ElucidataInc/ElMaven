@@ -2230,6 +2230,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::createMenus() {
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 	QMenu* widgetsMenu = menuBar()->addMenu(tr("&Widgets"));
+	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
 
 	QAction* openAct = new QAction(QIcon(":/images/open.png"),
 			tr("&Load Samples|Projects|Peaks"), this);
@@ -2303,11 +2304,37 @@ void MainWindow::createMenus() {
 	aj->setChecked(false);
     connect(aj,SIGNAL(toggled(bool)),fragPanel,SLOT(setVisible(bool)));
 
-    QAction* al = widgetsMenu->addAction("Peptide Fragmenation");
+    QAction* al = widgetsMenu->addAction("Peptide Fragmentation");
     al->setCheckable(true);  al->setChecked(false);
     connect(al,SIGNAL(toggled(bool)),peptideFragmentation,SLOT(setVisible(bool)));
 
+	QSignalMapper* signalMapper = new QSignalMapper (this) ;
+	QAction* doc = helpMenu->addAction("Documentation");
+	connect(doc,SIGNAL(triggered(bool)), signalMapper, SLOT(map()));
+
+	QAction* tutorial = helpMenu->addAction("Video Tutorials");
+	connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
+
+	QAction* faq = helpMenu->addAction("FAQs");
+	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
+
+	signalMapper->setMapping(doc, 1);
+	signalMapper->setMapping(tutorial, 2);
+	signalMapper->setMapping(faq, 3);
+
+	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(openURL(int)));
+
 	menuBar()->show();
+}
+
+void MainWindow::openURL(int choice)
+{
+	map<int,QUrl> URL{
+		{1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
+		{2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
+		{3, QUrl("https://elucidatainc.github.io/ElMaven/FAQ")}
+	};
+	QDesktopServices::openUrl(URL[choice]);
 }
 
 QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
