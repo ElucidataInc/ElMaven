@@ -22,6 +22,7 @@ bool FileUploader::uploadMinidump()
     typedef std::basic_string<wchar_t> wstring;
     std::map<wstring, wstring> files;
     std::map<wstring, wstring> parameters;
+    parameters[L"Logs"] =  QString(additionalData).toStdWString();
     files[L"upload_file_minidump"] = dmpFilePath.toStdWString();
     qDebug() << "uploading file: " << dmpFilePath;
 
