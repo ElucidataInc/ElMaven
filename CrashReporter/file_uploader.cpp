@@ -2,12 +2,37 @@
 #include <QDir>
 #include <QDebug>
 
+#ifdef Q_OS_WIN
+#include <common/windows/http_upload.h>
+#endif
+
 FileUploader::FileUploader(const QString& dPath): dumpPath(dPath)
 {
 
     if(!dumpPath.isEmpty())
         preProcess();
 
+}
+
+FileUploader::~FileUploader()
+{}
+
+bool FileUploader::uploadMinidump()
+{
+    typedef std::basic_string<wchar_t> wstring;
+    std::map<wstring, wstring> files;
+    std::map<wstring, wstring> parameters;
+    files[L"upload_file_minidump"] = dmpFilePath.toStdWString();
+    qDebug() << "uploading file: " << dmpFilePath;
+
+    return google_breakpad::HTTPUpload::SendRequest(
+                L"https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e",
+                parameters,
+                files,
+                /* timeout */ nullptr,
+                /* response body */ nullptr,
+                /* response code */ nullptr
+                );
 }
 
 void FileUploader::preProcess()

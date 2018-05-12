@@ -1,9 +1,11 @@
 #include "mainwindow.h"
+#include "file_uploader.h"
 #include <QStandardPaths>
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, FileUploader* fUploader) :
     QMainWindow(parent),
+    uploader(fUploader),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -12,54 +14,54 @@ MainWindow::MainWindow(QWidget *parent) :
     this->restartApplicationPath = "";
 
 
+//    connect(reportRestart, &QPushButton::clicked, uploader, &FileUploader::uploadMinidump);
+//    QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
+//                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
+//                   + QDir::separator();
 
-    QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
-                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
-                   + QDir::separator();
+//    _logsPath << ( basePath + "elMavLogs") << (basePath + "elMavLogs.1") << (basePath + "elMavLogs.2");
+//    // won't work on mac;
+//     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+//        _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
+//    #endif
 
-    _logsPath << ( basePath + "elMavLogs") << (basePath + "elMavLogs.1") << (basePath + "elMavLogs.2");
-    // won't work on mac;
-     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
-    #endif
-
-    #ifdef Q_OS_MAC
-        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
-    #endif
+//    #ifdef Q_OS_MAC
+//        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+//                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
+//    #endif
 
 
-    QString nodePath = QStandardPaths::findExecutable("node");
+//    QString nodePath = QStandardPaths::findExecutable("node");
 
-    #ifdef Q_OS_WIN
-      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
-        nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
-    #endif
+//    #ifdef Q_OS_WIN
+//      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+//        nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
+//    #endif
 
-    #ifdef Q_OS_LINUX
-      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
-          nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
-    #endif
+//    #ifdef Q_OS_LINUX
+//      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+//          nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
+//    #endif
 
-    #ifdef Q_OS_MAC
-      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
-        nodePath = binDir + "node_bin" + QDir::separator() + "node";
-    #endif
+//    #ifdef Q_OS_MAC
+//      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+//      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+//        nodePath = binDir + "node_bin" + QDir::separator() + "node";
+//    #endif
 
 
 
     // set up the process
-    _process  = new QProcess(this);
-    _process->setProcessChannelMode(QProcess::SeparateChannels);
-    _process->setProgram(nodePath);
+//    _process  = new QProcess(this);
+//    _process->setProcessChannelMode(QProcess::SeparateChannels);
+//    _process->setProgram(nodePath);
 
 
 
-    connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
-    connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
-    connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
-    connect(_process, &QProcess::started, this, &MainWindow::started);
+//    connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
+//    connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
+//    connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
+//    connect(_process, &QProcess::started, this, &MainWindow::started);
     //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
     // connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
 }
@@ -69,9 +71,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    if(_process->state() != QProcess::NotRunning ) {
-        _process->waitForFinished();
-    }
+//    if(_process->state() != QProcess::NotRunning ) {
+//        _process->waitForFinished();
+//    }
 
 
     delete ui;
@@ -111,27 +113,27 @@ void MainWindow::finished(int exitCode)
 
 void MainWindow::processLogs()
 {
-    for(const QString& path: _logsPath) {
-        QFile fptr(path);
+//    for(const QString& path: _logsPath) {
+//        QFile fptr(path);
 
-        if(fptr.open(QIODevice::ReadOnly)) {
-            std::string log = std::string(fptr.readAll().data());
-            std::string::size_type n;
+//        if(fptr.open(QIODevice::ReadOnly)) {
+//            std::string log = std::string(fptr.readAll().data());
+//            std::string::size_type n;
 
-            while(log.find(' ') != std::string::npos) {
-               n = log.find(' ');
-               log.replace(n, 1, "__");
-            }
+//            while(log.find(' ') != std::string::npos) {
+//               n = log.find(' ');
+//               log.replace(n, 1, "__");
+//            }
 
-            while(log.find('\n') != std::string::npos) {
-               n = log.find('\n');
-               log.replace(n, 1, "###");
-            }
+//            while(log.find('\n') != std::string::npos) {
+//               n = log.find('\n');
+//               log.replace(n, 1, "###");
+//            }
 
-            _logs += QString(log.c_str());
-            fptr.close();
-        }
-    }
+//            _logs += QString(log.c_str());
+//            fptr.close();
+//        }
+//    }
 }
 
 void MainWindow::uploadLogs()
@@ -180,5 +182,7 @@ void MainWindow::on_cancel_clicked()
 
 void MainWindow::on_reportRestart_clicked()
 {
-    uploadLogs();
+//    uploadLogs();
+    uploader->uploadMinidump();
+    this->close();
 }

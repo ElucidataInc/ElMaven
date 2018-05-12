@@ -1,11 +1,18 @@
 #ifndef FILEUPLOADER_H
 #define FILEUPLOADER_H
 #include <QString>
+#include <QObject>
 
-class FileUploader{
+class FileUploader: public QObject
+{
 
+    Q_OBJECT
     public:
         FileUploader(const QString& dPath);
+        ~FileUploader();
+
+    public slots:
+        bool uploadMinidump();
 
     private:
         /**

@@ -35,6 +35,7 @@ static bool startCrashReporter(const google_breakpad::MinidumpDescriptor& descri
 static bool startCrashReporter(const wchar_t* dump_path,const wchar_t* id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* ass, bool succeeded)
 {
 
+    std::cerr << "starting crash reporter" << std::endl;
     QProcess* cReporter = new QProcess(nullptr);
     cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_WIN);
     cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
