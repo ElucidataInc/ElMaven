@@ -630,6 +630,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		QDateTime current_time;
 		QString datetimestamp= current_time.currentDateTime().toString();
 		datetimestamp.replace(" ","_");
+		datetimestamp.replace(":","-");
 
 		QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
 		QDir qdir(writable_temp_dir);
