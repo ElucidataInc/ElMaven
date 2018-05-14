@@ -315,11 +315,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     label_upload_status->setText("Preparig files to upload..");
     QCoreApplication::processEvents();
     QStringList filenames = prepareFilesToUpload(qdir);
-    qDebug()<<'filenames - '<<filenames;
     if (filenames.isEmpty()){
-        // QMessageBox msgBox(mainwindow);
-        // msgBox.setText("Unable to prepare files to upload..");
-        // msgBox.exec();
         label_upload_status->setText("Unable to prepare files to upload..");
         QCoreApplication::processEvents();
         return "";
@@ -347,26 +343,18 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     progressBar_upload->setValue(100);
     bool status = qdir.removeRecursively();
-    label_upload_status->setText("Go T");
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
-        // QMessageBox msgBox(mainwindow);
         label_upload_status->setTextFormat(Qt::RichText);
         label_upload_status->setText(redirection_url);
-        
-        // msgBox.setWindowTitle("Redirecting to polly..");
-        // msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-        // msgBox.setText(redirection_url);
-        // msgBox.exec();
+        QCoreApplication::processEvents();
+    
         return "";
     }
     else{
-        // QMessageBox msgBox(mainwindow);
         label_upload_status->setText("Unable to upload data.");
-        // msgBox.setText("Unable to upload data.");
-        // msgBox.exec();
         return "";
     }
 }
@@ -376,15 +364,14 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     QDateTime current_time;
     QString datetimestamp= current_time.currentDateTime().toString();
     datetimestamp.replace(" ","_");
-    qDebug()<<"datetime -"<< datetimestamp;
-
+    datetimestamp.replace(":","-");
+    
     QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
     QString peak_table_name = comboBox_table_name->currentText();
     QString export_option = comboBox_export_table->currentText();
     QString export_format = comboBox_export_format->currentText();
     QString user_filename = lineEdit_filename->text();
     QString compound_db = comboBox_compound_db->currentText();
-    qDebug()<<"current compound DB to upload - "<<comboBox_compound_db;
     QString user_compound_DB_name = lineEdit_compound_DB_name->text();
     
     if (user_filename==""){
