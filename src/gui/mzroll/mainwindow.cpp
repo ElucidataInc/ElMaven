@@ -2461,7 +2461,7 @@ void MainWindow::createToolBars() {
 	btnPollyBridge->setText("Polly");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
 	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPollyBridge->setToolTip(tr("Elmaven polly interface"));
+	btnPollyBridge->setToolTip(tr("Polly: Our tool to visualize and analyze massspec data"));
 
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
