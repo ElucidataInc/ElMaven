@@ -81,6 +81,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 				mavenParameters->pullIsotopesFlag = 0;
 				int label = 0;
 				label = atoi(optarg);
+				mavenParameters->C13Labeled_BPE = false;
+				mavenParameters->S34Labeled_BPE = false;
+				mavenParameters->N15Labeled_BPE = false;
+				mavenParameters->D2Labeled_BPE  = false;
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
@@ -135,21 +139,21 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 		case 'P':
 			//parse polly specific arguments here.
-			uploadToPolly_bool = true;
 			{
 			pollyArgs = QString(optarg);
 			pollyargs_list = pollyArgs.split(",");
 			if (pollyargs_list.size()==2)//Assuming that user has not provided project name, just the username and password
 			{
-					username = pollyargs_list.at(0);//order is very specific here, first argument is supposed to be username
-					password = pollyargs_list.at(1);//second argument is password
-					projectname = "Default project";//upload to default project if no project name is specified
-					break;		
+				username = pollyargs_list.at(0);//order is very specific here, first argument is supposed to be username
+				password = pollyargs_list.at(1);//second argument is password
+				projectname = "Default project";//upload to default project if no project name is specified		
+				uploadToPolly_bool = true;
 			}
 			else if(2<pollyargs_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
 				username = pollyargs_list.at(0);
 				password = pollyargs_list.at(1);
 				projectname = pollyargs_list.at(2);
+				uploadToPolly_bool = true;
 			}
 			}
 			break;
@@ -339,6 +343,10 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 				mavenParameters->pullIsotopesFlag = 0;
 				int label = 0;
 				label = atoi(node.attribute("value").value());
+				mavenParameters->C13Labeled_BPE = false;
+				mavenParameters->S34Labeled_BPE = false;
+				mavenParameters->N15Labeled_BPE = false;
+				mavenParameters->D2Labeled_BPE  = false;
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
@@ -610,53 +618,69 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
 
 void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
-	QDateTime current_time;
-    QString datetimestamp= current_time.currentDateTime().toString();
-    datetimestamp.replace(" ","_");
-    
-	filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
-	QString csv_filename = filedir+QDir::separator()+datetimestamp+"_"+QString::fromStdString(setName);// uploading the csv file 
-	QString json_filename = filedir+QDir::separator()+datetimestamp+"_"+QString::fromStdString(setName);//  uploading the json file
-	
-	//create an output folder
-	mzUtils::createDir(mavenParameters->outputdir.c_str());
-
 	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
 
 	//reduce groups
 	groupReduction();
 
-	//save Eic Json
-	saveJson(json_filename.toStdString());
-
-	//save Mzroll File
-	saveMzRoll(setName);
-
-	//save output CSV
-	saveCSV(csv_filename.toStdString());
 	//Trying to upload to polly now..
-	cout<<"uploding to polly now.."<<endl;
-	
-	try {
-		// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-		QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"); //add more files to upload, if desired..
-		if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
-			QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
-			qDebug()<<"redirection url - \n"<<redirection_url;
-			filedir = QString::fromStdString(mavenParameters->outputdir);			
-			QString filename=filedir+"/url.txt";
-			QFile file( filename );// redirection url will be written to a file..In future it will be replaced by email feature..
-			if ( file.open(QIODevice::ReadWrite) )
-			{
-				QTextStream stream( &file );
-				stream << redirection_url << endl;
-			}
-		}
-		else{qDebug()<<"Unable to upload data to polly.";}
-	} catch(...) {
-		qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
-	}
+	if (uploadToPolly_bool){
+		mavenParameters->outputdir = "";
+		cout<<"uploding to polly now.."<<endl;
+		QDateTime current_time;
+		QString datetimestamp= current_time.currentDateTime().toString();
+		datetimestamp.replace(" ","_");
 
+		QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
+		QDir qdir(writable_temp_dir);
+		if (!qdir.exists()){
+			QDir().mkdir(writable_temp_dir);
+			QDir qdir(writable_temp_dir);
+		}
+
+		// filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
+		QString csv_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peak_table_all_Elmaven_Polly";// uploading the csv file 
+		QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly";//  uploading the json file
+		qDebug()<<"csv_filename - "<<csv_filename;
+		//save Eic Json
+		saveJson(json_filename.toStdString());
+
+		//save output CSV
+		saveCSV(csv_filename.toStdString());
+		
+		try {
+			// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
+			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"); //add more files to upload, if desired..
+			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
+				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
+				qDebug()<<"redirection url - \n"<<redirection_url;
+				QString filename=writable_temp_dir+QDir::separator()+datetimestamp+"_redirection_url.txt";
+				QFile file( filename );// redirection url will be written to a file..In future it will be replaced by email feature..
+				if ( file.open(QIODevice::ReadWrite) )
+				{
+					QTextStream stream( &file );
+					stream << redirection_url << endl;
+				}
+			}
+			else{qDebug()<<"Unable to upload data to polly.";}
+		} catch(...) {
+			qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
+		}
+		// bool status = qdir.removeRecursively();
+	}
+	else{
+		//create an output folder
+		mzUtils::createDir(mavenParameters->outputdir.c_str());
+
+		//save Eic Json
+		saveJson(setName);
+
+		//save Mzroll File
+		saveMzRoll(setName);
+
+		//save output CSV
+		saveCSV(setName);
+	}
 }
 
 void PeakDetectorCLI::groupReduction() {
@@ -683,7 +707,11 @@ void PeakDetectorCLI::saveJson(string setName) {
 		#endif
 
 		jsonReports=new JSONReports(mavenParameters);
-		jsonReports->saveMzEICJson(mavenParameters->outputdir + setName + ".json",
+		string fileName = mavenParameters->outputdir + setName + ".json";
+		if (uploadToPolly_bool){
+			string fileName = setName;
+		}
+		jsonReports->saveMzEICJson(fileName,
 									mavenParameters->allgroups,mavenParameters->samples);
 		#ifndef __APPLE__
 		cout << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
@@ -693,41 +721,40 @@ void PeakDetectorCLI::saveJson(string setName) {
 
 QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames) {
 	QString upload_project_id;
-	if (uploadToPolly_bool){
-		// set jspath and nodepath for _pollyIntegration library .
-		_pollyIntegration->jsPath = jsPath;
-		_pollyIntegration->nodePath = nodePath;
-		QString status = _pollyIntegration->authenticate_login(username,password);
-		if (status!="ok"){
-			qDebug()<<"Incorrect credentials...Please check..";
-			return upload_project_id;
-		}
-		// user is logged in, now proceed to upload..
-		QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
+	
+	// set jspath and nodepath for _pollyIntegration library .
+	_pollyIntegration->jsPath = jsPath;
+	_pollyIntegration->nodePath = nodePath;
+	QString status = _pollyIntegration->authenticate_login(username,password);
+	if (status!="ok"){
+		qDebug()<<"Incorrect credentials...Please check..";
+		return upload_project_id;
+	}
+	// user is logged in, now proceed to upload..
+	QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
 
-		QStringList keys= projectnames_id.keys();
-        QString projectId;
-		QString defaultprojectId;
-		for (int i=0; i < keys.size(); ++i){
-			if (projectnames_id[keys.at(i)].toString()==projectname){
-				// that means the name provided by the user matches a project.
-                projectId= keys.at(i);
-            	}
-			else if (projectnames_id[keys.at(i)].toString()=="Default project"){
-				// Always be ready with the default project id of user..
-				defaultprojectId=keys.at(i);
-				}
-        	}
-		if (projectId==""){
-			//In case no project matches with the user defined name or the user has not provided any project name,
-			// upload to default project..
-			_pollyIntegration->exportData(filenames,defaultprojectId);
-			upload_project_id = defaultprojectId;
+	QStringList keys= projectnames_id.keys();
+	QString projectId;
+	QString defaultprojectId;
+	for (int i=0; i < keys.size(); ++i){
+		if (projectnames_id[keys.at(i)].toString()==projectname){
+			// that means the name provided by the user matches a project.
+			projectId= keys.at(i);
+			}
+		else if (projectnames_id[keys.at(i)].toString()=="Default project"){
+			// Always be ready with the default project id of user..
+			defaultprojectId=keys.at(i);
+			}
 		}
-		else{
-			_pollyIntegration->exportData(filenames,projectId);
-			upload_project_id = projectId;
-		}
+	if (projectId==""){
+		//In case no project matches with the user defined name or the user has not provided any project name,
+		// upload to default project..
+		_pollyIntegration->exportData(filenames,defaultprojectId);
+		upload_project_id = defaultprojectId;
+	}
+	else{
+		_pollyIntegration->exportData(filenames,projectId);
+		upload_project_id = projectId;
 	}
 	return upload_project_id;
 }
@@ -754,9 +781,13 @@ void PeakDetectorCLI::saveCSV(string setName) {
     #ifndef __APPLE__
      double startSavingCSV = getTime();
     #endif
-
+	
 	string fileName = mavenParameters->outputdir + setName + ".csv";
 
+	if (uploadToPolly_bool){
+		string fileName = setName;
+	}
+	
     CSVReports* csvreports = new CSVReports(mavenParameters->samples);
     csvreports->setMavenParameters(mavenParameters);
 
