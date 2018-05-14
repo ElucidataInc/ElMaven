@@ -23,9 +23,9 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="upload_tab">
       <attribute name="title">
        <string>Upload to Polly</string>
       </attribute>
@@ -33,124 +33,22 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>20</y>
-         <width>821</width>
-         <height>491</height>
+         <y>-20</y>
+         <width>841</width>
+         <height>531</height>
         </rect>
        </property>
        <property name="title">
         <string/>
        </property>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>50</y>
-          <width>181</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Upload to existing project</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_existing_projects">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>50</y>
-          <width>191</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_3">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>50</y>
-          <width>67</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>OR</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>450</x>
-          <y>50</y>
-          <width>161</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Create new project</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_new_project_name">
-        <property name="geometry">
-         <rect>
-          <x>600</x>
-          <y>40</y>
-          <width>201</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_7">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>290</y>
-          <width>131</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Add collaborators</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_collaborators">
-        <property name="geometry">
-         <rect>
-          <x>170</x>
-          <y>290</y>
-          <width>191</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_8">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>340</y>
-          <width>151</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Analysis description</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="textEdit_analysis_description">
-        <property name="geometry">
-         <rect>
-          <x>170</x>
-          <y>330</y>
-          <width>201</width>
-          <height>51</height>
-         </rect>
-        </property>
-       </widget>
        <widget class="QGroupBox" name="groupBox_7">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>390</y>
+          <y>440</y>
           <width>501</width>
           <height>92</height>
          </rect>
@@ -186,179 +84,446 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_9">
+       <widget class="QTabWidget" name="tabWidget_2">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>100</y>
-          <width>161</width>
-          <height>31</height>
+          <x>0</x>
+          <y>50</y>
+          <width>841</width>
+          <height>411</height>
          </rect>
         </property>
-        <property name="text">
-         <string>peak or bookmark table</string>
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_table_name">
-        <property name="geometry">
-         <rect>
-          <x>180</x>
-          <y>100</y>
-          <width>111</width>
-          <height>25</height>
-         </rect>
+        <property name="tabBarAutoHide">
+         <bool>false</bool>
         </property>
-       </widget>
-       <widget class="QLabel" name="label_10">
-        <property name="geometry">
-         <rect>
-          <x>300</x>
-          <y>100</y>
-          <width>111</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>export options</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_export_table">
-        <property name="geometry">
-         <rect>
-          <x>450</x>
-          <y>100</y>
-          <width>111</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_11">
-        <property name="geometry">
-         <rect>
-          <x>590</x>
-          <y>110</y>
-          <width>67</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Format</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_export_format">
-        <property name="geometry">
-         <rect>
-          <x>690</x>
-          <y>100</y>
-          <width>111</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_12">
-        <property name="geometry">
-         <rect>
-          <x>400</x>
-          <y>290</y>
-          <width>91</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Access level</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_collaborators_access_level">
-        <property name="geometry">
-         <rect>
-          <x>510</x>
-          <y>290</y>
-          <width>191</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_13">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>150</y>
-          <width>121</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Peak table name</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_filename">
-        <property name="geometry">
-         <rect>
-          <x>150</x>
-          <y>140</y>
-          <width>201</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_23">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>200</y>
-          <width>111</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Compounda DB</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_compound_db">
-        <property name="geometry">
-         <rect>
-          <x>150</x>
-          <y>200</y>
-          <width>201</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="add_collab_button">
-        <property name="geometry">
-         <rect>
-          <x>720</x>
-          <y>290</y>
-          <width>89</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>ADD</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_14">
-        <property name="geometry">
-         <rect>
-          <x>370</x>
-          <y>200</y>
-          <width>151</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Compound DB name</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_compound_DB_name">
-        <property name="geometry">
-         <rect>
-          <x>540</x>
-          <y>190</y>
-          <width>201</width>
-          <height>31</height>
-         </rect>
-        </property>
+        <widget class="QWidget" name="tab_5">
+         <attribute name="title">
+          <string>Select data to upload</string>
+         </attribute>
+         <widget class="QFrame" name="basic_upload_frame">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>351</width>
+            <height>151</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>181</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Upload to existing project</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_existing_projects">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>10</y>
+             <width>141</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_create_new_project">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>60</y>
+             <width>161</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Create new project</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="lineEdit_new_project_name">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>50</y>
+             <width>171</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_peaks_table">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>100</y>
+             <width>161</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>peak or bookmark table</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_table_name">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>230</x>
+             <y>100</y>
+             <width>111</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QFrame" name="upload_peaks_frame">
+          <property name="geometry">
+           <rect>
+            <x>380</x>
+            <y>0</y>
+            <width>441</width>
+            <height>191</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <widget class="QLabel" name="label_10">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>50</y>
+             <width>111</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>export options</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_export_table">
+           <property name="geometry">
+            <rect>
+             <x>300</x>
+             <y>40</y>
+             <width>111</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_11">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>90</y>
+             <width>101</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Export Format</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_export_format">
+           <property name="geometry">
+            <rect>
+             <x>300</x>
+             <y>80</y>
+             <width>111</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_13">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>140</y>
+             <width>121</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>upload name</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="lineEdit_filename">
+           <property name="geometry">
+            <rect>
+             <x>210</x>
+             <y>130</y>
+             <width>201</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_3">
+           <property name="geometry">
+            <rect>
+             <x>70</x>
+             <y>10</y>
+             <width>241</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Advanced Export options for peaks</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QFrame" name="upload_compound_DB_frame">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>380</x>
+            <y>230</y>
+            <width>441</width>
+            <height>141</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label_23">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>30</y>
+             <width>151</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Select Compound DB</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_compound_db">
+           <property name="geometry">
+            <rect>
+             <x>230</x>
+             <y>30</y>
+             <width>201</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_14">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>90</y>
+             <width>151</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>upload name</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="lineEdit_compound_DB_name">
+           <property name="geometry">
+            <rect>
+             <x>230</x>
+             <y>80</y>
+             <width>201</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QCheckBox" name="checkBox_advanced_settings">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>170</y>
+            <width>151</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Advanced settings</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_upload_status">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>340</y>
+            <width>301</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkBox_upload_compond_DB">
+          <property name="geometry">
+           <rect>
+            <x>380</x>
+            <y>210</y>
+            <width>231</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Upload Compound Database</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="tab_6">
+         <attribute name="title">
+          <string>Sharing</string>
+         </attribute>
+         <widget class="QFrame" name="frame_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>461</width>
+            <height>221</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QComboBox" name="comboBox_collaborators_access_level">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>90</y>
+             <width>191</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_7">
+           <property name="geometry">
+            <rect>
+             <x>50</x>
+             <y>50</y>
+             <width>131</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Select collaborator</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_collaborators">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>50</y>
+             <width>191</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_12">
+           <property name="geometry">
+            <rect>
+             <x>50</x>
+             <y>100</y>
+             <width>91</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Access level</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="add_collab_button">
+           <property name="geometry">
+            <rect>
+             <x>360</x>
+             <y>180</y>
+             <width>89</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>ADD</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QLabel" name="label_sharing_status">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>260</y>
+            <width>351</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="tab_7">
+         <attribute name="title">
+          <string>Description</string>
+         </attribute>
+         <widget class="QLabel" name="label_8">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>40</y>
+            <width>151</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Analysis description</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="textEdit_analysis_description">
+          <property name="geometry">
+           <rect>
+            <x>240</x>
+            <y>20</y>
+            <width>201</width>
+            <height>51</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
        </widget>
       </widget>
       <widget class="QPushButton" name="logout_upload">
@@ -375,7 +540,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="groupFilteringTab">
+     <widget class="QWidget" name="load_tab">
       <attribute name="title">
        <string>Load from Polly</string>
       </attribute>
@@ -391,38 +556,251 @@
        <property name="title">
         <string/>
        </property>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="label_15">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>50</y>
-          <width>101</width>
-          <height>31</height>
+          <x>430</x>
+          <y>200</y>
+          <width>31</width>
+          <height>17</height>
          </rect>
         </property>
         <property name="text">
-         <string>Select project</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <string>OR</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox_load_projects">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>140</x>
-          <y>50</y>
-          <width>261</width>
-          <height>31</height>
+          <x>0</x>
+          <y>30</y>
+          <width>801</width>
+          <height>351</height>
          </rect>
         </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab_3">
+         <attribute name="title">
+          <string>Personal Projects</string>
+         </attribute>
+         <widget class="QFrame" name="personal_project_frame">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>110</y>
+            <width>791</width>
+            <height>211</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label_6">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>101</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Select project</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_load_projects">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>120</x>
+             <y>10</y>
+             <width>261</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_5">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>80</y>
+             <width>101</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Load settings</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_load_settings">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>120</x>
+             <y>80</y>
+             <width>261</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="comboBox_load_db">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>140</y>
+             <width>181</width>
+             <height>31</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>150</y>
+             <width>181</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Load compound database</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>791</width>
+            <height>91</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <widget class="QProgressBar" name="progressBar_load_form_data_status">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>60</y>
+             <width>271</width>
+             <height>23</height>
+            </rect>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="load_form_data_button">
+           <property name="geometry">
+            <rect>
+             <x>298</x>
+             <y>60</y>
+             <width>141</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Get data from Polly</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="load_form_data_cancel_button">
+           <property name="geometry">
+            <rect>
+             <x>450</x>
+             <y>60</y>
+             <width>89</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>cancel</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_24">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>30</y>
+             <width>131</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="tab_4">
+         <attribute name="title">
+          <string>Oraganisational Data</string>
+         </attribute>
+         <widget class="QLabel" name="label_16">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>100</y>
+            <width>181</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Compound Database</string>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="comboBox_organization_DBs">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>240</x>
+            <y>90</y>
+            <width>121</width>
+            <height>31</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
        </widget>
-       <widget class="QGroupBox" name="groupBox_6">
+       <widget class="QGroupBox" name="groupBox_load_status">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>50</x>
-          <y>401</y>
-          <width>511</width>
+          <x>0</x>
+          <y>400</y>
+          <width>421</width>
           <height>91</height>
          </rect>
         </property>
@@ -430,7 +808,7 @@
          <item row="4" column="5">
           <widget class="QPushButton" name="cancelButton_load">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
             <string>Cancel</string>
@@ -454,166 +832,26 @@
          <item row="4" column="4">
           <widget class="QPushButton" name="pushButton_load">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
-            <string>Load project</string>
+            <string>Load to Elmaven</string>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_load_status">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>130</y>
-          <width>181</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Load compound database</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_5">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>180</y>
-          <width>101</width>
+          <x>460</x>
+          <y>440</y>
+          <width>331</width>
           <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Load settings</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_load_db">
-        <property name="geometry">
-         <rect>
-          <x>190</x>
-          <y>120</y>
-          <width>181</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_load_settings">
-        <property name="geometry">
-         <rect>
-          <x>140</x>
-          <y>180</y>
-          <width>261</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>309</y>
-          <width>511</width>
-          <height>91</height>
-         </rect>
-        </property>
-        <property name="title">
          <string/>
-        </property>
-        <widget class="QProgressBar" name="progressBar_load_form_data_status">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>60</y>
-           <width>271</width>
-           <height>23</height>
-          </rect>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="load_form_data_button">
-         <property name="geometry">
-          <rect>
-           <x>298</x>
-           <y>60</y>
-           <width>111</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>load form data</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="load_form_data_cancel_button">
-         <property name="geometry">
-          <rect>
-           <x>410</x>
-           <y>60</y>
-           <width>89</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>cancel</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_24">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>131</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Status</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QLabel" name="label_15">
-        <property name="geometry">
-         <rect>
-          <x>390</x>
-          <y>120</y>
-          <width>31</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>OR</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_organization_DBs">
-        <property name="geometry">
-         <rect>
-          <x>650</x>
-          <y>114</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_16">
-        <property name="geometry">
-         <rect>
-          <x>450</x>
-          <y>120</y>
-          <width>181</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Organizational databases</string>
         </property>
        </widget>
       </widget>
@@ -641,6 +879,29 @@
        </property>
        <property name="text">
         <string>Log Out</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="info_tab">
+      <attribute name="title">
+       <string>Info</string>
+      </attribute>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>841</width>
+         <height>551</height>
+        </rect>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://polly.elucidata.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Polly&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Merriweather'; font-size:14px; color:#666666; background-color:#ffffff;&quot;&gt; supports pre-clinical research efforts in pharma and biotech labs with plans to develop into a discovery platform that be customized for a variety of lab-specific applications. It is an application suite that has been developed for the analysis, quantitation, and presentation of mass spectrometry data with an advanced distributed data management infrastructure on the Amazon Cloud. The tools hosted on Polly are designed to automate post-processing of all targeted, labeled, and untargeted workflows so as to assist scientists with their metabolomic research. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Merriweather'; font-size:14px; color:#666666;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>
