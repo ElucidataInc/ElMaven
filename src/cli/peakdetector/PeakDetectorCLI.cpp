@@ -666,7 +666,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		} catch(...) {
 			qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
 		}
-		// bool status = qdir.removeRecursively();
+		bool status = qdir.removeRecursively();
 	}
 	else{
 		//create an output folder
