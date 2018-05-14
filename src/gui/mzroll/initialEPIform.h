@@ -8,16 +8,16 @@
 class PollyIntegration;
 class PollyElmavenInterfaceDialog;
 namespace Ui {
-class LoginForm;
+class InitialEPIForm;
 }
 
-class LoginForm : public QDialog
+class InitialEPIForm : public QDialog
 {
     Q_OBJECT
 
 public:
-    LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog);
-    ~LoginForm();
+    InitialEPIForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog);
+    ~InitialEPIForm();
     PollyIntegration* _pollyintegration;
     PollyElmavenInterfaceDialog* _pollyelmaveninterfacedialog;
     
@@ -38,7 +38,7 @@ private slots:
     void on_pushButton_clicked();
 
 private:
-    Ui::LoginForm *ui;
+    Ui::InitialEPIForm *ui;
 };
 
 class WorkerThread : public QThread

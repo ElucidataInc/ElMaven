@@ -3,9 +3,9 @@
 #include <QMessageBox>
 
 
-LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
+InitialEPIForm::InitialEPIForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     QDialog(),
-    ui(new Ui::LoginForm)
+    ui(new Ui::InitialEPIForm)
     
 {
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
@@ -17,7 +17,7 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     ui->login_label->setOpenExternalLinks(true); 
 }
 
-LoginForm::~LoginForm()
+InitialEPIForm::~InitialEPIForm()
 {
     delete ui;
 }
@@ -38,7 +38,7 @@ WorkerThread::~WorkerThread()
     if (_pollyintegration) delete (_pollyintegration);
 };
 
-void LoginForm::on_pushButton_clicked()
+void InitialEPIForm::on_pushButton_clicked()
 {   
     ui->login_label->setStyleSheet("QLabel {color : green; }");
     ui->login_label->setText("authenticating to polly..");
@@ -55,7 +55,7 @@ void LoginForm::on_pushButton_clicked()
 }
 
 
-void LoginForm::handleResults(QStringList results){
+void InitialEPIForm::handleResults(QStringList results){
     QString status_inside=results.at(0);
     QString username=results.at(1);
     QString password=results.at(2);
@@ -80,7 +80,7 @@ void LoginForm::handleResults(QStringList results){
     }
 }
 
-void LoginForm::cancel(){
+void InitialEPIForm::cancel(){
     qDebug()<<"closing the log in form now..";
     close();
 }

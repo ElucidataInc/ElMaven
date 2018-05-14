@@ -6,6 +6,7 @@
 #include "database.h"
 #include "mainwindow.h"
 #include "loginform.h"
+#include "initialEPIform.h"
 #include "pollyintegration.h"
 #include <QDateTime>
 #include <QMap>
@@ -13,6 +14,7 @@
 class PollyIntegration;
 class MainWindow;
 class LoginForm;
+class InitialEPIForm;
 class TableDockWidget;
 
 extern Database DB;
@@ -29,6 +31,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 * @brief credentials required to connect to polly..
                 */
                 QStringList credentials;
+                QStringList organisationSpecificCompoundDB;
                 /**
                 * @brief constructor with mainwindow pointer..
                 * @param mw [pointer to mainwindow, used to create GUI for elmaven-polly-interface]
@@ -65,6 +68,10 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief pointer to loginform class..
                 */
                 LoginForm* _loginform;
+                /**
+                 * @brief pointer to loginform class..
+                */
+                InitialEPIForm* _initialEPIform;
 
         public Q_SLOTS:
                 /**
@@ -116,7 +123,9 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-
+                void showCompoundDBUploadFrame();
+                void showAdvanceSettings();
+                void populate_comboBox_compound_db();
                 void initialSetup();
                 /**
                  * @brief This function is responsible for loading the form data on polly-elmaven-interface GUI
@@ -130,10 +139,15 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 QVariantMap startup_data_load();
                 void loadFormData();
                 void AddCollaborator();
+                // void handleResults(QStringList results);
                  /**
                  * @brief This function calls login form UI to take credentials from user.
                  */
                 void call_login_form();
+                 /**
+                 * @brief This function calls initial login UI to connect to polly and fetch projects.
+                 */
+                void call_initial_EPI_form();
                 /**
                  * @brief This function cancels the polly-elmaven-interface GUI
                  */
@@ -147,6 +161,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 3. If yes, then populate compound_db, settings combo boxes with those file names..
                  */
                 void on_comboBox_load_projects_activated(const QString &arg1);
+                void on_comboBox_existing_projects_activated(const QString &arg1);
 
         private:
                 /**
@@ -159,4 +174,16 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 TableDockWidget* _tableDockWidget;
 };
 
+class EPIWorkerThread : public QThread
+{
+    Q_OBJECT
+    public:
+        EPIWorkerThread();
+        ~EPIWorkerThread();
+        void run();
+    signals:
+        void resultReady(QStringList results);
+};
+
 #endif
+

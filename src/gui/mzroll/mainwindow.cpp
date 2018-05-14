@@ -2063,6 +2063,26 @@ void MainWindow::exportPDF() {
 	}
 }
 
+void MainWindow::DiscussPeakPolly() {
+	QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_files";
+    
+	QString fileName = writable_temp_dir+QDir::separator() +"metabolite_EIC.pdf";
+	
+	QPrinter printer;
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOrientation(QPrinter::Landscape);
+	printer.setOutputFileName(fileName);
+
+	QPainter painter;
+	if (!painter.begin(&printer)) { // failed to open file
+		qWarning("failed to open file, is it writable?");
+		return;
+	}
+
+	getEicWidget()->render(&painter);
+	painter.end();
+}
+
 void MainWindow::exportSVG() {
 
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
@@ -2441,7 +2461,7 @@ void MainWindow::createToolBars() {
 	btnPollyBridge->setText("Polly");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
 	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPollyBridge->setToolTip(tr("Elmaven polly interface"));
+	btnPollyBridge->setToolTip(tr("Polly: Our tool to visualize and analyze massspec data"));
 
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
@@ -2706,7 +2726,7 @@ void MainWindow::showPeakdetectionDialog() {
 }
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
-	pollyElmavenInterfaceDialog->show();
+	// pollyElmavenInterfaceDialog->show();
 	pollyElmavenInterfaceDialog->initialSetup();
 }
 
@@ -3139,6 +3159,7 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
+	QWidgetAction *btnDiscussPeak = new MainWindowWidgetAction(toolBar, this,  "btnDiscussPeak");
 
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
@@ -3167,6 +3188,8 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
+	toolBar->addSeparator();
+	toolBar->addAction(btnDiscussPeak);
 
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -3396,6 +3419,16 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 
 		return btnShowBoxplot;
+
+	}
+	else if (btnName == "btnDiscussPeak") {
+
+		QToolButton *btnDiscussPeak = new QToolButton(parent);
+		btnDiscussPeak->setIcon(QIcon(rsrcPath + "/POLLY.png"));
+		btnDiscussPeak->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		btnDiscussPeak->setToolTip(tr("Discuss this peak on Polly"));
+		connect(btnDiscussPeak, SIGNAL(clicked()), mw, SLOT(DiscussPeakPolly()));
+		return btnDiscussPeak;
 
 	}
 	else {
