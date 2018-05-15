@@ -612,6 +612,10 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	
 	//Trying to upload to polly now..
 	if (uploadToPolly_bool){
+		mavenParameters->C13Labeled_BPE = true;
+		mavenParameters->S34Labeled_BPE = false;
+		mavenParameters->N15Labeled_BPE = false;
+		mavenParameters->D2Labeled_BPE  = false;
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		mavenParameters->outputdir = "";
 		cout<<"uploding to polly now.."<<endl;
