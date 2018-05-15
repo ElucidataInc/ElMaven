@@ -54,7 +54,8 @@ void FileUploader::preProcess()
         dir.setNameFilters(QStringList() << "*logs*");
         QFile fptr;
         for(const QString& fPath: dir.entryList()) {
-            fptr.setFileName(fPath);
+
+            fptr.setFileName(dir.filePath(fPath));
             if(fptr.open(QIODevice::ReadOnly)) {
                 additionalData += fptr.readAll();
             }
