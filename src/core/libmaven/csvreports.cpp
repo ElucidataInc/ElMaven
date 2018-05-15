@@ -79,7 +79,6 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
-            qDebug() << "mayank " << sanitizeString(samples[i]->sampleName.c_str());
             groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
