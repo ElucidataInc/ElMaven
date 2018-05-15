@@ -141,20 +141,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			//parse polly specific arguments here.
 			{
 			pollyArgs = QString(optarg);
-			pollyargs_list = pollyArgs.split(",");
-			if (pollyargs_list.size()==2)//Assuming that user has not provided project name, just the username and password
-			{
-				username = pollyargs_list.at(0);//order is very specific here, first argument is supposed to be username
-				password = pollyargs_list.at(1);//second argument is password
-				projectname = "Default project";//upload to default project if no project name is specified		
-				uploadToPolly_bool = true;
-			}
-			else if(2<pollyargs_list.size()){ //just take first 3 arguments separated by comma, and ignore others..
-				username = pollyargs_list.at(0);
-				password = pollyargs_list.at(1);
-				projectname = pollyargs_list.at(2);
-				uploadToPolly_bool = true;
-			}
+			uploadToPolly_bool = true;
 			}
 			break;
 
@@ -622,9 +609,10 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 
 	//reduce groups
 	groupReduction();
-
+	
 	//Trying to upload to polly now..
 	if (uploadToPolly_bool){
+		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		mavenParameters->outputdir = "";
 		cout<<"uploding to polly now.."<<endl;
 		QDateTime current_time;
@@ -651,7 +639,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		
 		try {
 			// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"); //add more files to upload, if desired..
+			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json",creds); //add more files to upload, if desired..
 			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 				qDebug()<<"redirection url - \n"<<redirection_url;
@@ -662,6 +650,8 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 					QTextStream stream( &file );
 					stream << redirection_url << endl;
 				}
+				bool status = send_user_email(creds,redirection_url,jsPath);
+				qDebug()<<"Emailer status - "<<status;
 			}
 			else{qDebug()<<"Unable to upload data to polly.";}
 		} catch(...) {
@@ -720,13 +710,56 @@ void PeakDetectorCLI::saveJson(string setName) {
 	}
 }
 
-QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames) {
+QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename) {
+	QMap<QString, QString> creds;
+    QDomDocument doc;
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+        return creds;
+
+	//Get the root element
+   QDomElement docElem = doc.documentElement(); 
+   
+   // you could check the root tag name here if it matters
+	QString rootTag = docElem.tagName(); // == persons
+	QDomNodeList polly_creds = doc.elementsByTagName("pollyaccountdetails");
+    for (int i = 0; i < polly_creds.size(); i++) {
+        QDomNode n = polly_creds.item(i);
+        QDomElement username = n.firstChildElement("username");
+        QDomElement password = n.firstChildElement("password");
+        QDomElement project = n.firstChildElement("project");
+        if (username.isNull() || password.isNull() || project.isNull()){
+			return creds;
+		}
+		creds["polly_username"]=username.text();
+		creds["polly_password"]=password.text();
+		creds["polly_project"]=project.text();
+		//Only considering the first occurance
+        break;
+    }
+	QDomNodeList email_creds = doc.elementsByTagName("emailcredentials");
+    for (int i = 0; i < email_creds.size(); i++) {
+        QDomNode n = email_creds.item(i);
+        QDomElement email = n.firstChildElement("email");
+        QDomElement password = n.firstChildElement("password");
+        if (email.isNull() || password.isNull()){
+			break;
+		}
+		creds["email"]=email.text();
+		creds["email_password"]=password.text();
+		//Only considering the first occurance
+        break;
+    }
+	return creds;
+}
+
+QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds) {
 	QString upload_project_id;
 	
 	// set jspath and nodepath for _pollyIntegration library .
 	_pollyIntegration->jsPath = jsPath;
 	_pollyIntegration->nodePath = nodePath;
-	QString status = _pollyIntegration->authenticate_login(username,password);
+	QString status = _pollyIntegration->authenticate_login(creds["polly_username"],creds["polly_password"]);
 	if (status!="ok"){
 		qDebug()<<"Incorrect credentials...Please check..";
 		return upload_project_id;
@@ -738,7 +771,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	QString projectId;
 	QString defaultprojectId;
 	for (int i=0; i < keys.size(); ++i){
-		if (projectnames_id[keys.at(i)].toString()==projectname){
+		if (projectnames_id[keys.at(i)].toString()==creds["polly_projectname"]){
 			// that means the name provided by the user matches a project.
 			projectId= keys.at(i);
 			}
@@ -758,6 +791,29 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 		upload_project_id = projectId;
 	}
 	return upload_project_id;
+}
+
+bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath){
+	QProcess process;
+    process.setProgram("python2");
+	QStringList jsPathlist = jsPath.split(QDir::separator());
+	QStringList jsPathlist_bin;
+	for (int i = 0; i < jsPathlist.size()-1; ++i)
+         jsPathlist_bin << jsPathlist.at(i);
+	QString pyemailer_path = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"pyemailer.py";
+    process.setArguments(QStringList()<<pyemailer_path<<"--to"<<creds["polly_username"]<<"--url"<<redirection_url<<"--login_email"<<creds["email"]<<"--login_password"<<creds["email_password"]);
+    process.start();
+    //TODO kailash, use threading for this, it should not just run indefinitely 
+    process.waitForFinished(-1);
+    QByteArray result = process.readAllStandardOutput();
+    QByteArray result2 = process.readAllStandardError();
+    qDebug()<<"pyemailer output  - "<<result;
+    qDebug()<<"pyemailer error, if any  - "<<result2;
+	status=true;
+	if (result2!=""){
+		status=false;
+	}
+	return status;
 }
 
 void PeakDetectorCLI::saveMzRoll(string setName) {
