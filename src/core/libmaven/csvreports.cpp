@@ -79,6 +79,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
+            qDebug() << "mayank " << sanitizeString(samples[i]->sampleName.c_str());
             groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
@@ -259,6 +260,9 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
             lab = parentGroup->label;
         }
     }
+    else{
+        parentGroup=group;
+    }
 
     if (selectionFlag == 2) {
         if(lab !='g') return;
@@ -269,16 +273,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     }
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
-    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+    // if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
     // using the new funtionality added - Kiran
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
-
+    // Bug Fix for #693 group->getParent()->groupId is the required groupId: Mayank
     groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
-            << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
+            << parentGroup->groupId << SEP << group->goodPeakCount << SEP << group->meanMz
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
             << tagString;
 
