@@ -15,6 +15,8 @@
 #define CRASH_REPORTER_WIN "CrashReporter.exe"
 #endif
 
+#define CRASH_REPORTER_LINUX "CrashReporter"
+
 static google_breakpad::ExceptionHandler* eh=0;
 
 #ifdef Q_OS_LINUX
@@ -23,6 +25,11 @@ static google_breakpad::MinidumpDescriptor* md=0;
 static bool startCrashReporter(const google_breakpad::MinidumpDescriptor& descriptor,void* context, bool succeeded)
 {
     std::cerr << "creating crash dump " << descriptor.path();
+    QProcess* cReporter = new QProcess(nullptr);
+    cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_LINUX);
+    cReporter->setArguments(QStringList() << descriptor.path());
+    cReporter->start();
+
 
     // start the crash reporter
     return succeeded;

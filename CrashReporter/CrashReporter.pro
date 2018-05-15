@@ -34,10 +34,17 @@ win32 {
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-        file_uploader.cpp
+        mainwindow.cpp
+
+
+
 
 HEADERS  += mainwindow.h \
-            file_uploader.h
+
+win32 {
+
+    SOURCES += file_uploader.cpp
+    HEADERS += file_uploader.h
+}
 
 FORMS    += mainwindow.ui

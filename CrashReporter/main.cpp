@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include <QApplication>
+#ifdef Q_OS_WIN
 #include "file_uploader.h"
-
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -12,8 +13,12 @@ int main(int argc, char *argv[])
 
 
     // argv[1] contains the path of dump files and logs
+#ifdef Q_OS_WIN
     FileUploader uploader((QString(argv[1])));
     MainWindow w(nullptr, &uploader);
+#endif
+
+    MainWindow w(nullptr, QString(argv[1]));
 
     w.show();
 
