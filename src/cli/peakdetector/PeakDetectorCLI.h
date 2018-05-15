@@ -33,6 +33,7 @@
 #include "pollyintegration.h"
 
 #include <QtCore>
+#include <QDomDocument>
 
 #include "pugixml.hpp"
 
@@ -168,8 +169,9 @@ class PeakDetectorCLI {
 		 * @param nodepath  [path to node executable]
 		 * @param filenames [List of files to be uploaded on polly]
 		*/
-		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames);
-		
+		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds);
+		bool send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath);
+		QMap<QString, QString> readCredentialsFromXml(QString filename);
 		/**
 		* [write Sample List in XML]
 		* @param parent [parent node]
