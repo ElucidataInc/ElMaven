@@ -771,7 +771,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	QString projectId;
 	QString defaultprojectId;
 	for (int i=0; i < keys.size(); ++i){
-		if (projectnames_id[keys.at(i)].toString()==creds["polly_projectname"]){
+		if (projectnames_id[keys.at(i)].toString()==creds["polly_project"]){
 			// that means the name provided by the user matches a project.
 			projectId= keys.at(i);
 			}
