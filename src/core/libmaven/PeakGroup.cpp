@@ -751,7 +751,6 @@ Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
     }
 
 void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
-                            float compoundRTWindow,
                             int qualityWeight,
                             int intensityWeight,
                             int deltaRTWeight) {

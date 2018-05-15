@@ -305,7 +305,6 @@ void IsotopeDetection::childStatistics(
     int deltaRTWeight = _mavenParameters->deltaRTWeight;
 
     child.calGroupRank(deltaRtCheckFlag,
-                       compoundRTWindow,
                        qualityWeight,
                        intensityWeight,
                        deltaRTWeight);

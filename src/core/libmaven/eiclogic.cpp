@@ -28,7 +28,6 @@ void EICLogic::associateNameWithPeakGroups() {
 PeakGroup* EICLogic::selectGroupNearRt(float rt,
 									   	PeakGroup* selGroup,
 										bool deltaRtCheckFlag,
-										float compoundRTWindow,
 										int qualityWeight,
 										int intensityWeight,
 										int deltaRTWeight) {
@@ -42,12 +41,10 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 			}
 
 			selGroup->calGroupRank(deltaRtCheckFlag,
-									compoundRTWindow,
 									qualityWeight,
 									intensityWeight,
 									deltaRTWeight);
 			peakgroups[i].calGroupRank(deltaRtCheckFlag,
-									compoundRTWindow,
 									qualityWeight,
 									intensityWeight,
 									deltaRTWeight);
