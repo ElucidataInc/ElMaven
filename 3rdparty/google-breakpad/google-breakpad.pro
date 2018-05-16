@@ -6,6 +6,8 @@ OBJECTS_DIR=$$top_builddir/tmp/breakpad
 CONFIG += staticlib
 
 
+QMAKE_CXX += -std=c++11
+
 win32 {
 
     INCLUDEPATH += src/
