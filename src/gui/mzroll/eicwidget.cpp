@@ -1380,7 +1380,7 @@ void EicWidget::setSrmId(string srmId) {
 	replot();
 }
 
-void EicWidget::setCompound(Compound* c) {
+PeakGroup* EicWidget::setCompound(Compound* c) {
 	//qDebug << "EicWidget::setCompound()";
 	//benchmark
 //	timespec tS;
@@ -1390,13 +1390,13 @@ void EicWidget::setCompound(Compound* c) {
 //	for(int i =0; i < 100000; i++ ) { findPlotBounds(); }
 
 	if (c == NULL)
-		return;
+		return NULL;
 	if (getMainWindow()->sampleCount() == 0)
-		return;
+		return NULL;
 
 	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
 	if (samples.size() == 0)
-		return;
+		return NULL;
 
 	int ionizationMode = samples[0]->getPolarity();
 	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
@@ -1452,10 +1452,9 @@ void EicWidget::setCompound(Compound* c) {
 		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
-
-//   clock_gettime(CLOCK_REALTIME, &tE);
+	return eicParameters->selectedGroup;
+	//clock_gettime(CLOCK_REALTIME, &tE);
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
-
 }
 
 void EicWidget::setMzSlice(const mzSlice& slice) {

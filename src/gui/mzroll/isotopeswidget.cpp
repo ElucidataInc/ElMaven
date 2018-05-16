@@ -336,6 +336,7 @@ void IsotopeWidget::pullIsotopes(PeakGroup *group)
 		workerThread->started();
 		MavenParameters *mavenParameters =
 			workerThread->peakDetector.getMavenParameters();
+		//TODO: mavenParameters->-group is not thread-safe. Accessing it might lead to crashes
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
@@ -362,6 +363,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup *group)
 		workerThreadBarplot->started();
 		MavenParameters *mavenParameters =
 			workerThreadBarplot->peakDetector.getMavenParameters();
+		//TODO: mavenParameters->-group is not thread-safe. Accessing it might lead to crashes
 		mavenParameters->setPeakGroup(group);
 		mavenParameters->setSamples(vsamples);
 		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
