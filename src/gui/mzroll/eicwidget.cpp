@@ -1452,10 +1452,9 @@ PeakGroup* EicWidget::setCompound(Compound* c) {
 		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
-return eicParameters->selectedGroup;
-//   clock_gettime(CLOCK_REALTIME, &tE);
+	return eicParameters->selectedGroup;
+	//clock_gettime(CLOCK_REALTIME, &tE);
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
-
 }
 
 void EicWidget::setMzSlice(const mzSlice& slice) {
