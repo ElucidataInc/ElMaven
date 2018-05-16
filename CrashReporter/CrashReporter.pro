@@ -14,6 +14,9 @@ CONFIG += console
 MOC_DIR=$$top_builddir/tmp/crash_reporter/
 OBJECTS_DIR=$$top_builddir/tmp/crash_reporter/
 DESTDIR = $$top_srcdir/bin/
+
+QMAKE_CXXFLAGS += -std=c++11
+
 CONFIG(debug, debug|release){
     message("running in debug mode  ")
     unix:!macx {
