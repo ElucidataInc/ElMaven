@@ -800,6 +800,7 @@ class mzSample
 
     vector<float> getIntensityDistribution(int mslevel);
 
+    unsigned int id;
     deque<Scan *> scans;
     string sampleName;
     string fileName;

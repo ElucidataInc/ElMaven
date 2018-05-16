@@ -10,6 +10,7 @@
 #include <errorcodes.h>
 
 mzFileIO::mzFileIO(QWidget*) {
+    sampleId = 0;
     _mainwindow = NULL;
     _stopped = true;
     process = NULL;
@@ -79,7 +80,13 @@ mzSample* mzFileIO::loadSample(QString filename){
             QString sampleNumberInfo = " | Sample Number=" + QString::number(sample->sampleNumber);
             sampleName = sampleName + sampleNumberInfo;
         }
+
         sample->sampleName = string( sampleName.toLatin1().data() );
+        
+        mtxSampleId.lock();
+        sample->id = ++sampleId;
+        mtxSampleId.unlock();
+
         sample->enumerateSRMScans();
 
         //set min and max values for rt

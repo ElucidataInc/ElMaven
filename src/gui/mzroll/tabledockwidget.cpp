@@ -1650,28 +1650,11 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* g) {
         stream.writeAttribute("formula", QString(c->id.c_str()));
     }
 
-    /**@detail-
-    *Write about whether a sample is used while peak detection. Here
-    *if sample is used, it will be mentioned as an xml attribute with
-    *preceding 's'  since most sample name starts with a numeric  character but
-    *xml attribute should not start with numeric character and it's value
-    *will be "Used" and if it is not used value will be "NotUsed"
-    */
     stream.writeStartElement("SamplesUsed");
-    vector<mzSample*> samples=_mainwindow->getSamples();
-    for (unsigned int j = 0; j < samples.size(); j++){
-        QString name=QString::fromStdString(samples[j]->sampleName);
-        cleanString(name);
-        for(int i=0;i<g->samples.size();++i){
-            if(samples[j]->sampleName==g->samples[i]->sampleName){
-                stream.writeAttribute(name,"Used");
-                break;
-            }
-            else if(i==g->samples.size()-1){
-                
-                stream.writeAttribute(name,"NotUsed");
-            }
-        }   
+    for(int i=0; i < g->samples.size(); ++i) {
+        stream.writeStartElement("sample");
+        stream.writeAttribute("id", QString::number(g->samples[i]->id));
+        stream.writeEndElement();
     }
     stream.writeEndElement();
 
@@ -1921,49 +1904,50 @@ void TableDockWidget::loadPeakTable() {
 	showAllGroups();
 }
 
-// void TableDockWidget::runScript() {
-//     QString dir = ".";
-//     QSettings* settings = _mainwindow->getSettings();
-
-//     treeWidget->selectAll();
-//     _mainwindow->getRconsoleWidget()->linkTable(this);
-//     _mainwindow->getRconsoleWidget()->updateStatus();
-//     _mainwindow->getRconsoleWidget()->show();
-//     _mainwindow->getRconsoleWidget()->raise();
-
-//     //find R executable
-//     QString Rprogram = "R.exe";
-//     if (settings->contains("Rprogram") ) Rprogram = settings->value("Rprogram").value<QString>();
-//     if (!QFile::exists( Rprogram)) { QErrorMessage dialog(this); dialog.showMessage("Can't find R executable"); return; }
-
-
-// }
-
-void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group){
+void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,PeakGroup* group, float mzrollVersion){
 
     vector<mzSample*> samples= _mainwindow->getSamples();
-    for(int i=0;i<samples.size();++i){
-        QString name=QString::fromStdString(samples[i]->sampleName);
-        cleanString(name);
-        if(xml.name() == "PeakGroup" && mzrollv_0_1_5 && samples[i]->isSelected){
-            /**
-             * if mzroll is from old version, just insert sample in group from checking
-             * whether it is selected or not at time of exporting. This can give erroneous
-             * result for old version if at time of exporting mzroll user has selected diffrent
-             * samples from samples were used at time of peak finding which was inherent problem
-             * of old version of ElMaven.
-            */
-            group->samples.push_back(samples[i]);
+
+    if (mzrollVersion == 1) {
+        if (xml.name() == "SamplesUsed") {
+            xml.readNextStartElement();
+            while (xml.name() == "sample") {
+                unsigned int id = xml.attributes().value("id").toString().toInt();
+                for(int i=0;i < samples.size();++i){
+                    mzSample *sample = samples[i];
+                    if (id == sample->id) {
+                        group->samples.push_back(sample);
+                    }
+                }
+                xml.readNextStartElement();
+            }
         }
-        else if(xml.name() == "SamplesUsed" && xml.attributes().value(name).toString()=="Used"){
-            /**
-             * if mzroll file is of new version, it's sample name will precede by 's'
-             * and has value of <Used> or <NotUsed>
-            */
-            group->samples.push_back(samples[i]);
+    } else {
+
+        for(int i=0;i<samples.size();++i){
+            QString name=QString::fromStdString(samples[i]->sampleName);
+            cleanString(name);
+            if(xml.name() == "PeakGroup" && mzrollv_0_1_5 && samples[i]->isSelected){
+                /**
+                 * if mzroll is from old version, just insert sample in group from checking
+                 * whether it is selected or not at time of exporting. This can give erroneous
+                 * result for old version if at time of exporting mzroll user has selected diffrent
+                 * samples from samples were used at time of peak finding which was inherent problem
+                 * of old version of ElMaven.
+                */
+                group->samples.push_back(samples[i]);
+            }
+            else if(xml.name() == "SamplesUsed" && xml.attributes().value(name).toString()=="Used"){
+                /**
+                 * if mzroll file is of new version, it's sample name will precede by 's'
+                 * and has value of <Used> or <NotUsed>
+                */
+                group->samples.push_back(samples[i]);
+            }
         }
     }
 }
+
 void TableDockWidget::markv_0_1_5mzroll(QString fileName){
     mzrollv_0_1_5=true;
     
@@ -1989,9 +1973,10 @@ void TableDockWidget::markv_0_1_5mzroll(QString fileName){
    
     return;
 }
+
 void TableDockWidget::loadPeakTable(QString fileName) {
 
-    markv_0_1_5mzroll(fileName);    /**@brief- mark varible <mzrollv_0_1_5>*/
+    markv_0_1_5mzroll(fileName);
 
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
@@ -2005,13 +1990,18 @@ void TableDockWidget::loadPeakTable(QString fileName) {
     PeakGroup* parent=NULL;
     QStack<PeakGroup*>stack;
     
+    float mzrollVersion = 0;
+
     while (!xml.atEnd()) {
+        if (xml.isStartElement() && xml.name() == "project") {
+            mzrollVersion = xml.attributes().value("mzrollVersion").toFloat();
+        }
         xml.readNext();
         if(xml.hasError()){qDebug()<<"Error in xml reading: "<<xml.errorString();}
-        if (xml.isStartElement()) {   
-            if (xml.name() == "PeakGroup") { group=readGroupXML(xml,parent); }
-            if (group){ readSamplesXML(xml,group); }
-            if (xml.name() == "Peak" && group ) { readPeakXML(xml,group); }
+        if (xml.isStartElement()) {
+            if (xml.name() == "PeakGroup") { group=readGroupXML(xml, parent); }
+            if (xml.name() == "SamplesUsed" && group){ readSamplesXML(xml, group, mzrollVersion); }
+            if (xml.name() == "Peak" && group) { readPeakXML(xml, group); }
             if (xml.name() == "children" && group) { stack.push(group); parent=stack.top(); }
         }
 
@@ -2037,6 +2027,8 @@ void TableDockWidget::loadPeakTable(QString fileName) {
         allgroups[i].minQuality = _mainwindow->mavenParameters->minQuality;
         allgroups[i].groupStatistics();
     }
+
+
 }
 
 void TableDockWidget::clearClusters() {

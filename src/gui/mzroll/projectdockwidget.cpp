@@ -66,18 +66,15 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     colorButton->setToolTip("Change Sample Color");
     connect(colorButton,SIGNAL(clicked()), SLOT(changeColors()));
 
-    //TODO: Sahil, Added this button while merging projectDockWidget
     QToolButton* removeSamples = new QToolButton(toolBar);
     removeSamples->setIcon(QIcon(rsrcPath + "/delete.png"));
     removeSamples->setToolTip("Remove Samples");
     connect(removeSamples,SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
 
-    //TODO: Sahil, Added this button while merging projectDockWidget
     QToolButton* checkUncheck = new QToolButton(toolBar);
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
     checkUncheck->setToolTip("Show / Hide Selected Samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
-    //TODO: Giridhari, Create this button to set samples as Blank samples
     QToolButton* blankButton = new QToolButton(toolBar);
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
     blankButton->setToolTip("Set As a Blank Sample");
@@ -281,10 +278,6 @@ void ProjectDockWidget::changeColors() {
       _mainwindow->getEicWidget()->replot();
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging projectdockwidget
 void ProjectDockWidget::checkUncheck() {
 
       //get selected items
@@ -307,10 +300,6 @@ void ProjectDockWidget::checkUncheck() {
       _mainwindow->getEicWidget()->replot();
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging projectdockwidget
 void ProjectDockWidget::unloadSelectedSamples() {
       //get selected items
       QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
@@ -353,8 +342,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
     _mainwindow->alignmentPolyVizDockWidget->plotGraph();
 }
-// @author:Giridhari
-//TODO: Create function to Set samples as Blank Samples
+
 void ProjectDockWidget::SetAsBlankSamples() {
       
       int flag =0;
@@ -427,10 +415,6 @@ void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
     item->setBackgroundColor(1,color);
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging projectdockwidget
 void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color) {
     if (!color.isValid()) return;
     if ( sample == NULL) return;
@@ -563,6 +547,7 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
         }
     }
 }
+
 QTreeWidgetItem* ProjectDockWidget::getParentFolder(QString fileName) {
         //get parent name of the directory containg this sample
         QTreeWidgetItem* parent=NULL;
@@ -676,9 +661,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     QXmlStreamReader xml(&data);
     mzSample* currentSample=NULL;
 
-
-
-
     QString projectDescription;
     QStringRef currentXmlElement;
 
@@ -695,14 +677,18 @@ void ProjectDockWidget::loadProject(QString fileName) {
     xml.setDevice(xml.device());
     QString progressText;
     while (!xml.atEnd()) {
+
+
         xml.readNext();
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
 
 
             if (xml.name() == "sample") {
-                QString fname   = xml.attributes().value("filename").toString();
+                unsigned int id = 0;
                 QString sname   = xml.attributes().value("name").toString();
+                id = xml.attributes().value("id").toInt();
+                QString fname   = xml.attributes().value("filename").toString();
                 QString setname   = xml.attributes().value("setName").toString();
                 QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
                 QString isSelected   = xml.attributes().value("isSelected").toString();
@@ -742,10 +728,11 @@ void ProjectDockWidget::loadProject(QString fileName) {
                     if (sample) {
                         _mainwindow->addSample(sample);
                         currentSample=sample;
-                        if (!sname.isEmpty() )  		sample->sampleName = sname.toStdString();
-                        if (!setname.isEmpty() )  		sample->setSetName(setname.toStdString());
-                        if (!sampleOrder.isEmpty())     sample->setSampleOrder(sampleOrder.toInt());
-                        if (!isSelected.isEmpty()) 		sample->isSelected = isSelected.toInt();
+                        if (!sname.isEmpty() ) sample->sampleName = sname.toStdString();
+                        if (id > 0) sample->id = id;
+                        if (!setname.isEmpty() ) sample->setSetName(setname.toStdString());
+                        if (!sampleOrder.isEmpty()) sample->setSampleOrder(sampleOrder.toInt());
+                        if (!isSelected.isEmpty()) sample->isSelected = isSelected.toInt();
                     } else {
                         currentSample=NULL;
                     }
@@ -806,7 +793,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
     stream.writeStartElement("project");
-
+    stream.writeAttribute("mzrollVersion", "1.0");
     stream.writeStartElement("samples");
 
     vector<mzSample*> samples = _mainwindow->getSamples();
@@ -816,6 +803,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
         stream.writeStartElement("sample");
         stream.writeAttribute("name",  sample->sampleName.c_str() );
+        stream.writeAttribute("id", QString::number(sample->id));
         stream.writeAttribute("filename",  sample->fileName.c_str() );
         stream.writeAttribute("sampleOrder", QString::number(sample->getSampleOrder()));
         stream.writeAttribute("setName", sample->getSetName().c_str());
@@ -830,7 +818,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
         stream.writeEndElement();
 
     }
-    stream.writeEndElement(); 
+    stream.writeEndElement();
     
     stream.writeStartElement("projectDescription");
     stream.writeCharacters(getProjectDescription());
@@ -858,9 +846,9 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
         if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
         if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
-        if (compound->precursorMz) stream.writeAttribute("Precursor Mz", QString::number(compound->precursorMz, 'f', 6));
-        if (compound->productMz) stream.writeAttribute("Product Mz", QString::number(compound->productMz, 'f', 6));
-        if (compound->collisionEnergy) stream.writeAttribute("Collision Energy", QString::number(compound->collisionEnergy, 'f' ,6));
+        if (compound->precursorMz) stream.writeAttribute("precursorMz", QString::number(compound->precursorMz, 'f', 6));
+        if (compound->productMz) stream.writeAttribute("productMz", QString::number(compound->productMz, 'f', 6));
+        if (compound->collisionEnergy) stream.writeAttribute("collisionEnergy", QString::number(compound->collisionEnergy, 'f' ,6));
 
         if(compound->category.size() > 0) {
             stream.writeStartElement("categories");
@@ -903,46 +891,6 @@ void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {
     QDockWidget::keyPressEvent(e);
 }
 
-/*
-void ProjectDockWidget::unloadSample() {
-    QTreeWidgetItem *item = _treeWidget->currentItem();
-    if (item) {
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
-
-        if ( sample == NULL) return;
-        item->setHidden(true);
-         _treeWidget->removeItemWidget(item,0);
-
-
-        //mark sample as unselected
-        sample->isSelected=false;
-        delete_all(sample->scans);
-
-        qDebug() << "Removing Sample " << sample->getSampleName().c_str();
-        qDebug() << " Empting scan data #Scans=" << sample->scans.size();
-
-        //remove sample from sample list
-        for(unsigned int i=0; i<_mainwindow->samples.size(); i++) {
-            if (_mainwindow->samples[i] == sample) {
-                _mainwindow->samples.erase( _mainwindow->samples.begin()+i);
-                break;
-            }
-        }
-        qDebug() << "Number of Remaining Samples =" << _mainwindow->sampleCount();
-        //delete(item);
-    }
-
-    if ( _mainwindow->getEicWidget() ) {
-        _mainwindow->getEicWidget()->replotForced();
-    }
-}
-*/
-
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added this while merging projectdockwidget
 void ProjectDockWidget::unloadSample(mzSample* sample) {
     if ( sample == NULL) return;
 

@@ -1,5 +1,7 @@
 #ifndef MZFILEIO_H
 #define MZFILEIO_H
+
+#include <mutex>
 #include "globals.h"
 #include "mainwindow.h"
 #include "mzAligner.h"
@@ -57,27 +59,27 @@ Q_OBJECT
          * @return          [int]
          */
         int loadNISTLibrary(QString filename);        
-        int loadMassBankLibrary(QString filename); //TODO: Sahil, Added while merging mzfileio
+        int loadMassBankLibrary(QString filename);
         /**
          * [load Pep XML]
          * @param  filename [name of the file]
          * @return          [int]
          */
         int loadPepXML(QString filename);
-        int ThermoRawFileImport(QString fileName); //TODO: Sahil, Added while merging mzfileio
+        int ThermoRawFileImport(QString fileName);
 
-        bool isKnownFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
-        bool isSampleFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
-        bool isProjectFileType(QString filename); //TODO: Sahil, Added while merging mzfileio
-        bool isSpectralHitType(QString filename); //TODO: Sahil, Added while merging mzfileio
-        bool isPeakListType(QString filename); //TODO: Sahil, Added while merging mzfileio
+        bool isKnownFileType(QString filename);
+        bool isSampleFileType(QString filename);
+        bool isProjectFileType(QString filename);
+        bool isSpectralHitType(QString filename);
+        bool isPeakListType(QString filename);
 
 
 
 
     public Q_SLOTS:
-        void readThermoRawFileImport(); //TODO: Sahil, Added while merging mzfileio
-        void addFileToQueue(QString f); //TODO: Sahil, Added while merging mzfileio
+        void readThermoRawFileImport();
+        void addFileToQueue(QString f);
         void removeAllFilefromQueue();
 
     Q_SIGNALS:
@@ -89,10 +91,10 @@ Q_OBJECT
      * @param int     [total value]
      */
      void updateProgressBar(QString,int,int);
-     void sampleLoaded(); //TODO: Sahil, Added while merging mzfileio
-     void spectraLoaded(); //TODO: Sahil, Added while merging mzfileio
-     void projectLoaded(); //TODO: Sahil, Added while merging mzfileio
-     void peaklistLoaded(); //TODO: Sahil, Added while merging mzfileio
+     void sampleLoaded();
+     void spectraLoaded();
+     void projectLoaded();
+     void peaklistLoaded();
      void createPeakTableSignal(QString);
      void addNewSample(mzSample*);
 
@@ -112,7 +114,19 @@ Q_OBJECT
          MainWindow* _mainwindow;
          ProjectDockWidget* projectdocwidget;
          bool _stopped;
-         QProcess* process; //TODO: Sahil, Added while merging mzfileio
+         QProcess* process;
+        /**
+         * @brief iterator for sample id
+         * @detail sampleId is unique for every sample. Everytime sample gets
+         * added, sampleId gets incremented by 1. Static to make sure variable
+         * is shared across threads
+         */
+        unsigned int sampleId;
+        
+        /**
+         * @brief to make updating sampleId thread safe
+         */
+        mutex mtxSampleId;
 
 
 };
