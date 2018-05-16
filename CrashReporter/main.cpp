@@ -18,7 +18,9 @@ int main(int argc, char *argv[])
     MainWindow w(nullptr, &uploader);
 #endif
 
+#ifdef Q_OS_UNIX
     MainWindow w(nullptr, QString(argv[1]));
+#endif
 
     w.show();
 
