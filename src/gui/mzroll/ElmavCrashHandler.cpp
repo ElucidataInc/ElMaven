@@ -5,7 +5,7 @@
 #include <QProcess>
 
 
-#ifdef linux
+#ifdef Q_OS_LINUX
 #include <client/linux/handler/exception_handler.h>
 #endif
 
