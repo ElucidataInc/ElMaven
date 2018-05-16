@@ -236,6 +236,11 @@ database.cpp \
     numeric_treewidgetitem.cpp \
     ElmavCrashHandler.cpp
 
+macx{
+    SOURCES -= ElmavCrashHandler.cpp
+    HEADERS -= ElmavCrashHandler.h
+}
+
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
     HEADERS += remotespectrahandler.h
