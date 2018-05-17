@@ -249,35 +249,3 @@ void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
 }
 
 void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) { return; }
-
-/*
-void IsotopeBar::mouseDoubleClickEvent (QGraphicsSceneMouseEvent*event) {
-	QVariant v = data(1);
-   	PeakGroup*  x = v.value<PeakGroup*>();
-}
-
-void IsotopeBar::mousePressEvent (QGraphicsSceneMouseEvent*event) {}
-*/
-
-
-void IsotopeBar::hoverEnterEvent (QGraphicsSceneHoverEvent*event) {
-    QVariant v = data(0);
-    QString note = v.value<QString>();
-    if (note.length() == 0 ) return;
-
-    QString htmlNote = note;
-    setToolTip(note);
-    QPointF posG = mapToScene(event->pos());
-    Q_EMIT(showInfo(htmlNote, posG.x(), posG.y()+5));
-}
-
-void IsotopeBar::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace ) {
-        QVariant v = data(1);
-    	PeakGroup*  g = v.value<PeakGroup*>();
-        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); Q_EMIT(groupUpdated(g->parent)); }
-        IsotopePlot* parent = (IsotopePlot*) parentItem();
-        if (parent) parent->showBars();
-    }
-}
-
