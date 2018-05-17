@@ -19,6 +19,7 @@ public:
 private:
     Ui::IsotopePlotDockWidget *ui;
     MainWindow *_mw;
+    void setToolBar();
 };
 
 #endif // ISOTOPEPLOTDOCKWIDGET_H

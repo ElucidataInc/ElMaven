@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>IsotopePlotDockWidget</class>
  <widget class="QDockWidget" name="IsotopePlotDockWidget">
@@ -5,12 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>595</width>
     <height>300</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>DockWidget</string>
   </property>
+  <widget class="QWidget" name="isotopePlot"/>
  </widget>
+ <resources/>
+ <connections/>
 </ui>
