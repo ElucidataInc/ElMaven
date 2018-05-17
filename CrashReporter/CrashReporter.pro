@@ -3,12 +3,19 @@
 # Project created by QtCreator 2017-02-04T15:26:12
 #
 #-------------------------------------------------
-include(./s3-qt.pri)
 
-QT       += core gui network
+TEMPLATE = app
+TARGET = CrashReporter
+
+
+QT       += widgets core gui network
+CONFIG += console
 
 MOC_DIR=$$top_builddir/tmp/crash_reporter/
 OBJECTS_DIR=$$top_builddir/tmp/crash_reporter/
+DESTDIR = $$top_srcdir/bin/
+
+QMAKE_CXXFLAGS += -std=c++11
 
 CONFIG(debug, debug|release){
     message("running in debug mode  ")
@@ -21,16 +28,26 @@ CONFIG(debug, debug|release){
     }
 }
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+win32 {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += -lgoogle-breakpad -pthread -lwininet
+}
 
-TARGET = CrashReporter
-TEMPLATE = app
 
-DESTDIR = $$top_srcdir/bin/
 
 SOURCES += main.cpp\
         mainwindow.cpp
 
-HEADERS  += mainwindow.h
+
+
+
+HEADERS  += mainwindow.h \
+
+win32 {
+
+    SOURCES += file_uploader.cpp
+    HEADERS += file_uploader.h
+}
 
 FORMS    += mainwindow.ui

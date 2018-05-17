@@ -1,0 +1,2 @@
+- change src/google-breakpad/common/breakpad_types.h back to default and then compile 
+- fix the issue without commenting out the #error macros

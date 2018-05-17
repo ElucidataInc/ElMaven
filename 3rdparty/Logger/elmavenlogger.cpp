@@ -63,4 +63,5 @@ void ElMavenLogger::logErr(const std::string& errMessage, const ErrorType& type)
             break;
         }
     }
+    _logger->flush();
 }

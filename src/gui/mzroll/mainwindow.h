@@ -97,7 +97,7 @@ class PeptideFragmentationWidget;
 extern Database DB;
 //Added when merged with Maven776 - Kiran
 class RemoteSpectraHandler;
-static void signalHandler(int signum);
+
 class AutoSave: public QThread {
 Q_OBJECT
 

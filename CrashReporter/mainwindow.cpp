@@ -1,11 +1,25 @@
 #include "mainwindow.h"
+#include <iostream>
+#ifdef Q_OS_WIN
+#include "file_uploader.h"
+#endif
+
 #include <QStandardPaths>
 
 
-
-MainWindow::MainWindow(QWidget *parent) :
+#ifdef Q_OS_WIN
+MainWindow::MainWindow(QWidget *parent, FileUploader* fUploader) :
     QMainWindow(parent),
+    uploader(fUploader),
     ui(new Ui::MainWindow)
+#endif
+
+#if defined(Q_OS_UNIX)
+MainWindow::MainWindow(QWidget *parent, const QString& path) :
+    QMainWindow(parent),
+    logsPath(path),
+    ui(new Ui::MainWindow)
+#endif
 {
     ui->setupUi(this);
     // ui->label_4->setText( "<b>El-MAVEN</b> has encountered a problem and needs to close. We are sorry for the inconvenience.\n\n" \
@@ -13,13 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->restartApplicationPath = "";
 
 
-    QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
-                   qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + "logs" \
-                   + QDir::separator();
-
-    _logsPath << ( basePath + "elMavLogs") << (basePath + "elMavLogs.1") << (basePath + "elMavLogs.2");
-    // won't work on mac;
-     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+     #if defined(Q_OS_LINUX)
         _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
     #endif
 
@@ -29,39 +37,32 @@ MainWindow::MainWindow(QWidget *parent) :
     #endif
 
 
-    QString nodePath = QStandardPaths::findExecutable("node");
+    #if defined(Q_OS_UNIX)
+        QString nodePath = QStandardPaths::findExecutable("node");
+        #ifdef Q_OS_LINUX
 
-    #ifdef Q_OS_WIN
-      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
-        nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
+        if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
+            nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
+        #endif
+
+        #ifdef Q_OS_MAC
+        QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+        if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+            nodePath = binDir + "node_bin" + QDir::separator() + "node";
+        #endif
+        //     set up the process
+            _process  = new QProcess(this);
+            _process->setProcessChannelMode(QProcess::SeparateChannels);
+            _process->setProgram(nodePath);
+
+            connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
+            connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
+            connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
+            connect(_process, &QProcess::started, this, &MainWindow::started);
+//TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
+//            connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
     #endif
 
-    #ifdef Q_OS_LINUX
-      if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
-          nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
-    #endif
-
-    #ifdef Q_OS_MAC
-      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-      if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
-        nodePath = binDir + "node_bin" + QDir::separator() + "node";
-    #endif
-
-
-
-    // set up the process
-    _process  = new QProcess(this);
-    _process->setProcessChannelMode(QProcess::SeparateChannels);
-    _process->setProgram(nodePath);
-
-
-
-    connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
-    connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
-    connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
-    connect(_process, &QProcess::started, this, &MainWindow::started);
-    //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
-    // connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
 }
 
 
@@ -69,10 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    if(_process->state() != QProcess::NotRunning ) {
-        _process->waitForFinished();
-    }
-
 
     delete ui;
 }
@@ -84,20 +81,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readOutput()
 {
+    qDebug() << "reading output " << _process->readAllStandardOutput();
 }
 
 
 void MainWindow::processError(QProcess::ProcessError perr)
 {
+    qDebug() << perr << " " << _process->errorString();
     QCoreApplication::quit();
 }
 
 void MainWindow::readError()
 {
+    qDebug() << "reading output " << _process->readAllStandardError();
 }
 
 void MainWindow::started()
 {
+    std::cerr << "process started" <<std::endl;
 //TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
 }
 
@@ -109,38 +110,12 @@ void MainWindow::finished(int exitCode)
 
 }
 
-void MainWindow::processLogs()
-{
-    for(const QString& path: _logsPath) {
-        QFile fptr(path);
-
-        if(fptr.open(QIODevice::ReadOnly)) {
-            std::string log = std::string(fptr.readAll().data());
-            std::string::size_type n;
-
-            while(log.find(' ') != std::string::npos) {
-               n = log.find(' ');
-               log.replace(n, 1, "__");
-            }
-
-            while(log.find('\n') != std::string::npos) {
-               n = log.find('\n');
-               log.replace(n, 1, "###");
-            }
-
-            _logs += QString(log.c_str());
-            fptr.close();
-        }
-    }
-}
 
 void MainWindow::uploadLogs()
 {
-    processLogs();
 
     QStringList args;
     args.append(_script);
-    args.append(_logs);
 
     _process->setArguments(args);
 
@@ -162,13 +137,7 @@ void MainWindow::startElMaven()
 
 void MainWindow::onStart()
 {
-    // if (this->windowState != 1) {
-    //     this->setWindowTitle ("Bug reporting and Feature request");
-    //     ui->groupBox->setTitle("");
-    //     ui->label_4->setText( "<b>Make El Maven better by giving us your feedback.</b>");
-    //
-    //     ui->reportRestart->setText("Submit Feedback");
-    // }
+
     this->show();
 }
 
@@ -180,5 +149,13 @@ void MainWindow::on_cancel_clicked()
 
 void MainWindow::on_reportRestart_clicked()
 {
+#ifdef Q_OS_UNIX
     uploadLogs();
+#endif
+
+#ifdef Q_OS_WIN
+    uploader->uploadMinidump();
+    this->close();
+#endif
+
 }

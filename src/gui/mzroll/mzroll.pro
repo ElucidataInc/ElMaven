@@ -33,6 +33,18 @@ ICON = images/icon.icns
 
 QT += sql network xml printsupport
 
+linux {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += -lgoogle-breakpad -pthread
+}
+
+win32 {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += -lgoogle-breakpad -pthread
+}
+
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
@@ -155,7 +167,8 @@ HEADERS +=  stable.h \
                     awsbucketcredentialsdialog.h \
                     alignmentpolyvizdockwidget.h \
                     controller.h \
-                    numeric_treewidgetitem.h
+                    numeric_treewidgetitem.h \
+                    ElmavCrashHandler.h
 
 
 
@@ -220,7 +233,13 @@ database.cpp \
     awsbucketcredentialsdialog.cpp \
     alignmentpolyvizdockwidget.cpp \
     controller.cpp \
-    numeric_treewidgetitem.cpp
+    numeric_treewidgetitem.cpp \
+    ElmavCrashHandler.cpp
+
+macx{
+    SOURCES -= ElmavCrashHandler.cpp
+    HEADERS -= ElmavCrashHandler.h
+}
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp

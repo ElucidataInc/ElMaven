@@ -6,4 +6,3 @@ macx{
 }
 
 SUBDIRS += 3rdparty src tests/MavenTests CrashReporter
-

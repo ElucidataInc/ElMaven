@@ -5,19 +5,30 @@
 #include <QDir>
 #include <QtDebug>
 #include <QProcess>
-#include "include/qs3/qs3.h"
+//#include "include/qs3/qs3.h"
 #include <QDateTime>
 #include <QEventLoop>
 #include <QStatusBar>
 #include <QStatusBar>
 
+#ifdef Q_OS_WIN
+class FileUploader;
+#endif
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+
+#ifdef Q_OS_WIN
+    explicit MainWindow(QWidget *parent,FileUploader* uploader);
+#endif
+
+#if defined(Q_OS_UNIX)
+    MainWindow(QWidget* parent, const QString& path);
+#endif
+
     ~MainWindow();
     QString restartApplicationPath;
     QString accessKey;
@@ -41,7 +52,6 @@ public slots:
 private:
     Ui::MainWindow *ui;
     void startElMaven();
-    void processLogs();
 
 private Q_SLOTS:
 
@@ -50,6 +60,13 @@ private Q_SLOTS:
     void on_reportRestart_clicked();
 
 private:
+#ifdef Q_OS_WIN
+    FileUploader* uploader;
+#endif
+
+#if defined (Q_OS_UNIX)
+    QString logsPath;
+#endif
     QProcess* _process;
     QString _script;
     QString _logs;
