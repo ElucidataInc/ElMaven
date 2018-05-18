@@ -169,6 +169,7 @@ HEADERS +=  stable.h \
                     alignmentpolyvizdockwidget.h \
                     controller.h \
                     numeric_treewidgetitem.h \
+                    analytics.h \
                     ElmavCrashHandler.h
 
 
@@ -235,6 +236,7 @@ database.cpp \
     alignmentpolyvizdockwidget.cpp \
     controller.cpp \
     numeric_treewidgetitem.cpp \
+    analytics.cpp \
     ElmavCrashHandler.cpp
 
 macx{
