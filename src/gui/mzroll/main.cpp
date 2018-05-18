@@ -23,7 +23,6 @@
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
-#include "ganalytics.h"
 #include "controller.h"
 #include "elmavenlogger.h"
 
@@ -56,12 +55,9 @@ int main(int argc, char *argv[])
 {
 
     QApplication app(argc, argv);
-    qApp->setOrganizationName("ElucidataInc");
-    qApp->setApplicationName("El-Maven");
-    qApp->setApplicationVersion("v0.3");
-
-    GAnalytics tracker("UA-118159593-1");
-    tracker.sendScreenView("Main Screen");
+    qApp->setOrganizationName("Elucidata");
+    qApp->setApplicationName("El-MAVEN");
+    qApp->setApplicationVersion("v0.3.2");
 
     initializeLogger();
 
