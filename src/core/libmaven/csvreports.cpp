@@ -280,8 +280,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     char label[2];
     sprintf(label, "%c", group->label);
     // Bug Fix for #693 group->getParent()->groupId is the required groupId: Mayank
-    groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
-            << parentGroup->groupId << SEP << group->goodPeakCount << SEP << group->meanMz
+    groupReport << label << SEP << setprecision(7) << parentGroup->groupId << SEP
+            << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
             << tagString;
 
