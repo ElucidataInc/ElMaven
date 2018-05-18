@@ -634,6 +634,8 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		// filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
 		QString csv_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peak_table_all_Elmaven_Polly";// uploading the csv file 
 		QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly";//  uploading the json file
+		QString compound_DB_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_Polly";//  uploading the compound DB file
+		
 		qDebug()<<"csv_filename - "<<csv_filename;
 		//save Eic Json
 		saveJson(json_filename.toStdString());
@@ -642,8 +644,12 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		saveCSV(csv_filename.toStdString());
 		
 		try {
+			QString compound_DB_file = QString::fromStdString(mavenParameters->ligandDbFilename);
+			bool status = QFile::copy(compound_DB_file, compound_DB_filename+".csv");
+			qDebug()<<"compound_DB_file copy status - "<<status;
+			
 			// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json",creds); //add more files to upload, if desired..
+			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv",creds); //add more files to upload, if desired..
 			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 				qDebug()<<"redirection url - \n"<<redirection_url;
