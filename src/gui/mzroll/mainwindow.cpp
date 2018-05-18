@@ -3184,7 +3184,7 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
-	QWidgetAction *btnDiscussPeak = new MainWindowWidgetAction(toolBar, this,  "btnDiscussPeak");
+	// QWidgetAction *btnDiscussPeak = new MainWindowWidgetAction(toolBar, this,  "btnDiscussPeak");
 
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
@@ -3214,7 +3214,7 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowBoxplot);
 
 	toolBar->addSeparator();
-	toolBar->addAction(btnDiscussPeak);
+	// toolBar->addAction(btnDiscussPeak);
 
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
