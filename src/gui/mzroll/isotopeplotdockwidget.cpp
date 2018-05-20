@@ -40,7 +40,7 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(spacer2);
 
     QCheckBox *N15 = new QCheckBox("N15");
-    N15->setChecked(true);
+    N15->setChecked(false);
     toolBar->addWidget(N15);
 
     QWidget *spacer3 = new QWidget();
@@ -48,7 +48,7 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(spacer3);
 
     QCheckBox *D2 = new QCheckBox("D2");
-    D2->setChecked(true);
+    D2->setChecked(false);
     toolBar->addWidget(D2);
 
     QWidget *spacer4 = new QWidget();
@@ -56,7 +56,7 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(spacer4);
 
     QCheckBox *S34 = new QCheckBox("S34");
-    S34->setChecked(true);
+    S34->setChecked(false);
     toolBar->addWidget(S34);
 
     setTitleBarWidget(toolBar);
