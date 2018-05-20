@@ -52,10 +52,9 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
         setPeakGroup(group->getParent());
     }
 
-    if ( isVisible() == true && group == _group) return;
-    _group = group;
-    //clear plot if new group is selected 
     clear();
+
+    _group = group;
 
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();

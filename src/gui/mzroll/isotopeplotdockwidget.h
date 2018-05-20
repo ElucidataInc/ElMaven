@@ -16,10 +16,14 @@ public:
     explicit IsotopePlotDockWidget(MainWindow *mw = 0);
     ~IsotopePlotDockWidget();
 
+private Q_SLOTS:
+    void updateC13Flag(bool setState);
+
 private:
     Ui::IsotopePlotDockWidget *ui;
     MainWindow *_mw;
     void setToolBar();
+    void recompute();
 };
 
 #endif // ISOTOPEPLOTDOCKWIDGET_H

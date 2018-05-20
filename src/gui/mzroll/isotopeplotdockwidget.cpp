@@ -60,4 +60,24 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(S34);
 
     setTitleBarWidget(toolBar);
+
+    connect(C13, SIGNAL(toggled(bool)), this, SLOT(updateC13Flag(bool)));
+}
+
+void IsotopePlotDockWidget::updateC13Flag(bool setState)
+{
+    _mw->mavenParameters->C13Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::recompute()
+{
+    if (_mw->getEicWidget()->isVisible()) {
+        PeakGroup* group = _mw->getEicWidget()->getParameters()->getSelectedGroup();
+        if (group)
+        {
+            group->childrenBarPlot.clear();
+            _mw->isotopeWidget->updateIsotopicBarplot(group);
+        }
+    }
 }
