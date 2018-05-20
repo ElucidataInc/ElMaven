@@ -355,18 +355,6 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "S34Labeled_BPE") == 0)
         S34Labeled_BPE = atof(value);
 
-    if(strcmp(key, "D2Labeled_Barplot") == 0)
-        D2Labeled_Barplot = atof(value);
-
-    if(strcmp(key, "C13Labeled_Barplot") == 0)
-        C13Labeled_Barplot = atof(value);
-
-    if(strcmp(key, "N15Labeled_Barplot") == 0)
-        N15Labeled_Barplot = atof(value);
-
-    if(strcmp(key, "S34Labeled_Barplot") == 0)
-        S34Labeled_Barplot = atof(value);
-
     if(strcmp(key, "D2Labeled_IsoWidget") == 0)
         D2Labeled_IsoWidget = atof(value);
 
