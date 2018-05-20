@@ -154,9 +154,9 @@ void IsotopePlot::showBars() {
         isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
-        int h = j % 20;
+        int h = j % 10;
         isotopesType[j]->setPen(barPen);
-	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+	    isotopesType[j]->setBrush(QColor::fromHsvF(h/10.0,1.0,1.0,1.0));
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
