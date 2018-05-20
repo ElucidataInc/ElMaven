@@ -98,7 +98,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	S34Labeled_BPE = false;
 	D2Labeled_BPE = false;
 	
-	C13Labeled_Barplot = false;
+	C13Labeled_Barplot = true;
 	N15Labeled_Barplot = false;
 	S34Labeled_Barplot = false;
 	D2Labeled_Barplot = false;
