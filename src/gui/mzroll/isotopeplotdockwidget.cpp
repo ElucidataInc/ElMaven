@@ -62,11 +62,32 @@ void IsotopePlotDockWidget::setToolBar()
     setTitleBarWidget(toolBar);
 
     connect(C13, SIGNAL(toggled(bool)), this, SLOT(updateC13Flag(bool)));
+    connect(N15, SIGNAL(toggled(bool)), this, SLOT(updateN15Flag(bool)));
+    connect(D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
+    connect(S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
 }
 
 void IsotopePlotDockWidget::updateC13Flag(bool setState)
 {
     _mw->mavenParameters->C13Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::updateN15Flag(bool setState)
+{
+    _mw->mavenParameters->N15Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::updateD2Flag(bool setState)
+{
+    _mw->mavenParameters->D2Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::updateS34Flag(bool setState)
+{
+    _mw->mavenParameters->S34Labeled_Barplot = setState;
     recompute();
 }
 

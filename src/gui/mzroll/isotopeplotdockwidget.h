@@ -18,6 +18,9 @@ public:
 
 private Q_SLOTS:
     void updateC13Flag(bool setState);
+    void updateN15Flag(bool setState);
+    void updateD2Flag(bool setState);
+    void updateS34Flag(bool setState);
 
 private:
     Ui::IsotopePlotDockWidget *ui;
