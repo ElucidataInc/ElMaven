@@ -1,7 +1,7 @@
 #ifndef ANALYTICS_H
 #define ANALYTICS_H
 
-#include "ganalytics.h"
+#include <QString>
 
 class Analytics {
 
@@ -10,7 +10,7 @@ class Analytics {
 
     public:
         Analytics();
-        void setTracker(const char* screenName);
+        void post();
 
 };
 
