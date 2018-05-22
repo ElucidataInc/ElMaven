@@ -1,5 +1,5 @@
-#include "loginform.h"
-#include "ui_loginform.h"
+#include "initialEPIform.h"
+#include "ui_initialEPIform.h"
 #include <QMessageBox>
 
 
@@ -11,10 +11,9 @@ InitialEPIForm::InitialEPIForm(PollyElmavenInterfaceDialog* pollyelmaveninterfac
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     
     ui->setupUi(this);
-    ui->login_label->setText("<a href=\"https://polly.elucidata.io/#/signup\">Register on Polly</a>");
-    ui->login_label->setTextFormat(Qt::RichText);
-    ui->login_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    ui->login_label->setOpenExternalLinks(true); 
+    ui->initial_login_label->setStyleSheet("QLabel {color : green; }");
+    ui->initial_login_label->setText("Welcome back "+_pollyelmaveninterfacedialog->credentials.at(0));
+    
 }
 
 InitialEPIForm::~InitialEPIForm()
@@ -22,35 +21,35 @@ InitialEPIForm::~InitialEPIForm()
     delete ui;
 }
 
-WorkerThread::WorkerThread()
+initialWorkerThread::initialWorkerThread()
 {
     _pollyintegration = new PollyIntegration();   
     
 };
 
-void WorkerThread::run(){
+void initialWorkerThread::run(){
     QString status_inside = _pollyintegration->authenticate_login(username,password);
     emit resultReady(QStringList()<<status_inside<<username<<password);
 }
 
-WorkerThread::~WorkerThread()
+initialWorkerThread::~initialWorkerThread()
 {
     if (_pollyintegration) delete (_pollyintegration);
 };
 
-void InitialEPIForm::on_pushButton_clicked()
+void InitialEPIForm::on_pushButton_inital_form_clicked()
 {   
-    ui->login_label->setStyleSheet("QLabel {color : green; }");
-    ui->login_label->setText("authenticating to polly..");
+    ui->initial_form_status_label->setStyleSheet("QLabel {color : green; }");
+    ui->initial_form_status_label->setText("Connecting to polly..Please wait");
     QCoreApplication::processEvents();
-    ui->pushButton->setEnabled(false);
+    ui->pushButton_inital_form->setEnabled(false);
     QCoreApplication::processEvents();
 
-    WorkerThread *workerThread = new WorkerThread();
+    initialWorkerThread *workerThread = new initialWorkerThread();
     connect(workerThread, SIGNAL(resultReady(QStringList)), this, SLOT(handleResults(QStringList)));
-    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
-    workerThread->username= ui->lineEdit_username->text();
-    workerThread->password = ui->lineEdit_password->text();
+    connect(workerThread, &initialWorkerThread::finished, workerThread, &QObject::deleteLater);
+    workerThread->username= _pollyelmaveninterfacedialog->credentials.at(0);
+    workerThread->password = _pollyelmaveninterfacedialog->credentials.at(1);
     workerThread->start();
 }
 
@@ -61,7 +60,7 @@ void InitialEPIForm::handleResults(QStringList results){
     QString password=results.at(2);
     if (status_inside=="ok"){
         qDebug()<<"Logged in, moving on now....";
-        ui->login_label->setText("getting data from polly..");
+        ui->initial_form_status_label->setText("getting data from polly..");
         QCoreApplication::processEvents();
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
         _pollyelmaveninterfacedialog->startup_data_load();
@@ -69,14 +68,14 @@ void InitialEPIForm::handleResults(QStringList results){
         
     }
     else if(status_inside=="error"){
-        ui->login_label->setStyleSheet("QLabel {color : red; }");
-        ui->login_label->setText("Please check internet connection");
-        ui->pushButton->setEnabled(true);
+        ui->initial_form_status_label->setStyleSheet("QLabel {color : red; }");
+        ui->initial_form_status_label->setText("Please check internet connection");
+        ui->pushButton_inital_form->setEnabled(true);
     }
     else {
-        ui->login_label->setStyleSheet("QLabel {color : red; }");
-        ui->login_label->setText("Incorrect credentials");
-        ui->pushButton->setEnabled(true);
+        ui->initial_form_status_label->setStyleSheet("QLabel {color : red; }");
+        ui->initial_form_status_label->setText("Incorrect credentials");
+        ui->pushButton_inital_form->setEnabled(true);
     }
 }
 

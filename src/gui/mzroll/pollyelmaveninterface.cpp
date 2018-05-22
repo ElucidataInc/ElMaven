@@ -136,9 +136,9 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 }
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
-    // _initialEPIform =new InitialEPIForm(this);
-    // _initialEPIform->setModal(true);
-    // _initialEPIform->show();
+    _initialEPIform =new InitialEPIForm(this);
+    _initialEPIform->setModal(true);
+    _initialEPIform->show();
 }
 
 void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
