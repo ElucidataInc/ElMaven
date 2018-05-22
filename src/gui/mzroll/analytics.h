@@ -18,7 +18,7 @@ class Analytics {
     public:
         Analytics();
         void hitPageView(QString page, QString title);
-        void hitEvent(QString category, QString action, int value);
+        void hitEvent(QString category, QString action, int value = 0);
 
 };
 

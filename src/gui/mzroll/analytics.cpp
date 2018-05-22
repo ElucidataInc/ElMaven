@@ -35,14 +35,14 @@ void Analytics::hitPageView(QString page, QString title)
     httpPost(query); // POST
 }
 
-void Analytics::hitEvent(QString category, QString action, int value = 0)
+void Analytics::hitEvent(QString category, QString action, int value)
 {
     QUrlQuery query = intialSetup(); // Get query
 
     query.addQueryItem("t", "event"); // Event hit type
     query.addQueryItem("ec", category); // Event category
     query.addQueryItem("ea", action); // Event action
-    if(value>0) query.addQueryItem("ev", QString(value)); // Event value
+    if(value>0) query.addQueryItem("ev", QString::number(value)); // Event value
 
     httpPost(query); // POST
 }
