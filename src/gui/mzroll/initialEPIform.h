@@ -1,5 +1,5 @@
-#ifndef LOGINFORM_H
-#define LOGINFORM_H
+#ifndef INITIALEPIFORM_H
+#define INITIALEPIFORM_H
 
 #include <QWidget>
 #include "pollyintegration.h"
@@ -35,18 +35,18 @@ private slots:
      * 3. if successfull login, hide the form and save these credentials to a file for persistent login in future..
      * 4. If failed, display incorrect credentials..
      */
-    void on_pushButton_clicked();
+    void on_pushButton_inital_form_clicked();
 
 private:
     Ui::InitialEPIForm *ui;
 };
 
-class WorkerThread : public QThread
+class initialWorkerThread : public QThread
 {
     Q_OBJECT
     public:
-        WorkerThread();
-        ~WorkerThread();
+        initialWorkerThread();
+        ~initialWorkerThread();
         PollyIntegration* _pollyintegration;
         QString username;
         QString password;
@@ -55,4 +55,4 @@ class WorkerThread : public QThread
         void resultReady(QStringList result);
 };
 
-#endif // LOGINFORM_H
+#endif // INITIALEPIFORM_H
