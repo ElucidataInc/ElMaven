@@ -1,16 +1,24 @@
 #ifndef ANALYTICS_H
 #define ANALYTICS_H
 
+#include <string>
 #include <QString>
+#include <QNetworkAccessManager>
 
 class Analytics {
 
     private:
-        const char* trackerId;
+        QString trackerId;
+        QString hostname;
+        QString uuid;
+        QNetworkRequest req;
+        void httpPost(QUrlQuery query);
+        QUrlQuery intialSetup();
 
     public:
         Analytics();
-        void post();
+        void hitPageView(QString page, QString title);
+        void hitEvent(QString category, QString action, int value);
 
 };
 

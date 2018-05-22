@@ -31,6 +31,7 @@
 #include "heatmap.h"
 #include "treemap.h"
 #include "note.h"
+#include "analytics.h"
 #include "history.h"
 #include "suggest.h"
 #include "animationcontrol.h"
@@ -130,6 +131,10 @@ public:
 	bool allPeaksMarked = false;
 	bool aligned = false;
 	map<pair<string,string>, double> deltaRt;
+
+	Analytics* getAnalytics(){
+		return analytics;
+	}
 
 	AutoSave* autosave;
 	QSet<QString> SaveMzrollListvar;
@@ -425,6 +430,7 @@ private Q_SLOTS:
 
 private:
 	int m_value;
+	Analytics* analytics;
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
 	QList<QPointer<TableDockWidget> > groupTables;

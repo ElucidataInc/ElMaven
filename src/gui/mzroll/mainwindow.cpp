@@ -266,6 +266,7 @@ using namespace mzUtils;
 	}
 
 
+	analytics = new Analytics();
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -1505,6 +1506,7 @@ void MainWindow::print() {
 
 void MainWindow::open() {
 
+
 	QString dir = ".";
 
 	if (settings->contains("lastDir")) {
@@ -1533,8 +1535,10 @@ void MainWindow::open() {
 	if (filelist.size() == 0)
 		return;
 
-  //Saving the file location into the Qsettings class so that it can be
-  //used the next time the user opens
+	analytics->hitEvent("ProjectDockWidget", "open", filelist.size());
+
+	//Saving the file location into the Qsettings class so that it can be
+	//used the next time the user opens
 	QString absoluteFilePath(filelist[0]);
 	QFileInfo fileInfo(absoluteFilePath);
 	QDir tmp = fileInfo.absoluteDir();
