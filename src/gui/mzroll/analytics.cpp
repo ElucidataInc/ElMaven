@@ -20,17 +20,17 @@ QUrlQuery Analytics::intialSetup()
     query.addQueryItem("v", "1"); // Version
     query.addQueryItem("tid", trackerId); // Tracking ID
     query.addQueryItem("cid", uuid); // Client ID
+    query.addQueryItem("an", qApp->applicationName()); // Application Name
+    query.addQueryItem("av", qApp->applicationVersion()); // Application Version
     return query;
 }
 
-void Analytics::hitPageView(QString page, QString title)
+void Analytics::hitScreenView(QString screenName)
 {
     QUrlQuery query = intialSetup(); // Get query
 
-    query.addQueryItem("t", "pageview"); // Page view hit type
-    query.addQueryItem("dh", hostname); // Document hostname
-    query.addQueryItem("dp", page); // Page
-    query.addQueryItem("dt", title); // Title
+    query.addQueryItem("t", "screenview"); // Screen view hit type
+    query.addQueryItem("cd", screenName); // Screen Name
 
     httpPost(query); // POST
 }

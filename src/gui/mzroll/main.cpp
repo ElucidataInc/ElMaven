@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     qApp->setOrganizationName("Elucidata");
     qApp->setApplicationName("El-MAVEN");
-    qApp->setApplicationVersion("v0.3.2");
+    qApp->setApplicationVersion("v0.4");
 
     initializeLogger();
 

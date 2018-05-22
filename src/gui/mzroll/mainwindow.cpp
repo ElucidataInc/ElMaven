@@ -267,6 +267,7 @@ using namespace mzUtils;
 
 
 	analytics = new Analytics();
+	analytics->hitScreenView("MainWindow");
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 

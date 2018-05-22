@@ -253,16 +253,12 @@ void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(
     }
 
     tabwidget->setCurrentIndex(
-        0);  // TODO: Sahil - Kiran, Added while merging mainwindow
+        0);
     adjustSize();
 }
 
-/*
-@author: Sahil-Kiran
-*/
-// TODO: Sahil - Kiran, Added while merging mainwindow
 void PeakDetectionDialog::show() {
-    // Thi is merged to 776
+
     if (mainwindow == NULL) return;
 
     // delete(peakupdater);
@@ -412,6 +408,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 // RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks() {
     
+    mainwindow->getAnalytics()->hitEvent("PeakDetection", "FindPeaks", 0);
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
