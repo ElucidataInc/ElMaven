@@ -13,7 +13,7 @@ QT -= gui
 
 CONFIG += qtestlib warn_off
 
-QMAKE_CXXFLAGS += -Ofast -ffast-math  -std=c++11
+QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 

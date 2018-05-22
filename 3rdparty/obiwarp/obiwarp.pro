@@ -9,7 +9,7 @@ TEMPLATE=lib
 CONFIG += staticlib warn_off console silent
 
 
-QMAKE_CXXFLAGS += -Ofast -ffast-math  -std=c++11
+QMAKE_CXXFLAGS +=   -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
 TARGET = obiwarp
