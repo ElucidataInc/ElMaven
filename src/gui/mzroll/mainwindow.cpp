@@ -3615,7 +3615,7 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	PeakGroup::QType qtype = getUserQuantType();
 	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
-	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+	sort(vsamples.begin(), vsamples.end(), mzSample::compRevSampleOrder);
 	map<unsigned int, string> carbonIsotopeSpecies;
 
 	//get isotopic groups

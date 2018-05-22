@@ -557,6 +557,14 @@ class mzSample
                           */
     static bool compSampleOrder(const mzSample *a, const mzSample *b) { return a->_sampleOrder < b->_sampleOrder; }
 
+    /**
+     * @brief Compare sample order of two samples
+     * @param a object of class mzSample
+     * @param b object of class mzSample
+     * @return True if sample order of 'a' is higher than 'b' else false
+     **/
+    static bool compRevSampleOrder(const mzSample *a, const mzSample *b) { return a->_sampleOrder > b->_sampleOrder; }
+
     static bool compSampleSort(const mzSample *a, const mzSample *b) { return mzUtils::strcasecmp_withNumbers(a->sampleName, b->sampleName); }
 
     /**

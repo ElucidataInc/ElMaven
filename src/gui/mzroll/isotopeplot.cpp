@@ -59,7 +59,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();
     if (_samples.size() == 0) return;
-	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
+	    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     _isotopes.clear();
     for(int i=0; i < group->childCountBarPlot(); i++ ) {
@@ -106,7 +106,7 @@ void IsotopePlot::showBars() {
     if (_samples.size() == 0 ) return;
 
     int visibleSamplesCount = _samples.size();
-    sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
+    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     PeakGroup::QType qtype = PeakGroup::AreaTop;
     if ( _mw ) qtype = _mw->getUserQuantType();
@@ -124,7 +124,7 @@ void IsotopePlot::showBars() {
     }
 
     labels.resize(0);
-    for(int i=0; i<MM.rows(); i++ ) {		//samples
+    for(int i=0; i<MM.rows(); i++ ) {		//samples 
         //float sum= MM.row(i).sum();
         labels << QString::fromStdString(_samples[i]->sampleName.c_str());
         //if (sum == 0) continue;
