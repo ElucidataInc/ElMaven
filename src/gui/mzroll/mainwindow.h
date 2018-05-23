@@ -317,7 +317,7 @@ public Q_SLOTS:
 	void showAlignmentWidget();
 	void showspectraMatchingForm();
 	void showsettingsForm();
-	void showButtonLog();
+	void sendAnalytics();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
 

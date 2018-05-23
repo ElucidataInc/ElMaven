@@ -261,6 +261,7 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
+	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);

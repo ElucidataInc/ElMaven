@@ -2327,7 +2327,7 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 	btn->setObjectName(dockwidget->objectName());
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(setVisible(bool)));
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(raise()));
-	connect(btn, SIGNAL(clicked(bool)), this, SLOT(showButtonLog()));
+	connect(btn, SIGNAL(clicked(bool)), this, SLOT(sendAnalytics()));
 	btn->setChecked(dockwidget->isVisible());
 	connect(dockwidget, SIGNAL(visibilityChanged(bool)), btn,
 			SLOT(setChecked(bool)));
@@ -2404,8 +2404,11 @@ void MainWindow::loadSettings()
     }
 }
 
-void MainWindow::showButtonLog() {
-    //TODO: get rid of it
+void MainWindow::sendAnalytics() {
+
+	QString btnName = QObject::sender()->objectName();
+	analytics->hitScreenView(btnName);
+
 }
 
 void MainWindow::createToolBars() {
@@ -2709,6 +2712,7 @@ void MainWindow::showPeakdetectionDialog() {
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
 	pollyElmavenInterfaceDialog->show();
+	analytics->hitScreenView("PollyDialog");
 	pollyElmavenInterfaceDialog->initialSetup();
 }
 
