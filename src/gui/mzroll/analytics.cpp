@@ -54,14 +54,20 @@ void Analytics::hitEvent(QString category, QString action, int value)
 void Analytics::sessionStart() {
 
     QUrlQuery query = intialSetup(); // Get query
-    query.addQueryItem("sc", "end"); // Session start
+    query.addQueryItem("t", "event"); // Hit event
+    query.addQueryItem("sc", "start"); // Session start
+    query.addQueryItem("ec", "session"); // Event category
+    query.addQueryItem("ea", "start"); // Event action
     httpPost(query); // POST
 }
 
 void Analytics::sessionEnd() {
 
     QUrlQuery query = intialSetup(); // Get query
+    query.addQueryItem("t", "event"); // Hit event
     query.addQueryItem("sc", "end"); // Session end
+    query.addQueryItem("ec", "session"); // Event category
+    query.addQueryItem("ea", "end"); // Event action
     httpPost(query); // POST
 }
 
