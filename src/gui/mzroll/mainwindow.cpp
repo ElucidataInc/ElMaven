@@ -268,6 +268,7 @@ using namespace mzUtils;
 
 	analytics = new Analytics();
 	analytics->hitScreenView("MainWindow");
+	analytics->sessionStart();
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -661,6 +662,7 @@ using namespace mzUtils;
 
 MainWindow::~MainWindow()
 {
+	analytics->sessionEnd();
     delete mavenParameters;
 }
 

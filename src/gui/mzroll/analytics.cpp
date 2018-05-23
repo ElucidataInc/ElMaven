@@ -51,6 +51,20 @@ void Analytics::hitEvent(QString category, QString action, int value)
     httpPost(query); // POST
 }
 
+void Analytics::sessionStart() {
+
+    QUrlQuery query = intialSetup(); // Get query
+    query.addQueryItem("sc", "end"); // Session start
+    httpPost(query); // POST
+}
+
+void Analytics::sessionEnd() {
+
+    QUrlQuery query = intialSetup(); // Get query
+    query.addQueryItem("sc", "end"); // Session end
+    httpPost(query); // POST
+}
+
 void Analytics::httpPost(QUrlQuery query) {
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
