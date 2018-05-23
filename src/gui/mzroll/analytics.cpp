@@ -8,9 +8,12 @@ Analytics::Analytics() {
     hostname = QHostInfo::localHostName() + "." + QHostInfo::localDomainName();
     // Generate a unique ID to use as the Client ID.
     uuid = QUuid::createUuid().toString();
+    // Get language
+    language = QLocale::system().name().toLower().replace("_", "-");
     // Create an http network request.
     req = QNetworkRequest(QUrl("http://www.google-analytics.com/collect"));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
 }
 
 QUrlQuery Analytics::intialSetup()
@@ -20,6 +23,7 @@ QUrlQuery Analytics::intialSetup()
     query.addQueryItem("v", "1"); // Version
     query.addQueryItem("tid", trackerId); // Tracking ID
     query.addQueryItem("cid", uuid); // Client ID
+    query.addQueryItem("ul", language); // Language
     query.addQueryItem("an", qApp->applicationName()); // Application Name
     query.addQueryItem("av", qApp->applicationVersion()); // Application Version
     return query;
@@ -55,4 +59,28 @@ void Analytics::httpPost(QUrlQuery query) {
     qDebug() << data; // Output for debug purposes.
     QNetworkReply *reply = manager->post(req, data);
 
+}
+
+QString Analytics::getUserAgent()
+{
+    QString locale = QLocale::system().name();
+    QString operatingSystem = osName();
+
+    return QString("%1/%2 (%3; %4) GAnalytics/1.0 (Qt/%5)").arg(qApp->applicationName()).arg(qApp->applicationVersion()).arg(operatingSystem).arg(locale).arg(QT_VERSION_STR);
+}
+
+
+QString Analytics::osName()
+{
+    #if defined(Q_OS_MACOS)
+    return QLatin1String("macos");
+    #elif defined(Q_OS_WIN)
+    return QLatin1String("windows");
+    #elif defined(Q_OS_LINUX)
+    return QLatin1String("linux");
+    #elif defined(Q_OS_UNIX)
+    return QLatin1String("unix");
+    #else
+    return QLatin1String("unknown");
+    #endif
 }

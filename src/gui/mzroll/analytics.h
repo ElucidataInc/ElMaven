@@ -11,9 +11,12 @@ class Analytics {
         QString trackerId;
         QString hostname;
         QString uuid;
+        QString language;
         QNetworkRequest req;
         void httpPost(QUrlQuery query);
         QUrlQuery intialSetup();
+        QString getUserAgent();
+        QString osName();
 
     public:
         Analytics();
