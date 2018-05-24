@@ -56,23 +56,6 @@ QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 }
 
 
-#ifdef Q_OS_MAC
-long long mainwindowDummy;
-void signalHandler( int signum ) {
-    std::cerr << "crash, signum = " << signum;
-    QString crashReporterPath;
-    QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-            + QDir::separator() + ".." + QDir::separator();
-    crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
-
-    QProcess *pr = new QProcess;
-    pr->setProgram(crashReporterPath);
-    pr->setProcessChannelMode(QProcess::SeparateChannels);
-    pr->startDetached(crashReporterPath);
-    exit(signum);
-}
-#endif
-
 void MainWindow::setValue(int value)
 {
     if (value != m_value) {
@@ -143,18 +126,6 @@ using namespace mzUtils;
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
-    #ifdef Q_OS_MAC
-           mainwindowDummy = (long long) this;
-           //signal(SIGINT, signalHandler);
-           signal(SIGFPE, signalHandler);
-           signal(SIGILL, signalHandler);
-           signal(SIGABRT, signalHandler);
-           signal(SIGSEGV, signalHandler);
-           signal(SIGTERM, signalHandler);
-           signal(SIGQUIT, signalHandler);
-           signal(SIGBUS, signalHandler);
-           signal(SIGSYS, signalHandler);
-    #endif
 
     qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
