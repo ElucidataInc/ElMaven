@@ -26,9 +26,9 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
-#ifndef Q_OS_MAC
+//#ifndef Q_OS_MAC
 #include "ElmavCrashHandler.h"
-#endif
+//#endif
 
 #include <QDir>
 #include <list>
@@ -60,10 +60,10 @@ int main(int argc, char *argv[])
 
     initializeLogger();
 
-#ifndef Q_OS_MAC
+//#ifndef Q_OS_MAC
     ElmavCrashHandler elMavCh;
     Q_UNUSED(elMavCh);
-#endif
+//#endif
 
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);

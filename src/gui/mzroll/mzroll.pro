@@ -45,6 +45,14 @@ win32 {
     LIBS += -lgoogle-breakpad -pthread
 }
 
+mac {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+    LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+    LIBS += -lgoogle-breakpad -lobjc -pthread
+}
+
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
@@ -236,10 +244,6 @@ database.cpp \
     numeric_treewidgetitem.cpp \
     ElmavCrashHandler.cpp
 
-macx{
-    SOURCES -= ElmavCrashHandler.cpp
-    HEADERS -= ElmavCrashHandler.h
-}
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp

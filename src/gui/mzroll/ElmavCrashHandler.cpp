@@ -15,6 +15,10 @@
 #define CRASH_REPORTER_WIN "CrashReporter.exe"
 #endif
 
+#ifdef Q_OS_MAC
+#include <client/mac/handler/exception_handler.h>
+#endif
+
 #define CRASH_REPORTER_LINUX "CrashReporter"
 
 static google_breakpad::ExceptionHandler* eh=0;
@@ -51,6 +55,22 @@ static bool startCrashReporter(const wchar_t* dump_path,const wchar_t* id, void*
 }
 #endif
 
+
+#ifdef Q_OS_MAC
+static bool startCrashReporter(const char* dump_dir,const char* id, void* context, bool succeeded)
+{
+
+      std::cerr << "dump path: " << dump_dir << std::endl;
+
+//    std::cerr << "starting crash reporter" << std::endl;
+//    QProcess* cReporter = new QProcess(nullptr);
+//    cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_WIN);
+//    cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
+//    cReporter->start();
+
+}
+#endif
+
 ElmavCrashHandler::ElmavCrashHandler()
 {
     // set up break pad
@@ -59,6 +79,8 @@ ElmavCrashHandler::ElmavCrashHandler()
                    qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + qApp->sessionId() \
                    + QDir::separator() ;
     dir.mkpath(path);
+
+    std::cerr << "path of breakpad : " << path.toStdString() << std::endl;
     std::cerr << " path of crash reporter : " << qApp->applicationDirPath().toStdString() << std::endl;
 
     #ifdef Q_OS_LINUX
@@ -68,6 +90,10 @@ ElmavCrashHandler::ElmavCrashHandler()
 
     #ifdef Q_OS_WIN
         eh = new google_breakpad::ExceptionHandler(path.toStdWString(), 0, startCrashReporter, 0, google_breakpad::ExceptionHandler::HANDLER_ALL);
+    #endif
+
+    #ifdef Q_OS_MAC
+        eh = new google_breakpad::ExceptionHandler(path.toStdString(), 0, startCrashReporter, 0, true, nullptr);
     #endif
 
 }
