@@ -36,8 +36,8 @@
 #ifndef CLIENT_MAC_HANDLER_EXCEPTION_HANDLER_H__
 #define CLIENT_MAC_HANDLER_EXCEPTION_HANDLER_H__
 
-#include <mach/mach.h>
-#include <TargetConditionals.h>
+// #include <mach/machine.h>
+// #include <TargetConditionals.h>
 
 #include <string>
 

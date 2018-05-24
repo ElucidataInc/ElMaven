@@ -5,6 +5,5 @@ SUBDIRS += obiwarp libneural libcdfread  libcsvparser pugixml/src  libpillow lib
 
 macx {
 
-  SUBDIRS -= libcdfread google-breakpad
-
+  SUBDIRS -= libcdfread
 }
