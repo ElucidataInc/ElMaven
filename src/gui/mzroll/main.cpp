@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     qApp->setOrganizationName("Elucidata");
     qApp->setApplicationName("El-MAVEN");
-    qApp->setApplicationVersion("v0.4");
+    qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
 
     initializeLogger();
 
@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
     QSplashScreen splash(pixmap);
     splash.setMask(pixmap.mask());
     splash.show();
-    //Added while merging with Maven776 - Kiran
     splash.showMessage(QString("Ver:") + STR(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
     app.processEvents();
 
@@ -79,7 +78,6 @@ int main(int argc, char *argv[])
     Controller contrl;
     qInstallMessageHandler(customMessageHandler);
 
-    //updated while merging with Maven776 - Kiran
     for (int i = 1; i < argc; ++i)
         contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
 
