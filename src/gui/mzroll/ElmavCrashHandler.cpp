@@ -68,19 +68,18 @@ static bool startCrashReporter(const char* dump_dir,const char* id, void* contex
     std::cerr << "dump path : " << eh->dump_path() << std::endl;
     std::cerr <<  "dump id : " << id << std::endl;
 
-//    QString crashReporterPath;
-//    QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-//    + QDir::separator() + ".." + QDir::separator();
+    QString crashReporterPath;
+    QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+    + QDir::separator() + ".." + QDir::separator();
 
-//    crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
+    crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
 
-//    QProcess* cReporter = new QProcess(nullptr);
+    QProcess* cReporter = new QProcess(nullptr);
 
 //    cReporter->setProgram(crashReporterPath);
-//    cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
-
-//    cReporter->start();
-
+//    cReporter->setArguments(QStringList() << QString(eh->dump_path().c_str()));
+    qDebug() << "arguments : " << cReporter->arguments();
+    cReporter->startDetached(crashReporterPath,QStringList() << QString(eh->dump_path().c_str()));
 }
 #endif
 
