@@ -8,13 +8,14 @@
 class Analytics {
 
     private:
-        QString trackerId;
+        QString trackerID;
+        QString clientID;
         QString hostname;
-        QString uuid;
         QString language;
         QNetworkRequest req;
         void httpPost(QUrlQuery query);
         QUrlQuery intialSetup();
+        QString getClientID();
         QString getUserAgent();
         QString osName();
 

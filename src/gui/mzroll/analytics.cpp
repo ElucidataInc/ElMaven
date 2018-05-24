@@ -3,11 +3,11 @@
 Analytics::Analytics() {
 
     // tracker for google analytics
-    trackerId = "UA-118159593-1";
+    trackerID = "UA-118159593-1";
     // Get hostname so we can set it as a parameter.
     hostname = QHostInfo::localHostName() + "." + QHostInfo::localDomainName();
     // Generate a unique ID to use as the Client ID.
-    uuid = QUuid::createUuid().toString();
+    clientID = getClientID();
     // Get language
     language = QLocale::system().name().toLower().replace("_", "-");
     // Create an http network request.
@@ -21,8 +21,8 @@ QUrlQuery Analytics::intialSetup()
     // Build up the query parameters.
     QUrlQuery query;
     query.addQueryItem("v", "1"); // Version
-    query.addQueryItem("tid", trackerId); // Tracking ID
-    query.addQueryItem("cid", uuid); // Client ID
+    query.addQueryItem("tid", trackerID); // Tracking ID
+    query.addQueryItem("cid", clientID); // Client ID
     query.addQueryItem("ul", language); // Language
     query.addQueryItem("an", qApp->applicationName()); // Application Name
     query.addQueryItem("av", qApp->applicationVersion()); // Application Version
@@ -81,6 +81,26 @@ void Analytics::httpPost(QUrlQuery query) {
 
 }
 
+QString Analytics::getClientID()
+{
+    QString settingsPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+    settingsPath = QDir::cleanPath(settingsPath + QDir::separator() + "El-MAVEN_analytics.ini");
+
+    QSettings settings(settingsPath, QSettings::IniFormat);
+    QString clientID;
+    if (!settings.contains("analytics-cid"))
+    {
+        clientID = QUuid::createUuid().toString();
+        settings.setValue("analytics-cid", clientID);
+    }
+    else
+    {
+        clientID = settings.value("analytics-cid").toString();
+    }
+
+    return clientID;
+}
+
 QString Analytics::getUserAgent()
 {
     QString locale = QLocale::system().name();
@@ -88,7 +108,6 @@ QString Analytics::getUserAgent()
 
     return QString("%1/%2 (%3; %4) GAnalytics/1.0 (Qt/%5)").arg(qApp->applicationName()).arg(qApp->applicationVersion()).arg(operatingSystem).arg(locale).arg(QT_VERSION_STR);
 }
-
 
 QString Analytics::osName()
 {
