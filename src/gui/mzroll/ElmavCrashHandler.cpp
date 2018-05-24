@@ -4,6 +4,10 @@
 #include <QStandardPaths>
 #include <QProcess>
 
+#ifdef Q_OS_MAC
+#include <QDateTime>
+#endif
+
 
 #ifdef Q_OS_LINUX
 #include <client/linux/handler/exception_handler.h>
@@ -60,12 +64,21 @@ static bool startCrashReporter(const wchar_t* dump_path,const wchar_t* id, void*
 static bool startCrashReporter(const char* dump_dir,const char* id, void* context, bool succeeded)
 {
 
-      std::cerr << "dump path: " << dump_dir << std::endl;
+    std::cerr << "starting crash reporter" << std::endl;
+    std::cerr << "dump path : " << eh->dump_path() << std::endl;
+    std::cerr <<  "dump id : " << id << std::endl;
 
-//    std::cerr << "starting crash reporter" << std::endl;
+//    QString crashReporterPath;
+//    QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+//    + QDir::separator() + ".." + QDir::separator();
+
+//    crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
+
 //    QProcess* cReporter = new QProcess(nullptr);
-//    cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_WIN);
+
+//    cReporter->setProgram(crashReporterPath);
 //    cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
+
 //    cReporter->start();
 
 }
@@ -78,6 +91,14 @@ ElmavCrashHandler::ElmavCrashHandler()
     QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
                    qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + qApp->sessionId() \
                    + QDir::separator() ;
+
+    #ifdef Q_OS_MAC
+        // session id is not available on mac os. therefore we use QDatetime to create a unique path for
+        // every session
+        path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
+                qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss") \
+                + QDir::separator() ;
+    #endif
     dir.mkpath(path);
 
     std::cerr << "path of breakpad : " << path.toStdString() << std::endl;
