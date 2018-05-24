@@ -455,6 +455,14 @@ class PeakGroup{
         static bool compMz(const PeakGroup& a, const PeakGroup& b ) { return(a.meanMz > b.meanMz); }
 
         /**
+         * @brief sort isotopes in natural order
+         * @param a reference to PeakGroup object
+         * @param b reference to PeakGroup object
+         * @return True if tagString of a is lesser than b
+         **/
+        static bool compTagString(const PeakGroup& a, const PeakGroup& b ) { return mzUtils::strcasecmp_withNumbers(a.tagString, b.tagString); }
+        
+        /**
          * [compIntensity ]
          * @method compIntensity
          * @param  a             []
