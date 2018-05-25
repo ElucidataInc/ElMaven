@@ -318,7 +318,7 @@ void mzSample::parseMzML(const char *filename)
 	}
 	else if (!chromatogramList.empty())
 	{
-		parseMzMLChromatogromList(chromatogramList);
+		parseMzMLChromatogramList(chromatogramList);
 	}
 }
 
@@ -339,7 +339,7 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 	}
 }
 
-void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
+void mzSample::parseMzMLChromatogramList(xml_node &chromatogramList)
 {
 
 	int scannum = 0;
@@ -348,21 +348,9 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 	{
 
 		string chromatogramId = chromatogram.attribute("id").value();
+		int sampleNo = getSampleNoChromatogram(chromatogramId);
 
-		QRegExp rx("sample\ *\=\ *[0-9]+\ "); // match ampersands but not &amp;
-		QString line = QString::fromStdString(chromatogramId);
-
-		QRegExp rxSampleNumber("sample\ *\=\ *([0-9]+)\ ");
-		QStringList listSampleNo;
-		int pos = 0;
-
-		while ((pos = rxSampleNumber.indexIn(line, pos)) != -1)
-		{
-			listSampleNo << rxSampleNumber.cap(1);
-			pos += rxSampleNumber.matchedLength();
-		}
-
-		chromatogramId = line.replace(rx, "").toStdString();
+		chromatogramId = filterChromatogramId(chromatogramId);
 
 		vector<float> timeVector;
 		vector<float> intsVector;
@@ -411,8 +399,7 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 				scan->productMz = productMz;
 				scan->mz.push_back(productMz);
 				scan->filterLine = chromatogramId;
-				if (!listSampleNo.isEmpty())
-					sampleNumber = listSampleNo[0].toInt();
+				sampleNumber = sampleNo;
 				scan->intensity.push_back(intsVector[i]);
 				addScan(scan);
 			}
@@ -425,6 +412,32 @@ void mzSample::parseMzMLChromatogromList(xml_node &chromatogramList)
 	{
 		scans[i]->scannum = i;
 	}
+}
+
+int mzSample::getSampleNoChromatogram(string chromatogramId) {
+
+	std::regex rxSampleNumber("sample\ *\=\ *([0-9]+)");
+	std::vector<int> results;
+    for(std::sregex_iterator i = std::sregex_iterator(chromatogramId.begin(), chromatogramId.end(), rxSampleNumber);
+            i != std::sregex_iterator(); 
+            ++i) 
+    { 
+        std::smatch m = *i;
+        results.push_back(std::stoi( m[1].str().c_str() ));
+    } 
+
+    for (auto n: results)
+        return n;
+    
+    return -1;
+}
+
+string mzSample::filterChromatogramId(string chromatogramId) {
+
+	regex rx("sample\ *\=\ *[0-9]+\ ");
+	chromatogramId = std::regex_replace(chromatogramId, rx, "");
+
+	return chromatogramId;
 }
 
 void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)

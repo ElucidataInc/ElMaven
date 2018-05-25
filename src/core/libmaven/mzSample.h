@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cstring>
 #include <limits.h>
+#include <regex>
 #include <float.h>
 #include <iomanip>
 #include "assert.h"
@@ -25,10 +26,6 @@
 #include "EIC.h"
 #include "Scan.h"
 #include "datastructures/mzSlice.h"
-
-#include <QRegExp>
-#include <QString>
-#include <QStringList>
 
 #include <chrono_io.h>
 #include <date.h>
@@ -284,7 +281,12 @@ class mzSample
     * @brief Parse mzML chromatogrom list
     * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLChromatogromList(xml_node&);
+    void parseMzMLChromatogramList(xml_node&);
+
+
+    int getSampleNoChromatogram(string chromatogramId);
+
+    string filterChromatogramId(string chromatogramId);
 
     /**
     * @brief Parse mzML spectrum list
