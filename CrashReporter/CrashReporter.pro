@@ -44,7 +44,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
 
-win32 {
+win32 | macx {
 
     SOURCES += file_uploader.cpp
     HEADERS += file_uploader.h

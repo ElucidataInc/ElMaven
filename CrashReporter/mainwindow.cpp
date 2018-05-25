@@ -1,20 +1,20 @@
 #include "mainwindow.h"
 #include <iostream>
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
 #include "file_uploader.h"
 #endif
 
 #include <QStandardPaths>
 
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
 MainWindow::MainWindow(QWidget *parent, FileUploader* fUploader) :
     QMainWindow(parent),
     uploader(fUploader),
     ui(new Ui::MainWindow)
 #endif
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_LINUX)
 MainWindow::MainWindow(QWidget *parent, const QString& path) :
     QMainWindow(parent),
     logsPath(path),
@@ -31,25 +31,27 @@ MainWindow::MainWindow(QWidget *parent, const QString& path) :
         _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
     #endif
 
-    #ifdef Q_OS_MAC
-        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
+    #if defined(Q_OS_MAC) | defined(Q_OS_WIN)
+        connect(uploader, &FileUploader::uploadDone, this, &MainWindow::uploadFinished);
     #endif
 
+//    #ifdef Q_OS_MAC
+//        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
+//                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
+//    #endif
 
-    #if defined(Q_OS_UNIX)
+
+    #ifdef Q_OS_LINUX
         QString nodePath = QStandardPaths::findExecutable("node");
-        #ifdef Q_OS_LINUX
-
         if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
             nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
-        #endif
 
-        #ifdef Q_OS_MAC
-        QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-        if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
-            nodePath = binDir + "node_bin" + QDir::separator() + "node";
-        #endif
+
+//        #ifdef Q_OS_MAC
+//        QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+//        if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+//            nodePath = binDir + "node_bin" + QDir::separator() + "node";
+//        #endif
         //     set up the process
             _process  = new QProcess(this);
             _process->setProcessChannelMode(QProcess::SeparateChannels);
@@ -75,8 +77,19 @@ MainWindow::~MainWindow()
 }
 
 
+#if defined(Q_OS_MAC) | defined(Q_OS_WIN)
+void MainWindow::uploadFinished()
+{
+    qDebug() << "uploading finished";
+    this->close();
+}
+#endif
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    qDebug() << "closing ";
+//    closeEvent();
+    QCoreApplication::quit();
 }
 
 void MainWindow::readOutput()
@@ -149,13 +162,12 @@ void MainWindow::on_cancel_clicked()
 
 void MainWindow::on_reportRestart_clicked()
 {
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_LINUX
     uploadLogs();
 #endif
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     uploader->uploadMinidump();
-    this->close();
 #endif
 
 }

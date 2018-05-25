@@ -11,7 +11,7 @@
 #include <QStatusBar>
 #include <QStatusBar>
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
 class FileUploader;
 #endif
 
@@ -21,11 +21,11 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
 
 public:
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     explicit MainWindow(QWidget *parent,FileUploader* uploader);
 #endif
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_LINUX)
     MainWindow(QWidget* parent, const QString& path);
 #endif
 
@@ -48,6 +48,9 @@ public slots:
     void started();
     void processError(QProcess::ProcessError perr);
     void uploadLogs();
+    #if defined(Q_OS_MAC) | defined(Q_OS_WIN)
+    void uploadFinished();
+    #endif
 
 private:
     Ui::MainWindow *ui;
@@ -60,11 +63,11 @@ private Q_SLOTS:
     void on_reportRestart_clicked();
 
 private:
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     FileUploader* uploader;
 #endif
 
-#if defined (Q_OS_UNIX)
+#if defined (Q_OS_LINUX)
     QString logsPath;
 #endif
     QProcess* _process;

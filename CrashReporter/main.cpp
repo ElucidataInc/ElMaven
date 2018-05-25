@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
 #include "file_uploader.h"
 #endif
 
@@ -13,12 +13,12 @@ int main(int argc, char *argv[])
 
 
     // argv[1] contains the path of dump files and logs
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     FileUploader uploader((QString(argv[1])));
     MainWindow w(nullptr, &uploader);
 #endif
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_LINUX
     MainWindow w(nullptr, QString(argv[1]));
 #endif
 
