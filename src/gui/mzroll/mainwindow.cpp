@@ -366,7 +366,6 @@ using namespace mzUtils;
 	alignmentVizDockWidget->setVisible(false);
 	alignmentPolyVizDockWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
-	isotopePlotDockWidget->show();
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
@@ -3352,12 +3351,8 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
 		btnShowIsotopeplot->setCheckable(true);
 
-		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot()));
+		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
-
-		btnShowIsotopeplot->setChecked(mw->isotopePlotDockWidget->isVisible());
-		connect(mw->isotopePlotDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
-				SLOT(setChecked(bool)));
 
 		return btnShowIsotopeplot;
 
@@ -3591,13 +3586,14 @@ int MainWindow::versionCheck() {
 	return 0;
 }
 
-void MainWindow::toggleIsotopicBarPlot()
+void MainWindow::toggleIsotopicBarPlot(bool show)
 {
-	if (isotopePlotDockWidget->isVisible()) {
-		isotopePlotDockWidget->hide();
+	if (show) {
+		isotopePlotDockWidget->show();
+		isotopePlotDockWidget->raise();
 	}
 	else {
-		isotopePlotDockWidget->show();
+		isotopePlotDockWidget->hide();
 	}
 }
 
