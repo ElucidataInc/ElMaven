@@ -58,6 +58,7 @@ bool FileUploader::uploadMinidump()
     QStringList args;
     args << upPath;
     args << dmpFilePath;
+    args << QString(additionalData);
 
     uProcess->setArguments(args);
     uProcess->start();
