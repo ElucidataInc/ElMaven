@@ -182,7 +182,7 @@ void IsotopePlot::showBars() {
     if(!mpMouseText) return;
 
     mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
-    mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
+    mpMouseText->position->setType(QCPItemPosition::ptPlotCoords);
     mpMouseText->setPositionAlignment(Qt::AlignLeft);
     mpMouseText->position->setCoords(QPointF(0, 0));
     mpMouseText->setText("");
@@ -228,6 +228,9 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
             mpMouseText->setText(name);
         }
 
+        double xPos = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
+        double yPos = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+        mpMouseText->position->setCoords(xPos, yPos);
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
     }
     _mw->customPlot->replot();
