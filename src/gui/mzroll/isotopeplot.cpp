@@ -202,26 +202,26 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     if (!event) return;
     if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
 
-    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
-    double keyPixel =  _mw->customPlot->xAxis->coordToPixel(x);
-    double shiftRight =  _mw->customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
-    x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    double keyPixel =  _mw->customPlot->yAxis->coordToPixel(y);
+    double shiftAbove =  _mw->customPlot->yAxis->coordToPixel(y + .75 * 0.5) - keyPixel;
+    y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y() + shiftAbove);
+    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
 
-    if (x < labels.count() && x >= 0) {
-        QString name = labels.at(x);
+    if (y < labels.count() && y >= 0) {
+        QString name = labels.at(y);
         if (MMDuplicate.cols() != _isotopes.size()) return;
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
-            if (x  >= MMDuplicate.rows()) return;
-            if (MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
+            if (y  >= MMDuplicate.rows()) return;
+            if (MMDuplicate(y,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
-                                                    QString::number(MMDuplicate(x,j)*100));
+                                                    QString::number(MMDuplicate(y,j)*100));
             }
         }
         if(!mpMouseText) return;
-        int g = QString::compare(name, labels.at(x), Qt::CaseInsensitive);
+        int g = QString::compare(name, labels.at(y), Qt::CaseInsensitive);
         if(g == 0) {
             mpMouseText->setText("");
         } else {
