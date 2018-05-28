@@ -37,12 +37,12 @@ initialWorkerThread::~initialWorkerThread()
     if (_pollyintegration) delete (_pollyintegration);
 };
 
-void InitialEPIForm::on_pushButton_inital_form_clicked()
+void InitialEPIForm::on_pushButton_initial_form_clicked()
 {   
     ui->initial_form_status_label->setStyleSheet("QLabel {color : green; }");
     ui->initial_form_status_label->setText("Connecting to polly..Please wait");
     QCoreApplication::processEvents();
-    ui->pushButton_inital_form->setEnabled(false);
+    ui->pushButton_initial_form->setEnabled(false);
     QCoreApplication::processEvents();
 
     initialWorkerThread *workerThread = new initialWorkerThread();
@@ -70,12 +70,12 @@ void InitialEPIForm::handleResults(QStringList results){
     else if(status_inside=="error"){
         ui->initial_form_status_label->setStyleSheet("QLabel {color : red; }");
         ui->initial_form_status_label->setText("Please check internet connection");
-        ui->pushButton_inital_form->setEnabled(true);
+        ui->pushButton_initial_form->setEnabled(true);
     }
     else {
         ui->initial_form_status_label->setStyleSheet("QLabel {color : red; }");
         ui->initial_form_status_label->setText("Incorrect credentials");
-        ui->pushButton_inital_form->setEnabled(true);
+        ui->pushButton_initial_form->setEnabled(true);
     }
 }
 
