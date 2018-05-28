@@ -1,69 +1,23 @@
 #include "mainwindow.h"
 #include <iostream>
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+
 #include "file_uploader.h"
-#endif
+
 
 #include <QStandardPaths>
 
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+
 MainWindow::MainWindow(QWidget *parent, FileUploader* fUploader) :
     QMainWindow(parent),
     uploader(fUploader),
     ui(new Ui::MainWindow)
-#endif
 
-#if defined(Q_OS_LINUX)
-MainWindow::MainWindow(QWidget *parent, const QString& path) :
-    QMainWindow(parent),
-    logsPath(path),
-    ui(new Ui::MainWindow)
-#endif
 {
     ui->setupUi(this);
-    // ui->label_4->setText( "<b>El-MAVEN</b> has encountered a problem and needs to close. We are sorry for the inconvenience.\n\n" \
-    // "We have created an error0 report that you can send to us.\n\n<b>This report does not contain your input files or any other personally identifiable information</b>");
     this->restartApplicationPath = "";
 
-
-     #if defined(Q_OS_LINUX)
-        _script = qApp->applicationDirPath() + QDir::separator() + "report_issue.js";
-    #endif
-
-    #if defined(Q_OS_MAC) | defined(Q_OS_WIN)
-        connect(uploader, &FileUploader::uploadDone, this, &MainWindow::uploadFinished);
-    #endif
-
-//    #ifdef Q_OS_MAC
-//        _script = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-//                + QDir::separator() + ".." + QDir::separator() + "report_issue.js";
-//    #endif
-
-
-    #ifdef Q_OS_LINUX
-        QString nodePath = QStandardPaths::findExecutable("node");
-        if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
-            nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
-
-
-//        #ifdef Q_OS_MAC
-//        QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-//        if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
-//            nodePath = binDir + "node_bin" + QDir::separator() + "node";
-//        #endif
-        //     set up the process
-            _process  = new QProcess(this);
-            _process->setProcessChannelMode(QProcess::SeparateChannels);
-            _process->setProgram(nodePath);
-
-            connect(_process, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
-            connect(_process, &QProcess::readyReadStandardError, this, &MainWindow::readError);
-            connect(_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MainWindow::finished);
-            connect(_process, &QProcess::started, this, &MainWindow::started);
-//TODO: update travis to new version of qt. Error occurred does not work with 5.2.1
-//            connect(_process, &QProcess::errorOccurred, this, &MainWindow::processError);
-    #endif
+    connect(uploader, &FileUploader::uploadDone, this, &MainWindow::uploadFinished);
 
 }
 
@@ -77,18 +31,17 @@ MainWindow::~MainWindow()
 }
 
 
-#if defined(Q_OS_MAC) | defined(Q_OS_WIN)
+
 void MainWindow::uploadFinished()
 {
     qDebug() << "uploading finished";
     this->close();
 }
-#endif
+
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     qDebug() << "closing ";
-//    closeEvent();
     QCoreApplication::quit();
 }
 
@@ -162,12 +115,7 @@ void MainWindow::on_cancel_clicked()
 
 void MainWindow::on_reportRestart_clicked()
 {
-#ifdef Q_OS_LINUX
-    uploadLogs();
-#endif
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     uploader->uploadMinidump();
-#endif
 
 }

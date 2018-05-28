@@ -28,10 +28,8 @@ class FileUploader: public QObject
         QString dmpFilePath;
         QByteArray additionalData;
 
-    #if defined(Q_OS_MAC) | defined(Q_OS_WIN)
     Q_SIGNALS:
         void uploadDone();
-    #endif
 
     #ifdef Q_OS_MAC
     public slots:

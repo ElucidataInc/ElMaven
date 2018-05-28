@@ -12,6 +12,12 @@
 #include <common/windows/http_upload.h>
 #endif
 
+#include <iostream>
+
+#ifdef Q_OS_LINUX
+#include <common/linux/http_upload.h>
+#endif
+
 FileUploader::FileUploader(const QString& dPath): dumpPath(dPath)
 {
 
@@ -63,6 +69,22 @@ bool FileUploader::uploadMinidump()
     uProcess->setArguments(args);
     uProcess->start();
 #endif
+
+
+#if defined(Q_OS_X11) || defined (Q_OS_LINUX)
+    std::cerr << "uploading ...." << std::endl;
+    std::cerr << dmpFilePath.toStdString() << std::endl;
+    std::map<std::string, std::string> parameters;
+    std::map<std::string, std::string> files;
+    files["upload_file_minidump"] = dmpFilePath.toStdString();
+    parameters["logs"] = additionalData.toStdString();
+    google_breakpad::HTTPUpload::SendRequest("https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e", \
+                                             parameters,files,
+                                             "","","",
+                                             nullptr,nullptr, nullptr);
+    emit uploadDone();
+
+#endif
 }
 
 #ifdef Q_OS_MAC
@@ -75,6 +97,7 @@ void FileUploader::processFinished(int exitCode)
 
 void FileUploader::preProcess()
 {
+
     QDir dir(dumpPath);
     if(dir.exists()) {
         dir.setFilter(QDir::Files);
@@ -98,9 +121,9 @@ void FileUploader::preProcess()
             }
             fptr.close();
         }
-
     }
-    else
-        qDebug() << "dir does not exist ";
 
+
+    else
+        std::cerr << "dir does not exist " << std::endl;
 }

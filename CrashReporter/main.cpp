@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include <QApplication>
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+
 #include "file_uploader.h"
-#endif
+
+#include <QFile>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -12,16 +14,11 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("El-Maven");
 
 
+     std::cerr << "dump path from CR : " << argv[1] << std::endl;
     // argv[1] contains the path of dump files and logs
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+
     FileUploader uploader((QString(argv[1])));
     MainWindow w(nullptr, &uploader);
-#endif
-
-#ifdef Q_OS_LINUX
-    MainWindow w(nullptr, QString(argv[1]));
-#endif
-
     w.show();
 
     return a.exec();

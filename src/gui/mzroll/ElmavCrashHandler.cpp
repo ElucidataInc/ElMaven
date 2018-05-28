@@ -32,14 +32,12 @@ static google_breakpad::MinidumpDescriptor* md=0;
 
 static bool startCrashReporter(const google_breakpad::MinidumpDescriptor& descriptor,void* context, bool succeeded)
 {
-    std::cerr << "creating crash dump " << descriptor.path();
+    std::cerr << "path of dump file: " << descriptor.directory().c_str() << std::endl;
     QProcess* cReporter = new QProcess(nullptr);
-    cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_LINUX);
-    cReporter->setArguments(QStringList() << descriptor.path());
-    cReporter->start();
+    
+    cReporter->startDetached(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_LINUX, \
+    QStringList() << QString(descriptor.directory().c_str()));
 
-
-    // start the crash reporter
     return succeeded;
 }
 #endif
