@@ -64,7 +64,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_inital_form">
+   <widget class="QPushButton" name="pushButton_initial_form">
     <property name="geometry">
      <rect>
       <x>138</x>

@@ -35,7 +35,7 @@ private slots:
      * 3. if successfull login, hide the form and save these credentials to a file for persistent login in future..
      * 4. If failed, display incorrect credentials..
      */
-    void on_pushButton_inital_form_clicked();
+    void on_pushButton_initial_form_clicked();
 
 private:
     Ui::InitialEPIForm *ui;
