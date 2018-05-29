@@ -77,7 +77,7 @@ bool FileUploader::uploadMinidump()
     std::map<std::string, std::string> parameters;
     std::map<std::string, std::string> files;
     files["upload_file_minidump"] = dmpFilePath.toStdString();
-    parameters["logs"] = additionalData.toStdString();
+    parameters["logs"] = QString(additionalData).toStdString();
     google_breakpad::HTTPUpload::SendRequest("https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e", \
                                              parameters,files,
                                              "","","",
