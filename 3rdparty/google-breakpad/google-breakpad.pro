@@ -54,6 +54,7 @@ linux {
                 src/common/linux/safe_readlink.cc \
                 src/common/linux/guid_creator.cc \
                 src/common/linux/elfutils.cc \
+                src/common/linux/http_upload.cc \
                 src/common/string_conversion.cc \
                 src/common/convert_UTF.c
 
@@ -75,6 +76,7 @@ linux {
                 src/client/minidump_file_writer-inl.h \
                 src/client/minidump_file_writer.h \
                 src/common/linux/linux_libc_support.h \
+                src/common/linux/http_upload.h \
                 src/common/linux/eintr_wrapper.h \
                 src/common/linux/ignore_ret.h \
                 src/common/linux/file_id.h \
