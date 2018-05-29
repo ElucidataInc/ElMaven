@@ -113,18 +113,32 @@ void PollyElmavenInterfaceDialog::initialSetup()
 {   
     int node_status = _pollyIntegration->check_node_executable();
     if (node_status==0){
-        QMessageBox msgBox(NULL);
+        QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::NonModal);
         msgBox.setWindowTitle("node is not installed on this system");
         msgBox.exec();
         return;
     }
     if (credentials.isEmpty()){
-        call_login_form();
+        try{
+            call_login_form();
+            } catch(...) {
+                QMessageBox msgBox(this);
+                msgBox.setWindowModality(Qt::NonModal);
+                msgBox.setWindowTitle("couldn't load login form");
+                msgBox.exec();
+            }
         return;
     }
     else{
-        call_initial_EPI_form();
+        try{
+            call_initial_EPI_form();
+            } catch(...) {
+                QMessageBox msgBox(this);
+                msgBox.setWindowModality(Qt::NonModal);
+                msgBox.setWindowTitle("couldn't load initial form");
+                msgBox.exec();
+            }
         return;
     }
 }
@@ -312,7 +326,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         QDir qdir(writable_temp_dir);
     }
     label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparig files to upload..");
+    label_upload_status->setText("Preparing files to upload..");
     QCoreApplication::processEvents();
     QStringList filenames = prepareFilesToUpload(qdir);
     if (filenames.isEmpty()){
@@ -324,7 +338,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     QCoreApplication::processEvents();
     //re-login to polly may be required because the token expires after 30 minutes..
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    label_upload_status->setText("Uploading to Polly now..Please wait..");
+    label_upload_status->setText("Uploading files to Polly now..Please wait..");
     QCoreApplication::processEvents();
     if (new_projectname==""){
         QStringList keys= projectnames_id.keys();
@@ -398,12 +412,16 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         msgBox.exec();
         return filenames;
     }
-
+    label_upload_status->setStyleSheet("QLabel {color : green; }");
+    label_upload_status->setText("Preparing compound database file..");
+    QCoreApplication::processEvents();
+    
     if (comboBox_compound_db->isEnabled()){
         mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name,compound_db);
     }
     // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
     mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_"+user_compound_DB_name,compound_db);
+    	
     if (export_option=="Export Selected"){
         _tableDockWidget->selectedPeakSet();
     }
@@ -420,6 +438,10 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         _tableDockWidget->treeWidget->selectAll();
     }
 
+    label_upload_status->setStyleSheet("QLabel {color : green; }");
+    label_upload_status->setText("Preparing intensity file..");
+    QCoreApplication::processEvents();
+
     QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
     qDebug()<<"peak_user_filename - "<<peak_user_filename;
     _tableDockWidget->prepareDataForPolly(writable_temp_dir,export_format,peak_user_filename);
@@ -429,6 +451,13 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     qDebug()<<"running _tableDockWidget->prepareDataForPolly now...";
     _tableDockWidget->prepareDataForPolly(writable_temp_dir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all_" +user_filename);
     qDebug()<<"done..";
+    // Now uploading the json file -
+    label_upload_status->setStyleSheet("QLabel {color : green; }");
+    label_upload_status->setText("Preparing json file..");
+    QCoreApplication::processEvents();
+    // Uploading the json file here - 
+    QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";//  uploading the json file
+    _tableDockWidget->exportJsonToPolly(writable_temp_dir,json_filename);
     QByteArray ba = (writable_temp_dir+QDir::separator()+datetimestamp+"_"+user_filename.split('.')[user_filename.split('.').size()-1]+"_maven_analysis_settings"+".xml").toLatin1();
     const char *save_path = ba.data();
     mainwindow->mavenParameters->saveSettings(save_path);

@@ -884,6 +884,26 @@ void TableDockWidget::prepareDataForPolly(QString writable_temp_dir,QString expo
     }
 }
 
+void TableDockWidget::exportJsonToPolly(QString writable_temp_dir,QString jsonfileName) {
+
+    if (allgroups.size() == 0 ) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+
+    /**
+     * copy all groups from <allgroups> to <vallgroups> which is used by
+     * < libmaven/jsonReports.cpp>
+    */
+    vallgroups.clear();
+    for(int i=0;i<allgroups.size();++i){
+        vallgroups.push_back(allgroups[i]);
+    }
+    jsonReports=new JSONReports(_mainwindow->mavenParameters);
+    jsonReports->saveMzEICJson(jsonfileName.toStdString(),vallgroups,_mainwindow->getVisibleSamples());
+   
+}
 
 void TableDockWidget::exportJson() {
 

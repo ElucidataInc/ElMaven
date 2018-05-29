@@ -10,6 +10,7 @@
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
 #include "saveJson.h"
+#include "jsonReports.h";
 
 class MainWindow;
 class AlignmentVizWidget;
@@ -46,7 +47,7 @@ class TableDockWidget : public QDockWidget
     QToolButton *btnMerge;
     QMenu *btnMergeMenu;
     QLabel *titlePeakTable;
-
+    JSONReports *jsonReports;
     QMap<QPair<int, int>, QList<QString>> sameMzRtGroups;
     bool addSameMzRtGroup;
 
@@ -137,6 +138,7 @@ public Q_SLOTS:
       //Added when Merging to Maven776 - Kiran
       void exportGroupsToSpreadsheet();
       void prepareDataForPolly(QString writable_temp_dir,QString export_format,QString user_filename);
+    void exportJsonToPolly(QString writable_temp_dir,QString jsonfileName);
     void showTrainDialog();
     void showClusterDialog();
     inline void selectedPeakSet()
