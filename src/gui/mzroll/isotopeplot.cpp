@@ -187,6 +187,7 @@ void IsotopePlot::showBars() {
     mpMouseText->position->setCoords(QPointF(0, 0));
     mpMouseText->setText("");
     mpMouseText->setPen(QPen(Qt::black)); // show black border around text
+    mpMouseText->setBrush(QColor::fromRgb(255,255,255));
 
     _mw->setIsotopicPlotStyling();
     _mw->customPlot->yAxis->setRange(-0.5, MM.rows());
