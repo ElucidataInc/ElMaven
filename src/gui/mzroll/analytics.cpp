@@ -112,14 +112,14 @@ QString Analytics::getUserAgent()
 QString Analytics::osName()
 {
     #if defined(Q_OS_MACOS)
-    return QLatin1String("macos");
+    return QString("Macintosh;" + QSysInfo::productVersion());
     #elif defined(Q_OS_WIN)
-    return QLatin1String("windows");
+    return QString("Windows;" + QSysInfo::productVersion());
     #elif defined(Q_OS_LINUX)
-    return QLatin1String("linux");
+    return QString("Linux;" + QSysInfo::productVersion());
     #elif defined(Q_OS_UNIX)
-    return QLatin1String("unix");
+    return QString("Unix;" + QSysInfo::productVersion());
     #else
-    return QLatin1String("unknown");
+    return QString("Unknown; ");
     #endif
 }
