@@ -3,6 +3,7 @@
 #include "mzSample.h"
 #include <QRegExp>
 #include <QString>
+#include <QStringList>
 
 class mzSample;
 class ChargedSpecies;
