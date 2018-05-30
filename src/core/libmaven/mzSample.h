@@ -723,6 +723,10 @@ class mzSample
     static int filter_intensityQuantile;
     static int filter_mslevel;
     static int filter_polarity;
+
+    vector<string> filterChromatogram {
+        "sample"
+    };
 };
 
 class Pathway

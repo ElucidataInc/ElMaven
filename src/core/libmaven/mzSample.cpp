@@ -434,8 +434,12 @@ int mzSample::getSampleNoChromatogram(string chromatogramId) {
 
 string mzSample::filterChromatogramId(string chromatogramId) {
 
-	regex rx("sample\ *\=\ *[0-9]+\ ");
-	chromatogramId = std::regex_replace(chromatogramId, rx, "");
+	for(unsigned int i = 0; i < filterChromatogram.size(); i++) {
+		string filterRegex = filterChromatogram[i];
+		filterRegex += "\ *\=\ *[0-9]+\ ";
+		regex rx(filterRegex);
+		chromatogramId = std::regex_replace(chromatogramId, rx, "");
+	}
 
 	return chromatogramId;
 }
