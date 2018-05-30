@@ -218,10 +218,11 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
             if (MMDuplicate(y,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
-                                                    QString::number(MMDuplicate(y,j)*100));
+                            QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
         }
         if(!mpMouseText) return;
+        mpMouseText->setTextAlignment(Qt::AlignLeft);
         int g = QString::compare(name, labels.at(y), Qt::CaseInsensitive);
         if(g == 0) {
             mpMouseText->setText("");
