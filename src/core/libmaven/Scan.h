@@ -1,6 +1,9 @@
 #ifndef SCAN_H
 #define SCAN_H
 #include "mzSample.h"
+#include <QRegExp>
+#include <QString>
+
 class mzSample;
 class ChargedSpecies;
 class MassCutoff;
