@@ -111,14 +111,23 @@ QString Analytics::getUserAgent()
 
 QString Analytics::osName()
 {
+
+    QString osVersion;
+    
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    osVersion = QSysInfo::productVersion();
+    #else
+    osVersion = " ";
+    #endif
+
     #if defined(Q_OS_MACOS)
-    return QString("Macintosh;" + QSysInfo::productVersion());
+    return QString("Macintosh;" + osVersion);
     #elif defined(Q_OS_WIN)
-    return QString("Windows;" + QSysInfo::productVersion());
+    return QString("Windows;" + osVersion);
     #elif defined(Q_OS_LINUX)
-    return QString("Linux;" + QSysInfo::productVersion());
+    return QString("Linux;" + osVersion);
     #elif defined(Q_OS_UNIX)
-    return QString("Unix;" + QSysInfo::productVersion());
+    return QString("Unix;" + osVersion);
     #else
     return QString("Unknown; ");
     #endif
