@@ -178,17 +178,7 @@ void IsotopePlot::showBars() {
         _mw->customPlot->removeItem(mpMouseText);
     }
     mpMouseText = new QCPItemText(_mw->customPlot);
-
-    if(!mpMouseText) return;
-
-    mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
-    mpMouseText->position->setType(QCPItemPosition::ptPlotCoords);
-    mpMouseText->setPositionAlignment(Qt::AlignLeft);
-    mpMouseText->position->setCoords(QPointF(0, 0));
-    mpMouseText->setText("");
-    mpMouseText->setPen(QPen(Qt::black)); // show black border around text
-    mpMouseText->setBrush(QColor::fromRgb(255,255,255));
-
+    
     _mw->setIsotopicPlotStyling();
     _mw->customPlot->yAxis->setRange(-0.5, MM.rows());
 
@@ -221,8 +211,19 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
                             QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
         }
+
         if(!mpMouseText) return;
+
+        mpMouseText->setFont(QFont("Helvetica", 12));
+        mpMouseText->position->setType(QCPItemPosition::ptPlotCoords);
+        mpMouseText->setPositionAlignment(Qt::AlignLeft);
+        mpMouseText->position->setCoords(QPointF(0, 0));
+        mpMouseText->setText("");
+        mpMouseText->setPen(QPen(Qt::black)); // show black border around text
+        mpMouseText->setBrush(QColor::fromRgb(255,255,255));
         mpMouseText->setTextAlignment(Qt::AlignLeft);
+        mpMouseText->setClipToAxisRect(true);
+        
         int g = QString::compare(name, labels.at(y), Qt::CaseInsensitive);
         if(g == 0) {
             mpMouseText->setText("");
@@ -234,6 +235,43 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
         double yPos = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
         mpMouseText->position->setCoords(xPos, yPos);
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
+        QRectF textRect(mpMouseText->topLeft->pixelPosition(), mpMouseText->bottomRight->pixelPosition  ());
+        QRectF plotRect = _mw->customPlot->axisRect()->rect();
+
+        //check for textItem moving out of plotbounds
+        if (textRect.intersected(plotRect) != textRect) {
+            //check for textItem moving out of right bound
+            if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                {
+                    //shift label to left of cursor
+                    mpMouseText->position->setCoords(xPos, yPos);
+                    mpMouseText->setPositionAlignment(Qt::AlignRight);
+                }
+
+            //check for textItem moving out of bottom bound
+            if (textRect.bottomRight().y() > plotRect.bottomRight().y())
+            {
+                //shift label to top of plot
+                double yPos_new = _mw->customPlot->yAxis->pixelToCoord(plotRect.topLeft().y());
+                mpMouseText->position->setCoords(xPos, yPos_new);
+                //move to topright
+                mpMouseText->setPositionAlignment(Qt::AlignLeft);
+                //move to topleft if out of right bound
+                if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                    mpMouseText->setPositionAlignment(Qt::AlignRight);
+
+                //check for label floating on top
+                if (mpMouseText->bottomLeft->pixelPosition().y() < event->pos().y())
+                {
+                    //move to topright of cursor
+                    mpMouseText->position->setCoords(xPos, yPos);
+                    mpMouseText->setPositionAlignment(Qt::AlignLeft | Qt::AlignBottom);
+                    //move to topleft of cursor if out of right bound
+                    if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                        mpMouseText->setPositionAlignment(Qt::AlignRight | Qt::AlignBottom);
+                }
+            }
+        }
     }
     _mw->customPlot->replot();
 }
