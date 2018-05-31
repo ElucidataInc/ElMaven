@@ -2668,8 +2668,10 @@ void MainWindow::showspectraMatchingForm() {
 	spectraMatchingForm->exec();
 }
 
+// TODO remove this redundant function
 void MainWindow::showsettingsForm() {
 
+	analytics->hitScreenView("OptionsDialog");
 	settingsForm->setInitialGroupRank();
 	settingsForm->exec();
 }

@@ -177,7 +177,8 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 }
 
 void PeakDetectionDialog::showSettingsForm() {
-    
+
+    mainwindow->getAnalytics()->hitScreenView("OptionsDialog");    
     mainwindow->settingsForm->exec();
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
