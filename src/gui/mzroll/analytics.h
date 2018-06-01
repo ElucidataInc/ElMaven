@@ -1,0 +1,31 @@
+#ifndef ANALYTICS_H
+#define ANALYTICS_H
+
+#include <string>
+#include <QString>
+#include <QNetworkAccessManager>
+
+class Analytics {
+
+    private:
+        QString trackerID;
+        QString clientID;
+        QString hostname;
+        QString language;
+        QNetworkRequest req;
+        void httpPost(QUrlQuery query);
+        QUrlQuery intialSetup();
+        QString getClientID();
+        QString getUserAgent();
+        QString osName();
+
+    public:
+        Analytics();
+        void hitScreenView(QString screenName);
+        void hitEvent(QString category, QString action, int value = 0);
+        void sessionStart();
+        void sessionEnd();
+
+};
+
+#endif //ANALYTICS_H

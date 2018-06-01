@@ -266,6 +266,9 @@ using namespace mzUtils;
 	}
 
 
+	analytics = new Analytics();
+	analytics->hitScreenView("MainWindow");
+	analytics->sessionStart();
 
 	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -321,8 +324,7 @@ using namespace mzUtils;
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
-	settingsForm->show();
-	 heatmap = new HeatMap(this);
+	heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, 1);
 	bookmarkedPeaks->bookmarkPeaksTAble = true;
@@ -659,6 +661,7 @@ using namespace mzUtils;
 
 MainWindow::~MainWindow()
 {
+	analytics->sessionEnd();
     delete mavenParameters;
 }
 
@@ -1505,6 +1508,7 @@ void MainWindow::print() {
 
 void MainWindow::open() {
 
+
 	QString dir = ".";
 
 	if (settings->contains("lastDir")) {
@@ -1533,8 +1537,10 @@ void MainWindow::open() {
 	if (filelist.size() == 0)
 		return;
 
-  //Saving the file location into the Qsettings class so that it can be
-  //used the next time the user opens
+	analytics->hitEvent("ProjectDockWidget", "open", filelist.size());
+
+	//Saving the file location into the Qsettings class so that it can be
+	//used the next time the user opens
 	QString absoluteFilePath(filelist[0]);
 	QFileInfo fileInfo(absoluteFilePath);
 	QDir tmp = fileInfo.absoluteDir();
@@ -2320,7 +2326,7 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 	btn->setObjectName(dockwidget->objectName());
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(setVisible(bool)));
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(raise()));
-	connect(btn, SIGNAL(clicked(bool)), this, SLOT(showButtonLog()));
+	connect(btn, SIGNAL(clicked(bool)), this, SLOT(sendAnalytics()));
 	btn->setChecked(dockwidget->isVisible());
 	connect(dockwidget, SIGNAL(visibilityChanged(bool)), btn,
 			SLOT(setChecked(bool)));
@@ -2397,8 +2403,11 @@ void MainWindow::loadSettings()
     }
 }
 
-void MainWindow::showButtonLog() {
-    //TODO: get rid of it
+void MainWindow::sendAnalytics() {
+
+	QString btnName = QObject::sender()->objectName();
+	analytics->hitScreenView(btnName);
+
 }
 
 void MainWindow::createToolBars() {
@@ -2659,8 +2668,10 @@ void MainWindow::showspectraMatchingForm() {
 	spectraMatchingForm->exec();
 }
 
+// TODO remove this redundant function
 void MainWindow::showsettingsForm() {
 
+	analytics->hitScreenView("OptionsDialog");
 	settingsForm->setInitialGroupRank();
 	settingsForm->exec();
 }
@@ -2702,6 +2713,7 @@ void MainWindow::showPeakdetectionDialog() {
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
 	pollyElmavenInterfaceDialog->show();
+	analytics->hitScreenView("PollyDialog");
 	pollyElmavenInterfaceDialog->initialSetup();
 }
 

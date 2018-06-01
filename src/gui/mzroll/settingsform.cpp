@@ -409,6 +409,8 @@ void SettingsForm::getFormValues() {
 void SettingsForm::show() {
     if (mainwindow == NULL) return;
 
+    mainwindow->getAnalytics()->hitScreenView("OptionsDialog");
+
     if (mainwindow->ligandWidget) {
         connect(qualityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
         connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
