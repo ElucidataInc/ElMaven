@@ -416,7 +416,7 @@ void mzSample::parseMzMLChromatogramList(xml_node &chromatogramList)
 
 int mzSample::getSampleNoChromatogram(const string &chromatogramId) {
 
-	std::regex rxSampleNumber("sample\ *\=\ *([0-9]+)");
+	std::regex rxSampleNumber("sample\ *\=\ *([0-9]+)\ ");
 	std::vector<int> results;
     for(std::sregex_iterator i = std::sregex_iterator(chromatogramId.begin(), chromatogramId.end(), rxSampleNumber);
             i != std::sregex_iterator(); 
@@ -426,10 +426,9 @@ int mzSample::getSampleNoChromatogram(const string &chromatogramId) {
         results.push_back(std::stoi( m[1].str().c_str() ));
     } 
 
-    for (auto n: results)
-        return n;
-    
-    return -1;
+	if (results.size() > 0) return results[0];
+	else return -1;
+
 }
 
 string mzSample::filterChromatogramId(const string &chromatogramId) {
