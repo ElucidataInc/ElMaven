@@ -199,18 +199,26 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y() + shiftAbove);
     int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
 
+    //all labels with abundance below this value will be pooled together
+    double poolThreshold = 1.00;
+
     if (y < labels.count() && y >= 0) {
         QString name = labels.at(y);
         if (MMDuplicate.cols() != _isotopes.size()) return;
+        float pool = 0;
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
-            if (y  >= MMDuplicate.rows()) return;
-            if (MMDuplicate(y,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
+            if (y >= MMDuplicate.rows()) return;
+            if (MMDuplicate(y,j)*100 > poolThreshold) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                             QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
+            else pool += MMDuplicate(y,j);
         }
+
+        if (pool)
+            name += tr("\nOther: %1\%").arg(QString::number(pool*100, 'f', 2));
 
         if(!mpMouseText) return;
 
