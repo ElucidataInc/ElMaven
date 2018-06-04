@@ -53,10 +53,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void setMassCutoffType(QString type);
                 virtual void closeEvent(QCloseEvent* event) override;
 				void dialogRejected();
+                void onReset();
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
                     void settingsChanged(string key, string value);
+                    void resetSettings(QList<QString> keys);
         public:
                 QString massCutoffType;
 
@@ -65,7 +67,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				MainWindow *mainwindow;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
-                PeakDetectionSettings* pdSettings;
+                PeakDetectionSettings* peakSettings;
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();

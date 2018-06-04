@@ -11,12 +11,27 @@ Controller::Controller()
     connect(mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
     connect(mw,  &MainWindow::loadedSettings, this, &Controller::updateUi);
+    connect(mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
+    connect(mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
 }
 
 
 Controller::~Controller()
 {
     delete mw;
+}
+
+void Controller::resetMP(QList<QString> keys)
+{
+
+    // we need to change the 'type' from QString to std::string since maven parameters
+    // needs to independent of Qt
+    QList<std::string> _keys;
+    for(auto key: keys)
+        _keys.append(key.toStdString());
+
+    mw->mavenParameters->reset(_keys.toStdList());
+    updateUi();
 }
 
 template <typename T>

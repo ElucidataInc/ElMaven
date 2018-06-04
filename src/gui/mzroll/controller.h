@@ -17,6 +17,7 @@ class Controller:  public QObject
       void updatePeakDetectionSettings(PeakDetectionSettings* pd);
       void updateOptionsDialogSettings(OptionsDialogSettings* od);
       void updateUi();
+      void resetMP(QList<QString> keys);
 
 
     private:

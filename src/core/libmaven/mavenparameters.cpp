@@ -133,6 +133,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
     * the 'lastUsedSettingsPath'is not empty and the file
     * actually exits. If not, then load defaultSettingsData
     */
+
+
     if(!lastUsedSettingsPath.empty()) {
         ifstream ifs(lastUsedSettingsPath, std::ios_base::in);
         if(ifs.is_open()) {
@@ -464,6 +466,28 @@ bool MavenParameters::loadSettings(const char* data)
 
     return true;
 }
+
+
+void MavenParameters::reset(const std::list<string>& keys)
+{
+
+    pugi::xml_document xmlDoc;
+    pugi::xml_parse_result parseResult = xmlDoc.load_string(defaultSettingsData);
+
+    if(parseResult.status != pugi::xml_parse_status::status_ok)
+        std::cerr << "parsing error  : " << parseResult.status ;
+
+    pugi::xml_node pnode = xmlDoc.child("Settings");
+
+    for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
+
+        if( std::find(keys.begin(), keys.end(), it->name()) != keys.end() ) {
+            setOptionsDialogSettings(it->name(), it->text().get());
+            setPeakDetectionSettings(it->name(), it->text().get());
+        }
+    }
+}
+
 
 vector<mzSample*> MavenParameters::getVisibleSamples() {
 
