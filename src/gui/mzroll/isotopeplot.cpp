@@ -80,26 +80,6 @@ QRectF IsotopePlot::boundingRect() const
     return(QRectF(0,0,_width,_height));
 }
 
-void IsotopePlot::setBelowAbThresholdMatrixEntries(MatrixXf &MM, MainWindow* _mw) {
-    for(int i = 0; i < MM.rows(); i++) {
-        for(int j = 0; j < MM.cols(); j++) {
-            double percent = (double) (MM(i,j)*100);
-            if(percent <= _mw->getSettings()->value("AbthresholdBarplot").toDouble()) MM(i,j) = 0;
-        }
-    }
-}
-
-void IsotopePlot::normalizeIsotopicMatrix(MatrixXf &MM) {
-
-    for(int i = 0; i < MM.rows(); i++) {
-		float sum = 0;
-		for(int j = 0; j < MM.cols(); j++) sum += MM(i,j);
-		if(sum<=0) continue;
-		for(int j = 0; j < MM.cols(); j++) MM(i,j) /= sum;
-	}
-
-}
-
 void IsotopePlot::showBars() {
     clear();
     if (_isotopes.size() == 0 ) return;
@@ -112,8 +92,6 @@ void IsotopePlot::showBars() {
     if ( _mw ) qtype = _mw->getUserQuantType();
 
     MatrixXf MM = _mw->getIsotopicMatrix(_group);
-    setBelowAbThresholdMatrixEntries(MM,_mw);
-    normalizeIsotopicMatrix(MM);
 
     if (scene()) {
         _width =   scene()->width()*0.20;
