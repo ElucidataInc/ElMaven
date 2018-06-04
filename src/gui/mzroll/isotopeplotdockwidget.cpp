@@ -60,6 +60,21 @@ void IsotopePlotDockWidget::setToolBar()
     S34->setChecked(false);
     toolBar->addWidget(S34);
 
+    QWidget *spacer5 = new QWidget();
+    spacer5->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolBar->addWidget(spacer5);
+
+    QLabel *pool = new QLabel("Other: <");
+    toolBar->addWidget(pool);
+
+    QDoubleSpinBox *poolLabels = new QDoubleSpinBox();
+    poolLabels->setRange(0.0, 10.0);
+    poolLabels->setValue(1.0);
+    poolLabels->setSingleStep(0.5);
+    poolLabels->setToolTip("Show < x% as Other");
+    poolLabels->setSuffix(" %");
+    toolBar->addWidget(poolLabels);
+
     setTitleBarWidget(toolBar);
 
     connect(C13, SIGNAL(toggled(bool)), this, SLOT(updateC13Flag(bool)));
