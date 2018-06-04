@@ -67,7 +67,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				MainWindow *mainwindow;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
-                PeakDetectionSettings* pdSettings;
+                PeakDetectionSettings* peakSettings;
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();

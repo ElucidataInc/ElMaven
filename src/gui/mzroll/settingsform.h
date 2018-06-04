@@ -78,7 +78,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
       private:
             QSettings *settings;
             MainWindow *mainwindow;
-            OptionsDialogSettings* odSettings;
+            OptionsDialogSettings* optionSettings;
 
       
       public:

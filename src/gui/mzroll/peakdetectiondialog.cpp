@@ -115,7 +115,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         peakupdater = NULL;
 
         massCutoffType = "ppm";
-        pdSettings = new PeakDetectionSettings(this);
+        peakSettings = new PeakDetectionSettings(this);
 
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
@@ -153,14 +153,14 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
         connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
 
-        connect(this, &PeakDetectionDialog::settingsChanged, pdSettings, &PeakDetectionSettings::updatePeakSettings);
+        connect(this, &PeakDetectionDialog::settingsChanged, peakSettings, &PeakDetectionSettings::updatePeakSettings);
 
 }
 
 
 void PeakDetectionDialog::onReset()
 {
-    emit resetSettings(pdSettings->getSettings().keys());
+    emit resetSettings(peakSettings->getSettings().keys());
 }
 
 void PeakDetectionDialog::setMassCutoffType(QString type)
@@ -179,7 +179,7 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 {
     // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
     // cancel in turn calls close();
-    emit updateSettings(pdSettings);
+    emit updateSettings(peakSettings);
 }
 
 void PeakDetectionDialog::showSettingsForm() {
@@ -201,7 +201,7 @@ void PeakDetectionDialog::dbOptionsClicked() {
 void PeakDetectionDialog::dialogRejected()
 {
   // happens when users presses 'esc' key; 
-  emit updateSettings(pdSettings);
+  emit updateSettings(peakSettings);
 }
 
 void PeakDetectionDialog::featureOptionsClicked() {
@@ -421,7 +421,7 @@ void PeakDetectionDialog::findPeaks() {
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
-    emit updateSettings(pdSettings);
+    emit updateSettings(peakSettings);
     
     if (mainwindow == NULL) return;
     if (peakupdater == NULL) return;
@@ -680,7 +680,7 @@ void PeakDetectionDialog::showMethodSummary() {
     }
     //TODO: why does settings need to be updated right after reportIsotopes is checked/unchecked?
     //updateSettings after dialog close does not affect isotope detection but this does
-    emit updateSettings(pdSettings);
+    emit updateSettings(peakSettings);
 }
 
 

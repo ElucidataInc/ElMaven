@@ -89,7 +89,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     updateSettingFormGUI();
     setMavenParameters();
 
-    odSettings = new OptionsDialogSettings(this);
+    optionSettings = new OptionsDialogSettings(this);
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
     connect(resetButton, &QPushButton::clicked, this, &SettingsForm::onReset);
@@ -191,13 +191,13 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(deltaRTCheck, SIGNAL(toggled(bool)), this,SLOT(getFormValues()));
     toggleDeltaRtWeight();
 
-    connect(this,&SettingsForm::settingsChanged, odSettings, &OptionsDialogSettings::updateOptionsDialog);
+    connect(this,&SettingsForm::settingsChanged, optionSettings, &OptionsDialogSettings::updateOptionsDialog);
     connect(this, &QDialog::rejected, this, &SettingsForm::dialogRejected);
 }
 
 void SettingsForm::onReset()
 {
-    emit resetSettings(odSettings->getSettings().keys());
+    emit resetSettings(optionSettings->getSettings().keys());
 
 }
 
@@ -213,14 +213,14 @@ void SettingsForm::setIsotopicPeakFiltering()
 void SettingsForm::closeEvent(QCloseEvent* event)
 {
      getFormValues();
-    emit updateSettings(odSettings);
+    emit updateSettings(optionSettings);
      QDialog::closeEvent(event);
 }
 
 void SettingsForm::dialogRejected()
 {
   // happens when user presses 'esc' key
-  emit updateSettings(odSettings);
+  emit updateSettings(optionSettings);
 }
 
 void SettingsForm::setSettingsIonizationMode(QString ionMode) {
