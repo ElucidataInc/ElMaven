@@ -26,9 +26,13 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
-#ifndef Q_OS_MAC
-#include "ElmavCrashHandler.h"
+#ifdef Q_OS_MAC
+#include <QDateTime>
 #endif
+
+//#ifndef Q_OS_MAC
+#include "ElmavCrashHandler.h"
+//#endif
 
 #include <QDir>
 #include <list>
@@ -44,6 +48,14 @@ void initializeLogger()
     QString path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
                    qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + qApp->sessionId() \
                    + QDir::separator() ;
+
+    #ifdef Q_OS_MAC
+        // session id is not available on mac os. therefore we use QDatetime to create a unique path for
+        // every session
+        path = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + \
+            qApp->organizationName() + QDir::separator() + qApp->applicationName() + QDir::separator() + QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss") \
+            + QDir::separator() ;
+    #endif
 
     // Logs  won't be saved anywhere if this mkpath returns False;
     dir.mkpath(path);
@@ -61,10 +73,10 @@ int main(int argc, char *argv[])
 
     initializeLogger();
 
-#ifndef Q_OS_MAC
+//#ifndef Q_OS_MAC
     ElmavCrashHandler elMavCh;
     Q_UNUSED(elMavCh);
-#endif
+//#endif
 
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);

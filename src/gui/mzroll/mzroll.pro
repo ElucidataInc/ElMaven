@@ -8,7 +8,7 @@ CONFIG += qt thread warn_off sql svg console precompile_header
 
 #Faster build + C++11 ++ OpenMP
 
-QMAKE_CXXFLAGS += -Ofast -ffast-math -std=c++11
+QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 !macx: LIBS += -fopenmp
@@ -43,6 +43,14 @@ win32 {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += -lgoogle-breakpad -pthread
+}
+
+mac {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+    LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+    LIBS += -lgoogle-breakpad -lobjc -pthread
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
@@ -238,10 +246,6 @@ database.cpp \
     analytics.cpp \
     ElmavCrashHandler.cpp
 
-macx{
-    SOURCES -= ElmavCrashHandler.cpp
-    HEADERS -= ElmavCrashHandler.h
-}
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp

@@ -34,6 +34,12 @@ win32 {
     LIBS += -lgoogle-breakpad -pthread -lwininet
 }
 
+linux {
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    LIBS += -lgoogle-breakpad -pthread -ldl
+}
+
 
 
 SOURCES += main.cpp\
@@ -44,10 +50,9 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
 
-win32 {
 
-    SOURCES += file_uploader.cpp
-    HEADERS += file_uploader.h
-}
+SOURCES += file_uploader.cpp
+HEADERS += file_uploader.h
+
 
 FORMS    += mainwindow.ui
