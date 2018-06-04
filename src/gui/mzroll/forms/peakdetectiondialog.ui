@@ -999,7 +999,7 @@
    <item>
     <widget class="QPushButton" name="resetButton">
      <property name="text">
-      <string>Reset defaults</string>
+      <string>Use Default Parameters</string>
      </property>
     </widget>
    </item>
