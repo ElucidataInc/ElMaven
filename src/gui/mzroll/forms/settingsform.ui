@@ -608,24 +608,10 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="2" column="4">
-           <widget class="QCheckBox" name="S34Labeled_Barplot">
-            <property name="text">
-             <string>S34</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
+          <item row="2" column="1">
            <widget class="QCheckBox" name="D2Labeled_IsoWidget">
             <property name="text">
              <string>D2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_Barplot">
-            <property name="text">
-             <string>Isotopic barplot </string>
             </property>
            </widget>
           </item>
@@ -636,35 +622,14 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="3">
-           <widget class="QCheckBox" name="N15Labeled_Barplot">
-            <property name="text">
-             <string>N15</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="D2Labeled_Barplot">
-            <property name="text">
-             <string>D2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QCheckBox" name="C13Labeled_Barplot">
-            <property name="text">
-             <string>C13</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_IsoWidget">
             <property name="text">
              <string>Isotopic widget</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="4">
+          <item row="2" column="4">
            <widget class="QCheckBox" name="S34Labeled_IsoWidget">
             <property name="text">
              <string>S34</string>
@@ -678,7 +643,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="2" column="2">
            <widget class="QCheckBox" name="C13Labeled_IsoWidget">
             <property name="text">
              <string>C13</string>
@@ -702,7 +667,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
+          <item row="2" column="3">
            <widget class="QCheckBox" name="N15Labeled_IsoWidget">
             <property name="text">
              <string>N15</string>
@@ -1440,10 +1405,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>C13Labeled_BPE</tabstop>
   <tabstop>N15Labeled_BPE</tabstop>
   <tabstop>S34Labeled_BPE</tabstop>
-  <tabstop>D2Labeled_Barplot</tabstop>
-  <tabstop>C13Labeled_Barplot</tabstop>
-  <tabstop>N15Labeled_Barplot</tabstop>
-  <tabstop>S34Labeled_Barplot</tabstop>
   <tabstop>D2Labeled_IsoWidget</tabstop>
   <tabstop>C13Labeled_IsoWidget</tabstop>
   <tabstop>N15Labeled_IsoWidget</tabstop>
@@ -1481,7 +1442,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>formulaWithoutOverlap</tabstop>
  </tabstops>
  <resources>
-  <include location="../mzroll.qrc"/>
   <include location="../mzroll.qrc"/>
  </resources>
  <connections>

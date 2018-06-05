@@ -45,6 +45,8 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
 
     addIsotopes(parentgroup, isotopes);
 
+    sortIsotopes(parentgroup);
+
 }
 
 map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
@@ -344,4 +346,17 @@ bool IsotopeDetection::filterLabel(string isotopeName)
 
     return true;
 
+}
+
+void IsotopeDetection::sortIsotopes(PeakGroup *group)
+{
+    if (group->children.size())
+        sort(group->children.begin(), group->children.end(), PeakGroup::compTagString);
+    
+    if (group->childrenBarPlot.size())
+        sort(group->childrenBarPlot.begin(), group->childrenBarPlot.end(), PeakGroup::compTagString);
+    
+    if (group->childrenIsoWidget.size())
+        sort(group->childrenIsoWidget.begin(), group->childrenIsoWidget.end(), PeakGroup::compTagString);
+    
 }

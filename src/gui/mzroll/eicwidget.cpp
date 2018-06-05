@@ -18,7 +18,6 @@ EicWidget::EicWidget(QWidget *p) {
 
 	_barplot = NULL;
 	_boxplot = NULL;
-	_isotopeplot = NULL;
 	_focusLine = NULL;
 	_selectionLine = NULL;
 	_statusText = NULL;
@@ -32,7 +31,6 @@ EicWidget::EicWidget(QWidget *p) {
 	showTicLine(false);
 	showBicLine(false); //TODO: Sahil, added while merging eicwidget
     showNotes(false); //TODO: Sahil, added while merging eicwidget
-	showIsotopePlot(true);
 	showBarPlot(true);
 	showBoxPlot(false);
     automaticPeakGrouping(true); //TODO: Sahil, added while merging eicwidget
@@ -859,11 +857,7 @@ void EicWidget::setupColors() {
 }
 
 void EicWidget::clearPlot() {
-	//qDebug <<" EicWidget::clearPlot()";
-	if (_isotopeplot && _isotopeplot->scene()) {
-		_isotopeplot->clear();
-		scene()->removeItem(_isotopeplot);
-	}
+
 	if (_barplot && _barplot->scene()) {
 		_barplot->clear();
 		scene()->removeItem(_barplot);
@@ -1134,31 +1128,6 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 		 scene()->addRect(QRectF(x1,y1,x2-x1,y2-y1),pen,brush);
 		 */
 	}
-	return;
-}
-
-void EicWidget::addIsotopicPlot(PeakGroup* group) {
-	//qDebug <<" EicWidget::addIsotopicPlot(PeakGroup* group)";
-	if (group == NULL)
-		return;
-	if (_isotopeplot == NULL)
-		_isotopeplot = new IsotopePlot(0, scene());
-	if (_isotopeplot->scene() != scene())
-		scene()->addItem(_isotopeplot);
-	_isotopeplot->hide();
-
-	if (group->childCountBarPlot() == 0)
-		return;
-
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (samples.size() == 0)
-		return;
-
-	_isotopeplot->setPos(scene()->width() * 0.10, scene()->height() * 0.10);
-	_isotopeplot->setZValue(1000);
-	_isotopeplot->setMainWindow(getMainWindow());
-	_isotopeplot->setPeakGroup(group);
-	_isotopeplot->show();
 	return;
 }
 
@@ -1799,12 +1768,6 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
     connect(o34, SIGNAL(toggled(bool)), SLOT(showEICLines(bool)));
     connect(o34, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o6 = options.addAction("Show Isotope Plot");
-	o6->setCheckable(true);
-	o6->setChecked(_showIsotopePlot);
-	connect(o6, SIGNAL(toggled(bool)), SLOT(showIsotopePlot(bool)));
-	connect(o6, SIGNAL(toggled(bool)), SLOT(replot()));
-
 	QAction* o7 = options.addAction("Show Box Plot");
 	o7->setCheckable(true);
 	o7->setChecked(_showBoxPlot);
@@ -1878,28 +1841,6 @@ void EicWidget::selectGroupNearRt(float rt) {
 		setSelectedGroup(selGroup);
 	}
 	getMainWindow()->mavenParameters->setPeakGroup(selGroup);
-}
-
-void EicWidget::showIsotopicBarPlot(bool _showIsotopicBarPlot) {
-	if (_showIsotopicBarPlot) {
-		getMainWindow()->isotopePlotsDockWidget->show();
-		//addIsotopicPlot(group);
-	} else {
-		getMainWindow()->isotopePlotsDockWidget->hide();
-	}
-}
-
-void EicWidget::updateIsotopicBarplot(PeakGroup* group) {
-	if (_frozen || group == NULL)
-		return;
-
-	if (_showIsotopePlot) {
-		getMainWindow()->isotopePlotsDockWidget->show();
-		getMainWindow()->isotopePlotsDockWidget->raise();
-		addIsotopicPlot(group);
-	} else {
-		getMainWindow()->isotopePlotsDockWidget->hide();
-	}
 }
 
 void EicWidget::setSelectedGroup(PeakGroup* group) {

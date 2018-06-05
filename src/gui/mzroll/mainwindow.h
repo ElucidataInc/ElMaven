@@ -22,6 +22,8 @@
 #include "treedockwidget.h"
 #include "tabledockwidget.h"
 #include "alignmentpolyvizdockwidget.h"
+#include "isotopeplotdockwidget.h"
+#include "isotopeplot.h"
 #include "peakdetectiondialog.h"
 #include "pollyelmaveninterface.h"
 #include "alignmentdialog.h"
@@ -75,6 +77,8 @@ class MassCalcWidget;
 class TreeDockWidget;
 class TableDockWidget;
 class AlignmentPolyVizDockWidget;
+class IsotopePlotDockWidget;
+class IsotopePlot;
 class Classifier;
 class ClassifierNeuralNet;
 class ClassifierNaiveBayes;
@@ -158,6 +162,8 @@ public:
 	AlignmentVizWidget *alignmentVizWidget;
 	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
+	IsotopePlotDockWidget *isotopePlotDockWidget;
+	IsotopePlot *isotopePlot;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
 	QCustomPlot *alignmentPolyVizPlot;
@@ -174,7 +180,6 @@ public:
 	QDockWidget *spectraDockWidget;
 	QDockWidget *alignmentVizDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
-	QDockWidget *isotopePlotsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
 	QDockWidget *scatterDockWidget;
@@ -401,6 +406,7 @@ private Q_SLOTS:
 	void checkSRMList();
 	void readSettings();
 	void writeSettings();
+	void toggleIsotopicBarPlot(bool show);
 	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

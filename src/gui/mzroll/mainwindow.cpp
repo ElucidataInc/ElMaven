@@ -287,6 +287,7 @@ using namespace mzUtils;
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
+	isotopePlot = new IsotopePlot(this);
 
 
 	massCalcWidget = new MassCalcWidget(this);
@@ -303,12 +304,14 @@ using namespace mzUtils;
 	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
 	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
 
+	isotopePlotDockWidget = new IsotopePlotDockWidget(this);
+	isotopePlotDockWidget->setWidget(customPlot);
+
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
 	alignmentVizDockWidget = createDockWidget("AlignmentVisualization", alignmentVizPlot);
 	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
-	isotopePlotsDockWidget = createDockWidget("IsotopePlots", customPlot);
 	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
@@ -363,7 +366,6 @@ using namespace mzUtils;
 	alignmentVizDockWidget->setVisible(false);
 	alignmentPolyVizDockWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
-	isotopePlotsDockWidget->show();
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
@@ -420,7 +422,7 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentPolyVizDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotsDockWidget, Qt::Horizontal);
+	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, adductWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, covariantsPanel, Qt::Horizontal);
@@ -449,7 +451,7 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentPolyVizDockWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
-	tabifyDockWidget(spectraDockWidget, isotopePlotsDockWidget);
+	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
@@ -964,14 +966,13 @@ void MainWindow::setIsotopicPlotStyling() {
 	customPlot->xAxis->setTickLabels( false );
 	customPlot->xAxis->setTicks( false );
 	customPlot->xAxis->setBasePen(QPen(Qt::white));
-	customPlot->xAxis->grid()->setVisible(false);	
+	customPlot->xAxis->grid()->setVisible(false);
+	customPlot->xAxis->setRange(0, 1);	
 	// prepare y axis:
 	customPlot->yAxis->grid()->setVisible(false);
 	customPlot->yAxis->setTickLabels( false );
 	customPlot->yAxis->setTicks( false );
-	customPlot->yAxis->setBasePen(QPen(Qt::white));
-	customPlot->yAxis->setRange(0, 1);
-	
+	customPlot->yAxis->setBasePen(QPen(Qt::white));	
 }
 
 void MainWindow::mzrollLoadDB(QString dbname) {
@@ -3350,13 +3351,8 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
 		btnShowIsotopeplot->setCheckable(true);
 
-		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopePlot(bool)));
-		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)),  mw->getEicWidget(), SLOT(showIsotopicBarPlot(bool)));
+		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
-
-		btnShowIsotopeplot->setChecked(mw->isotopePlotsDockWidget->isVisible());
-		connect(mw->isotopePlotsDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
-				SLOT(setChecked(bool)));
 
 		return btnShowIsotopeplot;
 
@@ -3590,6 +3586,17 @@ int MainWindow::versionCheck() {
 	return 0;
 }
 
+void MainWindow::toggleIsotopicBarPlot(bool show)
+{
+	if (show) {
+		isotopePlotDockWidget->show();
+		isotopePlotDockWidget->raise();
+	}
+	else {
+		isotopePlotDockWidget->hide();
+	}
+}
+
 void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {
 	for(int i = 0; i < MM.rows(); i++) {
 		float sum = 0;
@@ -3604,7 +3611,7 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	PeakGroup::QType qtype = getUserQuantType();
 	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
-	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+	sort(vsamples.begin(), vsamples.end(), mzSample::compRevSampleOrder);
 	map<unsigned int, string> carbonIsotopeSpecies;
 
 	//get isotopic groups

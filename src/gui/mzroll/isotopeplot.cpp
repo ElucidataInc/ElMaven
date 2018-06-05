@@ -5,19 +5,19 @@
 using namespace Eigen;
 
 
-IsotopePlot::IsotopePlot(QGraphicsItem* parent, QGraphicsScene *scene)
-    :QGraphicsItem(parent) {
+IsotopePlot::IsotopePlot(MainWindow *mw)
+    :QGraphicsItem() {
 	// Initialised existing values - Kiran
 	_barwidth=10;
-	_mw=NULL;
+	_mw=mw;
 	_group=NULL;
     mpMouseText = NULL;
     title = NULL;
     bottomAxisRect = NULL;
-    if ( scene != NULL ) {
-        _width = scene->width()*0.25;
-        _height = 10;
-    }
+    if (scene()) {
+         _width = scene()->width()*0.25;
+         _height = 10;
+     }
 }
 
 void IsotopePlot::setMainWindow(MainWindow* mw) { _mw = mw; }
@@ -45,19 +45,21 @@ void IsotopePlot::clear() {
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
-
     if ( group == NULL ) return;
+    if (group->childCountBarPlot() == 0) return;
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
     }
 
-    if ( isVisible() == true && group == _group) return;
+    clear();
+
     _group = group;
 
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();
-	 sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
+    if (_samples.size() == 0) return;
+	    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     _isotopes.clear();
     for(int i=0; i < group->childCountBarPlot(); i++ ) {
@@ -66,12 +68,6 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
             _isotopes.push_back(isotope);
         }
     }
-    //std::sort(_isotopes.begin(), _isotopes.end(), PeakGroup::compC13);
-	/*
-	for(int i=0; i < _isotopes.size(); i++ )  {
-		cerr << _isotopes[i]->tagString <<  " " << _isotopes[i]->isotopeC13count << endl; 
-	}
-	*/
 
     showBars();
 }
@@ -110,7 +106,7 @@ void IsotopePlot::showBars() {
     if (_samples.size() == 0 ) return;
 
     int visibleSamplesCount = _samples.size();
-    sort(_samples.begin(), _samples.end(), mzSample::compSampleOrder);
+    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     PeakGroup::QType qtype = PeakGroup::AreaTop;
     if ( _mw ) qtype = _mw->getUserQuantType();
@@ -128,7 +124,7 @@ void IsotopePlot::showBars() {
     }
 
     labels.resize(0);
-    for(int i=0; i<MM.rows(); i++ ) {		//samples
+    for(int i=0; i<MM.rows(); i++ ) {		//samples 
         //float sum= MM.row(i).sum();
         labels << QString::fromStdString(_samples[i]->sampleName.c_str());
         //if (sum == 0) continue;
@@ -151,14 +147,16 @@ void IsotopePlot::showBars() {
 
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
     isotopesType.resize(MM.cols());
+    QPen barPen(Qt::black);
+    barPen.setWidthF(0.5);
 
     for(int j=0; j < MM.cols(); j++ ) {
-        isotopesType[j] = new QCPBars(_mw->customPlot->xAxis, _mw->customPlot->yAxis);
+        isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
-        int h = j % 20;
-        isotopesType[j]->setPen(QPen(QColor::fromHsvF(h/20.0,1.0,1.0,1.0)));
-	    isotopesType[j]->setBrush(QColor::fromHsvF(h/20.0,1.0,1.0,1.0));
+        int h = j % 10;
+        isotopesType[j]->setPen(barPen);
+	    isotopesType[j]->setBrush(QColor::fromHsvF(h/10.0,1.0,1.0,1.0));
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
@@ -172,27 +170,17 @@ void IsotopePlot::showBars() {
             sampleData << i;
         }
         isotopesType[j]->setData(sampleData, isotopeData);
-
+        isotopesType[j]->rescaleKeyAxis(false);
+        isotopesType[j]->rescaleValueAxis(true);
     }
 
     if(mpMouseText) {
         _mw->customPlot->removeItem(mpMouseText);
     }
     mpMouseText = new QCPItemText(_mw->customPlot);
-
-    if(!mpMouseText) return;
-
-    //_mw->customPlot->addItem(mpMouseText); 
-    mpMouseText->setFont(QFont("Helvetica", 12)); // make font a bit larger
-    mpMouseText->position->setType(QCPItemPosition::ptAxisRectRatio);
-    mpMouseText->setPositionAlignment(Qt::AlignLeft);
-    mpMouseText->position->setCoords(QPointF(0, 0));
-    mpMouseText->setText("");
-    mpMouseText->setPen(QPen(Qt::black)); // show black border around text
-
+    
     _mw->setIsotopicPlotStyling();
-    //_mw->customPlot->rescaleAxes();
-    _mw->customPlot->xAxis->setRange(-0.5, MM.rows());
+    _mw->customPlot->yAxis->setRange(-0.5, MM.rows());
 
     disconnect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)));
     connect(_mw->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showPointToolTip(QMouseEvent*)));
@@ -205,33 +193,85 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     if (!event) return;
     if (_mw->customPlot->plotLayout()->elementCount() <= 0) return;
 
-    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
-    double keyPixel =  _mw->customPlot->xAxis->coordToPixel(x);
-    double shiftRight =  _mw->customPlot->xAxis->coordToPixel(x + .75 * 0.5) - keyPixel;
-    x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x() + shiftRight);
     int y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+    double keyPixel =  _mw->customPlot->yAxis->coordToPixel(y);
+    double shiftAbove =  _mw->customPlot->yAxis->coordToPixel(y + .75 * 0.5) - keyPixel;
+    y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y() + shiftAbove);
+    int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
 
-    if (x < labels.count() && x >= 0) {
-        QString name = labels.at(x);
+    if (y < labels.count() && y >= 0) {
+        QString name = labels.at(y);
         if (MMDuplicate.cols() != _isotopes.size()) return;
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
-            if (x  >= MMDuplicate.rows()) return;
-            if (MMDuplicate(x,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
+            if (y  >= MMDuplicate.rows()) return;
+            if (MMDuplicate(y,j)*100 > _mw->getSettings()->value("AbthresholdBarplot").toDouble()) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
-                                                    QString::number(MMDuplicate(x,j)*100));
+                            QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
         }
+
         if(!mpMouseText) return;
-        int g = QString::compare(name, labels.at(x), Qt::CaseInsensitive);
+
+        mpMouseText->setFont(QFont("Helvetica", 12));
+        mpMouseText->position->setType(QCPItemPosition::ptPlotCoords);
+        mpMouseText->setPositionAlignment(Qt::AlignLeft);
+        mpMouseText->position->setCoords(QPointF(0, 0));
+        mpMouseText->setText("");
+        mpMouseText->setPen(QPen(Qt::black)); // show black border around text
+        mpMouseText->setBrush(QColor::fromRgb(255,255,255));
+        mpMouseText->setTextAlignment(Qt::AlignLeft);
+        mpMouseText->setClipToAxisRect(true);
+        
+        int g = QString::compare(name, labels.at(y), Qt::CaseInsensitive);
         if(g == 0) {
             mpMouseText->setText("");
         } else {
             mpMouseText->setText(name);
         }
 
+        double xPos = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
+        double yPos = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
+        mpMouseText->position->setCoords(xPos, yPos);
         mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
+        QRectF textRect(mpMouseText->topLeft->pixelPosition(), mpMouseText->bottomRight->pixelPosition  ());
+        QRectF plotRect = _mw->customPlot->axisRect()->rect();
+
+        //check for textItem moving out of plotbounds
+        if (textRect.intersected(plotRect) != textRect) {
+            //check for textItem moving out of right bound
+            if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                {
+                    //shift label to left of cursor
+                    mpMouseText->position->setCoords(xPos, yPos);
+                    mpMouseText->setPositionAlignment(Qt::AlignRight);
+                }
+
+            //check for textItem moving out of bottom bound
+            if (textRect.bottomRight().y() > plotRect.bottomRight().y())
+            {
+                //shift label to top of plot
+                double yPos_new = _mw->customPlot->yAxis->pixelToCoord(plotRect.topLeft().y());
+                mpMouseText->position->setCoords(xPos, yPos_new);
+                //move to topright
+                mpMouseText->setPositionAlignment(Qt::AlignLeft);
+                //move to topleft if out of right bound
+                if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                    mpMouseText->setPositionAlignment(Qt::AlignRight);
+
+                //check for label floating on top
+                if (mpMouseText->bottomLeft->pixelPosition().y() < event->pos().y())
+                {
+                    //move to topright of cursor
+                    mpMouseText->position->setCoords(xPos, yPos);
+                    mpMouseText->setPositionAlignment(Qt::AlignLeft | Qt::AlignBottom);
+                    //move to topleft of cursor if out of right bound
+                    if (mpMouseText->topRight->pixelPosition().x() > plotRect.topRight().x())
+                        mpMouseText->setPositionAlignment(Qt::AlignRight | Qt::AlignBottom);
+                }
+            }
+        }
     }
     _mw->customPlot->replot();
 }
@@ -251,35 +291,3 @@ void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
 }
 
 void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) { return; }
-
-/*
-void IsotopeBar::mouseDoubleClickEvent (QGraphicsSceneMouseEvent*event) {
-	QVariant v = data(1);
-   	PeakGroup*  x = v.value<PeakGroup*>();
-}
-
-void IsotopeBar::mousePressEvent (QGraphicsSceneMouseEvent*event) {}
-*/
-
-
-void IsotopeBar::hoverEnterEvent (QGraphicsSceneHoverEvent*event) {
-    QVariant v = data(0);
-    QString note = v.value<QString>();
-    if (note.length() == 0 ) return;
-
-    QString htmlNote = note;
-    setToolTip(note);
-    QPointF posG = mapToScene(event->pos());
-    Q_EMIT(showInfo(htmlNote, posG.x(), posG.y()+5));
-}
-
-void IsotopeBar::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace ) {
-        QVariant v = data(1);
-    	PeakGroup*  g = v.value<PeakGroup*>();
-        if (g && g->parent && g->parent != g) { g->parent->deleteChild(g); Q_EMIT(groupUpdated(g->parent)); }
-        IsotopePlot* parent = (IsotopePlot*) parentItem();
-        if (parent) parent->showBars();
-    }
-}
-

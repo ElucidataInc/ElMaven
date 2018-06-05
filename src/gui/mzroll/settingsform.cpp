@@ -24,11 +24,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("N15Labeled_BPE", QVariant::fromValue(sf->N15Labeled_BPE));
     settings.insert("S34Labeled_BPE", QVariant::fromValue(sf->S34Labeled_BPE));
 
-    settings.insert("D2Labeled_Barplot", QVariant::fromValue(sf->D2Labeled_Barplot));
-    settings.insert("C13Labeled_Barplot", QVariant::fromValue(sf->C13Labeled_Barplot));
-    settings.insert("N15Labeled_Barplot", QVariant::fromValue(sf->N15Labeled_Barplot));
-    settings.insert("S34Labeled_Barplot", QVariant::fromValue(sf->S34Labeled_Barplot));
-
     settings.insert("D2Labeled_IsoWidget", QVariant::fromValue(sf->D2Labeled_IsoWidget));
     settings.insert("C13Labeled_IsoWidget", QVariant::fromValue(sf->C13Labeled_IsoWidget));
     settings.insert("N15Labeled_IsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
@@ -123,11 +118,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(N15Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(S34Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(D2Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-        //isotope detection setting
-    connect(C13Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(N15Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(S34Labeled_Barplot,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(D2Labeled_Barplot, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(doubleSpinBoxAbThresh, SIGNAL(valueChanged(double)),SLOT(recomputeIsotopes()));
         //isotope detection setting
     connect(C13Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));

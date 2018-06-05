@@ -405,7 +405,7 @@ void IsotopeWidget::updateIsotopicBarplot()
 {
 	if (isotopeParametersBarPlot->_group)
 	{
-		_mw->getEicWidget()->updateIsotopicBarplot(isotopeParametersBarPlot->_group);
+		_mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group);
 	}
 	workerThreadBarplot->stop();
 

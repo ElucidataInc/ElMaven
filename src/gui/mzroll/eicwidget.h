@@ -9,7 +9,6 @@
 #include "eiclogic.h"
 #include "plot_axes.h"
 #include "mainwindow.h"
-#include "isotopeplot.h"
 #include "peakFiltering.h"
 
 class EIC;
@@ -18,7 +17,6 @@ class BoxPlot;
 class BarPlot;
 class PeakGroup;
 class MainWindow;
-class IsotopePlot;
 
 class EicWidget: public QGraphicsView {
 Q_OBJECT
@@ -52,7 +50,6 @@ public Q_SLOTS:
 	 **/
 	PeakGroup* setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
-	void updateIsotopicBarplot(PeakGroup* group);
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
@@ -64,7 +61,6 @@ public Q_SLOTS:
 	void addFocusLine(PeakGroup*);
 	void addBarPlot(PeakGroup*);
 	void addBoxPlot(PeakGroup*);
-	void addIsotopicPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
     void addMS2Events(float mzmin, float mzmax); //TODO: Sahil Added while merging eicWidget
 	void integrateRegion(float rtmin, float rtmax);
@@ -137,9 +133,6 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-	void showIsotopePlot(bool f) {
-		_showIsotopePlot = f;
-	}
 	void showBarPlot(bool f) {
 		_showBarPlot = f;
 	}
@@ -153,7 +146,6 @@ public Q_SLOTS:
 	}
 
 	void markGroupGood();
-	void showIsotopicBarPlot(bool);
 	void markGroupBad();
 	void copyToClipboard();
 	void selectionChangedAction();
@@ -206,7 +198,6 @@ private:
 
 	BarPlot* _barplot;
 	BoxPlot* _boxplot;
-	IsotopePlot* _isotopeplot;
 	Note* _statusText;
 
 	bool _showEIC;
@@ -226,7 +217,6 @@ private:
 	bool _areaIntegration;
 	bool _spectraAveraging;
 
-	bool _showIsotopePlot;
 	bool _showBarPlot;
 	bool _showBoxPlot;
 
