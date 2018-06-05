@@ -66,6 +66,7 @@ void LoginForm::handleResults(QStringList results){
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
         _pollyelmaveninterfacedialog->startup_data_load();
         hide();
+        _pollyelmaveninterfacedialog->exec();
         
     }
     else if(status_inside=="error"){

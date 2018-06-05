@@ -73,7 +73,6 @@ QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList 
 //
 // CALLED FROM: createProjectOnPolly
 
-
 QString PollyIntegration::get_run_id(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
     int size = test_list.size();
@@ -334,6 +333,30 @@ QString PollyIntegration::createProjectOnPolly(QString projectname){
     return run_id;
 }
 
+
+QString PollyIntegration::get_share_status(QByteArray result){
+    QList<QByteArray> test_list = result.split('\n');
+    int size = test_list.size();
+    QByteArray result2 = test_list[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(result2));
+    // Get JSON object
+    QJsonObject json = doc.object();
+    QVariantMap json_map = json.toVariantMap();
+    QString run_id =  json_map["id"].toString();
+    return run_id;
+}
+
+
+QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap collaborators_map){
+    
+    QString command = "shareProject";
+    QStringList usernames = collaborators_map.keys();
+    // As of now, only write permissions are being granted..We will need to modify the code written below, when more permissions are allowed on polly
+    QString permission = collaborators_map[usernames.at(0)].toString();
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile<< project_id<<permission<<usernames);
+    QString status = get_share_status(result_and_error.at(0));
+    return status;
+}
 
 // name OF FUNCTION: exportData
 // PURPOSE:

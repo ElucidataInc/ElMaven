@@ -16,6 +16,8 @@ class PollyIntegration
 		QString nodePath;
 		QString user_login_required();
 		QString createProjectOnPolly(QString projectname);
+		QString shareProjectOnPolly(QString project_id,QVariantMap collaborators_map);
+		QString get_share_status(QByteArray result);
         QList<QByteArray> run_qt_process(QString command, QStringList args = QStringList());
 	    QByteArray run_system_process(QString command);
 	    QString get_urls(QByteArray result);
