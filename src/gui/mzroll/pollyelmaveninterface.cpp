@@ -400,14 +400,17 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
-        label_upload_status->setText("Data uploaded..Sharing the project now..");
-        try{
-            QString share_status = _pollyIntegration->shareProjectOnPolly(project_id,collaborators_map);
-            qDebug()<<"Sharing status - "<<share_status;
-            QCoreApplication::processEvents();    
-            } catch(...) {
-                qDebug()<<"Sharing failed,redirecting.. - ";
-            }
+        if (!collaborators_map.isEmpty()) {
+            try{
+                label_upload_status->setText("Data uploaded..Sharing the project now..");
+                QCoreApplication::processEvents();
+                QString share_status = _pollyIntegration->shareProjectOnPolly(project_id,collaborators_map);
+                qDebug()<<"Sharing status - "<<share_status;
+                QCoreApplication::processEvents();    
+                } catch(...) {
+                    qDebug()<<"Sharing failed,redirecting.. - ";
+                }
+        }
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         label_upload_status->setText(redirection_url);

@@ -365,7 +365,6 @@ public Q_SLOTS:
 	void open();
 	void print();
 	void exportPDF();
-	void DiscussPeakPolly();
 	void exportSVG();
 	void setPeakGroup(PeakGroup* group);
 	void showDockWidgets();
