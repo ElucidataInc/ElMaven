@@ -21,6 +21,7 @@ private Q_SLOTS:
     void updateN15Flag(bool setState);
     void updateD2Flag(bool setState);
     void updateS34Flag(bool setState);
+    void setPoolThreshold(double poolThreshold);
 
 private:
     Ui::IsotopePlotDockWidget *ui;

@@ -81,6 +81,7 @@ void IsotopePlotDockWidget::setToolBar()
     connect(N15, SIGNAL(toggled(bool)), this, SLOT(updateN15Flag(bool)));
     connect(D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
     connect(S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
+    connect(poolLabels, SIGNAL(valueChanged(double)), this, SLOT(setPoolThreshold(double)));
 }
 
 void IsotopePlotDockWidget::updateC13Flag(bool setState)
@@ -104,6 +105,12 @@ void IsotopePlotDockWidget::updateD2Flag(bool setState)
 void IsotopePlotDockWidget::updateS34Flag(bool setState)
 {
     _mw->mavenParameters->S34Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::setPoolThreshold(double poolThreshold)
+{
+    _mw->isotopePlot->poolThreshold = poolThreshold;
     recompute();
 }
 

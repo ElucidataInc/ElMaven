@@ -28,6 +28,7 @@ public:
     QRectF boundingRect() const;
     void clear();
     void showBars();
+    double poolThreshold = 1.0;
 
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);

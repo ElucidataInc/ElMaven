@@ -124,11 +124,15 @@ void IsotopePlot::showBars() {
     bottomAxisRect = new QCPAxisRect(_mw->customPlot);
 
     _mw->customPlot->plotLayout()->addElement(1, 0, bottomAxisRect);
-    isotopesType.resize(MM.cols());
+    //+1 to add a bar for 'Other' labels
+    isotopesType.resize(MM.cols()+1);
     QPen barPen(Qt::black);
     barPen.setWidthF(0.5);
 
-    for(int j=0; j < MM.cols(); j++ ) {
+    QVector<double> poolData(MM.rows(), 0);
+
+    for(int j=0; j < MM.cols()+1; j++ )
+    {
         isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
         isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
@@ -138,16 +142,31 @@ void IsotopePlot::showBars() {
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
-        QVector<double> isotopeData(MM.rows());
-        QVector<double> sampleData(MM.rows());
+        
+        QVector<double> isotopeData(MM.rows(), 0);
+        QVector<double> sampleData(MM.rows(), 0);
 
-        for(int i=0; i<MM.rows(); i++ ) {
-            double length  = MM(i,j);
-            if(length < 0 ) length = 0;
-            isotopeData << length;
-            sampleData << i;
+        for(int i=0; i<MM.rows(); i++ )
+        {
+            //if j is a valid label
+            if (j < MM.cols())
+            {
+                double length  = MM(i,j);
+                if(length < 0) length = 0;
+                //add to 'Other' bar if < poolThreshold
+                if (length*100 < poolThreshold)
+                {
+                    poolData[i] += length;
+                    length = 0;
+                }
+                isotopeData[i] = length;
+            }
+            sampleData[i] = i;
         }
-        isotopesType[j]->setData(sampleData, isotopeData);
+        
+        //add individual label info
+        if (j < MM.cols()) isotopesType[j]->setData(sampleData, isotopeData);
+        else isotopesType[j]->setData(sampleData, poolData);
         isotopesType[j]->rescaleKeyAxis(false);
         isotopesType[j]->rescaleValueAxis(true);
     }
@@ -176,9 +195,6 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     double shiftAbove =  _mw->customPlot->yAxis->coordToPixel(y + .75 * 0.5) - keyPixel;
     y = _mw->customPlot->yAxis->pixelToCoord(event->pos().y() + shiftAbove);
     int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
-
-    //all labels with abundance below this value will be pooled together
-    double poolThreshold = 1.00;
 
     if (y < labels.count() && y >= 0) {
         QString name = labels.at(y);
