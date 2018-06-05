@@ -157,7 +157,9 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
     add_collab_button->setEnabled(false);
     load_form_data_button->setEnabled(false);
+    label_collaborator->clear();
     comboBox_existing_projects->clear();
+    comboBox_collaborators_access_level->clear();
     label_upload_status->setStyleSheet("QLabel {color : green; }");
     label_upload_status->setText("authenticating to polly. Please wait..");
     QCoreApplication::processEvents();
@@ -208,6 +210,7 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     label_welcome_load->setText("Welcome back "+credentials.at(0));
     // comboBox_collaborators->clear();
     comboBox_table_name->clear();
+    comboBox_collaborators_access_level->clear();
     comboBox_export_table->clear();
     comboBox_export_format->clear();
     comboBox_load_projects->clear();
