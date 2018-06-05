@@ -4,8 +4,10 @@
 #include <QWidget>
 #include "pollyintegration.h"
 #include "pollyelmaveninterface.h"
+#include "aboutpolly.h"
 
 class PollyIntegration;
+class AboutPolly;
 class PollyElmavenInterfaceDialog;
 namespace Ui {
 class LoginForm;
@@ -20,8 +22,12 @@ public:
     ~LoginForm();
     PollyIntegration* _pollyintegration;
     PollyElmavenInterfaceDialog* _pollyelmaveninterfacedialog;
-    
+    /**
+     * @brief pointer to Pollyinfo class..
+    */
+    AboutPolly* _aboutPolly;
     void cancel();
+    
 
 public slots:
     void handleResults(QStringList results);
@@ -36,6 +42,7 @@ private slots:
      * 4. If failed, display incorrect credentials..
      */
     void on_pushButton_clicked();
+    void showAboutPolly();
 
 private:
     Ui::LoginForm *ui;

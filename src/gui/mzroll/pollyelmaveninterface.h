@@ -6,7 +6,6 @@
 #include "database.h"
 #include "mainwindow.h"
 #include "loginform.h"
-#include "initialEPIform.h"
 #include "pollyintegration.h"
 #include <QDateTime>
 #include <QMap>
@@ -14,7 +13,6 @@
 class PollyIntegration;
 class MainWindow;
 class LoginForm;
-class InitialEPIForm;
 class TableDockWidget;
 
 
@@ -69,10 +67,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief pointer to loginform class..
                 */
                 LoginForm* _loginform;
-                /**
-                 * @brief pointer to loginform class..
-                */
-                InitialEPIForm* _initialEPIform;
 
         public Q_SLOTS:
                 /**
