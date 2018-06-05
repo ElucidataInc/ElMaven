@@ -50,6 +50,7 @@ QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList 
     arg << args; // required params by that command . eg username, password
     // qDebug()<<"nodePath"<<nodePath;
     // qDebug()<<"args -"<<arg;
+
     // nodePath = "PATH_OF_MAVEN/bin/node.exe"
     process.setProgram(nodePath);
     process.setArguments(arg);
@@ -342,8 +343,8 @@ QString PollyIntegration::get_share_status(QByteArray result){
     // Get JSON object
     QJsonObject json = doc.object();
     QVariantMap json_map = json.toVariantMap();
-    QString run_id =  json_map["id"].toString();
-    return run_id;
+    QString status =  json_map["status"].toString();
+    return status;
 }
 
 
