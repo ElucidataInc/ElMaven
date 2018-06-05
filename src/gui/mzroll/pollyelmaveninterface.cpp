@@ -5,8 +5,7 @@
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         QDialog(mw),
         mainwindow(mw),
-        _loginform(NULL),
-        _initialEPIform(NULL)
+        _loginform(NULL)
 {
         setupUi(this);
         setModal(true);
@@ -39,7 +38,6 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
     qDebug()<<"exiting PollyElmavenInterfaceDialog now....";
     if (_loginform) delete (_loginform);
-    if (_initialEPIform) delete (_initialEPIform);
 }
 
 EPIWorkerThread::EPIWorkerThread()

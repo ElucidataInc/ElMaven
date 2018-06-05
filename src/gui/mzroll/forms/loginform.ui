@@ -38,66 +38,83 @@
      <string>LogInToPolly</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>46</x>
-      <y>57</y>
-      <width>222</width>
-      <height>27</height>
+      <x>40</x>
+      <y>50</y>
+      <width>81</width>
+      <height>21</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>UserName</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_username"/>
-     </item>
-    </layout>
+    <property name="text">
+     <string>Username</string>
+    </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>40</x>
       <y>90</y>
-      <width>215</width>
-      <height>27</height>
+      <width>71</width>
+      <height>17</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Password</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_password">
-       <property name="echoMode">
-        <enum>QLineEdit::Password</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-    </widget>
-     <widget class="QLabel" name="login_label">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>160</y>
-        <width>281</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
+    <property name="text">
+     <string>Password</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_username">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>50</y>
+      <width>141</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_password">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>90</y>
+      <width>141</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="login_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>151</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Register on Polly</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_about_polly">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>160</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>About Polly</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
    </widget>
   </widget>
  </widget>

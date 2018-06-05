@@ -595,7 +595,7 @@
          </rect>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_3">
          <attribute name="title">
@@ -892,29 +892,6 @@
        </property>
        <property name="text">
         <string>Log Out</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="info_tab">
-      <attribute name="title">
-       <string>Info</string>
-      </attribute>
-      <widget class="QTextBrowser" name="textBrowser">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>841</width>
-         <height>551</height>
-        </rect>
-       </property>
-       <property name="html">
-        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://polly.elucidata.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Polly&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Merriweather'; font-size:14px; color:#666666; background-color:#ffffff;&quot;&gt; supports pre-clinical research efforts in pharma and biotech labs with plans to develop into a discovery platform that be customized for a variety of lab-specific applications. It is an application suite that has been developed for the analysis, quantitation, and presentation of mass spectrometry data with an advanced distributed data management infrastructure on the Amazon Cloud. The tools hosted on Polly are designed to automate post-processing of all targeted, labeled, and untargeted workflows so as to assist scientists with their metabolomic research. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Merriweather'; font-size:14px; color:#666666;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>

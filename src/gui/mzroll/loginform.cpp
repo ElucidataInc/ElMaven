@@ -5,6 +5,7 @@
 
 LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     QDialog(),
+    _aboutPolly(NULL),
     ui(new Ui::LoginForm)
     
 {
@@ -14,12 +15,15 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     ui->login_label->setText("<a href=\"https://polly.elucidata.io/#/signup\">Register on Polly</a>");
     ui->login_label->setTextFormat(Qt::RichText);
     ui->login_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    ui->login_label->setOpenExternalLinks(true); 
+    ui->login_label->setOpenExternalLinks(true);
+    // pushButton_about_polly->setFlat(true);
+    connect(ui->pushButton_about_polly, SIGNAL(clicked(bool)), SLOT(showAboutPolly()));
 }
 
 LoginForm::~LoginForm()
 {
     delete ui;
+    if (_aboutPolly) delete (_aboutPolly);
 }
 
 WorkerThread::WorkerThread()
@@ -84,4 +88,11 @@ void LoginForm::handleResults(QStringList results){
 void LoginForm::cancel(){
     qDebug()<<"closing the log in form now..";
     close();
+}
+
+void LoginForm::showAboutPolly(){
+    qDebug()<<"going to show the doc now..";
+    _aboutPolly =new AboutPolly();
+    _aboutPolly->setModal(true);
+    _aboutPolly->show();
 }
