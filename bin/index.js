@@ -171,6 +171,43 @@ module.exports.createProject = function (token_filename,name) {
     });
 }
 
+module.exports.shareProject = function (token_filename,project_id,permission,usernames) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var payload = {
+        "project_sharing_list":
+        [{"user_email":usernames,"project_id":project_id,"permission":permission}],
+        "state":"share_project"
+    }
+    var options = {
+        method: 'POST',
+        url: 'https://polly.elucidata.io/api/sharing/share_project',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header
+            },
+        body:
+            {
+                payload: JSON.stringify(payload)
+            },
+        json: true
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`shareProject Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to share Project. Please authenticate. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
 
 module.exports.get_upload_Project_urls = function (token_filename,id) {
     if (has_id_token(token_filename)) {

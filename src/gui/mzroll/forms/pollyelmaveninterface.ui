@@ -442,17 +442,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>Select collaborator</string>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="comboBox_collaborators">
-           <property name="geometry">
-            <rect>
-             <x>200</x>
-             <y>50</y>
-             <width>191</width>
-             <height>25</height>
-            </rect>
+            <string>Collaborator</string>
            </property>
           </widget>
           <widget class="QLabel" name="label_12">
@@ -481,6 +471,16 @@
             <string>ADD</string>
            </property>
           </widget>
+          <widget class="QLineEdit" name="lineEdit_collaborator">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>50</y>
+             <width>191</width>
+             <height>25</height>
+            </rect>
+           </property>
+          </widget>
          </widget>
          <widget class="QLabel" name="label_sharing_status">
           <property name="geometry">
@@ -489,6 +489,19 @@
             <y>260</y>
             <width>351</width>
             <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_collaborator">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>360</y>
+            <width>451</width>
+            <height>17</height>
            </rect>
           </property>
           <property name="text">

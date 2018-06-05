@@ -17,6 +17,7 @@ class LoginForm;
 class InitialEPIForm;
 class TableDockWidget;
 
+
 extern Database DB;
 /**
 * @brief This class id responsible for creating the POlly interface and calling pollyCLI library..
@@ -172,6 +173,10 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief pointer to TableDockWidget class..
                 */
                 TableDockWidget* _tableDockWidget;
+
+        public slots:
+            void handleResults(QVariantMap projectnames_id);
+            void handleAuthentication(QString status);
 };
 
 class EPIWorkerThread : public QThread
@@ -181,9 +186,12 @@ class EPIWorkerThread : public QThread
         EPIWorkerThread();
         ~EPIWorkerThread();
         void run();
+        QString username;
+        QString password;
+        PollyIntegration* _pollyintegration;
     signals:
-        void resultReady(QStringList results);
+        void resultReady(QVariantMap projectnames_id);
+        void authentication_result(QString status);
 };
 
 #endif
-

@@ -44,18 +44,22 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 
 EPIWorkerThread::EPIWorkerThread()
 {
-    // _pollyintegration = new PollyIntegration();   
+    _pollyintegration = new PollyIntegration();   
     
 };
 
 void EPIWorkerThread::run(){
-    // QString status_inside = _pollyintegration->authenticate_login(username,password);
-    // emit resultReady(QStringList()<<status_inside<<username<<password);
+    QString status_inside = _pollyintegration->authenticate_login(username,password);
+    emit authentication_result(status_inside);
+    if (status_inside=="ok"){
+        QVariantMap projectnames_id = _pollyintegration->getUserProjects();
+        emit resultReady(projectnames_id);
+    }
 }
 
 EPIWorkerThread::~EPIWorkerThread()
 {
-    // if (_pollyintegration) delete (_pollyintegration);
+    if (_pollyintegration) delete (_pollyintegration);
 };
 
 
@@ -150,9 +154,38 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 }
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
-    _initialEPIform =new InitialEPIForm(this);
-    _initialEPIform->setModal(true);
-    _initialEPIform->show();
+    computeButton_upload->setEnabled(false);
+    add_collab_button->setEnabled(false);
+    load_form_data_button->setEnabled(false);
+    comboBox_existing_projects->clear();
+    label_upload_status->setStyleSheet("QLabel {color : green; }");
+    label_upload_status->setText("authenticating to polly. Please wait..");
+    QCoreApplication::processEvents();
+    EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
+    connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
+    connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
+    connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
+    EPIworkerThread->username= credentials.at(0);
+    EPIworkerThread->password =credentials.at(1);
+    EPIworkerThread->start();
+    exec();
+}
+
+void PollyElmavenInterfaceDialog::handleAuthentication(QString status){
+    if (status=="ok"){
+            label_upload_status->setText("Loading your projects from Polly.Please wait..");
+            QCoreApplication::processEvents();
+    }
+    else {
+            label_upload_status->setText("Authentication failed..Please Log in again..");
+            QCoreApplication::processEvents();
+            logout();
+    }
+}
+
+void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map){
+    projectnames_id = projectnames_id_map;
+    startup_data_load();
 }
 
 void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
@@ -173,7 +206,7 @@ void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     label_welcome_load->setStyleSheet("QLabel {color : green; }");
     label_welcome_load->setText("Welcome back "+credentials.at(0));
-    comboBox_collaborators->clear();
+    // comboBox_collaborators->clear();
     comboBox_table_name->clear();
     comboBox_export_table->clear();
     comboBox_export_format->clear();
@@ -184,7 +217,10 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     comboBox_existing_projects->clear();
     progressBar_upload->setValue(0);
     progressBar_load_project->setValue(0);
-    projectnames_id = _pollyIntegration->getUserProjects();    
+    comboBox_collaborators_access_level->addItem("write");
+    if (projectnames_id.isEmpty()){
+        projectnames_id = _pollyIntegration->getUserProjects();
+    }    
     QStringList keys= projectnames_id.keys();
 
     comboBox_export_table->addItems(QStringList()<<"Export Selected"<<"Export All Groups"<<"Export Good"<<"Export Bad");
@@ -194,11 +230,9 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     QString peaksTAB =  "Peaks Detailed Format (*.tab)";
     QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
     QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-    QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";    
-    QString peaksListQE= "Inclusion List QE (*.csv)";
-    QString mascotMGF=   "Mascot Format MS2 Scans (*.mgf)";
+    QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
 
-    comboBox_export_format->addItems(QStringList()<<groupsSTAB<<groupsTAB<<peaksTAB<<groupsSCSV<<groupsCSV<<peaksCSV<<peaksListQE<<mascotMGF);
+    comboBox_export_format->addItems(QStringList()<<groupsSTAB<<groupsTAB<<peaksTAB<<groupsSCSV<<groupsCSV<<peaksCSV);
     QIcon project_icon(rsrcPath + "/POLLY.png");
     comboBox_existing_projects->addItem("Select project");
     comboBox_existing_projects->addItem("Add new");
@@ -223,7 +257,12 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     }
     qDebug()<<"DB.compoundsDB.size()  - "<<DB.compoundsDB.size();
     populate_comboBox_compound_db();
-    this->show();
+    computeButton_upload->setEnabled(true);
+    add_collab_button->setEnabled(true);
+    load_form_data_button->setEnabled(true);
+    label_upload_status->setText("Done");
+    QCoreApplication::processEvents();
+    
     return projectnames_id;
 }
 
@@ -237,10 +276,6 @@ void PollyElmavenInterfaceDialog::loadFormData(){
     label_load_status->setText("Connecting to polly..");
     QCoreApplication::processEvents();
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    // QMessageBox msgBox(NULL);
-    // msgBox.setWindowModality(Qt::NonModal);
-    // msgBox.setWindowTitle("getting data from polly..");
-    // msgBox.show();
     label_load_status->setText("getting data from polly..");
     QCoreApplication::processEvents();
     progressBar_load_project->setValue(0);
@@ -299,9 +334,12 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
 }
 
 void PollyElmavenInterfaceDialog::AddCollaborator(){
-    QString collaborator_name = comboBox_collaborators->currentText();
+    QString collaborator_name =lineEdit_collaborator->text();
     QString access_level = comboBox_collaborators_access_level->currentText();
     collaborators_map[collaborator_name]=access_level;
+    label_collaborator->setStyleSheet("QLabel {color : green; }");
+    label_collaborator->setText("Collaborators will be added after uploading to polly.");
+    QCoreApplication::processEvents();
 }
 
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
@@ -359,6 +397,14 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
+        label_upload_status->setText("Data uploaded..Sharing the project now..");
+        try{
+            QString share_status = _pollyIntegration->shareProjectOnPolly(project_id,collaborators_map);
+            qDebug()<<"Sharing status - "<<share_status;
+            QCoreApplication::processEvents();    
+            } catch(...) {
+                qDebug()<<"Sharing failed,redirecting.. - ";
+            }
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         label_upload_status->setText(redirection_url);
