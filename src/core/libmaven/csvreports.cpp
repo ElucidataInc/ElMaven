@@ -279,7 +279,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
-    // Bug Fix for #693 group->getParent()->groupId is the required groupId: Mayank
     groupReport << label << SEP << setprecision(7) << parentGroup->groupId << SEP
             << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
@@ -356,7 +355,12 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+<<<<<<< 89f76b740ee38d6454dde834c12d5450597e4795
 
+=======
+    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
+    
+>>>>>>> [Fix] fix the reported groupId in Peak Detailed Format as well #693
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
@@ -385,7 +389,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
 
         peakReport << setprecision(8)
-                << groupId << SEP
+                << group->groupId << SEP
                 << compoundName << SEP
                 << compoundID << SEP
                 << formula << SEP
