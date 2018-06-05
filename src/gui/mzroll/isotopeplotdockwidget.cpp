@@ -110,7 +110,7 @@ void IsotopePlotDockWidget::updateS34Flag(bool setState)
 
 void IsotopePlotDockWidget::setPoolThreshold(double poolThreshold)
 {
-    _mw->isotopePlot->poolThreshold = poolThreshold;
+    _mw->isotopePlot->setPoolThreshold(poolThreshold);
     recompute();
 }
 

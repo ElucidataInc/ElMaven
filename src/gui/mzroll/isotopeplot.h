@@ -28,7 +28,7 @@ public:
     QRectF boundingRect() const;
     void clear();
     void showBars();
-    double poolThreshold = 1.0;
+    void setPoolThreshold(double poolThreshold) { _poolThreshold = poolThreshold;}
 
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);
@@ -52,6 +52,7 @@ private:
 
     PeakGroup* _group;
     vector<PeakGroup*> _isotopes;
+    double _poolThreshold = 1.0;
     MatrixXf MMDuplicate;
 };
 

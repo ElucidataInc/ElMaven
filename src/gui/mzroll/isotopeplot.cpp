@@ -142,7 +142,7 @@ void IsotopePlot::showBars() {
         if (j != 0 ){
             isotopesType[j]->moveAbove(isotopesType[j - 1]);
         }
-        
+
         QVector<double> isotopeData(MM.rows(), 0);
         QVector<double> sampleData(MM.rows(), 0);
 
@@ -154,7 +154,7 @@ void IsotopePlot::showBars() {
                 double length  = MM(i,j);
                 if(length < 0) length = 0;
                 //add to 'Other' bar if < poolThreshold
-                if (length*100 < poolThreshold)
+                if (length*100 < _poolThreshold)
                 {
                     poolData[i] += length;
                     length = 0;
@@ -203,7 +203,7 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
             if (y >= MMDuplicate.rows()) return;
-            if (MMDuplicate(y,j)*100 > poolThreshold) 
+            if (MMDuplicate(y,j)*100 > _poolThreshold) 
             {
                 name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
                             QString::number(MMDuplicate(y,j)*100, 'f', 2));
