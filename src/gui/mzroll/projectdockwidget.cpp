@@ -921,4 +921,12 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
             break;
         }
     }
+
+    //remove sample from maven parameters sample list
+    for(unsigned int i=0; i<_mainwindow->mavenParameters->samples.size(); i++) {
+        if (_mainwindow->mavenParameters->samples[i] == sample) {
+            _mainwindow->mavenParameters->samples.erase( _mainwindow->mavenParameters->samples.begin()+i);
+            break;
+        }
+    }
 }
