@@ -12,10 +12,8 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     
     ui->setupUi(this);
-    ui->login_label->setText("<a href=\"https://polly.elucidata.io/#/signup\">Register on Polly</a>");
-    ui->login_label->setTextFormat(Qt::RichText);
-    ui->login_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    ui->login_label->setOpenExternalLinks(true);
+
+    setWindowTitle("Polly");
     // pushButton_about_polly->setFlat(true);
     connect(ui->pushButton_about_polly, SIGNAL(clicked(bool)), SLOT(showAboutPolly()));
 }
