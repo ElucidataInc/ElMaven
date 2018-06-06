@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>529</width>
-    <height>360</height>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>AboutPolly</string>
   </property>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>531</width>
-     <height>361</height>
+     <x>20</x>
+     <y>100</y>
+     <width>491</width>
+     <height>241</height>
     </rect>
    </property>
    <property name="html">
@@ -27,59 +27,47 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;		&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Polly is a one-stop data analysis platform designed to accelerate the drug discovery process. Polly can host multiple applications that can be combined by  users to create their own analytical workflows. A few clicks are all that are required to perform end-to-end computation and achieve a deeper understanding of the experimental data.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Polly currently hosts applications for 13C metabolic labelling data  analysis and visualisation for LC-MS and LC-MS/MS workflows. As Polly grows, we envision  adding applications for other computation- heavy areas of drug discovery and enable integrated omics analyses. The platform will soon allow users to host thier own applications as well.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:13px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; background-color:#ffffff;&quot;&gt;Polly&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; background-color:#ffffff; vertical-align:super;&quot;&gt;TM&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666;&quot;&gt; is a one-stop data analysis platform designed to accelerate the drug discovery process. Polly&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; vertical-align:super;&quot;&gt;TM&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666;&quot;&gt; can host multiple applications that can be combined by users to create their own analytical workflows. A few clicks are all that are required to perform end-to-end computations and achieve a deeper understanding of the experimental data.&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:13px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; background-color:#ffffff;&quot;&gt;Polly&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; background-color:#ffffff; vertical-align:super;&quot;&gt;TM&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666;&quot;&gt; currently hosts applications for 13C metabolic labeling data analysis and visualization for LC-MS and LC-MS/MS workflows. As Polly&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666; vertical-align:super;&quot;&gt;TM&lt;/span&gt;&lt;span style=&quot; font-family:'Heebo,sans-serif'; font-weight:296; color:#666666;&quot;&gt; grows, we envision adding applications for other computation-heavy areas of drug discovery and enable integrated omics analyses. The platform will soon allow users to host their own applications as well.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_visit_polly">
+  <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>310</y>
+     <x>200</x>
+     <y>20</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/images/aboutPolly.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>360</y>
      <width>161</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>Visit our website:Polly</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visit our website: &lt;a href=&quot;https://polly.elucidata.io/#/login&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Polly&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_video_link">
+  <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>360</x>
-     <y>310</y>
-     <width>151</width>
-     <height>17</height>
+     <x>440</x>
+     <y>360</y>
+     <width>71</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Video Link</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_polly_logo">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>10</y>
-     <width>61</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>POLLY.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?reload=9&amp;amp;v=tfxksBKWTS0&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Link&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
