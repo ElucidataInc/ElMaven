@@ -2419,12 +2419,14 @@ void MainWindow::createToolBars() {
 	btnOpen->setText("Open");
 	btnOpen->setIcon(QIcon(rsrcPath + "/fileopen.png"));
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnOpen->setToolTip(tr("Sample uploads"));
 
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
 	btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnAlign->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnAlign->setToolTip(tr("Peak Alignment settings"));
 
 	//TODO: Sahil-Kiran, Removed while merging mainwindow
@@ -2438,18 +2440,21 @@ void MainWindow::createToolBars() {
 	btnFeatureDetect->setText("Peaks");
 	btnFeatureDetect->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
 	btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnFeatureDetect->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnFeatureDetect->setToolTip(tr("Peak Detection and Group Filtering Settings"));
 
 	QToolButton *btnPollyBridge = new QToolButton(toolBar);
 	btnPollyBridge->setText("Polly");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
 	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnPollyBridge->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnPollyBridge->setToolTip(tr("Send Peaks to Polly to store, collaborate, analyse and visualise your data"));
 
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
 	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
 	btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnSpectraMatching->setToolTip(
 			tr("Matching Spectra for Fragmentation Patterns"));
 
@@ -2457,6 +2462,7 @@ void MainWindow::createToolBars() {
 	btnSettings->setText("Options");
 	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
 	btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	btnSettings->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: #000;}");
 	btnSettings->setToolTip(tr("1. Instrumentation: Ionization settings\n2. File Import: Scan filter settings\n3. Peak Detection: EIC smoothing and baseline settings\n4. Peak Filtering: Parent and Isotopic peak filtering settings\n5. Isotope Detection: Isotopic label filters\n6. EIC (XIC): EIC type selection\n7. Peak Grouping: Peak Grouping Score calculation\n8. Group Rank: Group Rank calculation - Group Rank decides which groups are selected for a given m/z"));
 
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
