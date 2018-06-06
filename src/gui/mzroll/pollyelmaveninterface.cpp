@@ -583,5 +583,6 @@ void PollyElmavenInterfaceDialog::cancel() {
 void PollyElmavenInterfaceDialog::logout() {
     _pollyIntegration->logout();
     credentials = QStringList();
+    projectnames_id = QVariantMap();
     close();   
 }
