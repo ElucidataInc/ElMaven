@@ -2444,7 +2444,7 @@ void MainWindow::createToolBars() {
 	btnPollyBridge->setText("Polly");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
 	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPollyBridge->setToolTip(tr("Elmaven polly interface"));
+	btnPollyBridge->setToolTip(tr("Polly: Our tool to visualize and analyze massspec data"));
 
 	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
 	btnSpectraMatching->setText("Match");
@@ -2711,9 +2711,8 @@ void MainWindow::showPeakdetectionDialog() {
 }
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
-	pollyElmavenInterfaceDialog->show();
-	analytics->hitScreenView("PollyDialog");
 	pollyElmavenInterfaceDialog->initialSetup();
+	analytics->hitScreenView("PollyDialog");
 }
 
 void MainWindow::showSRMList() {
@@ -3145,7 +3144,7 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
-
+	
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
 	toolBar->addAction(btnCopyCSV);
@@ -3173,7 +3172,8 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
-
+	toolBar->addSeparator();
+	
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setMargin(0);
@@ -3399,6 +3399,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnShowBoxplot;
 
 	}
+	
 	else {
 		return NULL;
 	}
