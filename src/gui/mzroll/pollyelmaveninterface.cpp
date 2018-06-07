@@ -154,7 +154,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     load_form_data_button->setEnabled(false);
     comboBox_existing_projects->clear();
     label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("authenticating to polly. Please wait..");
+    label_upload_status->setText("Authenticating..");
     QCoreApplication::processEvents();
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
@@ -168,11 +168,11 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
 
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status){
     if (status=="ok"){
-            label_upload_status->setText("Loading your projects from Polly.Please wait..");
+            label_upload_status->setText("Fetching your projects..");
             QCoreApplication::processEvents();
     }
     else {
-            label_upload_status->setText("Authentication failed..Please Log in again..");
+            label_upload_status->setText("Authentication failed. Please login again.");
             QCoreApplication::processEvents();
             logout();
     }
@@ -327,7 +327,7 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
 
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
 {   
-
+    
     if (credentials.isEmpty()){
         call_login_form();
         return "";
@@ -347,19 +347,19 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         QDir qdir(writable_temp_dir);
     }
     label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparing files to upload..");
+    label_upload_status->setText("Preparing files..");
     QCoreApplication::processEvents();
     QStringList filenames = prepareFilesToUpload(qdir);
     if (filenames.isEmpty()){
-        label_upload_status->setText("Unable to prepare files to upload..");
+        label_upload_status->setText("File preparation failed.");
         QCoreApplication::processEvents();
         return "";
     }
-    label_upload_status->setText("Connecting to Polly now..");
+    label_upload_status->setText("Connecting..");
     QCoreApplication::processEvents();
     //re-login to polly may be required because the token expires after 30 minutes..
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    label_upload_status->setText("Uploading files to Polly now..Please wait..");
+    label_upload_status->setText("Sending files to Polly..");
     QCoreApplication::processEvents();
     if (new_projectname==""){
         QStringList keys= projectnames_id.keys();
@@ -399,7 +399,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         return "";
     }
     else{
-        label_upload_status->setText("Unable to upload data.");
+        label_upload_status->setText("Unable to send data.");
         return "";
     }
 }
