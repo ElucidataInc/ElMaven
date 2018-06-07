@@ -386,8 +386,17 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
                 project_id= keys.at(i);
             }
         }
+        if (project_id!=""){
             patch_ids = _pollyIntegration->exportData(filenames,project_id);
             upload_project_id = project_id;
+        }
+        else{
+            QString msg = "Invalid new project name";
+            QMessageBox msgBox(mainwindow);
+            msgBox.setWindowTitle("Warning!!");
+            msgBox.setText(msg);
+            msgBox.exec();
+        }
         }
     else{
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
