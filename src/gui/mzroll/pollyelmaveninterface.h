@@ -44,7 +44,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectnames_id;
-                QVariantMap collaborators_map;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
                  * @details this is a QVariantMap object that will look like this -
@@ -133,7 +132,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
                 QVariantMap startup_data_load();
                 void loadFormData();
-                void AddCollaborator();
                 // void handleResults(QStringList results);
                  /**
                  * @brief This function calls login form UI to take credentials from user.

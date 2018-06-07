@@ -29,9 +29,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         connect(load_form_data_button, SIGNAL(clicked(bool)), SLOT(loadFormData()));
         connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(logout_upload, SIGNAL(clicked(bool)), SLOT(logout()));
-        connect(logout_load, SIGNAL(clicked(bool)), SLOT(logout()));
-        connect(add_collab_button, SIGNAL(clicked(bool)), SLOT(AddCollaborator()));
-               
+        connect(logout_load, SIGNAL(clicked(bool)), SLOT(logout()));               
 }
  
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -153,11 +151,8 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
-    add_collab_button->setEnabled(false);
     load_form_data_button->setEnabled(false);
-    label_collaborator->clear();
     comboBox_existing_projects->clear();
-    comboBox_collaborators_access_level->clear();
     label_upload_status->setStyleSheet("QLabel {color : green; }");
     label_upload_status->setText("authenticating to polly. Please wait..");
     QCoreApplication::processEvents();
@@ -206,9 +201,7 @@ void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     label_welcome_load->setStyleSheet("QLabel {color : green; }");
     label_welcome_load->setText("Welcome back "+credentials.at(0));
-    // comboBox_collaborators->clear();
     comboBox_table_name->clear();
-    comboBox_collaborators_access_level->clear();
     comboBox_export_table->clear();
     comboBox_export_format->clear();
     comboBox_load_projects->clear();
@@ -218,7 +211,6 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     comboBox_existing_projects->clear();
     progressBar_upload->setValue(0);
     progressBar_load_project->setValue(0);
-    comboBox_collaborators_access_level->addItem("write");
     if (projectnames_id.isEmpty()){
         projectnames_id = _pollyIntegration->getUserProjects();
     }    
@@ -259,7 +251,6 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     qDebug()<<"DB.compoundsDB.size()  - "<<DB.compoundsDB.size();
     populate_comboBox_compound_db();
     computeButton_upload->setEnabled(true);
-    add_collab_button->setEnabled(true);
     load_form_data_button->setEnabled(true);
     label_upload_status->setText("Done");
     QCoreApplication::processEvents();
@@ -334,15 +325,6 @@ void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QStr
     }
 }
 
-void PollyElmavenInterfaceDialog::AddCollaborator(){
-    QString collaborator_name =lineEdit_collaborator->text();
-    QString access_level = comboBox_collaborators_access_level->currentText();
-    collaborators_map[collaborator_name]=access_level;
-    label_collaborator->setStyleSheet("QLabel {color : green; }");
-    label_collaborator->setText("Collaborators will be added after uploading to polly.");
-    QCoreApplication::processEvents();
-}
-
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
 {   
 
@@ -407,17 +389,6 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
-        if (!collaborators_map.isEmpty()) {
-            try{
-                label_upload_status->setText("Data uploaded..Sharing the project now..");
-                QCoreApplication::processEvents();
-                QString share_status = _pollyIntegration->shareProjectOnPolly(project_id,collaborators_map);
-                qDebug()<<"Sharing status - "<<share_status;
-                QCoreApplication::processEvents();    
-                } catch(...) {
-                    qDebug()<<"Sharing failed,redirecting.. - ";
-                }
-        }
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
         label_upload_status->setText(redirection_url);
