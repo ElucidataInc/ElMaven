@@ -54,21 +54,7 @@
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
-         <item row="3" column="4">
-          <widget class="QPushButton" name="computeButton_upload">
-           <property name="text">
-            <string>Upload</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QProgressBar" name="progressBar_upload">
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="5">
+         <item row="2" column="4">
           <widget class="QPushButton" name="cancelButton_upload">
            <property name="text">
             <string>Cancel</string>
@@ -76,9 +62,9 @@
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QLabel" name="statusText_4">
+          <widget class="QPushButton" name="computeButton_upload">
            <property name="text">
-            <string>Status</string>
+            <string>Upload</string>
            </property>
           </widget>
          </item>
@@ -353,19 +339,6 @@
           </rect>
          </property>
         </widget>
-       </widget>
-       <widget class="QLabel" name="label_upload_status">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>420</y>
-          <width>293</width>
-          <height>15</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
        </widget>
       </widget>
       <widget class="QPushButton" name="logout_upload">

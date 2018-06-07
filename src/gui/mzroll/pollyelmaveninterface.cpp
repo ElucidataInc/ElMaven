@@ -20,6 +20,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         groupBox_load_status->hide();
     
         _pollyIntegration = new PollyIntegration();
+        _loadingDialog = new PollyWaitDialog();
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
         
@@ -153,8 +154,9 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
     load_form_data_button->setEnabled(false);
     comboBox_existing_projects->clear();
-    label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Authenticating..");
+    _loadingDialog->show();
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+    _loadingDialog->statusLabel->setText("Authenticating..");
     QCoreApplication::processEvents();
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
@@ -168,11 +170,11 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
 
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status){
     if (status=="ok"){
-            label_upload_status->setText("Fetching your projects..");
-            QCoreApplication::processEvents();
+        _loadingDialog->statusLabel->setText("Fetching your projects..");
+        QCoreApplication::processEvents();
     }
     else {
-            label_upload_status->setText("Authentication failed. Please login again.");
+            _loadingDialog->statusLabel->setText("Authentication failed. Please login again.");
             QCoreApplication::processEvents();
             logout();
     }
@@ -209,7 +211,6 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     comboBox_load_db->clear();
     comboBox_compound_db->clear();
     comboBox_existing_projects->clear();
-    progressBar_upload->setValue(0);
     progressBar_load_project->setValue(0);
     if (projectnames_id.isEmpty()){
         projectnames_id = _pollyIntegration->getUserProjects();
@@ -252,7 +253,7 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     populate_comboBox_compound_db();
     computeButton_upload->setEnabled(true);
     load_form_data_button->setEnabled(true);
-    label_upload_status->setText("Done");
+    _loadingDialog->close();
     QCoreApplication::processEvents();
     
     return projectnames_id;
@@ -346,20 +347,21 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         QDir().mkdir(writable_temp_dir);
         QDir qdir(writable_temp_dir);
     }
-    label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparing files..");
+    _loadingDialog->show();
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+    _loadingDialog->statusLabel->setText("Preparing files..");
     QCoreApplication::processEvents();
     QStringList filenames = prepareFilesToUpload(qdir);
     if (filenames.isEmpty()){
-        label_upload_status->setText("File preparation failed.");
+        _loadingDialog->statusLabel->setText("File preparation failed.");
         QCoreApplication::processEvents();
         return "";
     }
-    label_upload_status->setText("Connecting..");
+    _loadingDialog->statusLabel->setText("Connecting..");
     QCoreApplication::processEvents();
     //re-login to polly may be required because the token expires after 30 minutes..
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    label_upload_status->setText("Sending files to Polly..");
+    _loadingDialog->statusLabel->setText("Sending files to Polly..");
     QCoreApplication::processEvents();
     if (new_projectname==""){
         QStringList keys= projectnames_id.keys();
@@ -385,21 +387,20 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);   
         upload_project_id = new_project_id;    
     }
-    progressBar_upload->setValue(100);
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
-        label_upload_status->setText(redirection_url);
-        label_upload_status->setTextFormat(Qt::RichText);
-        label_upload_status->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        label_upload_status->setOpenExternalLinks(true);
+        _loadingDialog->statusLabel->setText(redirection_url);
+        _loadingDialog->statusLabel->setTextFormat(Qt::RichText);
+        _loadingDialog->statusLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        _loadingDialog->statusLabel->setOpenExternalLinks(true);
         QCoreApplication::processEvents();
         return "";
     }
     else{
-        label_upload_status->setText("Unable to send data.");
+        _loadingDialog->statusLabel->setText("Unable to send data.");
         return "";
     }
 }
@@ -442,8 +443,8 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         msgBox.exec();
         return filenames;
     }
-    label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparing compound database file..");
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+    _loadingDialog->statusLabel->setText("Preparing compound database file..");
     QCoreApplication::processEvents();
     
     if (comboBox_compound_db->isEnabled()){
@@ -468,8 +469,8 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         _tableDockWidget->treeWidget->selectAll();
     }
 
-    label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparing intensity file..");
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+    _loadingDialog->statusLabel->setText("Preparing intensity file..");
     QCoreApplication::processEvents();
 
     QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
@@ -482,8 +483,8 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     _tableDockWidget->prepareDataForPolly(writable_temp_dir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all_" +user_filename);
     qDebug()<<"done..";
     // Now uploading the json file -
-    label_upload_status->setStyleSheet("QLabel {color : green; }");
-    label_upload_status->setText("Preparing json file..");
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+    _loadingDialog->statusLabel->setText("Preparing json file..");
     QCoreApplication::processEvents();
     // Uploading the json file here - 
     QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";//  uploading the json file

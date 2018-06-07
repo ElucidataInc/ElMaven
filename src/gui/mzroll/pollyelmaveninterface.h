@@ -2,6 +2,7 @@
 #define POLLYELMAVENINTERFACE_H
 
 #include "ui_pollyelmaveninterface.h"
+#include "pollywaitdialog.h"
 #include "stable.h"
 #include "database.h"
 #include "mainwindow.h"
@@ -14,6 +15,8 @@ class PollyIntegration;
 class MainWindow;
 class LoginForm;
 class TableDockWidget;
+
+class PollyWaitDialog;
 
 
 extern Database DB;
@@ -165,6 +168,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief pointer to TableDockWidget class..
                 */
                 TableDockWidget* _tableDockWidget;
+                PollyWaitDialog* _loadingDialog;
 
         public slots:
             void handleResults(QVariantMap projectnames_id);

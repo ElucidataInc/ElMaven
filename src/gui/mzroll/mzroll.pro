@@ -112,7 +112,8 @@ FORMS = forms/settingsform.ui  \
     forms/awsbucketcredentialsdialog.ui \
     forms/alignmentpolyvizdockwidget.ui \
     forms/isotopeplotdockwidget.ui \
-    forms/gettingstarted.ui
+    forms/gettingstarted.ui \
+    forms/pollywaitdialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -183,7 +184,8 @@ HEADERS +=  stable.h \
                     analytics.h \
                     ElmavCrashHandler.h \
                     isotopeplotdockwidget.h \
-                    gettingstarted.h
+                    gettingstarted.h \
+                    pollywaitdialog.h
 
 
 
@@ -253,7 +255,8 @@ database.cpp \
     analytics.cpp \
     ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
-    gettingstarted.cpp
+    gettingstarted.cpp \
+    pollywaitdialog.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
