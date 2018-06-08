@@ -272,6 +272,47 @@ void PeakDetector::alignSamples() {
                 mavenParameters->writeCSVFlag = true;
         }
 }
+void PeakDetector::deleteDuplicateGroup(){
+    double mzdiff=0.01;
+    double rtdiff=0.1;
+    double corrthresh=0.99;
+    vector<PeakGroup> finalPeakGroups=mavenParameters->allgroups;
+
+    unsigned int n=finalPeakGroups.size();
+    cerr<< "Group Specific: " << n << endl;
+    vector<float> temp;
+    for(unsigned int i=0;i<n;i++){
+        for(unsigned int j=0;j<finalPeakGroups[i].peaks.size();j++){
+            temp.push_back(finalPeakGroups[i].peaks[j].peakIntensity);
+        }
+        vector_intensity_array.push_back(temp);
+        vector_mz_array.push_back(finalPeakGroups[i].meanMz);
+        vector_rt_array.push_back(finalPeakGroups[i].meanRt);
+    }
+    int dup_count=0;
+    for(unsigned int i=0;i<finalPeakGroups.size();i++){
+        for(unsigned int j=i+1;j<finalPeakGroups.size();j++){
+            if(abs(vector_mz_array[i]-vector_mz_array[j])<=mzdiff && abs(vector_rt_array[i]-vector_rt_array[j])<=rtdiff){
+                float pearsoncorr=mzUtils::correlation(vector_intensity_array[i],vector_intensity_array[j]);
+                // cerr << abs(vector_mz_array[i]-vector_mz_array[j]) << endl;
+                // cerr << pearsoncorr << endl;
+                if(pearsoncorr>0.99){
+                    dup_count++;
+                    finalPeakGroups.erase(finalPeakGroups.begin()+j);
+                    vector_intensity_array.erase(vector_intensity_array.begin()+j);
+                    vector_mz_array.erase(vector_mz_array.begin()+j);
+                    vector_rt_array.erase(vector_rt_array.begin()+j);
+                }
+            }
+        }
+    }
+    
+    mavenParameters->allgroups.clear();
+    for(unsigned int i=0;i<finalPeakGroups.size();i++){
+        mavenParameters->allgroups.push_back(finalPeakGroups[i]);
+    }
+    cerr << "Correlation Specific Post Process" << endl;
+}
 
 void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 {
@@ -442,6 +483,8 @@ bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
         }
 
         //push the group to the allgroups vector
+        // we need to make changes to the allgroups variable used here
+        // duplicate filtering must be called when we are accessing this allgroups variable
         mavenParameters->allgroups.push_back(grup1);
         return noOverlap;
 }

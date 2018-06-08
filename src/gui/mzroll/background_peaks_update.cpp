@@ -580,7 +580,8 @@ void BackgroundPeakUpdate::processMassSlices() {
         Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
         mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
         peakDetector.processMassSlices();
-        //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
+        peakDetector.deleteDuplicateGroup();
+        cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
         align();
 
