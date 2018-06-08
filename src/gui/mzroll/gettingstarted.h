@@ -2,6 +2,7 @@
 #define GETTINGSTARTED_H
 
 #include <QDialog>
+#include "ui_gettingstarted.h"
 
 namespace Ui {
 class GettingStarted;

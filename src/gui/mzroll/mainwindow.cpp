@@ -286,6 +286,7 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
+	gettingstarted = new GettingStarted(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
 
@@ -357,6 +358,7 @@ using namespace mzUtils;
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 	adductWidget->setVisible(false);
+	gettingstarted->setVisible(false);
 	isotopeWidget->setVisible(false);
 	massCalcWidget->setVisible(false);
 	fragPanel->setVisible(false);
@@ -873,6 +875,8 @@ void MainWindow::openAWSDialog()
 	awsBucketCredentialsDialog->setSettings(settings);
 
 }
+
+
 
 void MainWindow::saveMzRoll() {
 
@@ -2290,6 +2294,9 @@ void MainWindow::createMenus() {
 	QAction* doc = helpMenu->addAction("Documentation");
 	connect(doc,SIGNAL(triggered(bool)), signalMapper, SLOT(map()));
 
+	QAction* start = helpMenu->addAction("Getting Started");
+	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
+
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
 	connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
 
@@ -2310,7 +2317,7 @@ void MainWindow::openURL(int choice)
 	map<int,QUrl> URL{
 		{1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
 		{2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
-		{3, QUrl("https://elucidatainc.github.io/ElMaven/FAQ")}
+		{3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
 	};
 	QDesktopServices::openUrl(URL[choice]);
 }

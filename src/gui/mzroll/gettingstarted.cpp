@@ -6,6 +6,8 @@ GettingStarted::GettingStarted(QWidget *parent) :
     ui(new Ui::GettingStarted)
 {
     ui->setupUi(this);
+   ui->textBrowser->setOpenExternalLinks(true);
+   setWindowTitle("Getting Started");
 }
 
 GettingStarted::~GettingStarted()
