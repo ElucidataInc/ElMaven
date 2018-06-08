@@ -1,14 +1,11 @@
 #include "pollywaitdialog.h"
-#include "ui_pollywaitdialog.h"
 
-PollyWaitDialog::PollyWaitDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::PollyWaitDialog)
-{
-    ui->setupUi(this);
+PollyWaitDialog::PollyWaitDialog(QWidget *parent) : QDialog(parent) {
+    setupUi(this);
+    statusLabel->setStyleSheet("QLabel {color : green; }");
 
-    statusLabel = ui->statusLabel;
-    label = ui->label;
+    movie = new QMovie(":/images/loading.gif");
+    movie->start();
 
     setWindowTitle("Please Wait..");
 }

@@ -8,7 +8,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         _loginform(NULL)
 {
         setupUi(this);
-        setModal(true);
         upload_peaks_frame->hide();
         upload_compound_DB_frame->hide();
         label_create_new_project->hide();
@@ -21,11 +20,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
     
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
-        _loadingDialog->movie = new QMovie(rsrcPath + "/loading.gif");
-        _loadingDialog->label->setMovie(_loadingDialog->movie);
-        _loadingDialog->label->setAlignment(Qt::AlignCenter);
-        _loadingDialog->movie->start();
-        _loadingDialog->label->show();
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
         
@@ -159,10 +153,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
     load_form_data_button->setEnabled(false);
     comboBox_existing_projects->clear();
-    _loadingDialog->show();
-    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-    _loadingDialog->statusLabel->setText("Authenticating..");
-    QCoreApplication::processEvents();
+    
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
     connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
@@ -170,7 +161,15 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     EPIworkerThread->username= credentials.at(0);
     EPIworkerThread->password =credentials.at(1);
     EPIworkerThread->start();
-    exec();
+    // exec();
+    show();
+    _loadingDialog->show();
+    _loadingDialog->statusLabel->setVisible(true);
+    _loadingDialog->statusLabel->setText("Authenticating..");
+    _loadingDialog->label->setVisible(true);
+    _loadingDialog->label->setMovie(_loadingDialog->movie);
+    _loadingDialog->label->setAlignment(Qt::AlignCenter);
+    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status){
@@ -398,15 +397,19 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     if (!patch_ids.isEmpty()){
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
-        _loadingDialog->statusLabel->setText(redirection_url);
-        _loadingDialog->statusLabel->setTextFormat(Qt::RichText);
-        _loadingDialog->statusLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        _loadingDialog->statusLabel->setOpenExternalLinks(true);
+        _loadingDialog->label->setText(redirection_url);
+        _loadingDialog->label->setTextFormat(Qt::RichText);
+        _loadingDialog->label->setStyleSheet("font: 14pt;");
+        _loadingDialog->label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        _loadingDialog->label->setOpenExternalLinks(true);
+        _loadingDialog->statusLabel->setVisible(false);
         QCoreApplication::processEvents();
         return "";
     }
     else{
-        _loadingDialog->statusLabel->setText("Unable to send data.");
+        _loadingDialog->label->setVisible(false);
+        _loadingDialog->label->setText("Unable to send data.");
+        _loadingDialog->statusLabel->setVisible(false);
         return "";
     }
 }

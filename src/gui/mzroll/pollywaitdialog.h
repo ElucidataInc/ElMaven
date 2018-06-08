@@ -2,21 +2,20 @@
 #define POLLYWAITDIALOG_H
 
 #include <QDialog>
+#include "ui_pollywaitdialog.h"
 
 namespace Ui {
 class PollyWaitDialog;
 }
 
-class PollyWaitDialog : public QDialog
+class PollyWaitDialog : public QDialog, public Ui_PollyWaitDialog
 {
     Q_OBJECT
 
 public:
     explicit PollyWaitDialog(QWidget *parent = 0);
     ~PollyWaitDialog();
-    QLabel* statusLabel;
     QMovie* movie;
-    QLabel* label;
 
 private:
     Ui::PollyWaitDialog *ui;
