@@ -8,6 +8,9 @@ PollyWaitDialog::PollyWaitDialog(QWidget *parent) :
     ui->setupUi(this);
 
     statusLabel = ui->statusLabel;
+    label = ui->label;
+
+    setWindowTitle("Please Wait..");
 }
 
 PollyWaitDialog::~PollyWaitDialog()

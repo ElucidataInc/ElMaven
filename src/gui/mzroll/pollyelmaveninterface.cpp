@@ -21,6 +21,11 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
     
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
+        _loadingDialog->movie = new QMovie(rsrcPath + "/loading.gif");
+        _loadingDialog->label->setMovie(_loadingDialog->movie);
+        _loadingDialog->label->setAlignment(Qt::AlignCenter);
+        _loadingDialog->movie->start();
+        _loadingDialog->label->show();
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
         
@@ -354,6 +359,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     QStringList filenames = prepareFilesToUpload(qdir);
     if (filenames.isEmpty()){
         _loadingDialog->statusLabel->setText("File preparation failed.");
+        _loadingDialog->close();
         QCoreApplication::processEvents();
         return "";
     }

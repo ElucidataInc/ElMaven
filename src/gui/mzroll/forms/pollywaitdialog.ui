@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>425</height>
+    <width>501</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,27 +19,27 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>80</y>
-     <width>141</width>
-     <height>121</height>
+     <x>120</x>
+     <y>60</y>
+     <width>241</width>
+     <height>211</height>
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/images/loading.gif&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="statusLabel">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>230</y>
-     <width>251</width>
+     <x>160</x>
+     <y>310</y>
+     <width>181</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;TextLabel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>

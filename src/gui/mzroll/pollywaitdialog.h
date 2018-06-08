@@ -15,6 +15,8 @@ public:
     explicit PollyWaitDialog(QWidget *parent = 0);
     ~PollyWaitDialog();
     QLabel* statusLabel;
+    QMovie* movie;
+    QLabel* label;
 
 private:
     Ui::PollyWaitDialog *ui;
