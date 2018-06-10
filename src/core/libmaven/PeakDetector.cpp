@@ -197,6 +197,7 @@ void PeakDetector::processMassSlices() {
 
     qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
              << timer.elapsed();
+    // deleteDuplicateGroup();
 }
 
 /**
@@ -272,45 +273,76 @@ void PeakDetector::alignSamples() {
                 mavenParameters->writeCSVFlag = true;
         }
 }
+
+bool duplicateComparator(struct customGroup x,struct customGroup y){
+    float pearsoncorr;
+    if(abs(x.mz-y.mz)<=0.01 && abs(x.rt-y.rt)<0.1){
+        pearsoncorr=mzUtils::correlation(x.intensity_vec,y.intensity_vec);
+        if(pearsoncorr>0.99){
+            return true;
+        }
+
+    }
+    return false;
+}
+
 void PeakDetector::deleteDuplicateGroup(){
-    double mzdiff=0.01;
-    double rtdiff=0.1;
-    double corrthresh=0.99;
+    // double mzdiff=0.01;
+    // double rtdiff=0.1;
+    // double corrthresh=0.99;
     vector<PeakGroup> finalPeakGroups=mavenParameters->allgroups;
 
     unsigned int n=finalPeakGroups.size();
     cerr<< "Group Specific: " << n << endl;
     vector<float> temp;
-    for(unsigned int i=0;i<n;i++){
-        for(unsigned int j=0;j<finalPeakGroups[i].peaks.size();j++){
+    vector<customGroup> processedGroups;
+    for(int i=0;i<n;i++){
+        customGroup tempGroup;        
+        for(int j=0;j<finalPeakGroups[i].peaks.size();j++){
             temp.push_back(finalPeakGroups[i].peaks[j].peakIntensity);
         }
-        vector_intensity_array.push_back(temp);
-        vector_mz_array.push_back(finalPeakGroups[i].meanMz);
-        vector_rt_array.push_back(finalPeakGroups[i].meanRt);
+        tempGroup.intensity_vec=temp;
+        tempGroup.actual_vec=finalPeakGroups[i];
+        tempGroup.mz=finalPeakGroups[i].meanMz;
+        tempGroup.rt=finalPeakGroups[i].meanRt;
+        processedGroups.push_back(tempGroup);
     }
-    int dup_count=0;
-    for(unsigned int i=0;i<finalPeakGroups.size();i++){
-        for(unsigned int j=i+1;j<finalPeakGroups.size();j++){
-            if(abs(vector_mz_array[i]-vector_mz_array[j])<=mzdiff && abs(vector_rt_array[i]-vector_rt_array[j])<=rtdiff){
-                float pearsoncorr=mzUtils::correlation(vector_intensity_array[i],vector_intensity_array[j]);
-                // cerr << abs(vector_mz_array[i]-vector_mz_array[j]) << endl;
-                // cerr << pearsoncorr << endl;
-                if(pearsoncorr>0.99){
-                    dup_count++;
-                    finalPeakGroups.erase(finalPeakGroups.begin()+j);
-                    vector_intensity_array.erase(vector_intensity_array.begin()+j);
-                    vector_mz_array.erase(vector_mz_array.begin()+j);
-                    vector_rt_array.erase(vector_rt_array.begin()+j);
-                }
-            }
-        }
-    }
+    cerr << "Processed Group size "<<processedGroups.size()<< endl;
+    unique(processedGroups.begin(),processedGroups.end(), duplicateComparator);
+    cerr << "Post Processed Group size "<< processedGroups.size() << endl;
+
+    // int dup_count=0;
+    // int outer_ind=0,inner_ind=0;
+    // int tot_count=finalPeakGroups.size();
+    // while(outer_ind<tot_count){
+    //     inner_ind=outer_ind+1;
+    //     while(inner_ind<tot_count){
+    //         if(abs(vector_mz_array[outer_ind]-vector_mz_array[inner_ind])<=mzdiff && abs(vector_rt_array[outer_ind]-vector_rt_array[inner_ind])<=rtdiff){
+    //             float pearsoncorr=mzUtils::correlation(vector_intensity_array[outer_ind],vector_intensity_array[inner_ind]);
+    //             // cerr << abs(vector_mz_array[outer_ind]-vector_mz_array[inner_ind]) << endl;
+    //             // cerr << pearsoncorr << endl;
+    //             if(pearsoncorr>0.99){
+    //                 dup_count++;
+    //                 finalPeakGroups.erase(finalPeakGroups.begin()+inner_ind);
+    //                 tot_count=finalPeakGroups.size();
+    //                 vector_intensity_array.erase(vector_intensity_array.begin()+inner_ind);
+    //                 vector_mz_array.erase(vector_mz_array.begin()+inner_ind);
+    //                 vector_rt_array.erase(vector_rt_array.begin()+inner_ind);
+    //             }
+    //         }
+    //         // cerr<<"mayank"<<outer_ind<<" "<<inner_ind<<" "<<tot_count << endl;
+    //         inner_ind++;
+    //     }
+    //     // cerr <<"How can this end?"<< outer_ind<< endl;
+    //     outer_ind++;
+    // }
+    // cerr<< "duplicates"<< dup_count<< endl;
+    // // cerr << finalPeakGroups.size() << endl;
     
-    mavenParameters->allgroups.clear();
-    for(unsigned int i=0;i<finalPeakGroups.size();i++){
-        mavenParameters->allgroups.push_back(finalPeakGroups[i]);
-    }
+    // mavenParameters->allgroups.clear();
+    // for(unsigned int i=0;i<finalPeakGroups.size();i++){
+    //     mavenParameters->allgroups.push_back(finalPeakGroups[i]);
+    // }
     cerr << "Correlation Specific Post Process" << endl;
 }
 
