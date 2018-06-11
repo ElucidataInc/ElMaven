@@ -274,29 +274,6 @@ void PeakDetector::alignSamples() {
         }
 }
 
-bool duplicateComparator(struct customGroup x,struct customGroup y){
-    float pearsoncorr;
-    if(abs(x.mz-y.mz)<=0.01 && abs(x.rt-y.rt)<0.1){
-        pearsoncorr=mzUtils::correlation(x.intensity_vec,y.intensity_vec);
-        if(pearsoncorr>0.99){
-            return true;
-        }
-
-    }
-    return false;
-}
-vector<PeakGroup> getUnique(vector<customGroup> custom_groups){
-    vector<PeakGroup> returnGroups;
-    int nvec=custom_groups.size();
-    for(int i=0;i<nvec;i++){
-        for(int j=i+1;j<nvec;j++){
-            if(!duplicateComparator(custom_groups[i], custom_groups[j])){
-                returnGroups.push_back(custom_groups[i].actual_vec);
-            }
-        }
-    }
-    return returnGroups;
-}
 
 void PeakDetector::deleteDuplicateGroup(){
     double mzdiff=0.01;

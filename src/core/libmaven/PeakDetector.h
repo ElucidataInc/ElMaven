@@ -159,15 +159,6 @@ private:
 	MavenParameters* mavenParameters;
 	bool zeroStatus;
 };
-/**
- * struct for duplicateDeletion
- */
-struct customGroup{
-	vector<float> intensity_vec;
-	PeakGroup actual_vec;
-	float mz;
-	float rt;
-};
 
 /**
  * struct for EicLoader
