@@ -2492,9 +2492,9 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnAlign);
 	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	toolBar->addWidget(btnFeatureDetect);
-	toolBar->addWidget(btnPollyBridge);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
+	toolBar->addWidget(btnPollyBridge);
 
 	QWidget *hBox = new QWidget(toolBar);
 	(void) toolBar->addWidget(hBox);
