@@ -132,3 +132,45 @@ bool GroupFiltering::quantileFilters(PeakGroup *group) {
     }
     return false;
 }
+
+void GroupFiltering::deleteDuplicateGroup(){
+    double mzdiff=0.01;
+    double rtdiff=0.1;
+    double corrthresh=0.99;
+    vector_intensity_array.clear();
+    vector_mz_array.clear();
+    vector_rt_array.clear();
+    unsigned int n=_mavenParameters->allgroups.size();
+    cerr<< "Groups Found: " << n << endl;
+    vector<float> temp;
+    for(unsigned int i=0;i<n;i++){
+        temp.clear();
+        for(unsigned int j=0;j<_mavenParameters->allgroups[i].peaks.size();j++){
+            temp.push_back(_mavenParameters->allgroups[i].peaks[j].peakIntensity);
+        }
+        vector_intensity_array.push_back(temp);
+        vector_mz_array.push_back(_mavenParameters->allgroups[i].meanMz);
+        vector_rt_array.push_back(_mavenParameters->allgroups[i].meanRt);
+    }
+    int dup_count=0;
+    int nvec=_mavenParameters->allgroups.size();
+    int duplicate_flag=0;
+    vector<PeakGroup>  returnPeakGroup;
+    for(unsigned int i=0;i<_mavenParameters->allgroups.size();i++){
+        duplicate_flag=0;
+        for(unsigned int j=i+1;j<_mavenParameters->allgroups.size();j++){
+            if(abs(vector_mz_array[i]-vector_mz_array[j])<=mzdiff && abs(vector_rt_array[i]-vector_rt_array[j])<=rtdiff){
+                float pearsoncorr=mzUtils::correlation(vector_intensity_array[i],vector_intensity_array[j]);
+                if(pearsoncorr>corrthresh){
+                    duplicate_flag=1;
+                }
+            }
+        }
+        if(duplicate_flag==0){
+            returnPeakGroup.push_back(_mavenParameters->allgroups[i]);
+        }
+    }
+    _mavenParameters->allgroups.clear();
+    _mavenParameters->allgroups=returnPeakGroup;
+    cerr << "Correlation Based duplicate removal" << endl;
+}

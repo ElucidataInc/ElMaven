@@ -45,10 +45,6 @@ class PeakDetector {
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
 	
-	vector<vector<float>> vector_intensity_array;
-	vector<float> vector_mz_array;
-	vector<float> vector_rt_array;
-	
 	PeakDetector();
 	PeakDetector(MavenParameters* mp);
 
@@ -69,9 +65,6 @@ public:
     {
     boostSignal(progressText, completed_slices, total_slices);
     }
-
-	void deleteDuplicateGroup();
-	// bool duplicateComparator(struct customGroup x,struct customGroup y);
 
 	void resetProgressBar();
 

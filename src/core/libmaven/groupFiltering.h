@@ -18,6 +18,11 @@ class GroupFiltering
 	 * @see MavenParameters
 	 * @see PeakGroup
 	 */
+
+	vector<vector<float>> vector_intensity_array;
+	vector<float> vector_mz_array;
+	vector<float> vector_rt_array;
+
     GroupFiltering(MavenParameters *mavenParameters);
 
 	/**
@@ -41,6 +46,8 @@ class GroupFiltering
 	 * @return [True if group has to be rejected, else False]
 	 */
 	bool quantileFilters(PeakGroup *group);
+
+	void deleteDuplicateGroup();
 
   private:
 		mzSlice *_slice;
