@@ -44,9 +44,11 @@
 class PeakDetector {
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
-	// vector<vector<float>> vector_intensity_array;
-	// vector<float> vector_mz_array;
-	// vector<float> vector_rt_array;
+	
+	vector<vector<float>> vector_intensity_array;
+	vector<float> vector_mz_array;
+	vector<float> vector_rt_array;
+	
 	PeakDetector();
 	PeakDetector(MavenParameters* mp);
 
