@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>867</width>
-    <height>487</height>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>0</y>
      <width>851</width>
-     <height>481</height>
+     <height>531</height>
     </rect>
    </property>
    <property name="html">
@@ -72,6 +72,32 @@ p, li { white-space: pre-wrap; }
      <y>350</y>
      <width>851</width>
      <height>51</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>500</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>480</y>
+     <width>851</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="orientation">

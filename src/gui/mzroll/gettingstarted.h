@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "ui_gettingstarted.h"
+#include <QString>
 
 namespace Ui {
 class GettingStarted;
@@ -15,9 +16,11 @@ class GettingStarted : public QDialog
 public:
     explicit GettingStarted(QWidget *parent = 0);
     ~GettingStarted();
+    bool showDialog();
 
 private:
     Ui::GettingStarted *ui;
+    
 };
 
 #endif // GETTINGSTARTED_H

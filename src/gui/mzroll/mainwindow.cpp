@@ -358,7 +358,7 @@ using namespace mzUtils;
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 	adductWidget->setVisible(false);
-	gettingstarted->setVisible(false);
+
 	isotopeWidget->setVisible(false);
 	massCalcWidget->setVisible(false);
 	fragPanel->setVisible(false);
@@ -377,6 +377,11 @@ using namespace mzUtils;
 	// rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
     peptideFragmentation->setVisible(false);
+	if(gettingstarted->showDialog())
+	{
+		gettingstarted->setVisible(true);
+	}
+	
 	//treemap->setVisible(false);
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
