@@ -45,6 +45,9 @@
         <string/>
        </property>
        <widget class="QFrame" name="upload_peaks_frame">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>40</x>

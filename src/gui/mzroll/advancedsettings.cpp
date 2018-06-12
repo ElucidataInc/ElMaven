@@ -79,10 +79,10 @@ QVariantMap AdvancedSettings::get_ui_elements(){
 }
 
 bool AdvancedSettings::get_upload_compoundDB(){
-    return ui->comboBox_compound_db->isEnabled();
+    return ui->upload_compound_DB_frame->isEnabled();
 }
 bool AdvancedSettings::get_upload_Peak_Table(){
-    return ui->checkBox_upload_Peak_Table->isEnabled();
+    return ui->upload_peaks_frame->isEnabled();
 }
 
 void AdvancedSettings::cancel(){
