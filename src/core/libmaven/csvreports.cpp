@@ -355,12 +355,6 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-<<<<<<< 89f76b740ee38d6454dde834c12d5450597e4795
-
-=======
-    compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
-    
->>>>>>> [Fix] fix the reported groupId in Peak Detailed Format as well #693
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
