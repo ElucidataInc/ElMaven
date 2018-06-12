@@ -8,13 +8,15 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         _loginform(NULL)
 {
         setupUi(this);
-        label_create_new_project->hide();
-        lineEdit_new_project_name->hide();
+        // lineEdit_new_project_name->hide();
+        // comboBox_existing_projects->hide();
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
+        connect(new_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_new_project_radio_button()));
+        connect(existing_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_existing_project_radio_button()));
         // connect(pushButton_load, SIGNAL(clicked(bool)), SLOT(loadDataFromPolly()));
         // connect(load_form_data_button, SIGNAL(clicked(bool)), SLOT(loadFormData()));
         // connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -48,33 +50,16 @@ EPIWorkerThread::~EPIWorkerThread()
     if (_pollyintegration) delete (_pollyintegration);
 };
 
+void PollyElmavenInterfaceDialog::handle_new_project_radio_button(){
+    lineEdit_new_project_name->setEnabled(true);
+    comboBox_existing_projects->setEnabled(false);
+    QCoreApplication::processEvents();
+}
 
-void PollyElmavenInterfaceDialog::on_comboBox_existing_projects_activated(const QString &arg1){
-    QString projectname = comboBox_existing_projects->currentText();
-    if (projectname=="Add new"){
-        label_create_new_project->show();
-        lineEdit_new_project_name->show();
-        label_peaks_table->show();
-        comboBox_table_name->show();
-        QCoreApplication::processEvents();
-    
-    }
-    else if (projectname=="Select project"){
-        label_create_new_project->hide();
-        lineEdit_new_project_name->hide();
-        label_peaks_table->hide();
-        comboBox_table_name->hide();
-        QCoreApplication::processEvents();
-    
-    }
-    else {
-        label_create_new_project->hide();
-        lineEdit_new_project_name->hide();
-        label_peaks_table->show();
-        comboBox_table_name->show();
-        QCoreApplication::processEvents();
-    
-    }
+void PollyElmavenInterfaceDialog::handle_existing_project_radio_button(){
+    lineEdit_new_project_name->setEnabled(false);
+    comboBox_existing_projects->setEnabled(true);
+    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::showAdvanceSettings(){
@@ -125,6 +110,7 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
+    // comboBox_existing_projects->setEnabled(false);
     // load_form_data_button->setEnabled(false);
     comboBox_existing_projects->clear();
     
@@ -164,6 +150,8 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
 }
 
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
+    lineEdit_new_project_name->setEnabled(false);
+    comboBox_existing_projects->setEnabled(false);
     // label_welcome_load->setStyleSheet("QLabel {color : green; }");
     // label_welcome_load->setText("Welcome back "+credentials.at(0));
     comboBox_table_name->clear();
@@ -175,14 +163,13 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     // comboBox_compound_db->clear();
     comboBox_existing_projects->clear();
     // progressBar_load_project->setValue(0);
+    QCoreApplication::processEvents();
     if (projectnames_id.isEmpty()){
         projectnames_id = _pollyIntegration->getUserProjects();
     }    
     QStringList keys= projectnames_id.keys();
 
     QIcon project_icon(rsrcPath + "/POLLY.png");
-    comboBox_existing_projects->addItem("Select project");
-    comboBox_existing_projects->addItem("Add new");
     for (int i=0; i < keys.size(); ++i){
         comboBox_existing_projects->addItem(project_icon,projectnames_id[keys.at(i)].toString());
     }
@@ -401,6 +388,12 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         handle_advanced_settings(writable_temp_dir,datetimestamp);
         }
 
+    // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
+    //ToDo Kailash, Keep track of compound DB used for each peak table, As of now.. uploading what is currently there in the compound section of Elmaven
+    QVariantMap advanced_ui_elements = _advancedSettings->get_ui_elements();
+    QString compound_db = advanced_ui_elements["compound_db"].toString();
+    
+    mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven",compound_db);
     qDebug()<< "Now uploading all groups, needed for firstview app..";
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
@@ -447,30 +440,31 @@ void PollyElmavenInterfaceDialog::handle_advanced_settings(QString writable_temp
         if (_advancedSettings->get_upload_compoundDB()){
             mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name,compound_db);
         }
-        if (export_option=="Export Selected"){
-            _tableDockWidget->selectedPeakSet();
-        }
-        else if(export_option=="Export Good"){
-            _tableDockWidget->goodPeakSet();
-            _tableDockWidget->treeWidget->selectAll();
-        }
-        else if(export_option=="Export All Groups"){
-            _tableDockWidget->wholePeakSet();
-            _tableDockWidget->treeWidget->selectAll();
-        }
-        else if(export_option=="Export Bad"){
-            _tableDockWidget->badPeakSet();
-            _tableDockWidget->treeWidget->selectAll();
-        }
-        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-        _loadingDialog->statusLabel->setText("Preparing intensity file..");
-        QCoreApplication::processEvents();
+        
+        if (_advancedSettings->get_upload_Peak_Table()){
+            if (export_option=="Export Selected"){
+                _tableDockWidget->selectedPeakSet();
+            }
+            else if(export_option=="Export Good"){
+                _tableDockWidget->goodPeakSet();
+                _tableDockWidget->treeWidget->selectAll();
+            }
+            else if(export_option=="Export All Groups"){
+                _tableDockWidget->wholePeakSet();
+                _tableDockWidget->treeWidget->selectAll();
+            }
+            else if(export_option=="Export Bad"){
+                _tableDockWidget->badPeakSet();
+                _tableDockWidget->treeWidget->selectAll();
+            }
+            _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+            _loadingDialog->statusLabel->setText("Preparing intensity file..");
+            QCoreApplication::processEvents();
 
-        QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
-        qDebug()<<"peak_user_filename - "<<peak_user_filename;
-        _tableDockWidget->prepareDataForPolly(writable_temp_dir,export_format,peak_user_filename);
-        // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
-        mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven"+user_compound_DB_name,compound_db);
+            QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
+            qDebug()<<"peak_user_filename - "<<peak_user_filename;
+            _tableDockWidget->prepareDataForPolly(writable_temp_dir,export_format,peak_user_filename);
+        }
 
 }
 

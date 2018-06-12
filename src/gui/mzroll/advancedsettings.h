@@ -20,10 +20,12 @@ public:
     void cancel();
     QVariantMap get_ui_elements();
     bool get_upload_compoundDB();
+    bool get_upload_Peak_Table();
     void initialSetup();
 
 public slots:
     void showCompoundDBUploadFrame();
+    void showpeakTableFrame();
 public Q_SLOTS:
     void populate_comboBox_compound_db();
 private slots:

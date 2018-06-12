@@ -8,6 +8,7 @@ AdvancedSettings::AdvancedSettings() :
 {
     ui->setupUi(this);
     connect(ui->checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
+    connect(ui->checkBox_upload_Peak_Table,SIGNAL(clicked(bool)),SLOT(showpeakTableFrame()));
 }
 
 
@@ -22,6 +23,15 @@ void AdvancedSettings::showCompoundDBUploadFrame(){
     }
     else{
        ui->upload_compound_DB_frame->setEnabled(true); 
+    }  
+}
+
+void AdvancedSettings::showpeakTableFrame(){
+    if (ui->upload_peaks_frame->isEnabled()){
+        ui->upload_peaks_frame->setEnabled(false); 
+    }
+    else{
+       ui->upload_peaks_frame->setEnabled(true); 
     }  
 }
 
@@ -71,7 +81,9 @@ QVariantMap AdvancedSettings::get_ui_elements(){
 bool AdvancedSettings::get_upload_compoundDB(){
     return ui->comboBox_compound_db->isEnabled();
 }
-
+bool AdvancedSettings::get_upload_Peak_Table(){
+    return ui->checkBox_upload_Peak_Table->isEnabled();
+}
 
 void AdvancedSettings::cancel(){
     close();

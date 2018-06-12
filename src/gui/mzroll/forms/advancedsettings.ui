@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>516</width>
-    <height>496</height>
+    <width>537</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="sizeIncrement">
@@ -38,7 +38,7 @@
          <x>0</x>
          <y>0</y>
          <width>491</width>
-         <height>441</height>
+         <height>431</height>
         </rect>
        </property>
        <property name="title">
@@ -48,7 +48,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>30</y>
+          <y>50</y>
           <width>441</width>
           <height>191</height>
          </rect>
@@ -149,7 +149,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>230</y>
+          <y>260</y>
           <width>231</width>
           <height>23</height>
          </rect>
@@ -165,7 +165,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>260</y>
+          <y>280</y>
           <width>441</width>
           <height>141</height>
          </rect>
@@ -234,6 +234,19 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="checkBox_upload_Peak_Table">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>30</y>
+          <width>431</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Advanced peak table export options</string>
         </property>
        </widget>
       </widget>

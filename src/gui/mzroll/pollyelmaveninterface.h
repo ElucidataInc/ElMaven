@@ -123,6 +123,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
                 void logout();
                 void handle_advanced_settings(QString writable_temp_dir,QString datetimestamp);
+                void handle_new_project_radio_button();
+                void handle_existing_project_radio_button();
                 void showAdvanceSettings();
                 void initialSetup();
                 /**
@@ -158,7 +160,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 3. If yes, then populate compound_db, settings combo boxes with those file names..
                  */
                 // void on_comboBox_load_projects_activated(const QString &arg1);
-                void on_comboBox_existing_projects_activated(const QString &arg1);
+                // void on_comboBox_existing_projects_activated(const QString &arg1);
 
         private:
                 /**

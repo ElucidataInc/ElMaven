@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>637</width>
-    <height>382</height>
+    <height>399</height>
    </rect>
   </property>
   <property name="sizeIncrement">
@@ -36,9 +36,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>40</y>
+         <y>20</y>
          <width>511</width>
-         <height>291</height>
+         <height>311</height>
         </rect>
        </property>
        <property name="title">
@@ -73,92 +73,30 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>181</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Upload to existing project</string>
-        </property>
-       </widget>
        <widget class="QComboBox" name="comboBox_existing_projects">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>200</x>
-          <y>30</y>
+          <y>80</y>
           <width>171</width>
           <height>25</height>
          </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_create_new_project">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>161</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Create new project</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="lineEdit_new_project_name">
-        <property name="geometry">
-         <rect>
-          <x>200</x>
-          <y>60</y>
-          <width>171</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_peaks_table">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>100</y>
-          <width>161</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>peak or bookmark table</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_table_name">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="geometry">
          <rect>
           <x>200</x>
-          <y>100</y>
+          <y>110</y>
           <width>171</width>
-          <height>25</height>
+          <height>31</height>
          </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="upload_status">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>390</y>
-          <width>361</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
         </property>
        </widget>
        <widget class="QPushButton" name="checkBox_advanced_settings">
@@ -174,7 +112,7 @@
          <string>advanced settings</string>
         </property>
        </widget>
-       <widget class="QLabel" name="upload_status_2">
+       <widget class="QLabel" name="upload_status">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -185,6 +123,61 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_peaks_table">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>171</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>peak or bookmark table</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_table_name">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>30</y>
+          <width>171</width>
+          <height>25</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="existing_project_radio_button">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>181</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Select Existing project</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="new_project_radio_button">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>110</y>
+          <width>181</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Create new project</string>
         </property>
        </widget>
       </widget>
@@ -207,9 +200,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <tabstops>
-  <tabstop>tabwidget</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
