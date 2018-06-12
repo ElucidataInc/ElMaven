@@ -7,6 +7,7 @@
 #include "database.h"
 #include "mainwindow.h"
 #include "loginform.h"
+#include "advancedsettings.h"
 #include "pollyintegration.h"
 #include <QDateTime>
 #include <QMap>
@@ -17,9 +18,9 @@ class LoginForm;
 class TableDockWidget;
 
 class PollyWaitDialog;
+class AdvancedSettings;
 
 
-extern Database DB;
 /**
 * @brief This class id responsible for creating the POlly interface and calling pollyCLI library..
 */
@@ -47,6 +48,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectnames_id;
+                QString use_advanced_settings;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
                  * @details this is a QVariantMap object that will look like this -
@@ -110,7 +112,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
 
 
-                void loadDataFromPolly();
+                // void loadDataFromPolly();
 
                 /**
                  * @brief This function is responsible for initial steps..
@@ -120,9 +122,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-                void showCompoundDBUploadFrame();
+                void handle_advanced_settings(QString writable_temp_dir,QString datetimestamp);
                 void showAdvanceSettings();
-                void populate_comboBox_compound_db();
                 void initialSetup();
                 /**
                  * @brief This function is responsible for loading the form data on polly-elmaven-interface GUI
@@ -134,7 +135,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 5. Populate all combo boxes on this UI, with the data obtained from above steps..
                  */
                 QVariantMap startup_data_load();
-                void loadFormData();
+                // void loadFormData();
                 // void handleResults(QStringList results);
                  /**
                  * @brief This function calls login form UI to take credentials from user.
@@ -156,7 +157,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * corresponding to that project on polly..
                  * 3. If yes, then populate compound_db, settings combo boxes with those file names..
                  */
-                void on_comboBox_load_projects_activated(const QString &arg1);
+                // void on_comboBox_load_projects_activated(const QString &arg1);
                 void on_comboBox_existing_projects_activated(const QString &arg1);
 
         private:
@@ -169,6 +170,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 */
                 TableDockWidget* _tableDockWidget;
                 PollyWaitDialog* _loadingDialog;
+                AdvancedSettings* _advancedSettings;
 
         public slots:
             void handleResults(QVariantMap projectnames_id);

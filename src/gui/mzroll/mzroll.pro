@@ -106,6 +106,7 @@ FORMS = forms/settingsform.ui  \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/loginform.ui \
+        forms/advancedsettings.ui \
         forms/aboutpolly.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
@@ -173,6 +174,7 @@ HEADERS +=  stable.h \
                     clusterdialog.h \
                     loginform.h \
                     aboutpolly.h \
+                    advancedsettings.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
@@ -236,6 +238,7 @@ database.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
  loginform.cpp \
+ advancedsettings.cpp \
  aboutpolly.cpp \
  widgets/qprog.cpp \
  projectdockwidget.cpp \

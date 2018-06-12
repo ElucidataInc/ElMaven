@@ -8,28 +8,18 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         _loginform(NULL)
 {
         setupUi(this);
-        upload_peaks_frame->hide();
-        upload_compound_DB_frame->hide();
         label_create_new_project->hide();
         lineEdit_new_project_name->hide();
-        label_peaks_table->hide();
-        comboBox_table_name->hide();
-        checkBox_upload_compond_DB->hide();
-        personal_project_frame->hide();
-        groupBox_load_status->hide();
-    
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
-        connect(checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
-        
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(pushButton_load, SIGNAL(clicked(bool)), SLOT(loadDataFromPolly()));
-        connect(load_form_data_button, SIGNAL(clicked(bool)), SLOT(loadFormData()));
-        connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
+        // connect(pushButton_load, SIGNAL(clicked(bool)), SLOT(loadDataFromPolly()));
+        // connect(load_form_data_button, SIGNAL(clicked(bool)), SLOT(loadFormData()));
+        // connect(cancelButton_load, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(logout_upload, SIGNAL(clicked(bool)), SLOT(logout()));
-        connect(logout_load, SIGNAL(clicked(bool)), SLOT(logout()));               
+        // connect(logout_load, SIGNAL(clicked(bool)), SLOT(logout()));               
 }
  
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -88,25 +78,9 @@ void PollyElmavenInterfaceDialog::on_comboBox_existing_projects_activated(const 
 }
 
 void PollyElmavenInterfaceDialog::showAdvanceSettings(){
-    if (upload_peaks_frame->isVisible()){
-        upload_peaks_frame->hide();
-        upload_compound_DB_frame->hide();
-        checkBox_upload_compond_DB->hide();
-    }
-    else{
-        upload_peaks_frame->show();
-        upload_compound_DB_frame->show();
-        checkBox_upload_compond_DB->show();
-    }  
-}
-
-void PollyElmavenInterfaceDialog::showCompoundDBUploadFrame(){
-    if (upload_compound_DB_frame->isEnabled()){
-        upload_compound_DB_frame->setEnabled(false); 
-    }
-    else{
-       upload_compound_DB_frame->setEnabled(true); 
-    }  
+    use_advanced_settings = "yes";
+    _advancedSettings = new AdvancedSettings();
+    _advancedSettings->initialSetup();
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()
@@ -151,7 +125,7 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     computeButton_upload->setEnabled(false);
-    load_form_data_button->setEnabled(false);
+    // load_form_data_button->setEnabled(false);
     comboBox_existing_projects->clear();
     
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
@@ -189,48 +163,23 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
     startup_data_load();
 }
 
-void PollyElmavenInterfaceDialog::populate_comboBox_compound_db() {
-    comboBox_compound_db->clear();
-	QSet<QString>set;
-	for(int i=0; i< DB.compoundsDB.size(); i++) {
-        if (! set.contains( DB.compoundsDB[i]->db.c_str() ) )
-            set.insert( DB.compoundsDB[i]->db.c_str() );
-	}
-    QIcon icon(rsrcPath + "/dbsearch.png");
-    QSetIterator<QString> i(set);
-    int pos=0;
-	while (i.hasNext()) { 
-        comboBox_compound_db->addItem(icon,i.next());
-	}
-}
-
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
-    label_welcome_load->setStyleSheet("QLabel {color : green; }");
-    label_welcome_load->setText("Welcome back "+credentials.at(0));
+    // label_welcome_load->setStyleSheet("QLabel {color : green; }");
+    // label_welcome_load->setText("Welcome back "+credentials.at(0));
     comboBox_table_name->clear();
-    comboBox_export_table->clear();
-    comboBox_export_format->clear();
-    comboBox_load_projects->clear();
-    comboBox_load_settings->clear();
-    comboBox_load_db->clear();
-    comboBox_compound_db->clear();
+    // comboBox_export_table->clear();
+    // comboBox_export_format->clear();
+    // comboBox_load_projects->clear();
+    // comboBox_load_settings->clear();
+    // comboBox_load_db->clear();
+    // comboBox_compound_db->clear();
     comboBox_existing_projects->clear();
-    progressBar_load_project->setValue(0);
+    // progressBar_load_project->setValue(0);
     if (projectnames_id.isEmpty()){
         projectnames_id = _pollyIntegration->getUserProjects();
     }    
     QStringList keys= projectnames_id.keys();
 
-    comboBox_export_table->addItems(QStringList()<<"Export Selected"<<"Export All Groups"<<"Export Good"<<"Export Bad");
-
-    QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
-    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";    
-    QString peaksTAB =  "Peaks Detailed Format (*.tab)";
-    QString groupsSCSV = "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
-    QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-    QString peaksCSV =  "Peaks Detailed Format Comma Delimited (*.csv)";
-
-    comboBox_export_format->addItems(QStringList()<<groupsSTAB<<groupsTAB<<peaksTAB<<groupsSCSV<<groupsCSV<<peaksCSV);
     QIcon project_icon(rsrcPath + "/POLLY.png");
     comboBox_existing_projects->addItem("Select project");
     comboBox_existing_projects->addItem("Add new");
@@ -252,83 +201,81 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
             peakTableNameMapping[peak_table_name]=peaksTableList.at(i);
             comboBox_table_name->addItem(peak_table_name);
         }        
-    }
-    qDebug()<<"DB.compoundsDB.size()  - "<<DB.compoundsDB.size();
-    populate_comboBox_compound_db();
+    }// populate_comboBox_compound_db();
     computeButton_upload->setEnabled(true);
-    load_form_data_button->setEnabled(true);
+    // load_form_data_button->setEnabled(true);
     _loadingDialog->close();
     QCoreApplication::processEvents();
     
     return projectnames_id;
 }
 
-void PollyElmavenInterfaceDialog::loadFormData(){
-    if (credentials.isEmpty()){
-        call_login_form();
-        return;
-    }
-    load_form_data_button->setEnabled(false);
-    label_load_status->setStyleSheet("QLabel {color : green; }");
-    label_load_status->setText("Connecting to polly..");
-    QCoreApplication::processEvents();
-    QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    label_load_status->setText("getting data from polly..");
-    QCoreApplication::processEvents();
-    progressBar_load_project->setValue(0);
-    QStringList keys= projectnames_id.keys();
+// void PollyElmavenInterfaceDialog::loadFormData(){
+//     if (credentials.isEmpty()){
+//         call_login_form();
+//         return;
+//     }
+//     load_form_data_button->setEnabled(false);
+//     label_load_status->setStyleSheet("QLabel {color : green; }");
+//     label_load_status->setText("Connecting to polly..");
+//     QCoreApplication::processEvents();
+//     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
+//     label_load_status->setText("getting data from polly..");
+//     QCoreApplication::processEvents();
+//     progressBar_load_project->setValue(0);
+//     QStringList keys= projectnames_id.keys();
 
-    QIcon project_icon(rsrcPath + "/POLLY.png");
+//     QIcon project_icon(rsrcPath + "/POLLY.png");
     
-    userProjectFilesMap = _pollyIntegration->getUserProjectFiles(keys);
-    qDebug()<<"userProjectFilesMap - "<<userProjectFilesMap;
-    for (int i=0; i < keys.size(); ++i){
-        comboBox_load_projects->addItem(project_icon,projectnames_id[keys.at(i)].toString());
-    }
+//     userProjectFilesMap = _pollyIntegration->getUserProjectFiles(keys);
+//     qDebug()<<"userProjectFilesMap - "<<userProjectFilesMap;
+//     for (int i=0; i < keys.size(); ++i){
+//         comboBox_load_projects->addItem(project_icon,projectnames_id[keys.at(i)].toString());
+//     }
 
-    QString organization = credentials.at(0).split('@')[1];
-    QStringList organizationSpecificCompoundDB = _pollyIntegration->getOrganizationalDBs(organization);
-    organizationSpecificCompoundDB.append("Lung_Cancer_Experiment_compound_Database.csv");
-    organizationSpecificCompoundDB.append("SRM3_hyperinsulinaemic_compound_Database.csv");
-    organizationSpecificCompoundDB.append("Tongue_Cancer_Experiment_Elucidata.csv");
-    organizationSpecificCompoundDB.append("Phi_analyis_diabetes_experiment.csv");
-    for (int i=0; i < organizationSpecificCompoundDB.size(); ++i){
-        comboBox_organization_DBs->addItem(project_icon,organizationSpecificCompoundDB.at(i));
-    }
-    label_load_status->setText("data fetched.");
-    personal_project_frame->show();
-    groupBox_load_status->show();
-    load_form_data_button->setEnabled(true);
-    QCoreApplication::processEvents();
-    // comboBox_organization_DBs->addItem(project_icon,"sampledata");
-    // cancelButton_load->setEnabled(true);
-    // pushButton_load->setEnabled(true);
-}
+//     QString organization = credentials.at(0).split('@')[1];
+//     QStringList organizationSpecificCompoundDB = _pollyIntegration->getOrganizationalDBs(organization);
+//     organizationSpecificCompoundDB.append("Lung_Cancer_Experiment_compound_Database.csv");
+//     organizationSpecificCompoundDB.append("SRM3_hyperinsulinaemic_compound_Database.csv");
+//     organizationSpecificCompoundDB.append("Tongue_Cancer_Experiment_Elucidata.csv");
+//     organizationSpecificCompoundDB.append("Phi_analyis_diabetes_experiment.csv");
+//     for (int i=0; i < organizationSpecificCompoundDB.size(); ++i){
+//         comboBox_organization_DBs->addItem(project_icon,organizationSpecificCompoundDB.at(i));
+//     }
+//     label_load_status->setText("data fetched.");
+//     personal_project_frame->show();
+//     groupBox_load_status->show();
+//     load_form_data_button->setEnabled(true);
+//     QCoreApplication::processEvents();
+//     // comboBox_organization_DBs->addItem(project_icon,"sampledata");
+//     // cancelButton_load->setEnabled(true);
+//     // pushButton_load->setEnabled(true);
+// }
 
-void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QString &arg1)
-{
-    comboBox_load_db->clear();
-    comboBox_load_settings->clear();
-    QStringList keys= projectnames_id.keys();
-    QString projectname = comboBox_load_projects->currentText();
-    QString ProjectId;
-    for (int i=0; i < keys.size(); ++i){
-        if (projectnames_id[keys.at(i)].toString()==projectname){
-            ProjectId= keys.at(i);
-        }
-    }
-    QStringList userProjectFiles= userProjectFilesMap[ProjectId].toStringList();
+// void PollyElmavenInterfaceDialog::on_comboBox_load_projects_activated(const QString &arg1)
+// {
+//     comboBox_load_db->clear();
+//     comboBox_load_settings->clear();
+//     QStringList keys= projectnames_id.keys();
+//     QString projectname = comboBox_load_projects->currentText();
+//     QString ProjectId;
+//     for (int i=0; i < keys.size(); ++i){
+//         if (projectnames_id[keys.at(i)].toString()==projectname){
+//             ProjectId= keys.at(i);
+//         }
+//     }
+//     QStringList userProjectFiles= userProjectFilesMap[ProjectId].toStringList();
     
-    for (int i=0; i < userProjectFiles.size(); ++i){
-        QString filename = userProjectFiles.at(i);
-        if ((filename.split('.')[filename.split('.').size()-1]=="xml") && filename.contains("_maven_analysis_settings", Qt::CaseInsensitive)){
-            comboBox_load_settings->addItem(filename);
-        }
-        else if (((filename.split('.')[filename.split('.').size()-1]=="csv") || (filename.split('.')[filename.split('.').size()-1]=="tab")) && filename.contains("Compound_DB_", Qt::CaseInsensitive)){
-            comboBox_load_db->addItem(filename);
-        }
-    }
-}
+//     for (int i=0; i < userProjectFiles.size(); ++i){
+//         QString filename = userProjectFiles.at(i);
+//         if ((filename.split('.')[filename.split('.').size()-1]=="xml") && filename.contains("_maven_analysis_settings", Qt::CaseInsensitive)){
+//             comboBox_load_settings->addItem(filename);
+//         }
+//         else if (((filename.split('.')[filename.split('.').size()-1]=="csv") || (filename.split('.')[filename.split('.').size()-1]=="tab")) && filename.contains("Compound_DB_", Qt::CaseInsensitive)){
+//             comboBox_load_db->addItem(filename);
+//         }
+//     }
+// }
 
 QString PollyElmavenInterfaceDialog::uploadDataToPolly()
 {   
@@ -351,22 +298,22 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         QDir().mkdir(writable_temp_dir);
         QDir qdir(writable_temp_dir);
     }
-    _loadingDialog->show();
-    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-    _loadingDialog->statusLabel->setText("Preparing files..");
+    // _loadingDialog->show();
+    upload_status->setStyleSheet("QLabel {color : green; }");
+    upload_status->setText("Preparing files..");
     QCoreApplication::processEvents();
     QStringList filenames = prepareFilesToUpload(qdir);
     if (filenames.isEmpty()){
-        _loadingDialog->statusLabel->setText("File preparation failed.");
+        upload_status->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
         return "";
     }
-    _loadingDialog->statusLabel->setText("Connecting..");
+    upload_status->setText("Connecting..");
     QCoreApplication::processEvents();
     //re-login to polly may be required because the token expires after 30 minutes..
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    _loadingDialog->statusLabel->setText("Sending files to Polly..");
+    upload_status->setText("Sending files to Polly..");
     QCoreApplication::processEvents();
     if (new_projectname==""){
         QStringList keys= projectnames_id.keys();
@@ -397,19 +344,23 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     if (!patch_ids.isEmpty()){
         QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
         qDebug()<<"redirection_url     - "<<redirection_url;
-        _loadingDialog->label->setText(redirection_url);
-        _loadingDialog->label->setTextFormat(Qt::RichText);
-        _loadingDialog->label->setStyleSheet("font: 14pt;");
-        _loadingDialog->label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        _loadingDialog->label->setOpenExternalLinks(true);
-        _loadingDialog->statusLabel->setVisible(false);
-        QCoreApplication::processEvents();
+        
+        QMessageBox msgBox(mainwindow);
+        msgBox.setWindowTitle("Uploaded!");
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setStyleSheet("font: 14pt;");
+        msgBox.setText(redirection_url);
+        msgBox.setTextInteractionFlags(Qt::TextBrowserInteraction);
+        // msgBox.setOpenExternalLinks(true);
+        msgBox.exec();
         return "";
     }
     else{
-        _loadingDialog->label->setVisible(false);
-        _loadingDialog->label->setText("Unable to send data.");
-        _loadingDialog->statusLabel->setVisible(false);
+        QString msg = "Unable to send data";
+        QMessageBox msgBox(mainwindow);
+        msgBox.setWindowTitle("Warning!!");
+        msgBox.setText(msg);
+        msgBox.exec();
         return "";
     }
 }
@@ -422,19 +373,9 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     datetimestamp.replace(":","-");
     
     QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
-    QString peak_table_name = comboBox_table_name->currentText();
-    QString export_option = comboBox_export_table->currentText();
-    QString export_format = comboBox_export_format->currentText();
-    QString user_filename = lineEdit_filename->text();
-    QString compound_db = comboBox_compound_db->currentText();
-    QString user_compound_DB_name = lineEdit_compound_DB_name->text();
     
-    if (user_filename==""){
-        user_filename = "intensity_file.csv";
-    }
-    if (user_compound_DB_name==""){
-        user_compound_DB_name = "compounds.csv";
-    }
+    QString peak_table_name = comboBox_table_name->currentText();
+    
     QStringList filenames;
     if (peak_table_name!=""){
         if(peak_table_name=="Bookmark Table"){
@@ -455,41 +396,16 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
     _loadingDialog->statusLabel->setText("Preparing compound database file..");
     QCoreApplication::processEvents();
-    
-    if (comboBox_compound_db->isEnabled()){
-        mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name,compound_db);
-    }
-    // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
-    mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_"+user_compound_DB_name,compound_db);
-    	
-    if (export_option=="Export Selected"){
-        _tableDockWidget->selectedPeakSet();
-    }
-    else if(export_option=="Export Good"){
-        _tableDockWidget->goodPeakSet();
-        _tableDockWidget->treeWidget->selectAll();
-    }
-    else if(export_option=="Export All Groups"){
-        _tableDockWidget->wholePeakSet();
-        _tableDockWidget->treeWidget->selectAll();
-    }
-    else if(export_option=="Export Bad"){
-        _tableDockWidget->badPeakSet();
-        _tableDockWidget->treeWidget->selectAll();
-    }
 
-    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-    _loadingDialog->statusLabel->setText("Preparing intensity file..");
-    QCoreApplication::processEvents();
+    if (use_advanced_settings=="yes"){
+        handle_advanced_settings(writable_temp_dir,datetimestamp);
+        }
 
-    QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
-    qDebug()<<"peak_user_filename - "<<peak_user_filename;
-    _tableDockWidget->prepareDataForPolly(writable_temp_dir,export_format,peak_user_filename);
     qDebug()<< "Now uploading all groups, needed for firstview app..";
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
     qDebug()<<"running _tableDockWidget->prepareDataForPolly now...";
-    _tableDockWidget->prepareDataForPolly(writable_temp_dir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all_" +user_filename);
+    _tableDockWidget->prepareDataForPolly(writable_temp_dir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all");
     qDebug()<<"done..";
     // Now uploading the json file -
     _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
@@ -498,7 +414,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     // Uploading the json file here - 
     QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";//  uploading the json file
     _tableDockWidget->exportJsonToPolly(writable_temp_dir,json_filename);
-    QByteArray ba = (writable_temp_dir+QDir::separator()+datetimestamp+"_"+user_filename.split('.')[user_filename.split('.').size()-1]+"_maven_analysis_settings"+".xml").toLatin1();
+    QByteArray ba = (writable_temp_dir+QDir::separator()+datetimestamp+"_maven_analysis_settings"+".xml").toLatin1();
     const char *save_path = ba.data();
     mainwindow->mavenParameters->saveSettings(save_path);
     qDebug()<<"settings saved now..";
@@ -513,64 +429,111 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     return filenames;
 }
 
-void PollyElmavenInterfaceDialog::loadDataFromPolly()
-{
-    if (credentials.isEmpty()){
-        call_login_form();
-        return;
-    }
-    QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
-    QStringList filenames;
-    QString db_file = comboBox_load_db->currentText();
-    QString org_db_file = comboBox_organization_DBs->currentText();
-    QString settings_file = comboBox_load_settings->currentText();
-    filenames.append(org_db_file);
-    filenames.append(settings_file);
-    QStringList keys= projectnames_id.keys();
-    QString projectname = comboBox_load_projects->currentText();
-    QString ProjectId;
-    for (int i=0; i < keys.size(); ++i){
-        if (projectnames_id[keys.at(i)].toString()==projectname){
-            ProjectId= keys.at(i);
+void PollyElmavenInterfaceDialog::handle_advanced_settings(QString writable_temp_dir,QString datetimestamp){
+        QVariantMap advanced_ui_elements = _advancedSettings->get_ui_elements();
+
+        QString export_option = advanced_ui_elements["export_option"].toString();
+        QString export_format = advanced_ui_elements["export_format"].toString();
+        QString user_filename = advanced_ui_elements["user_filename"].toString();
+        QString compound_db = advanced_ui_elements["compound_db"].toString();
+        QString user_compound_DB_name = advanced_ui_elements["user_compound_DB_name"].toString();
+        
+        if (user_filename==""){
+            user_filename = "intensity_file.csv";
         }
-    }
-    qDebug() << "valid credentials,loading data from polly now....\n\n";
-    
-    QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
-    QDir qdir(writable_temp_dir);
-    if (!qdir.exists()){
-        QDir().mkdir(writable_temp_dir);
-        QDir qdir(writable_temp_dir);
-    }
-    
-    QStringList full_path_filenames;
-    for (int i = 0; i < filenames.size(); ++i){
-        QString tmp_filename = writable_temp_dir+QDir::separator()+filenames.at(i);;
-        full_path_filenames.append(tmp_filename);
-    }
-    label_load_status->setText("Loading data in Elmaven..Please wait.");
-    QCoreApplication::processEvents();
-    QString load_status = _pollyIntegration->loadDataFromPolly(ProjectId,full_path_filenames);
-    if (load_status=="project data loaded"){
-        mainwindow->loadPollySettings(writable_temp_dir+QDir::separator()+settings_file);
-        qDebug()<<"trying to load compound DB from Polly inside Elmaven now..";
-        mainwindow->loadCompoundsFile(writable_temp_dir+QDir::separator()+org_db_file);
-    }
-    progressBar_load_project->setRange(0, 100);
-    progressBar_load_project->setValue(100);
-    bool status = qdir.removeRecursively();
-    label_load_status->setText(load_status);
-    QCoreApplication::processEvents();
-    // QMessageBox msgBox(mainwindow);
-    // msgBox.setText(load_status);
-    // msgBox.exec();
+        if (user_compound_DB_name==""){
+            user_compound_DB_name = "compounds.csv";
+        }
+        if (_advancedSettings->get_upload_compoundDB()){
+            mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name,compound_db);
+        }
+        if (export_option=="Export Selected"){
+            _tableDockWidget->selectedPeakSet();
+        }
+        else if(export_option=="Export Good"){
+            _tableDockWidget->goodPeakSet();
+            _tableDockWidget->treeWidget->selectAll();
+        }
+        else if(export_option=="Export All Groups"){
+            _tableDockWidget->wholePeakSet();
+            _tableDockWidget->treeWidget->selectAll();
+        }
+        else if(export_option=="Export Bad"){
+            _tableDockWidget->badPeakSet();
+            _tableDockWidget->treeWidget->selectAll();
+        }
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
+        _loadingDialog->statusLabel->setText("Preparing intensity file..");
+        QCoreApplication::processEvents();
+
+        QString peak_user_filename  = datetimestamp+"_Peak_table_" +user_filename;
+        qDebug()<<"peak_user_filename - "<<peak_user_filename;
+        _tableDockWidget->prepareDataForPolly(writable_temp_dir,export_format,peak_user_filename);
+        // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
+        mainwindow->ligandWidget->saveCompoundListToPolly(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven"+user_compound_DB_name,compound_db);
+
 }
 
+// void PollyElmavenInterfaceDialog::loadDataFromPolly()
+// {
+//     if (credentials.isEmpty()){
+//         call_login_form();
+//         return;
+//     }
+//     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
+//     QStringList filenames;
+//     QString db_file = comboBox_load_db->currentText();
+//     QString org_db_file = comboBox_organization_DBs->currentText();
+//     QString settings_file = comboBox_load_settings->currentText();
+//     filenames.append(org_db_file);
+//     filenames.append(settings_file);
+//     QStringList keys= projectnames_id.keys();
+//     QString projectname = comboBox_load_projects->currentText();
+//     QString ProjectId;
+//     for (int i=0; i < keys.size(); ++i){
+//         if (projectnames_id[keys.at(i)].toString()==projectname){
+//             ProjectId= keys.at(i);
+//         }
+//     }
+//     qDebug() << "valid credentials,loading data from polly now....\n\n";
+    
+//     QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
+//     QDir qdir(writable_temp_dir);
+//     if (!qdir.exists()){
+//         QDir().mkdir(writable_temp_dir);
+//         QDir qdir(writable_temp_dir);
+//     }
+    
+//     QStringList full_path_filenames;
+//     for (int i = 0; i < filenames.size(); ++i){
+//         QString tmp_filename = writable_temp_dir+QDir::separator()+filenames.at(i);;
+//         full_path_filenames.append(tmp_filename);
+//     }
+//     label_load_status->setText("Loading data in Elmaven..Please wait.");
+//     QCoreApplication::processEvents();
+//     QString load_status = _pollyIntegration->loadDataFromPolly(ProjectId,full_path_filenames);
+//     if (load_status=="project data loaded"){
+//         mainwindow->loadPollySettings(writable_temp_dir+QDir::separator()+settings_file);
+//         qDebug()<<"trying to load compound DB from Polly inside Elmaven now..";
+//         mainwindow->loadCompoundsFile(writable_temp_dir+QDir::separator()+org_db_file);
+//     }
+//     progressBar_load_project->setRange(0, 100);
+//     progressBar_load_project->setValue(100);
+//     bool status = qdir.removeRecursively();
+//     label_load_status->setText(load_status);
+//     QCoreApplication::processEvents();
+//     // QMessageBox msgBox(mainwindow);
+//     // msgBox.setText(load_status);
+//     // msgBox.exec();
+// }
+
 void PollyElmavenInterfaceDialog::cancel() {
+    use_advanced_settings = "no";
     close();   
 }
 
 void PollyElmavenInterfaceDialog::logout() {
+    use_advanced_settings = "no";
     _pollyIntegration->logout();
     credentials = QStringList();
     projectnames_id = QVariantMap();

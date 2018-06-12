@@ -68,12 +68,12 @@ void LoginForm::handleResults(QStringList results){
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
         _pollyelmaveninterfacedialog->startup_data_load();
         hide();
-        _pollyelmaveninterfacedialog->exec();
+        _pollyelmaveninterfacedialog->show();
         
     }
     else if(status_inside=="error"){
         ui->login_label->setStyleSheet("QLabel {color : red; }");
-        ui->login_label->setText("Please check your internet connection");
+        ui->login_label->setText("Please check your internet");
         ui->pushButton->setEnabled(true);
     }
     else {
