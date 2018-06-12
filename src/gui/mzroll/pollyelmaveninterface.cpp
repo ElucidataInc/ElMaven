@@ -302,7 +302,8 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
     upload_status->setText("Sending files to Polly..");
     QCoreApplication::processEvents();
-    if (new_projectname==""){
+    if (comboBox_existing_projects->isEnabled()){
+
         QStringList keys= projectnames_id.keys();
         for (int i=0; i < keys.size(); ++i){
             if (projectnames_id[keys.at(i)].toString()==projectname){
@@ -314,17 +315,33 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             upload_project_id = project_id;
         }
         else{
-            QString msg = "Invalid new project name";
+            QString msg = "No such project on polly..";
             QMessageBox msgBox(mainwindow);
             msgBox.setWindowTitle("Warning!!");
             msgBox.setText(msg);
             msgBox.exec();
         }
         }
-    else{
+    else if (lineEdit_new_project_name->isEnabled()){
+        if (new_projectname==""){
+            QString msg = "Invalid new project name";
+            QMessageBox msgBox(mainwindow);
+            msgBox.setWindowTitle("Warning!!");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return "";
+        }
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
         patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);   
         upload_project_id = new_project_id;    
+    }
+    else{
+        QString msg = "Please select at least one option";
+        QMessageBox msgBox(mainwindow);
+        msgBox.setWindowTitle("Warning!!");
+        msgBox.setText(msg);
+        msgBox.exec();
+        return "";
     }
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
