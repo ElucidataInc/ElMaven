@@ -150,7 +150,7 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
 }
 
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
-    lineEdit_new_project_name->setEnabled(false);
+    lineEdit_new_project_name->setEnabled(true);
     comboBox_existing_projects->setEnabled(false);
     // label_welcome_load->setStyleSheet("QLabel {color : green; }");
     // label_welcome_load->setText("Welcome back "+credentials.at(0));
