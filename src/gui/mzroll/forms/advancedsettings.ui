@@ -30,7 +30,7 @@
      </property>
      <widget class="QWidget" name="advanced_options">
       <attribute name="title">
-       <string>Advanced settings</string>
+       <string>Advanced Settings</string>
       </attribute>
       <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
@@ -75,7 +75,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>export options</string>
+          <string>Export Options</string>
          </property>
         </widget>
         <widget class="QComboBox" name="comboBox_export_table">
@@ -121,7 +121,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>upload name</string>
+          <string>File name</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_filename">
@@ -139,12 +139,12 @@
           <rect>
            <x>70</x>
            <y>10</y>
-           <width>241</width>
+           <width>281</width>
            <height>17</height>
           </rect>
          </property>
          <property name="text">
-          <string>Advanced Export options for peaks</string>
+          <string>Advanced Export Options For Peak Table</string>
          </property>
         </widget>
        </widget>
@@ -184,12 +184,12 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>151</width>
+           <width>191</width>
            <height>17</height>
           </rect>
          </property>
          <property name="text">
-          <string>Select Compound DB</string>
+          <string>Select Compound Database</string>
          </property>
         </widget>
         <widget class="QComboBox" name="comboBox_compound_db">
@@ -212,7 +212,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>upload name</string>
+          <string>File name</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_compound_DB_name">
@@ -249,7 +249,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Advanced peak table export options</string>
+         <string>Peak Table Export</string>
         </property>
        </widget>
       </widget>
