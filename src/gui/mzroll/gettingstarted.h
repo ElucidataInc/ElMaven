@@ -18,8 +18,13 @@ public:
     ~GettingStarted();
     bool showDialog();
 
+public Q_SLOTS:
+    void setFlag();
+
 private:
     Ui::GettingStarted *ui;
+    QString settingsPath1;
+    QString settingsPath;
     
 };
 

@@ -104,6 +104,19 @@ p, li { white-space: pre-wrap; }
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>500</y>
+     <width>181</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string> Don't show this again.</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
