@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>501</width>
-    <height>417</height>
+    <width>409</width>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>60</y>
+     <x>80</x>
+     <y>30</y>
      <width>241</width>
      <height>211</height>
     </rect>
@@ -32,8 +32,8 @@
   <widget class="QLabel" name="statusLabel">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>310</y>
+     <x>110</x>
+     <y>290</y>
      <width>181</width>
      <height>17</height>
     </rect>
