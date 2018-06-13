@@ -10,6 +10,8 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         setupUi(this);
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
+        pollyButton->setVisible(false);
+        connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -43,6 +45,11 @@ EPIWorkerThread::~EPIWorkerThread()
 {
     if (_pollyintegration) delete (_pollyintegration);
 };
+
+void PollyElmavenInterfaceDialog::goToPolly()
+{
+    QDesktopServices::openUrl(QUrl("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview"));
+}
 
 void PollyElmavenInterfaceDialog::handle_new_project_radio_button(){
     lineEdit_new_project_name->setEnabled(true);
@@ -241,6 +248,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             msgBox.setWindowTitle("Error");
             msgBox.setText(msg);
             msgBox.exec();
+            upload_status->setText("");
             return "";
         }
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
@@ -253,22 +261,14 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.setWindowTitle("Error");
         msgBox.setText(msg);
         msgBox.exec();
+        upload_status->setText("");
         return "";
     }
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
-        upload_status->setText("Done");
-        QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
-        qDebug()<<"redirection_url     - "<<redirection_url;
-        
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Files uploaded");
-        msgBox.setTextFormat(Qt::RichText);
-        msgBox.setStyleSheet("font: 14pt;");
-        msgBox.setText(redirection_url);
-        msgBox.setTextInteractionFlags(Qt::TextBrowserInteraction);
-        msgBox.exec();
+        upload_status->setText("");
+        pollyButton->setVisible(true);
         return "";
     }
     else{
@@ -279,6 +279,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.setWindowTitle("Warning!!");
         msgBox.setText(msg);
         msgBox.exec();
+        upload_status->setText("");
         return "";
     }
 }

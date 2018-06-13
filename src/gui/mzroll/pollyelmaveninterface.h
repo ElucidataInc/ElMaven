@@ -72,6 +72,9 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 */
                 LoginForm* _loginform;
 
+        private Q_SLOTS:
+                void goToPolly();
+        
         public Q_SLOTS:
                 /**
                  * @brief This function prepares all the files that are to be uploaded..
