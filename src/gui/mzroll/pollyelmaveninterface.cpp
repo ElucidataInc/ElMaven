@@ -227,18 +227,18 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             upload_project_id = project_id;
         }
         else{
-            QString msg = "No such project on polly..";
+            QString msg = "No such project on Polly..";
             QMessageBox msgBox(mainwindow);
-            msgBox.setWindowTitle("Warning!!");
+            msgBox.setWindowTitle("Error");
             msgBox.setText(msg);
             msgBox.exec();
         }
         }
     else if (lineEdit_new_project_name->isEnabled()){
         if (new_projectname==""){
-            QString msg = "Invalid new project name";
+            QString msg = "Invalid Project name";
             QMessageBox msgBox(mainwindow);
-            msgBox.setWindowTitle("Warning!!");
+            msgBox.setWindowTitle("Error");
             msgBox.setText(msg);
             msgBox.exec();
             return "";
@@ -250,7 +250,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     else{
         QString msg = "Please select at least one option";
         QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Warning!!");
+        msgBox.setWindowTitle("Error");
         msgBox.setText(msg);
         msgBox.exec();
         return "";
@@ -263,7 +263,7 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         qDebug()<<"redirection_url     - "<<redirection_url;
         
         QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Uploaded!");
+        msgBox.setWindowTitle("Files uploaded");
         msgBox.setTextFormat(Qt::RichText);
         msgBox.setStyleSheet("font: 14pt;");
         msgBox.setText(redirection_url);
@@ -303,7 +303,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
     else{
         QString msg = "No Peak tables";
         QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Warning!!");
+        msgBox.setWindowTitle("Error");
         msgBox.setText(msg);
         msgBox.exec();
         return filenames;
