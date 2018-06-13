@@ -8,10 +8,10 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
-Aligner::Aligner() {
-       maxItterations=10;
-       polynomialDegree=3;
-}
+// Aligner::Aligner() {
+//        maxItterations=10;
+//        polynomialDegree=3;
+// }
 
 void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
 
@@ -137,176 +137,176 @@ void Aligner::updateRts(QJsonObject &parentObj)
 
 }
 
-void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
-	if (peakgroups.size() == 0) return;
+// void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
+// 	if (peakgroups.size() == 0) return;
 
-	//store groups into private variable
-	allgroups = peakgroups;
+// 	//store groups into private variable
+// 	allgroups = peakgroups;
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
-		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
-			Peak peak = grp->getPeaks().at(jj);
-			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
-		}
-	}
-
-
-	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
-	samples.clear();
-
-    samples.clear();
-	set<mzSample*> samplesSet;
-	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-			for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-					Peak& p = peakgroups[i]->peaks[j];
-					mzSample* sample = p.getSample();
-					if (sample) samplesSet.insert(sample);
-			}
-	}
-
-	//unique list of samples
-	samples.resize(samplesSet.size());
-	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
-
-    for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
-    }
-
-	 saveFit();
-	 double R2_before = checkFit();
+// 	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+// 		PeakGroup* grp = allgroups.at(ii);
+// 		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+// 			Peak peak = grp->getPeaks().at(jj);
+// 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
+// 		}
+// 	}
 
 
-     cerr << "Max Itterations: " << maxItterations << endl;
-     for(int iter=0; iter < maxItterations; iter++) {
-		 cerr << iter << endl;
+// 	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
+// 	samples.clear();
 
-       PolyFit(polynomialDegree);
-        double R2_after = checkFit();
-        cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
+//     samples.clear();
+// 	set<mzSample*> samplesSet;
+// 	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
+// 			for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
+// 					Peak& p = peakgroups[i]->peaks[j];
+// 					mzSample* sample = p.getSample();
+// 					if (sample) samplesSet.insert(sample);
+// 			}
+// 	}
 
-		if (R2_after > R2_before) {
-            cerr << "done...restoring previous fit.." << endl;
-			restoreFit();
-			break;
-		} else {
-			saveFit();
-		}
-		R2_before = R2_after;
-	 }
+// 	//unique list of samples
+// 	samples.resize(samplesSet.size());
+// 	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
-		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
-			Peak peak = grp->getPeaks().at(jj);
-			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
-		}
+//     for(unsigned int i=0; i < samples.size(); i++ ) {
+//         samples[i]->saveOriginalRetentionTimes();
+//     }
 
-	}
-}
+// 	 saveFit();
+// 	 double R2_before = checkFit();
 
 
-void Aligner::saveFit() {
-	cerr << "saveFit()" << endl;
-	fit.clear();
-	fit.resize(samples.size());
-	for(unsigned int i=0; i < samples.size(); i++ ) {
-		fit[i].resize(samples[i]->scans.size());
-		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
-			fit[i][ii]=samples[i]->scans[ii]->rt;
-		}
-	}
-}
+//      cerr << "Max Itterations: " << maxItterations << endl;
+//      for(int iter=0; iter < maxItterations; iter++) {
+// 		 cerr << iter << endl;
 
-void Aligner::restoreFit() {
-	cerr << "restoreFit() " << endl;
-	for(unsigned int i=0; i < samples.size(); i++ ) {
-		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
-			samples[i]->scans[ii]->rt = fit[i][ii];
-		}
-	}
-}
-vector<double> Aligner::groupMeanRt() {
-		//find retention time deviation
-		vector<double> groupRt(allgroups.size());
-		for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
-		return(groupRt);
-}
+//        PolyFit(polynomialDegree);
+//         double R2_after = checkFit();
+//         cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
 
-double Aligner::checkFit() { 
-	vector<double> groupRt  = groupMeanRt();
+// 		if (R2_after > R2_before) {
+//             cerr << "done...restoring previous fit.." << endl;
+// 			restoreFit();
+// 			break;
+// 		} else {
+// 			saveFit();
+// 		}
+// 		R2_before = R2_after;
+// 	 }
 
-	double sumR2=0;
-	for(unsigned int i=0; i < allgroups.size(); i++ ) {
-		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
-			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
-		}
-	}
-	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
-	return sumR2;
-}
+// 	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+// 		PeakGroup* grp = allgroups.at(ii);
+// 		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+// 			Peak peak = grp->getPeaks().at(jj);
+// 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
+// 		}
 
-void Aligner::PolyFit(int poly_align_degree) {
+// 	}
+// }
 
-	if (allgroups.size() < 2 ) return;
-	cerr << "Align: " << allgroups.size() << endl;
 
-	vector<double> allGroupsMeansRt  = groupMeanRt();
+// void Aligner::saveFit() {
+// 	cerr << "saveFit()" << endl;
+// 	fit.clear();
+// 	fit.resize(samples.size());
+// 	for(unsigned int i=0; i < samples.size(); i++ ) {
+// 		fit[i].resize(samples[i]->scans.size());
+// 		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+// 			fit[i][ii]=samples[i]->scans[ii]->rt;
+// 		}
+// 	}
+// }
 
-	for (unsigned int s=0; s < samples.size(); s++ ) {
-			mzSample* sample = samples[s];
-			if (sample == NULL) continue;
+// void Aligner::restoreFit() {
+// 	cerr << "restoreFit() " << endl;
+// 	for(unsigned int i=0; i < samples.size(); i++ ) {
+// 		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+// 			samples[i]->scans[ii]->rt = fit[i][ii];
+// 		}
+// 	}
+// }
+// vector<double> Aligner::groupMeanRt() {
+// 		//find retention time deviation
+// 		vector<double> groupRt(allgroups.size());
+// 		for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
+// 		return(groupRt);
+// }
 
-			StatisticsVector<float>subj;
-			StatisticsVector<float>ref;
-			int n=0;
+// double Aligner::checkFit() { 
+// 	vector<double> groupRt  = groupMeanRt();
 
-            map<int,int>duplicates;
-			for(unsigned int j=0; j < allgroups.size(); j++ ) {
-				Peak* p = allgroups[j]->getPeak(sample);
-				if (!p) continue;
-                if (!p || p->rt <= 0 || allGroupsMeansRt[j] <=0 ) continue;
+// 	double sumR2=0;
+// 	for(unsigned int i=0; i < allgroups.size(); i++ ) {
+// 		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
+// 			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
+// 		}
+// 	}
+// 	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
+// 	return sumR2;
+// }
 
-                int intTime = (int) p->rt*100;
-                duplicates[intTime]++;
-                if ( duplicates[intTime] > 5 ) continue;
+// void Aligner::PolyFit(int poly_align_degree) {
 
-                ref.push_back(allGroupsMeansRt[j]);
-				subj.push_back(p->rt);
-				n++; 
-			}
-			if ( n < 10 ) continue;
+// 	if (allgroups.size() < 2 ) return;
+// 	cerr << "Align: " << allgroups.size() << endl;
 
-			PolyAligner polyAligner(subj,ref);
-            AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
+// 	vector<double> allGroupsMeansRt  = groupMeanRt();
 
-			sampleDegree[sample] = stats->poly_align_degree;
-			sampleCoefficient[sample] = stats->getCoeffients();
+// 	for (unsigned int s=0; s < samples.size(); s++ ) {
+// 			mzSample* sample = samples[s];
+// 			if (sample == NULL) continue;
 
-           if (stats->transformImproved()) {
+// 			StatisticsVector<float>subj;
+// 			StatisticsVector<float>ref;
+// 			int n=0;
 
-                bool failedTransformation=false;
-                for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
-                    double newrt =  stats->predict(sample->scans[ii]->rt);
-                    if (std::isnan(newrt) || std::isinf(newrt))  failedTransformation = true;
-                    break;
-                }
+//             map<int,int>duplicates;
+// 			for(unsigned int j=0; j < allgroups.size(); j++ ) {
+// 				Peak* p = allgroups[j]->getPeak(sample);
+// 				if (!p) continue;
+//                 if (!p || p->rt <= 0 || allGroupsMeansRt[j] <=0 ) continue;
 
-                if (!failedTransformation) {
-                    for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
-                        sample->scans[ii]->rt = stats->predict(sample->scans[ii]->rt);
-                    }
+//                 int intTime = (int) p->rt*100;
+//                 duplicates[intTime]++;
+//                 if ( duplicates[intTime] > 5 ) continue;
 
-                    for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
-                        Peak* p = allgroups[ii]->getPeak(sample);
-                        if (p)  p->rt = stats->predict(p->rt);
-                    }
-                }
-            } else 	{
-                cerr << "APPLYTING TRANSFORM FAILED! " << endl;
-            }
-    }
-}
+//                 ref.push_back(allGroupsMeansRt[j]);
+// 				subj.push_back(p->rt);
+// 				n++; 
+// 			}
+// 			if ( n < 10 ) continue;
+
+// 			PolyAligner polyAligner(subj,ref);
+//             AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
+
+// 			sampleDegree[sample] = stats->poly_align_degree;
+// 			sampleCoefficient[sample] = stats->getCoeffients();
+
+//            if (stats->transformImproved()) {
+
+//                 bool failedTransformation=false;
+//                 for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+//                     double newrt =  stats->predict(sample->scans[ii]->rt);
+//                     if (std::isnan(newrt) || std::isinf(newrt))  failedTransformation = true;
+//                     break;
+//                 }
+
+//                 if (!failedTransformation) {
+//                     for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+//                         sample->scans[ii]->rt = stats->predict(sample->scans[ii]->rt);
+//                     }
+
+//                     for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
+//                         Peak* p = allgroups[ii]->getPeak(sample);
+//                         if (p)  p->rt = stats->predict(p->rt);
+//                     }
+//                 }
+//             } else 	{
+//                 cerr << "APPLYTING TRANSFORM FAILED! " << endl;
+//             }
+//     }
+// }
 
 void Aligner::Fit(int ideg) {
 
@@ -534,4 +534,181 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
     delete obiWarp;
     cerr<<"Alignment complete"<<endl;    
     
+}
+
+
+
+
+
+
+// new mzAligner starts here
+
+PolyFit::PolyFit(vector<peakGroups*> &groups) {
+    setGroups(groups);
+    
+    maxIterations=10;
+    polynomialDegree=3;
+}
+
+void PolyFit::saveFit() {
+	cerr << "saveFit()" << endl;
+	fit.clear();
+	fit.resize(samples.size());
+	for(unsigned int i=0; i < samples.size(); i++ ) {
+		fit[i].resize(samples[i]->scans.size());
+		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+			fit[i][ii]=samples[i]->scans[ii]->rt;
+		}
+	}
+}
+
+double PolyFit::checkFit() { 
+	vector<double> groupRt  = groupMeanRt();
+
+	double sumR2=0;
+	for(unsigned int i=0; i < allgroups.size(); i++ ) {
+		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
+			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
+		}
+	}
+	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
+	return sumR2;
+}
+
+void PolyFit::polyFitAlgo() {
+    if (groups.size() == 0) return;
+
+
+	for (unsigned int ii=0; ii<groups.size();ii++) {
+		PeakGroup* grp = groups.at(ii);
+		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+			Peak peak = grp->getPeaks().at(jj);
+			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
+		}
+	}
+
+    samples.clear();
+
+    set<mzSample*> samplesSet;
+	
+    for (unsigned int i=0; i < peakgroups.size();  i++ ) {
+        for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
+                Peak& p = peakgroups[i]->peaks[j];
+                mzSample* sample = p.getSample();
+                if (sample) samplesSet.insert(sample);
+        }
+	}
+
+    samples.resize(samplesSet.size());
+	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
+
+    for(unsigned int i=0; i < samples.size(); i++ ) {
+        samples[i]->saveOriginalRetentionTimes();
+    }
+
+    saveFit();
+	double R2_before = checkFit();
+
+    cerr << "Max Itterations: " << maxIterations << endl;
+    for(int iter=0; iter < maxIterations; iter++) {
+        cerr << iter << endl;
+
+        /** polyfit algo starts **/ 
+        
+        polyFit(polynomialDegree);
+
+
+        /** polyfit algo ends **/
+
+        double R2_after = checkFit();
+        cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
+
+        if (R2_after > R2_before) {
+            cerr << "done...restoring previous fit.." << endl;
+            restoreFit();
+            break;
+        } else {
+            saveFit();
+        }
+        R2_before = R2_after;
+    }
+
+}
+
+void PolyFit::restoreFit() {
+	cerr << "restoreFit() " << endl;
+	for(unsigned int i=0; i < samples.size(); i++ ) {
+		for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+			samples[i]->scans[ii]->rt = fit[i][ii];
+		}
+	}
+}
+
+vector<double> Aligner::groupMeanRt() {
+    //find retention time deviation
+    vector<double> groupRt(allgroups.size());
+    for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
+    return(groupRt);
+}
+
+void PolyFit::polyFit(int poly_align_degree) {
+
+	if (groups.size() < 2 ) return;
+	cerr << "Align: " << allgroups.size() << endl;
+
+	vector<double> allGroupsMeansRt  = groupMeanRt();
+
+	for (unsigned int s=0; s < samples.size(); s++ ) {
+        mzSample* sample = samples[s];
+        if (sample == NULL) continue;
+
+        StatisticsVector<float>subj;
+        StatisticsVector<float>ref;
+        int n=0;
+
+        map<int,int>duplicates;
+        for(unsigned int j=0; j < allgroups.size(); j++ ) {
+            Peak* p = allgroups[j]->getPeak(sample);
+            if (!p) continue;
+            if (!p || p->rt <= 0 || allGroupsMeansRt[j] <=0 ) continue;
+
+            int intTime = (int) p->rt*100;
+            duplicates[intTime]++;
+            if ( duplicates[intTime] > 5 ) continue;
+
+            ref.push_back(allGroupsMeansRt[j]);
+            subj.push_back(p->rt);
+            n++; 
+        }
+        if ( n < 10 ) continue;
+
+        PolyAligner polyAligner(subj,ref);
+        AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
+
+        sampleDegree[sample] = stats->poly_align_degree;
+        sampleCoefficient[sample] = stats->getCoeffients();
+
+        if (stats->transformImproved()) {
+
+            bool failedTransformation=false;
+            for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+                double newrt =  stats->predict(sample->scans[ii]->rt);
+                if (std::isnan(newrt) || std::isinf(newrt))  failedTransformation = true;
+                break;
+            }
+
+            if (!failedTransformation) {
+                for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+                    sample->scans[ii]->rt = stats->predict(sample->scans[ii]->rt);
+                }
+
+                for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
+                    Peak* p = allgroups[ii]->getPeak(sample);
+                    if (p)  p->rt = stats->predict(p->rt);
+                }
+            }
+        } else 	{
+            cerr << "APPLYTING TRANSFORM FAILED! " << endl;
+        }
+    }
 }
