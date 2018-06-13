@@ -11,6 +11,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
         pollyButton->setVisible(false);
+        
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
@@ -151,6 +152,8 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     lineEdit_new_project_name->setEnabled(true);
     comboBox_existing_projects->setEnabled(false);
+    new_project_radio_button->setChecked(true);
+    existing_project_radio_button->setChecked(false);
     comboBox_table_name->clear();
     comboBox_existing_projects->clear();
     QCoreApplication::processEvents();

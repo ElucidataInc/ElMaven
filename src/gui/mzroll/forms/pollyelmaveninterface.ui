@@ -158,10 +158,23 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
+     <item row="5" column="2" alignment="Qt::AlignRight">
+      <widget class="QPushButton" name="computeButton_upload">
+       <property name="text">
+        <string>Upload</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="2">
       <widget class="QComboBox" name="comboBox_existing_projects">
        <property name="enabled">
         <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>146</width>
+         <height>0</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -226,6 +239,12 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>146</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="placeholderText">
         <string>Enter Project Name</string>
        </property>
@@ -277,17 +296,37 @@
        </property>
       </spacer>
      </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="upload_status">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="cancelButton_upload">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="upload_status">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <spacer name="horizontalSpacer_14">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="pollyButton">
        <property name="text">
@@ -307,20 +346,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="computeButton_upload">
-       <property name="text">
-        <string>Upload</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton_upload">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
