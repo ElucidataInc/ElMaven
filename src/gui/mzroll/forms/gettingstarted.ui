@@ -80,17 +80,27 @@ p, li { white-space: pre-wrap; }
     <string> Don't show this again.</string>
    </property>
   </widget>
+  <widget class="QTextBrowser" name="textBrowser_2">
+   <property name="geometry">
+    <rect>
+     <x>35</x>
+     <y>21</y>
+     <width>371</width>
+     <height>261</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>30</x>
      <y>10</y>
      <width>381</width>
      <height>281</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/images/GettingStartedpic.png&quot;  height=&quot;275&quot; width=&quot;375&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/images/GettingStartedpic.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
