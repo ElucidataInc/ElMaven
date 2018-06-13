@@ -762,9 +762,7 @@ void EicWidget::addBaseLine(EIC* eic) {
         line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->baseline[j])));
     }
 
-    if (baselineSum == 0) {
-        return;
-    }
+    if (baselineSum == 0) return;
 
     QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 1 );
     line->setColor(color);
