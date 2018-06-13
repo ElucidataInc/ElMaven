@@ -354,7 +354,7 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
-	ligandWidget->setVisible(false);
+	ligandWidget->setVisible(true);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 	adductWidget->setVisible(false);
@@ -372,7 +372,7 @@ using namespace mzUtils;
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
 	galleryDockWidget->setVisible(false);
-	projectDockWidget->setVisible(false);
+	projectDockWidget->setVisible(true);
 	logWidget->setVisible(false);
 	// rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
