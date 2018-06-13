@@ -81,10 +81,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 				mavenParameters->pullIsotopesFlag = 0;
 				int label = 0;
 				label = atoi(optarg);
-				mavenParameters->C13Labeled_BPE = false;
-				mavenParameters->S34Labeled_BPE = false;
-				mavenParameters->N15Labeled_BPE = false;
-				mavenParameters->D2Labeled_BPE  = false;
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
@@ -334,10 +330,6 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 				mavenParameters->pullIsotopesFlag = 0;
 				int label = 0;
 				label = atoi(node.attribute("value").value());
-				mavenParameters->C13Labeled_BPE = false;
-				mavenParameters->S34Labeled_BPE = false;
-				mavenParameters->N15Labeled_BPE = false;
-				mavenParameters->D2Labeled_BPE  = false;
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
@@ -620,10 +612,6 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	
 	//Trying to upload to polly now..
 	if (uploadToPolly_bool){
-		mavenParameters->C13Labeled_BPE = true;
-		mavenParameters->S34Labeled_BPE = false;
-		mavenParameters->N15Labeled_BPE = false;
-		mavenParameters->D2Labeled_BPE  = false;
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		mavenParameters->outputdir = "";
 		cout<<"uploding to polly now.."<<endl;
