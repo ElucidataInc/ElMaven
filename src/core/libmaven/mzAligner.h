@@ -17,7 +17,7 @@ using namespace std;
 class Aligner {
    public:
     // Aligner();
-    void preProcessing(vector<PeakGroup*>& peakgroups,bool alignWrtExpectedRt);
+    // void preProcessing(vector<PeakGroup*>& peakgroups,bool alignWrtExpectedRt);
     // void doAlignment(vector<PeakGroup*>& peakgroups);
     // vector<double> groupMeanRt();
     // double checkFit();
@@ -40,12 +40,12 @@ class Aligner {
     map<mzSample*, int> sampleDegree;
     map<mzSample*, vector<double> > sampleCoefficient;
 
-    void updateRts(QJsonObject& parentObj);
-    void updateSampleRts(QJsonObject& sampleRts);
-    void updateGroupsRts(QJsonObject& groupsRts);
+    // void updateRts(QJsonObject& parentObj);
+    // void updateSampleRts(QJsonObject& sampleRts);
+    // void updateGroupsRts(QJsonObject& groupsRts);
 
-    QJsonObject groupsJson;
-    QJsonObject rtsJson;
+    // QJsonObject groupsJson;
+    // QJsonObject rtsJson;
 
 
 //    private:
@@ -55,6 +55,10 @@ class Aligner {
 
 };
 
+
+// new aligner starts here
+
+
 class Aligner {
     public:
         Aligner();
@@ -63,23 +67,20 @@ class Aligner {
 
     private:
         vector<PeakGroup*> groups;
+        map<pair<string, string>, double> deltaRt;
+
         vector<double> groupMeanRt();
-}
+};
 
 class PolyFit : public Aligner {
     public:
         PolyFit(vector<peakGroup*> group);
         void polyFitAlgo();
 	   
-        
-
-
-
     private:
         int maxIterations;
         int polynomialDegree;
 
-        map<pair<string, string>, double> deltaRt;
         vector<mzSample*> samples;
         vector<vector<float> > fit;
 
@@ -90,17 +91,26 @@ class PolyFit : public Aligner {
         double checkFit();
         void restoreFit();
 
-        map<pair<string,string>, double> getDeltaRt() { return deltaRt; }
+        // map<pair<string,string>, double> getDeltaRt() { return deltaRt; }
 
 
-}
+};
+
+
 
 class LoessFit : public Aligner {
     public:
-
+        LoessFit(vector<peakGroup*> x, bool y) { groups = new (x); alignWrtExpectedRt = y; pythonProg = new QProcess(); };
         void loessFit();
     private:
+        QProcess* pythonProg;
+        QJsonObject groupsJson;
+        QJsonObject rtsJson;
+
+        bool alignWrtExpectedRt;
+
         void preProcessing();
+        void runPythonProg();
         // other helper functions
 }
 
@@ -110,7 +120,7 @@ class ObiWarp : public Aligner {
     private:
         void preProcessing();
         // other helper functions
-}
+};
 
 
 #endif
