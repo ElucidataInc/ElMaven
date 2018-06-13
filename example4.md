@@ -132,7 +132,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/zdqfjhx0f678z2p/El-Maven-v0.2.4.zip?dl=1' style='display:hidden' id='mac_0.2.4'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4')" data-target="modal1" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4')" data-target="modal3" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
