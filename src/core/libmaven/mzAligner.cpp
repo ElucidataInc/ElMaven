@@ -13,67 +13,67 @@
 //        polynomialDegree=3;
 // }
 
-void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
+// void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
 
-    if (peakgroups.size() == 0) return;
+//     if (peakgroups.size() == 0) return;
     
-    allgroups = peakgroups;
+//     allgroups = peakgroups;
 
-    groupsJson = QJsonObject();
-    rtsJson = QJsonObject();
+//     groupsJson = QJsonObject();
+//     rtsJson = QJsonObject();
 
-    for (unsigned int ii=0; ii<allgroups.size();ii++) {
-        PeakGroup* grp = allgroups.at(ii);
-        QJsonArray jArr;
+//     for (unsigned int ii=0; ii<allgroups.size();ii++) {
+//         PeakGroup* grp = allgroups.at(ii);
+//         QJsonArray jArr;
 
-        QJsonObject expectedRtObj;
-        QString expectedRtKey="expectedRt";
-        if(alignWrtExpectedRt && grp->compound!=NULL){
-            expectedRtObj.insert(expectedRtKey,grp->compound->expectedRt);
-        }
-        else{
-            expectedRtObj.insert(expectedRtKey,-1);
-        }
-        jArr.push_back(QJsonValue(expectedRtObj));
+//         QJsonObject expectedRtObj;
+//         QString expectedRtKey="expectedRt";
+//         if(alignWrtExpectedRt && grp->compound!=NULL){
+//             expectedRtObj.insert(expectedRtKey,grp->compound->expectedRt);
+//         }
+//         else{
+//             expectedRtObj.insert(expectedRtKey,-1);
+//         }
+//         jArr.push_back(QJsonValue(expectedRtObj));
 
-        for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
-            Peak peak = grp->getPeaks().at(jj);
-            deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
+//         for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+//             Peak peak = grp->getPeaks().at(jj);
+//             deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
 
-            QJsonObject obj;
-            obj.insert(QString(peak.getSample()->getSampleName().c_str()), peak.rt);
-            jArr.push_back(QJsonValue(obj));
+//             QJsonObject obj;
+//             obj.insert(QString(peak.getSample()->getSampleName().c_str()), peak.rt);
+//             jArr.push_back(QJsonValue(obj));
 
-        }
-        // group name and group number makes the key unique, hence this is important
-        QString key = QString(grp->getName().c_str()) + QString("_") +  QString::number(ii);
-        key.replace(" ", "");
-        groupsJson.insert(key, QJsonValue(jArr));
-    }
+//         }
+//         // group name and group number makes the key unique, hence this is important
+//         QString key = QString(grp->getName().c_str()) + QString("_") +  QString::number(ii);
+//         key.replace(" ", "");
+//         groupsJson.insert(key, QJsonValue(jArr));
+//     }
     
-    samples.clear();
-    set<mzSample*> samplesSet;
-    for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-        for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-            Peak& p = peakgroups[i]->peaks[j];
-            mzSample* sample = p.getSample();
-            if (sample) samplesSet.insert(sample);
-        }
-    }
+//     samples.clear();
+//     set<mzSample*> samplesSet;
+//     for (unsigned int i=0; i < peakgroups.size();  i++ ) {
+//         for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
+//             Peak& p = peakgroups[i]->peaks[j];
+//             mzSample* sample = p.getSample();
+//             if (sample) samplesSet.insert(sample);
+//         }
+//     }
 
-    samples.resize(samplesSet.size());
-    copy(samplesSet.begin(), samplesSet.end(),samples.begin());        
+//     samples.resize(samplesSet.size());
+//     copy(samplesSet.begin(), samplesSet.end(),samples.begin());        
 	
-    for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
-        QJsonArray jArr;
-        for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
-            jArr.push_back(samples[i]->scans[ii]->rt);
-        }
-        rtsJson.insert(QString(samples[i]->getSampleName().c_str()), jArr);
-    }
-    return;
-}
+//     for(unsigned int i=0; i < samples.size(); i++ ) {
+//         samples[i]->saveOriginalRetentionTimes();
+//         QJsonArray jArr;
+//         for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
+//             jArr.push_back(samples[i]->scans[ii]->rt);
+//         }
+//         rtsJson.insert(QString(samples[i]->getSampleName().c_str()), jArr);
+//     }
+//     return;
+// }
 
 // void Aligner::updateSampleRts(QJsonObject &sampleRts)
 // {
@@ -453,88 +453,88 @@ void Aligner::Fit(int ideg) {
 	delete[] c;
 	delete[] d;
 }
-void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
+// void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
 
-    vector<float> rtPoints(sample->scans.size());
-    vector<vector<float> > mxn(sample->scans.size());
-    for(int j = 0; j < sample->scans.size(); ++j){
-        rtPoints[j] = sample->scans[j]->originalRt;
-        mxn[j] = vector<float> (mzPoints.size());
-    }
+//     vector<float> rtPoints(sample->scans.size());
+//     vector<vector<float> > mxn(sample->scans.size());
+//     for(int j = 0; j < sample->scans.size(); ++j){
+//         rtPoints[j] = sample->scans[j]->originalRt;
+//         mxn[j] = vector<float> (mzPoints.size());
+//     }
 
-    for(int j=0;j<sample->scans.size();++j){
-            for(int k=0;k<sample->scans[j]->mz.size();++k){
-                if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
-                    continue;
-                int index = upper_bound( mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k] )
-                                - mzPoints.begin() -1;
+//     for(int j=0;j<sample->scans.size();++j){
+//             for(int k=0;k<sample->scans[j]->mz.size();++k){
+//                 if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
+//                     continue;
+//                 int index = upper_bound( mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k] )
+//                                 - mzPoints.begin() -1;
 
-                mxn[j][index] =  max(mxn[j][index] , sample->scans[j]->intensity[k]);
+//                 mxn[j][index] =  max(mxn[j][index] , sample->scans[j]->intensity[k]);
 
-            }
-    }
+//             }
+//     }
     
-    if(setAsReference)
-        obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
-    else{
-        rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
-        for(int j = 0; j < sample->scans.size(); ++j)
-            sample->scans[j]->rt = rtPoints[j];
-    }
-}
+//     if(setAsReference)
+//         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
+//     else{
+//         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
+//         for(int j = 0; j < sample->scans.size(); ++j)
+//             sample->scans[j]->rt = rtPoints[j];
+//     }
+// }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,int referenceSampleIndex){
-    std::cerr<<"Aligning Sample Retention times..."<<std::endl;
+// void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,int referenceSampleIndex){
+//     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
-    if(referenceSampleIndex < 0){
-        /**
-         * currently reference sample is choosen randomly,
-         * TODO: give user options to choose reference sample and pass index of
-         * that sample as referenceSampleIndex
-         */
-        srand(time(NULL));
-        referenceSampleIndex = rand()%samples.size();
-    }
-    assert(referenceSampleIndex < samples.size());
+//     if(referenceSampleIndex < 0){
+//         /**
+//          * currently reference sample is choosen randomly,
+//          * TODO: give user options to choose reference sample and pass index of
+//          * that sample as referenceSampleIndex
+//          */
+//         srand(time(NULL));
+//         referenceSampleIndex = rand()%samples.size();
+//     }
+//     assert(referenceSampleIndex < samples.size());
 
-    ObiWarp* obiWarp = new ObiWarp(obiParams);
+//     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
-    float binSize = obiParams->binSize;
-    float minMzRange = 1e9;
-    float maxMzRange = 0;
+//     float binSize = obiParams->binSize;
+//     float minMzRange = 1e9;
+//     float maxMzRange = 0;
     
-    mzSample* referenceSample = samples[referenceSampleIndex];
-    for(int j=0;j<referenceSample->scans.size();++j){
-            for(int k=0;k<referenceSample->scans[j]->mz.size();++k){
-                minMzRange = min ( minMzRange, referenceSample->scans[j]->mz[k] );
-                maxMzRange = max ( maxMzRange, referenceSample->scans[j]->mz[k] );
-            }
-    }
+//     mzSample* referenceSample = samples[referenceSampleIndex];
+//     for(int j=0;j<referenceSample->scans.size();++j){
+//             for(int k=0;k<referenceSample->scans[j]->mz.size();++k){
+//                 minMzRange = min ( minMzRange, referenceSample->scans[j]->mz[k] );
+//                 maxMzRange = max ( maxMzRange, referenceSample->scans[j]->mz[k] );
+//             }
+//     }
 
-    maxMzRange += 10;
-    minMzRange -= 10;
-    if(minMzRange < 0.f)
-        minMzRange = 0.f;
-    minMzRange = floor(minMzRange);
-    maxMzRange = ceil(maxMzRange);
+//     maxMzRange += 10;
+//     minMzRange -= 10;
+//     if(minMzRange < 0.f)
+//         minMzRange = 0.f;
+//     minMzRange = floor(minMzRange);
+//     maxMzRange = ceil(maxMzRange);
 
-    vector<float> mzPoints;
-    for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
-        mzPoints.push_back(bin);
+//     vector<float> mzPoints;
+//     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
+//         mzPoints.push_back(bin);
 
-    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
+//     alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
 
-    for(int i=0 ; i < samples.size();++i){
-        cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
-        if(i == referenceSampleIndex)
-            continue;
-        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
-    }
+//     for(int i=0 ; i < samples.size();++i){
+//         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
+//         if(i == referenceSampleIndex)
+//             continue;
+//         alignSampleRts(samples[i], mzPoints, *obiWarp, false);
+//     }
     
-    delete obiWarp;
-    cerr<<"Alignment complete"<<endl;    
+//     delete obiWarp;
+//     cerr<<"Alignment complete"<<endl;    
     
-}
+// }
 
 
 
@@ -937,4 +937,194 @@ void LoessFit::preProcessing() {
         rtsJson.insert(QString(samples[i]->getSampleName().c_str()), jArr);
     }
     return;
+}
+
+// obiwarp
+
+void ObiWarp::alignSampleRts(mzSample* sample, vector<float> &mzPoints, bool setAsReference){
+
+    vector<float> rtPoints(sample->scans.size());
+    vector<vector<float> > mxn(sample->scans.size());
+    for(int j = 0; j < sample->scans.size(); ++j){
+        rtPoints[j] = sample->scans[j]->originalRt;
+        mxn[j] = vector<float> (mzPoints.size());
+    }
+
+    for(int j=0;j<sample->scans.size();++j){
+        for(int k=0;k<sample->scans[j]->mz.size();++k){
+            if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
+                continue;
+            int index = upper_bound( mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k] ) - mzPoints.begin() -1;
+
+            mxn[j][index] =  max(mxn[j][index] , sample->scans[j]->intensity[k]);
+
+        }
+    }
+    
+    if(setAsReference)
+        setReferenceData(rtPoints, mzPoints, mxn);
+    else{
+        rtPoints = align(rtPoints, mzPoints, mxn);
+        for(int j = 0; j < sample->scans.size(); ++j)
+            sample->scans[j]->rt = rtPoints[j];
+    }
+}
+
+void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
+    _tm_vals = rtPoints.size();
+    tmPoint = new float[_tm_vals];
+    for(int i=0; i < _tm_vals ; ++i)
+        tmPoint[i] = rtPoints[i];
+    _tm.take(_tm_vals, tmPoint);
+
+    _mz_vals = mzPoints.size();
+    mzPoint = new float[_mz_vals];
+    for(int i = 0; i < _mz_vals; ++i)
+        mzPoint[i] = mzPoints[i];
+    _mz.take(_mz_vals, mzPoint);
+
+    assert(_tm_vals == intMat.size());
+    MatF mat(_tm_vals, _mz_vals);
+    for(int i=0; i < _tm_vals; ++i){
+        assert(_mz_vals == intMat[i].size());
+        for(int j = 0; j < _mz_vals; ++j)
+            mat(i,j) = intMat[i][j];
+    }
+    _mat.take(mat);
+
+}
+
+vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
+    
+    VecF tm;
+    int tm_vals = rtPoints.size();
+    float* tmPoint = new float[tm_vals];
+    for(int i = 0; i < tm_vals; ++i)
+        tmPoint[i] = rtPoints[i];
+    tm.take(tm_vals, tmPoint);
+
+    VecF mz;
+    int mz_vals = mzPoints.size();
+    float* mzPoint = new float[mz_vals];
+    for(int i = 0; i < mz_vals; ++i)
+        mzPoint[i] = mzPoints[i];
+    mz.take(mz_vals, mzPoint);
+
+    assert(tm_vals = intMat.size());
+    MatF mat(tm_vals, mz_vals);
+    for(int i = 0; i < tm_vals; ++i){
+        assert(mz_vals == intMat[i].size());
+        for(int j = 0; j < mz_vals; ++j)
+            mat(i,j)=intMat[i][j];
+    }
+
+    MatF smat;
+    dyn.score(_mat, mat, smat, score);
+
+    if (!nostdnrm) {
+        if (!smat.all_equal()) { 
+            smat.std_normal();
+        }
+    }
+
+    int gp_length = smat.rows() + smat.cols();
+
+    VecF gp_array;
+    dyn.linear_less_before(gap_extend,gap_init,gp_length,gp_array);
+
+    int minimize = 0;
+    dyn.find_path(smat, gp_array, minimize, factor_diag, factor_gap, local, init_penalty);
+
+    VecI mOut;
+    VecI nOut;
+    dyn.warp_map(mOut, nOut, response, minimize);
+
+    VecF nOutF;
+    VecF mOutF;
+    tm_axis_vals(mOut, mOutF, _tm,_tm_vals);
+    tm_axis_vals(nOut, nOutF, tm,tm_vals); //
+    warp_tm(nOutF, mOutF, tm);
+    
+    vector<float> alignedRts;
+    float* rts = tm.pointer();
+    for(int i = 0; i < tm_vals; ++i)
+        alignedRts.push_back(rts[i]);
+    
+    // delete[] tmPoint;
+    // delete[] mzPoint;
+
+    return alignedRts;
+}
+
+
+void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
+    VecF tmp(tmCoords.length());
+    for (int i = 0; i < tmCoords.length(); ++i) {
+        if (tmCoords[i] < _tm_vals) {
+            tmp[i] = _tm[tmCoords[i]];
+        }
+        else {
+            printf("asking for time value at index: %d (length: %d)\n", tmCoords[i], _tm_vals);
+            exit(1);
+        }
+    }
+    tmVals.take(tmp);
+}
+
+void ObiWarp::warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm){
+    VecF out;
+    VecF::chfe(selfTimes, equivTimes, _tm, out, 1);  // run with sort option
+    _tm.take(out);
+}
+
+void ObiWarp::obiWarp (ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex) {
+     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
+
+    if(referenceSampleIndex < 0) {
+        /**
+         * currently reference sample is choosen randomly,
+         * TODO: give user options to choose reference sample and pass index of
+         * that sample as referenceSampleIndex
+         */
+        srand(time(NULL));
+        referenceSampleIndex = rand()%samples.size();
+    }
+    assert(referenceSampleIndex < samples.size());
+
+    // ObiWarp* obiWarp = new ObiWarp(obiParams);
+
+    float binSize = obiParams->binSize;
+    float minMzRange = 1e9;
+    float maxMzRange = 0;
+    
+    mzSample* referenceSample = samples[referenceSampleIndex];
+    for(int j=0;j<referenceSample->scans.size();++j){
+        for(int k=0;k<referenceSample->scans[j]->mz.size();++k){
+            minMzRange = min ( minMzRange, referenceSample->scans[j]->mz[k] );
+            maxMzRange = max ( maxMzRange, referenceSample->scans[j]->mz[k] );
+        }
+    }
+
+    maxMzRange += 10;
+    minMzRange -= 10;
+    if(minMzRange < 0.f)
+        minMzRange = 0.f;
+    minMzRange = floor(minMzRange);
+    maxMzRange = ceil(maxMzRange);
+
+    vector<float> mzPoints;
+    for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
+        mzPoints.push_back(bin);
+
+    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
+
+    for(int i=0 ; i < samples.size();++i){
+        cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
+        if(i == referenceSampleIndex)
+            continue;
+        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
+    }
+    
+    cerr<<"Alignment complete"<<endl;    
+    
 }

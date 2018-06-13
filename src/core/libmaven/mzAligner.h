@@ -27,8 +27,7 @@ class Aligner {
     // void restoreFit();
     // void setMaxItterations(int x) { maxItterations = x; }
     // void setPolymialDegree(int x) { polynomialDegree = x; }
-    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
-    void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
+    // void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
     // map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	// map<pair<string, string>, double> deltaRt;
     // vector<vector<float> > fit;
@@ -115,11 +114,43 @@ class LoessFit : public Aligner {
 }
 
 class ObiWarp : public Aligner {
+    struct ObiParams{
+        ObiParams();
+        ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend, float init_penalty, float response, bool nostdnrm, float binSize);
+
+        string score = "cor";
+        bool local = false;
+        float factor_diag = 2;
+        float factor_gap = 1;
+        float gap_init = 0.2;
+        float gap_extend = 3.4;
+        float init_penalty = 0;
+        float response = 20;
+        bool nostdnrm = false;
+        float binSize = 0.6;
+    };
+
     public:
-        void obiWarp();
+        obiWarp(ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex = -1) {
+            this.params = new ObiParams();
+            *params = *obiParams;
+
+            this.samples = new (samples);
+            this.referenceSampleIndex = referenceSampleIndex;
+        }
+
+        
+    
     private:
         void preProcessing();
-        // other helper functions
+        ObiParams *params;
+        vector<mzSample*> samples;
+        int referenceSampleIndex;
+
+        void alignSampleRts (mzSample* sample, vector<float> &mzPoints, bool setAsReference);
+        void setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
+        vector<float> align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
+    
 };
 
 
