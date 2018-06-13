@@ -1,19 +1,21 @@
 var link = ''
 var downloadStart = 0;
 var current_id=''
-function download()
+var frame_id="";
+var div_id="";
+function download(frame_id,div_id)
 {	
 	if(++downloadStart%2==0) {
 
 					console.log("downloading")
-			$('#modal1').modal('close');
+			$('#'+div_id).modal('close'); //div id
 			var a =	document.getElementById(current_id);
 			console.log(a)
 			a.click(function(s){
 				console.log(s);
 			});
 			link = '';
-			document.getElementById("myModal").src=document.getElementById("myModal").src
+			document.getElementById(frame_id).src=document.getElementById(frame_id).src //frame id
 		
 	}
 

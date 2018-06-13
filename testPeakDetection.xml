@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestPeakDetection">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.004547"/>
+</TestFunction>
+<TestFunction name="testProcessCompound">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.579959"/>
+</TestFunction>
+<TestFunction name="testPullEICs">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="2048.762525"/>
+</TestFunction>
+<TestFunction name="testprocessSlices">
+Read in classification model bin/default.model
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="1460.652384"/>
+</TestFunction>
+<TestFunction name="testpullIsotopes">
+Read in classification model bin/default.model
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="1796.745553"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.002242"/>
+</TestFunction>
+<Duration msecs="5306.797959"/>
+</TestCase>

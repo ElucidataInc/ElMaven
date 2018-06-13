@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestLoadDB">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003789"/>
+</TestFunction>
+<TestFunction name="testExtractCompoundfromEachLineNormal">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.044824"/>
+</TestFunction>
+<TestFunction name="testExtractCompoundfromEachLineWithNoMz">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.023706"/>
+</TestFunction>
+<TestFunction name="testExtractCompoundfromEachLineWithNoMzandFormula">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.012460"/>
+</TestFunction>
+<TestFunction name="testExtractCompoundfromEachLineWithExpRTandRT">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.020581"/>
+</TestFunction>
+<TestFunction name="testExtractCompoundfromEachLineWithCompoundField">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.017919"/>
+</TestFunction>
+<TestFunction name="testloadCompoundCSVFileWithIssues">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="46.448301"/>
+</TestFunction>
+<TestFunction name="testloadCompoundCSVFileWithRep">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.359474"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003757"/>
+</TestFunction>
+<Duration msecs="46.991812"/>
+</TestCase>

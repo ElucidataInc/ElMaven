@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestLoadSamples">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.026537"/>
+</TestFunction>
+<TestFunction name="testFileLoad">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="376.139640"/>
+</TestFunction>
+<TestFunction name="testIsAllScansParsed">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="188.007163"/>
+</TestFunction>
+<TestFunction name="testScanParsing">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="187.249379"/>
+</TestFunction>
+<TestFunction name="testSrmScan">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="190.832778"/>
+</TestFunction>
+<TestFunction name="testMinMaxMz">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="190.250712"/>
+</TestFunction>
+<TestFunction name="testMinMaxRT">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="191.938592"/>
+</TestFunction>
+<TestFunction name="testSampleName">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="190.847575"/>
+</TestFunction>
+<TestFunction name="testBlankSample">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="1548.145460"/>
+</TestFunction>
+<TestFunction name="testParseMzMLInjectionTimeStamp">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.051539"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.002195"/>
+</TestFunction>
+<Duration msecs="3063.649637"/>
+</TestCase>

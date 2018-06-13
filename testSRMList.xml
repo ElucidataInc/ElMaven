@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestSRMList">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003500"/>
+</TestFunction>
+<TestFunction name="testGetPrecursorOfSrm">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.066969"/>
+</TestFunction>
+<TestFunction name="testGetProductOfSrm">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.059873"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.001685"/>
+</TestFunction>
+<Duration msecs="0.150817"/>
+</TestCase>

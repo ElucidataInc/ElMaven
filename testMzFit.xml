@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestMzFit">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003606"/>
+</TestFunction>
+<TestFunction name="testSort_xy">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.007528"/>
+</TestFunction>
+<TestFunction name="testGauss">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.004635"/>
+</TestFunction>
+<TestFunction name="testStasum">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003832"/>
+</TestFunction>
+<TestFunction name="testLeasqu">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.016117"/>
+</TestFunction>
+<TestFunction name="testLeasev">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.004900"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.002141"/>
+</TestFunction>
+<Duration msecs="0.071542"/>
+</TestCase>

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" style="height: 100%">
+<head>
+  <link rel="icon" href="https://elucidatainc.github.io/ElMaven/assets/logo.png">
+  
+</head>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
@@ -8,19 +11,42 @@
     <title>My Example Post</title>
     <meta name="description" content="Eos eu docendi tractatos sapientem, brute option menandri in vix, quando vivendo accommodare te ius. Nec melius fastidii constituam id, viderer theophrastus ..." />
 
-  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+ 
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/materialize.css" />
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/codon-min.css" />
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/main.css">
     <link rel="canonical" href="http://localhost:4000/ElMaven/2016/05/20/my-example-post.html" />
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            $('.modal').modal();
+        });
+        $('#modal1').modal('open');
+    </script>
+
+
+
+
     <link rel="alternate" type="application/rss+xml" title="El Maven" href="/ElMaven/feed.xml" />
   
     
 </head>
 
 
-  <body>
+  <body style="height: 100%; position: relative;">
 
     <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper" style="padding-left: 40px; padding-right: 40px; background-color: #8985db;"><a id="logo-container" class="brand-logo" href="/ElMaven/">ElMaven</a>
@@ -36,17 +62,27 @@
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/Buttoms/" style="color:white;">Why ElMaven</a></li>
+                    <li class="links"><a href="/ElMaven/Why-ElMaven/" style="color:white;">Why ElMaven</a></li>
                     
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/css/" style="color:white;">Features</a></li>
+                    <li class="links"><a href="/ElMaven/Features/" style="color:white;">Features</a></li>
                     
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/table/" style="color:white;">Manuals</a></li>
+                    <li class="links"><a href="/ElMaven/documentation/" style="color:white;">Documentation</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/Downloads/" style="color:white;">Downloads</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/faq/" style="color:white;">FAQ</a></li>
                     
                 
                     
@@ -73,17 +109,27 @@
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/Buttoms/" style="color:white;">Why ElMaven</a></li>
+                    <li class="links"><a href="/ElMaven/Why-ElMaven/" style="color:white;">Why ElMaven</a></li>
                     
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/css/" style="color:white;">Features</a></li>
+                    <li class="links"><a href="/ElMaven/Features/" style="color:white;">Features</a></li>
                     
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/table/" style="color:white;">Manuals</a></li>
+                    <li class="links"><a href="/ElMaven/documentation/" style="color:white;">Documentation</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/Downloads/" style="color:white;">Downloads</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/faq/" style="color:white;">FAQ</a></li>
                     
                 
                     
@@ -133,7 +179,7 @@
 </div>
 <script>$('.carousel.carousel-slider').carousel({fullWidth: true});</script>
 
-      <footer class="page-footer orange">
+      <footer class="page-footer orange" style="position: absolute; width: 100% ">
     <div class="container">
       <div class="row">
         <div class="col l3 s12">
@@ -143,22 +189,28 @@
           <br>
           <p class="grey-text text-lighten-4">Email of Repo maintainer:</p>
           
-          <a class="white-text" href="info@elucidata.io"><b>info@elucidata.io</b></a>
+          <a class="white-text" href="mailto:info@elucidata.io"><b>elmaven@elucidata.io</b></a>
           <br>
          </div>
           <div class="col l5 s12">
                 <h5>Licenses & Privacy</h5>
                 <br>     
                 <p class="grey-text text-lighten-4">Code and documentation copyright 2017 <a href="http://www.elucidata.io/" class="white-text" target="_blank" ><b>Elucidata Inc</b></a>. Code released under the <a class="white-text" href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html"><b>GPL v2.0</b></a>. Documentation is released under <a href="https://opensource.org/licenses/MIT" class="white-text"><b> MIT license</b></a>.
-
                 </p>
           
             </div>
         <div class="col l4 s12">
                    
             <h5><a target="_blank" class="orange-text white-text" href="http://www.elucidata.io/contact-us">Contact Us</a></h5>
-            <br>     
-           
+            <br>   
+            
+            <p style="float: left;"><a style="color:white;" target="_blank" href="http://www.elucidata.io/contact-us"><img src=" /ElMaven/assets/logo.png" style="-webkit-filter: brightness(0) invert(1);
+                filter: brightness(0) invert(1);height:30px;width:30px;align:centermargin:0px auto;display:block;";  /></p></a>
+                <p style="float: left;">&ensp;</p> <a class="white-text" href="mailto:elmaven@elucidata.io"><b>info@elucidata.io</b></a>       
+             <br>                
+                   
+               
+
         </div>
       </div>
     <!-- </div>
@@ -178,6 +230,7 @@
 <script src="/ElMaven/js/jquery.min.js"></script>
 <script src="/ElMaven/js/materialize.min.js"></script>
 <script src="/ElMaven/js/init.js"></script>
+<script src="/ElMaven/js/download.js"></script>
 
   </body>
 

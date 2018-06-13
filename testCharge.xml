@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestCharge">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.004081"/>
+</TestFunction>
+<TestFunction name="testChargeWithFormulaNoCompound">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.178656"/>
+</TestFunction>
+<TestFunction name="testChargeWithNoCompoundNoFormula">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.149714"/>
+</TestFunction>
+<TestFunction name="testChargeWithCompoundNoCharge">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.161219"/>
+</TestFunction>
+<TestFunction name="testChargeWithCompoundNoFormula">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.146368"/>
+</TestFunction>
+<TestFunction name="testChargeWithFormulaAndCompound">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.157462"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.002041"/>
+</TestFunction>
+<Duration msecs="0.833891"/>
+</TestCase>

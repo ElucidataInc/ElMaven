@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%">
 <head>
   <link rel="icon" href="https://elucidatainc.github.io/ElMaven/assets/logo.png">
   
@@ -11,19 +11,42 @@
     <title>El Maven</title>
     <meta name="description" content="An opensource LC-MS data processing engine" />
 
-  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+ 
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/materialize.css" />
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/codon-min.css" />
     <link rel="stylesheet" type="text/css" media="screen,projection" href="/ElMaven/assets/main.css">
     <link rel="canonical" href="http://localhost:4000/ElMaven/" />
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            $('.modal').modal();
+        });
+        $('#modal1').modal('open');
+    </script>
+
+
+
+
     <link rel="alternate" type="application/rss+xml" title="El Maven" href="/ElMaven/feed.xml" />
   
     
 </head>
 
 
-  <body>
+  <body style="height: 100%; position: relative;">
 
     <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper" style="padding-left: 40px; padding-right: 40px; background-color: #8985db;"><a id="logo-container" class="brand-logo" href="/ElMaven/">ElMaven</a>
@@ -49,7 +72,17 @@
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/Manuals/" style="color:white;">Manuals</a></li>
+                    <li class="links"><a href="/ElMaven/documentation/" style="color:white;">Documentation</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/Downloads/" style="color:white;">Downloads</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/faq/" style="color:white;">FAQ</a></li>
                     
                 
                     
@@ -86,7 +119,17 @@
                 
                     
                     
-                    <li class="links"><a href="/ElMaven/Manuals/" style="color:white;">Manuals</a></li>
+                    <li class="links"><a href="/ElMaven/documentation/" style="color:white;">Documentation</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/Downloads/" style="color:white;">Downloads</a></li>
+                    
+                
+                    
+                    
+                    <li class="links"><a href="/ElMaven/faq/" style="color:white;">FAQ</a></li>
                     
                 
                     
@@ -122,8 +165,10 @@
       </div>
         
       <div class="row center">
+        <!-- <a href="http://materializecss.com/getting-started.html" id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a> -->
         
-                        <a class="btn-large waves-effect waves-light orange" style="margin-bottom:0" href="https://elucidatainc.github.io/ElMaven/Downloads/">Downloads</a>
+                        <a class="btn-large waves-effect waves-light orange" style="margin-bottom:0" href="/ElMaven/Downloads/">Download</a>
+                        <!-- <a class="btn-large waves-effect waves-light orange" style="margin-bottom:0;" href="https://dl.dropboxusercontent.com/s/f32eafsp8tfl74k/ElMaven-0.2-Beta-windows-64Bit-installer.exe?dl=0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Daily builds&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;</a>
                     </div> -->
                     <div>
                         <!-- </div>
@@ -152,7 +197,6 @@
           <br>
           <br>
 
-
       <!--   Icon Section   -->
       <div class="row" style="background: whitesmoke;">
         <div class="col s12 m4" style="padding:15px;">
@@ -170,7 +214,7 @@
             <h5 class="center" style="color: #8985db;">Open Source</h5>
             <br>
             <p class="cdn-content" style="text-align:center">Free. Personalizable. The program's code is freely available. Integrate your own data processing methods. Coding instructions are
-                    in <a href="https://github.com/ElucidataInc/ElMaven">Developer Manual</a></p>
+                    in <a href="https://github.com/ElucidataInc/ElMaven/blob/develop/CONTRIBUTING.md">Developer Manual</a></p>
           </div>
         </div>
 
@@ -180,7 +224,7 @@
             <h5 class="center" style="color: #8985db;">Grouping</h5>
             <br>
             <p class="cdn-content" style="text-align:center">Simplified peak curation. A new feature that reimagines data visualisation to simplify your work. Track a metabolite across samples
-                    with a single visual. Visualize all peak originating from the same ion as a single group.</p>
+                    with a single visual. Visualize all peak originating from the same ion as a single group. </p>
           </div>
         </div>
       </div>
@@ -206,7 +250,6 @@
                     x00 GB.</p>
           </div>
         </div>
-
 
         <div class="col s12 m4" style="padding:15px;">
           <div class="icon-block">
@@ -296,7 +339,7 @@
   </div>
 
 
-      <footer class="page-footer orange">
+      <footer class="page-footer orange" style="position: absolute; width: 100% ">
     <div class="container">
       <div class="row">
         <div class="col l3 s12">
@@ -321,7 +364,7 @@
             <h5><a target="_blank" class="orange-text white-text" href="http://www.elucidata.io/contact-us">Contact Us</a></h5>
             <br>   
             
-            <p style="float: left;"><a style="color:white;" target="_blank" href="http://www.elucidata.io/contact-us"><img src="assets/logo.png" style="-webkit-filter: brightness(0) invert(1);
+            <p style="float: left;"><a style="color:white;" target="_blank" href="http://www.elucidata.io/contact-us"><img src=" /ElMaven/assets/logo.png" style="-webkit-filter: brightness(0) invert(1);
                 filter: brightness(0) invert(1);height:30px;width:30px;align:centermargin:0px auto;display:block;";  /></p></a>
                 <p style="float: left;">&ensp;</p> <a class="white-text" href="mailto:elmaven@elucidata.io"><b>info@elucidata.io</b></a>       
              <br>                
@@ -347,6 +390,7 @@
 <script src="/ElMaven/js/jquery.min.js"></script>
 <script src="/ElMaven/js/materialize.min.js"></script>
 <script src="/ElMaven/js/init.js"></script>
+<script src="/ElMaven/js/download.js"></script>
 
   </body>
 

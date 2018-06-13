@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestScan">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.006911"/>
+</TestFunction>
+<TestFunction name="testdeepcopy">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.023180"/>
+</TestFunction>
+<TestFunction name="testfindHighestIntensityPos">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.286138"/>
+</TestFunction>
+<TestFunction name="testfindMatchingMzs">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.010997"/>
+</TestFunction>
+<TestFunction name="testquantileFilter">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.013052"/>
+</TestFunction>
+<TestFunction name="testintensityFilter">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.010442"/>
+</TestFunction>
+<TestFunction name="testsimpleCentroid">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.023648"/>
+</TestFunction>
+<TestFunction name="testhasMz">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.269617"/>
+</TestFunction>
+<TestFunction name="testchargeSeries">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.017351"/>
+</TestFunction>
+<TestFunction name="testdeconvolute">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.634562"/>
+</TestFunction>
+<TestFunction name="testgetTopPeaks">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.012893"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003499"/>
+</TestFunction>
+<Duration msecs="1.400487"/>
+</TestCase>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="Testbase64">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.004248"/>
+</TestFunction>
+<TestFunction name="testdecode_base64">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.007368"/>
+</TestFunction>
+<TestFunction name="testdecodeString">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.007104"/>
+</TestFunction>
+<TestFunction name="testencode_base64">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.006430"/>
+</TestFunction>
+<TestFunction name="testencodeString">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.010470"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.003640"/>
+</TestFunction>
+<Duration msecs="0.067016"/>
+</TestCase>

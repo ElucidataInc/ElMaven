@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="TestEIC">
+<Environment>
+    <QtVersion>5.5.1</QtVersion>
+    <QtBuild>Qt 5.5.1 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 5.4.0 20160609)</QtBuild>
+    <QTestVersion>5.5.1</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.006698"/>
+</TestFunction>
+<TestFunction name="testgetEIC">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="200.039025"/>
+</TestFunction>
+<TestFunction name="testgetEICms2">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="21.177540"/>
+</TestFunction>
+<TestFunction name="testcomputeSpline">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="731.524623"/>
+</TestFunction>
+<TestFunction name="testgetPeakPositions">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="729.420607"/>
+</TestFunction>
+<TestFunction name="testcomputeBaseLine">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="729.352652"/>
+</TestFunction>
+<TestFunction name="testfindPeakBounds">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="731.599078"/>
+</TestFunction>
+<TestFunction name="testGetPeakDetails">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="730.233968"/>
+</TestFunction>
+<TestFunction name="testgroupPeaks">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="1475.048364"/>
+</TestFunction>
+<TestFunction name="testeicMerge">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="1487.693792"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+    <Duration msecs="0.002691"/>
+</TestFunction>
+<Duration msecs="6836.213440"/>
+</TestCase>
