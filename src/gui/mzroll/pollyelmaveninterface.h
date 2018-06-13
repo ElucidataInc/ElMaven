@@ -176,6 +176,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 TableDockWidget* _tableDockWidget;
                 PollyWaitDialog* _loadingDialog;
                 AdvancedSettings* _advancedSettings;
+                QUrl pollyURL;
 
         public slots:
             void handleResults(QVariantMap projectnames_id);

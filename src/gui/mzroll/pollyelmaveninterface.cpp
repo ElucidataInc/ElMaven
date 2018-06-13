@@ -48,7 +48,7 @@ EPIWorkerThread::~EPIWorkerThread()
 
 void PollyElmavenInterfaceDialog::goToPolly()
 {
-    QDesktopServices::openUrl(QUrl("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview"));
+    QDesktopServices::openUrl(pollyURL);
 }
 
 void PollyElmavenInterfaceDialog::handle_new_project_radio_button(){
@@ -268,6 +268,9 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
         upload_status->setText("");
+        QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview").arg(upload_project_id);
+        qDebug()<<"redirection_url     - "<<redirection_url;
+        pollyURL.setUrl(redirection_url);
         pollyButton->setVisible(true);
         return "";
     }
