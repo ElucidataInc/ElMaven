@@ -545,8 +545,8 @@ void Aligner::Fit(int ideg) {
 
 vector<double> Aligner::groupMeanRt() {
     //find retention time deviation
-    vector<double> groupRt(allgroups.size());
-    for (unsigned int i=0; i < allgroups.size(); i++ ) groupRt[i]=allgroups[i]->medianRt();
+    vector<double> groupRt(groups.size());
+    for (unsigned int i=0; i < groups.size(); i++ ) groupRt[i]=groups[i]->medianRt();
     return(groupRt);
 }
 
@@ -575,12 +575,12 @@ double PolyFit::checkFit() {
 	vector<double> groupRt  = groupMeanRt();
 
 	double sumR2=0;
-	for(unsigned int i=0; i < allgroups.size(); i++ ) {
-		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
-			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
+	for(unsigned int i=0; i < groups.size(); i++ ) {
+		for(unsigned int j=0; j < groups[i]->peakCount(); j++ ) {
+			sumR2 += POW2(groupRt[i]-groups[i]->peaks[j].rt);
 		}
 	}
-	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
+	cerr << "groups=" << groups.size() << " checkFit() " << sumR2 << endl;
 	return sumR2;
 }
 
@@ -656,9 +656,9 @@ void PolyFit::restoreFit() {
 void PolyFit::polyFit(int poly_align_degree) {
 
 	if (groups.size() < 2 ) return;
-	cerr << "Align: " << allgroups.size() << endl;
+	cerr << "Align: " << groups.size() << endl;
 
-	vector<double> allGroupsMeansRt  = groupMeanRt();
+	vector<double> GroupsMeansRt  = groupMeanRt();
 
 	for (unsigned int s=0; s < samples.size(); s++ ) {
         mzSample* sample = samples[s];
@@ -669,16 +669,16 @@ void PolyFit::polyFit(int poly_align_degree) {
         int n=0;
 
         map<int,int>duplicates;
-        for(unsigned int j=0; j < allgroups.size(); j++ ) {
-            Peak* p = allgroups[j]->getPeak(sample);
+        for(unsigned int j=0; j < groups.size(); j++ ) {
+            Peak* p = groups[j]->getPeak(sample);
             if (!p) continue;
-            if (!p || p->rt <= 0 || allGroupsMeansRt[j] <=0 ) continue;
+            if (!p || p->rt <= 0 || GroupsMeansRt[j] <=0 ) continue;
 
             int intTime = (int) p->rt*100;
             duplicates[intTime]++;
             if ( duplicates[intTime] > 5 ) continue;
 
-            ref.push_back(allGroupsMeansRt[j]);
+            ref.push_back(GroupsMeansRt[j]);
             subj.push_back(p->rt);
             n++; 
         }
@@ -704,8 +704,8 @@ void PolyFit::polyFit(int poly_align_degree) {
                     sample->scans[ii]->rt = stats->predict(sample->scans[ii]->rt);
                 }
 
-                for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
-                    Peak* p = allgroups[ii]->getPeak(sample);
+                for(unsigned int ii=0; ii < groups.size(); ii++ ) {
+                    Peak* p = groups[ii]->getPeak(sample);
                     if (p)  p->rt = stats->predict(p->rt);
                 }
             }
@@ -729,8 +729,8 @@ void LoessFit::updateSampleRts(QJsonObject &sampleRts) {
 }
 
 void LoessFit::updateGroupsRts(QJsonObject &groupsRts) {
-    for (int grpIndex=0; grpIndex<allgroups.size(); grpIndex++) {
-        PeakGroup* grp = allgroups.at(grpIndex);
+    for (int grpIndex=0; grpIndex<groups.size(); grpIndex++) {
+        PeakGroup* grp = groups.at(grpIndex);
         for (int peakIndex=0; peakIndex<grp->getPeaks().size(); peakIndex++) {
             Peak peak = grp->getPeaks().at(peakIndex);
             auto it = groupsRts.find(QString(peak.getSample()->getSampleName().c_str()));
@@ -1055,7 +1055,6 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
 
     return alignedRts;
 }
-
 
 void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
     VecF tmp(tmCoords.length());

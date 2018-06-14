@@ -36,8 +36,6 @@ class Aligner {
     int medianRt;
     int compoundDataRt;
     float tolerance;
-    map<mzSample*, int> sampleDegree;
-    map<mzSample*, vector<double> > sampleCoefficient;
 
     // void updateRts(QJsonObject& parentObj);
     // void updateSampleRts(QJsonObject& sampleRts);
@@ -72,6 +70,54 @@ class Aligner {
 };
 
 class PolyFit : public Aligner {
+
+    struct AlignmentStats { 
+
+		int poly_align_degree=0;
+		int N = 0;
+		double R_before = 0;
+		double R_after  = 0;
+		int transformedFailed = 0;
+		vector<double>poly_transform_result;
+
+		int sample1 = 0;
+		int sample2 = 0;
+		
+		bool transformOk() { return transformedFailed > 0; }
+		bool transformImproved() { return R_after < R_before; }
+		vector<double> getCoeffients() { return poly_transform_result; }
+
+        double predict(double x)  {
+			if ( poly_transform_result.size() > 0 ) {
+				return leasev(&poly_transform_result.front(),poly_align_degree,x);
+			 }   else {
+			 	cerr  << "Empty transform.. "; 
+				return 0;
+			 }
+		}
+
+
+		void summary() { 
+			if (transformedFailed) cerr << "TRANSFORMED FAILED! "; 
+
+			cerr <<" Degree= " 		<< poly_align_degree 
+				<< " Points:" 		<< N 
+				<< " R2_before=" 	<< R_before
+				<< " R2_after=" 	<< R_after 
+				<< endl;
+
+			for(int ii=0; ii <= poly_align_degree; ii++ ) {
+				cerr << poly_transform_result[ii] << " " ;
+			}
+
+			cerr << endl;
+		}
+
+        static bool compR(AlignmentStats* a, AlignmentStats* b ) { return a->R_after < b->R_after; }
+        bool operator< (const AlignmentStats* b) { return this->R_after < b->R_after; }
+
+    };
+
     public:
         PolyFit(vector<peakGroup*> group);
         void polyFitAlgo();
@@ -81,7 +127,9 @@ class PolyFit : public Aligner {
         int polynomialDegree;
 
         vector<mzSample*> samples;
+        map<mzSample*, int> sampleDegree;
         vector<vector<float> > fit;
+        map<mzSample*, vector<double> > sampleCoefficient;
 
         void setPolymialDegree (int x) { polynomialDegree = x; }
         void setMaxItterations (int x) { maxIterations = x; }
@@ -142,7 +190,6 @@ class ObiWarp : public Aligner {
         
     
     private:
-        void preProcessing();
         ObiParams *params;
         vector<mzSample*> samples;
         int referenceSampleIndex;
