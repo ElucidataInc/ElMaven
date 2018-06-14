@@ -156,6 +156,8 @@ using namespace mzUtils;
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
+	
+
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
 	dir.cdUp();
@@ -2079,8 +2081,8 @@ void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
 void MainWindow::readSettings() {
 	settings = new QSettings("mzRoll", "Application Settings");
 
-	QPoint pos = settings->value("pos", QPoint(200, 200)).toPoint();
-	QSize size = settings->value("size", QSize(400, 400)).toSize();
+	QPoint pos = settings->value("pos", QPoint(0, 0)).toPoint();
+	QSize size = settings->value("size", QSize(1000, 1400)).toSize();
 
 	if (settings->contains("windowState")) {
 		restoreState(settings->value("windowState").toByteArray());
@@ -2179,7 +2181,7 @@ void MainWindow::readSettings() {
 
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
-	settings->setValue("size", size());
+	settings->setValue("size", size()*0.7);
 	settings->setValue("massCutoffWindowBox", massCutoffWindowBox->value());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
