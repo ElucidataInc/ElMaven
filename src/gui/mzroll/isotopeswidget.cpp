@@ -376,9 +376,6 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup *group)
 void IsotopeWidget::setClipboard()
 {
 
-	QObject* obj = sender();
-
-	qDebug() << endl << endl << "sender " << obj->objectName() << endl << endl;
 	if (isotopeParameters->_group)
 	{
 
