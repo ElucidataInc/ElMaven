@@ -2301,14 +2301,14 @@ void MainWindow::createMenus() {
 	QAction* doc = helpMenu->addAction("Documentation");
 	connect(doc,SIGNAL(triggered(bool)), signalMapper, SLOT(map()));
 
-	QAction* start = helpMenu->addAction("Getting Started");
-	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
-
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
 	connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
 
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
+
+	QAction* start = helpMenu->addAction("Getting Started");
+	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
 
 	signalMapper->setMapping(doc, 1);
 	signalMapper->setMapping(tutorial, 2);
