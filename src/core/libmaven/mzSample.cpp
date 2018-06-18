@@ -385,9 +385,9 @@ void mzSample::parseMzMLChromatogramList(xml_node &chromatogramList)
 			}
 		}
 
-		cerr << chromatogramId << endl;
-		cerr << timeVector.size() << " ints=" << intsVector.size() << endl;
-		cerr << "pre: " << precursorMz << " prod=" << productMz << endl;
+	//	cerr << chromatogramId << endl;
+	//	cerr << timeVector.size() << " ints=" << intsVector.size() << endl;
+	//	cerr << "pre: " << precursorMz << " prod=" << productMz << endl;
 
 		// if (precursorMz and precursorMz ) {
 		if (precursorMz)
