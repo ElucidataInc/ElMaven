@@ -551,6 +551,8 @@ void EIC::getPeakDetails(Peak &peak)
     peak.peakBaseLineLevel = baseline[peak.pos];
     peak.noNoiseFraction = (float)peak.noNoiseObs / (this->eic_noNoiseObs + 1);
     peak.peakAreaCorrected = peak.peakArea - baselineArea;
+    if (peak.peakAreaCorrected < 0) 
+        peak.peakAreaCorrected = 0; 
     peak.peakAreaFractional = peak.peakAreaCorrected / (totalIntensity + 1);
     peak.signalBaselineRatio = peak.peakIntensity / maxBaseLine;
     peak.signalBaselineDifference = peak.peakIntensity - maxBaseLine;
