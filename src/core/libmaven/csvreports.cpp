@@ -259,6 +259,9 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
             lab = parentGroup->label;
         }
     }
+    else{
+        parentGroup=group;
+    }
 
     if (selectionFlag == 2) {
         if(lab !='g') return;
@@ -269,15 +272,14 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     }
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
-    //if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
+    // if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
     string tagString = group->srmId + group->tagString;
     // using the new funtionality added - Kiran
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
-
-    groupReport << label << SEP << setprecision(7) << group->metaGroupId << SEP
+    groupReport << label << SEP << setprecision(7) << parentGroup->groupId << SEP
             << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
             << SEP << group->meanRt << SEP << group->maxQuality << SEP
             << tagString;
@@ -353,7 +355,6 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
@@ -382,7 +383,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
 
         peakReport << setprecision(8)
-                << groupId << SEP
+                << group->groupId << SEP
                 << compoundName << SEP
                 << compoundID << SEP
                 << formula << SEP
