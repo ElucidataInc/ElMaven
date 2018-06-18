@@ -16,6 +16,7 @@ GettingStarted::GettingStarted(QWidget *parent) :
     ui->setupUi(this);
    setFixedSize(width(), height());
    ui->textBrowser_2->setOpenExternalLinks(true);
+   ui->textBrowser->setOpenExternalLinks(true);
    setWindowTitle("Getting Started");
    
    if(!settings.contains(STR(EL_MAVEN_VERSION)))
