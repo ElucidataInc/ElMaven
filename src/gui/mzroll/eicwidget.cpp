@@ -137,8 +137,6 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void EicWidget::integrateRegion(float rtmin, float rtmax) {
-	//qDebug <<" EicWidget::integrateRegion(float rtmin, float rtmax)";
-	//qDebug << "Integrating area from " << rtmin << " to " << rtmax;
 
 	eicParameters->_integratedGroup.clear();
 	QSettings *settings = getMainWindow()->getSettings();
@@ -189,8 +187,6 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 			if (!peakFiltering.filter(peak))
 			{
 				eicParameters->_integratedGroup.addPeak(peak);
-				qDebug() << eic->sampleName.c_str() << " " << peak.peakArea << " "
-						<< peak.peakAreaCorrected;
 				this->showPeakArea(&peak);
 			}
 		}
@@ -198,7 +194,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 
 	eicParameters->_integratedGroup.groupStatistics();
 	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
-	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
+	getMainWindow()->bookmarkPeakGroup(&eicParameters->_integratedGroup);
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -750,10 +746,7 @@ void EicWidget::addBaseLine(EIC* eic) {
     int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
     eic->computeBaseLine(baseline_smoothing, baseline_quantile);
-//        //debug
-//        for(int j=0;j<eic->size();j++) {
-//            qDebug() << eic->rt[j] << "\t" << eic->baseline[j];
-//        }
+
     if (eic->size() == 0)
         return;
     EicLine* line = new EicLine(0, scene());
@@ -770,7 +763,6 @@ void EicWidget::addBaseLine(EIC* eic) {
     }
 
     if (baselineSum == 0) {
-        qDebug() << "baseline sum was 0";
         return;
     }
 
@@ -890,7 +882,6 @@ void EicWidget::replot(PeakGroup* group) {
 	findPlotBounds(); //plot xmin and xmax etc..
 	setupColors();	  //associate color with each EIC
 
-	//qDebug << "EicWidget::replot() " << " group=" << group << " mz: " << _slice.mzmin << "-" << _slice.mzmax << " rt: " << _slice.rtmin << "-" << _slice.rtmax;
 	clearPlot();
 	
 	setSelectedGroup(group);

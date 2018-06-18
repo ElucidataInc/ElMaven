@@ -375,6 +375,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup *group)
 
 void IsotopeWidget::setClipboard()
 {
+
 	if (isotopeParameters->_group)
 	{
 
