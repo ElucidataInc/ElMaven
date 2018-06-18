@@ -110,7 +110,8 @@ FORMS = forms/settingsform.ui  \
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
     forms/alignmentpolyvizdockwidget.ui \
-    forms/isotopeplotdockwidget.ui
+    forms/isotopeplotdockwidget.ui \
+    forms/gettingstarted.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -179,7 +180,8 @@ HEADERS +=  stable.h \
                     numeric_treewidgetitem.h \
                     analytics.h \
                     ElmavCrashHandler.h \
-                    isotopeplotdockwidget.h
+                    isotopeplotdockwidget.h \
+                    gettingstarted.h
 
 
 
@@ -247,7 +249,8 @@ database.cpp \
     numeric_treewidgetitem.cpp \
     analytics.cpp \
     ElmavCrashHandler.cpp \
-    isotopeplotdockwidget.cpp
+    isotopeplotdockwidget.cpp \
+    gettingstarted.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

@@ -156,6 +156,8 @@ using namespace mzUtils;
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
+	
+
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
 	dir.cdUp();
@@ -286,6 +288,7 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
+	gettingstarted = new GettingStarted(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
 
@@ -353,10 +356,11 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
-	ligandWidget->setVisible(false);
+	ligandWidget->setVisible(true);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 	adductWidget->setVisible(false);
+
 	isotopeWidget->setVisible(false);
 	massCalcWidget->setVisible(false);
 	fragPanel->setVisible(false);
@@ -370,11 +374,16 @@ using namespace mzUtils;
 	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
 	galleryDockWidget->setVisible(false);
-	projectDockWidget->setVisible(false);
+	projectDockWidget->setVisible(true);
 	logWidget->setVisible(false);
 	// rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
     peptideFragmentation->setVisible(false);
+	// if(gettingstarted->showDialog())
+	// {
+	// 	gettingstarted->setVisible(true);
+	// }
+	
 	//treemap->setVisible(false);
 	//peaksPanel->setVisible(false);
 	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
@@ -873,6 +882,8 @@ void MainWindow::openAWSDialog()
 	awsBucketCredentialsDialog->setSettings(settings);
 
 }
+
+
 
 void MainWindow::saveMzRoll() {
 
@@ -2070,8 +2081,8 @@ void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
 void MainWindow::readSettings() {
 	settings = new QSettings("mzRoll", "Application Settings");
 
-	QPoint pos = settings->value("pos", QPoint(200, 200)).toPoint();
-	QSize size = settings->value("size", QSize(400, 400)).toSize();
+	QPoint pos = settings->value("pos", QPoint(0, 0)).toPoint();
+	QSize size = settings->value("size", QSize(1000, 1400)).toSize();
 
 	if (settings->contains("windowState")) {
 		restoreState(settings->value("windowState").toByteArray());
@@ -2170,7 +2181,7 @@ void MainWindow::readSettings() {
 
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
-	settings->setValue("size", size());
+	settings->setValue("size", size()*0.7);
 	settings->setValue("massCutoffWindowBox", massCutoffWindowBox->value());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
@@ -2296,6 +2307,9 @@ void MainWindow::createMenus() {
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
 
+	QAction* start = helpMenu->addAction("Getting Started");
+	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
+
 	signalMapper->setMapping(doc, 1);
 	signalMapper->setMapping(tutorial, 2);
 	signalMapper->setMapping(faq, 3);
@@ -2310,7 +2324,7 @@ void MainWindow::openURL(int choice)
 	map<int,QUrl> URL{
 		{1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
 		{2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
-		{3, QUrl("https://elucidatainc.github.io/ElMaven/FAQ")}
+		{3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
 	};
 	QDesktopServices::openUrl(URL[choice]);
 }

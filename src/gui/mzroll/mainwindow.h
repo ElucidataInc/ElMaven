@@ -17,6 +17,7 @@
 #include "qcustomplot.h"
 #include "masscalcgui.h"
 #include "adductwidget.h"
+#include "gettingstarted.h"
 #include "ligandwidget.h"
 #include "isotopeswidget.h"
 #include "treedockwidget.h"
@@ -70,6 +71,7 @@ class AlignmentVizAllGroupsWidget;
 class QCustomPlot;
 class IsotopicPlots;
 class AdductWidget;
+class GettingStarted;
 class LigandWidget;
 class PathwayWidget;
 class IsotopeWidget;
@@ -170,6 +172,7 @@ public:
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
+	GettingStarted *gettingstarted;
 	LigandWidget *ligandWidget;
 	IsotopeWidget *isotopeWidget;
 	TreeDockWidget *covariantsPanel;
