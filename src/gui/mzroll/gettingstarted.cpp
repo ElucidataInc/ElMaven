@@ -8,51 +8,58 @@
 GettingStarted::GettingStarted(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GettingStarted)
-{
-   settingsPath1 = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-   settingsPath = QDir::cleanPath(settingsPath1 + QDir::separator() + "El-MAVEN_gettingStarted.ini");
-   QSettings settings(settingsPath, QSettings::IniFormat);
+    {
+    
+    QSettings settings("mzRoll", "Application Settings");
 
-    ui->setupUi(this);
-   setFixedSize(width(), height());
-   ui->textBrowser_2->setOpenExternalLinks(true);
-   ui->textBrowser->setOpenExternalLinks(true);
-   setWindowTitle("Getting Started");
-   
-   if(!settings.contains(STR(EL_MAVEN_VERSION)))
-   {
-    GettingStarted::setVisible(true);
-  } 
-   connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(setFlag()));
+        ui->setupUi(this);
+    setFixedSize(width(), height());
+    ui->textBrowser_2->setOpenExternalLinks(true);
+    ui->textBrowser->setOpenExternalLinks(true);
+    setWindowTitle("Getting Started");
+    
+    if(!settings.contains(STR(EL_MAVEN_VERSION)))
+            {
+                GettingStarted::setVisible(true);
+            } 
+    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(setFlag()));
+    
+    }
+
+
+void GettingStarted::closeEvent(QCloseEvent* event)
+{
+    if(ui->checkBox->checkState())
+        {
+            showDialog();
+        }
+            
+     QDialog::closeEvent(event);
 }
 
 GettingStarted::~GettingStarted()
-{
-    delete ui;
-}
+    {
+        delete ui;
+    }
 
 bool GettingStarted::showDialog()
 {
-    QSettings settings(settingsPath, QSettings::IniFormat);
+    QSettings settings("mzRoll", "Application Settings");
     bool state;
     if (!settings.contains(STR(EL_MAVEN_VERSION)))
-    {
-       state = true;
-       settings.setValue(STR(EL_MAVEN_VERSION), state);
-       return true;
-    }
+            {
+            state = true;
+            settings.setValue(STR(EL_MAVEN_VERSION), state);
+            return true;
+            }
     else
-    {
-       return false;
-    }
+            {
+            return false;
+            }
     return false;
 }
 
 void GettingStarted::setFlag()
-{
-if(ui->checkBox->checkState())
-{
-    showDialog();
-}
-GettingStarted::close();
-}
+    {
+    GettingStarted::close();
+    }

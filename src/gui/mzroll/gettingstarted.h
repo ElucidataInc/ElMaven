@@ -23,8 +23,9 @@ public Q_SLOTS:
 
 private:
     Ui::GettingStarted *ui;
-    QString settingsPath1;
-    QString settingsPath;
+    
+protected:
+    void closeEvent       (QCloseEvent* e);
     
 };
 
