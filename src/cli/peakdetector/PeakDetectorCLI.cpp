@@ -705,9 +705,6 @@ void PeakDetectorCLI::saveJson(string setName) {
 
 		jsonReports=new JSONReports(mavenParameters);
 		string fileName = mavenParameters->outputdir + setName + ".json";
-		if (uploadToPolly_bool){
-			string fileName = setName;
-		}
 		jsonReports->saveMzEICJson(fileName,
 									mavenParameters->allgroups,mavenParameters->samples);
 		#ifndef __APPLE__
@@ -846,10 +843,6 @@ void PeakDetectorCLI::saveCSV(string setName) {
     #endif
 	
 	string fileName = mavenParameters->outputdir + setName + ".csv";
-
-	if (uploadToPolly_bool){
-		string fileName = setName;
-	}
 	
     CSVReports* csvreports = new CSVReports(mavenParameters->samples);
     csvreports->setMavenParameters(mavenParameters);
