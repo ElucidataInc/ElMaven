@@ -109,6 +109,25 @@ vector<Isotope> MassCalculator::computeIsotopes(
     Isotope parent(C12_PARENT_LABEL, parentMass);
     isotopes.push_back(parent);
 
+    if(C13Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            Isotope x(C13_LABEL + integer2string(i),
+                    parentMass + (i * C_MASS_DELTA), i, 0, 0, 0);
+            isotopes.push_back(x);
+        }
+    }
+
+    if(C13Flag && D2Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            for (int j = 1; j <= HatomCount; j++) {
+                string name = C13H2_LABEL + integer2string(i) + "-" + integer2string(j);
+                double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
+                Isotope x(name, mass, i, 0, 0, j);
+                isotopes.push_back(x);
+            }
+        }
+    }
+
     if(C13Flag && N15Flag) {
         for (int i = 1; i <= CatomCount; i++) {
             for (int j = 1; j <= NatomCount; j++) {
@@ -131,21 +150,10 @@ vector<Isotope> MassCalculator::computeIsotopes(
         }
     }
 
-    if(C13Flag && D2Flag) {
-        for (int i = 1; i <= CatomCount; i++) {
-            for (int j = 1; j <= HatomCount; j++) {
-                string name = C13H2_LABEL + integer2string(i) + "-" + integer2string(j);
-                double mass = parentMass + (j * D_MASS_DELTA) + (i * C_MASS_DELTA);
-                Isotope x(name, mass, i, 0, 0, j);
-                isotopes.push_back(x);
-            }
-        }
-    }
-
-    if(C13Flag) {
-        for (int i = 1; i <= CatomCount; i++) {
-            Isotope x(C13_LABEL + integer2string(i),
-                    parentMass + (i * C_MASS_DELTA), i, 0, 0, 0);
+    if(D2Flag) {
+        for (int i = 1; i <= HatomCount; i++) {
+            Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
+                    0, 0, 0, i);
             isotopes.push_back(x);
         }
     }
@@ -162,14 +170,6 @@ vector<Isotope> MassCalculator::computeIsotopes(
         for (int i = 1; i <= SatomCount; i++) {
             Isotope x(S34_LABEL + integer2string(i),
                     parentMass + (i * S_MASS_DELTA), 0, 0, i, 0);
-            isotopes.push_back(x);
-        }
-    }
-
-    if(D2Flag) {
-        for (int i = 1; i <= HatomCount; i++) {
-            Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
-                    0, 0, 0, i);
             isotopes.push_back(x);
         }
     }

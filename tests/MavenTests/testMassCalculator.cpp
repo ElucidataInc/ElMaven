@@ -98,21 +98,21 @@ void TestMassCalculator::testComputeIsotopes() {
     //verify C12 parent mass
     QVERIFY(floor(isotopes[0].mass) == 346);
     //verify C13 mass
-    QVERIFY(floor(isotopes[277].mass) == 347);
+    QVERIFY(floor(isotopes[277].mass) == 349);
     //verify N15 mass
     QVERIFY(floor(isotopes[290].mass) == 348);
     //verify D2 mass
-    QVERIFY(floor(isotopes[294].mass) == 347);
+    QVERIFY(floor(isotopes[294].mass) == 352);
     //verify S34 mass
-    QVERIFY(floor(isotopes[293].mass) == 348);
+    QVERIFY(floor(isotopes[293].mass) == 351);
     //verify C13N15 dual label mass
-    QVERIFY(floor(isotopes[1].mass) == 348);
+    QVERIFY(floor(isotopes[1].mass) == 347);
     //verify C13D2 dual label mass
-    QVERIFY(floor(isotopes[61].mass) == 348);
+    QVERIFY(floor(isotopes[61].mass) == 362);
     //verify C13S34 dual label mass
-    QVERIFY(floor(isotopes[49].mass) == 349);
+    QVERIFY(floor(isotopes[49].mass) == 350);
     //verify abundance calculation
-    QVERIFY(isotopes[294].abundance > 0.00169 && isotopes[294].abundance < 0.0017);
+    QVERIFY(isotopes[3].abundance > 0.0002 && isotopes[3].abundance < 0.0003);
 
     C13Labeled_BPE = true;
     N15Labeled_BPE = false;

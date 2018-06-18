@@ -55,7 +55,6 @@ class IsotopeDetection
 	bool filterLabel(string isotopeName);
 	void addChild(PeakGroup *parentgroup, PeakGroup &child, string isotopeName);
 	bool checkChildExist(vector<PeakGroup> &children, string isotopeName);
-	void sortIsotopes(PeakGroup *group);
 
 };
 
