@@ -87,11 +87,12 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
                 isotopePeakIntensity = isotope.first;
                 rt = isotope.second;
             }
-            //if(isotopePeakIntensity==0) continue;
+            
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
 
             if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
                 continue;
-            
+
             vector<Peak> allPeaks;
 
             EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
@@ -153,7 +154,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 }
 
 bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup)
-{
+{    
     //natural abundance check
     //TODO: I think this loop will never run right? Since we're now only pulling the relevant isotopes
     //if x.C13>0 then _mavenParameters->C13Labeled_BPE must have been true
@@ -216,14 +217,18 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
     float rt = 0;
     mzSample* sample = scan->getSample();
     //TODO: use maxIsotopeScanDiff instead of arbitrary number
-    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
+    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++)
+    {
 		Scan* s = sample->getScan(i);
 		vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-		for (auto pos:matches) {
+		for (auto pos:matches)
+        {
 			if (s->intensity[pos] > highestIntensity)
-				highestIntensity = s->intensity[pos];
-            rt = s->rt;
-		}
+            {
+                highestIntensity = s->intensity[pos];
+                rt = s->rt;
+            }
+        }
 	}
     return std::make_pair(highestIntensity, rt);
 }
