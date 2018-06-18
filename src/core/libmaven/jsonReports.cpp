@@ -17,9 +17,25 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
         mz = grp.meanMz;
     }
 
+    //add labels to json file
+    char lab = grp.label;
+
+    PeakGroup* parentGroup = grp.getParent();
+    if (parentGroup) {
+        if (grp.label == '\0') {
+            lab = parentGroup->label;
+        }
+    }
+
     myfile << setprecision(10);
     myfile << "{\n";
     myfile << "\"groupId\": " << grp.groupId ;
+
+    myfile << ",\n" << "\"label\": ";
+    myfile << "\"";
+    if (lab == 'g' || lab == 'b') myfile << lab;
+    myfile << "\"";
+        
     myfile << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
     myfile << ",\n" << "\"meanMz\": " << grp.meanMz  ;
     myfile << ",\n" << "\"meanRt\": " << grp.meanRt ;
