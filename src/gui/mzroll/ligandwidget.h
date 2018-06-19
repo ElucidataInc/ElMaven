@@ -77,7 +77,7 @@ public Q_SLOTS:
     void resetColor();
 
     void saveCompoundList();
-    void saveCompoundListToPolly(QString fileName,QString dbname);
+    void saveCompoundList(QString fileName,QString dbname);
     void updateTable() { showTable(); }
     void updateCurrentItemData();
 	void matchFragmentation();
