@@ -22,6 +22,16 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread) {workerThread = alignmentWorkerThread;}
 		MainWindow* _mw;
 		BackgroundPeakUpdate* workerThread;
+		
+		void UndoAlignment();
+		void updateParameters();
+		void func();
+		void processSlices(vector<mzSlice*>&slices, string setName, PeakDetector peakDetector);
+		void writeCSVRep(string setName, PeakDetector peakDetector);
+		void checkCornerCases();
+		void connectStatements();
+		void align();
+
 
 	public Q_SLOTS:
 		void cancel();

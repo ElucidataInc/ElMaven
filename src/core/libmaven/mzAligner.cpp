@@ -308,151 +308,151 @@
 //     }
 // }
 
-void Aligner::Fit(int ideg) {
+// void Aligner::Fit(int ideg) {
 
-	if (allgroups.size() < 2 ) return;
-	cerr << "Align: " << allgroups.size() << endl;
+// 	if (allgroups.size() < 2 ) return;
+// 	cerr << "Align: " << allgroups.size() << endl;
 
-	double* x  = new double[allgroups.size()];
-	double* ref =  new double[allgroups.size()];
-    double* b =  new double[allgroups.size()];
-	double* c =  new double[allgroups.size()];
-	double* d =  new double[allgroups.size()];
+// 	double* x  = new double[allgroups.size()];
+// 	double* ref =  new double[allgroups.size()];
+//     double* b =  new double[allgroups.size()];
+// 	double* c =  new double[allgroups.size()];
+// 	double* d =  new double[allgroups.size()];
 
-//	ofstream temp;
-//	temp.open("/tmp/fit.csv");
+//     //	ofstream temp;
+//     //	temp.open("/tmp/fit.csv");
 
-    //polynomial fit with maximum possible degree 5
-    int maxdeg=5;
-    if(ideg > maxdeg) ideg=maxdeg;
-	double* result = new double[maxdeg];
-	double* w = new double[maxdeg*maxdeg];
+//     //polynomial fit with maximum possible degree 5
+//     int maxdeg=5;
+//     if(ideg > maxdeg) ideg=maxdeg;
+// 	double* result = new double[maxdeg];
+// 	double* w = new double[maxdeg*maxdeg];
 
-	//vector<double> groupRt  = groupMeanRt();
+// 	//vector<double> groupRt  = groupMeanRt();
 
-	for (unsigned int s=0; s < samples.size(); s++ ) {
-			mzSample* sample = samples[s];
-			if (sample == NULL) continue;
-			map<int,int>duplicates;
+// 	for (unsigned int s=0; s < samples.size(); s++ ) {
+// 			mzSample* sample = samples[s];
+// 			if (sample == NULL) continue;
+// 			map<int,int>duplicates;
 
-			int n=0;
-			StatisticsVector<float>diff;
-			for(unsigned int j=0; j < allgroups.size(); j++ ) {
-				Peak* p = allgroups[j]->getPeak(sample);
-				if (!p) continue;
-				if (p->rt <= 0) continue;
-                //if (p->quality < 0.5 ) continue;
-                int intTime = (int) p->rt*100;
-                duplicates[intTime]++;
-                if ( duplicates[intTime] > 5 ) continue;
+// 			int n=0;
+// 			StatisticsVector<float>diff;
+// 			for(unsigned int j=0; j < allgroups.size(); j++ ) {
+// 				Peak* p = allgroups[j]->getPeak(sample);
+// 				if (!p) continue;
+// 				if (p->rt <= 0) continue;
+//                 //if (p->quality < 0.5 ) continue;
+//                 int intTime = (int) p->rt*100;
+//                 duplicates[intTime]++;
+//                 if ( duplicates[intTime] > 5 ) continue;
 
-				ref[n]=allgroups[j]->medianRt();
-				x[n]=p->rt; 
+// 				ref[n]=allgroups[j]->medianRt();
+// 				x[n]=p->rt; 
 
-                diff.push_back(POW2(x[n]-ref[n]));
-				n++; 
-			}
-			if ( n == 0 ) continue;
+//                 diff.push_back(POW2(x[n]-ref[n]));
+// 				n++; 
+// 			}
+// 			if ( n == 0 ) continue;
 
-            //double meanDiv = diff.mean();
-            double stdDiv  = diff.stddev();
-            if ( stdDiv == 0) continue;
+//             //double meanDiv = diff.mean();
+//             double stdDiv  = diff.stddev();
+//             if ( stdDiv == 0) continue;
 
-            //REMOVE OUTLIERS
-            int cutpos = n*0.95;
-            double cut=diff[n-1]; if(cutpos>=0) cut=diff[cutpos];
+//             //REMOVE OUTLIERS
+//             int cutpos = n*0.95;
+//             double cut=diff[n-1]; if(cutpos>=0) cut=diff[cutpos];
 
-			int removedCount=0;
-			for(int ii=0; ii < n; ii++ ) {
-                double deltaX = POW2(x[ii]-ref[ii]);
-                if(deltaX > cut) {
-                    //cerr << deltaX << " " << x[ii] << " " << ref[ii] << " " << meanDiv << " " << stdDiv << endl;
-					x[ii]=0; 
-					ref[ii]=0; 
-					removedCount++;
-				}
-			}
-			if (n - removedCount < 10) {
-				cerr << "\t Can't align.. too few peaks n=" << n << " removed=" << removedCount << endl;
-				continue;
-			}
+// 			int removedCount=0;
+// 			for(int ii=0; ii < n; ii++ ) {
+//                 double deltaX = POW2(x[ii]-ref[ii]);
+//                 if(deltaX > cut) {
+//                     //cerr << deltaX << " " << x[ii] << " " << ref[ii] << " " << meanDiv << " " << stdDiv << endl;
+// 					x[ii]=0; 
+// 					ref[ii]=0; 
+// 					removedCount++;
+// 				}
+// 			}
+// 			if (n - removedCount < 10) {
+// 				cerr << "\t Can't align.. too few peaks n=" << n << " removed=" << removedCount << endl;
+// 				continue;
+// 			}
 
-            //SORT AND ALIGN
-			double R_before=0;
-			for(int ii=0; ii < n; ii++)  R_before += POW2(ref[ii] - x[ii]);
+//             //SORT AND ALIGN
+// 			double R_before=0;
+// 			for(int ii=0; ii < n; ii++)  R_before += POW2(ref[ii] - x[ii]);
 
-			double R_after=0;   
-            int transformedFailed=0;
-            sort_xy(x, ref, n, 1, 0);
-            leasqu(n, x, ref, ideg, w, maxdeg, result);	//polynomial fit
-            //for(int ii=0; ii < ideg; ii++ ) { cerr << "Fit: " << ii << " " << result[ii] << endl; }
+// 			double R_after=0;   
+//             int transformedFailed=0;
+//             sort_xy(x, ref, n, 1, 0);
+//             leasqu(n, x, ref, ideg, w, maxdeg, result);	//polynomial fit
+//             //for(int ii=0; ii < ideg; ii++ ) { cerr << "Fit: " << ii << " " << result[ii] << endl; }
 
 
-            //for(int ii=0; ii < n; ii++) d[ii]=c[ii]=b[ii]=0;
-            //spline(n, x, ref, b, c, d);
+//             //for(int ii=0; ii < n; ii++) d[ii]=c[ii]=b[ii]=0;
+//             //spline(n, x, ref, b, c, d);
 
-			for(int ii=0; ii < n; ii++)  { 
-                double newrt = leasev(result, ideg, x[ii]);
-                //float newrt = seval(n, x[ii], x, ref, b, c, d);
-				//temp << s << ", " << x[ii] << "," << ref[ii] << "," <<  newrt << endl;
-                if (newrt != newrt || !std::isinf(newrt)) {
-                    //cerr << "Polynomical transform failed! (A) " << x[ii] << "-->" << newrt <<  endl;
-                    transformedFailed++;
-				}  else {
-					R_after  += POW2(ref[ii] - newrt);
-				}
-			}
+// 			for(int ii=0; ii < n; ii++)  { 
+//                 double newrt = leasev(result, ideg, x[ii]);
+//                 //float newrt = seval(n, x[ii], x, ref, b, c, d);
+// 				//temp << s << ", " << x[ii] << "," << ref[ii] << "," <<  newrt << endl;
+//                 if (newrt != newrt || !std::isinf(newrt)) {
+//                     //cerr << "Polynomical transform failed! (A) " << x[ii] << "-->" << newrt <<  endl;
+//                     transformedFailed++;
+// 				}  else {
+// 					R_after  += POW2(ref[ii] - newrt);
+// 				}
+// 			}
 
-            if(R_after > R_before ) {
-                cerr << "Skipping alignment of " << sample->sampleName << " failed=" << transformedFailed << endl;
-                 continue;
-            }
+//             if(R_after > R_before ) {
+//                 cerr << "Skipping alignment of " << sample->sampleName << " failed=" << transformedFailed << endl;
+//                  continue;
+//             }
 
-            int failedTransformation=0;
-            double zeroOffset =  leasev(result, ideg, 0);
+//             int failedTransformation=0;
+//             double zeroOffset =  leasev(result, ideg, 0);
 
-            //cerr << "Alignment Sample: n=" << n << " mean=" << meanDiv << " std=" << stdDiv;
-            //cerr << "\t improved R2" << R_before-R_after << " BAD=" << transformedFailed << endl;
-            // cerr << "zeroOffset=" << zeroOffset << endl;
-            for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
-                //float newrt = seval(n, sample->scans[ii]->rt, x, ref, b, c, d);
-                double newrt =  leasev(result, ideg, sample->scans[ii]->rt)-zeroOffset;
-                if (!std::isnan(newrt) && !std::isinf(newrt)) { //nan check
-                    sample->scans[ii]->rt = newrt;
-                } else {
-                    cerr << "error: " << sample->scans[ii]->rt << " " << newrt << endl;
-                    failedTransformation++;
-                }
-            }
+//             //cerr << "Alignment Sample: n=" << n << " mean=" << meanDiv << " std=" << stdDiv;
+//             //cerr << "\t improved R2" << R_before-R_after << " BAD=" << transformedFailed << endl;
+//             // cerr << "zeroOffset=" << zeroOffset << endl;
+//             for(unsigned int ii=0; ii < sample->scans.size(); ii++ ) {
+//                 //float newrt = seval(n, sample->scans[ii]->rt, x, ref, b, c, d);
+//                 double newrt =  leasev(result, ideg, sample->scans[ii]->rt)-zeroOffset;
+//                 if (!std::isnan(newrt) && !std::isinf(newrt)) { //nan check
+//                     sample->scans[ii]->rt = newrt;
+//                 } else {
+//                     cerr << "error: " << sample->scans[ii]->rt << " " << newrt << endl;
+//                     failedTransformation++;
+//                 }
+//             }
 
-            for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
-                Peak* p = allgroups[ii]->getPeak(sample);
-                if (p) {
-                    //float newrt = seval(n, p->rt, x, ref, b, c, d);
-                    double newrt = leasev(result, ideg, p->rt)-zeroOffset;
-                    if (!std::isnan(newrt) && !std::isinf(newrt)) { //nan check
-                        p->rt = newrt;
-                    } else {
-                        //cerr << "Polynomial transformed failed! (peak)" << p->rt << endl;
-                    }
-                }
-            }
+//             for(unsigned int ii=0; ii < allgroups.size(); ii++ ) {
+//                 Peak* p = allgroups[ii]->getPeak(sample);
+//                 if (p) {
+//                     //float newrt = seval(n, p->rt, x, ref, b, c, d);
+//                     double newrt = leasev(result, ideg, p->rt)-zeroOffset;
+//                     if (!std::isnan(newrt) && !std::isinf(newrt)) { //nan check
+//                         p->rt = newrt;
+//                     } else {
+//                         //cerr << "Polynomial transformed failed! (peak)" << p->rt << endl;
+//                     }
+//                 }
+//             }
 
-            if (failedTransformation) {
-                cerr << "APPLYTING TRANSFORM FAILED: " << failedTransformation << endl;
-            }
+//             if (failedTransformation) {
+//                 cerr << "APPLYTING TRANSFORM FAILED: " << failedTransformation << endl;
+//             }
 
-	}
+// 	}
 
-	delete[] result;
-	delete[] w;
-	delete[] x;
-	delete[] ref;
-	//temp.close();
-	delete[] b;
-	delete[] c;
-	delete[] d;
-}
+// 	delete[] result;
+// 	delete[] w;
+// 	delete[] x;
+// 	delete[] ref;
+// 	//temp.close();
+// 	delete[] b;
+// 	delete[] c;
+// 	delete[] d;
+// }
 // void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
 
 //     vector<float> rtPoints(sample->scans.size());
@@ -552,12 +552,6 @@ vector<double> Aligner::groupMeanRt() {
 
 // polyfit
 
-PolyFit::PolyFit(vector<peakGroups*> &groups) {
-    setGroups(groups);
-    
-    maxIterations=10;
-    polynomialDegree=3;
-}
 
 void PolyFit::saveFit() {
 	cerr << "saveFit()" << endl;
@@ -600,9 +594,9 @@ void PolyFit::polyFitAlgo() {
 
     set<mzSample*> samplesSet;
 	
-    for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-        for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-                Peak& p = peakgroups[i]->peaks[j];
+    for (unsigned int i=0; i < groups.size();  i++ ) {
+        for ( unsigned int j=0; j < groups[i]->peakCount(); j++ ) {
+                Peak& p = groups[i]->peaks[j];
                 mzSample* sample = p.getSample();
                 if (sample) samplesSet.insert(sample);
         }
@@ -715,6 +709,247 @@ void PolyFit::polyFit(int poly_align_degree) {
     }
 }
 
+PolyFit::PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref) {
+
+	if( subj.size() != ref.size()) { 
+		cerr << "alignVector failed.. vectors are different size\n";
+		exit(-1);
+	}
+
+	//copy values that are presents in both vectors
+	for(unsigned int indx=0; indx < subj.size(); indx++ ) {
+		if (subj[indx]> 0 and ref[indx] > 0)  { 
+			subjVector.push_back(subj[indx]);
+			refVector.push_back(ref[indx]);
+		}
+	}
+	mtRand = new MTRand(time(NULL));
+	calculateOutliers(3);
+} 
+
+double PolyFit::PolyAligner::calculateR2(AlignmentStats* model) { 
+	double R2=0;
+	int N = subjVector.size();
+	if (N == 0) return DBL_MAX;
+
+	for(int i=0; i < N; i++ ) {
+         double newrt = model->predict(subjVector[i]);
+		 R2 += POW2(refVector[i] - newrt);
+	}
+	return sqrt(R2/N);
+}
+
+double PolyFit::PolyAligner::countInliners(AlignmentStats* model, float zValueCutoff) { 
+
+	int N = subjVector.size();
+	if (N == 0) return 0;
+
+	StatisticsVector<float>residuals;
+	for(int i=0; i < N; i++ ) {
+		 if(outlierVector[i] == true ) {
+         	double newrt = model->predict(subjVector[i]);
+		 	residuals.push_back(POW2(refVector[i] - newrt));
+		 }
+	}
+
+	float meanResidual=residuals.mean();
+	float stdResidual=sqrt(residuals.variance(meanResidual));
+
+	int inlinerCount=0; 
+	double R2=0;
+	for(unsigned int i=0; i < residuals.size(); i++ ) {
+		if (abs((residuals[i] - meanResidual)/stdResidual) < zValueCutoff ) {
+			R2 += residuals[i];
+			inlinerCount++;
+		}
+	}
+	if (inlinerCount > 0 ) {
+		return sqrt(R2/inlinerCount);
+	} else {
+		return DBL_MAX;
+	}
+}
+
+void PolyFit::PolyAligner::randomOutliers(double keepFrac) {
+
+	int N = subjVector.size();
+	if(!outlierVector.size()) outlierVector = vector<bool>(N,false);
+
+	for(int i=0; i < N; i++ ) {
+		 double r = mtRand->rand(); //random number from 0 to 1
+		 if (r < keepFrac ) {
+			 outlierVector[i]=false;
+		 } else {
+			 outlierVector[i]=true;
+		 }
+	}
+}
+
+PolyFit::AlignmentStats* PolyFit::PolyAligner::align(int degree) {
+
+	AlignmentStats* stats = new AlignmentStats();
+	stats->poly_align_degree = degree; 
+	if (stats->poly_align_degree >= 100) stats->poly_align_degree=99;
+	
+	int knownInBoth=subjVector.size();
+	double* x  =   new double[subjVector.size()];
+	double* ref =  new double[subjVector.size()];
+
+	//copy values that are presents in both vectors to c arrays
+	for(unsigned int indx=0; indx < subjVector.size(); indx++ ) {
+		x[indx]  =subjVector[indx];
+		ref[indx]=refVector[indx];
+	}
+
+	stats->N = knownInBoth;
+
+	//remove outliers?
+	if(outlierVector.size() > 0 ) {
+		int j=0;
+		stats->N=0;
+		for(unsigned int i=0; i< outlierVector.size();i++) { 
+			if(outlierVector[i] == false) { 
+				x[j]= x[i];
+				ref[j]=ref[i];
+				stats->N++;
+				j++;
+			}
+		}
+		//cerr << "Removed " << knownInBoth - stats->N << endl;
+	}
+
+	if(stats->poly_align_degree > stats->N/3 ) { stats->poly_align_degree = stats->N/3; }
+
+	double* result = new double[(stats->poly_align_degree+1)];
+	double* w = new double[(stats->poly_align_degree+1)*(stats->poly_align_degree+1)];
+
+	
+	if(stats->N > 0) {
+		stats->R_before=0; 
+		stats->R_after=0;
+
+		sort_xy(x, ref, stats->N, 1, 0);
+        leasqu(stats->N, x, ref, stats->poly_align_degree, w, (stats->poly_align_degree+1), result);	//polynomial fit
+
+		stats->transformedFailed=0;
+		for(int ii=0; ii < stats->N; ii++)  { 
+            double newrt = leasev(result, stats->poly_align_degree, x[ii]);
+            if (newrt != newrt || std::isinf(newrt)) {
+				cerr << "Transform failed: " << ii << "\t" << x[ii] << "-> " << newrt << endl;
+				stats->transformedFailed++;
+			} else { 
+				stats->R_before += POW2(ref[ii] - x[ii]);
+				stats->R_after  += POW2(ref[ii] - newrt);
+			}
+		}
+
+		if(stats->transformedFailed == 0) {
+			stats->poly_transform_result = vector<double>(stats->poly_align_degree+1,0);
+			for(int ii=0; ii <= stats->poly_align_degree; ii++ ) stats->poly_transform_result[ii]=result[ii]; 
+		}
+	}
+
+    delete[] result;
+	delete[] w;
+	delete[] x;
+	delete[] ref;
+	return stats;
+}
+
+void PolyFit::PolyAligner::calculateOutliers(int initDegree) { 
+	if (subjVector.size() <= 2) return;
+
+	AlignmentStats* stats = this->align(initDegree); 
+	int N = subjVector.size();
+
+	StatisticsVector<float> distVector(N,0);
+	for(int i=0; i < N; i++ ) {
+		if(refVector[i]>0) {
+			distVector[i] = POW2(refVector[i] - stats->predict(subjVector[i]));
+		}
+	}
+
+	double meanDelta = distVector.mean();
+	double stddev = sqrt(distVector.variance(meanDelta));
+
+	outlierVector = vector<bool>(N,false);
+	for(int i=0; i < N; i++ ) {
+		distVector[i] = abs((distVector[i] - meanDelta)/stddev);
+		if (distVector[i] > 1.5) {
+			outlierVector[i] = true;
+		} else {
+			outlierVector[i] = false;
+		}
+    }
+
+	/*(
+	cerr << "OUTLIERS: " << endl;
+	for(int i=0; i < N; i++ ) {
+		cerr << outlierVector[i] << " r=" << refVector[i] << " pred=" << stats->predict(subjVector[i]) << " dist=" << distVector[i] << endl;
+	}
+	*/
+
+	delete stats;
+}
+
+
+PolyFit::AlignmentStats* PolyFit::PolyAligner::optimalPolynomial(int fromDegree, int toDegree, int sampleSize=0) { 
+
+	float R_best = FLT_MAX;
+    AlignmentStats* bestModel = NULL;
+
+	for(int deg=fromDegree; deg<toDegree; deg++) { 
+		for(int attempt=0; attempt <= sampleSize; attempt++ ) { 
+
+			AlignmentStats* thisModel = this->align(deg); 
+			double R_thismodel = this->calculateR2(thisModel);
+			//double R_thismodel = this->countInliners(thisModel,2.0);
+
+			randomOutliers(0.35); //new random subset of data
+
+			if (R_thismodel < R_best ) { 
+                //cerr << "optimalPolynomial() \t attempt=" << attempt << " R2=" << R_thismodel << endl;
+				if (bestModel) delete(bestModel);
+				bestModel = thisModel;
+				R_best = R_thismodel; 
+				continue;
+			}  else {
+				delete(thisModel);
+			}
+
+		}
+	}
+
+	if ( bestModel ) return bestModel;
+	else return this->align(1);
+}
+
+void PolyFit::PolyAligner::test() { 
+
+	vector<float> x(100);
+	vector<float> y(100);
+
+	for(float i=0; i < 100; i++ ) { 
+		float xi = i/100;
+		x[i] = xi;
+		y[i] = 3+(2*xi)-0.5*(xi*xi)+0.25*(xi*xi*xi)-0.1*(xi*xi*xi*xi)+0.01*(xi*xi*xi*xi*xi)-0.001*(xi*xi*xi*xi*xi);
+	}
+	
+	this->subjVector = x;
+	this->refVector  = y;
+	this->calculateOutliers(2);
+	this->optimalPolynomial(0,10);
+
+	//for(float i=0; i < 100; i++ ) { 
+	//	cerr << x[i] << " " << y[i] << " " << stats->predict(x[i]) << endl;
+	//}
+
+	//stats->summary(); 
+
+	exit(-1);
+}
+
+
 // loess fit
 
 void LoessFit::updateSampleRts(QJsonObject &sampleRts) {
@@ -798,7 +1033,7 @@ void LoessFit::writeToPythonProcess(QByteArray data){
 void LoessFit::sendDataToPython() {
     // prepare the data we have to send to python
     QJsonObject jObj;
-    jObj.insert("groups", grpJson);
+    jObj.insert("groups", groupsJson);
     jObj.insert("rts", rtsJson);
 
 
@@ -868,7 +1103,7 @@ void LoessFit::loessFit() {
     }
 
     if(!parentObj.isEmpty()) {
-        aligner.updateRts(parentObj);
+        updateRts(parentObj);
         qDebug()<<"Alignment complete";
     }
     else {
@@ -917,9 +1152,9 @@ void LoessFit::preProcessing() {
     
     samples.clear();
     set<mzSample*> samplesSet;
-    for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-        for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-            Peak& p = peakgroups[i]->peaks[j];
+    for (unsigned int i=0; i < groups.size();  i++ ) {
+        for ( unsigned int j=0; j < groups[i]->peakCount(); j++ ) {
+            Peak& p = groups[i]->peaks[j];
             mzSample* sample = p.getSample();
             if (sample) samplesSet.insert(sample);
         }
@@ -1019,9 +1254,11 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
     }
 
     MatF smat;
-    dyn.score(_mat, mat, smat, score);
 
-    if (!nostdnrm) {
+    char *score_ptr = &params->score[0];
+    dyn.score(_mat, mat, smat, score_ptr);
+
+    if (!params->nostdnrm) {
         if (!smat.all_equal()) { 
             smat.std_normal();
         }
@@ -1030,14 +1267,14 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
     int gp_length = smat.rows() + smat.cols();
 
     VecF gp_array;
-    dyn.linear_less_before(gap_extend,gap_init,gp_length,gp_array);
+    dyn.linear_less_before(params->gap_extend,params->gap_init,gp_length,gp_array);
 
     int minimize = 0;
-    dyn.find_path(smat, gp_array, minimize, factor_diag, factor_gap, local, init_penalty);
+    dyn.find_path(smat, gp_array, minimize, params->factor_diag, params->factor_gap, params->local, params->init_penalty);
 
     VecI mOut;
     VecI nOut;
-    dyn.warp_map(mOut, nOut, response, minimize);
+    dyn.warp_map(mOut, nOut, params->response, minimize);
 
     VecF nOutF;
     VecF mOutF;
@@ -1076,8 +1313,8 @@ void ObiWarp::warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm){
     _tm.take(out);
 }
 
-void ObiWarp::obiWarp (ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex) {
-     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
+void ObiWarp::obiWarp () {
+    std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
     if(referenceSampleIndex < 0) {
         /**
@@ -1092,7 +1329,7 @@ void ObiWarp::obiWarp (ObiParams *obiParams, vector<mzSample*> samples, int refe
 
     // ObiWarp* obiWarp = new ObiWarp(obiParams);
 
-    float binSize = obiParams->binSize;
+    float binSize = params->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
     
@@ -1115,13 +1352,13 @@ void ObiWarp::obiWarp (ObiParams *obiParams, vector<mzSample*> samples, int refe
     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
+    alignSampleRts(referenceSample, mzPoints, true);
 
     for(int i=0 ; i < samples.size();++i){
         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
         if(i == referenceSampleIndex)
             continue;
-        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
+        alignSampleRts(samples[i], mzPoints, false);
     }
     
     cerr<<"Alignment complete"<<endl;    

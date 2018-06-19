@@ -1804,10 +1804,18 @@ void TableDockWidget::align() {
     if ( allgroups.size() > 0 ) {
         vector<PeakGroup*> groups;
         for(int i=0; i <allgroups.size(); i++ ) groups.push_back(&allgroups[i]);
-        Aligner aligner;
-        aligner.setMaxItterations(_mainwindow->alignmentDialog->maxItterations->value());
-        aligner.setPolymialDegree(_mainwindow->alignmentDialog->polynomialDegree->value());
-        aligner.doAlignment(groups);
+        PolyFit *polyFit = new PolyFit(groups, _mainwindow->getSamples());
+
+        polyFit->setMaxIterations(_mainwindow->alignmentDialog->maxItterations->value());
+        polyFit->setPolymialDegree(_mainwindow->alignmentDialog->polynomialDegree->value());
+        polyFit->polyFitAlgo();
+
+
+        // aligner.setMaxItterations(_mainwindow->alignmentDialog->maxItterations->value());
+        // aligner.setPolymialDegree(_mainwindow->alignmentDialog->polynomialDegree->value());
+        
+        // aligner.doAlignment(groups);
+
         _mainwindow->getEicWidget()->replotForced();
         showSelectedGroup();
     }

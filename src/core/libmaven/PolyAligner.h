@@ -1,16 +1,17 @@
-#ifndef POLYALIGNER
-#define POLYALIGNER
+// #ifndef POLYALIGNER
+// #define POLYALIGNER
 
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include "statistics.h"
-#include "mzFit.h"
-#include "mzUtils.h"
-#include "MersenneTwister.h"
+// #include <vector>
+// #include <string>
+// #include <iostream>
+// #include <fstream>
+// #include "statistics.h"
+// #include "mzFit.h"
+// #include "mzUtils.h"
+// #include "MersenneTwister.h"
+// #include "mzAligner.h"
 
-using namespace std;
+// using namespace std;
 
 // struct AlignmentStats { 
 
@@ -59,27 +60,27 @@ using namespace std;
 
 // };
 
-class PolyAligner { 
+// class PolyAligner { 
 
-	public:
-		PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref);
+// 	public:
+// 		PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref);
 
 
-		AlignmentStats* align(int ideg);
-		AlignmentStats* optimalPolynomial(int fromDegree, int toDegree, int sampleSize);
-		double calculateR2(AlignmentStats* model) ;
-		void calculateOutliers(int initDegree);
-		double  countInliners(AlignmentStats* model, float zValueCutoff);
-		void randomOutliers(double keepFrac);
+// 		AlignmentStats* align(int ideg);
+// 		AlignmentStats* optimalPolynomial(int fromDegree, int toDegree, int sampleSize);
+// 		double calculateR2(AlignmentStats* model) ;
+// 		void calculateOutliers(int initDegree);
+// 		double  countInliners(AlignmentStats* model, float zValueCutoff);
+// 		void randomOutliers(double keepFrac);
 
-		void test();
+// 		void test();
 
-	private:
-		StatisticsVector<float> subjVector;
-		StatisticsVector<float> refVector;
-		vector<bool> outlierVector;
-		MTRand* mtRand;
+// 	private:
+// 		StatisticsVector<float> subjVector;
+// 		StatisticsVector<float> refVector;
+// 		vector<bool> outlierVector;
+// 		MTRand* mtRand;
 
-};
+// };
 
-#endif
+// #endif

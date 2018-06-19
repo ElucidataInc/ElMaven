@@ -267,14 +267,16 @@ void PeakDetector::alignSamples() {
                 for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
                         agroups[i] = &mavenParameters->allgroups[i];
                 //init aligner
-                Aligner aligner;
-                aligner.doAlignment(agroups);
+                // Aligner aligner;
+                // aligner.doAlignment(agroups);
+
+                PolyFit *polyFit = new PolyFit(agroups, mavenParameters->samples);
+                polyFit->polyFitAlgo();
                 mavenParameters->writeCSVFlag = true;
         }
 }
 
-void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
-{
+void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName) {
 
     if (slices.size() == 0)
         return;
@@ -286,8 +288,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
     int foundGroups = 0;
 
     int eicCount = 0;
-    for (unsigned int s = 0; s < slices.size(); s++)
-    {
+    for (unsigned int s = 0; s < slices.size(); s++) {
 
         if (mavenParameters->stop)
             break;
@@ -300,13 +301,11 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 
         //TODO: what is this for? this is not used
         //mavenParameters->checkConvergance is not always 0
-        if (mavenParameters->checkConvergance)
-        {
+        if (mavenParameters->checkConvergance) {
             mavenParameters->allgroups.size() - foundGroups > 0 ? converged =
                                                                       0
                                                                 : converged++;
-            if (converged > 1000)
-            {
+            if (converged > 1000) {
                 break;
             }
             foundGroups = mavenParameters->allgroups.size();
@@ -327,19 +326,16 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                         mavenParameters->filterline);
 
 
-        if (mavenParameters->clsf->hasModel())
-        {
+        if (mavenParameters->clsf->hasModel()){
             mavenParameters->clsf->scoreEICs(eics);
         }
 
         float eicMaxIntensity = 0;
-        for (unsigned int j = 0; j < eics.size(); j++)
-        {
+        for (unsigned int j = 0; j < eics.size(); j++){
             eicCount++;
             float max = 0;
 
-            switch ((PeakGroup::QType)mavenParameters->peakQuantitation)
-            {
+            switch ((PeakGroup::QType)mavenParameters->peakQuantitation){
             case PeakGroup::AreaTop:
                 max = eics[j]->maxAreaTopIntensity;
                 break;
@@ -363,8 +359,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             if (max > eicMaxIntensity)
                 eicMaxIntensity = max;
         }
-        if (eicMaxIntensity < mavenParameters->minGroupIntensity)
-        {
+        if (eicMaxIntensity < mavenParameters->minGroupIntensity){
             delete_all(eics);
             continue;
         }
@@ -392,8 +387,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         std::sort(peakgroups.begin(), peakgroups.end(),
                   PeakGroup::compRank);
 
-        for (unsigned int j = 0; j < peakgroups.size(); j++)
-        {
+        for (unsigned int j = 0; j < peakgroups.size(); j++){
             //check for duplicates	and append group
             if (j >= mavenParameters->eicMaxGroups)
                 break;
@@ -405,20 +399,17 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         //cleanup
         delete_all(eics);
 
-        if (mavenParameters->allgroups.size() > mavenParameters->limitGroupCount)
-        {
+        if (mavenParameters->allgroups.size() > mavenParameters->limitGroupCount){
             cerr << "Group limit exceeded!" << endl;
             break;
         }
 
-        if (zeroStatus)
-        {
+        if (zeroStatus){
             sendBoostSignal("Status", 0, 1);
             zeroStatus = false;
         }
 
-        if (mavenParameters->showProgressFlag && s % 10 == 0)
-        {
+        if (mavenParameters->showProgressFlag && s % 10 == 0){
 
             string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));

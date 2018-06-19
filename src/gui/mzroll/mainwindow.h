@@ -142,6 +142,9 @@ public:
 		return analytics;
 	}
 
+	EicWidget *eicWidget; //plot of extractred EIC
+
+
 	AutoSave* autosave;
 	QSet<QString> SaveMzrollListvar;
 	MavenParameters* mavenParameters;
@@ -446,7 +449,6 @@ private:
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
-	EicWidget *eicWidget; //plot of extractred EIC
 	History history;
 
 	MassCutoff *_massCutoffWindow;

@@ -247,19 +247,23 @@ BackgroundPeakUpdate::~BackgroundPeakUpdate() {
 void BackgroundPeakUpdate::run(void) {
         //Making sure that instance of the mainwindow is present so that the
         //peakdetection process can be ran
-        if (mainwindow == NULL) {
-                quit();
-                return;
-        }
-        connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
-        if (mavenParameters->alignSamplesFlag) {
-                connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
-        }
+        // if (mainwindow == NULL) {
+        //         quit();
+        //         return;
+        // }
+        // // connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
+        // if (mavenParameters->alignSamplesFlag) {
+        //         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
+        // }
+
+        /**
 	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentVizWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentPolyVizDockWidget, SLOT(plotGraph()));
-        mavenParameters->stop = false;
+        mavenParameters->stop = false; 
+        **/
+        
         //_stopped = false;
 
         //populating the maven setting insatnces with with the samples
@@ -279,6 +283,7 @@ void BackgroundPeakUpdate::run(void) {
         // } else {
         //         mavenParameters->setIonizationMode();
         // }
+
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();
         } else if (runFunction == "alignUsingDatabase") {
@@ -296,7 +301,7 @@ void BackgroundPeakUpdate::run(void) {
         } else if (runFunction == "computePeaks") {
                 computePeaks();
         } else if(runFunction == "alignWithObiWarp" ){
-                alignWithObiWarp();
+                // alignWithObiWarp();
         } else {
                 qDebug() << "Unknown Function " << runFunction.c_str();
         }
@@ -304,27 +309,27 @@ void BackgroundPeakUpdate::run(void) {
         quit();
         return;
 }
-void BackgroundPeakUpdate::alignWithObiWarp(){
-        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
-                                        mainwindow->alignmentDialog->local->isChecked(),
-                                        mainwindow->alignmentDialog->factorDiag->value(),
-                                        mainwindow->alignmentDialog->factorGap->value(),
-                                        mainwindow->alignmentDialog->gapInit->value(),
-                                        mainwindow->alignmentDialog->gapExtend->value(),
-                                        mainwindow->alignmentDialog->initPenalty->value(),
-                                        mainwindow->alignmentDialog->responseObiWarp->value(),
-                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
-                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
-                                );
-        Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+// void BackgroundPeakUpdate::alignWithObiWarp(){
+//         ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+//                                         mainwindow->alignmentDialog->local->isChecked(),
+//                                         mainwindow->alignmentDialog->factorDiag->value(),
+//                                         mainwindow->alignmentDialog->factorGap->value(),
+//                                         mainwindow->alignmentDialog->gapInit->value(),
+//                                         mainwindow->alignmentDialog->gapExtend->value(),
+//                                         mainwindow->alignmentDialog->initPenalty->value(),
+//                                         mainwindow->alignmentDialog->responseObiWarp->value(),
+//                                         mainwindow->alignmentDialog->noStdNormal->isChecked(),
+//                                         mainwindow->alignmentDialog->binSizeObiWarp->value()
+//                                 );
+//         Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
 
-        Aligner aligner;
-        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
-        delete obiParams;
+//         Aligner aligner;
+//         aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
+//         delete obiParams;
 
-        mainwindow->alignmentPolyVizDockWidget->plotGraph();
+//         mainwindow->alignmentPolyVizDockWidget->plotGraph();
 
-}
+// }
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
 
         //write reports
@@ -446,91 +451,91 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
 void BackgroundPeakUpdate::align() {
 
         //These else if statements will take care of all corner cases of undoAlignment
-        if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton > 0) {
-                ;
-        } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton ==0){
-                mavenParameters->alignButton++;
-                mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
-        } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton == -1) {
-                ;
-        } else {
-                mavenParameters->alignButton = -1;
-                mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
-        }
+        // if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton > 0) {
+        //         ;
+        // } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton ==0){
+        //         mavenParameters->alignButton++;
+        //         mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
+        // } else if (mavenParameters->alignSamplesFlag && mavenParameters->alignButton == -1) {
+        //         ;
+        // } else {
+        //         mavenParameters->alignButton = -1;
+        //         mavenParameters->undoAlignmentGroups = mavenParameters->allgroups;
+        // }
 
-        if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
-                Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
-                vector<PeakGroup*> groups(mavenParameters->allgroups.size());
-                for (int i = 0; i < mavenParameters->allgroups.size(); i++)
-                        groups[i] = &mavenParameters->allgroups[i];
-                Aligner aligner;
-                int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
+        // if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
+        //         Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+        //         vector<PeakGroup*> groups(mavenParameters->allgroups.size());
+        //         for (int i = 0; i < mavenParameters->allgroups.size(); i++)
+        //                 groups[i] = &mavenParameters->allgroups[i];
+        //         Aligner aligner;
+        //         int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
-                if (alignAlgo == 0) {
-                        // aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
-                        // aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
-                        // aligner.doAlignment(groups);
-                        mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
-                        mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
-                } else if (alignAlgo == 1) {
-                        // aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
-                        // // initialize processedDataFromPython with null 
-                        // processedDataFromPython="";
-                        //  /**runPythonProg()
-                        //  * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
-                        //  * python exe is going to correct the rts and send it back to us in json format
-                        //  */
-                        // runPythonProg(&aligner);
-                        // // wait for processing of data by python program
-                        // pythonProg->waitForFinished(-1);                        
+        //         if (alignAlgo == 0) {
+        //                 aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
+        //                 aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
+        //                 aligner.doAlignment(groups);
+        //                 mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
+        //                 mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
+        //         } else if (alignAlgo == 1) {
+        //                 // aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
+        //                 // // initialize processedDataFromPython with null 
+        //                 // processedDataFromPython="";
+        //                 //  /**runPythonProg()
+        //                 //  * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
+        //                 //  * python exe is going to correct the rts and send it back to us in json format
+        //                 //  */
+        //                 // runPythonProg(&aligner);
+        //                 // // wait for processing of data by python program
+        //                 // pythonProg->waitForFinished(-1);                        
 
-                        // // convert the data to json
-                        // QJsonDocument jDoc;
-                        // QJsonObject parentObj;
+        //                 // // convert the data to json
+        //                 // QJsonDocument jDoc;
+        //                 // QJsonObject parentObj;
 
-                        // // if jDoc is null that means the json returned from python is malformed
-                        // // in such a case our rts wont update with new values
-                        // jDoc = QJsonDocument::fromJson(processedDataFromPython);
+        //                 // // if jDoc is null that means the json returned from python is malformed
+        //                 // // in such a case our rts wont update with new values
+        //                 // jDoc = QJsonDocument::fromJson(processedDataFromPython);
 
-                        // QString errorMessage=QString::number(processedDataFromPython.size());
+        //                 // QString errorMessage=QString::number(processedDataFromPython.size());
 
-                        // if(!jDoc.isNull()){
-                        //         parentObj = jDoc.object();
-                        // }
-                        // else{
-                        //         if(processedDataFromPython.size()==0){
-                        //                 errorMessage=errorMessage + " good groups found." +"<br>"+"Relax parameters for better result";
-                        //         }
-                        //         else{
-                        //                 errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
-                        //         }
-                        //         qDebug()<<errorMessage;
-                        //         Q_EMIT alignmentError(errorMessage);
-                        //         return;
-                        // }
+        //                 // if(!jDoc.isNull()){
+        //                 //         parentObj = jDoc.object();
+        //                 // }
+        //                 // else{
+        //                 //         if(processedDataFromPython.size()==0){
+        //                 //                 errorMessage=errorMessage + " good groups found." +"<br>"+"Relax parameters for better result";
+        //                 //         }
+        //                 //         else{
+        //                 //                 errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
+        //                 //         }
+        //                 //         qDebug()<<errorMessage;
+        //                 //         Q_EMIT alignmentError(errorMessage);
+        //                 //         return;
+        //                 // }
 
-                        // if(!parentObj.isEmpty()){
-                        //         aligner.updateRts(parentObj);
-                        //         qDebug()<<"Alignment complete";
-                        // }
-                        // else{
-                        //         errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
-                        //         qDebug()<<errorMessage;
-                        //         Q_EMIT alignmentError(errorMessage);
-                        //         return;
-                        // }
-                }
+        //                 // if(!parentObj.isEmpty()){
+        //                 //         aligner.updateRts(parentObj);
+        //                 //         qDebug()<<"Alignment complete";
+        //                 // }
+        //                 // else{
+        //                 //         errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
+        //                 //         qDebug()<<errorMessage;
+        //                 //         Q_EMIT alignmentError(errorMessage);
+        //                 //         return;
+        //                 // }
+        //         }
 
-                mainwindow->deltaRt = aligner.getDeltaRt();
-                mavenParameters->alignSamplesFlag = false;
+        //         mainwindow->deltaRt = aligner.getDeltaRt();
+        //         mavenParameters->alignSamplesFlag = false;
 
-        }
-        QList<PeakGroup> listGroups;
-        for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
-                listGroups.append(mavenParameters->allgroups.at(i));
-        }	
+        // }
+        // QList<PeakGroup> listGroups;
+        // for (unsigned int i = 0; i<mavenParameters->allgroups.size(); i++) {
+        //         listGroups.append(mavenParameters->allgroups.at(i));
+        // }	
 
-        Q_EMIT(alignmentComplete(listGroups));
+        // Q_EMIT(alignmentComplete(listGroups));
 }
 
 void BackgroundPeakUpdate::alignUsingDatabase() {
@@ -548,7 +553,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         peakDetector.processSlices(slices, setName);
 
-        if (runFunction == "alignUsingDatabase") align();
+        // if (runFunction == "alignUsingDatabase") align();
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
