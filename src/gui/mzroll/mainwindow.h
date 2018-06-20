@@ -347,8 +347,8 @@ public Q_SLOTS:
 	void setUrl(Compound*);
 	void setUrl(Reaction*);
 	void setFormulaFocus(QString formula);
-	void Align();
-	void UndoAlignment();
+	// void Align();
+	// void UndoAlignment();
 	void spectaFocused(Peak* _peak);
 	bool checkCompoundExistance(Compound* c);
 	void setCompoundFocus(Compound* c);

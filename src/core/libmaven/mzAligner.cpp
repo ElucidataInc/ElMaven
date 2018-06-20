@@ -2,15 +2,15 @@
 #include "mzMassSlicer.h"
 #include "mzSample.h"
 #include <cmath>
-#include "PolyAligner.h"
+// #include "PolyAligner.h"
 #include <fstream>
 #include <iostream>
 #include <QJsonArray>
 #include <QJsonValue>
 
 // Aligner::Aligner() {
-//        maxItterations=10;
-//        polynomialDegree=3;
+    //    maxItterations=10;
+    //    polynomialDegree=3;
 // }
 
 // void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
@@ -1098,7 +1098,9 @@ void LoessFit::loessFit() {
                 errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
         }
         qDebug()<<errorMessage;
-        Q_EMIT alignmentError(errorMessage);
+
+        // @# maybe not put emit here?
+        // Q_EMIT alignmentError(errorMessage);
         return;
     }
 
@@ -1109,7 +1111,8 @@ void LoessFit::loessFit() {
     else {
         errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
         qDebug()<<errorMessage;
-        Q_EMIT alignmentError(errorMessage);
+        // @# maybe not put emit here?
+        // Q_EMIT alignmentError(errorMessage);
         return;
     }
 }

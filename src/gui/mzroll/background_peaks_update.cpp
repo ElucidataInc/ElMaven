@@ -24,7 +24,9 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
                 programPath = QCoreApplication::applicationDirPath() + QDir::separator() + "windows" + QDir::separator() + "python_exe.exe";
         #endif
         pythonProg->setProgram(programPath);
-        connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
+
+        // @# commenting this for now
+        // connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
 }
 
 QString BackgroundPeakUpdate::printSettings() {
@@ -253,7 +255,7 @@ void BackgroundPeakUpdate::run(void) {
         // }
         // // connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
         // if (mavenParameters->alignSamplesFlag) {
-        //         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
+                // connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
         // }
 
         /**

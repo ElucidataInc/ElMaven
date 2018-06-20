@@ -2890,36 +2890,36 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-void MainWindow::UndoAlignment() {
-	if(alignmentDialog->alignAlgo->currentIndex() == 2){
-		for (int i = 0; i < samples.size(); i++) {
-			for(int j = 0; j < samples[i]->scans.size(); ++j)
-				if(samples[i]->scans[j]->originalRt >= 0)
-					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
-		}
+// void MainWindow::UndoAlignment() {
+// 	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+// 		for (int i = 0; i < samples.size(); i++) {
+// 			for(int j = 0; j < samples[i]->scans.size(); ++j)
+// 				if(samples[i]->scans[j]->originalRt >= 0)
+// 					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
+// 		}
 
-		eicWidget->replotForced();
-		alignmentDialog->close();
-		return;
-	}
+// 		eicWidget->replotForced();
+// 		alignmentDialog->close();
+// 		return;
+// 	}
 
-	aligned = false;
-	for (int i = 0; i < samples.size(); i++) {
-		if (samples[i])
-			samples[i]->restoreOriginalRetentionTimes();
-	}
-	getEicWidget()->replotForced();
+// 	aligned = false;
+// 	for (int i = 0; i < samples.size(); i++) {
+// 		if (samples[i])
+// 			samples[i]->restoreOriginalRetentionTimes();
+// 	}
+// 	getEicWidget()->replotForced();
 
-	mavenParameters->alignButton = 0;
+// 	mavenParameters->alignButton = 0;
 
-	QList<PeakGroup> listGroups;
-	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
-			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
-	}
+// 	QList<PeakGroup> listGroups;
+// 	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
+// 			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
+// 	}
 
-	Q_EMIT(undoAlignment(listGroups));
+// 	Q_EMIT(undoAlignment(listGroups));
 
-}
+// }
 
 
 void MainWindow::showPeakInfo(Peak* _peak) {

@@ -23,7 +23,7 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
 		connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
 		connect(alignButton, SIGNAL(clicked()), SLOT(align()));
-		// @# now sure about error
+		// @# not sure about error [ is currently not there on devlop ]
 		// connect(UndoAlignment, SIGNAL(clicked()), SLOT(UndoAlignment()));
 
 		QRect rec = QApplication::desktop()->screenGeometry();
@@ -302,21 +302,18 @@ void AlignmentDialog::updateParameters() {
 void AlignmentDialog::func() {
 	checkCornerCases();
 	if (_mw->mavenParameters->alignSamplesFlag && !_mw->mavenParameters->stop) {
-		// @# not sure (maybe define function here?)
-		// Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+		Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
 	}
 }
 
 void AlignmentDialog::processSlices(vector<mzSlice*>&slices, string setName, PeakDetector peakDetector) {
         
-		/* @# this func isnt doing anything */
-		// getProcessSlicesSettihngs();
+		
         
 		peakDetector.processSlices(slices, setName);
        
         if (_mw->mavenParameters->showProgressFlag && _mw->mavenParameters->pullIsotopesFlag) {
-			// @# not sure (maybe define function here?)
-			// Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
+			Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
         }
         writeCSVRep(setName, peakDetector);
 }
@@ -345,9 +342,8 @@ void AlignmentDialog::writeCSVRep(string setName, PeakDetector peakDetector) {
 
 
 			if (_mw->mavenParameters->keepFoundGroups) {
-				// @# not sure (maybe define function here?)
 
-				// Q_EMIT(newPeakGroup(&(_mw->mavenParameters->allgroups[j])));
+				Q_EMIT(newPeakGroup(&(_mw->mavenParameters->allgroups[j])));
 				QCoreApplication::processEvents();
 			}
         }
@@ -357,8 +353,7 @@ void AlignmentDialog::writeCSVRep(string setName, PeakDetector peakDetector) {
                 delete (csvreports);
                 csvreports = NULL;
         }
-		// @# not sure (maybe define function here?)
-        // Q_EMIT(updateProgressBar("Done", 1, 1));
+        Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
 
@@ -380,85 +375,21 @@ void AlignmentDialog::connectStatements() {
 	// connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 	// connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
 
-
+	// @# worker thread..what to do??
 	// connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
 	// connect(workerThread, SIGNAL(finished()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
 	// connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
 	
-	// if (_mw->mavenParameters->alignSamplesFlag) {
-    //     connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
-    // }
+	if (_mw->mavenParameters->alignSamplesFlag) {
+        connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), _mw, SLOT(showAlignmentWidget()));
+    }
 
-	// qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
-	// connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
-	// connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentVizWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
-	// connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentPolyVizDockWidget, SLOT(plotGraph()));
+	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
+	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), _mw, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
+	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), _mw->alignmentVizWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
+	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), _mw->alignmentPolyVizDockWidget, SLOT(plotGraph()));
         
 }
-
-
-// void AlignmentDialog::align() {
-// 	BackgroundPeakUpdate* workerThread;
-
-// 	int algoToPerform = alignAlgo->currentIndex();
-// 	if (algoToPerform == 0) {
-// 		// start polyfit
-// 		if (peakDetectionAlgo->currentText() == "Compound Database Search") {
-// 			workerThread = newWorkerThread("alignUsingDatabase");
-// 		}
-// 		else {
-// 					}
-
-// 		// ** @# connect statements :: dont know what to do about this **//
-
-// 	}
-// 	else if (algoToPerform == 1) {
-// 		// start loessfit
-
-// 		if (peakDetectionAlgo->currentText() == "Compound Database Search") {
-			
-
-// 		}
-// 		else {
-			
-// 		}
-
-// 	}
-// 	else if (algoToPerform == 2) {
-// 		// start obiwarp
-
-		
-// 		ObiWarp.ObiParams *obiParams = new obiWarp.ObiParams(
-// 			_mw->alignmentDialog->scoreObi->currentText().toStdString(),
-//             _mw->alignmentDialog->local->isChecked(),
-//             _mw->alignmentDialog->factorDiag->value(),
-//             _mw->alignmentDialog->factorGap->value(),
-//             _mw->alignmentDialog->gapInit->value(),
-//             _mw->alignmentDialog->gapExtend->value(),
-//             _mw->alignmentDialog->initPenalty->value(),
-//             _mw->alignmentDialog->responseObiWarp->value(),
-//             _mw->alignmentDialog->noStdNormal->isChecked(),
-//             _mw->alignmentDialog->binSizeObiWarp->value());
-
-// 		ObiWarp obiWarp = new ObiWarp(obiParams, _mw->samples);
-
-// 		/** threaded **/
-
-// 		QThread *thread = QThread::create([] { obiWarp.obiWarp(); });
-// 		thread->start();
-
-// 		/** change in ui **/
-// 		_mw->alignmentPolyVizDockWidget->plotGraph();
-
-
-
-// 	}
-// 	else {
-// 		// throw error
-// 	}
-
-
-// }
 
 void AlignmentDialog::align() {
 	if (_mw->samples.size() < 2) {
@@ -475,8 +406,7 @@ void AlignmentDialog::align() {
 		if (peakDetectionAlgo->currentText() == "Compound Database Search") {
 			// workerThread = newWorkerThread("alignUsingDatabase");
 
-			// @# not sure why it cannot find DB
-			// _mw->mavenParameters->setCompounds(_mw->DB.getCopoundsSubset(selectDatabaseComboBox->currentText().toStdString()));
+			_mw->mavenParameters->setCompounds(DB.getCopoundsSubset(selectDatabaseComboBox->currentText().toStdString()));
 			updateParameters();
 
 			connectStatements();
@@ -498,8 +428,11 @@ void AlignmentDialog::align() {
 			_mw->deltaRt = polyFit->getDeltaRt();
 			_mw->mavenParameters->alignSamplesFlag = false;
 			
-			// @# not sure
-       		// Q_EMIT(alignmentComplete(groups));
+			QList<PeakGroup> listGroups;
+			for (unsigned int i = 0; i<_mw->mavenParameters->allgroups.size(); i++) {
+					listGroups.append(_mw->mavenParameters->allgroups.at(i));
+			}
+       		// Q_EMIT(alignmentComplete(listGroups));
 
 		}
 		else {
@@ -509,17 +442,16 @@ void AlignmentDialog::align() {
 
 			PeakDetector peakDetector;
 
-			// @# not sure
-			// Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
-        	_mw->mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
+			Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
+
+			// @# commented for now
+        	// _mw->mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
         	peakDetector.processMassSlices();
 
 			func();
 
-			if (_mw->mavenParameters->showProgressFlag
-				&& _mw->mavenParameters->pullIsotopesFlag) {
-					//@# not sure
-					// Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
+			if (_mw->mavenParameters->showProgressFlag && _mw->mavenParameters->pullIsotopesFlag) {
+					Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
 			}
 
         	writeCSVRep("allslices",peakDetector);
@@ -536,21 +468,23 @@ void AlignmentDialog::align() {
 
 			_mw->deltaRt = polyFit->getDeltaRt();
 			_mw->mavenParameters->alignSamplesFlag = false;
+			
+			QList<PeakGroup> listGroups;
+			for (unsigned int i = 0; i<_mw->mavenParameters->allgroups.size(); i++) {
+					listGroups.append(_mw->mavenParameters->allgroups.at(i));
+			}
 
-			// @# not sure
-       		// Q_EMIT(alignmentComplete(groups));
+       		// Q_EMIT(alignmentComplete(listGroups));
 		}
 
-		// ** @# connect statements :: dont know what to do about this **//
 
 	}
 	else if (algoToPerform == 1) {
 		// start loessfit
 
 		if (peakDetectionAlgo->currentText() == "Compound Database Search") {
-			// workerThread = newWorkerThread("alignUsingDatabase");
 			// @# cant access DB ?!
-			// _mw->mavenParameters->setCompounds(_mw->DB.getCopoundsSubset(selectDatabaseComboBox->currentText().toStdString()));
+			_mw->mavenParameters->setCompounds(DB.getCopoundsSubset(selectDatabaseComboBox->currentText().toStdString()));
 			updateParameters();
 
 			connectStatements();
@@ -570,8 +504,12 @@ void AlignmentDialog::align() {
 			_mw->deltaRt = loessFit->getDeltaRt();
 			_mw->mavenParameters->alignSamplesFlag = false;
 			
-			// @# not sure
-       		// Q_EMIT(alignmentComplete(groups));
+			QList<PeakGroup> listGroups;
+			for (unsigned int i = 0; i<_mw->mavenParameters->allgroups.size(); i++) {
+					listGroups.append(_mw->mavenParameters->allgroups.at(i));
+			}
+
+       		// Q_EMIT(alignmentComplete(listGroups));
 
 		}
 		else {
@@ -581,17 +519,17 @@ void AlignmentDialog::align() {
 
 			PeakDetector peakDetector;
 
-			// @# not sure
-			// Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
-        	_mw->mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
+			Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
+
+			// @# comment for now
+        	// _mw->mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
         	peakDetector.processMassSlices();
 
 			func();
 
 			if (_mw->mavenParameters->showProgressFlag
 				&& _mw->mavenParameters->pullIsotopesFlag) {
-					// @# not sure
-					// Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
+					Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
 			}
 
         	writeCSVRep("allslices", peakDetector);
@@ -606,8 +544,12 @@ void AlignmentDialog::align() {
 			_mw->deltaRt = loessFit->getDeltaRt();
 			_mw->mavenParameters->alignSamplesFlag = false;
 			
-			// @# not sure
-       		// Q_EMIT(alignmentComplete(groups));
+			QList<PeakGroup> listGroups;
+			for (unsigned int i = 0; i<_mw->mavenParameters->allgroups.size(); i++) {
+					listGroups.append(_mw->mavenParameters->allgroups.at(i));
+			}
+
+       		// Q_EMIT(alignmentComplete(listGroups));
 		}
 
 	}

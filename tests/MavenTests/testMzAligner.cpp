@@ -39,6 +39,7 @@ void TestMzAligner::testDoAlignment() {
     for (unsigned int i = 0; i < allgroups.size(); i++)
             peakgroups[i] = &allgroups[i];
 
+    PolyFit *polyFit = new PolyFit()
     Aligner aligner;
     aligner.doAlignment(peakgroups);
     QVERIFY(true);

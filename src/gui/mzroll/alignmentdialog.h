@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "ui_alignmentdialog.h"
 #include "mainwindow.h"
+#include "mzAligner.h"
 
 class BackgroundPeakUpdate;
 class Database;
@@ -31,6 +32,24 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void checkCornerCases();
 		void connectStatements();
 		void align();
+
+
+	Q_SIGNALS:
+		/**
+		 * [update ProgressBar]
+		 * @param QString [message]
+		 * @param int     [progress value]
+		 * @param int     [total value]
+		 */
+		void updateProgressBar(QString, int, int);
+		void alignmentError(QString);
+
+		/**
+		 * [new PeakGroup]
+		 * @param group [pointer to PeakGroup]
+		 */
+		void newPeakGroup(PeakGroup* group);
+		
 
 
 	public Q_SLOTS:

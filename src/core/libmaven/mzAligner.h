@@ -72,7 +72,7 @@ using namespace std;
 
 class Aligner {
     public:
-        Aligner();
+        // Aligner();
         void setGroups(vector<PeakGroup*> x) { groups = x; }
         // vector<PeakGroup*> getGroups() { return groups; }
         map<pair<string, string>, double> getDeltaRt() { return deltaRt; }

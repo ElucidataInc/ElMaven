@@ -11,6 +11,7 @@
 #include "QHistogramSlider.h"
 #include "saveJson.h"
 #include "jsonReports.h";
+#include "mzAligner.h"
 
 class MainWindow;
 class AlignmentVizWidget;
