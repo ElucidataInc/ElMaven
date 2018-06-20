@@ -4,7 +4,7 @@ PollyIntegration::PollyIntegration(): nodePath(""), jsPath("")
 {
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
-    nodePath = QStandardPaths::findExecutable("node");
+    // nodePath = QStandardPaths::findExecutable("node");
     jsPath = qApp->applicationDirPath() + QDir::separator() + "index.js";
 
     #ifdef Q_OS_WIN
@@ -39,7 +39,7 @@ PollyIntegration::~PollyIntegration()
 //
 // CALLED FROM: multiple functions in this script
 
-QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
+QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
@@ -48,6 +48,8 @@ QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
     arg << jsPath; // where index.js files is placed
     arg << command; // what command to pass to index.js. eg. authenticate
     arg << args; // required params by that command . eg username, password
+    // qDebug()<<"nodePath"<<nodePath;
+    // qDebug()<<"args -"<<arg;
 
     // nodePath = "PATH_OF_MAVEN/bin/node.exe"
     process.setProgram(nodePath);
@@ -58,8 +60,9 @@ QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
     process.waitForFinished(-1);
     QByteArray result = process.readAllStandardOutput();
     QByteArray result2 = process.readAllStandardError();
-
-    return result;
+    qDebug()<<"StandardOutput  - "<<result;
+    qDebug()<<"StandardError, if any  - "<<result2;
+    return QList<QByteArray>()<<result<<result2;
 }
 
 // name OF FUNCTION: get_run_id
@@ -70,7 +73,6 @@ QByteArray PollyIntegration::run_qt_process(QString command, QStringList args){
 // CALLS TO: none
 //
 // CALLED FROM: createProjectOnPolly
-
 
 QString PollyIntegration::get_run_id(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
@@ -114,8 +116,8 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "upload_project_data";
-        QByteArray patch_id_result = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
-        patch_ids.append(patch_id_result);
+        QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        patch_ids.append(patch_id_result_and_error.at(0));
     }
     return patch_ids;
 }
@@ -146,8 +148,8 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "download_project_data";
-        QByteArray patch_id_result = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
-        patch_ids.append(patch_id_result);
+        QList<QByteArray> result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        patch_ids.append(result_and_error.at(0));
     }
     return patch_ids;
 }
@@ -164,8 +166,8 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
 int PollyIntegration::check_already_logged_in(){
     int status;
     QString command = QString("authenticate");
-    QByteArray result2 = run_qt_process(command, QStringList() << credFile);
-    QList<QByteArray> test_list = result2.split('\n');
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile);
+    QList<QByteArray> test_list = result_and_error.at(0).split('\n');
     QByteArray status_line = test_list[0];
     if (status_line=="already logged in"){
         status = 1;
@@ -188,13 +190,24 @@ int PollyIntegration::check_already_logged_in(){
 // CALLED FROM: external clients
 
 
-int PollyIntegration::authenticate_login(QString username,QString password){
+QString PollyIntegration::authenticate_login(QString username,QString password){
+    QString command = "authenticate";
+    QString status;
     QFile file (credFile);
     file.remove();
-    QString command = "authenticate";
-    QByteArray result = run_qt_process(command, QStringList() << credFile << username << password);
+    
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
-    return status_inside;
+    if (status_inside==1){
+        status="ok";
+    }
+    else if (result_and_error.at(1)!=""){
+        status="error";
+    }
+    else {
+        status = "incorrect credentials";
+    }
+    return status;
 }
 
 // This function checks if node executable path has been defined for the library or not..
@@ -204,6 +217,11 @@ int PollyIntegration::check_node_executable(){
     }
     return 1;
     
+}
+// This function deletes the token and logs out the user..
+void PollyIntegration::logout(){
+    QFile file (credFile);
+    file.remove();
 }
 // name OF FUNCTION: getUserProjectsMap
 // PURPOSE:
@@ -249,8 +267,8 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 
 QVariantMap PollyIntegration::getUserProjects(){
     QString get_projects_command = "get_Project_names";
-    QByteArray result2 = run_qt_process(get_projects_command,QStringList() << credFile);
-    QVariantMap user_projects = getUserProjectsMap(result2);
+    QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile);
+    QVariantMap user_projects = getUserProjectsMap(result_and_error.at(0));
     return user_projects;
 }
 
@@ -293,8 +311,8 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
     for (int i=0; i < ProjectIds.size(); ++i){
         QString ProjectId = ProjectIds.at(i);
         QString get_projects_command = "get_Project_files";
-        QByteArray result2 = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
-        QStringList user_projectfiles = getUserProjectFilesMap(result2);
+        QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
+        QStringList user_projectfiles = getUserProjectFilesMap(result_and_error.at(0));
         user_projectfilesmap[ProjectId] = user_projectfiles;
     }
     return user_projectfilesmap;
@@ -311,11 +329,35 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
 
 QString PollyIntegration::createProjectOnPolly(QString projectname){
     QString command2 = "createProject";
-    QByteArray result1 = run_qt_process(command2, QStringList() << credFile<< projectname);
-    QString run_id = get_run_id(result1);
+    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile<< projectname);
+    QString run_id = get_run_id(result_and_error.at(0));
     return run_id;
 }
 
+
+QString PollyIntegration::get_share_status(QByteArray result){
+    QList<QByteArray> test_list = result.split('\n');
+    int size = test_list.size();
+    QByteArray result2 = test_list[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(result2));
+    // Get JSON object
+    QJsonObject json = doc.object();
+    QVariantMap json_map = json.toVariantMap();
+    QString status =  json_map["status"].toString();
+    return status;
+}
+
+
+QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap collaborators_map){
+    
+    QString command = "shareProject";
+    QStringList usernames = collaborators_map.keys();
+    // As of now, only write permissions are being granted..We will need to modify the code written below, when more permissions are allowed on polly
+    QString permission = collaborators_map[usernames.at(0)].toString();
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile<< project_id<<permission<<usernames);
+    QString status = get_share_status(result_and_error.at(0));
+    return status;
+}
 
 // name OF FUNCTION: exportData
 // PURPOSE:
@@ -333,8 +375,8 @@ QStringList PollyIntegration::exportData(QStringList filenames,QString projectId
     QElapsedTimer timer;
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
-    QStringList patch_ids = get_project_upload_url_commands(result2,filenames);
+    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
+    QStringList patch_ids = get_project_upload_url_commands(result_and_error.at(0),filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
     return patch_ids;
 }
@@ -352,8 +394,8 @@ QStringList PollyIntegration::exportData(QStringList filenames,QString projectId
 
 QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filenames) {
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QByteArray result2 = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
-    QStringList patch_ids = get_projectFiles_download_url_commands(result2,filenames);
+    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
+    QStringList patch_ids = get_projectFiles_download_url_commands(result_and_error.at(0),filenames);
     if (0<filenames.size()&&!patch_ids.isEmpty()){
         return "project data loaded";
     }
@@ -365,3 +407,14 @@ QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filena
     }
 }
 
+QStringList PollyIntegration::parseResultOrganizationalDBs(QString result){
+    QStringList OrganizationalDBs;
+
+    return OrganizationalDBs;
+}
+QStringList PollyIntegration::getOrganizationalDBs(QString organization){
+    QString command = "get_organizational_databases";
+    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << organization);
+    QStringList OrganizationalDBs = parseResultOrganizationalDBs(result_and_error.at(0));    
+    return OrganizationalDBs;
+}

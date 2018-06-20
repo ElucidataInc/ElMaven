@@ -88,5 +88,7 @@
         <file>images/icon.png</file>
         <file>images/setupload.png</file>
         <file>images/GettingStartedpic.png</file>
+        <file>images/aboutPolly.png</file>
+        <file>images/loading.gif</file>
     </qresource>
 </RCC>

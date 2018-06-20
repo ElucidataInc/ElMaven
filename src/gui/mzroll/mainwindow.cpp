@@ -2492,9 +2492,9 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnAlign);
 	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	toolBar->addWidget(btnFeatureDetect);
-	toolBar->addWidget(btnPollyBridge);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
+	toolBar->addWidget(btnPollyBridge);
 
 	QWidget *hBox = new QWidget(toolBar);
 	(void) toolBar->addWidget(hBox);
@@ -2731,9 +2731,8 @@ void MainWindow::showPeakdetectionDialog() {
 }
 
 void MainWindow::showPollyElmavenInterfaceDialog() {
-	pollyElmavenInterfaceDialog->show();
-	analytics->hitScreenView("PollyDialog");
 	pollyElmavenInterfaceDialog->initialSetup();
+	analytics->hitScreenView("PollyDialog");
 }
 
 void MainWindow::showSRMList() {
@@ -3165,7 +3164,7 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
-
+	
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
 	toolBar->addAction(btnCopyCSV);
@@ -3193,7 +3192,8 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
-
+	toolBar->addSeparator();
+	
 	QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setMargin(0);
@@ -3423,6 +3423,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnShowBoxplot;
 
 	}
+	
 	else {
 		return NULL;
 	}

@@ -106,12 +106,15 @@ FORMS = forms/settingsform.ui  \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/loginform.ui \
+        forms/advancedsettings.ui \
+        forms/aboutpolly.ui \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
     forms/alignmentpolyvizdockwidget.ui \
     forms/isotopeplotdockwidget.ui \
-    forms/gettingstarted.ui
+    forms/gettingstarted.ui \
+    forms/pollywaitdialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -170,6 +173,8 @@ HEADERS +=  stable.h \
                    spectralhitstable.h\
                     clusterdialog.h \
                     loginform.h \
+                    aboutpolly.h \
+                    advancedsettings.h \
                     peptidefragmentation.h \
                     qcustomplot.h \
                     saveJson.h \
@@ -181,7 +186,8 @@ HEADERS +=  stable.h \
                     analytics.h \
                     ElmavCrashHandler.h \
                     isotopeplotdockwidget.h \
-                    gettingstarted.h
+                    gettingstarted.h \
+                    pollywaitdialog.h
 
 
 
@@ -232,6 +238,8 @@ database.cpp \
  rconsolewidget.cpp \
  clusterdialog.cpp \
  loginform.cpp \
+ advancedsettings.cpp \
+ aboutpolly.cpp \
  widgets/qprog.cpp \
  projectdockwidget.cpp \
  spectramatching.cpp \
@@ -250,7 +258,8 @@ database.cpp \
     analytics.cpp \
     ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
-    gettingstarted.cpp
+    gettingstarted.cpp \
+    pollywaitdialog.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
