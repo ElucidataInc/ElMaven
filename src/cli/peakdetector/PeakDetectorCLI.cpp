@@ -84,9 +84,13 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
+					else mavenParameters->C13Labeled_BPE = false;
 					if (label & 2) mavenParameters->S34Labeled_BPE = true;
+					else mavenParameters->S34Labeled_BPE = false;
 					if (label & 4) mavenParameters->N15Labeled_BPE = true;
+					else mavenParameters->N15Labeled_BPE = false;
 					if (label & 8) mavenParameters->D2Labeled_BPE  = true;
+					else mavenParameters->D2Labeled_BPE  = false;
 				}
 			}
 			break;
@@ -342,9 +346,13 @@ void PeakDetectorCLI::processPeaksArgsXML(xml_node& peaksArgs) {
 				if (label > 0) {
 					mavenParameters->pullIsotopesFlag = 1;
 					if (label & 1) mavenParameters->C13Labeled_BPE = true;
+					else mavenParameters->C13Labeled_BPE = false;
 					if (label & 2) mavenParameters->S34Labeled_BPE = true;
+					else mavenParameters->S34Labeled_BPE = false;
 					if (label & 4) mavenParameters->N15Labeled_BPE = true;
+					else mavenParameters->N15Labeled_BPE = false;
 					if (label & 8) mavenParameters->D2Labeled_BPE  = true;
+					else mavenParameters->D2Labeled_BPE  = false;
 				}
 
 		}

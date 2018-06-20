@@ -61,8 +61,8 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->processAllSlices == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->C13Labeled_BPE == true);
     QVERIFY(peakdetectorCLI->mavenParameters->N15Labeled_BPE == true);
-    QVERIFY(peakdetectorCLI->mavenParameters->S34Labeled_BPE == true);
-    QVERIFY(peakdetectorCLI->mavenParameters->D2Labeled_BPE == true);
+    QVERIFY(peakdetectorCLI->mavenParameters->S34Labeled_BPE == false);
+    QVERIFY(peakdetectorCLI->mavenParameters->D2Labeled_BPE == false);
     QVERIFY(peakdetectorCLI->mavenParameters->grouping_maxRtWindow == 2.5);
     QVERIFY(peakdetectorCLI->mavenParameters->minGroupIntensity == 500);
     QVERIFY(peakdetectorCLI->mavenParameters->quantileIntensity == 50);
