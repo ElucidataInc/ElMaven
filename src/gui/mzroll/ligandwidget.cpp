@@ -393,10 +393,10 @@ void LigandWidget::showTable() {
 
 void LigandWidget::markAsDone(Compound* compound) {
 
-    if (compound != nullptr) {
+    if (compound != NULL) {
         QTreeWidgetItem* item = getItem(compound);
 
-        if (item != nullptr) {
+        if (item != NULL) {
             for (int col = 0; col < treeWidget->columnCount(); col++) {
                 item->setBackgroundColor(col, QColor(61, 204, 85, 100));
             }
