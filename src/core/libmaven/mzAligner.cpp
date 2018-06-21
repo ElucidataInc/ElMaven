@@ -1099,8 +1099,6 @@ void LoessFit::loessFit() {
         }
         qDebug()<<errorMessage;
 
-        // @# maybe not put emit here?
-        // Q_EMIT alignmentError(errorMessage);
         return;
     }
 
@@ -1111,8 +1109,6 @@ void LoessFit::loessFit() {
     else {
         errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
         qDebug()<<errorMessage;
-        // @# maybe not put emit here?
-        // Q_EMIT alignmentError(errorMessage);
         return;
     }
 }

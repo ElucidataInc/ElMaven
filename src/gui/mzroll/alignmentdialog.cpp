@@ -483,7 +483,6 @@ void AlignmentDialog::align() {
 		// start loessfit
 
 		if (peakDetectionAlgo->currentText() == "Compound Database Search") {
-			// @# cant access DB ?!
 			_mw->mavenParameters->setCompounds(DB.getCopoundsSubset(selectDatabaseComboBox->currentText().toStdString()));
 			updateParameters();
 
