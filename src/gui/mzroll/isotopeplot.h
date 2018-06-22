@@ -51,7 +51,7 @@ private:
     QCPAxisRect * bottomAxisRect;
 
     PeakGroup* _group;
-    vector<PeakGroup*> _isotopes;
+    vector<PeakGroup> _isotopes;
     double _poolThreshold = 1.0;
     MatrixXf MMDuplicate;
 };

@@ -64,7 +64,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
     _isotopes.clear();
     for(int i=0; i < group->childCountBarPlot(); i++ ) {
         if (group->childrenBarPlot[i].isIsotope() ) {
-            PeakGroup* isotope = &(group->childrenBarPlot[i]);
+            PeakGroup isotope = group->childrenBarPlot[i];
             _isotopes.push_back(isotope);
         }
     }
@@ -117,7 +117,7 @@ void IsotopePlot::showBars() {
 
     title = new QCPTextElement(_mw->customPlot);
 
-    title->setText(_isotopes[0]->compound->name.c_str());
+    title->setText(_isotopes[0].compound->name.c_str());
     title->setFont(QFont("Helvetica", 12, QFont::Bold));
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 
@@ -205,7 +205,7 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
             if (y >= MMDuplicate.rows()) return;
             if (MMDuplicate(y,j)*100 > _poolThreshold) 
             {
-                name += tr("\n %1 : %2\%").arg(_isotopes[j]->tagString.c_str(),
+                name += tr("\n %1 : %2\%").arg(_isotopes[j].tagString.c_str(),
                             QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
             else pool += MMDuplicate(y,j);
