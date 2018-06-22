@@ -12,6 +12,7 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     
     ui->setupUi(this);
+    ui->label_3->setOpenExternalLinks(true);
 
     setWindowTitle("Polly");
     // pushButton_about_polly->setFlat(true);
