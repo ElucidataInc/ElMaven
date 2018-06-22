@@ -536,10 +536,21 @@ using namespace mzUtils;
 	}
 
 	createMenus();
-	if (ligandWidget)
+	if (ligandWidget) {
+
+		/**
+		 * loadsMethodsFolder changes the value of lastDatabaseFile in .conf
+		 * inorder to revert the value back to the original, its value was saved and set back to original
+		 * Note: the default value present in .conf file is KNOWNS
+		*/
+	
+		QString lastDatabaseFile = settings->value("lastDatabaseFile").value<QString>();
 		loadMethodsFolder(methodsFolder);
-	if (pathwayWidget)
+		settings->setValue("lastDatabaseFile",lastDatabaseFile);
+	}
+	if (pathwayWidget) {
 		loadPathwaysFolder(pathwaysFolder);
+	}
 
 	setCentralWidget(eicWidgetController());	
 
