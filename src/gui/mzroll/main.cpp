@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
 
     splash.finish(contrl.getMainWindow());
     contrl.getMainWindow()->show();
+    contrl.getMainWindow()->gettingstarted->showDialog();
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
     return rv;

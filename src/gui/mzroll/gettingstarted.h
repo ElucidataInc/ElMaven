@@ -16,16 +16,14 @@ class GettingStarted : public QDialog
 public:
     explicit GettingStarted(QWidget *parent = 0);
     ~GettingStarted();
-    bool showDialog();
+    void showDialog();
 
 public Q_SLOTS:
-    void setFlag();
+    void setFlag(int state);
 
 private:
     Ui::GettingStarted *ui;
-    
-protected:
-    void closeEvent       (QCloseEvent* e);
+
     
 };
 

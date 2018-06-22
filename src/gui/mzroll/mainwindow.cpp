@@ -379,10 +379,6 @@ using namespace mzUtils;
 	// rconsoleDockWidget->setVisible(false);
 	spectralHitsDockWidget->setVisible(false);
     peptideFragmentation->setVisible(false);
-	// if(gettingstarted->showDialog())
-	// {
-	// 	gettingstarted->setVisible(true);
-	// }
 	
 	//treemap->setVisible(false);
 	//peaksPanel->setVisible(false);

@@ -1,4 +1,5 @@
 #include "gettingstarted.h"
+#include <QSettings>
 #include "ui_gettingstarted.h"
 #define _STR(X) #X
 #define STR(X) _STR(X)
@@ -6,7 +7,7 @@
 GettingStarted::GettingStarted(QWidget *parent) : QDialog(parent),ui(new Ui::GettingStarted)
 {
 
-    QSettings settings("mzRoll", "Application Settings");
+
 
     ui->setupUi(this);
     setFixedSize(width(), height());
@@ -14,46 +15,36 @@ GettingStarted::GettingStarted(QWidget *parent) : QDialog(parent),ui(new Ui::Get
     ui->textBrowser->setOpenExternalLinks(true);
     setWindowTitle("Getting Started");
 
-    if (!settings.contains(STR(EL_MAVEN_VERSION)))
-    {
-        GettingStarted::setVisible(true);
-    }
-    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(setFlag()));
-}
+    QSettings settings("mzRoll", "Application Settings");
 
-void GettingStarted::closeEvent(QCloseEvent *event)
-{
-    if (ui->checkBox->checkState())
-    {
-        showDialog();
+    if(settings.value(STR(EL_MAVEN_VERSION)).toBool()) {
+        ui->checkBox->setChecked(true);
+        ui->checkBox->setEnabled(false);
     }
 
-    QDialog::closeEvent(event);
+    connect(ui->checkBox, &QCheckBox::stateChanged, this, &GettingStarted::setFlag);
+    connect(ui->closeButton, &QPushButton::clicked, this, &GettingStarted::close);
 }
+
 
 GettingStarted::~GettingStarted()
 {
     delete ui;
 }
 
-bool GettingStarted::showDialog()
+void GettingStarted::showDialog()
 {
     QSettings settings("mzRoll", "Application Settings");
-    bool state;
-    if (!settings.contains(STR(EL_MAVEN_VERSION)))
-    {
-        state = true;
-        settings.setValue(STR(EL_MAVEN_VERSION), state);
-        return true;
+    if (!settings.value(STR(EL_MAVEN_VERSION), false).toBool()) {
+        show();
     }
-    else
-    {
-        return false;
-    }
-    return false;
 }
 
-void GettingStarted::setFlag()
+void GettingStarted::setFlag(int state)
 {
-    GettingStarted::close();
+
+    qDebug() << "state : " << state;
+    QSettings settings("mzRoll", "Application Settings");
+    settings.setValue(STR(EL_MAVEN_VERSION), state);
+
 }
