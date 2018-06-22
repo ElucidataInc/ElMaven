@@ -536,10 +536,14 @@ using namespace mzUtils;
 	}
 
 	createMenus();
-	if (ligandWidget)
+	if (ligandWidget) {
+		QString lastDatabaseFile = settings->value("lastDatabaseFile").value<QString>();
 		loadMethodsFolder(methodsFolder);
-	if (pathwayWidget)
+		settings->setValue("lastDatabaseFile",lastDatabaseFile);
+	}
+	if (pathwayWidget) {
 		loadPathwaysFolder(pathwaysFolder);
+	}
 
 	setCentralWidget(eicWidgetController());	
 
