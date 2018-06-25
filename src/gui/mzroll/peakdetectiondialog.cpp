@@ -435,8 +435,10 @@ void PeakDetectionDialog::findPeaks() {
 
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
+        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
     } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
+        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Untargeted");
     } else if (!(dbOptions->isChecked()) && !(featureOptions->isChecked())) {
         _featureDetectionType = QQQ;
     } else {
