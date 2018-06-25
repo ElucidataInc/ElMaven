@@ -151,6 +151,7 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
 }
 
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
+    pollyButton->setVisible(false);
     lineEdit_new_project_name->setEnabled(true);
     comboBox_existing_projects->setEnabled(false);
     new_project_radio_button->setChecked(true);
