@@ -7,6 +7,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         mainwindow(mw),
         _loginform(NULL)
 {
+        setModal(true);
         setupUi(this);
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog();
