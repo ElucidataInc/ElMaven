@@ -191,7 +191,8 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	//setSelectedGroup (&eicParameters->_integratedGroup);
 	//getMainWindow()->isotopeWidget->integrationFlag = true;
 	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
-	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
+	getMainWindow()->bookmarkPeakGroup(&eicParameters->_integratedGroup);
+
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
