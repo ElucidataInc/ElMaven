@@ -421,17 +421,17 @@ void LigandWidget::resetColor() {
 
 QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
 
-    QTreeWidgetItem* matchedItem;
+    QTreeWidgetItem* matchedItem = nullptr;
     QTreeWidgetItemIterator itr(treeWidget);
 
-    QTreeWidgetItem* item;
+    QTreeWidgetItem* item = nullptr;
 
     while (*itr) {
         item =(*itr);
         QVariant v = item->data(0,Qt::UserRole);
         Compound* itemCompound =  v.value<Compound*>();
         if (itemCompound) {
-            if (itemCompound->name == compound->name) {
+            if (itemCompound == compound) {
                 matchedItem = item;
                 break;
             }
