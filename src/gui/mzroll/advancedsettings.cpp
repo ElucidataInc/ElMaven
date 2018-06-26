@@ -7,6 +7,7 @@ AdvancedSettings::AdvancedSettings() :
     
 {
     ui->setupUi(this);
+    setModal(true);
     connect(ui->checkBox_upload_compond_DB,SIGNAL(clicked(bool)),SLOT(showCompoundDBUploadFrame()));
     connect(ui->checkBox_upload_Peak_Table,SIGNAL(clicked(bool)),SLOT(showpeakTableFrame()));
 }

@@ -7,9 +7,10 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         mainwindow(mw),
         _loginform(NULL)
 {
+        setModal(true);
         setupUi(this);
         _pollyIntegration = new PollyIntegration();
-        _loadingDialog = new PollyWaitDialog();
+        _loadingDialog = new PollyWaitDialog(this);
         pollyButton->setVisible(false);
         
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
@@ -123,6 +124,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     EPIworkerThread->start();
     show();
     
+    _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
     _loadingDialog->statusLabel->setText("Authenticating..");
@@ -150,6 +152,7 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
 }
 
 QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
+    pollyButton->setVisible(false);
     lineEdit_new_project_name->setEnabled(true);
     comboBox_existing_projects->setEnabled(false);
     new_project_radio_button->setChecked(true);
