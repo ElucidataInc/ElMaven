@@ -10,7 +10,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         setModal(true);
         setupUi(this);
         _pollyIntegration = new PollyIntegration();
-        _loadingDialog = new PollyWaitDialog();
+        _loadingDialog = new PollyWaitDialog(this);
         pollyButton->setVisible(false);
         
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
@@ -124,6 +124,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     EPIworkerThread->start();
     show();
     
+    _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
     _loadingDialog->statusLabel->setText("Authenticating..");
