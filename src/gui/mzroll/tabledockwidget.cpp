@@ -751,16 +751,16 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     if ( samples.size() == 0) return;
 
     if( sFilterSel == groupsSCSV || sFilterSel == groupsSTAB || sFilterSel == groupsCSV || sFilterSel == groupsTAB )
-     _mainwindow->getAnalytics()->hitEvent("Export Groups to CSV", "Export Groups");
+     _mainwindow->getAnalytics()->hitEvent("Exports", "Export Groups");
     if( sFilterSel ==  peaksCSV || sFilterSel == peaksTAB  )
-      _mainwindow->getAnalytics()->hitEvent("Export Groups to CSV", "Export Peaks");
+      _mainwindow->getAnalytics()->hitEvent("Exports", "Export Peaks");
     
 	if (sFilterSel == peaksListQE ) { 
-        _mainwindow->getAnalytics()->hitEvent("Export Groups to CSV", "Inclusion List");
+        _mainwindow->getAnalytics()->hitEvent("Exports", "Inclusion List");
 		writeQEInclusionList(fileName); 
 		return;
     } else if (sFilterSel == mascotMGF ) {
-        _mainwindow->getAnalytics()->hitEvent("Export Groups to CSV", "Mascot Format");
+        _mainwindow->getAnalytics()->hitEvent("Exports", "Mascot Format");
         writeMascotGeneric(fileName);
         return;
     }
