@@ -8,19 +8,31 @@ permalink: /Downloads/
     <a id="download" onClick="downloadclick()" href="" hidden></a>
     <div id="modal1" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSdZTU0LbU835-ImfNyhQCicJiidAwjJGtOYW-XQ5-9AARJsUQ/viewform"
+            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSe5fcPN0buoP0Pfp3phAW2zboVf47VntlFbSHX4szFZGuEgLw/viewform"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
      <div id="modal2" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal2" onLoad="download('myModal2','modal2')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSdJM9e0wmbpHuyBF5RTk_QQ0234EfJS7xoZiieT30OzcZOKeg/viewform"
+            <iframe id="myModal2" onLoad="download('myModal2','modal2')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLScFrQyRA1NPL6UySgj2p8LeOzHYSIzj_0YnFJNqUv41n8soRQ/viewform"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
      <div id="modal3" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal3" onLoad="download('myModal3','modal3')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSePe__hsNioEvOkPAL7xPso3kKaL3KiATNbWzPHQ9mBZTw7yQ/viewform"
+            <iframe id="myModal3" onLoad="download('myModal3','modal3')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSeEOIELdKQoumNM1yZPdMva7D-nOE44Vz9mgdG-IXrnsWXmqQ/viewform"
+                frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        </div>
+    </div>
+    <div id="modal4" class="modal" style="width: 100% !important; max-height:100% !important">
+        <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
+            <iframe id="myModal4" onLoad="download('myModal4','modal4')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLScqVxw97oMWzbq-4COvJIHjA-GIrqZAGAnUiRUdqeE0xTPFVw/viewform"
+                frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        </div>
+    </div>
+    <div id="modal5" class="modal" style="width: 100% !important; max-height:100% !important">
+        <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
+            <iframe id="myModal5" onLoad="download('myModal5','modal5')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSfEfRf0OIgZ4RQuf2SjJrnXMc2AsAGS36UTJS3rXN4GhSrAsQ/viewform"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -53,7 +65,6 @@ permalink: /Downloads/
                             </button>
                         </td>
                     </tr>
-
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <font color="#8985db">v0.2.4.1(El-MAVEN Polly Integration)</font>
@@ -68,7 +79,6 @@ permalink: /Downloads/
                             </button>
                         </td>
                     </tr>
-
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <font color="#8985db">v0.2.4</font>
@@ -106,7 +116,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/0oww02agld8ych1/Mac-El-Maven-v0.3.2.app.zip?dl=1' style='display:hidden' id='mac_0.3.2'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.3.2')" data-target="modal1" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.3.2')" data-target="modal4" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -119,7 +129,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/2bvautna8m2mz1e/El-Maven-v0.2.4.1.zip?dl=1' style='display:hidden' id='mac_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="modal2" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="modal5" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
