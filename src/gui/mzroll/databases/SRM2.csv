@@ -1,0 +1,2029 @@
+polarity,compound,category,precursorMz,collisionEnergy,productMz,expectedRt
+-,glyoxylate,"Miscellaneous Metabolites",73,20,45,13.5
+-,glycolate,"Miscellaneous Metabolites",75,11,45.2,12.5
+-,pyruvate,Glycolysis,87,12,43,15.5
+-,pyruvate-0-SIM,NA,87,0,0,14.5
+-,pyruvate-1-SIM,NA,88,0,0,14.5
+-,pyruvate_1-0,Glycolysis,88,12,43,15.5
+-,pyruvate_1-1,Glycolysis,88,12,44,15.5
+-,lactate,"Carboxylic Acids",89,14,43.2,12.5
+-,lactate-0-SIM,NA,89,0,0,12.5
+-,lactate-1-SIM,NA,90,0,0,12.5
+-,pyruvate_2-1,Glycolysis,89,12,44,15.5
+-,pyruvate_2-2,Glycolysis,89,12,45,15.5
+-,pyruvate_13C,Glycolysis,90.04,12,45.03,15.5
+-,lactate_1-0,"Carboxylic Acids",90,14,43,12.5
+-,lactate_1-1,"Carboxylic Acids",90,14,44,12.5
+-,lactate-2-SIM,NA,91,0,0,12.5
+-,lactate_2-1,"Carboxylic Acids",91,14,44,12.5
+-,lactate_2-2,"Carboxylic Acids",91,14,45,12.5
+-,lactate-3-SIM,NA,92,0,0,12.5
+-,lactate_13C,"Carboxylic Acids",92.07,14,45.2,12.5
+-,2-oxobutanoate,"Carboxylic Acids",101,11,57.2,21.8
+-,acetoacetate,"Carboxylic Acids",101.05,12,57.2,14.1
+-,glycerate,"Carbohydrate Precursors/ Derivatives",105,15,75,12
+-,acetoacetate_13C,NA,105.05,21,60.2,14.1
+-,glycerate_13C,NA,108,15,77,12
+-,uracil,"Nucleoside Bases",111.05,20,42.1,3
+-,uracil-N15-1_0,"Nucleoside Bases",112.05,20,42.1,3
+-,uracil-N15-1_1,"Nucleoside Bases",112.05,20,43.1,3
+-,uracil-N15-2_1,"Nucleoside Bases",113.05,20,43.1,3
+-,"fumarate C12","Carboxylic Acids",115,11,71,29.7
+-,"Maleic acid",HMDB,115.03,11,71,23.7
+-,2-keto-isovalerate,"Miscellaneous Metabolites",115.05,11,71,28.2
+-,uracil_13C,NA,115.05,20,43.1,3
+-,"fumarate 1-0",NA,116,11,71,29.7
+-,"Guanidoacetic acid",HMDB,116.001,13,74.3,4
+-,"fumarate 1-1",NA,116.05,11,72,29.7
+-,"succinate (narrow mz)","Carboxylic Acids",117,10,73,23
+-,succinate,"Carboxylic Acids",117.002,11,73.1,23
+-,"fumarate 2-1",NA,117.01,11,72,29.7
+-,"fumarate 2-2",NA,117.05,11,73,29.7
+-,threonine-N14,NA,118,12,74,13.5
+-,"succinate 1-0",NA,118.01,10,73,22
+-,"succinate 1-1",NA,118.02,10,74,22
+-,"fumarate 3-3",NA,118.03,11,74,29.7
+-,"fumarate 3-2",NA,118.04,11,73,29.7
+-,succinate-IS,"Carboxylic Acids",119,10,74,22
+-,threonine-N15,NA,119,12,75,13.5
+-,"succinate 2-2",NA,119.01,10,75,22
+-,"fumarate C13",NA,119.04,11,74,29.7
+-,fumarate_13C,NA,119.05,11,74,29.7
+-,"succinate 2-1",NA,119.05,10,74,22
+-,3-S-methylthiopropionate,NA,119.06,13,47,24.6
+-,"succinate 3-2",NA,120,10,75,22
+-,"succinate 3-3",NA,120.01,10,76,22
+-,iso-ketovalerate_13C,NA,120.05,11,75,28.2
+-,"succinate C13",NA,121,10,76,22
+-,nicotinate,"Vitamins and Derivatives",122,14,78,22.5
+-,nicotinate-N15,"Vitamins and Derivatives",123,14,79,22.5
+-,threonine-IS,"Amino Acids",123,12,77,2.5
+-,taurine,"Amino Acids Derivatives/ Precursors",124,16,80,2.5
+-,taurine-N15,"Amino Acids Derivatives/ Precursors",125,16,80,2.5
+-,taurine_13C,NA,126,16,80,2.5
+-,Unk_99@10--127,Unknowns,127,10,99,2.6
+-,nicotinate_13C,NA,128,14,83,22.5
+-,"Pyroglutamic acid",HMDB,128,17,82.1,14
+-,Unk_73@10--129,Unknowns,129,10,73,2.5
+-,"Citraconic acid",HMDB,129.003,11,85.1,29
+-,"2-Ketohexanoic acid",HMDB,129.005,11,101.3,34
+-,N-Acetyl-L-alanine,HMDB,130,12,88,14.6
+-,oxaloacetate,"Carboxylic Acids",131,12,87,30.2
+-,Unk_85@10--131,Unknowns,131,10,85,2.4
+-,"Hydroxyisocaproic acid",HMDB,131.006,14,85.1,32
+-,aspartate-N14,NA,132,17,88,17
+-,aspartate-N15,NA,133,17,89,17
+-,malate,"Carboxylic Acids",133,12,115,26
+-,malate-short,,133.007,12,115,11
+-,malate_1,NA,134,12,116,26
+-,oxaloacetate_3_3,NA,134.01,12,90,30.2
+-,oxaloacetate_3_2,NA,134.02,12,89,30.2
+-,hypoxanthine,"Nucleoside Bases",135,16,92,4.5
+-,hypoxanthine-N15,"Nucleoside Bases",139,16,95,4.5
+-,oxaloacetate_13C,NA,135,12,90,30.2
+-,malate_2,NA,135,12,117,26
+-,anthranilate,"Amino Acids Derivatives/ Precursors",136,16,92,29.6
+-,anthranilate-N15,"Amino Acids Derivatives/ Precursors",137,16,93,29.6
+-,malate_3,NA,136,12,118,26
+-,p-aminobenzoate,"Amino Acids Derivatives/ Precursors",136.05,16,92,16.2
+-,p-aminobenzoate-N15,"Amino Acids Derivatives/ Precursors",137.05,16,93,16.2
+-,p-hydroxybenzoate,"Miscellaneous Metabolites",137,21,93,21.6
+-,Aspartate-(U-13C/15N)-(neg),AA-IS,137.006,30,92,6.4
+-,malate_13C,NA,137.05,12,119,26
+-,acetylphosphate,"Carbohydrate Precursors/ Derivatives",139,22,79,26
+-,carbamoyl-phosphate,"Nucelotide Precursors/ Derivatives",140,22,79,25
+-,hypoxanthine_13C,NA,140.05,16,96,3
+-,Unk_97@30--141,Unknowns,141,30,97,NA
+-,Unk_113@10--141,Unknowns,141,10,113,2.6
+-,"carbamoyl-phosphate-N15 or C13",NA,141,22,79,24
+-,Unk_97@30--141.001,Unknowns,141.001,30,97,NA
+-,acetylphosphate_13C,NA,141.05,22,79,26
+-,anthranilate_13C,NA,143,16,98,29.6
+-,p-hydroxybenzoate_6_6,NA,143.01,21,99,21.6
+-,p-hydroxybenzoate_6_5,NA,143.02,21,98,21.6
+-,p-aminobenzoate_13C,NA,143.05,16,98,16.2
+-,p-hydroxybenzoate_13C,NA,144,21,99,21.6
+-,a-ketoglutarate,"Carboxylic Acids",145,11,101,28.5
+-,"Adipic acid",HMDB,145.001,15,83,27.6
+-,"(2?)-Methylglutaric acid",HMDB,145.002,14,101.1,28
+-,"Phenylpropiolic acid",HMDB,145.004,16,101,36
+-,"a-ketoglutarate 1-0",NA,146,11,101,28.5
+-,"a-ketoglutarate 1-1",NA,146.05,11,102,28.5
+-,3-oxoglutarate,acid,145.02,12,57.2,29.7
+-,2-oxo-4-methylthiobutanoate,NA,147,11,99,30.6
+-,Unk_129@10--147,Unknowns,147,10,129,6.8
+-,"a-ketoglutarate 2-1",NA,147,11,102,29
+-,"2-Hydroxy-2-methylbutanedioic acid",HMDB,147.001,15,85.1,25
+-,"a-ketoglutarate 2-2",NA,147.05,11,103,29
+-,"a-ketoglutarate 3-2",NA,148,11,103,29
+-,"a-ketoglutarate 3-3",NA,148.05,11,104,29
+-,Unk_89@10--149,Unknowns,149,10,89,2.5
+-,"a-ketoglutarate 4-3",NA,149,11,104,29
+-,"3-Methylphenylacetic acid",HMDB,149.002,10,105,36.8
+-,"a-ketoglutarate 4-4",NA,149.05,11,105,29
+-,a-ketoglutarate_13C,NA,150,11,105,29
+-,xanthine,"Nucleoside Bases",151,21,108,4.5
+-,"Hydroxyphenylacetic acid",HMDB,151.004,16,107,34
+-,"2,3-dihydroxybenzoate",NA,153,17,109,30
+-,xanthine-N15,"Nucleoside Bases",155,21,111,4.5
+-,orotate,"Nucelotide Precursors/ Derivatives",155,13,111,15.2
+-,"xanthine _13C",NA,156,21,112,3
+-,orotate-S15,NA,156,13,112,17
+-,orotate_1_0,NA,156,13,111,15.2
+-,orotate_1_1,NA,156.01,13,112,15.2
+-,dihydroorotate,"Nucelotide Precursors/ Derivatives",157,12,113,12.8
+-,Unk_113@10--157,Unknowns,157,10,113,33.6
+-,Unk_127@10--157,Unknowns,157,10,127,2.6
+-,orotate_2_1,NA,157,13,112,15.2
+-,Unk_97@10--157.001,Unknowns,157.001,10,97,11.8
+-,orotate_2_2,NA,157.01,13,113,15.2
+-,allantoin,"Carbohydrate Precursors/ Derivatives",157.05,15,114,2.5
+-,allantoin-N15,"Carbohydrate Precursors/ Derivatives",161.05,15,117,2.5
+-,orotate-N15,NA,157.05,13,113,17
+-,dihydroorotate-S15,NA,158,12,114,15
+-,orotate_3_2,NA,158,13,113,15.2
+-,orotate_3_3,NA,158.01,13,114,15.2
+-,"dihydroorotate 1-0",NA,158.03,12,113,12.8
+-,"dihydroorotate 1-1",NA,158.04,12,114,12.8
+-,dihydroorotate-N15,NA,159,12,115,15
+-,orotate_4_3,NA,159,13,114,15.2
+-,orotate_4_4,NA,159.01,13,115,15.2
+-,"dihydroorotate 2-1",NA,159.03,12,114,12.8
+-,"dihydroorotate 2-2",NA,159.04,12,115,12.8
+-,"2,3-dihydroxybenzoic acid_13C",NA,160,17,115,30
+-,"Aminoadipic acid",HMDB,160.001,16,116,6
+-,"Indole-3-carboxylic acid",HMDB,160.002,18,116,32.6
+-,"dihydroorotate 3-2",NA,160.03,12,115,12.8
+-,"dihydroorotate 3-3",NA,160.04,12,116,12.8
+-,orotate_13C,NA,160.1,13,115,15.2
+-,dihydroorotate_4-3,NA,161,12,116,12.8
+-,dihydroorotate_4-4,NA,161.01,12,117,12.8
+-,allantoin_13C,NA,161.05,15,117,2.5
+-,dihydroorotate_13C-5-4,NA,162,12,117,12.8
+-,phenylpyruvate,"Amino Acids Derivatives/ Precursors",163,11,91,34.5
+-,"Atrolactic acid",HMDB,165.004,19,119,33.5
+-,"Phenyllactic acid",HMDB,165.006,19,103.1,34
+-,quinolinate,"Carboxylic Acids",166,12,122,30
+-,quinolinate-N15,"Carboxylic Acids",167,12,123,30
+-,phosphoenolpyruvate,Glycolysis,167,20,79,31
+-,pep-short,,167.007,20,79,16
+-,"Uric acid",HMDB,167.001,15,124,11
+-,phosphoenolpyruvate-1,NA,168,20,79,31
+-,"dihydroxy-acetone phosphate",Glycolysis,169,38,79,15.5
+-,phosphoenolpyruvate-2,NA,169.01,20,79,31
+-,D-glyceraldehdye-3-phosphate,"Carbohydrate Precursors/ Derivatives",169.05,12,97,13.3
+-,phosphoenolpyruvate_13C,NA,170,20,79,31
+-,"dihydroxy-acetone phosphate-1",NA,170,38,79,15.5
+-,phosphoenolpyruvate-3,NA,170.01,20,79,31
+-,sn-glycerol-3-phosphate,"Carbohydrate Precursors/ Derivatives",171,13,79,13.2
+-,"dihydroxy-acetone phosphate-2",NA,171,38,79,15.5
+-,"dihydroxy-acetone phosphate-13C",NA,172,38,79,15.5
+-,phenylpyruvate_13C,NA,172,11,98,34.5
+-,sn-glycerol-3-phosphate-1,NA,172.01,13,79,13.2
+-,quinolinate_6_6,NA,172.02,12,128,30
+-,quinolinate_6_5,NA,172.03,12,127,30
+-,shikimate,"Amino Acids Derivatives/ Precursors",173,18,93,21.7
+-,arginine-N14,NA,173,12,131,14
+-,sn-glycerol-3-phosphate-2,NA,173.01,13,79,13.2
+-,aconitate,"Carboxylic Acids",173.05,15,85,31.5
+-,quinolinate-13C,NA,173.1,12,128,30
+-,sn-glycerol-3-phosphate-13C,NA,174,13,79,13.2
+-,arginine-S-0-15,NA,174,12,131,14
+-,citrulline-N14,NA,174.05,13,131,13
+-,"aconitate 1-0",NA,174.05,10,129,31.6
+-,"aconitate 1-1",NA,174.06,10,130,31.6
+-,aconitate_1-0,"Carboxylic Acids",174,15,85,31.5
+-,aconitate_1-1,"Carboxylic Acids",174,15,86,31.5
+-,allantoate,"Carbohydrate Precursors/ Derivatives",175,12,132,11.5
+-,"Ascorbic acid",HMDB,175.001,17,87,11.8
+-,"2-Isopropylmalic acid",HMDB,175.002,17,115,31
+-,N-Carbamoyl-L-aspartate,"Nucelotide Precursors/ Derivatives",175.03,11,132,25.6
+-,citrulline-S-0-15,NA,175.05,13,131,13
+-,"aconitate 2-1",NA,175.05,10,130,31.6
+-,"aconitate 2-2",NA,175.06,10,131,31.6
+-,aconitate_2-0,"Carboxylic Acids",175,15,85,31.5
+-,aconitate_2-1,"Carboxylic Acids",175,15,86,31.5
+-,aconitate_2-2,"Carboxylic Acids",175,15,87,31.5
+-,N-carbamoyl-L-aspartate-S-0-15,NA,176,12,132,22
+-,N-carbamoyl-L-aspartate_1-0,NA,176,11,132,25.6
+-,N-carbamoyl-L-aspartate_1-1,NA,176,11,133,25.6
+-,citrulline-D-S-15,NA,176.05,13,132,13
+-,"aconitate 3-2",NA,176.05,10,131,31.6
+-,"aconitate 3-3",NA,176.06,10,132,31.6
+-,aconitate_3-1,"Carboxylic Acids",176,15,86,31.5
+-,aconitate_3-2,"Carboxylic Acids",176,15,87,31.5
+-,aconitate_3-3,"Carboxylic Acids",176,15,88,31.5
+-,Pyrophosphate,HMDB,176.8,14,158.6,31
+-,glucono-?-lactone,"Carbohydrate Precursors/ Derivatives",177,11,129,11.8
+-,arginine-N15,NA,177,12,133,14
+-,citrulline-N15,NA,177.05,13,133,13
+-,"aconitate 4-3",NA,177.05,10,132,31.6
+-,"aconitate 4-4",NA,177.06,10,133,31.6
+-,N-carbamoyl-L-aspartate-N15,NA,177.07,12,133,22
+-,aconitate_4-2,"Carboxylic Acids",177,15,87,31.5
+-,aconitate_4-3,"Carboxylic Acids",177,15,88,31.5
+-,aconitate_4-4,"Carboxylic Acids",177,15,89,31.5
+-,N-carbamoyl-L-aspartate_2-1,NA,177,11,133,25.6
+-,"Hippuric acid",HMDB,178,14,134,32.2
+-,"aconitate 5-4",NA,178.05,10,133,31.6
+-,"aconitate 5-5",NA,178.06,10,134,31.6
+-,aconitate_5-3,"Carboxylic Acids",178,15,88,31.5
+-,aconitate_5-4,"Carboxylic Acids",178,15,89,31.5
+-,myo-inositol,"Miscellaneous Metabolites",179,15,161,13
+-,Glucose,Glycolysis,179,15,89,2.5
+-,hydroxyphenylpyruvate,"Amino Acids Derivatives/ Precursors",179.05,11,107,30
+-,"aconitate C13",NA,179.05,10,134,31.6
+-,aconitate_13C,"Carboxylic Acids",179,15,89,31.5
+-,allantoate_13C,NA,179.1,12,135.1,11.5
+-,allantoate-N15,"Carbohydrate Precursors/ Derivatives",179.11,12,135,11.5
+-,N-carbamoyl-L-aspartate_4-4,NA,179,11,136,25.6
+-,shikimate_13C,NA,180,18,99,21.7
+-,"Hydroxyphenyllactic acid",HMDB,181,19,135,26
+-,N-carbamoyl-L-aspartate_5-4,NA,180,11,136,25.6
+-,N-carbamoyl-L-aspartate_5-5,NA,180,11,137,25.6
+-,N-carbamoyl-L-aspartate_6-5,NA,181,11,137,25.6
+-,"homocysteic acid","Amino Acids Derivatives/ Precursors",182,21,80,11
+-,"homocysteic acid-N15","Amino Acids Derivatives/ Precursors",183,21,80,11
+-,"4-Pyridoxic acid",HMDB,182.003,16,138,32
+-,glucono-?-lactone_13C,NA,183,11,134,11.8
+-,myo-inositol_5_5,Glycolysis,184.01,15,166,13
+-,3-phosphoglycerate,Glycolysis,185,15,97,30
+-,myo-inositol_13C,Glycolysis,185,15,167,13
+-,Glucose-U-13C,Glycolysis,185,15,92,2.5
+-,"homocysteic acid_13C",NA,186,21,80,11
+-,3-phosphoglycerate_1,Glycolysis,186,15,97,30
+-,"Indoleacrylic acid",HMDB,186,18,142.03,35
+-,3-phosphoglycerate_2,NA,187,15,97,30
+-,3-phosphoglycerate_13C,Glycolysis,188,15,97,30
+-,"Kynurenic acid",HMDB,188,19,144,32.3
+-,hydroxyphenylpyruvate_13C,NA,188.05,11,114,30
+-,Unk_129@10--189,Unknowns,189,10,129,33.9
+-,Unk_161@10--189,Unknowns,189,10,161,2.6
+-,citrate-isocitrate,"Carboxylic Acids",191,13,111,31
+-,isocitrate,"Carboxylic Acids",191.02,17,117,31
+-,citrate,"Carboxylic Acids",191.05,20,87,31
+-,"citrate-isocitrate 1-0",NA,192,13,111,31
+-,Phenylacetylglycine,HMDB,192,13,74,33.2
+-,"citrate-isocitrate 1-1",NA,192.01,13,112,31
+-,2-dehydro-D-gluconate,"Carbohydrate Precursors/ Derivatives",193,12,103,12
+-,"citrate-isocitrate 2-1",NA,193,13,112,31
+-,"citrate-isocitrate 2-2",NA,193.01,13,113,31
+-,citrate-isocitrate_2_0,NA,193.02,17,117,31
+-,citrate-isocitrate_2_1,NA,193.03,17,118,31
+-,citrate-isocitrate_2_2,NA,193.04,17,119,31
+-,citrate-isocitrate_2_0,NA,193.05,20,87,31
+-,citrate-isocitrate_2_1,NA,193.06,20,88,31
+-,citrate-isocitrate_2_2,NA,193.07,20,89,31
+-,"citrate-isocitrate 3-2",NA,194,13,113,31
+-,"citrate-isocitrate 3-3",NA,194.01,13,114,31
+-,D-gluconate,"Carbohydrate Precursors/ Derivatives",195,15,129,12
+-,Unk_97@20--195,Unknowns,195,20,97,29.6
+-,"citrate-isocitrate 4-3",NA,195,13,114,31
+-,"citrate-isocitrate 4-4",NA,195.01,13,115,31
+-,"citrate-isocitrate 5-4",NA,196,13,115,31
+-,"citrate-isocitrate 5-5",NA,196.01,13,116,31
+-,Unk_97@20--197,Unknowns,197,20,97,29.6
+-,Unk_161@10--197,Unknowns,197,10,161,12.1
+-,citrate-isocitrate_13C,NA,197,13,116,31
+-,isocitrate_13C,NA,197.02,17,121,31
+-,citrate_13C,NA,197.05,20,90,31
+-,2-dehydro-D-gluconate_13C,NA,199,12,107,12
+-,D-erythrose-4-phosphate,"Carbohydrate Precursors/ Derivatives",199,17,97,13
+-,D-erythrose-4-phosphate-1,NA,200,17,97,13
+-,Unk_139@10--201,Unknowns,201,10,139,33.7
+-,Unk_157@10--201,Unknowns,201,10,157,1.6
+-,D-gluconate_13C,NA,201,15,134,12
+-,D-erythrose-4-phosphate-2,NA,201,17,97,13
+-,Unk_141@10--201.001,Unknowns,201.001,10,141,2.3
+-,D-erythrose-4-phosphate-3,NA,202,17,97,13
+-,3-indolebutyrate,"Amino Acids Derivatives/ Precursors",202.01,16,158,37.3
+-,D-erythrose-4-phosphate_13C,NA,203,17,97,22
+-,"Xanthurenic acid",HMDB,204.001,17,160,32
+-,"Indolelactic acid",HMDB,204.002,19,158,35
+-,Unk_123@10--205,Unknowns,205,10,123,21.9
+-,Unk_145@20--205,Unknowns,205,20,145,2
+-,Unk_113@10--205.001,Unknowns,205.001,10,113,2.5
+-,"Lipoic acid",NA,205.002,11,171,39
+-,Unk_129@20--207,Unknowns,207,20,129,2.6
+-,Unk_161@10--207,Unknowns,207.001,10,161,2.5
+-,Unk_147@10--207.001,Unknowns,207.001,10,147,30.4
+-,alanine-CBZ,"Amino Acids",222,11,114,36.4
+-,alanine-CBZ,"Amino Acids",222.013,11,114,36.4
+-,D-glucarate,"Miscellaneous Metabolites",209,15,85,29
+-,alanine-CBZ_1_1,"Amino Acids",223.013,11,115,36.4
+-,alanine-CBZ_2_2,"Amino Acids",224.013,11,116,36.4
+-,alanine-CBZ_3_3,"Amino Acids",225.013,11,117,36.4
+-,"Creatine phosphate",HMDB,210,27,79,26.5
+-,alanine-CBZ_N15,"Amino Acids",223,11,115,36.4
+-,alanine-CBZ-C13,NA,225,11,117,36.4
+-,deoxyribose-phosphate,"Carbohydrate Precursors/ Derivatives",213,33,79,14.1
+-,D-glucarate-13C,NA,215,15,89,29
+-,Unk_179@10--216,Unknowns,216,10,179,2.5
+-,Unk_127@10--217,Unknowns,217,10,127,2.7
+-,pantothenate,"Vitamins and Derivatives",218,19,146,20.5
+-,pantothenate-N15,"Vitamins and Derivatives",219,19,147,20.5
+-,deoxyribose-phosphate-13C,"Carbohydrate Precursors/ Derivatives",218.1,33,79,14.1
+-,alanine-CBZ-C13N15-IS,"AA Internal standard",226,11,118,36.4
+-,alanine-CBZ-IS,NA,226,11,118,36.4
+-,alanine-CBZ-IS,NA,226.013,11,118,36.4
+-,arginine-CBZ,"Amino Acids",307,17,199,27.4
+-,arginine-CBZ,"Amino Acids",307.013,17,199,27.4
+-,prephenate,"Amino Acids Derivatives/ Precursors",225,15,91,31
+-,arginine-CBZ_1_1,"Amino Acids",308.013,17,200,27.4
+-,arginine-CBZ_1_1,"Amino Acids",308.1,17,200,27.4
+-,arginine-CBZ_2_2,"Amino Acids",309.013,17,201,27.4
+-,arginine-CBZ_2_2,"Amino Acids",309.1,17,201,27.4
+-,Unk_226@40--79,Unknowns,226,40,79,12.9
+-,arginine-CBZ_3_3,"Amino Acids",310.013,17,202,27.4
+-,deoxyuridine,Nucleosides,227,12,184,7
+-,deoxyuridine-N15,Nucleosides,229,12,185,7
+-,pantothenate_13C,NA,227,19,153,20.5
+-,ribose-phosphate,"Carbohydrate Precursors/ Derivatives",229,40,79,13
+-,ribose-phosphate-1,NA,230,40,79,13
+-,ribose-phosphate-2,NA,231,40,79,13
+-,ribose-phosphate-3,NA,232,40,79,13
+-,Unk_173@10--233,Unknowns,233,10,173,2.5
+-,ribose-phosphate-4,NA,233,40,79,13
+-,ribose-phosphate-13C,NA,234,40,79,13.2
+-,prephenate_13C,NA,235,15,97,31
+-,deoxyuridine_13C,NA,236,12,192,7
+-,arginine-CBZ_3_3,"Amino Acids",310.1,17,202,27.4
+-,arginine-CBZ_4_4,"Amino Acids",311.013,17,203,27.4
+-,Unk_129@10--239,Unknowns,239,10,129,33.9
+-,Unk_179@10--239,Unknowns,239,10,179,2.3
+-,arginine-CBZ_5_5,"Amino Acids",312.013,17,204,27.4
+-,arginine-CBZ_6_6,"Amino Acids",313.013,17,205,27.4
+-,arginine-CBZ_N15,"Amino Acids",311,17,203,27.4
+-,thymidine,Nucleosides,241,15,125,12.5
+-,thymidine-S-N15,Nucleosides,242,15,126,12.5
+-,thymidine-N15,Nucleosides,243,15,127,12.5
+-,arginine-CBZ-C13,NA,313,17,205,27.4
+-,arginine-CBZ-C13N15-IS,"AA Internal standard",317,17,209,27.4
+-,asparagine-CBZ,"Amino Acids",265,16,113,34
+-,uridine,Nucleosides,243,19,200,5
+-,uridine-N15-1_0,Nucleosides,244,19,200,5
+-,uridine-N15-1_1,Nucleosides,244,19,201,5
+-,uridine-N15-2_1,Nucleosides,245,19,201,5
+-,Unk_146@20--244,Unknowns,244,20,146,2
+-,Unk_132@10--244.001,Unknowns,244.001,10,132,7.4
+-,asparagine-CBZ,"Amino Acids",265.013,16,113,34
+-,asparagine-CBZ_1_1,"Amino Acids",266.014,16,114,34
+-,asparagine-CBZ_2_2,"Amino Acids",267.013,16,115,34
+-,asparagine-CBZ_3_3,"Amino Acids",268.013,16,116,34
+-,asparagine-CBZ_4_4,"Amino Acids",269.013,16,117,34
+-,Uridine_7_7,NA,250.01,19,207,3
+-,asparagine-CBZ-C13,NA,269,16,117,34
+-,Uridine_7_6,NA,250.02,19,206,3
+-,deoxyinosine,Nucleosides,251,19,135,11.2
+-,deoxyinosine-S-N15,Nucleosides,252,19,136,11.2
+-,deoxyinosine-D-N15,Nucleosides,253,19,137,11.2
+-,deoxyinosine-T-N15,Nucleosides,254,19,138,11.2
+-,deoxyinosine-N15,Nucleosides,255,19,139,11.2
+-,thymidine_13C,NA,251,15,130,12.5
+-,Uridine_8_8,NA,251.01,19,208,3
+-,aspartate-CBZ,"Amino Acids",266,19,115,36
+-,Uridine_8_7,NA,251.02,19,207,3
+-,"aspartate-CBZ (N15)","Amino Acids",267.04,19,115,36
+-,Uridine_13C,NA,252,19,208,3
+-,aspartate-CBZ_1_1,"Amino Acids",267.013,19,116,36
+-,aspartate-CBZ_2_2,"Amino Acids",268.013,19,116.99,36
+-,aspartate-CBZ_3_3,"Amino Acids",269.013,19,117.99,36
+-,thymidine-IS,NA,253,15,132,12.5
+-,Unk_193@10--253,Unknowns,253,10,193,2.7
+-,aspartate-CBZ_4_4,"Amino Acids",270.013,19,118.99,36
+-,Unk_154@10--253.002,Unknowns,253.002,10,154,12.2
+-,aspartate-CBZ-C13,NA,270.01,19,119,36
+-,aspartate-CBZ-C13N15-IS,"AA Internal standard",271.01,19,119,36
+-,citrulline-CBZ,"Amino Acids Derivatives/ Precursors",308,17,157,35
+-,shikimate-3-phosphate,"Amino Acids Derivatives/ Precursors",253.1,17,97,12
+-,citrulline-CBZ_1_1,"Amino Acids",309.013,17,158,35
+-,citrulline-CBZ_2_2,"Amino Acids",310.013,17,159,35
+-,citrulline-CBZ_3_3,"Amino Acids",311.013,17,160,35
+-,citrulline-CBZ_4_4,"Amino Acids",312.013,17,161,35
+-,Unk_173@10--255,Unknowns,255,10,173,2.1
+-,citrulline-CBZ_5_5,"Amino Acids",313.013,17,162,35
+-,Unk_113@10--255.001,Unknowns,255.001,10,113,2.5
+-,Unk_237@10--255.001,Unknowns,255.001,10,237,11.7
+-,Unk_75@20--255.002,Unknowns,255.002,20,75,2.6
+-,Unk_219@30--255.002,Unknowns,255.002,30,219,11.8
+-,Unk_111@10--255.003,Unknowns,255.003,10,111,3.1
+-,citrulline-CBZ_6_6,"Amino Acids",314.013,17,163,35
+-,citrulline-CBZ-C13,NA,314,17,163,35
+-,cysteine-CBZ,"Amino Acids",254,15,103,NA
+-,cysteine-CBZ,"Amino Acids",254.013,15,103,15
+-,cysteine-CBZ-C13,NA,257.05,15,106,NA
+-,glutamate-CBZ,"Amino Acids",280,17,128,36
+-,glutamate-CBZ,"Amino Acids",280.013,17,128,36
+-,"glutamate-CBZ (N15)","Amino Acids",281.1,17,129,36
+-,glutamate-CBZ_1_1,"Amino Acids",281.015,17,129,36
+-,D-glucono-?-lactone-6-phosphate,"Carbohydrate Precursors/ Derivatives",257,20,97,11
+-,glutamate-CBZ_2_2,"Amino Acids",282.017,17,130,36
+-,glutamate-CBZ_3_3,"Amino Acids",283.013,17,131,36
+-,glutamate-CBZ_4_4,"Amino Acids",284.013,17,132,36
+-,glutamate-CBZ_5_5,"Amino Acids",285.013,17,133,36
+-,glutamate-CBZ-C13,NA,285,17,133,36
+-,hexose-phosphate,"Carbohydrate Precursors/ Derivatives",259,40,79,12.6
+-,glucose-1-phosphate,Glycolysis,259.01,14,241,12.8
+-,glucose-6-phosphate,Glycolysis,259.02,13,199,12.3
+-,fructose-6-phosphate,Glycolysis,259.03,14,169,12.7
+-,5-methylthioribose-1-phosphate,NA,259.04,23,79,23
+-,hexose-phosphate-1,NA,260,40,79,12.6
+-,deoxyinosine_13C,NA,261,19,140,11.2
+-,hexose-phosphate-2,NA,261,40,79,12.6
+-,hexose-phosphate-3,NA,262,40,79,12.6
+-,hexose-phosphate-4,NA,263,40,79,12.6
+-,"abscisic acid",NA,263.01,14,153,35.9
+-,hexose-phosphate-5,NA,264,40,79,12.6
+-,glutamate-CBZ-C13N15-IS,"AA Internal standard",286.1,17,133.1,36
+-,glutamate-CBZ-nega-IS,"Amino Acids",286.1,17,133.1,36
+-,"1,3-diphosphateglycerate",NA,265,35,79,34.5
+-,glutamate-CBZ-nega-IS,"Amino Acids",286.113,17,133.1,36
+-,"2,3-Diphosphoglyceric acid",HMDB,265,12,167.1,34
+-,glutamine-CBZ,"Amino Acids",279,16,127,34.5
+-,hexose-phosphate_13C,NA,265.05,40,79,12.6
+-,hexose-phosphate-6,NA,265.05,40,79,12.6
+-,glutamine-CBZ,"Amino Acids",279.013,16,127,34.5
+-,S-ribosyl-L-homocysteine-nega,"Amino Acids Derivatives/ Precursors",266,18,134,2.3
+-,"1,3-diphosphateglycerate_1",NA,266,35,79,31
+-,"glutamine-CBZ (N15)","Amino Acids",281.11,16,128,34.5
+-,glutamine-CBZ_1_0,"Amino Acids",280.1,16,127,34.5
+-,glutamine-CBZ_1_1,"Amino Acids",280.11,16,128,34.5
+-,glutamine-CBZ_1_1,"Amino Acids",280.11,16,128,34.5
+-,Asparagine_1_0,"Amino Acids",266.1,16,113,34
+-,Asparagine_1_1,"Amino Acids",266.11,16,114,34
+-,inosine,Nucleosides,267,25,135,10.8
+-,inosine-S-N15,Nucleosides,268,25,136,10.8
+-,inosine-D-N15,Nucleosides,269,25,137,10.8
+-,inosine-T-N15,Nucleosides,270,25,138,10.8
+-,inosine-N15,Nucleosides,271,25,139,10.8
+-,"1,3-diphosphateglycerate_2",NA,267,35,79,31
+-,glutamine-CBZ_2_2,"Amino Acids",281.016,16,129,34.5
+-,glutamine-CBZ_3_3,"Amino Acids",282.013,16,130,34.5
+-,glutamine-CBZ_4_4,"Amino Acids",283.016,16,131,34.5
+-,"Asparagine (N15)","Amino Acids",267.1,16,114,34
+-,"1,3-diphosphateglycerate_13C",NA,268,35,79,31
+-,glutamine-CBZ_5_5,"Amino Acids",284.016,16,132,34.5
+-,glutamine-CBZ-C13,NA,284,16,132,34.5
+-,Unk_179@10--269,Unknowns,269,10,179,2.5
+-,glutamine-CBZ-C13N15-IS,"AA Internal standard",286,17,133.1,34.5
+-,Unk_89@10--269.001,Unknowns,269.001,10,89,2.6
+-,glutamine-CBZ-nega-IS,NA,286,17,133.1,34.5
+-,glutamine-CBZ-nega-IS,NA,286.014,17,133.1,34.5
+-,glycine-CBZ,"Amino Acids",208,19,100,35
+-,glycine-CBZ,"Amino Acids",208.013,19,100,35
+-,"glycine-CBZ (N15)","Amino Acids",209.1,19,101,35
+-,glycine-CBZ_1_1,"Amino Acids",209.013,19,101,35
+-,glycine-CBZ_2_2,"Amino Acids",210.013,19,102,35
+-,glycine-CBZ-C13,NA,210,19,102,35
+-,Unk_173@10--271,Unknowns,271,10,173,2
+-,glycine-CBZ-C13N15-IS,"AA Internal standard",211,19,103,35
+-,histidine-CBZ,"Amino Acids",288,13,180,25
+-,histidine-CBZ,"Amino Acids",288.013,13,180,25
+-,"histidine-CBZ (N15)","Amino Acids",291.1,13,183,25
+-,6-phospho-D-gluconate,"Carbohydrate Precursors/ Derivatives",275,11,97,29.3
+-,Unk_127@10--277,Unknowns,277,10,127,2.6
+-,Unk_196@10--277,Unknowns,277,10,196,30
+-,inosine_13C,NA,277,25,140,10.8
+-,Unk_178@10--277.001,Unknowns,277.001,10,178,11.8
+-,Unk_97@10--278,Unknowns,278,10,97,11.9
+-,Unk_97@30--278,Unknowns,278,30,97,11.9
+-,histidine-CBZ_1_1,"Amino Acids",289.013,13,181,25
+-,histidine-CBZ_1_1,"Amino Acids",289.1,13,181,25
+-,histidine-CBZ_2_2,"Amino Acids",290.013,13,182,25
+-,histidine-CBZ_2_2,"Amino Acids",290.1,13,182,25
+-,histidine-CBZ_3_3,"Amino Acids",291.013,13,183,25
+-,histidine-CBZ_4_4,"Amino Acids",292.013,13,184,25
+-,Unk_113@20--281,Unknowns,281,20,113,2.5
+-,Unk_117@45--281,Unknowns,281,45,117,24
+-,6-Phospho-D-gluconate_13C,NA,281,11,97,29.3
+-,histidine-CBZ_5_5,"Amino Acids",293.013,13,185,25
+-,histidine-CBZ_6_6,"Amino Acids",294.013,13,186,25
+-,histidine-CBZ-C13,NA,294,13,186,25
+-,histidine-CBZ-C13N15-IS,"AA Internal standard",297,13,189,25
+-,leucine-isoleucine-CBZ,"Amino Acids",264,15,156,40
+-,leucine-isoleucine-CBZ,"Amino Acids",264.013,15,156,40
+-,"leucine-isoleucine-CBZ (N15)","Amino Acids",265.1,15,157,40
+-,xanthosine,Nucleosides,283,22,151,14.1
+-,xanthosine-N15,Nucleosides,287,22,155,14.1
+-,leucine-isoleucine-CBZ_1_1,"Amino Acids",265.013,15,157,40
+-,leucine-isoleucine-CBZ_2_2,"Amino Acids",266.013,15,158,40
+-,leucine-isoleucine-CBZ_3_3,"Amino Acids",267.011,15,159,40
+-,leucine-isoleucine-CBZ_4_4,"Amino Acids",268.011,15,160,40
+-,leucine-isoleucine-CBZ_5_5,"Amino Acids",269.022,15,161,40
+-,leucine-isoleucine-CBZ-C13,NA,270,15,162,40
+-,leucine-isoleucine-CBZ-C13N15-IS,"AA Internal standard",271,15,163,40
+,lysine_CBZ_1_1,"Amino Acids",414,18,198,42
+-,lysine-CBZ,"Amino Acids",413,18,197,42
+-,lysine-CBZ,"Amino Acids",413.013,18,197,42
+,"lysine-CBZ( (N15)","Amino Acids",415,18,199,42
+-,lysine-CBZ_1_1,"Amino Acids",414.013,18,198,42
+-,lysine-CBZ_2_2,"Amino Acids",415.013,18,199,42
+-,lysine-CBZ_3_3,"Amino Acids",416.013,18,200,42
+-,lysine-CBZ_4_4,"Amino Acids",417.013,18,201,42
+-,lysine-CBZ_5_5,"Amino Acids",418.013,18,202,42
+-,lysine-CBZ_6_6,"Amino Acids",419.013,18,203,42
+-,lysine-CBZ-C13,NA,419,18,203,42
+-,Unk_145@20--287,Unknowns,287,20,145,1.6
+-,lysine-CBZ-C13N15-IS,"AA Internal standard",421,18,205,42
+-,Unk_132@20--287.001,Unknowns,287.001,20,132,7.3
+-,Unk_189@10--287.002,Unknowns,287.002,10,189,11.9
+-,Unk_111@20--287.003,Unknowns,287.003,20,111,13.4
+-,putrescine-SA,Derivatized,287.004,19,251,29.3
+-,methionine-CBZ,"Amino Acids",282,13,174,39
+-,methionine-CBZ,"Amino Acids",283.01,13,175,39
+-,methionine-CBZ,"Amino Acids",284.013,13,174,39
+-,methionine-CBZ_1_1,"Amino Acids",283.027,13,175,39
+-,methionine-CBZ_2_2,"Amino Acids",284.031,13,176,39
+-,D-sedoheptulose-7-phosphate,"Carbohydrate Precursors/ Derivatives",289,25,97,12.5
+-,methionine-CBZ_3_3,"Amino Acids",285.029,13,177,39
+-,methionine-CBZ_4_4,"Amino Acids",286.041,13,178,39
+-,D-sedoheptulose-7-phosphate-1,NA,290,25,97,12.5
+-,methionine-CBZ_5_5,"Amino Acids",287.013,13,179,39
+-,methionine-CBZ-C13,NA,287,13,179,36.5
+-,D-sedoheptulose-7-phosphate-2,NA,291,25,97,12.5
+-,methionine-CBZ-C13N15-IS,"AA Internal standard",288.01,13,180,36.5
+-,N-acetyl-L-ornithine-CBZ,NA,307.1,17,199,36.5
+-,D-sedoheptulose-7-phosphate-3,NA,292,25,97,12.5
+-,N-acetyl-L-ornithine-CBZ,NA,307.113,17,199,36.5
+-,Unk_97@45--293,Unknowns,293,45,97,11.9
+-,Unk_113@10--293,Unknowns,293,10,113,2.5
+-,xanthosine_13C,NA,293,22,156,14.1
+-,D-sedoheptulose-7-phosphate-4,NA,293.001,25,97.001,12.5
+-,"N-acetyl-L-ornithine-CBZ (N15)",NA,309.14,17,201,36.5
+-,D-sedoheptulose-7-phosphate-5,NA,294,25,97,12.5
+-,N-acetyl-L-ornithine-CBZ_1_1,"Amino Acids",308.113,17,200,36.5
+-,N-acetyl-L-ornithine-CBZ_2_2,"Amino Acids",309.113,17,201,36.5
+-,D-sedoheptulose-7-phosphate-6,NA,295,25,97,12.5
+-,D-sedoheptulose-7-phosphate-13C,NA,296,25,97,12.5
+-,Unk_97@30--297,Unknowns,297,30,97,29.2
+-,N-acetyl-L-ornithine-CBZ_3_3,"Amino Acids",310.113,17,202,36.5
+-,5'-Methylthioinosine,NA,297.01,24,135,17.8
+-,N-acetyl-L-ornithine-CBZ_4_4,"Amino Acids",311.113,17,203,36.5
+-,N-acetyl-L-ornithine-CBZ_5_5,"Amino Acids",312.113,17,204,36.5
+-,N-acetyl-L-ornithine-CBZ_6_6,"Amino Acids",313.113,17,205,36.5
+-,N-acetyl-L-ornithine-CBZ_7_7,"Amino Acids",314.113,17,206.1,36.5
+-,N-acetyl-glucosamine-1-phosphate,"Nucelotide Precursors/ Derivatives",300,32,79,13.2
+-,N-acetyl-glucosamine-1-phosphate-N15,"Nucelotide Precursors/ Derivatives",301,32,79,13.2
+-,N-acetyl-L-ornithine-CBZ-C13,NA,314.01,17,206,36.5
+-,Unk_203@10--301,Unknowns,301,10,203,1.9
+-,cadaverine-SA,Derivatized,301,21,265,31
+-,Unk_179@10--301.001,Unknowns,301.001,10,179,2.3
+-,N-ac-ornithine-CBZ_1_1,NA,308.14,17,200,36.5
+-,ornithine-CBZ,"Amino Acids Derivatives/ Precursors",399,17,183,41
+-,Unk_205@10--303,Unknowns,303,10,205,30.5
+-,ornithine-CBZ,"Amino Acids Derivatives/ Precursors",399.013,17,183,41
+-,ornithine-CBZ_1_1,"Amino Acids",400.013,17,184,41
+-,ornithine-CBZ_2_2,"Amino Acids",401.013,17,185,41
+-,ornithine-CBZ_3_3,"Amino Acids",402.013,17,186,41
+-,glutathione-nega,"Redox Electron Carriers and Precursors",306,17,143,14.3
+-,ornithine-CBZ_4_4,"Amino Acids",403.013,17,187,41
+-,dUMP-nega,"Nucleotide Monophosphates",307,16,195,20
+-,dUMP-nega-N15,"Nucleotide Monophosphates",309,16,195,20
+-,ornithine-CBZ_5_5,"Amino Acids",404.013,17,188,41
+-,ornithine-CBZ-C13,NA,404,17,188,41
+-,phenylalanine-CBZ,"Amino Acids",298,27,147,40
+-,phenylalanine-CBZ,"Amino Acids",298.013,27,147,40
+-,"phenylalanine-CBZ (N15)","Amino Acids",299,27,147,40
+-,N-acetyl-glucosamine-1-phosphate_13C,NA,308,32,79,13.2
+-,phenylalanine-CBZ_1_1,"Amino Acids",299.013,27,148,40
+-,phenylalanine-CBZ_2_2,"Amino Acids",300.013,27,149,40
+-,phenylalanine-CBZ_3_3,"Amino Acids",301.013,27,150,40
+-,phenylalanine-CBZ_4_4,"Amino Acids",302.013,27,151,40
+-,phenylalanine-CBZ_5_5,"Amino Acids",303.013,27,152,40
+-,phenylalanine-CBZ_6_6,"Amino Acids",304.013,27,153,40
+-,citrulline_1_0,"Amino Acids Derivatives/ Precursors",309.01,17,157,35
+-,phenylalanine-CBZ_7_7,"Amino Acids",305.014,27,154,40
+-,phenylalanine-CBZ_8_8,"Amino Acids",306.013,27,155,40
+-,citrulline_1_1,"Amino Acids Derivatives/ Precursors",309.02,17,158,35
+-,phenylalanine-CBZ-C13,NA,307,27,156,40
+-,phenylalanine-CBZ-C13N15-IS,"AA Internal standard",308,27,156,40
+-,Unk_179@10--310,Unknowns,310,10,179,3.1
+-,citrulline_2_0,"Amino Acids Derivatives/ Precursors",310.01,17,157,35
+-,proline-CBZ,"Amino Acids",248,13,140,37
+-,proline-CBZ,"Amino Acids",248.013,13,140,37
+-,citrulline_2_1,"Amino Acids Derivatives/ Precursors",310.02,17,158,35
+-,citrulline_2_2,"Amino Acids Derivatives/ Precursors",310.03,17,159,35
+-,"proline-CBZ (N15)","Amino Acids",249,13,141,37
+-,proline-CBZ_1_1,"Amino Acids",249.013,13,141,37
+-,proline-CBZ_2_2,"Amino Acids",250.013,13,142,37
+-,"citrulline (N15)","Amino Acids Derivatives/ Precursors",311.01,17,159,35
+-,proline-CBZ_3_3,"Amino Acids",251.015,13,143,37
+-,proline-CBZ_4_4,"Amino Acids",252.017,13,144,37
+-,proline-CBZ_5_5,"Amino Acids",253.013,13,145,37
+-,proline-CBZ-C13,NA,253,13,145,37
+-,proline-CBZ-C13N15-IS,"AA Internal standard",254.01,13,146,37
+-,serine-CBZ,"Amino Acids",238,17,130,34.5
+-,geranyl-PP,"Miscellaneous Metabolites",313,18,79,40.9
+-,serine-CBZ,"Amino Acids",238.013,17,130,34.5
+-,"serine-CBZ (N15)","Amino Acids",239.05,17,131,34.5
+-,serine-CBZ_1_1,"Amino Acids",239.013,17,131,34.5
+-,serine-CBZ_2_2,"Amino Acids",240.013,17,132,34.5
+-,serine-CBZ_3_3,"Amino Acids",241.013,17,133,34.5
+-,serine-CBZ-C13,NA,241,17,133,34.5
+-,serine-CBZ-C13N15-IS,"AA Internal standard",242,17,134,34.5
+-,threonine-CBZ,"Amino Acids",252,15,100,36
+-,"threonine-CBZ (N15)","Amino Acids",253.01,15,100,36
+-,Unk_173@20--315,Unknowns,315,20,173,1.9
+-,Unk_217@10--315,Unknowns,315,10,217,29.6
+-,Unk_201@30--315.001,Unknowns,315.001,30,201,42
+-,Unk_279@20--315.001,Unknowns,315.001,20,279,12.6
+-,Unk_177@20--315.002,Unknowns,315.002,20,177,11.8
+-,Unk_297@10--315.003,Unknowns,315.003,10,297,11.8
+-,threonine-CBZ_1_0,"Amino Acids",253.013,15,100,36
+-,threonine-CBZ_1_1,"Amino Acids",253.014,15,101,36
+-,glutathione-9_5,"Redox Electron Carriers and Precursors",315.03,17,148,14.3
+-,glutathione-9_4,"Redox Electron Carriers and Precursors",315.04,17,147,14.3
+-,threonine-CBZ_2_1,"Amino Acids",254.013,15,101,36
+-,Unk_242@10--316,Unknowns,316,10,242,2.2
+-,dUMP_13C,NA,316,16,200,12
+-,threonine-CBZ_2_2,"Amino Acids",254.013,15,102,36
+-,glutathione-13C,"Redox Electron Carriers and Precursors",316.03,17,148,14.3
+-,threonine-CBZ_3_2,"Amino Acids",255.013,15,102,36
+-,threonine-CBZ_3_3,"Amino Acids",255.014,15,103,36
+-,threonine-CBZ_4_3,"Amino Acids",256.013,15,103,36
+-,Unk_176@10--319,Unknowns,319,10,176,13
+-,Unk_219@10--319,Unknowns,319,10,219,29.9
+-,Unk_221@10--319,Unknowns,319,10,221,2.1
+-,Unk_138@10--319.001,Unknowns,319.001,10,138,2.3
+-,Unk_155@10--319.001,Unknowns,319.001,10,155,15.2
+-,Unk_169@20--319.001,Unknowns,319.001,20,169,26.6
+-,Unk_139@10--319.002,Unknowns,319.002,10,139,2.5
+-,Unk_195@20--319.002,Unknowns,319.002,20,195,39.3
+-,Unk_247@20--319.003,Unknowns,319.003,20,247,42
+-,Unk_167@20--319.004,Unknowns,319.004,20,167,42.2
+-,threonine-CBZ-C13,NA,256,15,103,36
+-,threonine-CBZ-C13N15-IS,"AA Internal standard",257.11,15,103,36
+-,dTMP-nega,"Nucleotide Monophosphates",321,20,195,22.7
+-,threonine-CBZ-nega-IS,NA,257.013,15,105,36
+-,tryptophan-CBZ,"Amino Acids",337,14,229,40
+-,tryptophan-CBZ,"Amino Acids",337.013,14,229,40
+-,Geranyl-PP_13C,NA,323,18,79,40.9
+-,tryptophan-CBZ-C13,NA,348,14,240,40
+-,tryptophan-CBZ_1_1,"Amino Acids",338.01,14,230,40
+-,tryptophan-CBZ_1_1,"Amino Acids",338.013,14,230,40
+-,Unk_145@10--325,Unknowns,325,10,145,2.2
+-,cyclic-AMP,"Nucleotide Monophosphates",328,31,134.05,29.5
+-,cyclic-AMP-N15,"Nucleotide Monophosphates",333,31,139.05,29.5
+-,Unk_146@10--331,Unknowns,331,10,146,6.8
+-,Unk_249@10--331,Unknowns,331,10,249,28.6
+-,Unk_233@20--331.001,Unknowns,331.001,20,233,29.5
+-,Unk_153@10--333,Unknowns,333,10,153,2.2
+-,Unk_233@20--333,Unknowns,333,20,233,26.5
+-,Unk_153@10--333.001,Unknowns,333.001,10,153,7.4
+-,Unk_155@45--335,Unknowns,335,45,155,12
+-,Unk_192@10--335,Unknowns,335,10,192,31.6
+-,Unk_273@10--335.001,Unknowns,335.001,10,273,15
+-,tryptophan-CBZ_10_10,"Amino Acids",347.032,14,239,40
+-,cyclic-AMP_13C,NA,338,31,139,29.5
+-,tryptophan-CBZ_2_2,"Amino Acids",339.013,14,231,40
+-,tryptophan-CBZ_3_3,"Amino Acids",340.013,14,232,40
+-,"fructose-1,6-bisphosphate",NA,339,28,97,30
+-,"Tryptophan (N15)","Amino Acids",339.01,14,231,40
+-,tryptophan-CBZ_4_4,"Amino Acids",341.013,14,233,40
+-,"fructose-1,6-bisphosphate-1",NA,340,28,97,30
+-,tryptophan-CBZ_5_5,"Amino Acids",342.013,14,234,40
+-,trehalose,"Carbohydrate Precursors/ Derivatives",341,18,179,3
+-,"fructose-1,6-bisphosphate-2",NA,341,28,97,30
+-,Cellobiose,HMDB,341,12,263,7
+-,tryptophan-CBZ_6_6,"Amino Acids",343.013,14,235,40
+-,Sucrose,HMDB,341.1,18,179,2.5
+-,"fructose-1,6-bisphosphate-3",NA,342,28,97,30
+-,tryptophan-CBZ_7_7,"Amino Acids",344.034,14,236,40
+-,"fructose-1,6-bisphosphate-4",NA,343,28,97,30
+-,tryptophan-CBZ_8_8,"Amino Acids",345.024,14,237,40
+-,tryptophan-CBZ_9_9,"Amino Acids",346.025,14,238,40
+-,"fructose-1,6-bisphosphate-5",NA,344,28,97,30
+-,spermidine-SA,Derivatized,344,20,308,12.3
+-,spermidine-SA,Derivatized,344,20,308,12.3
+-,tyrosine-CBZ,"Amino Acids",314,15,206,37
+-,"fructose-1,6-bisphosphate_13C",NA,345,28,97,30
+-,"tyrosine-CBZ (N15)","Amino Acids",315.05,15,207,37
+-,tyrosine-CBZ_1_1,"Amino Acids",315.013,15,207,37
+-,tyrosine-CBZ_2_2,"Amino Acids",316.013,15,208,37
+-,Unk_173@20--353,Unknowns,353,20,173,2.5
+-,trehalose_13C,NA,353,18,185,3
+-,Unk_259@10--357,Unknowns,357,10,259,1.9
+-,Unk_275@10--357,Unknowns,357,10,275,31.8
+-,Unk_179@10--359,Unknowns,359,10,179,2.3
+-,orotidine-5'-phosphate,"Nucelotide Precursors/ Derivatives",367,16,323,30
+-,orotidine-5'-phosphate-N15,"Nucelotide Precursors/ Derivatives",369,16,325,30
+-,Unk_329@10--373,Unknowns,373,10,329,31.7
+-,orotidine-5'-phosphate_13C,NA,377,16,332,30
+-,"trans, trans-farnesyl diphosphate",NA,381,21,79,42
+-,S-adenosyl-L-homocysteine-nega,"Amino Acids Derivatives/ Precursors",383.1,29,134,12.8
+-,dCDP,"Nucleotide Di/Triphosphates",386,25,159,30
+-,dCDP-N15,"Nucleotide Di/Triphosphates",389,25,159,30
+-,"5-phosphoribosyl 1-pyrophosphate","Nucelotide Precursors/ Derivatives",389,18,291,35
+-,Unk_345@20--389.001,Unknowns,389.001,20,345,37.5
+-,"5-phosphoribosyl 1-pyrophosphate-1",NA,390,18,292,35
+-,"5-phosphoribosyl 1-pyrophosphate-2",NA,391,18,293,35
+-,"Deoxycholic acid",HMDB,391.202,34,345.2,42.2
+-,"5-phosphoribosyl 1-pyrophosphate-3",NA,392,18,294,35
+-,"5-phosphoribosyl 1-pyrophosphate-4",NA,393,18,295,35
+-,"5-phosphoribosyl 1-pyrophosphate-13C",NA,394,18,296,35
+-,dCDP_13C,NA,395,25,159,30
+-,"trans, trans-farnesyl diphosphate_13C",NA,396,21,79,42
+-,tyrosine-CBZ_3_3,"Amino Acids",317.013,15,209,37
+-,tyrosine-CBZ_4_4,"Amino Acids",318.013,15,210,37
+-,Ornithine_1_1,"Amino Acids Derivatives/ Precursors",400.01,17,184,41
+-,tyrosine-CBZ_5_5,"Amino Acids",319.013,15,211,37
+-,dTDP-nega,"Nucleotide Di/Triphosphates",401,25,159,30
+-,"Ornithine (N15)","Amino Acids Derivatives/ Precursors",401.01,17,185,41
+-,tyrosine-CBZ_6_6,"Amino Acids",320.013,15,212,37
+-,CDP-nega,"Nucleotide Di/Triphosphates",402,20,384,29.8
+-,CDP-N14,NA,402,29,159,24
+-,UDP-nega,"Nucleotide Di/Triphosphates",403,26,159,30.8
+-,CDP-S15,NA,403,29,159,24
+-,tyrosine-CBZ_7_7,"Amino Acids",321.014,15,213,37
+-,UDP-N14,NA,403.05,15,305,25
+-,CDP-D15,NA,404,29,159,24
+-,tyrosine-CBZ_8_8,"Amino Acids",322.013,15,214,37
+-,tyrosine-CBZ_9_9,"Amino Acids",323.013,15,215,37
+-,UDP-S15,NA,404.05,15,306,25
+-,CDP-N15,NA,405,29,159,24
+-,UDP-N15,NA,405.05,15,307,25
+-,"Cholic acid",HMDB,407.2,30,345.2,41.8
+-,tyrosine-CBZ-C13,NA,323,15,215,37
+-,tyrosine-CBZ-C13N15-IS,"AA Internal standard",324,15,216,37
+-,valine-CBZ,"Amino Acids",250,12,142,39
+-,"valine-CBZ (N15)","Amino Acids",251.05,12,143,39
+-,Unk_253@30--417,Unknowns,417,30,253,31.8
+-,valine-CBZ_1_1,"Amino Acids",251.016,12,143,39
+-,valine-CBZ_2_2,"Amino Acids",252.013,12,144,39
+-,Unk_359@10--419,Unknowns,419,10,359,2.2
+-,valine-CBZ_3_3,"Amino Acids",253.013,12,145,39
+-,valine-CBZ_4_4,"Amino Acids",254.013,12,146,39
+-,"trehalose 6-Phosphate","Carbohydrate Precursors/ Derivatives",421,34,79,12.5
+-,valine-CBZ_5_5,"Amino Acids",255.013,12,147,39
+-,"Thiamine pyrophosphate",HMDB,423.1,19,302,18.2
+-,"adenosine 5'-phosphosulfate","Miscellaneous Metabolites",426,20,346,30
+-,ADP-N14-nega,NA,426,24,134,25
+-,ADP-nega,"Nucleotide Di/Triphosphates",426.1,25,159,32
+-,dGDP,"Nucleotide Di/Triphosphates",426.12,25,159,34
+-,IDP-nega,"Nucleotide Di/Triphosphates",427,25,159,33
+-,ADP-s15,NA,427,24,135,25
+-,ADP-D15,NA,428,24,136,25
+-,ADP-T15,NA,429,24,137,25
+-,ADP-Q15,NA,430,24,138,25
+-,ADP-N15,NA,431,24,139,25
+-,"trehalose 6-phosphate-13C",NA,433,34,79,12.5
+-,Unk_239@10--435,Unknowns,435,10,239,2
+-,Unk_315@10--435.001,Unknowns,435.001,10,315,2.1
+-,"Adenosine 5'-phosphosulfate_13C",NA,436,20,356,30
+-,"adenosine 5'-phosphosulfate","Miscellaneous Metabolites",431,20,351,30
+-,dGDP_13C,NA,436.1,25,159,34
+-,Unk_343@10--441,Unknowns,441,10,343,1.7
+-,GDP-nega,"Nucleotide Di/Triphosphates",442,19,159,32
+-,CDP-ethanolamine,"Nucleotide Di/Triphosphates",445,27,273,11.4
+-,Unk_272@20--453,Unknowns,453,20,272,1.9
+-,FMN,"Redox Electron Carriers and Precursors",455,19,213,34
+-,"Cholesteryl sulfate",HMDB,465.2,37,97,44
+-,dCTP-nega,"Nucleotide Di/Triphosphates",466,28,159,34
+-,dUTP-nega,"Nucleotide Di/Triphosphates",467,25,159,34.5
+-,FMN_13C,NA,472,19,218,34
+-,dCTP_13C,NA,475,28,159,34
+-,dUTP_13C,NA,476,25,159,34.5
+-,Unk_312@20--477,Unknowns,477,20,312,NA
+-,UTP_5,"Nucleotide Di/Triphosphates",488.064,33,159,34.5
+-,UTP_6,"Nucleotide Di/Triphosphates",480,33,159,34.5
+-,dTTP-nega,"Nucleotide Di/Triphosphates",481,31,159,35
+-,UTP_7,"Nucleotide Di/Triphosphates",481,33,159,34.5
+-,UTP_8,"Nucleotide Di/Triphosphates",482,33,159,34.5
+-,CTP-nega,"Nucleotide Di/Triphosphates",482.001,22,384,34
+-,dTTP-S15,NA,482.07,31,159,26
+-,UTP-nega,"Nucleotide Di/Triphosphates",483,33,159,34.5
+-,UTP_C13,"Nucleotide Di/Triphosphates",483,33,159,34.5
+-,CTP-S15,NA,483,32,159,26
+-,UTP-N14,NA,483.05,33,159,26
+-,dTTP-N15,NA,483.07,31,159,26
+-,CTP-D15,NA,484,32,159,26
+-,UTP-S15,NA,484.05,33,159,26
+-,CTP-N15,NA,485,32,159,26
+-,UTP-N15,NA,485.05,33,159,26
+-,CTP_5,"Nucleotide Di/Triphosphates",487,22,389,34
+-,CTP_6,"Nucleotide Di/Triphosphates",488,22,390,34
+-,CDP-choline,"Nucleotide Di/Triphosphates",487,19,428,11.3
+-,CTP_7,"Nucleotide Di/Triphosphates",489,22,391,34
+-,CTP_8,"Nucleotide Di/Triphosphates",490.011,22,392,34
+-,dATP-nega,"Nucleotide Di/Triphosphates",490,27,159,35
+-,CTP-nega,"Nucleotide Di/Triphosphates",491,22,393,34
+-,dATP-S15,NA,491,27,159,25
+-,CTP_C13,"Nucleotide Di/Triphosphates",491.1,22,393,34
+-,dATP-D15,NA,492,27,159,25
+-,dTTP-nega-IS,"Nucleotide Di/Triphosphates",493,31,159,35
+-,dATP-T15,NA,493,27,159,25
+-,CTP/UTP-nega-IS,"Nucleotide Di/Triphosphates",494,32,159,34
+-,dATP-Q15,NA,494,27,159,25
+-,dATP-N15,NA,495,27,159,25
+-,"Taurodeoxycholic acid",HMDB,498.2,51,124,40
+-,dATP_13C,NA,500,27,159,35
+-,Unk_341@10--503,Unknowns,503,10,341,2.4
+c,ATP-N14,NA,506,21,408,28
+-,ATP-nega,"Nucleotide Di/Triphosphates",506.1,28,159,34.5
+-,dGTP-nega,"Nucleotide Di/Triphosphates",506.12,28,159,37
+-,ATP-S15,NA,507,21,409,28
+-,ATP-D15,NA,508,21,410,28
+-,ATP-T15,NA,509,21,411,28
+-,ATP-Q15,NA,510,21,412,28
+-,ATP-N15,NA,511,21,413,28
+-,ATP_5,"Nucleotide Di/Triphosphates",511.11,28,159,35
+-,ATP_6,"Nucleotide Di/Triphosphates",512.11,28,159,35
+-,ATP_7,"Nucleotide Di/Triphosphates",513.11,28,159,35
+-,ATP_8,"Nucleotide Di/Triphosphates",514.11,28,159,35
+-,ATP_9,"Nucleotide Di/Triphosphates",515.11,28,159,35
+-,dGTP_13C,NA,516.1,28,159,37
+-,ATP_C13,"Nucleotide Di/Triphosphates",516.11,28,159,35
+-,ATP-nega-IS,"Nucleotide Di/Triphosphates",521,21,423,35
+-,GTP-nega,"Nucleotide Di/Triphosphates",522,23,424,35
+-,Unk_331@20--527,Unknowns,527,20,331,11.8
+-,GTP_5,"Nucleotide Di/Triphosphates",527.01,23,429,35
+-,GTP_6,"Nucleotide Di/Triphosphates",528.01,23,430,35
+-,GTP_7,"Nucleotide Di/Triphosphates",529.01,23,431,35
+-,GTP_8,"Nucleotide Di/Triphosphates",530.01,23,432,35
+-,GTP_9,"Nucleotide Di/Triphosphates",531.01,23,433,35
+-,GTP_C13,"Nucleotide Di/Triphosphates",532,23,434,35
+-,Unk_369@10--533,Unknowns,533,10,369,1.8
+-,GTP-nega-IS,"Nucleotide Di/Triphosphates",537,23,439,35
+-,Unk_317@10--544,Unknowns,544,10,317,29.8
+-,Unk_277@45--549,Unknowns,549,45,277,11.8
+-,Unk_369@20--549,Unknowns,549,20,369,1.9
+-,UDP-D-glucose,"Carbohydrate Precursors/ Derivatives",565,23,323,29.5
+-,UDP-D-glucose-S-N15,"Carbohydrate Precursors/ Derivatives",566,23,324,29.5
+-,UDP-D-glucose-N15,"Carbohydrate Precursors/ Derivatives",567,23,325,29.5
+-,Unk_445@10--565,Unknowns,565,10,445,2.2
+-,Unk_473@10--571,Unknowns,571,10,473,2
+-,UDP-D-glucose_11_5,NA,576.01,23,328,29.5
+-,UDP-D-glucose_12_6,NA,577.01,23,329,29.5
+-,UDP-D-glucose_13_7,NA,578.01,23,330,29.5
+-,UDP-D-glucuronate,"Carbohydrate Precursors/ Derivatives",579,24,403,34
+-,UDP-D-glucuronate-S-N15,"Carbohydrate Precursors/ Derivatives",580,24,404,34
+-,UDP-D-glucuronate-N15,"Carbohydrate Precursors/ Derivatives",581,24,405,34
+-,UDP-D-glucose_14_8,NA,579.01,23,331,29.5
+-,UDP-D-glucose_13C,NA,580,23,332,29.5
+-,Unk_313@30--587,Unknowns,587,30,313,29.3
+-,Unk_391@10--587,Unknowns,587,10,391,2
+-,Unk_391@20--587,Unknowns,587,20,391,2
+-,ADP-D-glucose,"Carbohydrate Precursors/ Derivatives",588,22,346,32
+-,ADP-D-glucose-N15,"Carbohydrate Precursors/ Derivatives",563,22,351,32
+-,UDP-D-glucuronate_11_5,NA,590.01,24,408,34
+-,UDP-D-glucuronate_12_6,NA,591.01,24,409,34
+-,UDP-D-glucuronate_13_7,NA,592.01,24,410,34
+-,UDP-D-glucuronate_14_8,NA,593.01,24,411,34
+-,UDP-D-glucuronate_13C,NA,594,24,412,34
+-,ADP-D-glucose_11_5,NA,599.01,22,351,32
+-,ADP-D-glucose_12_6,NA,600.01,22,352,32
+-,ADP-D-glucose_13_7,NA,601.01,22,353,32
+-,"guanosine 5'-diphosphate, 3'-diphosphate","Nucelotide Precursors/ Derivatives",602,22,504,35.9
+-,ADP-D-glucose_14_8,NA,602.01,22,354,32
+-,ADP-D-glucose_15_9,NA,603.01,22,355,32
+-,ADP-D-glucose_13C,NA,604,22,356,32
+-,UDP-N-acetyl-glucosamine,"Carbohydrate Precursors/ Derivatives",606,26,385,30
+-,UDP-N-acetyl-D-glucosamine-N15,NA,609,26,387,23
+-,"glutathione disulfide-nega","Redox Electron Carriers and Precursors",611,28,306,27.8
+-,UDP-N-acetyl-glucosamine_13C,NA,623,26,394,30
+-,NAD+_nega,"Redox Electron Carriers and Precursors",662,19,540,16
+-,NAD-short,,662.007,19,540,2
+-,NADH_nega,"Redox Electron Carriers and Precursors",664,31,408,32
+-,NADH-short,,664.007,31,408,17
+-,NAD+_N15,NA,669,19,545,17
+-,NADH_nega-N15,"Redox Electron Carriers and Precursors",671,31,413,32
+-,dephospho-CoA-nega,CoA's,686.2,35,339,35
+-,"cyclic bis(3'->5') dimeric GMP","Nucelotide Precursors/ Derivatives",689,32,344,32.2
+-,NADP+_nega,"Redox Electron Carriers and Precursors",742,18,620,31
+-,NADPH_nega,"Redox Electron Carriers and Precursors",744,34,408,34
+-,NADP+_N15,NA,749,18,625,25
+-,NADPH_nega-N15,"Redox Electron Carriers and Precursors",751,34,413,34
+-,"coenzyme A-nega",CoA's,766,40,408,36.5
+-,CoA_1,NA,767,40,409,36.5
+-,"coenzyme A_2",NA,768,40,410,36.5
+-,"coenzyme A_3",NA,769,40,411,36.5
+-,"coenzyme A_4",NA,770,40,412,36.5
+-,"coenzyme A_5",NA,771,40,413,36.5
+-,"coenzyme A_6",NA,772,40,414,36.5
+-,"coenzyme A_7",NA,773,40,415,36.5
+-,"coenzyme A_8",NA,774,40,416,36.5
+-,"coenzyme A_9",NA,775,40,417,36.5
+-,"coenzyme A_10",NA,776,40,418,36.5
+-,"coenzyme A-nega_13C",NA,787,40,418,36.5
+-,acetyl-CoA-nega,CoA's,808,31,408,37
+-,acetyl-CoA-nega_1_0,CoA's,809.1,31,408,37
+-,acetyl-CoA-nega_2_0,CoA's,810.11,31,408,37
+-,propionyl-CoA-nega,CoA's,822.2,31,408,37.7
+-,propionyl-CoA-nega_1_0,CoA's,823.2,31,408,37.7
+-,propionyl-CoA-nega_2_0,CoA's,824.2,31,408,37.7
+-,propionyl-CoA-nega_3_0,CoA's,825.2,31,408,37.7
+-,acetyl-CoA_18_7,NA,826.01,31,415,37
+-,acetyl-CoA_18_6,NA,826.02,31,414,37
+-,acetyl-CoA_18_5,NA,826.03,31,413,37
+-,acetyl-CoA_19_8,NA,827.01,31,416,37
+-,acetyl-CoA_19_7,NA,827.02,31,415,37
+-,acetyl-CoA_19_6,NA,827.03,31,414,37
+-,acetyl-CoA_20_9,NA,828.01,31,417,37
+-,acetyl-CoA_20_8,NA,828.02,31,416,37
+-,acetyl-CoA_20_7,NA,828.03,31,415,37
+-,acetyl-CoA_21_10,NA,829.01,31,418,37
+-,acetyl-CoA_21_9,NA,829.02,31,417,37
+-,acetyl-CoA_21_8,NA,829.03,31,416,37
+-,acetyl-CoA_22_10,NA,830.01,31,418,37
+-,acetyl-CoA_22_9,NA,830.02,31,417,37
+-,acetyl-CoA-nega_13C,NA,831,31,418,37
+-,propionyl-CoA_13C,NA,846.2,31,418,37.7
+-,acetoacetyl-CoA-nega,CoA's,850.2,30,766.1,36.6
+-,malonyl-CoA-nega,CoA's,852.2,24,808.2,36.8
+-,acetoacetyl-CoA-nega-N15,CoA's,857.2,30,766.1,36.6
+-,malonyl-CoA-nega-N15,CoA's,859.2,24,808.2,36.8
+-,succinyl-CoA/methylmalonyl-CoA-nega,CoA's,866.2,20,822,36.8
+-,succinyl-CoA/methylmalonyl-CoA-nega-N15,CoA's,873.2,20,827,36.8
+-,malonyl-CoA_19_19,NA,871.21,24,827.2,36.8
+-,malonyl-CoA_19_18,NA,871.22,24,826.2,36.8
+-,malonyl-CoA_20_20,NA,872.21,24,828.2,36.8
+-,malonyl-CoA_20_19,NA,872.22,24,827.2,36.8
+-,malonyl-CoA_21_21,NA,873.21,24,829.2,36.8
+-,malonyl-CoA_21_20,NA,873.22,24,828.2,36.8
+-,malonyl-CoA_22_22,NA,874.21,24,830.2,36.8
+-,malonyl-CoA_22_21,NA,874.22,24,829.2,36.8
+-,acetoacetyl-CoA_13C,NA,875.2,30,787.1,36.6
+-,malonyl-CoA_23_23,NA,875.21,24,831.2,36.8
+-,malonyl-CoA_23_22,NA,875.22,24,830.2,36.8
+-,malonyl-CoA_13C,NA,876.2,24,831.2,36.8
+-,succinyl-CoA/methylmalonyl-CoA_13C,NA,891.2,20,846,36.8
+-,3-hydroxy-3-methylglutaryl-CoA,CoA's,910.2,43,408,38
+-,3-hydroxy-3-methylglutaryl-CoA-N15,CoA's,917.2,43,413,38
+-,3-hydroxy-3-methylglutaryl-CoA_13C,NA,937.2,43,418,38
++,Urea,HMDB,61.1,23,44.2,8.8
++,Urea-N15-1_0,,62.1,23,44.2,8.8
++,Urea-N15-1_1,,62.1,23,45.2,8.8
++,Urea-N15-2_1,,63.09,23,45.2,8.8
++,ethanolamine,amine,62.1,6,44.2,14.5
++,ethanolamine-N15,,63.1,6,45.21,14.5
++,Imidazole,HMDB,69,21,42.24,7
++,glycine,C2H6NO2+,76.1,16,30.5,13.5
++,glycine-N15,,77.101,16,31.51,13.5
++,Glycine_1_0,"Amino Acids",77.1,16,30.5,13.5
++,Glycine_1_1,"Amino Acids",77.11,16,31.5,13.5
++,glycine_13C,NA,78.1,16,31.2,13.4
++,Glycine_C13,"Amino Acids",78.11,16,31.5,13.5
++,glycine-C13N15-IS,,79.015,16,32.215,13.5
++,Glycine-(U-13C/15N),AA-IS,83.106,16,32.5,13.5
++,alanine-N14,NA,90,11,44,13
++,sarcosine,"Amino Acids Derivatives/ Precursors",90.03,6,44,12.2
++,alanine,"Amino Acids",90.1,11,44.2,13
++,Alanine_C12,"Amino Acids",90.11,11,44.2,12.6
++,alanine-N15,NA,91,11,45,13
++,Alanine_1_0,"Amino Acids",91.1,11,44.2,12.6
++,Alanine_1_1,"Amino Acids",91.11,11,45.2,12.6
++,Alanine_2_1,"Amino Acids",92.1,11,45.2,12.6
++,Alanine_2_2,"Amino Acids",92.11,11,46.2,12.6
++,alanine_13C,NA,93.1,11,46.2,12
++,alanine-C13N15-IS,,94.015,11,47.215,13
++,alanine-IS,"Amino Acids",94.1,11,47.2,12
++,Alanine-(U-13C/15N),AA-IS,94.106,11,47.2,13
++,"betaine aldehyde","Miscellaneous Metabolites",102,19,58,14.5
++,"betaine aldehyde-N15","Miscellaneous Metabolites",103,19,59,14.5
++,choline,"Miscellaneous Metabolites",104,19,60,13.8
++,choline-N15,"Miscellaneous Metabolites",105,19,61.01,13.8
++,"a/b-Aminoisobutyric acid",HMDB,104.001,12,58.2,12.3
++,4-aminobutyrate,,104.01,20,69,13.7
++,4-aminobutyrate-N15,,105.01,20,70.01,13.7
++,dimethylglycine,NA,104.02,19,58,8.3
++,dimethylglycine-N15,NA,105.02,19,59.01,8.3
++,serine,"Amino Acids",106,13,60,14
++,serine-N15,"Amino Acids",107.02,13,61,14
++,Serine_1_0,"Amino Acids",107,13,60,13.5
++,Serine_1_1,"Amino Acids",107.01,13,61,13.5
++,Serine_2_2,"Amino Acids",108.01,13,62,13.5
++,Serine_2_1,"Amino Acids",108.1,13,61,13.5
++,choline_13C,NA,109,19,63,7
++,serine_13C,NA,109.1,13,62,14
++,Serine-(U-13C/15N),AA-IS,110.006,13,63,13
++,serine-C13N15-IS,,110.015,13,63.015,14
++,cytosine,C4H6N3O+,112.1,17,95,11.4
++,cytosine-N15-1_0,,113.1,17,95,11.4
++,cytosine-N15-1_1,,113.1,17,96,11.4
++,cytosine-N15-2_1,,114.1,17,96,11.4
++,cytosine-N15-2_2,,114.1,17,97,11.4
++,cytosine-N15-3_2,,115.1,17,97,11.4
++,Creatinine,HMDB,114,17,44.2,10
++,cytosine_3,"Nucleoside Bases",115.05,17,98,5
++,proline-N14,NA,116,11,70,13
++,cytosine_13C,NA,116.05,17,99,5
++,proline,C5H10NO2+,116.1,11,70.1,12.7
++,proline-N15,NA,117,11,71,13
++,Proline_1_0,"Amino Acids",117.1,11,70.1,12.4
++,Proline_1_1,"Amino Acids",117.11,11,71.1,12.4
++,indole,C8H8N+,118,24,91,12
++,indole-N15,C8H8N+,119,24,92,12
++,valine-N14,NA,118,11,55,12
++,valine-N15,NA,119.1,11,56,12
++,threonine,,120,11,74,13.3
++,threonine-N15,,121.02,11,75.01,13.3
++,"glycine betaine",,118.02,34,58,11.3
++,valine,C5H12NO2+,118.1,11,55.2,12.1
++,Proline_2_1,"Amino Acids",118.11,11,71.1,12.4
++,Proline_2_2,"Amino Acids",118.12,11,72.1,12.4
++,valine-N15,NA,119,11,55,12
++,Valine_1_0,"Amino Acids",119.1,11,55.2,11.9
++,Proline_3_2,"Amino Acids",119.11,11,72.1,12.4
++,Proline_3_3,"Amino Acids",119.12,11,73.1,12.4
++,Valine_1_1,"Amino Acids",119.13,11,56.2,11.9
++,threonine,C4H10NO3+,120,11,74,13.3
++,Valine_2_1,"Amino Acids",120.1,11,56.2,11.9
++,Proline_4_3,"Amino Acids",120.11,11,73.1,12.4
++,Proline_4_4,"Amino Acids",120.12,11,74.1,12.4
++,Valine_2_2,"Amino Acids",120.13,11,57.2,11.9
++,homoserine,C4H10NO3+,120.15,30,44.2,13.7
++,homoserine-N15,C4H10NO3+,121.15,30,45.2,13.7
++,purine,,121,23,94,12
++,Purine,HMDB,121,23,94,12
++,Thr_1_1,"Amino Acids",121.01,11,75,13.3
++,proline_13C,NA,121.1,11,74.1,9
++,Valine_3_3,"Amino Acids",121.11,11,58.2,11.9
++,Thr_1_0,"Amino Acids",121.12,11,74,13.3
++,Valine_3_2,"Amino Acids",121.13,11,57.2,11.9
++,Thr_2_2,"Amino Acids",122.01,11,76,13.3
++,proline-C13N15-IS,,122.015,11,75.015,12.7
++,cysteine,C3H8NO2S+,122.1,27,59.1,15
++,cysteine-N15,C3H8NO2S+,123.07,27,59.11,15
++,Thr_2_1,"Amino Acids",122.1,11,75,13.3
++,Proline-(U-13C/15N),AA-IS,122.106,11,75.1,12.7
++,Valine_4_4,"Amino Acids",122.11,11,59.2,11.9
++,Valine_4_3,"Amino Acids",122.12,11,58.2,11.9
++,Thr_3_3,"Amino Acids",123.01,11,77,13.3
++,Thr_3_2,"Amino Acids",123.02,11,76,13.3
++,Valine_C13,"Amino Acids",123.04,11,59.2,11.9
++,valine_13C,NA,123.05,11,59.2,8
++,nicotinamide,C6H7N2O+,123.1,20,80,7.3
++,nicotinamide-N15-1_0,C6H7N2O+,124.1,20,80,7.3
++,nicotinamide-N15-1_1,C6H7N2O+,124.1,20,81,7.3
++,nicotinamide-N15-2_1,C6H7N2O+,125.11,20,81,7.3
+,,,,,,
++,threonine_13C,NA,124,11,77,13.6
++,valine-C13N15-IS,,124.015,11,59.115,12.1
++,Valine-(U-13C/15N),AA-IS,124.106,11,59.2,12.1
++,homoserine_13C,NA,124.15,30,46.2,13.1
++,Ile/Leu_C12,"Amino Acids",125,11,77,11.2
++,Threonine-(U-13C/15N),AA-IS,125.006,11,78,13
++,threonine-C13N15-IS,,125.015,11,78.015,13.3
++,cysteine_13C,NA,125.1,27,61.1,17.5
++,indole_13C,NA,126,24,98,3.2
++,Ile/Leu_1_1,"Amino Acids",126.01,11,78,11.2
++,Ile/Leu_1_0,"Amino Acids",126.02,11,77,11.2
++,"Imidazoleacetic acid",HMDB,127.002,13,81,16
++,Ile/Leu_2_2,"Amino Acids",127.01,11,79,11.2
++,Ile/Leu_2_1,"Amino Acids",127.02,11,78,11.2
++,thymine,C5H7N2O2+,127.1,17,110,7.8
++,thymine-N15-1_0,C5H7N2O2+,128.1,17,110,7.8
++,thymine-N15-1_1,C5H7N2O2+,128.1,17,111,7.8
++,thymine-N15-2_1,C5H7N2O2+,129.11,17,111,7.8
++,Ile/Leu_3_3,"Amino Acids",128.01,11,80,11.2
++,Ile/Leu_3_2,"Amino Acids",128.02,11,79,11.2
++,Ile/Leu_4_4,"Amino Acids",129.01,11,81,11.2
++,Ile/Leu_4_3,"Amino Acids",129.02,11,80,11.2
++,nicotinamide_13C,NA,129.1,20,85,3.8
++,"DL-Pipecolic acid",HMDB,130,16,84,12
++,Ile/Leu_5_4,"Amino Acids",130,11,81,11.2
++,"DL-Pipecolic acid",HMDB,130,16,84,12
++,Ile/Leu_5_5,"Amino Acids",130.01,11,82,11.2
++,N-Acetylputrescine,HMDB,131.001,10,114,12.6
++,Ile/Leu_C13,"Amino Acids",131.02,11,82,11.2
++,leucine/isoleucine-N14,NA,132,11,86,12
+-,spermine,Derivatized,401,28,365,2.5
++,5-amino-levulinate,C5H9NO3,132.001,12,86,15
++,Creatine,HMDB,132.003,12,90,12.4
++,hydroxyproline,,132.004,17,68.2,12.9
++,thymine_13C,NA,132.05,17,115,4
++,leucine/isoleucine,C6H14NO2+,132.1,11,86,11.5
++,ornithine,C5H13N2O2+,133,12,70,15.3
++,asparagine-N14,NA,133,17,74,14
++,"ornithine C12","Amino Acids Derivatives/ Precursors",133,12,70,15
++,leucine/isoleucine-N15,NA,133.05,11,87,12
++,ornithine-N14,NA,133.07,12,70,15
++,asparagine,C4H9N2O3+,133.1,17,74,13.8
++,aspartate,C4H8NO4+,134,15,74,16
++,asparagine-S-0-15,NA,134,17,74,14
++,asparagine-S-S-15,NA,134,17,75,14
++,ornithine-S-S-15,NA,134.05,12,71,15
++,ornithine-S-0-15,NA,134.07,12,70,15
++,Asn_1_0,"Amino Acids",134.1,17,74,13.6
++,Asn_1_1,"Amino Acids",134.11,17,75,13.6
++,asparagine-N15,NA,135,17,75,14
++,Asp_1_1,"Amino Acids",135.01,15,75,17.3
++,Asp_1_0,"Amino Acids",135.02,15,74,17.3
++,ornithine-N15,NA,135.07,12,71,15
++,Asn_2_0,"Amino Acids",135.1,17,74,13.6
++,Asn_2_1,"Amino Acids",135.11,17,75,13.6
++,Asn_2_2,"Amino Acids",135.12,17,76,13.6
++,adenine,C5H6N5+,136,24,119,11
++,adenine-N15-1_0,C5H6N5+,137,24,119,11
++,adenine-N15-1_1,C5H6N5+,137.07,24,120,11
++,adenine-N15-2_1,C5H6N5+,138,24,120,11
++,adenine-N15-2_2,C5H6N5+,138.01,24,121,11
++,adenine-N15-3_2,C5H6N5+,139.01,24,121,11
++,adenine-N15-3_3,C5H6N5+,139.01,24,122,11
++,adenine-N15-4_3,C5H6N5+,140,24,122,11
++,adenine-N15-4_4,C5H6N5+,140.01,24,123,11
++,Methylcysteine,HMDB,136,10,119,12.5
++,Asp_2_1,"Amino Acids",136.01,15,75,17.3
++,Methylcysteine,HMDB,136.02,10,119.02,12.5
++,Asp_2_2,"Amino Acids",136.02,15,76,17.3
++,Asp_2_0,"Amino Acids",136.03,15,74,17.3
++,Asn_3_1,"Amino Acids",136.1,17,75,13.6
++,Asn_3_2,"Amino Acids",136.11,17,76,13.6
++,homocysteine,C4H10NO2S+,136.12,15,90.1,13
++,adenine_1,NA,137,24,120,5.5
++,methylnicotinamide,,137.001,18,94,13
++,ornithine_4_3,NA,137.01,12,73,15
++,ornithine_4_4,NA,137.02,12,74,15
++,Asp_3_1,"Amino Acids",137.04,15,75,17.3
++,asparagine_13C,NA,137.05,17,76,14
++,Asp_3_2,"Amino Acids",137.06,15,76,17.3
++,Asn_C13,"Amino Acids",137.1,17,76,13.6
++,ornithine_13C,NA,138,12,74,15
++,adenine_2,NA,138,24,121,5.5
++,"ornithine C13",NA,138.01,12,74,15
++,Asp_C13,"Amino Acids",138.04,15,76,17.3
++,aspartate_13C,NA,138.05,15,76,17
++,leucine/isoleucine_13C,NA,138.05,11,91,6.7
++,adenine_3,NA,139,24,122,5.5
++,leucine/isoleucine-C13N15-IS,,139.015,11,92.015,11.5
++,Ille/Leucine-(U-13C/15N),AA-IS,139.106,11,92,11.5
++,aspartate-C13N15-IS,,139.115,15,77.115,16
++,adenine_4,NA,140,24,123,5.5
++,Aspartate-(U-13C/15N),AA-IS,140.006,15,77,17
++,homocysteine_13C,NA,140.1,15,93.1,12
++,homocysteine-N15,NA,147.12,15,91.1,13
++,adenine_13C,NA,141,24,124,5.5
++,adenine-N15,NA,141,24,123,12
++,histidinol-N14,NA,142,18,95,12
++,histidinol,C6H12N3O+,142.1,18,95,12
++,histidinol-S-S,NA,143,18,96,12
++,histidinol-D-S,NA,144,18,96,12
++,histidinol-N15,NA,145,18,97,12
++,lysine,C6H15N2O2+,147,30,67,15
++,histidinol_5_5,"Amino Acids Derivatives/ Precursors",147.01,18,100,6.4
++,glutamine-N14,NA,147.015,15,84,13.5
++,histidinol_5_4,"Amino Acids Derivatives/ Precursors",147.02,18,99,6.4
++,lysine-N14,NA,147.05,15,84,15
++,glutamine,C5H11N2O3+,147.1,15,84.1,13.5
++,O-acetyl-L-serine,C5H10NO4+,148,12,106,15
++,O-acetyl-L-serine,C5H10NO4+,149,12,107,15
++,glutamate-N14,NA,148,15,84,17
++,glutamine-S-0-15,NA,148.015,15,84,13.5
++,Gln_1_0,"Amino Acids",148.02,15,84.1,13.7
++,histidinol_13C,NA,148.05,18,100,6.4
++,lysine-S-0-15,NA,148.06,15,84,15
++,Lysine-S-S-15,NA,148.07,15,85,15
++,glutamate,C5H10NO4+,148.1,15,84.1,16.9
++,Gln_1_1,"Amino Acids",148.11,15,85.1,13.7
++,Unk_131@10-+149,Unknowns,149,10,131,17.1
++,glutamate-N15,NA,149,15,85,17
++,Glu_1_0,"Amino Acids",149.01,15,84.1,17.3
++,glutamine-N15,NA,149.015,15,85,13.5
++,Glu_1_1,"Amino Acids",149.03,15,85.1,17.3
++,lysine-N15,NA,149.05,15,85,15
++,Gln_2_1,"Amino Acids",149.1,15,85.1,13.7
++,Gln_2_2,"Amino Acids",149.11,15,86.1,13.7
++,methionine-N14,NA,150,10,133,12
++,Gln_3_2,"Amino Acids",150.02,15,86.1,13.7
++,Glu_2_2,"Amino Acids",150.03,15,86.1,17.3
++,methionine,C5H12NO2S+,150.1,10,133,12.2
++,Glu_2_1,"Amino Acids",150.1,15,85.1,17.3
++,Gln_3_3,"Amino Acids",150.11,15,87.1,13.7
++,methionine-N15,NA,151,10,133,12
++,Met_1,"Amino Acids",151.01,10,134,12
++,Gln_4_3,"Amino Acids",151.02,15,87.1,13.7
++,Glu_3_2,"Amino Acids",151.03,15,86.1,17.3
++,Glu_3_3,"Amino Acids",151.04,15,87.1,17.3
++,Glutamate-(U-13C/15N),AA-IS,151.106,15,89.1,16.9
++,Gln_4_4,"Amino Acids",151.11,15,88.12,13.7
++,Gln_C13,"Amino Acids",152.01,15,88.12,13.7
++,Glu_4_4,"Amino Acids",152.02,15,88.1,17.3
++,Glu_4_3,"Amino Acids",152.1,15,87.1,17.3
++,Met_2,"Amino Acids",152.1,10,135,12
++,Lys_5_5,"Amino Acids",152.11,15,89.1,15
++,glutamine_13C,NA,152.12,15,88.12,13.7
++,Lys_5_4,"Amino Acids",152.13,15,88.1,15
++,guanine,C5H6N5O+,152.2,18,110,12.6
++,O-acetyl-L-serine_13C,NA,153,12,109,15.7
++,lysine-b_13C,NA,153.02,30,72,14.7
++,Met_3,"Amino Acids",153.02,10,136,12
++,lysine-a_13C,NA,153.05,15,89.1,14.7
++,glutamate_13C,NA,153.1,15,88.1,18
++,glutamine-C13N15-IS,,154.015,15,89.015,13.5
++,Met_4,"Amino Acids",154.03,10,137,12
++,glutmate-C13N15-IS,,154.115,15,89.115,16.9
++,Lysine-b-(U-13C/15N),AA-IS,155.006,30,72,15
++,lysine-C13N15-IS,,155.015,30,72.015,15
++,methionine_13C,NA,155.1,10,138,8
++,Lysine-a-(U-13C/15N),AA-IS,155.106,15,90.1,15
++,histidine-N14,NA,156,12,110,14
++,methionine-C13N15-IS,,156.015,10,138.015,12.2
++,histidine,C6H10N3O2+,156.1,12,110.1,14
++,Methionine-(U-13C/15N),AA-IS,156.106,10,138,12.2
++,histidine-S15,NA,157,12,111,14
++,guanine_4_4,NA,157.01,18,113,7.1
++,guanine_4_3,NA,157.02,18,114,7.1
++,His_1_0,"Amino Acids",157.1,12,110.1,14
++,His_1_1,"Amino Acids",157.11,12,111.1,14
++,guanine_13C,NA,157.2,18,114,7.1
++,histidine-D15,NA,158,12,112,14
++,His_2_1,"Amino Acids",158.1,12,111.1,14
++,His_2_2,"Amino Acids",158.11,12,112.1,14
++,histidine-N15,NA,159,12,113,14
++,His_3_2,"Amino Acids",159.1,12,112.1,14
++,His_3_3,"Amino Acids",159.11,12,113.1,14
++,"2-Aminooctanoic acid",,160,19,55.3,11
++,His_4_3,"Amino Acids",160.01,12,113.1,14
++,His_4_4,"Amino Acids",160.11,12,114.1,14
++,His_5_4,"Amino Acids",161.1,12,114.1,14
++,His_5_5,"Amino Acids",161.11,12,115.1,14
++,histidine_13C,NA,162.05,12,115.1,14.1
++,His_C13,"Amino Acids",162.05,12,115.1,14
++,carnitine,C7H16NO3+,162.1,18,103,12.3
++,carnitine-N15,C7H16NO3+,163.1,18,103,12.3
++,Unk_105@30-+163,Unknowns,163,30,105,3.7
++,Unk_93@20-+165,Unknowns,165,20,93,3.6
++,Unk_137@30-+165.001,Unknowns,165.001,30,137,NA
++,histidine-C13N15-IS,,165.015,12,118.015,14
++,Histidine-(U-13C/15N),AA-IS,165.106,12,118.1,14
++,"Methionine sulfoxide",,166,12,74,13.6
++,phenylalanine-N14,NA,166,28,103,12
++,phenylalanine,C9H12NO2+,166.1,28,103,11.7
++,phenylalanine-N15,NA,167,28,103,12
++,Phe_1_0,"Amino Acids",167.1,28,103,11.6
++,Phe_1_1,"Amino Acids",167.11,28,104,11.6
++,cysteine-MMTS,"Amino Acids",168,18,79.03,10.6
++,Phe_2_1,"Amino Acids",168.1,28,104,11.6
++,Phe_2_2,"Amino Acids",168.11,28,105,11.6
++,Pyridoxamine,HMDB,169,23,134,13
++,Unk_129@10-+169,Unknowns,169,10,129,12.7
++,Phe_3_2,"Amino Acids",169.02,28,105,11.6
++,carnitine_13C,NA,169.1,18,107,13
++,Phe_3_3,"Amino Acids",169.11,28,106,11.6
++,pyridoxine,C8H12NO3+,170,22,134,12.1
++,pyridoxine-N15,C8H12NO3+,171,22,135,12.1
++,1-Methyl-Histidine,HMDB,170.1,18,124,12.8
++,Phe_4_3,"Amino Acids",170.1,28,106,11.6
++,Phe_4_4,"Amino Acids",170.11,28,107,11.6
++,Phe_5_4,"Amino Acids",171.1,28,107,11.6
++,Phe_5_5,"Amino Acids",171.11,28,108,11.6
++,Phe_6_5,"Amino Acids",172.04,28,108,11.6
++,"butyrl-homoserine lactone","Amino Acids Derivatives/ Precursors",172.1,10,102,3.7
++,Phe_6_6,"Amino Acids",172.11,28,109,11.6
++,Phe_7_6,"Amino Acids",173.03,28,109,11.6
++,Phe_7_7,"Amino Acids",173.11,28,110,11.6
++,Phe_8_7,"Amino Acids",174.1,28,110,11.6
++,Phe_8_8,"Amino Acids",174.11,28,111,11.6
++,N-acetyl-L-ornithine,C7H15N2O3+,175,14,115.1,13.4
++,N-acetyl-L-ornithine-N15-1_0,C7H15N2O3+,176,14,115.1,13.4
++,N-acetyl-L-ornithine-N15-1_1,C7H15N2O3+,176,14,116.1,13.4
++,N-acetyl-L-ornithine-N15-2_1,C7H15N2O3+,177,14,116.1,13.4
++,arginine_Scott,NA,175.001,14,60,14
++,arginine,C6H15N4O2+,175.02,14,60,13.9
++,arginine-N15-1_0,C6H15N4O2+,176.02,14,60,13.9
++,arginine-N15-1_1,C6H15N4O2+,176.02,14,61,13.9
++,arginine-N15-2_1,C6H15N4O2+,177.02,14,61,13.9
++,arginine-N15-2_2,C6H15N4O2+,177.02,14,62,13.9
++,arginine-N15-3_2,C6H15N4O2+,178.02,14,62,13.9
++,arginine-N15-3_3,C6H15N4O2+,178.02,14,63,13.9
++,arginine-N15-4_3,C6H15N4O2+,179.02,14,63,13.9
++,phenylalanine_13C,NA,175.05,28,111,7.6
++,Phe_C13,"Amino Acids",175.1,28,111,11.6
++,citrulline,C6H14N3O3+,176,12,159,13.3
++,phenylalanine-C13N15-IS,,176.015,28,111.015,11.7
++,Arg_1_0,"Amino Acids",176.02,14,60,13.8
++,Arg_1_1,"Amino Acids",176.03,14,61,13.8
++,Phenylalanine-(U-13C/15N),AA-IS,176.106,28,111,11.7
++,Arg_2_1,"Amino Acids",177.02,14,61,13.8
++,Arg_2_2,"Amino Acids",177.03,14,62,13.8
++,N-carbamoyl-L-aspartate,C5H9N2O5+,177.05,17,74,22
++,pyridoxine_13C,NA,178,22,142,6.2
++,Arg_3_2,"Amino Acids",178.02,14,62,13.8
++,Arg_3_3,"Amino Acids",178.03,14,63,13.8
++,Carb-Asp_1_0,"Amino Acids",178.07,17,74,17
++,Carb-Asp_1_1,"Amino Acids",178.08,17,75,17
++,Arg_4_3,"Amino Acids",179.02,14,63,13.8
++,Arg_4_4,"Amino Acids",179.03,14,64,13.8
++,arginine_4,"Amino Acids",179.04,14,59,14
++,Carb-Asp_2_1,"Amino Acids",179.06,17,75,17
++,Carb-Asp_2_0,"Amino Acids",179.11,17,74,17
++,glucosamine,C6H14NO5+,180,10,162,12
++,glucosamine-N15,C6H14NO5+,181,10,163,12
++,Arg_5_4,"Amino Acids",180.02,14,64,13.8
++,Arg_5_5,"Amino Acids",180.03,14,65,13.8
++,arginine_5,"Amino Acids",180.04,14,60,14
++,Carb-Asp_2_2,"Amino Acids",180.05,17,76,17
++,Carb-Asp_3_0,"Amino Acids",180.06,17,74,17
++,Carb-Asp_3_1,"Amino Acids",180.061,17,75,17
++,Carb-Asp_3_2,"Amino Acids",180.062,17,76,17
++,citrulline_5,NA,181.001,12,164,13.7
++,arginine_13C,"Amino Acids",181.02,14,61,14
++,Arg_C13,"Amino Acids",181.03,14,65,13.8
++,"N-Carbamoyl-L-aspartate 4-1",NA,181.05,17,75,18
++,"N-Carbamoyl-L-aspartate 4-2",NA,181.06,17,76,18
++,N-acetyl-L-ornithine_6_6,NA,181.07,14,120.1,13.7
++,N-acetyl-L-ornithine_6_5,NA,181.08,14,119.1,13.7
++,citrulline_13C,NA,182,12,165,13.7
++,tyrosine-N14,NA,182,37,77,13
++,homocysteine-MMTS,"Amino Acids Derivatives/ Precursors",182,17,88.04,9
++,citrulline_4,NA,182.001,12,163,13.7
++,N-carbamoyl-L-aspartate_13C,NA,182.05,17,76,18
++,N-acetyl-L-ornithine_13C,NA,182.05,14,120.1,13.7
++,Carb-Asp_4_2,"Amino Acids",182.06,17,76,17
++,Carb-Asp_4_1,"Amino Acids",182.07,17,75,17
++,tyrosine,C9H12NO3+,182.1,37,77,13.2
++,tyrosine-N15,NA,183,37,77,13
++,Carb-Asp_C13,"Amino Acids",183.05,17,76,17
++,Phosphorylcholine,,184.001,21,125,17.6
++,arginine-C13N15-IS,,185.015,14,62.215,13.9
++,Arginine-(U-13C/15N),AA-IS,185.026,14,64,15
++,3-phospho-serine,C3H9NO6P+,186,10,88,21.7
++,glucosamine_13C,NA,186.05,10,168,7
++,3-phospho-serine-N15,"Amino Acids Derivatives/ Precursors",187,10,89,21
++,3-phospho-serine_13C,"Amino Acids Derivatives/ Precursors",189,10,91,23
++,N6-Acetyl-L-lysine,HMDB,189.001,24,84.2,6
++,Acetyllysine,HMDB,189.002,21,84,13
++,N-acetyl-glutamine,C7H13N2O4+,189.1,15,130,14.6
++,N-acetyl-glutamine-N15-1_0,C7H13N2O4+,190.1,15,130,14.6
++,N-acetyl-glutamine-N15-1_1,C7H13N2O4+,190.1,15,131,14.6
++,N-acetyl-glutamine-N15-2_1,C7H13N2O4+,191.1,15,131,14.6
++,Unk_105@10-+190,Unknowns,190,10,105,10.8
++,Unk_108@30-+190,Unknowns,190,30,108,10.8
++,Unk_108@10-+190.001,Unknowns,190.001,10,108,33
++,tyrosine_8_6,"Amino Acids",190.08,37,83,12.5
++,tyrosine_8_5,"Amino Acids",190.09,37,82,12.5
++,N-acetyl-glutamate,C7H12NO5+,190.1,22,84.1,18
++,N-acetyl-glutamate-N15,C7H12NO5+,191.1,22,85.1,18
++,Unk_119@45-+191,Unknowns,191,45,119,NA
++,tyrosine_13C,"Amino Acids",191.1,37,83,12.5
++,tyrosine-C13N15-IS,,192.015,37,83.015,13.2
++,Tyrosine-(U-13C/15N),AA-IS,192.106,37,83,13.2
++,N-acetyl-glutamine_13C,NA,196.1,15,135,16.3
++,Unk_81@10-+197,Unknowns,197,10,81,20.5
++,Unk_98@20-+197,Unknowns,197,20,98,4.1
++,Unk_81@10-+197.001,Unknowns,197.001,10,81,13.4
++,"N-acetyl-glutamate _13C",NA,197.1,22,88.1,19.6
++,"Ng,NG-dimethyl-L-arginine",,203,22,70,12.9
++,"NG,NG-dimethyl-L-arginine","Amino Acids Derivatives/ Precursors",203,22,70,12.9
++,"Acetylcarnitine DL",HMDB,204,17,85,11
++,tryptophan,C11H13N2O2+,205,16,146,12
++,tryptophan-S-0,NA,206,16,146,12
++,tryptophan-S-S,NA,206,16,147,12
++,tryptophan-N15,NA,207,16,147,12
++,Kynurenine,HMDB,209,23,146,12
++,"3-oxohexanoyl-homoserine lactone","Amino Acids Derivatives/ Precursors",214.1,13,102,3.7
++,tryptophan_10_9,NA,215.01,16,155,7.6
++,tryptophan_10_8,NA,215.02,16,154,7.6
++,tryptophan_13C,NA,216,16,155,7.6
++,Unk_177@30-+219,Unknowns,219,30,177,NA
++,N-acetyl-glucosamine,,222,16,138,11.2
++,Flavone,HMDB,223,27,121,5
++,cystathionine,C7H15N2O4S+,223,11,134,16.4
++,cystathionine-N15,C7H15N2O4S+,225.1,11,135,16.4
++,Unk_135@10-+225,Unknowns,225,10,135,12.7
++,Unk_135@10-+225.001,Unknowns,225.001,10,135,12.3
++,"octanoyl-homoserince lactone","Amino Acids Derivatives/ Precursors",228.1,11,102,3.7
++,cystathionine_13C,NA,230,11,138,16.8
++,creatine,,232.003,12,90,10
++,5-methoxytryptophan,,235,20,176,12
++,Unk_129@20-+235,Unknowns,235,20,129,12.7
++,Cystine,,241.002,30,74,17.5
++,7-Methylguanosine,HMDB,241.002,30,74,17.5
++,cytidine,C9H14N3O5+,244.1,12,112,11.4
++,biotin,C10H17N2O3S+,245.1,18,227,14.6
++,biotin-N15-S,C10H17N2O3S+,246.1,18,228,14.6
++,biotin-N15,C10H17N2O3S+,247.1,18,229,14.6
++,Unk_84@30-+246,Unknowns,246,30,84,14
++,"cytidine 4-4",NA,248.1,12,116,5.8
++,"cytidine 5-0",NA,249.1,12,112,5.8
++,deoxyadenosine,C10H14N5O3+,252,20,136,9.7
++,Unk_138@10-+253,Unknowns,253,10,138,19.7
++,Unk_165@45-+253,Unknowns,253,45,165,7.3
++,deoxyadenosine-S15,NA,253,20,137,9.7
++,cytidine_13C,NA,253.1,12,116,5.8
++,"cytidine C13",NA,253.1,12,116,5.8
++,deoxyadenosine-D15,NA,254,20,138,9.7
++,deoxyadenosine-T15,NA,255,20,139,9.7
++,biotin_13C,NA,255.1,18,237,15.6
++,Deoxyadenosine-Q15,NA,256,20,140,9.7
++,deoxyadenosine-N15,NA,257,20,141,9.7
++,Unk_104@10-+258,Unknowns,258,10,104,13
++,Glycerophosphocholine,HMDB,258.1,14,104,12.6
++,acadesine,C9H15N4O5+,259,22,110,5
++,D-glucosamine-6-phosphate,C6H15NO8P+,260,15,126,21.3
++,D-glucosamine-1-phosphate,C6H15NO8P+,260.1,15,162.1,20.5
++,Unk_190@20-+262,Unknowns,262,20,190,NA
++,deoxyadenosine_13C,Nucleosides,262,20,141,4.2
++,thiamine,C12H17N4OS+,265,17,122,10.8
++,glucoseamine_6_phospahte_5,NA,265.01,15,131,19.5
++,glucosamine-6-phosphate_13C,NA,266,15,132,19.5
++,glucosamine-1-phosphate_13C,NA,266.1,15,168.1,23
++,deoxyadenosine-IS,Nucleosides,267.1,20,146,4.2
++,p-Aminobenzoyl-Glu,NA,267.1,18,120.02,7
++,S-ribosyl-L-homocysteine-posi,C9H18NO6S+,268,29,88,14
++,deoxyguanosine-N14,NA,268,15,152,12.4
++,deoxyguanosine,C10H14N5O4+,268.1,15,152,12.4
++,adenosine,C10H14N5O4+,268.15,27,136.1,10.5
++,adenosine-S15,C10H14N5O4+,269.15,27,137.1,10.5
++,adenosine-D15,C10H14N5O4+,270.15,27,138.1,10.5
++,adenosine-T15,C10H14N5O4+,271.15,27,139.1,10.5
++,adenosine-Q15,C10H14N5O4+,272.15,27,140.1,10.5
++,adenosine-N15,C10H14N5O4+,273.15,27,141.1,10.5
++,"adenosine 0-0",Nucleosides,268.15,27,136.1,4.5
++,"adenonsine 1-0",NA,269.15,27,136.1,4.5
++,"adenonsine 1-1",NA,269.16,27,137.1,4.5
++,"adenonsine 2-0",NA,270.15,27,136.1,4.5
++,"adenonsine 2-1",NA,270.16,27,137.1,4.5
++,"adenonsine 2-2",NA,270.17,27,138.1,4.5
++,"adenonsine 3-0",NA,271.15,27,136.1,4.5
++,"adenonsine 3-1",NA,271.16,27,137.1,4.5
++,"adenonsine 3-2",NA,271.17,27,138.1,4.5
++,"adenonsine 3-3",NA,271.18,27,139.1,4.5
++,"adenonsine 4-0",NA,272.15,27,136.1,4.5
++,"adenonsine 4-1",NA,272.16,27,137.1,4.5
++,"adenonsine 4-2",NA,272.17,27,138.1,4.5
++,"adenonsine 4-3",NA,272.18,27,139.1,4.5
++,"adenonsine 4-4",NA,272.19,27,140.1,4.5
++,deoxyguanosine-N15,NA,273,15,157,12.4
++,deoxyguanosine_5_0,NA,273.09,15,152,6.9
++,"adenonsine 5-0",NA,273.15,27,136.1,4.5
++,"adenonsine 5-1",NA,273.16,27,137.1,4.5
++,"adenonsine 5-2",NA,273.17,27,138.1,4.5
++,"adenonsine 5-3",NA,273.18,27,139.1,4.5
++,"adenonsine 5-4",NA,273.19,27,140.1,4.5
++,"adenonsine 5-5",NA,273.2,27,141.1,4.5
++,deoxyguanosine_6_1,NA,274.09,15,153,6.9
++,"adenonsine 6-1",NA,274.15,27,137.1,4.5
++,"adenonsine 6-2",NA,274.16,27,138.1,4.5
++,"adenonsine 6-3",NA,274.17,27,139.1,4.5
++,"adenonsine 6-4",NA,274.18,27,140.1,4.5
++,"adenonsine 6-5",NA,274.19,27,141.1,4.5
++,Unk_129@20-+275,Unknowns,275,20,129,12.9
++,deoxyguanosine_7_2,NA,275.09,15,154,6.9
++,"adenonsine 7-2",NA,275.15,27,138.1,4.5
++,"adenonsine 7-3",NA,275.16,27,139.1,4.5
++,"adenonsine 7-4",NA,275.17,27,140.1,4.5
++,"adenonsine 7-5",NA,275.18,27,141.1,4.5
++,deoxyguanosine_8_3,NA,276.09,15,155,6.9
++,"adenonsine 8-3",NA,276.15,27,139.1,4.5
++,"adenonsine 8-4",NA,276.16,27,140.1,4.5
++,"adenonsine 8-5",NA,276.17,27,141.1,4.5
++,Unk_177@20-+277,Unknowns,277,20,177,14.4
++,thiamine_13C,NA,277,17,128,3
++,deoxyguanosine_9_4,NA,277.09,15,156,6.9
++,"adenonsine 9-4",NA,277.15,27,140.1,4.5
++,"adenonsine 9-5",NA,277.16,27,141.1,4.5
++,deoxyguanosine_13C,NA,278.1,15,157,6.9
++,"adenonsine 13C-10-5",NA,278.15,27,141.1,4.5
++,paminobenzoyl-Glu_13,NA,279.14,18,127.07,7
++,1-Methyladenosine,HMDB,281.8,25,150,11
++,guanosine,C10H14N5O5+,284.1,33,135,13.1
++,guanosine-N15-1_0,C10H14N5O5+,285.1,33,135,13.1
++,guanosine-N15-1_1,C10H14N5O5+,285.1,33,136,13.1
++,guanosine-N15-2_1,C10H14N5O5+,286.1,33,136,13.1
++,guanosine-N15-2_2,C10H14N5O5+,286.1,33,137,13.1
++,guanosine-N15-3_2,C10H14N5O5+,287.1,33,137,13.1
++,guanosine-N15-3_3,C10H14N5O5+,287.1,33,138,13.1
++,guanosine-N15-4_3,C10H14N5O5+,288.1,33,138,13.1
++,guanosine-N15-4_4,C10H14N5O5+,288.1,33,139,13.1
++,guanosine-N15,C10H14N5O5+,289.1,33,135,13.1
++,guanosine_5_0,NA,289.09,33,135,9
++,guanosine_6_1,NA,290.09,33,136,9
++,L-arginino-succinate,C10H19N4O6+,291,35,70,16.5
++,L-arginino-succinate-N15,C10H19N4O6+,295,35,71,16.5
++,guanosine_7_2,NA,291.09,33,137,9
++,trimethoprim,,291.1,23,123,2
++,guanosine_8_3,NA,292.09,33,138,9
++,guanosine_9_4,NA,293.09,33,139,9
++,guanosine_13C,NA,294.1,33,140,9
++,S-methyl-5'-thioadenosine,C11H16N5O3S+,298,27,136,8
++,5'-Methylthioadenosine,HMDB,298.001,25,136,8.1
++,7-methylguanosine,,298.002,22,166,12
++,L-arginino-succinate-13C,NA,301,35,74,17.5
++,Unk_262@30-+306,Unknowns,306,30,262,6.2
++,dCMP,C9H15N3O7P+,308,16,112,24
++,glutathione-N14,NA,308.05,19,162,20
++,glutathione,C10H18N3O6S+,308.1,19,162,19.8
++,dCMP-S15,NA,309,16,113,24
++,dCMP-D15,NA,310,16,114,24
++,dCMP-N15,NA,311,16,115,24
++,glutathione-N15,NA,311.05,19,163,20
++,"pteroic acid",NA,313,19,176,6.5
++,Unk_177@20-+315,Unknowns,315,20,177,14.3
++,Unk_165@20-+315.001,Unknowns,315.001,20,165,18.7
++,dCMP_13C,NA,317,16,116,20
++,"glutathione _13C",NA,318.1,19,167,18.5
++,Unk_129@30-+319,Unknowns,319,30,129,12.8
++,dTMP,C10H16N2O8P+,323,17,81,20.7
++,dTMP-S15,C10H16N2O8P+,324,17,81,20.7
++,dTMP-N15,C10H16N2O8P+,325,17,81,20.7
++,CMP,C9H15N3O8P+,324,16,112,22.8
++,UMP,C9H14N2O9P+,325,12,97,23
++,UMP_C12,NA,325.01,12,97,23
++,CMP-S15,NA,325.05,16,113,22.8
++,UMP-S15,NA,326,12,97,23
++,UMP_1_0,NA,326.02,12,97,23
++,CMP-D15,NA,326.05,16,114,22.8
++,UMP-D15,NA,327,12,97,23
++,UMP_2_0,NA,327.01,12,97,23
++,CMP-N15,NA,327.05,16,115,22.8
++,"pteroic acid_13",NA,327.15,19,183.08,6.5
++,UMP-N15,NA,328,12,97,23
++,"CMP 4-4",NA,328,16,116,20
++,UMP_3_0,NA,328.01,12,97,23
++,CMP_7_2,NA,328.09,16,111,20
++,"CMP 5-0",NA,329,16,112,20
++,UMP_4-0,NA,329.01,12,97,20.2
++,UMP_4_0,NA,329.01,12,97,23
++,CMP_7_3,NA,329.09,16,112,20
++,UMP_5-5,NA,330,12,102,20.2
++,CMP_7_4,NA,330.09,16,113,20
++,UMP_6_5,NA,331.06,12,102,23
++,CMP_8_3,NA,331.09,16,114,20
++,UMP_7_5,NA,332,12,102,23
++,UMP_7_4,NA,332.01,12,101,23
++,UMP_7_3,NA,332.02,12,100,23
++,CMP_8_4,NA,332.09,16,115,20
++,dAMP,C10H15N5O6P+,332.1,21,136,25
++,dTMP_13C,NA,333,17,86,19
++,UMP_8_4,NA,333.01,12,101,23
++,UMP_8_5,NA,333.02,12,102,23
++,CMP_13C,NA,333.1,16,116,20
++,UMP_13C,NA,334,12,102,20.2
++,UMP_C13,NA,334.06,12,102,23
++,"Nicotinamide ribotide",HMDB,335,28,123,17
++,UMP-IS,"Nucleotide Monophosphates",336.1,12,102,20.2
++,Unk_239@10-+337,Unknowns,337,10,239,20.5
++,"aminoimidazole carboxamide ribonucleotide",C9H16N4O8P+,339,30,110,19
++,Unk_129@30-+341,Unknowns,341,30,129,12.7
++,dAMP_13C,NA,342.1,21,141,20
++,thiamine-phosphate,C12H19N4O4PS+,345.2,13,122,17
++,AMP-N14,NA,348,21,136,24.5
++,dGMP,C10H15N5O7P+,348.1,36,135,24.5
++,dGMP-N15,C10H15N5O7P+,353.1,36,139,24.5
++,dAMP-N15,C10H15N5O6P+,337.1,21,141,25
++,AMP,C10H15N5O7P+,348.15,21,136,24.5
++,AMP_C12,"Nucleotide Monophosphates",348.15,21,136,20
++,IMP,C10H14N4O8P+,349,19,137,25.1
++,AMP-S15,NA,349.05,21,137,24.5
++,AMP_1_1,NA,349.15,21,137,24.5
++,IMP-S15,NA,350,19,138,25.1
++,AMP-D15,NA,350.05,21,138,24.5
++,AMP_2_2,NA,350.15,21,138,24.5
++,IMP-D15,NA,351,19,139,25.1
++,AMP-T15,NA,351.05,21,139,24.5
++,AMP_3_3,NA,351.15,21,139,24.5
++,IMP-T15,NA,352,19,140,25.1
++,AMP-Q15,NA,352.05,21,140,24.5
++,AMP_4_4,NA,352.15,21,140,24.5
++,IMP-N15,NA,353,19,141,25.1
++,AMP_5_5,NA,353.01,21,141,24.5
++,AMP-N15,NA,353.05,21,141,24.5
++,AMP_5_0,NA,353.15,21,136,20
++,"AMP 5_5",NA,353.16,21,141,20
++,Unk_337@20-+354,Unknowns,354,20,337,20.5
++,glutathionine-MMTS,"Redox Electron Carriers and Precursors",354.11,22,130.118,17.4
++,AMP_5_0,NA,354.15,21,136,24.5
++,S-adenosyl-L-methioninamine,C14H23N6O3S,355,18,250,15.2
++,S-adenosyl-L-methioninamine,NA,355,18,250,15.2
++,AMP_6_1,NA,355.15,21,137,24.5
++,AMP_7_2,NA,356.15,21,138,24.5
++,AMP_8_3,NA,357.15,21,139,24.5
++,thiamine-phosphate_13C,NA,357.2,13,128,18
++,AMP_9_4,NA,358.01,21,140,24.5
++,dGMP_13C,NA,358.1,36,140,20
++,AMP_13C,NA,358.15,21,141,20
++,Unk_323@10-+359,Unknowns,359,10,323,7.1
++,IMP_13C,NA,359,19,142,21.5
++,Unk_191@30-+359.001,Unknowns,359.001,30,191,15.4
++,Unk_177@20-+359.002,Unknowns,359.002,20,177,14.3
++,AMP_C13,NA,359.15,21,141,24.5
++,AMP-IS,"Nucleotide Monophosphates",363.1,21,146,20
++,GMP,C10H15N5O8P+,364,19,152,24.8
++,xanthosine-5-phosphate,C10H14N4O9P+,365,11,97,24.9
++,xanthosine-5-phosphate-N15,C10H14N4O9P+,369,11,97,24.9
++,GMP-S15,NA,365,19,153,24.8
++,GMP-D15,NA,366,19,154,24.8
++,GMP-T15,NA,367,19,155,24.8
++,GMP-Q15,NA,368,19,156,24.8
++,GMP-N15,NA,369,19,157,24.8
++,GMP_5-0,NA,369,19,152,21.5
++,GMP_5-5,NA,369.01,19,157,21.5
++,GMP_6_1,NA,370.01,19,157,21.5
++,GMP_7_2,NA,371.01,19,157,21.5
++,GMP_8_3,NA,372.01,19,157,21.5
++,GMP_9_4,NA,373.01,19,157,21.5
++,GMP_13C,NA,374,19,157,21.5
++,Unk_207@20-+375,Unknowns,375,20,207,15.3
++,xanthosine-5-phosphate_13C,NA,375,11,102,22
++,riboflavin,C17H21N4O6+,377,24,243,9.9
++,riboflavin-N14,"Vitamins and Derivatives",377,24,243,10
++,S-adenosyl-L-methionine-S15,NA,380,13,250,13.3
++,riboflavin-N15,NA,381,24,247,10
++,S-adenosyl-L-methionine-N15,NA,385,13,255,13.3
++,S-adenosyl-L-homoCysteine-posi,C14H21N6O5S+,385.1,19,136,14
++,S-adenosyl-L-homoCysteine-posi-N15,C14H21N6O5S+,391.1,19,141,14
++,Unk_267@20-+387,Unknowns,387,20,267,12.8
++,dCDP,"Nucleotide Di/Triphosphates",388,13,112,20
++,riboflavin_12_12,NA,389.01,24,255,4.4
++,riboflavin_12_11,NA,389.02,24,254,4.4
++,riboflavin_12_9,NA,389.04,24,252,4.4
++,riboflavin_12_8,NA,389.05,24,251,4.4
++,riboflavin_12_7,NA,389.06,24,520,4.4
++,riboflavin_13_12,NA,390.01,24,255,4.4
++,riboflavin_13_11,NA,390.02,24,254,4.4
++,riboflavin_13_10,NA,390.03,24,253,4.4
++,riboflavin_13_9,NA,390.04,24,252,4.4
++,riboflavin_13_8,NA,390.05,24,251,4.4
++,Unk_372@20-+391,Unknowns,391,20,372,NA
++,riboflavin_14_12,NA,391.01,24,255,4.4
++,riboflavin_14_11,NA,391.02,24,254,4.4
++,riboflavin_14_10,NA,391.03,24,253,4.4
++,riboflavin_14_9,NA,391.04,24,252,4.4
++,riboflavin_15_12,NA,392.01,24,255,4.4
++,riboflavin_15_11,NA,392.02,24,254,4.4
++,riboflavin_15_10,NA,392.03,24,253,4.4
++,riboflavin_16_12,NA,393.01,24,255,4.4
++,riboflavin_16_11,NA,393.02,24,254,4.4
++,riboflavin_13C,NA,394,24,255,4.4
++,p-Aminobenzoyl-Glu2,NA,396.14,25,120.02,7.1
++,dCDP_13C,NA,397,13,116,20
++,riboflavin_12_10,NA,398.03,24,253,4.4
++,S-adenosyl-L-methionine-N14,NA,399,13,250,13.3
++,S-adenosyl-L-methionine,C15H24N6O5S+,399.1,13,250,13.3
++,S-adenosyl-L-homoCysteine(SAH)_13C,NA,399.15,19,141,14.3
++,dTDP-posi,"Nucleotide Di/Triphosphates",403.1,31,81,21
++,CDP-posi,"Nucleotide Di/Triphosphates",404.1,25,112,21
++,UDP-posi,"Nucleotide Di/Triphosphates",405.1,19,97,21
++,S-adenosyl-L-methionine_8_,NA,407.04,13,253,13.8
++,S-adenosyl-L-methionine_8_4,NA,407.05,13,254,13.8
++,S-adenosyl-L-methionine_8_5,NA,407.06,13,255,13.8
++,S-adenosyl-L-methionine_8_6,NA,407.07,13,256,13.8
++,S-adenosyl-L-methionine_8_7,NA,407.08,13,257,13.8
++,S-adenosyl-L-methionine_8_8,NA,407.09,13,258,13.8
++,S-adenosyl-L-methionine_9_4,NA,408.04,13,254,13.8
++,S-adenosyl-L-methionine_9_5,NA,408.05,13,255,13.8
++,S-adenosyl-L-methionine_9_6,NA,408.06,13,256,13.8
++,S-adenosyl-L-methionine_9_7,NA,408.07,13,257,13.8
++,S-adenosyl-L-methionine_9_8,NA,408.08,13,258,13.8
++,S-adenosyl-L-methionine_9_9,NA,408.09,13,259,13.8
++,S-adenosyl-L-methionine_10_5,NA,409.04,13,255,13.8
++,S-adenosyl-L-methionine_10_6,NA,409.05,13,256,13.8
++,S-adenosyl-L-methionine_10_7,NA,409.06,13,257,13.8
++,S-adenosyl-L-methionine_10_8,NA,409.07,13,258,13.8
++,S-adenosyl-L-methionine_10_9,NA,409.08,13,259,13.8
++,S-adenosyl-L-methionine_10_10,NA,409.09,13,260,13.8
++,S-adenosyl-L-methionine_11_6,NA,410.05,13,256,13.8
++,S-adenosyl-L-methionine_11_7,NA,410.06,13,257,13.8
++,S-adenosyl-L-methionine_11_8,NA,410.07,13,257,13.8
++,S-adenosyl-L-methionine_11_9,NA,410.08,13,259,13.8
++,S-adenosyl-L-methionine_11_10,NA,410.09,13,260,13.8
++,S-adenosyl-L-methionine_12_7,NA,411.06,13,257,13.8
++,S-adenosyl-L-methionine_12_8,NA,411.07,13,258,13.8
++,S-adenosyl-L-methionine_12_9,NA,411.08,13,259,13.8
++,S-adenosyl-L-methionine_12_10,NA,411.09,13,260,13.8
++,S-adenosyl-L-methionine_13_8,NA,412.07,13,258,13.8
++,S-adenosyl-L-methionine_13_9,NA,412.08,13,259,13.8
++,S-adenosyl-L-methionine_13_10,NA,412.09,13,260,13.8
++,S-adenosyl-L-methionine_14_9,NA,413.08,13,259,13.8
++,S-adenosyl-L-methionine_14_10,NA,413.09,13,260,13.8
++,dTDP_13C,NA,413.1,31,86,21
++,CDP_13C,NA,413.15,25,116,21
++,p-Aminobenzoyl-Glu2_13,NA,413.2,25,127.07,7.1
++,UDP_13C,NA,414.1,19,102,21
++,S-adenosyl-L-methionine_13C,NA,414.1,13,260,13.8
++,ADP-posi,"Nucleotide Di/Triphosphates",428.1,31,136,21.5
++,IDP-posi,"Nucleotide Di/Triphosphates",429.1,25,137,23
++,ADP_13C,NA,438.1,31,141,21.5
++,IDP_13C,NA,439.1,25,142,23
++,folate,C19H20N7O6+,442,16,295,25.8
++,PteGlu1,NA,442.15,27,295.09,6.6
++,GDP-posi,"Nucleotide Di/Triphosphates",444.1,30,152,22.5
++,H2PteGlu1,NA,444.16,27,178.07,7.4
++,"7,8-dihydrofolate",C19H22N7O6+,444.2,30,178,25.2
++,H4PteGlu1,NA,446.18,20,299.13,7
++,GDP_13C,NA,454.1,30,157,22.5
++,"5,10-methenyl-H4PteGlu1",NA,456.16,31,412.17,6.2
++,Unk_398@20-+457,Unknowns,457,20,398,5
++,"5,10-methylene-H4PteGlu1",NA,458.18,23,311.13,6.2
++,5-methyl-THF,C20H26N7O6+,460.1,19,313.1,24.9
++,5-methyl-THF-N15,C20H26N7O6+,467.1,19,319.1,24.9
++,5-methyl-H4PteGlu1,NA,460.19,25,313.14,6.5
++,folate_13C,NA,461,16,309,23
++,PteGlu1_13,NA,461.26,27,309.14,6.6
++,"7,8-dihydrofolate_13C",NA,463.2,30,185,23
++,H2PteGlu1_13,NA,463.23,27,185.1,7.4
++,H4PteGlu1_13,NA,465.24,20,313.17,7
++,dCTP-posi,"Nucleotide Di/Triphosphates",468.1,31,112,24
++,dUTP-posi,"Nucleotide Di/Triphosphates",469.1,18,81,24
++,5/10-formyl-H4PteGlu1,NA,474.17,20,327.14,6.4
++,"5,10-methenyl-H4PteGlu1_13",NA,476.23,31,431.24,6.2
++,dCTP_13C,NA,477.1,31,116,24
++,dUTP_13C,NA,478.1,18,86,24
++,"5,10-methylene-H4PteGlu1_13",NA,478.25,23,326.18,6.2
++,5-methyl-tetrahydrofolate_13C,NA,480.1,19,328.1,23
++,5-methyl-H4PteGlu1_13,NA,480.26,25,328.19,6.5
++,dTTP-posi,"Nucleotide Di/Triphosphates",483.1,25,81,23
++,CTP-posi,"Nucleotide Di/Triphosphates",484.1,21,112,23
++,UTP-posi_0-0,"Nucleotide Di/Triphosphates",485.1,30,97,23
++,UTP_1-1,NA,486.1,30,98,23
++,UTP_1-0,NA,486.11,30,97,23
++,UTP_2-2,NA,487.1,30,99,23
++,UTP_2-0,NA,487.11,30,97,23
++,CTP_4-4,NA,488.1,23,116,23
++,UTP_3-0,NA,488.11,30,97,23
++,UTP_3-3,NA,488.12,30,100,23
++,CTP_5-0,NA,489.1,23,112,23
++,UTP_4-0,NA,489.11,30,97,23
++,UTP_4-4,NA,489.12,30,101,23
++,UTP_5-5,NA,490.1,30,102,23
++,UTP-6-5,NA,491.1,30,102,23
++,dATP-posi,"Nucleotide Di/Triphosphates",492.1,35,136,24
++,"UTP 7-5",NA,492.1,30,102,23
++,"UTP 8-5",NA,493.1,30,102,23
++,CTP_13C,NA,493.15,21,116,23
++,Unk_184@10-+494,Unknowns,494,10,184,4.8
++,"UTP 9-5",NA,494.1,30,102,23
++,5/10-formyl-H4PteGlu1_13,NA,494.24,20,342.17,6.4
++,dTTP-posi-IS,"Nucleotide Di/Triphosphates",495.1,25,86,23
++,UTP-posi-IS,"Nucleotide Di/Triphosphates",496,30,102,23
++,CTP-posi-IS,"Nucleotide Di/Triphosphates",496.1,21,119,23
++,dATP_13C,NA,502.1,35,141,24
++,ATP_posi,"Nucleotide Di/Triphosphates",508.1,37,136,24
++,ATP-0-0,"Nucleotide Di/Triphosphates",508.1,37,136,24
++,dGTP-posi,NA,508.15,30,152,25.5
++,ITP-posi,"Nucleotide Di/Triphosphates",509.1,24,137,24
++,ATP-1-0,NA,509.1,37,136,24
++,ATP-1-1,NA,509.11,37,137,24
++,ATP-2-0,NA,510.1,37,136,24
++,ATP-2-2,NA,510.11,37,138,24
++,ATP-3-0,NA,511.1,37,136,24
++,ATP-3-3,NA,511.11,37,139,24
++,ATP-4-0,NA,512.1,37,136,24
++,ATP-4-4,NA,512.11,37,140,24
++,ATP-5-0,NA,513.1,37,136,24
++,ATP-5-5,NA,513.11,37,141,24
++,ATP-6-1,NA,514.1,37,137,24
++,ATP-7-2,NA,515.1,37,138,24
++,ATP-8-3,NA,516.1,37,139,24
++,ATP-9-4,NA,517.1,37,140,24
++,ATP_13C,NA,518.1,37,141,24
++,dGTP_13C,NA,518.15,30,157,25.5
++,ITP_13C,NA,519.1,24,142,24
++,p-Aminobenzoyl-Glu7,NA,521.17,30,120,9.2
++,ATP-posi-IS,"Nucleotide Di/Triphosphates",523.1,37,146,24
++,ATP-gamma-S,"Nucelotide Precursors/ Derivatives",524.1,35,136,25
++,GTP-posi,NA,524.1,37,152,25.5
++,p-Aminobenzoyl-Glu3,NA,525.18,35,120.02,8.8
++,Diiodothyronine,HMDB,525.5,29,352.8,11
++,Diiodothyronine,HMDB,525.5,29,352.8,11
++,GTP_5-0,NA,529.1,37,152,25.5
++,GTP_5-5,NA,529.11,37,157,25.5
++,GTP_13C,NA,534.1,37,157,25.5
++,GTP-posi-IS,"Nucleotide Di/Triphosphates",539.1,37,162,25
++,p-Aminobenzoyl-Glu7_13,NA,542.25,30,127.07,9.2
++,p-Aminobenzoyl-Glu3_13,NA,547.26,35,127.07,8.8
++,Unk_313@30-+555,Unknowns,555,30,313,7.9
++,PteGlu2,NA,571.19,30,295.09,8
++,H2PteGlu2,NA,573.21,30,178.07,8.3
++,H4PteGlu2,NA,575.22,30,299.13,8.7
++,"5,10-methenyl-H4PteGlu2",NA,585.22,30,412.17,8
++,"5,10-methylene-H4PteGlu2",NA,587.22,30,311.13,8
++,5-methyl-H4PteGlu2,NA,589.24,25,313.14,8.4
++,PteGlu2_13,NA,595.27,30,309.14,8
++,H2PteGlu2_13,NA,597.29,30,185.1,8.3
++,H4PteGlu2_13,NA,599.3,30,313.17,8.7
++,5/10-formyl-H4PteGlu2,NA,603.22,34,327.12,8.3
++,PteGlu7,NA,608.7,22,295.09,9.2
++,H2PteGlu7,NA,609.71,22,178.07,9.2
++,"5,10-methenyl-H4PteGlu2_13",NA,610.29,30,431.24,8
++,H4PteGlu7,NA,610.71,22,299.13,8.9
++,"5,10-methylene-H4PteGlu2_13",NA,612.31,30,326.18,8
++,"glutathione disulfide-posi",C20H33N6O12S2+,613,33,231,22.9
++,"glutathione disulfide-N14","Redox Electron Carriers and Precursors",613,33,231,23
++,5-methyl-H4PteGlu2_13,NA,614.32,25,328.19,8.4
++,"5,10-methenyl-H4PteGlu7",NA,615.71,22,412.17,8.9
++,"5,10-methylene-H4PteGlu7",NA,616.71,22,311.13,8.8
++,5-methyl-H4PteGlu7,NA,617.72,22,313.14,9
++,"glutathione disulfide-N15",NA,619,33,233,23
++,5/10-formyl-H4PteGlu7,NA,624.71,26,327.12,8.8
++,5/10-formyl-H4PteGlu2_13,NA,628.3,34,342.17,8.3
++,"glutathione disulfide_13C",NA,633,33,239,20.5
++,PteGlu7_13,NA,633.29,22,309.14,9.2
++,H2PteGlu7_13,NA,634.3,22,185.1,9.2
++,H4PteGlu7_13,NA,635.3,22,313.17,8.9
++,"5,10-methenyl-H4PteGlu7_13",NA,640.8,22,431.24,8.9
++,"5,10-methylene-H4PteGlu7_13",NA,641.8,22,326.18,8.8
++,5-methyl-H4PteGlu7_13,NA,642.81,22,328.19,9
++,5/10-formyl-H4PteGlu7_13,NA,649.8,26,342.17,8.8
++,p-Aminobenzoyl-Glu4,NA,654.23,43,120.02,8.8
++,Unk_622@10-+657,Unknowns,657,10,622,3.3
++,NAD+_posi,C21H28N7O14P2+,664.1,30,428,16.5
++,NADH,C21H30N7O14P2+,666.1,26,514,24
++,NAD+_posi-N15,C21H28N7O14P2+,671.1,30,433,16.5
++,NADH-N15,C21H30N7O14P2+,673.1,26,516,24
++,PteGlu8,NA,673.22,23,295.09,9.9
++,H2PteGlu8,NA,674.23,23,178.07,9.9
++,H4PteGlu8,NA,675.23,23,299.13,9
++,NADH_17_16,NA,679.16,26,530,32
++,NADH_17_15,NA,679.17,26,529,32
++,NADH_17_14,NA,679.18,26,528,32
++,NADH_17_13,NA,679.19,26,527,32
++,NADH_17_6,NA,679.2,26,526,32
++,NADH_18_16,NA,680.16,26,530,32
++,NADH_18_15,NA,680.17,26,529,32
++,NADH_18_14,NA,680.18,26,528,32
++,NADH_18_13,NA,680.19,26,527,32
++,"5,10-methenyl-H4PteGlu8",NA,680.23,23,412.17,9
++,NAD_17_10,NA,681.11,30,438,17
++,NAD_17_9,NA,681.12,30,437,17
++,NAD_17_8,NA,681.13,30,436,17
++,NAD_17_7,NA,681.14,30,435,17
++,NAD_17_6,NA,681.15,30,434,17
++,NADH_19_16,NA,681.16,26,530,32
++,NADH_19_15,NA,681.17,26,529,32
++,NADH_19_14,NA,681.18,26,528,32
++,"5,10-methylene-H4PteGlu8",NA,681.23,23,311.13,9
++,p-Aminobenzoyl-Glu4_13,NA,681.32,43,127.07,8.8
++,NAD_18_10,NA,682.11,30,438,17
++,NAD_18_9,NA,682.12,30,437,17
++,NAD_18_8,NA,682.13,30,436,17
++,NAD_18_7,NA,682.14,30,435,17
++,NADH_20_16,NA,682.16,26,530,32
++,NADH_20_15,NA,682.17,26,529,32
++,5-methyl-H4PteGlu8,NA,682.24,23,313.14,9.9
++,NAD_19_10,NA,683.11,30,438,17
++,NAD_19_9,NA,683.12,30,437,17
++,NAD_19_8,NA,683.13,30,436,17
++,NAD_20_10,NA,684.11,30,438,17
++,NAD_20_9,NA,684.12,30,437,17
++,NAD+_13C,NA,685.1,30,438,17
++,NADH+_13C,NA,687.1,26,530,32
++,dephospho-CoA-posi,C21H36N7O13P2S+,688,25,348,24.5
++,dephospho-CoA-posi,C21H36N7O13P2S+,695,25,353,24.5
++,NADP+_posi,C21H29N7O17P3+,751.2,48,141,25
++,NADPH,C21H31N7O17P3+,753.15,16,735,26
++,5/10-formyl-H4PteGlu8,NA,689.23,27,327.12,9
++,PteGlu3,NA,700.23,32,295.09,8.5
++,PteGlu8_13,NA,700.32,23,309.14,9.9
++,H2PteGlu8_13,NA,701.33,23,185.1,9.9
++,H2PteGlu3,NA,702.25,35,178.07,8.8
++,H4PteGlu8_13,NA,702.33,23,313.17,9
++,H4PteGlu3,NA,704.26,35,299.13,8.4
++,"5,10-methenyl-H4PteGlu8_13",NA,707.83,23,431.24,9
++,"5,10-methylene-H4PteGlu8_13",NA,708.83,23,326.18,9
++,dephospho-CoA_13C,NA,709,25,358,23.5
++,5-methyl-H4PteGlu8_13,NA,709.84,23,328.19,9.9
++,"5,10-methenyl-H4PteGlu3",NA,714.25,35,412.17,8.5
++,"5,10-methylene-H4PteGlu3",NA,716.26,35,311.13,8.5
++,5/10-formyl-H4PteGlu8_13,NA,716.83,27,342.17,9
++,5-methyl-H4PteGlu3,NA,718.28,32,313.14,8.5
++,PteGlu3_13,NA,729.33,32,309.14,8.5
++,H2PteGlu3_13,NA,731.35,35,185.1,8.8
++,5/10-formyl-H4PteGlu3,NA,732.26,36,327.12,8.4
++,H4PteGlu3_13,NA,733.36,35,313.17,8.4
++,NADP+_posi,C21H29N7O17P3+,744.2,48,136,25
++,"5,10-methenyl-H4PteGlu3_13",NA,744.35,35,431.24,8.5
++,NADPH,C21H31N7O17P3+,746.15,16,729,26
++,"5,10-methylene-H4PteGlu3_13",NA,746.36,35,326.18,8.5
++,5-methyl-H4PteGlu3_13,NA,748.38,32,328.19,8.5
++,5/10-formyl-H4PteGlu3_13,NA,762.36,36,342.17,8.4
++,NADP+_13C,NA,765.2,48,141,22
++,NADPH_13C,NA,767.15,16,750,23.5
++,"coenzyme A-posi",C21H37N7O16P3S+,768,37,261,25.4
++,p-Aminobenzoyl-Glu5,NA,783.27,45,120.02,8.9
++,FAD,C27H34N9O15P2+,786,24,348,24.5
++,"coenzyme A_13C",NA,789,37,272,23
++,FAD-N15,NA,795,24,353,24.5
++,FAD_20_10,NA,806.01,24,358,19
++,FAD_20_9,NA,806.02,24,357,19
++,FAD_20_8,NA,806.03,24,356,19
++,FAD_20_7,NA,806.04,24,355,19
++,FAD_20_6,NA,806.05,24,354,19
++,FAD_20_5,NA,806.06,24,353,19
++,FAD_21_10,NA,807.01,24,358,19
++,FAD_21_9,NA,807.02,24,357,19
++,FAD_21_8,NA,807.03,24,356,19
++,FAD_21_7,NA,807.04,24,355,19
++,FAD_21_6,NA,807.05,24,354,19
++,FAD_21_5,NA,807.06,24,353,19
++,FAD_22_10,NA,808.01,24,358,19
++,FAD_22_9,NA,808.02,24,357,19
++,FAD_22_8,NA,808.03,24,356,19
++,FAD_22_7,NA,808.04,24,355,19
++,FAD_22_6,NA,808.05,24,354,19
++,FAD_23_10,NA,809.01,24,358,19
++,FAD_23_9,NA,809.02,24,357,19
++,FAD_23_8,NA,809.03,24,356,19
++,FAD_23_7,NA,809.04,24,355,19
++,acetyl-CoA-posi,C23H39N7O17P3S+,810,28,303,25.2
++,FAD_24_10,NA,810.01,24,358,19
++,FAD_24_9,NA,810.02,24,357,19
++,FAD_24_8,NA,810.03,24,356,19
++,FAD_24_7,NA,810.04,24,355,19
++,FAD_25_10,NA,811.01,24,358,19
++,FAD_25_9,NA,811.02,24,357,19
++,FAD_25_8,NA,811.03,24,359,19
++,"acetyl-CoA 2xC2",NA,812,28,305,23
++,FAD_26_10,NA,812.01,24,358,19
++,FAD_26_9,NA,812.02,24,357,19
++,FAD_13C,NA,813,24,358,19
++,p-Aminobenzoyl-Glu5_13,NA,815.38,45,127.07,8.9
++,propionyl-CoA-posi,C24H41N7O17P3S+,824.1,33,317.1,25.2
++,"coenzyme A-posi",C21H37N7O16P3S+,775,37,263,25.4
++,acetyl-CoA-posi,C23H39N7O17P3S+,817,28,305,25.2
++,propionyl-CoA-posi,C24H41N7O17P3S+,831.1,33,319.1,25.2
++,PteGlu4,NA,829.28,34,295.09,8.9
++,H2PteGlu4,NA,831.29,40,178.07,8.7
++,acetyl-CoA_13C,NA,833,28,316,23
++,"acetyl-CoA C13",NA,833,28,303,23
++,H4PteGlu4,NA,833.31,40,299.13,8.4
++,"5,10-methenyl-H4PteGlu4",NA,843.29,40,412.17,8.5
++,"5,10-methylene-H4PteGlu4",NA,845.31,40,311.13,8.5
++,5-methyl-H4PteGlu4,NA,847.32,38,313.14,8.3
++,propionyl-CoA_13C,NA,848.1,33,331.1,23
++,acetoacetyl-CoA-posi,C25H41N7O18P3S+,852,34,345,26
++,malonyl-CoA-posi,C24H39N7O19P3S+,854,26,347,26
++,5/10-formyl-H4PteGlu4,NA,861.3,45,327.12,8.5
++,PteGlu4_13,NA,863.39,34,309.14,8.9
++,H2PteGlu4_13,NA,865.41,40,185.1,8.7
++,H4PteGlu4_13,NA,867.42,40,313.17,8.4
++,acetoacetyl-CoA-posi,C25H41N7O18P3S+,859,34,347,26
++,malonyl-CoA-posi,C24H39N7O19P3S+,861,26,349,26
++,succinyl-CoA-posi,C25H41N7O19P3S+,875.1,38,363.1,26
++,succinyl-CoA-posi,C25H41N7O19P3S+,868.1,38,361.1,26
++,acetoacetyl-CoA_13C,NA,877,34,360,23
++,malonyl-CoA_13C,NA,878,26,361,23
++,"5,10-methenyl-H4PteGlu4_13",NA,878.41,40,431.24,8.5
++,"5,10-methylene-H4PteGlu4_13",NA,880.42,40,326.18,8.5
++,5-methyl-H4PteGlu4_13,NA,882.44,38,328.19,8.3
++,succinyl-CoA_13C,NA,893.1,38,376.1,23
++,5/10-formyl-H4PteGlu4_13,NA,896.42,45,342.17,8.5
++,Unk_414@20-+909,Unknowns,909,20,414,NA
++,p-Aminobenzoyl-Glu6,NA,912.31,48,120.02,9
++,p-Aminobenzoyl-Glu6_13,NA,949.44,48,127.07,9
++,PteGlu5,NA,958.32,42,295.09,9
++,H2PteGlu5,NA,960.33,42,178.07,8.8
++,H4PteGlu5,NA,962.35,42,299.13,8.5
++,"5,10-methenyl-H4PteGlu5",NA,972.33,42,412.17,8.5
++,"5,10-methylene-H4PteGlu5",NA,974.35,42,311.13,8.7
++,5-methyl-H4PteGlu5,NA,976.36,43,313.14,8.8
++,5/10-formyl-H4PteGlu5,NA,990.34,53,327.12,8.5
++,PteGlu5_13,NA,997.45,42,309.14,9
++,H2PteGlu5_13,NA,999.46,42,185.1,8.8
++,H4PteGlu5_13,NA,1001.5,42,313.17,8.5
++,"5,10-methenyl-H4PteGlu5_13",NA,1012.5,42,431.24,8.5
++,"5,10-methylene-H4PteGlu5_13",NA,1014.5,42,326.18,8.7
++,5-methyl-H4PteGlu5_13,NA,1016.5,43,328.19,8.8
++,5/10-formyl-H4PteGlu5_13,NA,1030.5,53,342.17,8.5
++,PteGlu6,NA,1087.36,45,295.09,9
++,H2PteGlu6,NA,1089.38,45,178.07,9
++,H4PteGlu6,NA,1091.39,45,299.13,8.6
++,"5,10-methenyl-H4PteGlu6",NA,1101.38,45,412.17,8.6
++,"5,10-methylene-H4PteGlu6",NA,1103.39,45,311.13,8.7
++,5-methyl-H4PteGlu6,NA,1105.41,45,313.14,8.9
++,5/10-formyl-H4PteGlu6,NA,1119.39,55,327.12,8.7
++,PteGlu6_13,NA,1131.51,45,309.14,9
++,H2PteGlu6_13,NA,1133.52,45,185.1,9
++,H4PteGlu6_13,NA,1135.54,45,313.17,8.6
++,"5,10-methenyl-H4PteGlu6_13",NA,1146.53,45,431.24,8.6
++,"5,10-methylene-H4PteGlu6_13",NA,1148.54,45,326.18,8.7
++,5-methyl-H4PteGlu6_13,NA,1150.56,45,328.19,8.9
++,5/10-formyl-H4PteGlu6_13,NA,1164.54,55,342.17,8.7
+-,valine-CBZ-C13,NA,255,12,147,39
+-,valine-CBZ-C13N15-IS,"AA Internal standard",256.01,12,148,39
+-,acetoacetate_2_2,,103.05,12,59.2,14.1
+-,acetoacetate_2_1,,103.051,12,58.2,14.1
+-,butyryl-CoA,,836.2,36,408,38
+-,butyryl-CoA_13C,,840.2,36,408,38
+-,butyryl-CoA_2,,838.2,36,408,38
+-,hydroxybutyryl-CoA,,852.22,41,408,36
+-,hydroxybutyryl-CoA_2,,854.22,41,408,36
+-,hydroxybutyryl-CoA,,856.22,41,408,36
+-,Octulose-Phosphate,PPP,319,20,97,12.2
+-,"Sedoheptulose bisphosphate",PPP,369,35,97,30.2
+-,"Octulose bisposphate",PPP,399,35,97,30.2
+-,glutamine-CBZ-C13-1N15-0,"AA Internal standard",285.023,17,132,34.5
+-,glutamine-CBZ-C13-1N15-1,"AA Internal standard",285.014,17,133.1,34.5
+-,glutamate-CBZ-nega-IS-2,"Amino Acids",286.103,17,134,36
+-,ornithine-CBZ-C13-N15,NA,406.021,17,200,41
+-,ornithine-CBZ-C13-1N15,NA,405.102,17,189,41
+-,citrulline-CBZ-C13-1N15-1,NA,315.023,17,164,35
+-,citrulline-CBZ-C13-1N15-0,,315.056,17,163,35
+-,citrulline-CBZ-C13-2N15,,316.039,17,165,35
+-,citrulline-CBZ-C13-2N15-1,,316.061,17,164,35
+-,citrulline-CBZ-C13-2N15,,317.019,17,165,35
+-,arginine-CBZ-C13N15-1,,314.059,17,206,27.4
+-,arginine-CBZ-C13N15-2,,315.046,17,207,27.4
+-,arginine-CBZ-C13N15-3,,316.042,17,208,27.4
+-,arginine-CBZ-C13N15-IS,"AA Internal standard",317.071,17,209,27.4
+-,aspartate-CBZ-C13N15-test,"AA Internal standard",271.012,19,120,36
+-,threonine-CBZ-nega-IS,NA,257.013,15,105,36
+-,threonine-CBZ-nega-test,NA,257.052,15,104,36
+-,ADP_5,"Nucleotide Di/Triphosphates",431.095,25,159,32
+-,UDP_5,"Nucleotide Di/Triphosphates",408.033,26,159,30.8
+-,GDP_5,"Nucleotide Di/Triphosphates",447.014,19,159,32
+-,CDP-nega_5,"Nucleotide Di/Triphosphates",407.025,20,389,29.8
+-,phenylalanine-CBZ-C13,NA,307.01,27,156,40
+-,arginine-CBZ,"Amino Acids",307.02,17,199,27.4
+-,tyrosine-CBZ-C13,NA,323.01,15,215,37
