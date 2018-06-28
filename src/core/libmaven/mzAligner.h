@@ -181,58 +181,18 @@ class LoessFit : public Aligner {
         // other helper functions
 };
 
-class ObiWarp : public Aligner {
+class ObiWarpAlign : public Aligner {
     
 
     public:
-        struct ObiParams{
-
-            string score;
-            bool local;
-            float factor_diag;
-            float factor_gap;
-            float gap_init;
-            float gap_extend;
-            float init_penalty;
-            float response;
-            bool nostdnrm;
-            float binSize;
-
-            ObiParams() {
-                string score = "cor";
-                bool local = false;
-                float factor_diag = 2;
-                float factor_gap = 1;
-                float gap_init = 0.2;
-                float gap_extend = 3.4;
-                float init_penalty = 0;
-                float response = 20;
-                bool nostdnrm = false;
-                float binSize = 0.6;
-            }
-            ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend, 
-            float init_penalty, float response, bool nostdnrm, float binSize) {
-                this->score = score;
-                this->local = local;
-                this->factor_diag = factor_diag;
-                this->factor_gap = factor_gap;
-                this->gap_init = gap_init;
-                this->gap_extend = gap_extend;
-                this->init_penalty = init_penalty;
-                this->response = response;
-                this->nostdnrm = nostdnrm;
-                this->binSize = binSize;
-            }
-        };
-        ObiWarp(ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex = -1) {
-            this->params = new ObiParams();
+        ObiWarpAlign(ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex = -1) {
             *params = *obiParams;
 
             this->samples = samples;
             this->referenceSampleIndex = referenceSampleIndex;
         }
 
-        void obiWarp ();
+        void obiWarpAlign ();
 
 
         
@@ -241,21 +201,8 @@ class ObiWarp : public Aligner {
         ObiParams *params;
         vector<mzSample*> samples;
         int referenceSampleIndex;
-        int _tm_vals;
-        int _mz_vals;
-        float* tmPoint;
-        float* mzPoint;
-        DynProg dyn;
 
-        VecF _tm;
-        VecF _mz;
-        MatF _mat;
-
-        void alignSampleRts (mzSample* sample, vector<float> &mzPoints, bool setAsReference);
-        void setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
-        vector<float> align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
-        void tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals);
-        void warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm);
+        void alignSampleRts (mzSample* sample, vector<float> &mzPoints, ObiWarp& obiWarp, bool setAsReference);
 };
 
 

@@ -640,7 +640,7 @@ void LoessFit::preProcessing() {
 
 // obiwarp
 
-void ObiWarp::alignSampleRts(mzSample* sample, vector<float> &mzPoints, bool setAsReference){
+void ObiWarpAlign::alignSampleRts(mzSample* sample, vector<float> &mzPoints, ObiWarp& obiWarp ,bool setAsReference){
 
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
@@ -661,123 +661,15 @@ void ObiWarp::alignSampleRts(mzSample* sample, vector<float> &mzPoints, bool set
     }
     
     if(setAsReference)
-        setReferenceData(rtPoints, mzPoints, mxn);
+        obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     else{
-        rtPoints = align(rtPoints, mzPoints, mxn);
+        rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
         for(int j = 0; j < sample->scans.size(); ++j)
             sample->scans[j]->rt = rtPoints[j];
     }
 }
 
-void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
-    _tm_vals = rtPoints.size();
-    tmPoint = new float[_tm_vals];
-    for(int i=0; i < _tm_vals ; ++i)
-        tmPoint[i] = rtPoints[i];
-    _tm.take(_tm_vals, tmPoint);
-
-    _mz_vals = mzPoints.size();
-    mzPoint = new float[_mz_vals];
-    for(int i = 0; i < _mz_vals; ++i)
-        mzPoint[i] = mzPoints[i];
-    _mz.take(_mz_vals, mzPoint);
-
-    assert(_tm_vals == intMat.size());
-    MatF mat(_tm_vals, _mz_vals);
-    for(int i=0; i < _tm_vals; ++i){
-        assert(_mz_vals == intMat[i].size());
-        for(int j = 0; j < _mz_vals; ++j)
-            mat(i,j) = intMat[i][j];
-    }
-    _mat.take(mat);
-
-}
-
-vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
-    
-    VecF tm;
-    int tm_vals = rtPoints.size();
-    float* tmPoint = new float[tm_vals];
-    for(int i = 0; i < tm_vals; ++i)
-        tmPoint[i] = rtPoints[i];
-    tm.take(tm_vals, tmPoint);
-
-    VecF mz;
-    int mz_vals = mzPoints.size();
-    float* mzPoint = new float[mz_vals];
-    for(int i = 0; i < mz_vals; ++i)
-        mzPoint[i] = mzPoints[i];
-    mz.take(mz_vals, mzPoint);
-
-    assert(tm_vals = intMat.size());
-    MatF mat(tm_vals, mz_vals);
-    for(int i = 0; i < tm_vals; ++i){
-        assert(mz_vals == intMat[i].size());
-        for(int j = 0; j < mz_vals; ++j)
-            mat(i,j)=intMat[i][j];
-    }
-
-    MatF smat;
-
-    char *score_ptr = &params->score[0];
-    dyn.score(_mat, mat, smat, score_ptr);
-
-    if (!params->nostdnrm) {
-        if (!smat.all_equal()) { 
-            smat.std_normal();
-        }
-    }
-
-    int gp_length = smat.rows() + smat.cols();
-
-    VecF gp_array;
-    dyn.linear_less_before(params->gap_extend,params->gap_init,gp_length,gp_array);
-
-    int minimize = 0;
-    dyn.find_path(smat, gp_array, minimize, params->factor_diag, params->factor_gap, params->local, params->init_penalty);
-
-    VecI mOut;
-    VecI nOut;
-    dyn.warp_map(mOut, nOut, params->response, minimize);
-
-    VecF nOutF;
-    VecF mOutF;
-    tm_axis_vals(mOut, mOutF, _tm,_tm_vals);
-    tm_axis_vals(nOut, nOutF, tm,tm_vals); //
-    warp_tm(nOutF, mOutF, tm);
-    
-    vector<float> alignedRts;
-    float* rts = tm.pointer();
-    for(int i = 0; i < tm_vals; ++i)
-        alignedRts.push_back(rts[i]);
-    
-    // delete[] tmPoint;
-    // delete[] mzPoint;
-
-    return alignedRts;
-}
-
-void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
-    VecF tmp(tmCoords.length());
-    for (int i = 0; i < tmCoords.length(); ++i) {
-        if (tmCoords[i] < _tm_vals) {
-            tmp[i] = _tm[tmCoords[i]];
-        }
-        else {
-            printf("asking for time value at index: %d (length: %d)\n", tmCoords[i], _tm_vals);
-            exit(1);
-        }
-    }
-    tmVals.take(tmp);
-}
-
-void ObiWarp::warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm){
-    VecF out;
-    VecF::chfe(selfTimes, equivTimes, _tm, out, 1);  // run with sort option
-    _tm.take(out);
-}
-
-void ObiWarp::obiWarp () {
+void ObiWarpAlign::obiWarpAlign () {
     std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
     if(referenceSampleIndex < 0) {
@@ -791,7 +683,7 @@ void ObiWarp::obiWarp () {
     }
     assert(referenceSampleIndex < samples.size());
 
-    // ObiWarp* obiWarp = new ObiWarp(obiParams);
+    ObiWarp* obiWarp = new ObiWarp(params);
 
     float binSize = params->binSize;
     float minMzRange = 1e9;
@@ -816,15 +708,16 @@ void ObiWarp::obiWarp () {
     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(referenceSample, mzPoints, true);
+    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
 
     for(int i=0 ; i < samples.size();++i){
         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
         if(i == referenceSampleIndex)
             continue;
-        alignSampleRts(samples[i], mzPoints, false);
+        alignSampleRts(samples[i], mzPoints,*obiWarp ,false);
     }
     
+    delete obiWarp;
     cerr<<"Alignment complete"<<endl;    
     
 }

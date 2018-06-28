@@ -69,7 +69,6 @@ SOURCES = 	base64.cpp \
                 eiclogic.cpp \
                 databases.cpp \
                 Peptide.cpp \
-                PolyAligner.cpp \
                 jsonReports.cpp \
                 masscutofftype.cpp \
                 peakFiltering.cpp \
@@ -108,7 +107,6 @@ HEADERS += 	constants.h \
                 databases.h \
                 Peptide.hpp \
                 PeptideRecord.h \
-                PolyAligner.h \
                 jsonReports.h \
                 masscutofftype.h \
                 peakFiltering.h \

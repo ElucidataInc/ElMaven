@@ -556,7 +556,7 @@ void AlignmentDialog::align() {
 		// start obiwarp
 
 		
-		ObiWarp::ObiParams *obiParams = new ObiWarp::ObiParams(
+		ObiParams *obiParams = new ObiParams(
 			scoreObi->currentText().toStdString(),
             local->isChecked(),
             factorDiag->value(),
@@ -568,11 +568,13 @@ void AlignmentDialog::align() {
             noStdNormal->isChecked(),
             binSizeObiWarp->value());
 
-		ObiWarp *obiWarp = new ObiWarp(obiParams, _mw->getSamples());
+		Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+
+		ObiWarpAlign *obiWarpAlign = new ObiWarpAlign(obiParams, _mw->getSamples());
 
 		/** threaded **/
 
-		obiWarp->obiWarp();
+		obiWarpAlign->obiWarpAlign();
 
 		// QThread *thread = QThread::create([] { obiWarp.obiWarp(); });
 		// thread->start();
