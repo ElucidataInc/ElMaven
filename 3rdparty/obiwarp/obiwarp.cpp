@@ -1,6 +1,16 @@
 #include "obiwarp.h"
 
-ObiParams::ObiParams(string score,bool local, float factor_diag, float factor_gap, float gap_init,float gap_extend, float init_penalty, float response, bool nostdnrm, float binSize){
+ObiParams::ObiParams(
+    string score,
+    bool local, 
+    float factor_diag, 
+    float factor_gap, 
+    float gap_init, 
+    float gap_extend, 
+    float init_penalty, 
+    float response, 
+    bool nostdnrm, 
+    float binSize) {
 
     this->score = score;
     this->local = local;
