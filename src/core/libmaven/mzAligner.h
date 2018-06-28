@@ -28,48 +28,6 @@
 
 using namespace std;
 
-// class Aligner {
-//    public:
-//     // Aligner();
-//     // void preProcessing(vector<PeakGroup*>& peakgroup,bool alignWrtExpectedRt);
-//     // void doAlignment(vector<PeakGroup*>& peakgroup);
-//     // vector<double> groupMeanRt();
-//     // double checkFit();
-//     // void Fit(int ideg);
-//     // void saveFit();
-//     // void PolyFit(int poly_align_degree);
-//     // void restoreFit();
-//     // void setMaxItterations(int x) { maxItterations = x; }
-//     // void setPolymialDegree(int x) { polynomialDegree = x; }
-//     // void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
-//     // map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
-// 	// map<pair<string, string>, double> deltaRt;
-//     // vector<vector<float> > fit;
-//     // vector<mzSample*> samples;
-
-//     int medianRt;
-//     int compoundDataRt;
-//     float tolerance;
-
-//     // void updateRts(QJsonObject& parentObj);
-//     // void updateSampleRts(QJsonObject& sampleRts);
-//     // void updateGroupsRts(QJsonObject& groupsRts);
-
-//     // QJsonObject groupsJson;
-//     // QJsonObject rtsJson;
-
-
-// //    private:
-// //     vector<PeakGroup*> allgroups;
-// //     int maxItterations;
-// //     int polynomialDegree;
-
-// };
-
-
-// new aligner starts here
-
-
 class Aligner {
     public:
         // Aligner();

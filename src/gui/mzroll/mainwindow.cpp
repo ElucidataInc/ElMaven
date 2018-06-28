@@ -2807,77 +2807,6 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
     }
 }
 
-// void MainWindow::Align() {
-// 	if (sampleCount() < 2)
-// 		return;
-
-// 	aligned = true;
-
-// 	BackgroundPeakUpdate* workerThread;
-
-// 	if(alignmentDialog->alignAlgo->currentIndex() == 2){
-// 		// workerThread = newWorkerThread("alignWithObiWarp");
-// 		// workerThread->setMavenParameters(mavenParameters);
-// 		// workerThread->start();
-// 		// connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
-// 		// connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
-// 		// return;
-// 	}
-	
-// 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
-// 		workerThread = newWorkerThread("alignUsingDatabase");
-// 		mavenParameters->setCompounds(DB.getCopoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
-
-// 	} else {
-// 		workerThread = newWorkerThread("processMassSlices");
-// 	}
-
-// 	// connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
-// 	// connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
-
-// 	// mavenParameters->minGoodGroupCount =
-// 	// 		alignmentDialog->minGoodPeakCount->value();
-// 	// mavenParameters->limitGroupCount =
-// 	// 		alignmentDialog->limitGroupCount->value();
-// 	// mavenParameters->minGroupIntensity =
-// 	// 		alignmentDialog->minGroupIntensity->value();
-// 	// mavenParameters->minIntensity =
-// 	// 		alignmentDialog->minIntensity->value();
-// 	// mavenParameters->maxIntensity =
-// 	// 		alignmentDialog->maxIntensity->value();
-
-// 	// //TODO: Sahil Re-verify this two parameters. Values are same
-// 	// // mavenParameters->eic_smoothingWindow =
-// 	// // 		alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
-// 	// mavenParameters->rtStepSize =
-// 	// 		alignmentDialog->groupingWindow->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
-
-// 	// mavenParameters->minSignalBaseLineRatio = alignmentDialog->minSN->value();
-// 	// mavenParameters->minNoNoiseObs = alignmentDialog->minPeakWidth->value();
-
-
-//     // mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
-//     // mavenParameters->alignMaxItterations = alignmentDialog->maxItterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
-//     // mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
-
-//     // mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
-// 	// mavenParameters->alignSamplesFlag = true;
-// 	// mavenParameters->keepFoundGroups = true;
-//     // mavenParameters->eicMaxGroups = peakDetectionDialog->eicMaxGroups->value();
-
-// 	// mavenParameters->samples = getSamples();
-// 	// mavenParameters->stop = false;
-// 	// workerThread->setMavenParameters(mavenParameters);
-// 	// workerThread->setPeakDetector(new PeakDetector(mavenParameters));
-// 	// alignmentDialog->setWorkerThread(workerThread);
-
-//     // //connect new connections
-//     // connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
-//     // connect(workerThread, SIGNAL(finished()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
-//     // // connect(workerThread, SIGNAL(terminated()), bookmarkedPeaks, SLOT(showAllGroups())); //TODO: Sahil-Kiran, Added while merging mainwindow
-
-// 	// workerThread->start();
-// }
 
 void MainWindow::plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups) {
 	alignmentVizAllGroupsWidget->plotGraph(allgroups);
@@ -2890,36 +2819,6 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-// void MainWindow::UndoAlignment() {
-// 	if(alignmentDialog->alignAlgo->currentIndex() == 2){
-// 		for (int i = 0; i < samples.size(); i++) {
-// 			for(int j = 0; j < samples[i]->scans.size(); ++j)
-// 				if(samples[i]->scans[j]->originalRt >= 0)
-// 					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
-// 		}
-
-// 		eicWidget->replotForced();
-// 		alignmentDialog->close();
-// 		return;
-// 	}
-
-// 	aligned = false;
-// 	for (int i = 0; i < samples.size(); i++) {
-// 		if (samples[i])
-// 			samples[i]->restoreOriginalRetentionTimes();
-// 	}
-// 	getEicWidget()->replotForced();
-
-// 	mavenParameters->alignButton = 0;
-
-// 	QList<PeakGroup> listGroups;
-// 	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
-// 			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
-// 	}
-
-// 	Q_EMIT(undoAlignment(listGroups));
-
-// }
 
 
 void MainWindow::showPeakInfo(Peak* _peak) {
