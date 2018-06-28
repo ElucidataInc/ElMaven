@@ -1,5 +1,5 @@
-#ifndef MZALIGNER_H
-#define MZALIGNER_H
+#ifndef polyFit_H
+#define polyFit_H
 
 #include <cmath>
 #include <cstddef>
@@ -24,22 +24,9 @@
 #include "vec.h"
 #include "mat.h"
 #include "dynprog.h"
+#include "mzAligner.h"
 
 
-using namespace std;
-
-class Aligner {
-    public:
-        // Aligner();
-        void setGroups(vector<PeakGroup*> x) { groups = x; }
-        // vector<PeakGroup*> getGroups() { return groups; }
-        map<pair<string, string>, double> getDeltaRt() { return deltaRt; }
-        vector<PeakGroup*> groups;
-        map<pair<string, string>, double> deltaRt;
-        void alignmentError(QString);
-
-        vector<double> groupMeanRt();
-};
 
 class PolyFit : public Aligner {
 
@@ -152,57 +139,6 @@ class PolyFit : public Aligner {
         
 
 
-};
-
-
-
-class LoessFit : public Aligner {
-    public:
-        LoessFit(vector<PeakGroup*> x, bool y, vector <mzSample*> sample) { setGroups(x); alignWrtExpectedRt = y; pythonProg = new QProcess(); samples = sample; }
-        void loessFit();
-    private:
-        QProcess* pythonProg;
-        QJsonObject groupsJson;
-        QJsonObject rtsJson;
-
-        vector<mzSample*> samples;
-
-        bool alignWrtExpectedRt;
-        QByteArray processedDataFromPython;
-
-        void preProcessing();
-        void updateSampleRts(QJsonObject &sampleRts);
-        void updateGroupsRts(QJsonObject &groupsRts);
-        void updateRts(QJsonObject &parentObj);
-        void readDataFromPython();
-        void writeToPythonProcess(QByteArray data);
-        void sendDataToPython();
-        void runPythonProg();
-        // other helper functions
-};
-
-class ObiWarpAlign : public Aligner {
-    
-
-    public:
-        ObiWarpAlign(ObiParams *obiParams, vector<mzSample*> samples, int referenceSampleIndex = -1) {
-            *params = *obiParams;
-
-            this->samples = samples;
-            this->referenceSampleIndex = referenceSampleIndex;
-        }
-
-        void obiWarpAlign ();
-
-
-        
-    
-    private:
-        ObiParams *params;
-        vector<mzSample*> samples;
-        int referenceSampleIndex;
-
-        void alignSampleRts (mzSample* sample, vector<float> &mzPoints, ObiWarp& obiWarp, bool setAsReference);
 };
 
 

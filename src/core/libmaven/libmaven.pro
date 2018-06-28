@@ -22,6 +22,7 @@ LIBS += -L. -lcsvparser -ldate -lErrorHandling
 INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libcdfread/  \
                 $$top_srcdir/src/gui/mzroll/ \
+                $$top_srcdir/src/core/libmaven/alignment/ \
                 $$top_srcdir/3rdparty/libneural/ \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libdate/ \
@@ -43,11 +44,14 @@ SOURCES = 	base64.cpp \
                 mzMassCalculator.cpp \
                 mzPatterns.cpp \
                 mzSample.cpp \
+                alignment/mzAligner.cpp \
+                alignment/polyFit.cpp \
+                alignment/loessFit.cpp \
+                alignment/obiWarpAlign.cpp \
                 mzUtils.cpp \
                 statistics.cpp \
                 elementMass.cpp \
                 mzFit.cpp \
-                mzAligner.cpp \
                 mzMassSlicer.cpp \
 	        PeakGroup.cpp \
             Fragment.cpp \
@@ -80,7 +84,10 @@ HEADERS += 	constants.h \
 		base64.h \
                 mzFit.h \
                 Peak.h \
-                mzAligner.h \
+                alignment/mzAligner.h \
+                alignment/polyFit.h \
+                alignment/loessFit.h \
+                alignment/obiWarpAlign.h \
                 mzMassSlicer.h \
 	            PeakGroup.h \
                 mzSample.h \

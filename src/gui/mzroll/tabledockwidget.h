@@ -10,8 +10,11 @@
 #include "numeric_treewidgetitem.h"
 #include "QHistogramSlider.h"
 #include "saveJson.h"
-#include "jsonReports.h";
-#include "mzAligner.h"
+#include "jsonReports.h"
+#include "polyFit.h"
+#include "loessFit.h"
+#include "obiWarpAlign.h"
+
 
 class MainWindow;
 class AlignmentVizWidget;

@@ -4,8 +4,9 @@
 #include <mutex>
 #include "globals.h"
 #include "mainwindow.h"
-#include "mzAligner.h"
-
+#include "polyFit.h"
+#include "loessFit.h"
+#include "obiWarpAlign.h"
 
 class ProjectDockWidget;
 /**

@@ -56,6 +56,7 @@ mac {
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
+                $$top_srcdir/src/core/libmaven/alignment \
                 $$top_srcdir/3rdparty/obiwarp   \
                 $$top_srcdir/3rdparty/pugixml/src \
                 $$top_srcdir/3rdparty/libneural \

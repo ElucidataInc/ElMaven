@@ -5,7 +5,10 @@
 #include "globals.h"
 #include "ui_alignmentdialog.h"
 #include "mainwindow.h"
-#include "mzAligner.h"
+#include "polyFit.h"
+#include "loessFit.h"
+#include "obiWarpAlign.h"
+
 
 class BackgroundPeakUpdate;
 class Database;
