@@ -94,6 +94,22 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   //http://data_server_url?action=fetchcompounds&format=xml
   //fetchRemoteCompounds();
 
+  QDirIterator itr(":/databases/");
+
+  while(itr.hasNext()) {
+      DB.loadCompoundCSVFile(itr.next().toStdString());
+      QSet<QString>set;
+      for(int i=0; i< DB.compoundsDB.size(); i++) {
+          if (! set.contains( DB.compoundsDB[i]->db.c_str() ) )
+              set.insert( DB.compoundsDB[i]->db.c_str() );
+      }
+
+      QIcon icon(rsrcPath + "/dbsearch.png");
+      QSetIterator<QString> i(set);
+      while (i.hasNext())
+          databaseSelect->addItem(icon,i.next());
+  }
+
   connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
 
 }

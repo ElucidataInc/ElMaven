@@ -543,7 +543,7 @@ using namespace mzUtils;
 		*/
 	
 		QString lastDatabaseFile = settings->value("lastDatabaseFile").value<QString>();
-		loadMethodsFolder(methodsFolder);
+//		loadMethodsFolder(methodsFolder);
 		settings->setValue("lastDatabaseFile",lastDatabaseFile);
 	}
 	if (pathwayWidget) {
