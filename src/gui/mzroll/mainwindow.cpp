@@ -226,7 +226,20 @@ using namespace mzUtils;
       _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
     */
 
-    QString clsfModelFilename = settings->value("clsfModelFilename").value<QString>();
+
+    // always load model file present in the bin directory.
+    QString clsfModelFilename;
+
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+      clsfModelFilename = QApplication::applicationDirPath() + "/" + "default.model";
+    #endif
+
+    #if defined(Q_OS_MAC)
+      clsfModelFilename = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
+              + QDir::separator() + "default.model";
+    #endif
+
+
 
 	if (QFile::exists(clsfModelFilename)) {
 		settings->setValue("clsfModelFilename", clsfModelFilename);
