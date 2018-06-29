@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
-    splash.setMask(pixmap.mask());
     splash.show();
     splash.showMessage(QString("Ver:") + STR(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
     app.processEvents();
