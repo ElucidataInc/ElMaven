@@ -649,7 +649,8 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
 				qDebug()<<"redirection url - \n"<<redirection_url;
-				QString filename=writable_temp_dir+QDir::separator()+datetimestamp+"_redirection_url.txt";
+				QString filename=QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator()+datetimestamp+"_redirection_url.txt";
+				qDebug()<<"writing url to this file -"<<filename;
 				QFile file( filename );// redirection url will be written to a file..In future it will be replaced by email feature..
 				if ( file.open(QIODevice::ReadWrite) )
 				{
@@ -740,19 +741,6 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
 		//Only considering the first occurance
         break;
     }
-	QDomNodeList email_creds = doc.elementsByTagName("emailcredentials");
-    for (int i = 0; i < email_creds.size(); i++) {
-        QDomNode n = email_creds.item(i);
-        QDomElement email = n.firstChildElement("email");
-        QDomElement password = n.firstChildElement("password");
-        if (email.isNull() || password.isNull()){
-			break;
-		}
-		creds["email"]=email.text();
-		creds["email_password"]=password.text();
-		//Only considering the first occurance
-        break;
-    }
 	return creds;
 }
 
@@ -797,25 +785,9 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 }
 
 bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath){
-	QProcess process;
-    process.setProgram("python2");
-	QStringList jsPathlist = jsPath.split(QDir::separator());
-	QStringList jsPathlist_bin;
-	for (int i = 0; i < jsPathlist.size()-1; ++i)
-         jsPathlist_bin << jsPathlist.at(i);
-	QString pyemailer_path = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"pyemailer.py";
-    process.setArguments(QStringList()<<pyemailer_path<<"--to"<<creds["polly_username"]<<"--url"<<redirection_url<<"--login_email"<<creds["email"]<<"--login_password"<<creds["email_password"]);
-    process.start();
-    //TODO kailash, use threading for this, it should not just run indefinitely 
-    process.waitForFinished(-1);
-    QByteArray result = process.readAllStandardOutput();
-    QByteArray result2 = process.readAllStandardError();
-    qDebug()<<"pyemailer output  - "<<result;
-    qDebug()<<"pyemailer error, if any  - "<<result2;
-	status=true;
-	if (result2!=""){
-		status=false;
-	}
+	QString user_email = creds["polly_username"];
+	QString email_message = "Data Successfully uploaded to Polly project "+creds["polly_project"];
+	status = _pollyIntegration->send_email(user_email,redirection_url,email_message);
 	return status;
 }
 

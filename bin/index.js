@@ -171,6 +171,53 @@ module.exports.createProject = function (token_filename,name) {
     });
 }
 
+module.exports.send_email = function (user_email,email_content,email_message) {
+    if (!user_email) {
+        console.log(chalk.red.bold("Email is required param."));
+        return;
+    } else {
+        if (!(user_email.includes("@"))){
+            console.log(chalk.red.bold("First param is email. Second param is email content. Third param is email_message. "));
+            return;
+            }
+        }
+    if (!email_content) {
+        console.log(chalk.red.bold("email_content is required param."));
+        return;
+    }
+    if (!email_message) {
+        console.log(chalk.red.bold("email_message is required param."));
+        return;
+    }
+    var options = {
+        method: 'POST',
+        url: ' https://7w9r94dq3h.execute-api.ap-south-1.amazonaws.com/cpj_beta/pyemail',
+        headers:
+            {
+                'content-type': 'application/json'
+            },
+        body:
+            {
+                user_email:user_email,
+                email_content:email_content,
+                email_message:email_message
+            },
+        json: true
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`send email Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to send email. Please check your APIs. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
 module.exports.shareProject = function (token_filename,project_id,permission,usernames) {
     if (has_id_token(token_filename)) {
         public_token_header = read_id_token(token_filename);

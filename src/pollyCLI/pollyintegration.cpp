@@ -334,6 +334,19 @@ QString PollyIntegration::createProjectOnPolly(QString projectname){
     return run_id;
 }
 
+bool PollyIntegration::send_email(QString user_email,QString email_content,QString email_message){
+    bool status=false;
+    QString command2 = "send_email";
+    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << user_email<< email_content<<email_message);
+    QList<QByteArray> test_list = result_and_error.at(0).split('\n');
+    int size = test_list.size();
+    QByteArray result2 = test_list[size-2];
+    qDebug()<<"test_list - "<<test_list;
+    if (0){
+        status=true;
+    }
+    return status;
+}
 
 QString PollyIntegration::get_share_status(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
