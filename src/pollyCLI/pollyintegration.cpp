@@ -341,8 +341,7 @@ bool PollyIntegration::send_email(QString user_email,QString email_content,QStri
     QList<QByteArray> test_list = result_and_error.at(0).split('\n');
     int size = test_list.size();
     QByteArray result2 = test_list[size-2];
-    qDebug()<<"test_list - "<<test_list;
-    if (0){
+    if (result2=="1"){
         status=true;
     }
     return status;
