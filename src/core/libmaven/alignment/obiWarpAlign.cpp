@@ -1,12 +1,4 @@
-#include "mzAligner.h"
 #include "obiWarpAlign.h"
-#include "mzMassSlicer.h"
-#include "mzSample.h"
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <QJsonArray>
-#include <QJsonValue>
 
 
 void ObiWarpAlign::alignSampleRts(mzSample* sample, vector<float> &mzPoints, ObiWarp& obiWarp ,bool setAsReference){

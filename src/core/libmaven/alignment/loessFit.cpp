@@ -1,12 +1,4 @@
-#include "mzAligner.h"
 #include "loessFit.h"
-#include "mzMassSlicer.h"
-#include "mzSample.h"
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <QJsonArray>
-#include <QJsonValue>
 
 void LoessFit::updateSampleRts(QJsonObject &sampleRts) {
     for(mzSample* sm: samples) {

@@ -1,11 +1,4 @@
 #include "mzAligner.h"
-#include "mzMassSlicer.h"
-#include "mzSample.h"
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <QJsonArray>
-#include <QJsonValue>
 
 
 vector<double> Aligner::groupMeanRt() {

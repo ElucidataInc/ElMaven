@@ -11,9 +11,9 @@
 #include "QHistogramSlider.h"
 #include "saveJson.h"
 #include "jsonReports.h"
-#include "polyFit.h"
-#include "loessFit.h"
-#include "obiWarpAlign.h"
+#include "alignment/polyFit.h"
+#include "alignment/loessFit.h"
+#include "alignment/obiWarpAlign.h"
 
 
 class MainWindow;

@@ -12,16 +12,6 @@
 #include "Compound.h"
 #include "obiwarp.h"
 #include "PeakGroup.h"
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
-#include <QProcess>
-#include <QDebug>
-#include <QDir>
-#include <QCoreApplication>
-#include <QProcess>
-#include <QJsonObject>
-#include <QJsonDocument>
 #include "vec.h"
 #include "mat.h"
 #include "dynprog.h"

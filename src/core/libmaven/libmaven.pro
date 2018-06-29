@@ -22,7 +22,6 @@ LIBS += -L. -lcsvparser -ldate -lErrorHandling
 INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libcdfread/  \
                 $$top_srcdir/src/gui/mzroll/ \
-                $$top_srcdir/src/core/libmaven/alignment/ \
                 $$top_srcdir/3rdparty/libneural/ \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libdate/ \

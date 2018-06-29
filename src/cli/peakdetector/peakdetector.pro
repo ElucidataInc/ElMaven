@@ -14,7 +14,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
 				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread \
-				$$top_srcdir/src/pollyCLI $$top_srcdir/3rdparty/obiwarp $$top_srcdir/src/core/libmaven/alignment
+				$$top_srcdir/src/pollyCLI $$top_srcdir/3rdparty/obiwarp
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
@@ -27,11 +27,19 @@ SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \
 			$$top_srcdir/src/core/libmaven/classifier.cpp \
 			$$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
+			$$top_srcdir/src/core/libmaven/alignment/mzAligner.cpp \
+			$$top_srcdir/src/core/libmaven/alignment/polyFit.cpp \
+			$$top_srcdir/src/core/libmaven/alignment/loessFit.cpp \
+			$$top_srcdir/src/core/libmaven/alignment/obiWarpAlign.cpp \
 			parseOptions.cpp \
 			main.cpp
 
 HEADERS += 	PeakDetectorCLI.h \
 			$$top_srcdir/src/core/libmaven/classifier.h \
 			$$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
+			$$top_srcdir/src/core/libmaven/alignment/mzAligner.h \
+			$$top_srcdir/src/core/libmaven/alignment/polyFit.h \
+			$$top_srcdir/src/core/libmaven/alignment/loessFit.h \
+			$$top_srcdir/src/core/libmaven/alignment/obiWarpAlign.h \
 			parseOptions.h \
 			options.h

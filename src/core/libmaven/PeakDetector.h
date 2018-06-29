@@ -25,7 +25,7 @@
 #include "mzUtils.h"
 #include "Compound.h"
 #include "mzSample.h"
-#include "polyFit.h"
+#include "alignment/polyFit.h"
 #include "constants.h"
 #include "classifier.h"
 #include "mzMassSlicer.h"

@@ -5,9 +5,9 @@
 #include "globals.h"
 #include "ui_alignmentdialog.h"
 #include "mainwindow.h"
-#include "polyFit.h"
-#include "loessFit.h"
-#include "obiWarpAlign.h"
+#include "alignment/polyFit.h"
+#include "alignment/loessFit.h"
+#include "alignment/obiWarpAlign.h"
 
 
 class BackgroundPeakUpdate;
