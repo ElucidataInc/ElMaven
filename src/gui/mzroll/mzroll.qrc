@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/copyCSV.png</file>
-        <file>images/splash.png</file>
         <file>images/zoomOutNode.png</file>
         <file>images/compound.png</file>
         <file>images/exportpdf.png</file>
@@ -90,5 +89,7 @@
         <file>images/GettingStartedpic.png</file>
         <file>images/aboutPolly.png</file>
         <file>images/loading.gif</file>
+        <file>images/splash.jpg</file>
+        <file>images/splash2.png</file>
     </qresource>
 </RCC>

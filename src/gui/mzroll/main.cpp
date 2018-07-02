@@ -79,23 +79,22 @@ int main(int argc, char *argv[])
 //#endif
 
 
-    QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
+    QPixmap pixmap(":/images/splash2.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
     splash.show();
-    splash.showMessage(QString("Ver:") + STR(EL_MAVEN_VERSION), Qt::AlignBottom, Qt::black);
     app.processEvents();
 
 
-    Controller contrl;
-    qInstallMessageHandler(customMessageHandler);
+//    Controller contrl;
+//    qInstallMessageHandler(customMessageHandler);
 
-    for (int i = 1; i < argc; ++i)
-        contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
+//    for (int i = 1; i < argc; ++i)
+//        contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
 
-    splash.finish(contrl.getMainWindow());
-    contrl.getMainWindow()->show();
-    contrl.getMainWindow()->gettingstarted->showDialog();
-    contrl.getMainWindow()->fileLoader->start();
+//    splash.finish(contrl.getMainWindow());
+//    contrl.getMainWindow()->show();
+//    contrl.getMainWindow()->gettingstarted->showDialog();
+//    contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
     return rv;
 
