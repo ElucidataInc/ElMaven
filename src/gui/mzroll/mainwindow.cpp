@@ -543,7 +543,6 @@ using namespace mzUtils;
 		*/
 	
 		QString lastDatabaseFile = settings->value("lastDatabaseFile").value<QString>();
-//		loadMethodsFolder(methodsFolder);
 		settings->setValue("lastDatabaseFile",lastDatabaseFile);
 	}
 	if (pathwayWidget) {
@@ -1915,22 +1914,6 @@ int MainWindow::loadMetaCsvFile(string filename){
     }
     myfile.close();
     return loadCount;
-}
-
-void MainWindow::loadMethodsFolder(QString& methodsFolder) {
-	QDir dir(methodsFolder);
-	if (dir.exists()) {
-		dir.setFilter(QDir::Files);
-		QFileInfoList list = dir.entryInfoList();
-		for (int i = 0; i < list.size(); ++i) {
-			QFileInfo fileInfo = list.at(i);
-			if (!loadCompoundsFile(fileInfo.absoluteFilePath())){
-				string dbfilename = fileInfo.absoluteFilePath().toStdString();
-				string dbname = mzUtils::cleanFilename(dbfilename);
-				unloadableFiles.push_back(dbname);
-			}
-		}
-	}
 }
 
 void MainWindow::loadPathwaysFolder(QString& pathwaysFolder) {
