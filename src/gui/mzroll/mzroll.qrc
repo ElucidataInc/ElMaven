@@ -89,7 +89,6 @@
         <file>images/GettingStartedpic.png</file>
         <file>images/aboutPolly.png</file>
         <file>images/loading.gif</file>
-        <file>images/splash.jpg</file>
-        <file>images/splash2.png</file>
+        <file>images/splash.png</file>
     </qresource>
 </RCC>
