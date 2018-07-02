@@ -289,6 +289,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "Rank";
         colNames << "Ratio Change";
         colNames << "P-value";
+        colNames << "Group Quality (from Peak Quality)";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -481,6 +482,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
             item->setText(13,QString::number(group->changeFoldRatio, 'f', 2));
             item->setText(14,QString::number(group->changePValue,    'e', 4));
         }
+        item->setText(15,QString::number(group->avgPeakQuality,'f',2));
 
     } else if ( viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
