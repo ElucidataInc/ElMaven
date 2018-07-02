@@ -231,7 +231,7 @@ using namespace mzUtils;
     QString clsfModelFilename;
 
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-      clsfModelFilename = QApplication::applicationDirPath() + "/" + "default.model";
+      clsfModelFilename = QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator() + "default.model");
     #endif
 
     #if defined(Q_OS_MAC)
