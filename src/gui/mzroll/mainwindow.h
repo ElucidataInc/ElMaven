@@ -407,7 +407,6 @@ private Q_SLOTS:
 	void createMenus();
 	void openURL(int choice);
 	void createToolBars();
-	void checkSRMList();
 	void readSettings();
 	void writeSettings();
 	void toggleIsotopicBarPlot(bool show);

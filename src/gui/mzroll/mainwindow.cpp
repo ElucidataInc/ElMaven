@@ -473,7 +473,6 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
-	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
 
@@ -486,7 +485,6 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
-	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(checkSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
@@ -775,59 +773,6 @@ bool MainWindow::askAutosave() {
 		doAutosave = false;
 	}
 	return doAutosave;
-}
-
-/*!
-This function checks if all the samples that are loaded have the same number of SRM list.
-If not then it will give an information message telling that all the samples dont have
-same number of SRM list.
-*/
-void MainWindow::checkSRMList() {
-	vector<mzSample*> allSamples = getSamples();
-	set<string> sampleSet;
-	map <string, set<string>> srmSampleMap;
-	map <string, set<string>> srmListError;
-	//Going through each sample and making a map of SRM list to sample a given SRM list should have
-	// all the samples
-	for(std::vector<mzSample*>::iterator it = allSamples.begin(); it != allSamples.end(); ++it) {
-		(*it)->srmScans;
-		vector<string> SRMStringVect;
-		for(map<string,vector<int>>::iterator iit = (*it)->srmScans.begin(); iit != (*it)->srmScans.end(); ++iit) {
-			SRMStringVect.push_back(iit->first);
-			srmSampleMap[iit->first].insert((*it)->sampleName);
-		}
-		sampleSet.insert((*it)->sampleName);
-	}
-	//Going through each of the sample SRM and checking if all the samples are there for a given SRM list
-	for(map<string,set<string>>::iterator iit = srmSampleMap.begin(); iit != srmSampleMap.end(); ++iit) {
-		if (srmSampleMap[iit->first].size() !=  sampleSet.size()) {
-			set<string> diff;
-			set_difference(sampleSet.begin(), sampleSet.end(), srmSampleMap[iit->first].begin(), srmSampleMap[iit->first].end(), 
-                         std::inserter(diff, diff.begin()));
-			//Inserting the diff of set of the sample that is not present for the given SRM ID
-			for (auto i : diff) srmListError[iit->first].insert(i);
-		}
-	}
-
-	if (srmListError.size() > 0) {
-		string filesNames = "Following are the list of the sample(s) for which segments are missing: ";
-		for(map<string,set<string>>::iterator iit = srmListError.begin(); iit != srmListError.end(); ++iit) {
-			filesNames += "\n" + iit->first + " : " + "\n";
-			
-			for(auto f : srmListError[iit->first]) {
-				filesNames += "    " + f + "\n";
-			}    
-		}
-		QMessageBoxResize* msgBox = new QMessageBoxResize( this );
-		msgBox->setAttribute( Qt::WA_DeleteOnClose );
-		msgBox->setStandardButtons( QMessageBoxResize::Ok );
-		msgBox->setIcon(QMessageBoxResize::Warning);
-		msgBox->setText(tr("Segment runs missing in some samples!"));
-		msgBox->setDetailedText(QString::fromStdString(filesNames));
-		msgBox->setWindowFlags(msgBox->windowFlags() & ~Qt::WindowCloseButtonHint);
-		msgBox->setModal( false );
-		msgBox->open();
-	}
 }
 
 AutoSave::AutoSave(MainWindow* mw){
