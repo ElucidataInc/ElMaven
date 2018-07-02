@@ -66,29 +66,8 @@ class PolyFit : public Aligner {
     };
 
     public:
-        PolyFit(vector<PeakGroup*> groups, vector <mzSample*> sample) { setGroups(groups); maxIterations=10; polynomialDegree=3; samples = sample; }
+        PolyFit(vector<PeakGroup*> groups) { setGroups(groups); maxIterations=10; polynomialDegree=3;}
         void polyFitAlgo();
-        class PolyAligner {
-
-            public:
-                PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref);
-
-            
-                AlignmentStats* align(int ideg);
-                AlignmentStats* optimalPolynomial(int fromDegree, int toDegree, int sampleSize);
-                double calculateR2(AlignmentStats* model) ;
-                void calculateOutliers(int initDegree);
-                double  countInliners(AlignmentStats* model, float zValueCutoff);
-                void randomOutliers(double keepFrac);
-
-                StatisticsVector<float> subjVector;
-                StatisticsVector<float> refVector;
-                vector<bool> outlierVector;
-                MTRand* mtRand;
-
-                void test();
-        };
-
         void setPolymialDegree (int x) { polynomialDegree = x; }
         void setMaxIterations (int x) { maxIterations = x; }
         
@@ -109,22 +88,22 @@ class PolyFit : public Aligner {
         double checkFit();
         void restoreFit();
 
-        // polyAligner functions
-        // AlignmentStats* align(int ideg);
-		// AlignmentStats* optimalPolynomial(int fromDegree, int toDegree, int sampleSize);
-		// double calculateR2(AlignmentStats* model) ;
-		// void calculateOutliers(int initDegree);
-		// double  countInliners(AlignmentStats* model, float zValueCutoff);
-		// void randomOutliers(double keepFrac);
+        // polyAligner variables/functions
+        void polyAlignerInit(StatisticsVector<float>& subj, StatisticsVector<float>& ref);
 
-        // StatisticsVector<float> subjVector;
-		// StatisticsVector<float> refVector;
-		// vector<bool> outlierVector;
-		// MTRand* mtRand;
+        AlignmentStats* align(int ideg);
+		AlignmentStats* optimalPolynomial(int fromDegree, int toDegree, int sampleSize);
+		double calculateR2(AlignmentStats* model) ;
+		void calculateOutliers(int initDegree);
+		double  countInliners(AlignmentStats* model, float zValueCutoff);
+		void randomOutliers(double keepFrac);
 
-		// void test();
+        StatisticsVector<float> subjVector;
+		StatisticsVector<float> refVector;
+		vector<bool> outlierVector;
+		MTRand* mtRand;
 
-        
+        void test();
 
 
 };

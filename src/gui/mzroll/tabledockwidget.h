@@ -12,8 +12,6 @@
 #include "saveJson.h"
 #include "jsonReports.h"
 #include "alignment/polyFit.h"
-#include "alignment/loessFit.h"
-#include "alignment/obiWarpAlign.h"
 
 
 class MainWindow;

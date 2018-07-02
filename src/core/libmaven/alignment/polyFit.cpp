@@ -127,8 +127,8 @@ void PolyFit::polyFit(int poly_align_degree) {
         }
         if ( n < 10 ) continue;
 
-        PolyAligner polyAligner(subj,ref);
-        AlignmentStats* stats = polyAligner.optimalPolynomial(1,poly_align_degree,10);
+		polyAlignerInit(subj,ref);
+        AlignmentStats* stats = optimalPolynomial(1,poly_align_degree,10);
 
         sampleDegree[sample] = stats->poly_align_degree;
         sampleCoefficient[sample] = stats->getCoeffients();
@@ -158,7 +158,7 @@ void PolyFit::polyFit(int poly_align_degree) {
     }
 }
 
-PolyFit::PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref) {
+void PolyFit::polyAlignerInit(StatisticsVector<float>& subj, StatisticsVector<float>& ref) {
 
 	if( subj.size() != ref.size()) { 
 		cerr << "alignVector failed.. vectors are different size\n";
@@ -174,9 +174,9 @@ PolyFit::PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVecto
 	}
 	mtRand = new MTRand(time(NULL));
 	calculateOutliers(3);
-} 
+}
 
-double PolyFit::PolyAligner::calculateR2(AlignmentStats* model) { 
+double PolyFit::calculateR2(AlignmentStats* model) { 
 	double R2=0;
 	int N = subjVector.size();
 	if (N == 0) return DBL_MAX;
@@ -188,7 +188,7 @@ double PolyFit::PolyAligner::calculateR2(AlignmentStats* model) {
 	return sqrt(R2/N);
 }
 
-double PolyFit::PolyAligner::countInliners(AlignmentStats* model, float zValueCutoff) { 
+double PolyFit::countInliners(AlignmentStats* model, float zValueCutoff) { 
 
 	int N = subjVector.size();
 	if (N == 0) return 0;
@@ -219,7 +219,7 @@ double PolyFit::PolyAligner::countInliners(AlignmentStats* model, float zValueCu
 	}
 }
 
-void PolyFit::PolyAligner::randomOutliers(double keepFrac) {
+void PolyFit::randomOutliers(double keepFrac) {
 
 	int N = subjVector.size();
 	if(!outlierVector.size()) outlierVector = vector<bool>(N,false);
@@ -234,7 +234,7 @@ void PolyFit::PolyAligner::randomOutliers(double keepFrac) {
 	}
 }
 
-PolyFit::AlignmentStats* PolyFit::PolyAligner::align(int degree) {
+PolyFit::AlignmentStats* PolyFit::align(int degree) {
 
 	AlignmentStats* stats = new AlignmentStats();
 	stats->poly_align_degree = degree; 
@@ -305,7 +305,7 @@ PolyFit::AlignmentStats* PolyFit::PolyAligner::align(int degree) {
 	return stats;
 }
 
-void PolyFit::PolyAligner::calculateOutliers(int initDegree) { 
+void PolyFit::calculateOutliers(int initDegree) { 
 	if (subjVector.size() <= 2) return;
 
 	AlignmentStats* stats = this->align(initDegree); 
@@ -342,7 +342,7 @@ void PolyFit::PolyAligner::calculateOutliers(int initDegree) {
 }
 
 
-PolyFit::AlignmentStats* PolyFit::PolyAligner::optimalPolynomial(int fromDegree, int toDegree, int sampleSize=0) { 
+PolyFit::AlignmentStats* PolyFit::optimalPolynomial(int fromDegree, int toDegree, int sampleSize=0) { 
 
 	float R_best = FLT_MAX;
     AlignmentStats* bestModel = NULL;
@@ -373,7 +373,7 @@ PolyFit::AlignmentStats* PolyFit::PolyAligner::optimalPolynomial(int fromDegree,
 	else return this->align(1);
 }
 
-void PolyFit::PolyAligner::test() { 
+void PolyFit::test() { 
 
 	vector<float> x(100);
 	vector<float> y(100);

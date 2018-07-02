@@ -420,7 +420,7 @@ void AlignmentDialog::align() {
 
 			func();
 			
-			PolyFit *polyFit = new PolyFit(groups,_mw->getSamples());
+			PolyFit *polyFit = new PolyFit(groups);
 			if (_mw->mavenParameters->alignSamplesFlag && !_mw->mavenParameters->stop) {
 				polyFit->polyFitAlgo();
 			}
@@ -460,7 +460,7 @@ void AlignmentDialog::align() {
 			for (int i = 0; i < _mw->mavenParameters->allgroups.size(); i++)
 				groups[i] = &_mw->mavenParameters->allgroups[i];
 			
-			PolyFit *polyFit = new PolyFit(groups,_mw->getSamples());
+			PolyFit *polyFit = new PolyFit(groups);
 			if (_mw->mavenParameters->alignSamplesFlag && !_mw->mavenParameters->stop) {
 				polyFit->polyFitAlgo();
 

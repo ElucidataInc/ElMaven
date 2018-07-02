@@ -270,7 +270,7 @@ void PeakDetector::alignSamples() {
                 // Aligner aligner;
                 // aligner.doAlignment(agroups);
 
-                PolyFit *polyFit = new PolyFit(agroups, mavenParameters->samples);
+                PolyFit *polyFit = new PolyFit(agroups);
                 polyFit->polyFitAlgo();
                 mavenParameters->writeCSVFlag = true;
         }
