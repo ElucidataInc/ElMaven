@@ -11,14 +11,7 @@ while true; do
 done
 make -j $(nproc)
 
-
-if [ -f tests/MavenTests/test.xml ]; then
-	rm test*.xml
-fi
-
-if [ -f ./bin/MavenTests ]; then
-	./bin/MavenTests -xml
-fi
+./run_tests.sh
 
 type="$(uname)"
 systemType="$(echo "$type"  |  tr '[:upper:]'  '[:lower:]')"
