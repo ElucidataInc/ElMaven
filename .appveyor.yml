@@ -1,0 +1,43 @@
+version: 1.0.{build}
+environment:
+  COMPILER: msys2
+  PLATFORM: x64
+  MSYS2_ARCH: x86_64
+  MSYS2_DIR: msys64
+  MSYSTEM: MINGW64
+  BIT: 64
+
+
+
+
+before_build:
+  - git submodule update --init --recursive
+
+  - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+
+
+
+  # Install 64-bit QT
+  - bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-qt-creator"
+
+  - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
+  
+  # Install zlib
+  - bash -lc "pacman -S --needed --noconfirm zlib-devel"
+
+  - bash -lc "cd C:/projects/ElMaven/ ; echo yes | ./run.sh"
+
+
+build_script:
+  - bash -lc "cd C:/projects/ElMaven/ ; ./run_tests.sh"
+  
+artifacts:
+- path: bin/El_Maven_*
+
+
+# deploy:
+#   provider: GitHub
+#   auth_token:
+#     secure: hQDQ9bqFo+fkhKBZtywbP7ZpnLzCxpIiMIgbWLYvcMSmdJ1BvIWFQU0HtNK9rikt
+#   artifact: bin/El_Maven_*.exe
+
