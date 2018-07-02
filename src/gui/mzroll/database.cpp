@@ -464,7 +464,7 @@ int Database::loadCompoundCSVFile(string filename){
     notFoundColumns.resize(0);
     //cerr << filename << " sep=" << sep << endl;
     while(!myFile.atEnd()) {
-        string line = myFile.readLine().toStdString();
+        string line = QString(myFile.readLine()).toStdString();
         if (!line.empty() && line[0] == '#') continue;
         //trim spaces on the left
         line.erase(line.find_last_not_of(" \n\r\t")+1);
