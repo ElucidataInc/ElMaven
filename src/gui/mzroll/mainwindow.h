@@ -320,7 +320,6 @@ public Q_SLOTS:
     void loadMetaInformation();
     bool loadMetaInformation(QString filename);
     int loadMetaCsvFile(string filename);
-	void loadMethodsFolder(QString& methodsFolder);
 	void loadPathwaysFolder(QString& pathwaysFolder);
 	void showAlignmentWidget();
 	void showspectraMatchingForm();

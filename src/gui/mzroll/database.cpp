@@ -1,4 +1,5 @@
 #include "database.h"
+#include <QFile>
 
 
 bool Database::connect(string filename) {
@@ -442,8 +443,10 @@ void Database::loadFragments(string filename) {
 
 int Database::loadCompoundCSVFile(string filename){
 
-    ifstream myfile(filename.c_str());
-    if (! myfile.is_open()) return 0;
+
+    QFile myFile (QString(filename.c_str()));
+    if(!myFile.open(QFile::ReadOnly))
+        return 0;
 
     string line;
     string dbname = mzUtils::cleanFilename(filename);
@@ -460,7 +463,8 @@ int Database::loadCompoundCSVFile(string filename){
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
     notFoundColumns.resize(0);
     //cerr << filename << " sep=" << sep << endl;
-    while ( getline(myfile,line) ) {
+    while(!myFile.atEnd()) {
+        string line = QString(myFile.readLine()).toStdString();
         if (!line.empty() && line[0] == '#') continue;
         //trim spaces on the left
         line.erase(line.find_last_not_of(" \n\r\t")+1);
@@ -570,6 +574,6 @@ int Database::loadCompoundCSVFile(string filename){
     }
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);
     //cerr << "Loading " << dbname << " " << loadCount << endl;
-    myfile.close();
+    myFile.close();
     return loadCount;
 }
