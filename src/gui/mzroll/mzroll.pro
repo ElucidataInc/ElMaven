@@ -8,7 +8,7 @@ CONFIG += qt thread warn_off sql svg console precompile_header
 
 #Faster build + C++11 ++ OpenMP
 
-QMAKE_CXXFLAGS +=  -std=c++11
+QMAKE_CXXFLAGS += -Ofast -ffast-math -march=native -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 !macx: QMAKE_CXXFLAGS += -fopenmp
 !macx: LIBS += -fopenmp
@@ -50,7 +50,7 @@ mac {
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
-    LIBS += -lgoogle-breakpad -lobjc -pthread
+    LIBS += -lgoogle-breakpad -lobjc -pthread -lboost_signals
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
@@ -78,6 +78,15 @@ win32 {
     QMAKE_LFLAGS += -L$$top_srcdir/bin/
 }
 
+linux{
+    QMAKE_LFLAGS += -L$$top_srcdir/bin/
+}
+macx{
+
+    INCLUDEPATH += /usr/local/include/
+    QMAKE_LFLAGS += -L/usr/local/lib/
+    LIBS +=  -lboost_signals
+}
 
 LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lpollyCLI               #64bit
 

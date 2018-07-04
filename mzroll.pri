@@ -23,11 +23,19 @@ win32 {
     LIBS += -lcdfread -lnetcdf -lz
 }
 
-unix: {
-    INCLUDEPATH += /usr/local/include/ $$top_srcdir/3rdparty/obiwarp
-    QMAKE_LFLAGS += -L/usr/local/lib/ -L$$top_builddir/libs/
-    LIBS +=  -lboost_signals -lErrorHandling -lobiwarp
+unix {
+  message("----------------------------------------------------------------------------------------------using unix config")
+   DEFINES -= LITTLE_ENDIAN
+   DEFINES += UNIX
+   DEFINES += CDFPARSER
+   DEFINES += ZLIB
+  LIBS += -lcdfread  -lz
 }
+#unix: {
+#   INCLUDEPATH += /usr/local/include/ $$top_srcdir/3rdparty/obiwarp
+#  QMAKE_LFLAGS += -L/usr/local/lib/ -L$$top_builddir/libs/
+#    LIBS +=  -lboost_signals -lErrorHandling -lobiwarp
+#}
 
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
 #unix {
@@ -69,14 +77,7 @@ mac {
 #    DEFINES += MAC
 }
 
-unix {
-#   message("using unix config")
-#   DEFINES -= LITTLE_ENDIAN
-#   DEFINES += UNIX
-#   DEFINES += CDFPARSER
-#   DEFINES += ZLIB
-#   LIBS += -lcdfread  -lz
-}
+
 
 
 ##TOPLEVELDIR = $$PWD
