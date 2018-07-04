@@ -28,7 +28,7 @@ macx:TARGET=El_Maven_$$VERSION
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
-ICON = images/icon.icns
+ICON = maven.icns
 
 
 QT += sql network xml printsupport
