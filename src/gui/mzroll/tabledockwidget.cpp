@@ -289,7 +289,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "Rank";
         colNames << "Ratio Change";
         colNames << "P-value";
-        colNames << "Group Quality (from Peak Quality)";
+        colNames << "Avg Peak Quality";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
