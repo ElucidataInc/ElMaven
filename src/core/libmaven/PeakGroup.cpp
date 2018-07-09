@@ -38,6 +38,7 @@ PeakGroup::PeakGroup()  {
     maxPeakOverlap=0;
     maxQuality=0;
     avgPeakQuality=0;
+    groupQuality=0;
     minQuality = 0.2;
     minIntensity = 0;
 
@@ -108,6 +109,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxPeakOverlap=o.maxPeakOverlap;
     maxQuality=o.maxQuality;
     avgPeakQuality=o.avgPeakQuality;
+    groupQuality=o.groupQuality;
     expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
     isotopeC13count=o.isotopeC13count;
@@ -471,6 +473,7 @@ void PeakGroup::groupStatistics() {
     maxPeakFracionalArea=0;
     maxQuality=0;
     avgPeakQuality=0;
+    groupQuality=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
     //quantileIntensityPeaks;

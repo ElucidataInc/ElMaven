@@ -75,7 +75,8 @@ SOURCES = 	base64.cpp \
                 peakFiltering.cpp \
                 groupFiltering.cpp \
                 isotopeDetection.cpp \
-                datastructures/mzSlice.cpp
+                datastructures/mzSlice.cpp \
+                groupClassifier.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -115,4 +116,5 @@ HEADERS += 	constants.h \
                 groupFiltering.h \
                 isotopeDetection.h \
                 datastructures/mzSlice.h \
-                settings.h
+                settings.h \
+                groupClassifier.h

@@ -55,6 +55,7 @@
 #include <csignal>
 #include <QList>
 #include <QRegExp>
+#include "groupClassifier.h"
 
 class SettingsForm;
 class EicWidget;
@@ -242,6 +243,10 @@ public:
 
 	ClassifierNeuralNet* getClassifier() {
 		return clsf;
+	}
+
+	groupClassifier * getGroupClassifier() {
+		return groupClsf;
 	}
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
@@ -443,6 +448,7 @@ private:
 	Analytics* analytics;
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
+	groupClassifier* groupClsf;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;

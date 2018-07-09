@@ -218,6 +218,7 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
+	groupClsf = new groupClassifier();
 
 
 
@@ -1635,6 +1636,7 @@ void MainWindow::loadModel() {
 			"Select Model To Load", ".", "All Files(*.model)");
 	if (filelist.size() > 0)
 		clsf->loadModel(filelist[0].toStdString());
+	groupClsf->loadModel("group.weights");
 }
 
 bool MainWindow::loadCompoundsFile(QString filename) {

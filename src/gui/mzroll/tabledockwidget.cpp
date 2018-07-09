@@ -290,6 +290,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "Ratio Change";
         colNames << "P-value";
         colNames << "Avg Peak Quality";
+        colNames << "Group Quality";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -326,12 +327,16 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
 
     //score peak quality
     Classifier* clsf = _mainwindow->getClassifier();
+    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (clsf != NULL) {
         clsf->classify(group);
         group->updateQuality();
         
         if(viewType == groupView) item->setText(11,QString::number(group->maxQuality,'f',2));
         item->setText(1,QString(group->getName().c_str()));
+    }
+    if (groupClsf != NULL) {
+        groupClsf->classify(group);
     }
 
     //Updating the peakid
@@ -483,6 +488,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
             item->setText(14,QString::number(group->changePValue,    'e', 4));
         }
         item->setText(15,QString::number(group->avgPeakQuality,'f',2));
+        item->setText(16,QString::number(group->groupQuality,'f',2));
 
     } else if ( viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();

@@ -124,6 +124,7 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
+        float groupQuality;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;
