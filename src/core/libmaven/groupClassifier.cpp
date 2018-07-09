@@ -17,13 +17,7 @@ groupClassifier::~groupClassifier() {
 bool groupClassifier::hasModel() {
 	return network != NULL;
 }
-/*
-void groupClassifier::saveModel(string filename) {
-	if (network == NULL)
-		return;
-	network->save((char*) filename.c_str());
-}
-*/
+
 void groupClassifier::loadModel(string filename) {
 	if (!fileExists(filename)) {
 		cerr << "Can't load " << filename << endl;
@@ -67,18 +61,7 @@ void groupClassifier::classify(PeakGroup* grp) {
 	
 	grp->groupQuality=scoreGroup(grp);
 }
-/*
-void groupClassifier::scoreEICs(vector<EIC*> &eics)
-{
 
-	for (unsigned int i = 0; i < eics.size(); i++)
-	{
-		for (unsigned int j = 0; j < eics[i]->peaks.size(); j++ ) {
-			eics[i]->peaks[j].quality = scorePeak(eics[i]->peaks[j]);
-		}
-	}
-}
-*/
 float groupClassifier::scoreGroup(PeakGroup* grp) {
    //Merged with Maven776 - Kiran
     float result[1] = {0.1};
@@ -206,100 +189,3 @@ float groupClassifier::getGroupOverlapFrac(PeakGroup* grp)
 	}
 	return log(sum / float(validPeaks));
 }
-
-/*
-void groupClassifier::refineModel(PeakGroup* grp) {
-	if (grp == NULL)
-		return;
-	if (network == NULL)
-		network = new nnwork(num_features, hidden_layer, num_outputs);
-
-	if (grp->label == 'g' || grp->label == 'b') {
-		for (unsigned int j = 0; j < grp->peaks.size(); j++) {
-			Peak& p = grp->peaks[j];
-			p.label = grp->label;
-			if (p.width < 2)
-				p.label = 'b';
-			if (p.signalBaselineRatio <= 1)
-				p.label = 'b';
-
-			float result[2] = { 0.1, 0.1 };
-			p.label == 'g' ? result[0] = 0.9 : result[1] = 0.9;
-
-			if (p.label == 'g' || p.label == 'b') {
-				vector<float> features = getFeatures(grp->peaks[j]);
-				FEATURES.push_back(features);
-				labels.push_back(p.label);
-
-				float fts[1000];
-				for (int k = 0; k < num_features; k++)
-					fts[k] = features[k];
-				trainingSize++;
-				network->train(fts, result, 0.0000001 / trainingSize,
-						0.001 / trainingSize);
-			}
-		}
-	}
-}
-
-void groupClassifier::train(vector<PeakGroup*>& groups) {
-	FEATURES.clear();
-	labels.clear();
-	trainingSize = 0;
-	for (unsigned int i = 0; i < groups.size(); i++) {
-		PeakGroup* grp = groups[i];
-		refineModel(grp);
-	}
-}
-*/
-/*
- if (grp == NULL )continue;
- if (grp->label == 'g' || grp->label == 'b' ) {
- for (unsigned int j=0; j < grp->peaks.size(); j++ ) {
- Peak& p = grp->peaks[j];
- p.label = grp->label;
- if ( p.width < 2 )  p.label='b';
- if ( p.signalBaselineRatio <= 1 )  p.label='b';
- if ( p.label == 'b' ) {  badpeaks.push_back(&p); }
- if ( p.label == 'g' ) {  goodpeaks.push_back(&p); }
-
- allpeaks.push_back(&p);
- labels.push_back(p.label);
- }
- }
- }
- if (goodpeaks.size() == 0 || badpeaks.size() == 0) return;
-
- goodpeaks = removeRedundacy(goodpeaks);
- badpeaks =  removeRedundacy(badpeaks);
-
- int totalPeaks = goodpeaks.size() + badpeaks.size();
- int g=0;
- int b=0;
-
- for(int i=0; i < totalPeaks; i++ ) {
- Peak* p= NULL;
- if (i % 2 == 0 ) {
- if (g < goodpeaks.size() ) p = goodpeaks[g];
- g++;
- } else  {
- if (b < badpeaks.size() ) p = badpeaks[b];
- b++;
- }
-
- if (p) {
- float result[2] = {0.1, 0.1};
- p->label == 'g' ? result[0]=0.9 : result[1]=0.9;
- //cerr << p->label << endl;
- //
- float fts[1000];
- vector<float> features = getFeatures(*p);
- for(int k=0;k<num_features;k++) fts[k]=features[k];
-
- network->train(fts, result, 0.0000001/(i+1), 0.2/(i+1));
- }
- if (g >= goodpeaks.size() && b >= badpeaks.size()) break;
- }
- cerr << "Done training. " << endl;
-
- */
