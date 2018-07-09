@@ -55,7 +55,6 @@ vector<float> groupClassifier::getFeatures(PeakGroup* grp) {
 }
 
 void groupClassifier::classify(PeakGroup* grp) {
-
 	if (network == NULL)
 		return;
 	
@@ -63,7 +62,6 @@ void groupClassifier::classify(PeakGroup* grp) {
 }
 
 float groupClassifier::scoreGroup(PeakGroup* grp) {
-   //Merged with Maven776 - Kiran
     float result[1] = {0.1};
     if(network != NULL) {
         float fts[num_features];

@@ -488,6 +488,11 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
             item->setText(14,QString::number(group->changePValue,    'e', 4));
         }
         item->setText(15,QString::number(group->avgPeakQuality,'f',2));
+
+        groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
+        if (groupClsf != NULL) {
+            groupClsf->classify(group);
+        }
         item->setText(16,QString::number(group->groupQuality,'f',2));
 
     } else if ( viewType == peakView) {
