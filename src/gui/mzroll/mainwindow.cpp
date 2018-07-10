@@ -219,7 +219,7 @@ using namespace mzUtils;
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
 	groupClsf = new groupClassifier();
-	groupClsf->loadModel("/home/pawanmsr/ElMaven/bin/group.weights");
+	groupClsf->loadModel("bin/group.weights");
 
 
 
