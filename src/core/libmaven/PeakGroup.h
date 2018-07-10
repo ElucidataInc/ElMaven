@@ -125,6 +125,7 @@ class PeakGroup{
         float maxQuality;
         float avgPeakQuality;
         float groupQuality;
+        float medianPeakQuality;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;

@@ -291,6 +291,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "P-value";
         colNames << "Avg Peak Quality";
         colNames << "Group Quality";
+        colNames << "Med Peak Quality";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -494,6 +495,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
             groupClsf->classify(group);
         }
         item->setText(16,QString::number(group->groupQuality,'f',2));
+        item->setText(17,QString::number(group->medianPeakQuality,'f',2));
 
     } else if ( viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();

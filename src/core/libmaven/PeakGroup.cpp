@@ -39,6 +39,7 @@ PeakGroup::PeakGroup()  {
     maxQuality=0;
     avgPeakQuality=0;
     groupQuality=0;
+    medianPeakQuality=0;
     minQuality = 0.2;
     minIntensity = 0;
 
@@ -110,6 +111,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxQuality=o.maxQuality;
     avgPeakQuality=o.avgPeakQuality;
     groupQuality=o.groupQuality;
+    medianPeakQuality=o.medianPeakQuality;
     expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
     isotopeC13count=o.isotopeC13count;
@@ -411,12 +413,22 @@ void PeakGroup::updateQuality() {
     maxQuality=0;
     goodPeakCount=0;
     float peakQualitySum=0;
+    vector<float> peakQualities;
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
         if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
         peakQualitySum += peaks[i].quality;
+        peakQualities.push_back(peaks[i].quality);
     }
     avgPeakQuality = peakQualitySum / peaks.size();
+    std::sort(peakQualities.begin(), peakQualities.end());
+    if (peakQualities.size() % 2 == 0)
+    {
+        medianPeakQuality = (peakQualities[peakQualities.size()] +
+                             peakQualities[peakQualities.size() - 1]) /
+                            2.0;
+    }
+    else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
 }
 
 // TODO: Remove this function as expected mz should be calculated while creating the group - Sahil
@@ -474,12 +486,14 @@ void PeakGroup::groupStatistics() {
     maxQuality=0;
     avgPeakQuality=0;
     groupQuality=0;
+    medianPeakQuality=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
     //quantileIntensityPeaks;
     //quantileQualityPeaks;
     int nonZeroCount=0;
     float peakQualitySum=0;
+    vector<float> peakQualities;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
@@ -532,8 +546,17 @@ void PeakGroup::groupStatistics() {
         }
 
         peakQualitySum += peaks[i].quality;
+        peakQualities.push_back(peaks[i].quality);
     }
     avgPeakQuality = peakQualitySum / peaks.size();
+    std::sort(peakQualities.begin(), peakQualities.end());
+    if (peakQualities.size() % 2 == 0)
+    {
+        medianPeakQuality = (peakQualities[peakQualities.size()] +
+                             peakQualities[peakQualities.size() - 1]) /
+                            2.0;
+    }
+    else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {
