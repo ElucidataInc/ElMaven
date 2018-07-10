@@ -37,16 +37,19 @@ vector<float> groupClassifier::getFeatures(PeakGroup* grp) {
 	features[1] = getAvgNoNoiseFraction(grp);
 	features[2] = getAvgSymmetry(grp) / (getAvgWidth(grp) + 1) * log2(getAvgWidth(grp) + 1);
 	features[3] = getGroupOverlapFrac(grp);
-	features[4] = getMinGaussFitR2(grp);
-	if (getAvgSignalBaselineRatio(grp) > 0) {
-		features[5] = log2(getAvgSignalBaselineRatio(grp));
+	features[4] = getMinGaussFitR2(grp) * 100;
+	
+	if (getLogAvgSignalBaselineRatio(grp) > 0) {
+		features[5] = getLogAvgSignalBaselineRatio(grp) / 10;
 	}
 	else features[5] = 0.0;
-	if (getAvgPeakIntensity(grp) > 0) {
-		features[6] = log(getAvgPeakIntensity(grp));
+	
+	if (getLogAvgPeakIntensity(grp) > 0) {
+		features[6] = log(getLogAvgPeakIntensity(grp));
 	}
 	else features[6] = 0.0;
-	if (getAvgWidth(grp) <= 3.0 && getAvgSignalBaselineRatio(grp) >= 3.0) {
+	
+	if (getAvgWidth(grp) <= 3.0 && getLogAvgSignalBaselineRatio(grp) >= 3.0) {
 		features[7] = 1;
 	}
 	else features[7] = 0;
@@ -59,6 +62,7 @@ void groupClassifier::classify(PeakGroup* grp) {
 		return;
 	
 	grp->groupQuality=scoreGroup(grp);
+	cerr << endl << grp->groupQuality << endl;
 }
 
 float groupClassifier::scoreGroup(PeakGroup* grp) {
@@ -130,7 +134,7 @@ float groupClassifier::getAvgWidth(PeakGroup* grp)
 	return sum / float(validPeaks);
 }
 
-float groupClassifier::getAvgSignalBaselineRatio(PeakGroup* grp)
+float groupClassifier::getLogAvgSignalBaselineRatio(PeakGroup* grp)
 {
 	int validPeaks = 0;
 	float sum = 0;
@@ -138,13 +142,13 @@ float groupClassifier::getAvgSignalBaselineRatio(PeakGroup* grp)
 		if (grp->peaks[i].width > 0)
 		{
 			validPeaks++;
-			sum+=grp->peaks[i].signalBaselineRatio;
+			sum+=log2(grp->peaks[i].signalBaselineRatio);
 		}
 	}
-	return sum / float(validPeaks);
+	return exp2(sum / float(validPeaks));
 }
 
-float groupClassifier::getAvgPeakIntensity(PeakGroup* grp)
+float groupClassifier::getLogAvgPeakIntensity(PeakGroup* grp)
 {
 	int validPeaks = 0;
 	float sum = 0;
@@ -152,10 +156,10 @@ float groupClassifier::getAvgPeakIntensity(PeakGroup* grp)
 		if (grp->peaks[i].width > 0)
 		{
 			validPeaks++;
-			sum+=grp->peaks[i].peakIntensity;
+			sum+=log(grp->peaks[i].peakIntensity);
 		}
 	}
-	return sum / float(validPeaks);
+	return exp(sum / float(validPeaks));
 }
 
 float groupClassifier::getMinGaussFitR2(PeakGroup* grp)

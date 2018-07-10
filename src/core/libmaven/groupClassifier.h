@@ -25,8 +25,8 @@ public:
 	float getAvgNoNoiseFraction(PeakGroup* grp);
 	float getAvgSymmetry(PeakGroup* grp);
 	float getAvgWidth(PeakGroup* grp);
-	float getAvgSignalBaselineRatio(PeakGroup* grp);
-	float getAvgPeakIntensity(PeakGroup* grp);
+	float getLogAvgSignalBaselineRatio(PeakGroup* grp);
+	float getLogAvgPeakIntensity(PeakGroup* grp);
 	float getMinGaussFitR2(PeakGroup* grp);
 	float getGroupOverlapFrac(PeakGroup* grp);
 private:
