@@ -413,7 +413,7 @@ void PeakGroup::updateQuality() {
     maxQuality=0;
     goodPeakCount=0;
     float peakQualitySum=0;
-    vector<float> peakQualities;
+    vector<float> peakQualities(0);
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
         if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
@@ -424,8 +424,8 @@ void PeakGroup::updateQuality() {
     std::sort(peakQualities.begin(), peakQualities.end());
     if (peakQualities.size() % 2 == 0)
     {
-        medianPeakQuality = (peakQualities[peakQualities.size()] +
-                             peakQualities[peakQualities.size() - 1]) /
+        medianPeakQuality = (peakQualities[int(peakQualities.size()/2)] +
+                             peakQualities[int(peakQualities.size()/2) - 1]) /
                             2.0;
     }
     else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
@@ -493,7 +493,7 @@ void PeakGroup::groupStatistics() {
     //quantileQualityPeaks;
     int nonZeroCount=0;
     float peakQualitySum=0;
-    vector<float> peakQualities;
+    vector<float> peakQualities(0);
 
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
@@ -552,8 +552,8 @@ void PeakGroup::groupStatistics() {
     std::sort(peakQualities.begin(), peakQualities.end());
     if (peakQualities.size() % 2 == 0)
     {
-        medianPeakQuality = (peakQualities[peakQualities.size()] +
-                             peakQualities[peakQualities.size() - 1]) /
+        medianPeakQuality = (peakQualities[int(peakQualities.size()/2)] +
+                             peakQualities[int(peakQualities.size()/2) - 1]) /
                             2.0;
     }
     else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
