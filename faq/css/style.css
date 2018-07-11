@@ -149,6 +149,7 @@ color:#fff
   .cd-faq-categories {
     width: 20%;
     float: left;
+    margin-left: 0%;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
   .cd-faq-categories a {
@@ -344,6 +345,7 @@ color:#fff
   background: transparent;
   box-shadow: none;
   margin: 1em 0;
+  width: 50%;
 }
 .no-touch .cd-faq-group .cd-faq-title:hover {
   box-shadow: none;
@@ -363,6 +365,7 @@ color:#fff
   .cd-faq-group {
     /* all groups visible */
     display: block;
+    margin-left: 12px;
   }
   .cd-faq-group > li {
     background: #ffffff;
