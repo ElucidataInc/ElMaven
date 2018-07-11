@@ -10,6 +10,7 @@ GettingStarted::GettingStarted(QWidget *parent) : QDialog(parent),ui(new Ui::Get
 
 
     ui->setupUi(this);
+    setModal(true);
     setFixedSize(width(), height());
     ui->textBrowser_2->setOpenExternalLinks(true);
     ui->textBrowser->setOpenExternalLinks(true);
@@ -37,6 +38,7 @@ void GettingStarted::showDialog()
     QSettings settings("mzRoll", "Application Settings");
     if (!settings.value(STR(EL_MAVEN_VERSION), false).toBool()) {
         show();
+        raise(); 
     }
 }
 
