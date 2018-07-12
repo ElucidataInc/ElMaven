@@ -18,7 +18,7 @@ body {
   font-family: "Open Sans", sans-serif;
   color: #4e5359;
   background-color: #F7F7FF;
-     margin-bottom: 46%;
+    
 }
 body::after {
   /* overlay layer visible on small devices when the right panel slides in */
@@ -123,7 +123,8 @@ header h1 {
 
 .cd-faq-categories a:hover {
 background-color:#8958db;
-color:#fff
+color:#fff;
+text-decoration: none;
 }
 .cd-faq-categories a::before, .cd-faq-categories a::after {
   /* plus icon on the right */
