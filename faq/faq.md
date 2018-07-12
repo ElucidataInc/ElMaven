@@ -35,7 +35,6 @@ mark {
 <section class="cd-faq">
 	<ul class="cd-faq-categories">
 		<li><a class="selected" href="#general">General</a></li>
-		<li><a href="#options_icon">Options Dialog</a></li>
 		<li><a href="#compound_database">Compound Database</a></li>
 		<li><a href="#blank_samples">Blank Samples	</a></li>
 		<li><a href="#peak_grouping">Peak Grouping</a></li>
@@ -43,6 +42,7 @@ mark {
 		<li><a href="#isotope_detection">Isotope Detection</a></li>
 		<li><a href="#untargeted">Untargeted Data Analysis</a></li>
 		<li><a href="#baseline_calculation">Baseline Calculation</a></li>
+		<li><a href="#options_icon">Options Dialog</a></li>
 		
 		
 		
@@ -159,209 +159,7 @@ mark {
 			</li>
 
 		</ul> <!-- cd-faq-group -->
-		<ul id="options_icon" class="cd-faq-group">
-			<li class="cd-faq-title"><h2>Options Dialog</h2></li>
-			<li>
-				<a class="cd-faq-trigger" href="#0">Do settings in "Options" dialog impact automated peak detection?</a>
-				<div class="cd-faq-content">
-					<p>Yes. All the parameters within “Options” are global parameters and affect every workflow. You can read more about the parameters in our detailed <a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#2-global-settings" target="_blank"> UI documentation.</a></p>
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What is the default Ionization Mode in El-MAVEN? Can I change it?</a>
-				<div class="cd-faq-content">
-					<p>El-MAVEN auto detects the Ionization Mode of your data by default. However, you can manually select this by,</p>
-					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Selecting “Instrumentation” tab</p>
-					<p>● Selecting the correct “Ionization Mode” from the drop-down</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42500487-157725b8-844f-11e8-9be6-2c5f19cea0ce.png" alt="Ionization Mode" height="250" width="600">
-
-				</div> <!-- cd-faq-content -->
-			</li>
-          
-		  <li>
-				<a class="cd-faq-trigger" href="#0">What is the default Ionization Type in El-MAVEN? Can I change it?</a>
-				<div class="cd-faq-content">
-					<p>The default Ionization Type in El-MAVEN is ESI (Electron-Spray Ionization). This can be changed as follows:</p>
-					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Selecting “Instrumentation” tab</p>
-					<p>● Select the correct “Ionization Type” from the drop-down</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42501024-69383e3e-8450-11e8-8494-bd688b9b0780.png" alt="Ionization Type" height="250" width="600">
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">Can I select a particular MS level in El-MAVEN?</a>
-				<div class="cd-faq-content">
-					<p>Yes. To Select MS Level filters,</p>
-					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Go to "File Import" tab</p>
-					<p>● Select "Scan Filter MS Level" from the drop-down</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42501527-8760baca-8451-11e8-8e28-fface60bd4b6.png" alt="Ionization Type" height="250" width="600">
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">How to process a Polarity Switching data in El-MAVEN?</a>
-				<div class="cd-faq-content">
-					<p>El-MAVEN allows a user to extract only positive or negative scans from mzXML files. This can be done before uploading the data by the following steps:</p>
-					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Click on "File Import"</p>
-					<p>● Click on "Scan Filter Polarity" and select the polarity you want to process</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42501535-89e46bd4-8451-11e8-88c3-db579a708537.png" alt="Paolarity Switching" height="250" width="600">
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">Can I remove low abundance peaks in El-MAVEN?</a>
-				<div class="cd-faq-content">
-					<p>The abundance of data can be reduced in El-MAVEN in two ways::</p>
-					<p>1. Selecting Minimum Intensity Filter in El-MAVEN</p>
-					<p>The Minimum Intensity Filter in El-MAVEN reflects the peaks above the selected minimum intensity. Selecting a high minimum intensity filter will remove all the peaks below the intensity and hence remove abundance. This can be done as follows,</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Select the "File Import" tab</p>
-					<p>● Set the "Scan Filter: Minimum Intensity" field</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42502198-0695de0a-8453-11e8-84e8-ac765d211161.png" alt="Low Abundance" height="250" width="600">
-					 <br />
-					 <p>2. Centroiding in El-MAVEN</p>
-					 <p>Selecting "Centroid Scan" in the File Import tab within the "Options" icon also reduces the data abundance.</p>
-					 <p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"></p>
-					<p>● Click on "File Import"</p>
-					<p>● Click on "Centroid Scan"</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42502188-034e9dc2-8453-11e8-9bfd-b30bc81c1871.png" alt="Centroid Scan" height="150" width="450" style="margin-left: 13.5%">
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What does the "EIC Smoothing Algorithm" signify?</a>
-				<div class="cd-faq-content">
-					<p>The "EIC Smoothing Algorithm" parameter smoothes the data points wrt the selected algorithm which helps in increasing the signal/noise ratio.</p>
-					<p>In El-MAVEN there are three Smoothing Algorithms you can select from. Namely,</p>
-					<p>1. Savitzky-Golay: It preserves the original shape and features of the signal better than most other filters</p>
-					<p>2. Gaussian: It reduces noise by averaging over the neighborhood with the central pixel having higher weight but successfully preserves sharp edges</p>
-					<p>3. Moving Average: It takes the simple average of all points over time. Signal behavior is not natural. Least preferred method for smoothing</p><br />
-					<p>El-MAVEN has Savitzky-Golay as its default EIC Smoothing Algorithm. You can select any other algorithm by the following steps:</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Click on "Peak detection" tab</p>
-					<p>● Select the algorithm from the drop-down</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42503046-3b4c2c4c-8455-11e8-9dbd-68df6d2e239b.png" alt="Eic smoothing " height="250" width="600">
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What does the "EIC Smoothing Window" signify?</a>
-				<div class="cd-faq-content">
-					<p>The "EIC Smoothing Window" fits the smoothing algorithm in the selected number of scans.</p>
-					<p>This parameter can be changed as follows:</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Select the "Peak Detection" Tab</p>
-					<p>● Select the value for "EIC Smoothing Window"</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42503371-1a94db56-8456-11e8-8af2-f8e2fd68db19.png" alt="Eic smoothing window " height="250" width="600">
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">How does "Max Retention Time Difference Between Peaks" affect my data?</a>
-				<div class="cd-faq-content">
-					<p>This sets a limit to RT difference between peaks in a group. Increasing this value when alignment fails will center the peaks satisfactorily.</p>
-					<p>This value can be changed by the following steps:</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Select the "Peak Detection" Tab</p>
-					<p>● Select the value for "Max Retention Time Difference Between Peaks"</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42503574-a910cc46-8456-11e8-95a1-d5acc5cc26a5.png" alt="Maximum Retention Time Difference" height="250" width="600">
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What does the "Minimum Signal Baseline Difference" parameter signify?</a>
-				<div class="cd-faq-content">
-					<p>The "Minimum Signal Baseline Difference" parameter sets the difference between Intensity and Baseline to detect any signal as a valid signal. To change this value,</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Select the "Peak Filtering" tab</p>
-					<p>● Select the "Minimum Signal Baseline Difference" value</p><br />
-					 <img src="https://user-images.githubusercontent.com/29090291/42503771-31467d40-8457-11e8-93fb-956c403aa4cf.png" alt="Minimum Signal Baseline Difference" height="250" width="600">
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What do the parameters in the Isotope Detection tab affect data?</a>
-				<div class="cd-faq-content">
-				<p><mark>Samples are Labeled?</mark></p>
-				<p>● The labels that are present in the samples or that has to be detected should be checked.</p><br />
-				<p><mark>The parameters in Filter Isotopic Peaks section are as follows:</mark></p>
-					<p>● Minimum Isotope-Parent Correlation- Sets the minimum threshold for isotope-parent peak correlation. This correlation is a measure of how often they appear together.</p>
-					<p>● Isotope is within [X] scans of parent- Sets the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the RT scale.</p>
-					<p>● Maximum % Error to Natural Abundance- Sets the maximum natural abundance error expected. Natural abundance of an isotope is the expected ratio of the amount of isotope over the amount of parent molecule in nature. The error is the difference between observed and natural abundance as a fraction of natural abundance.</p>
-					<p>● Correct for Natural C13 Isotope Abundance- Check the box to correct for natural C13 abundance.</p><br />
-					<p>To change these parameters,</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Select "Isotope Detection" tab</p>
-					<p>● Change the parameters</p>
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What do the parameters in Peak Grouping tab signify?</a>
-				<div class="cd-faq-content">
-				<p>The Peak Grouping tab has the parameters that calculate the <mark>Peak Grouping Score</mark> which determines if the peaks should be grouped together or not.</p><br />
-				<p>The score depends on the following 3 parameters and their weights:</p>
-                <p>a) RT difference or DistX- Difference in RT between the peaks under comparison. Closer peaks are assigned a higher score.</p>      
-                <p>b) Intensity difference or DistY- Difference in intensity between peaks under comparison. Smaller difference accounts for a higher score.</p>
-				<p>c) Overlap- Fraction of RT overlap between the peaks under comparison. Greater overlap accounts for a higher score.</p><br />
-				<p>● Consider Overlap- Uncheck this box to calculate grouping score without overlap.</p>
-				<p>● Sliders are provided to adjust the weights attached to each of the three parameters.</p><br />
-				<p>To change the "Peak Grouping" parameters,</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Click on "Peak Grouping" tab</p>
-					<p>● Change the parameters</p>
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-
-			<li>
-				<a class="cd-faq-trigger" href="#0">What do the parameters in Group Ranking tab signify?</a>
-				<div class="cd-faq-content">
-				<p>Group rank is one of the parameters for group filtering. Peaks are ranked according to their quality.</p><br />
-				<p>The score depends on the following 3 parameters and their respective weights A, B and C:</p>
-                <p>i) Q or Group Quality- Maximum peak quality of a group. Peaks are assigned a quality score by a machine learning algorithm in El Maven. Better quality leads to a higher rank.</p>      
-                <p>ii) I or Group Intensity- Maximum intensity of a group. Better intensity leads to a higher rank.</p>
-				<p>iii) dRT or RT difference- Difference between expected RT and group mean RT.</p><br />
-				<p>● Consider Retention Time- Check the box to use retention time while group rank calculation.</p>
-				<p>● Quality Weight- Adjust the slider to set weight for group quality in group rank calculation.</p>
-				<p>● Intensity Weight- Adjust the slider to set weight for group intensity in group rank calculation.</p>
-				<p>● dRT Weight- Adjust the slider to set weight for RT difference in group rank calculation. The slider is disabled if Consider Retention Time is unchecked.</p><br />
-				<p>To change the group rank parameters,,</p>
-					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
-					<p>● Click on "Group Rank" tab</p>
-					<p>● Change the parameters</p>
-					<img src="https://user-images.githubusercontent.com/29090291/42505017-1e477a6a-845b-11e8-8e49-ec75600512e0.png" alt="Group Ranking Tab" height="300" width="610">
-					
-
-				</div> <!-- cd-faq-content -->
-			</li>
-
-		</ul> <!-- cd-faq-group -->
+		
 
 		<ul id="compound_database" class="cd-faq-group">
 			<li class="cd-faq-title"><h2>Compound Database</h2></li>
@@ -643,6 +441,210 @@ Another possible could be high group filtering parameters which filter out even 
 				</div> <!-- cd-faq-content -->
 			</li>
 	</ul>
+
+	<ul id="options_icon" class="cd-faq-group">
+			<li class="cd-faq-title"><h2>Options Dialog</h2></li>
+			<li>
+				<a class="cd-faq-trigger" href="#0">Do settings in "Options" dialog impact automated peak detection?</a>
+				<div class="cd-faq-content">
+					<p>Yes. All the parameters within “Options” are global parameters and affect every workflow. You can read more about the parameters in our detailed <a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#2-global-settings" target="_blank"> UI documentation.</a></p>
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What is the default Ionization Mode in El-MAVEN? Can I change it?</a>
+				<div class="cd-faq-content">
+					<p>El-MAVEN auto detects the Ionization Mode of your data by default. However, you can manually select this by,</p>
+					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Selecting “Instrumentation” tab</p>
+					<p>● Selecting the correct “Ionization Mode” from the drop-down</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42500487-157725b8-844f-11e8-9be6-2c5f19cea0ce.png" alt="Ionization Mode" height="250" width="600">
+
+				</div> <!-- cd-faq-content -->
+			</li>
+          
+		  <li>
+				<a class="cd-faq-trigger" href="#0">What is the default Ionization Type in El-MAVEN? Can I change it?</a>
+				<div class="cd-faq-content">
+					<p>The default Ionization Type in El-MAVEN is ESI (Electron-Spray Ionization). This can be changed as follows:</p>
+					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Selecting “Instrumentation” tab</p>
+					<p>● Select the correct “Ionization Type” from the drop-down</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42501024-69383e3e-8450-11e8-8494-bd688b9b0780.png" alt="Ionization Type" height="250" width="600">
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">Can I select a particular MS level in El-MAVEN?</a>
+				<div class="cd-faq-content">
+					<p>Yes. To Select MS Level filters,</p>
+					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Go to "File Import" tab</p>
+					<p>● Select "Scan Filter MS Level" from the drop-down</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42501527-8760baca-8451-11e8-8e28-fface60bd4b6.png" alt="Ionization Type" height="250" width="600">
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">How to process a Polarity Switching data in El-MAVEN?</a>
+				<div class="cd-faq-content">
+					<p>El-MAVEN allows a user to extract only positive or negative scans from mzXML files. This can be done before uploading the data by the following steps:</p>
+					<p>● Going to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Click on "File Import"</p>
+					<p>● Click on "Scan Filter Polarity" and select the polarity you want to process</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42501535-89e46bd4-8451-11e8-88c3-db579a708537.png" alt="Paolarity Switching" height="250" width="600">
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">Can I remove low abundance peaks in El-MAVEN?</a>
+				<div class="cd-faq-content">
+					<p>The abundance of data can be reduced in El-MAVEN in two ways::</p>
+					<p>1. Selecting Minimum Intensity Filter in El-MAVEN</p>
+					<p>The Minimum Intensity Filter in El-MAVEN reflects the peaks above the selected minimum intensity. Selecting a high minimum intensity filter will remove all the peaks below the intensity and hence remove abundance. This can be done as follows,</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Select the "File Import" tab</p>
+					<p>● Set the "Scan Filter: Minimum Intensity" field</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42502198-0695de0a-8453-11e8-84e8-ac765d211161.png" alt="Low Abundance" height="250" width="600">
+					 <br />
+					 <p>2. Centroiding in El-MAVEN</p>
+					 <p>Selecting "Centroid Scan" in the File Import tab within the "Options" icon also reduces the data abundance.</p>
+					 <p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"></p>
+					<p>● Click on "File Import"</p>
+					<p>● Click on "Centroid Scan"</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42502188-034e9dc2-8453-11e8-9bfd-b30bc81c1871.png" alt="Centroid Scan" height="150" width="450" style="margin-left: 13.5%">
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What does the "EIC Smoothing Algorithm" signify?</a>
+				<div class="cd-faq-content">
+					<p>The "EIC Smoothing Algorithm" parameter smoothes the data points wrt the selected algorithm which helps in increasing the signal/noise ratio.</p>
+					<p>In El-MAVEN there are three Smoothing Algorithms you can select from. Namely,</p>
+					<p>1. Savitzky-Golay: It preserves the original shape and features of the signal better than most other filters</p>
+					<p>2. Gaussian: It reduces noise by averaging over the neighborhood with the central pixel having higher weight but successfully preserves sharp edges</p>
+					<p>3. Moving Average: It takes the simple average of all points over time. Signal behavior is not natural. Least preferred method for smoothing</p><br />
+					<p>El-MAVEN has Savitzky-Golay as its default EIC Smoothing Algorithm. You can select any other algorithm by the following steps:</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Click on "Peak detection" tab</p>
+					<p>● Select the algorithm from the drop-down</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42503046-3b4c2c4c-8455-11e8-9dbd-68df6d2e239b.png" alt="Eic smoothing " height="250" width="600">
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What does the "EIC Smoothing Window" signify?</a>
+				<div class="cd-faq-content">
+					<p>The "EIC Smoothing Window" fits the smoothing algorithm in the selected number of scans.</p>
+					<p>This parameter can be changed as follows:</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Select the "Peak Detection" Tab</p>
+					<p>● Select the value for "EIC Smoothing Window"</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42503371-1a94db56-8456-11e8-8af2-f8e2fd68db19.png" alt="Eic smoothing window " height="250" width="600">
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">How does "Max Retention Time Difference Between Peaks" affect my data?</a>
+				<div class="cd-faq-content">
+					<p>This sets a limit to RT difference between peaks in a group. Increasing this value when alignment fails will center the peaks satisfactorily.</p>
+					<p>This value can be changed by the following steps:</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Select the "Peak Detection" Tab</p>
+					<p>● Select the value for "Max Retention Time Difference Between Peaks"</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42503574-a910cc46-8456-11e8-95a1-d5acc5cc26a5.png" alt="Maximum Retention Time Difference" height="250" width="600">
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What does the "Minimum Signal Baseline Difference" parameter signify?</a>
+				<div class="cd-faq-content">
+					<p>The "Minimum Signal Baseline Difference" parameter sets the difference between Intensity and Baseline to detect any signal as a valid signal. To change this value,</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Select the "Peak Filtering" tab</p>
+					<p>● Select the "Minimum Signal Baseline Difference" value</p><br />
+					 <img src="https://user-images.githubusercontent.com/29090291/42503771-31467d40-8457-11e8-93fb-956c403aa4cf.png" alt="Minimum Signal Baseline Difference" height="250" width="600">
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What do the parameters in the Isotope Detection tab affect data?</a>
+				<div class="cd-faq-content">
+				<p><mark>Samples are Labeled?</mark></p>
+				<p>● The labels that are present in the samples or that has to be detected should be checked.</p><br />
+				<p><mark>The parameters in Filter Isotopic Peaks section are as follows:</mark></p>
+					<p>● Minimum Isotope-Parent Correlation- Sets the minimum threshold for isotope-parent peak correlation. This correlation is a measure of how often they appear together.</p>
+					<p>● Isotope is within [X] scans of parent- Sets the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the RT scale.</p>
+					<p>● Maximum % Error to Natural Abundance- Sets the maximum natural abundance error expected. Natural abundance of an isotope is the expected ratio of the amount of isotope over the amount of parent molecule in nature. The error is the difference between observed and natural abundance as a fraction of natural abundance.</p>
+					<p>● Correct for Natural C13 Isotope Abundance- Check the box to correct for natural C13 abundance.</p><br />
+					<p>To change these parameters,</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Select "Isotope Detection" tab</p>
+					<p>● Change the parameters</p>
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What do the parameters in Peak Grouping tab signify?</a>
+				<div class="cd-faq-content">
+				<p>The Peak Grouping tab has the parameters that calculate the <mark>Peak Grouping Score</mark> which determines if the peaks should be grouped together or not.</p><br />
+				<p>The score depends on the following 3 parameters and their weights:</p>
+                <p>a) RT difference or DistX- Difference in RT between the peaks under comparison. Closer peaks are assigned a higher score.</p>      
+                <p>b) Intensity difference or DistY- Difference in intensity between peaks under comparison. Smaller difference accounts for a higher score.</p>
+				<p>c) Overlap- Fraction of RT overlap between the peaks under comparison. Greater overlap accounts for a higher score.</p><br />
+				<p>● Consider Overlap- Uncheck this box to calculate grouping score without overlap.</p>
+				<p>● Sliders are provided to adjust the weights attached to each of the three parameters.</p><br />
+				<p>To change the "Peak Grouping" parameters,</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Click on "Peak Grouping" tab</p>
+					<p>● Change the parameters</p>
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+
+			<li>
+				<a class="cd-faq-trigger" href="#0">What do the parameters in Group Ranking tab signify?</a>
+				<div class="cd-faq-content">
+				<p>Group rank is one of the parameters for group filtering. Peaks are ranked according to their quality.</p><br />
+				<p>The score depends on the following 3 parameters and their respective weights A, B and C:</p>
+                <p>i) Q or Group Quality- Maximum peak quality of a group. Peaks are assigned a quality score by a machine learning algorithm in El Maven. Better quality leads to a higher rank.</p>      
+                <p>ii) I or Group Intensity- Maximum intensity of a group. Better intensity leads to a higher rank.</p>
+				<p>iii) dRT or RT difference- Difference between expected RT and group mean RT.</p><br />
+				<p>● Consider Retention Time- Check the box to use retention time while group rank calculation.</p>
+				<p>● Quality Weight- Adjust the slider to set weight for group quality in group rank calculation.</p>
+				<p>● Intensity Weight- Adjust the slider to set weight for group intensity in group rank calculation.</p>
+				<p>● dRT Weight- Adjust the slider to set weight for RT difference in group rank calculation. The slider is disabled if Consider Retention Time is unchecked.</p><br />
+				<p>To change the group rank parameters,,</p>
+					<p>● Go to "Options"<img src="https://user-images.githubusercontent.com/29090291/42500500-1b27c36e-844f-11e8-8659-6e8cdbe18a38.png" alt="Options Icon" height="25" width="40"> in the top menu</p>
+					<p>● Click on "Group Rank" tab</p>
+					<p>● Change the parameters</p>
+					<img src="https://user-images.githubusercontent.com/29090291/42505017-1e477a6a-845b-11e8-8e49-ec75600512e0.png" alt="Group Ranking Tab" height="300" width="610">
+					
+
+				</div> <!-- cd-faq-content -->
+			</li>
+
+		</ul> <!-- cd-faq-group -->
  
 	</div> <!-- cd-faq-items -->
 	<a href="#0" class="cd-close-panel">Close</a>
