@@ -1,3 +1,5 @@
+//@Pawan: Function to compute feature values for MLP Classifier
+
 #include "groupClassifier.h"
 
 groupClassifier::groupClassifier() {
