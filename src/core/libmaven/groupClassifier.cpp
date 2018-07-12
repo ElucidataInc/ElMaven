@@ -62,7 +62,6 @@ void groupClassifier::classify(PeakGroup* grp) {
 		return;
 	
 	grp->groupQuality=scoreGroup(grp);
-	cerr << endl << grp->groupQuality << endl;
 }
 
 float groupClassifier::scoreGroup(PeakGroup* grp) {

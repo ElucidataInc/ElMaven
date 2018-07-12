@@ -124,6 +124,7 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
+        //@Pawan: group quality computed using neural network
         float groupQuality;
         float medianPeakQuality;
         double minQuality;

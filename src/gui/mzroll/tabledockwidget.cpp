@@ -328,7 +328,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
 
     //score peak quality
     Classifier* clsf = _mainwindow->getClassifier();
-    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (clsf != NULL) {
         clsf->classify(group);
         group->updateQuality();
@@ -336,6 +335,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         if(viewType == groupView) item->setText(11,QString::number(group->maxQuality,'f',2));
         item->setText(1,QString(group->getName().c_str()));
     }
+    //score group quality
+    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (groupClsf != NULL) {
         groupClsf->classify(group);
     }
@@ -494,6 +495,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         if (groupClsf != NULL) {
             groupClsf->classify(group);
         }
+        //Add group quality to peak table
         item->setText(16,QString::number(group->groupQuality,'f',2));
         item->setText(17,QString::number(group->medianPeakQuality,'f',2));
 
@@ -702,6 +704,15 @@ void TableDockWidget::showAllGroups() {
     updateStatus();
     updateCompoundWidget();
 
+//@Pawan: Check and validate all groups automatically
+    QTreeWidgetItemIterator itr(treeWidget);
+    while(*itr) {
+        QTreeWidgetItem* item = (*itr);
+        QVariant v = item->data(0,Qt::UserRole);
+        PeakGroup* grp = v.value<PeakGroup*>();
+        validateGroup(grp, item);
+        itr++;
+    }
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup* group) {
@@ -2563,4 +2574,28 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         return NULL;
     }
  
+}
+
+//@Pawan: Put decision sequence/tree for automatic validation here
+void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    if (grp != NULL)
+    {
+        //Add decision tree here
+        if (grp->groupQuality > 0.7 || grp->medianPeakQuality > 0.8 || grp->avgPeakQuality > 0.8)
+        {
+            markGroupGood(grp, item);
+        }
+    }
+}
+
+//@Pawan: pawan.mishra@elucidata.io
+void TableDockWidget::markGroupGood(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    if(item && grp != NULL)
+    {
+        grp->setLabel('g');
+        updateItem(item);
+    }
+    updateStatus();
 }
