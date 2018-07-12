@@ -13,7 +13,7 @@ mark {
 	color: black;
 }
 
-/* nav {
+ <!-- nav {
   width: 100%; 
   height: 65px; 
   background-color: #8884D9;
@@ -30,8 +30,8 @@ mark {
     font-size: 16px;
     color: white;
 
-    /* <!-- background-color: #17b0cf; --> */
-    /* <!-- border: 0px solid #000; --> */
+     background-color: #17b0cf; 
+     border: 0px solid #000; 
    
   
    
@@ -57,7 +57,7 @@ mark {
   padding-right: 40px;
   margin-right: 10px;
   margin-top: -10px;
-  } */
+  }  -->
 
 
 </style>
