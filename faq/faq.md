@@ -1,5 +1,5 @@
 ---
-<!-- # layout: layoutfaq -->
+layout: layoutfaq 
 title: FAQ
 permalink: /faq/
 ---
@@ -12,62 +12,14 @@ mark {
 	background-color: white;
 	color: black;
 }
-
- <!-- nav {
-  width: 100%; 
-  height: 65px; 
-  background-color: #8884D9;
-  margin:0px;
-}
-
-
-  nav a {
-    display: block;
-    float: right;
-
-    font-family: Heebo,sans-serif;
-	font-weight: 500;
-    font-size: 16px;
-    color: white;
-
-     background-color: #17b0cf; 
-     border: 0px solid #000; 
-   
-  
-   
-    
-    padding-bottom: 10px;
-    padding-left: 38px;
-	 padding-top: 25px;
-	 padding-right: 20px;
-
-    text-decoration: none;
-}
-
-#logo {
-
-  float: left;
- 
-  font-family: Heebo,sans-serif;
-  font-size: 2.0rem;
-
- 
-
-  padding-left: 37px;
-  padding-right: 40px;
-  margin-right: 10px;
-  margin-top: -10px;
-  }  -->
-
-
 </style>
 
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
-	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
-	<script src="js/modernizr.js"></script> <!-- Modernizr -->
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/style.css"> 
+	<script src="js/modernizr.js"></script> 
 	<title>El-Maven | FAQs</title>
 	
 </head>
@@ -79,24 +31,6 @@ mark {
 
 <div>
 <body>
-
-
-<!-- <nav>
-  
-    <ul >
-	  <li ><a id="logo" href="#">ElMaven</a></li>
-	  <li ><a href="#">   </a></li>
-      <li ><a href="#">FAQ</a></li>
-      <li><a href="/ElMaven/Downloads/">Downloads</a></li>
-      <li><a href="/ElMaven/documentation/">Documentation</a></li>
-      <li><a href="/ElMaven/Features/">Features</a></li>
-	  <li><a href="/ElMaven/Why-ElMaven/">Why ElMaven</a></li>
-	  <li><a href="/ElMaven/">Home</a></li>
-	
-    </ul>
-
-</nav> -->
-
 
 <section class="cd-faq">
 	<ul class="cd-faq-categories">
