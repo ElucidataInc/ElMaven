@@ -120,6 +120,8 @@ QString LigandWidget::getDatabaseName() {
 }
 
 void LigandWidget::setDatabaseNames() {
+    // TODO: do not setup signals and slots here. do it only once in the constructor.
+    // just add the new db in set and add it in the combo box
 	databaseSelect->disconnect(SIGNAL(currentIndexChanged(QString)));
 	databaseSelect->clear();
 	QSet<QString>set;
