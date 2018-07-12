@@ -111,6 +111,8 @@ LigandWidget::LigandWidget(MainWindow* mw) {
       databaseSelect->addItem(icon,i.next());
 
   connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
+  connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
+  connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), _mw->alignmentDialog, SLOT(setDatabase(QString)));
 
 }
 QString LigandWidget::getDatabaseName() {
