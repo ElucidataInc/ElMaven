@@ -96,6 +96,10 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 		isotopeParameters->_group = grp->parent;
 	}
 
+	//TODO: move bookmarking functionality out of isotopeWidget
+	if (bookmarkflg)
+		pullIsotopes(isotopeParameters->_group);
+
 	//select first sample if no peak or sample is selected
 	if (!_selectedSample)
 		updateSelectedSample(0);
@@ -104,10 +108,6 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 		isotopeParameters->_scan = peak->getScan();
 	else
 		return;
-
-	//TODO: move bookmarking functionality out of isotopeWidget
-	if (bookmarkflg)
-		pullIsotopes(isotopeParameters->_group);
 	
 	computeIsotopes(isotopeParameters->_formula);
 }
