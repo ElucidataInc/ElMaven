@@ -603,7 +603,7 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 }
 
 PeakGroup* TableDockWidget::addPeakGroup(PeakGroup* group) {
-    if (group != NULL ) {
+    if (group != NULL && group->peakCount() > 0) {
         allgroups.push_back(*group);
         if ( allgroups.size() > 0 ) {
             PeakGroup& g = allgroups[ allgroups.size()-1 ];
@@ -663,7 +663,7 @@ void TableDockWidget::showAllGroups() {
     if (viewType == groupView) setIntensityColName();
     
     QMap<int,QTreeWidgetItem*> parents;
-    for(int i=0; i < allgroups.size(); i++ ) { 
+    for(int i=0; i < allgroups.size(); i++ ) {
         int clusterId  = allgroups[i].clusterId;
         if (clusterId && allgroups[i].meanMz > 0 && allgroups[i].peakCount()>0) {
             if (!parents.contains(clusterId)) {
