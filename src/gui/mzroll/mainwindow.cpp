@@ -1167,7 +1167,8 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 
 PeakGroup* MainWindow::bookmarkPeakGroup() {
     //qDebug() << "MainWindow::bookmarkPeakGroup()";
-    if ( eicWidget ) {
+    if ( eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL) ) 
+	{
        return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
     }
 }
