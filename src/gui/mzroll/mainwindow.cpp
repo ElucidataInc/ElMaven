@@ -1192,7 +1192,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup() {
 
 PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
-    if ( bookmarkedPeaks == NULL ) return NULL;
+	if ( bookmarkedPeaks == NULL ) return NULL;
 
     if ( bookmarkedPeaks->isVisible() == false ) {
         bookmarkedPeaks->setVisible(true);
@@ -1226,6 +1226,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
         }
 
         bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
+		//TODO: User feedback when group is rejected
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
     }
