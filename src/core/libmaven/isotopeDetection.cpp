@@ -111,10 +111,18 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             //TODO: this needs be optimized to not bother finding peaks outside of
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
+             if (_mavenParameters->clsf->hasModel())
+             {
+                for(int x=0;x<allPeaks.size();x++)
+                { 
+                    allPeaks[x].quality=_mavenParameters->clsf->scorePeak(allPeaks[x]);  //Parent peak quality is set here
+                }
+            }
 
             bool isIsotope = true;
-			PeakFiltering peakFiltering(_mavenParameters, isIsotope);
-            peakFiltering.filter(allPeaks);
+            
+			PeakFiltering peakFiltering(_mavenParameters, isIsotope); //filtering Isotopes
+            peakFiltering.filter(allPeaks);                               
 
             delete(eic);
             // find nearest peak as long as it is within RT window
@@ -259,7 +267,7 @@ void IsotopeDetection::addChild(PeakGroup *parentgroup, PeakGroup &child, string
     switch (_isoType)
     {
         case IsotopeDetectionType::PeakDetection:
-            childExist = checkChildExist(parentgroup->children, isotopeName);
+            childExist = checkChildExist(parentgroup->children, isotopeName);  
             if (!childExist) parentgroup->addChild(child);
             break;
         case IsotopeDetectionType::IsoWidget:
@@ -282,7 +290,7 @@ bool IsotopeDetection::checkChildExist(vector<PeakGroup> &children, string isoto
             childExist = true;
         }
     }
-
+    
     return childExist;
 }
 
@@ -298,10 +306,13 @@ void IsotopeDetection::childStatistics(
     child.parent = parentgroup;
     child.setType(PeakGroup::Isotope);
     child.groupStatistics();
-    if (_mavenParameters->clsf->hasModel()) {
+
+   /* if (_mavenParameters->clsf->hasModel())
+     {
         _mavenParameters->clsf->classify(&child);
         child.groupStatistics();
-    }
+       // cerr<<"......................You are in Child Statisitcs"<<endl;
+    } */
 
     bool deltaRtCheckFlag = _mavenParameters->deltaRtCheckFlag;
     float compoundRTWindow = _mavenParameters->compoundRTWindow;
