@@ -26,7 +26,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
-                $$top_srcdir/3rdparty/obiwarp
+                $$top_srcdir/3rdparty/obiwarp \
+                $$top_srcdir/3rdparty/libsvm
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 LIBS += -lobiwarp
@@ -76,7 +77,9 @@ SOURCES = 	base64.cpp \
                 groupFiltering.cpp \
                 isotopeDetection.cpp \
                 datastructures/mzSlice.cpp \
-                groupClassifier.cpp
+                groupClassifier.cpp \
+                groupFeatures.cpp \
+                svmPredictor.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -117,4 +120,6 @@ HEADERS += 	constants.h \
                 isotopeDetection.h \
                 datastructures/mzSlice.h \
                 settings.h \
-                groupClassifier.h
+                groupClassifier.h \
+                groupFeatures.h \
+                svmPredictor.h

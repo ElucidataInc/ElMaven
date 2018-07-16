@@ -127,6 +127,7 @@ class PeakGroup{
         //@Pawan: group quality computed using neural network
         float groupQuality;
         float medianPeakQuality;
+        int predictedLabel;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;

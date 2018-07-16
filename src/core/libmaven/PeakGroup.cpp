@@ -40,6 +40,7 @@ PeakGroup::PeakGroup()  {
     avgPeakQuality=0;
     groupQuality=0;
     medianPeakQuality=0;
+    predictedLabel=0;
     minQuality = 0.2;
     minIntensity = 0;
 
@@ -112,6 +113,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     avgPeakQuality=o.avgPeakQuality;
     groupQuality=o.groupQuality;
     medianPeakQuality=o.medianPeakQuality;
+    predictedLabel=o.predictedLabel;
     expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
     isotopeC13count=o.isotopeC13count;
@@ -487,6 +489,7 @@ void PeakGroup::groupStatistics() {
     avgPeakQuality=0;
     groupQuality=0;
     medianPeakQuality=0;
+    predictedLabel=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
     //quantileIntensityPeaks;

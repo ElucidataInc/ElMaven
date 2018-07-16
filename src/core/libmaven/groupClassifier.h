@@ -11,6 +11,7 @@
 #include <math.h>
 #include <vector>
 #include "EIC.h"
+#include "groupFeatures.h"
 
 using namespace std;
 
@@ -19,18 +20,9 @@ public:
 	groupClassifier();
 	~groupClassifier();
 	void classify(PeakGroup* grp);
+	float scoreGroup(PeakGroup* grp);
 	void loadModel(string filename);
 	bool hasModel();
-    vector<float> getFeatures(PeakGroup* grp);
-	float scoreGroup(PeakGroup* grp);
-	float getAvgPeakAreaFractional(PeakGroup* grp);
-	float getAvgNoNoiseFraction(PeakGroup* grp);
-	float getAvgSymmetry(PeakGroup* grp);
-	float getAvgWidth(PeakGroup* grp);
-	float getLogAvgSignalBaselineRatio(PeakGroup* grp);
-	float getLogAvgPeakIntensity(PeakGroup* grp);
-	float getMinGaussFitR2(PeakGroup* grp);
-	float getGroupOverlapFrac(PeakGroup* grp);
 private:
 	
 

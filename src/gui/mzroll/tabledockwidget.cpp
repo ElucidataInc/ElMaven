@@ -292,6 +292,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "Avg Peak Quality";
         colNames << "Group Quality";
         colNames << "Med Peak Quality";
+        colNames << "Predicted Label";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -339,6 +340,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
     groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (groupClsf != NULL) {
         groupClsf->classify(group);
+    }
+    //get probability good/bad from svm
+    svmPredictor* probComp = _mainwindow->getSVMPredictor();
+    if (probComp != NULL) {
+        probComp->predict(group);
     }
 
     //Updating the peakid
@@ -498,6 +504,12 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         //Add group quality to peak table
         item->setText(16,QString::number(group->groupQuality,'f',2));
         item->setText(17,QString::number(group->medianPeakQuality,'f',2));
+
+        svmPredictor* probComp = _mainwindow->getSVMPredictor();
+        if (probComp != NULL) {
+            probComp->predict(group);
+        }
+        item->setText(18,QString::number(group->predictedLabel,'f', 0));
 
     } else if ( viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();

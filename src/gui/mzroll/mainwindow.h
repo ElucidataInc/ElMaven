@@ -56,6 +56,7 @@
 #include <QList>
 #include <QRegExp>
 #include "groupClassifier.h"
+#include "svmPredictor.h"
 
 class SettingsForm;
 class EicWidget;
@@ -247,6 +248,10 @@ public:
 
 	groupClassifier * getGroupClassifier() {
 		return groupClsf;
+	}
+
+	svmPredictor * getSVMPredictor() {
+		return probComp;
 	}
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
@@ -449,6 +454,7 @@ private:
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
 	groupClassifier* groupClsf;
+	svmPredictor* probComp;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;

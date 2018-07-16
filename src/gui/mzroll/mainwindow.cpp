@@ -221,6 +221,9 @@ using namespace mzUtils;
 	groupClsf = new groupClassifier();
 	groupClsf->loadModel("bin/group.weights");
 
+	probComp = new svmPredictor();
+	probComp->loadModel("bin/svm.model");
+
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
