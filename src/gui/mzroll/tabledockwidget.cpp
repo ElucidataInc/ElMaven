@@ -2621,7 +2621,7 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
 
         //Decisions to mark group bad
         if (grp->predictedLabel == -1) {
-            if (grp->avgPeakQuality < 0.45 || grp->medianGroupQuality < 0.43) {
+            if (grp->avgPeakQuality < 0.45 || grp->medianPeakQuality < 0.43) {
                 if (mark!=1) mark=-1;
                 else decisionConflict=true;
             }
