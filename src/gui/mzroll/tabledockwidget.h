@@ -190,6 +190,11 @@ public Q_SLOTS:
     void updateStatus();
     //   void runScript();
 
+    //Group validation functions
+    void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
+    void markGroupGood(PeakGroup* grp, QTreeWidgetItem* item);
+    void markGroupBad(PeakGroup* grp, QTreeWidgetItem* item);
+
     void markGroupBad();
     void markGroupGood();
     bool checkLabeledGroups();
@@ -276,8 +281,6 @@ private:
     void markv_0_1_5mzroll(QString fileName);
 
     void setupFiltersDialog();
-    void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
-    void markGroupGood(PeakGroup* grp, QTreeWidgetItem* item);
 
     QList<PeakGroup> allgroups;
 

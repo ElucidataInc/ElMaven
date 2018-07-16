@@ -2591,12 +2591,48 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
 //@Pawan: Put decision sequence/tree for automatic validation here
 void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
 {
+    int mark = 0;
+    bool decisionConflict=false;
     if (grp != NULL)
     {
-        //Add decision tree here
-        if (grp->groupQuality > 0.7 || grp->medianPeakQuality > 0.8 || grp->avgPeakQuality > 0.8)
+        //Decision Tree
+        
+        //Decisions to mark group good
+        if (grp->groupQuality > 0.64) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->avgPeakQuality > 0.79 || grp->medianPeakQuality > 0.81)
         {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->predictedLabel == 1)
+        {
+            if (grp->avgPeakQuality > 0.6 || grp->medianPeakQuality > 0.67) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;
+            }
+            else if (grp->groupQuality > 0.53) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;
+            }
+        }
+
+        //Decisions to mark group bad
+        if (grp->predictedLabel == -1) {
+            if (grp->avgPeakQuality < 0.45 || grp->medianGroupQuality < 0.43) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+        }
+
+        //Call respected functions to mark the groups
+        if (mark==1 && !decisionConflict) {
             markGroupGood(grp, item);
+        }
+        else if (mark==-1 && !decisionConflict) {
+            markGroupBad(grp, item);
         }
     }
 }
@@ -2607,6 +2643,16 @@ void TableDockWidget::markGroupGood(PeakGroup* grp, QTreeWidgetItem* item)
     if(item && grp != NULL)
     {
         grp->setLabel('g');
+        updateItem(item);
+    }
+    updateStatus();
+}
+
+void TableDockWidget::markGroupBad(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    if(item && grp != NULL)
+    {
+        grp->setLabel('b');
         updateItem(item);
     }
     updateStatus();
