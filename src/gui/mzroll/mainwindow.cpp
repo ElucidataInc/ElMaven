@@ -2216,11 +2216,13 @@ void MainWindow::writeSettings() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-	settings->setValue("closeEvent", 1);
-	this->saveMzRoll();
-	writeSettings();
-	event->accept();
-
+	event->ignore();
+    if (QMessageBox::Yes == QMessageBox::question(this, "Quit Program", "Do you really want to quit?", QMessageBox::Yes | QMessageBox::No)) {
+        settings->setValue("closeEvent", 1);
+        this->saveMzRoll();
+        writeSettings();
+        event->accept();
+    }
 }
 
 /**
