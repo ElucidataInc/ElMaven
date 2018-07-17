@@ -2591,48 +2591,59 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
 //@Pawan: Put decision sequence/tree for automatic validation here
 void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
 {
-    int mark = 0;
+    int mark=0;
     bool decisionConflict=false;
     if (grp != NULL)
     {
-        //Decision Tree
+        //Disjoint Decision Trees
         
         //Decisions to mark group good
-        if (grp->groupQuality > 0.64) {
+        if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69 && grp->weightedAvgPeakQuality > 0.73) {
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
-        else if (grp->avgPeakQuality > 0.79 || grp->weightedAvgPeakQuality > 0.81)
-        {
+        
+        if (grp->groupQuality > 0.73) {
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
-        else if (grp->predictedLabel == 1)
-        {
-            if (grp->avgPeakQuality > 0.6 || grp->weightedAvgPeakQuality > 0.67) {
+
+        if (grp->predictedLabel==1) {
+            if (grp->avgPeakQuality > 0.76) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;   
+            }
+
+            if (grp->weightedAvgPeakQuality > 0.69) {
                 if (mark!=-1) mark=1;
                 else decisionConflict=true;
             }
-            else if (grp->groupQuality > 0.53) {
-                if (mark!=-1) mark=1;
-                else decisionConflict=true;
-            }
+        }
+        else if (grp->predictedLabel==0 && grp->avgPeakQuality > 0.72 && grp->weightedAvgPeakQuality > 0.76) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
         }
 
         //Decisions to mark group bad
-        if (grp->avgPeakQuality < 0.35 || grp->weightedAvgPeakQuality < 0.35) {
+        if (grp->avgPeakQuality < 0.25 && grp->weightedAvgPeakQuality < 0.35) {
             if (mark!=1) mark=-1;
             else decisionConflict=true;
         }
-        else if (grp->predictedLabel == -1) {
-            if (grp->avgPeakQuality < 0.45 || grp->weightedAvgPeakQuality < 0.43) {
+
+        if (grp->predictedLabel==-1) {
+            if (grp->avgPeakQuality < 0.29) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+
+            if (grp->weightedAvgPeakQuality < 0.31) {
                 if (mark!=1) mark=-1;
                 else decisionConflict=true;
             }
         }
-
+        
         //Decisions to not mark group
-        if (abs(grp->weightedAvgPeakQuality - grp->avgPeakQuality) > 0.2) {
+        if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
             decisionConflict=true;
         }
 
