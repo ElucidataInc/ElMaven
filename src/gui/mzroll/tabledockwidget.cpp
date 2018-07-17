@@ -291,7 +291,7 @@ void TableDockWidget::setupPeakTable() {
         colNames << "P-value";
         colNames << "Avg Peak Quality";
         colNames << "Group Quality";
-        colNames << "Med Peak Quality";
+        colNames << "Weighted Peak Quality";
         colNames << "Predicted Label";
     } else if (viewType == peakView) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
@@ -503,7 +503,7 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         }
         //Add group quality to peak table
         item->setText(16,QString::number(group->groupQuality,'f',2));
-        item->setText(17,QString::number(group->medianPeakQuality,'f',2));
+        item->setText(17,QString::number(group->weightedAvgPeakQuality,'f',2));
 
         svmPredictor* probComp = _mainwindow->getSVMPredictor();
         if (probComp != NULL) {
@@ -2602,14 +2602,14 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
-        else if (grp->avgPeakQuality > 0.79 || grp->medianPeakQuality > 0.81)
+        else if (grp->avgPeakQuality > 0.79 || grp->weightedAvgPeakQuality > 0.81)
         {
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
         else if (grp->predictedLabel == 1)
         {
-            if (grp->avgPeakQuality > 0.6 || grp->medianPeakQuality > 0.67) {
+            if (grp->avgPeakQuality > 0.6 || grp->weightedAvgPeakQuality > 0.67) {
                 if (mark!=-1) mark=1;
                 else decisionConflict=true;
             }
@@ -2620,15 +2620,20 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
         }
 
         //Decisions to mark group bad
-        if (grp->avgPeakQuality < 0.35 || grp->medianPeakQuality < 0.35) {
+        if (grp->avgPeakQuality < 0.35 || grp->weightedAvgPeakQuality < 0.35) {
             if (mark!=1) mark=-1;
             else decisionConflict=true;
         }
         else if (grp->predictedLabel == -1) {
-            if (grp->avgPeakQuality < 0.45 || grp->medianPeakQuality < 0.43) {
+            if (grp->avgPeakQuality < 0.45 || grp->weightedAvgPeakQuality < 0.43) {
                 if (mark!=1) mark=-1;
                 else decisionConflict=true;
             }
+        }
+
+        //Decisions to not mark group
+        if (abs(grp->weightedAvgPeakQuality - grp->avgPeakQuality) > 0.2) {
+            decisionConflict=true;
         }
 
         //Call respected functions to mark the groups

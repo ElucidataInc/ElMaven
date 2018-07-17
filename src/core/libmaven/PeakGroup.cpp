@@ -39,7 +39,7 @@ PeakGroup::PeakGroup()  {
     maxQuality=0;
     avgPeakQuality=0;
     groupQuality=0;
-    medianPeakQuality=0;
+    weightedAvgPeakQuality=0;
     predictedLabel=0;
     minQuality = 0.2;
     minIntensity = 0;
@@ -112,7 +112,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxQuality=o.maxQuality;
     avgPeakQuality=o.avgPeakQuality;
     groupQuality=o.groupQuality;
-    medianPeakQuality=o.medianPeakQuality;
+    weightedAvgPeakQuality=o.weightedAvgPeakQuality;
     predictedLabel=o.predictedLabel;
     expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
@@ -414,23 +414,25 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
 void PeakGroup::updateQuality() {
     maxQuality=0;
     goodPeakCount=0;
+    float highestIntensity=0;
+    
     float peakQualitySum=0;
-    vector<float> peakQualities(0);
-    for(unsigned int i=0; i< peaks.size(); i++) {
+    for(unsigned int i=0; i < peaks.size(); i++) {
         if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
         if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
+
+        if(peaks[i].peakIntensity > highestIntensity) highestIntensity = peaks[i].peakIntensity;
         peakQualitySum += peaks[i].quality;
-        peakQualities.push_back(peaks[i].quality);
     }
     avgPeakQuality = peakQualitySum / peaks.size();
-    std::sort(peakQualities.begin(), peakQualities.end());
-    if (peakQualities.size() % 2 == 0)
-    {
-        medianPeakQuality = (peakQualities[int(peakQualities.size()/2)] +
-                             peakQualities[int(peakQualities.size()/2) - 1]) /
-                            2.0;
+
+    float weightedSum=0;
+    float sumWeights=0;
+    for (unsigned int i=0; i < peaks.size(); i++) {
+        weightedSum += peaks[i].quality * peaks[i].peakIntensity / highestIntensity;
+        sumWeights += peaks[i].peakIntensity / highestIntensity;
     }
-    else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
+    weightedAvgPeakQuality = weightedSum / sumWeights;
 }
 
 // TODO: Remove this function as expected mz should be calculated while creating the group - Sahil
@@ -488,15 +490,16 @@ void PeakGroup::groupStatistics() {
     maxQuality=0;
     avgPeakQuality=0;
     groupQuality=0;
-    medianPeakQuality=0;
+    weightedAvgPeakQuality=0;
     predictedLabel=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
     //quantileIntensityPeaks;
     //quantileQualityPeaks;
     int nonZeroCount=0;
+    //@Pawan: Added for Avg Peak Quality and Intensity Weighted Peak Quality
     float peakQualitySum=0;
-    vector<float> peakQualities(0);
+    float highestIntensity=0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
@@ -549,17 +552,17 @@ void PeakGroup::groupStatistics() {
         }
 
         peakQualitySum += peaks[i].quality;
-        peakQualities.push_back(peaks[i].quality);
+        if (peaks[i].peakIntensity > highestIntensity) highestIntensity = peaks[i].peakIntensity;
     }
     avgPeakQuality = peakQualitySum / peaks.size();
-    std::sort(peakQualities.begin(), peakQualities.end());
-    if (peakQualities.size() % 2 == 0)
-    {
-        medianPeakQuality = (peakQualities[int(peakQualities.size()/2)] +
-                             peakQualities[int(peakQualities.size()/2) - 1]) /
-                            2.0;
+    
+    float weightedSum=0;
+    float sumWeights=0;
+    for (unsigned int i=0; i < peaks.size(); i++) {
+        weightedSum += peaks[i].quality * peaks[i].peakIntensity / highestIntensity;
+        sumWeights += peaks[i].peakIntensity / highestIntensity;
     }
-    else medianPeakQuality = peakQualities[int(peakQualities.size() / 2)];
+    weightedAvgPeakQuality = weightedSum / sumWeights;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {
