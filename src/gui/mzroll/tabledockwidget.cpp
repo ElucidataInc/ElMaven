@@ -603,7 +603,7 @@ bool TableDockWidget::hasPeakGroup(PeakGroup* group) {
 }
 
 PeakGroup* TableDockWidget::addPeakGroup(PeakGroup* group) {
-    if (group != NULL && group->peakCount() > 0) {
+    if (group != NULL) {
         allgroups.push_back(*group);
         if ( allgroups.size() > 0 ) {
             PeakGroup& g = allgroups[ allgroups.size()-1 ];

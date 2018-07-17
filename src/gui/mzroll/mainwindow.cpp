@@ -1193,6 +1193,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup() {
 PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
 
 	if ( bookmarkedPeaks == NULL ) return NULL;
+	//TODO: User feedback when group is rejected
+	if (group->peakCount() == 0) return NULL;
 
     if ( bookmarkedPeaks->isVisible() == false ) {
         bookmarkedPeaks->setVisible(true);
@@ -1225,8 +1227,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
                                                   * (1 /(pow(log(group->maxIntensity + 1), B)));
         }
 
-        bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
-		//TODO: User feedback when group is rejected
+		bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
     }
