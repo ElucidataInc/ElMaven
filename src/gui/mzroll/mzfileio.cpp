@@ -87,15 +87,6 @@ mzSample* mzFileIO::loadSample(QString filename){
         sample->id = ++sampleId;
         mtxSampleId.unlock();
 
-        sample->enumerateSRMScans();
-
-        //set min and max values for rt
-        sample->calculateMzRtRange();
-
-        //set file path
-        sample->fileName = filename.toStdString();
-
-        if (filename.contains("blank",Qt::CaseInsensitive)) sample->isBlank = true;
         return sample;
     }
     return NULL;
@@ -583,16 +574,8 @@ void mzFileIO::fileImport(void) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
             if (sample) {
-                    sample->enumerateSRMScans();
-                    sample->calculateMzRtRange();    //set min and max values for rt
-                    sample->fileName = filename.toStdString();
-
-                    if ( filename.contains("blank",Qt::CaseInsensitive))
-                            sample->isBlank = true;   //check if this is a blank sample
-
                     if (sample->scans.size()>0)
                         emit addNewSample(sample);
-
             }
             #ifndef __APPLE__
             #pragma omp atomic
