@@ -37,7 +37,7 @@ void mzFileIO::loadSamples(QStringList& files) {
     //start();
 }
 
-mzSample* mzFileIO::loadSample(QString filename){
+mzSample* mzFileIO::loadSample(const QString& filename){
 
     //check if file exists
     QFile file(filename);

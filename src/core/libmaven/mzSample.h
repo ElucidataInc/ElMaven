@@ -256,7 +256,7 @@ class mzSample
     * @param scan xml_node object of pugixml library
     * @param scannum scan number
     */
-    void parseMzXMLScan(const xml_node &scan, int scannum);
+    void parseMzXMLScan(const xml_node &scan, const int& scannum);
 
     /**
     * @brief Write mzCSV file
@@ -275,13 +275,13 @@ class mzSample
      * @brief Update injection time stamp
      * @param xml_node xml_node object of pugixml library
      */
-    void parseMzMLInjectionTimeStamp(xml_node&);
+    void parseMzMLInjectionTimeStamp(const xml_attribute&);
 
     /**
     * @brief Parse mzML chromatogrom list
     * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLChromatogramList(xml_node&);
+    void parseMzMLChromatogramList(const xml_node&);
 
 
     int getSampleNoChromatogram(const string &chromatogramId);
@@ -292,7 +292,7 @@ class mzSample
     * @brief Parse mzML spectrum list
     * @param xml_node xml_node object of pugixml library
     */
-    void parseMzMLSpectrumList(xml_node&);
+    void parseMzMLSpectrumList(const xml_node&);
 
     /**
     * @brief Print info about sample 
@@ -706,7 +706,7 @@ class mzSample
 
     void setInstrumentSettigs(xml_document &doc, xml_node spectrumstore);
 
-    void parseMzXMLData(xml_document &staticdoc, xml_node spectrumstore);
+    void parseMzXMLData(const xml_node& spectrumstore);
 
     xml_node getmzXMLSpectrumData(xml_document &doc, const char *filename);
 
@@ -718,9 +718,9 @@ class mzSample
 
     vector<float> parsePeaksFromMzXML(const xml_node &scan);
 
-    void populateMzAndIntensity(vector<float> mzint, Scan *_scan);
+    void populateMzAndIntensity(const vector<float>& mzint, Scan *_scan);
 
-    void populateFilterline(string filterLine, Scan *_scan);
+    void populateFilterline(const string& filterLine, Scan *_scan);
 
     void loadAnySample(const char *filename);
 

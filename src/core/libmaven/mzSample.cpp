@@ -305,7 +305,7 @@ void mzSample::parseMzML(const char *filename)
 	xml_node experimentRun = doc.first_child().first_element_by_path("mzML/run");
 	if (!experimentRun.empty())
 	{
-		parseMzMLInjectionTimeStamp(experimentRun);
+        parseMzMLInjectionTimeStamp(experimentRun.attribute("startTimeStamp"));
 	}
 
 	//Get a spectrumstore node
@@ -322,9 +322,8 @@ void mzSample::parseMzML(const char *filename)
 	}
 }
 
-void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
+void mzSample::parseMzMLInjectionTimeStamp(const xml_attribute &injectionTimeStamp)
 {
-	xml_attribute injectionTimeStamp = experimentRun.attribute("startTimeStamp");
 
 	if (!injectionTimeStamp.empty())
 	{
@@ -339,7 +338,7 @@ void mzSample::parseMzMLInjectionTimeStamp(xml_node &experimentRun)
 	}
 }
 
-void mzSample::parseMzMLChromatogramList(xml_node &chromatogramList)
+void mzSample::parseMzMLChromatogramList(const xml_node &chromatogramList)
 {
 
 	int scannum = 0;
@@ -444,7 +443,7 @@ string mzSample::filterChromatogramId(const string &chromatogramId) {
 	return filteredChromatogramId;
 }
 
-void mzSample::parseMzMLSpectrumList(xml_node &spectrumList)
+void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 {
 
 	//Iterate through spectrums
@@ -705,7 +704,7 @@ void mzSample::setInstrumentSettigs(xml_document &doc, xml_node spectrumstore)
 	}
 }
 
-void mzSample::parseMzXMLData(xml_document &doc, xml_node spectrumstore)
+void mzSample::parseMzXMLData(const xml_node& spectrumstore)
 {
 	//Iterate through spectrums
 	int scannum = 0;
@@ -740,7 +739,7 @@ void mzSample::parseMzXML(const char *filename)
         //Setting the instrument related information
         setInstrumentSettigs(doc, spectrumstore);
         //parse mzXML information from the scan
-        parseMzXMLData(doc, spectrumstore);
+        parseMzXMLData(spectrumstore);
     }
     else
         throw MavenException(ErrorMsg::ParsemzXml);
@@ -861,7 +860,7 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node &scan)
 	return mzint;
 }
 
-void mzSample::populateMzAndIntensity(vector<float> mzint, Scan *_scan)
+void mzSample::populateMzAndIntensity(const vector<float>& mzint, Scan *_scan)
 {
 	int j = 0, count = 0, size = mzint.size() / 2;
 
@@ -886,7 +885,7 @@ void mzSample::populateMzAndIntensity(vector<float> mzint, Scan *_scan)
 	_scan->intensity.resize(count);
 }
 
-void mzSample::populateFilterline(string filterLine, Scan *_scan)
+void mzSample::populateFilterline(const string& filterLine, Scan *_scan)
 {
 
 	if (!filterLine.empty())
@@ -899,7 +898,7 @@ void mzSample::populateFilterline(string filterLine, Scan *_scan)
 	}
 }
 
-void mzSample::parseMzXMLScan(const xml_node &scan, int scannum)
+void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 {
 
     float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;

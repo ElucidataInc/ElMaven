@@ -38,7 +38,7 @@ Q_OBJECT
          * @param  filename [name of the file]
          * @return          [pointer to Sample]
          */
-        mzSample* loadSample(QString filename);
+        mzSample* loadSample(const QString& filename);
 
         /**
          * [parse MzData]

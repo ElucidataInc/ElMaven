@@ -181,7 +181,7 @@ void TestLoadSamples::testParseMzMLInjectionTimeStamp() {
         // using the "parseMzMLInjectionTimeStamp" function to get time stamp
         mzSample* sample = new mzSample();
         xml_node experimentRun = doc.first_child().first_element_by_path("run");
-        sample->parseMzMLInjectionTimeStamp(experimentRun);
+        sample->parseMzMLInjectionTimeStamp(experimentRun.attribute("startTimeStamp"));
 
         // comparing expected output with observed output
         unsigned int index_itr = it - test_cases.begin();
