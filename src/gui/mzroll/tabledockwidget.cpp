@@ -2596,6 +2596,7 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
     if (grp != NULL)
     {
         //Disjoint Decision Trees
+        //Require improvements
         
         //Decisions to mark group good
         if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69 && grp->weightedAvgPeakQuality > 0.73) {
