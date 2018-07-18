@@ -437,10 +437,16 @@ QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
     QTreeWidgetItem* matchedItem = nullptr;
     QTreeWidgetItemIterator itr(treeWidget);
 
-    QTreeWidgetItem* item = nullptr;
-
-    while (*itr) {
+    QTreeWidgetItem* item = nullptr;   
+    QTreeWidgetItem* item1 = nullptr;
+    item1 = (*itr);
+    if(item1->backgroundColor(0)  == QColor(61, 204, 85, 100))
+    {}
+    else{
+   while (*itr) {
         item =(*itr);
+        if(item->backgroundColor(0)  != QColor(61, 204, 85, 100))
+        {   
         QVariant v = item->data(0,Qt::UserRole);
         Compound* itemCompound =  v.value<Compound*>();
         if (itemCompound) {
@@ -449,9 +455,10 @@ QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
                 break;
             }
         }
-        ++itr;
+        }
+        ++itr;   
     }
-
+    }
     return matchedItem;
 
 }

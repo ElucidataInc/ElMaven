@@ -246,6 +246,7 @@ void TableDockWidget::setIntensityColName() {
 }
 
 void TableDockWidget::setupPeakTable() {
+    cerr<<"------------------Set up peak table called------------------\n";
 
     QStringList colNames;
     
@@ -321,12 +322,22 @@ void TableDockWidget::setupPeakTable() {
 }
 
 void TableDockWidget::updateTable() {
+    cerr<<"--------------------------------Update table called--------------------------\n";
     QTreeWidgetItemIterator it(treeWidget);
     while (*it) {
         updateItem(*it);
         ++it;
     }
     updateStatus();
+}
+
+
+void TableDockWidget::updateTable1() {
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        updateItem(*it);
+        ++it;
+    }
 }
 
 void TableDockWidget::updateItem(QTreeWidgetItem* item) {
@@ -386,8 +397,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
 }
 
 void TableDockWidget::updateCompoundWidget() {
+    QTime myTimer;
+    myTimer.start();
 
     _mainwindow->ligandWidget->resetColor();
+    cerr<<"Update Compound Widget called\n";
 
     QTreeWidgetItemIterator itr(treeWidget);
     while (*itr) {
@@ -401,6 +415,8 @@ void TableDockWidget::updateCompoundWidget() {
         }
         ++itr;
     }
+    int nMilliseconds = myTimer.elapsed();
+    cerr<<nMilliseconds;
 }
 
 void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
@@ -659,6 +675,7 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
     treeWidget->clear();
+    cerr<<"----------showw all groups called--------------------\n";
 
     _mainwindow->getAnalytics()->hitEvent("PeaksTable", "ShowAllGroups", allgroups.size());
 
@@ -697,6 +714,7 @@ void TableDockWidget::showAllGroups() {
     }
     treeWidget->setSortingEnabled(true);
     updateStatus();
+    cerr<<"------------------------------------Called from showallgrp()----------------------------------\n";
     updateCompoundWidget();
 
 }
@@ -1127,6 +1145,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
         allgroups[i].groupId = i + 1;
     }
     updateTable();
+    cerr<<"---------------------------------Called from delete group----------------------------\n";
     updateCompoundWidget();
 }
 
@@ -1586,6 +1605,7 @@ void TableDockWidget::focusInEvent(QFocusEvent * event) {
     if (event->gotFocus()) {    
         pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
         setPalette(pal);
+        cerr<<"------------------------------------------Called from focus in event------------------------------------------\n";
         updateCompoundWidget();
     }
 }
@@ -1954,6 +1974,7 @@ void TableDockWidget::savePeakTable(QString fileName) {
 }
 
 void TableDockWidget::loadPeakTable() {
+    cerr<<"load peak table called\n";
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
     if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
@@ -2370,11 +2391,12 @@ int TableDockWidget::loadCSVFile(QString filename, QString sep="\t"){
 
 
 void TableDockWidget::switchTableView() {
-
+    cerr<<"Switch Table view called\n";
     viewType == groupView ? viewType=peakView: viewType=groupView;
     setupPeakTable();
     showAllGroups();
-    updateTable();
+    cerr<<"Reached Here\n";
+    updateTable1();
 }
 
 MatrixXf TableDockWidget::getGroupMatrix() {

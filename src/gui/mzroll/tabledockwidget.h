@@ -192,6 +192,7 @@ public Q_SLOTS:
     void saveModel();
     void printPdfReport();
     void updateTable();
+    void updateTable1();
     void updateItem(QTreeWidgetItem *item);
     void updateStatus();
     //   void runScript();
