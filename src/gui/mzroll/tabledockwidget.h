@@ -59,6 +59,7 @@ class TableDockWidget : public QDockWidget
      * @see- <TableDockWidget::exportJson>
      */
     vector<PeakGroup> vallgroups;
+    int maxPeaks;
 
     QMap<QAction *, int> mergeAction;
     //QAction *hell;

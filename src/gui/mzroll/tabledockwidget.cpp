@@ -13,6 +13,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     numColms=11;
     viewType = groupView;
+    maxPeaks = 0; //Maximum Number of Peaks in a Group
 
     treeWidget=new QTreeWidget(this);
     treeWidget->setSortingEnabled(false);
@@ -336,15 +337,20 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
         if(viewType == groupView) item->setText(11,QString::number(group->maxQuality,'f',2));
         item->setText(1,QString(group->getName().c_str()));
     }
+
+    //Find maximum number of peaks
+    if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
+
     //score group quality
     groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (groupClsf != NULL) {
         groupClsf->classify(group);
     }
+    
     //get probability good/bad from svm
-    svmPredictor* probComp = _mainwindow->getSVMPredictor();
-    if (probComp != NULL) {
-        probComp->predict(group);
+    svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+    if (groupPred != NULL) {
+        groupPred->predict(group);
     }
 
     //Updating the peakid
@@ -497,6 +503,10 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         }
         item->setText(15,QString::number(group->avgPeakQuality,'f',2));
 
+        //Find maximum number of peaks
+        if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
+
+        //Get group quality from neural network
         groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
         if (groupClsf != NULL) {
             groupClsf->classify(group);
@@ -505,9 +515,10 @@ void TableDockWidget::addRow(PeakGroup* group, QTreeWidgetItem* root) {
         item->setText(16,QString::number(group->groupQuality,'f',2));
         item->setText(17,QString::number(group->weightedAvgPeakQuality,'f',2));
 
-        svmPredictor* probComp = _mainwindow->getSVMPredictor();
-        if (probComp != NULL) {
-            probComp->predict(group);
+        //Get prediction labels from svm
+        svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+        if (groupPred != NULL) {
+            groupPred->predict(group);
         }
         item->setText(18,QString::number(group->predictedLabel,'f', 0));
 
@@ -2595,7 +2606,7 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
     bool decisionConflict=false;
     if (grp != NULL)
     {
-        //Disjoint Decision Trees
+        //Disjoint Decision Tree
         //Require improvements
         
         //Decisions to mark group good
@@ -2603,13 +2614,11 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
-        
-        if (grp->groupQuality > 0.73) {
+        else if (grp->groupQuality > 0.73) {
             if (mark!=-1) mark=1;
             else decisionConflict=true;
         }
-
-        if (grp->predictedLabel==1) {
+        else if (grp->predictedLabel==1) {
             if (grp->avgPeakQuality > 0.76) {
                 if (mark!=-1) mark=1;
                 else decisionConflict=true;   
@@ -2644,7 +2653,13 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
         }
         
         //Decisions to not mark group
+        if (grp->peakCount() < int(maxPeaks/4) || grp->peakCount() == 1) decisionConflict=true; //Do not mark if number of peaks in the group is less
+
         if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
+            decisionConflict=true;
+        }
+
+        if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
             decisionConflict=true;
         }
 

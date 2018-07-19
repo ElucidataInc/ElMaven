@@ -251,7 +251,7 @@ public:
 	}
 
 	svmPredictor * getSVMPredictor() {
-		return probComp;
+		return groupPred;
 	}
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
@@ -454,7 +454,7 @@ private:
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
 	groupClassifier* groupClsf;
-	svmPredictor* probComp;
+	svmPredictor* groupPred;
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;

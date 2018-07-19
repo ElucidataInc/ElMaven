@@ -221,8 +221,8 @@ using namespace mzUtils;
 	groupClsf = new groupClassifier();
 	groupClsf->loadModel("bin/group.weights");
 
-	probComp = new svmPredictor();
-	probComp->loadModel("bin/svm.model");
+	groupPred = new svmPredictor();
+	groupPred->loadModel("bin/svm.model");
 
 
 
