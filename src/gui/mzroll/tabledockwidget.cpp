@@ -396,6 +396,32 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
     }
 }
 
+// void TableDockWidget::updateCompoundWidget() {
+//     QTime myTimer;
+//     myTimer.start();
+
+//     _mainwindow->ligandWidget->resetColor();
+//     cerr<<"Update Compound Widget called\n";
+
+//     QTreeWidgetItemIterator itr(treeWidget);
+
+    
+//     while (*itr) {
+//         QTreeWidgetItem* item =(*itr);
+//         if (item) {
+//             QVariant v = item->data(0,Qt::UserRole);
+//             PeakGroup* group =  v.value<PeakGroup*>();
+//             if ( group == NULL ) continue;
+
+//             _mainwindow->ligandWidget->markAsDone(group->compound);
+//         }
+//         ++itr;
+//     }
+//     int nMilliseconds = myTimer.elapsed();
+//     cerr<<nMilliseconds;
+// }
+
+
 void TableDockWidget::updateCompoundWidget() {
     QTime myTimer;
     myTimer.start();
@@ -403,21 +429,24 @@ void TableDockWidget::updateCompoundWidget() {
     _mainwindow->ligandWidget->resetColor();
     cerr<<"Update Compound Widget called\n";
 
-    QTreeWidgetItemIterator itr(treeWidget);
-    while (*itr) {
-        QTreeWidgetItem* item =(*itr);
-        if (item) {
-            QVariant v = item->data(0,Qt::UserRole);
-            PeakGroup* group =  v.value<PeakGroup*>();
-            if ( group == NULL ) continue;
+    // QTreeWidgetItemIterator itr(treeWidget);
 
-            _mainwindow->ligandWidget->markAsDone(group->compound);
-        }
-        ++itr;
-    }
+    // while (*itr) {
+    //     QTreeWidgetItem* item =(*itr);
+    //     if (item) {
+    //         QVariant v = item->data(0,Qt::UserRole);
+    //         PeakGroup* group =  v.value<PeakGroup*>();
+    //         if ( group == NULL ) continue;
+
+    //         _mainwindow->ligandWidget->markAsDone(group->compound);
+    //     }
+    //     ++itr;
+    // }
+    _mainwindow->ligandWidget->markAsDone(treeWidget);
     int nMilliseconds = myTimer.elapsed();
     cerr<<nMilliseconds;
 }
+
 
 void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
     if(viewType != peakView) return;

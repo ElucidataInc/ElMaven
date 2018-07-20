@@ -404,19 +404,32 @@ void LigandWidget::showTable() {
     treeWidget->setSortingEnabled(true);
 }
 
-void LigandWidget::markAsDone(Compound* compound) {
+void LigandWidget::markAsDone(QTreeWidget* group) {
+  
+   // QTreeWidgetItem* matchedItem = nullptr;
 
-    if (compound != NULL) {
-        QTreeWidgetItem* item = getItem(compound);
+    QTreeWidgetItem* item = nullptr;
+    QTreeWidgetItemIterator itr(treeWidget);
+      while (*itr) {
+        item =(*itr);
+        if(item){
+       if(item->backgroundColor(0)  != QColor(61, 204, 85, 100))
+        {  
+           
+            QTreeWidgetItem* chq = getItem(group, item); 
 
-        if (item != NULL) {
+             if (chq != NULL) {
             for (int col = 0; col < treeWidget->columnCount(); col++) {
-                item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+                chq->setBackgroundColor(col, QColor(61, 204, 85, 100));
             }
         }
+       
+       }
+       }
+        ++itr;   
+    }    
     }
 
-}
 
 void LigandWidget::resetColor() {
 
@@ -432,35 +445,32 @@ void LigandWidget::resetColor() {
     }
 }
 
-QTreeWidgetItem* LigandWidget::getItem(Compound* compound) {
-
+QTreeWidgetItem* LigandWidget::getItem(QTreeWidget* group, QTreeWidgetItem* compound) {
     QTreeWidgetItem* matchedItem = nullptr;
-    QTreeWidgetItemIterator itr(treeWidget);
 
-    QTreeWidgetItem* item = nullptr;   
-    QTreeWidgetItem* item1 = nullptr;
-    item1 = (*itr);
-    if(item1->backgroundColor(0)  == QColor(61, 204, 85, 100))
-    {}
-    else{
-   while (*itr) {
-        item =(*itr);
-        if(item->backgroundColor(0)  != QColor(61, 204, 85, 100))
-        {   
-        QVariant v = item->data(0,Qt::UserRole);
-        Compound* itemCompound =  v.value<Compound*>();
-        if (itemCompound) {
-            if (itemCompound == compound) {
-                matchedItem = item;
-                break;
-            }
-        }
-        }
-        ++itr;   
-    }
-    }
-    return matchedItem;
+    QTreeWidgetItemIterator itr(group);
+    while (*itr) {
+        QTreeWidgetItem* item =(*itr);
+        if (item) {
+            QVariant v1 = compound->data(0,Qt::UserRole);
+            Compound* itemCompound =  v1.value<Compound*>();
 
+            QVariant v = item->data(0,Qt::UserRole);
+            PeakGroup* groups =  v.value<PeakGroup*>();
+            Compound * grp = groups->compound;
+           
+                if(grp == itemCompound)
+                {
+                // cerr<<grp<<" ";
+                // cerr<<itemCompound<<"\n";
+                matchedItem = compound;
+                return matchedItem;
+                }
+        }
+        ++itr;
+    }
+
+return matchedItem;
 }
 
 void LigandWidget::saveCompoundList(){
