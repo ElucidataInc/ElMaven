@@ -333,12 +333,18 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
 
     if (use_advanced_settings=="yes"){
         handle_advanced_settings(writable_temp_dir,datetimestamp);
-        }
+    }
+    
+    if (use_advanced_settings != "yes" || !_advancedSettings->get_upload_compoundDB()) {
+        // Now uploading the Compound DB that was used for peak detection.
+        // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
+        // ToDo Kailash, Keep track of compound DB used for each peak table,
+        // As of now, uploading what is currently there in the compound section of Elmaven.
+        // If advanced settings were used to upload compound DB, we need not do this.
+        QString compound_db = mainwindow->ligandWidget->getDatabaseName();
+        mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven",compound_db);
+    }
 
-    // Now uploading the Compound DB that was used for peakdetection..this is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow..
-    //ToDo Kailash, Keep track of compound DB used for each peak table, As of now.. uploading what is currently there in the compound section of Elmaven
-    QString compound_db = mainwindow->ligandWidget->getDatabaseName();
-    mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven",compound_db);
     qDebug()<< "Now uploading all groups, needed for firstview app..";
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
