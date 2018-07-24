@@ -342,7 +342,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         // As of now, uploading what is currently there in the compound section of Elmaven.
         // If advanced settings were used to upload compound DB, we need not do this.
         QString compound_db = mainwindow->ligandWidget->getDatabaseName();
-        mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven",compound_db);
+        mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven.csv",compound_db);
     }
 
     qDebug()<< "Now uploading all groups, needed for firstview app..";
@@ -384,10 +384,10 @@ void PollyElmavenInterfaceDialog::handle_advanced_settings(QString writable_temp
             user_filename = "intensity_file.csv";
         }
         if (user_compound_DB_name==""){
-            user_compound_DB_name = "compounds.csv";
+            user_compound_DB_name = "compounds";
         }
         if (_advancedSettings->get_upload_compoundDB()){
-            mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name,compound_db);
+            mainwindow->ligandWidget->saveCompoundList(writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_"+user_compound_DB_name+".csv",compound_db);
         }
         
         if (_advancedSettings->get_upload_Peak_Table()){
