@@ -30,6 +30,7 @@
 //Added when merged with Maven776
 #include <QtNetwork>
 #include <QNetworkReply>
+#include <QHash>
 
 class QAction;
 class QMenu;
@@ -62,7 +63,7 @@ public:
      * @param compound pointer to class Compound
      * @return QTreeWidgetItem pointer to class QTreeWidgetItem
      */
-    QTreeWidgetItem* getItem(QTreeWidget* group, QTreeWidgetItem* compound);
+    
 
 public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
@@ -85,7 +86,7 @@ public Q_SLOTS:
      * @brief change the color of the compound which is present is peaks table
      * @param compound pointer to class Compound
      */
-    void markAsDone(QTreeWidget* group);
+    void markAsDone(Compound* compound);
 
 
 Q_SIGNALS:
@@ -110,6 +111,7 @@ private:
     QToolButton *loadButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
+    QHash<Compound *, QTreeWidgetItem *> Hash;
 
     QHash<QString,bool>alteredDatabases;
 
