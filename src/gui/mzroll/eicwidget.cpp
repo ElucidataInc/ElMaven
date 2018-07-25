@@ -55,6 +55,7 @@ EicWidget::EicWidget(QWidget *p) {
     _mouseEndPos = _mouseStartPos = QPointF(0,0); //TODO: Sahil, added while merging eicwidget
 
 	connect(scene(), SIGNAL(selectionChanged()), SLOT(selectionChangedAction()));
+    connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGallaryToEics);
 
 }
 
@@ -904,6 +905,7 @@ void EicWidget::replot(PeakGroup* group) {
 	//setStatusText("Unknown Expected Retention Time!");
 
 	getMainWindow()->addToHistory(eicParameters->_slice);
+    emit eicUpdated();
 	scene()->update();
 
 	//qDebug << "\t Number of eics " << eics.size();

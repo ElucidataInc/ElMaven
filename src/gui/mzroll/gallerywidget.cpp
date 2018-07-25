@@ -14,6 +14,8 @@ GalleryWidget::GalleryWidget(MainWindow* mw) {
 	_boxH=200;
 	recursionCheck=false;
 	plotitems.clear();
+
+    connect(mw->getEicWidget(), &EicWidget::eicUpdated, this, &GalleryWidget::replot);
 //	fileGallery("/home/melamud/samples/");
 
 	/*
@@ -311,11 +313,14 @@ TinyPlot* GalleryWidget::addEicPlot(std::vector<EIC*>& eics) {
 
 void GalleryWidget::replot() {
 	qDebug() << "GalleryWidget::replot() ";
-	if (recursionCheck == false ) {
-		recursionCheck=true;
-    	drawMap();
-		recursionCheck=false;
-	}
+
+    if(isVisible()){
+        if (recursionCheck == false ) {
+            recursionCheck=true;
+            drawMap();
+            recursionCheck=false;
+        }
+    }
 }
 
 void GalleryWidget::wheelEvent(QWheelEvent *event) {
@@ -412,9 +417,8 @@ void GalleryWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void GalleryWidget::resizeEvent ( QResizeEvent * event ) {
-      qDebug() << "GalleryWidget::resize() ";
-      QSize newsize = event->size();
-	  replot();
+
+    replot();
 }
 
 void GalleryWidget::keyPressEvent(QKeyEvent *event)

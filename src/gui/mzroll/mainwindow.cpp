@@ -2587,6 +2587,8 @@ void MainWindow::createToolBars() {
 	btnBookmarks->setShortcut(Qt::Key_F9);
 	btnSRM->setShortcut(Qt::Key_F10);
 
+    connect(btnGallery, SIGNAL(clicked()), getEicWidget(), SLOT(setGallaryToEics()));
+
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
 	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
@@ -3112,7 +3114,6 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
 	QWidgetAction *btnMarkGood = new MainWindowWidgetAction(toolBar, this,  "btnMarkGood");
 	QWidgetAction *btnMarkBad = new MainWindowWidgetAction(toolBar, this,  "btnMarkBad");
-	QWidgetAction *btnGallary = new MainWindowWidgetAction(toolBar, this,  "btnGallary");
 	QWidgetAction *btnIntegrateArea = new MainWindowWidgetAction(toolBar, this,  "btnIntegrateArea");
 	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
 	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
@@ -3125,13 +3126,12 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
-	
+
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
 	toolBar->addAction(btnCopyCSV);
 	toolBar->addAction(btnMarkGood);
 	toolBar->addAction(btnMarkBad);
-	toolBar->addAction(btnGallary);
 
 	toolBar->addSeparator();
 	toolBar->addAction(btnIntegrateArea);
@@ -3222,16 +3222,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnMarkBad;
 
 	}
-	else if (btnName == "btnGallary") {
 
-		QToolButton *btnGallary = new QToolButton(parent);
-		btnGallary->setIcon(QIcon(rsrcPath + "/gallery.png"));
-		btnGallary->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnGallary->setToolTip(tr("Show In Gallary"));
-		connect(btnGallary, SIGNAL(clicked()), mw->getEicWidget(), SLOT(setGallaryToEics()));
-		return btnGallary;
-
-	}
 	else if (btnName == "btnIntegrateArea") {
 
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
