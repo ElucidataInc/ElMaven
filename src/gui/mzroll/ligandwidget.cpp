@@ -79,6 +79,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
 
 
 
+
   //disconnect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)));
   //connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)), SLOT(readRemoteData(const QHttpResponseHeader &)));
   
@@ -403,39 +404,43 @@ void LigandWidget::showTable() {
                 QTreeWidgetItem *item = new QTreeWidgetItem(parent, PathwayType);
                 item->setText(0,QString(compound->category[i].c_str()));
                 //parent->setData(0,Qt::UserRole,QVariant::fromValue(QString(pathway_id.c_str())));
-
             }*/
 
     }
-    treeWidget->setSortingEnabled(true);
-}
-
-void LigandWidget::markAsDone(QTreeWidget* group) {
   
-   // QTreeWidgetItem* matchedItem = nullptr;
-
-    QTreeWidgetItem* item = nullptr;
-    QTreeWidgetItemIterator itr(treeWidget);
-      while (*itr) {
-        item =(*itr);
-        if(item){
-       if(item->backgroundColor(0)  != QColor(61, 204, 85, 100))
-        {  
-           
-            QTreeWidgetItem* chq = getItem(group, item); 
-
-             if (chq != NULL) {
-            for (int col = 0; col < treeWidget->columnCount(); col++) {
-                chq->setBackgroundColor(col, QColor(61, 204, 85, 100));
-            }
-        }
-       
-       }
-       }
-        ++itr;   
-    }    
+      QTreeWidgetItemIterator itr(treeWidget);
+  cerr<<"-------------------------Creating new hash table-----------------------------"<<"\n";
+    while(*itr)
+    {     
+    QTreeWidgetItem* item =(*itr);
+    QVariant v = item->data(0,Qt::UserRole);
+    Compound*  c =  v.value<Compound*>();                                                                                   
+    Hash.insert(c , item);
+     ++itr;
     }
 
+treeWidget->setSortingEnabled(true);
+}
+
+void LigandWidget::markAsDone(Compound* compound) {
+
+
+if(compound != NULL)
+{
+    QHash<Compound *, QTreeWidgetItem *>::const_iterator i = Hash.find(compound);
+if (i.key() == compound) {
+     QTreeWidgetItem* item = i.value();  
+
+        if (item != NULL) {
+             
+            for (int col = 0; col < treeWidget->columnCount(); col++) {
+                item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+            }
+        }
+}
+}    
+
+}
 
 void LigandWidget::resetColor() {
 
@@ -451,33 +456,6 @@ void LigandWidget::resetColor() {
     }
 }
 
-QTreeWidgetItem* LigandWidget::getItem(QTreeWidget* group, QTreeWidgetItem* compound) {
-    QTreeWidgetItem* matchedItem = nullptr;
-
-    QTreeWidgetItemIterator itr(group);
-    while (*itr) {
-        QTreeWidgetItem* item =(*itr);
-        if (item) {
-            QVariant v1 = compound->data(0,Qt::UserRole);
-            Compound* itemCompound =  v1.value<Compound*>();
-
-            QVariant v = item->data(0,Qt::UserRole);
-            PeakGroup* groups =  v.value<PeakGroup*>();
-            Compound * grp = groups->compound;
-           
-                if(grp == itemCompound)
-                {
-                // cerr<<grp<<" ";
-                // cerr<<itemCompound<<"\n";
-                matchedItem = compound;
-                return matchedItem;
-                }
-        }
-        ++itr;
-    }
-
-return matchedItem;
-}
 
 void LigandWidget::saveCompoundList(){
 
@@ -605,7 +583,6 @@ void LigandWidget::showLigand() {
 
     }
 }
-
 void LigandWidget::fetchRemoteCompounds()
 {
     qDebug() << "fetchRemoteCompounds()";
