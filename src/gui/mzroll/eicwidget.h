@@ -178,6 +178,7 @@ Q_SIGNALS:
 	void viewSet(float, float, float, float);
     void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 	void peakMarkedEicWidget();
+    void eicUpdated();
 
 private:
 	EICLogic* eicParameters;

@@ -67,7 +67,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QWidgetAction *btnSwitchView = new TableToolBarWidgetAction(toolBar, this,  "btnSwitchView");
     QWidgetAction *btnGroupCSV = new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
     QWidgetAction *btnSaveJson = new TableToolBarWidgetAction(toolBar, this,  "btnSaveJson");
-    QWidgetAction *btnGallery = new TableToolBarWidgetAction(toolBar, this,  "btnGallery");
     QWidgetAction *btnScatter = new TableToolBarWidgetAction(toolBar, this,  "btnScatter");
     QWidgetAction *btnCluster = new TableToolBarWidgetAction(toolBar, this,  "btnCluster");
     QWidgetAction *btnTrain = new TableToolBarWidgetAction(toolBar, this,  "btnTrain");
@@ -92,7 +91,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     toolBar->addSeparator();
     toolBar->addAction(btnScatter);
-    toolBar->addAction(btnGallery);
     toolBar->addAction(btnCluster);
 
 
@@ -2457,15 +2455,7 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
         return btnSaveJson;
 
-    } else if (btnName == "btnGallery") {
-
-        QToolButton* btnGallery = new QToolButton(parent);
-        btnGallery->setIcon(QIcon(rsrcPath + "/gallery.png"));
-        btnGallery->setToolTip("Show Gallery");
-        connect(btnGallery, SIGNAL(clicked()), td, SLOT(showGallery()));
-        return btnGallery;
-
-    } else if (btnName == "btnScatter") {
+    }  else if (btnName == "btnScatter") {
 
         QToolButton* btnScatter = new QToolButton(parent);
         btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
