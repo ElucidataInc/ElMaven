@@ -90,7 +90,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 7. finally output the list of files in that tmp directory..
                  */
 
-                QStringList prepareFilesToUpload(QDir qdir);
+                QStringList prepareFilesToUpload(QDir qdir, QString datetimestamp);
 
                 /**
                  * @brief This function uploads all the files prepared by prepareFilesToUpload function, to Polly
