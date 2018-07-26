@@ -309,6 +309,15 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
         else{
             _tableDockWidget = peakTableNameMapping[peak_table_name];
         }
+
+        if (_tableDockWidget->groupCount() == 0){
+            QString msg = "Peaks Table is Empty";
+            QMessageBox msgBox(mainwindow);
+            msgBox.setWindowTitle("Error");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return filenames;
+        }
     }
     else{
         QString msg = "No Peak tables";
