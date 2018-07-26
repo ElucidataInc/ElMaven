@@ -2650,14 +2650,14 @@ void MainWindow::showsettingsForm() {
 }
 
 void MainWindow::historyLast() {
-
+    analytics->hitEvent("History", "History Back");
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.last());
 }
 
 void MainWindow::historyNext() {
-
+    analytics->hitEvent("History", "History Forward");
 	if (history.size() == 0)
 		return;
 	eicWidget->setMzSlice(history.next());
