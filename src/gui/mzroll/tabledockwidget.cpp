@@ -72,7 +72,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     QWidgetAction *btnCluster = new TableToolBarWidgetAction(toolBar, this,  "btnCluster");
     QWidgetAction *btnTrain = new TableToolBarWidgetAction(toolBar, this,  "btnTrain");
     QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this,  "btnXML");
-    QWidgetAction *btnLoad = new TableToolBarWidgetAction(toolBar, this,  "btnLoad");
     QWidgetAction *btnGood = new TableToolBarWidgetAction(toolBar, this,  "btnGood");
     QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this,  "btnBad");
     QWidgetAction *btnHeatmapelete = new TableToolBarWidgetAction(toolBar, this,  "btnHeatmapelete");
@@ -104,7 +103,6 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     toolBar->addSeparator();
     toolBar->addAction(btnXML);
-    toolBar->addAction(btnLoad);
 
 
     toolBar->addWidget(spacer);
@@ -2496,14 +2494,6 @@ QWidget* TableToolBarWidgetAction::createWidget(QWidget *parent) {
         btnXML->setToolTip("Save Peaks");
         connect(btnXML, SIGNAL(clicked()), td, SLOT(savePeakTable()));
         return btnXML;
-
-    } else if (btnName == "btnLoad") {
-
-        QToolButton* btnLoad = new QToolButton(parent);
-        btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-        btnLoad->setToolTip("Load Peaks");
-        connect(btnLoad, SIGNAL(clicked()), td->_mainwindow, SLOT(open()));
-        return btnLoad;
 
     } else if (btnName == "btnGood") {
 
