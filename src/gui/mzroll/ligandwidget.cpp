@@ -405,37 +405,31 @@ void LigandWidget::showTable() {
     
     Hash.clear();
     QTreeWidgetItemIterator itr(treeWidget);
-    cerr<<"-------------------------Creating new hash table-----------------------------"<<"\n";
-    while(*itr)
-    {     
-    QTreeWidgetItem* item =(*itr);
-    QVariant v = item->data(0,Qt::UserRole);
-    Compound*  c =  v.value<Compound*>();                                                                                   
-    Hash.insert(c , item);
-     ++itr;
-    }
-
+        while(*itr)
+        {     
+        QTreeWidgetItem* item =(*itr);
+        QVariant v = item->data(0,Qt::UserRole);
+        Compound*  c =  v.value<Compound*>();                                                                                   
+        Hash.insert(c , item);
+        ++itr;
+        }
 treeWidget->setSortingEnabled(true);
 }
 
 void LigandWidget::markAsDone(Compound* compound) {
+    if(compound != NULL)
+    {
+        QHash<Compound *, QTreeWidgetItem *>::const_iterator i = Hash.find(compound);
+        if (i != Hash.end() & i.key() == compound) {
+            QTreeWidgetItem* item = i.value();  
 
-
-if(compound != NULL)
-{
-    QHash<Compound *, QTreeWidgetItem *>::const_iterator i = Hash.find(compound);
-if (i != Hash.end() & i.key() == compound) {
-     QTreeWidgetItem* item = i.value();  
-
-        if (item != NULL) {
-             
-            for (int col = 0; col < treeWidget->columnCount(); col++) {
-                item->setBackgroundColor(col, QColor(61, 204, 85, 100));
-            }
+                if (item != NULL) {
+                    for (int col = 0; col < treeWidget->columnCount(); col++) {
+                        item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+                    }
+                }
         }
-}
-}    
-
+    }    
 }
 
 void LigandWidget::resetColor() {
