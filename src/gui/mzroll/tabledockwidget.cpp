@@ -1915,7 +1915,7 @@ void TableDockWidget::readPeakXML(QXmlStreamReader& xml,PeakGroup* parent) {
 }
 
 void TableDockWidget::savePeakTable() {
-
+     _mainwindow->getAnalytics()->hitEvent("Peaks", "Save Peaks");
     if (allgroups.size() == 0 ) { 
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
