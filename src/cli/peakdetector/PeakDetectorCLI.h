@@ -60,6 +60,7 @@ class PeakDetectorCLI {
 		QString password;
 		QString projectname;
 		QString pollyArgs;
+		QString sample_cohort_file;
 		QString filedir;
 		QStringList pollyargs_list;
 		PollyIntegration* _pollyIntegration;
@@ -89,6 +90,7 @@ class PeakDetectorCLI {
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
 		bool uploadToPolly_bool = false;
+		bool sample_cohort_present = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;

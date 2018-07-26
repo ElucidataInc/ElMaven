@@ -37,6 +37,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
 							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
 							"P?pollyCred: Polly sign in credentials,username,password <string>",
+							"S?sampleCohort: Sample cohort file needed for PollyPhi workflow <string>",
 							NULL 
 	};
 
@@ -142,6 +143,13 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			{
 			pollyArgs = QString(optarg);
 			uploadToPolly_bool = true;
+			}
+			break;
+		case 'S':
+			//Upload sample cohort file from the CLI to polly.
+			{
+			sample_cohort_file = QString(optarg);
+			sample_cohort_present  =true;
 			}
 			break;
 
@@ -612,6 +620,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	
 	//Trying to upload to polly now..
 	if (uploadToPolly_bool){
+		if (sample_cohort_present){
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		mavenParameters->outputdir = "";
 		cout<<"uploding to polly now.."<<endl;
@@ -631,6 +640,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		QString csv_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peak_table_all_Elmaven_Polly";// uploading the csv file 
 		QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly";//  uploading the json file
 		QString compound_DB_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_Polly";//  uploading the compound DB file
+		QString sample_cohort_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Cohort_Mapping_Elmaven";//  uploading the sample cohort file
 		
 		qDebug()<<"csv_filename - "<<csv_filename;
 		//save Eic Json
@@ -642,12 +652,14 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		try {
 			QString compound_DB_file = QString::fromStdString(mavenParameters->ligandDbFilename);
 			bool status = QFile::copy(compound_DB_file, compound_DB_filename+".csv");
+			bool status_sample_copy = QFile::copy(sample_cohort_file, sample_cohort_filename+".csv");
 			qDebug()<<"compound_DB_file copy status - "<<status;
+			qDebug()<<"sample cohort copy status - "<<status_sample_copy;
 			
 			// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv",creds); //add more files to upload, if desired..
+			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv"<<sample_cohort_filename+".csv",creds); //add more files to upload, if desired..
 			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
-				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=firstview'>Go To Polly</a>").arg(upload_project_id);
+				QString redirection_url = QString("<a href='http://testpolly.elucidata.io/main#project=%1&auto-redirect=relative_lcms_elmaven&elmavenTimestamp=%2'>Go To Polly</a>").arg(upload_project_id).arg(datetimestamp);
 				qDebug()<<"redirection url - \n"<<redirection_url;
 				QString filename=QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator()+datetimestamp+"_redirection_url.txt";
 				qDebug()<<"writing url to this file -"<<filename;
@@ -665,6 +677,10 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 			qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
 		}
 		bool status = qdir.removeRecursively();
+		}
+		else{
+			qDebug()<<"Please upload sample cohort file first..\n";
+		}
 	}
 	else{
 		//create an output folder
