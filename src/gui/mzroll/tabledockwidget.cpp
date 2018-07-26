@@ -1,6 +1,6 @@
 #include "tabledockwidget.h";
 
-TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, int bookmarkFlag) {
+TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, tableType type) {
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
@@ -13,6 +13,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     numColms=11;
     viewType = groupView;
+    setTableType(type);
 
     treeWidget=new QTreeWidget(this);
     treeWidget->setSortingEnabled(false);
@@ -56,7 +57,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     btnMergeMenu = new QMenu("Merge Groups");
     btnMerge->setMenu(btnMergeMenu);
     btnMerge->setPopupMode(QToolButton::InstantPopup);
-    if(!bookmarkFlag) btnMerge->setVisible(false);
+    if(type != bookmarkTable) btnMerge->setVisible(false);
 	connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions())); 
     connect(btnMergeMenu, SIGNAL(triggered(QAction*)), SLOT(mergeGroupsIntoPeakTable(QAction*)));
 
@@ -1192,7 +1193,7 @@ void TableDockWidget::markGroupGood() {
     setGroupLabel('g');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
+    if (checkLabeledGroups() && type != bookmarkTable) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
 }
 
@@ -1201,7 +1202,7 @@ void TableDockWidget::markGroupBad() {
     setGroupLabel('b');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
+    if (checkLabeledGroups() && type != bookmarkTable) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
 }
 

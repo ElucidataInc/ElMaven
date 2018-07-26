@@ -314,8 +314,7 @@ using namespace mzUtils;
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
-	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, 1);
-	bookmarkedPeaks->bookmarkPeaksTAble = true;
+	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, TableDockWidget::bookmarkTable);
 
 	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
 	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
