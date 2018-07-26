@@ -377,24 +377,18 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item) {
 
 
 void TableDockWidget::updateCompoundWidget() {
-    QTime myTimer;
-    myTimer.start();
     _mainwindow->ligandWidget->resetColor();
     QTreeWidgetItemIterator itr(treeWidget);
     while (*itr) {
         QTreeWidgetItem* item =(*itr);
-        if (item) {
-            QVariant v = item->data(0,Qt::UserRole);
-            PeakGroup* group =  v.value<PeakGroup*>();
-            if ( group == NULL ) continue;
-
-
-            _mainwindow->ligandWidget->markAsDone(group->compound);
-        }
+            if (item) {
+                QVariant v = item->data(0,Qt::UserRole);
+                PeakGroup* group =  v.value<PeakGroup*>();
+                if ( group == NULL ) continue;
+                _mainwindow->ligandWidget->markAsDone(group->compound);
+            }
         ++itr;
     }
-    int nMilliseconds = myTimer.elapsed();
-    cerr<<nMilliseconds;
 }
 
 void TableDockWidget::heatmapBackground(QTreeWidgetItem* item) {
