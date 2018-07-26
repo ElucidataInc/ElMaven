@@ -299,6 +299,21 @@ void TableDockWidget::setupPeakTable() {
     treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     treeWidget->header()->adjustSize();
 
+    /* Remove "Ratio Change" and "P-value" fields from non-scatterplot
+     * tables where they are not relevant.
+     */
+    if (viewType == groupView && type != scatterplotTable) {
+        treeWidget->setColumnHidden(colNames.indexOf("Ratio Change"), true);
+        treeWidget->setColumnHidden(colNames.indexOf("P-value"), true);
+    }
+    else {
+        // make any hidden columns visible again
+        for (int i=0; i<colNames.size(); i++) {
+            treeWidget->setColumnHidden(i, false);
+        }
+    }
+
+
     treeWidget->setSortingEnabled(true);
 
 
