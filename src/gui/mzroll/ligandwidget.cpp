@@ -408,8 +408,10 @@ void LigandWidget::showTable() {
 
     }
   
-      QTreeWidgetItemIterator itr(treeWidget);
-  cerr<<"-------------------------Creating new hash table-----------------------------"<<"\n";
+    
+    Hash.clear();
+    QTreeWidgetItemIterator itr(treeWidget);
+    cerr<<"-------------------------Creating new hash table-----------------------------"<<"\n";
     while(*itr)
     {     
     QTreeWidgetItem* item =(*itr);
@@ -428,7 +430,7 @@ void LigandWidget::markAsDone(Compound* compound) {
 if(compound != NULL)
 {
     QHash<Compound *, QTreeWidgetItem *>::const_iterator i = Hash.find(compound);
-if (i.key() == compound) {
+if (i != Hash.end() & i.key() == compound) {
      QTreeWidgetItem* item = i.value();  
 
         if (item != NULL) {
