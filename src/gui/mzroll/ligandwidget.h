@@ -111,7 +111,7 @@ private:
     QToolButton *loadButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
-    QHash<Compound *, QTreeWidgetItem *> Hash;
+    QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
 
     QHash<QString,bool>alteredDatabases;
 

@@ -403,14 +403,14 @@ void LigandWidget::showTable() {
     }
   
     
-    Hash.clear();
+    CompoundsHash.clear();
     QTreeWidgetItemIterator itr(treeWidget);
         while(*itr)
         {     
         QTreeWidgetItem* item =(*itr);
         QVariant v = item->data(0,Qt::UserRole);
         Compound*  c =  v.value<Compound*>();                                                                                   
-        Hash.insert(c , item);
+        CompoundsHash.insert(c , item);
         ++itr;
         }
 treeWidget->setSortingEnabled(true);
@@ -419,13 +419,13 @@ treeWidget->setSortingEnabled(true);
 void LigandWidget::markAsDone(Compound* compound) {
     if(compound != NULL)
     {
-        QHash<Compound *, QTreeWidgetItem *>::const_iterator i = Hash.find(compound);
-        if (i != Hash.end() & i.key() == compound) {
+        QHash<Compound *, QTreeWidgetItem *>::const_iterator i = CompoundsHash.find(compound);
+        if (i != CompoundsHash.end() & i.key() == compound) {
             QTreeWidgetItem* item = i.value();  
 
                 if (item != NULL) {
                     for (int col = 0; col < treeWidget->columnCount(); col++) {
-                        item->setBackgroundColor(col, QColor(61, 204, 85, 100));
+                        item->setBackground(col,QBrush(QColor(61, 204, 85, 100)));
                     }
                 }
         }
