@@ -12,6 +12,7 @@ void AlignmentVizAllGroupsWidget::replotGraph() {
 
 void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
 
+    if (!_mw->alignmentVizAllGroupsDockWidget->isVisible()) return;
     saveGroups = allgroups;
 
     _mw->alignmentVizAllGroupsPlot->clearPlottables();

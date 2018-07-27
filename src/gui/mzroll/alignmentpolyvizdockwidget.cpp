@@ -41,16 +41,18 @@ AlignmentPolyVizDockWidget::~AlignmentPolyVizDockWidget()
 
 void AlignmentPolyVizDockWidget::plotGraph() {
 
-        intialSetup();
+    if (!_mw->alignmentPolyVizDockWidget->isVisible()) return;
 
-        // plot individual graphs here
-        Q_FOREACH(mzSample* sample, _mw->getSamples()) {
-            if(sample->isSelected) {
-                plotIndividualGraph(sample);
-            }
+    intialSetup();
+
+    // plot individual graphs here
+    Q_FOREACH(mzSample* sample, _mw->getSamples()) {
+        if(sample->isSelected) {
+            plotIndividualGraph(sample);
         }
+    }
 
-        refresh();
+    refresh();
 
 }
 

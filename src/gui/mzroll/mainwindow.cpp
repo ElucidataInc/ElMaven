@@ -2590,6 +2590,8 @@ void MainWindow::createToolBars() {
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
 	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
+	connect(btnAlignmentVizAllGroups, SIGNAL(clicked(bool)), SLOT(replotAlignmentVizAllGroupGraph(bool)));
+	connect(btnAlignmentPolyViz, SIGNAL(clicked(bool)), SLOT(plotAlignmentPolyVizDockWidget(bool)));
 
 	sideBar->setOrientation(Qt::Vertical);
 	sideBar->setMovable(false);
@@ -2828,6 +2830,14 @@ void MainWindow::Align() {
 
 void MainWindow::plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups) {
 	alignmentVizAllGroupsWidget->plotGraph(allgroups);
+}
+
+void MainWindow::replotAlignmentVizAllGroupGraph(bool active) {
+	if (active) alignmentVizAllGroupsWidget->replotGraph();
+}
+
+void MainWindow::plotAlignmentPolyVizDockWidget(bool active) {
+	if (active) alignmentPolyVizDockWidget->plotGraph();
 }
 
 void MainWindow::showAlignmentWidget() {

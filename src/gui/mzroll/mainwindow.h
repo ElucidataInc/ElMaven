@@ -326,6 +326,8 @@ public Q_SLOTS:
 	void showsettingsForm();
 	void sendAnalytics();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
+	void replotAlignmentVizAllGroupGraph(bool active);
+	void plotAlignmentPolyVizDockWidget(bool active);
 	void createPeakTable(QString);
 
 	void setIonizationModeLabel();
