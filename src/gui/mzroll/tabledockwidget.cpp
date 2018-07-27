@@ -384,7 +384,7 @@ void TableDockWidget::updateCompoundWidget() {
             if (item) {
                 QVariant v = item->data(0,Qt::UserRole);
                 PeakGroup* group =  v.value<PeakGroup*>();
-                if ( group == NULL ) continue;
+                if ( group == nullptr ) continue;
                 _mainwindow->ligandWidget->markAsDone(group->compound);
             }
         ++itr;
