@@ -3111,7 +3111,6 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
 	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
-	QWidgetAction *btnMarkBad = new MainWindowWidgetAction(toolBar, this,  "btnMarkBad");
 	QWidgetAction *btnIntegrateArea = new MainWindowWidgetAction(toolBar, this,  "btnIntegrateArea");
 	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
 	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
@@ -3128,7 +3127,6 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
 	toolBar->addAction(btnCopyCSV);
-	toolBar->addAction(btnMarkBad);
 
 	toolBar->addSeparator();
 	toolBar->addAction(btnIntegrateArea);
@@ -3199,17 +3197,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnCopyCSV;
 
 	}
-	else if (btnName == "btnMarkBad") {
-
-		QToolButton *btnMarkBad = new QToolButton(parent);
-		btnMarkBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-		btnMarkBad->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnMarkBad->setToolTip(tr("Bookmark as Bad Group (B)"));
-		connect(btnMarkBad, SIGNAL(clicked()), mw->getEicWidget(), SLOT(markGroupBad()));
-		return btnMarkBad;
-
-	}
-
 	else if (btnName == "btnIntegrateArea") {
 
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
