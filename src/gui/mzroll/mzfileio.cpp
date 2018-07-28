@@ -573,10 +573,9 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample) {
-                    if (sample->scans.size()>0)
-                        emit addNewSample(sample);
-            }
+            if (sample && sample->scans.size() > 0)
+                emit addNewSample(sample);
+
             #ifndef __APPLE__
             #pragma omp atomic
             #endif
@@ -590,18 +589,9 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample) {
-                    sample->enumerateSRMScans();
-                    sample->calculateMzRtRange();    //set min and max values for rt
-                    sample->fileName = filename.toStdString();
+            if (sample && sample->scans.size() > 0)
+                _mainwindow->addSample(sample);
 
-                    if ( filename.contains("blank",Qt::CaseInsensitive))
-                            sample->isBlank = true;   //check if this is a blank sample
-
-                    if (sample->scans.size()>0)
-                            _mainwindow->addSample(sample);
-
-            }
             iter++;
 
             Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
