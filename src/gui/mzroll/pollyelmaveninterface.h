@@ -74,6 +74,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
         private Q_SLOTS:
                 void goToPolly();
+                void performPostUploadTasks(bool uploadSuccessful);
         
         public Q_SLOTS:
                 /**
@@ -102,7 +103,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 6. If successfully uploaded, show redirection url messagebox, else display error messagebox.
                  */
 
-                QString uploadDataToPolly();
+                void uploadDataToPolly();
 
                 /**
                  * @brief This function loads settings file and compound database files back to Elmaven from a project on polly
@@ -164,6 +165,12 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
                 // void on_comboBox_load_projects_activated(const QString &arg1);
                 // void on_comboBox_existing_projects_activated(const QString &arg1);
+        
+        signals:
+                /**
+                 * @brief Signal emitted when uploading process has completed, successfully or otherwise.
+                 */
+                void uploadFinished(bool success);
 
         private:
                 /**
