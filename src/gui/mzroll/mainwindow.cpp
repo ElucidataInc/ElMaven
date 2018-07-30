@@ -2586,7 +2586,7 @@ void MainWindow::createToolBars() {
 	btnBookmarks->setShortcut(Qt::Key_F9);
 	btnSRM->setShortcut(Qt::Key_F10);
 
-    connect(btnGallery, SIGNAL(clicked()), getEicWidget(), SLOT(setGallaryToEics()));
+    connect(btnGallery, SIGNAL(clicked()), getEicWidget(), SLOT(setGalleryToEics()));
 
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));

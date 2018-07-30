@@ -339,7 +339,7 @@ void GalleryWidget::wheelEvent(QWheelEvent *event) {
 void GalleryWidget::drawMap() {
 
 
-    //gallary widget is too small
+    //gallery widget is too small
     if (width() < 50 or height() < 50) {
         return;
     }

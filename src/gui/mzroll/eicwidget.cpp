@@ -55,7 +55,7 @@ EicWidget::EicWidget(QWidget *p) {
     _mouseEndPos = _mouseStartPos = QPointF(0,0); //TODO: Sahil, added while merging eicwidget
 
 	connect(scene(), SIGNAL(selectionChanged()), SLOT(selectionChangedAction()));
-    connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGallaryToEics);
+    connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGalleryToEics);
 
 }
 
@@ -1847,7 +1847,7 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	eicParameters->selectedGroup = group;
 }
 
-void EicWidget::setGallaryToEics() {
+void EicWidget::setGalleryToEics() {
 	//todo fix spelling
 	if (getMainWindow()->galleryDockWidget->isVisible()) {
 		getMainWindow()->galleryWidget->addIdividualEicPlots(
