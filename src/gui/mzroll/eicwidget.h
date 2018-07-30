@@ -75,7 +75,7 @@ public Q_SLOTS:
 	void addNote(float x, float y, QString text);
 	void updateNote(Note*);
 	void saveRetentionTime();
-	void setGallaryToEics();
+	void setGalleryToEics();
 	// void align(); //TODO: Sahil Removed while merging the eicWidget
 
 	void selectGroupNearRt(float rt);
