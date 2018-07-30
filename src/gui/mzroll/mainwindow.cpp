@@ -3129,9 +3129,7 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
 	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
 	QWidgetAction *btnNext = new MainWindowWidgetAction(toolBar, this,  "btnNext");
-	QWidgetAction *btnPDF = new MainWindowWidgetAction(toolBar, this,  "btnPDF");
-	QWidgetAction *btnPNG = new MainWindowWidgetAction(toolBar, this,  "btnPNG");
-	QWidgetAction *btnPrint = new MainWindowWidgetAction(toolBar, this,  "btnPrint");
+	QWidgetAction *btnExport = new MainWindowWidgetAction(toolBar, this,  "btnExport");
 	QWidgetAction *btnAutoZoom = new MainWindowWidgetAction(toolBar, this,  "btnAutoZoom");
 	QWidgetAction *btnShowTic = new MainWindowWidgetAction(toolBar, this,  "btnShowTic");
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
@@ -3149,9 +3147,7 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->addAction(btnNext);
 
 	toolBar->addSeparator();
-	toolBar->addAction(btnPDF);
-	toolBar->addAction(btnPNG);
-	toolBar->addAction(btnPrint);
+	toolBar->addAction(btnExport);
 
 	toolBar->addSeparator();
 	toolBar->addAction(btnAutoZoom);
@@ -3256,35 +3252,27 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnNext;
 
 	}
-	else if (btnName == "btnPDF") {
-
-		QToolButton *btnPDF = new QToolButton(parent);
-		btnPDF->setIcon(QIcon(rsrcPath + "/exportpdf.png"));
-		btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnPDF->setToolTip(tr("Save EIC Image to PDF file"));
-		connect(btnPDF, SIGNAL(clicked()), mw, SLOT(exportPDF()));
-		return btnPDF;
-
-	}
-	else if (btnName == "btnPNG") {
-
-		QToolButton *btnPNG = new QToolButton(parent);
-		btnPNG->setIcon(QIcon(rsrcPath + "/copyPNG.png"));
-		btnPNG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnPNG->setToolTip(tr("Copy EIC Image to Clipboard"));
-		connect(btnPNG, SIGNAL(clicked()), mw, SLOT(exportSVG()));
-		return btnPNG;
-
-	}
-	else if (btnName == "btnPrint") {
-
-		QToolButton *btnPrint = new QToolButton(parent);
-		btnPrint->setIcon(QIcon(rsrcPath + "/fileprint.png"));
-		btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		btnPrint->setToolTip(tr("Print EIC (Ctr+P)"));
-		btnPrint->setShortcut(tr("Ctrl+P"));
-		connect(btnPrint, SIGNAL(clicked()), mw, SLOT(print()));
-		return btnPrint;
+	else if (btnName == "btnExport") {
+		
+		QToolButton* btnExport = new QToolButton(parent);
+		btnExport->setIcon(QIcon(rsrcPath + "/export.png"));
+		btnExport->setToolTip("Export as…");
+		QMenu* btnExportMenu = new QMenu("Export Image as…");
+		btnExport->setMenu(btnExportMenu);
+		btnExport->setPopupMode(QToolButton::InstantPopup);
+		btnExportMenu->addAction(QIcon(rsrcPath + "/exportpdf.png"),
+								 "Export EIC as PDF file",
+								 mw,
+								 &MainWindow::exportPDF);
+		btnExportMenu->addAction(QIcon(rsrcPath + "/copyPNG.png"),
+								 "Copy EIC Image to Clipboard",
+								 mw,
+								 &MainWindow::exportSVG);
+		btnExportMenu->addAction(QIcon(rsrcPath + "/fileprint.png"),
+								 "Print EIC (Ctrl+P)",
+								 mw,
+								 &MainWindow::print);
+		return btnExport;
 
 	}
 	else if (btnName == "btnAutoZoom") {
