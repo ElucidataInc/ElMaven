@@ -100,9 +100,12 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 		if (rtmax - rtmin > 0.01)
 			integrateRegion(rtmin, rtmax);
 
-	} else if (_spectraAveraging
+	}
+	//user is holding Ctrl while releasing the mouse.. average spectra
+	 else if (_spectraAveraging
 			|| (event->button() == Qt::LeftButton
 					&& event->modifiers() == Qt::ControlModifier)) {
+		getMainWindow()->analyticsAverageSpectra();	
 		toggleSpectraAveraging(false);
 		getMainWindow()->getSpectraWidget()->constructAverageScan(rtmin, rtmax);
 
