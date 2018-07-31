@@ -62,7 +62,13 @@ class TableDockWidget : public QDockWidget
 
     QMap<QAction *, int> mergeAction;
     //QAction *hell;
-    bool bookmarkPeaksTAble = false;
+
+    enum tableType
+    {
+        peakTable = 0,
+        bookmarkTable = 1,
+        scatterplotTable = 2
+    };
 
     enum tableViewType
     {
@@ -77,7 +83,7 @@ class TableDockWidget : public QDockWidget
         Bad = 3
     };
 
-    TableDockWidget(MainWindow *mw, QString title, int numColms, int bookmarkFlag = 0);
+    TableDockWidget(MainWindow *mw, QString title, int numColms, tableType type = peakTable);
     ~TableDockWidget();
 
     int groupCount() { return allgroups.size(); }
@@ -227,6 +233,7 @@ public Q_SLOTS:
     void mergeGroupsIntoPeakTable(QAction *action);
     void switchTableView();
 
+    void setTableType(tableType t) { type = t; }
     void setTableView(tableViewType t) { viewType = t; }
     void clearClusters();
 
@@ -283,6 +290,7 @@ private:
     QDialog *filtersDialog;
     QMap<QString, QHistogramSlider *> sliders;
     float rtWindow = 2;
+    tableType type;
     tableViewType viewType;
     peakTableSelectionType peakTableSelection;
     QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);

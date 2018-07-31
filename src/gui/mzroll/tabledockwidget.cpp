@@ -1,6 +1,6 @@
 #include "tabledockwidget.h";
 
-TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, int bookmarkFlag) {
+TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, tableType type) {
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setFloating(false);
     _mainwindow = mw;
@@ -13,6 +13,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
 
     numColms=11;
     viewType = groupView;
+    setTableType(type);
 
     treeWidget=new QTreeWidget(this);
     treeWidget->setSortingEnabled(false);
@@ -56,7 +57,7 @@ TableDockWidget::TableDockWidget(MainWindow* mw, QString title, int numColms, in
     btnMergeMenu = new QMenu("Merge Groups");
     btnMerge->setMenu(btnMergeMenu);
     btnMerge->setPopupMode(QToolButton::InstantPopup);
-    if(!bookmarkFlag) btnMerge->setVisible(false);
+    if(type != bookmarkTable) btnMerge->setVisible(false);
 	connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions())); 
     connect(btnMergeMenu, SIGNAL(triggered(QAction*)), SLOT(mergeGroupsIntoPeakTable(QAction*)));
 
@@ -297,6 +298,21 @@ void TableDockWidget::setupPeakTable() {
     treeWidget->setHeaderLabels(colNames);
     treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     treeWidget->header()->adjustSize();
+
+    /* Remove "Ratio Change" and "P-value" fields from non-scatterplot
+     * tables where they are not relevant.
+     */
+    if (viewType == groupView && type != scatterplotTable) {
+        treeWidget->setColumnHidden(colNames.indexOf("Ratio Change"), true);
+        treeWidget->setColumnHidden(colNames.indexOf("P-value"), true);
+    }
+    else {
+        // make any hidden columns visible again
+        for (int i=0; i<colNames.size(); i++) {
+            treeWidget->setColumnHidden(i, false);
+        }
+    }
+
 
     treeWidget->setSortingEnabled(true);
 
@@ -1192,7 +1208,7 @@ void TableDockWidget::markGroupGood() {
     setGroupLabel('g');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
+    if (checkLabeledGroups() && type != bookmarkTable) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
 }
 
@@ -1201,7 +1217,7 @@ void TableDockWidget::markGroupBad() {
     setGroupLabel('b');
     showNextGroup();
     _mainwindow->peaksMarked++;
-    if (checkLabeledGroups() && !bookmarkPeaksTAble) _mainwindow->allPeaksMarked = true; 
+    if (checkLabeledGroups() && type != bookmarkTable) _mainwindow->allPeaksMarked = true; 
     _mainwindow->autoSaveSignal();
 }
 
