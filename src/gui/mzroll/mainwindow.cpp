@@ -3255,7 +3255,8 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 	else if (btnName == "btnExport") {
 		
 		QToolButton* btnExport = new QToolButton(parent);
-		btnExport->setIcon(QIcon(rsrcPath + "/export.png"));
+		btnExport->setIcon(QIcon(rsrcPath + "/exportOptions.png"));
+		btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnExport->setToolTip("Export as…");
 		QMenu* btnExportMenu = new QMenu("Export Image as…");
 		btnExport->setMenu(btnExportMenu);
