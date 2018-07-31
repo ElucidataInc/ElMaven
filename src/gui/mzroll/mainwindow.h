@@ -365,7 +365,6 @@ public Q_SLOTS:
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq);
-	
 	void open();
 	void print();
 	void exportPDF();

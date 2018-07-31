@@ -3228,7 +3228,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
 		btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
-
 		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
 				SLOT(startSpectralAveraging()));
         connect(btnAverageSpectra,SIGNAL(clicked()),mw,SLOT(analyticsAverageSpectra()));
@@ -3329,7 +3328,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
 		connect(btnShowBarplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 		return btnShowBarplot;
-
 	}
 	else if (btnName == "btnShowIsotopeplot") {
 
@@ -3338,16 +3336,12 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
 		btnShowIsotopeplot->setCheckable(true);
-
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
-
 		btnShowIsotopeplot->setChecked(mw->isotopePlotDockWidget->isVisible());
 		connect(mw->isotopePlotDockWidget, SIGNAL(visibilityChanged(bool)), btnShowIsotopeplot,
 				SLOT(setChecked(bool)));
-
 		return btnShowIsotopeplot;
-
 	}
 	else if (btnName == "btnShowBoxplot") {
 		
@@ -3357,13 +3351,10 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowBoxplot->setToolTip(tr("Show Boxplot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
-		
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)),mw,SLOT(analyticsBoxPlot()));
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
-        
 		return btnShowBoxplot;
-
 	}
 	
 	else {
