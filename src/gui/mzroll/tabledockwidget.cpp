@@ -1528,19 +1528,6 @@ void TableDockWidget::showHeatMap() {
     }
 }
 
-void TableDockWidget::showGallery() { 
-
-    if ( _mainwindow->galleryWidget ) {
-        _mainwindow->galleryDockWidget->setVisible(true);
-        QList<PeakGroup*>selected = getSelectedGroups();
-        vector<PeakGroup*>groups(selected.size());
-        for(int i=0; i<selected.size(); i++) { groups[i]=selected[i]; }
-        _mainwindow->galleryWidget->clear();
-        _mainwindow->galleryWidget->addEicPlots(groups);
-    }
-}
-
-
 void TableDockWidget::showTreeMap() { 
 
     /*

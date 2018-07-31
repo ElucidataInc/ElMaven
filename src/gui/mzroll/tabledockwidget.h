@@ -196,7 +196,6 @@ public Q_SLOTS:
     void markGroupIgnored();
     void showAllGroups();
     void showHeatMap();
-    void showGallery();
     /**
      * @brief  modify name appropriate for xml attribute naming
      * @detail This method makes sample name appropriate for using in attribute naming in mzroll file
