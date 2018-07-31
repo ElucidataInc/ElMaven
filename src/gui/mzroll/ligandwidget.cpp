@@ -401,23 +401,29 @@ void LigandWidget::showTable() {
             }*/
 
     }
-  
-    
-    CompoundsHash.clear();
-    QTreeWidgetItemIterator itr(treeWidget);
-        while(*itr)
-        {     
-        QTreeWidgetItem* item =(*itr);
-        QVariant v = item->data(0,Qt::UserRole);
-        Compound*  c =  v.value<Compound*>();                                                                                   
-        CompoundsHash.insert(c , item);
-        ++itr;
-        }
+setHash();
 treeWidget->setSortingEnabled(true);
 }
 
+
+
+void LigandWidget::setHash()
+{
+    CompoundsHash.clear();
+    QTreeWidgetItemIterator itr(treeWidget);
+        while(*itr)
+            {     
+                QTreeWidgetItem* item =(*itr);
+                QVariant v = item->data(0,Qt::UserRole);
+                Compound*  c =  v.value<Compound*>();                                                                                   
+                CompoundsHash.insert(c , item);
+                ++itr;
+            }
+}
+
 void LigandWidget::markAsDone(Compound* compound) {
-    if(compound != NULL)
+    if(compound == NULL)
+    return;
     {
         QHash<Compound *, QTreeWidgetItem *>::const_iterator i = CompoundsHash.find(compound);
         if (i != CompoundsHash.end() & i.key() == compound) {
