@@ -57,6 +57,7 @@ public:
     void setDatabaseAltered(QString dbame,bool altered);
 	Compound* getSelectedCompound();
     void loadCompoundDBMzroll(QString fileName);
+    void setHash();
 
     /**
      * @brief returns QTreeWidgetItem associated with specific compound
