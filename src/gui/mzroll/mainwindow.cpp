@@ -1455,6 +1455,16 @@ void MainWindow::print() {
 	}
 }
 
+
+void MainWindow::analyticsBoxPlot(){
+    analytics->hitEvent("BoxPlot","Clicked");
+}
+
+void MainWindow::analyticsAverageSpectra(){
+    analytics->hitEvent("Average Spectra","Clicked");
+}
+
+
 void MainWindow::open() {
 
 
@@ -2919,6 +2929,9 @@ void MainWindow::showPeakInfo(Peak* _peak) {
     }
 }
 
+
+
+
 void MainWindow::spectaFocused(Peak* _peak) {
 	if (_peak == NULL)
 		return;
@@ -3062,6 +3075,7 @@ void MainWindow::showFragmentationScans(float pmz) {
 		}
 	}
 }
+
 
 void MainWindow::reorderSamples(PeakGroup* group) {
 	if (group)
@@ -3214,9 +3228,10 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
 		btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
+
 		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
 				SLOT(startSpectralAveraging()));
-
+        connect(btnAverageSpectra,SIGNAL(clicked()),mw,SLOT(analyticsAverageSpectra()));
 		return btnAverageSpectra;
 
 	}
@@ -3343,9 +3358,10 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
 		
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBoxPlot(bool)));
+		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
+		connect(btnShowBoxplot,SIGNAL(toggled(bool)),mw,SLOT(analyticsBoxPlot()));
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
-
+        
 		return btnShowBoxplot;
 
 	}

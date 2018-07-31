@@ -305,7 +305,6 @@ public Q_SLOTS:
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
 	void autosaveMzRoll();
-	void openAWSDialog();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -325,6 +324,9 @@ public Q_SLOTS:
 	void showspectraMatchingForm();
 	void showsettingsForm();
 	void sendAnalytics();
+	void openAWSDialog();
+	void analyticsBoxPlot();
+	void analyticsAverageSpectra();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void replotAlignmentVizAllGroupGraph(bool active);
 	void plotAlignmentPolyVizDockWidget(bool active);
@@ -363,6 +365,7 @@ public Q_SLOTS:
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq);
+	
 	void open();
 	void print();
 	void exportPDF();
