@@ -411,51 +411,51 @@ setHash();
 treeWidget->setSortingEnabled(true);
 }
 
-
-
 void LigandWidget::setHash()
 {
     CompoundsHash.clear();
     QTreeWidgetItemIterator itr(treeWidget);
-        while(*itr)
-            {     
-                QTreeWidgetItem* item =(*itr);
-                QVariant v = item->data(0,Qt::UserRole);
-                Compound*  c =  v.value<Compound*>();                                                                                   
-                CompoundsHash.insert(c , item);
-                ++itr;
-            }
-}
-
-void LigandWidget::markAsDone(Compound* compound) {
-    if(compound == NULL)
-    return;
-    {
-        QHash<Compound *, QTreeWidgetItem *>::const_iterator i = CompoundsHash.find(compound);
-        if (i != CompoundsHash.end() & i.key() == compound) {
-            QTreeWidgetItem* item = i.value();  
-
-                if (item != NULL) {
-                    for (int col = 0; col < treeWidget->columnCount(); col++) {
-                        item->setBackground(col,QBrush(QColor(61, 204, 85, 100)));
-                    }
-                }
-        }
-    }    
-}
-
-void LigandWidget::resetColor() {
-
-    QTreeWidgetItemIterator itr(treeWidget);
-    while (*itr) {
+     while(*itr)
+    {     
         QTreeWidgetItem* item =(*itr);
-        if (item) {
-            for (int col = 0; col < treeWidget->columnCount(); col++) {
-                item->setBackgroundColor(col, QColor(255, 255, 255, 100));
-            }
-        }
+        QVariant v = item->data(0,Qt::UserRole);
+        Compound*  c =  v.value<Compound*>();                                                                                   
+        CompoundsHash.insert(c , item);
         ++itr;
     }
+}
+
+void LigandWidget::markAsDone(Compound* compound) 
+{
+if(compound == NULL)
+    return;
+QHash<Compound *, QTreeWidgetItem *>::const_iterator i = CompoundsHash.find(compound);
+if (i != CompoundsHash.end() & i.key() == compound) 
+{
+    QTreeWidgetItem* item = i.value();  
+    if (item != NULL) 
+    {
+        for (int col = 0; col < treeWidget->columnCount(); col++) 
+        {
+        item->setBackground(col,QBrush(QColor(61, 204, 85, 100)));
+        }
+    }
+}    
+}
+
+void LigandWidget::resetColor() 
+{
+
+QTreeWidgetItemIterator itr(treeWidget);
+while (*itr) {
+    QTreeWidgetItem* item =(*itr);
+    if (item) {
+        for (int col = 0; col < treeWidget->columnCount(); col++) {
+            item->setBackgroundColor(col, QColor(255, 255, 255, 100));
+        }
+    }
+    ++itr;
+}
 }
 
 
