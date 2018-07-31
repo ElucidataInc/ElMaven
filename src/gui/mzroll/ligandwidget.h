@@ -69,7 +69,6 @@ public Q_SLOTS:
     void setDatabase(QString dbname);
     void setFilterString(QString s);
     void showMatches(QString needle);
-    void showGallery();
 
     /**
      * @brief reset the color of rows
@@ -107,7 +106,6 @@ private:
 
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
-    QToolButton *galleryButton;
     QToolButton *saveButton;
     QToolButton *loadButton;
     QLineEdit*  filterEditor;
