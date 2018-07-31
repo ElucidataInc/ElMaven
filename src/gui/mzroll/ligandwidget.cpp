@@ -33,11 +33,6 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   databaseSelect->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
 
 
-//   galleryButton = new QToolButton(toolBar);
-//   galleryButton->setIcon(QIcon(rsrcPath + "/gallery.png"));
-//   galleryButton->setToolTip(tr("Show Compounds in Gallery Widget"));
-//   connect(galleryButton,SIGNAL(clicked()),SLOT(showGallery()));
-
   loadButton = new QToolButton(toolBar);
   loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
   loadButton->setToolTip("Load Custom Compound List");
@@ -57,7 +52,6 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(loadButton);
   toolBar->addWidget(saveButton);
-//   toolBar->addWidget(galleryButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);
@@ -538,28 +532,6 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
         }
         setDatabaseAltered(databaseSelect->currentText(),false);
     }
-}
-
-
-void LigandWidget::showGallery() {
-
-	vector<Compound*>matches;
-    QTreeWidgetItemIterator itr(treeWidget);
-    while (*itr) {
-        QTreeWidgetItem* item =(*itr);
-        QVariant v = item->data(0,Qt::UserRole);
-        Compound*  compound =  v.value<Compound*>();
-        matches.push_back(compound);
-    }
-
-    //qDebug() << "  showGallery()" << matches.size();
-	if (matches.size() > 0) {
-		_mw->galleryWidget->clear();
-		_mw->galleryWidget->addEicPlots(matches);
-		_mw->galleryDockWidget->show();
-        _mw->galleryDockWidget->raise();
-
-	}
 }
 
 void LigandWidget::showNext() {
