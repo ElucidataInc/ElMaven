@@ -41,6 +41,7 @@ HEADERS += \
     testMzSlice.h \
     testLoadDB.h \
     testPeakDetection.h \
+    testIsotopeDetection.h \
     testScan.h \
     testEIC.h \
     testbase64.h \
@@ -63,6 +64,7 @@ SOURCES += \
     testMassCalculator.cpp \
     testCSVReports.cpp \
     testPeakDetection.cpp \
+    testIsotopeDetection.cpp \
     testMzSlice.cpp \
     testLoadDB.cpp \
     testScan.cpp \
