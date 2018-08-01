@@ -36,7 +36,8 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"X?defaultXml: Create a template config file",
 							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
 							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
-							"P?pollyCred: Polly sign in credentials,username,password <string>",
+							"P?pollyCred: Polly sign in credentials,username,password provided in xml file<string>",
+							"N?pollyProject: Polly project where we want to upload our files <string>",
 							"S?sampleCohort: Sample cohort file needed for PollyPhi workflow <string>",
 							NULL 
 	};
@@ -143,6 +144,13 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 			{
 			pollyArgs = QString(optarg);
 			uploadToPolly_bool = true;
+			}
+			break;
+		case 'N':
+			//parse polly project argument here.
+			{
+			pollyProject = QString(optarg);
+			pollyProject_provided = true;
 			}
 			break;
 		case 'S':
@@ -621,6 +629,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	//Trying to upload to polly now..
 	if (uploadToPolly_bool){
 		if (sample_cohort_present){
+			if(pollyProject_provided){
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		mavenParameters->outputdir = "";
 		cout<<"uploding to polly now.."<<endl;
@@ -657,7 +666,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 			qDebug()<<"sample cohort copy status - "<<status_sample_copy;
 			
 			// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv"<<sample_cohort_filename+".csv",creds); //add more files to upload, if desired..
+			QString upload_project_id = UploadToPolly(jsPath,nodePath,QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv"<<sample_cohort_filename+".csv",creds,pollyProject); //add more files to upload, if desired..
 			if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
 				QString redirection_url = QString("<a href='http://testpolly.elucidata.io/main#project=%1&auto-redirect=relative_lcms_elmaven&elmavenTimestamp=%2'>Go To Polly</a>").arg(upload_project_id).arg(datetimestamp);
 				qDebug()<<"redirection url - \n"<<redirection_url;
@@ -677,6 +686,10 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 			qDebug()<<"Unable to upload data to polly...Please check the CLI arguments..";
 		}
 		bool status = qdir.removeRecursively();
+		}
+		else{
+			qDebug()<<"Please provide project name..\n";
+		}
 		}
 		else{
 			qDebug()<<"Please upload sample cohort file first..\n";
@@ -760,7 +773,7 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
 	return creds;
 }
 
-QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds) {
+QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds,QString pollyProject) {
 	QString upload_project_id;
 	
 	// set jspath and nodepath for _pollyIntegration library .
@@ -778,7 +791,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	QString projectId;
 	QString defaultprojectId;
 	for (int i=0; i < keys.size(); ++i){
-		if (projectnames_id[keys.at(i)].toString()==creds["polly_project"]){
+		if (projectnames_id[keys.at(i)].toString()==pollyProject){
 			// that means the name provided by the user matches a project.
 			projectId= keys.at(i);
 			}
@@ -790,7 +803,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	if (projectId==""){
 		//In case no project matches with the user defined name,
 		// Create the project and upload to it..This makes the project name to be mandatory..
-		QString new_project_id = _pollyIntegration->createProjectOnPolly(creds["polly_project"]);
+		QString new_project_id = _pollyIntegration->createProjectOnPolly(pollyProject);
 		_pollyIntegration->exportData(filenames,new_project_id);
 		upload_project_id = new_project_id;
 	}

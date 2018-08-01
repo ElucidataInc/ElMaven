@@ -60,6 +60,7 @@ class PeakDetectorCLI {
 		QString password;
 		QString projectname;
 		QString pollyArgs;
+		QString pollyProject;
 		QString sample_cohort_file;
 		QString filedir;
 		QStringList pollyargs_list;
@@ -90,6 +91,7 @@ class PeakDetectorCLI {
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
 		bool uploadToPolly_bool = false;
+		bool pollyProject_provided = false;
 		bool sample_cohort_present = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
@@ -171,7 +173,7 @@ class PeakDetectorCLI {
 		 * @param nodepath  [path to node executable]
 		 * @param filenames [List of files to be uploaded on polly]
 		*/
-		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds);
+		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds,QString pollyProject);
 		bool send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
 		/**
