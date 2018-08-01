@@ -3179,7 +3179,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnZoom = new QToolButton(parent);
 		btnZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-		btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnZoom->setToolTip(tr("Zoom out (0)"));
 		connect(btnZoom, SIGNAL(clicked()), mw->getEicWidget(), SLOT(resetZoom()));
 		return btnZoom;
@@ -3189,7 +3188,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnBookmark = new QToolButton(parent);
 		btnBookmark->setIcon(QIcon(rsrcPath + "/bookmark.png"));
-		btnBookmark->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
 		btnBookmark->setShortcut(tr("Ctrl+D"));
 		connect(btnBookmark, SIGNAL(clicked()), mw, SLOT(bookmarkPeakGroup()));
@@ -3200,7 +3198,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnCopyCSV = new QToolButton(parent);
 		btnCopyCSV->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
-		btnCopyCSV->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnCopyCSV->setToolTip(tr("Copy Group Information to Clipboard (Ctrl+C)"));
 		btnCopyCSV->setShortcut(tr("Ctrl+C"));
 		connect(btnCopyCSV, SIGNAL(clicked()), mw->getEicWidget(), SLOT(copyToClipboard()));
@@ -3211,7 +3208,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
-		btnIntegrateArea->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
 		connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
 				SLOT(startAreaIntegration()));
@@ -3222,7 +3218,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnAverageSpectra = new QToolButton(parent);
 		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
-		btnAverageSpectra->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
 		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
 				SLOT(startSpectralAveraging()));
@@ -3234,7 +3229,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnLast = new QToolButton(parent);
 		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
-		btnLast->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnLast->setToolTip(tr("History Back (Ctrl+Left)"));
 		btnLast->setShortcut(tr("Ctrl+Left"));
 		connect(btnLast, SIGNAL(clicked()), mw, SLOT(historyLast()));
@@ -3245,7 +3239,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnNext = new QToolButton(parent);
 		btnNext->setIcon(QIcon(rsrcPath + "/next.png"));
-		btnNext->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnNext->setToolTip(tr("History Forward (Ctrl+Right)"));
 		btnNext->setShortcut(tr("Ctrl+Right"));
 		connect(btnNext, SIGNAL(clicked()), mw, SLOT(historyNext()));		
@@ -3256,7 +3249,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		
 		QToolButton* btnExport = new QToolButton(parent);
 		btnExport->setIcon(QIcon(rsrcPath + "/exportOptions.png"));
-		btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnExport->setToolTip("Export as…");
 		QMenu* btnExportMenu = new QMenu("Export Image as…");
 		btnExport->setMenu(btnExportMenu);
@@ -3282,7 +3274,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnAutoZoom->setCheckable(true);
 		btnAutoZoom->setChecked(true);
 		btnAutoZoom->setIcon(QIcon(rsrcPath + "/autofocus.png"));
-		btnAutoZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnAutoZoom->setToolTip(
 			tr("Auto Zoom. Always center chromatogram on expected retention time!"));
 
@@ -3297,7 +3288,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		btnShowTic->setCheckable(true);
 		btnShowTic->setChecked(false);
 		btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
-		btnShowTic->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowTic->setToolTip(tr("Show TICs"));
 		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(),
 				SLOT(showTicLine(bool)));
@@ -3310,7 +3300,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowBarplot = new QToolButton(parent);
 		btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
-		btnShowBarplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowBarplot->setToolTip(tr("Show Barplot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
@@ -3322,7 +3311,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowIsotopeplot = new QToolButton(parent);
 		btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
-		btnShowIsotopeplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
 		btnShowIsotopeplot->setCheckable(true);
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
@@ -3336,7 +3324,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		
 		QToolButton *btnShowBoxplot = new QToolButton(parent);
 		btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
-		btnShowBoxplot->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		btnShowBoxplot->setToolTip(tr("Show Boxplot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
