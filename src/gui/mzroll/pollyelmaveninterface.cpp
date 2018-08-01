@@ -20,6 +20,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         connect(new_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_new_project_radio_button()));
         connect(existing_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_existing_project_radio_button()));
         connect(logout_upload, SIGNAL(clicked(bool)), SLOT(logout()));
+        connect(this, SIGNAL(uploadFinished(bool)), SLOT(performPostUploadTasks(bool)));
 }
  
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -191,12 +192,15 @@ QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
     return projectnames_id;
 }
 
-QString PollyElmavenInterfaceDialog::uploadDataToPolly()
-{   
-    
+void PollyElmavenInterfaceDialog::uploadDataToPolly()
+{
+
+    computeButton_upload->setEnabled(false);
+
     if (credentials.isEmpty()){
         call_login_form();
-        return "";
+        emit uploadFinished(false);
+        return;
     }
     QStringList patch_ids;
     QString upload_project_id;
@@ -220,7 +224,8 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         upload_status->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
-        return "";
+        emit uploadFinished(false);
+        return;
     }
     upload_status->setText("Connecting..");
     QCoreApplication::processEvents();
@@ -255,7 +260,8 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
             msgBox.setText(msg);
             msgBox.exec();
             upload_status->setText("");
-            return "";
+            emit uploadFinished(false);
+            return;
         }
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
         patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);   
@@ -268,7 +274,8 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.setText(msg);
         msgBox.exec();
         upload_status->setText("");
-        return "";
+        emit uploadFinished(false);
+        return;
     }
     bool status = qdir.removeRecursively();
     QCoreApplication::processEvents();
@@ -278,7 +285,6 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         qDebug()<<"redirection_url     - "<<redirection_url;
         pollyURL.setUrl(redirection_url);
         pollyButton->setVisible(true);
-        return "";
     }
     else{
         upload_status->setStyleSheet("QLabel {color : red; }");
@@ -289,8 +295,8 @@ QString PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.setText(msg);
         msgBox.exec();
         upload_status->setText("");
-        return "";
     }
+    emit uploadFinished(false);
 }
 
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){
@@ -428,4 +434,8 @@ void PollyElmavenInterfaceDialog::logout() {
     credentials = QStringList();
     projectnames_id = QVariantMap();
     close();   
+}
+
+void PollyElmavenInterfaceDialog::performPostUploadTasks(bool uploadSuccessful) {
+    computeButton_upload->setEnabled(true);
 }
