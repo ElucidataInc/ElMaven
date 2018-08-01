@@ -788,10 +788,11 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 			}
 		}
 	if (projectId==""){
-		//In case no project matches with the user defined name or the user has not provided any project name,
-		// upload to default project..
-		_pollyIntegration->exportData(filenames,defaultprojectId);
-		upload_project_id = defaultprojectId;
+		//In case no project matches with the user defined name,
+		// Create the project and upload to it..This makes the project name to be mandatory..
+		QString new_project_id = _pollyIntegration->createProjectOnPolly(creds["polly_project"]);
+		_pollyIntegration->exportData(filenames,new_project_id);
+		upload_project_id = new_project_id;
 	}
 	else{
 		_pollyIntegration->exportData(filenames,projectId);
