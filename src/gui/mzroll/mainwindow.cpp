@@ -3253,18 +3253,16 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		QMenu* btnExportMenu = new QMenu("Export Image as…");
 		btnExport->setMenu(btnExportMenu);
 		btnExport->setPopupMode(QToolButton::InstantPopup);
-		btnExportMenu->addAction(QIcon(rsrcPath + "/exportpdf.png"),
-								 "Export EIC as PDF file",
-								 mw,
-								 &MainWindow::exportPDF);
-		btnExportMenu->addAction(QIcon(rsrcPath + "/copyPNG.png"),
-								 "Copy EIC Image to Clipboard",
-								 mw,
-								 &MainWindow::exportSVG);
-		btnExportMenu->addAction(QIcon(rsrcPath + "/fileprint.png"),
-								 "Print EIC (Ctrl+P)",
-								 mw,
-								 &MainWindow::print);
+		QAction* pdfAction = btnExportMenu->addAction(QIcon(rsrcPath + "/exportpdf.png"),
+													  "Export EIC as PDF file");
+		connect(pdfAction, &QAction::triggered, mw, &MainWindow::exportPDF);
+		QAction* pngAction = btnExportMenu->addAction(QIcon(rsrcPath + "/copyPNG.png"),
+													  "Copy EIC widget to the clipboard");
+		connect(pngAction, &QAction::triggered, mw, &MainWindow::exportSVG);
+		QAction* printAction = btnExportMenu->addAction(QIcon(rsrcPath + "/fileprint.png"),
+														"Print EIC (Ctrl+P)");
+		printAction->setShortcut(QKeySequence(tr("Ctrl+P")));
+		connect(printAction, &QAction::triggered, mw, &MainWindow::print);
 		return btnExport;
 
 	}
