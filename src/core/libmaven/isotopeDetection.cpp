@@ -114,9 +114,8 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
 
             //Set peak quality
             if (_mavenParameters->clsf->hasModel()) {
-                for(int x = 0; x < allPeaks.size(); x++) { 
-                    allPeaks[x].quality=_mavenParameters->clsf->scorePeak(allPeaks[x]);
-                }
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
             }
 
             //filter isotopic peaks
