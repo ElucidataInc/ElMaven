@@ -1,12 +1,10 @@
-#ifndef TESTPEAKDETECTION_H
-#define TESTPEAKDETECTION_H
+#ifndef TESTISOTOPEDETECTION_H
+#define TESTISOTOPEDETECTION_H
 
 #include <iostream>
 #include <QtTest>
 #include <string>
-#include <sstream>
 
-#include "EIC.h"
 #include "common.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
@@ -14,11 +12,11 @@
 #include "isotopeDetection.h"
 #include "classifierNeuralNet.h"
 
-class TestPeakDetection : public QObject {
+class TestIsotopeDetection : public QObject {
     Q_OBJECT
 
     public:
-        TestPeakDetection();
+        TestIsotopeDetection();
     private:
         const char* loadCompoundDB;
         const char* loadCompoundDB1;
@@ -35,9 +33,8 @@ class TestPeakDetection : public QObject {
 
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
-        void testProcessCompound();
-        void testPullEICs();
-        void testprocessSlices();
+        void testpullIsotopes();
+        void testgetIsotopes();
 };
 
-#endif // TESTPEAKDETECTION_H
+#endif // TESTISOTOPEDETECTION_H

@@ -4,6 +4,7 @@
 #include "testMassCalculator.h"
 #include "testCSVReports.h"
 #include "testPeakDetection.h"
+#include "testIsotopeDetection.h"
 #include "testMzSlice.h"
 #include "testLoadDB.h"
 #include "testScan.h"
@@ -39,6 +40,10 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestPeakDetection, argc, argv);
     result|=readLog("testPeakDetection.xml");
 
+    if (freopen("testIsotopeDetection.xml", "w", stdout))
+        result |= QTest::qExec(new TestIsotopeDetection, argc, argv);
+    result|=readLog("testIsotopeDetection.xml");
+    
     if(freopen("testCharge.xml",  "w", stdout))
         result |= QTest::qExec(new TestCharge, argc, argv);
     result|=readLog("testCharge.xml");

@@ -112,9 +112,16 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             //maxIsotopeScanDiff window
             allPeaks = eic->peaks;
 
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
             bool isIsotope = true;
 			PeakFiltering peakFiltering(_mavenParameters, isIsotope);
-            peakFiltering.filter(allPeaks);
+            peakFiltering.filter(allPeaks);                               
 
             delete(eic);
             // find nearest peak as long as it is within RT window
@@ -259,7 +266,7 @@ void IsotopeDetection::addChild(PeakGroup *parentgroup, PeakGroup &child, string
     switch (_isoType)
     {
         case IsotopeDetectionType::PeakDetection:
-            childExist = checkChildExist(parentgroup->children, isotopeName);
+            childExist = checkChildExist(parentgroup->children, isotopeName); 
             if (!childExist) parentgroup->addChild(child);
             break;
         case IsotopeDetectionType::IsoWidget:
@@ -282,7 +289,7 @@ bool IsotopeDetection::checkChildExist(vector<PeakGroup> &children, string isoto
             childExist = true;
         }
     }
-
+    
     return childExist;
 }
 
@@ -298,10 +305,6 @@ void IsotopeDetection::childStatistics(
     child.parent = parentgroup;
     child.setType(PeakGroup::Isotope);
     child.groupStatistics();
-    if (_mavenParameters->clsf->hasModel()) {
-        _mavenParameters->clsf->classify(&child);
-        child.groupStatistics();
-    }
 
     bool deltaRtCheckFlag = _mavenParameters->deltaRtCheckFlag;
     float compoundRTWindow = _mavenParameters->compoundRTWindow;
