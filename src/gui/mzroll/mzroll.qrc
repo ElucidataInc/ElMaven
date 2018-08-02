@@ -90,6 +90,7 @@
         <file>images/aboutPolly.png</file>
         <file>images/loading.gif</file>
         <file>images/splash.png</file>
+        <file>images/exportOptions.png</file>
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
     </qresource>
