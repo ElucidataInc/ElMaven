@@ -22,6 +22,83 @@ void TestIsotopeDetection::cleanup() {
     // This function is executed after each test
 }
 
+void TestIsotopeDetection::testgetIsotopes() {
+    vector<mzSample*> samplesToLoad;
+
+    for (int i = 0; i < files.size(); ++i) {
+        mzSample* mzsample = new mzSample();
+        mzsample->loadSample(files.at(i).toLatin1().data());
+        samplesToLoad.push_back(mzsample);
+    }
+    
+    MavenParameters* mavenparameters = new MavenParameters();
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
+    ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
+    clsf->loadModel("bin/default.model");
+    mavenparameters->clsf = clsf;
+    mavenparameters->ionizationMode = -1;
+    mavenparameters->matchRtFlag = false;
+    mavenparameters->samples = samplesToLoad;
+    mavenparameters->eic_smoothingWindow = 10;
+    mavenparameters->eic_smoothingAlgorithm = 1;
+    mavenparameters->baseline_smoothingWindow = 5;
+    mavenparameters->baseline_dropTopX = 80;
+    
+    PeakDetector peakDetector;
+    peakDetector.setMavenParameters(mavenparameters);
+    const char* loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+
+    DBS.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processSlices(slices, "compounds");
+    PeakGroup* parentgroup = &mavenparameters->allgroups[0];
+
+    string formula = parentgroup->compound->formula;
+
+    int charge = mavenparameters->getCharge(parentgroup->compound);
+
+    bool C13Flag = true;
+    bool N15Flag = false;
+    bool S34Flag = false;
+    bool D2Flag = true;
+
+    IsotopeDetection isotopeDetection(
+        mavenparameters,
+        IsotopeDetection::PeakDetection,
+        C13Flag,
+        N15Flag,
+        S34Flag,
+        D2Flag
+    );
+    
+    vector<Isotope> masslist = MassCalculator::computeIsotopes(
+        formula,
+        charge,
+        C13Flag,
+        N15Flag,
+        S34Flag,
+        D2Flag
+    );
+
+    map<string, PeakGroup> isotopes = isotopeDetection.getIsotopes(parentgroup, masslist);
+
+    //number of isotopes found
+    QVERIFY(isotopes.size() == 4);
+    //TODO: failing test case. Fix underlying bug and uncomment it
+    //QVERIFY(isotopes["C12 PARENT"].meanMz == parentgroup->meanMz);
+    //tagstring has been populated
+    QVERIFY(isotopes["C13-label-2"].tagString == "C13-label-2");
+    //number of peaks for a label are consistent
+    QVERIFY(isotopes["D2-label-1"].peaks.size() == 2);
+    //intensity of label is consistent
+    QVERIFY(floor(isotopes["D2-label-1"].getPeak(samplesToLoad[1])->peakIntensity) == 89733);
+    //scan number is populated and consistent 
+    QVERIFY(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->scan == 3490);
+    //peak quality is populated and consistent
+    QVERIFY((isotopes["C13-label-2"].getPeak(samplesToLoad[1])->quality - 0.2) < 0.05);
+}
+
 void TestIsotopeDetection::testpullIsotopes() {
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");

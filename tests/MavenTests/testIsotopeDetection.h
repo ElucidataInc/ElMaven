@@ -34,6 +34,7 @@ class TestIsotopeDetection : public QObject {
         // test functions - all functions prefixed with "test" will be ran as tests
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testpullIsotopes();
+        void testgetIsotopes();
 };
 
 #endif // TESTISOTOPEDETECTION_H

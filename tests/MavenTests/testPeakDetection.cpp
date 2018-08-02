@@ -27,7 +27,6 @@ void TestPeakDetection::cleanup() {
 }
 
 void TestPeakDetection::testProcessCompound() {
-    cerr << "ran!!" << endl;
     DBS.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
 
