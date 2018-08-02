@@ -2580,7 +2580,6 @@ void MainWindow::createToolBars() {
     QToolButton* btnNotes = addDockWidgetButton(sideBar,notesDockWidget,QIcon(rsrcPath + "/note.png"), "Show Notes Widget (F9)");
     QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
     QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
-    QToolButton* btnScatter = addDockWidgetButton(sideBar,scatterDockWidget,QIcon(rsrcPath + "/scatterplot.png"), "Show Scatter Plot Widget");
     QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
     // QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
 
@@ -2620,7 +2619,6 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnNotes);
 	sideBar->addWidget(btnSRM);
 	sideBar->addWidget(btnGallery);
-	sideBar->addWidget(btnScatter);
 	// sideBar->addWidget(btnRconsole);
 	sideBar->addSeparator();
 	sideBar->addWidget(btnBookmarks);
