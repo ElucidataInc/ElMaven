@@ -747,26 +747,28 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
 	QMap<QString, QString> creds;
     QDomDocument doc;
     QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
-        return creds;
+    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file)){
+		qDebug()<<"Something is wrong with your credentials file..Please try again with a valid xml file..";
+		return creds;
+	}
 
 	//Get the root element
    QDomElement docElem = doc.documentElement(); 
    
    // you could check the root tag name here if it matters
-	QString rootTag = docElem.tagName(); // == persons
+	QString rootTag = docElem.tagName(); // == credentials
+	qDebug()<<"rootTag  -"<<rootTag;
 	QDomNodeList polly_creds = doc.elementsByTagName("pollyaccountdetails");
     for (int i = 0; i < polly_creds.size(); i++) {
         QDomNode n = polly_creds.item(i);
         QDomElement username = n.firstChildElement("username");
         QDomElement password = n.firstChildElement("password");
-        QDomElement project = n.firstChildElement("project");
-        if (username.isNull() || password.isNull() || project.isNull()){
+        if (username.isNull() || password.isNull()){
+			qDebug()<<"Both username and password must be provided in the credentials file.Please try again";
 			return creds;
 		}
 		creds["polly_username"]=username.text();
 		creds["polly_password"]=password.text();
-		creds["polly_project"]=project.text();
 		//Only considering the first occurance
         break;
     }
