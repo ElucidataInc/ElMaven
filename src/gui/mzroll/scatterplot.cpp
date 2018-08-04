@@ -92,6 +92,14 @@ void ScatterPlot::setupToolBar() {
 	btnF->setToolTip("Show Contrast Groups Dialog");
     connect(btnF, SIGNAL(clicked()),this,SLOT(contrastGroups()));
 
+    QWidget *spacerWidget = new QWidget(this);
+	spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	spacerWidget->setVisible(true);
+
+    QToolButton *btnClose = new QToolButton(toolBar);
+    btnClose->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    connect(btnClose, SIGNAL(clicked()), this, SLOT(hide()));
+
     toolBar->addWidget(bntResetZoom);
     toolBar->addWidget(btnF);
     toolBar->addWidget(btnScatter);
@@ -101,6 +109,8 @@ void ScatterPlot::setupToolBar() {
     // new feature added - Kiran
     toolBar->addWidget(btnDelete);
     toolBar->addWidget(btnPeakTable);
+    toolBar->addWidget(spacerWidget);
+    toolBar->addWidget(btnClose);
     // merged with maven776 - Kiran
     //  toolBar->addWidget(btnCovariants);
 
