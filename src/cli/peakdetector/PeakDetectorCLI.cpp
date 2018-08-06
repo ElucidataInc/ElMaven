@@ -619,6 +619,18 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
+void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename,QStringList loadedSamples){
+	    QFile file(sample_cohort_filename);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+			return;
+		QTextStream out(&file);
+		out << "Sample"<< ",Cohort"<<"\n";
+		for (int i = 0; i < loadedSamples.size(); i++){
+			out<<loadedSamples.at(i)<<",\n";
+		}
+		qDebug()<<"sample cohort file prepared...moving on to gsheet interface now..";
+	}
+
 void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
 	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
@@ -658,22 +670,24 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 			saveCSV(csv_filename.toStdString());
 			
 			try {
+				QStringList loadedSamples = getSampleList();
 				QString compound_DB_file = QString::fromStdString(mavenParameters->ligandDbFilename);
 				bool status = QFile::copy(compound_DB_file, compound_DB_filename+".csv");
 				qDebug()<<"compound_DB_file copy status - "<<status;
 				if (sample_cohort_present){
-					valid_sample_cohort = validSampleCohort(sample_cohort_file);
+					valid_sample_cohort = validSampleCohort(sample_cohort_file,loadedSamples);
 					}
 				QStringList files_to_be_uploaded = QStringList()<<csv_filename+".csv"<<json_filename+".json"<<compound_DB_filename+".csv";//add more files to upload, if desired..
 				if (valid_sample_cohort){
 					bool status_sample_copy = QFile::copy(sample_cohort_file, sample_cohort_filename+".csv");
 					qDebug()<<"sample cohort copy status - "<<status_sample_copy;
-					files_to_be_uploaded.append(sample_cohort_filename+".csv");
 					redirect_to = "relative_lcms_elmaven";
 					}
 				else{
 					qDebug()<<"There was some problem with the sample cohort file, you will be redirected to an interface on polly where you can make the cohort file again..";
+					makeSampleCohortFile(sample_cohort_filename+".csv",loadedSamples);
 				}
+				files_to_be_uploaded.append(sample_cohort_filename+".csv");
 				// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
 				QString upload_project_id = UploadToPolly(jsPath,nodePath,files_to_be_uploaded,creds,pollyProject); 
 				if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
@@ -715,6 +729,16 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	}
 }
 
+QStringList PeakDetectorCLI::getSampleList(){
+	QStringList loadedSamples;
+	vector<mzSample*> visibleSamples = mavenParameters->getVisibleSamples();
+	for (int i = 0; i < visibleSamples.size(); i++){
+		mzSample* sample = visibleSamples[i];
+		loadedSamples.append(QString::fromStdString(sample->getSampleName()));
+	}
+	return loadedSamples;
+	}
+
 void PeakDetectorCLI::groupReduction() {
 
 	if (reduceGroupsFlag) {
@@ -731,7 +755,7 @@ void PeakDetectorCLI::groupReduction() {
 	}
 }
 
-bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file){
+bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file,QStringList loadedSamples){
 	qDebug()<<"Validating sample cohort file now";
 	bool valid = false;
 	QFile file(sample_cohort_file);
@@ -753,12 +777,6 @@ bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file){
 			Cohorts.append(QString::fromStdString(splitRow.at(1).toStdString()));
 		}
     }
-	QStringList loadedSamples;
-	vector<mzSample*> visibleSamples = mavenParameters->getVisibleSamples();
-	for (int i = 0; i < visibleSamples.size(); i++){
-		mzSample* sample = visibleSamples[i];
-		loadedSamples.append(QString::fromStdString(sample->getSampleName()));
-	}
 	qSort(Samples);
 	qSort(loadedSamples);
 	if(Samples==loadedSamples){
