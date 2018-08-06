@@ -62,6 +62,7 @@ class PeakDetectorCLI {
 		QString pollyArgs;
 		QString pollyProject;
 		QString sample_cohort_file;
+		QString redirect_to = "gsheet_sym_polly_elmaven";
 		QString filedir;
 		QStringList pollyargs_list;
 		PollyIntegration* _pollyIntegration;
@@ -93,6 +94,7 @@ class PeakDetectorCLI {
 		bool uploadToPolly_bool = false;
 		bool pollyProject_provided = false;
 		bool sample_cohort_present = false;
+		bool valid_sample_cohort = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;
@@ -174,6 +176,8 @@ class PeakDetectorCLI {
 		 * @param filenames [List of files to be uploaded on polly]
 		*/
 		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds,QString pollyProject);
+		bool validCohorts(QStringList Cohorts);
+		bool validSampleCohort(QString sample_cohort_file);
 		bool send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
 		/**
