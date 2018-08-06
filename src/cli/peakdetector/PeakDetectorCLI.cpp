@@ -3,13 +3,14 @@
 PeakDetectorCLI::PeakDetectorCLI() {
 	parseOptions = new ParseOptions();
 	_pollyIntegration = new PollyIntegration();
+    alignType = NO_TYPE;
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 	//command line options
 	const char * optv[] = {
-							"a?alignSamples: Enter non-zero integer to run alignment <int>",
+                            "a?alignSamples: 1=obi-warp, 2=poly fit",
 							"b?minGoodGroupCount: Enter minimum number of good peaks per group <int>",
 							"c?matchRtFlag: Enter non-zero integer to match retention time to the database values <int>",
 							"C?compoundPPMWindow: Enter ppm window for m/z <float>",							
@@ -52,7 +53,15 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 		case 'a':
 			mavenParameters->alignSamplesFlag = true;
-			if (atoi(optarg) == 0) mavenParameters->alignSamplesFlag = false;
+
+            if (atoi(optarg) == 1)
+                alignType = OBI_WARP;
+
+            else if (atoi(optarg) == 2)
+                alignType = POLY_FIT;
+
+            else
+                mavenParameters->alignSamplesFlag = false;
 			break;
 
 		case 'b':

@@ -97,6 +97,12 @@ class PeakDetectorCLI {
 
 		string clsfModelFilename = "default.model";
 
+        enum AlignmentType {
+            NO_TYPE = 0,
+            OBI_WARP = 1,
+            POLY_FIT = 2
+        } alignType;
+
 		/**
 		* [process command line Options]
 		* @param argc [argument counter]
