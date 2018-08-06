@@ -253,24 +253,43 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         return slices;
 }
 
-void PeakDetector::alignSamples() {
-        //being called in CLI.
-        if (mavenParameters->samples.size() > 1
-            && mavenParameters->alignSamplesFlag) {
-                cerr << "Aligning samples" << endl;
+void PeakDetector::alignSamples(const int& method) {
 
-                mavenParameters->writeCSVFlag = false;
-                processMassSlices();
+    // only called from CLI
+    if(mavenParameters->samples.size() > 1 ) {
 
-                cerr << "Aligner=" << mavenParameters->allgroups.size() << endl;
-                vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
-                for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
-                        agroups[i] = &mavenParameters->allgroups[i];
-                //init aligner
-                Aligner aligner;
-                aligner.doAlignment(agroups);
-                mavenParameters->writeCSVFlag = true;
+        switch(method) {
+
+        case 1: {
+            ObiParams params("cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
+            Aligner mzAligner;
+            mzAligner.alignWithObiWarp(mavenParameters->samples, &params);
         }
+
+        break;
+
+
+        case 2: {
+            mavenParameters->writeCSVFlag = false;
+            processMassSlices();
+
+            cerr << "Aligner=" << mavenParameters->allgroups.size() << endl;
+            vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
+            for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
+                agroups[i] = &mavenParameters->allgroups[i];
+            //init aligner
+            Aligner aligner;
+            aligner.doAlignment(agroups);
+            mavenParameters->writeCSVFlag = true;
+        }
+
+        break;
+
+        default: break;
+
+
+        }
+    }
 }
 
 void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)

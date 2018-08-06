@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
 	//align samples
 	if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag){
-		peakdetectorCLI->peakDetector->alignSamples();
+        peakdetectorCLI->peakDetector->alignSamples((int)peakdetectorCLI->alignType);
 	}
 
 

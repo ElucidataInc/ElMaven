@@ -89,7 +89,7 @@ public:
 	 * [align Samples using Aligner class]
 	 * @method alignSamples
 	 */
-	void alignSamples();
+    void alignSamples(const int& method);
 
 	/**
 	 * [process Slices]
