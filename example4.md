@@ -54,11 +54,11 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.3.2 (beta)</font>
+                            <font color="#8985db">v0.4.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/9032y0zfohw7o8a/Windows-El-Maven-v0.3.2.exe?dl=1' style='display:hidden' id='win_0.3.2'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.3.2')" data-target="modal1" class="btn modal-trigger">
+                            <a href='https://www.dropbox.com/s/jycmu1gfr7rommt/Windows_El-Maven-v0.4.1.exe?dl=1' style='display:hidden' id='win_0.4.1'></a>
+                            <button style="background-color:#8985db;" onClick="setLink('win_0.4.1')" data-target="modal1" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -112,11 +112,11 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.3.2 (beta)</font>
+                            <font color="#8985db">v0.4.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/0oww02agld8ych1/Mac-El-Maven-v0.3.2.app.zip?dl=1' style='display:hidden' id='mac_0.3.2'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.3.2')" data-target="modal4" class="btn modal-trigger">
+                            <a href='https://www.dropbox.com/s/30cmaab63k24vdk/Mac_El-Maven-v0.4.1.app.zip?dl=1' style='display:hidden' id='mac_0.4.1'></a>
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.4.1')" data-target="modal4" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
