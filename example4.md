@@ -8,7 +8,7 @@ permalink: /Downloads/
     <a id="download" onClick="downloadclick()" href="" hidden></a>
     <div id="modal1" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://goo.gl/forms/0R9e2YBj3MmYNHvC3"
+            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://docs.google.com/forms/d/e/1FAIpQLSd7yWc-PanVEdDMWUjYM6axyQWqbpWqv0CoXqCnkM6IorYrkg/viewform"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -26,7 +26,7 @@ permalink: /Downloads/
     </div>
     <div id="modal4" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal4" onLoad="download('myModal4','modal4')" style="width:100%; height:100%" src="https://goo.gl/forms/Kjzt2kwByvF5sKt22"
+            <iframe id="myModal4" onLoad="download('myModal4','modal4')" style="width:100%; height:100%" src="https://docs.google.com/forms/d/e/1FAIpQLSdrqxE7l3bOZOgw681UX7ok-jfR1sj2GYi5ACa4HC9K6o2log/viewform"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
