@@ -435,7 +435,7 @@ string mzSample::filterChromatogramId(const string &chromatogramId) {
 	string filteredChromatogramId = chromatogramId;
 	for(unsigned int i = 0; i < filterChromatogram.size(); i++) {
 		string filterRegex = filterChromatogram[i];
-		filterRegex += "\ *\=\ *[0-9]+\ *";
+		filterRegex += "\ *\=\ *[0-9]*\.?[0-9]+";
 		regex rx(filterRegex);
 		filteredChromatogramId = std::regex_replace(filteredChromatogramId, rx, "");
 	}
