@@ -733,7 +733,10 @@ class mzSample
     static int filter_polarity;
 
     vector<string> filterChromatogram {
-        "sample"
+        "sample", 
+        "start",
+        "end",
+        "index"
     };
 };
 
