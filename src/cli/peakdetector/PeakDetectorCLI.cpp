@@ -897,7 +897,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 
 bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath){
 	QString user_email = creds["polly_username"];
-	QString email_message = "Data Successfully uploaded to Polly project "+creds["polly_project"];
+	QString email_message = "Data Successfully uploaded to Polly project "+pollyProject;
 	status = _pollyIntegration->send_email(user_email,redirection_url,email_message);
 	return status;
 }
