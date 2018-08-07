@@ -691,7 +691,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 				// jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
 				QString upload_project_id = UploadToPolly(jsPath,nodePath,files_to_be_uploaded,creds,pollyProject); 
 				if (upload_project_id!=""){ //That means the upload was successfull, in that case, redirect the user to polly..
-					QString redirection_url = QString("<a href='http://testpolly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3'>Go To Polly</a>").arg(upload_project_id).arg(redirect_to).arg(datetimestamp);
+					QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3'>Go To Polly</a>").arg(upload_project_id).arg(redirect_to).arg(datetimestamp);
 					qDebug()<<"redirection url - \n"<<redirection_url;
 					QString filename=QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator()+datetimestamp+"_redirection_url.txt";
 					qDebug()<<"writing url to this file -"<<filename;
