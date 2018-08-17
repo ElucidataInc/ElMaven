@@ -773,8 +773,10 @@ bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file,QStringList l
 			return valid;
 		}
 		if(!(splitRow.at(0)=="Sample")){
-			Samples.append(QString::fromStdString(splitRow.at(0).toStdString()));
-			Cohorts.append(QString::fromStdString(splitRow.at(1).toStdString()));
+			QString sampleName = splitRow.at(0);
+			QString cohortName = splitRow.at(1);
+			Samples.append(QString::fromStdString(sampleName.toStdString()));
+			Cohorts.append(QString::fromStdString(cohortName.toStdString()));
 		}
     }
 	qSort(Samples);
