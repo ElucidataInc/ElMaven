@@ -748,15 +748,16 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	}
 }
 
-QStringList PeakDetectorCLI::getSampleList(){
+QStringList PeakDetectorCLI::getSampleList() {
 	QStringList loadedSamples;
 	vector<mzSample*> visibleSamples = mavenParameters->getVisibleSamples();
-	for (int i = 0; i < visibleSamples.size(); i++){
-		mzSample* sample = visibleSamples[i];
+	
+	for (const auto& sample : visibleSamples){
 		loadedSamples.append(QString::fromStdString(sample->getSampleName()));
 	}
+
 	return loadedSamples;
-	}
+}
 
 void PeakDetectorCLI::groupReduction() {
 
@@ -774,44 +775,47 @@ void PeakDetectorCLI::groupReduction() {
 	}
 }
 
-bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file,QStringList loadedSamples){
-	qDebug()<<"Validating sample cohort file now";
-	bool valid = false;
+bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList loadedSamples) {
+	qDebug() << "Validating sample cohort file now";
+	
 	QFile file(sample_cohort_file);
     if (!file.open(QIODevice::ReadOnly)) {
         qDebug() << file.errorString();
-		return valid;
+		return false;
     }
 
-    QStringList Samples;
-	QStringList Cohorts;
+    QStringList samples;
+	QStringList cohorts;
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
-		QList<QByteArray> splitRow= line.split(',');
-		if(!(splitRow.size()==2)){
-			return valid;
-		}
-		if(!(splitRow.at(0)=="Sample")){
-			QString sampleName = splitRow.at(0);
-			QString cohortName = splitRow.at(1);
-			Samples.append(QString::fromStdString(sampleName.toStdString()));
-			Cohorts.append(QString::fromStdString(cohortName.toStdString()));
-		}
+		QList<QByteArray> splitRow = line.split(',');
+		if (splitRow.size() != 2)
+			return false;
+		
+		//skip header row
+		if (splitRow.at(0) == "Sample")
+			continue;
+		
+		QString sampleName = splitRow.at(0);
+		QString cohortName = splitRow.at(1);
+		samples.append(QString::fromStdString(sampleName.toStdString()));
+		cohorts.append(QString::fromStdString(cohortName.toStdString()));
     }
-	qSort(Samples);
+
+	qSort(samples);
 	qSort(loadedSamples);
-	if(Samples==loadedSamples){
-		if(validCohorts(Cohorts)){
-			valid=true;
-		}
-		else{
-			qDebug()<<"The sample cohort file contains more than 9 cohorts.As of now. polly supports only 9 or less cohorts..please try again with the correct file";
-		}
+	
+	if (!(samples == loadedSamples)) {
+		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
+		return false;
 	}
-	else{
-		qDebug()<<"The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file";
+	
+	if (!validCohorts(cohorts)) {
+		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
+		return false;
 	}
-	return valid;
+
+	return true;
 }
 
 bool PeakDetectorCLI::validCohorts(QStringList Cohorts){
