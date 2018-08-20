@@ -36,7 +36,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 							"X?defaultXml: Create a template config file",
 							"y?eicSmoothingWindow: Enter number of scans used for smoothing at a time <int>",
 							"z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group <float>",
-							"P?pollyCred: Polly sign in credentials,username,password provided in xml file<string>",
+							"P?pollyCred: Polly sign in credentials,username,password provided in xml file <string>",
 							"N?pollyProject: Polly project where we want to upload our files <string>",
 							"S?sampleCohort: Sample cohort file needed for PollyPhi workflow <string>",
 							NULL 
@@ -612,17 +612,20 @@ string PeakDetectorCLI::cleanSampleName(string sampleName) {
         return out.toStdString();
 }
 
-void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename,QStringList loadedSamples){
-	    QFile file(sample_cohort_filename);
-		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-			return;
-		QTextStream out(&file);
-		out << "Sample"<< ",Cohort"<<"\n";
-		for (int i = 0; i < loadedSamples.size(); i++){
-			out<<loadedSamples.at(i)<<",\n";
-		}
-		qDebug()<<"sample cohort file prepared...moving on to gsheet interface now..";
+void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples) {
+	QFile file(sample_cohort_filename);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+	
+	QTextStream out(&file);
+	out << "Sample" << ",Cohort" << "\n";
+	for (const auto& sampleName : loadedSamples) {
+		out << sampleName << ",\n";
 	}
+
+	qDebug() << "sample cohort file prepared...moving on to gsheet interface now..";
+	file.close();
+}
 
 void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
