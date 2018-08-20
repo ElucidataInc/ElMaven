@@ -231,12 +231,12 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     upload_status->setText("Preparing files..");
     QCoreApplication::processEvents();
     QDateTime current_time;
-    QString datetimestamp= current_time.currentDateTime().toString();
+    QString datetimestamp = current_time.currentDateTime().toString();
     datetimestamp.replace(" ","_");
     datetimestamp.replace(":","-");
     
-    QStringList filenames = prepareFilesToUpload(qdir,datetimestamp);
-    if (filenames.isEmpty()){
+    QStringList filenames = prepareFilesToUpload(qdir, datetimestamp);
+    if (filenames.isEmpty()) {
         upload_status->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
@@ -303,14 +303,14 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
 
 void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids){
     QCoreApplication::processEvents();
-    if (!patch_ids.isEmpty()){
+    if (!patch_ids.isEmpty()) {
         upload_status->setText("");
         QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview&elmavenTimestamp=%2").arg(upload_project_id).arg(datetimestamp);
-        qDebug()<<"redirection_url     - "<<redirection_url;
+        qDebug() << "redirection_url     - " << redirection_url;
         pollyURL.setUrl(redirection_url);
         pollyButton->setVisible(true);
     }
-    else{
+    else {
         upload_status->setStyleSheet("QLabel {color : red; }");
         upload_status->setText("Error!");
         QString msg = "Unable to send data";
@@ -323,7 +323,7 @@ void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids){
     emit uploadFinished(false);   
 }
 
-QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir,QString datetimestamp){
+QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp) {
     
     QString writable_temp_dir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
     QString peak_table_name = comboBox_table_name->currentText();

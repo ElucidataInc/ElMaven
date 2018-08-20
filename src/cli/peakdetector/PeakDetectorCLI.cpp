@@ -818,14 +818,13 @@ bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList 
 	return true;
 }
 
-bool PeakDetectorCLI::validCohorts(QStringList Cohorts){
-	bool valid = false;
-	Cohorts.removeDuplicates();
-	if(Cohorts.size()<=9){
-		valid=true;
-	}
-	return valid;
-	}
+bool PeakDetectorCLI::validCohorts(QStringList cohorts) {
+	cohorts.removeDuplicates();
+	if(cohorts.size() > 9)
+		return false;
+	
+	return true;
+}
 
 void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
@@ -848,8 +847,8 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
 	QMap<QString, QString> creds;
     QDomDocument doc;
     QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file)){
-		qDebug()<<"Something is wrong with your credentials file..Please try again with a valid xml file..";
+    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file)) {
+		qDebug() << "Something is wrong with your credentials file. Please try again with a valid xml file..";
 		return creds;
 	}
 
@@ -858,8 +857,8 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
    
    // you could check the root tag name here if it matters
 	QString rootTag = docElem.tagName(); // == credentials
-	if (rootTag!="credentials"){
-		qDebug()<<"The root tag of your credentials file is not correct..Please try again with a valid xml file..";
+	if (rootTag != "credentials") {
+		qDebug() << "The root tag of your credentials file is not correct..Please try again with a valid xml file..";
 		return creds;
 	}
 	QDomNodeList polly_creds = doc.elementsByTagName("pollyaccountdetails");
@@ -867,27 +866,30 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
         QDomNode n = polly_creds.item(i);
         QDomElement username = n.firstChildElement("username");
         QDomElement password = n.firstChildElement("password");
-        if (username.isNull() || password.isNull()){
-			qDebug()<<"Both username and password must be provided in the credentials file.Please try again";
+        if (username.isNull() || password.isNull()) {
+			qDebug() << "Both username and password must be provided in the credentials file.Please try again";
 			return creds;
 		}
-		creds["polly_username"]=username.text();
-		creds["polly_password"]=password.text();
+		creds["polly_username"] = username.text();
+		creds["polly_password"] = password.text();
 		//Only considering the first occurance
         break;
     }
 	return creds;
 }
 
-QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds,QString pollyProject) {
+QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath, 
+							QStringList filenames, QMap<QString, QString> creds, 
+							QString pollyProject) {
+	
 	QString upload_project_id;
 	
 	// set jspath and nodepath for _pollyIntegration library .
 	_pollyIntegration->jsPath = jsPath;
 	_pollyIntegration->nodePath = nodePath;
-	QString status = _pollyIntegration->authenticate_login(creds["polly_username"],creds["polly_password"]);
+	QString status = _pollyIntegration->authenticate_login(creds["polly_username"], creds["polly_password"]);
 	if (status != "ok") {
-		qDebug() << "Incorrect credentials...Please check..";
+		cerr << "Incorrect credentials. Please check." << endl;
 		return upload_project_id;
 	}
 	// user is logged in, now proceed to upload..
@@ -921,7 +923,8 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	return upload_project_id;
 }
 
-bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath){
+bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url,
+						QString jsPath) {
 	QString user_email = creds["polly_username"];
 	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
 	status = _pollyIntegration->send_email(user_email, redirection_url, email_message);

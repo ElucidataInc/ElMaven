@@ -48,7 +48,7 @@ class PollyIntegration
  		 * @return project ID generated for the new project
 		*/
 		QString get_run_id(QByteArray result);
-		bool send_email(QString user_email,QString email_content,QString email_message);
+		bool send_email(QString user_email, QString email_content, QString email_message);
 	    QString authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 		int check_node_executable();
