@@ -24,43 +24,11 @@ class TableDockWidget : public QDockWidget {
   Q_OBJECT
 
 public:
-  /**
-   * @param- promptDialog is main dialog box to show user prompt for already
-   * bookmarked groups with same mz and rt value. It will hold <save>, <cancel>,
-   * text labels (<upperLabel> and <lowerLabel>), list of already
-   * bookmarked groups <listTextView>.
-   */
-  QDialog *promptDialog;
-  QHBoxLayout *buttonLayout;
-  QVBoxLayout *promptDialogLayout;
-
-  /**
-   * @param- holds all widget (upperLabel,listTextView,lowerLabel) and
-   * <buttonLayout>
-   */
-  QLabel *upperLabel;
-  QLabel *lowerLabel;
-  QPushButton *cancel;
-  QPushButton *save;
-  ListView *listTextView;
-
-  /**
-   * @param-  holds all already group's corresponding
-   * compound name
-   * @param-  model of compound name, will be set to <listTextView>
-   */
-  QStringListModel *stringModel;
-
-  MainWindow *_mainwindow;
   QWidget *dockWidgetContents;
   QHBoxLayout *horizontalLayout;
   QTreeWidget *treeWidget;
-  QToolButton *btnMerge;
-  QMenu *btnMergeMenu;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
-  QMap<QPair<int, int>, QList<QString>> sameMzRtGroups;
-  bool addSameMzRtGroup;
 
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
@@ -70,32 +38,33 @@ public:
    * @see- <TableDockWidget::exportJson>
    */
   vector<PeakGroup> vallgroups;
-
-  QMap<QAction *, int> mergeAction;
-
-  enum tableType { peakTable = 0, bookmarkTable = 1, scatterplotTable = 2 };
+  QList<PeakGroup> allgroups;
 
   enum tableViewType { groupView = 0, peakView = 1 };
-  enum peakTableSelectionType { selected = 0, Whole = 1, Good = 2, Bad = 3 };
+  enum peakTableSelectionType { Selected = 0, Whole = 1, Good = 2, Bad = 3 };
 
-  TableDockWidget(MainWindow *mw,
-                  QString title,
-                  int numColms,
-                  tableType type = peakTable);
+  /**
+   * @brief Construct and initialize a TableDockWidget.
+   * @detail Sets up widgets (treewidget, dialogs, etc.) and connects
+   * any necessary signals.
+   * 
+   * @param mw A QMainWindow to which the dock belongs.
+   */
+  TableDockWidget(MainWindow *mw);
   ~TableDockWidget();
 
-  int groupCount() { return allgroups.size(); }
   /**
-   * @detail- this function return true if this group already present in
-   * bookmrked group <allgroups>.
-   * In case of groups with same mz and rt value, this will holds its execution
-   * by QEventLoop <loop> and show a prompt to user whether he wants to add
-   * this group to bookmarked groups or not by executing method <showSameGroup>.
-   * <loop> will hold execution of this funtion till user press a button on
-   * prompt dialog.
+   * @brief Obtain the number of groups in the table.
+   * @return Integer count.
    */
-  bool hasPeakGroup(PeakGroup *group);
+  int groupCount() { return allgroups.size(); }
+
+  /**
+   * @brief Obtain a list of groups present in <allgroups>.
+   * @return QList of PeakGroup pointers.
+   */
   QList<PeakGroup *> getGroups();
+
   int tableId;
 
   /**
@@ -105,25 +74,29 @@ public:
    */
   bool mzrollv_0_1_5;
 
-  MatrixXf getGroupMatrix();
-  MatrixXf getGroupMatrix(vector<mzSample *> &samples, PeakGroup::QType qtype);
-  void setTableId();
+  /**
+   * @brief Update the name of the intensity type field in table
+   * according to the quantity type currenly selected by the user.
+   */
   void setIntensityColName();
+
+  /**
+   * @brief Obtain the maximum intensity for a group according to
+   * the quantity type currently selected by the user.
+   * 
+   * @param group Pointer to the PeakGroup.
+   * @return Floating precision value of maximum intensity
+   */
   float extractMaxIntensity(PeakGroup *group);
-  float outputRtWindow = 2.0;
 
 public Q_SLOTS:
-  /**
-   * @brief update the color of compounds in ligand widget which are
-   * present in the tabledockwidget
-   */
   void updateCompoundWidget();
-
   PeakGroup *addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
   void setupPeakTable();
   PeakGroup *getSelectedGroup();
   QList<PeakGroup *> getSelectedGroups();
+
   void showFocusedGroups();
   void clearFocusedGroups();
   void unhideFocusedGroups();
@@ -143,10 +116,12 @@ public Q_SLOTS:
                            QString exportFormat,
                            QString userFilename);
   void exportJsonToPolly(QString writableTempDir, QString jsonfileName);
+
   void showTrainDialog();
   void showClusterDialog();
+
   inline void selectedPeakSet() {
-    peakTableSelection = peakTableSelectionType::selected;
+    peakTableSelection = peakTableSelectionType::Selected;
   };
 
   inline void wholePeakSet() {
@@ -161,37 +136,22 @@ public Q_SLOTS:
     peakTableSelection = peakTableSelectionType::Bad;
   };
 
-  /**
-   * @details-this is a slot tied with <save> button of prompt dialog
-   * <promptDialog> to show already bookmarked group with same mz and rt value.
-   * If user press <save> button <addSameMzRtGroup> sets to true which will be
-   * used to add this group's corresponding compound name to already bookmarked
-   * group of same rt and mz value.
-   */
-  void acceptGroup();
-
-  /**
-   * @details-this is a slot tied with <save> button of prompt dialog
-   * <promptDialog> to show already bookmarked group with same mz and rt value.
-   * If user press <cancel> button <addSameMzRtGroup> sets to false which will
-   * be used to reject this group's corresponding compound name.
-   */
-  void rejectGroup();
-
   void exportJson();
   void showSelectedGroup();
   void setGroupLabel(char label);
-  void showPeakGroup(int row);
   void showLastGroup();
   void showNextGroup();
+
+  // Training methods
   void Train();
   float showAccuracy(vector<PeakGroup *> &groups);
   void saveModel();
+
   void printPdfReport();
+
   void updateTable();
   void updateItem(QTreeWidgetItem *item);
   void updateStatus();
-  //   void runScript();
 
   void markGroupBad();
   void markGroupGood();
@@ -213,9 +173,10 @@ public Q_SLOTS:
   void setClipboard();
 
   void showConsensusSpectra();
-  void deleteGroups();
 
+  void deleteGroups();
   void deleteGroup(PeakGroup *groupX);
+
   void sortBy(int);
   void align();
   void deleteAll();
@@ -223,14 +184,12 @@ public Q_SLOTS:
   void findMatchingCompounds();
   void showFiltersDialog();
   void filterPeakTable();
+
   int loadSpreadsheet(QString fileName);
   int loadCSVFile(QString filename, QString sep);
-  void showMergeTableOptions();
-  void showMsgBox(bool check, int tableNo);
-  void mergeGroupsIntoPeakTable(QAction *action);
+
   void switchTableView();
 
-  void setTableType(tableType t) { type = t; }
   void setTableView(tableViewType t) { viewType = t; }
   void clearClusters();
 
@@ -239,13 +198,14 @@ public Q_SLOTS:
   vector<EIC *> getEICs(float rtmin, float rtmax, PeakGroup &grp);
 
 protected:
+  MainWindow *_mainwindow;
+  tableViewType viewType;
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   void focusInEvent(QFocusEvent *event);
   void focusOutEvent(QFocusEvent *event);
 
 Q_SIGNALS:
-  void peakMarkedTableDock();
   void updateProgressBar(QString, int, int);
 
 protected Q_SLOTS:
@@ -254,8 +214,6 @@ protected Q_SLOTS:
 
 private:
   QPalette pal;
-  void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
-  void deletePeaks();
   void addRow(PeakGroup *group, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
   PeakGroup *readGroupXML(QXmlStreamReader &xml, PeakGroup *parent);
@@ -281,21 +239,116 @@ private:
    */
   void markv_0_1_5mzroll(QString fileName);
 
+  // TODO: investigate and remove this dialog if not being used
   void setupFiltersDialog();
-
-  QList<PeakGroup> allgroups;
 
   TrainDialog *traindialog;
   ClusterDialog *clusterDialog;
   QDialog *filtersDialog;
   QMap<QString, QHistogramSlider *> sliders;
-  float rtWindow = 2;
-  tableType type;
-  tableViewType viewType;
   peakTableSelectionType peakTableSelection;
   QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
+};
+
+class PeakTableDockWidget : public TableDockWidget {
+  Q_OBJECT
+
+public:
+  PeakTableDockWidget (MainWindow *mw);
+};
+
+class BookmarkTableDockWidget : public TableDockWidget {
+  Q_OBJECT
+
+public:
+  BookmarkTableDockWidget (MainWindow *mw);
+
+  /**
+   * @param promptDialog is main dialog box to show user prompt for already
+   * bookmarked groups with same mz and rt value. It will hold <save>, <cancel>,
+   * text labels (<upperLabel> and <lowerLabel>), list of already
+   * bookmarked groups <listTextView>.
+   */
+  QDialog *promptDialog;
+  QHBoxLayout *buttonLayout;
+  QVBoxLayout *promptDialogLayout;
+
+  /**
+   * @param- holds all widget (upperLabel,listTextView,lowerLabel) and
+   * <buttonLayout>
+   */
+  QLabel *upperLabel;
+  QLabel *lowerLabel;
+  QPushButton *cancel;
+  QPushButton *save;
+  ListView *listTextView;
+
+  /**
+   * @param-  holds all already group's corresponding
+   * compound name
+   * @param-  model of compound name, will be set to <listTextView>
+   */
+  QStringListModel *stringModel;
+
+  QMap<QPair<int, int>, QList<QString>> sameMzRtGroups;
+  bool addSameMzRtGroup;
+
+  QMap<QAction *, int> mergeAction;
+
+  /**
+   * @brief This method allows checking if a group is already present in
+   * bookmarked groups <allgroups>.
+   * @detail In case of groups with same mz and rt value, execution will be
+   * held by QEventLoop <loop> and the user will be prompted to choose whether
+   * they want to add the given group to bookmarked groups or not by executing
+   * method <showSameGroup>. <loop> will hold execution of this funtion till
+   * the user presses a button on the prompt dialog.
+   * 
+   * @param group pointer to a PeakGroup object (presented by the table).
+   * @return Boolean value denoting whether group is present in <allgroups>.
+   */
+  bool hasPeakGroup(PeakGroup *group);
+
+public Q_SLOTS:
+  void showMergeTableOptions();
+  void showMsgBox(bool check, int tableNo);
+  void mergeGroupsIntoPeakTable(QAction *action);
+
+  /**
+   * @details This is a slot tied with <save> button of prompt dialog
+   * <promptDialog> to show already bookmarked group with same mz and rt value.
+   * If user press <save> button <addSameMzRtGroup> sets to true which will be
+   * used to add this group's corresponding compound name to already bookmarked
+   * group of same rt and mz value.
+   */
+  void acceptGroup();
+
+  /**
+   * @details This is a slot tied with <save> button of prompt dialog
+   * <promptDialog> to show already bookmarked group with same mz and rt value.
+   * If user press <cancel> button <addSameMzRtGroup> sets to false which will
+   * be used to reject this group's corresponding compound name.
+   */
+  void rejectGroup();
+
+  void deleteGroup(PeakGroup *groupX);
+  void markGroupGood();
+  void markGroupBad();
+
+private:
+  QToolButton *btnMerge;
+  QMenu *btnMergeMenu;
+  void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
+};
+
+class ScatterplotTableDockWidget : public TableDockWidget {
+  Q_OBJECT
+
+public:
+  ScatterplotTableDockWidget(MainWindow *mw);
+  void setupPeakTable();
 };
 
 class TableToolBarWidgetAction : public QWidgetAction {

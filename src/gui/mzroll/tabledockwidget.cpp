@@ -1,26 +1,19 @@
 #include "tabledockwidget.h";
 
-TableDockWidget::TableDockWidget(MainWindow *mw,
-                                 QString title,
-                                 int numColms,
-                                 tableType type) {
+TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
-  setObjectName(title);
 
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
 
-  numColms = 11;
   viewType = groupView;
-  setTableType(type);
 
   treeWidget = new QTreeWidget(this);
   treeWidget->setSortingEnabled(false);
-  treeWidget->setColumnCount(numColms);
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
   treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
   treeWidget->setAcceptDrops(false);
@@ -34,7 +27,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw,
 
   setWidget(treeWidget);
   setupPeakTable();
-  setTableId();
 
   traindialog = new TrainDialog(this);
   connect(traindialog->saveButton, SIGNAL(clicked(bool)), SLOT(saveModel()));
@@ -62,107 +54,16 @@ TableDockWidget::TableDockWidget(MainWindow *mw,
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
 
-  QToolBar *toolBar = new QToolBar(this);
-  toolBar->setFloatable(false);
-  toolBar->setMovable(false);
-  btnMerge = new QToolButton(toolBar);
-  btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
-  btnMerge->setToolTip("Merge Groups With");
-  btnMergeMenu = new QMenu("Merge Groups");
-  btnMerge->setMenu(btnMergeMenu);
-  btnMerge->setPopupMode(QToolButton::InstantPopup);
-  if (type != bookmarkTable)
-    btnMerge->setVisible(false);
-  connect(btnMergeMenu,
-          SIGNAL(aboutToShow()),
-          SLOT(showMergeTableOptions()));
-  connect(btnMergeMenu,
-          SIGNAL(triggered(QAction *)),
-          SLOT(mergeGroupsIntoPeakTable(QAction *)));
-
-  QWidgetAction *titlePeakTable =
-      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
-  QWidgetAction *btnSwitchView =
-      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
-  QWidgetAction *btnGroupCSV =
-      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
-  QWidgetAction *btnSaveJson =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnScatter =
-      new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
-  QWidgetAction *btnTrain =
-      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
-  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
-  QWidgetAction *btnGood =
-      new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
-  QWidgetAction *btnHeatmapelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
-  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
-
-  QWidget *spacer = new QWidget();
-  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-  toolBar->addAction(titlePeakTable);
-  toolBar->addAction(btnSwitchView);
-  toolBar->addAction(btnGood);
-  toolBar->addAction(btnBad);
-  toolBar->addAction(btnTrain);
-  toolBar->addAction(btnHeatmapelete);
-  toolBar->addWidget(btnMerge);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnScatter);
-  toolBar->addAction(btnCluster);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnPDF);
-  toolBar->addAction(btnGroupCSV);
-  toolBar->addAction(btnSaveJson);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnXML);
-
-  toolBar->addWidget(spacer);
-  toolBar->addAction(btnX);
-
-  setTitleBarWidget(toolBar);
   setupFiltersDialog();
 
   setAcceptDrops(true);
-
-  promptDialog = new QDialog(this);
-  promptDialogLayout = new QVBoxLayout();
-
-  cancel = new QPushButton();
-  cancel->setText("cancel");
-  connect(cancel, SIGNAL(clicked()), this, SLOT(rejectGroup()));
-
-  save = new QPushButton();
-  save->setText("save");
-  connect(save, SIGNAL(clicked()), this, SLOT(acceptGroup()));
-
-  buttonLayout = new QHBoxLayout();
-  buttonLayout->addWidget(cancel);
-  buttonLayout->addWidget(save);
-
-  upperLabel = new QLabel();
-  upperLabel->setText(
-      "Groups with same mz and rt.\nSelect and (ctrl+c) to copy");
-  lowerLabel = new QLabel();
-  lowerLabel->setText("Add this group too ?");
-
-  listTextView = new ListView();
-  stringModel = new QStringListModel(promptDialog);
 }
 
 TableDockWidget::~TableDockWidget() {
   if (traindialog != NULL)
     delete traindialog;
 }
+
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
   item->sortChildren(1, Qt::AscendingOrder);
 }
@@ -170,78 +71,6 @@ void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
 void TableDockWidget::showTrainDialog() { traindialog->show(); }
 
 void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
-
-void TableDockWidget::setTableId() {
-  tableId = (_mainwindow->noOfPeakTables)++;
-}
-
-void TableDockWidget::showMergeTableOptions() {
-  QList<QPointer<TableDockWidget>> peaksTableList =
-      _mainwindow->getPeakTableList();
-  int n = peaksTableList.size();
-  btnMergeMenu->clear();
-  mergeAction.clear();
-  for (int i = 0; i < n; i++) {
-    mergeAction.insert(
-        btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()),
-        peaksTableList[i]->tableId);
-  }
-}
-
-void TableDockWidget::showMsgBox(bool check, int tableNo) {
-
-  QMessageBox *msgBox = new QMessageBox(this);
-  msgBox->setAttribute(Qt::WA_DeleteOnClose);
-  msgBox->setStandardButtons(QMessageBox::Ok);
-
-  if (check) {
-    msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
-    msgBox->setText("Successfully Merged from Bookmark Table to Table " +
-                    QString::number(tableNo) + "   ");
-  } else {
-    msgBox->setIcon(QMessageBox::Warning);
-    if (tableNo == -1)
-      msgBox->setText("Error while merging");
-    else
-      msgBox->setText("Error while merging from Bookmark Table to Table " +
-                      QString::number(tableNo) + "   ");
-  }
-
-  msgBox->open();
-}
-
-void TableDockWidget::mergeGroupsIntoPeakTable(QAction *action) {
-
-  QList<QPointer<TableDockWidget>> peaksTableList =
-      _mainwindow->getPeakTableList();
-  int n = peaksTableList.size();
-  int j = mergeAction.value(action, -1);
-
-  if (j == -1) {
-    showMsgBox(false, j);
-    return;
-  }
-
-  if (!allgroups.size() || !n) {
-    showMsgBox(true, j);
-    return;
-  }
-  int sz = peaksTableList[j - 1]->allgroups.size();
-  int total = allgroups.size() + sz;
-  for (unsigned int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].groupId = ++sz;
-    peaksTableList[j - 1]->allgroups.append(allgroups[i]);
-  }
-
-  deleteAll();
-  peaksTableList[j - 1]->showAllGroups();
-  showAllGroups();
-
-  if (total == peaksTableList[j - 1]->allgroups.size())
-    showMsgBox(true, j);
-  else
-    showMsgBox(false, j);
-}
 
 void TableDockWidget::sortBy(int col) {
   treeWidget->sortByColumn(col, Qt::AscendingOrder);
@@ -296,11 +125,6 @@ void TableDockWidget::setupPeakTable() {
     colNames << "Max AreaTop";
     colNames << "Max S/N";
     colNames << "Max Quality";
-
-    // Add a coulmn to the Peaks Table
-    colNames << "Rank";
-    colNames << "Ratio Change";
-    colNames << "P-value";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -313,20 +137,6 @@ void TableDockWidget::setupPeakTable() {
   treeWidget->setHeaderLabels(colNames);
   treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   treeWidget->header()->adjustSize();
-
-  /* Remove "Ratio Change" and "P-value" fields from non-scatterplot
-   * tables where they are not relevant.
-   */
-  if (viewType == groupView && type != scatterplotTable) {
-    treeWidget->setColumnHidden(colNames.indexOf("Ratio Change"), true);
-    treeWidget->setColumnHidden(colNames.indexOf("P-value"), true);
-  } else {
-    // make any hidden columns visible again
-    for (int i = 0; i < colNames.size(); i++) {
-      treeWidget->setColumnHidden(i, false);
-    }
-  }
-
   treeWidget->setSortingEnabled(true);
 }
 
@@ -528,104 +338,11 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
   }
 }
 
-void TableDockWidget::acceptGroup() {
-  addSameMzRtGroup = true;
-  promptDialog->close();
-}
-
-void TableDockWidget::rejectGroup() {
-  addSameMzRtGroup = false;
-  promptDialog->close();
-}
-
 void ListView::keyPressEvent(QKeyEvent *event) {
   if (event->matches(QKeySequence::Copy)) {
     // set all selected compound name to clipboard
     QApplication::clipboard()->setText(strings.join("\n"));
   }
-}
-
-void TableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash) {
-
-  QStringList list;
-
-  for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
-    // saving all compound name of same rt and mz value to <list> variable
-    list.append(sameMzRtGroups[sameMzRtGroupIndexHash][i]);
-    qDebug() << sameMzRtGroups[sameMzRtGroupIndexHash][i];
-  }
-
-  stringModel->setStringList(list);
-
-  listTextView->setModel(stringModel);
-  listTextView->setData(list);
-  listTextView->setSelectionMode(QAbstractItemView::MultiSelection);
-  listTextView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-  // set all widget and labels to prompt dailog
-  promptDialogLayout->insertWidget(0, upperLabel);
-  promptDialogLayout->insertWidget(1, listTextView);
-  promptDialogLayout->insertWidget(2, lowerLabel);
-  promptDialogLayout->insertLayout(3, buttonLayout);
-  promptDialog->setLayout(promptDialogLayout);
-  promptDialog->exec();
-}
-
-bool TableDockWidget::hasPeakGroup(PeakGroup *group) {
-
-  int intMz = group->meanMz * 1e5;
-  int intRt = group->meanRt * 1e5;
-  QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-  QString compoundName = QString::fromStdString(group->getName());
-
-  if (allgroups.size() == 0 ||
-      sameMzRtGroups[sameMzRtGroupIndexHash].size() == 0) {
-    /**
-     * add this group corresponding compound name to list of string which all
-     * share same mz and rt value. Both mz and rt are hashed in
-     * sameMzRtGroupIndexHash.
-     */
-    sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
-  }
-
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (&allgroups[i] == group)
-      return true;
-    if ((double)std::abs(group->meanMz - allgroups[i].meanMz) < 1e-5 &&
-        (double)std::abs(group->meanRt - allgroups[i].meanRt) < 1e-5) {
-      addSameMzRtGroup = false;
-      if (!sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-
-        showSameGroup(sameMzRtGroupIndexHash);
-        /**
-         * if bookmarked list has group with same mz and rt, loop will hold the
-         * execution of this method after showing the prompt dialog to choose
-         * whether to add this group by above method <showSameGroup>.
-         */
-        QEventLoop loop;
-        connect(save, SIGNAL(clicked()), &loop, SLOT(quit()));
-        connect(cancel, SIGNAL(clicked()), &loop, SLOT(quit()));
-      }
-      if (addSameMzRtGroup) {
-        /**
-         * if user pressed <save> button <addSameMzRtGroup> will be set to true
-         * otherwise false. if it is true, this groups corresponding compound
-         * name will we saved by an index of sameMzRtGroupIndexHash to show all
-         * these string next time if a group with same rt and mz is encountered.
-         */
-        sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
-        /**
-         * return false such that calling method will add this group to
-         * bookmarked group.
-         */
-        return false;
-      }
-
-      return true;
-    }
-  }
-
-  return false;
 }
 
 PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
@@ -1142,24 +859,6 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       if (posTree != -1)
         treeWidget->takeTopLevelItem(posTree);
 
-      /**
-       * delete name of compound associated with this group stored in
-       * <sameMzRtGroups> with given mz and rt
-       */
-      int intMz = group->meanMz * 1e5;
-      int intRt = group->meanRt * 1e5;
-      QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-      QString compoundName = QString::fromStdString(groupX->getName());
-      if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-        for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
-             ++i) {
-          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-            sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-            break;
-          }
-        }
-      }
-
       allgroups.erase(allgroups.begin() + pos);
       break;
     }
@@ -1250,8 +949,6 @@ void TableDockWidget::markGroupGood() {
   setGroupLabel('g');
   showNextGroup();
   _mainwindow->peaksMarked++;
-  if (checkLabeledGroups() && type != bookmarkTable)
-    _mainwindow->allPeaksMarked = true;
   _mainwindow->autoSaveSignal();
 }
 
@@ -1260,8 +957,6 @@ void TableDockWidget::markGroupBad() {
   setGroupLabel('b');
   showNextGroup();
   _mainwindow->peaksMarked++;
-  if (checkLabeledGroups() && type != bookmarkTable)
-    _mainwindow->allPeaksMarked = true;
   _mainwindow->autoSaveSignal();
 }
 
@@ -1292,21 +987,6 @@ bool TableDockWidget::checkLabeledGroups() {
 void TableDockWidget::markGroupIgnored() {
   setGroupLabel('i');
   showNextGroup();
-}
-
-void TableDockWidget::showPeakGroup(int row) {
-
-  QTreeWidgetItem *item = treeWidget->itemAt(row, 0);
-  if (item == NULL)
-    return;
-
-  QVariant v = item->data(0, Qt::UserRole);
-  PeakGroup *group = v.value<PeakGroup *>();
-
-  if (group != NULL) {
-    treeWidget->setCurrentItem(item);
-    _mainwindow->setPeakGroup(group);
-  }
 }
 
 void TableDockWidget::showLastGroup() {
@@ -2528,27 +2208,7 @@ void TableDockWidget::switchTableView() {
   updateTable();
 }
 
-MatrixXf TableDockWidget::getGroupMatrix() {
-  vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
-  return getGroupMatrix(vsamples, _mainwindow->getUserQuantType());
-}
-
-MatrixXf TableDockWidget::getGroupMatrix(vector<mzSample *> &samples,
-                                         PeakGroup::QType qtype) {
-  MatrixXf X; // matrix of floats
-  X = MatrixXf::Zero(allgroups.size(), samples.size());
-  for (int i = 0; i < allgroups.size(); i++) {
-    vector<float> values =
-        allgroups[i].getOrderedIntensityVector(samples, qtype);
-    for (int j = 0; j < values.size(); j++) {
-      X(i, j) = values[j];
-    }
-  }
-  return X;
-}
-
 QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
-
   if (btnName == "titlePeakTable") {
 
     td->titlePeakTable = new QLabel(parent);
@@ -2687,4 +2347,499 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else {
     return NULL;
   }
+}
+
+PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
+  _mainwindow = mw;
+  tableId = ++(mw->noOfPeakTables);
+
+  QToolBar *toolBar = new QToolBar(this);
+  toolBar->setFloatable(false);
+  toolBar->setMovable(false);
+
+  QWidgetAction *titlePeakTable =
+      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+  QWidgetAction *btnSwitchView =
+      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+  QWidgetAction *btnGroupCSV =
+      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+  QWidgetAction *btnSaveJson =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnScatter =
+      new TableToolBarWidgetAction(toolBar, this, "btnScatter");
+  QWidgetAction *btnCluster =
+      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
+  QWidgetAction *btnTrain =
+      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
+  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
+  QWidgetAction *btnGood =
+      new TableToolBarWidgetAction(toolBar, this, "btnGood");
+  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnHeatmapelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+
+  QWidget *spacer = new QWidget();
+  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+  toolBar->addAction(titlePeakTable);
+  toolBar->addAction(btnSwitchView);
+  toolBar->addAction(btnGood);
+  toolBar->addAction(btnBad);
+  toolBar->addAction(btnTrain);
+  toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnScatter);
+  toolBar->addAction(btnCluster);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnPDF);
+  toolBar->addAction(btnGroupCSV);
+  toolBar->addAction(btnSaveJson);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnXML);
+
+  toolBar->addWidget(spacer);
+  toolBar->addAction(btnX);
+
+  setTitleBarWidget(toolBar);
+}
+
+BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
+  _mainwindow = mw;
+  tableId = 0;
+
+  QToolBar *toolBar = new QToolBar(this);
+  toolBar->setFloatable(false);
+  toolBar->setMovable(false);
+  btnMerge = new QToolButton(toolBar);
+  btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
+  btnMerge->setToolTip("Merge Groups With");
+  btnMergeMenu = new QMenu("Merge Groups");
+  btnMerge->setMenu(btnMergeMenu);
+  btnMerge->setPopupMode(QToolButton::InstantPopup);
+  connect(btnMergeMenu,
+          SIGNAL(aboutToShow()),
+          SLOT(showMergeTableOptions()));
+  connect(btnMergeMenu,
+          SIGNAL(triggered(QAction *)),
+          SLOT(mergeGroupsIntoPeakTable(QAction *)));
+
+  QWidgetAction *titlePeakTable =
+      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+  QWidgetAction *btnSwitchView =
+      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+  QWidgetAction *btnGroupCSV =
+      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+  QWidgetAction *btnSaveJson =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnScatter =
+      new TableToolBarWidgetAction(toolBar, this, "btnScatter");
+  QWidgetAction *btnCluster =
+      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
+  QWidgetAction *btnTrain =
+      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
+  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
+  QWidgetAction *btnGood =
+      new TableToolBarWidgetAction(toolBar, this, "btnGood");
+  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnHeatmapelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+
+  QWidget *spacer = new QWidget();
+  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+  toolBar->addAction(titlePeakTable);
+  toolBar->addAction(btnSwitchView);
+  toolBar->addAction(btnGood);
+  toolBar->addAction(btnBad);
+  toolBar->addAction(btnTrain);
+  toolBar->addAction(btnHeatmapelete);
+  toolBar->addWidget(btnMerge);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnScatter);
+  toolBar->addAction(btnCluster);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnPDF);
+  toolBar->addAction(btnGroupCSV);
+  toolBar->addAction(btnSaveJson);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnXML);
+
+  toolBar->addWidget(spacer);
+  toolBar->addAction(btnX);
+
+  setTitleBarWidget(toolBar);
+
+  promptDialog = new QDialog(this);
+  promptDialogLayout = new QVBoxLayout();
+
+  cancel = new QPushButton();
+  cancel->setText("cancel");
+  connect(cancel, SIGNAL(clicked()), this, SLOT(rejectGroup()));
+
+  save = new QPushButton();
+  save->setText("save");
+  connect(save, SIGNAL(clicked()), this, SLOT(acceptGroup()));
+
+  buttonLayout = new QHBoxLayout();
+  buttonLayout->addWidget(cancel);
+  buttonLayout->addWidget(save);
+
+  upperLabel = new QLabel();
+  upperLabel->setText(
+      "Groups with same mz and rt.\nSelect and (ctrl+c) to copy");
+  lowerLabel = new QLabel();
+  lowerLabel->setText("Add this group too ?");
+
+  listTextView = new ListView();
+  stringModel = new QStringListModel(promptDialog);
+}
+
+void BookmarkTableDockWidget::showMergeTableOptions() {
+  QList<QPointer<TableDockWidget>> peaksTableList =
+      _mainwindow->getPeakTableList();
+  int n = peaksTableList.size();
+  btnMergeMenu->clear();
+  mergeAction.clear();
+  for (int i = 0; i < n; i++) {
+    mergeAction.insert(
+        btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()),
+        peaksTableList[i]->tableId);
+  }
+}
+
+void BookmarkTableDockWidget::showMsgBox(bool check, int tableNo) {
+
+  QMessageBox *msgBox = new QMessageBox(this);
+  msgBox->setAttribute(Qt::WA_DeleteOnClose);
+  msgBox->setStandardButtons(QMessageBox::Ok);
+
+  if (check) {
+    msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
+    msgBox->setText("Successfully Merged from Bookmark Table to Table " +
+                    QString::number(tableNo) + "   ");
+  } else {
+    msgBox->setIcon(QMessageBox::Warning);
+    if (tableNo == -1)
+      msgBox->setText("Error while merging");
+    else
+      msgBox->setText("Error while merging from Bookmark Table to Table " +
+                      QString::number(tableNo) + "   ");
+  }
+
+  msgBox->open();
+}
+
+void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action) {
+
+  QList<QPointer<TableDockWidget>> peaksTableList =
+      _mainwindow->getPeakTableList();
+  int n = peaksTableList.size();
+  int j = mergeAction.value(action, -1);
+
+  if (j == -1) {
+    showMsgBox(false, j);
+    return;
+  }
+
+  if (!allgroups.size() || !n) {
+    showMsgBox(true, j);
+    return;
+  }
+  int sz = peaksTableList[j - 1]->allgroups.size();
+  int total = allgroups.size() + sz;
+  for (unsigned int i = 0; i < allgroups.size(); i++) {
+    allgroups[i].groupId = ++sz;
+    peaksTableList[j - 1]->allgroups.append(allgroups[i]);
+  }
+
+  deleteAll();
+  peaksTableList[j - 1]->showAllGroups();
+  showAllGroups();
+
+  if (total == peaksTableList[j - 1]->allgroups.size())
+    showMsgBox(true, j);
+  else
+    showMsgBox(false, j);
+}
+
+void BookmarkTableDockWidget::acceptGroup() {
+  addSameMzRtGroup = true;
+  promptDialog->close();
+}
+
+void BookmarkTableDockWidget::rejectGroup() {
+  addSameMzRtGroup = false;
+  promptDialog->close();
+}
+
+void BookmarkTableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash) {
+
+  QStringList list;
+
+  for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
+    // saving all compound name of same rt and mz value to <list> variable
+    list.append(sameMzRtGroups[sameMzRtGroupIndexHash][i]);
+    qDebug() << sameMzRtGroups[sameMzRtGroupIndexHash][i];
+  }
+
+  stringModel->setStringList(list);
+
+  listTextView->setModel(stringModel);
+  listTextView->setData(list);
+  listTextView->setSelectionMode(QAbstractItemView::MultiSelection);
+  listTextView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+  // set all widget and labels to prompt dailog
+  promptDialogLayout->insertWidget(0, upperLabel);
+  promptDialogLayout->insertWidget(1, listTextView);
+  promptDialogLayout->insertWidget(2, lowerLabel);
+  promptDialogLayout->insertLayout(3, buttonLayout);
+  promptDialog->setLayout(promptDialogLayout);
+  promptDialog->exec();
+}
+
+bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
+
+  int intMz = group->meanMz * 1e5;
+  int intRt = group->meanRt * 1e5;
+  QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+  QString compoundName = QString::fromStdString(group->getName());
+
+  if (allgroups.size() == 0 ||
+      sameMzRtGroups[sameMzRtGroupIndexHash].size() == 0) {
+    /**
+     * add this group corresponding compound name to list of string which all
+     * share same mz and rt value. Both mz and rt are hashed in
+     * sameMzRtGroupIndexHash.
+     */
+    sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+  }
+
+  for (int i = 0; i < allgroups.size(); i++) {
+    if (&allgroups[i] == group)
+      return true;
+    if ((double)std::abs(group->meanMz - allgroups[i].meanMz) < 1e-5 &&
+        (double)std::abs(group->meanRt - allgroups[i].meanRt) < 1e-5) {
+      addSameMzRtGroup = false;
+      if (!sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+
+        showSameGroup(sameMzRtGroupIndexHash);
+        /**
+         * if bookmarked list has group with same mz and rt, loop will hold the
+         * execution of this method after showing the prompt dialog to choose
+         * whether to add this group by above method <showSameGroup>.
+         */
+        QEventLoop loop;
+        connect(save, SIGNAL(clicked()), &loop, SLOT(quit()));
+        connect(cancel, SIGNAL(clicked()), &loop, SLOT(quit()));
+      }
+      if (addSameMzRtGroup) {
+        /**
+         * if user pressed <save> button <addSameMzRtGroup> will be set to true
+         * otherwise false. if it is true, this groups corresponding compound
+         * name will we saved by an index of sameMzRtGroupIndexHash to show all
+         * these string next time if a group with same rt and mz is encountered.
+         */
+        sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+        /**
+         * return false such that calling method will add this group to
+         * bookmarked group.
+         */
+        return false;
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
+  if (!groupX)
+    return;
+
+  int pos = -1;
+  for (int i = 0; i < allgroups.size(); i++) {
+    if (&allgroups[i] == groupX) {
+      pos = i;
+      break;
+    }
+  }
+  if (pos == -1)
+    return;
+
+  QTreeWidgetItemIterator it(treeWidget);
+  while (*it) {
+    QTreeWidgetItem *item = (*it);
+    if (item->isHidden()) {
+      ++it;
+      continue;
+    }
+    QVariant v = item->data(0, Qt::UserRole);
+    PeakGroup *group = v.value<PeakGroup *>();
+    if (group != NULL and group == groupX) {
+      item->setHidden(true);
+
+      // Deleting
+      int posTree = treeWidget->indexOfTopLevelItem(item);
+      if (posTree != -1)
+        treeWidget->takeTopLevelItem(posTree);
+
+      /**
+       * delete name of compound associated with this group stored in
+       * <sameMzRtGroups> with given mz and rt
+       */
+      int intMz = group->meanMz * 1e5;
+      int intRt = group->meanRt * 1e5;
+      QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+      QString compoundName = QString::fromStdString(groupX->getName());
+      if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+        for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
+             ++i) {
+          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+            sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+            break;
+          }
+        }
+      }
+
+      allgroups.erase(allgroups.begin() + pos);
+      break;
+    }
+    ++it;
+  }
+
+  for (unsigned int i = 0; i < allgroups.size(); i++) {
+    allgroups[i].groupId = i + 1;
+  }
+  updateTable();
+  updateCompoundWidget();
+}
+
+void BookmarkTableDockWidget::markGroupGood() {
+
+  setGroupLabel('g');
+  showNextGroup();
+  _mainwindow->peaksMarked++;
+  if (checkLabeledGroups())
+    _mainwindow->allPeaksMarked = true;
+  _mainwindow->autoSaveSignal();
+}
+
+void BookmarkTableDockWidget::markGroupBad() {
+
+  setGroupLabel('b');
+  showNextGroup();
+  _mainwindow->peaksMarked++;
+  if (checkLabeledGroups())
+    _mainwindow->allPeaksMarked = true;
+  _mainwindow->autoSaveSignal();
+}
+
+ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
+    TableDockWidget(mw) {
+  _mainwindow = mw;
+
+  QToolBar *toolBar = new QToolBar(this);
+  toolBar->setFloatable(false);
+  toolBar->setMovable(false);
+
+  QWidgetAction *titlePeakTable =
+      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+  QWidgetAction *btnSwitchView =
+      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+  QWidgetAction *btnGroupCSV =
+      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+  QWidgetAction *btnSaveJson =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnCluster =
+      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
+  QWidgetAction *btnTrain =
+      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
+  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
+  QWidgetAction *btnGood =
+      new TableToolBarWidgetAction(toolBar, this, "btnGood");
+  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnHeatmapelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+
+  QWidget *spacer = new QWidget();
+  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+  toolBar->addAction(titlePeakTable);
+  toolBar->addAction(btnSwitchView);
+  toolBar->addAction(btnGood);
+  toolBar->addAction(btnBad);
+  toolBar->addAction(btnTrain);
+  toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnCluster);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnPDF);
+  toolBar->addAction(btnGroupCSV);
+  toolBar->addAction(btnSaveJson);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnXML);
+
+  toolBar->addWidget(spacer);
+  toolBar->addAction(btnX);
+
+  setTitleBarWidget(toolBar);
+}
+
+void ScatterplotTableDockWidget::setupPeakTable() {
+
+  QStringList colNames;
+
+  // Add a coulmn to the Peaks Table
+  colNames << "#";
+  colNames << "ID";
+  colNames << "Observed m/z";
+  colNames << "Expected m/z";
+  colNames << "rt";
+
+  if (viewType == groupView) {
+
+    // Add a coulmn to the Peaks Table
+    colNames << "rt delta";
+    colNames << "#peaks";
+    colNames << "#good";
+    colNames << "Max Width";
+    colNames << "Max AreaTop";
+    colNames << "Max S/N";
+    colNames << "Max Quality";
+
+    // Add a coulmn to the Peaks Table
+    colNames << "Rank";
+    colNames << "Ratio Change";
+    colNames << "P-value";
+  } else if (viewType == peakView) {
+    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
+    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+    for (unsigned int i = 0; i < vsamples.size(); i++) {
+      colNames << QString(vsamples[i]->sampleName.c_str());
+    }
+  }
+
+  treeWidget->setColumnCount(colNames.size());
+  treeWidget->setHeaderLabels(colNames);
+  treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  treeWidget->header()->adjustSize();
+  treeWidget->setSortingEnabled(true);
 }
