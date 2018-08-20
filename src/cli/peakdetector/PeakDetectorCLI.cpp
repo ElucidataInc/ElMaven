@@ -627,13 +627,13 @@ void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename, QStri
 	file.close();
 }
 
-void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath) {
+void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
 	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
 
 	//No project name with Polly arguments
 	if (!pollyArgs.isEmpty() && pollyProject.isEmpty()) {
-		cerr << "Please provide project name..\n" << endl;
+		cerr << "Please provide project name.\n" << endl;
 		return;
 	}
 
@@ -734,7 +734,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 					QTextStream stream(&file);
 					stream << redirection_url << endl;
 				}
-				bool status = send_user_email(creds, redirection_url, jsPath);
+				bool status = send_user_email(creds, redirection_url);
 				qDebug() << "Emailer status - " << status;
 			}
 			else {
@@ -923,8 +923,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	return upload_project_id;
 }
 
-bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url,
-						QString jsPath) {
+bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url) {
 	QString user_email = creds["polly_username"];
 	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
 	status = _pollyIntegration->send_email(user_email, redirection_url, email_message);

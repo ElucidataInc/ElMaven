@@ -188,7 +188,7 @@ class PeakDetectorCLI {
 		bool validCohorts(QStringList cohorts);
 		void makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples);
 		bool validSampleCohort(QString sample_cohort_file, QStringList loadedSamples);
-		bool send_user_email(QMap<QString, QString> creds, QString redirection_url, QString jsPath);
+		bool send_user_email(QMap<QString, QString> creds, QString redirection_url);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
 		
 		/**
