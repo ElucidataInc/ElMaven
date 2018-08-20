@@ -91,10 +91,6 @@ class PeakDetectorCLI {
 
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
-		bool uploadToPolly_bool = false;
-		bool pollyProject_provided = false;
-		bool sample_cohort_present = false;
-		bool valid_sample_cohort = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;

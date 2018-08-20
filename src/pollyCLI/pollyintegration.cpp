@@ -76,7 +76,7 @@ QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_w
         QStringList test_files_list = filename.split(QDir::separator());
         int size = test_files_list.size();
         QString new_filename = test_files_list[size-1];
-        QString copy_url_with_wildcard = url_with_wildcard
+        QString copy_url_with_wildcard = url_with_wildcard;
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "upload_project_data";
         QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
