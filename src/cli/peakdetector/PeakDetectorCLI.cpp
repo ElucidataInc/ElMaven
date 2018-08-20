@@ -686,7 +686,7 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 		try {
 			QStringList loadedSamples = getSampleList();
 			QString compound_DB_file = QString::fromStdString(mavenParameters->ligandDbFilename);
-			bool status = QFile::copy(compound_DB_file, compound_DB_filename+".csv");
+			bool status = QFile::copy(compound_DB_file, compound_DB_filename + ".csv");
 			qDebug() << "compound_DB_file copy status - " << status;
 			
 			//check validity of sample cohort file if present
@@ -714,19 +714,27 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 													sample_cohort_filename+".csv";
 
 			//jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
-			QString upload_project_id = UploadToPolly(jsPath,nodePath,files_to_be_uploaded,creds,pollyProject); 
-			if (upload_project_id!="") { //That means the upload was successful, in that case, redirect the user to polly..
+			QString upload_project_id = UploadToPolly(jsPath, nodePath, files_to_be_uploaded, 
+											creds, pollyProject); 
+			
+			//That means the upload was successful, redirect the user to Polly..
+			if (!upload_project_id.isEmpty()) {
 				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3'>Go To Polly</a>").arg(upload_project_id).arg(redirect_to).arg(datetimestamp);
 				qDebug() << "redirection url - \n" << redirection_url;
-				QString filename=QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator()+datetimestamp+"_redirection_url.txt";
+				QString filename = QStandardPaths::writableLocation(
+									QStandardPaths::QStandardPaths::GenericConfigLocation) + 
+									QDir::separator() + 
+									datetimestamp + 
+									"_redirection_url.txt";
+				
 				qDebug() << "writing url to this file -" << filename;
-				QFile file(filename);// redirection url will be written to a file..In future it will be replaced by email feature..
-				if (file.open(QIODevice::ReadWrite))
-				{
+				//redirection url will be written to a file..In future it will be replaced by email feature..
+				QFile file(filename);
+				if (file.open(QIODevice::ReadWrite)) {
 					QTextStream stream(&file);
 					stream << redirection_url << endl;
 				}
-				bool status = send_user_email(creds,redirection_url,jsPath);
+				bool status = send_user_email(creds, redirection_url, jsPath);
 				qDebug() << "Emailer status - " << status;
 			}
 			else {
@@ -874,44 +882,45 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath,QString nodePath,QStringLi
 	_pollyIntegration->jsPath = jsPath;
 	_pollyIntegration->nodePath = nodePath;
 	QString status = _pollyIntegration->authenticate_login(creds["polly_username"],creds["polly_password"]);
-	if (status!="ok"){
-		qDebug()<<"Incorrect credentials...Please check..";
+	if (status != "ok") {
+		qDebug() << "Incorrect credentials...Please check..";
 		return upload_project_id;
 	}
 	// user is logged in, now proceed to upload..
 	QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
 
-	QStringList keys= projectnames_id.keys();
+	QStringList keys = projectnames_id.keys();
 	QString projectId;
 	QString defaultprojectId;
-	for (int i=0; i < keys.size(); ++i){
-		if (projectnames_id[keys.at(i)].toString()==pollyProject){
+	for (const auto& key : keys) {
+		if (projectnames_id[key].toString() == pollyProject) {
 			// that means the name provided by the user matches a project.
-			projectId= keys.at(i);
-			}
-		else if (projectnames_id[keys.at(i)].toString()=="Default project"){
-			// Always be ready with the default project id of user..
-			defaultprojectId=keys.at(i);
-			}
+			projectId= key;
 		}
-	if (projectId==""){
+		else if (projectnames_id[key].toString() == "Default project") {
+			// Always be ready with the default project id of user..
+			defaultprojectId=key;
+		}
+	}
+	if (projectId.isEmpty()) {
 		//In case no project matches with the user defined name,
 		// Create the project and upload to it..This makes the project name to be mandatory..
 		QString new_project_id = _pollyIntegration->createProjectOnPolly(pollyProject);
-		_pollyIntegration->exportData(filenames,new_project_id);
 		upload_project_id = new_project_id;
 	}
-	else{
-		_pollyIntegration->exportData(filenames,projectId);
+	else {
 		upload_project_id = projectId;
 	}
+
+	_pollyIntegration->exportData(filenames, upload_project_id);
+
 	return upload_project_id;
 }
 
 bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath){
 	QString user_email = creds["polly_username"];
-	QString email_message = "Data Successfully uploaded to Polly project "+pollyProject;
-	status = _pollyIntegration->send_email(user_email,redirection_url,email_message);
+	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
+	status = _pollyIntegration->send_email(user_email, redirection_url, email_message);
 	return status;
 }
 
