@@ -78,7 +78,8 @@ class PathwayWidget;
 class IsotopeWidget;
 class MassCalcWidget;
 class TreeDockWidget;
-class TableDockWidget;
+class BookmarkTableDockWidget;
+class PeakTableDockWidget;
 class AlignmentPolyVizDockWidget;
 class IsotopePlotDockWidget;
 class IsotopePlot;
@@ -196,7 +197,7 @@ public:
 	SpectraMatching *spectraMatchingForm;
 	PeptideFragmentationWidget *peptideFragmentation;
 
-	TableDockWidget *bookmarkedPeaks;
+	BookmarkTableDockWidget *bookmarkedPeaks;
 	SuggestPopup *suggestPopup;
 	HeatMap *heatmap;
 	GalleryWidget *galleryWidget;
@@ -236,7 +237,7 @@ public:
 	// RconsoleWidget* getRconsoleWidget() {
 	// 	return rconsoleDockWidget;
 	// }
-	TableDockWidget* getBookmarkedPeaks() {
+	BookmarkTableDockWidget* getBookmarkedPeaks() {
 		return bookmarkedPeaks;
 	}
 

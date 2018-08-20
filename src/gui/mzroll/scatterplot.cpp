@@ -32,10 +32,9 @@ ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) {
 
 void ScatterPlot::setPeakTable(QWidget* w) {
 
-    _peakTable = new TableDockWidget((MainWindow*) w, "Bookmarked Groups", 0, TableDockWidget::scatterplotTable);
+    _peakTable = new ScatterplotTableDockWidget((MainWindow*) w);
     _peakTable->setVisible(false);
     _peakTable->tableId = -1;
-     (((MainWindow*) w)->noOfPeakTables)--;
     _peakTable->titlePeakTable->setText(" Scatter Plot Peak Table ");
     ((MainWindow*) w)->addDockWidget(Qt::BottomDockWidgetArea, _peakTable, Qt::Horizontal);
 
