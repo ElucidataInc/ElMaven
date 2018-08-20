@@ -642,7 +642,6 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	if (uploadToPolly_bool){
 		if(pollyProject_provided){
 			QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
-			mavenParameters->outputdir = "";
 			cout<<"uploding to polly now.."<<endl;
 			QDateTime current_time;
 			QString datetimestamp= current_time.currentDateTime().toString();
@@ -656,7 +655,6 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 				QDir qdir(writable_temp_dir);
 			}
 
-			// filedir = QString::fromStdString(mavenParameters->outputdir);//output directory as provided by the user
 			QString csv_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peak_table_all_Elmaven_Polly";// uploading the csv file 
 			QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly";//  uploading the json file
 			QString compound_DB_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_Polly";//  uploading the compound DB file
@@ -717,15 +715,16 @@ void PeakDetectorCLI::writeReport(string setName,QString jsPath,QString nodePath
 	else{
 		//create an output folder
 		mzUtils::createDir(mavenParameters->outputdir.c_str());
-
+		string fileName = mavenParameters->outputdir + setName;
+		
 		//save Eic Json
-		saveJson(setName);
+		saveJson(fileName);
 
 		//save Mzroll File
-		saveMzRoll(setName);
+		saveMzRoll(fileName);
 
 		//save output CSV
-		saveCSV(setName);
+		saveCSV(fileName);
 	}
 }
 
@@ -812,7 +811,7 @@ void PeakDetectorCLI::saveJson(string setName) {
 		#endif
 
 		jsonReports=new JSONReports(mavenParameters);
-		string fileName = mavenParameters->outputdir + setName + ".json";
+		string fileName = setName + ".json";
 		jsonReports->saveMzEICJson(fileName,
 									mavenParameters->allgroups,mavenParameters->samples);
 		#ifndef __APPLE__
@@ -912,7 +911,7 @@ void PeakDetectorCLI::saveMzRoll(string setName) {
          double startSavingMzroll = getTime();
         #endif
 
-         writePeakTableXML(mavenParameters->outputdir + setName + ".mzroll");
+         writePeakTableXML(setName + ".mzroll");
 
         #ifndef __APPLE__
          cout << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
@@ -927,7 +926,7 @@ void PeakDetectorCLI::saveCSV(string setName) {
      double startSavingCSV = getTime();
     #endif
 	
-	string fileName = mavenParameters->outputdir + setName + ".csv";
+	string fileName = setName + ".csv";
 	
     CSVReports* csvreports = new CSVReports(mavenParameters->samples);
     csvreports->setMavenParameters(mavenParameters);

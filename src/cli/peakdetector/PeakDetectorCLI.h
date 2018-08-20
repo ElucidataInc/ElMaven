@@ -163,10 +163,22 @@ class PeakDetectorCLI {
 
 		void groupReduction();
 
+		/**
+		 * @brief save output in a json file
+		 * @param setName file name with full path
+		*/
 		void saveJson(string setName);
 
+		/**
+		 * @brief save project as .mzroll
+		 * @param setName file name with full path
+		*/
 		void saveMzRoll(string setName);
 
+		/**
+		 * @brief save project as .mzroll
+		 * @param setName file name with full path
+		*/
 		void saveCSV(string setName);
 
 		/**
