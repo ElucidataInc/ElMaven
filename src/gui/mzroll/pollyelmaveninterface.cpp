@@ -14,7 +14,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         pollyButton->setVisible(false);
         
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
-        connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
+        //connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(new_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_new_project_radio_button()));
