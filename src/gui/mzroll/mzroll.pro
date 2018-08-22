@@ -261,7 +261,7 @@ database.cpp \
     ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
-    pollywaitdialog.cpp
+    pollywaitdialog.cpp 
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
