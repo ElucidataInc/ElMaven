@@ -61,8 +61,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
                 alignType = POLY_FIT;
 
             else
+                alignType = NO_TYPE;
                 mavenParameters->alignSamplesFlag = false;
-			break;
+
+            break;
 
 		case 'b':
 			mavenParameters->minGoodGroupCount = atoi(optarg);
@@ -492,8 +494,19 @@ void PeakDetectorCLI::processGeneralArgsXML(xml_node& generalArgs) {
 		if (strcmp(node.name(),"alignSamples") == 0) {
 
 			mavenParameters->alignSamplesFlag = true;
-			if (atoi(node.attribute("value").value()) == 0) mavenParameters->alignSamplesFlag = false;
+            switch (atoi(node.attribute("value").value())) {
 
+            case 1: alignType = OBI_WARP;
+                break;
+
+            case 2: alignType = POLY_FIT;
+                break;
+
+            default: mavenParameters->alignSamplesFlag = false;
+                alignType = NO_TYPE;
+                break;
+
+            }
 		}
 		else if (strcmp(node.name(),"saveEicJson") == 0) {
 

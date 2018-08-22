@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
 
 	//align samples
-	if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag){
+    if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag) {
         peakdetectorCLI->peakDetector->alignSamples((int)peakdetectorCLI->alignType);
 	}
 
