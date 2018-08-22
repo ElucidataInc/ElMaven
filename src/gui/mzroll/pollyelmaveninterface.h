@@ -73,9 +73,13 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 */
                 LoginForm* _loginform;
 
+        private:
+                void createIcons();
+        
         private Q_SLOTS:
                 void goToPolly();
                 void performPostUploadTasks(bool uploadSuccessful);
+                void changePage(QListWidgetItem*, QListWidgetItem*);
         
         public Q_SLOTS:
                 /**

@@ -9,6 +9,9 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
 {
         setModal(true);
         setupUi(this);
+        createIcons();
+        workflowMenu->setCurrentRow(0);
+
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog(this);
         pollyButton->setVisible(false);
@@ -59,6 +62,38 @@ EPIWorkerThread::~EPIWorkerThread()
 {
     if (_pollyintegration) delete (_pollyintegration);
 };
+
+void PollyElmavenInterfaceDialog::createIcons()
+{   
+    QListWidgetItem *firstView = new QListWidgetItem(workflowMenu);
+    firstView->setIcon(QIcon(":/images/firstView.png"));
+    firstView->setText(tr("FirstView"));
+    firstView->setTextAlignment(Qt::AlignHCenter);
+    firstView->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+    QListWidgetItem *fluxomics = new QListWidgetItem(workflowMenu);
+    fluxomics->setIcon(QIcon(":/images/flux.png"));
+    fluxomics->setText(tr("Polly Phi Relative LCMS"));
+    fluxomics->setTextAlignment(Qt::AlignHCenter);
+    fluxomics->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+    workflowMenu->setSizeAdjustPolicy(QListWidget::AdjustToContents);
+    workflowMenu->setViewMode(QListView::IconMode);
+    workflowMenu->setFlow(QListView::TopToBottom);
+    workflowMenu->setSpacing(15);
+    workflowMenu->setIconSize(QSize(140, 140));
+
+    connect(workflowMenu, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+        this, SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
+}
+
+void PollyElmavenInterfaceDialog::changePage(QListWidgetItem *current, QListWidgetItem *previous)
+ {
+    if (!current)
+        current = previous;
+
+    stackedWidget->setCurrentIndex(workflowMenu->row(current));
+ }
 
 void PollyElmavenInterfaceDialog::goToPolly()
 {
