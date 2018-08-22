@@ -731,7 +731,7 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 
 			//jspath and nodepath are very important here..node executable will be used to connect to polly, with the help of index.js script..
 			QString upload_project_id = UploadToPolly(jsPath, nodePath, files_to_be_uploaded, 
-											creds, pollyProject); 
+											creds); 
 			
 			//That means the upload was successful, redirect the user to Polly..
 			if (!upload_project_id.isEmpty()) {
@@ -895,8 +895,7 @@ QMap<QString, QString> PeakDetectorCLI::readCredentialsFromXml(QString filename)
 }
 
 QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath, 
-							QStringList filenames, QMap<QString, QString> creds, 
-							QString pollyProject) {
+							QStringList filenames, QMap<QString, QString> creds) {
 	
 	QString upload_project_id;
 	
@@ -915,7 +914,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	QString projectId;
 	QString defaultprojectId;
 	if(pollyProject.isEmpty()){
-		pollyProject = "Default_Symphony_Polly_Project";
+		pollyProject = "Default_Elmaven_Polly_Project";
 	}
 	for (const auto& key : keys) {
 		if (projectnames_id[key].toString() == pollyProject) {

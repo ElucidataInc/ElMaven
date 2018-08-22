@@ -183,7 +183,7 @@ class PeakDetectorCLI {
 		 * @param nodepath  [path to node executable]
 		 * @param filenames [List of files to be uploaded on polly]
 		*/
-		QString UploadToPolly(QString jsPath, QString nodePath, QStringList filenames, QMap<QString, QString> creds, QString pollyProject);
+		QString UploadToPolly(QString jsPath, QString nodePath, QStringList filenames, QMap<QString, QString> creds);
 		QStringList getSampleList();
 		bool validCohorts(QStringList cohorts);
 		void makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples);
