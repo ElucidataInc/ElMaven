@@ -627,15 +627,26 @@ void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename, QStri
 	file.close();
 }
 
+QString PeakDetectorCLI::isReadyForPolly(){
+	QString message = "ready";
+	if (mavenParameters->ligandDbFilename == ""){
+		message = "please provide compound database file. It is required for Elmaven-Polly-Integration\n";	
+		return message;
+	}
+	if (!saveJsonEIC){
+		qDebug()<<"json file is required for Elmaven-Polly-Integration, overriding existing settings to save EIC json file.";
+		saveJsonEIC = true;
+	}
+	if (!mavenParameters->C13Labeled_BPE || mavenParameters->S34Labeled_BPE || mavenParameters->N15Labeled_BPE || mavenParameters->D2Labeled_BPE){
+		message = "As of now, Polly allows only carbon label studies..Please use -f 0001 in CLI command ";
+		return message;
+	}
+	return message;
+}
+
 void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
 	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
-
-	//No project name with Polly arguments
-	if (!pollyArgs.isEmpty() && pollyProject.isEmpty()) {
-		cerr << "Please provide project name.\n" << endl;
-		return;
-	}
 
 	//reduce groups
 	groupReduction();
@@ -656,6 +667,11 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		saveCSV(fileName);
 	}
 	else {
+		QString readyStatus = isReadyForPolly();
+		if (!(readyStatus == "ready")){
+			qDebug()<< "Error while preparing files for Polly - \n" << readyStatus;
+			return;
+		}
 		//try uploading to Polly
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		cout << "uploading to Polly now.." << endl;
@@ -898,14 +914,13 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	QStringList keys = projectnames_id.keys();
 	QString projectId;
 	QString defaultprojectId;
+	if(pollyProject.isEmpty()){
+		pollyProject = "Default_Symphony_Polly_Project";
+	}
 	for (const auto& key : keys) {
 		if (projectnames_id[key].toString() == pollyProject) {
 			// that means the name provided by the user matches a project.
 			projectId= key;
-		}
-		else if (projectnames_id[key].toString() == "Default project") {
-			// Always be ready with the default project id of user..
-			defaultprojectId=key;
 		}
 	}
 	if (projectId.isEmpty()) {
