@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -672,15 +672,15 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
+     <y>50</y>
      <width>191</width>
-     <height>461</height>
+     <height>421</height>
     </rect>
    </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
+     <verstretch>1</verstretch>
     </sizepolicy>
    </property>
    <property name="verticalScrollBarPolicy">
@@ -722,6 +722,28 @@
    <property name="currentRow">
     <number>-1</number>
    </property>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_13">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>191</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_14">
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select App&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
