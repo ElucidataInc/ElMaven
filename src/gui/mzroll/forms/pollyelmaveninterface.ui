@@ -29,7 +29,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="firstViewPage">
     <widget class="QWidget" name="horizontalLayoutWidget">
@@ -288,7 +288,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="computeButton_upload">
+       <widget class="QPushButton" name="firstViewUpload">
         <property name="text">
          <string>Upload</string>
         </property>
@@ -445,7 +445,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_table_name_2"/>
+       <widget class="QComboBox" name="tableList_flux"/>
       </item>
       <item>
        <spacer name="horizontalSpacer_16">
@@ -473,7 +473,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QRadioButton" name="new_project_radio_button_2">
+       <widget class="QRadioButton" name="radioNewProject_flux">
         <property name="text">
          <string>Create new project</string>
         </property>
@@ -493,7 +493,7 @@
        </spacer>
       </item>
       <item row="0" column="2">
-       <widget class="QLineEdit" name="lineEdit_new_project_name_2">
+       <widget class="QLineEdit" name="newProjectName_flux">
         <property name="placeholderText">
          <string>Enter Project Name</string>
         </property>
@@ -513,7 +513,7 @@
        </spacer>
       </item>
       <item row="1" column="0">
-       <widget class="QRadioButton" name="existing_project_radio_button_2">
+       <widget class="QRadioButton" name="radioSelectProject_flux">
         <property name="text">
          <string>Select existing project</string>
         </property>
@@ -533,7 +533,7 @@
        </spacer>
       </item>
       <item row="1" column="2">
-       <widget class="QComboBox" name="comboBox_existing_projects_2"/>
+       <widget class="QComboBox" name="projectList_flux"/>
       </item>
       <item row="1" column="3">
        <spacer name="horizontalSpacer_20">
@@ -606,7 +606,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="computeButton_upload_2">
+       <widget class="QPushButton" name="fluxUpload">
         <property name="text">
          <string>Upload</string>
         </property>
@@ -645,7 +645,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pollyButton_2">
+       <widget class="QPushButton" name="fluxButton">
         <property name="enabled">
          <bool>false</bool>
         </property>

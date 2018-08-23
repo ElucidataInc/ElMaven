@@ -18,7 +18,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         //connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
-        connect(computeButton_upload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
+        connect(firstViewUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(cancelButton_upload, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(new_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_new_project_radio_button()));
         connect(existing_project_radio_button, SIGNAL(clicked(bool)), SLOT(handle_existing_project_radio_button()));
@@ -160,7 +160,7 @@ void PollyElmavenInterfaceDialog::call_login_form(){
 }
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
-    computeButton_upload->setEnabled(false);
+    firstViewUpload->setEnabled(false);
     comboBox_existing_projects->clear();
     
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
@@ -202,17 +202,68 @@ void PollyElmavenInterfaceDialog::startup_data_load()
 {
     if (stackedWidget->currentIndex() == 0)
         firstView_startup_data_load();
+    if (stackedWidget->currentIndex() == 1)
+        flux_startup_data_load();
+}
+
+QVariantMap PollyElmavenInterfaceDialog::flux_startup_data_load()
+{
+    tableList_flux->clear();
+
+    radioNewProject_flux->setChecked(true);
+    newProjectName_flux->setEnabled(true);
+    
+    radioSelectProject_flux->setChecked(false);
+    projectList_flux->setEnabled(false);
+    projectList_flux->clear();
+    
+    fluxButton->setVisible(false);
+    
+    QCoreApplication::processEvents();
+    
+    if (projectnames_id.isEmpty()){
+        projectnames_id = _pollyIntegration->getUserProjects();
+    }    
+    QStringList keys= projectnames_id.keys();
+
+    QIcon project_icon(rsrcPath + "/POLLY.png");
+    for (int i=0; i < keys.size(); ++i){
+        projectList_flux->addItem(project_icon,projectnames_id[keys.at(i)].toString());
+    }
+    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+    bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
+    if(!bookmarkedPeaks->getGroups().isEmpty()){
+        bookmarkTableNameMapping[QString("Bookmark Table")]=bookmarkedPeaks;
+        tableList_flux->addItem("Bookmark Table");
+    } 
+    int n = peaksTableList.size();
+    if (n > 0) {
+        for (int i = 0; i < n; ++i){
+            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
+            peakTableNameMapping[peak_table_name] = peaksTableList.at(i);
+            tableList_flux->addItem(peak_table_name);
+        }        
+    }
+    fluxUpload->setEnabled(true);
+    _loadingDialog->close();
+    QCoreApplication::processEvents();
+    
+    return projectnames_id;
 }
 
 QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
 {
-    pollyButton->setVisible(false);
-    lineEdit_new_project_name->setEnabled(true);
-    comboBox_existing_projects->setEnabled(false);
-    new_project_radio_button->setChecked(true);
-    existing_project_radio_button->setChecked(false);
     comboBox_table_name->clear();
+
+    new_project_radio_button->setChecked(true);
+    lineEdit_new_project_name->setEnabled(true);
+    
+    existing_project_radio_button->setChecked(false);
+    comboBox_existing_projects->setEnabled(false);
     comboBox_existing_projects->clear();
+    
+    pollyButton->setVisible(false);
+    
     QCoreApplication::processEvents();
     
     if (projectnames_id.isEmpty()){
@@ -231,14 +282,14 @@ QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
         comboBox_table_name->addItem("Bookmark Table");
     } 
     int n = peaksTableList.size();
-    if (n>0){
-        for (int i=0; i < n; ++i){
-            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
-            peakTableNameMapping[peak_table_name]=peaksTableList.at(i);
+    if (n > 0) {
+        for (int i = 0; i < n; ++i){
+            QString peak_table_name = QString("Peak Table ") + QString::number(i+1);
+            peakTableNameMapping[peak_table_name] = peaksTableList.at(i);
             comboBox_table_name->addItem(peak_table_name);
         }        
     }
-    computeButton_upload->setEnabled(true);
+    firstViewUpload->setEnabled(true);
     _loadingDialog->close();
     QCoreApplication::processEvents();
     
@@ -248,9 +299,9 @@ QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
 void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
 
-    computeButton_upload->setEnabled(false);
+    firstViewUpload->setEnabled(false);
     int askForLogin = _pollyIntegration->askForLogin();
-    if (askForLogin == 1){
+    if (askForLogin == 1) {
         call_login_form();
         emit uploadFinished(false);
         return;
@@ -500,5 +551,5 @@ void PollyElmavenInterfaceDialog::logout() {
 }
 
 void PollyElmavenInterfaceDialog::performPostUploadTasks(bool uploadSuccessful) {
-    computeButton_upload->setEnabled(true);
+    firstViewUpload->setEnabled(true);
 }
