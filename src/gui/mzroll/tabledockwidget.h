@@ -257,6 +257,13 @@ class PeakTableDockWidget : public TableDockWidget {
 
 public:
   PeakTableDockWidget (MainWindow *mw);
+  ~PeakTableDockWidget();
+
+public Q_SLOTS:
+  void destroy();
+
+private:
+  QToolBar *toolBar;
 };
 
 class BookmarkTableDockWidget : public TableDockWidget {
@@ -264,6 +271,7 @@ class BookmarkTableDockWidget : public TableDockWidget {
 
 public:
   BookmarkTableDockWidget (MainWindow *mw);
+  ~BookmarkTableDockWidget();
 
   /**
    * @param promptDialog is main dialog box to show user prompt for already
@@ -338,6 +346,7 @@ public Q_SLOTS:
   void markGroupBad();
 
 private:
+  QToolBar *toolBar;
   QToolButton *btnMerge;
   QMenu *btnMergeMenu;
   void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
@@ -348,7 +357,11 @@ class ScatterplotTableDockWidget : public TableDockWidget {
 
 public:
   ScatterplotTableDockWidget(MainWindow *mw);
+  ~ScatterplotTableDockWidget();
   void setupPeakTable();
+
+private:
+  QToolBar *toolBar;
 };
 
 class TableToolBarWidgetAction : public QWidgetAction {

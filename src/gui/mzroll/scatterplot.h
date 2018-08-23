@@ -26,16 +26,12 @@ class ScatterPlot: public PlotDockWidget  {
 				void contrastGroups();
                 void deleteGroup();
 				void showSelectedGroups(QPointF a, QPointF b);
-                //New funtions defined - Kiran                
-		void showSelectedGroupGallery(QPointF from, QPointF to);
+		        void showSelectedGroupGallery(QPointF from, QPointF to);
                 void setPlotTypeScatter() { plotType=SCATTERPLOT;  draw(); }
                 void setPlotTypeFlower() { plotType=FLOWRPLOT;    draw(); }
                 void setPlotTypePLS() { plotType=PLSPLOT;    draw(); }
                 void showSimilarOnClick(bool t) { showSimilarFlag=t; }
                 void showPeakTable();
-
-
-
 
 		protected:
 				void draw();
@@ -51,7 +47,7 @@ class ScatterPlot: public PlotDockWidget  {
 		private:
 				QAction* showSimilarOptions;
 				bool showSimilarFlag;
-				TableDockWidget* _table;
+				ScatterplotTableDockWidget* _table;
                 ScatterplotTableDockWidget* _peakTable;
 				CompareSamplesDialog* compareSamplesDialog;
 

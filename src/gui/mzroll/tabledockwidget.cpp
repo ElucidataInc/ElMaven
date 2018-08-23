@@ -62,6 +62,16 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
 TableDockWidget::~TableDockWidget() {
   if (traindialog != NULL)
     delete traindialog;
+  if (clusterDialog != NULL)
+    delete clusterDialog;
+
+  QTreeWidgetItemIterator it(treeWidget);
+  while (*it) {
+    QTreeWidgetItemIterator current = it++;
+    delete (*current);
+  }
+
+  delete treeWidget;
 }
 
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
@@ -2341,9 +2351,15 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnX") {
 
     QToolButton *btnX = new QToolButton(parent);
-    btnX->setIcon(td->style()->standardIcon(QStyle::SP_DialogCloseButton));
-    connect(btnX, SIGNAL(clicked()), td, SLOT(hide()));
+    btnX->setIcon(td->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    connect(btnX, SIGNAL(clicked()), td, SLOT(destroy()));
     return btnX;
+  } else if (btnName == "btnMin") {
+
+    QToolButton *btnMin = new QToolButton(parent);
+    btnMin->setIcon(td->style()->standardIcon(QStyle::SP_TitleBarMinButton));
+    connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
+    return btnMin;
   } else {
     return NULL;
   }
@@ -2353,7 +2369,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   _mainwindow = mw;
   tableId = ++(mw->noOfPeakTables);
 
-  QToolBar *toolBar = new QToolBar(this);
+  toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
 
@@ -2379,6 +2395,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
   QWidget *spacer = new QWidget();
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
@@ -2403,16 +2420,27 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
+  toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
 
   setTitleBarWidget(toolBar);
+}
+
+void PeakTableDockWidget::destroy() {
+  deleteLater();
+  _mainwindow->removePeaksTable(this);
+}
+
+PeakTableDockWidget::~PeakTableDockWidget() {
+  toolBar->clear();
+  delete toolBar;
 }
 
 BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   _mainwindow = mw;
   tableId = 0;
 
-  QToolBar *toolBar = new QToolBar(this);
+  toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
   btnMerge = new QToolButton(toolBar);
@@ -2450,6 +2478,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
   QWidget *spacer = new QWidget();
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
@@ -2475,7 +2504,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
-  toolBar->addAction(btnX);
+  toolBar->addAction(btnMin);
 
   setTitleBarWidget(toolBar);
 
@@ -2502,6 +2531,11 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
 
   listTextView = new ListView();
   stringModel = new QStringListModel(promptDialog);
+}
+
+BookmarkTableDockWidget::~BookmarkTableDockWidget() {
+  toolBar->clear();
+  delete toolBar;
 }
 
 void BookmarkTableDockWidget::showMergeTableOptions() {
@@ -2751,7 +2785,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
     TableDockWidget(mw) {
   _mainwindow = mw;
 
-  QToolBar *toolBar = new QToolBar(this);
+  toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
 
@@ -2775,6 +2809,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
   QWidget *spacer = new QWidget();
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
@@ -2798,9 +2833,14 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
-  toolBar->addAction(btnX);
+  toolBar->addAction(btnMin);
 
   setTitleBarWidget(toolBar);
+}
+
+ScatterplotTableDockWidget::~ScatterplotTableDockWidget() {
+  toolBar->clear();
+  delete toolBar;
 }
 
 void ScatterplotTableDockWidget::setupPeakTable() {
