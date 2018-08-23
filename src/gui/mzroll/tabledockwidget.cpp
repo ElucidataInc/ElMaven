@@ -1,4 +1,5 @@
 #include "tabledockwidget.h";
+#include "peaktabledeletiondialog.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -2352,7 +2353,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
 
     QToolButton *btnX = new QToolButton(parent);
     btnX->setIcon(td->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
-    connect(btnX, SIGNAL(clicked()), td, SLOT(destroy()));
+    connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
     return btnX;
   } else if (btnName == "btnMin") {
 
@@ -2424,6 +2425,17 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   toolBar->addAction(btnX);
 
   setTitleBarWidget(toolBar);
+
+  deletionDialog = new PeakTableDeletionDialog(this);
+  connect(deletionDialog, SIGNAL(accepted()),
+          this, SLOT(destroy()));
+  connect(deletionDialog, SIGNAL(rejected()),
+          deletionDialog, SLOT(hide()));
+}
+
+PeakTableDockWidget::~PeakTableDockWidget() {
+  toolBar->clear();
+  delete toolBar;
 }
 
 void PeakTableDockWidget::destroy() {
@@ -2431,9 +2443,8 @@ void PeakTableDockWidget::destroy() {
   _mainwindow->removePeaksTable(this);
 }
 
-PeakTableDockWidget::~PeakTableDockWidget() {
-  toolBar->clear();
-  delete toolBar;
+void PeakTableDockWidget::showDeletionDialog() {
+  deletionDialog->show();
 }
 
 BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {

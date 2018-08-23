@@ -4,6 +4,7 @@
 #include "QHistogramSlider.h"
 #include "alignmentvizwidget.h"
 #include "clusterdialog.h"
+#include "peaktabledeletiondialog.h"
 #include "jsonReports.h";
 #include "mainwindow.h"
 #include "numeric_treewidgetitem.h"
@@ -16,6 +17,7 @@ class MainWindow;
 class AlignmentVizWidget;
 class TrainDialog;
 class ClusterDialog;
+class PeakTableDeletionDialog;
 class NumericTreeWidgetItem;
 class ListView;
 using namespace std;
@@ -264,6 +266,10 @@ public Q_SLOTS:
 
 private:
   QToolBar *toolBar;
+  PeakTableDeletionDialog *deletionDialog;
+
+private Q_SLOTS:
+  void showDeletionDialog();
 };
 
 class BookmarkTableDockWidget : public TableDockWidget {
