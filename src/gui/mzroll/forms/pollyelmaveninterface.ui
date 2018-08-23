@@ -29,7 +29,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="firstViewPage">
     <widget class="QWidget" name="horizontalLayoutWidget">
@@ -63,7 +63,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="logout_upload_2">
+       <widget class="QPushButton" name="logout_upload">
         <property name="text">
          <string>Log out</string>
         </property>
@@ -295,7 +295,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelButton_upload_2">
+       <widget class="QPushButton" name="cancelButton_upload">
         <property name="text">
          <string>Cancel</string>
         </property>
@@ -381,7 +381,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="logout_upload">
+       <widget class="QPushButton" name="logout_upload1">
         <property name="text">
          <string>Log out</string>
         </property>
@@ -613,7 +613,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelButton_upload">
+       <widget class="QPushButton" name="cancelButton_upload1">
         <property name="text">
          <string>Cancel</string>
         </property>
@@ -646,6 +646,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="pollyButton_2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Start Fluxing</string>
         </property>
