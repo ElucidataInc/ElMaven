@@ -145,7 +145,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 4. call PollyCLI library to get project id and files mapping
                  * 5. Populate all combo boxes on this UI, with the data obtained from above steps..
                  */
-                QVariantMap startup_data_load();
+                void startup_data_load();
+                QVariantMap firstView_startup_data_load();
                 // void loadFormData();
                 // void handleResults(QStringList results);
                  /**

@@ -73,14 +73,14 @@ void PollyElmavenInterfaceDialog::createIcons()
 
     QListWidgetItem *fluxomics = new QListWidgetItem(workflowMenu);
     fluxomics->setIcon(QIcon(":/images/flux.png"));
-    fluxomics->setText(tr("Polly Phi Relative LCMS"));
+    fluxomics->setText(tr("PollyPhi Relative LCMS"));
     fluxomics->setTextAlignment(Qt::AlignHCenter);
     fluxomics->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     workflowMenu->setSizeAdjustPolicy(QListWidget::AdjustToContents);
     workflowMenu->setViewMode(QListView::IconMode);
     workflowMenu->setFlow(QListView::TopToBottom);
-    workflowMenu->setSpacing(15);
+    workflowMenu->setSpacing(18);
     workflowMenu->setIconSize(QSize(140, 140));
 
     connect(workflowMenu, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
@@ -198,7 +198,14 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
     startup_data_load();
 }
 
-QVariantMap PollyElmavenInterfaceDialog::startup_data_load(){
+void PollyElmavenInterfaceDialog::startup_data_load()
+{
+    if (stackedWidget->currentIndex() == 0)
+        firstView_startup_data_load();
+}
+
+QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
+{
     pollyButton->setVisible(false);
     lineEdit_new_project_name->setEnabled(true);
     comboBox_existing_projects->setEnabled(false);
