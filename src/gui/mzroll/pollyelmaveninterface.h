@@ -34,6 +34,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 * @brief credentials required to connect to polly..
                 */
                 QStringList credentials;
+                QString upload_project_id;
                 QStringList organisationSpecificCompoundDB;
                 /**
                 * @brief constructor with mainwindow pointer..
@@ -188,6 +189,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
         public slots:
             void handleResults(QVariantMap projectnames_id);
             void handleAuthentication(QString status);
+            void postUpload(QStringList patch_ids);
 };
 
 class EPIWorkerThread : public QThread
@@ -199,8 +201,13 @@ class EPIWorkerThread : public QThread
         void run();
         QString username;
         QString password;
+        QString state;
+        QDir tmpDir;
+        QString upload_project_id_thread;
+        QStringList filesToUpload;
         PollyIntegration* _pollyintegration;
     signals:
+        void filesUploaded(QStringList patch_ids);
         void resultReady(QVariantMap projectnames_id);
         void authentication_result(QString status);
 };
