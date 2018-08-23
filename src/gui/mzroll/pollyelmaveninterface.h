@@ -147,6 +147,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
                 void startup_data_load();
                 QVariantMap firstView_startup_data_load();
+                QVariantMap flux_startup_data_load();
                 // void loadFormData();
                 // void handleResults(QStringList results);
                  /**
