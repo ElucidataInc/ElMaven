@@ -198,18 +198,9 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
     startup_data_load();
 }
 
-void PollyElmavenInterfaceDialog::startup_data_load()
-{
-    if (stackedWidget->currentIndex() == 0)
-        firstView_startup_data_load();
-    if (stackedWidget->currentIndex() == 1)
-        flux_startup_data_load();
-}
-
-QVariantMap PollyElmavenInterfaceDialog::flux_startup_data_load()
+void PollyElmavenInterfaceDialog::setUiElementsFlux()
 {
     tableList_flux->clear();
-
     radioNewProject_flux->setChecked(true);
     newProjectName_flux->setEnabled(true);
     
@@ -218,40 +209,10 @@ QVariantMap PollyElmavenInterfaceDialog::flux_startup_data_load()
     projectList_flux->clear();
     
     fluxButton->setVisible(false);
-    
-    QCoreApplication::processEvents();
-    
-    if (projectnames_id.isEmpty()){
-        projectnames_id = _pollyIntegration->getUserProjects();
-    }    
-    QStringList keys= projectnames_id.keys();
-
-    QIcon project_icon(rsrcPath + "/POLLY.png");
-    for (int i=0; i < keys.size(); ++i){
-        projectList_flux->addItem(project_icon,projectnames_id[keys.at(i)].toString());
-    }
-    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
-    bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
-    if(!bookmarkedPeaks->getGroups().isEmpty()){
-        bookmarkTableNameMapping[QString("Bookmark Table")]=bookmarkedPeaks;
-        tableList_flux->addItem("Bookmark Table");
-    } 
-    int n = peaksTableList.size();
-    if (n > 0) {
-        for (int i = 0; i < n; ++i){
-            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
-            peakTableNameMapping[peak_table_name] = peaksTableList.at(i);
-            tableList_flux->addItem(peak_table_name);
-        }        
-    }
     fluxUpload->setEnabled(true);
-    _loadingDialog->close();
-    QCoreApplication::processEvents();
-    
-    return projectnames_id;
 }
 
-QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
+void PollyElmavenInterfaceDialog::setUiElementsFV()
 {
     comboBox_table_name->clear();
 
@@ -263,33 +224,44 @@ QVariantMap PollyElmavenInterfaceDialog::firstView_startup_data_load()
     comboBox_existing_projects->clear();
     
     pollyButton->setVisible(false);
-    
+    firstViewUpload->setEnabled(true);
+}
+
+QVariantMap PollyElmavenInterfaceDialog::startup_data_load()
+{
+    setUiElementsFlux();
+    setUiElementsFV();
+
     QCoreApplication::processEvents();
-    
-    if (projectnames_id.isEmpty()){
+
+    QIcon project_icon(rsrcPath + "/POLLY.png");
+    if (projectnames_id.isEmpty()) {
         projectnames_id = _pollyIntegration->getUserProjects();
     }    
     QStringList keys= projectnames_id.keys();
-
-    QIcon project_icon(rsrcPath + "/POLLY.png");
-    for (int i=0; i < keys.size(); ++i){
-        comboBox_existing_projects->addItem(project_icon,projectnames_id[keys.at(i)].toString());
+    for (int i = 0; i < keys.size(); ++i){
+        projectList_flux->addItem(project_icon, projectnames_id[keys.at(i)].toString());
+        comboBox_existing_projects->addItem(project_icon, projectnames_id[keys.at(i)].toString());
     }
+
     QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
     bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
-    if(!bookmarkedPeaks->getGroups().isEmpty()){
-        bookmarkTableNameMapping[QString("Bookmark Table")]=bookmarkedPeaks;
+    if (!bookmarkedPeaks->getGroups().isEmpty()) {
+        bookmarkTableNameMapping[QString("Bookmark Table")] = bookmarkedPeaks;
+        tableList_flux->addItem("Bookmark Table");
         comboBox_table_name->addItem("Bookmark Table");
     } 
+
     int n = peaksTableList.size();
     if (n > 0) {
         for (int i = 0; i < n; ++i){
-            QString peak_table_name = QString("Peak Table ") + QString::number(i+1);
+            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
             peakTableNameMapping[peak_table_name] = peaksTableList.at(i);
+            tableList_flux->addItem(peak_table_name);
             comboBox_table_name->addItem(peak_table_name);
         }        
     }
-    firstViewUpload->setEnabled(true);
+
     _loadingDialog->close();
     QCoreApplication::processEvents();
     
