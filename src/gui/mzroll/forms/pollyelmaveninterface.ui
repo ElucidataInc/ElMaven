@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>210</x>
-     <y>10</y>
+     <y>0</y>
      <width>421</width>
      <height>461</height>
     </rect>
@@ -307,7 +307,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>420</y>
+       <y>400</y>
        <width>421</width>
        <height>41</height>
       </rect>
@@ -586,7 +586,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_11">
       <item>
-       <widget class="QLabel" name="upload_status_2">
+       <widget class="QLabel" name="fluxStatus">
         <property name="text">
          <string/>
         </property>
@@ -613,7 +613,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelButton_upload1">
+       <widget class="QPushButton" name="cancelButtonFlux">
         <property name="text">
          <string>Cancel</string>
         </property>
@@ -647,7 +647,7 @@
       <item>
        <widget class="QPushButton" name="fluxButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Start Fluxing</string>
