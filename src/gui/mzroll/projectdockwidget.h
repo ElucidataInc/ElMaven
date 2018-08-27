@@ -20,6 +20,7 @@ public:
     QColor  lastUsedSampleColor;
     QMap<mzSample*, QColor> storeSampleColors;
     QTreeWidget* getTreeWidget();
+    void prepareSampleCohortFile(QString sampleCohortFileName);
 
 Q_SIGNALS:
 

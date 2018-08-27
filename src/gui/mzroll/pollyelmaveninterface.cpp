@@ -516,17 +516,38 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     _tableDockWidget->wholePeakSet();
     _tableDockWidget->treeWidget->selectAll();
     _tableDockWidget->prepareDataForPolly(writable_temp_dir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all");
-    // Now uploading the json file -
-    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-    _loadingDialog->statusLabel->setText("Preparing json file..");
+    
+    //Preparing the json file -
+    if (stackedWidget->currentIndex() == 0) {
+        upload_status->setStyleSheet("QLabel {color : green; }");
+        upload_status->setText("Preparing json file..");
+    }
+    else {
+        fluxStatus->setStyleSheet("QLabel {color : green; }");
+        fluxStatus->setText("Preparing json file..");
+    }
     QCoreApplication::processEvents();
-    // Uploading the json file here - 
+
+    //Preparing the json file 
     QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";//  uploading the json file
     _tableDockWidget->exportJsonToPolly(writable_temp_dir,json_filename);
-    QByteArray ba = (writable_temp_dir+QDir::separator()+datetimestamp+"_maven_analysis_settings"+".xml").toLatin1();
+    
+    if (stackedWidget->currentIndex() == 1) {
+        fluxStatus->setStyleSheet("QLabel {color : green; }");
+        fluxStatus->setText("Preparing sample cohort file..");
+        QCoreApplication::processEvents();
+        //Preparing the sample cohort file
+        QString sampleCohortFileName = writable_temp_dir + QDir::separator() + datetimestamp +
+                                        "_Cohort_Mapping_Elmaven.csv";
+        mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
+    }
+    
+    //Saving settings file
+    QByteArray ba = (writable_temp_dir + QDir::separator() + datetimestamp + "_maven_analysis_settings" + ".xml").toLatin1();
     const char *save_path = ba.data();
     mainwindow->mavenParameters->saveSettings(save_path);
-    qDebug()<<"settings saved now..";
+    qDebug() << "settings saved now";
+    
     qdir.setFilter(QDir::Files | QDir::NoSymLinks);
     QFileInfoList file_list = qdir.entryInfoList();
     
