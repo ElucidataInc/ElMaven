@@ -636,18 +636,18 @@ vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
 }
 
 string PeakDetectorCLI::cleanSampleName(string sampleName) {
-        QString out(sampleName.c_str());
-        out.replace(QRegExp(".*/"),"");
-        out.replace(QRegExp(".*\\"),"");
+    QString out(sampleName.c_str());
+    out.replace(QRegExp(".*/"),"");
+    out.replace(QRegExp(".*\\"),"");
 
-        QStringList fileExtensions = QStringList()
-                <<"\\.mzCSV$"<<"\\.mzdata$"<<"\\.mzXML$"<<"\\.mzML$"<<"\\.mz5$"<<"\\.pepXML$"<<"\\.xml$"<<"\\.cdf$"<<"\\.raw$";
-        //copied from maven_stable/mzfileio.cpp
+    QStringList fileExtensions = QStringList()
+            <<"\\.mzCSV$"<<"\\.mzdata$"<<"\\.mzXML$"<<"\\.mzML$"<<"\\.mz5$"<<"\\.pepXML$"<<"\\.xml$"<<"\\.cdf$"<<"\\.raw$";
+    //copied from maven_stable/mzfileio.cpp
 
-        Q_FOREACH (const QString& s, fileExtensions) {
-            out.replace(QRegExp(s,Qt::CaseInsensitive),"");
-        }
-        return out.toStdString();
+    Q_FOREACH (const QString& s, fileExtensions) {
+        out.replace(QRegExp(s,Qt::CaseInsensitive),"");
+    }
+    return out.toStdString();
 }
 
 void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples) {
