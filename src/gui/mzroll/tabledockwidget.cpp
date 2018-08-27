@@ -66,12 +66,6 @@ TableDockWidget::~TableDockWidget() {
   if (clusterDialog != NULL)
     delete clusterDialog;
 
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    QTreeWidgetItemIterator current = it++;
-    delete (*current);
-  }
-
   delete treeWidget;
 }
 
