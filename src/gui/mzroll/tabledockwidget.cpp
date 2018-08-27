@@ -2427,10 +2427,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   setTitleBarWidget(toolBar);
 
   deletionDialog = new PeakTableDeletionDialog(this);
-  connect(deletionDialog, SIGNAL(accepted()),
-          this, SLOT(destroy()));
-  connect(deletionDialog, SIGNAL(rejected()),
-          deletionDialog, SLOT(hide()));
 }
 
 PeakTableDockWidget::~PeakTableDockWidget() {

@@ -6,6 +6,10 @@ PeakTableDeletionDialog::PeakTableDeletionDialog(QWidget *parent) :
     ui(new Ui::PeakTableDeletionDialog)
 {
     ui->setupUi(this);
+    connect(this, SIGNAL(accepted()),
+            parent, SLOT(destroy()));
+    connect(this, SIGNAL(rejected()),
+            this, SLOT(hide()));
 }
 
 PeakTableDeletionDialog::~PeakTableDeletionDialog()
