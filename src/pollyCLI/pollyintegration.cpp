@@ -429,10 +429,10 @@ QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filena
     }
 }
 
-bool PollyIntegration::validSampleCohort(QString sample_cohort_file, QStringList loadedSamples) {
+bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList loadedSamples) {
 	qDebug() << "Validating sample cohort file now";
 	
-	QFile file(sample_cohort_file);
+    QFile file(sampleCohortFile);
     if (!file.open(QIODevice::ReadOnly)) {
         qDebug() << file.errorString();
 		return false;
@@ -452,23 +452,37 @@ bool PollyIntegration::validSampleCohort(QString sample_cohort_file, QStringList
 		
 		QString sampleName = splitRow.at(0);
 		QString cohortName = splitRow.at(1);
+        
+        if (cohortName.trimmed() == QString(""))
+            return false;
+
 		samples.append(QString::fromStdString(sampleName.toStdString()));
 		cohorts.append(QString::fromStdString(cohortName.toStdString()));
     }
 
-	qSort(samples);
-	qSort(loadedSamples);
+	if (!loadedSamples.isEmpty()) {
+        qSort(samples);
+	    qSort(loadedSamples);
 	
-	if (!(samples == loadedSamples)) {
-		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
-		return false;
-	}
+	    if (!(samples == loadedSamples)) {
+		    qDebug() << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
+		    return false;
+	    }                               
+    }
 	
 	if (!validCohorts(cohorts)) {
-		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
+		qDebug() << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
 		return false;
 	}
 
+	return true;
+}
+
+bool PollyIntegration::validCohorts(QStringList cohorts) {
+	cohorts.removeDuplicates();
+	if(cohorts.size() > 9)
+		return false;
+	
 	return true;
 }
 

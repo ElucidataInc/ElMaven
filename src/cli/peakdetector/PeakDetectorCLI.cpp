@@ -902,14 +902,6 @@ void PeakDetectorCLI::groupReduction() {
 	}
 }
 
-bool PeakDetectorCLI::validCohorts(QStringList cohorts) {
-	cohorts.removeDuplicates();
-	if(cohorts.size() > 9)
-		return false;
-	
-	return true;
-}
-
 void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 

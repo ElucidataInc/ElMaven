@@ -61,11 +61,12 @@ class PollyIntegration
 		QVariantMap getUserProjectsMap(QByteArray result2);
 		QStringList getUserProjectFilesMap(QByteArray result2);
 		QStringList getOrganizationalDBs(QString organisation);
-		bool validSampleCohort(QString sample_cohort_file, QStringList loadedSamples);
+		bool validSampleCohort(QString sampleCohortFile, QStringList loadedSamples = QStringList());
 		QStringList parseResultOrganizationalDBs(QString result);
 		QString getCredFile();
 	private:
 		QString credFile;
+		bool validCohorts(QStringList cohorts);
 };
 
 #endif // POLLYINTEGRATION_H
