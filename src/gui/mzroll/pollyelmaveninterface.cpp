@@ -360,26 +360,28 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     if (stackedWidget->currentIndex() == 0)
         upload_status->setText("Sending files to Polly..");
     else fluxStatus->setText("Sending files to Polly..");
+    
     QCoreApplication::processEvents();
+    
     if ((stackedWidget->currentIndex() == 0 && comboBox_existing_projects->isEnabled()) 
-            || (stackedWidget->currentIndex() == 1 || projectList_flux->isEnabled())) {
-        QStringList keys= projectnames_id.keys();
-        for (int i=0; i < keys.size(); ++i){
-            if (projectnames_id[keys.at(i)].toString()==projectname){
-                project_id= keys.at(i);
+            || (stackedWidget->currentIndex() == 1 && projectList_flux->isEnabled())) {
+        QStringList keys = projectnames_id.keys();
+        for (int i = 0; i < keys.size(); ++i) {
+            if (projectnames_id[keys.at(i)].toString() == projectname) {
+                project_id = keys.at(i);
             }
         }
-        if (project_id!=""){
+        if (project_id != "") {
             upload_project_id = project_id;
         }
-        else{
+        else {
             QString msg = "No such project on Polly..";
             QMessageBox msgBox(mainwindow);
             msgBox.setWindowTitle("Error");
             msgBox.setText(msg);
             msgBox.exec();
         }
-        }
+    }
     else if ((stackedWidget->currentIndex() == 0 && lineEdit_new_project_name->isEnabled()) 
             || (stackedWidget->currentIndex() == 1 && newProjectName_flux->isEnabled())) {
         if (new_projectname == "") {
