@@ -423,6 +423,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
 
 void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp){
     QCoreApplication::processEvents();
+    
     if (!patch_ids.isEmpty()) {
         upload_status->setText("");
         QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview&elmavenTimestamp=%2").arg(upload_project_id_thread).arg(datetimestamp);

@@ -775,7 +775,7 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 			bool valid_sample_cohort = false;
 			
 			if (!sample_cohort_file.isEmpty()) {
-				valid_sample_cohort = validSampleCohort(sample_cohort_file,loadedSamples);
+				valid_sample_cohort = _pollyIntegration->validSampleCohort(sample_cohort_file, loadedSamples);
 			}
 
 			if (valid_sample_cohort) {
@@ -855,55 +855,6 @@ void PeakDetectorCLI::groupReduction() {
          cout << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
         #endif
 	}
-}
-
-bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList loadedSamples) {
-	qDebug() << "Validating sample cohort file now";
-	
-	QFile file(sample_cohort_file);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << file.errorString();
-		return false;
-    }
-
-    QStringList samples;
-	QStringList cohorts;
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-		QList<QByteArray> splitRow = line.split(',');
-		if (splitRow.size() != 2)
-			return false;
-		
-		//skip header row
-		if (splitRow.at(0) == "Sample")
-			continue;
-		
-		QString sampleName = splitRow.at(0);
-		QString cohortName = splitRow.at(1);
-		if (sampleName.isEmpty()){
-			qDebug()<<"Some sample names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
-			return false;
-		}
-		if (cohortName.isEmpty()){
-			qDebug()<<"Some Cohort names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
-			return false;
-		}
-		samples.append(QString::fromStdString(sampleName.toStdString()));
-		cohorts.append(QString::fromStdString(cohortName.toStdString()));
-    }
-	qSort(samples);
-	qSort(loadedSamples);
-	
-	if (!(samples == loadedSamples)) {
-		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
-		return false;
-	}
-	if (!validCohorts(cohorts)) {
-		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
-		return false;
-	}
-
-	return true;
 }
 
 bool PeakDetectorCLI::validCohorts(QStringList cohorts) {
