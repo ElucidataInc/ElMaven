@@ -132,7 +132,8 @@ void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
 	QTextStream out(&file);
 	out << "Sample" << ",Cohort" << "\n";
 	for (const auto& sample : loadedSamples) {
-		out << QString::fromStdString(sample->getSampleName()) << ",\n";
+		out << QString::fromStdString(sample->getSampleName()) << "," << 
+            QString::fromStdString(sample->getSetName()) << "\n";
 	}
 
 	qDebug() << "sample cohort file prepared";
