@@ -268,8 +268,14 @@ private:
   QToolBar *toolBar;
   PeakTableDeletionDialog *deletionDialog;
 
+private:
+  void cleanUp();
+
 private Q_SLOTS:
   void showDeletionDialog();
+
+Q_SIGNALS:
+  void unSetFromEicWidget(PeakGroup*);
 };
 
 class BookmarkTableDockWidget : public TableDockWidget {

@@ -2420,6 +2420,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
 
   setTitleBarWidget(toolBar);
 
+  connect(this, &PeakTableDockWidget::unSetFromEicWidget, _mainwindow->getEicWidget(), &EicWidget::unSetPeakTableGroup);
+
   deletionDialog = new PeakTableDeletionDialog(this);
 }
 
@@ -2429,8 +2431,15 @@ PeakTableDockWidget::~PeakTableDockWidget() {
 }
 
 void PeakTableDockWidget::destroy() {
+
+  cleanUp();
   deleteLater();
   _mainwindow->removePeaksTable(this);
+}
+
+void PeakTableDockWidget::cleanUp()
+{
+    emit unSetFromEicWidget(treeWidget->currentItem()->data(0, Qt::UserRole).value<PeakGroup*>());
 }
 
 void PeakTableDockWidget::showDeletionDialog() {

@@ -873,6 +873,14 @@ void EicWidget::clearPlot() {
 	scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
 }
 
+void EicWidget::unSetPeakTableGroup(PeakGroup* group)
+{
+    // Peak table is being deleted. Making sure the selected group is not holding any garbage value;
+    if(eicParameters->selectedGroup ==  group) {
+        eicParameters->selectedGroup = nullptr;
+    }
+}
+
 void EicWidget::replot(PeakGroup* group) {
 	//qDebug <<" EicWidget::replot(PeakGroup* group )";
 

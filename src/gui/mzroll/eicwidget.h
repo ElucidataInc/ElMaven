@@ -150,6 +150,7 @@ public Q_SLOTS:
 	void copyToClipboard();
 	void selectionChangedAction();
 	void freezeView(bool freeze);
+    void unSetPeakTableGroup(PeakGroup*);
 protected:
 	void moved(QMouseEvent *event);
 	void selected(const QRect&);
