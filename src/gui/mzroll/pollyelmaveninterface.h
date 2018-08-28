@@ -75,6 +75,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
         private:
                 void createIcons();
+                QString getRedirectionUrl(QString dirPath, QString datetimestamp, QString upload_project_id);
+                QString redirectTo = "firstview";
         
         private Q_SLOTS:
                 void goToPolly();

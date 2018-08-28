@@ -452,7 +452,18 @@ void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids, QString uplo
         upload_status->setText("");
         fluxStatus->setText("");
     }
-    emit uploadFinished(false);   
+    emit uploadFinished(false);
+}
+
+QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString dirPath, QString datetimestamp, QString upload_project_id) {
+    if (stackedWidget->currentIndex() == 1) { 
+        redirectTo = "relative_lcms_elmaven";
+        QString CohortFileName = dirPath + QDir::separator() + datetimestamp + "_Cohort_Mapping_Elmaven.csv";
+        if (!_pollyIntegration->validSampleCohort(CohortFileName))
+            redirectTo = "gsheet_sym_polly_elmaven";
+    }    
+    QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(upload_project_id).arg(redirectTo).arg(datetimestamp);
+    return redirection_url;
 }
 
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp) {
