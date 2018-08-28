@@ -429,6 +429,49 @@ QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filena
     }
 }
 
+bool PollyIntegration::validSampleCohort(QString sample_cohort_file, QStringList loadedSamples) {
+	qDebug() << "Validating sample cohort file now";
+	
+	QFile file(sample_cohort_file);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << file.errorString();
+		return false;
+    }
+
+    QStringList samples;
+	QStringList cohorts;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+		QList<QByteArray> splitRow = line.split(',');
+		if (splitRow.size() != 2)
+			return false;
+		
+		//skip header row
+		if (splitRow.at(0) == "Sample")
+			continue;
+		
+		QString sampleName = splitRow.at(0);
+		QString cohortName = splitRow.at(1);
+		samples.append(QString::fromStdString(sampleName.toStdString()));
+		cohorts.append(QString::fromStdString(cohortName.toStdString()));
+    }
+
+	qSort(samples);
+	qSort(loadedSamples);
+	
+	if (!(samples == loadedSamples)) {
+		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
+		return false;
+	}
+	
+	if (!validCohorts(cohorts)) {
+		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
+		return false;
+	}
+
+	return true;
+}
+
 QStringList PollyIntegration::parseResultOrganizationalDBs(QString result){
     QStringList OrganizationalDBs;
 
