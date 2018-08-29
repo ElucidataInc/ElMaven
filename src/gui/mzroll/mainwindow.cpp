@@ -765,6 +765,13 @@ void MainWindow::saveSettingsToLog() {
 
 }
 
+void MainWindow::showNotification() {
+	QIcon icon = QIcon(":/images/POLLY.png");
+	QString title("");
+	QString message("View your fluxomics workflow on Polly!");
+	
+	Notificator::showMessage(icon, title, message);
+}
 
 void MainWindow::createPeakTable(QString filenameNew) {	
 	TableDockWidget * peaksTable = this->addPeaksTable("title");

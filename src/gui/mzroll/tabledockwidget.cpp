@@ -2265,6 +2265,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportAll, SIGNAL(triggered()), td->_mainwindow, SLOT(showNotification()));
 
     connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
     connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
