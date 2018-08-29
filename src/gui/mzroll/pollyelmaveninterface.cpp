@@ -38,7 +38,7 @@ EPIWorkerThread::EPIWorkerThread()
 void EPIWorkerThread::run(){
     if (state=="initial_setup"){
         qDebug()<<"starting thread to authenticate and fetch project info from polly";
-        QString status_inside = _pollyintegration->authenticate_login(username,password);
+        QString status_inside = _pollyintegration->authenticate_login("","");
         emit authentication_result(status_inside);
         if (status_inside=="ok"){
             QVariantMap projectnames_id = _pollyintegration->getUserProjects();
@@ -48,7 +48,7 @@ void EPIWorkerThread::run(){
     else if (state=="upload_files"){
         qDebug()<<"starting thread for uploading files to polly..";
         //re-login to polly may be required because the token expires after 30 minutes..
-        QString status_inside = _pollyintegration->authenticate_login(username,password);
+        QString status_inside = _pollyintegration->authenticate_login("","");
         QStringList patch_ids  = _pollyintegration->exportData(filesToUpload,upload_project_id_thread);
         bool status = tmpDir.removeRecursively();
         emit filesUploaded(patch_ids);
@@ -93,7 +93,8 @@ void PollyElmavenInterfaceDialog::initialSetup()
         msgBox.exec();
         return;
     }
-    if (credentials.isEmpty()){
+    int askForLogin = _pollyIntegration->askForLogin();
+    if (askForLogin==1){
         try{
             call_login_form();
             } catch(...) {
@@ -131,8 +132,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
     connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
-    EPIworkerThread->username= credentials.at(0);
-    EPIworkerThread->password =credentials.at(1);
+    EPIworkerThread->state = "initial_setup";
     EPIworkerThread->start();
     show();
     
@@ -207,8 +207,8 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
 
     computeButton_upload->setEnabled(false);
-
-    if (credentials.isEmpty()){
+    int askForLogin = _pollyIntegration->askForLogin();
+    if (askForLogin == 1){
         call_login_form();
         emit uploadFinished(false);
         return;
@@ -292,6 +292,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     EPIworkerThread->state = "upload_files";
     EPIworkerThread->filesToUpload = filenames;
     EPIworkerThread->tmpDir = qdir;
+    EPIworkerThread->upload_project_id_thread = upload_project_id;
     EPIworkerThread->start();
 }
 
