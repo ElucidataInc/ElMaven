@@ -52,6 +52,7 @@
 //Added when merged with Maven776 - Kiran
 #include "remotespectrahandler.h"
 #include "messageBoxResize.h"
+#include "notificator.h"
 #include <csignal>
 #include <QList>
 #include <QRegExp>
@@ -100,6 +101,7 @@ class LogWidget;
 class SpectralHit;
 class SpectralHitsDockWidget;
 class PeptideFragmentationWidget;
+class Notificator;
 
 extern Database DB;
 //Added when merged with Maven776 - Kiran
@@ -413,6 +415,7 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void toggleIsotopicBarPlot(bool show);
+	void showNotification();
 	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

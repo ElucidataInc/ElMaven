@@ -189,7 +189,9 @@ HEADERS +=  stable.h \
                     ElmavCrashHandler.h \
                     isotopeplotdockwidget.h \
                     gettingstarted.h \
-                    pollywaitdialog.h
+                    pollywaitdialog.h \
+                    notificator.h \
+                    notificator_p.h
 
 
 
@@ -261,7 +263,8 @@ database.cpp \
     ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
-    pollywaitdialog.cpp 
+    pollywaitdialog.cpp \
+    notificator.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
