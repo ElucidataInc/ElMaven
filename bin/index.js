@@ -122,7 +122,7 @@ module.exports.authenticate = function(token_filename,email, password){
             return;
         }
         else{
-            return refreshToken(token_filename,email);
+            return refreshToken(token_filename,decoded.email.valueOf());
         }
     }
     if (!email) {
