@@ -77,12 +77,14 @@ void PollyElmavenInterfaceDialog::createIcons()
     firstView->setText(tr("FirstView"));
     firstView->setTextAlignment(Qt::AlignHCenter);
     firstView->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    firstView->setToolTip("FirstView: Preview El-MAVEN processed data and perform further analysis");
 
     QListWidgetItem *fluxomics = new QListWidgetItem(workflowMenu);
     fluxomics->setIcon(QIcon(":/images/flux.png"));
-    fluxomics->setText(tr("PollyPhi Relative LCMS"));
+    fluxomics->setText(tr("PollyPhi Relative"));
     fluxomics->setTextAlignment(Qt::AlignHCenter);
     fluxomics->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    fluxomics->setToolTip("PollyPhi Relative: Process and derive insights from Relative flux workflow");
 
     workflowMenu->setSizeAdjustPolicy(QListWidget::AdjustToContents);
     workflowMenu->setViewMode(QListView::IconMode);

@@ -443,8 +443,10 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
 		QList<QByteArray> splitRow = line.split(',');
-		if (splitRow.size() != 2)
+		if (splitRow.size() != 2) {
+            qDebug() << "Missing column(s)";
 			return false;
+        }
 		
 		//skip header row
 		if (splitRow.at(0) == "Sample")
@@ -453,14 +455,17 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
 		QString sampleName = splitRow.at(0);
 		QString cohortName = splitRow.at(1);
         
-        if (cohortName.trimmed() == QString(""))
+        if (cohortName.trimmed() == QString("")) {
+            qDebug() << "Cohort missing for some samples";
             return false;
+        }
 
 		samples.append(QString::fromStdString(sampleName.toStdString()));
 		cohorts.append(QString::fromStdString(cohortName.toStdString()));
     }
 
-	if (!loadedSamples.isEmpty()) {
+	//this check is only required when user provides a sample cohort file through cli
+    if (!loadedSamples.isEmpty()) {
         qSort(samples);
 	    qSort(loadedSamples);
 	
