@@ -1093,6 +1093,59 @@ void PeakDetectorCLI::saveCSV(string setName) {
     }
     csvreports->closeFiles();
 
+	// NOTE: The following validation is being done to prevent a workflow breaking
+	// issue (SYP-24) caused by missing C12 PARENT labels for labelled data. This
+	// is only being done for the CLI.
+
+	// Check whether there's a missing C12 PARENT label in the written CSV file.
+    bool labeledDataPresent = false;
+    bool fileNeedsCorrection = false;
+    vector<int> groupsWithMissingLabels;
+    CsvParser *csvParser = CsvParser_new(fileName.c_str(), ",", 1);
+    CsvRow *currentRow = NULL;
+    // Iterates over each row, continuously assigning a pointer to an unread CsvRow.
+    while (currentRow = CsvParser_getRow(csvParser)) {
+        // eighth field is the isotope label.
+        string isotopeLabel = string(currentRow->fields_[7]);
+        if (isotopeLabel.empty()) {
+            int groupId = atoi(currentRow->fields_[2]);
+            groupsWithMissingLabels.push_back(groupId);
+			fileNeedsCorrection = true;
+        } else {
+			labeledDataPresent = true;
+        }
+    }
+
+	if (!labeledDataPresent) fileNeedsCorrection = false;
+
+    if (fileNeedsCorrection) {
+        // rewrite file if needed
+        csvreports->openGroupReport(fileName);
+		csvreports->groupId = 0;
+
+		sort(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end());
+        for (int i=0; i<mavenParameters->allgroups.size(); i++) {
+			PeakGroup &group = mavenParameters->allgroups[i];
+			// `csvreports->groupId` is incremented with each group added, we can use this to check if the group to be
+			// added next is present within groupsWithMissingLabels or not.
+			if (binary_search(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end(), csvreports->groupId + 1)) {
+				PeakGroup newGroup = group;
+				Compound *compound = group.getCompound();
+				float compoundMz = MassCalculator::computeMass(compound->formula, mavenParameters->getCharge(compound));
+				float cutoffDist = massCutoffDist(group.meanMz, compoundMz, mavenParameters->massCutoffMerge);
+		    	if (cutoffDist < mavenParameters->massCutoffMerge->getMassCutoff()) {
+					PeakGroup childGroup = group;
+					childGroup.tagString = "C12 PARENT";
+					newGroup.children.push_back(childGroup);
+					csvreports->addGroup(&newGroup);
+					continue;
+				}
+			}
+			csvreports->addGroup(&group);
+        }
+    	csvreports->closeFiles();
+	}
+
     if (csvreports->getErrorReport() != "") {
         cout << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
     }

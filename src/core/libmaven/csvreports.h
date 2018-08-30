@@ -108,6 +108,8 @@ public:
     QString sanitizeString(const char* s);
     ofstream groupReport;       /**@param-  output file for groups report*/
     ofstream peakReport;         /**@param-  output file for peaks report*/
+    int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
+
 private:
     void writeGroupInfo(PeakGroup* group);      /**@brief-  helper function to write group info*/
     void writePeakInfo(PeakGroup* group);           /**@brief-  helper function to write peak info*/
@@ -129,7 +131,6 @@ private:
     int insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k);     /**@brief-  tke child of group and write about it to csv file*/
 
 
-    int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
     string SEP;     /**@param-  separator in output file*/
 
     QString errorReport;    /**@param-  error message, TODO- QString should not be in libmaven folder, only standard C++ statement should be here*/
