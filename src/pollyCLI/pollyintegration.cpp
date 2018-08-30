@@ -442,7 +442,7 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
 		QString sampleName = splitRow.at(0);
 		QString cohortName = splitRow.at(1);
         
-        if (cohortName.trimmed() == QString("")) {
+        if (cohortName.trimmed().isEmpty()) {
             qDebug() << "Cohort missing for some samples";
             return false;
         }
