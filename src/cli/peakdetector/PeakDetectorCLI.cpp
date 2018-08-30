@@ -644,6 +644,73 @@ QString PeakDetectorCLI::isReadyForPolly(){
 	return message;
 }
 
+int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName){
+	try{
+		if (fileName.isEmpty()) return 0;
+
+		QString SEP="\t";
+		if (fileName.endsWith(".csv",Qt::CaseInsensitive)) {
+			SEP=",";
+		} else if (!fileName.endsWith(".tab",Qt::CaseInsensitive)) {
+			fileName = fileName + ".tab";
+			SEP="\t";
+		}
+
+			QFile data(fileName);
+			if (data.open(QFile::WriteOnly | QFile::Truncate)) {
+				QTextStream out(&data);
+
+				//header
+				out << "polarity" << SEP;
+				out << "compound" << SEP;
+				//Addiditional headers added when merging with Maven776 - Kiran
+				out << "mz" << SEP;
+				out << "charge" << SEP;
+				out << "precursorMz" << SEP;
+				out << "collisionEnergy" << SEP;
+				out << "productMz" << SEP;
+				out << "expectedRt" << SEP;
+				out << "id" << SEP;
+				out << "formula" << SEP;
+				out << "srmId" << SEP;
+				out << "category" << endl;
+
+				for(unsigned int i=0;  i < mavenParameters->compounds.size(); i++ ){
+				Compound* compound = mavenParameters->compounds[i];
+
+				QString charpolarity;
+				if (compound->charge > 0) charpolarity = "+";
+				if (compound->charge < 0) charpolarity = "-";
+
+				QStringList category;
+
+				for(int i=0; i < compound->category.size(); i++) {
+					category << QString(compound->category[i].c_str());
+				}
+
+				out << charpolarity << SEP;
+				out << QString(compound->name.c_str()) << SEP;
+				out << compound->mass << SEP;
+				out << compound->charge << SEP;
+				out << compound->precursorMz  << SEP;
+				out << compound->collisionEnergy << SEP;
+				out << compound->productMz    << SEP;
+				out << compound->expectedRt   << SEP;
+				out << compound->id.c_str() <<  SEP;
+				out << compound->formula.c_str() << SEP;
+				out << compound->srmId.c_str() << SEP;
+				out << category.join(";") << SEP;
+				out << "\n";
+
+				}
+			}
+			return 1;	
+	}
+	catch(...) {
+			return 0;
+		}
+}
+
 void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePath) {
 //TODO kailash, this function should not have jsPath and nodePath as its arguments..
 	cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
@@ -667,11 +734,7 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		saveCSV(fileName);
 	}
 	else {
-		QString readyStatus = isReadyForPolly();
-		if (!(readyStatus == "ready")){
-			qDebug()<< "Error while preparing files for Polly - \n" << readyStatus;
-			return;
-		}
+		
 		//try uploading to Polly
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		cout << "uploading to Polly now.." << endl;
@@ -691,8 +754,13 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		QString json_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly";//  uploading the json file
 		QString compound_DB_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Compound_DB_Elmaven_Polly";//  uploading the compound DB file
 		QString sample_cohort_filename = writable_temp_dir+QDir::separator()+datetimestamp+"_Cohort_Mapping_Elmaven";//  uploading the sample cohort file
-			
 		qDebug() << "csv_filename - " << csv_filename;
+		int compoundDbStatus = prepareCompoundDbForPolly(compound_DB_filename+".csv");		
+		QString readyStatus = isReadyForPolly();
+		if (!(readyStatus == "ready") || compoundDbStatus==0){
+			qDebug()<< "Error while preparing files for Polly - \n" << readyStatus;
+			return;
+		}
 		//save Eic Json
 		saveJson(json_filename.toStdString());
 
@@ -702,8 +770,6 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		try {
 			QStringList loadedSamples = getSampleList();
 			QString compound_DB_file = QString::fromStdString(mavenParameters->ligandDbFilename);
-			bool status = QFile::copy(compound_DB_file, compound_DB_filename + ".csv");
-			qDebug() << "compound_DB_file copy status - " << status;
 			
 			//check validity of sample cohort file if present
 			bool valid_sample_cohort = false;
@@ -814,10 +880,17 @@ bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList 
 		
 		QString sampleName = splitRow.at(0);
 		QString cohortName = splitRow.at(1);
+		if (sampleName.isEmpty()){
+			qDebug()<<"Some sample names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
+			return false;
+		}
+		if (cohortName.isEmpty()){
+			qDebug()<<"Some Cohort names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
+			return false;
+		}
 		samples.append(QString::fromStdString(sampleName.toStdString()));
 		cohorts.append(QString::fromStdString(cohortName.toStdString()));
     }
-
 	qSort(samples);
 	qSort(loadedSamples);
 	
@@ -825,7 +898,6 @@ bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList 
 		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
 		return false;
 	}
-	
 	if (!validCohorts(cohorts)) {
 		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
 		return false;

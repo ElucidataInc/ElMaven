@@ -191,6 +191,7 @@ class PeakDetectorCLI {
 		bool send_user_email(QMap<QString, QString> creds, QString redirection_url);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
 		QString isReadyForPolly();
+		int prepareCompoundDbForPolly(QString fileName);
 		
 		/**
 		* [write Sample List in XML]
