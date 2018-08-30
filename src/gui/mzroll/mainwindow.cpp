@@ -766,12 +766,13 @@ void MainWindow::saveSettingsToLog() {
 }
 
 void MainWindow::showNotification() {
-	QIcon icon = QIcon(":/images/POLLY.png");
+	QIcon icon = QIcon(":/images/notification.png");
 	QString title("");
 	QString message("View your fluxomics workflow on Polly!");
 	
 	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message);
 	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
+	//connect(fluxomicsPrompt, SIGNAL(promptClicked()), pollyElmavenInterfaceDialog, SLOT(setFluxPage()));
 }
 
 void MainWindow::createPeakTable(QString filenameNew) {	
