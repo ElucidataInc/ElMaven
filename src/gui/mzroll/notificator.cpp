@@ -54,7 +54,7 @@ void Notificator::question(
 }
 
 
-void Notificator::showMessage(
+Notificator* Notificator::showMessage(
 		const QIcon& icon,
 		const QString& title,
 		const QString& message
@@ -66,6 +66,7 @@ void Notificator::showMessage(
 	// Запуск уведомления
 	instance->notify( icon, title, message );
 	QTimer::singleShot( DEFAULT_MESSAGE_SHOW_TIME, instance, SLOT(hide()) );
+	return instance;
 }
 
 Notificator* Notificator::showMessage(
@@ -131,6 +132,7 @@ bool Notificator::event( QEvent *event )
 		// Т.к. кликом может быть активирована ссылка, то необходимо выждать 100 мсек
 		// перед скрытием уведомления, для открытия её в браузере
 		QTimer::singleShot( 200, this, SLOT(hide()) );
+		emit promptClicked();
 	}
 
 	return QFrame::event(event);

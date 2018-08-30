@@ -770,7 +770,8 @@ void MainWindow::showNotification() {
 	QString title("");
 	QString message("View your fluxomics workflow on Polly!");
 	
-	Notificator::showMessage(icon, title, message);
+	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message);
+	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
 }
 
 void MainWindow::createPeakTable(QString filenameNew) {	
