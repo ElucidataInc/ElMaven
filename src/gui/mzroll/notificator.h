@@ -33,7 +33,7 @@ public:
 			const QString &title,
 			const QString &message
 			);
-	static void showMessage(
+	static Notificator* showMessage(
 			const QIcon &icon,
 			const QString &title,
 			const QString &message
@@ -45,6 +45,9 @@ public:
 			const QObject *sender,
 			const char *finishedSignal
 			);
+
+Q_SIGNALS:
+	void promptClicked();
 
 public slots:
 	void setMessage(const QString& _message);
