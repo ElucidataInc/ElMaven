@@ -85,6 +85,9 @@ int main(int argc, char *argv[]) {
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
+	else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
+		qDebug()<<"no peaks found..Please try again with different parameters";
+	}
 
 	//cleanup
 	delete_all(peakdetectorCLI->mavenParameters->samples);

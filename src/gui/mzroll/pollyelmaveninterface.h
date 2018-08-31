@@ -90,7 +90,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 7. finally output the list of files in that tmp directory..
                  */
 
-                QStringList prepareFilesToUpload(QDir qdir);
+                QStringList prepareFilesToUpload(QDir qdir, QString datetimestamp);
 
                 /**
                  * @brief This function uploads all the files prepared by prepareFilesToUpload function, to Polly
@@ -189,7 +189,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
         public slots:
             void handleResults(QVariantMap projectnames_id);
             void handleAuthentication(QString status);
-            void postUpload(QStringList patch_ids);
+            void postUpload(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp);
 };
 
 class EPIWorkerThread : public QThread
@@ -202,12 +202,13 @@ class EPIWorkerThread : public QThread
         QString username;
         QString password;
         QString state;
+        QString datetimestamp;
         QDir tmpDir;
         QString upload_project_id_thread;
         QStringList filesToUpload;
         PollyIntegration* _pollyintegration;
     signals:
-        void filesUploaded(QStringList patch_ids);
+        void filesUploaded(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp);
         void resultReady(QVariantMap projectnames_id);
         void authentication_result(QString status);
 };

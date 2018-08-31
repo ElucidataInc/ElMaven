@@ -31,13 +31,9 @@ PollyIntegration::~PollyIntegration()
     qDebug()<<"exiting PollyIntegration now....";
 }
 
-// name OF FUNCTION: run_qt_process
-// PURPOSE:
-//    This function uses Qprocess from Qt library to execute terminal commands from C++ and
-// Returns its output as QByteArray
-// CALLS TO: none
-//
-// CALLED FROM: multiple functions in this script
+QString PollyIntegration::getCredFile(){
+    return credFile;
+}
 
 QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
 
@@ -65,15 +61,6 @@ QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList 
     return QList<QByteArray>()<<result<<result2;
 }
 
-// name OF FUNCTION: get_run_id
-// PURPOSE:
-//    This function parses the output of "createproject" command returned by run_qt_process
-// this command is used to create a new project on polly
-// this function Returns project id for the new project..
-// CALLS TO: none
-//
-// CALLED FROM: createProjectOnPolly
-
 QString PollyIntegration::get_run_id(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
     int size = test_list.size();
@@ -86,37 +73,18 @@ QString PollyIntegration::get_run_id(QByteArray result){
     return run_id;
 }
 
-// name OF FUNCTION: get_project_upload_url_commands
-// PURPOSE:
-//    This function is responsible for uploading given files to polly.
-// It will take the upload urls as an input.
-// For every file in filenames, it will first modify the url a bit..
-// and then it will call "upload_project_data" command for that url,
-// This command simply does a put request for that url with the help of index.js and node..
-
-// CALLS TO: run_qt_process
-//
-// CALLED FROM: exportData
-
-
-QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2,QStringList filenames){
-    QStringList patch_ids ;
-    QList<QByteArray> test_list = result2.split('\n');
-    int size = test_list.size();
-    QByteArray url_jsons = test_list[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(url_jsons));
-    // Get JSON object
-    QJsonObject json = doc.object();
-    QVariantMap json_map = json.toVariantMap();
-    for (int i=0; i < filenames.size(); ++i){
-        QString filename = filenames.at(i);
+QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_wildcard, 
+                                QStringList filenames) {
+    
+    QStringList patch_ids;
+    for (auto& filename : filenames) {
         QStringList test_files_list = filename.split(QDir::separator());
         int size = test_files_list.size();
         QString new_filename = test_files_list[size-1];
-        QString url_with_wildcard =  json_map["file_upload_urls"].toString();
-        QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
+        QString copy_url_with_wildcard = url_with_wildcard;
+        QString url_map_json = copy_url_with_wildcard.replace("*", new_filename) ;
         QString upload_command = "upload_project_data";
-        QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
+        QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command, QStringList() << url_map_json << filename);
         patch_ids.append(patch_id_result_and_error.at(0));
     }
     return patch_ids;
@@ -129,7 +97,6 @@ QStringList PollyIntegration::get_project_upload_url_commands(QByteArray result2
 // CALLS TO: run_qt_process
 //
 // CALLED FROM: loadDataFromPolly
-
 
 QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames){
     QStringList patch_ids ;
@@ -190,17 +157,17 @@ int PollyIntegration::check_already_logged_in(){
 // CALLED FROM: external clients
 
 
-QString PollyIntegration::authenticate_login(QString username,QString password){
+QString PollyIntegration::authenticate_login(QString username, QString password) {
     QString command = "authenticate";
     QString status;
     
     QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
-    if (status_inside==1){
-        status="ok";
+    if (status_inside == 1) {
+        status = "ok";
     }
-    else if (result_and_error.at(1)!=""){
-        status="error";
+    else if (result_and_error.at(1) != "") {
+        status = "error";
     }
     else {
         status = "incorrect credentials";
@@ -347,6 +314,20 @@ QString PollyIntegration::createProjectOnPolly(QString projectname){
     return run_id;
 }
 
+bool PollyIntegration::send_email(QString user_email, QString email_content,
+                        QString email_message) {
+
+    QString command2 = "send_email";
+    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << user_email << email_content << email_message);
+    QList<QByteArray> test_list = result_and_error.at(0).split('\n');
+    int size = test_list.size();
+    QByteArray result2 = test_list[size-2];
+    
+    if (result2 == "1")
+        return true;
+
+    return false;
+}
 
 QString PollyIntegration::get_share_status(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
@@ -383,15 +364,30 @@ QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap col
 // CALLED FROM: external clients
 
 
-QStringList PollyIntegration::exportData(QStringList filenames,QString projectId) {
-    qDebug()<<"files to be uploaded   "<<filenames;
+QStringList PollyIntegration::exportData(QStringList filenames, QString projectId) {
+    qDebug() << "files to be uploaded " << filenames;
     QElapsedTimer timer;
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
     QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
-    QStringList patch_ids = get_project_upload_url_commands(result_and_error.at(0),filenames);
-    qDebug() << "time taken in uploading json file, by polly cli is - "<<timer.elapsed();
+    QString url_with_wildcard = getFileUploadURLs(result_and_error.at(0));    
+    QStringList patch_ids = get_project_upload_url_commands(url_with_wildcard, filenames);
+    qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
+    
     return patch_ids;
+}
+
+QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
+    QList<QByteArray> test_list = result2.split('\n');
+    int size = test_list.size();
+    QByteArray url_jsons = test_list[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(url_jsons));
+    // Get JSON object
+    QJsonObject json = doc.object();
+    QVariantMap json_map = json.toVariantMap();
+    QString url_with_wildcard =  json_map["file_upload_urls"].toString();
+
+    return url_with_wildcard;
 }
 
 // name OF FUNCTION: loadDataFromPolly

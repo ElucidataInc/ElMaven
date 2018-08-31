@@ -1,11 +1,7 @@
 <credentials>
 	<pollyaccountdetails>
-		<username>kailash.yadav@elucidata.io</username>
+		<username>polly_username_here</username>
 		<password>polly_password_here</password>
-		<project>agios_subset</project>
+		<project>polly_project_here</project>
 	</pollyaccountdetails>
-	<emailcredentials>
-        <email>kailash.yadav@elucidata.io</email>
-        <password></password>
-    </emailcredentials>
 </credentials>

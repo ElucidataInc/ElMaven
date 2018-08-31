@@ -60,6 +60,9 @@ class PeakDetectorCLI {
 		QString password;
 		QString projectname;
 		QString pollyArgs;
+		QString pollyProject;
+		QString sample_cohort_file;
+		QString redirect_to = "gsheet_sym_polly_elmaven";
 		QString filedir;
 		QStringList pollyargs_list;
 		PollyIntegration* _pollyIntegration;
@@ -88,7 +91,6 @@ class PeakDetectorCLI {
 
 		bool reduceGroupsFlag = true;
 		bool saveJsonEIC=false;
-		bool uploadToPolly_bool = false;
 		bool saveMzrollFile=true;
 		string csvFileFieldSeparator=",";
 		PeakGroup::QType quantitationType = PeakGroup::AreaTop;
@@ -157,10 +159,22 @@ class PeakDetectorCLI {
 
 		void groupReduction();
 
+		/**
+		 * @brief save output in a json file
+		 * @param setName file name with full path
+		*/
 		void saveJson(string setName);
 
+		/**
+		 * @brief save project as .mzroll
+		 * @param setName file name with full path
+		*/
 		void saveMzRoll(string setName);
 
+		/**
+		 * @brief save project as .mzroll
+		 * @param setName file name with full path
+		*/
 		void saveCSV(string setName);
 
 		/**
@@ -169,9 +183,16 @@ class PeakDetectorCLI {
 		 * @param nodepath  [path to node executable]
 		 * @param filenames [List of files to be uploaded on polly]
 		*/
-		QString UploadToPolly(QString jsPath,QString nodePath,QStringList filenames,QMap<QString, QString> creds);
-		bool send_user_email(QMap<QString, QString> creds,QString redirection_url,QString jsPath);
+		QString UploadToPolly(QString jsPath, QString nodePath, QStringList filenames, QMap<QString, QString> creds);
+		QStringList getSampleList();
+		bool validCohorts(QStringList cohorts);
+		void makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples);
+		bool validSampleCohort(QString sample_cohort_file, QStringList loadedSamples);
+		bool send_user_email(QMap<QString, QString> creds, QString redirection_url);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
+		QString isReadyForPolly();
+		int prepareCompoundDbForPolly(QString fileName);
+		
 		/**
 		* [write Sample List in XML]
 		* @param parent [parent node]

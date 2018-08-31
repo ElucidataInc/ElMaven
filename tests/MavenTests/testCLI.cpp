@@ -178,7 +178,7 @@ void TestCLI::testWriteReport() {
         QFileInfo mzrollFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testmzRoll" + ".mzroll"));
         QVERIFY(mzrollFile.exists() && mzrollFile.isFile());
 
-        peakdetectorCLI->saveCSV("testcsv");
+        peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv");
         QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));
         QVERIFY(csvFile.exists() && csvFile.isFile());
 
