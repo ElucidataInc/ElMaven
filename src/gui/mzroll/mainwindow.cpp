@@ -772,7 +772,7 @@ void MainWindow::showNotification() {
 	
 	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message);
 	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
-	//connect(fluxomicsPrompt, SIGNAL(promptClicked()), pollyElmavenInterfaceDialog, SLOT(setFluxPage()));
+	connect(fluxomicsPrompt, SIGNAL(promptClicked()), pollyElmavenInterfaceDialog, SLOT(setFluxPage()));
 }
 
 void MainWindow::createPeakTable(QString filenameNew) {	
