@@ -51,7 +51,7 @@ void EPIWorkerThread::run(){
         QString status_inside = _pollyintegration->authenticate_login("","");
         QStringList patch_ids  = _pollyintegration->exportData(filesToUpload,upload_project_id_thread);
         bool status = tmpDir.removeRecursively();
-        emit filesUploaded(patch_ids);
+        emit filesUploaded(patch_ids, upload_project_id_thread, datetimestamp);
     }
 }
 
@@ -292,20 +292,21 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
-    connect(EPIworkerThread, SIGNAL(filesUploaded(QStringList)), this, SLOT(postUpload(QStringList)));
+    connect(EPIworkerThread, SIGNAL(filesUploaded(QStringList, QString, QString)), this, SLOT(postUpload(QStringList, QString, QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
     EPIworkerThread->state = "upload_files";
     EPIworkerThread->filesToUpload = filenames;
     EPIworkerThread->tmpDir = qdir;
     EPIworkerThread->upload_project_id_thread = upload_project_id;
+    EPIworkerThread->datetimestamp = datetimestamp;
     EPIworkerThread->start();
 }
 
-void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids){
+void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp){
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()) {
         upload_status->setText("");
-        QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview&elmavenTimestamp=%2").arg(upload_project_id).arg(datetimestamp);
+        QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview&elmavenTimestamp=%2").arg(upload_project_id_thread).arg(datetimestamp);
         qDebug() << "redirection_url     - " << redirection_url;
         pollyURL.setUrl(redirection_url);
         pollyButton->setVisible(true);

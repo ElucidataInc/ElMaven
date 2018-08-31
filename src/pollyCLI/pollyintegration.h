@@ -61,7 +61,7 @@ class PollyIntegration
 		QStringList getUserProjectFilesMap(QByteArray result2);
 		QStringList getOrganizationalDBs(QString organisation);
 		QStringList parseResultOrganizationalDBs(QString result);
-
+		QString getCredFile();
 	private:
 		QString credFile;
 };
