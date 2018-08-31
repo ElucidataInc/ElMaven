@@ -974,6 +974,11 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	// set jspath and nodepath for _pollyIntegration library .
 	_pollyIntegration->jsPath = jsPath;
 	_pollyIntegration->nodePath = nodePath;
+	// In case of CLI, we don't want persistent login as of now, so deleting existing Token everytime and starting afresh..
+	// In future if persistent login is required in CLI, just delete the two lines below this comment..
+	QFile pollyCredFile(_pollyIntegration->getCredFile());
+	pollyCredFile.remove();
+
 	QString status = _pollyIntegration->authenticate_login(creds["polly_username"], creds["polly_password"]);
 	if (status != "ok") {
 		cerr << "Incorrect credentials. Please check." << endl;

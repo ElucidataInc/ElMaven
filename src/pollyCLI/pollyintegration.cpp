@@ -31,6 +31,10 @@ PollyIntegration::~PollyIntegration()
     qDebug()<<"exiting PollyIntegration now....";
 }
 
+QString PollyIntegration::getCredFile(){
+    return credFile;
+}
+
 QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
