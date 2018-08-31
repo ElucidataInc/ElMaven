@@ -16,7 +16,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     lastUsedSampleColor = QColor(Qt::green);
 
-   // _splitter = new QSplitter(Qt::Vertical,this);
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);
@@ -33,13 +32,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
    // _treeWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MaximumExpanding);
 
-    //_splitter->addWidget(_treeWidget);
-    //_splitter->addWidget(_editor);
-    //_splitter->setChildrenCollapsible(true);
-    //_splitter->setCollapsible(0,false);
-    // _splitter->setCollapsible(1,true);
-    // QList<int> sizes; sizes << 100 << 0;
-    //_splitter->setSizes(sizes);
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);

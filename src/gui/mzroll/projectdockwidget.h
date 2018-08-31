@@ -70,7 +70,6 @@ private:
     QTextEdit* _editor;
     MainWindow* _mainwindow;
     QTreeWidget* _treeWidget;
-    QSplitter*  _splitter;
 
 
     QMap<QString, QColor> storeColor;
