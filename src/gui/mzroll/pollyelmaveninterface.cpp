@@ -225,6 +225,14 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnames_id_map)
     startup_data_load();
 }
 
+void PollyElmavenInterfaceDialog::setFluxPage()
+{
+    //index 1 corresponds to Fluxomics
+    //TODO: use an enum to make this less error prone and more scalable
+    stackedWidget->setCurrentIndex(1);
+    workflowMenu->setCurrentRow(1);
+}
+
 void PollyElmavenInterfaceDialog::setUiElementsFlux()
 {
     tableList_flux->clear();

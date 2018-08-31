@@ -82,6 +82,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 void goToPolly();
                 void performPostUploadTasks(bool uploadSuccessful);
                 void changePage(QListWidgetItem*, QListWidgetItem*);
+                void setFluxPage();
         
         public Q_SLOTS:
                 /**
