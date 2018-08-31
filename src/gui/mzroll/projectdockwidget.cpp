@@ -818,18 +818,6 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
     lastSavedProject=filename;
 }
 
-void ProjectDockWidget::contextMenuEvent ( QContextMenuEvent * event )
-{
-    /*
-    QMenu menu;
-
-    QAction* z0 = menu.addAction("Unload Selected Sample");
-    connect(z0, SIGNAL(triggered()), this ,SLOT(unloadSample()));
-
-    QAction *selectedAction = menu.exec(event->globalPos());
-    */
-}
-
 void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {
     //cerr << "TableDockWidget::keyPressEvent()" << e->key() << endl;
 
