@@ -30,7 +30,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setHeaderHidden(true);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
     connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
-   // _treeWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MaximumExpanding);
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
@@ -67,19 +66,16 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     blankButton->setToolTip("Set As a Blank Sample");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
-    //toolBar->addWidget(new QLabel("Compounds: "));
-    //toolBar->addWidget(databaseSelect);
+
     toolBar->addWidget(loadButton);
     toolBar->addWidget(loadMetaDataButton);
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
     toolBar->addWidget(checkUncheck);
     toolBar->addWidget(blankButton);
-    //QLineEdit*  filterEditor = new QLineEdit(toolBar);
+
     QLineEdit*  filterEditor = new QLineEdit(this);
-    filterEditor->setPlaceholderText("Sample name filter");
-    //filterEditor->setMinimumWidth(10);
-    //filterEditor->setPlaceholderText("Sample name filter"); -- support in qt4.7+  
+    filterEditor->setPlaceholderText("Sample name filter"); 
     connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(filterTreeItems(QString)));
 
     QWidget *window = new QWidget;
@@ -141,7 +137,6 @@ void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
                 sample->setSampleName(sampleName.toStdString());
             }
         }
-   // cerr <<"changeSampleSet: " << sample->sampleName << "  " << sample->getSetName() << endl;
     }
 }
 
@@ -434,12 +429,10 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     _treeWidget->setHeaderLabels( header );
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
-    //_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     _treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _treeWidget->setRootIsDecorated(true);
     _treeWidget->expandToDepth(10);
 
-    //_mainwindow->setupSampleColors();
     float N = samples.size();
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
     reverse(samples.begin(),samples.end());
@@ -452,7 +445,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
 		float hue = 1 - 0.6 * ((float) (i + 1) / N);
 		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
-		//qDebug() << "SAMPLE COLOR=" << c;
 
         storeSampleColors[sample] = c;
 
@@ -463,7 +455,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         
         QTreeWidgetItem* parent = getParentFolder(QString(sample->fileName.c_str()));
-        //QTreeWidgetItem* parent=NULL;
         QTreeWidgetItem *item=NULL;
 
         if (parent) { 
@@ -473,12 +464,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         }
 
         QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], sample->color[3] );
-
-        /*QPushButton* colorButton = new QPushButton(this);
-        QString qss = QString("*{ background-color: rgb(%1,%2,%3) }").arg(color.red()).arg(color.green()).arg(color.blue());
-        connect(colorButton,SIGNAL(pressed()), SLOT(changeSampleColor(QTreeWidgetItem*,int)));
-        colorButton->setStyleSheet(qss);
-	*/
 
         QPixmap pixmap = QPixmap(20,20); pixmap.fill(color); QIcon coloricon = QIcon(pixmap);
 
@@ -493,7 +478,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
             item->setText(3,QString::number(sample->getInjectionOrder()));
         else
             item->setText(3,QString("NA"));
-       // _treeWidget->setItemWidget(item,3,colorButton);
 
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
@@ -631,11 +615,6 @@ void ProjectDockWidget::loadProject() {
 
 void ProjectDockWidget::loadProject(QString fileName) {
     int samplecount = 0;
-    QSettings* settings = _mainwindow->getSettings();
-
-    QFileInfo fileinfo(fileName);
-    QString projectPath = fileinfo.path();
-    QString projectName = fileinfo.fileName();
 
     QFile data(fileName);
     if ( !data.open(QFile::ReadOnly) ) {
@@ -678,8 +657,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 QString setname   = xml.attributes().value("setName").toString();
                 QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
                 QString isSelected   = xml.attributes().value("isSelected").toString();
-                //_mainwindow->setStatusText(tr("Loading sample: %1").arg(sname));
-                //_mainwindow->setProgressBar(tr("Loading Sample Number %1").arg(++currentSampleCount),currentSampleCount,currentSampleCount+1);
 
                 bool checkLoaded=false;
                 Q_FOREACH(mzSample* loadedFile, _mainwindow->getSamples()) {
@@ -705,10 +682,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
                 progressText = "Importing files from " + dStr;
 
                 if ( !fname.isEmpty() ) {
-                    // mzFileIO* fileLoader = new mzFileIO(this);
-                    // fileLoader->setMainWindow(_mainwindow);
-                    // mzSample* sample = fileLoader->loadSample(fname);
-                    // delete(fileLoader);
 
                     mzSample* sample = _mainwindow->fileLoader->loadSample(fname);
                     if (sample) {
@@ -753,15 +726,6 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
     data.close();
 
-    //setProjectDescription(projectDescription);
-
-// // update other widget
-//     vector<mzSample*> samples = _mainwindow->getSamples();
-//     int sampleCount = _mainwindow->sampleCount();
-//     updateSampleList();
-//     if(_mainwindow->srmDockWidget->isVisible()) _mainwindow->showSRMList();
-//     if(_mainwindow->bookmarkedPeaks) _mainwindow->bookmarkedPeaks->loadPeakTable(fileName);
-//     if(_mainwindow->spectraWidget && sampleCount) _mainwindow->spectraWidget->setScan(samples[0]->getScan(0));
     lastOpennedProject = fileName;
 }
 
