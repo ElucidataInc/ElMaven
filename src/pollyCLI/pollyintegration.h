@@ -28,6 +28,7 @@ class PollyIntegration
 	    QString authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
 		int check_node_executable();
+		int askForLogin();
 	    QStringList exportData(QStringList filenames,QString projectId);
 		QString loadDataFromPolly(QString ProjectId,QStringList filenames);
 		QVariantMap getUserProjects();

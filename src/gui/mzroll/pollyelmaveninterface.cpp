@@ -36,11 +36,22 @@ EPIWorkerThread::EPIWorkerThread()
 };
 
 void EPIWorkerThread::run(){
-    QString status_inside = _pollyintegration->authenticate_login(username,password);
-    emit authentication_result(status_inside);
-    if (status_inside=="ok"){
-        QVariantMap projectnames_id = _pollyintegration->getUserProjects();
-        emit resultReady(projectnames_id);
+    if (state=="initial_setup"){
+        qDebug()<<"starting thread to authenticate and fetch project info from polly";
+        QString status_inside = _pollyintegration->authenticate_login("","");
+        emit authentication_result(status_inside);
+        if (status_inside=="ok"){
+            QVariantMap projectnames_id = _pollyintegration->getUserProjects();
+            emit resultReady(projectnames_id);
+        }
+    }
+    else if (state=="upload_files"){
+        qDebug()<<"starting thread for uploading files to polly..";
+        //re-login to polly may be required because the token expires after 30 minutes..
+        QString status_inside = _pollyintegration->authenticate_login("","");
+        QStringList patch_ids  = _pollyintegration->exportData(filesToUpload,upload_project_id_thread);
+        bool status = tmpDir.removeRecursively();
+        emit filesUploaded(patch_ids);
     }
 }
 
@@ -82,7 +93,8 @@ void PollyElmavenInterfaceDialog::initialSetup()
         msgBox.exec();
         return;
     }
-    if (credentials.isEmpty()){
+    int askForLogin = _pollyIntegration->askForLogin();
+    if (askForLogin==1){
         try{
             call_login_form();
             } catch(...) {
@@ -120,8 +132,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form(){
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
     connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
-    EPIworkerThread->username= credentials.at(0);
-    EPIworkerThread->password =credentials.at(1);
+    EPIworkerThread->state = "initial_setup";
     EPIworkerThread->start();
     show();
     
@@ -196,14 +207,14 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
 
     computeButton_upload->setEnabled(false);
-
-    if (credentials.isEmpty()){
+    int askForLogin = _pollyIntegration->askForLogin();
+    if (askForLogin == 1){
         call_login_form();
         emit uploadFinished(false);
         return;
     }
+    
     QStringList patch_ids;
-    QString upload_project_id;
 
     QString new_projectname = lineEdit_new_project_name->text();
     QString projectname = comboBox_existing_projects->currentText();
@@ -229,8 +240,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     upload_status->setText("Connecting..");
     QCoreApplication::processEvents();
-    //re-login to polly may be required because the token expires after 30 minutes..
-    QString status_inside = _pollyIntegration->authenticate_login(credentials.at(0),credentials.at(1));
+
     upload_status->setText("Sending files to Polly..");
     QCoreApplication::processEvents();
     if (comboBox_existing_projects->isEnabled()){
@@ -241,7 +251,6 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
             }
         }
         if (project_id!=""){
-            patch_ids = _pollyIntegration->exportData(filenames,project_id);
             upload_project_id = project_id;
         }
         else{
@@ -264,7 +273,6 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
             return;
         }
         QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
-        patch_ids  = _pollyIntegration->exportData(filenames,new_project_id);   
         upload_project_id = new_project_id;    
     }
     else{
@@ -277,7 +285,18 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         emit uploadFinished(false);
         return;
     }
-    bool status = qdir.removeRecursively();
+    
+    EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
+    connect(EPIworkerThread, SIGNAL(filesUploaded(QStringList)), this, SLOT(postUpload(QStringList)));
+    connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
+    EPIworkerThread->state = "upload_files";
+    EPIworkerThread->filesToUpload = filenames;
+    EPIworkerThread->tmpDir = qdir;
+    EPIworkerThread->upload_project_id_thread = upload_project_id;
+    EPIworkerThread->start();
+}
+
+void PollyElmavenInterfaceDialog::postUpload(QStringList patch_ids){
     QCoreApplication::processEvents();
     if (!patch_ids.isEmpty()){
         upload_status->setText("");
@@ -296,7 +315,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         msgBox.exec();
         upload_status->setText("");
     }
-    emit uploadFinished(false);
+    emit uploadFinished(false);   
 }
 
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir){

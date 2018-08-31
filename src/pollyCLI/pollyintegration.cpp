@@ -193,8 +193,6 @@ int PollyIntegration::check_already_logged_in(){
 QString PollyIntegration::authenticate_login(QString username,QString password){
     QString command = "authenticate";
     QString status;
-    QFile file (credFile);
-    file.remove();
     
     QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
     int status_inside = check_already_logged_in();
@@ -218,10 +216,25 @@ int PollyIntegration::check_node_executable(){
     return 1;
     
 }
+
+int PollyIntegration::askForLogin(){
+    qDebug()<<"credFile  -\n"<<credFile;
+    QFile file (credFile);
+    QFile refreshTokenFile (credFile+"_refreshToken");
+    if (file.exists() && refreshTokenFile.exists() ){
+        qDebug()<<"both tokens exist.. moving on to refresh now..";
+        return 0;
+    }
+    qDebug()<<"both tokens do not exist.. moving on to login now..";
+    return 1;
+}
+
 // This function deletes the token and logs out the user..
 void PollyIntegration::logout(){
     QFile file (credFile);
     file.remove();
+    QFile refreshTokenFile (credFile+"_refreshToken");
+    refreshTokenFile.remove();
 }
 // name OF FUNCTION: getUserProjectsMap
 // PURPOSE:

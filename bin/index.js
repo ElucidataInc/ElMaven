@@ -52,9 +52,66 @@ function read_id_token(token_filename){
     return saved_token;    
 }
 
+function refreshToken(token_filename,email){
+    if (!email) {
+        console.log(chalk.red.bold("Email is required to refresh the token"));
+        return;
+    } else {
+        if (!(email.includes("@"))){
+            console.log(chalk.red.bold("Please provide valid email.."));
+            return;
+            }
+        }
+    console.log(chalk.yellow.bold("Fetching user pool to refresh token..."));
+    
+    var options = {
+        method: 'GET',
+        url: 'https://polly.elucidata.io/userpool',
+        json: true
+    };
+
+    var cognito_client_id = "";
+    var cognito_user_pool = "";
+    var cognito_user_pool_region = "";
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold("UserPool response: "));
+        cognito_client_id = body.cognito_client_id;
+        cognito_user_pool = body.cognito_user_pool;
+        cognito_user_pool_region = body.cognito_user_pool_region;
+        
+        var poolData = {
+            UserPoolId : cognito_user_pool,
+            ClientId : cognito_client_id
+        };
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        var userData = {
+            Username : email,
+            Pool : userPool
+        };
+        
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        var refresh_token = String(read_id_token(token_filename+"_refreshToken"))
+        console.log("trying to refresh the token now..");
+        var refresh_token_object = new AmazonCognitoIdentity.CognitoRefreshToken({ RefreshToken: refresh_token });
+    
+        cognitoUser.refreshSession(refresh_token_object, (err, session) => {
+            if(err) {
+                console.log("error while refreshing the token.."+err);
+            } 
+            else{
+                write_id_token(token_filename, String(session.getIdToken().getJwtToken()));
+                return;
+            }
+        });
+        
+    });
+}
+
 
 module.exports.authenticate = function(token_filename,email, password){
-    if (has_id_token(token_filename)) {
+    if (has_id_token(token_filename) && has_id_token(token_filename+"_refreshToken")) {
         var public_token_header = read_id_token(token_filename);
         var decoded = jwt_decode(String(public_token_header));
         var token_expiry_date = decoded.exp.valueOf();
@@ -63,6 +120,9 @@ module.exports.authenticate = function(token_filename,email, password){
         if (token_expiry_date > nowDate) {
             console.log(chalk.green.bold("already logged in"));
             return;
+        }
+        else{
+            return refreshToken(token_filename,decoded.email.valueOf());
         }
     }
     if (!email) {
@@ -119,7 +179,8 @@ module.exports.authenticate = function(token_filename,email, password){
             onSuccess: function (result) {
                 write_id_token(token_filename,String(result.getIdToken().getJwtToken()));
                 AWS.config.region = cognito_user_pool_region;
-    
+                write_id_token(token_filename+"_refreshToken",String(result.getRefreshToken().getToken()))
+            
                 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                     IdentityPoolId : cognito_client_id,
                     Logins : {
