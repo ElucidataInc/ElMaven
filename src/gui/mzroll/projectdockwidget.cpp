@@ -56,11 +56,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     connect(loadMetaDataButton,SIGNAL(clicked()),_mainwindow, SLOT(loadMetaInformation()));
     connect(_mainwindow,SIGNAL(metaCsvFileLoaded()),SLOT(updateSampleList()));
 
-    QToolButton* saveButton = new QToolButton(toolBar);
-    saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
-    saveButton->setToolTip("Save Project As");
-    connect(saveButton,SIGNAL(clicked()), SLOT(saveProject()));
-
     QToolButton* colorButton = new QToolButton(toolBar);
     colorButton->setIcon(QIcon(rsrcPath + "/colorfill.png"));
     colorButton->setToolTip("Change Sample Color");
@@ -84,7 +79,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     //toolBar->addWidget(databaseSelect);
     toolBar->addWidget(loadButton);
     toolBar->addWidget(loadMetaDataButton);
-    toolBar->addWidget(saveButton);
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
     toolBar->addWidget(checkUncheck);
