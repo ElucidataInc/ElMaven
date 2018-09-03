@@ -286,7 +286,7 @@ class mzSample
 
     int getSampleNoChromatogram(const string &chromatogramId);
 
-    string filterChromatogramId(const string &chromatogramId);
+    void filterChromatogramId(string &chromatogramId);
 
     /**
     * @brief Parse mzML spectrum list
