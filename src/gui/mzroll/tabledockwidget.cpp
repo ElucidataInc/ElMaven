@@ -2439,8 +2439,9 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::cleanUp()
 {
+  if (treeWidget->currentItem())
     emit unSetFromEicWidget(treeWidget->currentItem()->data(0, Qt::UserRole).value<PeakGroup*>());
-    _mainwindow->ligandWidget->resetColor();
+  _mainwindow->ligandWidget->resetColor();
 }
 
 void PeakTableDockWidget::showDeletionDialog() {
