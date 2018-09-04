@@ -10,7 +10,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
 
 	//command line options
 	const char * optv[] = {
-                            "a?alignSamples: 1=obi-warp, 2=poly fit",
+                            "a?alignSamples: Enter 1 for obi-warp alignment, 2 for polyfit",
 							"b?minGoodGroupCount: Enter minimum number of good peaks per group <int>",
 							"c?matchRtFlag: Enter non-zero integer to match retention time to the database values <int>",
 							"C?compoundPPMWindow: Enter ppm window for m/z <float>",							
@@ -60,9 +60,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[]) {
             else if (atoi(optarg) == 2)
                 alignType = POLY_FIT;
 
-            else
+            else {
                 alignType = NO_TYPE;
                 mavenParameters->alignSamplesFlag = false;
+            }
 
             break;
 
