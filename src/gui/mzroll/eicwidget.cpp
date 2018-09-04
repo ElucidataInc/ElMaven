@@ -929,6 +929,10 @@ void EicWidget::setTitle() {
 	font.setPixelSize(pxSize);
 
 	QString tagString;
+	double mzmin;
+	double mzmax;
+	Compound* compound;
+	compound = eicParameters->_slice.compound;
 
 	if (eicParameters->selectedGroup != NULL) {
 		tagString = QString(eicParameters->selectedGroup->getName().c_str());
@@ -938,9 +942,20 @@ void EicWidget::setTitle() {
 		tagString = QString(eicParameters->_slice.srmId.c_str());
 	}
 
+	if (compound && compound->productMz)
+	{
+		//TODO: use slices for MS2 eics
+		mzmin = eicParameters->eics[0]->mzmin;
+		mzmax = eicParameters->eics[0]->mzmax;
+	}
+	else
+	{
+		mzmin = eicParameters->_slice.mzmin;
+		mzmax = eicParameters->_slice.mzmax;
+	}
 	QString titleText = tr("<b>%1</b> m/z: %2-%3").arg(tagString,
-			QString::number(eicParameters->_slice.mzmin, 'f', 4),
-			QString::number(eicParameters->_slice.mzmax, 'f', 4));
+			QString::number(mzmin, 'f', 4),
+			QString::number(mzmax, 'f', 4));
 
 	QGraphicsTextItem* title = scene()->addText(titleText, font);
 	title->setHtml(titleText);
@@ -948,7 +963,6 @@ void EicWidget::setTitle() {
 	title->setPos(scene()->width() / 2 - titleWith / 2, 5);
 	title->update();
 
-	//TODO: Sahil, added this whole thing while merging eicwidget
     bool hasData=false;
     for(int i=0;  i < eicParameters->eics.size(); i++ ) { if(eicParameters->eics[i]->size() > 0) { hasData=true; break; } }
     if (hasData == false ) {

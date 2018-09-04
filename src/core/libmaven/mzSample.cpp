@@ -1140,8 +1140,8 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 	e->sample = this;
 	e->totalIntensity = 0;
 	e->maxIntensity = 0;
-	e->mzmin = 0;
-	e->mzmax = 0;
+	e->mzmin = productMz - amuQ3;
+	e->mzmax = productMz + amuQ3;
 
 	for (unsigned int i = 0; i < scans.size(); i++)
 	{
