@@ -261,6 +261,7 @@ void PeakDetector::alignSamples(const int& method) {
         switch(method) {
 
         case 1: {
+            cerr << "Starting OBI-WARP alignment" << std::endl;
             ObiParams params("cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
             Aligner mzAligner;
             mzAligner.alignWithObiWarp(mavenParameters->samples, &params);
@@ -272,7 +273,7 @@ void PeakDetector::alignSamples(const int& method) {
         case 2: {
             mavenParameters->writeCSVFlag = false;
             processMassSlices();
-
+            cerr << "starting POLY-FIT alignment " << std::endl;
             cerr << "Aligner=" << mavenParameters->allgroups.size() << endl;
             vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
             for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
