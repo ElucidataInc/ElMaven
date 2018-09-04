@@ -37,7 +37,6 @@ public Q_SLOTS:
 	void setMassCutoff(MassCutoff *massCutoff);
 	void resetZoom();
 	void zoom(float factor);
-	void setMzRtWindow(float mzmin, float mzmax, float rtmin, float rtmax);
 	void setMzSlice(const mzSlice& slice);
 
 	void setRtWindow(float rtmin, float rtmax);
