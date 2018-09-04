@@ -1040,6 +1040,8 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 		QAction* tableAction = sideBar->addWidget(groupTablesButtons[panel]) ;
 		sideBar->removeAction(tableAction);
 	}
+	if (groupTables.contains(panel))
+		groupTables.removeAll(panel);
 }
 
 // SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
