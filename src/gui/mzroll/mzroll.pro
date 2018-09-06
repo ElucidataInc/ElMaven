@@ -35,6 +35,12 @@ ICON = maven.icns
 
 QT += sql network xml printsupport
 
+enable_ga {
+    message("using GA")
+    DEFINES += GA
+}
+
+
 linux {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/

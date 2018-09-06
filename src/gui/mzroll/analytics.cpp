@@ -73,12 +73,13 @@ void Analytics::sessionEnd() {
 
 void Analytics::httpPost(QUrlQuery query) {
 
+#ifdef GA
     QNetworkAccessManager *manager = new QNetworkAccessManager();
     QByteArray data;
     data.append(query.query());
     qDebug() << data; // Output for debug purposes.
     QNetworkReply *reply = manager->post(req, data);
-
+#endif
 }
 
 QString Analytics::getClientID()
