@@ -6,6 +6,7 @@
 
 class CompareSamplesDialog;
 class MainWindow;
+class ScatterplotTableDockWidget;
 
 class ScatterPlot: public PlotDockWidget  {
     Q_OBJECT
@@ -51,7 +52,7 @@ class ScatterPlot: public PlotDockWidget  {
 				QAction* showSimilarOptions;
 				bool showSimilarFlag;
 				TableDockWidget* _table;
-                TableDockWidget* _peakTable;
+                ScatterplotTableDockWidget* _peakTable;
 				CompareSamplesDialog* compareSamplesDialog;
 
                 plotTypeEnum plotType;
