@@ -37,6 +37,11 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void onReset();
 
             /*
+             * @brief: Sets polarity based on the ionization type selected.
+             */
+            void setAppropriatePolarity();
+
+            /*
             * [Enable/disable deltaRtWeight slider and display appropriate group rank formula in UI]
             * @method toggleDeltaRtWeight
             */

@@ -162,6 +162,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(scan_filter_min_quantile, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
+    connect(ionizationType, SIGNAL(currentIndexChanged(int)), SLOT(setAppropriatePolarity()));
 
     //Multiprocessing
     connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
@@ -401,6 +402,16 @@ void SettingsForm::getFormValues() {
     }
 
     setMavenParameters();
+}
+
+void SettingsForm::setAppropriatePolarity() {
+    if (ionizationType->currentText() == "EI") {
+        ionizationMode->setCurrentIndex(2);
+        ionizationMode->setDisabled(true);
+    } else {
+        ionizationMode->setEnabled(true);
+        ionizationMode->setCurrentIndex(0);
+    }
 }
 
 void SettingsForm::show() {
