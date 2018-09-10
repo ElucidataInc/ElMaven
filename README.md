@@ -13,8 +13,15 @@
 [![DOI](https://zenodo.org/badge/70220005.svg)](https://zenodo.org/badge/latestdoi/70220005)
 
 ## Table of contents
-- [Download](#download) 
+- [Travis Build](#travis-build)
+- [Digital Object Identifier (DOI)](#digital-object-identifier-doi)
+- [Table of contents](#table-of-contents)
+- [Download](#download)
 - [Build](#build)
+  - [Windows](#windows)
+  - [Ubuntu](#ubuntu)
+  - [Mac](#mac)
+  - [Switching versions](#switching-versions)
 - [El-MAVEN features](#el-maven-features)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Documentation](#documentation)
@@ -180,7 +187,7 @@ Pull requests must include relevant unit tests. All the functional features are 
 *	[Kiran Varghese](https://github.com/kiranvarghese2)
 *	[Naman Gupta](https://github.com/naman)
 *	[Saiful B. Khan](https://github.com/saifulbkhan)
-
+* [Avijit Zutshi](https://github.com/avijitzutshi)
 
 ## References
 
