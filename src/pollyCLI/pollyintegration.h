@@ -16,6 +16,7 @@ class PollyIntegration
 		QString nodePath;
 		QString user_login_required();
 		QString createProjectOnPolly(QString projectname);
+		QString createWorkflowRequest(QString projectId);
 		QString shareProjectOnPolly(QString project_id,QVariantMap collaborators_map);
 		QString get_share_status(QByteArray result);
 		
@@ -47,7 +48,7 @@ class PollyIntegration
  		 * @param result output from running "createproject" command that creates a new Polly project
  		 * @return project ID generated for the new project
 		*/
-		QString get_run_id(QByteArray result);
+		QString parse_id(QByteArray result);
 		bool send_email(QString user_email, QString email_content, QString email_message);
 	    QString authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
