@@ -196,6 +196,7 @@ public Q_SLOTS:
   void writeQEInclusionList(QString fileName);
   void writeMascotGeneric(QString fileName);
   vector<EIC *> getEICs(float rtmin, float rtmax, PeakGroup &grp);
+  const MainWindow *getMainWindow() { return _mainwindow; }
 
 protected:
   MainWindow *_mainwindow;
