@@ -10,34 +10,113 @@ environment:
 
 
 
-before_build:
-  - git submodule update --init --recursive
+install:
+    - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
-  - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+    - bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-qt-creator"
 
+    - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
 
-
-  # Install 64-bit QT
-  - bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-qt-creator"
-
-  - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
-  
-  # Install zlib
-  - bash -lc "pacman -S --needed --noconfirm zlib-devel"
-
-  - bash -lc "cd C:/projects/ElMaven/ ; echo yes | ./run.sh"
-
+    - bash -lc "pacman -S --needed --noconfirm zlib-devel"
 
 build_script:
-  - bash -lc "cd C:/projects/ElMaven/ ; ./run_tests.sh"
-  
-artifacts:
-- path: bin/El_Maven_*
 
+    - bash -lc "cd C:/projects/ElMaven/ ; echo yes | ./run.sh"
+
+#before_build:
+  #- git submodule update --init --recursive
+
+  ## Install 64-bit QT
+  #- bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-qt-creator"
+
+  #- bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
+
+  ## Install zlib
+  #- bash -lc "pacman -S --needed --noconfirm zlib-devel"
+
+  #- bash -lc "cd C:/projects/ElMaven/ ; echo yes | ./run.sh"
+
+  ## - IF ($LASTEXITCODE -ne 0) {$host.SetShouldExit($LASTEXITCODE)}
+
+##build_script:
+  ##- bash -lc "cd C:/projects/ElMaven/ ; ./run_tests.sh"
+
+  ## Get submodules
+
+
+  ## Install sqlite3
+  ## - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-sqlite3"
+
+  ## - bash -lc "cd C:/projects/ElMaven/bin ; ls"
+
+  ## - cd bin
+  ## - dir
+
+#artifacts:
+#- path: bin/El_Maven_*
+
+
+
+
+
+# image: Visual Studio 2013
+# configura tion: Debug
+
+# install:
+#   - set QTDIR=C:\Qt\5.5\mingw492_32
+#   - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+
+
+# before_build:
+#   - set PATH=C:\msys2\bin;%QT5%\bin;%PATH%
+
+# install:
+#   - C:\msys64\usr\bin\bash --login -c "pacman -S --noconfirm mingw-w64-x86_64-qt-creator"
+#   - C:\msys64\usr\bin\bash --login -c "pacman -S --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
+
+  #   C:\msys64\usr\bin\bash --login -c "pacman -S --verbose --needed --noconfirm base-devel";
+    # cd afsdfdsfdf  -ErrorAction Ignore
+
+
+# environment:
+#   -compiler: msys2
+  # - QT:
+  #   MINGW:
+
+# build:
+#   project: add.cpp
+
+# before_build:
+#   cmd:
+    # cd C:\msys64\mingw64\bin\;
+    # ls;
+    # C:\msys64\usr\bin\bash --login -c "";
+  # cmd:
+  #   ;
+
+
+# build_script:
+#   - set PATH=%PATH%;C:\msys64\mingw64\bin\;C:\MinGW\bin
+#   # - dir
+#   # - cd test\
+#   - C:\msys64\usr\bin\bash --login -c "cd C:/projects/ElMaven/ && echo yes | ./run.sh"
+
+#   - cd bin\
+#   - dir
+
+  # - C:\msys64\usr\bin\bash --login -c "cd C:/projects/test-appveyor/test/ && mingw32-make"
+  # - dir
+  # - make
+
+  # - test\make
+  # cmd:
+  #   set PATH=C:\msys64\mingw64\bin\;
+  #   qmake test\test.pro;
+  # - qmake test\test.pro
+  # - test\make
 
 # deploy:
-#   provider: GitHub
+# - provider: GitHub
 #   auth_token:
 #     secure: hQDQ9bqFo+fkhKBZtywbP7ZpnLzCxpIiMIgbWLYvcMSmdJ1BvIWFQU0HtNK9rikt
-#   artifact: bin/El_Maven_*.exe
-
+#   artifact: test
