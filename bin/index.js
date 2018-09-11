@@ -196,6 +196,48 @@ module.exports.authenticate = function(token_filename,email, password){
     return;
 }
 
+module.exports.createWorkflowRequest = function (token_filename, project_id) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var payload = {
+        "workflow_details":{
+            "workflow_name": "relative_lcms_elmaven",
+            "workflow_id": 3
+        },
+        "name": "PollyPhi™ Relative LCMS El-MAVEN Untitled Untitled",
+        "project_id": project_id
+    }
+
+    var options = {
+        method: 'PUT',
+        url: 'https://polly.elucidata.io/api/wf-request',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header
+            },
+        body:
+            {
+                payload: JSON.stringify(payload)
+            },
+        json: true
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`createWorkflowRequest Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to create workflow request id. Please authenticate. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
 module.exports.createProject = function (token_filename,name) {
     if (has_id_token(token_filename)) {
         public_token_header = read_id_token(token_filename);
