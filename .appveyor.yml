@@ -9,7 +9,6 @@ environment:
 
 
 
-
 install:
     - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
@@ -18,6 +17,8 @@ install:
     - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
 
     - bash -lc "pacman -S --needed --noconfirm zlib-devel"
+
+    - bash -lc "pacman -S --noconfirm mingw64/mingw-w64-x86_64-curl"
 
 build_script:
 
