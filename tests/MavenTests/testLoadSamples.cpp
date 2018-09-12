@@ -121,6 +121,7 @@ void TestLoadSamples:: testMinMaxRT() {
 
 }
 
+#ifndef WIN32
 void TestLoadSamples:: testSampleName() {
     mzSample mzsample;
     string sampleName = "testsample_1";
@@ -128,6 +129,7 @@ void TestLoadSamples:: testSampleName() {
 
     QVERIFY(sampleName.compare(mzsample.sampleName) == 0);
 }
+#endif
 
 void TestLoadSamples:: testBlankSample() {
     mzSample mzsample;
