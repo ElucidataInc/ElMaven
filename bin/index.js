@@ -203,7 +203,7 @@ module.exports.createWorkflowRequest = function (token_filename, project_id) {
     var payload = {
         "workflow_details":{
             "workflow_name": "relative_lcms_elmaven",
-            "workflow_id": 3
+            "workflow_id": 4
         },
         "name": "PollyPhi™ Relative LCMS El-MAVEN Untitled Untitled",
         "project_id": project_id
