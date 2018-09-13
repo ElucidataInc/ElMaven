@@ -556,6 +556,10 @@ void PeakDetectorCLI::loadCompoundsFile() {
 		int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
 		mavenParameters->compounds = DB.compoundsDB;
 		cout << "Total Compounds Loaded : " << loadCount << endl;
+	} else {
+		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
+		     << "Use the '-h' argument to see all available options." << endl;
+		exit(0);
 	}
 
 }
