@@ -50,10 +50,10 @@ void AdvancedSettings::initialSetup(){
 
     ui->comboBox_export_format->addItems(QStringList()<<groupsSTAB<<groupsTAB<<peaksTAB<<groupsSCSV<<groupsCSV<<peaksCSV);
     
-    populate_comboBox_compound_db();
+    populateCompoundDb();
     show();
 }
-void AdvancedSettings::populate_comboBox_compound_db() {
+void AdvancedSettings::populateCompoundDb() {
     ui->comboBox_compound_db->clear();
 	QSet<QString>set;
 	for(int i=0; i< DB.compoundsDB.size(); i++) {
@@ -68,7 +68,7 @@ void AdvancedSettings::populate_comboBox_compound_db() {
 	}
 }
 
-QVariantMap AdvancedSettings::get_ui_elements(){
+QVariantMap AdvancedSettings::getUIElements(){
     QVariantMap ui_elements;
     ui_elements["export_option"]=ui->comboBox_export_table->currentText();
     ui_elements["export_format"]=ui->comboBox_export_format->currentText();
@@ -79,10 +79,10 @@ QVariantMap AdvancedSettings::get_ui_elements(){
     return ui_elements;
 }
 
-bool AdvancedSettings::get_upload_compoundDB(){
+bool AdvancedSettings::getUploadCompoundDB(){
     return ui->upload_compound_DB_frame->isEnabled();
 }
-bool AdvancedSettings::get_upload_Peak_Table(){
+bool AdvancedSettings::getUploadPeakTable(){
     return ui->upload_peaks_frame->isEnabled();
 }
 

@@ -61,6 +61,8 @@ public:
    */
   int groupCount() { return allgroups.size(); }
 
+  MainWindow* getMainWindow() { return _mainwindow; }
+
   /**
    * @brief Obtain a list of groups present in <allgroups>.
    * @return QList of PeakGroup pointers.

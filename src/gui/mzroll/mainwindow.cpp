@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QStandardPaths>
+#include "notificator.h"
 #ifdef WIN32
 #include <windows.h>
 #endif

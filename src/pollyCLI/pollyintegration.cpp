@@ -35,7 +35,7 @@ QString PollyIntegration::getCredFile(){
     return credFile;
 }
 
-QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList args){
+QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
@@ -76,7 +76,7 @@ QString PollyIntegration::parseId(QByteArray result){
 QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_wildcard, 
                                 QStringList filenames) {
     
-    QStringList patch_ids;
+    QStringList patchId;
     for (auto& filename : filenames) {
         QStringList test_files_list = filename.split(QDir::separator());
         int size = test_files_list.size();
@@ -84,22 +84,22 @@ QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_w
         QString copy_url_with_wildcard = url_with_wildcard;
         QString url_map_json = copy_url_with_wildcard.replace("*", new_filename) ;
         QString upload_command = "upload_project_data";
-        QList<QByteArray> patch_id_result_and_error = run_qt_process(upload_command, QStringList() << url_map_json << filename);
-        patch_ids.append(patch_id_result_and_error.at(0));
+        QList<QByteArray> patch_id_result_and_error = runQtProcess(upload_command, QStringList() << url_map_json << filename);
+        patchId.append(patch_id_result_and_error.at(0));
     }
-    return patch_ids;
+    return patchId;
 }
 
 // name OF FUNCTION: get_projectFiles_download_url_commands
 // PURPOSE:
 //    This function parses the output of "createproject" command run from Qtprocess..
 // Return project id for the new project..
-// CALLS TO: run_qt_process
+// CALLS TO: runQtProcess
 //
 // CALLED FROM: loadDataFromPolly
 
 QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames){
-    QStringList patch_ids ;
+    QStringList patchId ;
     QList<QByteArray> test_list = result2.split('\n');
     int size = test_list.size();
     QByteArray url_jsons = test_list[size-2];
@@ -115,58 +115,58 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
         QString url_with_wildcard =  json_map["file_upload_urls"].toString();
         QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
         QString upload_command = "download_project_data";
-        QList<QByteArray> result_and_error = run_qt_process(upload_command,QStringList() <<url_map_json <<filename);
-        patch_ids.append(result_and_error.at(0));
+        QList<QByteArray> result_and_error = runQtProcess(upload_command,QStringList() <<url_map_json <<filename);
+        patchId.append(result_and_error.at(0));
     }
-    return patch_ids;
+    return patchId;
 }
 
-// name OF FUNCTION: check_already_logged_in
+// name OF FUNCTION: checkLoginStatus
 // PURPOSE:
 //    This function checks if the user is already logged in or not.
 // Returns log in status of current user
 
-// CALLS TO: run_qt_process
+// CALLS TO: runQtProcess
 //
-// CALLED FROM: authenticate_login
+// CALLED FROM: authenticateLogin
 
-int PollyIntegration::check_already_logged_in(){
+int PollyIntegration::checkLoginStatus(){
     int status;
     QString command = QString("authenticate");
-    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile);
-    QList<QByteArray> test_list = result_and_error.at(0).split('\n');
-    QByteArray status_line = test_list[0];
-    if (status_line=="already logged in"){
+    QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile);
+    QList<QByteArray> testList = resultAndError.at(0).split('\n');
+    QByteArray statusLine = testList[0];
+    if (statusLine == "already logged in") {
         status = 1;
     }
-    else{
-        status=0;
+    else {
+        status = 0;
     }
     return status;
 }
 
-// name OF FUNCTION: authenticate_login
+// name OF FUNCTION: authenticateLogin
 // PURPOSE:
 //    This function is responsible for authenticating the user.
 // This is the entry point for Elmaven-Polly-Integration
 //It will first run the command "authenticate" and then check its ouptut to see if log in was succesfull
 // username and password are inputed from external clients
 // Returns status of log in commands, if successfully logged in, it will return 1, else 0
-// CALLS TO: run_qt_process,check_already_logged_in
+// CALLS TO: runQtProcess,checkLoginStatus
 //
 // CALLED FROM: external clients
 
 
-QString PollyIntegration::authenticate_login(QString username, QString password) {
+QString PollyIntegration::authenticateLogin(QString username, QString password) {
     QString command = "authenticate";
     QString status;
     
-    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << username << password);
-    int status_inside = check_already_logged_in();
-    if (status_inside == 1) {
+    QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile << username << password);
+    int statusInside = checkLoginStatus();
+    if (statusInside == 1) {
         status = "ok";
     }
-    else if (result_and_error.at(1) != "") {
+    else if (resultAndError.at(1) != "") {
         status = "error";
     }
     else {
@@ -176,31 +176,31 @@ QString PollyIntegration::authenticate_login(QString username, QString password)
 }
 
 // This function checks if node executable path has been defined for the library or not..
-int PollyIntegration::check_node_executable(){
-    if (nodePath==""){
+int PollyIntegration::checkNodeExecutable() {
+    if (nodePath == "") {
         return 0;
     }
     return 1;
     
 }
 
-int PollyIntegration::askForLogin(){
-    qDebug()<<"credFile  -\n"<<credFile;
+int PollyIntegration::askForLogin() {
+    qDebug() << "credFile  -\n" << credFile;
     QFile file (credFile);
-    QFile refreshTokenFile (credFile+"_refreshToken");
-    if (file.exists() && refreshTokenFile.exists() ){
-        qDebug()<<"both tokens exist.. moving on to refresh now..";
+    QFile refreshTokenFile (credFile + "_refreshToken");
+    if (file.exists() && refreshTokenFile.exists()) {
+        qDebug() << "both tokens exist.. moving on to refresh now..";
         return 0;
     }
-    qDebug()<<"both tokens do not exist.. moving on to login now..";
+    qDebug() <<"both tokens do not exist.. moving on to login now..";
     return 1;
 }
 
 // This function deletes the token and logs out the user..
-void PollyIntegration::logout(){
+void PollyIntegration::logout() {
     QFile file (credFile);
     file.remove();
-    QFile refreshTokenFile (credFile+"_refreshToken");
+    QFile refreshTokenFile (credFile + "_refreshToken");
     refreshTokenFile.remove();
 }
 // name OF FUNCTION: getUserProjectsMap
@@ -214,21 +214,21 @@ void PollyIntegration::logout(){
 //
 // CALLED FROM: getUserProjects
 
-QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
-    QVariantMap user_projects;
-    QList<QByteArray> test_list = result2.split('\n');
-    int size = test_list.size();
-    QByteArray result_jsons = test_list[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(result_jsons));
+QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2) {
+    QVariantMap userProjects;
+    QList<QByteArray> testList = result2.split('\n');
+    int size = testList.size();
+    QByteArray resultJsons = testList[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(resultJsons));
     // Get JSON object
-    QJsonArray json_array = doc.array();
-    for (int i=0; i < json_array.size(); ++i){
-        QJsonValue project_json = json_array.at(i);
-        QJsonObject project_json_object = project_json.toObject();
-        QVariantMap project_json_object_map = project_json_object.toVariantMap();
-        user_projects[project_json_object_map["id"].toString()] = project_json_object_map["name"].toString();
+    QJsonArray jsonArray = doc.array();
+    for (int i = 0; i < jsonArray.size(); ++i){
+        QJsonValue projectJson = jsonArray.at(i);
+        QJsonObject projectJsonObject = projectJson.toObject();
+        QVariantMap projectJsonObjectMap = projectJsonObject.toVariantMap();
+        userProjects[projectJsonObjectMap["id"].toString()] = projectJsonObjectMap["name"].toString();
     }
-    return user_projects;
+    return userProjects;
 }
 
 // name OF FUNCTION: getUserProjects
@@ -245,11 +245,11 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2){
 // CALLED FROM: 
 
 
-QVariantMap PollyIntegration::getUserProjects(){
-    QString get_projects_command = "get_Project_names";
-    QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile);
-    QVariantMap user_projects = getUserProjectsMap(result_and_error.at(0));
-    return user_projects;
+QVariantMap PollyIntegration::getUserProjects() {
+    QString getProjectsCommand = "get_Project_names";
+    QList<QByteArray> resultAndError = runQtProcess(getProjectsCommand, QStringList() << credFile);
+    QVariantMap userProjects = getUserProjectsMap(resultAndError.at(0));
+    return userProjects;
 }
 
 // name OF FUNCTION: getUserProjectFilesMap
@@ -262,17 +262,17 @@ QVariantMap PollyIntegration::getUserProjects(){
 // CALLED FROM: getUserProjectFiles
 
 
-QStringList PollyIntegration::getUserProjectFilesMap(QByteArray result2){
-    QStringList user_projectfiles;
-    QList<QByteArray> test_list = result2.split('\n');
-    int size = test_list.size();
-    QByteArray result_jsons = test_list[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(result_jsons));
+QStringList PollyIntegration::getUserProjectFilesMap(QByteArray result2) {
+    QStringList userProjectfiles;
+    QList<QByteArray> testList = result2.split('\n');
+    int size = testList.size();
+    QByteArray resultJsons = testList[size-2];
+    QJsonDocument doc(QJsonDocument::fromJson(resultJsons));
     // Get JSON object
-    QJsonObject project_json_object = doc.object();
-    QVariantMap project_json_object_map = project_json_object.toVariantMap();
-    user_projectfiles = project_json_object_map["project_files"].toStringList();
-    return user_projectfiles;
+    QJsonObject projectJsonObject = doc.object();
+    QVariantMap projectJsonObjectMap = projectJsonObject.toVariantMap();
+    userProjectfiles = projectJsonObjectMap["project_files"].toStringList();
+    return userProjectfiles;
 }
 
 // name OF FUNCTION: getUserProjectFiles
@@ -286,32 +286,32 @@ QStringList PollyIntegration::getUserProjectFilesMap(QByteArray result2){
 //
 // CALLED FROM: external clients
 
-QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
-    QVariantMap user_projectfilesmap;
-    for (int i=0; i < ProjectIds.size(); ++i){
-        QString ProjectId = ProjectIds.at(i);
-        QString get_projects_command = "get_Project_files";
-        QList<QByteArray> result_and_error = run_qt_process(get_projects_command,QStringList() << credFile<<ProjectId);
-        QStringList user_projectfiles = getUserProjectFilesMap(result_and_error.at(0));
-        user_projectfilesmap[ProjectId] = user_projectfiles;
+QVariantMap PollyIntegration::getUserProjectFiles(QStringList projectIds) {
+    QVariantMap userProjectfilesmap;
+    for (int i=0; i < projectIds.size(); ++i){
+        QString projectId = projectIds.at(i);
+        QString getProjectsCommand = "get_Project_files";
+        QList<QByteArray> resultAndError = runQtProcess(getProjectsCommand, QStringList() << credFile << projectId);
+        QStringList userProjectfiles = getUserProjectFilesMap(resultAndError.at(0));
+        userProjectfilesmap[projectId] = userProjectfiles;
     }
-    return user_projectfilesmap;
+    return userProjectfilesmap;
 }
 
 // name OF FUNCTION: createProjectOnPolly
 // PURPOSE:
 //    This function parses the output of "createproject" command run from Qtprocess..
 // Return project id for the new project..
-// CALLS TO: run_qt_process,parseId
+// CALLS TO: runQtProcess,parseId
 //
 // CALLED FROM: external clients
 
 
-QString PollyIntegration::createProjectOnPolly(QString projectname){
+QString PollyIntegration::createProjectOnPolly(QString projectname) {
     QString command2 = "createProject";
-    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile<< projectname);
-    QString run_id = parseId(result_and_error.at(0));
-    return run_id;
+    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << credFile << projectname);
+    QString runId = parseId(resultAndError.at(0));
+    return runId;
 }
 
 /**
@@ -327,22 +327,22 @@ QString PollyIntegration::createWorkflowRequest(QString projectId){
     return workflowRequestId;
 }
 
-bool PollyIntegration::send_email(QString user_email, QString email_content,
-                        QString email_message) {
+bool PollyIntegration::sendEmail(QString userEmail, QString emailContent,
+                        QString emailMessage) {
 
     QString command2 = "send_email";
-    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << user_email << email_content << email_message);
-    QList<QByteArray> test_list = result_and_error.at(0).split('\n');
-    int size = test_list.size();
-    QByteArray result2 = test_list[size-2];
-    
+    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << userEmail << emailContent << emailMessage);
+    QList<QByteArray> testList = resultAndError.at(0).split('\n');
+    int size = testList.size();
+    QByteArray result2 = testList[size-2];
+     
     if (result2 == "1")
         return true;
 
     return false;
 }
 
-QString PollyIntegration::get_share_status(QByteArray result){
+QString PollyIntegration::getShareStatus(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
     int size = test_list.size();
     QByteArray result2 = test_list[size-2];
@@ -361,8 +361,8 @@ QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap col
     QStringList usernames = collaborators_map.keys();
     // As of now, only write permissions are being granted..We will need to modify the code written below, when more permissions are allowed on polly
     QString permission = collaborators_map[usernames.at(0)].toString();
-    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile<< project_id<<permission<<usernames);
-    QString status = get_share_status(result_and_error.at(0));
+    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << credFile<< project_id<<permission<<usernames);
+    QString status = getShareStatus(result_and_error.at(0));
     return status;
 }
 
@@ -372,7 +372,7 @@ QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap col
 //First this function will run "get_upload_Project_urls" command which provide the upload url..
 //then this function will call get_project_upload_url_commands function to upload all the given files to that url.. 
 // Return patch ids for all the uploads..
-// CALLS TO: run_qt_process,get_project_upload_url_commands
+// CALLS TO: runQtProcess,get_project_upload_url_commands
 //
 // CALLED FROM: external clients
 
@@ -382,12 +382,12 @@ QStringList PollyIntegration::exportData(QStringList filenames, QString projectI
     QElapsedTimer timer;
     timer.start();
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << projectId);
+    QList<QByteArray> result_and_error = runQtProcess(get_upload_Project_urls, QStringList() << credFile << projectId);
     QString url_with_wildcard = getFileUploadURLs(result_and_error.at(0));    
-    QStringList patch_ids = get_project_upload_url_commands(url_with_wildcard, filenames);
+    QStringList patchId = get_project_upload_url_commands(url_with_wildcard, filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
     
-    return patch_ids;
+    return patchId;
 }
 
 QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
@@ -408,7 +408,7 @@ QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
 //    This function downloads the specified files for a given projects..
 // External clients can then use those files to load data back to Elmaven..
 
-// CALLS TO: run_qt_process,get_projectFiles_download_url_commands
+// CALLS TO: runQtProcess,get_projectFiles_download_url_commands
 //
 // CALLED FROM: external clients
 
@@ -416,12 +416,12 @@ QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
 
 QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filenames) {
     QString get_upload_Project_urls = "get_upload_Project_urls";
-    QList<QByteArray> result_and_error = run_qt_process(get_upload_Project_urls, QStringList() << credFile << ProjectId);
-    QStringList patch_ids = get_projectFiles_download_url_commands(result_and_error.at(0),filenames);
-    if (0<filenames.size()&&!patch_ids.isEmpty()){
+    QList<QByteArray> result_and_error = runQtProcess(get_upload_Project_urls, QStringList() << credFile << ProjectId);
+    QStringList patchId = get_projectFiles_download_url_commands(result_and_error.at(0),filenames);
+    if (0<filenames.size()&&!patchId.isEmpty()){
         return "project data loaded";
     }
-    else if(0<filenames.size()&&patch_ids.isEmpty()){
+    else if(0<filenames.size()&&patchId.isEmpty()){
         return "error while loading project";
     }
     else{
@@ -498,7 +498,7 @@ QStringList PollyIntegration::parseResultOrganizationalDBs(QString result){
 }
 QStringList PollyIntegration::getOrganizationalDBs(QString organization){
     QString command = "get_organizational_databases";
-    QList<QByteArray> result_and_error = run_qt_process(command, QStringList() << credFile << organization);
+    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << credFile << organization);
     QStringList OrganizationalDBs = parseResultOrganizationalDBs(result_and_error.at(0));    
     return OrganizationalDBs;
 }

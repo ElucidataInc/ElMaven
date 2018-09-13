@@ -967,22 +967,22 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	QFile pollyCredFile(_pollyIntegration->getCredFile());
 	pollyCredFile.remove();
 
-	QString status = _pollyIntegration->authenticate_login(creds["polly_username"], creds["polly_password"]);
+	QString status = _pollyIntegration->authenticateLogin(creds["polly_username"], creds["polly_password"]);
 	if (status != "ok") {
 		cerr << "Incorrect credentials. Please check." << endl;
 		return upload_project_id;
 	}
 	// user is logged in, now proceed to upload..
-	QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
+	QVariantMap projectNamesId = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
 
-	QStringList keys = projectnames_id.keys();
+	QStringList keys = projectNamesId.keys();
 	QString projectId;
 	QString defaultprojectId;
 	if(pollyProject.isEmpty()){
 		pollyProject = "Default_Elmaven_Polly_Project";
 	}
 	for (const auto& key : keys) {
-		if (projectnames_id[key].toString() == pollyProject) {
+		if (projectNamesId[key].toString() == pollyProject) {
 			// that means the name provided by the user matches a project.
 			projectId= key;
 		}
@@ -1005,7 +1005,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url) {
 	QString user_email = creds["polly_username"];
 	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
-	status = _pollyIntegration->send_email(user_email, redirection_url, email_message);
+	status = _pollyIntegration->sendEmail(user_email, redirection_url, email_message);
 	return status;
 }
 
