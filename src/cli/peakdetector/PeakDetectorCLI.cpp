@@ -566,7 +566,8 @@ void PeakDetectorCLI::loadCompoundsFile() {
 				cout << " - " << compoundID << endl;
 			}
 		}
-	} else {
+	}
+	 else {
 		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
 		     << "Use the '-h' argument to see all available options." << endl;
 		exit(0);
