@@ -194,7 +194,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form() {
     
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
-    connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
+    connect(EPI workerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
     EPIworkerThread->state = "initial_setup";
     EPIworkerThread->start();
@@ -381,7 +381,6 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         firstViewStatus->setText("Connecting..");
     else fluxStatus->setText("Connecting..");
     QCoreApplication::processEvents();
-
     if (stackedWidget->currentIndex() == 0)
         firstViewStatus->setText("Sending files to Polly..");
     else fluxStatus->setText("Sending files to Polly..");
