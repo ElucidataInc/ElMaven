@@ -873,6 +873,17 @@ void EicWidget::clearPlot() {
 	scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
 }
 
+void EicWidget::unSetPeakTableGroup(PeakGroup* group)
+{
+    // Peak table is being deleted. Making sure the selected group is not holding any garbage value;
+    if(eicParameters->selectedGroup ==  group) {
+        eicParameters->selectedGroup = nullptr;
+        mzSlice slice(0, 0, 0, 0);
+        setMzSlice(slice);
+
+	}
+}
+
 void EicWidget::replot(PeakGroup* group) {
 	//qDebug <<" EicWidget::replot(PeakGroup* group )";
 
@@ -885,7 +896,7 @@ void EicWidget::replot(PeakGroup* group) {
 	setupColors();	  //associate color with each EIC
 
 	clearPlot();
-	
+
 	setSelectedGroup(group);
 	setTitle();
 	addEICLines(_showSpline, _showEIC);
@@ -1447,12 +1458,6 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 		eicParameters->_slice = slice;
 	}
 	replot(NULL);
-}
-
-void EicWidget::setMzRtWindow(float mzmin, float mzmax, float rtmin,
-		float rtmax) {
-	mzSlice slice(mzmin, mzmax, rtmin, rtmax);
-	setMzSlice(slice);
 }
 
 void EicWidget::setPeakGroup(PeakGroup* group) {

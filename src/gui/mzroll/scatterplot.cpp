@@ -25,18 +25,19 @@ ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) {
     plotType = SCATTERPLOT;
 
     setupToolBar();
-	setTable(NULL);
+    _table = NULL;
     setPeakTable(w);
 
 }
 
 void ScatterPlot::setPeakTable(QWidget* w) {
 
-    _peakTable = new TableDockWidget((MainWindow*) w, "Bookmarked Groups", 0, TableDockWidget::scatterplotTable);
+    _peakTable = new ScatterplotTableDockWidget((MainWindow*) w);
     _peakTable->setVisible(false);
     _peakTable->tableId = -1;
-     (((MainWindow*) w)->noOfPeakTables)--;
     _peakTable->titlePeakTable->setText(" Scatter Plot Peak Table ");
+    connect(_peakTable, SIGNAL(visibilityChanged(bool)),
+            btnPeakTable, SLOT(setChecked(bool)));
     ((MainWindow*) w)->addDockWidget(Qt::BottomDockWidgetArea, _peakTable, Qt::Horizontal);
 
 }
@@ -122,9 +123,17 @@ void ScatterPlot::setupToolBar() {
 ScatterPlot::~ScatterPlot() { delete(compareSamplesDialog); }
 
 
-void ScatterPlot::setTable(TableDockWidget* t) { 
-	_table=t; 
-	compareSamplesDialog->setTableWidget(t); 
+void ScatterPlot::setTable(TableDockWidget* peakTable) {
+    if (_table != NULL)
+        delete _table;
+
+    MainWindow* mw = (MainWindow*) parent();
+    _table = new ScatterplotTableDockWidget(mw);
+    QList<PeakGroup *> groups = peakTable->getGroups();
+    Q_FOREACH (PeakGroup *group, groups) {
+        _table->addPeakGroup(group);
+    }
+    compareSamplesDialog->setTableWidget(peakTable);
 }
 
 QSet<PeakGroup*> ScatterPlot::getGroupsInRect(QPointF from, QPointF to) {
@@ -671,18 +680,16 @@ void ScatterPlot::showSimilar(PeakGroup* group) {
 }
 
 void ScatterPlot::contrastGroups() {
-	if (!_table) return;
-	if (!compareSamplesDialog) return;
-	if (!isVisible()) { setVisible(true); }
+    if (!_table) return;
+    if (!compareSamplesDialog) return;
+    if (!isVisible()) { setVisible(true); }
 
-    setTable(_table);
+    MainWindow* mw = (MainWindow*) parent();
+    compareSamplesDialog->setQuantitationType(mw->getUserQuantType());
 
-     MainWindow* mw = (MainWindow*) parent();
-     compareSamplesDialog->setQuantitationType(mw->getUserQuantType());
-
-     compareSamplesDialog->show();
-     mw->scatterDockWidget->setVisible(true);
-     mw->scatterDockWidget->raise();
+    compareSamplesDialog->show();
+    mw->scatterDockWidget->setVisible(true);
+    mw->scatterDockWidget->raise();
 }
 
 // new Feature added - Kiran

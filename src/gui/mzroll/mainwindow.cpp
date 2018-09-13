@@ -314,7 +314,7 @@ using namespace mzUtils;
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
-	bookmarkedPeaks = new TableDockWidget(this, "Bookmarked Groups", 0, TableDockWidget::bookmarkTable);
+	bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
 	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
 	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
@@ -854,7 +854,7 @@ void MainWindow::saveMzRoll() {
 	if (this->peaksMarked > 5) {
 			this->saveMzRollAllTables();
 	} else if (this->allPeaksMarked) {
-			this->saveMzRollAllTables();	
+			this->saveMzRollAllTables();
 	} else if (settings->value("closeEvent").toInt() == 1) {
 		this->saveMzRollAllTables();
 	} else if(this->doAutosave) {
@@ -1022,7 +1022,7 @@ void MainWindow::setUrl(Reaction* r) {
 }
 
 TableDockWidget* MainWindow::addPeaksTable(QString title) {
-	TableDockWidget* panel = new TableDockWidget(this, title, 0);
+	TableDockWidget* panel = new PeakTableDockWidget(this);
 
 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
 	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
@@ -1040,6 +1040,8 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 		QAction* tableAction = sideBar->addWidget(groupTablesButtons[panel]) ;
 		sideBar->removeAction(tableAction);
 	}
+	if (groupTables.contains(panel))
+		groupTables.removeAll(panel);
 }
 
 // SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {

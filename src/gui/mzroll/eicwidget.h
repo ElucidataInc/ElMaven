@@ -37,7 +37,6 @@ public Q_SLOTS:
 	void setMassCutoff(MassCutoff *massCutoff);
 	void resetZoom();
 	void zoom(float factor);
-	void setMzRtWindow(float mzmin, float mzmax, float rtmin, float rtmax);
 	void setMzSlice(const mzSlice& slice);
 
 	void setRtWindow(float rtmin, float rtmax);
@@ -150,6 +149,7 @@ public Q_SLOTS:
 	void copyToClipboard();
 	void selectionChangedAction();
 	void freezeView(bool freeze);
+    void unSetPeakTableGroup(PeakGroup*);
 protected:
 	void moved(QMouseEvent *event);
 	void selected(const QRect&);

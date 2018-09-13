@@ -116,7 +116,8 @@ FORMS = forms/settingsform.ui  \
     forms/alignmentpolyvizdockwidget.ui \
     forms/isotopeplotdockwidget.ui \
     forms/gettingstarted.ui \
-    forms/pollywaitdialog.ui
+    forms/pollywaitdialog.ui \
+    forms/peaktabledeletiondialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -189,7 +190,8 @@ HEADERS +=  stable.h \
                     ElmavCrashHandler.h \
                     isotopeplotdockwidget.h \
                     gettingstarted.h \
-                    pollywaitdialog.h
+                    pollywaitdialog.h \
+    peaktabledeletiondialog.h
 
 
 
@@ -261,7 +263,8 @@ database.cpp \
     ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
-    pollywaitdialog.cpp
+    pollywaitdialog.cpp \
+    peaktabledeletiondialog.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
