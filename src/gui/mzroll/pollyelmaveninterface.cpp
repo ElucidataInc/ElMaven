@@ -192,7 +192,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form() {
     
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
-    connect(EPI workerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
+    connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
     EPIworkerThread->state = "initial_setup";
     EPIworkerThread->start();
@@ -299,8 +299,6 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
 
     _loadingDialog->close();
     QCoreApplication::processEvents();
-    
-    return projectNamesId;
 }
 
 void PollyElmavenInterfaceDialog::uploadDataToPolly()

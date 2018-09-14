@@ -29,7 +29,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="firstViewPage">
     <widget class="QWidget" name="horizontalLayoutWidget">
@@ -183,6 +183,12 @@
       </item>
       <item row="0" column="2">
        <widget class="QLineEdit" name="firstViewNewProject">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="placeholderText">
          <string>Enter Project Name</string>
         </property>
@@ -241,6 +247,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
         </property>
        </widget>
       </item>
@@ -515,6 +524,12 @@
       </item>
       <item row="0" column="2">
        <widget class="QLineEdit" name="fluxNewProject">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="placeholderText">
          <string>Enter Project Name</string>
         </property>
@@ -560,6 +575,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
         </property>
        </widget>
       </item>
