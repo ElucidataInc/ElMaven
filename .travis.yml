@@ -18,7 +18,8 @@ matrix:
 
 env:
   - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-
+  global:
+    - CC_TEST_REPORTER_ID=d8f511c602a3e3ab88d5f45196f8c3eae83152660f9c89ccdd2db4983a3911a2
 
 before_install:
     -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -45,6 +46,9 @@ install:
 before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
         source /opt/qt59/bin/qt59-env.sh;
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        ./cc-test-reporter before-build
     fi
   - qmake -v
 
@@ -67,4 +71,9 @@ script:
       qmake CONFIG+=release -o Makefile build.pro;
       make -j4;
       ./bin/MavenTests -xml;
+    fi
+
+after_script:
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+	./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
     fi
