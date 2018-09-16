@@ -363,8 +363,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         firstViewStatus->setText("Connecting..");
     else fluxStatus->setText("Connecting..");
     QCoreApplication::processEvents();
-    //re-login to polly may be required because the token expires after 30 minutes..
-    QString statusInside = _pollyIntegration->authenticateLogin(credentials.at(0),credentials.at(1));
+
     if (stackedWidget->currentIndex() == 0)
         firstViewStatus->setText("Sending files to Polly..");
     else fluxStatus->setText("Sending files to Polly..");
