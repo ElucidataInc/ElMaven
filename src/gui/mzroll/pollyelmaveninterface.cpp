@@ -59,14 +59,16 @@ void EPIWorkerThread::run(){
         qDebug()<<"starting thread for uploading files to polly..";
         //re-login to polly may be required because the token expires after 30 minutes..
         QString statusInside = _pollyintegration->authenticateLogin("","");
-        QStringList patchId  = _pollyintegration->exportData(filesToUpload,uploadProjectIdThread);
-        bool status = tmpDir.removeRecursively();
+        QStringList patchId  = _pollyintegration->exportData(filesToUpload, uploadProjectIdThread);
         emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
     }
 }
 
 EPIWorkerThread::~EPIWorkerThread()
 {
+    for (auto fileName : filesToUpload) {
+        tmpDir.remove(fileName);
+    }
     if (_pollyintegration) delete (_pollyintegration);
 };
 
@@ -327,8 +329,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     
     QString project_id;
 
-    QString writableTempDir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
-    qDebug()<<"writing Polly temp file in this directory -"<<writableTempDir;
+    qDebug() << "writing Polly temp file in this directory -" << writableTempDir;
     QDir qdir(writableTempDir);
     if (!qdir.exists()){
         QDir().mkdir(writableTempDir);
@@ -433,7 +434,7 @@ void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString upload
     
     if (!patchId.isEmpty()) {
         firstViewStatus->setText("");
-        QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=firstview&elmavenTimestamp=%2").arg(uploadProjectIdThread).arg(datetimestamp);
+        QString redirection_url = getRedirectionUrl(datetimestamp, uploadProjectIdThread);
         fluxStatus->setText("");
         qDebug() << "redirection_url     - " << redirection_url;
         pollyURL.setUrl(redirection_url);
@@ -462,20 +463,21 @@ void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString upload
     emit uploadFinished(false);
 }
 
-QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString dirPath, QString datetimestamp, QString upload_project_id) {
+QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread)
+{
     if (stackedWidget->currentIndex() == 1) { 
         redirectTo = "relative_lcms_elmaven";
-        QString CohortFileName = dirPath + QDir::separator() + datetimestamp + "_Cohort_Mapping_Elmaven.csv";
+        QString CohortFileName = writableTempDir + QDir::separator() + datetimestamp + "_Cohort_Mapping_Elmaven.csv";
         if (!_pollyIntegration->validSampleCohort(CohortFileName))
             redirectTo = "gsheet_sym_polly_elmaven";
-    }    
-    QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(upload_project_id).arg(redirectTo).arg(datetimestamp);
+    } else redirectTo = "firstview";    
+    
+    QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(uploadProjectIdThread).arg(redirectTo).arg(datetimestamp);
     return redirection_url;
 }
 
-QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp) {
-    
-    QString writableTempDir =  QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "tmp_Elmaven_Polly_files";
+QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp)
+{
     QString peak_table_name;
     if (stackedWidget->currentIndex() == 0)
         peak_table_name = firstViewTableList->currentText();
@@ -520,7 +522,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     QCoreApplication::processEvents();
 
     if (advancedSettingsFlag){
-        handle_advanced_settings(writableTempDir,datetimestamp);
+        handle_advanced_settings(datetimestamp);
     }
     
     if (!advancedSettingsFlag || !_advancedSettings->getUploadCompoundDB()) {
@@ -580,7 +582,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     return filenames;
 }
 
-void PollyElmavenInterfaceDialog::handle_advanced_settings(QString writableTempDir,QString datetimestamp){
+void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp){
         QVariantMap advanced_ui_elements = _advancedSettings->getUIElements();
 
         QString exportOption = advanced_ui_elements["export_option"].toString();

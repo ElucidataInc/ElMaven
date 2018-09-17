@@ -75,10 +75,14 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
         private:
                 void createIcons();
-                QString getRedirectionUrl(QString dirPath, QString datetimestamp, QString upload_project_id);
+                QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
                 QString redirectTo = "firstview";
                 void setUiElementsFlux();
                 void setUiElementsFV();
+                QString writableTempDir = QStandardPaths::writableLocation(
+                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
+                                                + QDir::separator()
+                                                + "tmp_Elmaven_Polly_files";
         
         private Q_SLOTS:
                 void goToPolly();
@@ -136,7 +140,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-                void handle_advanced_settings(QString writable_temp_dir,QString datetimestamp);
+                void handle_advanced_settings(QString datetimestamp);
                 void handleNewProject();
                 void handleSelectProject();
                 void showAdvanceSettings();
