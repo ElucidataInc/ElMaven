@@ -281,22 +281,21 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
         firstViewProjectList->addItem(project_icon, projectNamesId[keys.at(i)].toString());
     }
 
-    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
     bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
     if (!bookmarkedPeaks->getGroups().isEmpty()) {
         bookmarkTableNameMapping[QString("Bookmark Table")] = bookmarkedPeaks;
-        fluxTableList->addItem("Bookmark Table");
         firstViewTableList->addItem("Bookmark Table");
+        if (bookmarkedPeaks->labeledGroups > 0)
+            fluxTableList->addItem("Bookmark Table");
     } 
 
-    int n = peaksTableList.size();
-    if (n > 0) {
-        for (int i = 0; i < n; ++i) {
-            QString peak_table_name = QString("Peak Table ")+QString::number(i+1);
-            peakTableNameMapping[peak_table_name] = peaksTableList.at(i);
-            fluxTableList->addItem(peak_table_name);
-            firstViewTableList->addItem(peak_table_name);
-        }        
+    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+    for (auto peakTable : peaksTableList) {
+            QString peakTableName = QString("Peak Table " + QString::number(peakTable->tableId));
+            peakTableNameMapping[peakTableName] = peakTable;
+            firstViewTableList->addItem(peakTableName);
+            if (peakTable->labeledGroups > 0)
+                fluxTableList->addItem(peakTableName);
     }
 
     _loadingDialog->close();

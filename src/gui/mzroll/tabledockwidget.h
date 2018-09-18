@@ -31,6 +31,7 @@ public:
   QTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
+  int labeledGroups = 0;
 
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
