@@ -57,8 +57,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * this object is used to populate the compound database,setting combo boxes under polly-elmave-interface GUI.
                  */
                 QVariantMap userProjectFilesMap;
-                QMap< QString,QPointer<TableDockWidget> > peakTableNameMapping;
-                QMap< QString,QPointer<TableDockWidget> > bookmarkTableNameMapping;
                 /**
                  * @brief project ID as stored on Polly
                 */

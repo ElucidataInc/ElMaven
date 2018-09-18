@@ -275,6 +275,7 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     if (projectNamesId.isEmpty()) {
         projectNamesId = _pollyIntegration->getUserProjects();
     }    
+    
     QStringList keys= projectNamesId.keys();
     for (int i = 0; i < keys.size(); ++i){
         fluxProjectList->addItem(project_icon, projectNamesId[keys.at(i)].toString());
@@ -283,20 +284,24 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
 
     bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
     if (!bookmarkedPeaks->getGroups().isEmpty()) {
-        bookmarkTableNameMapping[QString("Bookmark Table")] = bookmarkedPeaks;
-        firstViewTableList->addItem("Bookmark Table");
+        firstViewTableList->insertItem(0, "Bookmark Table ", QVariant::fromValue(bookmarkedPeaks));
         if (bookmarkedPeaks->labeledGroups > 0)
-            fluxTableList->addItem("Bookmark Table");
+            fluxTableList->insertItem(0, "Bookmark Table ", QVariant::fromValue(bookmarkedPeaks));
     } 
 
     QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
     for (auto peakTable : peaksTableList) {
-            QString peakTableName = QString("Peak Table " + QString::number(peakTable->tableId));
-            peakTableNameMapping[peakTableName] = peakTable;
-            firstViewTableList->addItem(peakTableName);
-            if (peakTable->labeledGroups > 0)
-                fluxTableList->addItem(peakTableName);
+        if (peakTable->getGroups().isEmpty())
+            continue;
+        
+        QString peakTableName = QString("Peak Table " + QString::number(peakTable->tableId) + " ");
+        firstViewTableList->insertItem(0, peakTableName, QVariant::fromValue(peakTable));
+        if (peakTable->labeledGroups > 0)
+            fluxTableList->insertItem(0, peakTableName, QVariant::fromValue(peakTable));
     }
+
+    firstViewTableList->setCurrentIndex(0);
+    fluxTableList->setCurrentIndex(0);
 
     _loadingDialog->close();
     QCoreApplication::processEvents();
@@ -477,31 +482,32 @@ QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString datetimestamp, QS
 
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp)
 {
-    QString peak_table_name;
-    if (stackedWidget->currentIndex() == 0)
-        peak_table_name = firstViewTableList->currentText();
-    else peak_table_name = fluxTableList->currentText();
-    
     QStringList filenames;
-    if (peak_table_name != "") {
-        if (peak_table_name == "Bookmark Table") {
-            _tableDockWidget = bookmarkedPeaks;
-        }
-        else{
-            _tableDockWidget = peakTableNameMapping[peak_table_name];
-        }
 
-        if (_tableDockWidget->groupCount() == 0){
-            QString msg = "Peaks Table is Empty";
-            QMessageBox msgBox(mainwindow);
-            msgBox.setWindowTitle("Error");
-            msgBox.setText(msg);
-            msgBox.exec();
-            return filenames;
-        }
-    }
-    else{
+    //check for no peak tables
+    if ((stackedWidget->currentIndex() == 0 
+        && firstViewTableList->currentIndex() == -1)
+        || (stackedWidget->currentIndex() == 1
+        && fluxTableList->currentIndex() == -1))
+    {        
         QString msg = "No Peak tables";
+        QMessageBox msgBox(mainwindow);
+        msgBox.setWindowTitle("Error");
+        msgBox.setText(msg);
+        msgBox.exec();
+        return filenames;
+    }
+    
+    QVariant currentTable;
+    if (stackedWidget->currentIndex() == 0)
+        currentTable = firstViewTableList->currentData();
+    else currentTable = fluxTableList->currentData();
+
+    _tableDockWidget = currentTable.value<TableDockWidget*>();
+    
+    //check for empty peak table
+    if (_tableDockWidget->groupCount() == 0) {
+        QString msg = "Peaks Table is Empty";
         QMessageBox msgBox(mainwindow);
         msgBox.setWindowTitle("Error");
         msgBox.setText(msg);
