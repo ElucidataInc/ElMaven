@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'Readme'
+project = u'El-MAVEN'
 copyright = u'2018, Elucidata Corporation'
 author = u'Elucidata Corporation'
 
