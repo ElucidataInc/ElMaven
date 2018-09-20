@@ -130,7 +130,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Readme.tex', u'Readme Documentation',
-     u'Avijit Zutshi', 'manual'),
+     u'Elucidata Corporation', 'manual'),
 ]
 
 
