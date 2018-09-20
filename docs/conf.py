@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = u'Readme'
-copyright = u'2018, Avijit Zutshi'
-author = u'Avijit Zutshi'
+copyright = u'2018, Elucidata Corporation'
+author = u'Elucidata Corporation'
 
 # The short X.Y version
 version = u''
