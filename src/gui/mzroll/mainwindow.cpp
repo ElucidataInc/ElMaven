@@ -771,8 +771,8 @@ void MainWindow::showNotification(TableDockWidget* table) {
 	QString title("");
 	QString message("View your fluxomics workflow on Polly!");
 	
-	if (table->labeledGroups == 0)
-		table = NULL;
+	if (table->groupCount() == 0 || table->labeledGroups == 0)
+		return;
 	
 	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message, table);
 	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));

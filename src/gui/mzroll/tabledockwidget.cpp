@@ -2266,6 +2266,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2281,6 +2282,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportGood, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2288,6 +2290,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportBad, SIGNAL(triggered()), td, SLOT(showNotification()));
     return btnGroupCSV;
   } else if (btnName == "btnSaveJson") {
 
@@ -2295,6 +2298,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
     btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
+    connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
 
@@ -2323,6 +2327,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
     btnXML->setToolTip("Save Peaks");
     connect(btnXML, SIGNAL(clicked()), td, SLOT(savePeakTable()));
+    connect(btnXML, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnXML;
   } else if (btnName == "btnGood") {
 
@@ -2351,6 +2356,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
     btnPDF->setToolTip("Generate PDF Report");
     connect(btnPDF, SIGNAL(clicked()), td, SLOT(printPdfReport()));
+    connect(btnPDF, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnPDF;
   } else if (btnName == "btnX") {
 
