@@ -101,6 +101,7 @@ public Q_SLOTS:
   void setupPeakTable();
   PeakGroup *getSelectedGroup();
   QList<PeakGroup *> getSelectedGroups();
+  void showNotification();
 
   void showFocusedGroups();
   void clearFocusedGroups();

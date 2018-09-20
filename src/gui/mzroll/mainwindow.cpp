@@ -766,14 +766,18 @@ void MainWindow::saveSettingsToLog() {
 
 }
 
-void MainWindow::showNotification() {
+void MainWindow::showNotification(TableDockWidget* table) {
 	QIcon icon = QIcon(":/images/notification.png");
 	QString title("");
 	QString message("View your fluxomics workflow on Polly!");
 	
-	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message);
+	if (table->labeledGroups == 0)
+		table = NULL;
+	
+	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message, table);
 	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(fluxomicsPrompt, SIGNAL(promptClicked()), pollyElmavenInterfaceDialog, SLOT(setFluxPage()));
+	connect(fluxomicsPrompt, SIGNAL(promptClicked(TableDockWidget*)), pollyElmavenInterfaceDialog, SLOT(setActiveTable(TableDockWidget*)));
 }
 
 void MainWindow::createPeakTable(QString filenameNew) {	

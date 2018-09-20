@@ -21,7 +21,7 @@
 #include <QString>
 
 const QString rsrcPath = ":/images";
-const QString programName = "EL MAVEN";
+const QString programName = "El-MAVEN";
 
 
 static const double Pi = 3.14159265358979323846264338327950288419717;

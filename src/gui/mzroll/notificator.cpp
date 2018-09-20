@@ -1,5 +1,6 @@
 #include "notificator.h"
 #include "notificator_p.h"
+#include "tabledockwidget.h"
 
 #include <QtWidgets>
 
@@ -57,11 +58,13 @@ void Notificator::question(
 Notificator* Notificator::showMessage(
 		const QIcon& icon,
 		const QString& title,
-		const QString& message
+		const QString& message,
+		TableDockWidget* table
 		)
 {
 	Notificator* instance = new Notificator;
 	configureInstance(instance);
+	instance->_tableDockWidget = table;
 
 	// Запуск уведомления
 	instance->notify( icon, title, message );
@@ -132,7 +135,7 @@ bool Notificator::event( QEvent *event )
 		// Т.к. кликом может быть активирована ссылка, то необходимо выждать 100 мсек
 		// перед скрытием уведомления, для открытия её в браузере
 		QTimer::singleShot( 200, this, SLOT(hide()) );
-		emit promptClicked();
+		emit promptClicked(_tableDockWidget);
 	}
 
 	return QFrame::event(event);

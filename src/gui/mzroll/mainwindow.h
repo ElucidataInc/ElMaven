@@ -406,6 +406,7 @@ public Q_SLOTS:
 	QWidget* pathwayWidgetController();
     void saveSettings();
     void loadSettings();
+	void showNotification(TableDockWidget* table);
 
 private Q_SLOTS:
 	void createMenus();
@@ -414,7 +415,6 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void toggleIsotopicBarPlot(bool show);
-	void showNotification();
 	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

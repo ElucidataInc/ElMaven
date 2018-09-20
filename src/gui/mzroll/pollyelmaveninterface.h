@@ -72,11 +72,13 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 LoginForm* _loginform;
 
         private:
+                TableDockWidget* _activeTable = NULL ;
                 void createIcons();
                 QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
                 QString redirectTo = "firstview";
                 void setUiElementsFlux();
                 void setUiElementsFV();
+                QMap<QString, TableDockWidget*> tableNameMapping;
                 QString writableTempDir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
@@ -138,7 +140,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-                void handle_advanced_settings(QString datetimestamp);
+                void handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable);
                 void handleNewProject();
                 void handleSelectProject();
                 void showAdvanceSettings();
@@ -168,6 +170,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief This function cancels the polly-elmaven-interface GUI
                  */
 		void cancel();
+
+                void setActiveTable(TableDockWidget* table) { _activeTable = table; }
                 /**
                  * @brief This function changes the values of compoundDb, settings combo boxes based on values in load_project combo box
                  * @details this function performs the following tasks in the given order -
@@ -193,7 +197,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 /**
                  * @brief pointer to TableDockWidget class..
                 */
-                TableDockWidget* _tableDockWidget;
                 PollyWaitDialog* _loadingDialog;
                 AdvancedSettings* _advancedSettings;
                 QUrl pollyURL;

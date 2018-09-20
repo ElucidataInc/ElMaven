@@ -12,6 +12,8 @@
 #include <QProgressBar>;
 #include <QPropertyAnimation>;
 
+class TableDockWidget;
+
 class Notificator : public QFrame
 {
 	Q_OBJECT
@@ -36,7 +38,8 @@ public:
 	static Notificator* showMessage(
 			const QIcon &icon,
 			const QString &title,
-			const QString &message
+			const QString &message,
+			TableDockWidget* table = NULL
 			);
 	static Notificator* showMessage(
 			const QIcon &icon,
@@ -47,7 +50,7 @@ public:
 			);
 
 Q_SIGNALS:
-	void promptClicked();
+	void promptClicked(TableDockWidget* table = NULL);
 
 public slots:
 	void setMessage(const QString& _message);
@@ -75,6 +78,7 @@ private:
 
 private:
 	NotificatorPrivate *d;
+	TableDockWidget* _tableDockWidget;
 
 	static void configureInstance( Notificator *notificator );
 	static QList<Notificator*> instances;

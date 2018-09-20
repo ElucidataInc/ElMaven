@@ -283,10 +283,12 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     }
 
     bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
+    QString tableName = "Bookmark Table ";
     if (!bookmarkedPeaks->getGroups().isEmpty()) {
-        firstViewTableList->insertItem(0, "Bookmark Table ", QVariant::fromValue(bookmarkedPeaks));
+        firstViewTableList->insertItem(0, tableName);
         if (bookmarkedPeaks->labeledGroups > 0)
-            fluxTableList->insertItem(0, "Bookmark Table ", QVariant::fromValue(bookmarkedPeaks));
+            fluxTableList->insertItem(0, tableName);
+        tableNameMapping[tableName] = bookmarkedPeaks;
     } 
 
     QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
@@ -295,13 +297,24 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
             continue;
         
         QString peakTableName = QString("Peak Table " + QString::number(peakTable->tableId) + " ");
-        firstViewTableList->insertItem(0, peakTableName, QVariant::fromValue(peakTable));
+        firstViewTableList->insertItem(0, peakTableName);
         if (peakTable->labeledGroups > 0)
-            fluxTableList->insertItem(0, peakTableName, QVariant::fromValue(peakTable));
+            fluxTableList->insertItem(0, peakTableName);
+        tableNameMapping[peakTableName] = peakTable;
     }
 
+    //set latest table by default
     firstViewTableList->setCurrentIndex(0);
     fluxTableList->setCurrentIndex(0);
+
+    //set to active table if available
+    if (_activeTable && tableNameMapping.values().contains(_activeTable)) {
+        QString tableName = tableNameMapping.key(_activeTable);
+        firstViewTableList->setCurrentText(tableName);
+        fluxTableList->setCurrentText(tableName);
+        //reset active table
+        _activeTable = NULL;
+    }
 
     _loadingDialog->close();
     QCoreApplication::processEvents();
@@ -483,6 +496,7 @@ QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString datetimestamp, QS
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp)
 {
     QStringList filenames;
+    TableDockWidget* peakTable = NULL;
 
     //check for no peak tables
     if ((stackedWidget->currentIndex() == 0 
@@ -498,21 +512,11 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
         return filenames;
     }
     
-    QVariant currentTable;
-    if (stackedWidget->currentIndex() == 0)
-        currentTable = firstViewTableList->currentData();
-    else currentTable = fluxTableList->currentData();
-
-    _tableDockWidget = currentTable.value<TableDockWidget*>();
-    
-    //check for empty peak table
-    if (_tableDockWidget->groupCount() == 0) {
-        QString msg = "Peaks Table is Empty";
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Error");
-        msgBox.setText(msg);
-        msgBox.exec();
-        return filenames;
+    if (stackedWidget->currentIndex() == 0) {
+        peakTable = tableNameMapping[firstViewTableList->currentText()];
+    }
+    else {
+        peakTable = tableNameMapping[fluxTableList->currentText()];
     }
 
     if (stackedWidget->currentIndex() == 0) {
@@ -527,7 +531,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     QCoreApplication::processEvents();
 
     if (advancedSettingsFlag){
-        handle_advanced_settings(datetimestamp);
+        handle_advanced_settings(datetimestamp, peakTable);
     }
     
     if (!advancedSettingsFlag || !_advancedSettings->getUploadCompoundDB()) {
@@ -541,9 +545,9 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     }
 
     qDebug()<< "Now uploading all groups, needed for firstview app..";
-    _tableDockWidget->wholePeakSet();
-    _tableDockWidget->treeWidget->selectAll();
-    _tableDockWidget->prepareDataForPolly(writableTempDir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all");
+    peakTable->wholePeakSet();
+    peakTable->treeWidget->selectAll();
+    peakTable->prepareDataForPolly(writableTempDir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all");
     
     //Preparing the json file -
     if (stackedWidget->currentIndex() == 0) {
@@ -557,8 +561,8 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     QCoreApplication::processEvents();
 
     //Preparing the json file 
-    QString json_filename = writableTempDir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";//  uploading the json file
-    _tableDockWidget->exportJsonToPolly(writableTempDir,json_filename);
+    QString json_filename = writableTempDir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";
+    peakTable->exportJsonToPolly(writableTempDir,json_filename);
     
     if (stackedWidget->currentIndex() == 1) {
         fluxStatus->setStyleSheet("QLabel {color : green; }");
@@ -587,7 +591,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     return filenames;
 }
 
-void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp){
+void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable){
         QVariantMap advanced_ui_elements = _advancedSettings->getUIElements();
 
         QString exportOption = advanced_ui_elements["export_option"].toString();
@@ -612,19 +616,19 @@ void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp
         
         if (_advancedSettings->getUploadPeakTable()){
             if (exportOption=="Export Selected"){
-                _tableDockWidget->selectedPeakSet();
+                peakTable->selectedPeakSet();
             }
             else if(exportOption=="Export Good"){
-                _tableDockWidget->goodPeakSet();
-                _tableDockWidget->treeWidget->selectAll();
+                peakTable->goodPeakSet();
+                peakTable->treeWidget->selectAll();
             }
             else if(exportOption=="Export All Groups"){
-                _tableDockWidget->wholePeakSet();
-                _tableDockWidget->treeWidget->selectAll();
+                peakTable->wholePeakSet();
+                peakTable->treeWidget->selectAll();
             }
             else if(exportOption=="Export Bad"){
-                _tableDockWidget->badPeakSet();
-                _tableDockWidget->treeWidget->selectAll();
+                peakTable->badPeakSet();
+                peakTable->treeWidget->selectAll();
             }
             _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
             _loadingDialog->statusLabel->setText("Preparing intensity file..");
@@ -632,7 +636,7 @@ void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp
 
             QString peakUserFilename  = datetimestamp + "_Peak_table_" + userFilename;
             qDebug() << "peakUserFilename - " << peakUserFilename;
-            _tableDockWidget->prepareDataForPolly(writableTempDir, exportFormat, peakUserFilename);
+            peakTable->prepareDataForPolly(writableTempDir, exportFormat, peakUserFilename);
         }
 
 }
