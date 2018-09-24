@@ -322,8 +322,8 @@ QString PollyIntegration::createProjectOnPolly(QString projectname) {
 
 QString PollyIntegration::createWorkflowRequest(QString projectId){
     QString command2 = "createWorkflowRequest";
-    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile << projectId);
-    QString workflowRequestId = parseId(result_and_error.at(0));
+    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << credFile << projectId);
+    QString workflowRequestId = parseId(resultAndError.at(0));
     return workflowRequestId;
 }
 
