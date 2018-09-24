@@ -12,17 +12,13 @@ Users need an XML file to specify their configuration and specify directory path
 
    * Open the terminal
 
-   * Move to your local El-MAVEN folder ``cd user@pc:~/ElMaven/ElMaven``
+   * Move to your local El-MAVEN folder: ``cd user@pc:~/ElMaven/ElMaven``
 
    * Execute the following command
 
-      * For Windows and Linux: 
-         
-         * ``./bin/peakdetector.exe --defaultxml``
+      * For Windows and Linux: ``./bin/peakdetector.exe --defaultxml``
       
-      * For MacOS: 
-
-         * ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
+      * For MacOS: ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
 
    * A default XML will be created in your current folder
 
@@ -34,96 +30,92 @@ The template XML contains three sets of parameters:
 
 1. **OptionalDialogArguments - Global parameters**
 
-   * ``ionizationMode type="int" value="-1"`` User needs to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive). 
+   * User needs to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive): ``ionizationMode type="int" value="-1"``  
 
-   * ``charge type="int" value="1"`` Ionization charge. This is the number of positive or negative charge added to every ion. Accepted values are positive integers.
+   * Ionization charge. This is the number of positive or negative charge added to every ion. Accepted values are positive integers: ``charge type="int" value="1"`` 
 
-   * ``compoundPPMWindow type="float" value="5"`` Mass accuracy. Set the +/- ppm range for m/z values.
+   * Mass accuracy. Set the +/- ppm range for m/z values: ``compoundPPMWindow type="float" value="5"`` 
 
 2. **PeaksDialogArguments - Peak detection parameters**
 
-   * ``processAllSlices type="int" value="0"`` Peak Detection Algorithm. Accepted values: "0" for Compound Database Search, "1" (or higher) for Automated Feature Detection.
+   * Peak Detection Algorithm. Accepted values: "0" for Compound Database Search, "1" (or higher) for Automated Feature Detection: ``processAllSlices type="int" value="0"``
 
    Following are the arguments used in Automated Peak Detection and their GUI equivalents. These can be found in the 'Feature Detection Selection' tab of Peaks Dialog:
 
-   *  ``minScanMz type="float" value="0"`` 'Limit m/z Range' minimum
+   * 'Limit m/z Range' minimum: ``minScanMz type="float" value="0"`` 
 
-   *  ``maxScanMz type="float" value="1e+009"`` 'Limit m/z Range' maximum
+   * 'Limit m/z Range' maximum: ``maxScanMz type="float" value="1e+009"`` 
 
-   *  ``minScanRt type="float" value="0"`` 'Limit Time Range' minimum
+   * 'Limit Time Range' minimum: ``minScanRt type="float" value="0"`` 
 
-   *  ``maxScanRt type="float" value="1e+009"`` 'Limit Time Range' maximum
+   * 'Limit Time Range' maximum: ``maxScanRt type="float" value="1e+009"`` 
 
-   *  ``minScanIntensity type="float" value="50000"`` 'Limit Intensity Range' minimum
+   * 'Limit Intensity Range' minimum: ``minScanIntensity type="float" value="50000"`` 
 
-   *  ``maxScanIntensity type="float" value="1e+010"`` 'Limit Intensity Range' maximum
+   * 'Limit Intensity Range' maximum: ``maxScanIntensity type="float" value="1e+010"`` 
 
-   *  ``ppmMerge type="float" value="20"`` 'Mass Domain Resolution'
+   * 'Mass Domain Resolution': ``ppmMerge type="float" value="20"`` 
 
    Following are the arguments used in Compound database search and their GUI equivalents. These can be found in the 'Feature Detection Selection' tab of Peaks Dialog:
 
-   *  ``Db type="string" value="0"`` 'Select Database'. Enter full path to the database file
+   * 'Select Database'. Enter full path to the database file: ``Db type="string" value="0"`` 
 
-   *  ``matchRtFlag type="int" value="0"`` 'Match Retention Time (+/-)'. Value of '0' will set the flag as false. Positive integer value will set the allowed deviation in minutes
+   * 'Match Retention Time (+/-)'. Value of '0' will set the flag as false. Positive integer value will set the allowed deviation in minutes: ``matchRtFlag type="int" value="0"`` 
 
-   *  ``eicMaxGroups type="int" value="0"`` 'Limit Number of Reported Groups per Compound'
+   * 'Limit Number of Reported Groups per Compound':  ``eicMaxGroups type="int" value="0"`` 
 
    Isotope detection. Following are the settings used to pull isotopes in case of database search and their GUI equivalents. These can be found in the 'Isotope Detection Options' in the Options Dialog:
 
-   * ``pullIsotopes type="int" value="0"`` Choose labels present in your data. Enter a four digit value of '1's and '0's each representing a label: D2, N15, S34 and C13. For eg. 0000 signifies no labels, 0001 signifies your data has C13 label and 1111 signifies your data has all four labels
+   * Choose labels present in your data. Enter a four digit value of '1's and '0's each representing a label: D2, N15, S34 and C13. For eg. 0000 signifies no labels, 0001 signifies your data has C13 label and 1111 signifies your data has all four labels: ``pullIsotopes type="int" value="0"`` 
 
    EIC processing. Following are the parameters used for EIC processing and filtering and their GUI equivalents. These can be found under the 'Peak Detection' tab of Options Dialog:
 
-   *  ``grouping _maxRtWindow type="float" value="0.5"`` 'Maximum Retention Time Difference between Peaks'
+   * 'Maximum Retention Time Difference between Peaks':  ``grouping _maxRtWindow type="float" value="0.5"`` 
 
-   *  ``eicSmoothingWindow type="int" value="10"`` 'EIC smoothing window'
+   * 'EIC smoothing window': ``eicSmoothingWindow type="int" value="10"`` 
 
    Group Filtering. Following are the parameters used for filtering detected groups and their GUI equivalents. These can be found under the 'Group Filtering' tab of Peak Dialog:
 
-   *  ``minGroupIntensity type="float" value="5000"`` 'Minimum Peak Intensity'
+   * 'Minimum Peak Intensity': ``minGroupIntensity type="float" value="5000"``
 
-   *  ``quantitationType type="int" value="0"`` Quantitation type of the intensity set in 'Minimum Peak Intensity'. Accepted values are- "0":AreaTop, "1":Area, "2":Height, "3":AreaNotCorrected
+   * Quantitation type of the intensity set in 'Minimum Peak Intensity'. Accepted values are- "0":AreaTop, "1":Area, "2":Height, "3":AreaNotCorrected: ``quantitationType type="int" value="0"`` 
 
-   *  ``quantileIntensity type="float" value="0"`` 'At least x% peaks above minimum intensity' slider. Enter value in percentage. 0% will default to 1 peak
+   * 'At least x% peaks above minimum intensity' slider. Enter value in percentage. 0% will default to 1 peak: ``quantileIntensity type="float" value="0"`` 
 
-   *  ``minQuality type="float" value="0.5"`` 'Minimum Quality'
+   * 'Minimum Quality': ``minQuality type="float" value="0.5"`` 
 
-   *  ``quantileQuality type="float" value="0"`` 'At least x% peaks above minimum quality' slider
+   * 'At least x% peaks above minimum quality' slider: ``quantileQuality type="float" value="0"`` 
 
-   *  ``minPeakWidth type="int" value="1"`` 'Minimum peak width'. Enter number of scans
+   * 'Minimum peak width'. Enter number of scans: ``minPeakWidth type="int" value="1"`` 
 
-   *  ``minSignalBaseLineRatio type="float" value="2"`` 'Minimum Signal/Baseline Ratio'
+   * 'Minimum Signal/Baseline Ratio': ``minSignalBaseLineRatio type="float" value="2"`` 
 
-   *  ``minGoodGroupCount type="int" value="1"`` 'Min. Good Peak/Group'. Value should be less or equal to the number of samples
+   * 'Min. Good Peak/Group'. Value should be less or equal to the number of samples: ``minGoodGroupCount type="int" value="1"``
 
-   *  ``model type="string" value="0"`` 'Peak Classifier Model File'. The default model file can be found in the bin folder of El-MAVEN installation. Enter full path to the 'default.model' file
+   * 'Peak Classifier Model File'. The default model file can be found in the bin folder of El-MAVEN installation. Enter full path to the 'default.model' file: ``model type="string" value="0"`` 
 
-   *  ``rtStepSize type="float" value="20"`` Not used by CLI
+   * Not used by CLI: ``rtStepSize type="float" value="20"``
 
 3. **GeneralArguments - General parameters**
 
-   *  ``alignSamples type="int" value="0"`` Alignment. Positive integer value will run an alignment algorithm
+   * Alignment. Positive integer value will run an alignment algorithm: ``alignSamples type="int" value="0"`` 
 
-   *  ``saveEicJson type="int" value="0"`` Export EIC in JSON. Positive integer value will save EICs JSON in user-specifed output folder
+   * Export EIC in JSON. Positive integer value will save EICs JSON in user-specifed output folder: ``saveEicJson type="int" value="0"``
 
-   *  ``outputdir type="string" value="0"`` Output directory. Enter full path to desired output folder
+   * Output directory. Enter full path to desired output folder: ``outputdir type="string" value="0"``
 
-   *  ``savemzroll type="int" value="0"`` Save Project. Positive integer value will save the project as a .mzroll file in user-specified output folder. This file can be loaded in El-MAVEN GUI for further processing or visualization
+   * Save Project. Positive integer value will save the project as a .mzroll file in user-specified output folder. This file can be loaded in El-MAVEN GUI for further processing or visualization: ``savemzroll type="int" value="0"``
 
-   *  ``samples type="string" value="0"`` Sample Path. Enter full path to a sample file in each row
+   * Sample Path. Enter full path to a sample file in each row: ``samples type="string" value="0"`` 
 
 
 **Run**
 
 Once the parameters and directory paths have been set in the configuration file, run peak detection from the terminal using the following command from the El-MAVEN root directory:
 
-   * Windows and Linux: 
+   * Windows and Linux: ``./bin/peakdetector.exe --xml config.xml``
    
-      * ``./bin/peakdetector.exe --xml config.xml``
-   
-   * MacOS: 
-
-      * ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
+   * MacOS: ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
 
 The resulting CSV file (and other files depending on the configuration) can be found in the specified output directory.
 
