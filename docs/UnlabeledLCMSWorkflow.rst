@@ -3,7 +3,19 @@ Unlabeled LC-MS Workflow
 
 This is a tutorial for processing Unlabeled LC/MS data files through El-MAVEN.
 
-**Contents**
+.. All widget icons are referenced here
+
+.. |options| image:: /image/Widget_1.png
+.. |mark sample as blank| image:: /image/Widget_10.png
+.. |show alignment visualisation| image:: /image/Widget_26.png
+.. |align| image:: /image/Widget_25.png
+.. |mass spectra widget| image:: /image/Widget_38.png
+.. |peaks| image:: /image/Widget_29.png
+.. |export to csv| image:: /image/Widget_36.png
+.. |generate pdf| image:: /image/Widget_35.png
+.. |export to json| image:: /image/Widget_37.png
+
+.. **Contents**
 
     * Preprocessing
     * Launch El-MAVEN
@@ -29,12 +41,12 @@ Input
 
 msConvert supports the following formats:
 
-    * .mzXML
-    * .mzML
-    * .RAW Thermofisher
-    * .RAW Walters
-    * .d Agilent
-    * .wiff format ABSciex
+   * .mzXML
+   * .mzML
+   * .RAW Thermofisher
+   * .RAW Walters
+   * .d Agilent
+   * .wiff format ABSciex
 
 The settings used for msConvert as a GUI tool are captured in the following screenshots: 
 
@@ -55,7 +67,7 @@ Once sample files are ready for processing, launch El-MAVEN.
 
 **Adjust Global Settings**
 
-Global Settings can be changed from the *Options* dialog (Insert icon). There are 9 tabs in the dialog. Each of these 
+Global Settings can be changed from the *Options* dialog |options|. There are 9 tabs in the dialog. Each of these 
 tabs has parameters related to a different module in El-MAVEN. For example, a tab for Instrumentation 
 details, a tab for file import settings, et cetera.
 
@@ -97,7 +109,7 @@ belong to (if known).
 **Mark Blanks**
 
 The user can mark the blanks by selecting the blank samples from the list on screen, and clicking 
-on the *Set as a Blank Sample* icon (Insert icon) in Samples menu.
+on the *Set as a Blank Sample* icon |mark sample as blank| in Samples menu.
 
 .. image:: /image/8.png
 
@@ -116,7 +128,7 @@ median Rt of the group.
 In the above image, EIC for a UTP group is displayed. If the samples were aligned, all peaks 
 would lie at the same RT. Since this is not the case the samples need to be aligned.
 
-*Alignment visualization* (Insert icon) can be used to judge the extent of deviation from median RT. 
+*Alignment visualization* |show alignment visualisation| can be used to judge the extent of deviation from median RT. 
 
 .. image:: /image/11.png
 
@@ -127,7 +139,7 @@ for better grouping of peaks.
 
 Perform Alignment
 
-*Alignment settings* can be adjusted using the Align button (Insert icon). This example was aligned with 
+*Alignment settings* can be adjusted using the Align button |align|. This example was aligned with 
 *Loess fit* algorithm with default parameters. 
 
 .. image:: /image/12.png
@@ -162,7 +174,7 @@ A have a similar peak shape to group B peaks. These peaks might have been wrongl
 because of the difference in Rt range of the two sets of peaks. The weights attached to difference in Rt and intensities,
 and extent of overlap can be adjusted for better grouping.
 
-Grouping parameters can be changed from the Options dialog (Insert icon).
+Grouping parameters can be changed from the Options dialog |options|.
 
 Screenshot 16
 
@@ -199,7 +211,7 @@ Screenshot 21
 
 **Mass Spectra**
 
-Mass Spectra Widget (Insert icon) displays each peak, its mass, and intensity for a scan. 
+Mass Spectra Widget |mass spectra widget| displays each peak, its mass, and intensity for a scan. 
 As the widget shows all detected masses in a scan, the ppm window for the EIC and consequently 
 grouping can be adjusted accordingly. This feature is especially useful for MS/MS data and isotopic detection. 
 
@@ -209,8 +221,8 @@ Screenshot 22
 
 There are multiple ways to curate peaks in El-MAVEN, though following are the two broad workflows:
 
-    * Manual Peak Curation using Compound DB widget
-    * Automated Peak Curation
+   * Manual Peak Curation using Compound DB widget
+   * Automated Peak Curation
 
 
 Manual Peak Curation using Compound DB widget
@@ -223,22 +235,22 @@ Screenshot 23
 Once on a compound, El-MAVEN shows the highest ranked group for that M/Z. The user can now choose a group 
 or reject it. There are two ways to do this.
 
-    In the first workflow, the user needs to double click on the peak group of his choice. This will get 
+   In the first workflow, the user needs to double click on the peak group of his choice. This will get 
     the Rt line to the median of the group and also add the metabolite to the bookmarks table (as shown in the 
     image below). User can read more about the bookmarks table `here <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#5-eic-window>`_.
 
-    Screenshot 24
+   Screenshot 24
 
-    When the user selects the first group they would be asked if they would like to auto-save the state of 
+   When the user selects the first group they would be asked if they would like to auto-save the state of 
     the application. This feature allows the user to go back to his curated peaks if they so wish in future. 
 
-    Screenshot 25
+   Screenshot 25
 
-    The other sub-workflow is to mark peaks good or bad from the top of the EIC as shown in the screenshots below.
+   The other sub-workflow is to mark peaks good or bad from the top of the EIC as shown in the screenshots below.
 
-    Screenshot 26
+   Screenshot 26
     
-    Qualifying peaks as good or bad is explained in the next few sections.
+   Qualifying peaks as good or bad is explained in the next few sections.
 
 Automated Peak Curation
 
@@ -248,7 +260,7 @@ the window. Upon clicking the widget the user will see the following dialog box.
 
 Screenshot 27
 
-This dialog box (Insert icon) is the peak detection widget. The user can read more about it `here <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#8-peak-detection>`_.
+This dialog box |peaks| is the peak detection widget. The user can read more about it `here <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#8-peak-detection>`_.
 
 Upon selecting the default parameters, the user can click on *Find peaks* to select the most important peaks. 
 Once the peak detection is completed a peak table shows up at the bottom of the window.
@@ -268,12 +280,12 @@ Screenshot 30
 or bad. Peak’s shape should have a Gaussian distribution and width should not be spread across 
 a wide range of RT. 
 
-    Screenshot 31
+   Screenshot 31
 
 2. Peak Intensities for a group are plotted as bar plots for all the samples. These bar plots have 
 heights relative to the other samples.Thus, for a good peak the intensities should be high. 
 
-    Screenshot 32
+   Screenshot 32
 
 3. Intensity Barplot heights should be higher for all the samples than Blank samples. We use 
 intensities of Blank samples to set our group baseline. Blank intensities are used to calibrate 
@@ -306,12 +318,12 @@ User can select *All, Good, Bad or Selected* peaks to export.
 
 Screenshot 34
 
-The *Export Groups to CSV* option (Insert icon) lets the user save the 'good'/'bad' labels along with the peak 
+The *Export Groups to CSV* option |export to csv| lets the user save the 'good'/'bad' labels along with the peak 
 table. User also has the option to filter out rows that have a certain label while exporting the table.
 
-*Generate PDF Report* option (Insert icon) saves all EICs with their corresponding bar plots in a PDF file.
+*Generate PDF Report* option |generate pdf| saves all EICs with their corresponding bar plots in a PDF file.
 
-*Export EICs to Json* option (Insert icon) exports all EICs to a Json file.
+*Export EICs to Json* option |export to json| exports all EICs to a Json file.
 
 Another option is to export the peak data in .mzroll format that can be directly loaded into 
 El-MAVEN by clicking on the Load *Samples|Projects|Peaks* option in the File menu. For this, go to the 
