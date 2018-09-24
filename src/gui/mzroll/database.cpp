@@ -462,6 +462,7 @@ int Database::loadCompoundCSVFile(string filename){
     string sep="\t";
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
     notFoundColumns.resize(0);
+    invalidRows.clear();
     //cerr << filename << " sep=" << sep << endl;
     while(!myFile.atEnd()) {
         string line = QString(myFile.readLine()).toStdString();
@@ -570,6 +571,10 @@ int Database::loadCompoundCSVFile(string filename){
             for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
             if (addCompound(compound))
                 loadCount++;
+        } else {
+            if (!name.empty())
+                id = name;
+            invalidRows.push_back(id);
         }
     }
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);

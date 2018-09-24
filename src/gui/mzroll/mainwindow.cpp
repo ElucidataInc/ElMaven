@@ -1822,6 +1822,18 @@ void MainWindow::loadCompoundsFile() {
 			msgBox.setIcon(QMessageBoxResize::Information);
 			int ret = msgBox.exec();
 		}
+		if (DB.invalidRows.size() > 0) {
+			string invalidRowsString = "The following compounds had insufficient information for peak detection, and were not loaded:";
+			QMessageBoxResize msgBox;
+			msgBox.setText(tr("Invalid compounds found"));
+			for(auto compoundID: DB.invalidRows) {
+    			invalidRowsString += "\n - " + compoundID;
+			}
+			msgBox.setDetailedText(QString::fromStdString(invalidRowsString));
+			msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+			msgBox.setIcon(QMessageBoxResize::Information);
+			int ret = msgBox.exec();
+		}
 	}
 }
 
