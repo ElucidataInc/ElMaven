@@ -14,13 +14,15 @@ An intuitive, opensource LC-MS data processing engine from
 |
 
 
-**Travis Build**
+Travis Build
+------------
 
 .. image:: https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop
     :target: https://travis-ci.org/ElucidataInc/ElMaven
 
 
-**Digital Object Identifier**
+Digital Object Identifier
+------------------------
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1332034.svg
    :target: https://doi.org/10.5281/zenodo.1332034

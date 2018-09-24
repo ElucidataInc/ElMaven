@@ -81,9 +81,9 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {'logo': 'Elucidata.svg', 
-    #'github_user': 'ElMAVEN', 
-    #'github_repo': 'ElMaven'
+html_theme_options = {'logo': 'El-MAVEN.svg', 
+    'github_user': 'ElMAVEN', 
+    'github_repo': 'ElMaven'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

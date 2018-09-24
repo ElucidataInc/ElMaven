@@ -13,22 +13,25 @@ El-MAVEN is an open source LC-MS data processing engine that is optimal for isot
 
 Find out more about the software through the links below.
 
-**Introduction**
+Introduction
+----------------
 
 .. toctree::
    :maxdepth: 2
    
    GitRepository
 
-**Getting Started**
+Getting Started
+---------------
 
 .. toctree::
    :maxdepth: 2
 
    IntroductiontoElMAVENUI
    IntroductiontoElMAVENCLI
-   
-**Tutorials**
+
+Tutorials
+---------
 
 .. toctree::
    :maxdepth: 2
@@ -36,15 +39,14 @@ Find out more about the software through the links below.
    UnlabeledLCMSWorkflow
    LabeledLCMSWorkflow
    LabeledLCMSMSWorkflow
-   
-**Validation**
+
+Validation
+----------
 
 .. toctree::
    :maxdepth: 2
 
    LabeledMSMSValidation
-
-
 
 
 

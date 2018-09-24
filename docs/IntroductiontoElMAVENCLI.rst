@@ -12,13 +12,25 @@ Users need an XML file to specify their configuration and specify directory path
 
    * Open the terminal
 
-   * Move to your local El-MAVEN folder: ``cd user@pc:~/ElMaven/ElMaven``
+   * Move to your local El-MAVEN folder: 
+   
+   ::
+   
+   $ cd user@pc:~/ElMaven/ElMaven
 
    * Execute the following command
 
-      * For Windows and Linux: ``./bin/peakdetector.exe --defaultxml``
+      * For Windows and Linux: 
+
+   ::
+
+   $ ./bin/peakdetector.exe --defaultxml
       
-      * For MacOS: ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
+      * For MacOS: 
+
+   ::
+
+   $ ./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml
 
    * A default XML will be created in your current folder
 
@@ -113,12 +125,24 @@ The template XML contains three sets of parameters:
 
 Once the parameters and directory paths have been set in the configuration file, run peak detection from the terminal using the following command from the El-MAVEN root directory:
 
-   * Windows and Linux: ``./bin/peakdetector.exe --xml config.xml``
+   * Windows and Linux: 
+
+   ::
+
+   $ ./bin/peakdetector.exe --xml config.xml
    
-   * MacOS: ``./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml``
+   * MacOS: 
+
+   ::
+
+   $ ./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml
 
 The resulting CSV file (and other files depending on the configuration) can be found in the specified output directory.
 
 **Help**
 
-``Peakdetector.exe -h`` prints the help commands.
+To print the help commands, execute the following:
+
+::
+
+$ Peakdetector.exe -h

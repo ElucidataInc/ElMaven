@@ -1,7 +1,7 @@
 Labeled MS/MS Validation
 ========================
 
-.. All images referecned here
+.. All images used are referecned here
 
 .. |Validation1| image:: /image/Validation_1.png
 .. |Validation2| image:: /image/Validation_2.png

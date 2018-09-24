@@ -12,24 +12,30 @@ Users are recommended to download the installers provided on the El-MAVEN websit
 
       * For 64 bit
 
-         * ``pacman --force -Sy``
-         * ``pacman --force -Syu``
-         * ``pacman --force -Su``
-         * ``pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git``
+      ::
+
+      $ pacman --force -Sy
+      $ pacman --force -Syu
+      $ pacman --force -Su
+      $ pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git
 
       * For 32 bit
 
-         * ``pacman --force -Sy``
-         * ``pacman --force -Syu``
-         * ``pacman --force -Su``
-         * ``pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git``
+      ::
+
+      $ pacman --force -Sy
+      $ pacman --force -Syu
+      $ pacman --force -Su
+      $ pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git
 
    * Open mingw64.exe from the MSYS2 folder and give the following commands:
 
-      * ``cd <PathToInstallationFolder> #for example: cd /c/User/Admin/Desktop``
-      * ``git clone https://github.com/ElucidataInc/ElMaven.git``
-      * ``./run.sh``
-      * ``./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2``
+      ::
+
+      $ cd <PathToInstallationFolder> #for example: cd /c/User/Admin/Desktop
+      $ git clone https://github.com/ElucidataInc/ElMaven.git
+      $ ./run.sh
+      $ ./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2
 
 El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN 
 application window for data analysis.
@@ -38,19 +44,15 @@ application window for data analysis.
 
    * Open the terminal and give the following commands to set up libraries and tool chains for El-MAVEN 
 
-      * ``sudo apt-get update``
+      ::
 
-      * ``sudo apt-get install g++``
-
-      * ``sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov libnetcdf-dev``
-
-      * ``cd <PathToInstallationFolder> #for example: user@pc:~$ cd Desktop/``
-
-      * ``git clone https://github.com/ElucidataInc/ElMaven.git``
-
-      * ``./run.sh``
-
-      * ``./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2``
+      $ sudo apt-get update``
+      $ sudo apt-get install g++
+      $ sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov libnetcdf-dev
+      $ cd <PathToInstallationFolder> #for example: user@pc:~$ cd Desktop/
+      $ git clone https://github.com/ElucidataInc/ElMaven.git
+      $ ./run.sh
+      $ ./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2
 
 El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
 
@@ -64,35 +66,23 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 
    * Using the terminal execute the following commands:
 
-      * ``sudo xcodebuild -license accept``
+      ::
 
-      * ``xcode-select --install``
-
-      * ``/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"``
-
-      * ``brew install boost`` ``brew install llvm@3.7`` ``brew install netcdf``
-
-      * ``cd ~``
-
-      * ``touch .profile``
-
-      * ``echo "PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:$PATH" > .profile``
-
-      * ``source .profile``
-
-      * ``mkdir ~/maven_repo``
-
-      * ``cd ~/maven_repo``
-
-      * ``git clone https://github.com/ElucidataInc/ElMaven.git``
-
-      * ``cd ElMaven``
-
-      * ``source ~/.profile``
-
-      * ``qmake CONFIG+=debug -o Makefile build.pro``
-
-      * ``make -j4``
+      $ sudo xcodebuild -license accept
+      $ xcode-select --install
+      $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+      $ brew install boost, brew install llvm@3.7, brew install netcdf
+      $ cd ~
+      $ touch .profile
+      $ echo "PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:$PATH" > .profile
+      $ source .profile
+      $ mkdir ~/maven_repo
+      $ cd ~/maven_repo
+      $ git clone https://github.com/ElucidataInc/ElMaven.git
+      $ cd ElMaven
+      $ source ~/.profile
+      $ qmake CONFIG+=debug -o Makefile build.pro
+      $ make -j4
 
 **Switching Versions**
 
@@ -107,26 +97,26 @@ Follow these steps to pull a specific release:
 
    * Give the following commands in the terminal:
 
-      * ``cd ElMaven``
+      ::
 
-      * ``./uninstall.sh``
-
-      * ``git checkout develop``
-
-      * ``git pull``
-
-      * ``git checkout v0.x.y`` (Example: v0.1.5)
+      $ cd ElMaven
+      $ ./uninstall.sh
+      $ git checkout develop
+      $ git pull
+      $ git checkout v0.x.y (Example: v0.4.1)
 
       * Build the new version using the following commands:
 
          * For Windows and Ubuntu
 
-            * ``./run.sh``
+         ::
+
+            $ ./run.sh
 
          * For MacOS
 
-            * ``source ~/.profile``
+         ::
 
-            * ``qmake CONFIG+=debug -o Makefile build.pro``
-
-            * ``make -j4``
+            $ source ~/.profile
+            $ qmake CONFIG+=debug -o Makefile build.pro
+            $ make -j4

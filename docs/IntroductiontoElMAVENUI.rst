@@ -1,5 +1,5 @@
 El-MAVEN User Interface
-===========================
+=======================
 
 Following is the general workflow involved in El-MAVEN:
 
@@ -47,7 +47,7 @@ Following is the general workflow involved in El-MAVEN:
 .. |export to csv| image:: /image/Widget_36.png
 .. |export to json| image:: /image/Widget_37.png
 
-**El-MAVEN**
+**El-MAVEN UI**
 
 Screenshot
 
