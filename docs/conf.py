@@ -26,7 +26,7 @@ author = u'Elucidata Corporation'
 # The short X.Y version
 version = u''
 # The full version, including alpha/beta/rc tags
-release = u'v0.0.1'
+release = u'v0.4.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -81,9 +81,10 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-#html_theme_options = {'logo': 'Elucidata.svg', 
+html_theme_options = {'logo': 'Elucidata.svg', 
     #'github_user': 'ElMAVEN', 
-    #'github_repo': 'ElMaven'}
+    #'github_repo': 'ElMaven'
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -133,7 +134,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Readme.tex', u'Readme Documentation',
+    (master_doc, 'Readme.tex', u'El-MAVEN Documentation',
      u'Elucidata Corporation', 'manual'),
 ]
 #
@@ -143,7 +144,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'readme', u'Readme Documentation',
+    (master_doc, 'readme', u'El-MAVEN Documentation',
      [author], 1)
 ]
 
@@ -154,8 +155,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Readme', u'Readme Documentation',
-     author, 'Readme', 'One line description of project.',
+    (master_doc, 'Readme', u'El-MAVEN Documentation',
+     'Elucidata Corporation', 'Readme', 'An opensurce LC-MS data processing engine',
      'Miscellaneous'),
 ]
 
