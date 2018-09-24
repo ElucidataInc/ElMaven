@@ -3,6 +3,7 @@
 
 
 #include <QtGui/QIcon>
+#include "globals.h"
 
 
 class QLabel;
@@ -30,6 +31,7 @@ public:
 	QLabel * message();
 	QLabel * preloader();
 	QProgressBar* progress();
+	QPushButton * close();
 
 private:
 	bool m_autoHide;
@@ -38,6 +40,7 @@ private:
 	QLabel *m_message;
 	QLabel *m_preloader;
 	QProgressBar* m_progress;
+	QPushButton *m_close;
 };
 
 #endif // NOTIFICATOR_P_H

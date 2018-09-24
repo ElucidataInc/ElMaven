@@ -11,7 +11,7 @@ const int DEFAULT_MESSAGE_SHOW_TIME = 10000;
 const float WINDOW_TRANSPARENT_OPACITY = 0.7;
 const float WINDOW_NONTRANSPARENT_OPACITY = 1.0;
 
-const int NOTIFICATION_MARGIN = 20;
+const int NOTIFICATION_MARGIN = 0;
 const int ICON_SPACING = 16;
 const int TEXT_SPACING = 8;
 }
@@ -155,12 +155,18 @@ void Notificator::notify(
 
 void Notificator::initializeLayout()
 {
-	QGridLayout *layout = new QGridLayout( this );
+	QPushButton *closeButton = d->close();
+	connect(closeButton, SIGNAL(clicked()), this, SLOT(hide()));
+	
+	QGridLayout *layout = new QGridLayout(this );
 	layout->setHorizontalSpacing( 12 );
-	layout->addWidget( d->icon(), 0, 0, 2, 1, Qt::AlignTop );
-	layout->addWidget( d->title(), 0, 1 );
-	layout->addWidget( d->preloader(), 0, 2, 1, 1, Qt::AlignRight );
-	layout->addWidget( d->message(), 1, 1, 1, 2 );
+	layout->setVerticalSpacing(0);
+	layout->setContentsMargins(10, 0, 0, 10);
+	layout->addWidget( closeButton, 0, 2, 1, 1, Qt::AlignTop|Qt::AlignRight);
+	layout->addWidget( d->icon(), 1, 0, 1, 1, Qt::AlignTop );
+	//layout->addWidget( d->title(), 0, 1 );
+	layout->addWidget( d->message(), 1, 1 );
+	layout->addWidget( d->preloader(), 1, 3, 1, 1 );
 	layout->addWidget( d->progress(), 2, 1, 1, 2);
 }
 
@@ -177,6 +183,7 @@ void Notificator::initializeUI()
 				"Notificator { background-color: orange; border: none; }"
 				"QLabel { color: black; }"
 				"QLabel#title { font-weight: bold; }"
+				"QPushButton { border: none; background: transparent; padding-top: 0px }"
 				"QProgressBar { border: 1px solid black; text-align: top; background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #fff, stop: 0.4999 #eee, stop: 0.5 #ddd, stop: 1 #eee ); }"
 				"QProgressBar::chunk { background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b5e2f9, stop: 0.4999 #68c2f3, stop: 0.5 #67bff0, stop: 1 #1e9bda );  }"
 //				"QProgressBar::chunk { background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #9bd66d, stop: 0.4999 #81d142, stop: 0.5 #81d143, stop: 1 #58bf08 );  }"
@@ -239,6 +246,7 @@ NotificatorPrivate::NotificatorPrivate(
 		) :
 	m_autoHide( autohide ),
 	m_icon( 0 ),
+	m_close( 0 ),
 	m_title( 0 ),
 	m_message( 0 ),
 	m_preloader( 0 ),
@@ -260,6 +268,9 @@ NotificatorPrivate::~NotificatorPrivate()
 	}
 	if ( preloader()->parent() == 0 ) {
 		delete preloader();
+	}
+	if ( close()->parent() == 0) {
+		delete close();
 	}
 }
 
@@ -292,6 +303,17 @@ QLabel *NotificatorPrivate::icon()
 		m_icon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	}
 	return m_icon;
+}
+
+QPushButton *NotificatorPrivate::close()
+{
+	if (m_close == 0) {
+		m_close = new QPushButton;
+		m_close->setObjectName("close");
+		m_close->setIcon(QIcon(rsrcPath + "/close.png"));
+		m_close->setAttribute(Qt::WA_TranslucentBackground);
+	}
+	return m_close;
 }
 
 QLabel *NotificatorPrivate::title()
