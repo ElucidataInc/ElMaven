@@ -839,9 +839,9 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 			
 			//That means the upload was successful, redirect the user to Polly..
 			if (!upload_project_id.isEmpty()) {
-				QString workflow_request_id = _pollyIntegration->createWorkflowRequest(upload_project_id);
-				if (!workflow_request_id.isEmpty()){
-					QString redirection_url = QString("<a href='https://polly.elucidata.io/workflow-requests/%1/lcms_tstpl_pvd/dashboard#redirect-from=%2#project=%3#timestamp=%4'>Go To Polly</a>").arg(workflow_request_id).arg(redirect_to).arg(upload_project_id).arg(datetimestamp);
+				QString workflowRequestId = _pollyIntegration->createWorkflowRequest(upload_project_id);
+				if (!workflowRequestId.isEmpty()){
+					QString redirection_url = QString("<a href='https://polly.elucidata.io/workflow-requests/%1/lcms_tstpl_pvd/dashboard#redirect-from=%2#project=%3#timestamp=%4'>Go To Polly</a>").arg(workflowRequestId).arg(redirect_to).arg(upload_project_id).arg(datetimestamp);
 					qDebug() << "redirection url - \n" << redirection_url;
 					QString filename = QStandardPaths::writableLocation(
 										QStandardPaths::QStandardPaths::GenericConfigLocation) + 

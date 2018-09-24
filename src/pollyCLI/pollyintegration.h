@@ -48,7 +48,7 @@ class PollyIntegration
  		 * @param result output from running "createproject" command that creates a new Polly project
  		 * @return project ID generated for the new project
 		*/
-		QString parse_id(QByteArray result);
+		QString parseId(QByteArray result);
 		bool send_email(QString user_email, QString email_content, QString email_message);
 	    QString authenticate_login(QString username,QString password);
 	    int check_already_logged_in();
