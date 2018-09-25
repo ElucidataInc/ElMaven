@@ -8,7 +8,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - sourceline: 'deb http://ppa.launchpad.net/beineri/opt-qt591-trusty/ubuntu trusty main'
-
+            - sourceline: 'deb http://in.archive.ubuntu.com/ubuntu/ xenial universe'
 
       dist: trusty
       language: cpp
@@ -23,7 +23,7 @@ env:
 before_install:
     -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0C49F3730359A14518585931BC711F9BA15703C6;
-        fi
+       fi
 
 install:
   - |
@@ -37,6 +37,9 @@ install:
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       sudo apt-get update -qq;
       sudo apt-get install -y -qq  --allow-unauthenticated g++-5 qt59base qt59script qt59declarative libboost-all-dev libnetcdf-dev;
+      sudo apt-get -t xenial -qq install lcov
+      sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-5 100
+      sudo update-alternatives --set gcov /usr/bin/gcov-5
       eval "${MATRIX_EVAL}";
     fi
 
