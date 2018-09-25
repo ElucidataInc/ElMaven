@@ -67,7 +67,7 @@ script:
       sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
       g++ -v;
       gcc -v;
-      qmake CONFIG+=release -o Makefile build.pro;
-      make -j4;
-      ./bin/MavenTests -xml;
+      echo no | ./run.sh
+      lcov -b src/core/libmaven/ --capture --directory ../build/tmp/maven/ --output-file lcov.info --no-external
+      lcov --summary lcov.info
     fi
