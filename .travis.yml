@@ -16,7 +16,8 @@ matrix:
     - os: osx
 
 env:
-  - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+  global:
+    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
 
 before_install:
@@ -70,3 +71,8 @@ script:
       lcov -b src/core/libmaven/ --capture --directory ../build/tmp/maven/ --output-file lcov.info --no-external
       lcov --summary lcov.info
     fi
+
+
+after_script:
+  - export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
+  - bash <(curl -s https://codecov.io/bash)
