@@ -97,11 +97,11 @@ Screenshot
 
    * *EIC Smoothing Algorithm*: Smoothing of data points helps in increasing the signal/noise ratio. There are three algorithms provided for EIC smoothing: 
 
-      (a) Savitzky-Golay: It preserves the original shape and features of the signal better than most other filters `(Learn more) <https://www.researchgate.net/publication/270819321_Smoothing_and_Differentiation_of_Data_by_Simplified_Least_Squares_Procedures>`_. 
+      (a) *Savitzky-Golay*: It preserves the original shape and features of the signal better than most other filters `(Learn more) <https://www.researchgate.net/publication/270819321_Smoothing_and_Differentiation_of_Data_by_Simplified_Least_Squares_Procedures>`_. 
 
-      (b) Gaussian: It reduces noise by averaging over the neighborhood with the central pixel having higher weight but successfully preserves sharp edges. `(Learn more) <https://people.csail.mit.edu/asolar/papers/pldi276-chaudhuri.pdf>`_. 
+      (b) *Gaussian*: It reduces noise by averaging over the neighborhood with the central pixel having higher weight but successfully preserves sharp edges. `(Learn more) <https://people.csail.mit.edu/asolar/papers/pldi276-chaudhuri.pdf>`_. 
 
-      (c) Moving Average: It takes the simple average of all points over time. Signal behavior is not natural. Least preferred method for smoothing `(Learn more) <https://www.wavemetrics.com/products/igorpro/dataanalysis/signalprocessing/smoothing>`_.
+      (c) *Moving Average*: It takes the simple average of all points over time. Signal behavior is not natural. Least preferred method for smoothing `(Learn more) <https://www.wavemetrics.com/products/igorpro/dataanalysis/signalprocessing/smoothing>`_.
 
    * *EIC Smoothing Window*: Number of scans used for fitting in the smoothing algorithm can be adjusted here.
 
@@ -561,9 +561,9 @@ User can either save the state of the project or export only relevant data from 
 
 Screenshot
 
-   * *Save Project as*: This option is available in the File menu. It saves all peak tables and current settings in a .mzroll file. On loading the .mzroll file, all sample files are uploaded and the peak tables and EIC are available. If the user wishes to save only certain Peak Tables, they can click on |save project as| top of the Peak Table(s). This will only store that specific peak table instead of all.
+   * *Save Project as*: This option is available in the File menu. It saves all peak tables and current settings in a .mzroll file. On loading the .mzroll file, all sample files are uploaded and the peak tables and EIC are available. If the user wishes to save only certain Peak Tables, they can click on |save project as| at the top of the Peak Table(s). This will only store that specific peak table instead of all.
 
-   * *Generate PDF Report*: This option is available on top of the Peak Table |generate pdf|. It saves all EICs with their corresponding bar plots in a PDF file.
+   * *Generate PDF Report*: This option is available on |generate pdf| at the top of the Peak Table. It saves all EICs with their corresponding bar plots in a PDF file.
 
    * *Export Groups to SpreadSheet (.csv)*: This option is available on top of the Peak Table |export to csv|. You can choose to export the whole table or a subset of the data. There are 4 possible selections: export only selected groups, export all groups, export only good groups or export only bad groups. The data is stored in a comma separated file. 
 

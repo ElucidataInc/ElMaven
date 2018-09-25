@@ -8,7 +8,7 @@ User Documentation
 
 |
 
-Welcome to the El-MAVEN wiki!
+Welcome to the El-MAVEN user documentation!
 
 El-MAVEN is an open source LC-MS data processing engine that is optimal for isotopomer labeling and untargeted metabolomic profiling experiments. Currently El-MAVEN exists as a desktop application that runs on Windows, Ubuntu and Mac OS. The software can be used to view the mass spectra, align chromatograms, perform peak-feature detection and alignment for labeled and unlabeled mass spectrometry data. The aim of this software package is to reduce complexity of metabolomics analysis by using a highly intuitive interface for exploring and validating metabolomics data.
 

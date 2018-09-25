@@ -40,7 +40,10 @@ release = u'v0.4.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'rst2pdf.pdfbuilder'
 ]
+
+pdf_documents = [('index', u'rst2pdf', u'El-MAVEN Documentation', u'Elucidata Corporation'),]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -82,7 +85,7 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {'logo': 'El-MAVEN.png', 
-    'github_user': 'ElMAVEN', 
+    'github_user': 'ElucidataInc', 
     'github_repo': 'ElMaven'
 }
 
@@ -115,16 +118,16 @@ latex_elements = {
     #
     # 'papersize': 'letterpaper',
 
-    # The font size ('10pt', '11pt' or '12pt').
-    #
+   #  The font size ('10pt', '11pt' or '12pt').
+    
     # 'pointsize': '10pt',
 
     # Additional stuff for the LaTeX preamble.
-    #
+    
     # 'preamble': '',
 
     # Latex figure (float) alignment
-    #
+    
     # 'figure_align': 'htbp',
 
 	'extraclassoptions': 'openany,oneside'

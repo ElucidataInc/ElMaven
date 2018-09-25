@@ -126,7 +126,7 @@ The template XML contains three sets of parameters:
 
 
 Run
-^^^
+---
 
 Once the parameters and directory paths have been set in the configuration file, run peak detection from the terminal using the following command from the El-MAVEN root directory:
 
@@ -145,7 +145,7 @@ Once the parameters and directory paths have been set in the configuration file,
 The resulting CSV file (and other files depending on the configuration) can be found in the specified output directory.
 
 Help
-^^^^
+----
 
 To print the help commands, execute the following:
 
