@@ -10,7 +10,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         setModal(true);
         setupUi(this);
         createIcons();
-        workflowMenu->setCurrentRow(0);
+        workflowMenu->setCurrentRow(firstView);
 
         _pollyIntegration = new PollyIntegration();
         _loadingDialog = new PollyWaitDialog(this);
@@ -229,10 +229,8 @@ void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnamesIdMap){
 
 void PollyElmavenInterfaceDialog::setFluxPage()
 {
-    //index 1 corresponds to Fluxomics
-    //TODO: use an enum to make this less error prone and more scalable
-    stackedWidget->setCurrentIndex(1);
-    workflowMenu->setCurrentRow(1);
+    stackedWidget->setCurrentIndex(fluxomics);
+    workflowMenu->setCurrentRow(fluxomics);
 }
 
 void PollyElmavenInterfaceDialog::setUiElementsFlux()
@@ -324,33 +322,17 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
     fluxUpload->setEnabled(false);
     firstViewUpload->setEnabled(false);
+
+    if (stackedWidget->currentIndex() == 0)
+        firstViewStatus->setText("Connecting..");
+    else fluxStatus->setText("Connecting..");
+    QCoreApplication::processEvents();
+
     int askForLogin = _pollyIntegration->askForLogin();
     if (askForLogin == 1) {
         call_login_form();
         emit uploadFinished(false);
         return;
-    }
-    
-    QStringList patchId;
-
-    QString new_projectname;
-    QString projectname;
-    if (stackedWidget->currentIndex() == 0) {
-        new_projectname = firstViewNewProject->text();
-        projectname = firstViewProjectList->currentText();
-    }
-    else {
-        new_projectname = fluxNewProject->text();
-        projectname = fluxProjectList->currentText();
-    }
-    
-    QString project_id;
-
-    qDebug() << "writing Polly temp file in this directory -" << writableTempDir;
-    QDir qdir(writableTempDir);
-    if (!qdir.exists()){
-        QDir().mkdir(writableTempDir);
-        QDir qdir(writableTempDir);
     }
     
     if (stackedWidget->currentIndex() == 0) {
@@ -362,6 +344,14 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         fluxStatus->setText("Preparing files..");
     }
     QCoreApplication::processEvents();
+
+    qDebug() << "writing Polly temp file in this directory -" << writableTempDir;
+    QDir qdir(writableTempDir);
+    if (!qdir.exists()){
+        QDir().mkdir(writableTempDir);
+        QDir qdir(writableTempDir);
+    }
+    
     QDateTime current_time;
     const QString format = "dd-MM-yyyy_hh_mm_ss";
 	QString datetimestamp= current_time.currentDateTime().toString(format);
@@ -372,63 +362,59 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     if (filenames.isEmpty()) {
         if (stackedWidget->currentIndex() == 0)
             firstViewStatus->setText("File preparation failed.");
-        else    fluxStatus->setText("File preparation failed.");
+        else
+            fluxStatus->setText("File preparation failed.");
+        
         _loadingDialog->close();
         QCoreApplication::processEvents();
         emit uploadFinished(false);
         return;
     }
     if (stackedWidget->currentIndex() == 0)
-        firstViewStatus->setText("Connecting..");
-    else fluxStatus->setText("Connecting..");
-    QCoreApplication::processEvents();
-    if (stackedWidget->currentIndex() == 0)
         firstViewStatus->setText("Sending files to Polly..");
     else fluxStatus->setText("Sending files to Polly..");
     
     QCoreApplication::processEvents();
+
+    QString projectId;
+    QString newProjectName;
+    QString projectname;
+    
+    if (stackedWidget->currentIndex() == 0) {
+        newProjectName = firstViewNewProject->text();
+        projectname = firstViewProjectList->currentText();
+    }
+    else {
+        newProjectName = fluxNewProject->text();
+        projectname = fluxProjectList->currentText();
+    }
     
     if ((stackedWidget->currentIndex() == 0 && firstViewProjectList->isEnabled()) 
             || (stackedWidget->currentIndex() == 1 && fluxProjectList->isEnabled())) {
         QStringList keys = projectNamesId.keys();
         for (int i = 0; i < keys.size(); ++i) {
             if (projectNamesId[keys.at(i)].toString() == projectname) {
-                project_id = keys.at(i);
+                projectId = keys.at(i);
             }
         }
-        if (project_id != "") {
-            upload_project_id = project_id;
-        }
-        else {
-            QString msg = "No such project on Polly..";
-            QMessageBox msgBox(mainwindow);
-            msgBox.setWindowTitle("Error");
-            msgBox.setText(msg);
-            msgBox.exec();
-        }
-    }
-    else if ((stackedWidget->currentIndex() == 0 && firstViewNewProject->isEnabled()) 
+        if (projectId.isEmpty())
+            showErrorMessage("Error", "No such project on Polly");
+        else
+            uploadProjectId = projectId;
+
+    } else if ((stackedWidget->currentIndex() == 0 && firstViewNewProject->isEnabled()) 
             || (stackedWidget->currentIndex() == 1 && fluxNewProject->isEnabled())) {
-        if (new_projectname == "") {
-            QString msg = "Invalid Project name";
-            QMessageBox msgBox(mainwindow);
-            msgBox.setWindowTitle("Error");
-            msgBox.setText(msg);
-            msgBox.exec();
+        if (newProjectName == "") {
+            showErrorMessage("Error", "Invalid Project name");
             firstViewStatus->setText("");
             fluxStatus->setText("");
             emit uploadFinished(false);
             return;
         }
-        QString new_project_id = _pollyIntegration->createProjectOnPolly(new_projectname);
-        upload_project_id = new_project_id;    
-    }
-    else {
-        QString msg = "Please select at least one option";
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Error");
-        msgBox.setText(msg);
-        msgBox.exec();
+        QString newProjectId = _pollyIntegration->createProjectOnPolly(newProjectName);
+        uploadProjectId = newProjectId;    
+    } else {
+        showErrorMessage("Error", "Please select at least one option");
         firstViewStatus->setText("");
         fluxStatus->setText("");
         emit uploadFinished(false);
@@ -441,9 +427,17 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     EPIworkerThread->state = "upload_files";
     EPIworkerThread->filesToUpload = filenames;
     EPIworkerThread->tmpDir = qdir;
-    EPIworkerThread->uploadProjectIdThread = upload_project_id;
+    EPIworkerThread->uploadProjectIdThread = uploadProjectId;
     EPIworkerThread->datetimestamp = datetimestamp;
     EPIworkerThread->start();
+}
+
+void PollyElmavenInterfaceDialog::showErrorMessage(QString title, QString message)
+{
+    QMessageBox errorBox(mainwindow);
+    errorBox.setWindowTitle(title);
+    errorBox.setText(message);
+    errorBox.exec();
 }
 
 void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp){

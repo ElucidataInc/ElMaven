@@ -34,7 +34,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 * @brief credentials required to connect to polly..
                 */
                 QStringList credentials;
-                QString upload_project_id;
+                QString uploadProjectId;
                 QStringList organisationSpecificCompoundDB;
                 /**
                 * @brief constructor with mainwindow pointer..
@@ -49,6 +49,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectNamesId;
+                enum pollyApp { firstView = 0, fluxomics = 1 };
                 bool advancedSettingsFlag;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
@@ -78,6 +79,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 void setUiElementsFlux();
                 void setUiElementsFV();
                 QMap<QString, TableDockWidget*> tableNameMapping;
+                void showErrorMessage(QString title, QString message);
                 QString writableTempDir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
