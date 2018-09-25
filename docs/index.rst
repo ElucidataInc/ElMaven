@@ -8,7 +8,7 @@ El-MAVEN
 
 An intuitive, opensource LC-MS data processing engine from
 
-.. image:: /image/Elucidata.svg
+.. image:: /image/Elucidata.png
    :target: http://www.elucidata.io/
 
 
@@ -25,9 +25,11 @@ Digital Object Identifier
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1332034.svg
    :target: https://doi.org/10.5281/zenodo.1332034
 
+Contents
+--------
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    Download
    Build
