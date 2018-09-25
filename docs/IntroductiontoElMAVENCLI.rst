@@ -1,12 +1,15 @@
 El-MAVEN Command Line Interface
 ===============================
 
+|
+
 The peakdetector executable in El-MAVEN can load sample files, perform peak detection and save the resulting peaks in a CSV or mzroll file. It reads a configuration file with user-set parameters and paths to input and output files.
 
 This executable is not part of installer versions of El-MAVEN. Please clone the repository and build `El-MAVEN <https://github.com/ElucidataInc/ElMaven/blob/develop/README.md#compilation>`_ to use this feature.
 
 
-**Create a default configuration file**
+Create a default configuration file
+-----------------------------------
 
 Users need an XML file to specify their configuration and specify directory paths. The XML template can be generated using a simple command and modified according to user requirements.
 
@@ -22,25 +25,26 @@ Users need an XML file to specify their configuration and specify directory path
 
       * For Windows and Linux: 
 
-   ::
+      ::
 
-   $ ./bin/peakdetector.exe --defaultxml
+      $ ./bin/peakdetector.exe --defaultxml
       
       * For MacOS: 
 
-   ::
+      ::
 
-   $ ./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml
+      $ ./bin/peakdetector.app/Contents/MacOS/peakdetector --xml config.xml
 
    * A default XML will be created in your current folder
 
-**Peak detector parameters**
+Peak detector parameters
+------------------------
 
 CLI provides a limited number of parameters for user-modification. Default values are used for all other parameters used in El-MAVEN GUI.
 
 The template XML contains three sets of parameters:
 
-1. **OptionalDialogArguments - Global parameters**
+**1. OptionalDialogArguments - Global parameters**
 
    * User needs to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive): ``ionizationMode type="int" value="-1"``  
 
@@ -48,7 +52,7 @@ The template XML contains three sets of parameters:
 
    * Mass accuracy. Set the +/- ppm range for m/z values: ``compoundPPMWindow type="float" value="5"`` 
 
-2. **PeaksDialogArguments - Peak detection parameters**
+**2. PeaksDialogArguments - Peak detection parameters**
 
    * Peak Detection Algorithm. Accepted values: "0" for Compound Database Search, "1" (or higher) for Automated Feature Detection: ``processAllSlices type="int" value="0"``
 
@@ -108,7 +112,7 @@ The template XML contains three sets of parameters:
 
    * Not used by CLI: ``rtStepSize type="float" value="20"``
 
-3. **GeneralArguments - General parameters**
+**3. GeneralArguments - General parameters**
 
    * Alignment. Positive integer value will run an alignment algorithm: ``alignSamples type="int" value="0"`` 
 
@@ -121,7 +125,8 @@ The template XML contains three sets of parameters:
    * Sample Path. Enter full path to a sample file in each row: ``samples type="string" value="0"`` 
 
 
-**Run**
+Run
+^^^
 
 Once the parameters and directory paths have been set in the configuration file, run peak detection from the terminal using the following command from the El-MAVEN root directory:
 
@@ -139,7 +144,8 @@ Once the parameters and directory paths have been set in the configuration file,
 
 The resulting CSV file (and other files depending on the configuration) can be found in the specified output directory.
 
-**Help**
+Help
+^^^^
 
 To print the help commands, execute the following:
 

@@ -1,6 +1,8 @@
 El-MAVEN Features
 =================
 
+|
+
 `Maven <http://genomics-pubs.princeton.edu/mzroll/index.php>`_ and 
 `El-MAVEN <https://elucidatainc.github.io/ElMaven/>`_ share the following features:
 

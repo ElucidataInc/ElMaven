@@ -6,6 +6,7 @@
 User Documentation
 ==================
 
+|
 
 Welcome to the El-MAVEN wiki!
 
@@ -14,7 +15,7 @@ El-MAVEN is an open source LC-MS data processing engine that is optimal for isot
 Find out more about the software through the links below.
 
 Introduction
-----------------
+------------
 
 .. toctree::
    :maxdepth: 2

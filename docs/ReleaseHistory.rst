@@ -1,135 +1,211 @@
 Release History
 ===============
 
-**Publication Date: August 4, 2018**
-`ElucidataInc/ElMaven: v0.4.1 <https://zenodo.org/record/1332034>`_
+|
 
-   Optimisations
+`Version 0.4.1 <https://zenodo.org/record/1332034>`_
+-----------------------------------------------------
 
-      * Faster sample upload
-      * Checking/unchecking a sample in the presence of a large peak table is faster (#723)
-      * No lag in switching between two large peak tables
+.. `ElucidataInc/ElMaven: v0.4.1 <https://zenodo.org/record/1332034>`_
 
-   UI Changes
+Publication Date: August 4th, 2018
 
-      * Added a close button for Scatter Plot widget
-      * Removed 'Load Peaks' from Peak tables
-      * 'Gallery' widget is only available on the side bar panel
-      * Removed 'Ratio' and 'p-value' columns from Peak tables (available in Scatter Plot Peak Table)
-      * Removed 'Good' and 'Bad' marking options from EIC widget
-      * Polly upload button is not clickable during the upload process (#805 )
-      * Single button for exporting EIC on EIC widget
-      * Removed 'Scatter Plot' button from side bar panel
+* Optimisations
 
-   Bugs
+   * Faster sample upload
+   * Checking/unchecking a sample in the presence of a large peak table is faster `(#723) <https://github.com/ElucidataInc/ElMaven/issues/723>`_
+   * No lag in switching between two large peak tables
 
-      * Isotopic peak filtering based on peak quality has been fixed (#772)
-      * Crash in bookmark button has been fixed (#768)
-      * Empty tables will no longer be uploaded to Polly (#777)
-      * Only a single compound database file (.csv) will be uploaded to Polly
+* UI Changes
 
+   * Added a close button for Scatter Plot widget
+   * Removed 'Load Peaks' from Peak tables
+   * 'Gallery' widget is only available on the side bar panel
+   * Removed 'Ratio' and 'p-value' columns from Peak tables (available in Scatter Plot Peak Table)
+   * Removed 'Good' and 'Bad' marking options from EIC widget
+   * Polly upload button is not clickable during the upload process `(#805) <https://github.com/ElucidataInc/ElMaven/issues/805>`_
+   * Single button for exporting EIC on EIC widget
+   * Removed 'Scatter Plot' button from side bar panel
 
-**Publication Date: July 17th, 2018**
-`ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
+* Bugs
 
-      * Fixed Isotopic detection in shift-drag integration #781
-      * Groups with zero peaks will not be bookmarked on shift-drag integration
-      * Fixed a bug in changing compound database from the drop-down
-      * Getting Started window will not open behind the main application #775
+   * Isotopic peak filtering based on peak quality has been fixed `(#772) <https://github.com/ElucidataInc/ElMaven/issues/772>`_
+   * Crash in bookmark button has been fixed `(#768) <https://github.com/ElucidataInc/ElMaven/issues/768>`_
+   * Empty tables will no longer be uploaded to Polly `(#777) <https://github.com/ElucidataInc/ElMaven/issues/777>`_
+   * Only a single compound database file (.csv) will be uploaded to Polly
 
+|
 
-**Publication Date: July 16, 2018**
-`ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
+`Version 0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
+------------------------------------------------------------
 
-      * Fixed Isotopic detection in shift-drag integration #781
-      * Groups with zero peaks will not be bookmarked on shift-drag integration
-      * Fixed a bug in changing compound database from the drop-down
-      * Getting Started window will not open behind the main application #775
+.. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
 
+Publication Date: July 17th, 2018
 
-**Publication Date: July 5th, 2018** 
-`ElucidataInc/ElMaven: v0.4.0-beta <https://zenodo.org/record/1305465>`_
+   * Fixed Isotopic detection in shift-drag integration `(#781) <https://github.com/ElucidataInc/ElMaven/issues/781>`_
+   * Groups with zero peaks will not be bookmarked on shift-drag integration
+   * Fixed a bug in changing compound database from the drop-down
+   * Getting Started window will not open behind the main application `(#775) <https://github.com/ElucidataInc/ElMaven/issues/775>`_
 
+|
 
-**Publication Date: May 17th, 2018**
-`ElucidataInc/ElMaven: v0.3.2 <https://zenodo.org/record/1248658>`_
+`Version 0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
+------------------------------------------------------------
 
+.. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
 
-**Publication Date: April 27th, 2018**
-`ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1232373>`_
+Publication Date: July 16th, 2018
 
-   Bug Fixes:
+   * Fixed Isotopic detection in shift-drag integration `(#781) <https://github.com/ElucidataInc/ElMaven/issues/781>`_
+   * Groups with zero peaks will not be bookmarked on shift-drag integration
+   * Fixed a bug in changing compound database from the drop-down
+   * Getting Started window will not open behind the main application `(#775) <https://github.com/ElucidataInc/ElMaven/issues/775>`_
 
-      * Fixed compound name in CSV export (#635 )
-      * Fixed automated detection of high ranking groups
-      * Fix installer issue on Mac (Installer not working due to netcdf addition)
+|
 
-   UI:
+`Version 0.4.0-beta <https://zenodo.org/record/1305465>`_
+----------------------------------------------------------
 
-      * Change default tab for El-MAVEN - Polly Integration dialog
+.. `ElucidataInc/ElMaven: v0.4.0-beta <https://zenodo.org/record/1305465>`_
 
+Publication Date: July 5th, 2018 
 
-**Publication Date: April 26th, 2018**
-`ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1230370>`_
+|
 
+`Version 0.3.2 <https://zenodo.org/record/1248658>`_
+-----------------------------------------------------
 
-**Publication Date: April 24th, 2018**
-`ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1228065>`_
+.. `ElucidataInc/ElMaven: v0.3.2 <https://zenodo.org/record/1248658>`_
 
+Publication Date: May 17th, 2018
 
-**Publication Date: April 23rd, 2018**
-`ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1227187>`_
+|
 
+`Version 0.3.1 <https://zenodo.org/record/1232373>`_
+-----------------------------------------------------
 
-**Publication Date: April 11th, 2018**
-`ElucidataInc/ElMaven: v0.3.0-beta <https://zenodo.org/record/1216928>`_
+.. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1232373>`_
 
-   Features
+Publication Date: April 27th, 2018
 
-      * Export Scatter plot groups into a peak table
-      * Introduced Exception handling in sample upload process
-      * Send logs to sentry in the event of a crash
-      * Upload data to Polly through CLI and GUI
-      * Download project settings from Polly
-      * New Alignment algorithm: Obi-warp
-      * Support for cdf files on Windows
-      * Highlight detected compounds in the database
+* Bug Fixes:
 
-   Enhancement
+   * Fixed compound name in CSV export `(#635) <https://github.com/ElucidataInc/ElMaven/issues/635>`_
+   * Fixed automated detection of high ranking groups
+   * Fix installer issue on Mac (Installer not working due to netcdf addition)
+
+* UI:
+
+   * Change default tab for El-MAVEN - Polly Integration dialog
+
+|
+
+`Version 0.3.1 <https://zenodo.org/record/1230370>`_
+-----------------------------------------------------
+
+.. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1230370>`_
+
+Publication Date: April 26th, 2018
+
+|
+
+`Version 0.3.0 <https://zenodo.org/record/1228065>`_
+-----------------------------------------------------
+
+.. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1228065>`_
+
+Publication Date: April 24th, 2018
+
+|
+
+`Version 0.3.0 <https://zenodo.org/record/1227187>`_
+-----------------------------------------------------
+
+.. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1227187>`_
+
+Publication Date: April 23rd, 2018
+
+|
+
+`Version 0.3.0-beta <https://zenodo.org/record/1216928>`_
+----------------------------------------------------------
+
+.. `ElucidataInc/ElMaven: v0.3.0-beta <https://zenodo.org/record/1216928>`_
+
+Publication Date: April 11th, 2018
+
+* Features
+
+   * Export Scatter plot groups into a peak table
+   * Introduced Exception handling in sample upload process
+   * Send logs to sentry in the event of a crash
+   * Upload data to Polly through CLI and GUI
+   * Download project settings from Polly
+   * New Alignment algorithm: Obi-warp
+   * Support for cdf files on Windows
+   * Highlight detected compounds in the database
+
+* Enhancement
    
-      * Consistent sample ordering across widgets
-      * Append Sample number to Sample Name for mzML files
+   * Consistent sample ordering across widgets
+   * Append Sample number to Sample Name for mzML files
 
-   Refactor
+* Refactor
  
-      * Isotope Widget
-      * Isotope detection
+   * Isotope Widget
+   * Isotope detection
 
-   Bug fixes
+* Bug fixes
  
-      * Fixed Isotopes expected m/z in mzroll
-      * Blank samples will be visible in sample widget
-      * Fix trailing delimiter in peak detailed format
-      * Isotopic intensities are consistent between isotope widget and peaks table
+   * Fixed Isotopes expected m/z in mzroll
+   * Blank samples will be visible in sample widget
+   * Fix trailing delimiter in peak detailed format
+   * Isotopic intensities are consistent between isotope widget and peaks table
 
+|
 
-**Publication Date: February 7th, 2018**
-`ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1168226>`_
+`Version 0.2.4 <https://zenodo.org/record/1168226>`_
+-----------------------------------------------------
 
+.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1168226>`_
 
-**Publication Date: February 5th, 2018**
-`ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1165654>`_
+Publication Date: February 7th, 2018
 
+|
 
-**Publication Date: January 24th, 2018**
-`ElucidataInc/ElMaven: El-MAVEN v0.2.4 Beta <https://zenodo.org/record/1158577>`_
+`Version 0.2.4 <https://zenodo.org/record/1165654>`_
+-----------------------------------------------------
 
+.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1165654>`_
 
-**Publication Date: January 23rd, 2018**
-`ElucidataInc/ElMaven: El-MAVEN v0.2.3 <https://zenodo.org/record/1157953>`_
+Publication Date: February 5th, 2018
 
+|
 
-**Publication Date: December 28th, 2017**
-`ElucidataInc/ElMaven: El-MAVEN v0.2.2 <https://zenodo.org/record/1133506>`_
+`Version 0.2.4 Beta <https://zenodo.org/record/1158577>`_
+----------------------------------------------------------
+
+.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 Beta <https://zenodo.org/record/1158577>`_
+
+Publication Date: January 24th, 2018
+
+|
+
+`Version 0.2.3 <https://zenodo.org/record/1157953>`_
+-----------------------------------------------------
+
+.. `ElucidataInc/ElMaven: El-MAVEN v0.2.3 <https://zenodo.org/record/1157953>`_
+
+Publication Date: January 23rd, 2018
+
+|
+
+`Version 0.2.2 <https://zenodo.org/record/1133506>`_
+-----------------------------------------------------
+
+.. `ElucidataInc/ElMaven: El-MAVEN v0.2.2 <https://zenodo.org/record/1133506>`_
+
+Publication Date: December 28th, 2017
 
 

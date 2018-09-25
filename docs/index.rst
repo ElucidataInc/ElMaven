@@ -11,8 +11,6 @@ An intuitive, opensource LC-MS data processing engine from
 .. image:: /image/Elucidata.svg
    :target: http://www.elucidata.io/
 
-|
-
 
 Travis Build
 ------------
@@ -22,7 +20,7 @@ Travis Build
 
 
 Digital Object Identifier
-------------------------
+-------------------------
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1332034.svg
    :target: https://doi.org/10.5281/zenodo.1332034

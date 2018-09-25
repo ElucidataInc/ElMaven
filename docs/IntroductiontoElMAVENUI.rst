@@ -1,6 +1,8 @@
 El-MAVEN User Interface
 =======================
 
+|
+
 Following is the general workflow involved in El-MAVEN:
 
 .. image:: /image/Workflow.png
@@ -47,15 +49,17 @@ Following is the general workflow involved in El-MAVEN:
 .. |export to csv| image:: /image/Widget_36.png
 .. |export to json| image:: /image/Widget_37.png
 
-**El-MAVEN UI**
+.. El-MAVEN User Interface
+.. -----------------------
 
 Screenshot
 
-**Global Settings**
+Global Settings
+---------------
 
 Global Settings can be changed from the Options dialog |options|.
 
-Instrumentation
+**Instrumentation**
 
 Screenshot
 
@@ -69,7 +73,7 @@ Screenshot
 
    * *Filterline*: The drop-down lists different mass ranges and allows the user to process the data in these ranges separately with different parameters. Primarily used for polarity-switching experiments.
 
-File Import
+**File Import**
 
 Screenshot
 
@@ -85,11 +89,11 @@ Screenshot
 
    * *Enable Multiprocessing*: In order to reduce sample load time, El-MAVEN uses multiprocessing. This behavior can be changed by the user.
 
-Peak Detection 
+**Peak Detection** 
 
 Screenshot
 
-Peak Grouping and Grouping Settings
+**Peak Grouping and Grouping Settings**
 
    * *EIC Smoothing Algorithm*: Smoothing of data points helps in increasing the signal/noise ratio. There are three algorithms provided for EIC smoothing: 
 
@@ -103,21 +107,24 @@ Peak Grouping and Grouping Settings
 
    * *Maximum Retention Time Difference Between Peaks*: Set a limit to RT difference between peaks in a group. Increase the value if alignment fails to center peaks satisfactorily.
 
-Baseline Calculation
+**Baseline Calculation**
 
    * *Drop top x% intensities from chromatogram*: Set the baseline for every peak. Baseline is obtained once x% of the highest intensities in a peak are removed from consideration. Baseline should be set high when there is more noise in the data.
 
    * *Baseline Smoothing*: Number of scans used for fitting in the smoothing algorithm can be adjusted here.
 
-Peak Filtering
+**Peak Filtering**
 
    * *Minimum Signal Baseline Difference*: Set the minimum difference between intensity and baseline to detect any signal as a valid peak.
 
 Isotope Detection
+-----------------
+
+.. **Isotope Detection**
 
 Screenshot
 
-Are Samples Labeled?
+**Are Samples Labeled?**
 
    * *Bookmarks, peak detection, file export*: Select the labeled atoms that should be used in bookmarking, peak detection and export. D2: Deuterium, C13: Labeled carbon, N15: Labeled nitrogen, S34: Labeled sulphur.
 
@@ -129,7 +136,7 @@ Are Samples Labeled?
 
    * *Abundance Threshold*: Set the minimum threshold for isotopic abundance. Isotopic abundance is the ratio of intensity of isotopic peak over the parent peak.
 
-Filter Isotopic Peaks based on these criteria
+**Filter Isotopic Peaks based on these criteria**
 
    * *Minimum Isotope-Parent Correlation*: Set the minimum threshold for isotope-parent peak correlation. This correlation is a measure of how often they appear together.
 
@@ -139,17 +146,17 @@ Filter Isotopic Peaks based on these criteria
 
    * *Correct for Natural C13 Isotope Abundance*: Check the box to correct for natural C13 abundance.
 
-EIC (XIC) [BETA]
+**EIC (XIC) [BETA]**
 
 Screenshot
 
    * *EIC Type*: Select a method to merge EICs over m/z. There are two options: 
 
-      (a) MAX: Merged EIC is created by taking the maximum intensity across the m/z window at a particular scan.
+      (a) *MAX*: Merged EIC is created by taking the maximum intensity across the m/z window at a particular scan.
 
-      (b) SUM: Merged EIC is created by taking the sum average of intensities across the m/z window at a particular scan.
+      (b) *SUM*: Merged EIC is created by taking the sum average of intensities across the m/z window at a particular scan.
 
-Peak Grouping
+**Peak Grouping**
 
 Screenshot
 
@@ -171,7 +178,7 @@ Screenshot
 
          * Sliders are provided to adjust the weights attached to each of the three parameters.
 
-Group Rank
+**Group Rank**
 
    * *Group Rank Formula*: Group rank is one of the parameters for group filtering. There are two formulas below for group rank calculation:
 
@@ -195,6 +202,9 @@ Group Rank
 
          * *dRT Weight*: Adjust slider to set weight for RT difference in group rank calculation. The slider is disabled if Consider Retention Time is unchecked.
 
+Sample Upload
+-------------
+
 **Load Sample Files**
 
 Load |load samples| sample files into El-MAVEN and click on *Show Samples Widget* |show samples| on the widget bar to show/hide the project space. Blanks will not show up in the sample list if the file names start with 'blan' or 'blank'. 
@@ -211,7 +221,7 @@ There are three columns in the project space:
 
    * *Scaling*: This column holds the normalization constant for every sample. For example, all intensities in a sample will be halved if the constant is two. This is done to normalize data if sample volumes are different.
 
-Sample Space Menu
+**Sample Space Menu**
 
    * |load project| *Load Project*: Sample files can be loaded here.
 
@@ -231,6 +241,9 @@ Screenshot
 
 Screenshot
 
+Compound Database
+-----------------
+
 **Load Reference File**
 
 Screenshot
@@ -239,7 +252,10 @@ Reference file contains a list of metabolites and their properties that are used
 
 Screenshot
 
-**EIC Window**
+EIC
+---
+
+.. **EIC Window**
 
 Screenshot
 
@@ -299,13 +315,19 @@ Some of the important options are:
 
    * *Show EIC as Lines*: In case of large number of samples, it can get difficult to look at short individual peaks as they are obscured by larger peaks. Showing EIC as lines cleans up the display window and allows the user to look at small peaks.
 
-**Mass Spectra**
+Mass Spectra
+------------
+
+.. **Mass Spectra**
 
 Mass Spectra Widget displays each peak, its mass, and intensity for a scan. As the widget shows all detected masses in a scan, the ppm window for the EIC and consequently grouping can be adjusted accordingly. This feature is especially useful for MS/MS data and isotopic detection. 
 
 Screenshot
 
-**Alignment**
+Alignment
+---------
+
+.. **Alignment** 
 
 Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median RT of the group.
 
@@ -341,7 +363,7 @@ The *Alignment Algorithm* panel provides the following options:
 
 Click on *Align* at the bottom.
 
-Alignment Visualizations
+**Alignment Visualizations**
 
 El-MAVEN provides three visualizations for alignment analysis.
 
@@ -359,13 +381,16 @@ Screenshot
 
 The above graphs give a clear indication of how aligned/misaligned the peaks are. User may run alignment again with different parameters if required (or with a different algorithm).
 
-**Peak Detection**
+Peak Detection
+--------------
+
+.. **Peak Detection**
 
 Peak detection algorithm pulls the EICs, detects peaks and performs grouping and filtering based on parameters controlled by the user. The algorithm groups identical peaks across samples and calculates the quality score by a machine learning algorithm. Click on the *Peaks* icon |peaks| on the top to open the settings dialog.
 
 There are 3 tabs for setting Peak Detection parameters:
 
-1. Feature Detection Selection
+**1. Feature Detection Selection**
 
 Screenshot
 
@@ -397,7 +422,7 @@ The Feature Detection Selection panel has the following parameters:
 
    To perform peak detection with reference, check the box next to *Compound Database Search* and choose the appropriate database. The *EIC Extraction Window* should be set according to the instrument's resolving power. Select the *Match Retention Time* option if you wish to search for compounds using both the m/z ratio and rt value given in the database. In case of a generic database, searching by retention time is not recommended.
 
-2. Group Filtering
+**2. Group Filtering**
 
 Screenshot
 
@@ -417,15 +442,18 @@ After grouping is done, groups that do not fulfill the criteria shown above are 
 
 Change the settings according to the data and click on *Find Peaks* to run peak detection. For beginners, performing peak detection with default values at first is recommended. User may then adjust the settings depending on their results.
 
-3. Method Summary
+**3. Method Summary**
 
 Peak Table
+----------
+
+.. **Peak Table**
 
 Screenshot
 
 Groups information obtained after Peak Detection is stored and displayed in the form of a Peak Table with a row representing a group and its corresponding features in columns. User can show/hide the peak table by clicking on |peaks| the widget bar.
 
-Peak Table Features 
+**Peak Table Features**
 
 Following are the different features/columns in a peak table:
 
@@ -455,7 +483,7 @@ Following are the different features/columns in a peak table:
 
    * *Rank*: is the group rank. The formula and parameters involved have been explained `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_.
 
-Peak Table Menu Bar
+**Peak Table Menu Bar**
 
 Screenshot
 
@@ -481,7 +509,10 @@ Screenshot
 
 The remaining are export options and will be detailed in the `Export <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#export-options>`_ section.
 
-Statistics Module
+Statistics
+----------
+
+.. **Statistics Module**
 
 El-MAVEN comes equipped with a statistics module for comparing data across different cohorts. User can set the sample cohorts either by editing the Set column in the Sample space, or upload a meta file with sample and cohort names as detailed above under the "Sample Space Menu" section.
 
@@ -521,7 +552,10 @@ Screenshot
 
    * |peaks| *Scatter Plot Table*: A separate Peak Table is created with all filtered groups being used for statistical analysis. User can also export these in a CSV or JSON.
 
-Export options
+Export
+------
+
+.. **Export options**
 
 User can either save the state of the project or export only relevant data from the peak table. These are the different export options available in El-MAVEN:
 
