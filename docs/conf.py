@@ -40,7 +40,6 @@ release = u'v0.4.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'rst2pdf.pdfbuilder'
 ]
 
 pdf_documents = [('index', u'rst2pdf', u'El-MAVEN Documentation', u'Elucidata Corporation'),]
