@@ -11,7 +11,7 @@ const int DEFAULT_MESSAGE_SHOW_TIME = 10000;
 const float WINDOW_TRANSPARENT_OPACITY = 0.7;
 const float WINDOW_NONTRANSPARENT_OPACITY = 1.0;
 
-const int NOTIFICATION_MARGIN = 0;
+const int NOTIFICATION_MARGIN = 10;
 const int ICON_SPACING = 16;
 const int TEXT_SPACING = 8;
 }
@@ -161,11 +161,10 @@ void Notificator::initializeLayout()
 	QGridLayout *layout = new QGridLayout(this );
 	layout->setHorizontalSpacing( 12 );
 	layout->setVerticalSpacing(0);
-	layout->setContentsMargins(10, 0, 0, 10);
-	layout->addWidget( closeButton, 0, 2, 1, 1, Qt::AlignTop|Qt::AlignRight);
-	layout->addWidget( d->icon(), 1, 0, 1, 1, Qt::AlignTop );
 	//layout->addWidget( d->title(), 0, 1 );
-	layout->addWidget( d->message(), 1, 1 );
+	layout->addWidget( d->icon(), 0, 0, 1, 1, Qt::AlignCenter);
+	layout->addWidget( d->message(), 0, 1, 1, 1, Qt::AlignCenter);
+	layout->addWidget( closeButton, 0, 2, 1, 1, Qt::AlignCenter);
 	layout->addWidget( d->preloader(), 1, 3, 1, 1 );
 	layout->addWidget( d->progress(), 2, 1, 1, 2);
 }
