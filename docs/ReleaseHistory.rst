@@ -8,7 +8,7 @@ Release History
 
 .. `ElucidataInc/ElMaven: v0.4.1 <https://zenodo.org/record/1332034>`_
 
-Publication Date: August 4th, 2018
+Publication Date: August 4\ :sup:`th`, 2018
 
 * Optimisations
 
@@ -41,7 +41,7 @@ Publication Date: August 4th, 2018
 
 .. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
 
-Publication Date: July 17th, 2018
+Publication Date: July 17\ :sup:`th`, 2018
 
    * Fixed Isotopic detection in shift-drag integration `(#781) <https://github.com/ElucidataInc/ElMaven/issues/781>`_
    * Groups with zero peaks will not be bookmarked on shift-drag integration
@@ -55,7 +55,7 @@ Publication Date: July 17th, 2018
 
 .. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
 
-Publication Date: July 16th, 2018
+Publication Date: July 16\ :sup:`th`, 2018
 
    * Fixed Isotopic detection in shift-drag integration `(#781) <https://github.com/ElucidataInc/ElMaven/issues/781>`_
    * Groups with zero peaks will not be bookmarked on shift-drag integration
@@ -69,7 +69,7 @@ Publication Date: July 16th, 2018
 
 .. `ElucidataInc/ElMaven: v0.4.0-beta <https://zenodo.org/record/1305465>`_
 
-Publication Date: July 5th, 2018 
+Publication Date: July 5\ :sup:`th`, 2018 
 
 |
 
@@ -78,7 +78,7 @@ Publication Date: July 5th, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.2 <https://zenodo.org/record/1248658>`_
 
-Publication Date: May 17th, 2018
+Publication Date: May 17\ :sup:`th`, 2018
 
 |
 
@@ -87,7 +87,7 @@ Publication Date: May 17th, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1232373>`_
 
-Publication Date: April 27th, 2018
+Publication Date: April 27\ :sup:`th`, 2018
 
 * Bug Fixes:
 
@@ -106,7 +106,7 @@ Publication Date: April 27th, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1230370>`_
 
-Publication Date: April 26th, 2018
+Publication Date: April 26\ :sup:`th`, 2018
 
 |
 
@@ -115,7 +115,7 @@ Publication Date: April 26th, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1228065>`_
 
-Publication Date: April 24th, 2018
+Publication Date: April 24\ :sup:`th`, 2018
 
 |
 
@@ -124,7 +124,7 @@ Publication Date: April 24th, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1227187>`_
 
-Publication Date: April 23rd, 2018
+Publication Date: April 23\ :sup:`rd`, 2018
 
 |
 
@@ -133,7 +133,7 @@ Publication Date: April 23rd, 2018
 
 .. `ElucidataInc/ElMaven: v0.3.0-beta <https://zenodo.org/record/1216928>`_
 
-Publication Date: April 11th, 2018
+Publication Date: April 11\ :sup:`th`, 2018
 
 * Features
 
@@ -170,7 +170,7 @@ Publication Date: April 11th, 2018
 
 .. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1168226>`_
 
-Publication Date: February 7th, 2018
+Publication Date: February 7\ :sup:`th`, 2018
 
 |
 
@@ -179,7 +179,7 @@ Publication Date: February 7th, 2018
 
 .. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1165654>`_
 
-Publication Date: February 5th, 2018
+Publication Date: February 5\ :sup:`th`, 2018
 
 |
 
@@ -188,7 +188,7 @@ Publication Date: February 5th, 2018
 
 .. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 Beta <https://zenodo.org/record/1158577>`_
 
-Publication Date: January 24th, 2018
+Publication Date: January 24\ :sup:`th`, 2018
 
 |
 
@@ -197,7 +197,7 @@ Publication Date: January 24th, 2018
 
 .. `ElucidataInc/ElMaven: El-MAVEN v0.2.3 <https://zenodo.org/record/1157953>`_
 
-Publication Date: January 23rd, 2018
+Publication Date: January 23\ :sup:`rd`, 2018
 
 |
 
@@ -206,6 +206,6 @@ Publication Date: January 23rd, 2018
 
 .. `ElucidataInc/ElMaven: El-MAVEN v0.2.2 <https://zenodo.org/record/1133506>`_
 
-Publication Date: December 28th, 2017
+Publication Date: December 28\ :sup:`th`, 2017
 
 
