@@ -17,6 +17,18 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
 macx: QMAKE_CXXFLAGS += -O3
 QMAKE_CXXFLAGS += -fopenmp
 
+!isEmpty(ON_TRAVIS) {
+    CONFIG(debug, debug|release) {
+        message("adding gcov compiler flags")
+        unix:!macx {
+            QMAKE_CCFLAGS += -fprofile-arcs -ftest-coverage
+            QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+            QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
+            QMAKE_LFLAGS += -lgcov --coverage
+        }
+    }
+}
+
 TARGET = maven
 
 LIBS += -L. -lcsvparser -ldate -lErrorHandling
