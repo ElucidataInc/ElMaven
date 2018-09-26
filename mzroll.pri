@@ -18,7 +18,7 @@ unix: {
     LIBS +=  -lboost_signals -lErrorHandling -lobiwarp
 }
 
-!isEmpty(ON_TRAVIS) {
+!isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
     linux|win32 {
         message("linking with gcov")
         QMAKE_LFLAGS += -lgcov --coverage

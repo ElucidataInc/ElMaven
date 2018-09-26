@@ -16,7 +16,7 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
 !macx: QMAKE_CXXFLAGS += -fopenmp
 !macx: LIBS += -fopenmp
 
-!isEmpty(ON_TRAVIS) {
+!isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
     CONFIG(debug, debug|release) {
         linux|win32 {
             message("adding gcov compiler flags")
