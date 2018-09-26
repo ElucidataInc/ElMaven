@@ -38,7 +38,7 @@ Users are recommended to download the installers provided on the El-MAVEN websit
 
 * Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
 
- * For 64 bit
+* For 64 bit
 
    ::
 
@@ -47,7 +47,7 @@ Users are recommended to download the installers provided on the El-MAVEN websit
    $ pacman --force -Su
    $ pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git
 
- * For 32 bit
+* For 32 bit
 
    ::
 
@@ -133,15 +133,15 @@ Follow these steps to pull a specific release:
    $ git pull
    $ git checkout v0.x.y (Example: v0.4.1)
 
-   * Build the new version using the following commands:
+* Build the new version using the following commands:
 
-      * For Windows and Ubuntu
+   * For Windows and Ubuntu
 
       ::
 
          $ ./run.sh
 
-      * For MacOS
+   * For MacOS
 
       ::
 
