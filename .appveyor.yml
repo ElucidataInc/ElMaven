@@ -22,7 +22,7 @@ install:
 
 build_script:
 
-    - bash -lc "cd C:/projects/ElMaven/ ; echo yes | ./run.sh"
+    - bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh"
 
 #before_build:
   #- git submodule update --init --recursive
