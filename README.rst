@@ -38,7 +38,7 @@ Users are recommended to download the installers provided on the El-MAVEN websit
 
 * Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
 
-   * For 64 bit
+   * For 64 bit:
 
    ::
 
@@ -154,17 +154,17 @@ El-MAVEN Features
 
 `Maven <http://genomics-pubs.princeton.edu/mzroll/index.php>`_ and `El-MAVEN <https://elucidatainc.github.io/ElMaven/>`_ share the following features:
 
-   * Multi-file chromatographic aligner
+* Multi-file chromatographic aligner
 
-   * Peak-feature detector
+* Peak-feature detector
 
-   * Isotope and adduct calculator
+* Isotope and adduct calculator
 
-   * Formula predictor
+* Formula predictor
 
-   * Pathway visualizer
+* Pathway visualizer
 
-   * Isotopic flux animator
+* Isotopic flux animator
 
 El-MAVEN is faster, more robust and has more user friendly features as compared to Maven.
 
@@ -172,6 +172,7 @@ Bugs and Feature Requests
 ----------------------
 
 Existing bugs and feature requests can be found on `El-MAVEN's GitHub issue page <https://github.com/ElucidataInc/ElMaven/issues>`_. 
+
 Please search the existing bugs and feature requests before you file one yourself.
 
 Documentation
@@ -226,11 +227,11 @@ References
 
 To understand `Maven's <http://genomics-pubs.princeton.edu/mzroll/index.php>`_ and `El-MAVEN's <https://elucidatainc.github.io/ElMaven/>`_ workflows and features, please refer to the following literature on Maven:
 
-   * `Metabolomic Analysis and Visualization Engine for LC-MS Data <https://pubs.acs.org/doi/abs/10.1021/ac1021166>`_, Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
+* `Metabolomic Analysis and Visualization Engine for LC-MS Data <https://pubs.acs.org/doi/abs/10.1021/ac1021166>`_, Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
 
-   * `LC-MS Data Processing with MAVEN: A Metabolomic Analysis and Visualization Engine <https://currentprotocols.onlinelibrary.wiley.com/doi/abs/10.1002/0471250953.bi1411s37>`_, Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
+* `LC-MS Data Processing with MAVEN: A Metabolomic Analysis and Visualization Engine <https://currentprotocols.onlinelibrary.wiley.com/doi/abs/10.1002/0471250953.bi1411s37>`_, Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
 
-   * Book Chapter by Shubhra
+* Book Chapter by Shubhra
 
 Acknowledgement  
 ---------------
