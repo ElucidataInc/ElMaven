@@ -18,8 +18,8 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
 
 !isEmpty(ON_TRAVIS) {
     CONFIG(debug, debug|release) {
-        message("adding gcov compiler flags")
-        unix:!macx {
+        linux|win32 {
+            message("adding gcov compiler flags")
             QMAKE_CCFLAGS += -fprofile-arcs -ftest-coverage
             QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
             QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
