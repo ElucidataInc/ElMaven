@@ -481,15 +481,32 @@ void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString upload
 
 QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread)
 {
+    QString redirectionUrl;
+    //redirect to firstView
+    if (stackedWidget->currentIndex() == 0) {
+        redirectionUrl = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(uploadProjectIdThread).arg("firstview").arg(datetimestamp);
+        return redirectionUrl;
+    }
+    
+    //redirect to fluxomics
     if (stackedWidget->currentIndex() == 1) { 
-        redirectTo = "relative_lcms_elmaven";
+        QString landingPage = QString("relative_lcms_elmaven");
+        QString workflowRequestId = _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
+        
+        //send to google sheets if sample cohort file is not valid
         QString CohortFileName = writableTempDir + QDir::separator() + datetimestamp + "_Cohort_Mapping_Elmaven.csv";
         if (!_pollyIntegration->validSampleCohort(CohortFileName))
-            redirectTo = "gsheet_sym_polly_elmaven";
-    } else redirectTo = "firstview";    
-    
-    QString redirection_url = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(uploadProjectIdThread).arg(redirectTo).arg(datetimestamp);
-    return redirection_url;
+            landingPage = QString("gsheet_sym_polly_elmaven");
+
+        redirectionUrl = QString(
+                            "https://polly.elucidata.io/workflow-requests/%1/lcms_tstpl_pvd/dashboard#redirect-from=%2#project=%3#timestamp=%4")
+                            .arg(workflowRequestId)
+                            .arg(landingPage)
+                            .arg(uploadProjectIdThread)
+                            .arg(datetimestamp);
+        
+    }  
+    return redirectionUrl;  
 }
 
 QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString datetimestamp)

@@ -75,7 +75,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 TableDockWidget* _activeTable = NULL ;
                 void createIcons();
                 QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
-                QString redirectTo = "firstview";
                 void setUiElementsFlux();
                 void setUiElementsFV();
                 QMap<QString, TableDockWidget*> tableNameMapping;
