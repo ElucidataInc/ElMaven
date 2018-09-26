@@ -363,7 +363,8 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     }
     QCoreApplication::processEvents();
     QDateTime current_time;
-    QString datetimestamp = current_time.currentDateTime().toString();
+    const QString format = "dd-MM-yyyy_hh_mm_ss";
+	QString datetimestamp= current_time.currentDateTime().toString(format);
     datetimestamp.replace(" ","_");
     datetimestamp.replace(":","-");
     
