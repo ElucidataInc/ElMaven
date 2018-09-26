@@ -8,6 +8,7 @@
 
 ## Travis Build
 [![Build Status](https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop)](https://travis-ci.org/ElucidataInc/ElMaven)
+[![codecov](https://codecov.io/gh/ElucidataInc/ElMaven/branch/travis_mac/graph/badge.svg)](https://codecov.io/gh/ElucidataInc/ElMaven)
 
 ## Digital Object Identifier (DOI) 
 [![DOI](https://zenodo.org/badge/70220005.svg)](https://zenodo.org/badge/latestdoi/70220005)
