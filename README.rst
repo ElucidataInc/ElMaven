@@ -135,21 +135,19 @@ Follow these steps to pull a specific release:
 
 * Build the new version using the following commands:
 
-|
+* For Windows and Ubuntu
 
-   * For Windows and Ubuntu
+   ::
 
-      ::
+   $ ./run.sh
 
-         $ ./run.sh
+* For MacOS
 
-   * For MacOS
+   ::
 
-      ::
-
-         $ source ~/.profile
-         $ qmake CONFIG+=debug -o Makefile build.pro
-         $ make -j4
+   $ source ~/.profile
+   $ qmake CONFIG+=debug -o Makefile build.pro
+   $ make -j4
 
 El-MAVEN Features
 ---------------
