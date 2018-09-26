@@ -1,9 +1,9 @@
-Readme
-======
+El-MAVEN
+========
 
 An intuitive, opensource LC-MS data processing engine from
 
-.. image:: /image/Elucidata.png
+.. image:: https://github.com/ElucidataInc/ElMaven/blob/documentation-website/docs/image/Elucidata.png
    :target: http://www.elucidata.io/
 
 
