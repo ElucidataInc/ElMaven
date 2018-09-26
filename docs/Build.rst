@@ -3,7 +3,7 @@ Build
 
 |
 
-Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. 
+Contributors can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. 
 Users are recommended to download the installers provided on the El-MAVEN website.
 
 Windows
