@@ -941,6 +941,7 @@ QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 
 }
 
+//Shubhra TODO: Remove redundant function
 QDockWidget* MainWindow::createDockWidgetIsotopes(QString title, QWidget* w) {
 	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
