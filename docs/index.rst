@@ -31,15 +31,15 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   ElMAVENFeatures
    Download
    Build
-   ElMAVENFeatures
-   BugsandFeatureRequests
    Documentation
-   Contributing
    Contributors
+   Contributing
    References
    Acknowledgement
-   CopyrightandLicense
    ReleaseHistory
+   BugsandFeatureRequests
+   CopyrightandLicense
    Issues

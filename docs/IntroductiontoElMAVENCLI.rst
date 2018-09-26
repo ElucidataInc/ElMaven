@@ -23,7 +23,7 @@ Users need an XML file to specify their configuration and specify directory path
 
    * Execute the following command
 
-      * For Windows and Linux: 
+      * For Windows and Ubuntu: 
 
       ::
 
@@ -130,7 +130,7 @@ Run
 
 Once the parameters and directory paths have been set in the configuration file, run peak detection from the terminal using the following command from the El-MAVEN root directory:
 
-   * Windows and Linux: 
+   * Windows and Ubuntu: 
 
    ::
 

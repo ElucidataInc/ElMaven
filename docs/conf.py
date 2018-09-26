@@ -84,8 +84,19 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {'logo': 'El-MAVEN.png', 
-    'github_user': 'ElucidataInc', 
-    'github_repo': 'ElMaven'
+	'github_user': 'ElucidataInc', 
+	'github_repo': 'ElMaven',
+	'analytics_id': 'UA-118159593-1',
+	#'logo_name': 'True',	
+	#'travis_button': 'True',
+	'fixed_sidebar': 'False',
+	'show_powered_by': 'True',
+	'show_related': 'False',
+	'body_text': 'Black',
+	'footer_text': 'Black',
+	'font_family': 'Times New Roman',
+	'head_font_family': 'Times New Roman'
+	
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
