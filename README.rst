@@ -30,7 +30,7 @@ Build
 -----
 
 Contributors can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. 
-Users are recommended to download the installers provided on the El-MAVEN website.
+Users are recommended to download the installers provided `here <https://elucidatainc.github.io/ElMaven/Downloads/>`_.
 
 **Windows**
 
@@ -74,7 +74,7 @@ application window for data analysis.
 
    ::
 
-   $ sudo apt-get update``
+   $ sudo apt-get update
    $ sudo apt-get install g++
    $ sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov libnetcdf-dev
    $ cd <PathToInstallationFolder> #for example: user@pc:~$ cd Desktop/
