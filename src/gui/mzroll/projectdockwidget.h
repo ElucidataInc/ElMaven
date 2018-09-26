@@ -45,7 +45,6 @@ public Q_SLOTS:
     void SetAsBlankSamples(); //TODO: --@Giridhari, Create function to Set samples as Blank Samples
 protected Q_SLOTS:
       void keyPressEvent( QKeyEvent *e );
-      void contextMenuEvent ( QContextMenuEvent * event );
 
 private Q_SLOTS:
     void showSample(QTreeWidgetItem* item, int col);
@@ -70,7 +69,6 @@ private:
     QTextEdit* _editor;
     MainWindow* _mainwindow;
     QTreeWidget* _treeWidget;
-    QSplitter*  _splitter;
 
 
     QMap<QString, QColor> storeColor;
