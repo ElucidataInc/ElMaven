@@ -49,12 +49,12 @@ Users are recommended to download the installers provided on the El-MAVEN websit
 
    * For 32 bit
 
-   ::
+      ::
 
-   $ pacman --force -Sy
-   $ pacman --force -Syu
-   $ pacman --force -Su
-   $ pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git
+      $ pacman --force -Sy
+      $ pacman --force -Syu
+      $ pacman --force -Su
+      $ pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git
 
 * Open mingw64.exe from the MSYS2 folder and give the following commands:
 
