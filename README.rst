@@ -135,6 +135,8 @@ Follow these steps to pull a specific release:
 
 * Build the new version using the following commands:
 
+|
+
    * For Windows and Ubuntu
 
       ::
