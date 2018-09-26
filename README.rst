@@ -38,7 +38,7 @@ Users are recommended to download the installers provided on the El-MAVEN websit
 
 * Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
 
-* For 64 bit
+ * For 64 bit
 
    ::
 
@@ -47,14 +47,14 @@ Users are recommended to download the installers provided on the El-MAVEN websit
    $ pacman --force -Su
    $ pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git
 
-* For 32 bit
+ * For 32 bit
 
    ::
 
    $ pacman --force -Sy
    $ pacman --force -Syu
    $ pacman --force -Su
-   $ pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git
+nza   $ pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git
 
 * Open mingw64.exe from the MSYS2 folder and give the following commands:
 
