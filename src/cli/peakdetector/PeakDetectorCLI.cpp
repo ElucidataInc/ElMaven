@@ -557,8 +557,14 @@ void PeakDetectorCLI::loadCompoundsFile() {
 		mavenParameters->compounds = DB.compoundsDB;
 		if (loadCount == 0) {
 			cerr << "Warning: Given compound database is empty!" << endl;
+		} else if (DB.invalidRows.size() == 0) {
+			cout << "Total Compounds Loaded : " << loadCount << endl;
 		} else {
 			cout << "Total Compounds Loaded : " << loadCount << endl;
+			cout << "The following compounds had insufficient information for peak detection, and were not loaded:" << endl;
+			for (auto compoundID: DB.invalidRows) {
+				cout << " - " << compoundID << endl;
+			}
 		}
 	} else {
 		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."

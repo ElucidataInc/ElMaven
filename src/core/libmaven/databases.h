@@ -16,6 +16,7 @@ class Databases {
         vector<string> getCategoryFromDB(vector<string>& fields, map<string, int> & header);
         void closeAll();
         vector<Compound*> compoundsDB;
+        vector<string> invalidRows;
 
     private:
         map<string,Compound*> compoundIdMap;

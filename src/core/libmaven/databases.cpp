@@ -10,6 +10,9 @@ int Databases::loadCompoundCSVFile(string filename) {
     map<string, int> header;
     vector<string> headers;
 
+    // reset the contents of the vector containing the names of invalid rows
+    invalidRows.clear();
+
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
     string sep="\t";
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
@@ -138,6 +141,10 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
         
         return compound;
     }
+
+    if (!name.empty())
+        id = name;
+    invalidRows.push_back(id);
 
     return NULL;
     
