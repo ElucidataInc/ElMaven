@@ -777,7 +777,8 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		cout << "uploading to Polly now.." << endl;
 		QDateTime current_time;
-		QString datetimestamp= current_time.currentDateTime().toString();
+		const QString format = "dd-MM-yyyy_hh_mm_ss";
+		QString datetimestamp= current_time.currentDateTime().toString(format);
 		datetimestamp.replace(" ","_");
 		datetimestamp.replace(":","-");
 
