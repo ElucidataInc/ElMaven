@@ -79,6 +79,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 void setUiElementsFlux();
                 void setUiElementsFV();
                 QMap<QString, TableDockWidget*> tableNameMapping;
+                QString getProjectId(QComboBox* projectList, QLineEdit* newProject);
                 void showErrorMessage(QString title, QString message);
                 QString writableTempDir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
