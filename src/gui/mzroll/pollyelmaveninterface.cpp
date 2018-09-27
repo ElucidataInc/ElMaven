@@ -112,11 +112,12 @@ void PollyElmavenInterfaceDialog::goToPolly()
 }
 
 void PollyElmavenInterfaceDialog::handleNewProject(){
-    if (stackedWidget->currentIndex() == 0) {
+    if (stackedWidget->currentIndex() == firstView) {
         firstViewNewProject->setEnabled(true);
         firstViewProjectList->setEnabled(false);
     }
-    else {
+    
+    if (stackedWidget->currentIndex() == fluxomics) {
         fluxNewProject->setEnabled(true);
         fluxProjectList->setEnabled(false);
     }
@@ -124,11 +125,12 @@ void PollyElmavenInterfaceDialog::handleNewProject(){
 }
 
 void PollyElmavenInterfaceDialog::handleSelectProject(){
-    if (stackedWidget->currentIndex() == 0) {
+    if (stackedWidget->currentIndex() == firstView) {
         firstViewNewProject->setEnabled(false);
         firstViewProjectList->setEnabled(true);
     }
-    else {
+    
+    if (stackedWidget->currentIndex() == fluxomics) {
         fluxNewProject->setEnabled(false);
         fluxProjectList->setEnabled(true);
     }
@@ -183,7 +185,7 @@ void PollyElmavenInterfaceDialog::call_login_form() {
 }
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form() {
-    if (stackedWidget->currentIndex() == 0) {
+    if (stackedWidget->currentIndex() == firstView) {
         firstViewUpload->setEnabled(false);
         firstViewProjectList->clear();
     }
@@ -326,7 +328,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     QLineEdit* newProject = firstViewNewProject;
     QComboBox* projectList = firstViewProjectList;
 
-    if (stackedWidget->currentIndex() == 1) {
+    if (stackedWidget->currentIndex() == fluxomics) {
         uploadButton = fluxUpload;
         statusUpdate = fluxStatus;
         newProject = fluxNewProject;
@@ -432,33 +434,28 @@ void PollyElmavenInterfaceDialog::showErrorMessage(QString title, QString messag
 void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp){
     QCoreApplication::processEvents();
     
+    //set UI elements
+    QLabel* statusUpdate = firstViewStatus;
+    QPushButton* redirectButton = pollyButton;
+
+    if (stackedWidget->currentIndex() == fluxomics) {
+        statusUpdate = fluxStatus;
+        redirectButton = fluxButton;
+    }
+    
     if (!patchId.isEmpty()) {
-        firstViewStatus->setText("");
-        fluxStatus->setText("");
+        statusUpdate->setText("");
         QString redirection_url = getRedirectionUrl(datetimestamp, uploadProjectIdThread);
         qDebug() << "redirection_url     - " << redirection_url;
         pollyURL.setUrl(redirection_url);
-        if (stackedWidget->currentIndex() == 0)
-            pollyButton->setVisible(true);
-        else
-            fluxButton->setVisible(true);
+        redirectButton->setVisible(true);
     }
     else {
-        if (stackedWidget->currentIndex() == 0) {
-            firstViewStatus->setStyleSheet("QLabel {color : red; }");
-            firstViewStatus->setText("Error!");
-        }
-        else {
-            fluxStatus->setStyleSheet("QLabel {color: red; }");
-            fluxStatus->setText("Error!");
-        }
-        QString msg = "Unable to send data";
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Warning!!");
-        msgBox.setText(msg);
-        msgBox.exec();
-        firstViewStatus->setText("");
-        fluxStatus->setText("");
+        statusUpdate->setStyleSheet("QLabel {color : red; }");
+        statusUpdate->setText("Error!");
+        
+        showErrorMessage("Warning!", "Unable to send data");
+        statusUpdate->setText("");
     }
     emit uploadFinished(false);
 }
@@ -467,13 +464,13 @@ QString PollyElmavenInterfaceDialog::getRedirectionUrl(QString datetimestamp, QS
 {
     QString redirectionUrl;
     //redirect to firstView
-    if (stackedWidget->currentIndex() == 0) {
+    if (stackedWidget->currentIndex() == firstView) {
         redirectionUrl = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(uploadProjectIdThread).arg("firstview").arg(datetimestamp);
         return redirectionUrl;
     }
     
     //redirect to fluxomics
-    if (stackedWidget->currentIndex() == 1) { 
+    if (stackedWidget->currentIndex() == fluxomics) { 
         QString landingPage = QString("relative_lcms_elmaven");
         QString workflowRequestId = _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
         
@@ -498,35 +495,26 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     QStringList filenames;
     TableDockWidget* peakTable = NULL;
 
+    //set UI elements
+    QComboBox* tableList = firstViewTableList;
+    QLabel* statusUpdate = firstViewStatus;
+
+    if (stackedWidget->currentIndex() == fluxomics) {
+        tableList = fluxTableList;
+        statusUpdate = fluxStatus;
+    }
+
     //check for no peak tables
-    if ((stackedWidget->currentIndex() == 0 
-        && firstViewTableList->currentIndex() == -1)
-        || (stackedWidget->currentIndex() == 1
-        && fluxTableList->currentIndex() == -1))
+    if (tableList->currentIndex() == -1)
     {        
-        QString msg = "No Peak tables";
-        QMessageBox msgBox(mainwindow);
-        msgBox.setWindowTitle("Error");
-        msgBox.setText(msg);
-        msgBox.exec();
+        showErrorMessage("Error", "No Peak tables");
         return filenames;
     }
     
-    if (stackedWidget->currentIndex() == 0) {
-        peakTable = tableNameMapping[firstViewTableList->currentText()];
-    }
-    else {
-        peakTable = tableNameMapping[fluxTableList->currentText()];
-    }
+    peakTable = tableNameMapping[tableList->currentText()];
 
-    if (stackedWidget->currentIndex() == 0) {
-        firstViewStatus->setStyleSheet("QLabel {color : green; }");
-        firstViewStatus->setText("Preparing compound database file..");
-    }
-    else {
-        fluxStatus->setStyleSheet("QLabel {color : green; }");
-        fluxStatus->setText("Preparing compound database file..");
-    }
+    statusUpdate->setStyleSheet("QLabel {color : green; }");
+    statusUpdate->setText("Preparing compound database file..");
     
     QCoreApplication::processEvents();
 
@@ -549,22 +537,16 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     peakTable->treeWidget->selectAll();
     peakTable->prepareDataForPolly(writableTempDir,"Groups Summary Matrix Format Comma Delimited (*.csv)",datetimestamp+"_Peak_table_all_");
     
-    //Preparing the json file -
-    if (stackedWidget->currentIndex() == 0) {
-        firstViewStatus->setStyleSheet("QLabel {color : green; }");
-        firstViewStatus->setText("Preparing json file..");
-    }
-    else {
-        fluxStatus->setStyleSheet("QLabel {color : green; }");
-        fluxStatus->setText("Preparing json file..");
-    }
+    //Preparing the json file
+    statusUpdate->setStyleSheet("QLabel {color : green; }");
+    statusUpdate->setText("Preparing json file..");
+    
     QCoreApplication::processEvents();
-
-    //Preparing the json file 
+ 
     QString json_filename = writableTempDir+QDir::separator()+datetimestamp+"_Peaks_information_json_Elmaven_Polly.json";
     peakTable->exportJsonToPolly(writableTempDir,json_filename);
     
-    if (stackedWidget->currentIndex() == 1) {
+    if (stackedWidget->currentIndex() == fluxomics) {
         fluxStatus->setStyleSheet("QLabel {color : green; }");
         fluxStatus->setText("Preparing sample cohort file..");
         QCoreApplication::processEvents();
