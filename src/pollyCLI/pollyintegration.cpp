@@ -314,14 +314,11 @@ QString PollyIntegration::createProjectOnPolly(QString projectname){
     return run_id;
 }
 
-// name OF FUNCTION: createWorkflowRequest
-// PURPOSE:
-//    This function parses the output of "createWorkflowRequest" command run from Qtprocess..
-// Return workflow request id for the pollyphi workflow..
-// CALLS TO: run_qt_process,get_workflow_request_id
-//
-// CALLED FROM: external clients
-
+/**
+* @brief This function parses the output of "createWorkflowRequest" command run from Qtprocess..
+* @param projectId
+* @return Return workflow request id for the pollyphi workflow..
+*/
 
 QString PollyIntegration::createWorkflowRequest(QString projectId){
     QString command2 = "createWorkflowRequest";
