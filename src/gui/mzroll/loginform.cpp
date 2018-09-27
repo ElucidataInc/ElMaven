@@ -31,9 +31,10 @@ WorkerThread::WorkerThread()
     
 };
 
-void WorkerThread::run(){
-    QString status_inside = _pollyintegration->authenticateLogin(username,password);
-    emit resultReady(QStringList()<<status_inside<<username<<password);
+void WorkerThread::run()
+{
+    QString status_inside = _pollyintegration->authenticateLogin(username, password);
+    emit resultReady(QStringList() << status_inside << username <<password);
 }
 
 WorkerThread::~WorkerThread()
@@ -57,13 +58,13 @@ void LoginForm::on_pushButton_clicked()
     workerThread->start();
 }
 
-
-void LoginForm::handleResults(QStringList results){
-    QString status_inside=results.at(0);
-    QString username=results.at(1);
-    QString password=results.at(2);
-    if (status_inside=="ok"){
-        qDebug()<<"Logged in, moving on now....";
+void LoginForm::handleResults(QStringList results)
+{
+    QString status_inside = results.at(0);
+    QString username = results.at(1);
+    QString password = results.at(2);
+    if (status_inside == "ok") {
+        qDebug() << "Logged in, moving on now....";
         ui->login_label->setText("Fetching data from Polly..");
         QCoreApplication::processEvents();
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
@@ -71,26 +72,25 @@ void LoginForm::handleResults(QStringList results){
         hide();
         _pollyelmaveninterfacedialog->show();
         
-    }
-    else if(status_inside=="error"){
+    } else if (status_inside == "error") {
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Please check your internet");
         ui->pushButton->setEnabled(true);
-    }
-    else {
+    } else {
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Incorrect credentials");
         ui->pushButton->setEnabled(true);
     }
 }
 
-void LoginForm::cancel(){
-    qDebug()<<"closing the log in form now..";
+void LoginForm::cancel()
+{
+    qDebug() << "closing the log in form now..";
     close();
 }
 
-void LoginForm::showAboutPolly(){
-    qDebug()<<"going to show the doc now..";
+void LoginForm::showAboutPolly()
+{
     _aboutPolly =new AboutPolly();
     _aboutPolly->setModal(true);
     _aboutPolly->show();
