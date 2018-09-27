@@ -284,6 +284,9 @@ using namespace mzUtils;
 	connect(btnBugs, SIGNAL(clicked()), SLOT(reportBugs()));
 	statusBar()->addPermanentWidget(btnBugs, 0);
 
+	// hide this button until it does something meaningful.
+	btnBugs->setHidden(true);
+
 	setWindowIcon(QIcon(":/images/icon.png"));
 
 	//dock widgets
