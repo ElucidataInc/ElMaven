@@ -263,6 +263,11 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         //}
         //categoryString=sanitizeString(categoryString.c_str()).toStdString();
 
+    } else {
+        // absence of a group compound means this group was created using untargeted detection,
+        // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
+        compoundName = std::to_string(group->meanMz) + "@" + std::to_string(group->meanRt);
+        compoundID = compoundName;
     }
 
     groupReport << SEP << compoundName;
@@ -307,6 +312,11 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+    } else {
+        // absence of a group compound means this group was created using untargeted detection,
+        // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
+        compoundName = std::to_string(group->meanMz) + "@" + std::to_string(group->meanRt);
+        compoundID = compoundName;
     }
 
     if (selectionFlag == 2) {
