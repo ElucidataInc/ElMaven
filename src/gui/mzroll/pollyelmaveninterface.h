@@ -49,7 +49,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectNamesId;
-                enum pollyApp { firstView = 0, fluxomics = 1 };
+                enum class PollyApp { FirstView = 0, Fluxomics = 1 };
                 bool advancedSettingsFlag;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
