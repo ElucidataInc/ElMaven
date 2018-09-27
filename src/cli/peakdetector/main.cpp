@@ -67,9 +67,6 @@ int main(int argc, char *argv[]) {
 	if (peakdetectorCLI->mavenParameters->compounds.size() && !peakdetectorCLI->mavenParameters->processAllSlices) {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
 				peakdetectorCLI->mavenParameters->compounds, "compounds");
-		if (!(peakdetectorCLI->pollyArgs.isEmpty())){
-			peakdetectorCLI->mavenParameters->eicMaxGroups = 1;
-		}
 		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
 		if (peakdetectorCLI->mavenParameters->pullIsotopesFlag) {
 			peakdetectorCLI->peakDetector->pullAllIsotopes();
