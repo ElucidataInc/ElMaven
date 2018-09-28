@@ -37,7 +37,7 @@ private slots:
      * @brief This function tries to log in the user based on credentials provided by the user
      * @details this function performs the following taks in the given order -
      * 1. first of all, check the values of lineEdit_username and lineEdit_password
-     * 2. call authenticate_login function from PollyCLI library to log in the user
+     * 2. call authenticateLogin function from PollyCLI library to log in the user
      * 3. if successfull login, hide the form and save these credentials to a file for persistent login in future..
      * 4. If failed, display incorrect credentials..
      */

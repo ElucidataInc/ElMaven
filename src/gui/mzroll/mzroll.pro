@@ -191,7 +191,9 @@ HEADERS +=  stable.h \
                     isotopeplotdockwidget.h \
                     gettingstarted.h \
                     pollywaitdialog.h \
-    peaktabledeletiondialog.h
+                    peaktabledeletiondialog.h \
+                    notificator.h \
+                    notificator_p.h
 
 
 
@@ -264,7 +266,8 @@ database.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
     pollywaitdialog.cpp \
-    peaktabledeletiondialog.cpp
+    peaktabledeletiondialog.cpp \
+    notificator.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

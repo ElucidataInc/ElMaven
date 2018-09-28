@@ -14,11 +14,10 @@ class PollyIntegration
 	    QString password;
 		QString jsPath;
 		QString nodePath;
-		QString user_login_required();
 		QString createProjectOnPolly(QString projectname);
 		QString createWorkflowRequest(QString projectId);
 		QString shareProjectOnPolly(QString project_id,QVariantMap collaborators_map);
-		QString get_share_status(QByteArray result);
+		QString getShareStatus(QByteArray result);
 		
 		/**
  		 * @brief Execute terminal commands from c++
@@ -27,17 +26,14 @@ class PollyIntegration
  		 * @param args List of arguments for the command
  		 * @return QByteArray of output and errors
 		*/
-        QList<QByteArray> run_qt_process(QString command, QStringList args = QStringList());
-	    QByteArray run_system_process(QString command);
-	    QString get_urls(QByteArray result);
-	    QStringList get_system_urls(QString filename);
+        QList<QByteArray> runQtProcess(QString command, QStringList args = QStringList());
 
 		/**
 		 * @brief Upload given files to Polly
 		 * @param url_with_wildcard URL for uploading the files with a * that has to be replaced
 		 * with the filename
 		 * @param filenames Names of the files to be uploaded to the project
-		 * @return patch_ids output and error for every file upload process
+		 * @return patchId output and error for every file upload process
 		*/
 	    QStringList get_project_upload_url_commands(QString url_with_wildcard, QStringList filenames);
 		QString getFileUploadURLs(QByteArray result2);
@@ -49,10 +45,10 @@ class PollyIntegration
  		 * @return project ID generated for the new project
 		*/
 		QString parseId(QByteArray result);
-		bool send_email(QString user_email, QString email_content, QString email_message);
-	    QString authenticate_login(QString username,QString password);
-	    int check_already_logged_in();
-		int check_node_executable();
+		bool sendEmail(QString user_email, QString email_content, QString email_message);
+	    QString authenticateLogin(QString username,QString password);
+	    int checkLoginStatus();
+		int checkNodeExecutable();
 		int askForLogin();
 	    QStringList exportData(QStringList filenames,QString projectId);
 		QString loadDataFromPolly(QString ProjectId,QStringList filenames);
@@ -61,10 +57,12 @@ class PollyIntegration
 		QVariantMap getUserProjectsMap(QByteArray result2);
 		QStringList getUserProjectFilesMap(QByteArray result2);
 		QStringList getOrganizationalDBs(QString organisation);
+		bool validSampleCohort(QString sampleCohortFile, QStringList loadedSamples = QStringList());
 		QStringList parseResultOrganizationalDBs(QString result);
 		QString getCredFile();
 	private:
 		QString credFile;
+		bool validCohorts(QStringList cohorts);
 };
 
 #endif // POLLYINTEGRATION_H

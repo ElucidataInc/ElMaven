@@ -32,7 +32,7 @@ WorkerThread::WorkerThread()
 };
 
 void WorkerThread::run(){
-    QString status_inside = _pollyintegration->authenticate_login(username,password);
+    QString status_inside = _pollyintegration->authenticateLogin(username,password);
     emit resultReady(QStringList()<<status_inside<<username<<password);
 }
 
@@ -64,10 +64,10 @@ void LoginForm::handleResults(QStringList results){
     QString password=results.at(2);
     if (status_inside=="ok"){
         qDebug()<<"Logged in, moving on now....";
-        ui->login_label->setText("Fetching data from polly..");
+        ui->login_label->setText("Fetching data from Polly..");
         QCoreApplication::processEvents();
         _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
-        _pollyelmaveninterfacedialog->startup_data_load();
+        _pollyelmaveninterfacedialog->startupDataLoad();
         hide();
         _pollyelmaveninterfacedialog->show();
         

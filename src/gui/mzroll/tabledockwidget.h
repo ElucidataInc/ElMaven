@@ -31,6 +31,7 @@ public:
   QTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
+  int labeledGroups = 0;
 
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
@@ -60,6 +61,8 @@ public:
    * @return Integer count.
    */
   int groupCount() { return allgroups.size(); }
+
+  MainWindow* getMainWindow() { return _mainwindow; }
 
   /**
    * @brief Obtain a list of groups present in <allgroups>.
@@ -98,6 +101,7 @@ public Q_SLOTS:
   void setupPeakTable();
   PeakGroup *getSelectedGroup();
   QList<PeakGroup *> getSelectedGroups();
+  void showNotification();
 
   void showFocusedGroups();
   void clearFocusedGroups();

@@ -1,0 +1,46 @@
+#ifndef NOTIFICATOR_P_H
+#define NOTIFICATOR_P_H
+
+
+#include <QtGui/QIcon>
+#include "globals.h"
+
+
+class QLabel;
+class QIcon;
+class QProgressBar;
+class QPropertyAnimation;
+
+
+class NotificatorPrivate
+{
+public:
+	NotificatorPrivate( bool autoHide = true );
+	~NotificatorPrivate();
+
+	void initialize(
+			const QIcon &icon,
+			const QString &title,
+			const QString &message
+			);
+
+public:
+	bool autoHide() const;
+	QLabel * icon();
+	QLabel * title();
+	QLabel * message();
+	QLabel * preloader();
+	QProgressBar* progress();
+	QPushButton * close();
+
+private:
+	bool m_autoHide;
+	QLabel *m_icon;
+	QLabel *m_title;
+	QLabel *m_message;
+	QLabel *m_preloader;
+	QProgressBar* m_progress;
+	QPushButton *m_close;
+};
+
+#endif // NOTIFICATOR_P_H

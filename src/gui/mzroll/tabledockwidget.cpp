@@ -353,6 +353,8 @@ void ListView::keyPressEvent(QKeyEvent *event) {
 PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
   if (group != NULL) {
     allgroups.push_back(*group);
+	if (group->childCount() > 0)
+		labeledGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups[allgroups.size() - 1];
       for (unsigned int i = 0; i < allgroups.size(); i++) {
@@ -781,6 +783,11 @@ QList<PeakGroup *> TableDockWidget::getSelectedGroups() {
   return selectedGroups;
 }
 
+void TableDockWidget::showNotification()
+{
+  _mainwindow->showNotification(this);
+}
+
 QList<PeakGroup *>
 TableDockWidget::getCustomGroups(peakTableSelectionType peakSelection) {
   QList<PeakGroup *> selectedGroups;
@@ -859,6 +866,9 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     if (group != NULL and group == groupX) {
       item->setHidden(true);
 
+      if (group->children.size() > 0)
+            labeledGroups--;
+
       // Deleting
       int posTree = treeWidget->indexOfTopLevelItem(item);
       if (posTree != -1)
@@ -895,33 +905,30 @@ void TableDockWidget::deleteGroups() {
         PeakGroup *parentGroup = group->parent;
         int childrenNum = -1;
         if (parentGroup == NULL) {
-          // top level item
-          if (nextItem) {
-            QVariant vc = nextItem->data(0, Qt::UserRole);
-            PeakGroup *groupc = vc.value<PeakGroup *>();
-            if (groupc->tagString == "C12 PARENT") {
-              nextItem = nextItem->parent();
-            } else if (groupc->isIsotope()) {
-              nextItem = nextItem->parent();
+            // top level item
+            if (nextItem) {
+                QVariant vc = nextItem->data(0, Qt::UserRole);
+                PeakGroup *groupc = vc.value<PeakGroup *>();
+            	if (groupc->isIsotope())
+            		nextItem = nextItem->parent();
             }
-          }
-          deleteGroup(group);
+            deleteGroup(group);
         } else if (parentGroup && parentGroup->childCount()) {
-          // this a child item
-          childrenNum = parentGroup->childCount();
-          if (parentGroup->deleteChild(group)) {
-            QTreeWidgetItem *parentItem = item->parent();
-            if (parentItem) {
-              parentItem->removeChild(item);
-              delete (item);
-            }
-          }
+            // this a child item
+            childrenNum = parentGroup->childCount();
+            if (parentGroup->deleteChild(group)) {
+                QTreeWidgetItem *parentItem = item->parent();
+                if (parentItem) {
+                	parentItem->removeChild(item);
+              		delete (item);
+            	}
+          	}
         }
         if (parentGroup != NULL) {
-          if (childrenNum == parentGroup->childCount()) {
-            deleteGroup(group);
-            nextItem = treeWidget->itemBelow(item->parent());
-          }
+        	if (childrenNum == parentGroup->childCount()) {
+            	deleteGroup(group);
+            	nextItem = treeWidget->itemBelow(item->parent());
+            }
         }
       }
     }
@@ -2224,8 +2231,9 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     if (td->tableId == 0)
       td->titlePeakTable->setText(" Bookmark Table  ");
     else
-      td->titlePeakTable->setText("Peak Table " + QString::number(td->tableId) +
-                                  "  ");
+      td->titlePeakTable->setText("Peak Table "
+                                  + QString::number(td->tableId)
+                                  + "  ");
 
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
     td->setWindowTitle(td->titlePeakTable->text());
@@ -2258,6 +2266,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2265,6 +2274,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
     connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2272,6 +2282,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportGood, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2279,6 +2290,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
+    connect(exportBad, SIGNAL(triggered()), td, SLOT(showNotification()));
     return btnGroupCSV;
   } else if (btnName == "btnSaveJson") {
 
@@ -2286,6 +2298,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
     btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
+    connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
 
@@ -2314,6 +2327,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
     btnXML->setToolTip("Save Peaks");
     connect(btnXML, SIGNAL(clicked()), td, SLOT(savePeakTable()));
+    connect(btnXML, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnXML;
   } else if (btnName == "btnGood") {
 
@@ -2342,6 +2356,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
     btnPDF->setToolTip("Generate PDF Report");
     connect(btnPDF, SIGNAL(clicked()), td, SLOT(printPdfReport()));
+    connect(btnPDF, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnPDF;
   } else if (btnName == "btnX") {
 
@@ -2735,28 +2750,32 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
     QVariant v = item->data(0, Qt::UserRole);
     PeakGroup *group = v.value<PeakGroup *>();
     if (group != NULL and group == groupX) {
-      item->setHidden(true);
+        item->setHidden(true);
 
-      // Deleting
-      int posTree = treeWidget->indexOfTopLevelItem(item);
-      if (posTree != -1)
-        treeWidget->takeTopLevelItem(posTree);
+	    if (group->children.size() > 0)
+            	labeledGroups--;
 
-      /**
-       * delete name of compound associated with this group stored in
-       * <sameMzRtGroups> with given mz and rt
-       */
-      int intMz = group->meanMz * 1e5;
-      int intRt = group->meanRt * 1e5;
-      QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-      QString compoundName = QString::fromStdString(groupX->getName());
-      if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-        for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
-             ++i) {
-          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-            sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-            break;
-          }
+      	// Deleting
+        int posTree = treeWidget->indexOfTopLevelItem(item);
+        if (posTree != -1)
+    		treeWidget->takeTopLevelItem(posTree);
+
+        /**
+         * delete name of compound associated with this group stored in
+         * <sameMzRtGroups> with given mz and rt
+        */
+        int intMz = group->meanMz * 1e5;
+        int intRt = group->meanRt * 1e5;
+        QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+        QString compoundName = QString::fromStdString(groupX->getName());
+        if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+        	for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
+            	 ++i)
+			{
+            	if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+            	sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+            	break;
+          	}
         }
       }
 

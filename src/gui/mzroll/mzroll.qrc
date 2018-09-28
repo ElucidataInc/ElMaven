@@ -40,6 +40,7 @@
         <file>images/exportcsv.png</file>
         <file>images/JSON.png</file>
         <file>images/POLLY.png</file>
+        <file>images/notification.png</file>
         <file>images/bug.png</file>
         <file>images/export.png</file>
         <file>images/negative_ion.png</file>
@@ -91,6 +92,9 @@
         <file>images/loading.gif</file>
         <file>images/splash.png</file>
         <file>images/exportOptions.png</file>
+        <file>images/firstView.png</file>
+        <file>images/flux.png</file>
+        <file>images/close.png</file>
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
     </qresource>

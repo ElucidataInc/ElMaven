@@ -406,6 +406,7 @@ public Q_SLOTS:
 	QWidget* pathwayWidgetController();
     void saveSettings();
     void loadSettings();
+	void showNotification(TableDockWidget* table);
 
 private Q_SLOTS:
 	void createMenus();

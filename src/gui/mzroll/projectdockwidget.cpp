@@ -122,6 +122,23 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
       _mainwindow->alignmentVizWidget->updateGraph();
 }
 
+void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
+    QFile file(sampleCohortFileName);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+	
+    vector<mzSample*> loadedSamples = _mainwindow->getSamples();
+
+	QTextStream out(&file);
+	out << "Sample" << ",Cohort" << "\n";
+	for (const auto& sample : loadedSamples) {
+		out << QString::fromStdString(sample->getSampleName()) << "," << QString::fromStdString(sample->getSetName()) << "\n";
+	}
+
+	qDebug() << "sample cohort file prepared";
+	file.close();
+}
+
 void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
 
     if (item && item->type() == SampleType) {

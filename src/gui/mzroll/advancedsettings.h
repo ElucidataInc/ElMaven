@@ -18,16 +18,16 @@ public:
     AdvancedSettings();
     ~AdvancedSettings();
     void cancel();
-    QVariantMap get_ui_elements();
-    bool get_upload_compoundDB();
-    bool get_upload_Peak_Table();
+    QVariantMap getUIElements();
+    bool getUploadCompoundDB();
+    bool getUploadPeakTable();
     void initialSetup();
 
 public slots:
     void showCompoundDBUploadFrame();
     void showpeakTableFrame();
 public Q_SLOTS:
-    void populate_comboBox_compound_db();
+    void populateCompoundDb();
 private slots:
     
 private:

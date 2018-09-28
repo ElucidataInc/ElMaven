@@ -636,18 +636,18 @@ vector<EIC*> PeakDetectorCLI::getEICs(float rtmin, float rtmax, PeakGroup& grp) 
 }
 
 string PeakDetectorCLI::cleanSampleName(string sampleName) {
-        QString out(sampleName.c_str());
-        out.replace(QRegExp(".*/"),"");
-        out.replace(QRegExp(".*\\"),"");
+    QString out(sampleName.c_str());
+    out.replace(QRegExp(".*/"),"");
+    out.replace(QRegExp(".*\\"),"");
 
-        QStringList fileExtensions = QStringList()
-                <<"\\.mzCSV$"<<"\\.mzdata$"<<"\\.mzXML$"<<"\\.mzML$"<<"\\.mz5$"<<"\\.pepXML$"<<"\\.xml$"<<"\\.cdf$"<<"\\.raw$";
-        //copied from maven_stable/mzfileio.cpp
+    QStringList fileExtensions = QStringList()
+            <<"\\.mzCSV$"<<"\\.mzdata$"<<"\\.mzXML$"<<"\\.mzML$"<<"\\.mz5$"<<"\\.pepXML$"<<"\\.xml$"<<"\\.cdf$"<<"\\.raw$";
+    //copied from maven_stable/mzfileio.cpp
 
-        Q_FOREACH (const QString& s, fileExtensions) {
-            out.replace(QRegExp(s,Qt::CaseInsensitive),"");
-        }
-        return out.toStdString();
+    Q_FOREACH (const QString& s, fileExtensions) {
+        out.replace(QRegExp(s,Qt::CaseInsensitive),"");
+    }
+    return out.toStdString();
 }
 
 void PeakDetectorCLI::makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples) {
@@ -814,7 +814,7 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 			bool valid_sample_cohort = false;
 			
 			if (!sample_cohort_file.isEmpty()) {
-				valid_sample_cohort = validSampleCohort(sample_cohort_file,loadedSamples);
+				valid_sample_cohort = _pollyIntegration->validSampleCohort(sample_cohort_file, loadedSamples);
 			}
 
 			if (valid_sample_cohort) {
@@ -902,63 +902,6 @@ void PeakDetectorCLI::groupReduction() {
 	}
 }
 
-bool PeakDetectorCLI::validSampleCohort(QString sample_cohort_file, QStringList loadedSamples) {
-	qDebug() << "Validating sample cohort file now";
-	
-	QFile file(sample_cohort_file);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << file.errorString();
-		return false;
-    }
-
-    QStringList samples;
-	QStringList cohorts;
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-		QList<QByteArray> splitRow = line.split(',');
-		if (splitRow.size() != 2)
-			return false;
-		
-		//skip header row
-		if (splitRow.at(0) == "Sample")
-			continue;
-		
-		QString sampleName = splitRow.at(0);
-		QString cohortName = splitRow.at(1);
-		if (sampleName.isEmpty()){
-			qDebug()<<"Some sample names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
-			return false;
-		}
-		if (cohortName.isEmpty()){
-			qDebug()<<"Some Cohort names are Empty in the sample-cohort file. Redirecting to Gsheet interface ==>";
-			return false;
-		}
-		samples.append(QString::fromStdString(sampleName.toStdString()));
-		cohorts.append(QString::fromStdString(cohortName.toStdString()));
-    }
-	qSort(samples);
-	qSort(loadedSamples);
-	
-	if (!(samples == loadedSamples)) {
-		cerr << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
-		return false;
-	}
-	if (!validCohorts(cohorts)) {
-		cerr << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
-		return false;
-	}
-
-	return true;
-}
-
-bool PeakDetectorCLI::validCohorts(QStringList cohorts) {
-	cohorts.removeDuplicates();
-	if(cohorts.size() > 9)
-		return false;
-	
-	return true;
-}
-
 void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 
@@ -1024,22 +967,22 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	QFile pollyCredFile(_pollyIntegration->getCredFile());
 	pollyCredFile.remove();
 
-	QString status = _pollyIntegration->authenticate_login(creds["polly_username"], creds["polly_password"]);
+	QString status = _pollyIntegration->authenticateLogin(creds["polly_username"], creds["polly_password"]);
 	if (status != "ok") {
 		cerr << "Incorrect credentials. Please check." << endl;
 		return upload_project_id;
 	}
 	// user is logged in, now proceed to upload..
-	QVariantMap projectnames_id = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
+	QVariantMap projectNamesId = _pollyIntegration->getUserProjects();// this will list all the project corresponding to the user on polly..
 
-	QStringList keys = projectnames_id.keys();
+	QStringList keys = projectNamesId.keys();
 	QString projectId;
 	QString defaultprojectId;
 	if(pollyProject.isEmpty()){
 		pollyProject = "Default_Elmaven_Polly_Project";
 	}
 	for (const auto& key : keys) {
-		if (projectnames_id[key].toString() == pollyProject) {
+		if (projectNamesId[key].toString() == pollyProject) {
 			// that means the name provided by the user matches a project.
 			projectId= key;
 		}
@@ -1062,7 +1005,7 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url) {
 	QString user_email = creds["polly_username"];
 	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
-	status = _pollyIntegration->send_email(user_email, redirection_url, email_message);
+	status = _pollyIntegration->sendEmail(user_email, redirection_url, email_message);
 	return status;
 }
 

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QStandardPaths>
+#include "notificator.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -765,6 +766,19 @@ void MainWindow::saveSettingsToLog() {
 
 }
 
+void MainWindow::showNotification(TableDockWidget* table) {
+	QIcon icon = QIcon(":/images/notification.png");
+	QString title("");
+	QString message("View your fluxomics workflow on Polly!");
+	
+	if (table->groupCount() == 0 || table->labeledGroups == 0)
+		return;
+	
+	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message, table);
+	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
+	connect(fluxomicsPrompt, SIGNAL(promptClicked()), pollyElmavenInterfaceDialog, SLOT(setFluxPage()));
+	connect(fluxomicsPrompt, SIGNAL(promptClicked(TableDockWidget*)), pollyElmavenInterfaceDialog, SLOT(setActiveTable(TableDockWidget*)));
+}
 
 void MainWindow::createPeakTable(QString filenameNew) {	
 	TableDockWidget * peaksTable = this->addPeaksTable("title");

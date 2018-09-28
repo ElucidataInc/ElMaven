@@ -48,8 +48,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 /**
                  * @brief json object which contains the mapping of project names with their IDs
                  */
-                QVariantMap projectnames_id;
-                QString use_advanced_settings;
+                QVariantMap projectNamesId;
+                bool advancedSettingsFlag;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
                  * @details this is a QVariantMap object that will look like this -
@@ -57,8 +57,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * this object is used to populate the compound database,setting combo boxes under polly-elmave-interface GUI.
                  */
                 QVariantMap userProjectFilesMap;
-                QMap< QString,QPointer<TableDockWidget> > peakTableNameMapping;
-                QMap< QString,QPointer<TableDockWidget> > bookmarkTableNameMapping;
                 /**
                  * @brief project ID as stored on Polly
                 */
@@ -73,9 +71,24 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 */
                 LoginForm* _loginform;
 
+        private:
+                TableDockWidget* _activeTable = NULL ;
+                void createIcons();
+                QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
+                QString redirectTo = "firstview";
+                void setUiElementsFlux();
+                void setUiElementsFV();
+                QMap<QString, TableDockWidget*> tableNameMapping;
+                QString writableTempDir = QStandardPaths::writableLocation(
+                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
+                                                + QDir::separator()
+                                                + "tmp_Elmaven_Polly_files";
+        
         private Q_SLOTS:
                 void goToPolly();
                 void performPostUploadTasks(bool uploadSuccessful);
+                void changePage(QListWidgetItem*, QListWidgetItem*);
+                void setFluxPage();
         
         public Q_SLOTS:
                 /**
@@ -127,9 +140,9 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * if successfull, call loadformdata, else call login form.. 
                  */
                 void logout();
-                void handle_advanced_settings(QString writable_temp_dir,QString datetimestamp);
-                void handle_new_project_radio_button();
-                void handle_existing_project_radio_button();
+                void handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable);
+                void handleNewProject();
+                void handleSelectProject();
                 void showAdvanceSettings();
                 void initialSetup();
                 /**
@@ -141,7 +154,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 4. call PollyCLI library to get project id and files mapping
                  * 5. Populate all combo boxes on this UI, with the data obtained from above steps..
                  */
-                QVariantMap startup_data_load();
+                void startupDataLoad();
+
                 // void loadFormData();
                 // void handleResults(QStringList results);
                  /**
@@ -156,13 +170,15 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief This function cancels the polly-elmaven-interface GUI
                  */
 		void cancel();
+
+                void setActiveTable(TableDockWidget* table) { _activeTable = table; }
                 /**
-                 * @brief This function changes the values of compound_db, settings combo boxes based on values in load_project combo box
+                 * @brief This function changes the values of compoundDb, settings combo boxes based on values in load_project combo box
                  * @details this function performs the following tasks in the given order -
-                 * 1. first of all clear the values of compound_db, settings combo boxes
+                 * 1. first of all clear the values of compoundDb, settings combo boxes
                  * 2. Now, check userProjectFilesMap object to see if their are any compound database and settings file 
                  * corresponding to that project on polly..
-                 * 3. If yes, then populate compound_db, settings combo boxes with those file names..
+                 * 3. If yes, then populate compoundDb, settings combo boxes with those file names..
                  */
                 // void on_comboBox_load_projects_activated(const QString &arg1);
                 // void on_comboBox_existing_projects_activated(const QString &arg1);
@@ -181,15 +197,14 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 /**
                  * @brief pointer to TableDockWidget class..
                 */
-                TableDockWidget* _tableDockWidget;
                 PollyWaitDialog* _loadingDialog;
                 AdvancedSettings* _advancedSettings;
                 QUrl pollyURL;
 
         public slots:
-            void handleResults(QVariantMap projectnames_id);
+            void handleResults(QVariantMap projectNamesId);
             void handleAuthentication(QString status);
-            void postUpload(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp);
+            void postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp);
 };
 
 class EPIWorkerThread : public QThread
@@ -204,12 +219,12 @@ class EPIWorkerThread : public QThread
         QString state;
         QString datetimestamp;
         QDir tmpDir;
-        QString upload_project_id_thread;
+        QString uploadProjectIdThread;
         QStringList filesToUpload;
         PollyIntegration* _pollyintegration;
     signals:
-        void filesUploaded(QStringList patch_ids, QString upload_project_id_thread, QString datetimestamp);
-        void resultReady(QVariantMap projectnames_id);
+        void filesUploaded(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp);
+        void resultReady(QVariantMap projectNamesId);
         void authentication_result(QString status);
 };
 
