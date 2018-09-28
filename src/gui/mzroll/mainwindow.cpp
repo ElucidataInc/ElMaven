@@ -608,7 +608,7 @@ using namespace mzUtils;
 	if (settings->contains("closeEvent")
 			and settings->value("closeEvent").toInt() == 0) {
 
-		setUrl("http://genomics-pubs.princeton.edu/mzroll/index.php?show=bugs",
+		setUrl("https://github.com/ElucidataInc/ElMaven/issues",
 				"Woops.. did the program crash last time? Would you like to report a bug?");
 	}
 
