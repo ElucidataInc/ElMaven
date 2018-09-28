@@ -307,7 +307,6 @@ public Q_SLOTS:
 	void printvalue();
 	void autosaveMzRoll();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
-	QDockWidget* createDockWidgetIsotopes(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
 	void setProgressBar(QString, int step, int totalSteps);
 	void setStatusText(QString text = QString::null);

@@ -941,18 +941,6 @@ QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 
 }
 
-//Shubhra TODO: Remove redundant function
-QDockWidget* MainWindow::createDockWidgetIsotopes(QString title, QWidget* w) {
-	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
-	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	dock->setFloating(false);
-	dock->setVisible(false);
-	dock->setObjectName(title);
-	dock->setWidget(w);
-	return dock;
-
-}
-
 void MainWindow::setIsotopicPlotStyling() {
 	//prepare x axis
 	customPlot->xAxis->setTickLabels( false );
