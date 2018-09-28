@@ -109,7 +109,7 @@ public:
     ofstream groupReport;       /**@param-  output file for groups report*/
     ofstream peakReport;         /**@param-  output file for peaks report*/
     int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
-
+    
 private:
     void writeGroupInfo(PeakGroup* group);      /**@brief-  helper function to write group info*/
     void writePeakInfo(PeakGroup* group);           /**@brief-  helper function to write peak info*/

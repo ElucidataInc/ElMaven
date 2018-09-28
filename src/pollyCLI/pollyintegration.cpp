@@ -61,7 +61,7 @@ QList<QByteArray> PollyIntegration::run_qt_process(QString command, QStringList 
     return QList<QByteArray>()<<result<<result2;
 }
 
-QString PollyIntegration::get_run_id(QByteArray result){
+QString PollyIntegration::parseId(QByteArray result){
     QList<QByteArray> test_list = result.split('\n');
     int size = test_list.size();
     QByteArray result2 = test_list[size-2];
@@ -302,7 +302,7 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
 // PURPOSE:
 //    This function parses the output of "createproject" command run from Qtprocess..
 // Return project id for the new project..
-// CALLS TO: run_qt_process,get_run_id
+// CALLS TO: run_qt_process,parseId
 //
 // CALLED FROM: external clients
 
@@ -310,8 +310,21 @@ QVariantMap PollyIntegration::getUserProjectFiles(QStringList ProjectIds){
 QString PollyIntegration::createProjectOnPolly(QString projectname){
     QString command2 = "createProject";
     QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile<< projectname);
-    QString run_id = get_run_id(result_and_error.at(0));
+    QString run_id = parseId(result_and_error.at(0));
     return run_id;
+}
+
+/**
+* @brief This function parses the output of "createWorkflowRequest" command run from Qtprocess..
+* @param projectId
+* @return Return workflow request id for the pollyphi workflow..
+*/
+
+QString PollyIntegration::createWorkflowRequest(QString projectId){
+    QString command2 = "createWorkflowRequest";
+    QList<QByteArray> result_and_error = run_qt_process(command2, QStringList() << credFile << projectId);
+    QString workflowRequestId = parseId(result_and_error.at(0));
+    return workflowRequestId;
 }
 
 bool PollyIntegration::send_email(QString user_email, QString email_content,

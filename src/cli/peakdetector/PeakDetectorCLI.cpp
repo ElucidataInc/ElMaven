@@ -566,7 +566,8 @@ void PeakDetectorCLI::loadCompoundsFile() {
 				cout << " - " << compoundID << endl;
 			}
 		}
-	} else {
+	}
+	 else {
 		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
 		     << "Use the '-h' argument to see all available options." << endl;
 		exit(0);
@@ -776,7 +777,8 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 		QMap<QString, QString> creds = readCredentialsFromXml(pollyArgs);
 		cout << "uploading to Polly now.." << endl;
 		QDateTime current_time;
-		QString datetimestamp= current_time.currentDateTime().toString();
+		const QString format = "dd-MM-yyyy_hh_mm_ss";
+		QString datetimestamp= current_time.currentDateTime().toString(format);
 		datetimestamp.replace(" ","_");
 		datetimestamp.replace(":","-");
 
@@ -838,23 +840,29 @@ void PeakDetectorCLI::writeReport(string setName, QString jsPath, QString nodePa
 			
 			//That means the upload was successful, redirect the user to Polly..
 			if (!upload_project_id.isEmpty()) {
-				QString redirection_url = QString("<a href='https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3'>Go To Polly</a>").arg(upload_project_id).arg(redirect_to).arg(datetimestamp);
-				qDebug() << "redirection url - \n" << redirection_url;
-				QString filename = QStandardPaths::writableLocation(
-									QStandardPaths::QStandardPaths::GenericConfigLocation) + 
-									QDir::separator() + 
-									datetimestamp + 
-									"_redirection_url.txt";
-				
-				qDebug() << "writing url to this file -" << filename;
-				//redirection url will be written to a file..In future it will be replaced by email feature..
-				QFile file(filename);
-				if (file.open(QIODevice::ReadWrite)) {
-					QTextStream stream(&file);
-					stream << redirection_url << endl;
+				QString workflowRequestId = _pollyIntegration->createWorkflowRequest(upload_project_id);
+				if (!workflowRequestId.isEmpty()){
+					QString redirection_url = QString("<a href='https://polly.elucidata.io/workflow-requests/%1/lcms_tstpl_pvd/dashboard#redirect-from=%2#project=%3#timestamp=%4'>Go To Polly</a>").arg(workflowRequestId).arg(redirect_to).arg(upload_project_id).arg(datetimestamp);
+					qDebug() << "redirection url - \n" << redirection_url;
+					QString filename = QStandardPaths::writableLocation(
+										QStandardPaths::QStandardPaths::GenericConfigLocation) + 
+										QDir::separator() + 
+										datetimestamp + 
+										"_redirection_url.txt";
+					
+					qDebug() << "writing url to this file -" << filename;
+					//redirection url will be written to a file..In future it will be replaced by email feature..
+					QFile file(filename);
+					if (file.open(QIODevice::ReadWrite)) {
+						QTextStream stream(&file);
+						stream << redirection_url << endl;
+					}
+					bool status = send_user_email(creds, redirection_url);
+					qDebug() << "Emailer status - " << status;
 				}
-				bool status = send_user_email(creds, redirection_url);
-				qDebug() << "Emailer status - " << status;
+				else {
+					cerr << "Unable to create workflow request id..Please try again" << endl;
+				}
 			}
 			else {
 				cerr << "Unable to upload data to Polly." << endl;
