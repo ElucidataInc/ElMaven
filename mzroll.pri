@@ -19,10 +19,13 @@ unix: {
 }
 
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
-    linux|win32 {
-        message("linking with gcov")
-        QMAKE_LFLAGS += -lgcov --coverage
-    }
+
+    CONFIG(debug, debug|release) {
+        linux|win32 {
+                message("linking with gcov")
+                QMAKE_LFLAGS += -lgcov --coverage
+        }
+   }
 }
 
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)

@@ -263,7 +263,9 @@ class EIC
          * @return [true or false]
          */
     static bool compMaxIntensity(EIC *a, EIC *b) { return a->maxIntensity > b->maxIntensity; }
-
+    void testFunction1(const vector<EIC *> &eics);
+    void testFunction2(const vector<EIC *> &eics);
+    void testFunction3(const vector<EIC *> &eics);
   private:
     SmootherType smootherType; /**< name of selected smoothing algorithm */
 
