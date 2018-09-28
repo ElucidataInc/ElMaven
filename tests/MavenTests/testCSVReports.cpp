@@ -85,50 +85,34 @@ void TestCSVReports::testopenPeakReport() {
              << "fromBlankSample";
 
     QString header = colnames.join(",");
-    QVERIFY(header.toStdString()==temp);    
+    QVERIFY(header.toStdString()==temp);
 }
 
-void TestCSVReports::testaddGroups() {
-
-    const char* loadCompoundDB;
-    QStringList files;
-    loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
-    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
-
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds =
-        DBS.getCopoundsSubset("qe3_v11_2016_04_29");
-    vector<mzSample*> samplesToLoad;
-
-    for (int i = 0; i < files.size(); ++i) {
-        mzSample* mzsample = new mzSample();
-        mzsample->loadSample(files.at(i).toLatin1().data());
-        samplesToLoad.push_back(mzsample);
-    }
-
+void TestCSVReports::testaddGroup()
+{
+    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
     MavenParameters* mavenparameters = new MavenParameters();
-    ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-    string loadmodel = "bin/default.model";
-    clsf->loadModel(loadmodel);
-    mavenparameters->clsf = clsf;
-    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
-    mavenparameters->massCutoffMerge->setMassCutoffAndType(10,"ppm");
-    mavenparameters->ionizationMode = +1;
-    mavenparameters->matchRtFlag = true;
-    mavenparameters->compoundRTWindow = 2;
-    mavenparameters->samples = samplesToLoad;
-    mavenparameters->eic_smoothingWindow = 10;
-    mavenparameters->eic_smoothingAlgorithm = 1;
-    mavenparameters->amuQ1 = 0.25;
-    mavenparameters->amuQ3 = 0.30;
-    mavenparameters->baseline_smoothingWindow = 5;
-    mavenparameters->baseline_dropTopX = 80;
+    vector<mzSample*> samplesToLoad;
+    common::loadSamplesAndParameters(samplesToLoad, mavenparameters);
 
-    PeakDetector peakDetector;
-    peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices =
-        peakDetector.processCompounds(compounds, "compounds");
-    peakDetector.processSlices(slices, "compounds");
+    PeakDetector targetedPeakDetector;
+    targetedPeakDetector.setMavenParameters(mavenparameters);
+    vector<mzSlice*> slices = targetedPeakDetector.processCompounds(compounds, "compounds");
+    targetedPeakDetector.processSlices(slices, "compounds");
+
+    verifyTargetedGroupReport(samplesToLoad, mavenparameters);
+
+    PeakDetector untargetedPeakDetector;
+    untargetedPeakDetector.setMavenParameters(mavenparameters);
+    untargetedPeakDetector.processMassSlices();
+
+    verifyUntargetedGroupReport(samplesToLoad, mavenparameters);
+}
+
+void TestCSVReports::verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
+                                               MavenParameters* mavenparameters)
+{
+    // we only test the write correctness for the first group
     PeakGroup& parent = mavenparameters->allgroups[0];
 
     bool C13Flag = mavenparameters->C13Labeled_BPE;
@@ -139,33 +123,121 @@ void TestCSVReports::testaddGroups() {
     IsotopeDetection::IsotopeDetectionType isoType;
     isoType = IsotopeDetection::PeakDetection;
 
-	IsotopeDetection isotopeDetection(
-                mavenparameters,
-                isoType,
-                C13Flag,
-                N15Flag,
-                S34Flag,
-                D2Flag);
+    IsotopeDetection isotopeDetection(mavenparameters,
+                                      isoType,
+                                      C13Flag,
+                                      N15Flag,
+                                      S34Flag,
+                                      D2Flag);
     isotopeDetection.pullIsotopes(&parent);
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
-    csvreports->setMavenParameters(mavenparameters);    
+    csvreports->setMavenParameters(mavenparameters);
     csvreports->openGroupReport(outputfile,true);
     csvreports->addGroup(&(parent));
 
+    string headersString;
+    string cohortString;
+    string parentString;
+    string labelString;
+
     ifstream ifile(outputfile.c_str());
-    string temp;
-    getline(ifile, temp);
-    getline(ifile, temp);
-    getline(ifile, temp);
+
+    getline(ifile, headersString);
+    getline(ifile, cohortString);
+    getline(ifile, parentString);
+    getline(ifile, labelString);
+
     remove(outputfile.c_str());
 
-    //check if group with this id has been added to csvreport
-    std::size_t found = temp.find("HMDB01248");
+    //check if number of columns is correct
     vector<std::string> header;
-    mzUtils::splitNew(temp, "," , header);
+    mzUtils::splitNew(headersString, "," , header);
+    QVERIFY(header.size() == 16);
+
+    // check if parent group values are correctly written
+    vector<std::string> parentValues;
+    mzUtils::splitNew(parentString, "," , parentValues);
+    QVERIFY(parentValues[1] == "1");
+    QVERIFY(parentValues[2] == "1");
+    QVERIFY(parentValues[3] == "2");
+    QVERIFY(parentValues[4] == "665.2159");
+    QVERIFY(parentValues[5] == "1.463882");
+    QVERIFY(parentValues[6] == "0.8476948");
+    QVERIFY(parentValues[7] == "C12 PARENT");
+    QVERIFY(parentValues[8] == "Stachyose");
+    QVERIFY(parentValues[9] == "HMDB03553");
+    QVERIFY(parentValues[10] == "C24H42O21");
+    QVERIFY(parentValues[11] == "0.6461183");
+    QVERIFY(parentValues[12] == "2.018557");
+    QVERIFY(parentValues[13] == "665.2159");
+    QVERIFY(parentValues[14] == "58567.76");
+    QVERIFY(parentValues[15] == "38766.77");
+
+    // check if labelled child values are correctly written
+    vector<std::string> childValues;
+    mzUtils::splitNew(labelString, "," , childValues);
+    QVERIFY(childValues[1] == "1");
+    QVERIFY(childValues[2] == "2");
+    QVERIFY(childValues[3] == "0");
+    QVERIFY(childValues[4] == "666.2197");
+    QVERIFY(childValues[5] == "1.475023");
+    QVERIFY(childValues[6] == "0.1309547");
+    QVERIFY(childValues[7] == "C13-label-1");
+    QVERIFY(childValues[8] == "Stachyose");
+    QVERIFY(childValues[9] == "HMDB03553");
+    QVERIFY(childValues[10] == "C24H42O21");
+    QVERIFY(childValues[11] == "0.6349765");
+    QVERIFY(childValues[12] == "2.565203");
+    QVERIFY(childValues[13] == "665.2159");
+    QVERIFY(childValues[14] == "6103.332");
+    QVERIFY(childValues[15] == "0");
+}
+
+void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoad,
+                                                 MavenParameters* mavenparameters)
+{
+    // we only test the write correctness for the first group
+    PeakGroup& parent = mavenparameters->allgroups[0];
+
+    CSVReports* csvreports =  new CSVReports(samplesToLoad);
+    csvreports->setMavenParameters(mavenparameters);
+    csvreports->openGroupReport(outputfile,true);
+    csvreports->addGroup(&(parent));
+
+    string headersString;
+    string cohortString;
+    string parentString;
+
+    ifstream ifile(outputfile.c_str());
+
+    getline(ifile, headersString);
+    getline(ifile, cohortString);
+    getline(ifile, parentString);
+
+    remove(outputfile.c_str());
 
     //check if number of columns is correct
-    QVERIFY(found != std::string::npos && header.size() == 16);
+    vector<std::string> header;
+    mzUtils::splitNew(headersString, "," , header);
+    QVERIFY(header.size() == 16);
 
+    // check if group values are correctly written
+    vector<std::string> parentValues;
+    mzUtils::splitNew(parentString, "," , parentValues);
+    QVERIFY(parentValues[1] == "15");
+    QVERIFY(parentValues[2] == "1");
+    QVERIFY(parentValues[3] == "2");
+    QVERIFY(parentValues[4] == "210.1503");
+    QVERIFY(parentValues[5] == "16.71442");
+    QVERIFY(parentValues[6] == "0.8033339");
+    QVERIFY(parentValues[7] == "");
+    QVERIFY(parentValues[8] == "210.150269@16.714417");
+    QVERIFY(parentValues[9] == "210.150269@16.714417");
+    QVERIFY(parentValues[10] == "");
+    QVERIFY(parentValues[11] == "0");
+    QVERIFY(parentValues[12] == "0");
+    QVERIFY(parentValues[13] == "210.1503");
+    QVERIFY(parentValues[14] == "1.234094e+09");
+    QVERIFY(parentValues[15] == "1.199782e+09");
 }
