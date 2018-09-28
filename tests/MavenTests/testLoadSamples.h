@@ -32,7 +32,9 @@ class TestLoadSamples : public QObject {
         void testSrmScan();
         void testMinMaxMz();
         void testMinMaxRT();
+#ifndef WIN32
         void testSampleName();
+#endif
         void testBlankSample();
         void testParseMzMLInjectionTimeStamp();
 };

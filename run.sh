@@ -17,13 +17,7 @@ if [ -f tests/MavenTests/test.xml ]; then
 fi
 
 if [ -f ./bin/MavenTests ]; then
+        echo "Running tests"
 	./bin/MavenTests -xml
-fi
-
-type="$(uname)"
-systemType="$(echo "$type"  |  tr '[:upper:]'  '[:lower:]')"
-if [ $systemType == "linux" ] && [ $flag == 10 ]; then
-    lcov --capture --directory ./ --output-file ../coverage.info --no-external
-    genhtml ../coverage.info --output-directory ../coverage
 fi
 
