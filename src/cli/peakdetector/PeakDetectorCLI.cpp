@@ -969,7 +969,12 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 
 	QString status = _pollyIntegration->authenticateLogin(creds["polly_username"], creds["polly_password"]);
 	if (status != "ok") {
-		cerr << "Incorrect credentials. Please check." << endl;
+		if (status == "error"){
+			cerr << "There was a Problem while authenticating to Polly. Please check your internet connection and try again" << endl;
+		}
+		else{
+			cerr << "Incorrect credentials. Please check." << endl;
+		}
 		return upload_project_id;
 	}
 	// user is logged in, now proceed to upload..

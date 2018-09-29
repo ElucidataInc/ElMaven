@@ -244,11 +244,18 @@ QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2) {
 //
 // CALLED FROM: 
 
-
 QVariantMap PollyIntegration::getUserProjects() {
+    QVariantMap userProjects;
     QString getProjectsCommand = "get_Project_names";
     QList<QByteArray> resultAndError = runQtProcess(getProjectsCommand, QStringList() << credFile);
-    QVariantMap userProjects = getUserProjectsMap(resultAndError.at(0));
+    // Putting EpiErrorCode key to detect possible error due to internet connection issues 
+    // or if Polly servers are Down for some reason.
+    if (resultAndError.at(1)!=""){
+        userProjects[QString("EpiErrorCode")] = QString("InternetError");
+    }
+    else{
+        userProjects = getUserProjectsMap(resultAndError.at(0));
+    }
     return userProjects;
 }
 

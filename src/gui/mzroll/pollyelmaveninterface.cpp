@@ -276,8 +276,15 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     QCoreApplication::processEvents();
 
     QIcon project_icon(rsrcPath + "/POLLY.png");
+    // when coming from login form, projectNamesId will be empty.
     if (projectNamesId.isEmpty()) {
         projectNamesId = _pollyIntegration->getUserProjects();
+    }
+    else if (projectNamesId["EpiErrorCode"].toString() == "InternetError"){
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red; }");
+        _loadingDialog->statusLabel->setText("No internet connection");
+        QCoreApplication::processEvents();
+        return;
     }    
     
     QStringList keys= projectNamesId.keys();
