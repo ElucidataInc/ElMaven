@@ -38,6 +38,105 @@ EIC::~EIC()
     peaks.clear();
 }
 
+
+void EIC::testFunction1(const vector<EIC *> &eics)
+{
+    unsigned int maxlen = 0;
+    float minRt;
+    float maxRt;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
+
+void EIC::testFunction2(const vector<EIC *> &eics)
+{
+
+    unsigned int maxlen = 0;
+    float minRt = DBL_MAX;
+    float maxRt = DBL_MIN;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
+
+void EIC::testFunction3(const vector<EIC *> &eics)
+{
+
+    unsigned int maxlen = 0;
+    float minRt = DBL_MAX;
+    float maxRt = DBL_MIN;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
+
+
+void EIC::testFunction4(const vector<EIC *> &eics)
+{
+    unsigned int maxlen = 0;
+    float minRt;
+    float maxRt;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
+
+void EIC::testFunction5(const vector<EIC *> &eics)
+{
+    unsigned int maxlen = 0;
+    float minRt;
+    float maxRt;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
+
+void EIC::testFunction6(const vector<EIC *> &eics)
+{
+    unsigned int maxlen = 0;
+    float minRt;
+    float maxRt;
+    for (unsigned int i = 0; i < eics.size(); i++)
+    {
+        if (eics[i]->size() > maxlen)
+            maxlen = eics[i]->size();
+        if (eics[i]->rtmin < minRt)
+            minRt = eics[i]->rtmin;
+        if (eics[i]->rtmax > maxRt)
+            maxRt = eics[i]->rtmax;
+    }
+}
 EIC *EIC::eicMerge(const vector<EIC *> &eics)
 {
     // Merge to 776
