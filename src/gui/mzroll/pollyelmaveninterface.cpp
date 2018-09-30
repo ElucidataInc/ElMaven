@@ -208,6 +208,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
     _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
     _loadingDialog->statusLabel->setText("Authenticating..");
     _loadingDialog->label->setVisible(true);
     _loadingDialog->label->setMovie(_loadingDialog->movie);
@@ -218,6 +219,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status)
 {
     if (status == "ok") {
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
         _loadingDialog->statusLabel->setText("Fetching your projects..");
         QCoreApplication::processEvents();
     } else {
