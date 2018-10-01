@@ -365,9 +365,12 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         if(group->label !='g') return;
     } else if (selectionFlag == 3) {
         if(group->label !='b') return;
-    } else {
-
     }
+
+    // sort the peaks in the group according to the sample names using a comparison function
+    // this ensures that the order in which the peaks are written is same across different systems.
+    std::sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleName);
+
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();
