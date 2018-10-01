@@ -40,8 +40,22 @@ class IsotopeDetection
 	 * @details if parent group is not available, correlation check if skipped
 	 * @return bool. true if isotope has to be skipped. false if it passes the checks
 	 **/
-	bool filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
-
+    bool filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
+#ifdef WIN32
+    void testForIsotopes1(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes2(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes3(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes4(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes5(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes6(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes7(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes8(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes9(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes10(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes11(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes12(PeakGroup* parentgroup, vector<Isotope> masslist);
+    void testForIsotopes13(PeakGroup* parentgroup, vector<Isotope> masslist);
+#endif
   private:
 	bool _C13Flag;
 	bool _N15Flag;

@@ -46,6 +46,1266 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
     addIsotopes(parentgroup, isotopes);
 
 }
+#ifdef WIN32
+
+void IsotopeDetection::testForIsotopes1(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+void IsotopeDetection::testForIsotopes2(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+
+}
+
+void IsotopeDetection::testForIsotopes3(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+void IsotopeDetection::testForIsotopes4(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes5(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes6(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes7(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes8(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes9(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes10(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes11(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes12(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+
+
+void IsotopeDetection::testForIsotopes13(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+
+    for (unsigned int s = 0; s < _mavenParameters->samples.size(); s++) {
+        mzSample* sample = _mavenParameters->samples[s];
+        for (unsigned int k = 0; k < masslist.size(); k++) {
+            //			if (stopped())
+            //				break; TODO: stop
+            Isotope& x = masslist[k];
+            string isotopeName = x.name;
+            double isotopeMass = x.mass;
+            double expectedAbundance = x.abundance;
+
+            float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+            float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            Peak* parentPeak = parentgroup->getPeak(sample);
+            if (parentPeak)
+                rt = parentPeak->rt;
+            if (parentPeak)
+                rtmin = parentPeak->rtmin;
+            if (parentPeak)
+                rtmax = parentPeak->rtmax;
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
+                continue;
+
+            vector<Peak> allPeaks;
+
+            EIC * eic = sample->getEIC(mzmin, mzmax, sample->minRt,sample->maxRt, 1, _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+            //actually last parameter should probably be deepest MS level?
+            //TODO: decide how isotope children should even work in MS mode
+
+            // smooth fond eic TODO: null check for found
+            eic->setSmootherType(
+                    (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            //TODO: this needs be optimized to not bother finding peaks outside of
+            //maxIsotopeScanDiff window
+            allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+        }
+    }
+
+}
+#endif
 
 map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
 {
