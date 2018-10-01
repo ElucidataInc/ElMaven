@@ -101,12 +101,14 @@ void TestCSVReports::testaddGroup()
     targetedPeakDetector.processSlices(slices, "compounds");
 
     verifyTargetedGroupReport(samplesToLoad, mavenparameters);
+    verifyTargetedPeakReport(samplesToLoad, mavenparameters);
 
     PeakDetector untargetedPeakDetector;
     untargetedPeakDetector.setMavenParameters(mavenparameters);
     untargetedPeakDetector.processMassSlices();
 
     verifyUntargetedGroupReport(samplesToLoad, mavenparameters);
+    verifyUntargetedPeakReport(samplesToLoad, mavenparameters);
 }
 
 void TestCSVReports::verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
@@ -240,4 +242,162 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
     QVERIFY(parentValues[13] == "210.1503");
     QVERIFY(parentValues[14] == "1.234094e+09");
     QVERIFY(parentValues[15] == "1.199782e+09");
+}
+
+void TestCSVReports::verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                              MavenParameters* mavenparameters)
+{
+    // we only test the write correctness for the first group
+    PeakGroup& parent = mavenparameters->allgroups[0];
+
+    CSVReports* csvreports =  new CSVReports(samplesToLoad);
+    csvreports->setMavenParameters(mavenparameters);
+    csvreports->openPeakReport(outputfile);
+    csvreports->addGroup(&(parent));
+
+    string headersString;
+    string peakString1;
+    string peakString2;
+
+    ifstream ifile(outputfile.c_str());
+
+    getline(ifile, headersString);
+    getline(ifile, peakString1);
+    getline(ifile, peakString2);
+
+    remove(outputfile.c_str());
+
+    //check if number of columns is correct
+    vector<std::string> header;
+    mzUtils::splitNew(headersString, "," , header);
+    QVERIFY(header.size() == 21);
+
+    // check if parent group values are correctly written
+    vector<std::string> peakValues1;
+    mzUtils::splitNew(peakString1, "," , peakValues1);
+    QVERIFY(peakValues1[0] == "1");
+    QVERIFY(peakValues1[1] == "Stachyose");
+    QVERIFY(peakValues1[2] == "HMDB03553");
+    QVERIFY(peakValues1[3] == "C24H42O21");
+    QVERIFY(peakValues1[4] == "testsample_2");
+    QVERIFY(peakValues1[5] == "665.21631");
+    QVERIFY(peakValues1[6] == "665.21643");
+    QVERIFY(peakValues1[7] == "665.21674");
+    QVERIFY(peakValues1[8] == "1.47");
+    QVERIFY(peakValues1[9] == "1.43");
+    QVERIFY(peakValues1[10] == "1.52");
+    QVERIFY(peakValues1[11] == "0.667");
+    QVERIFY(peakValues1[12] == "7.96e+04");
+    QVERIFY(peakValues1[13] == "5.96e+05");
+    QVERIFY(peakValues1[14] == "6.36e+05");
+    QVERIFY(peakValues1[15] == "5.86e+04");
+    QVERIFY(peakValues1[16] == "5.96e+05");
+    QVERIFY(peakValues1[17] == "5.86e+04");
+    QVERIFY(peakValues1[18] == "18");
+    QVERIFY(peakValues1[19] == "9.12");
+    QVERIFY(peakValues1[20] == "0");
+
+    // check if labelled child values are correctly written
+    vector<std::string> peakValues2;
+    mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2[0] == "1");
+    QVERIFY(peakValues2[1] == "Stachyose");
+    QVERIFY(peakValues2[2] == "HMDB03553");
+    QVERIFY(peakValues2[3] == "C24H42O21");
+    QVERIFY(peakValues2[4] == "testsample_3");
+    QVERIFY(peakValues2[5] == "665.21497");
+    QVERIFY(peakValues2[6] == "665.21521");
+    QVERIFY(peakValues2[7] == "665.21509");
+    QVERIFY(peakValues2[8] == "1.46");
+    QVERIFY(peakValues2[9] == "1.38");
+    QVERIFY(peakValues2[10] == "1.5");
+    QVERIFY(peakValues2[11] == "0.848");
+    QVERIFY(peakValues2[12] == "5.46e+04");
+    QVERIFY(peakValues2[13] == "3.59e+05");
+    QVERIFY(peakValues2[14] == "3.55e+05");
+    QVERIFY(peakValues2[15] == "3.88e+04");
+    QVERIFY(peakValues2[16] == "3.59e+05");
+    QVERIFY(peakValues2[17] == "3.88e+04");
+    QVERIFY(peakValues2[18] == "16");
+    QVERIFY(peakValues2[19] == "5.46e+03");
+    QVERIFY(peakValues2[20] == "0");
+}
+
+void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                                MavenParameters* mavenparameters)
+{
+    // we only test the write correctness for the first group
+    PeakGroup& parent = mavenparameters->allgroups[0];
+
+    CSVReports* csvreports =  new CSVReports(samplesToLoad);
+    csvreports->setMavenParameters(mavenparameters);
+    csvreports->openPeakReport(outputfile);
+    csvreports->addGroup(&(parent));
+
+    string headersString;
+    string peakString1;
+    string peakString2;
+
+    ifstream ifile(outputfile.c_str());
+
+    getline(ifile, headersString);
+    getline(ifile, peakString1);
+    getline(ifile, peakString2);
+
+    remove(outputfile.c_str());
+
+    //check if number of columns is correct
+    vector<std::string> header;
+    mzUtils::splitNew(headersString, "," , header);
+    QVERIFY(header.size() == 21);
+
+    // check if parent group values are correctly written
+    vector<std::string> peakValues1;
+    mzUtils::splitNew(peakString1, "," , peakValues1);
+    QVERIFY(peakValues1[0] == "15");
+    QVERIFY(peakValues1[1] == "210.150269@16.714417");
+    QVERIFY(peakValues1[2] == "210.150269@16.714417");
+    QVERIFY(peakValues1[3] == "");
+    QVERIFY(peakValues1[4] == "testsample_2");
+    QVERIFY(peakValues1[5] == "210.15038");
+    QVERIFY(peakValues1[6] == "210.15045");
+    QVERIFY(peakValues1[7] == "210.15045");
+    QVERIFY(peakValues1[8] == "16.7");
+    QVERIFY(peakValues1[9] == "16.6");
+    QVERIFY(peakValues1[10] == "17.4");
+    QVERIFY(peakValues1[11] == "0.801");
+    QVERIFY(peakValues1[12] == "1.26e+09");
+    QVERIFY(peakValues1[13] == "3.01e+10");
+    QVERIFY(peakValues1[14] == "3.01e+10");
+    QVERIFY(peakValues1[15] == "1.23e+09");
+    QVERIFY(peakValues1[16] == "3.01e+10");
+    QVERIFY(peakValues1[17] == "1.23e+09");
+    QVERIFY(peakValues1[18] == "178");
+    QVERIFY(peakValues1[19] == "117");
+    QVERIFY(peakValues1[20] == "0");
+
+    // check if labelled child values are correctly written
+    vector<std::string> peakValues2;
+    mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2[0] == "15");
+    QVERIFY(peakValues2[1] == "210.150269@16.714417");
+    QVERIFY(peakValues2[2] == "210.150269@16.714417");
+    QVERIFY(peakValues2[3] == "");
+    QVERIFY(peakValues2[4] == "testsample_3");
+    QVERIFY(peakValues2[5] == "210.15005");
+    QVERIFY(peakValues2[6] == "210.1501");
+    QVERIFY(peakValues2[7] == "210.1501");
+    QVERIFY(peakValues2[8] == "16.7");
+    QVERIFY(peakValues2[9] == "16.6");
+    QVERIFY(peakValues2[10] == "17.4");
+    QVERIFY(peakValues2[11] == "0.803");
+    QVERIFY(peakValues2[12] == "1.22e+09");
+    QVERIFY(peakValues2[13] == "2.99e+10");
+    QVERIFY(peakValues2[14] == "2.99e+10");
+    QVERIFY(peakValues2[15] == "1.2e+09");
+    QVERIFY(peakValues2[16] == "2.99e+10");
+    QVERIFY(peakValues2[17] == "1.2e+09");
+    QVERIFY(peakValues2[18] == "178");
+    QVERIFY(peakValues2[19] == "114");
+    QVERIFY(peakValues2[20] == "0");
 }

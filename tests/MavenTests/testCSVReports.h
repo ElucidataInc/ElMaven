@@ -51,6 +51,11 @@ class TestCSVReports : public QObject {
                                        MavenParameters* mavenparameters);
         void verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoad,
                                          MavenParameters* mavenparameters);
+        void verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                      MavenParameters* mavenparameters);
+        void verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                        MavenParameters* mavenparameters);
+
 };
 
 #endif // TESTCSVREPORTS_H
