@@ -30,10 +30,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 	Q_OBJECT
 
         public:
-                /**
-                * @brief credentials required to connect to polly..
-                */
-                QStringList credentials;
                 QString uploadProjectId;
                 QStringList organisationSpecificCompoundDB;
                 /**
@@ -134,13 +130,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
                 // void loadDataFromPolly();
 
-                /**
-                 * @brief This function is responsible for initial steps..
-                 * @details this function performs the following tasks in the given order -
-                 * 1. checks if the user credentials file exists, if not then call login form..
-                 * if the file is there, try to login to polly using the credentials mentioned in that file
-                 * if successfull, call loadformdata, else call login form.. 
-                 */
                 void logout();
                 void handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable);
                 void handleNewProject();

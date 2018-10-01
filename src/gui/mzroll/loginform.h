@@ -30,7 +30,7 @@ public:
     
 
 public slots:
-    void handleResults(QStringList results);
+    void handleResults(QString status);
 
 private slots:
     /**
@@ -59,7 +59,7 @@ class WorkerThread : public QThread
         QString password;
         void run();
     signals:
-        void resultReady(QStringList result);
+        void resultReady(QString status);
 };
 
 #endif // LOGINFORM_H
