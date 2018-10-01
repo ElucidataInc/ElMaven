@@ -22,6 +22,7 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
             message("adding gcov compiler flags")
             QMAKE_CCFLAGS += -fprofile-arcs -ftest-coverage
             QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+            QMAKE_CXXFLAGS -= -Ofast -ffast-math
             QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
             QMAKE_LFLAGS += -lgcov --coverage
         }
