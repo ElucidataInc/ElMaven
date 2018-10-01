@@ -31,9 +31,10 @@ WorkerThread::WorkerThread()
     
 };
 
-void WorkerThread::run(){
-    QString status_inside = _pollyintegration->authenticateLogin(username,password);
-    emit resultReady(QStringList()<<status_inside<<username<<password);
+void WorkerThread::run()
+{
+    QString status = _pollyintegration->authenticateLogin(username, password);
+    emit resultReady(status);
 }
 
 WorkerThread::~WorkerThread()
@@ -50,47 +51,42 @@ void LoginForm::on_pushButton_clicked()
     QCoreApplication::processEvents();
 
     WorkerThread *workerThread = new WorkerThread();
-    connect(workerThread, SIGNAL(resultReady(QStringList)), this, SLOT(handleResults(QStringList)));
+    connect(workerThread, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
     workerThread->username= ui->lineEdit_username->text();
     workerThread->password = ui->lineEdit_password->text();
     workerThread->start();
 }
 
-
-void LoginForm::handleResults(QStringList results){
-    QString status_inside=results.at(0);
-    QString username=results.at(1);
-    QString password=results.at(2);
-    if (status_inside=="ok"){
-        qDebug()<<"Logged in, moving on now....";
+void LoginForm::handleResults(QString status)
+{
+    if (status == "ok") {
+        qDebug() << "Logged in, moving on now....";
         ui->login_label->setText("Fetching data from Polly..");
         QCoreApplication::processEvents();
-        _pollyelmaveninterfacedialog->credentials = QStringList()<< username << password;
         _pollyelmaveninterfacedialog->startupDataLoad();
         hide();
         _pollyelmaveninterfacedialog->show();
         
-    }
-    else if(status_inside=="error"){
+    } else if (status == "error") {
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Please check your internet");
         ui->pushButton->setEnabled(true);
-    }
-    else {
+    } else {
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Incorrect credentials");
         ui->pushButton->setEnabled(true);
     }
 }
 
-void LoginForm::cancel(){
-    qDebug()<<"closing the log in form now..";
+void LoginForm::cancel()
+{
+    qDebug() << "closing the log in form now..";
     close();
 }
 
-void LoginForm::showAboutPolly(){
-    qDebug()<<"going to show the doc now..";
+void LoginForm::showAboutPolly()
+{
     _aboutPolly =new AboutPolly();
     _aboutPolly->setModal(true);
     _aboutPolly->show();

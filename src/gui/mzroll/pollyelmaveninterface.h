@@ -30,11 +30,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 	Q_OBJECT
 
         public:
-                /**
-                * @brief credentials required to connect to polly..
-                */
-                QStringList credentials;
-                QString upload_project_id;
+                QString uploadProjectId;
                 QStringList organisationSpecificCompoundDB;
                 /**
                 * @brief constructor with mainwindow pointer..
@@ -49,6 +45,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectNamesId;
+                enum class PollyApp { FirstView = 0, Fluxomics = 1 };
                 bool advancedSettingsFlag;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
@@ -75,10 +72,11 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 TableDockWidget* _activeTable = NULL ;
                 void createIcons();
                 QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
-                QString redirectTo = "firstview";
                 void setUiElementsFlux();
                 void setUiElementsFV();
                 QMap<QString, TableDockWidget*> tableNameMapping;
+                QString getProjectId(QComboBox* projectList, QLineEdit* newProject);
+                void showErrorMessage(QString title, QString message);
                 QString writableTempDir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
@@ -132,13 +130,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
                 // void loadDataFromPolly();
 
-                /**
-                 * @brief This function is responsible for initial steps..
-                 * @details this function performs the following tasks in the given order -
-                 * 1. checks if the user credentials file exists, if not then call login form..
-                 * if the file is there, try to login to polly using the credentials mentioned in that file
-                 * if successfull, call loadformdata, else call login form.. 
-                 */
                 void logout();
                 void handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable);
                 void handleNewProject();
