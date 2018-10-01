@@ -3,15 +3,15 @@ Labeled MS/MS Validation
 
 .. All images used are referecned here
 
-.. |Validation1| image:: /image/Validation_1.png
-.. |Validation2| image:: /image/Validation_2.png
-.. |Validation3| image:: /image/Validation_3.png
-.. |Validation4| image:: /image/Validation_4.png
-.. |Validation5| image:: /image/Validation_5.png
-.. |Validation6| image:: /image/Validation_6.png
-.. |Validation7| image:: /image/Validation_7.png
-.. |Validation8| image:: /image/Validation_8.png
-.. |Validation9| image:: /image/Validation_9.png
+.. |Validation01| image:: /image/Validation_1.png
+.. |Validation02| image:: /image/Validation_2.png
+.. |Validation03| image:: /image/Validation_3.png
+.. |Validation04| image:: /image/Validation_4.png
+.. |Validation05| image:: /image/Validation_5.png
+.. |Validation06| image:: /image/Validation_6.png
+.. |Validation07| image:: /image/Validation_7.png
+.. |Validation08| image:: /image/Validation_8.png
+.. |Validation09| image:: /image/Validation_9.png
 .. |Validation10| image:: /image/Validation_10.png
 .. |Validation11| image:: /image/Validation_11.png
 .. |Validation12| image:: /image/Validation_12.png
@@ -64,20 +64,20 @@ In order to ensure correct reading and processing of MS2 sample files in El-MAVE
 
 Dataset: Full-scan MS2 sample file
 
-+--------------+--------------------+--------------------+
-| Fragment     | Skyline            | El-MAVEN           |
-|	       |                    |		         |
-+==============+====================+====================+
-| #1           | |Validation1|      | |Validation2|      |
-+--------------+--------------------+--------------------+
-| #2           | |Validation3|      | |Validation4|      |
-+--------------+--------------------+--------------------+
-| #3           | |Validation5|      | |Validation6|      |
-+--------------+--------------------+--------------------+
-| #4           | |Validation7|      | |Validation8|      |
-+--------------+--------------------+--------------------+
-| #5           | |Validation9|      | |Validation10|     |
-+--------------+--------------------+--------------------+
++--------------+----------------------+----------------------+
+| Fragment     | Skyline              | El-MAVEN             |
+|	       |                      |		             |
++==============+======================+======================+
+| #1           | |Validation01|       | |Validation02|       |
++--------------+----------------------+----------------------+
+| #2           | |Validation03|       | |Validation04|       |
++--------------+----------------------+----------------------+
+| #3           | |Validation05|       | |Validation06|       |
++--------------+----------------------+----------------------+
+| #4           | |Validation07|       | |Validation08|       |
++--------------+----------------------+----------------------+
+| #5           | |Validation09|       | |Validation10|       |
++--------------+----------------------+----------------------+
 
 **Chromatogram validation**
 

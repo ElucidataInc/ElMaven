@@ -15,6 +15,21 @@ This is a tutorial for processing Unlabeled LC/MS data files through El-MAVEN.
 .. |generate pdf| image:: /image/Widget_35.png
 .. |export to json| image:: /image/Widget_37.png
 
+.. |ULCMS01| image:: /image/ULCMS_1.png
+.. |ULCMS02| image:: /image/ULCMS_2.png
+.. |ULCMS03| image:: /image/ULCMS_3.png
+.. |ULCMS04| image:: /image/ULCMS_4.png
+.. |ULCMS05| image:: /image/ULCMS_5.png
+.. |ULCMS06| image:: /image/ULCMS_6.png
+.. |ULCMS07| image:: /image/ULCMS_7.png
+.. |ULCMS08| image:: /image/ULCMS_8.png
+.. |ULCMS09| image:: /image/ULCMS_9.png 
+.. |ULCMS10| image:: /image/ULCMS_10.png
+.. |ULCMS11| image:: /image/ULCMS_11.png
+.. |ULCMS12| image:: /image/ULCMS_12.png
+.. |ULCMS13| image:: /image/ULCMS_13.png
+.. |ULCMS14| image:: /image/ULCMS_14.png
+
 .. **Contents**
 
     * Preprocessing
@@ -49,7 +64,7 @@ msConvert supports the following formats:
 
 The settings used for msConvert as a GUI tool are captured in the following screenshots: 
 
-.. image:: /image/1.png
+|ULCMS01|
 
 NOTE: Zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support Zlib compression. It is important to uncheck "Use Zlib compression" box.
 
@@ -62,14 +77,14 @@ Launch El-MAVEN
 
 Once sample files are ready for processing, launch El-MAVEN. 
 
-.. image:: /image/2.png
+|ULCMS02|
 
 Adjust Global Settings
 ----------------------
 
 Global Settings can be changed from the *Options* dialog |options|. There are 9 tabs in the dialog. Each of these tabs has parameters related to a different module in El-MAVEN. For example, a tab for Instrumentation details, a tab for file import settings, et cetera.
 
-.. image:: /image/3.png
+|ULCMS03|
 
 To know more about the functionality of different tabs and their settings, user can see the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_. Please be sure to set the desired settings before processing an input file.
 
@@ -78,22 +93,24 @@ Load Samples
 
 User can go to File in the Menu, click on *Load Samples|Projects|Peaks* option in the File menu. Then navigate to the folder containing the sample data, select all .mzXML or .mzml files and click Open. A loading bar displays the progress at the bottom. 
 
-.. image:: /image/4.png
+|ULCMS04|
 
 When the samples have loaded, user should see a sample panel on the left side. If it is not displayed automatically, click on the Show Samples Widget button on the toolbar. El-MAVEN automatically assigns a color to every sample. User can select/deselect any sample by clicking the checkbox on the left of the sample name. 
 
-.. image:: /image/5.png
+|ULCMS05|
 
 Load Compound Database
 ----------------------
 
 User can click on *Compounds* option in the leftmost menu, navigate to the folder containing the standard database file, select the appropriate .csv file and click *Open*. 
 
-.. image:: /image/6.png
+|ULCMS06|
 
 This is a sample Compound Database: 
 
-Screenshot 7
+|ULCMS07|
+
+**Shubhra**
 
 It lists all metabolite names, chemical formula, HMDB ID, and the class/category of compounds they belong to (if known).
 
@@ -102,39 +119,39 @@ Mark Blanks
 
 The user can mark the blanks by selecting the blank samples from the list on screen, and clicking on the *Set as a Blank Sample* icon |mark sample as blank| in Samples menu.
 
-.. image:: /image/8.png
+|ULCMS08|
 
 Multiple blanks can be marked together. The blanks will appear black as shown in the image below: 
 
-.. image:: /image/9.png
+|ULCMS09|
 
 Alignment
 ---------
 
 Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak Rts in every sample to correct for this drift and brings the peaks closer to median Rt of the group.
 
-.. image:: /image/10.png
+|ULCMS10|
 
 In the above image, EIC for a UTP group is displayed. If the samples were aligned, all peaks would lie at the same RT. Since this is not the case the samples need to be aligned.
 
 *Alignment visualization* |show alignment visualisation| can be used to judge the extent of deviation from median RT. 
 
-.. image:: /image/11.png
+|ULCMS11|
 
-In the above visualization, each box represents a peak from the selected group at its current RT.Samples are said to be perfectly aligned when all peak boxes lie on the same vertical axis. The peaks are considerably scattered in the above image and therefore the samples should be aligned for better grouping of peaks.
+In the above visualization, each box represents a peak from the selected group at its current RT. Samples are said to be perfectly aligned when all peak boxes lie on the same vertical axis. The peaks are considerably scattered in the above image and therefore the samples should be aligned for better grouping of peaks.
 
 **Perform Alignment**
 
 *Alignment settings* can be adjusted using the Align button |align|. This example was aligned with 
 *Loess fit* algorithm with default parameters. 
 
-.. image:: /image/12.png
+|ULCMS12|
 
 Post-alignment the peaks in the group should appear closer to the median Rt of the group.
 
-.. image:: /image/13.png
+|ULCMS13|
 
-.. image:: /image/14.png
+|ULCMS14|
 
 Pre-alignment, the peaks were considerably scattered while the aligned peaks lie nearly on the same axis. User can run alignment again with different parameters if required (or with a different algorithm). Further details on Alignment settings are available on the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_.
 

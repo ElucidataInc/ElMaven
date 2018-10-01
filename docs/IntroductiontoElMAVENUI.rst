@@ -49,10 +49,50 @@ Following is the general workflow involved in El-MAVEN:
 .. |export to csv| image:: /image/Widget_36.png
 .. |export to json| image:: /image/Widget_37.png
 
-.. El-MAVEN User Interface
-.. -----------------------
+.. |UI01| image:: /image/UI_1.png
+.. |UI02| image:: /image/UI_2.png
+.. |UI03| image:: /image/UI_3.png
+.. |UI04| image:: /image/UI_4.png
+.. |UI05| image:: /image/UI_5.png
+.. |UI06| image:: /image/UI_6.png
+.. |UI07| image:: /image/UI_7.png
+.. |UI08| image:: /image/UI_8.png
+.. |UI09| image:: /image/UI_9.png
+.. |UI10| image:: /image/UI_10.png
+.. |UI11| image:: /image/UI_11.png
+.. |UI12| image:: /image/UI_12.png
+.. |UI13| image:: /image/UI_13.png
+.. |UI14| image:: /image/UI_14.png
+.. |UI15| image:: /image/UI_15.png
+.. |UI16| image:: /image/UI_16.png
+.. |UI17| image:: /image/UI_17.png
+.. |UI18| image:: /image/UI_18.png
+.. |UI19| image:: /image/UI_19.png
+.. |UI20| image:: /image/UI_20.png
+.. |UI21| image:: /image/UI_21.png
+.. |UI22| image:: /image/UI_22.png
+.. |UI23| image:: /image/UI_23.png
+.. |UI24| image:: /image/UI_24.png
+.. |UI25| image:: /image/UI_25.png
+.. |UI26| image:: /image/UI_26.png
+.. |UI27| image:: /image/UI_27.png
+.. |UI28| image:: /image/UI_28.png
+.. |UI29| image:: /image/UI_29.png
+.. |UI30| image:: /image/UI_30.png
+.. |UI31| image:: /image/UI_31.png
+.. |UI32| image:: /image/UI_32.png
+.. |UI33| image:: /image/UI_33.png
+.. |UI34| image:: /image/UI_34.png
+.. |UI35| image:: /image/UI_35.png
+.. |UI36| image:: /image/UI_36.png
+.. |UI37| image:: /image/UI_37.png
+.. |UI38| image:: /image/UI_38.png
 
-Screenshot
+
+El-MAVEN User Interface
+-----------------------
+
+|UI01|
 
 Global Settings
 ---------------
@@ -61,7 +101,7 @@ Global Settings can be changed from the Options dialog |options|.
 
 **Instrumentation**
 
-Screenshot
+|UI02|
 
    * *Polarity/Ionization mode*: Polarity information is required for m/z calculation. User can set the polarity of the metabolites in their experiment from the drop-down list or set it to Auto-detect.
 
@@ -75,7 +115,7 @@ Screenshot
 
 **File Import**
 
-Screenshot
+|UI03|
 
    * *Centroid Scans*: Centroid acquisition is an acquisition method where only centroid m/z and intensity are stored. Centroid m/z is calculated based on the average m/z value weighted by the intensity and m/z values are assigned based on a calibration file. User may leave the box unchecked if they have centroid data. Check the box if centroiding has to be done in El-MAVEN.
 
@@ -91,7 +131,7 @@ Screenshot
 
 **Peak Detection** 
 
-Screenshot
+|UI04|
 
 **Peak Grouping and Grouping Settings**
 
@@ -115,6 +155,8 @@ Screenshot
 
 **Peak Filtering**
 
+|UI05|
+
    * *Minimum Signal Baseline Difference*: Set the minimum difference between intensity and baseline to detect any signal as a valid peak.
 
 Isotope Detection
@@ -122,7 +164,7 @@ Isotope Detection
 
 .. **Isotope Detection**
 
-Screenshot
+|UI06|
 
 **Are Samples Labeled?**
 
@@ -148,7 +190,7 @@ Screenshot
 
 **EIC (XIC) [BETA]**
 
-Screenshot
+|UI07|
 
    * *EIC Type*: Select a method to merge EICs over m/z. There are two options: 
 
@@ -158,7 +200,7 @@ Screenshot
 
 **Peak Grouping**
 
-Screenshot
+|UI08|
 
    * *Peak Grouping Score*: Peaks are assigned a grouping score to determine whether they should be grouped together. There are two formulas for grouping score calculation: 
 
@@ -179,6 +221,8 @@ Screenshot
          * Sliders are provided to adjust the weights attached to each of the three parameters.
 
 **Group Rank**
+
+|UI09|
 
    * *Group Rank Formula*: Group rank is one of the parameters for group filtering. There are two formulas below for group rank calculation:
 
@@ -209,7 +253,7 @@ Sample Upload
 
 Load |load samples| sample files into El-MAVEN and click on *Show Samples Widget* |show samples| on the widget bar to show/hide the project space. Blanks will not show up in the sample list if the file names start with 'blan' or 'blank'. 
 
-Screenshot
+|UI10|
 
 Load sample files into El-MAVEN and click on Show Samples Widget on the widget bar to show/hide the project space. Blanks will not show up in the sample list if the file names start with 'blan' or 'blank'.
 
@@ -227,7 +271,7 @@ There are three columns in the project space:
 
    * |load meta| *Load Meta*: User may upload a meta file with sample and set names in a comma separated file (.csv) or double-click to enter text. Meta file template is shown below:
 
-Screenshot
+|UI11|
 
    * |save project as| *Save Project as*: Current state of El-MAVEN can be saved in a .mzroll file for future use. All the settings, EICs and peak tables are stored in the file and may be reloaded at any point in the future.
 
@@ -239,25 +283,27 @@ Screenshot
 
    * |mark sample as blank| *Mark Sample as Blank*: User can select sample files and set them as blanks as depicted below. Clicking the button again will reverse the move.
 
-Screenshot
+|UI12|
 
 Compound Database
 -----------------
 
 **Load Reference File**
 
-Screenshot
+.. |UI13|
+
+**Shubhra**
 
 Reference file contains a list of metabolites and their properties that are used for peak detection. This is a comma separated (.csv) or tab separated (.tab) file with compound name, id, formula, mass, expected retention time and category. It is preferable but not necessary to have retention time information in the reference file but either mass or formula is required. In case both mass and formula are provided, formula will be used to calculate the m/z. Click on the *Show Compounds Widget* on the widget toolbar to view the compounds panel. User may upload a new reference file or use any of the default files loaded on start-up.
 
-Screenshot
+|UI14|
 
 EIC
 ---
 
 .. **EIC Window**
 
-Screenshot
+|UI15|
 
 An Extracted Ion Chromatogram is a graph of Intensity vs. RT for a certain m/z range. EIC window displays the EIC for every group/compound selected or m/z range provided. The group name and/or the m/z range is displayed at the top. Following are the different menu options on top of the EIC window:
 
@@ -267,11 +313,11 @@ An Extracted Ion Chromatogram is a graph of Intensity vs. RT for a certain m/z r
 
    * |bookmark as good group| *Bookmark as Good Group*: User can manually curate a group as 'good' and store it in the bookmark table using this button. (Manual curation of groups has been covered `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_) 
 
-Screenshot
+|UI16|
 
    * |bookmark as bad group| *Bookmark as Bad Group*: User can manually curate a group as 'bad' and store it in the bookmark table using this button. (Manual curation of groups has been covered `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_) 
 
-Screenshot
+|UI17|
 
    * |history back| *History Back*: EIC window display history is recorded. Clicking this button will display the previous state of the window.
 
@@ -285,23 +331,23 @@ Screenshot
 
    * |auto zoom| *Auto Zoom*: Auto Zoom is selected by default. It zooms-in and centers the EIC to the expected retention time. The expected retention time is depicted as a dashed red line. 
 
-Screenshot
+|UI18|
 
    * |show tic's| *Show TICs*: Displays the Total Ion Current. TIC is the sum of all intensities in a scan.
 
    * |show bar plot| *Show Bar Plot*: Displays the peak intensity for a group in every sample. Intensity can be calculated by various methods known as quantitation types in El-MAVEN. User can change the quantitation type from the drop-down list on the top right or choose to display other parameters like retention time and peak quality. 
 
-Screenshot
+|UI19|
 
    * |show isotope plot| *Show Isotope Plot*: Displays the isotope plot for a group. Each bar in the plot represents the relative percentage of different isotopic species for the selected group in a sample.
 
-Screenshot
+|UI20|
 
    * |show box plot| *Show Box Plot*: Displays the boxplot for a group. The box plot shows the spread of intensities in the group and where each peak lies in relation to the median. Median of the intensities is the vertical line between the boxes.
 
 Apart from the top menu, there are other features in the EIC window. Right-click anywhere in the window and go to Options. 
 
-Screenshot
+|UI21|
 
 Some of the important options are:
 
@@ -322,7 +368,7 @@ Mass Spectra
 
 Mass Spectra Widget displays each peak, its mass, and intensity for a scan. As the widget shows all detected masses in a scan, the ppm window for the EIC and consequently grouping can be adjusted accordingly. This feature is especially useful for MS/MS data and isotopic detection. 
 
-Screenshot
+|UI22|
 
 Alignment
 ---------
@@ -333,7 +379,7 @@ Prolonged use of the LC column can lead to a drift in retention time across samp
 
 Click on the *Align* button |align| and adjust the settings.
 
-Screenshot
+|UI23|
 
 The first panel in Alignment options is for Group Selection criteria. 'Group' here refers to a set of peaks across samples that is annotated as a particular ion.
 
@@ -369,15 +415,15 @@ El-MAVEN provides three visualizations for alignment analysis.
 
    * *Show Alignment Visualization*: Click on |show alignment visualisation| in the widget bar to open this visualization. Click on any grouped peak to look at its delta Rt vs Rt graph as shown.
 
-Screenshot
+|UI24|
 
    * *Show Alignment Visualization (For All Groups)*: Click on |show alignment visualisation for all groups| in the widget bar for this visualization.
 
-Screenshot
+|UI25|
 
    * *Show Alignment Polynomial Fit*: Click on |show alignment polynomial fit| in the widget bar for Poly fit alignment. 
 
-Screenshot
+|UI26|
 
 The above graphs give a clear indication of how aligned/misaligned the peaks are. User may run alignment again with different parameters if required (or with a different algorithm).
 
@@ -392,7 +438,7 @@ There are 3 tabs for setting Peak Detection parameters:
 
 **1. Feature Detection Selection**
 
-Screenshot
+|UI27|
 
 The Feature Detection Selection panel has the following parameters:
 
@@ -424,7 +470,7 @@ The Feature Detection Selection panel has the following parameters:
 
 **2. Group Filtering**
 
-Screenshot
+|UI28|
 
 After grouping is done, groups that do not fulfill the criteria shown above are filtered out.
 
@@ -444,12 +490,14 @@ Change the settings according to the data and click on *Find Peaks* to run peak 
 
 **3. Method Summary**
 
+|UI29|
+
 Peak Table
 ----------
 
 .. **Peak Table**
 
-Screenshot
+|UI30|
 
 Groups information obtained after Peak Detection is stored and displayed in the form of a Peak Table with a row representing a group and its corresponding features in columns. User can show/hide the peak table by clicking on |peaks| the widget bar.
 
@@ -485,21 +533,21 @@ Following are the different features/columns in a peak table:
 
 **Peak Table Menu Bar**
 
-Screenshot
+|UI31|
 
 Multiple groups can be annotated as the same compound especially when retention time information is not used during Database search. The peak table provides options for filtering, comparing or exporting data from the table. Following are the different menu options available in the peak table:
 
    * |switch between group and peak views| *Switch between group and peak views*: Switching to Peak view displays only Peak information. This includes group number, group ID, Expected m/z, Observed m/z, rt and intensity of all peaks in the group with sample names as the respective column headers. Peak intensity cells are colored based on their relative values in a group. Highest intensity value has the lightest color and vice-versa. 
 
-Screenshot
+|UI32|
 
    * |bookmark as good group| *Mark Group as Good*: Used to manually curate selected peaks as 'good'. User can also press 'G' on their keyboard for the same. Manual curation has been described `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_. 
 
-Screenshot
+|UI33|
 
    * |bookmark as bad group| *Mark Group as Bad*: Used to manually reject peaks by marking them as 'bad'. User can also press 'B' on their keyboard for the same. Manual curation has been described `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_. 
 
-Screenshot
+|UI34|
 
    * |train neural net| *Train Neural Net*: Used to retrain the neural net algorithm to recognize good/bad peaks. User manually curates 100 peaks to train the algorithm.
 
@@ -518,7 +566,7 @@ El-MAVEN comes equipped with a statistics module for comparing data across diffe
 
 The statistics module can be accessed through the Peak Table menu.
 
-Screenshot 
+|UI35| 
 
    * *Set1/Set2*: Select two cohorts to be compared
 
@@ -538,7 +586,7 @@ Screenshot
 
 *Compare Sets* opens the scatter plot by default
 
-Screenshot
+|UI36|
 
    * |zoom out| *Zoom Out*: Zooms out of the plot.
 
@@ -559,7 +607,7 @@ Export
 
 User can either save the state of the project or export only relevant data from the peak table. These are the different export options available in El-MAVEN:
 
-Screenshot
+|UI37|
 
    * *Save Project as*: This option is available in the File menu. It saves all peak tables and current settings in a .mzroll file. On loading the .mzroll file, all sample files are uploaded and the peak tables and EIC are available. If the user wishes to save only certain Peak Tables, they can click on |save project as| at the top of the Peak Table(s). This will only store that specific peak table instead of all.
 
@@ -567,6 +615,6 @@ Screenshot
 
    * *Export Groups to SpreadSheet (.csv)*: This option is available on top of the Peak Table |export to csv|. You can choose to export the whole table or a subset of the data. There are 4 possible selections: export only selected groups, export all groups, export only good groups or export only bad groups. The data is stored in a comma separated file. 
 
-Screenshot
+|UI38|
 
    * *Export EICs to Json*: This option is available on top of the Peak Table |export to json|. It exports all EICs to a Json file.
