@@ -208,6 +208,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
     _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
     _loadingDialog->statusLabel->setText("Authenticating..");
     _loadingDialog->label->setVisible(true);
     _loadingDialog->label->setMovie(_loadingDialog->movie);
@@ -218,6 +219,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status)
 {
     if (status == "ok") {
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
         _loadingDialog->statusLabel->setText("Fetching your projects..");
         QCoreApplication::processEvents();
     } else {
@@ -276,8 +278,15 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     QCoreApplication::processEvents();
 
     QIcon project_icon(rsrcPath + "/POLLY.png");
+    // when coming from login form, projectNamesId will be empty.
     if (projectNamesId.isEmpty()) {
         projectNamesId = _pollyIntegration->getUserProjects();
+    }
+    else if (projectNamesId["EpiErrorCode"].toString() == "InternetError"){
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red; }");
+        _loadingDialog->statusLabel->setText("No internet connection");
+        QCoreApplication::processEvents();
+        return;
     }    
     
     QStringList keys= projectNamesId.keys();
