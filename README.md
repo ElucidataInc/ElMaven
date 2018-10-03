@@ -179,6 +179,7 @@ Pull requests must include relevant unit tests. All the functional features are 
 *	[Giridhari](https://github.com/Giridhari013)
 *	[Kiran Varghese](https://github.com/kiranvarghese2)
 *	[Naman Gupta](https://github.com/naman)
+*	[Saiful B. Khan](https://github.com/saifulbkhan)
 
 
 ## References
