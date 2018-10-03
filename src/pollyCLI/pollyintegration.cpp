@@ -121,6 +121,18 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
     return patchId;
 }
 
+bool PollyIntegration::activeInternet()
+{
+    QString command = QString("check_internet_connection");
+    QList<QByteArray> results = runQtProcess(command, QStringList()).at(0).split('\n');
+    QString status = results[1];
+    if (status == "Connected") {
+        return true;
+    }
+
+    return false; 
+}
+
 // name OF FUNCTION: checkLoginStatus
 // PURPOSE:
 //    This function checks if the user is already logged in or not.

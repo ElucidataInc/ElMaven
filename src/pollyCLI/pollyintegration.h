@@ -60,6 +60,12 @@ class PollyIntegration
 		bool validSampleCohort(QString sampleCohortFile, QStringList loadedSamples = QStringList());
 		QStringList parseResultOrganizationalDBs(QString result);
 		QString getCredFile();
+		/**
+		 * @brief check for active internet connection
+		 * @details ping google.com to check of the user is connected to the internet
+		 * @return true if user has an active connection
+		*/
+		bool activeInternet();
 	private:
 		QString credFile;
 		bool validCohorts(QStringList cohorts);

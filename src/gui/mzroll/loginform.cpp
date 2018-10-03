@@ -33,7 +33,12 @@ WorkerThread::WorkerThread()
 
 void WorkerThread::run()
 {
-    QString status = _pollyintegration->authenticateLogin(username, password);
+    QString status;
+    if (!_pollyintegration->activeInternet())
+        status = "error";
+    else
+        status = _pollyintegration->authenticateLogin(username, password);
+    
     emit resultReady(status);
 }
 
