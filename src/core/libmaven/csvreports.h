@@ -121,15 +121,29 @@ private:
     void insertPeakInformationIntoCSVFile(PeakGroup* group);        /**@brief-  TODO, not a required method, it's just calling another function. Maybe
                                                                                                                 *written to look consistent with   insertGroupInformationIntoCSVFile
                                                                                                                 */
-    void insertGroupInformationIntoCSVFile (PeakGroup* group);  /**@brief-  after performing some checks, it writes group info to output file*/
-    int getIonisationMode();            /**@brief- determine ionization mode (+1 or -1) and return it*/
+    /**
+     * @brief - Checks if the given group has child groups and calls the appropriate method to handle it.
+     */
+    void insertGroupInformationIntoCSVFile(PeakGroup* group);
 
-    void insertIsotopes (PeakGroup* group, vector<Isotope> masslist);                   /**@brief-  through sequencials method calls for isotope detection, write group info into output file*/
-    void insertUserSelectedIsotopes(PeakGroup* group, string isotopeName);        /**@brief-   iterate through all isotope of a group and calls insertIsotpesFoundInSamples
-                                                                                                                                    *to write isotopes info to group
-                                                                                                                                    */
-    int insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k);     /**@brief-  tke child of group and write about it to csv file*/
+    /**
+     * @brief - Relays the function for inserting isotopes to `insertAllIsotopes` by default. Optionally
+     * this method can be used to call `insertUserSelectedIsotopes` by passing a second boolean argument
+     * with `true` value.
+     */
+    void insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly = false);
 
+    /**
+     * @brief - Create a masslist with isotopes only currently selected by user (accessible through a
+     * global settings object) and then write the subgroups having these isotopes as tagrstrings, if they
+     * were found.
+     */
+    void insertUserSelectedIsotopes(PeakGroup* group);
+
+    /**
+     * @brief - Insert all the child groups of the given group.
+     */
+    void insertAllIsotopes(PeakGroup* group);
 
     string SEP;     /**@param-  separator in output file*/
 
