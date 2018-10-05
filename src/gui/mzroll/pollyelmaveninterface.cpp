@@ -199,6 +199,11 @@ void PollyElmavenInterfaceDialog::call_login_form()
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form() 
 {
+    fluxStatus->setStyleSheet("QLabel { color : green;}");
+    fluxStatus->setText("");
+    firstViewStatus->setStyleSheet("QLabel { color : green;}");
+    firstViewStatus->setText("");
+    
     if (stackedWidget->currentIndex() == int(PollyApp::FirstView)) {
         firstViewUpload->setEnabled(false);
         firstViewProjectList->clear();
@@ -359,6 +364,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     
     uploadButton->setEnabled(false);
 
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Connecting..");
     QCoreApplication::processEvents();
 
@@ -399,6 +405,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     
     QStringList filenames = prepareFilesToUpload(qdir, datetimestamp);
     if (filenames.isEmpty()) {
+        statusUpdate->setStyleSheet("QLabel { color : red;}");
         statusUpdate->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
@@ -406,6 +413,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         return;
     }
 
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Sending files to Polly..");  
     QCoreApplication::processEvents();
 
