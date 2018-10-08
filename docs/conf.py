@@ -86,16 +86,20 @@ html_theme = 'alabaster'
 html_theme_options = {'logo': 'El-MAVEN.png', 
 	'github_user': 'ElucidataInc', 
 	'github_repo': 'ElMaven',
-	'analytics_id': 'UA-118159593-1',
+	#'description': 'ABCXYZ',
+	#'logo_text_align': 'left',
 	#'logo_name': 'True',	
 	#'travis_button': 'True',
+	#'page_width': '1200px',
+	#'sidebar_width': '250px',
 	'fixed_sidebar': 'False',
 	'show_powered_by': 'True',
 	'show_related': 'False',
 	'body_text': 'Black',
 	'footer_text': 'Black',
 	'font_family': 'Times New Roman',
-	'head_font_family': 'Times New Roman'
+	'head_font_family': 'Times New Roman',
+	#'font_size': '20px'
 	
 }
 

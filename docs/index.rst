@@ -42,4 +42,3 @@ Contents
    ReleaseHistory
    BugsandFeatureRequests
    CopyrightandLicense
-   Issues
