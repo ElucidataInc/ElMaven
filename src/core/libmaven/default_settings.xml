@@ -44,14 +44,14 @@
         <isotopicMinSignalBaselineDifference>0.00</isotopicMinSignalBaselineDifference>
         <minPeakQuality>0.00</minPeakQuality>
         <minIsotopicPeakQuality>0.00</minIsotopicPeakQuality>
-        <D2Labeled_BPE>1</D2Labeled_BPE>
+        <D2Labeled_BPE>0</D2Labeled_BPE>
         <C13Labeled_BPE>1</C13Labeled_BPE>
-        <N15Labeled_BPE>1</N15Labeled_BPE>
-        <S34Labeled_BPE>1</S34Labeled_BPE>
-        <D2Labeled_IsoWidget>1</D2Labeled_IsoWidget>
+        <N15Labeled_BPE>0</N15Labeled_BPE>
+        <S34Labeled_BPE>0</S34Labeled_BPE>
+        <D2Labeled_IsoWidget>0</D2Labeled_IsoWidget>
         <C13Labeled_IsoWidget>1</C13Labeled_IsoWidget>
-        <N15Labeled_IsoWidget>1</N15Labeled_IsoWidget>
-        <S34Labeled_IsoWidget>1</S34Labeled_IsoWidget>
+        <N15Labeled_IsoWidget>0</N15Labeled_IsoWidget>
+        <S34Labeled_IsoWidget>0</S34Labeled_IsoWidget>
         <isotopeC13Correction>0</isotopeC13Correction>
         <minIsotopicCorrelation>0.20</minIsotopicCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>
