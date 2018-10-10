@@ -143,7 +143,7 @@ void TestIsotopeDetection::testpullIsotopes() {
     isotopeDetection1.pullIsotopes(&parent);
     
     //verify number of isotopes
-    QVERIFY(parent.childCount() == 7);
+    QVERIFY(parent.childCount() == 2);
 
     //verify if isotopic correlation filter works
     mavenparameters->minIsotopicCorrelation = 1;
