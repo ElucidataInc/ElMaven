@@ -131,112 +131,57 @@ void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group) {
 
 }
 
-void CSVReports::insertGroupInformationIntoCSVFile (PeakGroup* group) {
-
+void CSVReports::insertGroupInformationIntoCSVFile(PeakGroup* group)
+{
     if(group->compound == NULL || group->childCount() == 0) {
-
         writeGroupInfo(group);
-
-    }
-
-    else {
-
-        string formula = group->compound->formula;
-        int charge = getMavenParameters()->getCharge(group->compound);
-        bool C13Flag = getMavenParameters()->C13Labeled_BPE;
-        bool N15Flag = getMavenParameters()->N15Labeled_BPE;
-        bool S34Flag = getMavenParameters()->S34Labeled_BPE;
-        bool D2Flag = getMavenParameters()->D2Labeled_BPE;
-
-        vector<Isotope> masslist = MassCalculator::computeIsotopes(
-            formula,
-            charge,
-            C13Flag,
-            N15Flag,
-            S34Flag,
-            D2Flag
-        );
-        insertIsotopes(group,masslist);
-
+    } else {
+        insertIsotopes(group);
     }
 }
 
-int CSVReports::getIonisationMode() {
-
-      int ionizationMode;
-
-      if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-          ionizationMode = +1;
-      else
-          ionizationMode = -1;
-
-      return ionizationMode;
+void CSVReports::insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly)
+{
+    if (userSelectedIsotopesOnly) {
+        insertUserSelectedIsotopes(group);
+    } else {
+        insertAllIsotopes(group);
+    }
 }
 
-void CSVReports::insertIsotopes (PeakGroup* group, vector<Isotope> masslist) {
+void CSVReports::insertUserSelectedIsotopes(PeakGroup* group)
+{
+    bool C13Flag = getMavenParameters()->C13Labeled_BPE;
+    bool N15Flag = getMavenParameters()->N15Labeled_BPE;
+    bool S34Flag = getMavenParameters()->S34Labeled_BPE;
+    bool D2Flag = getMavenParameters()->D2Labeled_BPE;
 
-      for (unsigned int i = 0; i < masslist.size(); i++) {
-                Isotope& x = masslist[i];
-                string isotopeName = x.name;
-                insertUserSelectedIsotopes(group,isotopeName);
-      }
+    // iterate over all existing subgroups and for each isotope flag
+    // check if the subgroup contains the isotope's name as tagstring
+    // before writing it to the report. If any of the unselected
+    // labels are found, we discard the child group.
+    for (auto subGroup: group->children) {
+        if (!C13Flag && subGroup.tagString.find("C13") != std::string::npos)
+            continue;
+        if (!N15Flag && subGroup.tagString.find("N15") != std::string::npos)
+            continue;
+        if (!S34Flag && subGroup.tagString.find("S34") != std::string::npos)
+            continue;
+        if (!D2Flag && subGroup.tagString.find("D2") != std::string::npos)
+            continue;
+
+        subGroup.metaGroupId = group->metaGroupId;
+        writeGroupInfo(&subGroup);
+    }
 }
 
-void CSVReports::insertUserSelectedIsotopes(PeakGroup* group, string isotopeName) {
-
-      int counter = 0;
-      for (unsigned int k = 0; k < group->children.size() && counter == 0; k++) {
-          //output non-zero-intensity peaks
-          counter = insertIsotpesFoundInSamples(group, isotopeName, counter, k);
-      }
-      /*
-       * Commented out in Maven776 - Kiran
-      if (counter == 0) {
-          //output zero-intensity peaks
-          insertIsotpesNotFoundInSamples(group, isotopeName);
-      }
-      */
+void CSVReports::insertAllIsotopes(PeakGroup* group)
+{
+    for (auto subGroup: group->children) {
+        subGroup.metaGroupId = group->metaGroupId;
+        writeGroupInfo(&subGroup);
+    }
 }
-
-int CSVReports::insertIsotpesFoundInSamples (PeakGroup* group, string isotopeName, int counter, int k) {
-
-      PeakGroup* subgroup = &group->children[k];
-      if (subgroup->tagString == isotopeName) {
-          subgroup->metaGroupId = group->metaGroupId;
-          writeGroupInfo(subgroup);
-          counter = 1;
-      }
-      return counter;
-}
-
-/*
- * Merged with Maven776 - Kiran
-void CSVReports::insertIsotpesNotFoundInSamples (PeakGroup* group, string isotopeName) {
-
-      groupReport << "No peak" << SEP << setprecision(7)
-                  << group->metaGroupId << SEP << "N/A" << SEP
-                  << "N/A" << SEP << "N/A" << SEP << "N/A" << SEP
-                  << "N/A" << SEP << isotopeName << SEP
-                  << group->compound->name << SEP
-                  << group->compound->id << SEP << "N/A" << SEP
-                  << "N/A";
-
-       if (group->parent != NULL)
-       groupReport << SEP << group->parent->meanMz;
-       else
-           groupReport << SEP << group->meanMz;
-       for (unsigned int j = 0; j < samples.size(); j++)
-           groupReport << SEP << 0;
-       groupReport << endl;
-
-}
-*/
-/*
- void CSVReports::addGroup(PeakGroup* group) {
- writeGroupInfo(group);
- writePeakInfo(group);
- }
- */
 
 void CSVReports::closeFiles() {
     if (groupReport.is_open())
