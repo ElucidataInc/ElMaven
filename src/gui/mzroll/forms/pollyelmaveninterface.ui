@@ -754,7 +754,7 @@
     <enum>QListView::Static</enum>
    </property>
    <property name="isWrapping" stdset="0">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="resizeMode">
     <enum>QListView::Adjust</enum>
@@ -795,6 +795,7 @@
    </layout>
   </widget>
  </widget>
+ <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
 </ui>
