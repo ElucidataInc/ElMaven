@@ -48,10 +48,20 @@ EPIWorkerThread::EPIWorkerThread()
 void EPIWorkerThread::run()
 {
     if (state == "initial_setup"){
-        qDebug() << "starting thread to authenticate and fetch project info from polly";
-        QString statusInside = _pollyintegration->authenticateLogin("","");
-        emit authentication_result(statusInside);
-        if (statusInside == "ok") {
+        qDebug() << "Checking for active internet connection..";
+        QString status;
+        if (!_pollyintegration->activeInternet()) {
+            status = "error";
+            emit authentication_result(status);
+            return;
+        }
+
+        qDebug() << "Authenticating..";
+        status = _pollyintegration->authenticateLogin("","");
+        emit authentication_result(status);
+        
+        qDebug() << "Fetching projects from Polly..";
+        if (status == "ok") {
             QVariantMap projectNamesId = _pollyintegration->getUserProjects();
             emit resultReady(projectNamesId);
         }
@@ -189,6 +199,11 @@ void PollyElmavenInterfaceDialog::call_login_form()
 
 void PollyElmavenInterfaceDialog::call_initial_EPI_form() 
 {
+    fluxStatus->setStyleSheet("QLabel { color : green;}");
+    fluxStatus->setText("");
+    firstViewStatus->setStyleSheet("QLabel { color : green;}");
+    firstViewStatus->setText("");
+    
     if (stackedWidget->currentIndex() == int(PollyApp::FirstView)) {
         firstViewUpload->setEnabled(false);
         firstViewProjectList->clear();
@@ -208,6 +223,7 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
     _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
+    _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
     _loadingDialog->statusLabel->setText("Authenticating..");
     _loadingDialog->label->setVisible(true);
     _loadingDialog->label->setMovie(_loadingDialog->movie);
@@ -218,9 +234,16 @@ void PollyElmavenInterfaceDialog::call_initial_EPI_form()
 void PollyElmavenInterfaceDialog::handleAuthentication(QString status)
 {
     if (status == "ok") {
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
         _loadingDialog->statusLabel->setText("Fetching your projects..");
         QCoreApplication::processEvents();
+    } else if (status == "error") {
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
+        _loadingDialog->statusLabel->setText("No Internet Access");
+        QCoreApplication::processEvents();
+        close();
     } else {
+        _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
         _loadingDialog->statusLabel->setText("Authentication failed. Please login again.");
         QCoreApplication::processEvents();
         logout();
@@ -341,8 +364,17 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     
     uploadButton->setEnabled(false);
 
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Connecting..");
     QCoreApplication::processEvents();
+
+    //check for active internet connection
+    if (!_pollyIntegration->activeInternet()) {
+        statusUpdate->setStyleSheet("QLabel {color : red;}");
+        statusUpdate->setText("No Internet Access");
+        uploadButton->setEnabled(true);
+        return;
+    }
 
     //redirect to login form if user credentials have not been saved
     int askForLogin = _pollyIntegration->askForLogin();
@@ -373,6 +405,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     
     QStringList filenames = prepareFilesToUpload(qdir, datetimestamp);
     if (filenames.isEmpty()) {
+        statusUpdate->setStyleSheet("QLabel { color : red;}");
         statusUpdate->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
@@ -380,6 +413,7 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         return;
     }
 
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Sending files to Polly..");  
     QCoreApplication::processEvents();
 
@@ -390,6 +424,14 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         return;
     }
     
+    //check for active internet again before upload
+    if (!_pollyIntegration->activeInternet()) {
+        statusUpdate->setStyleSheet("QLabel {color : red;}");
+        statusUpdate->setText("Internet connection interrupted");
+        uploadButton->setEnabled(true);
+        return;
+    }
+
     EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
     connect(EPIworkerThread, SIGNAL(filesUploaded(QStringList, QString, QString)), this, SLOT(postUpload(QStringList, QString, QString)));
     connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);

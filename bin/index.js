@@ -7,11 +7,21 @@ var AWS = require('aws-sdk');
 var AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 var public_token_header = '';
 var jwt_decode = require('jwt-decode');
-
+var DNS = require('dns')
 module.exports.hello = function() {
     console.log(chalk.green.bold("Hello from the other side! :) "));
 }
 
+module.exports.check_internet_connection = function(){
+    // assuming google server will always be up.
+    DNS.resolve('www.google.com', function(err) {
+        if (err) {
+            console.log("No connection");
+        } else {
+            console.log("Connected");
+        }
+        });
+}
 
 function isloggedin(){
     console.log(chalk.red.bold("Not loggedin"));
