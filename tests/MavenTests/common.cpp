@@ -55,31 +55,22 @@ vector<Compound*> common::getFaltyCompoudDataBase() {
     return compounds;
 }
 
-vector<PeakGroup> common::getGroupsFromProcessCompounds(){
-
-    const char* loadCompoundDB = \
-    "bin/methods/qe3_v11_2016_04_29.csv";;
-
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
-
-    vector<mzSample*> samplesToLoad;
-
+void common::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
+                                      MavenParameters* mavenparameters)
+{
     QStringList files;
-    files << "bin/methods/testsample_2.mzxml" 
+    files << "bin/methods/testsample_2.mzxml"
           << "bin/methods/testsample_3.mzxml";
-
     for (int i = 0; i < files.size(); ++i) {
         mzSample* mzsample = new mzSample();
         mzsample->loadSample(files.at(i).toLatin1().data());
         samplesToLoad.push_back(mzsample);
     }
 
-    MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     mavenparameters->clsf = clsf;
     mavenparameters->ionizationMode = -1;
     mavenparameters->matchRtFlag = true;
@@ -91,6 +82,19 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     mavenparameters->amuQ3 = 0.30;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
+}
+
+vector<PeakGroup> common::getGroupsFromProcessCompounds(){
+
+    const char* loadCompoundDB = \
+    "bin/methods/qe3_v11_2016_04_29.csv";;
+
+    DBS.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+
+    vector<mzSample*> samplesToLoad;
+    MavenParameters* mavenparameters = new MavenParameters();
+    loadSamplesAndParameters(samplesToLoad, mavenparameters);
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);

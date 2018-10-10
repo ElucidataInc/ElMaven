@@ -26,6 +26,9 @@ class common {
         static vector<Compound*> getCompoudDataBaseWithNORT();
         static vector<Compound*> getFaltyCompoudDataBase();
         static vector<PeakGroup> getGroupsFromProcessCompounds();
+        static void loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
+                                             MavenParameters* mavenparameters);
+
 };
 
 #endif // COMMON_H

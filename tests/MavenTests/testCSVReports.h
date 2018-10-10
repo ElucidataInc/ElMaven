@@ -29,8 +29,6 @@ class TestCSVReports : public QObject {
         mzSample* mzsample2;
         vector<mzSample*> mzsamples;
 
-
-
         string outputfile;
 
     private Q_SLOTS:
@@ -46,7 +44,18 @@ class TestCSVReports : public QObject {
         // this is automatically detected thanks to Qt's meta-information about QObjects
         void testopenGroupReport();
         void testopenPeakReport();
-        void testaddGroups();
+        void testaddGroup();
+
+        // tests that are called by "testaddGroup" method
+        void verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
+                                       MavenParameters* mavenparameters);
+        void verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoad,
+                                         MavenParameters* mavenparameters);
+        void verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                      MavenParameters* mavenparameters);
+        void verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad,
+                                        MavenParameters* mavenparameters);
+
 };
 
 #endif // TESTCSVREPORTS_H
