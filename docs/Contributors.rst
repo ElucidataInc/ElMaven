@@ -3,7 +3,7 @@ Contributors
 
 |
 
-* `Maven team at Princeton University <http://genomics-pubs.princeton.edu/mzroll/index.php>`_
+* `MAVEN team at Princeton University <http://genomics-pubs.princeton.edu/mzroll/index.php>`_
 
 * `Eugene Melamud <https://www.calicolabs.com/team-member/eugene-melamud/>`_
 

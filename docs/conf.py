@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'El-MAVEN'
-copyright = u'2018, Elucidata Corporation'
+copyright = u'2017, Elucidata Corporation'
 author = u'Elucidata Corporation'
 
 # The short X.Y version
@@ -83,7 +83,7 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {'logo': 'El-MAVEN.png', 
+html_theme_options = {'logo': 'El-MAVEN.svg', 
 	'github_user': 'ElucidataInc', 
 	'github_repo': 'ElMaven',
 	#'description': 'ABCXYZ',

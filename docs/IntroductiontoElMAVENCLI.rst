@@ -44,7 +44,7 @@ CLI provides a limited number of parameters for user-modification. Default value
 
 The template XML contains three sets of parameters:
 
-**1. OptionalDialogArguments - Global parameters**
+**1. OptionalDialogArguments: Global parameters**
 
    * User needs to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive): ``ionizationMode type="int" value="-1"``  
 
@@ -52,7 +52,7 @@ The template XML contains three sets of parameters:
 
    * Mass accuracy. Set the +/- ppm range for m/z values: ``compoundPPMWindow type="float" value="5"`` 
 
-**2. PeaksDialogArguments - Peak detection parameters**
+**2. PeaksDialogArguments: Peak detection parameters**
 
    * Peak Detection Algorithm. Accepted values: "0" for Compound Database Search, "1" (or higher) for Automated Feature Detection: ``processAllSlices type="int" value="0"``
 
@@ -112,7 +112,7 @@ The template XML contains three sets of parameters:
 
    * Not used by CLI: ``rtStepSize type="float" value="20"``
 
-**3. GeneralArguments - General parameters**
+**3. GeneralArguments: General parameters**
 
    * Alignment. Positive integer value will run an alignment algorithm: ``alignSamples type="int" value="0"`` 
 

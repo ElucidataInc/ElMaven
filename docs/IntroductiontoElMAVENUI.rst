@@ -162,15 +162,11 @@ Global Settings can be changed from the Options dialog |options|.
 Isotope Detection
 -----------------
 
-.. **Isotope Detection**
-
 |UI06|
 
 **Are Samples Labeled?**
 
    * *Bookmarks, peak detection, file export*: Select the labeled atoms that should be used in bookmarking, peak detection and export. D2: Deuterium, C13: Labeled carbon, N15: Labeled nitrogen, S34: Labeled sulphur.
-
-   * *Isotopic barplot*: Select the labeled atoms that should be displayed in the isotopic barplot. D2: Deuterium, C13: Labeled carbon, N15: Labeled nitrogen, S34: Labeled sulphur.
 
    * *Isotopic widget*: Select the labeled atoms that should be displayed in the isotopic widget. D2: Deuterium, C13: Labeled carbon, N15: Labeled nitrogen, S34: Labeled sulphur.
 
@@ -290,9 +286,7 @@ Compound Database
 
 **Load Reference File**
 
-.. |UI13|
-
-**Shubhra**
+|UI13|
 
 Reference file contains a list of metabolites and their properties that are used for peak detection. This is a comma separated (.csv) or tab separated (.tab) file with compound name, id, formula, mass, expected retention time and category. It is preferable but not necessary to have retention time information in the reference file but either mass or formula is required. In case both mass and formula are provided, formula will be used to calculate the m/z. Click on the *Show Compounds Widget* on the widget toolbar to view the compounds panel. User may upload a new reference file or use any of the default files loaded on start-up.
 
@@ -300,8 +294,6 @@ Reference file contains a list of metabolites and their properties that are used
 
 EIC
 ---
-
-.. **EIC Window**
 
 |UI15|
 
@@ -364,16 +356,12 @@ Some of the important options are:
 Mass Spectra
 ------------
 
-.. **Mass Spectra**
-
 Mass Spectra Widget displays each peak, its mass, and intensity for a scan. As the widget shows all detected masses in a scan, the ppm window for the EIC and consequently grouping can be adjusted accordingly. This feature is especially useful for MS/MS data and isotopic detection. 
 
 |UI22|
 
 Alignment
 ---------
-
-.. **Alignment** 
 
 Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median RT of the group.
 
@@ -413,15 +401,15 @@ Click on *Align* at the bottom.
 
 El-MAVEN provides three visualizations for alignment analysis.
 
-   * *Show Alignment Visualization*: Click on |show alignment visualisation| in the widget bar to open this visualization. Click on any grouped peak to look at its delta Rt vs Rt graph as shown.
+* *Show Alignment Visualization*: Click on |show alignment visualisation| in the widget bar to open this visualization. Click on any grouped peak to look at its delta Rt vs Rt graph as shown.
 
 |UI24|
 
-   * *Show Alignment Visualization (For All Groups)*: Click on |show alignment visualisation for all groups| in the widget bar for this visualization.
+* *Show Alignment Visualization (For All Groups)*: Click on |show alignment visualisation for all groups| in the widget bar for this visualization.
 
 |UI25|
 
-   * *Show Alignment Polynomial Fit*: Click on |show alignment polynomial fit| in the widget bar for Poly fit alignment. 
+* *Show Alignment Polynomial Fit*: Click on |show alignment polynomial fit| in the widget bar for Poly fit alignment. 
 
 |UI26|
 
@@ -429,8 +417,6 @@ The above graphs give a clear indication of how aligned/misaligned the peaks are
 
 Peak Detection
 --------------
-
-.. **Peak Detection**
 
 Peak detection algorithm pulls the EICs, detects peaks and performs grouping and filtering based on parameters controlled by the user. The algorithm groups identical peaks across samples and calculates the quality score by a machine learning algorithm. Click on the *Peaks* icon |peaks| on the top to open the settings dialog.
 
@@ -495,8 +481,6 @@ Change the settings according to the data and click on *Find Peaks* to run peak 
 Peak Table
 ----------
 
-.. **Peak Table**
-
 |UI30|
 
 Groups information obtained after Peak Detection is stored and displayed in the form of a Peak Table with a row representing a group and its corresponding features in columns. User can show/hide the peak table by clicking on |peaks| the widget bar.
@@ -560,8 +544,6 @@ The remaining are export options and will be detailed in the `Export <https://gi
 Statistics
 ----------
 
-.. **Statistics Module**
-
 El-MAVEN comes equipped with a statistics module for comparing data across different cohorts. User can set the sample cohorts either by editing the Set column in the Sample space, or upload a meta file with sample and cohort names as detailed above under the "Sample Space Menu" section.
 
 The statistics module can be accessed through the Peak Table menu.
@@ -602,8 +584,6 @@ The statistics module can be accessed through the Peak Table menu.
 
 Export
 ------
-
-.. **Export options**
 
 User can either save the state of the project or export only relevant data from the peak table. These are the different export options available in El-MAVEN:
 

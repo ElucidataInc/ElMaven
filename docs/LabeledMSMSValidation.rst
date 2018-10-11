@@ -54,9 +54,11 @@ Data acquired using the following methods are currently supported in El-MAVEN: M
 Feature Additions
 -----------------
 
-   * Text search option using precursor and product m/z
-   * Targeted Peak Picking for MS/MS
-   * Manual annotation of SRM transition
+* Text search option using precursor and product m/z
+
+* Targeted Peak Picking for MS/MS
+
+* Manual annotation of SRM transition
 
 Validation
 ----------
@@ -188,11 +190,15 @@ Dataset: Full-scan MS2
 Issues Observed
 ---------------
 
-   * Text search and compound/SRM widget EIC mismatch for MRM data: EIC obtained from the compound widget and Skyline are the same. The data points on the plot are same for all three. The error in text search is due to different processing. This has been filed as issue number `#487 <https://github.com/ElucidataInc/ElMaven/issues/487>`_; Status: Unresolved
-   * Text search and compound widget EIC mismatch for PRM data: EIC from Text search and Skyline are the same. The error in compound widget happens due to linking of SRM ID to the compound widget. This pulls up the whole run instead of the particular fragment. This is a known issue `#442 <https://github.com/ElucidataInc/ElMaven/issues/442>`_; Status: Unresolved
-   * Merged peaks in case of multiple transitions: This is being handled as part of issue number `#405 <https://github.com/ElucidataInc/ElMaven/issues/405>`_; Status: In progress
-   * Mass spectra displays wrong product M/z value in some cases: The prodMz field in the title of spectra widget displays the base peak m/z value which may or may not be the same as the fragment m/z. This will be resolved as part of `#396 <https://github.com/ElucidataInc/ElMaven/issues/396>`_; Status: Unresolved
-   * Peak table displays NA in Expected m/z column for MRM data: This has been filed as issue number `#493 <https://github.com/ElucidataInc/ElMaven/issues/493>`_
+* Text search and compound/SRM widget EIC mismatch for MRM data: EIC obtained from the compound widget and Skyline are the same. The data points on the plot are same for all three. The error in text search is due to different processing. This has been filed as issue number `#487 <https://github.com/ElucidataInc/ElMaven/issues/487>`_; Status: Unresolved
+
+* Text search and compound widget EIC mismatch for PRM data: EIC from Text search and Skyline are the same. The error in compound widget happens due to linking of SRM ID to the compound widget. This pulls up the whole run instead of the particular fragment. This is a known issue `#442 <https://github.com/ElucidataInc/ElMaven/issues/442>`_; Status: Unresolved
+
+* Merged peaks in case of multiple transitions: This is being handled as part of issue number `#405 <https://github.com/ElucidataInc/ElMaven/issues/405>`_; Status: In progress
+
+* Mass spectra displays wrong product M/z value in some cases: The prodMz field in the title of spectra widget displays the base peak m/z value which may or may not be the same as the fragment m/z. This will be resolved as part of `#396 <https://github.com/ElucidataInc/ElMaven/issues/396>`_; Status: Unresolved
+
+* Peak table displays NA in Expected m/z column for MRM data: This has been filed as issue number `#493 <https://github.com/ElucidataInc/ElMaven/issues/493>`_
 
 Conclusion
 ----------

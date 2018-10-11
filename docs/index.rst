@@ -8,7 +8,7 @@ El-MAVEN
 
 An intuitive, opensource LC-MS data processing engine from
 
-.. image:: /image/Elucidata.png
+.. image:: /image/Elucidata.svg
    :target: http://www.elucidata.io/
 
 

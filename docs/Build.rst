@@ -76,7 +76,9 @@ This will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under the
    $ sudo xcodebuild -license accept
    $ xcode-select --install
    $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-   $ brew install boost, brew install llvm@3.7, brew install netcdf
+   $ brew install boost
+   $ brew install llvm@3.7
+   $ brew install netcdf
    $ cd ~
    $ touch .profile
    $ echo "PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:$PATH" > .profile
