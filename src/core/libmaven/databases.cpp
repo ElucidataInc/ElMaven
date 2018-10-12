@@ -20,9 +20,13 @@ int Databases::loadCompoundCSVFile(string filename) {
     while (getline(myfile,line)) {
         //This is used to write commands
         if (!line.empty() && line[0] == '#') continue;
-        
+
         //trim spaces on the left
-        line.erase(line.find_last_not_of(" \n\r\t")+1);
+        size_t found = line.find_last_not_of(" \n\r\t");
+        if (found != string::npos)
+            line.erase(found+1);
+        else continue;
+        
         lineCount++;
 
         vector<string> fields;
