@@ -486,7 +486,6 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
         //header
         out << "polarity" << SEP;
         out << "compound" << SEP;
-        //Addiditional headers added when merging with Maven776 - Kiran
         out << "mz" << SEP;
         out << "charge" << SEP;
         out << "precursorMz" << SEP;

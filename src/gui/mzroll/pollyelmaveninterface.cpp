@@ -19,7 +19,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         connect(fluxButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
-        //connect(checkBox_advanced_settings,SIGNAL(clicked(bool)),SLOT(showAdvanceSettings()));
         connect(firstViewUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(fluxUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
         connect(firstViewCancel, SIGNAL(clicked(bool)), SLOT(cancel()));
@@ -147,13 +146,6 @@ void PollyElmavenInterfaceDialog::handleSelectProject()
         fluxProjectList->setEnabled(true);
     }
     QCoreApplication::processEvents();
-}
-
-void PollyElmavenInterfaceDialog::showAdvanceSettings() 
-{
-    advancedSettingsFlag = true;
-    _advancedSettings = new AdvancedSettings();
-    _advancedSettings->initialSetup();
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()
@@ -564,26 +556,24 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     
     QCoreApplication::processEvents();
 
-    if (advancedSettingsFlag)
-        handle_advanced_settings(datetimestamp, peakTable);
-    
-    if (!advancedSettingsFlag || !_advancedSettings->getUploadCompoundDB()) {
-        // Now uploading the Compound DB that was used for peak detection.
-        // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
-        // ToDo Kailash, Keep track of compound DB used for each peak table,
-        // As of now, uploading what is currently there in the compound section of Elmaven.
-        // If advanced settings were used to upload compound DB, we need not do this.
-        QString compoundDb = mainwindow->ligandWidget->getDatabaseName();
-        mainwindow->ligandWidget->saveCompoundList(writableTempDir + QDir::separator() + datetimestamp + "_Compound_DB_Elmaven.csv", compoundDb);
-    }
+    // Now uploading the Compound DB that was used for peak detection.
+    // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
+    // ToDo Kailash, Keep track of compound DB used for each peak table,
+    // As of now, uploading what is currently there in the compound section of Elmaven.
+    QString compoundDb = mainwindow->ligandWidget->getDatabaseName();
+    mainwindow->ligandWidget->saveCompoundList(writableTempDir
+                                               + QDir::separator()
+                                               + datetimestamp
+                                               + "_Compound_DB_Elmaven.csv",
+                                               compoundDb);
 
     qDebug() << "Now uploading all groups, needed for firstview app..";
     peakTable->wholePeakSet();
     peakTable->treeWidget->selectAll();
     peakTable->prepareDataForPolly(writableTempDir,
-                "Groups Summary Matrix Format Comma Delimited (*.csv)",
-                datetimestamp
-                + "_Peak_table_all_");
+                                   "Groups Summary Matrix Format Comma Delimited (*.csv)",
+                                   datetimestamp
+                                   + "_Peak_table_all_");
     
     //Preparing the json file
     statusUpdate->setStyleSheet("QLabel {color : green; }");
@@ -627,63 +617,13 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(QDir qdir, QString
     return filenames;
 }
 
-void PollyElmavenInterfaceDialog::handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable)
-{
-        QVariantMap advanced_ui_elements = _advancedSettings->getUIElements();
-
-        QString exportOption = advanced_ui_elements["export_option"].toString();
-        QString exportFormat = advanced_ui_elements["export_format"].toString();
-        QString userFilename = advanced_ui_elements["user_filename"].toString();
-        QString compoundDb = advanced_ui_elements["compound_db"].toString();
-        QString userCompoundDBName = advanced_ui_elements["user_compound_DB_name"].toString();
-        
-        if (userFilename == "") {
-            userFilename = "intensity_file.csv";
-        }
-        if (userCompoundDBName == "") {
-            userCompoundDBName = "compounds";
-        }
-        if (_advancedSettings->getUploadCompoundDB()) {
-            mainwindow->ligandWidget->saveCompoundList(writableTempDir + QDir::separator()
-                                                        + datetimestamp
-                                                        + "_Compound_DB_"
-                                                        + userCompoundDBName
-                                                        + ".csv", compoundDb );
-        }
-        
-        if (_advancedSettings->getUploadPeakTable()) {
-            if (exportOption == "Export Selected") {
-                peakTable->selectedPeakSet();
-            } else if (exportOption == "Export Good") {
-                peakTable->goodPeakSet();
-                peakTable->treeWidget->selectAll();
-            } else if (exportOption == "Export All Groups") {
-                peakTable->wholePeakSet();
-                peakTable->treeWidget->selectAll();
-            } else if(exportOption == "Export Bad") {
-                peakTable->badPeakSet();
-                peakTable->treeWidget->selectAll();
-            }
-            _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green; }");
-            _loadingDialog->statusLabel->setText("Preparing intensity file..");
-            QCoreApplication::processEvents();
-
-            QString peakUserFilename  = datetimestamp + "_Peak_table_" + userFilename;
-            qDebug() << "peakUserFilename - " << peakUserFilename;
-            peakTable->prepareDataForPolly(writableTempDir, exportFormat, peakUserFilename);
-        }
-
-}
-
 void PollyElmavenInterfaceDialog::cancel()
 {
-    advancedSettingsFlag = false;
     close();   
 }
 
 void PollyElmavenInterfaceDialog::logout()
 {
-    advancedSettingsFlag = false;
     _pollyIntegration->logout();
     projectNamesId = QVariantMap();
     close();   
