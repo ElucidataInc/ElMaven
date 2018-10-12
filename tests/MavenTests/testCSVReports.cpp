@@ -240,7 +240,7 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
     QVERIFY(parentValues[8] == "210.150269@16.714417");
     QVERIFY(parentValues[9] == "210.150269@16.714417");
     QVERIFY(parentValues[10] == "");
-    QVERIFY(parentValues[11] == "0.000000");
+    QVERIFY(parentValues[11] == "0.000");
     QVERIFY(parentValues[12] == "0.000000");
     // QVERIFY(parentValues[13] == "210.150269");
     // QVERIFY(parentValues[14] == "1234094464.00");
