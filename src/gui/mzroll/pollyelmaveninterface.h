@@ -18,6 +18,11 @@ class TableDockWidget;
 
 class PollyWaitDialog;
 
+enum class PollyApp : int
+{
+    FirstView = 0,
+    Fluxomics = 1
+};
 
 /**
 * @brief This class id responsible for creating the POlly interface and calling pollyCLI library..
@@ -43,7 +48,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief json object which contains the mapping of project names with their IDs
                  */
                 QVariantMap projectNamesId;
-                enum class PollyApp { FirstView = 0, Fluxomics = 1 };
+                
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
                  * @details this is a QVariantMap object that will look like this -
@@ -68,7 +73,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
         private:
                 TableDockWidget* _activeTable = NULL ;
                 void createIcons();
-                QString getRedirectionUrl(QString datetimestamp, QString uploadProjectIdThread);
+                QString getRedirectionUrl(PollyApp currentApp, QString datetimestamp, QString uploadProjectIdThread);
                 void setUiElementsFlux();
                 void setUiElementsFV();
                 QMap<QString, TableDockWidget*> tableNameMapping;
@@ -81,7 +86,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
         
         private Q_SLOTS:
                 void goToPolly();
-                void performPostUploadTasks(bool uploadSuccessful);
+                void performPostUploadTasks(PollyApp currentApp, bool uploadSuccessful);
                 void changePage(QListWidgetItem*, QListWidgetItem*);
                 void setFluxPage();
         
@@ -93,12 +98,12 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * 2. If peak tables are there, proceed to upload the latest peak table csv file to Polly
                  * 3. call getAllGroups on the latest peak table. if empty, show warning and exit.
                  * 4. call exportGroupsToSpreadsheet_polly to save CSV file to tmp directory..
-                 * 5.this tmp directory is nothing but lastdir+"/tmp_files/"
+                 * 5. this tmp directory is nothing but lastdir+"/tmp_files/"
                  * 6. call saveSettings function from mainwindow->mavenParameters to save settings file to the same tmp directory
                  * 7. finally output the list of files in that tmp directory..
                  */
 
-                QStringList prepareFilesToUpload(QDir qdir, QString datetimestamp);
+                QStringList prepareFilesToUpload(PollyApp currentApp, QDir qdir, QString datetimestamp);
 
                 /**
                  * @brief This function uploads all the files prepared by prepareFilesToUpload function, to Polly
@@ -173,7 +178,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 /**
                  * @brief Signal emitted when uploading process has completed, successfully or otherwise.
                  */
-                void uploadFinished(bool success);
+                void uploadFinished(PollyApp currentApp, bool success);
 
         private:
                 /**
@@ -189,7 +194,7 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
         public slots:
             void handleResults(QVariantMap projectNamesId);
             void handleAuthentication(QString status);
-            void postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp);
+            void postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp, PollyApp currentApp);
 };
 
 class EPIWorkerThread : public QThread
@@ -206,9 +211,10 @@ class EPIWorkerThread : public QThread
         QDir tmpDir;
         QString uploadProjectIdThread;
         QStringList filesToUpload;
+        PollyApp currentApp;
         PollyIntegration* _pollyintegration;
     signals:
-        void filesUploaded(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp);
+        void filesUploaded(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp, PollyApp currentApp);
         void resultReady(QVariantMap projectNamesId);
         void authentication_result(QString status);
 };
