@@ -7,7 +7,6 @@
 #include "database.h"
 #include "mainwindow.h"
 #include "loginform.h"
-#include "advancedsettings.h"
 #include "pollyintegration.h"
 #include <QDateTime>
 #include <QMap>
@@ -18,7 +17,6 @@ class LoginForm;
 class TableDockWidget;
 
 class PollyWaitDialog;
-class AdvancedSettings;
 
 
 /**
@@ -46,7 +44,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  */
                 QVariantMap projectNamesId;
                 enum class PollyApp { FirstView = 0, Fluxomics = 1 };
-                bool advancedSettingsFlag;
                 /**
                  * @brief json object which contains the mapping of project names with thier uploaded files
                  * @details this is a QVariantMap object that will look like this -
@@ -131,10 +128,8 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                 // void loadDataFromPolly();
 
                 void logout();
-                void handle_advanced_settings(QString datetimestamp, TableDockWidget* peakTable);
                 void handleNewProject();
                 void handleSelectProject();
-                void showAdvanceSettings();
                 void initialSetup();
                 /**
                  * @brief This function is responsible for loading the form data on polly-elmaven-interface GUI
@@ -189,7 +184,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
                  * @brief pointer to TableDockWidget class..
                 */
                 PollyWaitDialog* _loadingDialog;
-                AdvancedSettings* _advancedSettings;
                 QUrl pollyURL;
 
         public slots:
