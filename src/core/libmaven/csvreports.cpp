@@ -224,10 +224,15 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
-    groupReport << label << SEP << fixed << setprecision(6) << parentGroup->groupId << SEP
-            << groupId << SEP << group->goodPeakCount << SEP << group->meanMz
-            << SEP << group->meanRt << SEP << group->maxQuality << SEP
-            << tagString;
+    groupReport << label << SEP
+                << parentGroup->groupId << SEP
+                << groupId << SEP
+                << group->goodPeakCount << SEP
+                << fixed
+                << setprecision(6) << group->meanMz << SEP
+                << setprecision(3) << group->meanRt << SEP
+                << setprecision(6) << group->maxQuality << SEP
+                << tagString << SEP;
 
     string compoundName = "";
     string compoundID = "";
@@ -270,17 +275,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         compoundID = compoundName;
     }
 
-    groupReport << SEP << compoundName;
-    groupReport << SEP << compoundID;
-    groupReport << SEP << formula;
-    //groupReport << SEP << categoryString;
-    groupReport << SEP << expectedRtDiff;
-    groupReport << SEP << ppmDist;
+    groupReport << compoundName << SEP
+                << compoundID << SEP
+                << formula << SEP
+                << setprecision(3) << expectedRtDiff << SEP
+                << setprecision(6) << ppmDist << SEP;
 
     if (group->parent != NULL) {
-        groupReport << SEP << group->parent->meanMz;
+        groupReport << group->parent->meanMz << SEP;
     } else {
-        groupReport << SEP << group->meanMz;
+        groupReport << group->meanMz;
     }
 
     // for intensity values, we only write two digits of floating point precision
