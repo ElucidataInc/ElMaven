@@ -465,10 +465,12 @@ int Database::loadCompoundCSVFile(string filename){
     invalidRows.clear();
     //cerr << filename << " sep=" << sep << endl;
     while(!myFile.atEnd()) {
-        string line = QString(myFile.readLine()).toStdString();
+        //remove whitespace from the start and end
+        QString tempLine = myFile.readLine().trimmed();
+        if (tempLine.isEmpty()) continue;
+
+        string line = tempLine.toStdString();
         if (!line.empty() && line[0] == '#') continue;
-        //trim spaces on the left
-        line.erase(line.find_last_not_of(" \n\r\t")+1);
         lineCount++;
 
         vector<string>fields;
