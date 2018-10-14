@@ -3,10 +3,10 @@ Release History
 
 |
 
-`Version 0.4.1 <https://zenodo.org/record/1332034>`_
------------------------------------------------------
+Current Release
+---------------
 
-.. `ElucidataInc/ElMaven: v0.4.1 <https://zenodo.org/record/1332034>`_
+`Version 0.4.1 <https://zenodo.org/record/1332034>`_
 
 Publication Date: August 4\ :sup:`th`, 2018
 
@@ -34,10 +34,10 @@ Publication Date: August 4\ :sup:`th`, 2018
    * Empty tables will no longer be uploaded to Polly `(#777) <https://github.com/ElucidataInc/ElMaven/issues/777>`_
    * Only a single compound database file (.csv) will be uploaded to Polly
 
-`Version 0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
-------------------------------------------------------------
+Past Releases
+-------------
 
-.. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
+`Version 0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
 
 Publication Date: July 17\ :sup:`th`, 2018
 
@@ -47,9 +47,6 @@ Publication Date: July 17\ :sup:`th`, 2018
    * Getting Started window will not open behind the main application `(#775) <https://github.com/ElucidataInc/ElMaven/issues/775>`_
 
 `Version 0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
-------------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.4.0-beta.1 <https://zenodo.org/record/1312704>`_
 
 Publication Date: July 16\ :sup:`th`, 2018
 
@@ -59,23 +56,14 @@ Publication Date: July 16\ :sup:`th`, 2018
    * Getting Started window will not open behind the main application `(#775) <https://github.com/ElucidataInc/ElMaven/issues/775>`_
 
 `Version 0.4.0-beta <https://zenodo.org/record/1305465>`_
-----------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.4.0-beta <https://zenodo.org/record/1305465>`_
 
 Publication Date: July 5\ :sup:`th`, 2018 
 
 `Version 0.3.2 <https://zenodo.org/record/1248658>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.2 <https://zenodo.org/record/1248658>`_
 
 Publication Date: May 17\ :sup:`th`, 2018
 
 `Version 0.3.1 <https://zenodo.org/record/1232373>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1232373>`_
 
 Publication Date: April 27\ :sup:`th`, 2018
 
@@ -90,30 +78,18 @@ Publication Date: April 27\ :sup:`th`, 2018
    * Change default tab for El-MAVEN - Polly Integration dialog
 
 `Version 0.3.1 <https://zenodo.org/record/1230370>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.1 <https://zenodo.org/record/1230370>`_
 
 Publication Date: April 26\ :sup:`th`, 2018
 
 `Version 0.3.0 <https://zenodo.org/record/1228065>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1228065>`_
 
 Publication Date: April 24\ :sup:`th`, 2018
 
 `Version 0.3.0 <https://zenodo.org/record/1227187>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.0 <https://zenodo.org/record/1227187>`_
 
 Publication Date: April 23\ :sup:`rd`, 2018
 
 `Version 0.3.0-beta <https://zenodo.org/record/1216928>`_
-----------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: v0.3.0-beta <https://zenodo.org/record/1216928>`_
 
 Publication Date: April 11\ :sup:`th`, 2018
 
@@ -146,36 +122,21 @@ Publication Date: April 11\ :sup:`th`, 2018
    * Isotopic intensities are consistent between isotope widget and peaks table
 
 `Version 0.2.4 <https://zenodo.org/record/1168226>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1168226>`_
 
 Publication Date: February 7\ :sup:`th`, 2018
 
 `Version 0.2.4 <https://zenodo.org/record/1165654>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 <https://zenodo.org/record/1165654>`_
 
 Publication Date: February 5\ :sup:`th`, 2018
 
 `Version 0.2.4 Beta <https://zenodo.org/record/1158577>`_
-----------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: El-MAVEN v0.2.4 Beta <https://zenodo.org/record/1158577>`_
 
 Publication Date: January 24\ :sup:`th`, 2018
 
 `Version 0.2.3 <https://zenodo.org/record/1157953>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: El-MAVEN v0.2.3 <https://zenodo.org/record/1157953>`_
 
 Publication Date: January 23\ :sup:`rd`, 2018
 
 `Version 0.2.2 <https://zenodo.org/record/1133506>`_
------------------------------------------------------
-
-.. `ElucidataInc/ElMaven: El-MAVEN v0.2.2 <https://zenodo.org/record/1133506>`_
 
 Publication Date: December 28\ :sup:`th`, 2017
