@@ -160,6 +160,7 @@ void TestCSVReports::verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
     // check if parent group values are correctly written
     vector<std::string> parentValues;
     mzUtils::splitNew(parentString, "," , parentValues);
+    QVERIFY(parentValues.size() == 16);
     QVERIFY(parentValues[0] == "");
     QVERIFY(parentValues[1] == "1");
     QVERIFY(parentValues[2] == "1");
@@ -180,6 +181,7 @@ void TestCSVReports::verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
     // check if labelled child values are correctly written
     vector<std::string> childValues;
     mzUtils::splitNew(labelString, "," , childValues);
+    QVERIFY(childValues.size() == 16);
     QVERIFY(childValues[0] == "");
     QVERIFY(childValues[1] == "1");
     QVERIFY(childValues[2] == "2");
@@ -229,6 +231,7 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
     // check if group values are correctly written
     vector<std::string> parentValues;
     mzUtils::splitNew(parentString, "," , parentValues);
+    QVERIFY(parentValues.size() == 16);
     QVERIFY(parentValues[0] == "");
     QVERIFY(parentValues[1] == "15");
     QVERIFY(parentValues[2] == "1");
@@ -278,6 +281,7 @@ void TestCSVReports::verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
     // check if parent group values are correctly written
     vector<std::string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
+    QVERIFY(peakValues1.size() == 21);
     QVERIFY(peakValues1[0] == "1");
     QVERIFY(peakValues1[1] == "Stachyose");
     QVERIFY(peakValues1[2] == "HMDB03553");
@@ -303,6 +307,7 @@ void TestCSVReports::verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
     // check if labelled child values are correctly written
     vector<std::string> peakValues2;
     mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2.size() == 21);
     QVERIFY(peakValues2[0] == "1");
     QVERIFY(peakValues2[1] == "Stachyose");
     QVERIFY(peakValues2[2] == "HMDB03553");
@@ -357,6 +362,7 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     // check if parent group values are correctly written
     vector<std::string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
+    QVERIFY(peakValues1.size() == 21);
     QVERIFY(peakValues1[0] == "15");
     QVERIFY(peakValues1[1] == "210.150269@16.714417");
     QVERIFY(peakValues1[2] == "210.150269@16.714417");
@@ -382,6 +388,7 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     // check if labelled child values are correctly written
     vector<std::string> peakValues2;
     mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2.size() == 21);
     QVERIFY(peakValues2[0] == "15");
     QVERIFY(peakValues2[1] == "210.150269@16.714417");
     QVERIFY(peakValues2[2] == "210.150269@16.714417");
