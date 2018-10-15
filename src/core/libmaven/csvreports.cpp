@@ -224,15 +224,15 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     tagString = sanitizeString(tagString.c_str()).toStdString();
     char label[2];
     sprintf(label, "%c", group->label);
-    groupReport << label << SEP
-                << parentGroup->groupId << SEP
-                << groupId << SEP
-                << group->goodPeakCount << SEP
+    groupReport << label
+                << SEP << parentGroup->groupId
+                << SEP << groupId
+                << SEP << group->goodPeakCount
                 << fixed
-                << setprecision(6) << group->meanMz << SEP
-                << setprecision(3) << group->meanRt << SEP
-                << setprecision(6) << group->maxQuality << SEP
-                << tagString << SEP;
+                << SEP << setprecision(6) << group->meanMz
+                << SEP << setprecision(3) << group->meanRt
+                << SEP << setprecision(6) << group->maxQuality
+                << SEP << tagString;
 
     string compoundName = "";
     string compoundID = "";
@@ -275,16 +275,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         compoundID = compoundName;
     }
 
-    groupReport << compoundName << SEP
-                << compoundID << SEP
-                << formula << SEP
-                << setprecision(3) << expectedRtDiff << SEP
-                << setprecision(6) << ppmDist << SEP;
+    groupReport << SEP << compoundName
+                << SEP << compoundID
+                << SEP << formula
+                << SEP << setprecision(3) << expectedRtDiff
+                << SEP << setprecision(6) << ppmDist;
 
     if (group->parent != NULL) {
-        groupReport << group->parent->meanMz << SEP;
+        groupReport << SEP << group->parent->meanMz;
     } else {
-        groupReport << group->meanMz;
+        groupReport << SEP << group->meanMz;
     }
 
     // for intensity values, we only write two digits of floating point precision
@@ -348,31 +348,31 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
 
 
         peakReport << fixed << setprecision(6)
-                   << group->groupId << SEP
-                   << compoundName << SEP
-                   << compoundID << SEP
-                   << formula << SEP
-                   << sampleName << SEP
-                   << peak.peakMz <<  SEP
-                   << peak.medianMz <<  SEP
-                   << peak.baseMz <<  SEP
+                   << group->groupId
+                   << SEP << compoundName
+                   << SEP << compoundID
+                   << SEP << formula
+                   << SEP << sampleName
+                   << SEP << peak.peakMz
+                   << SEP << peak.medianMz
+                   << SEP << peak.baseMz
                    << setprecision(3)
-                   << peak.rt <<  SEP
-                   << peak.rtmin <<  SEP
-                   << peak.rtmax <<  SEP
-                   << peak.quality << SEP
+                   << SEP << peak.rt
+                   << SEP << peak.rtmin
+                   << SEP << peak.rtmax
+                   << SEP << peak.quality
                    // for intensity values, we only write two digits of floating point precision
                    // since these values are supposed to be large (in the order of > 10^3).
                    << setprecision(2)
-                   << peak.peakIntensity << SEP
-                   << peak.peakArea <<  SEP
-                   << peak.peakSplineArea <<  SEP
-                   << peak.peakAreaTop <<  SEP
-                   << peak.peakAreaCorrected <<  SEP
-                   << peak.peakAreaTopCorrected << SEP
-                   << peak.noNoiseObs <<  SEP
-                   << peak.signalBaselineRatio <<  SEP
-                   << peak.fromBlankSample << endl;
+                   << SEP << peak.peakIntensity
+                   << SEP << peak.peakArea
+                   << SEP << peak.peakSplineArea
+                   << SEP << peak.peakAreaTop
+                   << SEP << peak.peakAreaCorrected
+                   << SEP << peak.peakAreaTopCorrected
+                   << SEP << peak.noNoiseObs
+                   << SEP << peak.signalBaselineRatio
+                   << SEP << peak.fromBlankSample << endl;
     }
 }
 
