@@ -547,32 +547,32 @@ void PeakDetectorCLI::loadClassificationModel(string clsfModelFilename) {
 	mavenParameters->clsf->loadModel(clsfModelFilename);
 }
 
-void PeakDetectorCLI::loadCompoundsFile() {
-
-	//load compound list
-	if (!mavenParameters->ligandDbFilename.empty()) {
-		mavenParameters->processAllSlices = false;
-		cout << "\nLoading ligand database" << endl;
-		int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
-		mavenParameters->compounds = DB.compoundsDB;
-		if (loadCount == 0) {
-			cerr << "Warning: Given compound database is empty!" << endl;
-		} else if (DB.invalidRows.size() == 0) {
-			cout << "Total Compounds Loaded : " << loadCount << endl;
-		} else {
-			cout << "Total Compounds Loaded : " << loadCount << endl;
-			cout << "The following compounds had insufficient information for peak detection, and were not loaded:" << endl;
-			for (auto compoundID: DB.invalidRows) {
-				cout << " - " << compoundID << endl;
-			}
-		}
-	}
-	 else {
-		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
-		     << "Use the '-h' argument to see all available options." << endl;
-		exit(0);
-	}
-
+void PeakDetectorCLI::loadCompoundsFile()
+{
+    //load compound list
+    if (!mavenParameters->ligandDbFilename.empty()) {
+        mavenParameters->processAllSlices = false;
+        cout << "\nLoading ligand database" << endl;
+        int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
+        mavenParameters->compounds = DB.compoundsDB;
+        if (loadCount == 0) {
+            cerr << "Warning: Given compound database is empty!" << endl;
+            exit(1);
+        } else {
+            cout << "Total Compounds Loaded : " << loadCount << endl;
+            if (DB.invalidRows.size() > 0) {
+                cout << "The following compounds had insufficient information for peak detection, and were not loaded:"
+                     << endl;
+                for (auto compoundID : DB.invalidRows) {
+                    cout << " - " << compoundID << endl;
+                }
+            }
+        }
+    } else {
+        cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
+             << "Use the '-h' argument to see all available options." << endl;
+        exit(0);
+    }
 }
 
 void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
