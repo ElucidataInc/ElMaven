@@ -98,7 +98,7 @@ public Q_SLOTS:
   void updateCompoundWidget();
   PeakGroup *addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
-  void setupPeakTable();
+  virtual void setupPeakTable();
   PeakGroup *getSelectedGroup();
   QList<PeakGroup *> getSelectedGroups();
   void showNotification();
@@ -159,8 +159,8 @@ public Q_SLOTS:
   void updateItem(QTreeWidgetItem *item);
   void updateStatus();
 
-  void markGroupBad();
-  void markGroupGood();
+  virtual void markGroupBad();
+  virtual void markGroupGood();
   bool checkLabeledGroups();
   void markGroupIgnored();
   void showAllGroups();
@@ -180,8 +180,8 @@ public Q_SLOTS:
 
   void showConsensusSpectra();
 
-  void deleteGroups();
-  void deleteGroup(PeakGroup *groupX);
+  virtual void deleteGroups();
+  virtual void deleteGroup(PeakGroup *groupX);
 
   void sortBy(int);
   void align();
