@@ -62,7 +62,7 @@ The settings used for msConvert as a GUI tool are captured in the following scre
 
 .. note::
 
-It is important that zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. Make sure to uncheck "Use zlib compression" box.
+ It is important that zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. Make sure to uncheck "Use zlib compression" box.
 
 **Output**
 
