@@ -113,7 +113,7 @@ void TableDockWidget::setupPeakTable() {
 
   QStringList colNames;
 
-  // Add a coulmn to the Peaks Table
+  // Add common coulmns to the Table
   colNames << "#";
   colNames << "ID";
   colNames << "Observed m/z";
@@ -122,7 +122,7 @@ void TableDockWidget::setupPeakTable() {
 
   if (viewType == groupView) {
 
-    // Add a coulmn to the Peaks Table
+    // Add group view columns to the peak table
     colNames << "rt delta";
     colNames << "#peaks";
     colNames << "#good";
@@ -130,10 +130,12 @@ void TableDockWidget::setupPeakTable() {
     colNames << "Max AreaTop";
     colNames << "Max S/N";
     colNames << "Max Quality";
+    colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
     for (unsigned int i = 0; i < vsamples.size(); i++) {
+      // Add peak view columns to the table
       colNames << QString(vsamples[i]->sampleName.c_str());
     }
   }
@@ -2878,7 +2880,7 @@ void ScatterplotTableDockWidget::setupPeakTable() {
 
   QStringList colNames;
 
-  // Add a coulmn to the Peaks Table
+  // Add common columns to the table
   colNames << "#";
   colNames << "ID";
   colNames << "Observed m/z";
@@ -2887,7 +2889,7 @@ void ScatterplotTableDockWidget::setupPeakTable() {
 
   if (viewType == groupView) {
 
-    // Add a coulmn to the Peaks Table
+    // Add group view columns to the table
     colNames << "rt delta";
     colNames << "#peaks";
     colNames << "#good";
@@ -2895,15 +2897,16 @@ void ScatterplotTableDockWidget::setupPeakTable() {
     colNames << "Max AreaTop";
     colNames << "Max S/N";
     colNames << "Max Quality";
-
-    // Add a coulmn to the Peaks Table
     colNames << "Rank";
+
+    // add scatterplot table columns
     colNames << "Ratio Change";
     colNames << "P-value";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
     for (unsigned int i = 0; i < vsamples.size(); i++) {
+      // Add peak view columns to the table
       colNames << QString(vsamples[i]->sampleName.c_str());
     }
   }
