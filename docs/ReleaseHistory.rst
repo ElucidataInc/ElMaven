@@ -37,9 +37,9 @@ Publication Date: August 4\ :sup:`th`, 2018
 Past Releases
 -------------
 
-`Version 0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
+.. `Version 0.4.0-beta.1 <https://zenodo.org/record/1313542>`_
 
-Publication Date: July 17\ :sup:`th`, 2018
+.. Publication Date: July 17\ :sup:`th`, 2018
 
    * Fixed Isotopic detection in shift-drag integration `(#781) <https://github.com/ElucidataInc/ElMaven/issues/781>`_
    * Groups with zero peaks will not be bookmarked on shift-drag integration

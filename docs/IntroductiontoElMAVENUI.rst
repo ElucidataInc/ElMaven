@@ -7,7 +7,7 @@ Following is the general workflow involved in El-MAVEN:
 
 .. image:: /image/Workflow.png
 
-*El-MAVEN Workflow. Peak detection, alignment, grouping and scoring are done multiple times for best results. Data from different cohorts can be compared using visualisation tools and easily exported to other formats.*
+Peak detection, alignment, grouping and scoring are done multiple times for best results in the El-MAVEN workflow. Data from different cohorts can be compared using visualisation tools and easily exported to other formats.
 
 .. All widget icons are referenced here
 
@@ -103,7 +103,7 @@ Global Settings can be changed from the Options dialog |options|.
 
 |UI02|
 
-   * *Polarity/Ionization mode*: Polarity information is required for m/z calculation. User can set the polarity of the metabolites in their experiment from the drop-down list or set it to Auto-detect.
+   * *Polarity/Ionization mode*: Polarity information is required for m/z calculation. Users can set the polarity of the metabolites in their experiment from the drop-down list or set it to Auto-detect.
 
    * *Ionization type*: Ionization methods can affect m/z calculation. Drop-down provides a list of the most popular ionization types.
 
@@ -117,17 +117,17 @@ Global Settings can be changed from the Options dialog |options|.
 
 |UI03|
 
-   * *Centroid Scans*: Centroid acquisition is an acquisition method where only centroid m/z and intensity are stored. Centroid m/z is calculated based on the average m/z value weighted by the intensity and m/z values are assigned based on a calibration file. User may leave the box unchecked if they have centroid data. Check the box if centroiding has to be done in El-MAVEN.
+   * *Centroid Scans*: Centroid acquisition is an acquisition method where only centroid m/z and intensity are stored. Centroid m/z is calculated based on the average m/z value weighted by the intensity and m/z values are assigned based on a calibration file. Users may leave the box unchecked if they have the centroid data or check the box if centroiding has to be done in El-MAVEN.
 
-   * *Scan Filter Polarity*: User may choose to import scans based on the polarity of ions in the scan. Especially helpful in polarity-switching experiments.
+   * *Scan Filter Polarity*: Users may choose to import scans based on the polarity of ions in the scan. Especially helpful in polarity-switching experiments.
 
-   * *Scan Filter MS Level*: User may choose to import only MS1 or MS2 scans. This feature can be used with MS/MS data.
+   * *Scan Filter MS Level*: Users may choose to import only MS1 or MS2 scans. This feature can be used with MS/MS data.
 
-   * *Scan Filter Minimum Intensity*: Set a minimum threshold for reading in intensity values.
+   * *Scan Filter Minimum Intensity*: Sets a minimum threshold for reading in intensity values.
 
    * *Scan Filter Intensity Minimum Quantile Cutoff*: Scans with x% of their intensity values below the threshold will be filtered out during import.
 
-   * *Enable Multiprocessing*: In order to reduce sample load time, El-MAVEN uses multiprocessing. This behavior can be changed by the user.
+   * *Enable Multiprocessing*: In order to reduce the sample load time, El-MAVEN uses multiprocessing. This behavior can be changed by the user.
 
 **Peak Detection** 
 
@@ -145,7 +145,7 @@ Global Settings can be changed from the Options dialog |options|.
 
    * *EIC Smoothing Window*: Number of scans used for fitting in the smoothing algorithm can be adjusted here.
 
-   * *Maximum Retention Time Difference Between Peaks*: Set a limit to RT difference between peaks in a group. Increase the value if alignment fails to center peaks satisfactorily.
+   * *Maximum Retention Time Difference Between Peaks*: Set a limit to retention time (RT) difference between peaks in a group. Increase the value if alignment fails to center peaks satisfactorily.
 
 **Baseline Calculation**
 
@@ -178,7 +178,7 @@ Isotope Detection
 
    * *Minimum Isotope-Parent Correlation*: Set the minimum threshold for isotope-parent peak correlation. This correlation is a measure of how often they appear together.
 
-   * *Isotope is within [X] scans of parent*: Set the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the RT scale.
+   * *Isotope is within [X] scans of parent*: Set the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the retention time scale.
 
    * *Maximum % Error to Natural Abundance*: Set the maximum natural abundance error expected. Natural abundance of an isotope is the expected ratio of amount of isotope over the amount of parent molecule in nature. Error is the difference between observed and natural abundance as a fraction of natural abundance.
 
@@ -206,11 +206,11 @@ Isotope Detection
 
    The score depends on the following 3 parameters and their weights:
 
-      * *RT difference or DistX*: Difference in RT between the peaks under comparison. Closer peaks are assigned a higher score.
+      * *RT difference or DistX*: Difference in retention time between the peaks under comparison. Closer peaks are assigned a higher score.
 
       * *Intensity difference or DistY*: Difference in intensity between peaks under comparison. Smaller difference accounts for a higher score.
 
-      * *Overlap*: Fraction of RT overlap between the peaks under comparison. Greater overlap accounts for a higher score.
+      * *Overlap*: Fraction of retention time overlap between the peaks under comparison. Greater overlap accounts for a higher score.
 
          * Uncheck *Consider Overlap* to calculate grouping score without overlap.
 
@@ -232,7 +232,7 @@ Isotope Detection
 
       * *I or Group Intensity*: Maximum intensity of a group. Better intensity leads to a higher rank.
 
-      * *dRT or RT difference*: Difference between expected RT and group mean RT.
+      * *dRT or RT difference*: Difference between expected retention time and group mean RT.
 
          * *Consider Retention Time*: Check the box to use formula (b) for group rank calculation. Formula (a) is used by default.
 
@@ -240,7 +240,7 @@ Isotope Detection
 
          * *Intensity Weight*: Adjust slider to set weight for group intensity in group rank calculation.
 
-         * *dRT Weight*: Adjust slider to set weight for RT difference in group rank calculation. The slider is disabled if Consider Retention Time is unchecked.
+         * *dRT Weight*: Adjust slider to set weight for retention time difference in group rank calculation. The slider is disabled if Consider Retention Time is unchecked.
 
 Sample Upload
 -------------
@@ -251,13 +251,13 @@ Load |load samples| sample files into El-MAVEN and click on *Show Samples Widget
 
 |UI10|
 
-Load sample files into El-MAVEN and click on Show Samples Widget on the widget bar to show/hide the project space. Blanks will not show up in the sample list if the file names start with 'blan' or 'blank'.
+Load sample files into El-MAVEN and click on *Show Samples Widget* on the widget bar to show/hide the project space. Blanks will not show up in the sample list if the file names start with 'blan' or 'blank'.
 
 There are three columns in the project space:
 
    * *Sample*: This column has the sample name and the random color assigned to the sample. Double-click the sample name to change the color.
 
-   * *Set*: The set column holds the cohort name for every sample. Example: subjects and controls.
+   * *Set*: The set column holds the cohort name for every sample. For example: subjects and controls.
 
    * *Scaling*: This column holds the normalization constant for every sample. For example, all intensities in a sample will be halved if the constant is two. This is done to normalize data if sample volumes are different.
 
@@ -265,19 +265,19 @@ There are three columns in the project space:
 
    * |load project| *Load Project*: Sample files can be loaded here.
 
-   * |load meta| *Load Meta*: User may upload a meta file with sample and set names in a comma separated file (.csv) or double-click to enter text. Meta file template is shown below:
+   * |load meta| *Load Meta*: Users may upload a meta file with sample and set names in a comma separated file (.csv) or double-click to enter text. Meta file template is shown below:
 
 |UI11|
 
    * |save project as| *Save Project as*: Current state of El-MAVEN can be saved in a .mzroll file for future use. All the settings, EICs and peak tables are stored in the file and may be reloaded at any point in the future.
 
-   * |change sample color| *Change Sample Color*: Sample colors can be changed by either clicking on this menu button or double-clicking the sample name. User can pick a color of their choice to represent their samples.
+   * |change sample color| *Change Sample Color*: Sample colors can be changed by either clicking on this menu button or double-clicking the sample name. Users can pick a color of their choice to represent their samples.
 
-   * |remove samples| *Remove Samples*: Apart from deselecting samples, user also has the option to remove samples from the project space. The sample files will not be deleted, only removed from El-MAVEN's project space.
+   * |remove samples| *Remove Samples*: Apart from deselecting samples, users also have the option to remove samples from the project space. The sample files will not be deleted, only removed from El-MAVEN's project space.
 
    * |show hide selected samples| *Show/Hide Selected Samples*: Samples can be selected/deselected in batches. This is especially helpful when dealing with large datasets as the EIC window gets increasingly noisy with more samples.
 
-   * |mark sample as blank| *Mark Sample as Blank*: User can select sample files and set them as blanks as depicted below. Clicking the button again will reverse the move.
+   * |mark sample as blank| *Mark Sample as Blank*: Users can select sample files and set them as blanks as depicted below. Clicking the button again will reverse the move.
 
 |UI12|
 
@@ -288,7 +288,7 @@ Compound Database
 
 |UI13|
 
-Reference file contains a list of metabolites and their properties that are used for peak detection. This is a comma separated (.csv) or tab separated (.tab) file with compound name, id, formula, mass, expected retention time and category. It is preferable but not necessary to have retention time information in the reference file but either mass or formula is required. In case both mass and formula are provided, formula will be used to calculate the m/z. Click on the *Show Compounds Widget* on the widget toolbar to view the compounds panel. User may upload a new reference file or use any of the default files loaded on start-up.
+Reference file contains a list of metabolites and their properties that are used for peak detection. This is a comma separated (.csv) or tab separated (.tab) file with compound name, id, formula, mass, expected retention time and category. It is preferable but not necessary to have retention time information in the reference file but either mass or formula is required. In case both mass and formula are provided, formula will be used to calculate the m/z. Click on the *Show Compounds Widget* on the widget toolbar to view the compounds panel. Users may upload a new reference file or use any of the default files loaded on start-up.
 
 |UI14|
 
@@ -297,13 +297,13 @@ EIC
 
 |UI15|
 
-An Extracted Ion Chromatogram is a graph of Intensity vs. RT for a certain m/z range. EIC window displays the EIC for every group/compound selected or m/z range provided. The group name and/or the m/z range is displayed at the top. Following are the different menu options on top of the EIC window:
+An Extracted Ion Chromatogram is a graph of Intensity vs. retention time for a certain m/z range. EIC window displays the EIC for every group/compound selected or m/z range provided. The group name and/or the m/z range is displayed at the top. Following are the different menu options on top of the EIC window:
 
-   * |zoom out| *Zoom Out*: The EIC is initially zoomed-in to display the region near the expected RT of a group. This button will zoom out and display the whole RT range for the selected m/z range. User may zoom into a region by right dragging the mouse over it. Left-dragging will zoom-out.
+   * |zoom out| *Zoom Out*: The EIC is initially zoomed-in to display the region near the expected retention time of a group. This button will zoom out and display the whole retention time range for the selected m/z range. Users may zoom in to a region by right dragging the mouse over it. Left-dragging will zoom out.
 
    * |copy group info to clipboard| *Copy Group Information to Clipboard*: On clicking this button, group information is copied to the clipboard with every row representing a different sample.
 
-   * |bookmark as good group| *Bookmark as Good Group*: User can manually curate a group as 'good' and store it in the bookmark table using this button. (Manual curation of groups has been covered `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_) 
+   * |bookmark as good group| *Bookmark as Good Group*: Users can manually curate a group as 'good' and store it in the bookmark table using this button. (Manual curation of groups has been covered `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_) 
 
 |UI16|
 
@@ -313,7 +313,7 @@ An Extracted Ion Chromatogram is a graph of Intensity vs. RT for a certain m/z r
 
    * |history back| *History Back*: EIC window display history is recorded. Clicking this button will display the previous state of the window.
 
-   * |history forward| *History Forward*: EIC window display history is recorded. Clicking this button will display the next state of the window if available. 
+   * |history forward| *History Forward*: EIC window display history is recorded. Clicking this button will display the next state of the window, if available. 
 
    * |save eic image to pdf| *Save EIC Image to PDF File*: Saves the current EIC window display in a PDF file.
 
@@ -321,13 +321,13 @@ An Extracted Ion Chromatogram is a graph of Intensity vs. RT for a certain m/z r
 
    * |print eic| *Print EIC*: Current EIC window display can be directly printed out.
 
-   * |auto zoom| *Auto Zoom*: Auto Zoom is selected by default. It zooms-in and centers the EIC to the expected retention time. The expected retention time is depicted as a dashed red line. 
+   * |auto zoom| *Auto Zoom*: Auto Zoom is selected by default. It zooms-in and centers the EIC to the expected RT. The expected retention time is depicted as a dashed red line. 
 
 |UI18|
 
    * |show tic's| *Show TICs*: Displays the Total Ion Current. TIC is the sum of all intensities in a scan.
 
-   * |show bar plot| *Show Bar Plot*: Displays the peak intensity for a group in every sample. Intensity can be calculated by various methods known as quantitation types in El-MAVEN. User can change the quantitation type from the drop-down list on the top right or choose to display other parameters like retention time and peak quality. 
+   * |show bar plot| *Show Bar Plot*: Displays the peak intensity for a group in every sample. Intensity can be calculated by various methods known as quantitation types in El-MAVEN. Users can change the quantitation type from the drop-down list on the top right or choose to display other parameters like retention time and peak quality. 
 
 |UI19|
 
@@ -347,7 +347,7 @@ Some of the important options are:
 
    * *Group Peaks Automatically*: Peak grouping happens automatically when grouping parameters are changed. To prevent automatic grouping, user can uncheck this option.
 
-   * *Show Baseline*: Hide/Show the baseline for every peak. (Read more about baseline `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI>`_).
+   * *Show Baseline*: Hide/Show the baseline for every peak. (Read more about baseline `here <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#global-settings>`_).
 
    * *Show Merged EIC*: Merged EIC is the sum average of EICs across samples. It smoothens the data and helps in grouping peaks.
 
@@ -363,7 +363,7 @@ Mass Spectra Widget displays each peak, its mass, and intensity for a scan. As t
 Alignment
 ---------
 
-Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median RT of the group.
+Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median retention time of the group.
 
 Click on the *Align* button |align| and adjust the settings.
 
@@ -371,15 +371,15 @@ Click on the *Align* button |align| and adjust the settings.
 
 The first panel in Alignment options is for Group Selection criteria. 'Group' here refers to a set of peaks across samples that is annotated as a particular ion.
 
-   * *Group must contain at least [X] good peaks*: The value of x is set to filter out groups that do not have at least x good peaks from the alignment process. As there is only one peak per sample for a group, this value should not exceed the number of samples in your project. This option allows the user to discard groups with very few good peaks under the assumption that those could be stray peaks.
+   * *Group must contain at least [X] good peaks*: The value of x is set to filter out groups that do not have at least x good peaks from the alignment process. As there is only one peak per sample for a group, this value should not exceed the number of samples in your project. This option allows the users to discard groups with very few good peaks under the assumption that those could be stray peaks.
 
-   * *Limit total number of groups in alignment to*: User can change the number of groups being used for alignment in case there are too many groups detected after the peak detection process.
+   * *Limit total number of groups in alignment to*: Users can change the number of groups being used for alignment in case there are too many groups detected after the peak detection process.
    
    * *Peak Grouping Window*: This value controls the number of scans required to get the most accurate peaks. Enter a high number if the reproducibility is low to ensure best results.
 
 The next panel is for *Peak Selection* settings:
 
-   * *Minimum Peak Intensity*: The intensity value can be adjusted to only look at high or low intensity peaks in case you have prior information about the concentration of metabolite you are looking for.
+   * *Minimum Peak Intensity*: The intensity value can be adjusted to only look at high or low intensity peaks in case you have prior information about the concentration of metabolite users are looking for.
 
    * *Minimum peak S/N ratio*: This is the minimum signal to noise ratio of your experiment. Increase the value if you see too much noise in the data.
     
@@ -389,7 +389,7 @@ The next panel is for *Peak Selection* settings:
 
 The *Alignment Algorithm* panel provides the following options:
 
-   * *Alignment Algorithm*: There are two alignment algorithms available in El-MAVEN: Poly fit and Loess fit. Loess fit has been released as a beta feature for now.
+   * *Alignment Algorithm*: There are three alignment algorithms available in El-MAVEN: Obi-Warp, Poly fit and Loess fit. Loess fit has been released as a beta feature for now.
     
    * *Maximum number of Iterations*: This parameter is only required for Poly fit algorithm. Enter the number of times El-MAVEN should fit a model to the data in order to align it.
     
@@ -401,7 +401,7 @@ Click on *Align* at the bottom.
 
 El-MAVEN provides three visualizations for alignment analysis.
 
-* *Show Alignment Visualization*: Click on |show alignment visualisation| in the widget bar to open this visualization. Click on any grouped peak to look at its delta Rt vs Rt graph as shown.
+* *Show Alignment Visualization*: Click on |show alignment visualisation| in the widget bar to open this visualization. Click on any grouped peak to look at its delta RT vs RT graph as shown.
 
 |UI24|
 
@@ -413,12 +413,12 @@ El-MAVEN provides three visualizations for alignment analysis.
 
 |UI26|
 
-The above graphs give a clear indication of how aligned/misaligned the peaks are. User may run alignment again with different parameters if required (or with a different algorithm).
+The above graphs give a clear indication of how aligned/misaligned the peaks are. Users may run alignment again with different parameters if required (or with a different algorithm).
 
 Peak Detection
 --------------
 
-Peak detection algorithm pulls the EICs, detects peaks and performs grouping and filtering based on parameters controlled by the user. The algorithm groups identical peaks across samples and calculates the quality score by a machine learning algorithm. Click on the *Peaks* icon |peaks| on the top to open the settings dialog.
+Peak detection algorithm pulls the EICs, detects peaks and performs grouping and filtering based on parameters controlled by the users. The algorithm groups identical peaks across samples and calculates the quality score by a machine learning algorithm. Click on the *Peaks* icon |peaks| on the top to open the settings dialog.
 
 There are 3 tabs for setting Peak Detection parameters:
 
@@ -446,13 +446,13 @@ The Feature Detection Selection panel has the following parameters:
 
       * *Match Retention Time*: Enable/disable use of retention time information along with m/z to perform database search. Compounds can have different retention times in every experiment, therefore this option should only be checked if the reference file is specific to the experiment and the sampled used. Enter the time buffer in the accompanying box.
 
-      * *Limit Number of Reported Groups Per Compound*: Multiple groups can be annotated as the same compound, especially when retention time is not taken into consideration for the search. User can set the value to only report X best groups according to their rank. The group rank formula will be discussed later in the tutorial.
+      * *Limit Number of Reported Groups Per Compound*: Multiple groups can be annotated as the same compound, especially when retention time is not taken into consideration for the search. Users can set the value to only report X best groups according to their rank. The group rank formula will be discussed later in the tutorial.
 
-   * *Match Fragmentation*: This panel is activated for MS/MS data
+   * *Match Fragmentation*: This panel is activated for MS/MS data.
 
    * *Report Isotopic Peaks*: Check this box to find and report isotopic peaks for labeled data.
 
-   To perform peak detection with reference, check the box next to *Compound Database Search* and choose the appropriate database. The *EIC Extraction Window* should be set according to the instrument's resolving power. Select the *Match Retention Time* option if you wish to search for compounds using both the m/z ratio and rt value given in the database. In case of a generic database, searching by retention time is not recommended.
+   To perform peak detection with reference, check the box next to *Compound Database Search* and choose the appropriate database. The *EIC Extraction Window* should be set according to the instrument's resolving power. Select the *Match Retention Time* option if you wish to search for compounds using both the m/z ratio and retention time value given in the database. In case of a generic database, searching by retention time is not recommended.
 
 **2. Group Filtering**
 
@@ -472,7 +472,7 @@ After grouping is done, groups that do not fulfill the criteria shown above are 
 
    * *Peak Classifier Model File*: This is the default model that is used by the machine learning algorithm for classifying peaks according to their quality.
 
-Change the settings according to the data and click on *Find Peaks* to run peak detection. For beginners, performing peak detection with default values at first is recommended. User may then adjust the settings depending on their results.
+Change the settings according to the data and click on *Find Peaks* to run peak detection. For beginners, performing peak detection with default values at first is recommended. Users may then adjust the settings depending on their results.
 
 **3. Method Summary**
 
@@ -483,7 +483,7 @@ Peak Table
 
 |UI30|
 
-Groups information obtained after Peak Detection is stored and displayed in the form of a Peak Table with a row representing a group and its corresponding features in columns. User can show/hide the peak table by clicking on |peaks| the widget bar.
+Groups information obtained after Peak Detection is stored and displayed in the form of a Peak Table with a row representing a group and its corresponding features in columns. Users can show/hide the peak table by clicking on |peaks| the widget bar.
 
 **Peak Table Features**
 
@@ -491,15 +491,15 @@ Following are the different features/columns in a peak table:
 
    * *#*: is the serial number for a group
     
-   * *ID*: Group ID is assigned according to the search mode used during peak detection. In case of Automated search, groups are named by their m/z and RT values separated by '@' sign. For example, ID for a group with 230.2 m/z and 1.89 RT will be given as '230.2@1.89'. In case of Database search, groups are annotated as a compound from the reference file. For example, 'malate'.
+   * *ID*: Group ID is assigned according to the search mode used during peak detection. In case of Automated search, groups are named by their m/z and retention time values separated by '@' sign. For example, ID for a group with 230.2 m/z and 1.89 RT will be given as '230.2@1.89'. In case of Database search, groups are annotated as a compound from the reference file. For example, 'malate'.
 
    * *Observed m/z*: is the median m/z of the group.
 
    * *Expected m/z*: is the m/z value provided in the reference file for the compound represented by the group. This field is populated only in case of Database search.
 
-   * *rt*: is the median RT of the group.
+   * *rt*: is the median retention time of the group.
 
-   * *rt delta*: is the difference between expected RT from the reference file and the observed RT. This field is set to -1 in case of Automated Search.
+   * *rt delta*: is the difference between expected retention time from the reference file and the observed RT. This field is set to -1 in case of Automated Search.
 
    * *#peaks*: is the number of peaks in the group.
 
@@ -521,7 +521,7 @@ Following are the different features/columns in a peak table:
 
 Multiple groups can be annotated as the same compound especially when retention time information is not used during Database search. The peak table provides options for filtering, comparing or exporting data from the table. Following are the different menu options available in the peak table:
 
-   * |switch between group and peak views| *Switch between group and peak views*: Switching to Peak view displays only Peak information. This includes group number, group ID, Expected m/z, Observed m/z, rt and intensity of all peaks in the group with sample names as the respective column headers. Peak intensity cells are colored based on their relative values in a group. Highest intensity value has the lightest color and vice-versa. 
+   * |switch between group and peak views| *Switch between group and peak views*: Switching to Peak view displays only Peak information. This includes group number, group ID, Expected m/z, Observed m/z, retention time and intensity of all peaks in the group with sample names as the respective column headers. Peak intensity cells are colored based on their relative values in a group. Highest intensity value has the lightest color and vice-versa. 
 
 |UI32|
 
@@ -539,12 +539,12 @@ Multiple groups can be annotated as the same compound especially when retention 
 
    * |scatter plot| *Show Scatter Plot*: Opens the Scatter plot widget used to compare different cohorts via Scatter plot and Volcano plot.
 
-The remaining are export options and will be detailed in the `Export <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#export-options>`_ section.
+The remaining are export options and will be detailed in the `Export <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#id10>`_ section.
 
 Statistics
 ----------
 
-El-MAVEN comes equipped with a statistics module for comparing data across different cohorts. User can set the sample cohorts either by editing the Set column in the Sample space, or upload a meta file with sample and cohort names as detailed above under the "Sample Space Menu" section.
+El-MAVEN comes equipped with a statistics module for comparing data across different cohorts. Users can set the sample cohorts either by editing the Set column in the Sample space, or upload a meta file with sample and cohort names as detailed above under the `Sample Space Menu <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#sample-upload>`_ section.
 
 The statistics module can be accessed through the Peak Table menu.
 
@@ -552,7 +552,7 @@ The statistics module can be accessed through the Peak Table menu.
 
    * *Set1/Set2*: Select two cohorts to be compared
 
-   * *Min Log2 Fold Difference*: Fold difference is a measure of how much the intensity of a group changes from one cohort to another. User can set the minimum threshold for this value in log(base 2) format.
+   * *Min Log2 Fold Difference*: Fold difference is a measure of how much the intensity of a group changes from one cohort to another. User can set the minimum threshold for this value in log\ :sub:`2`\ format.
 
    * *Min Intensity*: Groups with all peak intensities less than this value will be filtered out from the comparison process.
 
@@ -576,16 +576,16 @@ The statistics module can be accessed through the Peak Table menu.
 
    * |scatter plot| *Scatter Plot*: The axes represent the average peak intensity (Peak Height) for sample 1 and 2 respectively. Each bubble is a group. The bubble size represents fold change between the samples. The significance (or p-value) of the fold change is represented by the bubble color. Red and blue signify higher intensity in sample 1 and 2 respectively. Opaqueness of the bubble represents the significance (or inverse of p-value) of the fold change between cohorts.
 
-   * |volcano plot| *Volcano Plot*: The axes represent Fold change and significance of fold change respectively. Red and blue bubbles represent positive and negative fold change.
+   * |volcano plot| *Volcano Plot*: The axes represent fold change and significance of fold change respectively. Red and blue bubbles represent positive and negative fold change respectively.
 
-   * |remove samples| *Delete*: Delete a data point from the graph.
+   * |remove samples| *Delete*: Deletes a data point from the graph.
 
    * |peaks| *Scatter Plot Table*: A separate Peak Table is created with all filtered groups being used for statistical analysis. User can also export these in a CSV or JSON.
 
 Export
 ------
 
-User can either save the state of the project or export only relevant data from the peak table. These are the different export options available in El-MAVEN:
+Users can either save the state of the project or export only relevant data from the peak table. These are the different export options available in El-MAVEN:
 
 |UI37|
 

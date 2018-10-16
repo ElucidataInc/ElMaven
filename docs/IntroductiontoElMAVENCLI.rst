@@ -46,7 +46,7 @@ The template XML contains three sets of parameters:
 
 **1. OptionalDialogArguments: Global parameters**
 
-   * User needs to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive): ``ionizationMode type="int" value="-1"``  
+   * Users need to know the ionization mode and accepted values are 0 (neutral), -1 (negative) and +1 (positive): ``ionizationMode type="int" value="-1"``  
 
    * Ionization charge. This is the number of positive or negative charge added to every ion. Accepted values are positive integers: ``charge type="int" value="1"`` 
 
@@ -106,7 +106,7 @@ The template XML contains three sets of parameters:
 
    * 'Minimum Signal/Baseline Ratio': ``minSignalBaseLineRatio type="float" value="2"`` 
 
-   * 'Min. Good Peak/Group'. Value should be less or equal to the number of samples: ``minGoodGroupCount type="int" value="1"``
+   * 'Minimum Good Peak/Group'. Value should be less or equal to the number of samples: ``minGoodGroupCount type="int" value="1"``
 
    * 'Peak Classifier Model File'. The default model file can be found in the bin folder of El-MAVEN installation. Enter full path to the 'default.model' file: ``model type="string" value="0"`` 
 

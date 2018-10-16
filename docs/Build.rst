@@ -40,13 +40,12 @@ Windows
    $ ./run.sh
    $ ./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2
 
-El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN 
-application window for data analysis.
+El-MAVEN loads with two windows: one for logging the application status and another for data analysis.
 
 Ubuntu
 ------
 
-* Open the terminal and give the following commands to set up libraries and tool chains for El-MAVEN 
+* Open the terminal and give the following commands to set up the libraries and tool chains for El-MAVEN: 
 
    ::
 
@@ -58,7 +57,7 @@ Ubuntu
    $ ./run.sh
    $ ./bin/El_Maven_0.x #for example: ./bin/El_Maven_0.2
 
-El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
+El-MAVEN loads with two windows: one for logging the application status and another for data analysis.
 
 MacOS
 -----
@@ -95,9 +94,9 @@ Switching Versions
 ------------------
 
 Users can switch between versions once they have compiled El-MAVEN successfully on their system. 
-Follow these steps to pull a specific release:
+Follow these steps to pull a specific `release <https://elmaven.readthedocs.io/en/documentation-website/ReleaseHistory.html>`_:
 
-* Choose the version you wish to install from the list of releases. (We recommend the version tagged "Latest release". Pre-releases are not stable and should be avoided)
+* Choose the version you wish to install from the list of releases. (We recommend the version tagged "Current Release". Past releases are not stable and should be avoided)
 
 * Find the version tag (v0.2.x, 0.1.x, etc) on the left of release notes.
 

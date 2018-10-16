@@ -1,8 +1,6 @@
 Labeled LC-MS Workflow
 ======================
 
-This is a tutorial for processing Labeled LC/MS data files through El-MAVEN.
-
 .. All widget icons are referenced here
 
 .. |options| image:: /image/Widget_1.png
@@ -88,6 +86,8 @@ This is a tutorial for processing Labeled LC/MS data files through El-MAVEN.
     * Guidelines for Peak Picking
     * Export options
 
+This is a tutorial for processing Labeled LC/MS data files through El-MAVEN.
+
 Preprocessing
 -------------
 
@@ -102,13 +102,14 @@ msConvert supports the following formats:
    * .RAW ThermoFisher
    * .RAW Walters
    * .d Agilent
-   * .wiff format ABSciex
+   * .wiff ABSciex
 
 The settings used for msConvert as a GUI tool are captured in the following screenshots: 
 
 |LLCMS01|
 
-NOTE: zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. It is important to uncheck "Use zlib compression" box.
+.. note::
+ zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. It is important to uncheck "Use zlib compression" box.
 
 **Output**
 
@@ -132,12 +133,12 @@ The *m/z* option scans the groups to find any specific m/z value and plot its co
 
 |LLCMS04|
 
-To know more about the functionality of different tabs and their settings, users can see the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_. Please be sure to set the desired settings before processing an input file.
+To know more about the functionality of different tabs and their settings, users can see the `Widgets page <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#global-settings>`_. Please be sure to set the desired settings before processing an input file.
 
 Load Samples
 ------------
 
-Users can go to File in the Menu, click on *Load Samples|Projects|Peaks* option in the File menu. Then navigate to the folder containing the sample data, select all .mzXML or .mzML files and click Open. A loading bar displays the progress at the bottom. 
+Users can go to File in the Menu and click on *Load Samples|Projects|Peaks* option. Then navigate to the folder containing the sample data, select all .mzXML or .mzML files and click Open. A loading bar displays the progress at the bottom. 
 
 |LLCMS05|
 
@@ -148,7 +149,7 @@ When the samples have loaded, users should see a sample panel on the left side. 
 Load Compound Database
 ----------------------
 
-Users can click on *Compounds* option in the leftmost menu, navigate to the folder containing the standard database file, select the appropriate .csv file and click *Open*. 
+Users can click on *Compounds* option in the leftmost menu, navigate to the folder containing the standard database file, select the appropriate .csv file and click *Open*. Alternatively, users may use any of the default files loaded on start-up.
 
 |LLCMS07|
 
@@ -172,17 +173,17 @@ Multiple blanks can be marked together. The blanks will appear black as shown in
 Alignment
 ---------
 
-Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak RTs in every sample to correct for this drift and brings the peaks closer to median RT of the group.
+Prolonged use of the LC column can lead to a drift in retention time across samples. Alignment shifts the peak retention time in every sample to correct for this drift and brings the peaks closer to median retention time of the group.
 
 |LLCMS11|
 
-In the above image, EIC for a UTP group is displayed. If the samples were aligned, all peaks would lie at the same RT. Since this is not the case the samples need to be aligned.
+In the above image, EIC for a UTP group is displayed. If the samples were aligned, all peaks would lie at the same retention time. Since this is not the case, the samples need to be aligned.
 
-*Alignment visualization* |show alignment visualisation| can be used to judge the extent of deviation from median RT. 
+*Alignment visualization* |show alignment visualisation| can be used to judge the extent of deviation from median retention time. 
 
 |LLCMS12|
 
-In the above visualization, each box represents a peak from the selected group at its current RT. Samples are said to be perfectly aligned when all peak boxes lie on the same vertical axis. The peaks are considerably scattered in the above image and therefore the samples should be aligned for better grouping of peaks.
+In the above visualization, each box represents a peak from the selected group at its current retention time. Samples are said to be perfectly aligned when all peak boxes lie on the same vertical axis. The peaks are considerably scattered in the above image and therefore the samples should be aligned for better grouping of peaks.
 
 **Perform Alignment**
 
@@ -190,24 +191,24 @@ In the above visualization, each box represents a peak from the selected group a
 
 |LLCMS13|
 
-Post-alignment the peaks in the group should appear closer to the median RT of the group.
+Post-alignment the peaks in the group should appear closer to the median retention time of the group.
 
 |LLCMS14|
 
 |LLCMS15|
 
-Pre-alignment, the peaks were considerably scattered while the aligned peaks lie nearly on the same axis. Users can run alignment again with different parameters if required (or with a different algorithm). Further details on Alignment settings are available on the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_.
+Pre-alignment, the peaks were considerably scattered while the aligned peaks lie nearly on the same axis. Users can run alignment again with different parameters if required (or with a different algorithm). Further details on Alignment settings are available on the `Widgets page <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#alignment>`_.
 
 Peak Grouping
 -------------
 
-Peak grouping is an integral part of the El-MAVEN workflow that categorizes all detected peaks into groups on the basis of certain user-controlled parameters. A group score is calculated for every peak during the process. The formula for this score takes into account the difference in RT, intensities between peaks (smaller difference leads to a better score) and any existing overlap between them (higher extent of overlap leads to better score). All three parameters have certain weights attached to them that can be controlled by the users. The formula for the score is shown in the image. More details on it can be found on the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_.
+Peak grouping is an integral part of the El-MAVEN workflow that categorizes all detected peaks into groups on the basis of certain user-controlled parameters. A group score is calculated for every peak during the process. The formula for this score takes into account the difference in retention time, intensities between peaks (smaller difference leads to a better score) and any existing overlap between them (higher extent of overlap leads to better score). All three parameters have certain weights attached to them that can be controlled by the users. The formula for the score is shown in the image. More details on it can be found on the `Widgets page <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#global-settings>`_.
 
 |LLCMS16|
 
 |LLCMS17|
 
-The above image shows two groups in the EIC window. The highlighted (solid circles) peaks belong to group A, the peaks to its left with empty circles belong to another group B. The short peaks in group A that are close to the baseline and peaks in group B come from the same samples. Additionally, the high intensity peaks of group A have a similar peak shape to group B peaks. These peaks might have been wrongly classified into separate groups because of the difference in Rt range of the two sets of peaks. The weights attached to difference in Rt and intensities, and extent of overlap can be adjusted for better grouping.
+The above image shows two groups in the EIC window. The highlighted (solid circles) peaks belong to group A, the peaks to its left with empty circles belong to another group B. The short peaks in group A that are close to the baseline and peaks in group B come from the same samples. Additionally, the high intensity peaks of group A have a similar peak shape to group B peaks. These peaks might have been wrongly classified into separate groups because of the difference in retention time range of the two sets of peaks. The weights attached to difference in retention time and intensities, and extent of overlap can be adjusted for better grouping.
 
 Grouping parameters can be changed from the Options dialog |options|.
 
@@ -215,7 +216,7 @@ Grouping parameters can be changed from the Options dialog |options|.
 
 |LLCMS19|
 
-Giving less priority to difference in RTs and intensities results in the two groups being merged into a single  group while the peaks that lay close to the baseline are no longer classified as valid peaks.
+Giving less priority to difference in retention time and intensities results in the two groups being merged into a single  group while the peaks that lay close to the baseline are no longer classified as valid peaks.
 
 .. Screenshots 17 and 19 regarding the grouping of sarcosine are from the old documentation. Peak grouping was not replicated successfully hence the screenshots were re-used.
 
@@ -234,7 +235,7 @@ The baseline correction can be done in the *Peak Detection* tab by clicking on *
 
 |LLCMS22|
 
-Further details on settings can be accessed `here <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#peak-detection>`_.
+Further details on settings can be accessed `here <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#peak-detection>`_.
 
 Isotope Detection
 -----------------
@@ -261,7 +262,7 @@ On opening the *Feature Detection Selection* tab, the *Report Isotopic Peaks* bo
 
 * *Minimum Isotope-Parent Correlation*: To set the minimum threshold for isotope-parent peak correlation. This correlation is a measure of how often they appear together.
 
-* *Isotope is within [X] scans of parent*: To set the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the RT scale.
+* *Isotope is within [X] scans of parent*: To set the maximum scan difference between isotopic and parent peaks. This is a measure of how closely they appear together on the retention time scale.
 
 * *Maximum % Error to Natural Abundance*: To set the maximum natural abundance error expected. Natural abundance of an isotope is the expected ratio of amount of isotope over the amount of parent molecule in nature. Error is the difference between observed and natural abundance as a fraction of natural abundance.
 
@@ -305,39 +306,40 @@ Clicking the *Peaks* icon |peaks| on the top opens the settings dialog.
 
 |LLCMS30|
 
-The user must check the box for *Report Isotopic Peaks* in the *Group Filtering* tab.
+Users must check the box for *Report Isotopic Peaks* in the *Group Filtering* tab.
 
-NOTE: The user should not click on *Find Peaks* after checking the box for manual curation. Clicking on that option would start Automatic Peak Detection. For adjusting other settings the user can access them through the Options |options| dialog .
+.. note::
+ Users should not click on *Find Peaks* after checking the box for manual curation. Clicking on that option would start Automatic Peak Detection. For adjusting other settings, users can access them through the Options |options| dialog .
 
 For more details on how to access Peak Detection settings, read this `Widgets page <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#peak-detection>`_.
 
-To use manual curation using the compound DB widget, the user has to iterate over all the compounds in the compound DB on the extreme left of the window, as highlighted in the images below. 
+To use manual curation using the compound DB widget, users have to iterate over all the compounds in the compound DB on the extreme left of the window, as highlighted in the images below. 
 
 |LLCMS31|
 
 |LLCMS32|
 
-Once on a compound, El-MAVEN shows the highest ranked group for that m/z. The user can now choose a group or reject it. There are two ways to do this.
+Once on a compound, El-MAVEN shows the highest ranked group for that m/z. Users can now choose a group or reject it. There are two ways to do this.
 
-In the first workflow, the user needs to double click on the peak group of his choice. This will get the RT line to the median of the group and also add the metabolite to the bookmarks table (as shown in the image below). User can read more about the bookmarks table `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#5-eic-window>`_.
+In the first workflow, users need to double click on the peak group of his choice. This will get the retention time line to the median of the group and also add the metabolite to the bookmarks table (as shown in the image below). Users can read more about the bookmarks table `here <https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI#5-eic-window>`_.
 
 |LLCMS33|
 
 |LLCMS34|
 
-When the user selects the first group they would be asked if they would like to auto-save the state of the application. This feature allows the user to go back to his curated peaks if they so wishes in future. 
+When the users select the first group they would be asked if they would like to auto-save the state of the application. This feature allows the users to go back to their curated peaks if they so wishes in future. 
 
 |LLCMS35|
 
-The user can then use dropdown arrow on bookmarked group to mark all its isotopologues as good or bad. 
+Users can then use dropdown arrow on bookmarked group to mark all its isotopologues as good or bad. 
 
 |LLCMS36|
 
-After marking all the groups for a compound, the user can scroll down to the next compound and decide on the basis of shown EIC if the group should be marked for curation. 
+After marking all the groups for a compound, users can scroll down to the next compound and decide on the basis of shown EIC if the group should be marked for curation. 
 
 |LLCMS37|
 
-Double clicking on any peak (solid coloured circle) moves the RT line along the group. And the group moves to the bookmark table. 
+Double clicking on any peak (solid coloured circle) moves the retention time line along the group. And the group moves to the bookmark table. 
 
 |LLCMS38|
 
@@ -346,7 +348,7 @@ Qualifying peaks as good or bad is explained in the next section.
 Guidelines for Peak Picking
 ---------------------------
 
-* A peak’s width and shape are two very crucial things to look at while classifying a peak as good or bad. The peak’s shape should have a Gaussian distribution and width should not be spread across a wide range of RT. 
+* A peak’s width and shape are two very crucial things to look at while classifying a peak as good or bad. The peak’s shape should have a Gaussian distribution and width should not be spread across a wide range of retention time. 
 
 |LLCMS39|
 
@@ -362,7 +364,7 @@ Guidelines for Peak Picking
 
 * If peak groups of a particular metabolite are separated apart (not aligned well) then we should use stringent alignment parameters to overcome this problem.
 
-* For a particular metabolite, let’s say if it has n number of groups, then the group which is much closer to the above guidelines should be selected as good peak. Multiple groups can also be selected in case of ambiguity (if RT information is not provided).
+* For a particular metabolite, let’s say if it has n number of groups, then the group which is much closer to the above guidelines should be selected as good peak. Multiple groups can also be selected in case of ambiguity (if retention time information is not provided).
 
 **A good peak would look similar to the following peaks:**
 
@@ -373,7 +375,7 @@ Guidelines for Peak Picking
 |LLCMS43|
 
    * Gaussian shape
-   * Perfect grouping, narrow RT
+   * Perfect grouping, narrow retention time
    * Good sample intensities
    * Low blank intensities
    * QCs look good
@@ -385,7 +387,7 @@ Guidelines for Peak Picking
 
 |LLCMS44|
 
-   * The intensity levels are low relatively. The peaks are spread over a long range of RTs. They have poor shape, poor grouping and lie close to noise. If the signal to noise ratio was improved, this peak would probably not be detected. 
+   * The intensity levels are low relatively. The peaks are spread over a long range of retention time. They have poor shape, poor grouping and lie close to noise. If the signal to noise ratio was improved, this peak would probably not be detected. 
 
 |LLCMS45|
 
@@ -417,7 +419,10 @@ Guidelines for Peak Picking
 
 |LLCMS52|
 
-NOTE: The user can mark any ambiguous peaks as good, and can review all such peaks later in the process.
+
+.. note::
+
+ Users can mark any ambiguous peaks as good, and can review all such peaks later in the process.
 
 Export
 ------
@@ -430,7 +435,7 @@ Users can select *All, Good, Bad or Selected* peaks to export.
 
 |LLCMS54|
 
-The *Export Groups to CSV* option |export to csv| lets the user save the 'good'/'bad' labels along with the peak table. Users also have the option to filter out rows that have a certain label while exporting the table.
+The *Export Groups to CSV* option |export to csv| lets the users save the 'good'/'bad' labels along with the peak table. Users also have the option to filter out rows that have a certain label while exporting the table.
 
 *Generate PDF Report* option |generate pdf| saves all EICs with their corresponding bar plots in a PDF file.
 

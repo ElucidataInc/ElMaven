@@ -1,8 +1,6 @@
 Labeled LC-MS/MS Workflow
 =========================
 
-This is a tutorial for processing LC/MSMS data files through El-MAVEN.
-
 .. All widget icons are referenced here
 
 .. |options| image:: /image/Widget_1.png
@@ -40,6 +38,8 @@ This is a tutorial for processing LC/MSMS data files through El-MAVEN.
     * Guidelines for Peak Picking
     * Export options
 
+This is a tutorial for processing LC/MSMS data files through El-MAVEN.
+
 Preprocessing
 -------------
 
@@ -54,13 +54,15 @@ msConvert supports the following formats:
     * .RAW ThermoFisher
     * .RAW Walters
     * .d Agilent
-    * .wiff format ABSciex
+    * .wiff ABSciex
 
 The settings used for msConvert as a GUI tool are captured in the following screenshot: 
 
 |LCMSMS01|
 
-NOTE: It is important that zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. Make sure to uncheck "Use zlib compression" box.
+.. note::
+
+It is important that zlib compression is enabled by default in msConvert. El-MAVEN in its current form does not support zlib compression. Make sure to uncheck "Use zlib compression" box.
 
 **Output**
 
@@ -80,7 +82,7 @@ Global Settings can be changed from the *Options* dialog |options|. There are 9 
 
 |LCMSMS03|
 
-To know more about the functionality of different tabs and their settings, users can see the `Widgets page <https://github.com/ElucidataInc/El-MAVEN/wiki/Introduction-to-El-MAVEN-UI#2-global-settings>`_. Please be sure to set the desired settings before processing an input file.
+To know more about the functionality of different tabs and their settings, users can see the `Widgets page <https://elmaven.readthedocs.io/en/develop/IntroductiontoElMAVENUI.html#global-settings>`_. Please be sure to set the desired settings before processing an input file.
 
 Load Samples
 ------------
@@ -96,7 +98,7 @@ When the samples have loaded, users should see a sample panel on the left side. 
 Load Compound Database
 ----------------------
 
-Users can click on *Compounds* option in the leftmost menu, navigate to the folder containing the standard database file, select the appropriate .csv file and click *Open*. 
+Users can click on *Compounds* option in the leftmost menu, navigate to the folder containing the standard database file, select the appropriate .csv file and click *Open*. Alternatively, users may use any of the default files loaded on start-up.
 
 |LCMSMS06|
 
@@ -133,7 +135,7 @@ Users can select *All, Good, Bad or Selected* peaks to export.
 
 |LCMSMS11|
 
-The *Export Groups to CSV* option |export to csv| lets the user save the 'good'/'bad' labels along with the peak table. Users also have the option to filter out rows that have a certain label while exporting the table. 
+The *Export Groups to CSV* option |export to csv| lets the users save the 'good'/'bad' labels along with the peak table. Users also have the option to filter out rows that have a certain label while exporting the table. 
 
 *Generate PDF Report* option |generate pdf| saves all EICs with their corresponding bar plots in a PDF file.
 
