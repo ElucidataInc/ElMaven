@@ -547,32 +547,37 @@ void PeakDetectorCLI::loadClassificationModel(string clsfModelFilename) {
 	mavenParameters->clsf->loadModel(clsfModelFilename);
 }
 
-void PeakDetectorCLI::loadCompoundsFile() {
+void PeakDetectorCLI::loadCompoundsFile()
+{
+    //exit if no db file has been provided
+    if (mavenParameters->ligandDbFilename.empty()) {
+        cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
+             << "Use the '-h' argument to see all available options." << endl;
+        exit(0);
+    }
+    
+    //load compound list
+    mavenParameters->processAllSlices = false;
+    cout << "\nLoading ligand database" << endl;
+    int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
+    mavenParameters->compounds = DB.compoundsDB;
 
-	//load compound list
-	if (!mavenParameters->ligandDbFilename.empty()) {
-		mavenParameters->processAllSlices = false;
-		cout << "\nLoading ligand database" << endl;
-		int loadCount = DB.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
-		mavenParameters->compounds = DB.compoundsDB;
-		if (loadCount == 0) {
-			cerr << "Warning: Given compound database is empty!" << endl;
-		} else if (DB.invalidRows.size() == 0) {
-			cout << "Total Compounds Loaded : " << loadCount << endl;
-		} else {
-			cout << "Total Compounds Loaded : " << loadCount << endl;
-			cout << "The following compounds had insufficient information for peak detection, and were not loaded:" << endl;
-			for (auto compoundID: DB.invalidRows) {
-				cout << " - " << compoundID << endl;
-			}
-		}
-	}
-	 else {
-		cerr << "\nPlease provide a compound database file to proceed with targeted analysis."
-		     << "Use the '-h' argument to see all available options." << endl;
-		exit(0);
-	}
-
+    //exit if db is empty
+    if (loadCount == 0) {
+        cerr << "Warning: Given compound database is empty!" << endl;
+        exit(1);
+    }
+    
+    //check for invalid compounds
+    if (DB.invalidRows.size() > 0) {
+        cout << "The following compounds had insufficient information for peak detection, and were not loaded:"
+             << endl;
+        for (auto compoundID : DB.invalidRows) {
+            cout << " - " << compoundID << endl;
+        }
+    }
+    
+    cout << "Total Compounds Loaded : " << loadCount << endl;
 }
 
 void PeakDetectorCLI::loadSamples(vector<string>&filenames) {

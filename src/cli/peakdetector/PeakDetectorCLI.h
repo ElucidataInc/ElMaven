@@ -142,7 +142,12 @@ class PeakDetectorCLI {
 		void loadClassificationModel(string clsfModelFilename);
 
 
-		void loadCompoundsFile();
+        /**
+        * @brief load user provided compound database
+        * @details load the compound database from mavenparameters and give 
+        * appropriate warnings or exit
+        */
+        void loadCompoundsFile();
 
 		/**
 		* [loadSamples description]
