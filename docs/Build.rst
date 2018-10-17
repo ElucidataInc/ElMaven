@@ -1,8 +1,6 @@
 Build
 =====
 
-|
-
 Contributors can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. 
 Users are recommended to download the installers provided `here <https://elucidatainc.github.io/ElMaven/Downloads/>`_.
 

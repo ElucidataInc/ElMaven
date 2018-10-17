@@ -1,8 +1,6 @@
 Release History
 ===============
 
-|
-
 Current Release
 ---------------
 

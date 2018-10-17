@@ -1,8 +1,6 @@
 El-MAVEN Command Line Interface
 ===============================
 
-|
-
 The peakdetector executable in El-MAVEN can load sample files, perform peak detection and save the resulting peaks in a CSV or mzroll file. It reads a configuration file with user-set parameters and paths to input and output files.
 
 This executable is not part of installer versions of El-MAVEN. Please clone the repository and build `El-MAVEN <https://github.com/ElucidataInc/ElMaven/blob/develop/README.md#compilation>`_ to use this feature.
