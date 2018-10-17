@@ -40,6 +40,7 @@ release = u'v0.4.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.imgconverter'
 ]
 
 pdf_documents = [('index', u'rst2pdf', u'El-MAVEN Documentation', u'Elucidata Corporation'),]
@@ -84,8 +85,13 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {'logo': 'El-MAVEN.svg', 
+	#'github_button': 'True',	
 	'github_user': 'ElucidataInc', 
 	'github_repo': 'ElMaven',
+	#'github_banner': 'True',
+	#'github_type': 'follow',
+	#'github_count': 'True',
+	#'logo_text_align': 'left',
 	#'description': 'ABCXYZ',
 	#'logo_text_align': 'left',
 	#'logo_name': 'True',	

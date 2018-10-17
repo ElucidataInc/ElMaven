@@ -74,15 +74,15 @@ Dataset: Full-scan MS2 sample file
 | Fragment     | Skyline              | El-MAVEN             |
 |	       |                      |		             |
 +==============+======================+======================+
-| #1           | |Validation01|       | |Validation02|       |
+|  #1          | |Validation01|       | |Validation02|       |
 +--------------+----------------------+----------------------+
-| #2           | |Validation03|       | |Validation04|       |
+|  #2          | |Validation03|       | |Validation04|       |
 +--------------+----------------------+----------------------+
-| #3           | |Validation05|       | |Validation06|       |
+|  #3          | |Validation05|       | |Validation06|       |
 +--------------+----------------------+----------------------+
-| #4           | |Validation07|       | |Validation08|       |
+|  #4          | |Validation07|       | |Validation08|       |
 +--------------+----------------------+----------------------+
-| #5           | |Validation09|       | |Validation10|       |
+|  #5          | |Validation09|       | |Validation10|       |
 +--------------+----------------------+----------------------+
 
 Chromatogram Validation

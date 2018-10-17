@@ -101,4 +101,4 @@ This Code of Conduct is distributed under a `Creative Commons Attribution-ShareA
 
 Portions of text derived from the `Django Code of Conduct <https://www.djangoproject.com/conduct/>`_ and the `Geek Feminism Anti-Harassment Policy <http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Policy>`_.
 
-Retrieved on November 22, 2016 from `here <http://citizencodeofconduct.org/>`_.
+Retrieved on October 17, 2018 from `here <http://citizencodeofconduct.org/>`_.
