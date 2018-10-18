@@ -338,6 +338,12 @@ public:
 public Q_SLOTS:
   void showMergeTableOptions();
   void showMsgBox(bool check, int tableNo);
+  /**
+   * @brief This method moves the bookmarked groups to the selected peak table
+   * @details Merges bookmark and peak tables and then displays a success or error
+   * message
+   * @param pointer to QAction that stores the selected peak table
+   */
   void mergeGroupsIntoPeakTable(QAction *action);
 
   /**
