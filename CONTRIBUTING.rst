@@ -104,7 +104,7 @@ For example:
  * Bullet points are not neccessary. It can also be a simple paragraph.
  * The last line has tag for the issue this commit is going to resolve.
  * There is no other issue related to this issue, that's why there is 
- no "See also: #IssueNo, #IssueNo ..." line after the last line.
+   no "See also: #IssueNo, #IssueNo ..." line after the last line.
 
  Issue: #324
 
