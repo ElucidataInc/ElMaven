@@ -2602,37 +2602,53 @@ void BookmarkTableDockWidget::showMsgBox(bool check, int tableNo) {
   msgBox->open();
 }
 
-void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action) {
+void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
+{
+    QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
+    int j = mergeAction.value(action, -1);
 
-  QList<QPointer<TableDockWidget>> peaksTableList =
-      _mainwindow->getPeakTableList();
-  int n = peaksTableList.size();
-  int j = mergeAction.value(action, -1);
+    //check if action exists
+    if (j == -1) {
+        showMsgBox(false, j);
+        return;
+    }
 
-  if (j == -1) {
-    showMsgBox(false, j);
-    return;
-  }
+    //return if no bookmarked groups or peak tables
+    if (allgroups.isEmpty() || peaksTableList.isEmpty()) {
+        showMsgBox(true, j);
+        return;
+    }
 
-  if (!allgroups.size() || !n) {
-    showMsgBox(true, j);
-    return;
-  }
-  int sz = peaksTableList[j - 1]->allgroups.size();
-  int total = allgroups.size() + sz;
-  for (unsigned int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].groupId = ++sz;
-    peaksTableList[j - 1]->allgroups.append(allgroups[i]);
-  }
+    //find table to merge with
+    TableDockWidget* peakTable;
+    for (auto table : peaksTableList) {
+        if (table->tableId == j) {
+            peakTable = table;
+            break;
+        }
+    }
 
-  deleteAll();
-  peaksTableList[j - 1]->showAllGroups();
-  showAllGroups();
+    //return if peak table not found
+    if (!peakTable) {
+        showMsgBox(false, j);
+        return;
+    }
 
-  if (total == peaksTableList[j - 1]->allgroups.size())
-    showMsgBox(true, j);
-  else
-    showMsgBox(false, j);
+    int initialSize = peakTable->allgroups.size();
+    int finalSize = allgroups.size() + initialSize;
+    for (auto group : allgroups) {
+        group.groupId = ++initialSize;
+        peakTable->allgroups.append(group);
+    }
+
+    deleteAll();
+    peakTable->showAllGroups();
+    showAllGroups();
+
+    if (finalSize == peakTable->allgroups.size())
+        showMsgBox(true, j);
+    else
+        showMsgBox(false, j);
 }
 
 void BookmarkTableDockWidget::acceptGroup() {
