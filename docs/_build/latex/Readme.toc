@@ -1,0 +1,88 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Contents}{2}{chapter.1}
+\contentsline {section}{\numberline {1.1}El-MAVEN Features}{2}{section.1.1}
+\contentsline {section}{\numberline {1.2}Download}{2}{section.1.2}
+\contentsline {section}{\numberline {1.3}Build}{2}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}Windows}{2}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}Ubuntu}{3}{subsection.1.3.2}
+\contentsline {subsection}{\numberline {1.3.3}MacOS}{3}{subsection.1.3.3}
+\contentsline {subsection}{\numberline {1.3.4}Switching Versions}{4}{subsection.1.3.4}
+\contentsline {section}{\numberline {1.4}User Documentation}{4}{section.1.4}
+\contentsline {subsection}{\numberline {1.4.1}Introduction}{5}{subsection.1.4.1}
+\contentsline {subsubsection}{Git Repository}{5}{subsubsection*.3}
+\contentsline {subsection}{\numberline {1.4.2}Getting Started}{5}{subsection.1.4.2}
+\contentsline {subsubsection}{El-MAVEN User Interface}{5}{subsubsection*.4}
+\contentsline {paragraph}{El-MAVEN User Interface}{6}{paragraph*.5}
+\contentsline {paragraph}{Global Settings}{6}{paragraph*.6}
+\contentsline {paragraph}{Isotope Detection}{10}{paragraph*.7}
+\contentsline {paragraph}{Sample Upload}{13}{paragraph*.8}
+\contentsline {paragraph}{Compound Database}{16}{paragraph*.9}
+\contentsline {paragraph}{EIC}{17}{paragraph*.10}
+\contentsline {paragraph}{Mass Spectra}{22}{paragraph*.11}
+\contentsline {paragraph}{Alignment}{23}{paragraph*.12}
+\contentsline {paragraph}{Peak Detection}{26}{paragraph*.13}
+\contentsline {paragraph}{Peak Table}{30}{paragraph*.14}
+\contentsline {paragraph}{Statistics}{33}{paragraph*.15}
+\contentsline {paragraph}{Export}{35}{paragraph*.16}
+\contentsline {subsubsection}{El-MAVEN Command Line Interface}{37}{subsubsection*.17}
+\contentsline {paragraph}{Create a default configuration file}{37}{paragraph*.18}
+\contentsline {paragraph}{Peak detector parameters}{38}{paragraph*.19}
+\contentsline {paragraph}{Run}{39}{paragraph*.20}
+\contentsline {paragraph}{Help}{40}{paragraph*.21}
+\contentsline {subsection}{\numberline {1.4.3}Tutorials}{40}{subsection.1.4.3}
+\contentsline {subsubsection}{Unlabeled LC-MS Workflow}{40}{subsubsection*.22}
+\contentsline {paragraph}{Preprocessing}{40}{paragraph*.23}
+\contentsline {paragraph}{Launch El-MAVEN}{41}{paragraph*.24}
+\contentsline {paragraph}{Adjust Global Settings}{42}{paragraph*.25}
+\contentsline {paragraph}{Load Samples}{43}{paragraph*.26}
+\contentsline {paragraph}{Load Compound Database}{44}{paragraph*.27}
+\contentsline {paragraph}{Mark Blanks}{45}{paragraph*.28}
+\contentsline {paragraph}{Alignment}{46}{paragraph*.29}
+\contentsline {paragraph}{Peak Grouping}{49}{paragraph*.30}
+\contentsline {paragraph}{Baseline}{51}{paragraph*.31}
+\contentsline {paragraph}{Mass Spectra}{53}{paragraph*.32}
+\contentsline {paragraph}{Peak Curation}{54}{paragraph*.33}
+\contentsline {paragraph}{Guidelines for Peak Picking}{57}{paragraph*.34}
+\contentsline {paragraph}{Export}{64}{paragraph*.35}
+\contentsline {subsubsection}{Labeled LC-MS Workflow}{66}{subsubsection*.36}
+\contentsline {paragraph}{Preprocessing}{66}{paragraph*.37}
+\contentsline {paragraph}{Launch El-MAVEN}{67}{paragraph*.38}
+\contentsline {paragraph}{Adjust Global Settings}{68}{paragraph*.39}
+\contentsline {paragraph}{Load Samples}{69}{paragraph*.40}
+\contentsline {paragraph}{Load Compound Database}{70}{paragraph*.41}
+\contentsline {paragraph}{Mark Blanks}{71}{paragraph*.42}
+\contentsline {paragraph}{Alignment}{72}{paragraph*.43}
+\contentsline {paragraph}{Peak Grouping}{75}{paragraph*.44}
+\contentsline {paragraph}{Baseline}{77}{paragraph*.45}
+\contentsline {paragraph}{Isotope Detection}{78}{paragraph*.46}
+\contentsline {paragraph}{Mass Spectra}{82}{paragraph*.47}
+\contentsline {paragraph}{Peak Curation}{83}{paragraph*.48}
+\contentsline {paragraph}{Guidelines for Peak Picking}{87}{paragraph*.49}
+\contentsline {paragraph}{Export}{95}{paragraph*.50}
+\contentsline {subsubsection}{Labeled LC-MS/MS Workflow}{97}{subsubsection*.51}
+\contentsline {paragraph}{Preprocessing}{97}{paragraph*.52}
+\contentsline {paragraph}{Launch El-MAVEN}{98}{paragraph*.53}
+\contentsline {paragraph}{Adjust Global Settings}{99}{paragraph*.54}
+\contentsline {paragraph}{Load Samples}{100}{paragraph*.55}
+\contentsline {paragraph}{Load Compound Database}{101}{paragraph*.56}
+\contentsline {paragraph}{Mark Blanks}{102}{paragraph*.57}
+\contentsline {paragraph}{Alignment}{103}{paragraph*.58}
+\contentsline {paragraph}{Export}{103}{paragraph*.59}
+\contentsline {subsection}{\numberline {1.4.4}Validation}{105}{subsection.1.4.4}
+\contentsline {subsubsection}{Labeled MS/MS Validation}{105}{subsubsection*.60}
+\contentsline {paragraph}{MS/MS Support in El-MAVEN}{105}{paragraph*.61}
+\contentsline {paragraph}{Feature Additions}{105}{paragraph*.62}
+\contentsline {paragraph}{Validation}{106}{paragraph*.63}
+\contentsline {paragraph}{Mass Spectra Validation}{106}{paragraph*.64}
+\contentsline {paragraph}{Chromatogram Validation}{107}{paragraph*.65}
+\contentsline {paragraph}{Issues Observed}{112}{paragraph*.66}
+\contentsline {paragraph}{Conclusion}{112}{paragraph*.67}
+\contentsline {section}{\numberline {1.5}Contributors}{112}{section.1.5}
+\contentsline {section}{\numberline {1.6}Contributing}{113}{section.1.6}
+\contentsline {section}{\numberline {1.7}References}{113}{section.1.7}
+\contentsline {section}{\numberline {1.8}Acknowledgement}{113}{section.1.8}
+\contentsline {section}{\numberline {1.9}Release History}{114}{section.1.9}
+\contentsline {subsection}{\numberline {1.9.1}Current Release}{114}{subsection.1.9.1}
+\contentsline {subsection}{\numberline {1.9.2}Past Releases}{114}{subsection.1.9.2}
+\contentsline {section}{\numberline {1.10}Bugs and Feature Requests}{116}{section.1.10}
+\contentsline {section}{\numberline {1.11}Copyright and License}{116}{section.1.11}
