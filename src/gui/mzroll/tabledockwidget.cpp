@@ -2636,9 +2636,9 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
 
     int initialSize = peakTable->allgroups.size();
     int finalSize = allgroups.size() + initialSize;
-    for (unsigned int i = 0; i < allgroups.size(); i++) {
-        allgroups[i].groupId = ++initialSize;
-        peakTable->allgroups.append(allgroups[i]);
+    for (auto group : allgroups) {
+        group.groupId = ++initialSize;
+        peakTable->allgroups.append(group);
     }
 
     deleteAll();
