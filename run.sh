@@ -9,7 +9,8 @@ while true; do
         * ) echo "Please answer yes or no.";;
     esac
 done
-make -j $(nproc)
+
+make -j $(getconf _NPROCESSORS_ONLN)
 
 
 if [ -f tests/MavenTests/test.xml ]; then
