@@ -524,6 +524,7 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
 
     alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
 
+    #pragma omp parallel for
     for(int i=0 ; i < samples.size();++i){
         cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
         if(i == referenceSampleIndex)
