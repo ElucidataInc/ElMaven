@@ -6,6 +6,7 @@
  */
 #ifndef MZEIC_H
 #define MZEIC_H
+#include <Eigen>
 #include "Peak.h"
 #include "PeakGroup.h"
 #include "mzSample.h"
@@ -41,6 +42,11 @@ class EIC
         SUM = 1
     };
 
+    enum class BaselineMode {
+        Threshold,
+        AsLSSmoothing
+    };
+
     vector<int> scannum;     /**< Store all scan numbers in an EIC */
     vector<float> rt;        /**< Store all retention times in an EIC */
     vector<float> mz;        /**< Store all mass/charge ratios in an EIC */
@@ -55,6 +61,11 @@ class EIC
     float *spline; /**< pointer to smoothed intensity array */
 
     float *baseline; /**< pointer to baseline array */
+
+    /**
+     * @brief baselineMode decides which algorithm to use for computing baseline.
+     */
+    BaselineMode baselineMode;
 
     float maxIntensity; /**< maximum intensity out of all eics */
 
@@ -265,10 +276,53 @@ class EIC
     static bool compMaxIntensity(EIC *a, EIC *b) { return a->maxIntensity > b->maxIntensity; }
 
   private:
-    SmootherType smootherType; /**< name of selected smoothing algorithm */
+    /**
+     * Name of selected smoothing algorithm
+     */
+    SmootherType smootherType;
 
-    int baselineSmoothingWindow; /**< sets the number of scans used for smoothing in one iteration*/
+    /**
+     * Sets the number of scans used for smoothing in one iteration.
+     */
+    int baselineSmoothingWindow;
 
-    int baselineDropTopX; /**< percentage of top intensity points to remove before computing baseline */
+    /*
+     * Percentage of top intensity points to remove before computing baseline.
+     */
+    int baselineDropTopX;
+
+    /**
+     * @brief Computes a baseline using naive thresholding method.
+     * @param smoothingWindow is the size of window used for 1D guassian smoothing.
+     * @param dropTopX percent of the highest intensities will be truncated.
+     */
+    void computeThresholdBaseline(int smoothingWindow, int dropTopX);
+
+    /**
+     * @brief Computes a baseline using Asymmetric Least Squares Smoothing techinique.
+     * @details A (Whittaker) smoother is used to get a slowly varying estimate
+     * of the baseline. In contrast to ordinary least squares smoothing,
+     * however, positive deviations with respect to baseline estimate are
+     * weighted (much) less than negative ones.
+     *
+     * Ref: Baseline Correction with Asymmetric Least Squares Smoothing,
+     * P. Eilers, H. Boelens, 2005
+     *
+     * @param lambda for smoothness. Typical values of lambda for MS data range
+     * from 10^3 to 10^9, depending on dataset. The exponent value should be
+     * passed here as integer, i.e. lambda should be within 3 to 9.
+     * @param p for asymmetry. Values between 0.01 to 0.10 work reasonable well
+     * for MS data.
+     * @param numIterations for the number of iterations that should be
+     * performed (since this is an iterative optimization algorithm).
+     */
+    void computeAsLSBaseline(int lambda, float p, int numIterations=10);
+
+    /**
+     * @brief Calculate and return approximate derivative of a sparse matrix.
+     * @param mat instance of Eigen::SparseMatrix containing double values.
+     * @return Difference matrix of the mat sparse matrix.
+     */
+    Eigen::SparseMatrix<float> diff(Eigen::SparseMatrix<float> mat);
 };
 #endif //MZEIC_H

@@ -1,4 +1,5 @@
 #include "EIC.h"
+
 /**
  * @file EIC.cpp
  * @author Sabu George
@@ -23,6 +24,7 @@ EIC::EIC()
     baselineSmoothingWindow = 5;
     //TODO make sure initialization value is same everywhere
     baselineDropTopX = 60;
+    baselineMode = BaselineMode::Threshold;
     for (unsigned int i = 0; i < 4; i++)
         color[i] = 0;
 }
@@ -124,7 +126,7 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     return meic;
 }
 
-void EIC::computeBaseLine(int smoothing_window, int dropTopX)
+void EIC::computeBaseLine(int smoothingWindow, int dropTopX)
 {
     if (baseline != NULL)
     { //delete previous baseline if exists
@@ -140,12 +142,98 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX)
     try
     {
         baseline = new float[n];
-        std::fill_n(baseline, n, 0);
+        std::fill_n(baseline, n, 0.0f);
     }
     catch (...)
     {
         cerr << "Exception caught while allocating memory " << n << "floats " << endl;
     }
+
+    if (baselineMode == BaselineMode::Threshold)
+        computeThresholdBaseline(smoothingWindow, dropTopX);
+    else if (baselineMode == BaselineMode::AsLSSmoothing)
+        computeAsLSBaseline(5.0f, 0.05f);
+}
+
+void EIC::computeAsLSBaseline(int lambda, float p, int numIterations)
+{
+    using namespace Eigen;
+    unsigned int n = static_cast<unsigned int>(intensity.size());
+
+    // create a sparse identity matrix of size `n`
+    auto ident = MatrixXf::Identity(n, n).sparseView();
+
+    // compute approximate second derivative of the identity matrix
+    auto D = diff(diff(ident));
+
+    // create a weights vector of length `n` initially containing only ones
+    // for coefficients
+    auto w = VectorXf(ArrayXf::Ones(n));
+
+    // instantiate a Cholesky decomposition linear solver for sparse matrices
+    SimplicialCholesky<SparseMatrix<float>> solver;
+
+    // instantiate a vector for intensity and one to store baseline
+    VectorXf intensityVec = Map<VectorXf>(intensity.data(), n);
+    VectorXf baselineVec;
+
+    // helper matrices for `select` operation used when creating binary vectors
+    auto ones = VectorXf(MatrixXf::Ones(n, 1));
+    auto zeros = VectorXf(MatrixXf::Zero(n, 1));
+
+    // ideally this should converge to a point where the baseline does not
+    // change anymnore, but since we do not have good float comparators yet,
+    // we can use a decent number of iterations to get as close to the true
+    // baseline as possible
+    for (int i=0; i < numIterations; ++i) {
+        // create a square matrix 'W' with the weights as its diagonal
+        auto W = SparseMatrix<float>(w.asDiagonal());
+
+        // compute 'A' and 'b', and then solve for 'x' that satisfies the
+        // equation 'A·x = b', where x will be the iteratively estimated
+        // baseline
+        auto A = W + (pow(10.0f, lambda) * (D.transpose() * D));
+        solver.compute(A);
+        auto b = VectorXf(w.array() * intensityVec.array());
+        baselineVec = solver.solve(b);
+
+        // calculate weights for the next iteration
+        auto gtBin = VectorXf(
+            ((intensityVec - baselineVec).array() > 0.0f).select(ones, zeros)
+        );
+        auto ltBin = VectorXf(
+            ((intensityVec - baselineVec).array() < 0.0f).select(ones, zeros)
+        );
+        w = (p * gtBin) + ((1.0f - p) * ltBin);
+    }
+
+    // copy data from an Eigen vector to std::vector
+    vector<float> clippedBaseline(baselineVec.data(),
+                                  baselineVec.data()
+                                  + baselineVec.rows()
+                                  * baselineVec.cols());
+
+    // clip negative values from the baseline vector
+    std::transform(begin(clippedBaseline),
+                   end(clippedBaseline),
+                   begin(clippedBaseline),
+                   [](float f) { return f < 0.0f ? 0.0f : f; });
+
+    // since baseline right now is an array of float, the data from clipped
+    // vector is copied to this array
+    std::copy(begin(clippedBaseline), end(clippedBaseline), baseline);
+}
+
+Eigen::SparseMatrix<float> EIC::diff(Eigen::SparseMatrix<float> mat)
+{
+    Eigen::SparseMatrix<float> E1 = mat.block(0, 0, mat.rows() - 1, mat.cols());
+    Eigen::SparseMatrix<float> E2 = mat.block(1, 0, mat.rows() - 1, mat.cols());
+    return E2 - E1;
+}
+
+void EIC::computeThresholdBaseline(int smoothingWindow, int dropTopX)
+{
+    unsigned int n = static_cast<unsigned int>(intensity.size());
 
     //sort intensity vector
     vector<float> tmpv = intensity;
@@ -178,7 +266,7 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX)
     }
 
     //smooth baseline
-    gaussian1d_smoothing(n, smoothing_window, baseline);
+    gaussian1d_smoothing(n, smoothingWindow, baseline);
 
     //count number of observation in EIC above baseline
     for (int i = 0; i < n; i++)
