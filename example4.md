@@ -8,31 +8,31 @@ permalink: /Downloads/
     <a id="download" onClick="downloadclick()" href="" hidden></a>
     <div id="modal1" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://docs.google.com/forms/d/e/1FAIpQLSd7yWc-PanVEdDMWUjYM6axyQWqbpWqv0CoXqCnkM6IorYrkg/viewform"
+            <iframe id="myModal" onLoad="download('myModal','modal1')" style="width:100%; height:100%" src="https://goo.gl/forms/n7nc10WkR1B4bOPA2"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
      <div id="modal2" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal2" onLoad="download('myModal2','modal2')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLScFrQyRA1NPL6UySgj2p8LeOzHYSIzj_0YnFJNqUv41n8soRQ/viewform"
+            <iframe id="myModal2" onLoad="download('myModal2','modal2')" style="width:100%; height:100%" src="https://goo.gl/forms/gmwpjwfp0RD8xtSl1"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
      <div id="modal3" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal3" onLoad="download('myModal3','modal3')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSeEOIELdKQoumNM1yZPdMva7D-nOE44Vz9mgdG-IXrnsWXmqQ/viewform"
+            <iframe id="myModal3" onLoad="download('myModal3','modal3')" style="width:100%; height:100%" src="https://goo.gl/forms/rPfqp06HGkuP7obk2"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
     <div id="modal4" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal4" onLoad="download('myModal4','modal4')" style="width:100%; height:100%" src="https://docs.google.com/forms/d/e/1FAIpQLSdrqxE7l3bOZOgw681UX7ok-jfR1sj2GYi5ACa4HC9K6o2log/viewform"
+            <iframe id="myModal4" onLoad="download('myModal4','modal4')" style="width:100%; height:100%" src="https://goo.gl/forms/mb9t8Hmxtn1JFBzy1"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
     <div id="modal5" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal5" onLoad="download('myModal5','modal5')" style="width:100%; height:100%" src="https://docs.google.com/a/elucidata.io/forms/d/e/1FAIpQLSfEfRf0OIgZ4RQuf2SjJrnXMc2AsAGS36UTJS3rXN4GhSrAsQ/viewform"
+            <iframe id="myModal5" onLoad="download('myModal5','modal5')" style="width:100%; height:100%" src="https://goo.gl/forms/UzIMx7p6NqrxCuZ33"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -72,7 +72,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/jycmu1gfr7rommt/Windows_El-Maven-v0.4.1.exe?dl=1' style='display:hidden' id='win_0.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.4.1')" data-target="modal1" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('win_0.4.1')" data-target="modal2" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -86,7 +86,7 @@ permalink: /Downloads/
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/wtc01djphcnsr55/El-Maven-v0.2.4.1.exe?dl=1' style='display:hidden'
                                 id='win_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.2.4.1')" data-target="modal2" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('win_0.2.4.1')" data-target="modal3" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -131,7 +131,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/30cmaab63k24vdk/Mac_El-Maven-v0.4.1.app.zip?dl=1' style='display:hidden' id='mac_0.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.4.1')" data-target="modal4" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.4.1')" data-target="modal5" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -144,7 +144,7 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <a href='https://www.dropbox.com/s/2bvautna8m2mz1e/El-Maven-v0.2.4.1.zip?dl=1' style='display:hidden' id='mac_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="modal5" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="modal3" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
