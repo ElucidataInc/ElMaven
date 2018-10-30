@@ -746,10 +746,13 @@ void EicWidget::addMergedEIC() {
 
 void EicWidget::addBaseLine(EIC* eic) {
     QSettings* settings = this->getMainWindow()->getSettings();
-    int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
-    int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
-    eic->computeBaseLine(baseline_smoothing, baseline_quantile);
+    if (!eic->baseline) {
+        eic->computeBaseLine(
+            getMainWindow()->mavenParameters->baseline_smoothingWindow,
+            getMainWindow()->mavenParameters->baseline_dropTopX
+        );
+    }
 
     if (eic->size() == 0)
         return;
