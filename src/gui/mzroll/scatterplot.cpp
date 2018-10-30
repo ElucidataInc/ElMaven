@@ -133,7 +133,7 @@ void ScatterPlot::setTable(TableDockWidget* peakTable) {
     Q_FOREACH (PeakGroup *group, groups) {
         _table->addPeakGroup(group);
     }
-    compareSamplesDialog->setTableWidget(peakTable);
+    compareSamplesDialog->setTableWidget(_table);
 }
 
 QSet<PeakGroup*> ScatterPlot::getGroupsInRect(QPointF from, QPointF to) {
