@@ -680,10 +680,7 @@ QString PeakDetectorCLI::isReadyForPolly(){
 		qDebug()<<"json file is required for Elmaven-Polly-Integration, overriding existing settings to save EIC json file.";
 		saveJsonEIC = true;
 	}
-	if (!mavenParameters->C13Labeled_BPE || mavenParameters->S34Labeled_BPE || mavenParameters->N15Labeled_BPE || mavenParameters->D2Labeled_BPE){
-		message = "As of now, Polly allows only carbon label studies..Please use -f 0001 in CLI command ";
-		return message;
-	}
+	
 	return message;
 }
 
