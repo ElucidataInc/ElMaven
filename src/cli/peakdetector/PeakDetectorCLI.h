@@ -199,7 +199,13 @@ class PeakDetectorCLI {
 		void makeSampleCohortFile(QString sample_cohort_filename, QStringList loadedSamples);
 		bool send_user_email(QMap<QString, QString> creds, QString redirection_url);
 		QMap<QString, QString> readCredentialsFromXml(QString filename);
+		
+		/**
+		 * @brief checks if data is not compatible with Polly
+		 * @return QString message/warning regarding incompatibility
+		*/
 		QString isReadyForPolly();
+		
 		int prepareCompoundDbForPolly(QString fileName);
 		
 		/**
