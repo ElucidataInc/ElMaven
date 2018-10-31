@@ -2590,9 +2590,25 @@ void MainWindow::createToolBars() {
     QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
-    QToolButton* btnAlignmentViz = addDockWidgetButton(sideBar, alignmentVizDockWidget, QIcon(rsrcPath + "/alignmentViz.png"), "Show Alignment Visualization Widget");
-	QToolButton* btnAlignmentPolyViz = addDockWidgetButton(sideBar, alignmentPolyVizDockWidget, QIcon(rsrcPath + "/alignmentPolyViz.png"), "Show Alignment Polynomial Fit Plot Widget");
-	QToolButton* btnAlignmentVizAllGroups = addDockWidgetButton(sideBar, alignmentVizAllGroupsDockWidget, QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Show Alignment Visualization (for All Groups) Widget");
+
+    QToolButton* btnAlignment = new QToolButton(sideBar);
+    btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
+    btnAlignment->setText("Alignment Visualizations");
+    QMenu* alignmentMenu = new QMenu("Alignment Visualizations Menu");
+
+    btnAlignment->setMenu(alignmentMenu);
+    btnAlignment->setPopupMode(QToolButton::InstantPopup);
+
+
+    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentViz.png"), "Per group Alignment Visualization");
+    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization of all groups");
+    QAction* rtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentPolyViz.png"), "Retention time Deviation vs Retention time ");
+
+
+    connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
+    connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
+    connect(rtDeviation, &QAction::triggered, this, &MainWindow::toggleRtDeviationAlignmentWidget);
+
     QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
@@ -2620,18 +2636,14 @@ void MainWindow::createToolBars() {
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
 	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
-	connect(btnAlignmentVizAllGroups, SIGNAL(clicked(bool)), SLOT(replotAlignmentVizAllGroupGraph(bool)));
-	connect(btnAlignmentPolyViz, SIGNAL(clicked(bool)), SLOT(plotAlignmentPolyVizDockWidget(bool)));
 
 	sideBar->setOrientation(Qt::Vertical);
 	sideBar->setMovable(false);
 
 	sideBar->addWidget(btnSamples);
 	sideBar->addWidget(btnLigands);
-	sideBar->addWidget(btnSpectra);
-	sideBar->addWidget(btnAlignmentViz);
-	sideBar->addWidget(btnAlignmentPolyViz);
-	sideBar->addWidget(btnAlignmentVizAllGroups);
+    sideBar->addWidget(btnSpectra);
+    sideBar->addWidget(btnAlignment);
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
@@ -2646,6 +2658,38 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::togglePerGroupAlignmentWidget()
+{
+    if(alignmentVizDockWidget->isVisible()) {
+        alignmentVizDockWidget->hide();
+        return;
+    }
+
+    alignmentVizDockWidget->show();
+}
+
+void MainWindow::toggleAllGroupAlignmentWidget()
+{
+
+    if(alignmentVizAllGroupsDockWidget->isVisible()) {
+        alignmentVizAllGroupsDockWidget->hide();
+        return;
+    }
+
+    alignmentVizAllGroupsDockWidget->show();
+
+}
+
+void MainWindow::toggleRtDeviationAlignmentWidget()
+{
+    if(alignmentPolyVizDockWidget->isVisible()) {
+        alignmentPolyVizDockWidget->hide();
+        return;
+    }
+
+    alignmentPolyVizDockWidget->show();
 }
 
 void MainWindow::setMassCutoffType(QString massCutoffType){
@@ -2861,13 +2905,6 @@ void MainWindow::plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups) {
 	alignmentVizAllGroupsWidget->plotGraph(allgroups);
 }
 
-void MainWindow::replotAlignmentVizAllGroupGraph(bool active) {
-	if (active) alignmentVizAllGroupsWidget->replotGraph();
-}
-
-void MainWindow::plotAlignmentPolyVizDockWidget(bool active) {
-	if (active) alignmentPolyVizDockWidget->plotGraph();
-}
 
 void MainWindow::showAlignmentWidget() {
 

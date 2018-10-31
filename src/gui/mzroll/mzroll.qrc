@@ -95,6 +95,7 @@
         <file>images/firstView.png</file>
         <file>images/flux.png</file>
         <file>images/close.png</file>
+        <file>images/alignmentButton.png</file>
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
     </qresource>

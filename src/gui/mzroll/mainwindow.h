@@ -302,6 +302,9 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+    void togglePerGroupAlignmentWidget();
+    void toggleAllGroupAlignmentWidget();
+    void toggleRtDeviationAlignmentWidget();
 	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
@@ -328,8 +331,6 @@ public Q_SLOTS:
 	void analyticsBoxPlot();
 	void analyticsAverageSpectra();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
-	void replotAlignmentVizAllGroupGraph(bool active);
-	void plotAlignmentPolyVizDockWidget(bool active);
 	void createPeakTable(QString);
 
 	void setIonizationModeLabel();

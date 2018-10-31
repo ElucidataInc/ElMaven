@@ -41,8 +41,6 @@ AlignmentPolyVizDockWidget::~AlignmentPolyVizDockWidget()
 
 void AlignmentPolyVizDockWidget::plotGraph() {
 
-    if (!_mw->alignmentPolyVizDockWidget->isVisible()) return;
-
     intialSetup();
 
     // plot individual graphs here
