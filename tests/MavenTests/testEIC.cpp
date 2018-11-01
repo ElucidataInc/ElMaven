@@ -2,11 +2,11 @@
 
 TestEIC::TestEIC() {
     loadFile = "bin/methods/testsample_1.mzxml";
-    loadGoodSample = "bin/methods/testsample_2.mzxml";
-
     files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
     files_ms2 << "bin/methods/ms2test1.mzML" << "bin/methods/ms2test2.mzML";
 
+    _goodSample = new mzSample();
+    _goodSample->loadSample("bin/methods/testsample_2.mzxml");
 }
 
 void TestEIC::initTestCase() {
@@ -18,6 +18,7 @@ void TestEIC::initTestCase() {
 
 void TestEIC::cleanupTestCase() {
     // Similarly to initTestCase(), this function is executed at the end of test suite
+    delete _goodSample;
 }
 
 void TestEIC::init() {
@@ -64,67 +65,129 @@ void TestEIC::testgetEICms2() {
     QVERIFY(e3->maxIntensity == 49400);
 }
 
-void TestEIC::testcomputeSpline() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testcomputeSpline()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
-
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
     e->computeSpline(10);
     QVERIFY(true);
 }
 
-void TestEIC::testgetPeakPositions() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testgetPeakPositions()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    EIC::SmootherType smootherType =
-            (EIC::SmootherType) 1;
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(80);
+
     e->setFilterSignalBaselineDiff(0);
     e->getPeakPositions(10);
     QVERIFY(true);
 }
 
-void TestEIC::testcomputeBaseline() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    EIC::SmootherType smootherType =
-            (EIC::SmootherType) 1;
-    e->setSmootherType(smootherType);
+void TestEIC::testcomputeBaselineThreshold()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(60);
     e->computeBaseline();
     QVERIFY(true);
+
+    // deallocate
+    delete e;
 }
 
-void TestEIC::testfindPeakBounds() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testcomputeBaselineAsLSSmoothing()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
+    // change default baseline mode
+    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e->setAsLSSmoothness(5);
+    e->setAsLSAsymmetry(4);
+
+    // TODO: for lack of better floating point comparators to test the
+    // consistency of the output, we can at least test whether the operation
+    // completes successfully
+    e->computeBaseline();
+
+    // test whether all values are greater than zero, otherwise EIC widget
+    // behaves erratically
+    auto allGreaterThanZero = true;
+    for (unsigned int i = 0; i < e->intensity.size(); ++i)
+        if (e->baseline[i] < 0.0f)
+            allGreaterThanZero = false;
+    QVERIFY(allGreaterThanZero);
+
+    // deallocate
+    delete e;
+}
+
+void TestEIC::testcomputeBaselineZeroIntensity()
+{
+    // obtain a zero intensity EIC (all entries in intensity vector are zero)
+    EIC* e = _goodSample->getEIC(381.123744f,
+                                 381.123754f,
+                                 12.0,
+                                 16.0,
+                                 1,
+                                 0,
+                                 "");
+
+    // change default baseline mode
+    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e->setAsLSSmoothness(5);
+    e->setAsLSAsymmetry(4);
+
+    e->computeBaseline();
+
+    // find the max of baseline and test if its an extremely small value
+    // (there's no reliable way of comparing with zero in floating point)
+    auto maxVal = std::max_element(e->baseline,
+                                   e->baseline + e->intensity.size());
+    QVERIFY(fabs(*maxVal) <= 1e-10f);
+
+    // deallocate
+    delete e;
+}
+
+void TestEIC::testcomputeBaselineEmptyEIC()
+{
+    // create an empty EIC, i.e., its intensity vector is empty
+    EIC* e = new EIC();
+
+    // change default baseline mode
+    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e->setAsLSSmoothness(5);
+    e->setAsLSAsymmetry(4);
+
+    e->computeBaseline();
+    QVERIFY(e->baseline == nullptr);
+
+    // deallocate
+    delete e;
+}
+
+void TestEIC::testfindPeakBounds()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
     
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = (EIC::SmootherType) 1;
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
+    e->setSmootherType(smootherType);
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(80);
 
-    e->setSmootherType(smootherType);
     e->computeSpline(10);
     e->findPeaks();
     e->computeBaseline();
@@ -139,20 +202,17 @@ void TestEIC::testfindPeakBounds() {
    
 }
 
-
-void TestEIC:: testGetPeakDetails() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
-
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
+void TestEIC:: testGetPeakDetails()
+{
+    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
     
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = (EIC::SmootherType) 1;
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
+    e->setSmootherType(smootherType);
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(80);
 
-    e->setSmootherType(smootherType);
     e->computeSpline(10);
     e->findPeaks();
     e->computeBaseline();
