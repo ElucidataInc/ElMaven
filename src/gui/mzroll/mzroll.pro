@@ -113,7 +113,7 @@ FORMS = forms/settingsform.ui  \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
-    forms/alignmentpolyvizdockwidget.ui \
+    forms/samplertwidget.ui \
     forms/isotopeplotdockwidget.ui \
     forms/gettingstarted.ui \
     forms/pollywaitdialog.ui \
@@ -182,7 +182,7 @@ HEADERS +=  stable.h \
                     saveJson.h \
                     messageBoxResize.h \
                     awsbucketcredentialsdialog.h \
-                    alignmentpolyvizdockwidget.h \
+                    samplertwidget.h \
                     controller.h \
                     numeric_treewidgetitem.h \
                     analytics.h \
@@ -256,7 +256,7 @@ database.cpp \
  qcustomplot.cpp \
  saveJson.cpp \
     awsbucketcredentialsdialog.cpp \
-    alignmentpolyvizdockwidget.cpp \
+    samplertwidget.cpp \
     controller.cpp \
     numeric_treewidgetitem.cpp \
     analytics.cpp \

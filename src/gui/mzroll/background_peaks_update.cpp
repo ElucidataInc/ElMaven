@@ -258,7 +258,7 @@ void BackgroundPeakUpdate::run(void) {
 	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentVizWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
-        connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->alignmentPolyVizDockWidget, SLOT(plotGraph()));
+        connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->sampleRtWidget, SLOT(plotGraph()));
         mavenParameters->stop = false;
         //_stopped = false;
 
@@ -322,7 +322,7 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
         aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
         delete obiParams;
 
-        mainwindow->alignmentPolyVizDockWidget->plotGraph();
+        mainwindow->sampleRtWidget->plotGraph();
 
 }
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
@@ -470,8 +470,8 @@ void BackgroundPeakUpdate::align() {
                         aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
                         aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
                         aligner.doAlignment(groups);
-                        mainwindow->alignmentPolyVizDockWidget->setDegreeMap(aligner.sampleDegree);
-                        mainwindow->alignmentPolyVizDockWidget->setCoefficientMap(aligner.sampleCoefficient);
+                        mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);
+                        mainwindow->sampleRtWidget->setCoefficientMap(aligner.sampleCoefficient);
                 } else if (alignAlgo == 1) {
                         aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
                         // initialize processedDataFromPython with null 

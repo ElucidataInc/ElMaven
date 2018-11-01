@@ -1,13 +1,13 @@
-#include "alignmentpolyvizdockwidget.h"
+#include "samplertwidget.h"
 
-AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(MainWindow *mw) :
+SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     QDockWidget(mw),
-    ui(new Ui::AlignmentPolyVizDockWidget)
+    ui(new Ui::SampleRtWidget)
 {
     this->_mw= mw;
     ui->setupUi(this);
-    setObjectName("AlignmentPolyVizDockWidget");
-    setWindowTitle("AlignmentPolyVizWidget");
+    setObjectName("SampleRtWidget");
+    setWindowTitle("Sample Retention Time Deviation Visualization");
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
@@ -34,12 +34,12 @@ AlignmentPolyVizDockWidget::AlignmentPolyVizDockWidget(MainWindow *mw) :
     setTitleBarWidget(toolBar);
 }
 
-AlignmentPolyVizDockWidget::~AlignmentPolyVizDockWidget()
+SampleRtWidget::~SampleRtWidget()
 {
     delete ui;
 }
 
-void AlignmentPolyVizDockWidget::plotGraph() {
+void SampleRtWidget::plotGraph() {
 
     intialSetup();
 
@@ -54,33 +54,33 @@ void AlignmentPolyVizDockWidget::plotGraph() {
 
 }
 
-void AlignmentPolyVizDockWidget::intialSetup() {
+void SampleRtWidget::intialSetup() {
 
-    _mw->alignmentPolyVizPlot->clearPlottables();
-    _mw->alignmentPolyVizPlot->clearGraphs();
+    _mw->sampleRtVizPlot->clearPlottables();
+    _mw->sampleRtVizPlot->clearGraphs();
     setXAxis();
     setYAxis();
 
 }
 
-void AlignmentPolyVizDockWidget::setXAxis() {
+void SampleRtWidget::setXAxis() {
 
-    _mw->alignmentPolyVizPlot->xAxis->setTicks(true);
-    _mw->alignmentPolyVizPlot->xAxis->setSubTicks(true);
-    _mw->alignmentPolyVizPlot->xAxis->setVisible(true);
-    _mw->alignmentPolyVizPlot->xAxis->setLabel("Retention Time");
+    _mw->sampleRtVizPlot->xAxis->setTicks(true);
+    _mw->sampleRtVizPlot->xAxis->setSubTicks(true);
+    _mw->sampleRtVizPlot->xAxis->setVisible(true);
+    _mw->sampleRtVizPlot->xAxis->setLabel("Retention Time");
 }
 
-void AlignmentPolyVizDockWidget::setYAxis() {
+void SampleRtWidget::setYAxis() {
 
-    _mw->alignmentPolyVizPlot->yAxis->setTicks(true);
-    _mw->alignmentPolyVizPlot->yAxis->setSubTicks(true);
-    _mw->alignmentPolyVizPlot->yAxis->setVisible(true);
-    _mw->alignmentPolyVizPlot->yAxis->setLabel("Retention Time Deviation");
+    _mw->sampleRtVizPlot->yAxis->setTicks(true);
+    _mw->sampleRtVizPlot->yAxis->setSubTicks(true);
+    _mw->sampleRtVizPlot->yAxis->setVisible(true);
+    _mw->sampleRtVizPlot->yAxis->setLabel("Retention Time Deviation");
 
 }
 
-void AlignmentPolyVizDockWidget::prepareGraphDataPolyFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataPolyFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
 {
         vector<double> coefficients;
         double degree;
@@ -108,7 +108,7 @@ void AlignmentPolyVizDockWidget::prepareGraphDataPolyFit(QVector<double>&xAxis, 
         }
 }
 
-void AlignmentPolyVizDockWidget::prepareGraphDataLoessFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataLoessFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
 {
     double rt, rtDiff;
     if(!sample->originalRetentionTimes.empty() && !sample->scans.empty()){
@@ -124,7 +124,7 @@ void AlignmentPolyVizDockWidget::prepareGraphDataLoessFit(QVector<double>&xAxis,
     }
 }
 
-void AlignmentPolyVizDockWidget::prepareGraphDataObiWarp(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataObiWarp(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
 {
     double rt, rtDiff;
 
@@ -138,7 +138,7 @@ void AlignmentPolyVizDockWidget::prepareGraphDataObiWarp(QVector<double>&xAxis, 
     }
 }
 
-void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample)
+void SampleRtWidget::plotIndividualGraph(mzSample* sample)
 {
 
     QVector<double> xAxis;
@@ -162,18 +162,18 @@ void AlignmentPolyVizDockWidget::plotIndividualGraph(mzSample* sample)
         QPen pen;
         pen.setColor(color);
 
-        _mw->alignmentPolyVizPlot->addGraph();
-        _mw->alignmentPolyVizPlot->graph()->setPen(pen);
-        _mw->alignmentPolyVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        _mw->sampleRtVizPlot->addGraph();
+        _mw->sampleRtVizPlot->graph()->setPen(pen);
+        _mw->sampleRtVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
 
-        _mw->alignmentPolyVizPlot->graph()->setData(xAxis, yAxis);
+        _mw->sampleRtVizPlot->graph()->setData(xAxis, yAxis);
 
-        _mw->alignmentPolyVizPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
+        _mw->sampleRtVizPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |  QCP::iSelectPlottables);
     }
 
 }
 
-void AlignmentPolyVizDockWidget::refresh() {
-    _mw->alignmentPolyVizPlot->rescaleAxes();
-    _mw->alignmentPolyVizPlot->replot();
+void SampleRtWidget::refresh() {
+    _mw->sampleRtVizPlot->rescaleAxes();
+    _mw->sampleRtVizPlot->replot();
 }

@@ -22,7 +22,7 @@
 #include "isotopeswidget.h"
 #include "treedockwidget.h"
 #include "tabledockwidget.h"
-#include "alignmentpolyvizdockwidget.h"
+#include "samplertwidget.h"
 #include "isotopeplotdockwidget.h"
 #include "isotopeplot.h"
 #include "peakdetectiondialog.h"
@@ -79,7 +79,7 @@ class MassCalcWidget;
 class TreeDockWidget;
 class BookmarkTableDockWidget;
 class PeakTableDockWidget;
-class AlignmentPolyVizDockWidget;
+class SampleRtWidget;
 class IsotopePlotDockWidget;
 class IsotopePlot;
 class Classifier;
@@ -163,13 +163,13 @@ public:
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	AlignmentVizWidget *alignmentVizWidget;
-	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
+    SampleRtWidget *sampleRtWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	IsotopePlotDockWidget *isotopePlotDockWidget;
 	IsotopePlot *isotopePlot;
 	QCustomPlot *customPlot;
 	QCustomPlot *alignmentVizPlot;
-	QCustomPlot *alignmentPolyVizPlot;
+    QCustomPlot *sampleRtVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
@@ -304,7 +304,7 @@ protected:
 public Q_SLOTS:
     void togglePerGroupAlignmentWidget();
     void toggleAllGroupAlignmentWidget();
-    void toggleRtDeviationAlignmentWidget();
+    void toggleSampleRtWidget();
 	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();

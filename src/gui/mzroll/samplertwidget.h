@@ -1,9 +1,9 @@
-#ifndef ALIGNMENTPOLYVIZDOCKWIDGET_H
-#define ALIGNMENTPOLYVIZDOCKWIDGET_H
+#ifndef SAMPLERTWIDGET_H
+#define SAMPLERTWIDGET_H
 
 #include "stable.h"
 #include "mainwindow.h"
-#include "ui_alignmentpolyvizdockwidget.h"
+#include "ui_samplertwidget.h"
 
 class MainWindow;
 class mzSample;
@@ -11,16 +11,16 @@ class mzSample;
 using namespace std;
 
 namespace Ui {
-class AlignmentPolyVizDockWidget;
+class SampleRtWidget;
 }
 
-class AlignmentPolyVizDockWidget : public QDockWidget
+class SampleRtWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit AlignmentPolyVizDockWidget(MainWindow *mw = 0);
-    ~AlignmentPolyVizDockWidget();
+    explicit SampleRtWidget(MainWindow *mw = 0);
+    ~SampleRtWidget();
     void setDegreeMap(map<mzSample*, int> sampleDegree) {
         degreeMap = sampleDegree;
     }
@@ -42,11 +42,11 @@ public Q_SLOTS:
     void refresh();
 
 private:
-    Ui::AlignmentPolyVizDockWidget *ui;
+    Ui::SampleRtWidget *ui;
     MainWindow* _mw;
     map<mzSample*, int> degreeMap;
     map<mzSample*, vector<double> > coefficientMap;
 
 };
 
-#endif // ALIGNMENTPOLYVIZDOCKWIDGET_H
+#endif // SAMPLERTWIDGET_H

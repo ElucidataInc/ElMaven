@@ -301,7 +301,7 @@ using namespace mzUtils;
 	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
 	customPlot = new QCustomPlot(this);
 	alignmentVizPlot = new QCustomPlot(this);
-	alignmentPolyVizPlot = new QCustomPlot(this);
+    sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
@@ -320,8 +320,8 @@ using namespace mzUtils;
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
-	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
-	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
+    sampleRtWidget = new SampleRtWidget(this);
+    sampleRtWidget->setWidget(sampleRtVizPlot);
 
 	isotopePlotDockWidget = new IsotopePlotDockWidget(this);
 	isotopePlotDockWidget->setWidget(customPlot);
@@ -354,13 +354,13 @@ using namespace mzUtils;
 	alignmentVizPlot->yAxis->grid()->setVisible(true);
 
  	// prepare x axis:
-	alignmentPolyVizPlot->xAxis->setTicks(false);
-	alignmentPolyVizPlot->xAxis->setBasePen(QPen(Qt::white));
-	alignmentPolyVizPlot->xAxis->grid()->setVisible(false);	
+    sampleRtVizPlot->xAxis->setTicks(false);
+    sampleRtVizPlot->xAxis->setBasePen(QPen(Qt::white));
+    sampleRtVizPlot->xAxis->grid()->setVisible(false);
 	// prepare y axis:
-	alignmentPolyVizPlot->yAxis->setTicks(false);
-	alignmentPolyVizPlot->yAxis->setBasePen(QPen(Qt::white));
-	alignmentPolyVizPlot->yAxis->grid()->setVisible(true);
+    sampleRtVizPlot->yAxis->setTicks(false);
+    sampleRtVizPlot->yAxis->setBasePen(QPen(Qt::white));
+    sampleRtVizPlot->yAxis->grid()->setVisible(true);
 
 
 	// prepare x axis:
@@ -384,7 +384,7 @@ using namespace mzUtils;
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
 	alignmentVizDockWidget->setVisible(false);
-	alignmentPolyVizDockWidget->setVisible(false);
+    sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
@@ -441,7 +441,7 @@ using namespace mzUtils;
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, alignmentPolyVizDockWidget, Qt::Horizontal);
+    addDockWidget(Qt::BottomDockWidgetArea, sampleRtWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
@@ -470,7 +470,7 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, isotopeWidget);
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
-	tabifyDockWidget(spectraDockWidget, alignmentPolyVizDockWidget);
+    tabifyDockWidget(spectraDockWidget, sampleRtWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
@@ -522,7 +522,7 @@ using namespace mzUtils;
     projectDockWidget->raise();
     spectraDockWidget->raise();
 	alignmentVizDockWidget->raise();
-	alignmentPolyVizDockWidget->raise();
+    sampleRtWidget->raise();
 	alignmentVizAllGroupsDockWidget->raise();	
 
 	createToolBars();
@@ -2602,12 +2602,12 @@ void MainWindow::createToolBars() {
 
     QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentViz.png"), "Per group Alignment Visualization");
     QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization of all groups");
-    QAction* rtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentPolyViz.png"), "Retention time Deviation vs Retention time ");
+    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Retention time Deviation Visualization");
 
 
     connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
     connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
-    connect(rtDeviation, &QAction::triggered, this, &MainWindow::toggleRtDeviationAlignmentWidget);
+    connect(sampleRtDeviation, &QAction::triggered, this, &MainWindow::toggleSampleRtWidget);
 
     QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
@@ -2682,14 +2682,14 @@ void MainWindow::toggleAllGroupAlignmentWidget()
 
 }
 
-void MainWindow::toggleRtDeviationAlignmentWidget()
+void MainWindow::toggleSampleRtWidget()
 {
-    if(alignmentPolyVizDockWidget->isVisible()) {
-        alignmentPolyVizDockWidget->hide();
+    if(sampleRtWidget->isVisible()) {
+        sampleRtWidget->hide();
         return;
     }
 
-    alignmentPolyVizDockWidget->show();
+    sampleRtWidget->show();
 }
 
 void MainWindow::setMassCutoffType(QString massCutoffType){
