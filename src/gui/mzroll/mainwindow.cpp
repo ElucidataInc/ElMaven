@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "grouprtwidget.h"
 #include <QStandardPaths>
 #include "notificator.h"
 #ifdef WIN32
@@ -297,10 +298,10 @@ using namespace mzUtils;
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	spectraWidget = new SpectraWidget(this);
-	alignmentVizWidget = new AlignmentVizWidget(this);
+    groupRtWidget = new GroupRtWidget(this);
 	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
 	customPlot = new QCustomPlot(this);
-	alignmentVizPlot = new QCustomPlot(this);
+    groupRtVizPlot = new QCustomPlot(this);
     sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
@@ -329,7 +330,7 @@ using namespace mzUtils;
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
-	alignmentVizDockWidget = createDockWidget("AlignmentVisualization", alignmentVizPlot);
+    groupRtDockWidget = createDockWidget("Per Group Alignment Visualization", groupRtVizPlot);
 	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
 	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
@@ -345,13 +346,13 @@ using namespace mzUtils;
 	setIsotopicPlotStyling();
 
 	// prepare x axis:
-	alignmentVizPlot->xAxis->setTicks(false);
-	alignmentVizPlot->xAxis->setBasePen(QPen(Qt::white));
-	alignmentVizPlot->xAxis->grid()->setVisible(false);	
+    groupRtVizPlot->xAxis->setTicks(false);
+    groupRtVizPlot->xAxis->setBasePen(QPen(Qt::white));
+    groupRtVizPlot->xAxis->grid()->setVisible(false);
 	// prepare y axis:
-	alignmentVizPlot->yAxis->setTicks(false);
-	alignmentVizPlot->yAxis->setBasePen(QPen(Qt::white));
-	alignmentVizPlot->yAxis->grid()->setVisible(true);
+    groupRtVizPlot->yAxis->setTicks(false);
+    groupRtVizPlot->yAxis->setBasePen(QPen(Qt::white));
+    groupRtVizPlot->yAxis->grid()->setVisible(true);
 
  	// prepare x axis:
     sampleRtVizPlot->xAxis->setTicks(false);
@@ -383,7 +384,7 @@ using namespace mzUtils;
 	bookmarkedPeaks->setVisible(false);
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
-	alignmentVizDockWidget->setVisible(false);
+    groupRtDockWidget->setVisible(false);
     sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
@@ -440,7 +441,7 @@ using namespace mzUtils;
 	projectDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
+    addDockWidget(Qt::BottomDockWidgetArea, groupRtDockWidget, Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea, sampleRtWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
@@ -469,7 +470,7 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
 	tabifyDockWidget(spectraDockWidget, isotopeWidget);
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
-	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
+    tabifyDockWidget(spectraDockWidget, groupRtDockWidget);
     tabifyDockWidget(spectraDockWidget, sampleRtWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
@@ -521,7 +522,7 @@ using namespace mzUtils;
     fragPanel->hide();
     projectDockWidget->raise();
     spectraDockWidget->raise();
-	alignmentVizDockWidget->raise();
+    groupRtDockWidget->raise();
     sampleRtWidget->raise();
 	alignmentVizAllGroupsDockWidget->raise();	
 
@@ -2600,7 +2601,7 @@ void MainWindow::createToolBars() {
     btnAlignment->setPopupMode(QToolButton::InstantPopup);
 
 
-    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentViz.png"), "Per group Alignment Visualization");
+    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per group Alignment Visualization");
     QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization of all groups");
     QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Retention time Deviation Visualization");
 
@@ -2662,12 +2663,12 @@ void MainWindow::createToolBars() {
 
 void MainWindow::togglePerGroupAlignmentWidget()
 {
-    if(alignmentVizDockWidget->isVisible()) {
-        alignmentVizDockWidget->hide();
+    if(groupRtDockWidget->isVisible()) {
+        groupRtDockWidget->hide();
         return;
     }
 
-    alignmentVizDockWidget->show();
+    groupRtDockWidget->show();
 }
 
 void MainWindow::toggleAllGroupAlignmentWidget()

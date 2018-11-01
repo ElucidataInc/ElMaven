@@ -12,7 +12,6 @@
 #include "settingsform.h"
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
-#include "alignmentvizwidget.h"
 #include "alignmentvizallgroupswidget.h"
 #include "qcustomplot.h"
 #include "masscalcgui.h"
@@ -66,7 +65,7 @@ class AwsBucketCredentialsDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
-class AlignmentVizWidget;
+class GroupRtWidget;
 class AlignmentVizAllGroupsWidget;
 class QCustomPlot;
 class IsotopicPlots;
@@ -162,13 +161,13 @@ public:
 	
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
-	AlignmentVizWidget *alignmentVizWidget;
+    GroupRtWidget* groupRtWidget;
     SampleRtWidget *sampleRtWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	IsotopePlotDockWidget *isotopePlotDockWidget;
 	IsotopePlot *isotopePlot;
 	QCustomPlot *customPlot;
-	QCustomPlot *alignmentVizPlot;
+    QCustomPlot *groupRtVizPlot;
     QCustomPlot *sampleRtVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
@@ -182,7 +181,7 @@ public:
 	TreeDockWidget *srmDockWidget;
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
-	QDockWidget *alignmentVizDockWidget;
+    QDockWidget *groupRtDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;

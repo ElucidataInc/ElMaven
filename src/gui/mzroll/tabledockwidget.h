@@ -2,7 +2,7 @@
 #define TABLEDOCKWIDGET_H
 
 #include "QHistogramSlider.h"
-#include "alignmentvizwidget.h"
+#include "grouprtwidget.h"
 #include "clusterdialog.h"
 #include "peaktabledeletiondialog.h"
 #include "jsonReports.h";
@@ -14,7 +14,6 @@
 #include <algorithm>
 
 class MainWindow;
-class AlignmentVizWidget;
 class TrainDialog;
 class ClusterDialog;
 class PeakTableDeletionDialog;

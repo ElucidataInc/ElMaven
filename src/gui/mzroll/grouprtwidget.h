@@ -1,5 +1,5 @@
-#ifndef ALIGNMENTVIZWIDGET_H
-#define ALIGNMENTVIZWIDGET_H
+#ifndef GROUPRTWIDGET_H
+#define GROUPRTWIDGET_H
 
 #include "stable.h"
 #include "qcustomplot.h"
@@ -14,11 +14,11 @@ class PeakGroup;
 class mzSample;
 class Peak;
 
-class AlignmentVizWidget : public QObject
+class GroupRtWidget : public QObject
 {
     Q_OBJECT
 public:
-    AlignmentVizWidget(MainWindow* mw);
+    GroupRtWidget(MainWindow* mw);
     void updateGraph();
     QCPBars *bar;
     map<int, mzSample*> mapSample;

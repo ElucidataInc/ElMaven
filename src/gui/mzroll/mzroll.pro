@@ -171,7 +171,7 @@ HEADERS +=  stable.h \
                     mzfileio.h \
                     logwidget.h \
                     spectralhit.h \
-                    alignmentvizwidget.h \
+                    grouprtwidget.h \
                     alignmentvizallgroupswidget.h \
                    spectralhitstable.h\
                     clusterdialog.h \
@@ -249,7 +249,7 @@ database.cpp \
  spectramatching.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
- alignmentvizwidget.cpp \
+ grouprtwidget.cpp \
  alignmentvizallgroupswidget.cpp \
  logwidget.cpp \
  peptidefragmentation.cpp \

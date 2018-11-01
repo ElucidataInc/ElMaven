@@ -1,15 +1,15 @@
-#include "alignmentvizwidget.h"
+#include "grouprtwidget.h"
 
 using namespace std;
 
-AlignmentVizWidget::AlignmentVizWidget(MainWindow* mw)
+GroupRtWidget::GroupRtWidget(MainWindow* mw)
 {
     this->_mw = mw;
 }
 
-void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
+void GroupRtWidget::plotGraph(PeakGroup*  group) {
 
-    if (!_mw->alignmentVizDockWidget->isVisible()) return;
+    if (!_mw->groupRtDockWidget->isVisible()) return;
     currentDisplayedGroup=group;
     intialSetup();
     PeakGroup groupUnalignedShadowed = *group;
@@ -27,22 +27,22 @@ void AlignmentVizWidget::plotGraph(PeakGroup*  group) {
     float rtRange = groupUnalignedShadowed.medianRt();
     vector<mzSample*> samples = getSamplesFromGroup(groupUnalignedShadowed);
 
-    _mw->alignmentVizPlot->yAxis->setRange(0, samples.size() + 1);
-    _mw->alignmentVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
-    _mw->alignmentVizPlot->replot();
+    _mw->groupRtVizPlot->yAxis->setRange(0, samples.size() + 1);
+    _mw->groupRtVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
+    _mw->groupRtVizPlot->replot();
 }
-void AlignmentVizWidget::updateGraph(){
+void GroupRtWidget::updateGraph(){
     if(currentDisplayedGroup) plotGraph(currentDisplayedGroup);
 }
-void AlignmentVizWidget::intialSetup() {
-    _mw->alignmentVizPlot->clearPlottables();
+void GroupRtWidget::intialSetup() {
+    _mw->groupRtVizPlot->clearPlottables();
 
     if (_mw) {
-        if (_mw->alignmentVizPlot) {
+        if (_mw->groupRtVizPlot) {
             if(textLabel) {
-                _mw->alignmentVizPlot->removeItem(textLabel);
+                _mw->groupRtVizPlot->removeItem(textLabel);
             }
-            _mw->alignmentVizPlot->replot();
+            _mw->groupRtVizPlot->replot();
         }
     }
 
@@ -50,22 +50,22 @@ void AlignmentVizWidget::intialSetup() {
     setYAxis();
 }
 
-void AlignmentVizWidget::setXAxis() {
+void GroupRtWidget::setXAxis() {
 
-    _mw->alignmentVizPlot->xAxis->setTicks(true);
-    _mw->alignmentVizPlot->xAxis->setSubTicks(true);
-    _mw->alignmentVizPlot->xAxis->setVisible(true);
-    _mw->alignmentVizPlot->xAxis->setLabel("Retention Time");
+    _mw->groupRtVizPlot->xAxis->setTicks(true);
+    _mw->groupRtVizPlot->xAxis->setSubTicks(true);
+    _mw->groupRtVizPlot->xAxis->setVisible(true);
+    _mw->groupRtVizPlot->xAxis->setLabel("Retention Time");
 }
 
-void AlignmentVizWidget::setYAxis() {
+void GroupRtWidget::setYAxis() {
 
-    _mw->alignmentVizPlot->yAxis->setVisible(true);
-    _mw->alignmentVizPlot->yAxis->setLabel("Samples");
+    _mw->groupRtVizPlot->yAxis->setVisible(true);
+    _mw->groupRtVizPlot->yAxis->setLabel("Samples");
 
 }
 
-void AlignmentVizWidget::refRtLine(PeakGroup  group) {
+void GroupRtWidget::refRtLine(PeakGroup  group) {
 
     double refRt = getRefRt(group);
 
@@ -74,8 +74,8 @@ void AlignmentVizWidget::refRtLine(PeakGroup  group) {
     pen.setColor(Qt::red);
     pen.setWidth(2);
 
-    _mw->alignmentVizPlot->addGraph();
-    _mw->alignmentVizPlot->graph()->setPen(pen);
+    _mw->groupRtVizPlot->addGraph();
+    _mw->groupRtVizPlot->graph()->setPen(pen);
 
     QVector<double> x, y;
 
@@ -83,14 +83,14 @@ void AlignmentVizWidget::refRtLine(PeakGroup  group) {
     x << refRt << refRt;
     y << 0 << (samples.size() + 1);
 
-    _mw->alignmentVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
-    _mw->alignmentVizPlot->graph()->setData(x, y);
+    _mw->groupRtVizPlot->graph()->setLineStyle(QCPGraph::lsLine);
+    _mw->groupRtVizPlot->graph()->setData(x, y);
 
-    _mw->alignmentVizPlot->replot();
+    _mw->groupRtVizPlot->replot();
 
 }
 
-double AlignmentVizWidget::getRefRt(PeakGroup group) {
+double GroupRtWidget::getRefRt(PeakGroup group) {
 
     double refRt;
     if (group.hasCompoundLink()) {
@@ -102,7 +102,7 @@ double AlignmentVizWidget::getRefRt(PeakGroup group) {
     return refRt;
 }
 
-void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
+void GroupRtWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
     float newGroupR2 = calculateRsquare(newGroup,group);
     // float groupR2 = calculateRsquare(group);
@@ -119,7 +119,7 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
         message += "\nMedian RT = " + QString::number(refRt, 'f', 5);
     }
 
-    textLabel = new QCPItemText(_mw->alignmentVizPlot);
+    textLabel = new QCPItemText(_mw->groupRtVizPlot);
     textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
     textLabel->position->setCoords(0.001, 0); // place position at center/top of axis rect
@@ -129,7 +129,7 @@ void AlignmentVizWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
+float GroupRtWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
 
     float SSres = 0;
     float SStot=0;
@@ -162,7 +162,7 @@ float AlignmentVizWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup
 
 }
 
-PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
+PeakGroup GroupRtWidget::getNewGroup(PeakGroup group) {
 
     PeakGroup newGroup;
 
@@ -189,7 +189,7 @@ PeakGroup AlignmentVizWidget::getNewGroup(PeakGroup group) {
 
 }
 
-float AlignmentVizWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
+float GroupRtWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
     float R2Sq = FLT_MAX;
     if (abs(grup1.medianRt() - grup2.medianRt()) < 0.5) {
         R2Sq = (pow(grup1.meanMz - grup2.meanMz, 2) +
@@ -201,11 +201,11 @@ float AlignmentVizWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
 
 }
 
-void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
+void GroupRtWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
 
     vector<mzSample*> samples = getSamplesFromGroup(group);
     // QVector<double> retentionTimes = getRetentionTime(samples, group);
-    connect(_mw->alignmentVizPlot, SIGNAL(mouseMove(QMouseEvent* )) , this, SLOT(mouseQCPBar(QMouseEvent* )));
+    connect(_mw->groupRtVizPlot, SIGNAL(mouseMove(QMouseEvent* )) , this, SLOT(mouseQCPBar(QMouseEvent* )));
 
     float widthOfBar = getWidthOfBar(group);
 
@@ -215,7 +215,7 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
          * will be 100% bright (alpha =40,100).
          */
         QColor color = QColor(255*sample->color[0],255*sample->color[1],255*sample->color[2] ,alpha* sample->color[3]);
-        bar = new QCPBars(_mw->alignmentVizPlot->yAxis, _mw->alignmentVizPlot->xAxis);
+        bar = new QCPBars(_mw->groupRtVizPlot->yAxis, _mw->groupRtVizPlot->xAxis);
         bar->setAntialiased(false);
         QPen pen;
         pen.setColor(color);
@@ -248,7 +248,7 @@ void AlignmentVizWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
     }
 }
 
-vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
+vector<mzSample*> GroupRtWidget::getSamplesFromGroup(PeakGroup group) {
 
     vector<Peak>& peaks = group.getPeaks();
     vector<mzSample*> samples;
@@ -265,7 +265,7 @@ vector<mzSample*> AlignmentVizWidget::getSamplesFromGroup(PeakGroup group) {
     return samples;
 }
 
-float AlignmentVizWidget::getWidthOfBar(PeakGroup group) {
+float GroupRtWidget::getWidthOfBar(PeakGroup group) {
 
     float maxDiff, widthOfBar;
     
@@ -277,7 +277,7 @@ float AlignmentVizWidget::getWidthOfBar(PeakGroup group) {
 }
 
 
-double AlignmentVizWidget::getRetentionTime(mzSample* sample, PeakGroup group) {
+double GroupRtWidget::getRetentionTime(mzSample* sample, PeakGroup group) {
 
     double rt = -1;
     Peak* peak = group.getPeak(sample);
@@ -286,18 +286,18 @@ double AlignmentVizWidget::getRetentionTime(mzSample* sample, PeakGroup group) {
     return rt;
 }
 
-void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
+void GroupRtWidget::mouseQCPBar(QMouseEvent *event)
 {
-    double x = _mw->alignmentVizPlot->xAxis->pixelToCoord(event->pos().x());
-    double y = round(_mw->alignmentVizPlot->yAxis->pixelToCoord(event->pos().y()));
+    double x = _mw->groupRtVizPlot->xAxis->pixelToCoord(event->pos().x());
+    double y = round(_mw->groupRtVizPlot->yAxis->pixelToCoord(event->pos().y()));
 
     pair<double, double> qcpBarRange = mapXAxis[y];
 
     if(sampleLabel) {
-        _mw->alignmentVizPlot->removeItem(sampleLabel);
+        _mw->groupRtVizPlot->removeItem(sampleLabel);
     }
 
-    sampleLabel = new QCPItemText(_mw->alignmentVizPlot);
+    sampleLabel = new QCPItemText(_mw->groupRtVizPlot);
     sampleLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignRight);
     sampleLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
     sampleLabel->position->setCoords(0.99, 0.001); // place position at center/top of axis rect
@@ -316,6 +316,6 @@ void AlignmentVizWidget::mouseQCPBar(QMouseEvent *event)
     sampleLabel->setText(message);
     sampleLabel->setFont(QFont("Times", 12));
     sampleLabel->setPen(QPen(Qt::black)); 
-    _mw->alignmentVizPlot->replot();
+    _mw->groupRtVizPlot->replot();
 
 }

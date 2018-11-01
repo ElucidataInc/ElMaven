@@ -119,7 +119,7 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
 
       _treeWidget->update();
       _mainwindow->getEicWidget()->replot();
-      _mainwindow->alignmentVizWidget->updateGraph();
+      _mainwindow->groupRtWidget->updateGraph();
 }
 
 void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
@@ -229,7 +229,7 @@ void ProjectDockWidget::changeSampleOrder() {
 
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         _mainwindow->sampleRtWidget->plotGraph();
-        _mainwindow->alignmentVizWidget->updateGraph();
+        _mainwindow->groupRtWidget->updateGraph();
         _mainwindow->getEicWidget()->replot();
     }
 }
