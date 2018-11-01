@@ -331,7 +331,7 @@ using namespace mzUtils;
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
     groupRtDockWidget = createDockWidget("Per Group Alignment Visualization", groupRtVizPlot);
-	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
+    alignmentVizAllGroupsDockWidget = createDockWidget("Alignment Visualization For All Groups", alignmentVizAllGroupsPlot);
 	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
@@ -2602,7 +2602,7 @@ void MainWindow::createToolBars() {
 
 
     QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per group Alignment Visualization");
-    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization of all groups");
+    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization For All Groups");
     QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Retention time Deviation Visualization");
 
 
