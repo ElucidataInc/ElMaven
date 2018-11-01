@@ -298,8 +298,6 @@ using namespace mzUtils;
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	spectraWidget = new SpectraWidget(this);
-    groupRtWidget = new GroupRtWidget(this);
-	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
 	customPlot = new QCustomPlot(this);
     groupRtVizPlot = new QCustomPlot(this);
     sampleRtVizPlot = new QCustomPlot(this);
@@ -330,9 +328,15 @@ using namespace mzUtils;
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
-    groupRtDockWidget = createDockWidget("Per Group Alignment Visualization", groupRtVizPlot);
+
+    groupRtDockWidget = createDockWidget("Per Group Alignment Visualization", groupRtVizPlot); 
+    groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
+
     alignmentVizAllGroupsDockWidget = createDockWidget("Alignment Visualization For All Groups", alignmentVizAllGroupsPlot);
-	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
+    alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this, alignmentVizAllGroupsDockWidget);
+
+
+    pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
 	scatterDockWidget = new ScatterPlot(this);

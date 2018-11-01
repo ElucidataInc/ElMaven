@@ -32,6 +32,9 @@ SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     toolBar->addWidget(btnHide);
 
     setTitleBarWidget(toolBar);
+
+    setXAxis();
+    setYAxis();
 }
 
 SampleRtWidget::~SampleRtWidget()
@@ -58,8 +61,6 @@ void SampleRtWidget::intialSetup() {
 
     _mw->sampleRtVizPlot->clearPlottables();
     _mw->sampleRtVizPlot->clearGraphs();
-    setXAxis();
-    setYAxis();
 
 }
 
