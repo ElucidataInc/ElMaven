@@ -933,8 +933,14 @@ void SpectralHitsDockWidget::integrateMS1() {
    float amuQ1 = _mainwindow->mavenParameters->amuQ1;
    float amuQ3 = _mainwindow->mavenParameters->amuQ3;
 
-   int baseline_smoothing = _mainwindow->mavenParameters->baseline_smoothingWindow;
-   int baseline_quantile =  _mainwindow->mavenParameters->baseline_dropTopX;
+   EIC::BaselineMode baselineMode = EIC::BaselineMode::Threshold;
+   int firstBaselineParam = _mainwindow->mavenParameters->baseline_smoothingWindow;
+   int secondBaselineParam =  _mainwindow->mavenParameters->baseline_dropTopX;
+   if (_mainwindow->mavenParameters->aslsBaselineMode) {
+       baselineMode = EIC::BaselineMode::AsLSSmoothing;
+       firstBaselineParam = _mainwindow->mavenParameters->aslsSmoothness;
+       secondBaselineParam = _mainwindow->mavenParameters->aslsAsymmetry;
+   }
    double minSignalBaselineDifference = _mainwindow->mavenParameters->minSignalBaselineDifference;
    float grouping_maxRtWindow = _mainwindow->mavenParameters->grouping_maxRtWindow;
    int eic_type = _mainwindow->mavenParameters->eicType;
@@ -982,17 +988,18 @@ void SpectralHitsDockWidget::integrateMS1() {
        //qDebug() << "group: " << peptide << " rt=" << slice->rt;
 
        vector<EIC*> eics = PeakDetector::pullEICs(slice,
-                                                    samples,
-                                                    EicLoader::PeakDetection,
-                                                    eic_smoothingWindow,
-                                                    eic_smoothingAlgorithm,
-                                                    amuQ1,
-                                                    amuQ3,
-                                                    baseline_smoothing,
-                                                    baseline_quantile,
-                                                    minSignalBaselineDifference,
-                                                    eic_type,
-                                                    filterline);
+                                                  samples,
+                                                  EicLoader::PeakDetection,
+                                                  eic_smoothingWindow,
+                                                  eic_smoothingAlgorithm,
+                                                  amuQ1,
+                                                  amuQ3,
+                                                  baselineMode,
+                                                  firstBaselineParam,
+                                                  secondBaselineParam,
+                                                  minSignalBaselineDifference,
+                                                  eic_type,
+                                                  filterline);
 
        //qDebug() << "here.. .here.. here " << eics.size();
 

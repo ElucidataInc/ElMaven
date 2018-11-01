@@ -71,18 +71,24 @@ void TestPeakDetection::testPullEICs() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics =
+        PeakDetector::pullEICs(slice,
+                               mavenparameters->samples,
+                               1,
+                               mavenparameters->eic_smoothingWindow,
+                               mavenparameters->eic_smoothingAlgorithm,
+                               mavenparameters->amuQ1,
+                               mavenparameters->amuQ3,
+                               EIC::BaselineMode::Threshold,
+                               mavenparameters->baseline_smoothingWindow,
+                               mavenparameters->baseline_dropTopX,
+                               mavenparameters->minSignalBaselineDifference,
+                               mavenparameters->eicType,
+                               mavenparameters->filterline);
     QVERIFY(eics.size() == 2);
 }
 

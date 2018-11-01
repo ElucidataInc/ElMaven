@@ -20,8 +20,9 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                     int smoothingAlgorithm, 
                                     float amuQ1, 
                                     float amuQ3,
-                                    int baseline_smoothingWindow,
-                                    int baseline_dropTopX, 
+                                    EIC::BaselineMode baselineMode,
+                                    int firstBaselineParameter,
+                                    int secondBaselineParameter,
                                     double minSignalBaselineDifference,
                                     int eicType,
                                     string filterline) 
@@ -74,8 +75,16 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         EIC::SmootherType smootherType =
                                 (EIC::SmootherType) smoothingAlgorithm;
                         e->setSmootherType(smootherType);
-                        e->setBaselineSmoothingWindow(baseline_smoothingWindow);
-                        e->setBaselineDropTopX(baseline_dropTopX);
+
+                        // set appropriate baseline parameters
+                        e->setBaselineMode(baselineMode);
+                        if (baselineMode == EIC::BaselineMode::AsLSSmoothing) {
+                            e->setAsLSSmoothness(firstBaselineParameter);
+                            e->setAsLSAsymmetry(secondBaselineParameter);
+                        } else {
+                            e->setBaselineSmoothingWindow(firstBaselineParameter);
+                            e->setBaselineDropTopX(secondBaselineParameter);
+                        }
                         e->setFilterSignalBaselineDiff(minSignalBaselineDifference);
                         e->getPeakPositions(smoothingWindow);
                         //smoohing over
@@ -324,6 +333,15 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             foundGroups = mavenParameters->allgroups.size();
         }
 
+        EIC::BaselineMode baselineMode = EIC::BaselineMode::Threshold;
+        int firstBaselineParam = mavenParameters->baseline_smoothingWindow;
+        int secondBaselineParam = mavenParameters->baseline_dropTopX;
+        if (mavenParameters->aslsBaselineMode) {
+            baselineMode = EIC::BaselineMode::AsLSSmoothing;
+            firstBaselineParam = mavenParameters->aslsSmoothness;
+            secondBaselineParam = mavenParameters->aslsAsymmetry;
+        }
+
         vector<EIC *> eics;
         eics = pullEICs(slice,
                         mavenParameters->samples,
@@ -332,8 +350,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                         mavenParameters->eic_smoothingAlgorithm,
                         mavenParameters->amuQ1,
                         mavenParameters->amuQ3,
-                        mavenParameters->baseline_smoothingWindow,
-                        mavenParameters->baseline_dropTopX,
+                        baselineMode,
+                        firstBaselineParam,
+                        secondBaselineParam,
                         mavenParameters->minSignalBaselineDifference,
                         mavenParameters->eicType,
                         mavenParameters->filterline);

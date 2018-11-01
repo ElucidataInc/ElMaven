@@ -97,7 +97,7 @@ void TestEIC::testgetPeakPositions() {
     QVERIFY(true);
 }
 
-void TestEIC::testcomputeBaseLine() {
+void TestEIC::testcomputeBaseline() {
     mzSample* mzsample = new mzSample();
     EIC* e = NULL;
     mzsample->loadSample(loadGoodSample);
@@ -108,7 +108,7 @@ void TestEIC::testcomputeBaseLine() {
     e->setSmootherType(smootherType);
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(60);
-    e->computeBaseLine(5, 60);
+    e->computeBaseline();
     QVERIFY(true);
 }
 
@@ -120,13 +120,14 @@ void TestEIC::testfindPeakBounds() {
     e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
+    EIC::SmootherType smootherType = (EIC::SmootherType) 1;
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(80);
 
     e->setSmootherType(smootherType);
     e->computeSpline(10);
     e->findPeaks();
-    e->computeBaseLine(5, 80);
+    e->computeBaseline();
     e->findPeakBounds(e->peaks[10]);
 
     vector<float> intensity;
@@ -147,13 +148,14 @@ void TestEIC:: testGetPeakDetails() {
     e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
     
     //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
+    EIC::SmootherType smootherType = (EIC::SmootherType) 1;
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(80);
 
     e->setSmootherType(smootherType);
     e->computeSpline(10);
     e->findPeaks();
-    e->computeBaseLine(5, 80);
+    e->computeBaseline();
     e->findPeakBounds(e->peaks[10]);
     e->getPeakDetails(e->peaks[10]);
 
@@ -224,6 +226,7 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
     mavenparameters->grouping_maxRtWindow = 0.5;
@@ -232,16 +235,20 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->overlapWeight = 2;
     mavenparameters->useOverlap = 0;
 
-
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics =
+        PeakDetector::pullEICs(slice,
+                               mavenparameters->samples,
+                               1,
+                               mavenparameters->eic_smoothingWindow,
+                               mavenparameters->eic_smoothingAlgorithm,
+                               mavenparameters->amuQ1,
+                               mavenparameters->amuQ3,
+                               EIC::BaselineMode::Threshold,
+                               mavenparameters->baseline_smoothingWindow,
+                               mavenparameters->baseline_dropTopX,
+                               mavenparameters->minSignalBaselineDifference,
+                               mavenparameters->eicType,
+                               mavenparameters->filterline);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
                                                     mavenparameters->eic_smoothingWindow,
@@ -296,19 +303,25 @@ void TestEIC:: testeicMerge() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
     //mavenparameters->grouping_maxRtWindow = 0.5;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics =
+        PeakDetector::pullEICs(slice,
+                               mavenparameters->samples,
+                               1,
+                               mavenparameters->eic_smoothingWindow,
+                               mavenparameters->eic_smoothingAlgorithm,
+                               mavenparameters->amuQ1,
+                               mavenparameters->amuQ3,
+                               EIC::BaselineMode::Threshold,
+                               mavenparameters->baseline_smoothingWindow,
+                               mavenparameters->baseline_dropTopX,
+                               mavenparameters->minSignalBaselineDifference,
+                               mavenparameters->eicType,
+                               mavenparameters->filterline);
 
     EIC* m = EIC::eicMerge(eics);
 

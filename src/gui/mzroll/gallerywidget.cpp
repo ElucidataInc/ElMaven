@@ -253,29 +253,37 @@ TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
         int smoothingWindow = mainwindow->mavenParameters->eic_smoothingWindow;
         int smoothingAlgorithm = mainwindow->mavenParameters->eic_smoothingAlgorithm;
 
-        int baseline_smoothing = mainwindow->mavenParameters->baseline_smoothingWindow;
-		int baseline_quantile =  mainwindow->mavenParameters->baseline_dropTopX;
+        EIC::BaselineMode baselineMode = EIC::BaselineMode::Threshold;
+        int firstBaselineParam = mainwindow->mavenParameters->baseline_smoothingWindow;
+        int secondBaselineParam =  mainwindow->mavenParameters->baseline_dropTopX;
+        if (mainwindow->mavenParameters->aslsBaselineMode) {
+            baselineMode = EIC::BaselineMode::AsLSSmoothing;
+            firstBaselineParam = mainwindow->mavenParameters->aslsSmoothness;
+            secondBaselineParam = mainwindow->mavenParameters->aslsAsymmetry;
+        }
 		double minSignalBaselineDifference = mainwindow->mavenParameters->minSignalBaselineDifference;
 		int eic_type = mainwindow->mavenParameters->eicType;
 		string filterline = mainwindow->mavenParameters->filterline;
 
 	//qDebug() << "addEicPlot(slice)";
 
-        vector<EIC*> eics = PeakDetector::pullEICs(&slice,
-                                                           samples,
-                                                           EicLoader::NoPeakDetection,
-                                                           smoothingWindow,
-                                                           smoothingAlgorithm,
-                                                           amuQ1,
-                                                           amuQ3,
-                                                           baseline_smoothing,
-                                                           baseline_quantile,
-														   minSignalBaselineDifference,
-														   eic_type,
-														   filterline);
-	TinyPlot* plot = addEicPlot(eics);
-	delete_all(eics);
-	return plot;
+        vector<EIC*> eics =
+            PeakDetector::pullEICs(&slice,
+                                   samples,
+                                   EicLoader::NoPeakDetection,
+                                   smoothingWindow,
+                                   smoothingAlgorithm,
+                                   amuQ1,
+                                   amuQ3,
+                                   baselineMode,
+                                   firstBaselineParam,
+                                   secondBaselineParam,
+                                   minSignalBaselineDifference,
+                                   eic_type,
+                                   filterline);
+        TinyPlot* plot = addEicPlot(eics);
+        delete_all(eics);
+        return plot;
 }
 
 TinyPlot* GalleryWidget::addEicPlot(std::vector<EIC*>& eics) {

@@ -62,11 +62,6 @@ class EIC
 
     float *baseline; /**< pointer to baseline array */
 
-    /**
-     * @brief baselineMode decides which algorithm to use for computing baseline.
-     */
-    BaselineMode baselineMode;
-
     float maxIntensity; /**< maximum intensity out of all eics */
 
     float maxAreaTopIntensity; /**< maximum areaTop intensity (after baseline correction) out of all peaks */
@@ -121,12 +116,12 @@ class EIC
     */
     void getPeakWidth(Peak &peak);
 
+    void setBaselineMode(BaselineMode b) { _baselineMode = b; }
+
     /**
-    * @brief calculate baseline for all peaks in an EIC
-    * @param  smoothingWindow number of scans used for smoothing in each iteration 
-    * @param  dropTopX percentage of top intensities to be removed before setting baseline
-    */
-    void computeBaseLine(int smoothingWindow, int dropTopX);
+     * @brief Calculate baseline for the current baseline mode.
+     */
+    void computeBaseline();
 
     /**
     * @brief calculate spline of the EIC
@@ -193,6 +188,18 @@ class EIC
     * @param  x percentage of top intensity points to remove
     */
     void setBaselineDropTopX(int x) { baselineDropTopX = x; }
+
+    /**
+     * @brief Set smoothness (λ) to be used for default AsLS baseline estimation.
+     * @param s smoothness (will be mutated to 10^s when actually used)
+     */
+    void setAsLSSmoothness(int s) { _aslsSmoothness = s; }
+
+    /**
+     * @brief Set asymmetry (p) to be used for default AsLS baseline estimation.
+     * @param a asymmetry value (will be divided by 100 when actually used).
+     */
+    void setAsLSAsymmetry(int a) { _aslsAsymmetry = a; }
 
     /**
     * @brief set minimum signal baseline difference for every peak
@@ -282,6 +289,11 @@ class EIC
     SmootherType smootherType;
 
     /**
+     * @brief _baselineMode decides which algorithm to use for computing baseline.
+     */
+    BaselineMode _baselineMode;
+
+    /**
      * Sets the number of scans used for smoothing in one iteration.
      */
     int baselineSmoothingWindow;
@@ -292,11 +304,27 @@ class EIC
     int baselineDropTopX;
 
     /**
+     * @brief Smoothness parameter for AsLS Smoothing algorithm
+     */
+    int _aslsSmoothness;
+
+    /**
+     * @brief Asymmetry parameter for AsLS Smoothing algorithm
+     */
+    int _aslsAsymmetry;
+
+    /**
+     * @brief Clear the baseline if exists and reallocate memory for a new one.
+     * @return Whether the baseline should be processed further or not.
+     */
+    bool _clearBaseline();
+
+    /**
      * @brief Computes a baseline using naive thresholding method.
      * @param smoothingWindow is the size of window used for 1D guassian smoothing.
      * @param dropTopX percent of the highest intensities will be truncated.
      */
-    void computeThresholdBaseline(int smoothingWindow, int dropTopX);
+    void _computeThresholdBaseline(int smoothingWindow, int dropTopX);
 
     /**
      * @brief Computes a baseline using Asymmetric Least Squares Smoothing techinique.
@@ -316,13 +344,13 @@ class EIC
      * @param numIterations for the number of iterations that should be
      * performed (since this is an iterative optimization algorithm).
      */
-    void computeAsLSBaseline(int lambda, float p, int numIterations=10);
+    void _computeAsLSBaseline(float lambda, float p, int numIterations=10);
 
     /**
      * @brief Calculate and return approximate derivative of a sparse matrix.
      * @param mat instance of Eigen::SparseMatrix containing double values.
      * @return Difference matrix of the mat sparse matrix.
      */
-    Eigen::SparseMatrix<float> diff(Eigen::SparseMatrix<float> mat);
+    Eigen::SparseMatrix<float> _diff(Eigen::SparseMatrix<float> mat);
 };
 #endif //MZEIC_H

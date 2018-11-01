@@ -38,7 +38,7 @@ class TestEIC : public QObject {
         void testgetEICms2();
         void testcomputeSpline();
         void testgetPeakPositions();
-        void testcomputeBaseLine();
+        void testcomputeBaseline();
         void testfindPeakBounds();
         void testGetPeakDetails();
         void testgroupPeaks();

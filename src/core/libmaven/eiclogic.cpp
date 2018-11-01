@@ -97,22 +97,39 @@ mzSlice EICLogic::setMzSlice(float mz1,MassCutoff *massCutoff, float mz2) {
 	return x;
 }
 
-void EICLogic::getEIC(mzSlice bounds, vector<mzSample*> samples,
-		int eic_smoothingWindow, int eic_smoothingAlgorithm, float amuQ1,
-		float amuQ3, int baseline_smoothing, int baseline_quantile,
-		double minSignalBaselineDifference, int eicType, string filterline) {
+void EICLogic::getEIC(mzSlice bounds,
+                      vector<mzSample*> samples,
+                      int eic_smoothingWindow,
+                      int eic_smoothingAlgorithm,
+                      float amuQ1,
+                      float amuQ3,
+                      EIC::BaselineMode baselineMode,
+                      int firstBaselineMode,
+                      int secondBaselineMode,
+                      double minSignalBaselineDifference,
+                      int eicType,
+                      string filterline)
+{
+    mzSlice slice = _slice;
+    slice.rtmin = bounds.rtmin;
+    slice.rtmax = bounds.rtmax;
 
-	mzSlice slice = _slice;
-	slice.rtmin = bounds.rtmin;
-	slice.rtmax = bounds.rtmax;
+    // get eics
+    eics = PeakDetector::pullEICs(&slice,
+                                  samples,
+                                  EicLoader::PeakDetection,
+                                  eic_smoothingWindow,
+                                  eic_smoothingAlgorithm,
+                                  amuQ1,
+                                  amuQ3,
+                                  baselineMode,
+                                  firstBaselineMode,
+                                  secondBaselineMode,
+                                  minSignalBaselineDifference,
+                                  eicType,
+                                  filterline);
 
-	//get eics
-	eics = PeakDetector::pullEICs(&slice, samples, EicLoader::PeakDetection,
-			eic_smoothingWindow, eic_smoothingAlgorithm, amuQ1, amuQ3,
-			baseline_smoothing, baseline_quantile, minSignalBaselineDifference, eicType,
-			filterline);
-
-	//find peaks
+        //find peaks
 	//for(int i=0; i < eics.size(); i++ )  eics[i]->getPeakPositions(eic_smoothingWindow);
 	//for(int i=0; i < eics.size(); i++ ) mzUtils::printF(eics[i]->intensity);
 	////qDebug << tr("computeEICs() Done. ElepsTime=%1 msec").arg(timer.elapsed());

@@ -134,12 +134,21 @@ public:
 	 */
 	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
 
-	static vector<EIC*> pullEICs(mzSlice* slice, std::vector<mzSample*>&samples,
-			int peakDetect, int smoothingWindow, int smoothingAlgorithm,
-			float amuQ1, float amuQ3, int baselineSmoothingWindow,
-			int baselineDropTopX, double minSignalBaselineDifference, int eicType, string filterline);
+    static vector<EIC*> pullEICs(mzSlice* slice,
+                                 std::vector<mzSample*>& samples,
+                                 int peakDetect,
+                                 int smoothingWindow,
+                                 int smoothingAlgorithm,
+                                 float amuQ1,
+                                 float amuQ3,
+                                 EIC::BaselineMode baselineMode,
+                                 int firstBaselineParameter,
+                                 int secondBaselineParameter,
+                                 double minSignalBaselineDifference,
+                                 int eicType,
+                                 string filterline);
 
-private:
+        private:
 
 	/**
 	 * [check overlap between RT for each group through all the samples; if a certain degree of overlap is present, do not create a new group]

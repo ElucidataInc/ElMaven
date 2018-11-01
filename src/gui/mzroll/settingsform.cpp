@@ -10,8 +10,11 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("eic_smoothingWindow", QVariant::fromValue(sf->eic_smoothingWindow));
     settings.insert("grouping_maxRtWindow", QVariant::fromValue(sf->grouping_maxRtWindow));
 
+    settings.insert("aslsBaselineMode", QVariant::fromValue(sf->baselineModeTab));
     settings.insert("baseline_quantile", QVariant::fromValue(sf->baseline_quantile));
     settings.insert("baseline_smoothing", QVariant::fromValue(sf->baseline_smoothing));
+    settings.insert("aslsSmoothness", QVariant::fromValue(sf->smoothnessSlider));
+    settings.insert("aslsAsymmetry", QVariant::fromValue(sf->asymmetrySlider));
 
     settings.insert("isIsotopeEqualPeakFilter", QVariant::fromValue(sf->isIsotopeEqualPeakFilter));
     settings.insert("minSignalBaselineDifference", QVariant::fromValue(sf->minSignalBaselineDifference));
@@ -50,7 +53,7 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 {
 
-        if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
+    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
 
         const QVariant& v = settings[QString(key.c_str())];
         // convert the val to proper type;
@@ -71,6 +74,9 @@ void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 
         if(QString(v.typeName()).contains("QComboBox"))
             v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
+
+        if (QString(v.typeName()).contains("QTabWidget"))
+            v.value<QTabWidget*>()->setCurrentIndex(std::stoi(value));
     }
 }
 
@@ -92,8 +98,22 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(eic_smoothingWindow, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
     connect(eic_smoothingAlgorithm, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
     connect(grouping_maxRtWindow, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
-    connect(baseline_smoothing, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
-    connect(baseline_quantile, SIGNAL(valueChanged(int)), SLOT(recomputeEIC()));
+
+    connect(baselineModeTab,
+            SIGNAL(currentChanged(int)),
+            SLOT(recomputeEIC()));
+    connect(baseline_smoothing,
+            SIGNAL(valueChanged(int)),
+            SLOT(recomputeEIC()));
+    connect(baseline_quantile,
+            SIGNAL(valueChanged(int)),
+            SLOT(recomputeEIC()));
+    connect(smoothnessSlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_smoothnessChanged(int)));
+    connect(asymmetrySlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_asymmetryChanged(int)));
 
     connect(isIsotopeEqualPeakFilter, SIGNAL(toggled(bool)), SLOT(setIsotopicPeakFiltering()));
     connect(isIsotopeEqualPeakFilter, SIGNAL(toggled(bool)), SLOT(recomputeEIC()));
@@ -346,21 +366,15 @@ void SettingsForm::updateSettingFormGUI() {
 }
 
 
-void SettingsForm::getFormValues() {
-    
+void SettingsForm::getFormValues()
+{
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
-
-
 
     /*Isotopic settings for barplot*/
     settings->setValue("AbthresholdBarplot",  doubleSpinBoxAbThresh->value());
 
-
-
-
     settings->setValue("filterlineComboBox", filterlineComboBox->currentText());
-
 
     settings->setValue("centroid_scan_flag", centroid_scan_flag->checkState() );
     settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
@@ -372,12 +386,14 @@ void SettingsForm::getFormValues() {
     settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
     settings->setValue("scan_filter_min_quantile", scan_filter_min_quantile->value());
 
+    // change baseline estimation parameters
+    settings->setValue("baselineMode", baselineModeTab->currentIndex());
+    settings->setValue("baseline_quantile", baseline_quantile->value());
+    settings->setValue("baseline_smoothing", baseline_smoothing->value());
+    settings->setValue("aslsSmoothness", smoothnessSlider->value());
+    settings->setValue("aslsAsymmetry", asymmetrySlider->value());
 
-
-    //change ionization mode
-
-    //change ionization type
-
+    // change ionization type
     if (ionizationType->currentText() == "EI")  MassCalculator::ionizationType = MassCalculator::EI;
     else MassCalculator::ionizationType = MassCalculator::ESI;
 
@@ -466,6 +482,16 @@ void SettingsForm::setMavenParameters() {
             mavenParameters->filterline = settings->value("filterlineComboBox").toString().toStdString();
         }
 
+        mavenParameters->aslsBaselineMode =
+                settings->value("baselineMode").toBool();
+        mavenParameters->baseline_dropTopX =
+                settings->value("baseline_quantile").toInt();
+        mavenParameters->baseline_smoothingWindow =
+                settings->value("baseline_smoothing").toInt();
+        mavenParameters->aslsSmoothness =
+                settings->value("aslsSmoothness").toInt();
+        mavenParameters->aslsAsymmetry =
+                settings->value("aslsAsymmetry").toInt();
     }
 }
 
@@ -499,3 +525,15 @@ void SettingsForm::setStringValue(QString key, QString value) {
      settings->setValue(key,value);
 }
 
+void SettingsForm::_smoothnessChanged(int value)
+{
+    smoothnessValue->setText(QString::number(value));
+    recomputeEIC();
+}
+
+void SettingsForm::_asymmetryChanged(int value)
+{
+    double actualAsym = static_cast<double>(value) / 100.0;
+    asymmetryValue->setText(QString::number(actualAsym, 'f', 2));
+    recomputeEIC();
+}

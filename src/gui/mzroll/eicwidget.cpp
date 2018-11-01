@@ -321,23 +321,40 @@ void EicWidget::computeEICs() {
 			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
     float amuQ1 = getMainWindow()->mavenParameters->amuQ1;
     float amuQ3 = getMainWindow()->mavenParameters->amuQ3;
-	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
-	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
-	double minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
-	int eic_type = getMainWindow()->mavenParameters->eicType;
-	string filterline = getMainWindow()->mavenParameters->filterline;
+    EIC::BaselineMode baselineMode = EIC::BaselineMode::Threshold;
+    int firstBaselineParam =
+        getMainWindow()->mavenParameters->baseline_smoothingWindow;
+    int secondBaselineParam =
+        getMainWindow()->mavenParameters->baseline_dropTopX;
+    if (getMainWindow()->mavenParameters->aslsBaselineMode) {
+        baselineMode = EIC::BaselineMode::AsLSSmoothing;
+        firstBaselineParam = getMainWindow()->mavenParameters->aslsSmoothness;
+        secondBaselineParam = getMainWindow()->mavenParameters->aslsAsymmetry;
+    }
+    double minSignalBaselineDifference =
+        getMainWindow()->mavenParameters->minSignalBaselineDifference;
+    int eic_type = getMainWindow()->mavenParameters->eicType;
+    string filterline = getMainWindow()->mavenParameters->filterline;
 
-	mzSlice bounds = visibleSamplesBounds();
+    mzSlice bounds = visibleSamplesBounds();
 
-	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
-			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
-			baseline_quantile, minSignalBaselineDifference, eic_type,
-			filterline);
+    eicParameters->getEIC(bounds,
+                          samples,
+                          eic_smoothingWindow,
+                          eic_smoothingAlgorithm,
+                          amuQ1,
+                          amuQ3,
+                          baselineMode,
+                          firstBaselineParam,
+                          secondBaselineParam,
+                          minSignalBaselineDifference,
+                          eic_type,
+                          filterline);
 
-	//score peak quality
-	ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
-	if (clsf != NULL) {
-		clsf->scoreEICs(eicParameters->eics);
+    // score peak quality
+    ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
+    if (clsf != NULL) {
+        clsf->scoreEICs(eicParameters->eics);
 	}
 
 	bool isIsotope = false;
@@ -748,10 +765,19 @@ void EicWidget::addBaseLine(EIC* eic) {
     QSettings* settings = this->getMainWindow()->getSettings();
 
     if (!eic->baseline) {
-        eic->computeBaseLine(
-            getMainWindow()->mavenParameters->baseline_smoothingWindow,
-            getMainWindow()->mavenParameters->baseline_dropTopX
-        );
+        auto parameters = getMainWindow()->mavenParameters;
+        eic->setBaselineDropTopX(parameters->baseline_dropTopX);
+        eic->setBaselineSmoothingWindow(parameters->baseline_smoothingWindow);
+        eic->setAsLSSmoothness(parameters->aslsSmoothness);
+        eic->setAsLSAsymmetry(parameters->aslsAsymmetry);
+
+        if (parameters->aslsBaselineMode) {
+            eic->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+        }
+        else {
+            eic->setBaselineMode(EIC::BaselineMode::Threshold);
+        }
+        eic->computeBaseline();
     }
 
     if (eic->size() == 0)
