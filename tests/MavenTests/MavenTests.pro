@@ -28,7 +28,11 @@ LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -l
 !macx: LIBS += -fopenmp
 
 macx {
-LIBS -= -lnetcdf -lcdfread
+    QMAKE_CXXFLAGS += -fopenmp
+    INCLUDEPATH += /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
+    QMAKE_LFLAGS +=-L/usr/local/Cellar/llvm/6.0.1/lib/
+    LIBS += -lomp
+    LIBS -= -lnetcdf -lcdfread
 }
 
 

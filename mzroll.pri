@@ -11,6 +11,12 @@ CONFIG(debug, debug|release){
 
 QT += sql core  xml gui opengl
 
+macx {
+
+    QMAKE_CXX = /usr/local/Cellar/llvm/6.0.1/bin/clang++
+    QMAKE_CC = /usr/local/Cellar/llvm/6.0.1/bin/clang
+}
+
 CONFIG += silent exceptions
 
 # this is important. Used in mzUtils to make use of correct mkdir function

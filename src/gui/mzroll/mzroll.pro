@@ -12,9 +12,8 @@ QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 linux: QMAKE_CXXFLAGS += -Ofast -ffast-math
 win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
-!macx: QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp
 !macx: LIBS += -fopenmp
-
 
 QMAKE_STRIP=echo
 PRECOMPILED_HEADER  = stable.h
@@ -48,11 +47,13 @@ win32 {
 }
 
 mac {
-    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
-    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    QMAKE_CXXFLAGS += -fopenmp
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/ /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/ -L/usr/local/Cellar/llvm/6.0.1/lib/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
     LIBS += -lgoogle-breakpad -lobjc -pthread
+    LIBS += -lomp
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
