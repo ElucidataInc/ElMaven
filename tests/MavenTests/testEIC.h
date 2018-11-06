@@ -17,11 +17,9 @@ class TestEIC : public QObject {
 
     public:
         TestEIC();
+
     private:
-        const char* loadFile;
-        QStringList files;
-        QStringList files_ms2;
-        mzSample* _goodSample;
+        Samples* samples;
 
     private Q_SLOTS:
         // functions executed by QtTest before and after test suite
@@ -46,7 +44,6 @@ class TestEIC : public QObject {
         void testGetPeakDetails();
         void testgroupPeaks();
         void testeicMerge();
-
 };
 
 #endif // TESTEIC_H

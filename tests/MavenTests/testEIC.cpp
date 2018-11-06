@@ -1,12 +1,7 @@
 #include "testEIC.h"
 
 TestEIC::TestEIC() {
-    loadFile = "bin/methods/testsample_1.mzxml";
-    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
-    files_ms2 << "bin/methods/ms2test1.mzML" << "bin/methods/ms2test2.mzML";
-
-    _goodSample = new mzSample();
-    _goodSample->loadSample("bin/methods/testsample_2.mzxml");
+    samples = new Samples();
 }
 
 void TestEIC::initTestCase() {
@@ -18,7 +13,7 @@ void TestEIC::initTestCase() {
 
 void TestEIC::cleanupTestCase() {
     // Similarly to initTestCase(), this function is executed at the end of test suite
-    delete _goodSample;
+    delete samples;
 }
 
 void TestEIC::init() {
@@ -31,8 +26,7 @@ void TestEIC::cleanup() {
 
 void TestEIC::testgetEIC() {
     unsigned int numberOfScans = 445;
-    mzSample* mzsample = new mzSample();
-    mzsample->loadSample(loadFile);
+    mzSample* mzsample = samples->smallSample;
     EIC e;
 
     bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0, "");
@@ -40,34 +34,37 @@ void TestEIC::testgetEIC() {
 }
 
 void TestEIC::testgetEICms2() {
-    mzSample* mzsample = new mzSample();
-    mzSample* mzsample_2 = new mzSample();
+    mzSample* mzsample = samples->ms2Samples[1];
+    mzSample* mzsample_2 = samples->ms2Samples[0];
     
-    mzsample->loadSample(files_ms2.at(1).toLatin1().data());
     EIC* e = NULL;
     e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
     QVERIFY(e->rt.size() == 305);
     QVERIFY(e->scannum[e->scannum.size()-1] == 3351);
     QVERIFY(e->maxIntensity == 20200);
 
-    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
     EIC* e2 = NULL;
     e2 = mzsample_2->getEIC(195,0,69,1,"",0.5,0.5);
     QVERIFY(e2->rt.size() == 305);
     QVERIFY(e2->scannum[e2->scannum.size()-1] == 3041);
     QVERIFY(e2->maxIntensity == 10600);
 
-    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
     EIC* e3 = NULL;
     e3 = mzsample_2->getEIC(195,0,69,1,"",2,2);
     QVERIFY(e3->rt.size() == 305);
-    QVERIFY(e3->scannum[e3->scannum.size()-1] == 6080);
+    QVERIFY(e3->scannum[e3->scannum.size()-1] == 3040);
     QVERIFY(e3->maxIntensity == 49400);
 }
 
 void TestEIC::testcomputeSpline()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
     // if eic exists, perform smoothing
     EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
@@ -79,7 +76,13 @@ void TestEIC::testcomputeSpline()
 
 void TestEIC::testgetPeakPositions()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
     // if eic exists, perform smoothing
     EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
@@ -95,7 +98,13 @@ void TestEIC::testgetPeakPositions()
 
 void TestEIC::testcomputeBaselineThreshold()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(60);
@@ -108,7 +117,13 @@ void TestEIC::testcomputeBaselineThreshold()
 
 void TestEIC::testcomputeBaselineAsLSSmoothing()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
     // change default baseline mode
     e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
@@ -135,13 +150,13 @@ void TestEIC::testcomputeBaselineAsLSSmoothing()
 void TestEIC::testcomputeBaselineZeroIntensity()
 {
     // obtain a zero intensity EIC (all entries in intensity vector are zero)
-    EIC* e = _goodSample->getEIC(381.123744f,
-                                 381.123754f,
-                                 12.0,
-                                 16.0,
-                                 1,
-                                 0,
-                                 "");
+    EIC* e = samples->regularSamples[0]->getEIC(381.123744f,
+                                                381.123754f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
     // change default baseline mode
     e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
@@ -179,7 +194,13 @@ void TestEIC::testcomputeBaselineEmptyEIC()
 
 void TestEIC::testfindPeakBounds()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
     
     // if eic exists, perform smoothing
     EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
@@ -204,7 +225,13 @@ void TestEIC::testfindPeakBounds()
 
 void TestEIC:: testGetPeakDetails()
 {
-    EIC* e = _goodSample->getEIC(402.9929f, 402.9969f, 12.0, 16.0, 1, 0, "");
+    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
     
     // if eic exists, perform smoothing
     EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
@@ -264,9 +291,7 @@ void TestEIC:: testgroupPeaks() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* mzsample = new mzSample();
-        mzsample->loadSample(files.at(i).toLatin1().data());
+    for (auto mzsample: samples->regularSamples) {
         samplesToLoad.push_back(mzsample);
     }
 
@@ -345,9 +370,7 @@ void TestEIC:: testeicMerge() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* mzsample = new mzSample();
-        mzsample->loadSample(files.at(i).toLatin1().data());
+    for (auto mzsample: samples->regularSamples) {
         samplesToLoad.push_back(mzsample);
     }
 

@@ -1,8 +1,7 @@
 #include "common.h"
 Databases DBS;
 
-common::common() {
-}
+common::common() {}
 
 bool common::floatCompare(float a, float b) {
     float EPSILON = 0.001;
