@@ -193,7 +193,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="statusText">
         <property name="text">
-         <string>StatusText</string>
+         <string/>
         </property>
        </widget>
       </item>

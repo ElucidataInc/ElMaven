@@ -12,6 +12,7 @@
 #include "obiwarp.h"
 #include <QJsonObject>
 
+#include <boost/signals2.hpp>
 using namespace std;
 
 class Aligner {
@@ -49,6 +50,8 @@ class Aligner {
 
     mzSample* refSample;
 
+public:
+    boost::signals2::signal< void (const string&,unsigned int , int ) > setAlignmentProgress;
 
    private:
     vector<PeakGroup*> allgroups;
