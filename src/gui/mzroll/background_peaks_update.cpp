@@ -319,6 +319,8 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
         Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
 
         Aligner aligner;
+        aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
+                                                         this, _1, _2, _3));
         aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
         delete obiParams;
 
@@ -558,9 +560,9 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
         writeCSVRep(setName);
 }
 
-void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int completed_slices, int total_slices)
+void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int progress, int totalSteps)
 {
-        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), completed_slices, total_slices));
+        Q_EMIT(updateProgressBar(QString::fromStdString(progressText), progress, totalSteps));
 
 }
 
