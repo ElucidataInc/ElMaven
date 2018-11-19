@@ -35,6 +35,8 @@ unix: {
     LIBS +=  -lboost_signals -lErrorHandling -lobiwarp
 }
 
+LIBS += -lboost_system -lboost_filesystem -lsqlite3
+
 #INSTALL_LIBDIR = $$(INSTALL_LIBDIR)
 #unix {
 #  !mac {
