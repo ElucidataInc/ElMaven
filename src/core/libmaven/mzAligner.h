@@ -28,7 +28,7 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, int referenceSampleIndex = -1);
+    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams);
     void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;
@@ -48,7 +48,8 @@ class Aligner {
     QJsonObject groupsJson;
     QJsonObject rtsJson;
 
-    mzSample* refSample;
+    static mzSample* refSample;
+    static void setRefSample(mzSample* sample);
 
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > setAlignmentProgress;
