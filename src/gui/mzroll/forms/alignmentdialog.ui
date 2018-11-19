@@ -371,14 +371,14 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="labelScoreObi">
         <property name="text">
          <string>Score</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QComboBox" name="scoreObi">
         <item>
          <property name="text">
@@ -402,14 +402,14 @@
         </item>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="labelResponseObiWarp">
         <property name="text">
          <string>Response</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QDoubleSpinBox" name="responseObiWarp">
         <property name="maximum">
          <double>100.000000000000000</double>
@@ -422,14 +422,14 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QLabel" name="labelBinSizeObiWarp">
         <property name="text">
          <string>Bin Size</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="QDoubleSpinBox" name="binSizeObiWarp">
         <property name="maximum">
          <double>2.000000000000000</double>
@@ -442,14 +442,14 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
+      <item row="9" column="0">
        <widget class="QLabel" name="labelGapInit">
         <property name="text">
          <string>Gap-init</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="9" column="1">
        <widget class="QDoubleSpinBox" name="gapInit">
         <property name="maximum">
          <double>97.989999999999995</double>
@@ -462,14 +462,14 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
+      <item row="10" column="0">
        <widget class="QLabel" name="labelGapExtend">
         <property name="text">
          <string>Gap-extend</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
+      <item row="10" column="1">
        <widget class="QDoubleSpinBox" name="gapExtend">
         <property name="singleStep">
          <double>0.500000000000000</double>
@@ -479,14 +479,14 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="0">
+      <item row="11" column="0">
        <widget class="QLabel" name="labelFactorDiag">
         <property name="text">
          <string>Factor-diag</string>
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
+      <item row="11" column="1">
        <widget class="QDoubleSpinBox" name="factorDiag">
         <property name="singleStep">
          <double>0.500000000000000</double>
@@ -496,14 +496,14 @@
         </property>
        </widget>
       </item>
-      <item row="11" column="0">
+      <item row="12" column="0">
        <widget class="QLabel" name="labelFactorGap">
         <property name="text">
          <string>Factor-gap</string>
         </property>
        </widget>
       </item>
-      <item row="11" column="1">
+      <item row="12" column="1">
        <widget class="QDoubleSpinBox" name="factorGap">
         <property name="singleStep">
          <double>0.500000000000000</double>
@@ -513,71 +513,81 @@
         </property>
        </widget>
       </item>
-      <item row="12" column="0">
+      <item row="13" column="0">
        <widget class="QLabel" name="labelNoStdNormal">
         <property name="text">
          <string>No std normal</string>
         </property>
        </widget>
       </item>
-      <item row="12" column="1">
+      <item row="13" column="1">
        <widget class="QCheckBox" name="noStdNormal">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="13" column="0">
+      <item row="14" column="0">
        <widget class="QLabel" name="labelLocal">
         <property name="text">
          <string>Local</string>
         </property>
        </widget>
       </item>
-      <item row="13" column="1">
+      <item row="14" column="1">
        <widget class="QCheckBox" name="local">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="14" column="0">
+      <item row="15" column="0">
        <widget class="QLabel" name="labelInitPenalty">
         <property name="text">
          <string>Init. penalty</string>
         </property>
        </widget>
       </item>
-      <item row="14" column="1">
+      <item row="15" column="1">
        <widget class="QDoubleSpinBox" name="initPenalty"/>
       </item>
-      <item row="15" column="0">
+      <item row="16" column="0">
        <widget class="QLabel" name="labelRestoreDefaultObiWarpParams">
         <property name="text">
          <string>Restore Default Values</string>
         </property>
        </widget>
       </item>
-      <item row="15" column="1">
+      <item row="16" column="1">
        <widget class="QPushButton" name="restoreDefaultObiWarpParams">
         <property name="text">
          <string>OK</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="labelShowAdvanceParams">
         <property name="text">
          <string>Show Advance Params</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QCheckBox" name="showAdvanceParams">
         <property name="text">
          <string/>
         </property>
        </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="refSampleLabel">
+        <property name="text">
+         <string>Choose reference sample</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="samplesBox"/>
       </item>
      </layout>
     </widget>

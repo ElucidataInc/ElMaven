@@ -1,4 +1,5 @@
 #include "alignmentdialog.h"
+#include "mzAligner.h"
 
 AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 
 		setupUi(this); 
@@ -22,15 +23,24 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 		connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
 		connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
 		connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
-
+        connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
+        connect(samplesBox, &QComboBox::currentTextChanged, this, &AlignmentDialog::refSampleChanged);
 		QRect rec = QApplication::desktop()->screenGeometry();
 		int height = rec.height();
-		setFixedHeight(height-height/10);
+        setFixedHeight(height-height/10);
+
 }
 
 AlignmentDialog::~AlignmentDialog() {
 	if (workerThread) delete (workerThread);
 }
+
+void AlignmentDialog::refSampleChanged()
+{
+    mzSample* sample = static_cast<mzSample*>(samplesBox->currentData().value<void*>());
+    emit changeRefSample(sample);
+}
+
 void AlignmentDialog::setAlignWrtExpectedRt(bool checked){
 	_mw->mavenParameters->alignWrtExpectedRt=checked;
 }
@@ -93,6 +103,13 @@ void AlignmentDialog::intialSetup() {
 	algoChanged();
 	minIntensity->setValue(_mw->mavenParameters->minIntensity);
 	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
+
+    samplesBox->clear();
+    samplesBox->addItem("Select Randomly",QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
+    for(auto sample: _mw->samples) {
+        if(sample->isSelected)
+            samplesBox->addItem(sample->sampleName.c_str(), QVariant(QVariant::fromValue(static_cast<void*>(sample))));
+    }
 }
 
 void AlignmentDialog::restorDefaultValues(bool checked){
@@ -155,7 +172,9 @@ void AlignmentDialog::algoChanged() {
 	toggleObiParams(obiWarp);
 	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
 	showAdvanceParams->setVisible(obiWarp);
-	labelShowAdvanceParams->setVisible(obiWarp);
+    labelShowAdvanceParams->setVisible(obiWarp);
+    samplesBox->setVisible(obiWarp);
+    refSampleLabel->setVisible(obiWarp);
 
 	if (peakDetectionAlgo->currentIndex() == 0) {
 		selectDatabase->setVisible(true);
