@@ -37,7 +37,9 @@ macx {
 
 SOURCES	= connection.cpp \
           cursor.cpp \
+          projectdatabase.cpp
 
 HEADERS += 	schema.h \
             connection.h \
             cursor.h \
+            projectdatabase.h
