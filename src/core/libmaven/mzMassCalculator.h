@@ -11,6 +11,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 
+class Adduct;
 class Compound;
 class Isotope;
 
@@ -37,6 +38,9 @@ class MassCalculator {
     public:
         enum IonizationType { ESI=0, EI=1};
         static IonizationType ionizationType;
+        static Adduct* PlusHAdduct;
+        static Adduct* MinusHAdduct;
+        static Adduct* ZeroMassAdduct;
 
         typedef struct {
             std::string name;

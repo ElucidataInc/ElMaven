@@ -58,6 +58,10 @@ class Compound{
         string pubchem_id;      /**@param  -  pubchem_id -    PubChem id*/
         string hmdb_id;         /**@param  -  hmdb_id-    Human Metabolome Database id */
         string alias;       /**@param   -  alias name of compound   */
+
+        // TODO: from MAVEN (upstream), find out what this is
+        string smileString;
+
         /**
         *@param -  srmId will hold filterLine string from mzxml file which represent type of
         *mass spec and ionization is used and other info as well
@@ -73,6 +77,17 @@ class Compound{
         float precursorMz;	/**@param  -  QQQ parent ion  mz value   */
         float productMz;    /**@param  -  QQQ child ion   mz value */
         float collisionEnergy; /**@param  -   QQQ collision energy of this compound   */
+        float logP; // TODO: find out what value this is.
+
+        // TODO: from MAVEN (upstream), find out what this is
+        bool virtualFragmentation;
+
+        // TODO: from MAVEN (upstream) decoy compound?
+        bool isDecoy;
+
+        // TODO: from MAVEN (upstream). Can this be derived somehow.
+        // Also maybe use an enum.
+        int ionizationMode;
 
         string db;			/**@param -   name of database for example KEGG, ECOCYC.. etc..    */
 
