@@ -20,6 +20,8 @@ PeakGroup::PeakGroup()  {
     meanMz=0;
     expectedMz=0;
 
+    ms2EventCount = 0;
+
     blankMax=0;
     blankSampleCount=0;
     blankMean=0;
@@ -54,7 +56,10 @@ PeakGroup::PeakGroup()  {
     maxMz=0;
 
     parent = NULL;
-    //adduct = NULL;
+
+    // TODO: MAVEN (upstream) strikes again. Why was it commented out?
+    adduct = NULL;
+
     compound = NULL;
 
     isFocused=false;
@@ -87,6 +92,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     meanRt=o.meanRt;
     meanMz=o.meanMz;
     expectedMz=o.expectedMz;
+
+    fragMatchScore = o.fragMatchScore;
+    adduct = o.adduct;
 
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
@@ -417,7 +425,7 @@ double PeakGroup::getExpectedMz(int charge) {
 
     float mz = 0;
 
-    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) { 
+    if (isIsotope() && childCount() == 0 && compound && !compound->formula.empty() && compound->mass > 0) {
         return expectedMz;
     }
     else if (!isIsotope() && compound && compound->mass > 0) {

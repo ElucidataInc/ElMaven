@@ -538,3 +538,8 @@ vector<int> Scan::assignCharges(MassCutoff *massCutoffTolr) {
     }
     return parentPeaks;
 }
+
+double Scan::getPrecursorPurity(float ppm=10.0) {
+    // Just a stub for now. See Eugene's maven_core for actual implementation.
+    return 0.0;
+}

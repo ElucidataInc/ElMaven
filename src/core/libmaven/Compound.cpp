@@ -12,11 +12,16 @@ Compound::Compound(string id, string name, string formula, int charge ) {
     */
     this->mass =  MassCalculator::computeNeutralMass(formula);
     this->expectedRt = -1;
+    this->logP = 0;
 
     precursorMz=0;
     productMz=0;
     collisionEnergy=0;
     _groupUnlinked=false;
+
+    virtualFragmentation = false;
+    isDecoy = false;
+    ionizationMode = 0;
 }
 
 float Compound::adjustedMass(int charge) { 

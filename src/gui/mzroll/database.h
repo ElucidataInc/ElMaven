@@ -5,7 +5,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "stable.h"
-#define HMASS 1.007825032
+
 class Molecule2D {
        public:
 	Molecule2D() {}
