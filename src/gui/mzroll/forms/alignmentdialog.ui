@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>1039</height>
+    <height>1058</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -324,7 +324,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Loess Fit</string>
+          <string>Loess Fit  [Deprecated]</string>
          </property>
         </item>
         <item>
