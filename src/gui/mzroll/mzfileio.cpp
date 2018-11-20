@@ -544,17 +544,19 @@ void mzFileIO::fileImport(void) {
         // files to be loaded in this method.
         if (isMzRollProject(filename)) {
             _mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
-            _mainwindow->projectDockWidget->loadProject(filename);
+            _mainwindow->projectDockWidget->loadMzRollProject(filename);
             QRegExp rxtable("*_table\-[0-9]*");
             rxtable.setPatternSyntax(QRegExp::Wildcard);
             QRegExp rxbm("*_bookmarkedPeaks*");
             rxbm.setPatternSyntax(QRegExp::Wildcard);
             if(rxtable.exactMatch(filename)) {
                 Q_EMIT(createPeakTableSignal(filename));
-            } else if (rxbm.exactMatch(filename)) {
-                _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
             } else {
-                _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+                auto groups = readGroupsXML(filename);
+                for (auto group : groups) {
+                    _mainwindow->bookmarkedPeaks->addPeakGroup(group);
+                }
+                _mainwindow->bookmarkedPeaks->showAllGroups();
             }
         }
     }
@@ -562,7 +564,11 @@ void mzFileIO::fileImport(void) {
     Q_FOREACH(QString filename, peaks ) {
         QFileInfo fileInfo(filename);
         TableDockWidget* tableX = _mainwindow->addPeaksTable("Group Set " + fileInfo.fileName());
-        tableX->loadPeakTable(filename);
+        auto groups = readGroupsXML(filename);
+        for (auto group : groups) {
+            _mainwindow->bookmarkedPeaks->addPeakGroup(group);
+        }
+        _mainwindow->bookmarkedPeaks->showAllGroups();
     }
 
     // check if the user is trying to upload any cdf file. if, yes then disable
@@ -815,6 +821,421 @@ void mzFileIO::_postSampleLoadOperations()
     _currentProject->updateSamples(samples);
     _currentProject->loadAndPerformAlignment(samples);
     readAllPeakTablesSQLite(samples);
+}
+
+void mzFileIO::markv_0_1_5mzroll(QString fileName)
+{
+    mzrollv_0_1_5 = true;
+
+    QFile data(fileName);
+
+    if (!data.open(QFile::ReadOnly)) {
+        return;
+    }
+
+    QXmlStreamReader xml(&data);
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            if (xml.name() == "SamplesUsed") {
+                // mark false if <SamplesUsed> which is only in new version
+                mzrollv_0_1_5 = false;
+                break;
+            }
+        }
+    }
+
+    data.close();
+
+    return;
+}
+
+void mzFileIO::cleanString(QString& name)
+{
+    name.replace('#', '_');
+    name = 's' + name;
+}
+
+void mzFileIO::writeGroupXML(QXmlStreamWriter& stream, PeakGroup* group)
+{
+    if (!group)
+        return;
+
+    stream.writeStartElement("PeakGroup");
+    stream.writeAttribute("groupId", QString::number(group->groupId));
+    stream.writeAttribute("tagString", QString(group->tagString.c_str()));
+    stream.writeAttribute("metaGroupId", QString::number(group->metaGroupId));
+    stream.writeAttribute("clusterId", QString::number(group->clusterId));
+    stream.writeAttribute("expectedRtDiff",
+                          QString::number(group->expectedRtDiff, 'f', 6));
+    stream.writeAttribute("groupRank", QString::number(group->groupRank, 'f', 6));
+    stream.writeAttribute("expectedMz", QString::number(group->expectedMz, 'f', 6));
+    stream.writeAttribute("label", QString::number(group->label));
+    stream.writeAttribute("type", QString::number((int)group->type()));
+    stream.writeAttribute("changeFoldRatio",
+                          QString::number(group->changeFoldRatio, 'f', 6));
+    stream.writeAttribute("changePValue",
+                          QString::number(group->changePValue, 'e', 6));
+    if (group->srmId.length())
+        stream.writeAttribute("srmId", QString(group->srmId.c_str()));
+
+    // for sample contrasts  ratio and pvalue
+    if (group->hasCompoundLink()) {
+        Compound* c = group->compound;
+        stream.writeAttribute("compoundId", QString(c->id.c_str()));
+        stream.writeAttribute("compoundDB", QString(c->db.c_str()));
+        stream.writeAttribute("compoundName", QString(c->name.c_str()));
+        stream.writeAttribute("formula", QString(c->id.c_str()));
+    }
+
+    stream.writeStartElement("SamplesUsed");
+    for (int i = 0; i < group->samples.size(); ++i) {
+        stream.writeStartElement("sample");
+        stream.writeAttribute("id",
+                              QString::number(group->samples[i]->getSampleId()));
+        stream.writeEndElement();
+    }
+    stream.writeEndElement();
+
+    for (int j = 0; j < group->peaks.size(); j++) {
+        Peak& p = group->peaks[j];
+        stream.writeStartElement("Peak");
+        stream.writeAttribute("pos", QString::number(p.pos, 'f', 6));
+        stream.writeAttribute("minpos", QString::number(p.minpos, 'f', 6));
+        stream.writeAttribute("maxpos", QString::number(p.maxpos, 'f', 6));
+        stream.writeAttribute("splineminpos",
+                              QString::number(p.splineminpos, 'f', 6));
+        stream.writeAttribute("splinemaxpos",
+                              QString::number(p.splinemaxpos, 'f', 6));
+        stream.writeAttribute("rt", QString::number(p.rt, 'f', 6));
+        stream.writeAttribute("rtmin", QString::number(p.rtmin, 'f', 6));
+        stream.writeAttribute("rtmax", QString::number(p.rtmax, 'f', 6));
+        stream.writeAttribute("mzmin", QString::number(p.mzmin, 'f', 6));
+        stream.writeAttribute("mzmax", QString::number(p.mzmax, 'f', 6));
+        stream.writeAttribute("scan", QString::number(p.scan));
+        stream.writeAttribute("minscan", QString::number(p.minscan));
+        stream.writeAttribute("maxscan", QString::number(p.maxscan));
+        stream.writeAttribute("peakArea", QString::number(p.peakArea, 'f', 6));
+        stream.writeAttribute("peakSplineArea",
+                              QString::number(p.peakSplineArea, 'f', 6));
+        stream.writeAttribute("peakAreaCorrected",
+                              QString::number(p.peakAreaCorrected, 'f', 6));
+        stream.writeAttribute("peakAreaTop",
+                              QString::number(p.peakAreaTop, 'f', 6));
+        stream.writeAttribute("peakAreaTopCorrected",
+                              QString::number(p.peakAreaTopCorrected, 'f', 6));
+        stream.writeAttribute("peakAreaFractional",
+                              QString::number(p.peakAreaFractional, 'f', 6));
+        stream.writeAttribute("peakRank", QString::number(p.peakRank, 'f', 6));
+        stream.writeAttribute("peakIntensity",
+                              QString::number(p.peakIntensity, 'f', 6));
+
+        stream.writeAttribute("peakBaseLineLevel",
+                              QString::number(p.peakBaseLineLevel, 'f', 6));
+        stream.writeAttribute("peakMz", QString::number(p.peakMz, 'f', 6));
+        stream.writeAttribute("medianMz", QString::number(p.medianMz, 'f', 6));
+        stream.writeAttribute("baseMz", QString::number(p.baseMz, 'f', 6));
+        stream.writeAttribute("quality", QString::number(p.quality, 'f', 6));
+        stream.writeAttribute("width", QString::number(p.width, 'f', 6));
+        stream.writeAttribute("gaussFitSigma",
+                              QString::number(p.gaussFitSigma, 'f', 6));
+        stream.writeAttribute("gaussFitR2",
+                              QString::number(p.gaussFitR2, 'f', 6));
+        stream.writeAttribute("groupNum", QString::number(p.groupNum));
+        stream.writeAttribute("noNoiseObs", QString::number(p.noNoiseObs));
+        stream.writeAttribute("noNoiseFraction",
+                              QString::number(p.noNoiseFraction, 'f', 6));
+        stream.writeAttribute("symmetry", QString::number(p.symmetry, 'f', 6));
+        stream.writeAttribute("signalBaselineRatio",
+                              QString::number(p.signalBaselineRatio, 'f', 6));
+        stream.writeAttribute("groupOverlap",
+                              QString::number(p.groupOverlap, 'f', 6));
+        stream.writeAttribute("groupOverlapFrac",
+                              QString::number(p.groupOverlapFrac, 'f', 6));
+        stream.writeAttribute("localMaxFlag", QString::number(p.localMaxFlag));
+        stream.writeAttribute("fromBlankSample",
+                              QString::number(p.fromBlankSample));
+        stream.writeAttribute("label", QString::number(p.label));
+        stream.writeAttribute("sample",
+                              QString(p.getSample()->sampleName.c_str()));
+        stream.writeEndElement();
+    }
+
+    if (group->childCount()) {
+        stream.writeStartElement("children");
+        for (int i = 0; i < group->children.size(); i++) {
+            PeakGroup* child = &(group->children[i]);
+            writeGroupXML(stream, child);
+        }
+        stream.writeEndElement();
+    }
+    stream.writeEndElement();
+}
+
+void mzFileIO::writeGroupsXML(QXmlStreamWriter& stream,
+                              vector<PeakGroup>& groups)
+{
+    if (groups.size()) {
+        stream.writeStartElement("PeakGroups");
+        for (auto& group : groups)
+            writeGroupXML(stream, &group);
+        stream.writeEndElement();
+    }
+}
+
+void mzFileIO::readSamplesXML(QXmlStreamReader& xml,
+                              PeakGroup* group,
+                              float mzrollVersion)
+{
+    vector<mzSample*> samples = _mainwindow->getSamples();
+
+    if (mzrollVersion == 1) {
+        if (xml.name() == "SamplesUsed") {
+            xml.readNextStartElement();
+            while (xml.name() == "sample") {
+                unsigned int id =
+                    xml.attributes().value("id").toString().toInt();
+                for (int i = 0; i < samples.size(); ++i) {
+                    mzSample* sample = samples[i];
+                    if (id == sample->getSampleId()) {
+                        group->samples.push_back(sample);
+                    }
+                }
+                xml.readNextStartElement();
+            }
+        }
+    } else {
+        for (int i = 0; i < samples.size(); ++i) {
+            QString name = QString::fromStdString(samples[i]->sampleName);
+            cleanString(name);
+            if (xml.name() == "PeakGroup" && mzrollv_0_1_5
+                && samples[i]->isSelected) {
+                /**
+                 * if mzroll is from old version, just insert sample in group
+                 * from checking whether it is selected or not at time of
+                 * exporting. This can give erroneous result for old version if
+                 * at time of exporting mzroll user has selected diffrent
+                 * samples from samples were used at time of peak finding which
+                 * was inherent problem of old version of ElMaven.
+                 */
+                group->samples.push_back(samples[i]);
+            } else if (xml.name() == "SamplesUsed"
+                       && xml.attributes().value(name).toString() == "Used") {
+                /**
+                 * if mzroll file is of new version, it's sample name will
+                 * precede by 's' and has value of <Used> or <NotUsed>
+                 */
+                group->samples.push_back(samples[i]);
+            }
+        }
+    }
+}
+
+PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
+{
+    PeakGroup* group = new PeakGroup();
+
+    group->groupId = xml.attributes().value("groupId").toString().toInt();
+    group->tagString =
+        xml.attributes().value("tagString").toString().toStdString();
+    group->metaGroupId =
+        xml.attributes().value("metaGroupId").toString().toInt();
+    group->clusterId = xml.attributes().value("clusterId").toString().toInt();
+    group->expectedRtDiff =
+        xml.attributes().value("expectedRtDiff").toString().toFloat();
+    group->groupRank = xml.attributes().value("grouRank").toString().toFloat();
+    group->expectedMz =
+        xml.attributes().value("expectedMz").toString().toFloat();
+    group->label = xml.attributes().value("label").toString().toInt();
+    group->setType((PeakGroup::GroupType)xml.attributes()
+                       .value("type")
+                       .toString()
+                       .toInt());
+    group->changeFoldRatio =
+        xml.attributes().value("changeFoldRatio").toString().toFloat();
+    group->changePValue =
+        xml.attributes().value("changePValue").toString().toFloat();
+
+    string compoundId =
+        xml.attributes().value("compoundId").toString().toStdString();
+    string compoundDB =
+        xml.attributes().value("compoundDB").toString().toStdString();
+    string compoundName =
+        xml.attributes().value("compoundName").toString().toStdString();
+
+    string srmId = xml.attributes().value("srmId").toString().toStdString();
+    if (!srmId.empty())
+        group->setSrmId(srmId);
+
+    if (!compoundName.empty() && !compoundDB.empty()) {
+        vector<Compound*> matches =
+            DB.findSpeciesByName(compoundName, compoundDB);
+        if (matches.size() > 0)
+            group->compound = matches[0];
+    } else if (!compoundId.empty()) {
+        Compound* c = DB.findSpeciesById(compoundId, DB.ANYDATABASE);
+        if (c)
+            group->compound = c;
+    }
+
+    if (!group->compound) {
+        if (!compoundId.empty())
+            group->tagString = compoundId;
+        else if (!compoundName.empty())
+            group->tagString = compoundName;
+    }
+
+    if (parent) {
+        parent->addChild(*group);
+        if (parent->childCount() > 0)
+            group = &(parent->children[parent->children.size() - 1]);
+    }
+
+    return group;
+}
+
+void mzFileIO::readPeakXML(QXmlStreamReader& xml, PeakGroup* parent)
+{
+    Peak p;
+    p.pos = xml.attributes().value("pos").toString().toInt();
+    p.minpos = xml.attributes().value("minpos").toString().toInt();
+    p.maxpos = xml.attributes().value("maxpos").toString().toInt();
+    p.splineminpos = xml.attributes().value("splineminpos").toString().toInt();
+    p.splinemaxpos = xml.attributes().value("splinemaxpos").toString().toInt();
+    p.rt = xml.attributes().value("rt").toString().toDouble();
+    p.rtmin = xml.attributes().value("rtmin").toString().toDouble();
+    p.rtmax = xml.attributes().value("rtmax").toString().toDouble();
+    p.mzmin = xml.attributes().value("mzmin").toString().toDouble();
+    p.mzmax = xml.attributes().value("mzmax").toString().toDouble();
+    p.scan = xml.attributes().value("scan").toString().toInt();
+    p.minscan = xml.attributes().value("minscan").toString().toInt();
+    p.maxscan = xml.attributes().value("maxscan").toString().toInt();
+    p.peakArea = xml.attributes().value("peakArea").toString().toDouble();
+    p.peakSplineArea =
+        xml.attributes().value("peakSplineArea").toString().toDouble();
+    p.peakAreaCorrected =
+        xml.attributes().value("peakAreaCorrected").toString().toDouble();
+    p.peakAreaTop = xml.attributes().value("peakAreaTop").toString().toDouble();
+    p.peakAreaTopCorrected =
+        xml.attributes().value("peakAreaTopCorrected").toString().toDouble();
+    p.peakAreaFractional =
+        xml.attributes().value("peakAreaFractional").toString().toDouble();
+    p.peakRank = xml.attributes().value("peakRank").toString().toDouble();
+    p.peakIntensity =
+        xml.attributes().value("peakIntensity").toString().toDouble();
+    p.peakBaseLineLevel =
+        xml.attributes().value("peakBaseLineLevel").toString().toDouble();
+    p.peakMz = xml.attributes().value("peakMz").toString().toDouble();
+    p.medianMz = xml.attributes().value("medianMz").toString().toDouble();
+    p.baseMz = xml.attributes().value("baseMz").toString().toDouble();
+    p.quality = xml.attributes().value("quality").toString().toDouble();
+    p.width = xml.attributes().value("width").toString().toInt();
+    p.gaussFitSigma =
+        xml.attributes().value("gaussFitSigma").toString().toDouble();
+    p.gaussFitR2 = xml.attributes().value("gaussFitR2").toString().toDouble();
+    p.groupNum = xml.attributes().value("groupNum").toString().toInt();
+    p.noNoiseObs = xml.attributes().value("noNoiseObs").toString().toInt();
+    p.noNoiseFraction =
+        xml.attributes().value("noNoiseFraction").toString().toDouble();
+    p.symmetry = xml.attributes().value("symmetry").toString().toDouble();
+    p.signalBaselineRatio =
+        xml.attributes().value("signalBaselineRatio").toString().toDouble();
+    p.groupOverlap =
+        xml.attributes().value("groupOverlap").toString().toDouble();
+    p.groupOverlapFrac =
+        xml.attributes().value("groupOverlapFrac").toString().toDouble();
+    p.localMaxFlag = xml.attributes().value("localMaxFlag").toString().toInt();
+    p.fromBlankSample =
+        xml.attributes().value("fromBlankSample").toString().toInt();
+    p.label = xml.attributes().value("label").toString().toInt();
+    string sampleName =
+        xml.attributes().value("sample").toString().toStdString();
+    vector<mzSample*> samples = _mainwindow->getSamples();
+    for (int i = 0; i < samples.size(); i++) {
+        if (samples[i]->sampleName == sampleName) {
+            p.setSample(samples[i]);
+            break;
+        }
+    }
+
+    parent->addPeak(p);
+}
+
+vector<PeakGroup*> mzFileIO::readGroupsXML(QString fileName)
+{
+    markv_0_1_5mzroll(fileName);
+
+    QFile data(fileName);
+    vector<PeakGroup*> groups;
+    if ( !data.open(QFile::ReadOnly) ) {
+        cerr << "File open: " << fileName.toStdString() << " failed" << endl;
+        return groups;
+    }
+
+    QXmlStreamReader xml(&data);
+    PeakGroup* group = nullptr;
+    PeakGroup* parent = nullptr;
+    QStack<PeakGroup*> stack;
+
+    float mzrollVersion = 0;
+
+    while (!xml.atEnd()) {
+        if (xml.isStartElement() && xml.name() == "project") {
+            mzrollVersion = xml.attributes().value("mzrollVersion").toFloat();
+        }
+        xml.readNext();
+        if (xml.hasError()) {
+            qDebug() << "Error in xml reading: " << xml.errorString();
+        }
+        if (xml.isStartElement()) {
+            if (xml.name() == "PeakGroup") {
+                group = readGroupXML(xml, parent);
+                if (!group->isIsotope())
+                    groups.push_back(group);
+            }
+            if (xml.name() == "SamplesUsed" && group) {
+                readSamplesXML(xml, group, mzrollVersion);
+            }
+            if (xml.name() == "Peak" && group) {
+                readPeakXML(xml, group);
+            }
+            if (xml.name() == "children" && group) {
+                stack.push(group);
+                parent = stack.top();
+            }
+        }
+
+        if (xml.isEndElement()) {
+           if (xml.name() == "children") {
+                if (stack.size() > 0)
+                    parent = stack.pop();
+                if (parent && parent->childCount()) {
+                    for (int i = 0; i < parent->children.size(); i++) {
+                        parent->children[i].minQuality =
+                            _mainwindow->mavenParameters->minQuality;
+                        parent->children[i].groupStatistics();
+                    }
+                }
+                if (stack.size() == 0)
+                    parent = nullptr;
+            }
+            if (xml.name() == "PeakGroup") {
+                if (group) {
+                    group->minQuality =
+                        _mainwindow->mavenParameters->minQuality;
+                    group->groupStatistics();
+                }
+                group = nullptr;
+            }
+        }
+    }
+    for (auto group : groups) {
+        if (!group)
+            continue;
+        group->minQuality = _mainwindow->mavenParameters->minQuality;
+        group->groupStatistics();
+    }
+    return groups;
 }
 
 bool mzFileIO::isSpectralHitType(QString filename) {
