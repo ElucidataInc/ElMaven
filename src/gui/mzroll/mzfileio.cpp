@@ -1,4 +1,5 @@
 #include "mzfileio.h"
+#include "projectdatabase.h"
 #include <QStringList>
 #include <QTextStream>
 
@@ -12,6 +13,12 @@ mzFileIO::mzFileIO(QWidget*) {
     _mainwindow = NULL;
     _stopped = true;
     process = NULL;
+    _currentProject = nullptr;
+
+    connect(this,
+            SIGNAL(sampleLoaded()),
+            this,
+            SLOT(_postSampleLoadOperations()));
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
@@ -532,18 +539,23 @@ void mzFileIO::fileImport(void) {
     }
 
     Q_FOREACH(QString filename, projects ) {
-        _mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
-        _mainwindow->projectDockWidget->loadProject(filename);
-        QRegExp rxtable("*_table\-[0-9]*");
-        rxtable.setPatternSyntax(QRegExp::Wildcard);
-        QRegExp rxbm("*_bookmarkedPeaks*");
-        rxbm.setPatternSyntax(QRegExp::Wildcard);
-        if(rxtable.exactMatch(filename)) {
-            Q_EMIT(createPeakTableSignal(filename));
-        } else if (rxbm.exactMatch(filename)) {
-            _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
-        } else {
-            _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+        // Since SQLite projects themselves use this thread to load samples
+        // it cannot be used to load the project itself. We only queue mzroll
+        // files to be loaded in this method.
+        if (isMzRollProject(filename)) {
+            _mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
+            _mainwindow->projectDockWidget->loadProject(filename);
+            QRegExp rxtable("*_table\-[0-9]*");
+            rxtable.setPatternSyntax(QRegExp::Wildcard);
+            QRegExp rxbm("*_bookmarkedPeaks*");
+            rxbm.setPatternSyntax(QRegExp::Wildcard);
+            if(rxtable.exactMatch(filename)) {
+                Q_EMIT(createPeakTableSignal(filename));
+            } else if (rxbm.exactMatch(filename)) {
+                _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+            } else {
+                _mainwindow->bookmarkedPeaks->loadPeakTable(filename);
+            }
         }
     }
 
@@ -576,7 +588,6 @@ void mzFileIO::fileImport(void) {
             iter++;
 
             Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
-
         }
     } else {
         int iter = 0;
@@ -639,8 +650,171 @@ bool mzFileIO::isSampleFileType(QString filename) {
 }
 
 bool mzFileIO::isProjectFileType(QString filename) {
-    if (filename.endsWith("mzroll",Qt::CaseInsensitive)) return true;
+    return (isMzRollProject(filename) || isSQLiteProject(filename));
+}
+
+bool mzFileIO::isMzRollProject(QString filename)
+{
+    if (filename.endsWith("mzroll", Qt::CaseInsensitive))
+        return true;
     return false;
+}
+
+bool mzFileIO::isSQLiteProject(QString filename)
+{
+    if (filename.endsWith("mzrollDB", Qt::CaseInsensitive))
+        return true;
+    return false;
+}
+
+bool mzFileIO::sqliteProjectIsOpen()
+{
+    return _currentProject != nullptr;
+}
+
+void mzFileIO::closeSQLiteProject()
+{
+    if (!_currentProject)
+        return;
+
+    delete _currentProject;
+    _currentProject = nullptr;
+}
+
+int mzFileIO::writeBookmarkedGroup(PeakGroup* group)
+{
+    if (_currentProject)
+        return _currentProject->saveGroupAndPeaks(group, 0, "Bookmarks");
+    else
+        return -1;
+}
+
+bool mzFileIO::writeSQLiteProject(QString filename)
+{
+    if (filename.isEmpty())
+        return false;
+    qDebug() << "Debug: saving SQLite project " << filename << endl;
+
+    std::vector<mzSample*> sampleSet = _mainwindow->getSamples();
+    if (sampleSet.size() == 0)
+        return false;
+
+    if (_currentProject
+            and _currentProject->projectName() == filename.toStdString()) {
+        qDebug() << "Debug: Saving in existing project…";
+    } else {
+        qDebug() << "Debug: Creating new project to save…";
+        _currentProject = new ProjectDatabase(filename.toStdString());
+    }
+
+    if (_currentProject) {
+        _currentProject->deleteAll();  // this is crazy
+        _currentProject->saveSamples(sampleSet);
+        _currentProject->saveAlignment(sampleSet);
+
+        set<Compound*> compoundSet;
+        int topLevelGroupCount = 0;
+        auto allTablesList = _mainwindow->getPeakTableList();
+        allTablesList.push_back(_mainwindow->bookmarkedPeaks);
+        for (const auto& peakTable : allTablesList) {
+            for (PeakGroup* group : peakTable->getGroups()) {
+                topLevelGroupCount++;
+                string tableName = peakTable->windowTitle().toStdString();
+                _currentProject->saveGroupAndPeaks(group,
+                                                   0,
+                                                   tableName);
+                if (group->compound)
+                    compoundSet.insert(group->compound);
+            }
+        }
+        _currentProject->saveCompounds(compoundSet);
+        return true;
+    }
+    qDebug() << "Error: Cannot write to closed project" << filename;
+    return false;
+}
+
+bool mzFileIO::readSQLiteProject(QString fileName)
+{
+    if (_currentProject)
+        closeSQLiteProject();
+
+    if (_currentProject)
+        return false;
+
+    _currentProject = new ProjectDatabase(fileName.toStdString());
+
+    // load compounds stored in the project file
+    auto compounds = _currentProject->loadCompounds();
+    for (auto compound : compounds)
+        DB.addCompound(compound);
+
+    auto newSamples =
+        _currentProject->loadSampleNames(_mainwindow->getSamples());
+    for (auto& sampleName : newSamples) {
+        // TODO: in the original implementation, the author (Eugene) prompts the
+        // the user to locate each file that was not automatically found.
+        addFileToQueue(QString::fromStdString(sampleName));
+    }
+
+    // start sample loading threaded operation
+    start();
+    return true;
+}
+
+void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
+{
+    if (!_currentProject)
+        return;
+
+    // lambda function to check for existence of peak table by a certain name
+    auto findPeakTable = [](QList<QPointer<TableDockWidget>> tableList,
+                            string tableName) {
+        for (auto table : tableList)
+            if (table->windowTitle().toStdString() == tableName)
+                return static_cast<TableDockWidget *>(table);
+        return static_cast<TableDockWidget *>(nullptr);
+    };
+
+    // create tables for search results
+    auto bookmarkTableTitle = "Bookmark Table";
+    auto tableNames = _currentProject->getTableNames();
+    for (auto tableName : tableNames) {
+        TableDockWidget* table = findPeakTable(_mainwindow->getPeakTableList(),
+                                               tableName);
+        if (!table && tableName != bookmarkTableTitle)
+            _mainwindow->addPeaksTable(QString::fromStdString(tableName));
+    }
+
+    // load all peakgroups
+    auto groups = _currentProject->loadGroups(newSamples);
+    for (auto& group : groups) {
+        if (group->searchTableName.empty())
+            group->searchTableName = bookmarkTableTitle;
+
+        auto allTablesList = _mainwindow->getPeakTableList();
+        allTablesList.push_back(_mainwindow->bookmarkedPeaks);
+        TableDockWidget* table = findPeakTable(allTablesList,
+                                               group->searchTableName);
+        if (table)
+            table->addPeakGroup(group);
+    }
+
+    // updated display widgets
+    for (auto& table : _mainwindow->getPeakTableList())
+        table->showAllGroups();
+    _mainwindow->bookmarkedPeaks->showAllGroups();
+}
+
+void mzFileIO::_postSampleLoadOperations()
+{
+    if (!_currentProject)
+        return;
+
+    auto samples = _mainwindow->getSamples();
+    _currentProject->updateSamples(samples);
+    _currentProject->loadAndPerformAlignment(samples);
+    readAllPeakTablesSQLite(samples);
 }
 
 bool mzFileIO::isSpectralHitType(QString filename) {

@@ -6,8 +6,9 @@
 #include "mainwindow.h"
 #include "mzAligner.h"
 
-
+class ProjectDatabase;
 class ProjectDockWidget;
+
 /**
  * @class mzPoint
  * @ingroup mzroll
@@ -74,8 +75,18 @@ Q_OBJECT
         bool isSpectralHitType(QString filename);
         bool isPeakListType(QString filename);
 
+        bool isMzRollProject(QString filename);
+        bool isSQLiteProject(QString filename);
 
+        bool sqliteProjectIsOpen();
+        void closeSQLiteProject();
+        int writeBookmarkedGroup(PeakGroup* group);
+        bool writeSQLiteProject(QString filename);
+        bool readSQLiteProject(QString filename);
+        void readAllPeakTablesSQLite(const vector<mzSample*> newSamples);
 
+    private Q_SLOTS:
+        void _postSampleLoadOperations();
 
     public Q_SLOTS:
         void readThermoRawFileImport();
@@ -127,8 +138,7 @@ Q_OBJECT
          * @brief to make updating sampleId thread safe
          */
         mutex mtxSampleId;
-
-
+        ProjectDatabase* _currentProject;
 };
 
 #endif // MZFILEIO_H

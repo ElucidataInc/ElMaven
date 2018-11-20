@@ -3,6 +3,6 @@ CONFIG += ordered qt thread
 
 SUBDIRS += core/libmaven \
            pollyCLI \
+           projectDB \
            gui/mzroll \
-           cli/peakdetector \
-           projectDB
+           cli/peakdetector

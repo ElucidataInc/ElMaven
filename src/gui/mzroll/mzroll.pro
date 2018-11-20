@@ -71,7 +71,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/Logger \
-                $$top_srcdir/src/pollyCLI
+                $$top_srcdir/src/pollyCLI \
+                $$top_srcdir/src/projectDB
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -82,7 +83,19 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lpollyCLI               #64bit
+LIBS +=  -lmaven \
+         -lobiwarp \
+         -lpugixml \
+         -lneural \
+         -lcsvparser \
+         -lpls \
+         -lErrorHandling \
+         -lLogger \
+         -lcdfread \
+         -lnetcdf \
+         -lz \
+         -lpollyCLI \
+         -lprojectDB
 
 macx {
 
