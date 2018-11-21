@@ -15,7 +15,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     font.setPointSize(10);
 
     lastUsedSampleColor = QColor(Qt::green);
-
+    setLastOpenedProject("");
+    setLastSavedProject("");
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);
@@ -330,7 +331,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
         msgBox->exec();
         if (msgBox->clickedButton() == connectButton) {
             QSet<QString> fileNames;
-            _mainwindow->SaveMzrollListvar.clear();
+            _mainwindow->pendingMzRollSaves.clear();
             _mainwindow->reBootApp();
         }
      }
@@ -588,6 +589,40 @@ QTreeWidget* ProjectDockWidget::getTreeWidget(){
     return _treeWidget;
 }
 
+QString ProjectDockWidget::getLastOpenedProject()
+{
+    return _lastOpenedProject;
+}
+
+std::chrono::time_point<std::chrono::system_clock>
+ProjectDockWidget::getLastOpenedTime()
+{
+    return _lastLoad;
+}
+
+void ProjectDockWidget::setLastOpenedProject(QString filename)
+{
+    _lastOpenedProject = filename;
+    _lastLoad = std::chrono::system_clock::now();
+}
+
+QString ProjectDockWidget::getLastSavedProject()
+{
+    return _lastSavedProject;
+}
+
+std::chrono::time_point<std::chrono::system_clock>
+ProjectDockWidget::getLastSavedTime()
+{
+    return _lastSave;
+}
+
+void ProjectDockWidget::setLastSavedProject(QString filename)
+{
+    _lastSavedProject = filename;
+    _lastSave = std::chrono::system_clock::now();
+}
+
 void ProjectDockWidget::saveProjectAsSQLite()
 {
     QSettings* settings = _mainwindow->getSettings();
@@ -606,19 +641,27 @@ void ProjectDockWidget::saveProjectAsSQLite()
         "emDB Project(*.emDB)"
     );
 
+    if (fileName.isEmpty())
+        return;
+
     if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
         fileName = fileName + ".emDB";
 
-    auto success = _mainwindow->fileLoader->writeSQLiteProject(fileName);
+    saveSQLiteProject(fileName);
+}
+
+void ProjectDockWidget::saveSQLiteProject(QString filename)
+{
+    auto success = _mainwindow->fileLoader->writeSQLiteProject(filename);
     if (success)
-        lastOpenedProject = fileName;
-    lastOpenedProject = fileName;
+        setLastSavedProject(filename);
+    setLastSavedProject(filename);
 }
 
 void ProjectDockWidget::saveSQLiteProject()
 {
     if (_mainwindow->fileLoader->sqliteProjectIsOpen()) {
-        _mainwindow->fileLoader->writeSQLiteProject(lastOpenedProject);
+        _mainwindow->fileLoader->writeSQLiteProject(getLastOpenedProject());
         return;
     } else {
         saveProjectAsSQLite();
@@ -641,7 +684,7 @@ void ProjectDockWidget::loadSQLiteProject(QString filename)
 
     auto success = _mainwindow->fileLoader->readSQLiteProject(filename);
     if (success)
-        lastOpenedProject = filename;
+        setLastOpenedProject(filename);
 }
 
 void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
@@ -667,6 +710,12 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
     if (reply == QMessageBox::Yes) {
         saveSQLiteProject();
         _mainwindow->fileLoader->closeSQLiteProject();
+        setLastSavedProject("");
+        setLastOpenedProject("");
+    } else {
+        _mainwindow->fileLoader->closeSQLiteProject();
+        setLastSavedProject("");
+        setLastOpenedProject("");
     }
 
     // clear session regardless of whether the project was saved
@@ -681,8 +730,8 @@ void ProjectDockWidget::clearSession()
     _mainwindow->bookmarkedPeaks->deleteAll();
 }
 
-void ProjectDockWidget::saveProjectAsMzRoll() {
-
+void ProjectDockWidget::saveProjectAsMzRoll()
+{
     QSettings* settings = _mainwindow->getSettings();
 
     QString dir = ".";
@@ -691,41 +740,48 @@ void ProjectDockWidget::saveProjectAsMzRoll() {
         QDir test(ldir);
         if (test.exists()) dir = ldir;
     }
-    QString fileName = QFileDialog::getSaveFileName( this,
-            "Save Project As(.mzroll)", dir, "mzRoll Project(*.mzroll)");
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Project As(.mzroll)",
+        dir,
+        "mzRoll Project(*.mzroll)"
+    );
 
-    if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
+    if(!fileName.endsWith(".mzroll", Qt::CaseInsensitive))
+        fileName = fileName + ".mzroll";
 
-    QList<QPointer<TableDockWidget> > peaksTableList =
-        _mainwindow->getPeakTableList();
-
-    _mainwindow->SaveMzrollListvar.clear();
-
-    if (peaksTableList.size()) {
-        int j = 1;
-        Q_FOREACH(auto peaksTable, peaksTableList) {
-            _mainwindow->savePeaksTable(peaksTable,
-                                        fileName,
-                                        QString::number(j));
-            j++;
-        }
-    } else {
-        _mainwindow->savePeaksTable(nullptr, fileName, "");
-    }
+    saveMzRollProject(fileName);
 }
 
 void ProjectDockWidget::saveMzRollProject()
 {
-    if (_mainwindow->fileLoader->sqliteProjectIsOpen()) {
-        _mainwindow->fileLoader->writeSQLiteProject(lastOpenedProject);
-        return;
+    if (!getLastSavedProject().isEmpty()) {
+        saveMzRollProject(getLastSavedProject());
     } else {
         saveProjectAsMzRoll();
     }
 }
 
-void ProjectDockWidget::saveMzRollProject(QString filename,
-                                          TableDockWidget* peakTable)
+void ProjectDockWidget::saveMzRollProject(QString filename)
+{
+    auto peaksTableList = _mainwindow->getPeakTableList();
+    _mainwindow->pendingMzRollSaves.clear();
+
+    if (peaksTableList.size()) {
+        int j = 1;
+        Q_FOREACH(auto peaksTable, peaksTableList) {
+            _mainwindow->savePeakTableAsMzRoll(peaksTable,
+                                               filename,
+                                               QString::number(j));
+            j++;
+        }
+    } else {
+        _mainwindow->savePeakTableAsMzRoll(nullptr, filename, "");
+    }
+}
+
+void ProjectDockWidget::saveMzRollTable(QString filename,
+                                        TableDockWidget* peakTable)
 {
     if (filename.isEmpty() ) return;
     QFile file(filename);
@@ -814,7 +870,7 @@ void ProjectDockWidget::saveMzRollProject(QString filename,
     stream.writeEndElement();
     QSettings* settings = _mainwindow->getSettings();
     settings->setValue("lastSavedProject", filename);
-    lastSavedProject=filename;
+    setLastSavedProject(filename);
 }
 
 void ProjectDockWidget::loadMzRollProject(QString fileName) {
@@ -930,7 +986,7 @@ void ProjectDockWidget::loadMzRollProject(QString fileName) {
     }
     data.close();
 
-    lastOpenedProject = fileName;
+    setLastOpenedProject(fileName);
 }
 
 void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {

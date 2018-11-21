@@ -105,16 +105,15 @@ extern Database DB;
 //Added when merged with Maven776 - Kiran
 class RemoteSpectraHandler;
 
-class AutoSave: public QThread {
-Q_OBJECT
-
-// public Q_SLOTS:
-// 	void saveMzRollWorker();
+class AutoSave : public QThread
+{
+    Q_OBJECT
 
 public:
-	AutoSave(MainWindow*);
-	void saveMzRollWorker();
-	MainWindow* _mainwindow;
+    AutoSave(MainWindow*);
+    void saveProjectWorker();
+    MainWindow* _mainwindow;
+
 private:
     void run();
 };
@@ -143,7 +142,7 @@ public:
 	}
 
 	AutoSave* autosave;
-	QSet<QString> SaveMzrollListvar;
+    QSet<QString> pendingMzRollSaves;
 	MavenParameters* mavenParameters;
 	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *massCutoffWindowBox;
@@ -250,7 +249,9 @@ public:
 	void autoSaveSignal();
 	void normalizeIsotopicMatrix(MatrixXf &MM);
 
-	void savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName);
+    void savePeakTableAsMzRoll(TableDockWidget* peaksTable,
+                               QString fileName,
+                               QString tableName);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
@@ -277,13 +278,13 @@ public:
 
 	void saveSettingsToLog();
 
-	bool updateSamplePathinMzroll(QStringList filelist);
+    bool updateSamplePathinMzroll(QStringList filelist);
 	void setValue(int value);
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
 	bool askAutosave();
-	void saveMzRoll();
+    void saveProject();
 	bool doAutosave;
 	int askAutosaveMain;
 	void loadPollySettings(QString fileName);
@@ -307,7 +308,7 @@ public Q_SLOTS:
 	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
-	void autosaveMzRoll();
+    void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
 	void setProgressBar(QString, int step, int totalSteps);
@@ -419,7 +420,7 @@ private Q_SLOTS:
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
    		QStringList arguments;
-		Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+        Q_FOREACH( QString newFileName, this->pendingMzRollSaves) {
 			arguments << newFileName;
 		}
    		QProcess *myProcess = new QProcess();
@@ -461,9 +462,11 @@ private:
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 	QString fileName;
-	QString newFileName;
-	void saveMzRollList(QString MzrollFileName);
-	void saveMzRollAllTables();
+    QString newFileName;
+    void _setProjectFilenameIfEmpty();
+    void _saveProjectForFilename();
+    void _saveMzRollList(QString projectFileName);
+    void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
 

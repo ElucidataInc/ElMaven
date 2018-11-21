@@ -552,6 +552,7 @@ void mzFileIO::fileImport(void) {
             if(rxtable.exactMatch(filename)) {
                 Q_EMIT(createPeakTableSignal(filename));
             } else {
+                _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 auto groups = readGroupsXML(filename);
                 for (auto group : groups) {
                     _mainwindow->bookmarkedPeaks->addPeakGroup(group);

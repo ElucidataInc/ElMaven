@@ -15,12 +15,16 @@ class ProjectDockWidget : public QDockWidget
 public:
     explicit ProjectDockWidget(QMainWindow *parent = 0);
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
-    QString lastOpenedProject;
-    QString lastSavedProject;
     QColor  lastUsedSampleColor;
     QMap<mzSample*, QColor> storeSampleColors;
     QTreeWidget* getTreeWidget();
     void prepareSampleCohortFile(QString sampleCohortFileName);
+    QString getLastOpenedProject();
+    std::chrono::time_point<std::chrono::system_clock> getLastOpenedTime();
+    void setLastOpenedProject(QString filename);
+    QString getLastSavedProject();
+    std::chrono::time_point<std::chrono::system_clock> getLastSavedTime();
+    void setLastSavedProject(QString filename);
 
 Q_SIGNALS:
 
@@ -39,7 +43,16 @@ public Q_SLOTS:
     void saveProjectAsSQLite();
 
     /**
-     * @brief Update saved data in the currently open emDB project.
+     * @brief Write project data into given file as a SQLite database.
+     * @details If the file is already a project DB, all project tables are
+     * deleted and created anew.
+     * @param filename Name of the file to be saved as SQLite project on disk.
+     */
+    void saveSQLiteProject(QString filename);
+
+    /**
+     * @brief Update saved data in the currently open emDB project. If no
+     * project is currently open, prompts the user to create a new one.
      */
     void saveSQLiteProject();
 
@@ -76,8 +89,9 @@ public Q_SLOTS:
 
     void saveProjectAsMzRoll();
     void saveMzRollProject();
+    void saveMzRollProject(QString filename);
+    void saveMzRollTable(QString filename, TableDockWidget* peakTable=nullptr);
     void loadMzRollProject(QString filename);
-    void saveMzRollProject(QString filename, TableDockWidget* peakTable=nullptr);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
     void sendBoostSignal( const string& progressText, unsigned int completed_samples, int total_samples)
@@ -114,12 +128,13 @@ private:
     MainWindow* _mainwindow;
     QTreeWidget* _treeWidget;
 
-
     QMap<QString, QColor> storeColor;
     QColor  usedColor;
 
-
-
+    QString _lastOpenedProject;
+    QString _lastSavedProject;
+    std::chrono::time_point<std::chrono::system_clock> _lastSave;
+    std::chrono::time_point<std::chrono::system_clock> _lastLoad;
 };
 
 #endif // PROJECTDOCKWIDGET_H
