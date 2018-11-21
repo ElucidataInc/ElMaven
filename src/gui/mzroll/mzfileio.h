@@ -75,14 +75,68 @@ Q_OBJECT
         bool isSpectralHitType(QString filename);
         bool isPeakListType(QString filename);
 
+        /**
+         * @brief Check whether the filename ends with a ".mzroll" extension.
+         * @param filename String name of the file to be checked.
+         * @return true if the filename ends with ".mzroll" extension, false
+         * otherwise.
+         */
         bool isMzRollProject(QString filename);
+
+        /**
+         * @brief Check whether the filename ends with a ".emDB" extension.
+         * @param filename String name of the file to be checked.
+         * @return true if the filename ends with ".emDB" extension, false
+         * otherwise
+         */
         bool isSQLiteProject(QString filename);
 
+        /**
+         * @brief Check if a SQLite project is currently open.
+         * @return true if a SQLite project is open, false otherwise.
+         */
         bool sqliteProjectIsOpen();
+
+        /**
+         * @brief Close the currently open SQLite project, if any.
+         */
         void closeSQLiteProject();
+
+        /**
+         * @brief Write a single bookmarked PeakGroup into the currently open
+         * SQLite project.
+         * @param group The PeakGroup to be written as a bookamrk.
+         * @return The unique integer ID assigned to `group` in the database,
+         * after being written. If the operation fails, -1 is returned.
+         */
         int writeBookmarkedGroup(PeakGroup* group);
+
+        /**
+         * @brief Write current session data into a SQLite database.
+         * @details The data saved include samples' metadata, peak groups,
+         * peaks, associated compounds and alignment data. Write operation
+         * happens into a newly created (or wiped, if already exists) SQLite
+         * database. This database also becomes the currently open project.
+         * @param filename String representing absolute path of the file to be
+         * treated as a SQLite database.
+         * @return true if the write operation was successful, false otherwise.
+         */
         bool writeSQLiteProject(QString filename);
+
+        /**
+         * @brief Read session data from a SQLite database previously saved
+         * using `writeSQLiteProject` method.
+         * @param filename String name of SQLite database to be read.
+         * @return true if the read operation was successful, false otherwise.
+         */
         bool readSQLiteProject(QString filename);
+
+        /**
+         * @brief For a given set of samples, load the peak groups and their
+         * peaks from the currently open SQLite database project.
+         * @param newSamples A vector of pointers to mzSample objects to which
+         * loaded peaks will be associated (according to their sample ID).
+         */
         void readAllPeakTablesSQLite(const vector<mzSample*> newSamples);
 
         /**
@@ -183,6 +237,11 @@ Q_OBJECT
          * @brief to make updating sampleId thread safe
          */
         mutex mtxSampleId;
+
+        /**
+         * @brief An instance of the ProjectData class acting as a proxy for
+         * a SQLite project, which data can be written to or read from.
+         */
         ProjectDatabase* _currentProject;
 };
 

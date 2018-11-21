@@ -699,7 +699,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
 {
     if (filename.isEmpty())
         return false;
-    qDebug() << "Debug: saving SQLite project " << filename << endl;
+    qDebug() << "saving SQLite project " << filename << endl;
 
     std::vector<mzSample*> sampleSet = _mainwindow->getSamples();
     if (sampleSet.size() == 0)
@@ -707,9 +707,9 @@ bool mzFileIO::writeSQLiteProject(QString filename)
 
     if (_currentProject
             and _currentProject->projectName() == filename.toStdString()) {
-        qDebug() << "Debug: Saving in existing project…";
+        qDebug() << "saving in existing project…";
     } else {
-        qDebug() << "Debug: Creating new project to save…";
+        qDebug() << "creating new project to save…";
         _currentProject = new ProjectDatabase(filename.toStdString());
     }
 
