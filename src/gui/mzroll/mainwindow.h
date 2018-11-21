@@ -132,7 +132,7 @@ public:
 	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
-	int noOfPeakTables = 0;
+    int lastPeakTableId = 0;
 	int totalCharge = 0;
 	bool allPeaksMarked = false;
 	bool aligned = false;
@@ -400,6 +400,7 @@ public Q_SLOTS:
 
 	//Added when merging with Maven776 - Kiran
     void removePeaksTable(TableDockWidget*);
+    void removeAllPeakTables();
 	BackgroundPeakUpdate* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();

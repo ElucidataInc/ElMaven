@@ -280,8 +280,9 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     return;
   if (group->peakCount() == 0)
     return;
-  if (group->meanMz <= 0)
+  if (group->meanMz <= 0) {
     return;
+  }
 
   NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
   item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled |
@@ -1443,132 +1444,6 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
   file.close();
 }
 
-void TableDockWidget::cleanString(QString &name) {
-  name.replace('#', '_');
-  name = 's' + name;
-}
-void TableDockWidget::writeGroupXML(QXmlStreamWriter &stream, PeakGroup *g) {
-  if (!g)
-    return;
-
-  stream.writeStartElement("PeakGroup");
-  stream.writeAttribute("groupId", QString::number(g->groupId));
-  stream.writeAttribute("tagString", QString(g->tagString.c_str()));
-  stream.writeAttribute("metaGroupId", QString::number(g->metaGroupId));
-  stream.writeAttribute("clusterId", QString::number(g->clusterId));
-  stream.writeAttribute("expectedRtDiff",
-                        QString::number(g->expectedRtDiff, 'f', 6));
-  stream.writeAttribute("groupRank", QString::number(g->groupRank, 'f', 6));
-  stream.writeAttribute("expectedMz", QString::number(g->expectedMz, 'f', 6));
-  stream.writeAttribute("label", QString::number(g->label));
-  stream.writeAttribute("type", QString::number((int)g->type()));
-  stream.writeAttribute("changeFoldRatio",
-                        QString::number(g->changeFoldRatio, 'f', 6));
-  stream.writeAttribute("changePValue",
-                        QString::number(g->changePValue, 'e', 6));
-  if (g->srmId.length())
-    stream.writeAttribute("srmId", QString(g->srmId.c_str()));
-
-  // for sample contrasts  ratio and pvalue
-  if (g->hasCompoundLink()) {
-    Compound *c = g->compound;
-    stream.writeAttribute("compoundId", QString(c->id.c_str()));
-    stream.writeAttribute("compoundDB", QString(c->db.c_str()));
-    stream.writeAttribute("compoundName", QString(c->name.c_str()));
-    stream.writeAttribute("formula", QString(c->id.c_str()));
-  }
-
-  stream.writeStartElement("SamplesUsed");
-  for (int i = 0; i < g->samples.size(); ++i) {
-    stream.writeStartElement("sample");
-    stream.writeAttribute("id", QString::number(g->samples[i]->getSampleId()));
-    stream.writeEndElement();
-  }
-  stream.writeEndElement();
-
-  for (int j = 0; j < g->peaks.size(); j++) {
-    Peak &p = g->peaks[j];
-    stream.writeStartElement("Peak");
-    stream.writeAttribute("pos", QString::number(p.pos, 'f', 6));
-    stream.writeAttribute("minpos", QString::number(p.minpos, 'f', 6));
-    stream.writeAttribute("maxpos", QString::number(p.maxpos, 'f', 6));
-    stream.writeAttribute("splineminpos",
-                          QString::number(p.splineminpos, 'f', 6));
-    stream.writeAttribute("splinemaxpos",
-                          QString::number(p.splinemaxpos, 'f', 6));
-    stream.writeAttribute("rt", QString::number(p.rt, 'f', 6));
-    stream.writeAttribute("rtmin", QString::number(p.rtmin, 'f', 6));
-    stream.writeAttribute("rtmax", QString::number(p.rtmax, 'f', 6));
-    stream.writeAttribute("mzmin", QString::number(p.mzmin, 'f', 6));
-    stream.writeAttribute("mzmax", QString::number(p.mzmax, 'f', 6));
-    stream.writeAttribute("scan", QString::number(p.scan));
-    stream.writeAttribute("minscan", QString::number(p.minscan));
-    stream.writeAttribute("maxscan", QString::number(p.maxscan));
-    stream.writeAttribute("peakArea", QString::number(p.peakArea, 'f', 6));
-    stream.writeAttribute("peakSplineArea",
-                          QString::number(p.peakSplineArea, 'f', 6));
-    stream.writeAttribute("peakAreaCorrected",
-                          QString::number(p.peakAreaCorrected, 'f', 6));
-    stream.writeAttribute("peakAreaTop",
-                          QString::number(p.peakAreaTop, 'f', 6));
-    stream.writeAttribute("peakAreaTopCorrected",
-                          QString::number(p.peakAreaTopCorrected, 'f', 6));
-    stream.writeAttribute("peakAreaFractional",
-                          QString::number(p.peakAreaFractional, 'f', 6));
-    stream.writeAttribute("peakRank", QString::number(p.peakRank, 'f', 6));
-    stream.writeAttribute("peakIntensity",
-                          QString::number(p.peakIntensity, 'f', 6));
-
-    stream.writeAttribute("peakBaseLineLevel",
-                          QString::number(p.peakBaseLineLevel, 'f', 6));
-    stream.writeAttribute("peakMz", QString::number(p.peakMz, 'f', 6));
-    stream.writeAttribute("medianMz", QString::number(p.medianMz, 'f', 6));
-    stream.writeAttribute("baseMz", QString::number(p.baseMz, 'f', 6));
-    stream.writeAttribute("quality", QString::number(p.quality, 'f', 6));
-    stream.writeAttribute("width", QString::number(p.width, 'f', 6));
-    stream.writeAttribute("gaussFitSigma",
-                          QString::number(p.gaussFitSigma, 'f', 6));
-    stream.writeAttribute("gaussFitR2", QString::number(p.gaussFitR2, 'f', 6));
-    stream.writeAttribute("groupNum", QString::number(p.groupNum));
-    stream.writeAttribute("noNoiseObs", QString::number(p.noNoiseObs));
-    stream.writeAttribute("noNoiseFraction",
-                          QString::number(p.noNoiseFraction, 'f', 6));
-    stream.writeAttribute("symmetry", QString::number(p.symmetry, 'f', 6));
-    stream.writeAttribute("signalBaselineRatio",
-                          QString::number(p.signalBaselineRatio, 'f', 6));
-    stream.writeAttribute("groupOverlap",
-                          QString::number(p.groupOverlap, 'f', 6));
-    stream.writeAttribute("groupOverlapFrac",
-                          QString::number(p.groupOverlapFrac, 'f', 6));
-    stream.writeAttribute("localMaxFlag", QString::number(p.localMaxFlag));
-    stream.writeAttribute("fromBlankSample",
-                          QString::number(p.fromBlankSample));
-    stream.writeAttribute("label", QString::number(p.label));
-    stream.writeAttribute("sample", QString(p.getSample()->sampleName.c_str()));
-    stream.writeEndElement();
-  }
-
-  if (g->childCount()) {
-    stream.writeStartElement("children");
-    for (int i = 0; i < g->children.size(); i++) {
-      PeakGroup *child = &(g->children[i]);
-      writeGroupXML(stream, child);
-    }
-    stream.writeEndElement();
-  }
-  stream.writeEndElement();
-}
-
-void TableDockWidget::writePeakTableXML(QXmlStreamWriter &stream) {
-
-  if (allgroups.size()) {
-    stream.writeStartElement("PeakGroups");
-    for (int i = 0; i < allgroups.size(); i++)
-      writeGroupXML(stream, &allgroups[i]);
-    stream.writeEndElement();
-  }
-}
-
 void TableDockWidget::align() {
   if (allgroups.size() > 0) {
     vector<PeakGroup *> groups;
@@ -1582,336 +1457,6 @@ void TableDockWidget::align() {
     aligner.doAlignment(groups);
     _mainwindow->getEicWidget()->replotForced();
     showSelectedGroup();
-  }
-}
-
-PeakGroup *TableDockWidget::readGroupXML(QXmlStreamReader &xml,
-                                         PeakGroup *parent) {
-  PeakGroup g;
-  PeakGroup *gp = NULL;
-
-  g.groupId = xml.attributes().value("groupId").toString().toInt();
-  g.tagString = xml.attributes().value("tagString").toString().toStdString();
-  g.metaGroupId = xml.attributes().value("metaGroupId").toString().toInt();
-  g.clusterId = xml.attributes().value("clusterId").toString().toInt();
-  g.expectedRtDiff =
-      xml.attributes().value("expectedRtDiff").toString().toFloat();
-  g.groupRank = xml.attributes().value("grouRank").toString().toFloat();
-  g.expectedMz = xml.attributes().value("expectedMz").toString().toFloat();
-  g.label = xml.attributes().value("label").toString().toInt();
-  g.setType(
-      (PeakGroup::GroupType)xml.attributes().value("type").toString().toInt());
-  g.changeFoldRatio =
-      xml.attributes().value("changeFoldRatio").toString().toFloat();
-  g.changePValue = xml.attributes().value("changePValue").toString().toFloat();
-
-  string compoundId =
-      xml.attributes().value("compoundId").toString().toStdString();
-  string compoundDB =
-      xml.attributes().value("compoundDB").toString().toStdString();
-  string compoundName =
-      xml.attributes().value("compoundName").toString().toStdString();
-
-  string srmId = xml.attributes().value("srmId").toString().toStdString();
-  if (!srmId.empty())
-    g.setSrmId(srmId);
-
-  if (!compoundName.empty() && !compoundDB.empty()) {
-    vector<Compound *> matches = DB.findSpeciesByName(compoundName, compoundDB);
-    if (matches.size() > 0)
-      g.compound = matches[0];
-  } else if (!compoundId.empty()) {
-    Compound *c = DB.findSpeciesById(compoundId, DB.ANYDATABASE);
-    if (c)
-      g.compound = c;
-  }
-
-  if (!g.compound) {
-    if (!compoundId.empty())
-      g.tagString = compoundId;
-    else if (!compoundName.empty())
-      g.tagString = compoundName;
-  }
-
-  if (parent) {
-    parent->addChild(g);
-    if (parent->children.size() > 0) {
-      gp = &(parent->children[parent->children.size() - 1]);
-    }
-  } else {
-    gp = addPeakGroup(&g);
-  }
-
-  return gp;
-}
-
-void TableDockWidget::readPeakXML(QXmlStreamReader &xml, PeakGroup *parent) {
-
-  Peak p;
-  p.pos = xml.attributes().value("pos").toString().toInt();
-  p.minpos = xml.attributes().value("minpos").toString().toInt();
-  p.maxpos = xml.attributes().value("maxpos").toString().toInt();
-  p.splineminpos = xml.attributes().value("splineminpos").toString().toInt();
-  p.splinemaxpos = xml.attributes().value("splinemaxpos").toString().toInt();
-  p.rt = xml.attributes().value("rt").toString().toDouble();
-  p.rtmin = xml.attributes().value("rtmin").toString().toDouble();
-  p.rtmax = xml.attributes().value("rtmax").toString().toDouble();
-  p.mzmin = xml.attributes().value("mzmin").toString().toDouble();
-  p.mzmax = xml.attributes().value("mzmax").toString().toDouble();
-  p.scan = xml.attributes().value("scan").toString().toInt();
-  p.minscan = xml.attributes().value("minscan").toString().toInt();
-  p.maxscan = xml.attributes().value("maxscan").toString().toInt();
-  p.peakArea = xml.attributes().value("peakArea").toString().toDouble();
-  p.peakSplineArea =
-      xml.attributes().value("peakSplineArea").toString().toDouble();
-  p.peakAreaCorrected =
-      xml.attributes().value("peakAreaCorrected").toString().toDouble();
-  p.peakAreaTop = xml.attributes().value("peakAreaTop").toString().toDouble();
-  p.peakAreaTopCorrected =
-      xml.attributes().value("peakAreaTopCorrected").toString().toDouble();
-  p.peakAreaFractional =
-      xml.attributes().value("peakAreaFractional").toString().toDouble();
-  p.peakRank = xml.attributes().value("peakRank").toString().toDouble();
-  p.peakIntensity =
-      xml.attributes().value("peakIntensity").toString().toDouble();
-  p.peakBaseLineLevel =
-      xml.attributes().value("peakBaseLineLevel").toString().toDouble();
-  p.peakMz = xml.attributes().value("peakMz").toString().toDouble();
-  p.medianMz = xml.attributes().value("medianMz").toString().toDouble();
-  p.baseMz = xml.attributes().value("baseMz").toString().toDouble();
-  p.quality = xml.attributes().value("quality").toString().toDouble();
-  p.width = xml.attributes().value("width").toString().toInt();
-  p.gaussFitSigma =
-      xml.attributes().value("gaussFitSigma").toString().toDouble();
-  p.gaussFitR2 = xml.attributes().value("gaussFitR2").toString().toDouble();
-  p.groupNum = xml.attributes().value("groupNum").toString().toInt();
-  p.noNoiseObs = xml.attributes().value("noNoiseObs").toString().toInt();
-  p.noNoiseFraction =
-      xml.attributes().value("noNoiseFraction").toString().toDouble();
-  p.symmetry = xml.attributes().value("symmetry").toString().toDouble();
-  p.signalBaselineRatio =
-      xml.attributes().value("signalBaselineRatio").toString().toDouble();
-  p.groupOverlap = xml.attributes().value("groupOverlap").toString().toDouble();
-  p.groupOverlapFrac =
-      xml.attributes().value("groupOverlapFrac").toString().toDouble();
-  p.localMaxFlag = xml.attributes().value("localMaxFlag").toString().toInt();
-  p.fromBlankSample =
-      xml.attributes().value("fromBlankSample").toString().toInt();
-  p.label = xml.attributes().value("label").toString().toInt();
-  string sampleName = xml.attributes().value("sample").toString().toStdString();
-  vector<mzSample *> samples = _mainwindow->getSamples();
-  for (int i = 0; i < samples.size(); i++) {
-    if (samples[i]->sampleName == sampleName) {
-      p.setSample(samples[i]);
-      break;
-    }
-  }
-
-  parent->addPeak(p);
-}
-
-void TableDockWidget::savePeakTable() {
-  _mainwindow->getAnalytics()->hitEvent("Peaks", "Save Peaks");
-  if (allgroups.size() == 0) {
-    QString msg = "Peaks Table is Empty";
-    QMessageBox::warning(this, tr("Error"), msg);
-    return;
-  }
-
-  QString dir = ".";
-  QSettings *settings = _mainwindow->getSettings();
-  if (settings->contains("lastDir"))
-    dir = settings->value("lastDir").value<QString>();
-
-  QString fileName = QFileDialog::getSaveFileName(
-      this, tr("Save to Project File"), dir, "Maven Project File(*.mzroll)");
-  if (fileName.isEmpty())
-    return;
-  if (!fileName.endsWith(".mzroll", Qt::CaseInsensitive))
-    fileName = fileName + ".mzroll";
-
-  _mainwindow->getProjectWidget()->saveProject(fileName, this);
-}
-
-void TableDockWidget::savePeakTable(QString fileName) {
-  QFile file(fileName);
-  if (!file.open(QFile::WriteOnly)) {
-    QErrorMessage errDialog(this);
-    errDialog.showMessage("File open " + fileName + " failed");
-    return; // error
-  }
-
-  QXmlStreamWriter stream(&file);
-  stream.setAutoFormatting(true);
-  writePeakTableXML(stream);
-  file.close();
-}
-
-void TableDockWidget::loadPeakTable() {
-  QString dir = ".";
-  QSettings *settings = _mainwindow->getSettings();
-  if (settings->contains("lastDir"))
-    dir = settings->value("lastDir").value<QString>();
-  QString selFilter;
-  QStringList filters;
-  filters << "Maven Project File(*.mzroll)"
-          << "mzPeaks XML(*.mzPeaks *.mzpeaks)"
-          << "XCMS peakTable Tab Delimited(*.tab *.csv *.txt *.tsv)";
-
-  QString fileName = QFileDialog::getOpenFileName(
-      this, "Load Saved Peaks", dir, filters.join(";;"), &selFilter);
-  if (fileName.isEmpty())
-    return;
-  if (selFilter == filters[2]) {
-    loadCSVFile(fileName, "\t");
-  } else {
-    loadPeakTable(fileName);
-  }
-
-  showAllGroups();
-}
-
-void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,
-                                     PeakGroup *group,
-                                     float mzrollVersion) {
-
-  vector<mzSample *> samples = _mainwindow->getSamples();
-
-  if (mzrollVersion == 1) {
-    if (xml.name() == "SamplesUsed") {
-      xml.readNextStartElement();
-      while (xml.name() == "sample") {
-        unsigned int id = xml.attributes().value("id").toString().toInt();
-        for (int i = 0; i < samples.size(); ++i) {
-          mzSample *sample = samples[i];
-          if (id == sample->getSampleId()) {
-            group->samples.push_back(sample);
-          }
-        }
-        xml.readNextStartElement();
-      }
-    }
-  } else {
-
-    for (int i = 0; i < samples.size(); ++i) {
-      QString name = QString::fromStdString(samples[i]->sampleName);
-      cleanString(name);
-      if (xml.name() == "PeakGroup" && mzrollv_0_1_5 &&
-          samples[i]->isSelected) {
-        /**
-         * if mzroll is from old version, just insert sample in group from
-         * checking whether it is selected or not at time of exporting. This can
-         * give erroneous result for old version if at time of exporting mzroll
-         * user has selected diffrent samples from samples were used at time of
-         * peak finding which was inherent problem of old version of ElMaven.
-         */
-        group->samples.push_back(samples[i]);
-      } else if (xml.name() == "SamplesUsed" &&
-                 xml.attributes().value(name).toString() == "Used") {
-        /**
-         * if mzroll file is of new version, it's sample name will precede by
-         * 's' and has value of <Used> or <NotUsed>
-         */
-        group->samples.push_back(samples[i]);
-      }
-    }
-  }
-}
-
-void TableDockWidget::markv_0_1_5mzroll(QString fileName) {
-  mzrollv_0_1_5 = true;
-
-  QFile data(fileName);
-
-  if (!data.open(QFile::ReadOnly)) {
-    return;
-  }
-
-  QXmlStreamReader xml(&data);
-  while (!xml.atEnd()) {
-    xml.readNext();
-    if (xml.isStartElement()) {
-      if (xml.name() == "SamplesUsed") {
-        // mark false if <SamplesUsed> which is only in new version
-        mzrollv_0_1_5 = false;
-        break;
-      }
-    }
-  }
-
-  data.close();
-
-  return;
-}
-
-void TableDockWidget::loadPeakTable(QString fileName) {
-
-  markv_0_1_5mzroll(fileName);
-
-  QFile data(fileName);
-  if (!data.open(QFile::ReadOnly)) {
-    QErrorMessage errDialog(this);
-    errDialog.showMessage("File open: " + fileName + " failed");
-    return;
-  }
-  QXmlStreamReader xml(&data);
-
-  PeakGroup *group = NULL;
-  PeakGroup *parent = NULL;
-  QStack<PeakGroup *> stack;
-
-  float mzrollVersion = 0;
-
-  while (!xml.atEnd()) {
-    if (xml.isStartElement() && xml.name() == "project") {
-      mzrollVersion = xml.attributes().value("mzrollVersion").toFloat();
-    }
-    xml.readNext();
-    if (xml.hasError()) {
-      qDebug() << "Error in xml reading: " << xml.errorString();
-    }
-    if (xml.isStartElement()) {
-      if (xml.name() == "PeakGroup") {
-        group = readGroupXML(xml, parent);
-      }
-      if (xml.name() == "SamplesUsed" && group) {
-        readSamplesXML(xml, group, mzrollVersion);
-      }
-      if (xml.name() == "Peak" && group) {
-        readPeakXML(xml, group);
-      }
-      if (xml.name() == "children" && group) {
-        stack.push(group);
-        parent = stack.top();
-      }
-    }
-
-    if (xml.isEndElement()) {
-      if (xml.name() == "children") {
-        if (stack.size() > 0)
-          parent = stack.pop();
-        if (parent && parent->childCount()) {
-          for (int i = 0; i < parent->children.size(); i++) {
-            parent->children[i].minQuality =
-                _mainwindow->mavenParameters->minQuality;
-            parent->children[i].groupStatistics();
-          }
-        }
-        if (stack.size() == 0)
-          parent = NULL;
-      }
-      if (xml.name() == "PeakGroup") {
-        if (group) {
-          group->minQuality = _mainwindow->mavenParameters->minQuality;
-          group->groupStatistics();
-        }
-        group = NULL;
-      }
-    }
-  }
-  for (int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].minQuality = _mainwindow->mavenParameters->minQuality;
-    allgroups[i].groupStatistics();
   }
 }
 
@@ -2229,13 +1774,13 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QFont font;
     font.setPointSize(14);
     td->titlePeakTable->setFont(font);
+    td->setStyleSheet("QLabel { margin: 0px 6px; }");
 
     if (td->tableId == 0)
-      td->titlePeakTable->setText(" Bookmark Table  ");
+      td->titlePeakTable->setText("Bookmark Table");
     else
       td->titlePeakTable->setText("Peak Table "
-                                  + QString::number(td->tableId)
-                                  + "  ");
+                                  + QString::number(td->tableId));
 
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
     td->setWindowTitle(td->titlePeakTable->text());
@@ -2323,14 +1868,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnTrain->setToolTip("Train Neural Net");
     connect(btnTrain, SIGNAL(clicked()), td, SLOT(showTrainDialog()));
     return btnTrain;
-  } else if (btnName == "btnXML") {
-
-    QToolButton *btnXML = new QToolButton(parent);
-    btnXML->setIcon(QIcon(rsrcPath + "/exportxml.png"));
-    btnXML->setToolTip("Save Peaks");
-    connect(btnXML, SIGNAL(clicked()), td, SLOT(savePeakTable()));
-    connect(btnXML, SIGNAL(clicked()), td, SLOT(showNotification()));
-    return btnXML;
   } else if (btnName == "btnGood") {
 
     QToolButton *btnGood = new QToolButton(parent);
@@ -2377,9 +1914,15 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   }
 }
 
-PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
+PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
+  : TableDockWidget(mw) {
+
   _mainwindow = mw;
-  tableId = ++(mw->noOfPeakTables);
+
+  if (peakTableId > mw->lastPeakTableId)
+    tableId = mw->lastPeakTableId = peakTableId;
+  else
+    tableId = ++(mw->lastPeakTableId);
 
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -2399,7 +1942,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnTrain =
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
-  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
@@ -2427,9 +1969,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
@@ -2499,7 +2038,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnTrain =
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
-  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
@@ -2528,9 +2066,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
@@ -2850,7 +2385,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnTrain =
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
-  QWidgetAction *btnXML = new TableToolBarWidgetAction(toolBar, this, "btnXML");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
@@ -2877,9 +2411,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnXML);
 
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);

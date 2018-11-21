@@ -447,11 +447,11 @@ void PeakDetectionDialog::findPeaks() {
 
     QString title;
     if (_featureDetectionType == FullSpectrum)
-        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nDetected Features \n";
+        title = "Peak Table " + QString::number(mainwindow->lastPeakTableId) + "\nDetected Features \n";
     else if (_featureDetectionType == CompoundDB)
-        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nDB Search " + compoundDatabase->currentText();
+        title = "Peak Table " + QString::number(mainwindow->lastPeakTableId) + "\nDB Search " + compoundDatabase->currentText();
     else if (_featureDetectionType == QQQ)
-        title = "Peak Table " + QString::number(mainwindow->noOfPeakTables) + "\nQQQ DB Search " + compoundDatabase->currentText();
+        title = "Peak Table " + QString::number(mainwindow->lastPeakTableId) + "\nQQQ DB Search " + compoundDatabase->currentText();
 
     TableDockWidget* peaksTable = mainwindow->getBookmarkedPeaks();
     int peakTableIdx = outputTableComboBox->currentIndex();

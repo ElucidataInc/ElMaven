@@ -15,7 +15,7 @@ class ProjectDockWidget : public QDockWidget
 public:
     explicit ProjectDockWidget(QMainWindow *parent = 0);
     boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
-    QString lastOpennedProject;
+    QString lastOpenedProject;
     QString lastSavedProject;
     QColor  lastUsedSampleColor;
     QMap<mzSample*, QColor> storeSampleColors;
@@ -31,10 +31,16 @@ public Q_SLOTS:
     void setInfo(vector<mzSample*>&samples);
     void changeSampleOrder();
     void updateSampleList();
-    void loadProject();
-    void saveProject();
-    void loadProject(QString filename);
-    void saveProject(QString filename, TableDockWidget* peakTable = 0);
+    void saveProjectAsSQLite();
+    void saveSQLiteProject();
+    int saveBookmarkedGroup(PeakGroup* group);
+    void loadSQLiteProject(QString filename);
+    void saveAndCloseCurrentSQLiteProject();
+    void clearSession();
+    void saveProjectAsMzRoll();
+    void saveMzRollProject();
+    void loadMzRollProject(QString filename);
+    void saveMzRollProject(QString filename, TableDockWidget* peakTable=nullptr);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
     void sendBoostSignal( const string& progressText, unsigned int completed_samples, int total_samples)
