@@ -1507,7 +1507,7 @@ void MainWindow::open()
         this,
         "Select projects, peaks, samples to open:",
         dir,
-        tr("All Known Formats(*.mzroll *.mzrollDB *.mzPeaks *.mzXML *.mzxml "
+        tr("All Known Formats(*.mzroll *.emDB *.mzPeaks *.mzXML *.mzxml "
            "*.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
             + tr("mzXML Format(*.mzXML *.mzxml);;")
             + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
@@ -1515,7 +1515,7 @@ void MainWindow::open()
             + tr("NetCDF Format(*.cdf *.nc);;")
             + tr("Thermo (*.raw);;")  // TODO: Sahil-Kiran, Added while merging
                                       // mainwindow
-            + tr("Maven Project File (*.mzroll *.mzrollDB);;")
+            + tr("Maven Project File (*.mzroll *.emDB);;")
             + tr("Maven Peaks File (*.mzPeaks);;")
             + tr("Peptide XML(*.pep.xml *.pepXML);;")
             + tr("Peptide idpDB(*.idpDB);;") + tr("All Files(*.*)"));
@@ -2245,7 +2245,7 @@ void MainWindow::createMenus() {
     QMenu* saveProjectFile = new QMenu(tr("Save Project As…"), this);
 
     // add option to save as a database
-    QAction* saveProjectAsSQLite = new QAction(tr("El-MAVEN Project (.mzrollDB)"),
+    QAction* saveProjectAsSQLite = new QAction(tr("El-MAVEN Database Format (.emDB)"),
                                                this);
     connect(saveProjectAsSQLite,
             SIGNAL(triggered()),

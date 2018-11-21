@@ -668,7 +668,7 @@ bool mzFileIO::isMzRollProject(QString filename)
 
 bool mzFileIO::isSQLiteProject(QString filename)
 {
-    if (filename.endsWith("mzrollDB", Qt::CaseInsensitive))
+    if (filename.endsWith("emDB", Qt::CaseInsensitive))
         return true;
     return false;
 }

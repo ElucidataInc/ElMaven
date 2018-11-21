@@ -601,13 +601,13 @@ void ProjectDockWidget::saveProjectAsSQLite()
     }
     QString fileName = QFileDialog::getSaveFileName(
         _mainwindow->projectDockWidget,
-        "Save project as (.mzrollDB)",
+        "Save project as (.emDB)",
         dir,
-        "mzrollDB Project(*.mzrollDB)"
+        "emDB Project(*.emDB)"
     );
 
-    if (!fileName.endsWith(".mzrollDB", Qt::CaseInsensitive))
-        fileName = fileName + ".mzrollDB";
+    if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
+        fileName = fileName + ".emDB";
 
     auto success = _mainwindow->fileLoader->writeSQLiteProject(fileName);
     if (success)
