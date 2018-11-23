@@ -863,10 +863,10 @@ void ProjectDatabase::deleteTableGroups(const string& tableName)
 {
     auto failure = false;
     auto peaksQuery = _connection->prepare(
-        "DELETE FROM peaks                                       \
-               WHERE group_id IN (SELECT group_id                \
-                                    FROM peakgroups              \
-                                   WHERE table_name = :table_name");
+        "DELETE FROM peaks                                        \
+               WHERE group_id IN (SELECT group_id                 \
+                                    FROM peakgroups               \
+                                   WHERE table_name = :table_name)");
     peaksQuery->bind(":table_name", tableName);
     if (!peaksQuery->execute()) {
         failure = true;
@@ -876,7 +876,7 @@ void ProjectDatabase::deleteTableGroups(const string& tableName)
 
     auto peakgroupsQuery = _connection->prepare(
         "DELETE FROM peakgroups             \
-               WHERE tableName = :table_name");
+               WHERE table_name = :table_name");
     peakgroupsQuery->bind(":table_name", tableName);
     if(!peakgroupsQuery->execute()) {
         failure = true;
