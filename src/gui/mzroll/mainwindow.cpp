@@ -792,26 +792,33 @@ void MainWindow::createPeakTable(QString filenameNew) {
     peaksTable->showAllGroups();
 }
 
-bool MainWindow::askAutosave() {
-
-	bool doAutosave = false;
-	QMessageBox::StandardButton reply;
-	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
-								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-	if (reply == QMessageBox::Yes) {
-		doAutosave = true;
-	} else {
-		doAutosave = false;
-	}
-	return doAutosave;
+bool MainWindow::askAutosave()
+{
+    bool doAutosave = false;
+    _setProjectFilenameFromProjectDockWidget();
+    if (this->fileName.isEmpty()) {
+        auto reply = QMessageBox::question(this,
+                                           "Autosave",
+                                           "Do you want to enable autosave? "
+                                           "You will have to create a new "
+                                           "project to save in.",
+                                           QMessageBox::Yes | QMessageBox::No,
+                                           QMessageBox::Yes);
+        if (reply == QMessageBox::Yes) {
+            doAutosave = true;
+        } else {
+            doAutosave = false;
+        }
+    }
+    return doAutosave;
 }
 
-AutoSave::AutoSave(MainWindow* mw){
-
-	_mainwindow = mw;
-	_mainwindow->doAutosave = false;
-	_mainwindow->askAutosaveMain = 0;
-
+AutoSave::AutoSave(MainWindow* mw)
+{
+    _mainwindow = mw;
+    _mainwindow->doAutosave = false;
+    _mainwindow->askAutosaveMain = 0;
+    saveTablesOnly = false;
 }
 
 void MainWindow::_saveMzRollList(QString projectFileName)
@@ -819,14 +826,15 @@ void MainWindow::_saveMzRollList(QString projectFileName)
     pendingMzRollSaves.insert(projectFileName);
 }
 
-void AutoSave::saveProjectWorker()
+void AutoSave::saveProjectWorker(bool tablesOnly)
 {
+    saveTablesOnly = tablesOnly;
     this->start();
 }
 
 void AutoSave::run()
 {
-    _mainwindow->saveProject();
+    _mainwindow->saveProjectForFilename(saveTablesOnly);
 }
 
 void MainWindow::_setProjectFilenameIfEmpty()
@@ -846,10 +854,26 @@ void MainWindow::_setProjectFilenameIfEmpty()
                                          "Save Project (.emDB)",
                                          dir,
                                          "El-MAVEN Database Format(*.emDB)");
-        if (!filename.isEmpty()
-                && !fileName.endsWith(".emDB", Qt::CaseInsensitive))
-            this->fileName = filename + ".emDB";
+        if (!filename.isEmpty()) {
+            if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
+                this->fileName = filename + ".emDB";
+            } else {
+                this->fileName = filename;
+            }
+        }
     }
+}
+
+void MainWindow::_setProjectFilenameFromProjectDockWidget()
+{
+    auto lastSave = projectDockWidget->getLastSavedTime();
+    auto lastLoad = projectDockWidget->getLastOpenedTime();
+    if (!projectDockWidget->getLastOpenedProject().isEmpty()
+            && lastLoad > lastSave)
+        fileName = projectDockWidget->getLastOpenedProject();
+    if (!projectDockWidget->getLastSavedProject().isEmpty()
+            && lastSave > lastLoad)
+        fileName = projectDockWidget->getLastSavedProject();
 }
 
 void MainWindow::autosaveProject()
@@ -870,22 +894,22 @@ void MainWindow::autosaveProject()
     }
 }
 
-void MainWindow::saveProject()
+void MainWindow::explicitSave()
+{
+    saveProject(true);
+}
+
+void MainWindow::saveProject(bool explicitSave)
 {
     QSettings* settings = this->getSettings();
-    if (this->peaksMarked > 5 || this->allPeaksMarked) {
-        this->_saveProjectForFilename();
-    } else if (settings->value("closeEvent").toInt() == 1) {
-        if (fileName.isEmpty()) {
-            auto lastSave = projectDockWidget->getLastSavedTime();
-            auto lastLoad = projectDockWidget->getLastOpenedTime();
-            if (!projectDockWidget->getLastOpenedProject().isEmpty()
-                    && lastLoad > lastSave)
-                fileName = projectDockWidget->getLastOpenedProject();
-            if (!projectDockWidget->getLastSavedProject().isEmpty()
-                    && lastSave > lastLoad)
-                fileName = projectDockWidget->getLastSavedProject();
-        }
+    if (settings->value("closeEvent").toInt() == 1) {
+        // if there are no samples, its unlikely that there has been any work
+        // done by the user
+        if (getSamples().size() == 0)
+            return;
+
+        if (fileName.isEmpty())
+            _setProjectFilenameFromProjectDockWidget();
 
         // if fileName is still empty, no projects were closed or opened
         if (fileName.isEmpty()) {
@@ -908,21 +932,45 @@ void MainWindow::saveProject()
                 return;
             }
         }
-        this->_saveProjectForFilename();
+        this->autosave->saveProjectWorker();
+    } else if (explicitSave) {
+        _setProjectFilenameFromProjectDockWidget();
+        if (fileName.isEmpty()) {
+            auto reply = QMessageBox::question(this,
+                                               "No project open",
+                                               "You do not have a project for "
+                                               "this session. Would you like "
+                                               "to create one?",
+                                               QMessageBox::No|QMessageBox::Yes,
+                                               QMessageBox::Yes);
+            if (reply == QMessageBox::Yes)
+                _setProjectFilenameIfEmpty();
+
+            // still empty?!
+            if (fileName.isEmpty())
+                return;
+        }
+        this->autosave->saveProjectWorker();
     } else if (this->doAutosave) {
-        this->_saveProjectForFilename();
+        this->autosave->saveProjectWorker(true);
+    } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
+        this->autosave->saveProjectWorker();
     }
 }
 
-void MainWindow::_saveProjectForFilename()
+void MainWindow::saveProjectForFilename(bool tablesOnly)
 {
     if (fileLoader->isMzRollProject(fileName)) {
         _saveAllTablesAsMzRoll();
     } else if (fileLoader->isSQLiteProject(fileName)) {
-        projectDockWidget->saveSQLiteProject(fileName);
-    } else {
-        // fallback on default project format
-        projectDockWidget->saveSQLiteProject();
+        if (tablesOnly) {
+            auto allTables = getPeakTableList();
+            allTables.append(bookmarkedPeaks);
+            for (auto table : allTables)
+                projectDockWidget->savePeakTableInSQLite(table, fileName);
+        } else {
+            projectDockWidget->saveSQLiteProject(fileName);
+        }
     }
 }
 
@@ -2271,12 +2319,21 @@ void MainWindow::writeSettings() {
 	qDebug() << "Settings saved to " << settings->fileName();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::closeEvent(QCloseEvent* event)
+{
     settings->setValue("closeEvent", 1);
     this->saveProject();
-	writeSettings();
-	event->accept();
 
+    QMessageBox msgBox(this);
+    msgBox.setText("Please wait. Your project is being saved…");
+    msgBox.open();
+
+    writeSettings();
+
+    // wait until autosave has finished
+    while(autosave->isRunning());
+
+    event->accept();
 }
 
 /**
@@ -2303,6 +2360,16 @@ void MainWindow::createMenus() {
 	connect(loadCompoundsFile, SIGNAL(triggered()), SLOT(loadCompoundsFile()));
 	fileMenu->addAction(loadCompoundsFile);
 
+    // add option to save the current project, if any
+    QAction* saveProject = new QAction(tr("Save Project"),
+                                       this);
+    saveProject->setShortcut(tr("Ctrl+S"));
+    connect(saveProject,
+            SIGNAL(triggered()),
+            this,
+            SLOT(explicitSave()));
+    fileMenu->addAction(saveProject);
+
     QMenu* saveProjectFile = new QMenu(tr("Save Project As…"), this);
 
     // add option to save as a database
@@ -2311,8 +2378,7 @@ void MainWindow::createMenus() {
     connect(saveProjectAsSQLite,
             SIGNAL(triggered()),
             projectDockWidget,
-            SLOT(saveSQLiteProject()));
-    saveProjectAsSQLite->setShortcut(tr("Ctrl+S"));
+            SLOT(saveProjectAsSQLite()));
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll

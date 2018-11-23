@@ -688,12 +688,21 @@ void mzFileIO::closeSQLiteProject()
     _currentProject = nullptr;
 }
 
-int mzFileIO::writeBookmarkedGroup(PeakGroup* group)
+void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
 {
-    if (_currentProject)
-        return _currentProject->saveGroupAndPeaks(group, 0, "Bookmarks");
-    else
-        return -1;
+    set<Compound*> compoundSet;
+    if (_currentProject) {
+        _currentProject->deleteTableGroups(tableName.toStdString());
+        for (auto group : groups) {
+            // assuming all groups are parent groups.
+            _currentProject->saveGroupAndPeaks(group,
+                                               0,
+                                               tableName.toStdString());
+            if (group->compound)
+                compoundSet.insert(group->compound);
+        }
+        _currentProject->saveCompounds(compoundSet);
+    }
 }
 
 bool mzFileIO::writeSQLiteProject(QString filename)

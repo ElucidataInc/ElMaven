@@ -635,7 +635,7 @@ void ProjectDockWidget::saveProjectAsSQLite()
             dir = ldir;
     }
     QString fileName = QFileDialog::getSaveFileName(
-        _mainwindow->projectDockWidget,
+        _mainwindow,
         "Save project as (.emDB)",
         dir,
         "emDB Project(*.emDB)"
@@ -668,11 +668,17 @@ void ProjectDockWidget::saveSQLiteProject()
     }
 }
 
-int ProjectDockWidget::saveBookmarkedGroup(PeakGroup* group)
+void ProjectDockWidget::savePeakTableInSQLite(TableDockWidget* table,
+                                              QString filename)
 {
-    if (!_mainwindow->fileLoader->sqliteProjectIsOpen())
-        saveSQLiteProject();
-    return _mainwindow->fileLoader->writeBookmarkedGroup(group);
+    if (!_mainwindow->fileLoader->sqliteProjectIsOpen()
+            && !filename.isEmpty()) {
+        saveSQLiteProject(filename);
+    } else {
+        auto groupList = table->getGroups();
+        auto tableName = table->windowTitle();
+        _mainwindow->fileLoader->writeGroups(groupList, tableName);
+    }
 }
 
 void ProjectDockWidget::loadSQLiteProject(QString filename)

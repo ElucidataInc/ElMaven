@@ -103,13 +103,12 @@ Q_OBJECT
         void closeSQLiteProject();
 
         /**
-         * @brief Write a single bookmarked PeakGroup into the currently open
-         * SQLite project.
-         * @param group The PeakGroup to be written as a bookamrk.
-         * @return The unique integer ID assigned to `group` in the database,
-         * after being written. If the operation fails, -1 is returned.
+         * @brief Write a set of parent groups with the name of table they
+         * belong to.
+         * @param groups A list of PeakGroup pointers that need to be saved.
+         * @param tableName Name of peak table to which groups belong.
          */
-        int writeBookmarkedGroup(PeakGroup* group);
+        void writeGroups(QList<PeakGroup*> groups, QString tableName);
 
         /**
          * @brief Write current session data into a SQLite database.

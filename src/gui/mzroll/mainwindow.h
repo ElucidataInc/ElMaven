@@ -111,10 +111,11 @@ class AutoSave : public QThread
 
 public:
     AutoSave(MainWindow*);
-    void saveProjectWorker();
+    void saveProjectWorker(bool tablesOnly=false);
     MainWindow* _mainwindow;
 
 private:
+    bool saveTablesOnly;
     void run();
 };
 
@@ -284,8 +285,9 @@ public:
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
 	bool askAutosave();
-    void saveProject();
-	bool doAutosave;
+    void saveProject(bool explicitSave=false);
+    void saveProjectForFilename(bool tablesOnly=false);
+    bool doAutosave;
 	int askAutosaveMain;
 	void loadPollySettings(QString fileName);
 Q_SIGNALS:
@@ -407,7 +409,8 @@ public Q_SLOTS:
 	QWidget* pathwayWidgetController();
     void saveSettings();
     void loadSettings();
-	void showNotification(TableDockWidget* table);
+    void showNotification(TableDockWidget* table);
+    void explicitSave();
 
 private Q_SLOTS:
 	void createMenus();
@@ -464,7 +467,7 @@ private:
 	QString fileName;
     QString newFileName;
     void _setProjectFilenameIfEmpty();
-    void _saveProjectForFilename();
+    void _setProjectFilenameFromProjectDockWidget();
     void _saveMzRollList(QString projectFileName);
     void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();

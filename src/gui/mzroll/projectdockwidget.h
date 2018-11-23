@@ -57,12 +57,14 @@ public Q_SLOTS:
     void saveSQLiteProject();
 
     /**
-     * @brief Save a bookmarked PeakGroup in currently open emDB project.
-     * @param group The bookmarked PeakGroup to be saved.
-     * @return Unique integer ID of the saved bookmark if successful, -1
-     * otherwise.
+     * @brief Save all groups from a particular peak table into the current
+     * emDB project, otherwise creates new project from given filename.
+     * @param table Pointer to a TableDockWidget instance from which groups will
+     * be saved.
+     * @param filename A string path for filename of the SQLite project to be
+     * created (only if it does not exist already).
      */
-    int saveBookmarkedGroup(PeakGroup* group);
+    void savePeakTableInSQLite(TableDockWidget* table, QString filename);
 
     /**
      * @brief Load session data saved within an emDB SQLite project.
