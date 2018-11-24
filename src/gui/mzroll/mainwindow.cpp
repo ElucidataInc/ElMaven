@@ -489,7 +489,10 @@ using namespace mzUtils;
 
     connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
 
-    //added while merging with Maven776 - Kiran
+    connect(fileLoader,
+            SIGNAL(updateStatusString(QString)),
+            SLOT(_setStatusString(QString)));
+
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
@@ -508,7 +511,10 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
-	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(fileLoader,
+            SIGNAL(peakTablesPopulated()),
+            SLOT(refreshIntensities()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -897,6 +903,12 @@ void MainWindow::autosaveProject()
 void MainWindow::explicitSave()
 {
     saveProject(true);
+}
+
+void MainWindow::threadSave(QString filename)
+{
+    fileName = filename;
+    autosave->saveProjectWorker();
 }
 
 void MainWindow::saveProject(bool explicitSave)
@@ -1649,14 +1661,11 @@ void MainWindow::open()
                    + " "
                    + fileInfo.fileName());
 
-    // updated while merging with Maven776 - Kiran
-    Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isSQLiteProject(filename)) {
-            projectDockWidget->loadSQLiteProject(filename);
-        } else {
-            fileLoader->addFileToQueue(filename);
-        }
-    }
+    Q_FOREACH (QString filename, filelist)
+        fileLoader->addFileToQueue(filename);
+
+    if (filelist.size())
+        projectDockWidget->saveAndCloseCurrentSQLiteProject();
 
     bool cancelUploading = false;
     cancelUploading = updateSamplePathinMzroll(filelist);
@@ -2192,6 +2201,13 @@ void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
 	if (progress == totalSteps) {
 		progressBar->hide();
 	}
+}
+
+void MainWindow::_setStatusString(QString text)
+{
+    setStatusText(text);
+    if (progressBar->isVisible())
+        progressBar->hide();
 }
 
 void MainWindow::readSettings() {

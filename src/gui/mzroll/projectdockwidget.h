@@ -67,12 +67,6 @@ public Q_SLOTS:
     void savePeakTableInSQLite(TableDockWidget* table, QString filename);
 
     /**
-     * @brief Load session data saved within an emDB SQLite project.
-     * @param filename String name of the emDB file to be loaded.
-     */
-    void loadSQLiteProject(QString filename);
-
-    /**
      * @brief Save any pending changes and close the currently open SQLite
      * (emDB) project.
      */

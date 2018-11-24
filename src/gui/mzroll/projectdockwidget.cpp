@@ -647,7 +647,7 @@ void ProjectDockWidget::saveProjectAsSQLite()
     if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
         fileName = fileName + ".emDB";
 
-    saveSQLiteProject(fileName);
+    _mainwindow->threadSave(fileName);
 }
 
 void ProjectDockWidget::saveSQLiteProject(QString filename)
@@ -661,8 +661,7 @@ void ProjectDockWidget::saveSQLiteProject(QString filename)
 void ProjectDockWidget::saveSQLiteProject()
 {
     if (_mainwindow->fileLoader->sqliteProjectIsOpen()) {
-        _mainwindow->fileLoader->writeSQLiteProject(getLastOpenedProject());
-        return;
+        _mainwindow->threadSave(getLastOpenedProject());
     } else {
         saveProjectAsSQLite();
     }
@@ -679,18 +678,6 @@ void ProjectDockWidget::savePeakTableInSQLite(TableDockWidget* table,
         auto tableName = table->windowTitle();
         _mainwindow->fileLoader->writeGroups(groupList, tableName);
     }
-}
-
-void ProjectDockWidget::loadSQLiteProject(QString filename)
-{
-    if (filename.isEmpty())
-        return;
-
-    saveAndCloseCurrentSQLiteProject();
-
-    auto success = _mainwindow->fileLoader->readSQLiteProject(filename);
-    if (success)
-        setLastOpenedProject(filename);
 }
 
 void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
@@ -723,6 +710,9 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         setLastSavedProject("");
         setLastOpenedProject("");
     }
+
+    // if an existing project is being saved, stall before clearing the session
+    while(_mainwindow->fileLoader->isRunning());
 
     // clear session regardless of whether the project was saved
     clearSession();

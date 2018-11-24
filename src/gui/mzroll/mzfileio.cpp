@@ -486,20 +486,26 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
     return currentSample;
 }
 
-void mzFileIO::run(void) {
+void mzFileIO::run(void)
+{
+    if (_sqliteDBLoadInProgress) {
+        auto samples = _mainwindow->getSamples();
+        _currentProject->updateSamples(samples);
+
+        Q_EMIT(updateStatusString(tr("Loading alignment data…")));
+        _currentProject->loadAndPerformAlignment(samples);
+        readAllPeakTablesSQLite(samples);
+        _sqliteDBLoadInProgress = false;
+    }
 
     try {
         fileImport();
-    }
-    catch (std::exception& excp) {
-
+    } catch (std::exception& excp) {
         // ask user to send back the logs
-    }
-    catch (...) {
+    } catch (...) {
         // ask user to send back the logs
         qDebug() << "uploading samples failed";
     }
-
 
     quit();
 }
@@ -539,9 +545,6 @@ void mzFileIO::fileImport(void) {
     }
 
     Q_FOREACH(QString filename, projects ) {
-        // Since SQLite projects themselves use this thread to load samples
-        // it cannot be used to load the project itself. We only queue mzroll
-        // files to be loaded in this method.
         if (isMzRollProject(filename)) {
             _mainwindow->ligandWidget->loadCompoundDBMzroll(filename);
             _mainwindow->projectDockWidget->loadMzRollProject(filename);
@@ -558,6 +561,13 @@ void mzFileIO::fileImport(void) {
                     _mainwindow->bookmarkedPeaks->addPeakGroup(group);
                 }
                 _mainwindow->bookmarkedPeaks->showAllGroups();
+            }
+        } else if (isSQLiteProject(filename)) {
+            auto samplePaths = readSamplesFromSQLiteProject(filename);
+            if (samplePaths.size()) {
+                _mainwindow->projectDockWidget->setLastOpenedProject(filename);
+                for (auto sample : samplePaths)
+                    samples << QString::fromStdString(sample);
             }
         }
     }
@@ -750,13 +760,14 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     return false;
 }
 
-bool mzFileIO::readSQLiteProject(QString fileName)
+vector<string> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
 {
     if (_currentProject)
         closeSQLiteProject();
 
+    vector<string> empty;
     if (_currentProject)
-        return false;
+        return empty;
 
     _currentProject = new ProjectDatabase(fileName.toStdString());
 
@@ -765,17 +776,7 @@ bool mzFileIO::readSQLiteProject(QString fileName)
     for (auto compound : compounds)
         DB.addCompound(compound);
 
-    auto newSamples =
-        _currentProject->loadSampleNames(_mainwindow->getSamples());
-    for (auto& sampleName : newSamples) {
-        // TODO: in the original implementation, the author (Eugene) prompts the
-        // the user to locate each file that was not automatically found.
-        addFileToQueue(QString::fromStdString(sampleName));
-    }
-
-    // start sample loading threaded operation
-    start();
-    return true;
+    return _currentProject->loadSampleNames(_mainwindow->getSamples());
 }
 
 void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
@@ -783,43 +784,34 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
     if (!_currentProject)
         return;
 
-    // lambda function to check for existence of peak table by a certain name
-    auto findPeakTable = [](QList<QPointer<TableDockWidget>> tableList,
-                            string tableName) {
-        for (auto table : tableList)
-            if (table->windowTitle().toStdString() == tableName)
-                return static_cast<TableDockWidget *>(table);
-        return static_cast<TableDockWidget *>(nullptr);
-    };
-
-    // create tables for search results
-    auto bookmarkTableTitle = "Bookmark Table";
-    auto tableNames = _currentProject->getTableNames();
-    for (auto tableName : tableNames) {
-        TableDockWidget* table = findPeakTable(_mainwindow->getPeakTableList(),
-                                               tableName);
-        if (!table && tableName != bookmarkTableTitle)
-            _mainwindow->addPeaksTable(QString::fromStdString(tableName));
-    }
+    Q_EMIT(updateProgressBar(tr("Loading peak tables and groups…"), 0, 1));
 
     // load all peakgroups
     auto groups = _currentProject->loadGroups(newSamples);
+    auto groupCount = 0;
     for (auto& group : groups) {
         if (group->searchTableName.empty())
-            group->searchTableName = bookmarkTableTitle;
+            group->searchTableName = "Bookmark Table";
 
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
-        TableDockWidget* table = findPeakTable(allTablesList,
-                                               group->searchTableName);
+        TableDockWidget* table = nullptr;
+        for (auto t : allTablesList)
+            if (t->windowTitle().toStdString() == group->searchTableName)
+                table = t;
+
         if (table)
             table->addPeakGroup(group);
+        Q_EMIT(updateProgressBar(tr("Loading peak tables and groups…"),
+                                 ++groupCount,
+                                 static_cast<int>(groups.size())));
     }
 
-    // updated display widgets
-    for (auto& table : _mainwindow->getPeakTableList())
-        table->showAllGroups();
-    _mainwindow->bookmarkedPeaks->showAllGroups();
+    // table widgets are ready to show groups
+    Q_EMIT(peakTablesPopulated());
+
+    // assuming this was the last step in loading of a SQLite project
+    Q_EMIT(projectLoaded());
 }
 
 void mzFileIO::_postSampleLoadOperations()
@@ -827,10 +819,24 @@ void mzFileIO::_postSampleLoadOperations()
     if (!_currentProject)
         return;
 
-    auto samples = _mainwindow->getSamples();
-    _currentProject->updateSamples(samples);
-    _currentProject->loadAndPerformAlignment(samples);
-    readAllPeakTablesSQLite(samples);
+    while(isRunning());
+
+    // create tables for stored peak groups, this can only be done in the
+    // main loop
+    auto tableNames = _currentProject->getTableNames();
+    for (auto name : tableNames) {
+        auto tableName = QString::fromStdString(name);
+        TableDockWidget* table = nullptr;
+        for (auto t : _mainwindow->getPeakTableList())
+            if (t->windowTitle() == tableName)
+                table = t;
+
+        if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
+            _mainwindow->addPeaksTable(tableName);
+    }
+
+    _sqliteDBLoadInProgress = true;
+    start();
 }
 
 void mzFileIO::markv_0_1_5mzroll(QString fileName)

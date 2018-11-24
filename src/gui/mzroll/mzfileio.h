@@ -123,12 +123,12 @@ Q_OBJECT
         bool writeSQLiteProject(QString filename);
 
         /**
-         * @brief Read session data from a SQLite database previously saved
+         * @brief Read samples data from a SQLite database previously saved
          * using `writeSQLiteProject` method.
          * @param filename String name of SQLite database to be read.
-         * @return true if the read operation was successful, false otherwise.
+         * @return A vector of sample paths found in the database.
          */
-        bool readSQLiteProject(QString filename);
+        vector<string> readSamplesFromSQLiteProject(QString filename);
 
         /**
          * @brief For a given set of samples, load the peak groups and their
@@ -199,6 +199,7 @@ Q_OBJECT
      * @param int     [progress value]
      * @param int     [total value]
      */
+     void updateStatusString(QString);
      void updateProgressBar(QString,int,int);
      void sampleLoaded();
      void spectraLoaded();
@@ -206,6 +207,7 @@ Q_OBJECT
      void peaklistLoaded();
      void createPeakTableSignal(QString);
      void addNewSample(mzSample*);
+     void peakTablesPopulated();
 
     protected:
       /**
@@ -242,6 +244,8 @@ Q_OBJECT
          * a SQLite project, which data can be written to or read from.
          */
         ProjectDatabase* _currentProject;
+
+        bool _sqliteDBLoadInProgress;
 };
 
 #endif // MZFILEIO_H

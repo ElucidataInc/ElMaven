@@ -411,6 +411,7 @@ public Q_SLOTS:
     void loadSettings();
     void showNotification(TableDockWidget* table);
     void explicitSave();
+    void threadSave(QString filename);
 
 private Q_SLOTS:
 	void createMenus();
@@ -444,7 +445,9 @@ private Q_SLOTS:
 		settings->beginWriteArray("crashTables");
 		settings->endArray();
 		settings->sync();
-	};
+    };
+
+    void _setStatusString(QString);
 
 private:
 	int m_value;
