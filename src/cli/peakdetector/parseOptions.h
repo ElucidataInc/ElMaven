@@ -24,7 +24,6 @@ class ParseOptions {
 		*/
         QMap<string, string> getAttributes(xml_node &node);
         void addChildren(xml_node args, char* nodeName, QStringList cliArguments);
-        char* qStringtocharPointer(QString stringToBeConverted);
 
         template <typename T> 
         xml_node addNode(T &doc, char* nodeName, char* nodeValue = 0);
