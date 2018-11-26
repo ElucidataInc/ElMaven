@@ -471,7 +471,6 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
 
     SpectralHit* lasthit=NULL;
     map<int,float> mods;
-    double PROTON = HMASS-EMASS;
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {

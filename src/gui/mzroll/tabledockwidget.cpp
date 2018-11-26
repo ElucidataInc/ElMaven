@@ -1481,7 +1481,7 @@ void TableDockWidget::writeGroupXML(QXmlStreamWriter &stream, PeakGroup *g) {
   stream.writeStartElement("SamplesUsed");
   for (int i = 0; i < g->samples.size(); ++i) {
     stream.writeStartElement("sample");
-    stream.writeAttribute("id", QString::number(g->samples[i]->id));
+    stream.writeAttribute("id", QString::number(g->samples[i]->getSampleId()));
     stream.writeEndElement();
   }
   stream.writeEndElement();
@@ -1784,7 +1784,7 @@ void TableDockWidget::readSamplesXML(QXmlStreamReader &xml,
         unsigned int id = xml.attributes().value("id").toString().toInt();
         for (int i = 0; i < samples.size(); ++i) {
           mzSample *sample = samples[i];
-          if (id == sample->id) {
+          if (id == sample->getSampleId()) {
             group->samples.push_back(sample);
           }
         }

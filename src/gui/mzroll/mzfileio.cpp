@@ -84,7 +84,7 @@ mzSample* mzFileIO::loadSample(const QString& filename){
         sample->sampleName = string( sampleName.toLatin1().data() );
         
         mtxSampleId.lock();
-        sample->id = ++sampleId;
+        sample->setSampleId(++sampleId);
         mtxSampleId.unlock();
 
         return sample;

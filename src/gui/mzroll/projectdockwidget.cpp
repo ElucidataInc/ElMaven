@@ -705,7 +705,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
                         _mainwindow->addSample(sample);
                         currentSample=sample;
                         if (!sname.isEmpty() ) sample->sampleName = sname.toStdString();
-                        if (id > 0) sample->id = id;
+                        if (id > 0) sample->setSampleId(id);
                         if (!setname.isEmpty() ) sample->setSetName(setname.toStdString());
                         if (!sampleOrder.isEmpty()) sample->setSampleOrder(sampleOrder.toInt());
                         if (!isSelected.isEmpty()) sample->isSelected = isSelected.toInt();
@@ -770,7 +770,7 @@ void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable
 
         stream.writeStartElement("sample");
         stream.writeAttribute("name",  sample->sampleName.c_str() );
-        stream.writeAttribute("id", QString::number(sample->id));
+        stream.writeAttribute("id", QString::number(sample->getSampleId()));
         stream.writeAttribute("filename",  sample->fileName.c_str() );
         stream.writeAttribute("sampleOrder", QString::number(sample->getSampleOrder()));
         stream.writeAttribute("setName", sample->getSetName().c_str());
