@@ -568,6 +568,10 @@ void mzFileIO::fileImport(void) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 for (auto sample : samplePaths)
                     samples << QString::fromStdString(sample);
+            } else if (_missingSamples.size()) {
+                _mainwindow->projectDockWidget->setLastOpenedProject(filename);
+                // just to trigger `_postSampleLoadOperations`
+                Q_EMIT(sampleLoaded());
             }
         }
     }
@@ -776,7 +780,11 @@ vector<string> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
     for (auto compound : compounds)
         DB.addCompound(compound);
 
-    return _currentProject->loadSampleNames(_mainwindow->getSamples());
+    auto samples = _currentProject->getSampleNames(_mainwindow->getSamples());
+
+    // set missing samples before returning found samples to be loaded
+    _missingSamples = samples.second;
+    return samples.first;
 }
 
 void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
@@ -836,6 +844,64 @@ void mzFileIO::_postSampleLoadOperations()
         return;
 
     while(isRunning());
+
+    // load samples that were originally missing, can be a method by itself?
+    vector<string> missingSamples = _missingSamples;
+    int samplesRemaining = static_cast<int>(missingSamples.size());
+    while(samplesRemaining) {
+        QString path = QString::fromStdString(_currentProject->projectPath());
+        for (auto& originalFilename : _missingSamples) {
+            auto filename = QString::fromStdString(originalFilename);
+            QFileInfo sampleFile(filename);
+
+            // first check in the current set path
+            if (!sampleFile.exists()) {
+                auto fname = path + QDir::separator() + sampleFile.fileName();
+                sampleFile.setFile(fname);
+            }
+
+            // if not in project path, prompt user to locate path
+            while (!sampleFile.exists()) {
+                QString message = filename + " was not found. Add new folder "
+                                  "for locating samples?";
+
+                QMessageBox::StandardButton reply;
+                reply =
+                    QMessageBox::question(_mainwindow,
+                                          "Unable to locate sample",
+                                          message,
+                                          QMessageBox::Ok | QMessageBox::Cancel,
+                                          QMessageBox::Ok);
+
+                if (reply == QMessageBox::Cancel) {
+                    return;
+                }
+
+                path = QFileDialog::getExistingDirectory(_mainwindow,
+                                                         tr("Open Directory"),
+                                                         path);
+                auto fname = path + QDir::separator() + sampleFile.fileName();
+                sampleFile.setFile(fname);
+            }
+
+            // once found, add these files to load queue
+            if (sampleFile.exists()) {
+                missingSamples.erase(remove(missingSamples.begin(),
+                                            missingSamples.end(),
+                                            originalFilename),
+                                     missingSamples.end());
+                samplesRemaining = static_cast<int>(missingSamples.size());
+                addFileToQueue(sampleFile.filePath());
+            }
+        }
+    }
+    _missingSamples.clear();
+
+    // retry loading samples that were previously missing
+    if (filelist.size()) {
+        start();
+        return;
+    }
 
     // create tables for stored peak groups, this can only be done in the
     // main loop
