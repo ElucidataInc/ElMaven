@@ -2,9 +2,11 @@
 
 PeakDetector::PeakDetector() {
     mavenParameters = NULL;
+    zeroStatus = false;
 }
 
 PeakDetector::PeakDetector(MavenParameters* mp) {
+    zeroStatus = false;
 	mavenParameters = mp;
 }
 

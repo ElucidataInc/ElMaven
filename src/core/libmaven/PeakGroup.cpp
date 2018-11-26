@@ -67,6 +67,7 @@ PeakGroup::PeakGroup()  {
     changeFoldRatio=0;
     //children.reserve(0);
     peaks.resize(0);
+    quantitationType = PeakGroup::QType::AreaTop;
 }
 
 void PeakGroup::copyObj(const PeakGroup& o)  {
@@ -133,6 +134,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     changePValue    = o.changePValue;
     peaks = o.peaks;
     samples=o.samples;
+    quantitationType = o.quantitationType;
     copyChildren(o);
 }
 
