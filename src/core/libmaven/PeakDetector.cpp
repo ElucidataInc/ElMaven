@@ -31,12 +31,12 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
         vector<EIC*> eics;
         vector<mzSample*> vsamples;
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
         #pragma omp parallel default(shared)
         #endif
         {
 
-                #ifndef __APPLE__
+                #if !defined(__APPLE__) && !defined(NO_OPENMP)
                 #pragma omp for
                 #endif
                 for (unsigned int i = 0; i < samples.size(); i++) {
@@ -44,7 +44,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                                 continue;
                         if (samples[i]->isSelected == false)
                                 continue;
-                        #ifndef __APPLE__
+                        #if !defined(__APPLE__) && !defined(NO_OPENMP)
                         #pragma omp critical
                         #endif
                         vsamples.push_back(samples[i]);
@@ -53,7 +53,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 // single threaded version - getting EICs of selected samples.
                 // #pragma omp parallel for ordered
 
-                #ifndef __APPLE__
+                #if !defined(__APPLE__) && !defined(NO_OPENMP)
                 #pragma omp for
                 #endif
                 for (unsigned int i = 0; i < vsamples.size(); i++) {
@@ -65,7 +65,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                 EIC* e = NULL;
 
                 if (!slice->srmId.empty()) {
-                    
+
                     e = sample->getEIC(slice->srmId, eicType);
                 }
                 else if (c && c->precursorMz > 0 && c->productMz > 0) {
@@ -91,7 +91,7 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
                         //smoohing over
 
                         //push eic to all eics vector
-                        #ifndef __APPLE__
+                        #if !defined(__APPLE__) && !defined(NO_OPENMP)
                         #pragma omp critical
                         #endif
                         eics.push_back(e);

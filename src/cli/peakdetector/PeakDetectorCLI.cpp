@@ -582,7 +582,7 @@ void PeakDetectorCLI::loadCompoundsFile()
 
 void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(NO_OPENMP)
     double startLoadingTime = getTime();
     #endif
     cout << "\nLoading samples" << endl;
@@ -613,7 +613,7 @@ void PeakDetectorCLI::loadSamples(vector<string>&filenames) {
 
 	cout << "LoadSamples done: loaded " << mavenParameters->samples.size() << " samples";
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(NO_OPENMP)
     cout << "\nExecution time (Sample loading) : " << getTime() - startLoadingTime << " seconds \n";
     #endif
 
@@ -895,13 +895,13 @@ void PeakDetectorCLI::groupReduction() {
 
 	if (reduceGroupsFlag) {
 
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
          double startGroupReduction = getTime();
         #endif
 
          reduceGroups();
 
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
          cout << "\tExecution time (Group reduction) : " << getTime() - startGroupReduction << " seconds \n";
         #endif
 	}
@@ -910,7 +910,7 @@ void PeakDetectorCLI::groupReduction() {
 void PeakDetectorCLI::saveJson(string setName) {
 	if (saveJsonEIC) {
 
-		#ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
 		double startSavingJson = getTime();
 		#endif
 
@@ -918,7 +918,7 @@ void PeakDetectorCLI::saveJson(string setName) {
 		string fileName = setName + ".json";
 		jsonReports->saveMzEICJson(fileName,
 									mavenParameters->allgroups,mavenParameters->samples);
-		#ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
 		cout << "\tExecution time (Saving Eic Json) : " << getTime() - startSavingJson << " seconds \n";
 		#endif
 	}
@@ -1023,13 +1023,13 @@ void PeakDetectorCLI::saveMzRoll(string setName) {
 
 	if (saveMzrollFile == true)
 	{
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
          double startSavingMzroll = getTime();
         #endif
 
          writePeakTableXML(setName + ".mzroll");
 
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
          cout << "\tExecution time (Saving mzroll)   : " << getTime() - startSavingMzroll << " seconds \n";
         #endif
 	
@@ -1038,7 +1038,7 @@ void PeakDetectorCLI::saveMzRoll(string setName) {
 
 void PeakDetectorCLI::saveCSV(string setName) {
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(NO_OPENMP)
      double startSavingCSV = getTime();
     #endif
 	
@@ -1125,7 +1125,7 @@ void PeakDetectorCLI::saveCSV(string setName) {
         cout << endl << "Writing to CSV Failed : " << csvreports->getErrorReport().toStdString() << endl;
     }
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(NO_OPENMP)
      cout << "\tExecution time (Saving CSV)      : " << getTime() - startSavingCSV << " seconds \n";
     #endif
 }
@@ -1333,7 +1333,7 @@ double get_wall_time(){
 }
 double get_cpu_time(){
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(NO_OPENMP)
      return (double)getTime() / CLOCKS_PER_SEC;
     #endif
     return 0;

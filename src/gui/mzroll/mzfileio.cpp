@@ -2,7 +2,7 @@
 #include <QStringList>
 #include <QTextStream>
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(NO_OPENMP)
 #include <omp.h>
 #endif
 
@@ -567,7 +567,7 @@ void mzFileIO::fileImport(void) {
     qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
     if (uploadMultiprocessing) {
         int iter = 0;
-        #ifndef __APPLE__
+        #if !defined(__APPLE__) && !defined(NO_OPENMP)
         #pragma omp parallel for shared(iter)
         #endif
         for (int i = 0; i < samples.size(); i++) {
@@ -576,7 +576,7 @@ void mzFileIO::fileImport(void) {
             if (sample && sample->scans.size() > 0)
                 emit addNewSample(sample);
 
-            #ifndef __APPLE__
+            #if !defined(__APPLE__) && !defined(NO_OPENMP)
             #pragma omp atomic
             #endif
             iter++;

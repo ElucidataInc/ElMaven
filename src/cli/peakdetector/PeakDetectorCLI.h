@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <algorithm>
 #include <sys/time.h>
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(NO_OPENMP)
 #include <omp.h>
 #endif
 
@@ -42,7 +42,7 @@ using namespace std;
 class PollyIntegration;
 class ParseOptions;
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(NO_OPENMP)
  #ifdef OMP_PARALLEL
     #define getTime() omp_get_wtime()
  #else

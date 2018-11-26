@@ -18,7 +18,7 @@
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(NO_OPENMP)
 #include <omp.h>
 #endif
 

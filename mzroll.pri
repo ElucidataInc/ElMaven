@@ -21,6 +21,7 @@ unix: {
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
     linux|win32 {
         message("linking with gcov")
+        DEFINES += NO_OPENMP
         QMAKE_LFLAGS += -lgcov --coverage
     }
 }

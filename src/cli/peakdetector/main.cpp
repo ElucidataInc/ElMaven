@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
 
-     #ifndef __APPLE__
+     #if !defined(__APPLE__) && !defined(NO_OPENMP)
      double programStartTime = getTime();
      #endif
 	//read command line options
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 	peakdetectorCLI->mavenParameters->samples.clear();
 	peakdetectorCLI->mavenParameters->allgroups.clear();
 
-     #ifndef __APPLE__
+     #if !defined(__APPLE__) && !defined(NO_OPENMP)
      cout << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
      #endif
 	return(0);
