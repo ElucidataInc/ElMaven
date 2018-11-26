@@ -1070,7 +1070,7 @@ string ProjectDatabase::_locateSample(const string filepath,
     string fileName = sampleFile.filename().string();
     for (auto& path : pathlist) {
         boost::filesystem::path possiblePath(path);
-        auto filepath = possiblePath.append(fileName);
+        auto filepath = possiblePath / fileName;
         if (boost::filesystem::exists(filepath))
             return filepath.native();
     }
