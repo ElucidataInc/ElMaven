@@ -431,13 +431,15 @@ void ProjectDatabase::saveScans(const vector<mzSample*>& sampleSet)
     _connection->commit();
 }
 
-vector<string> ProjectDatabase::loadSampleNames(const vector<mzSample*> loaded)
+pair<vector<string>, vector<string>>
+ProjectDatabase::getSampleNames(const vector<mzSample*> loaded)
 {
     string projectPath = this->projectPath();
     auto samplesQuery = _connection->prepare("SELECT filename \
                                                 FROM samples  ");
 
-    vector<string> sampleNames;
+    vector<string> sampleNamesFound;
+    vector<string> sampleNamesNotFound;
     while (samplesQuery->next()) {
         string filename = samplesQuery->stringValue("filename");
 
@@ -459,12 +461,15 @@ vector<string> ProjectDatabase::loadSampleNames(const vector<mzSample*> loaded)
         string filepath = _locateSample(filename, possiblePaths);
 
         if (!filepath.empty()) {
-            sampleNames.push_back(filepath);
+            sampleNamesFound.push_back(filepath);
             cerr << "Debug: Found sample: " << filepath << endl;
         } else {
+            sampleNamesNotFound.push_back(filename);
             cerr << "Error: Could not find sample: " << filename << endl;
         }
     }
+    pair<vector<string>, vector<string>> sampleNames(sampleNamesFound,
+                                                     sampleNamesNotFound);
     return sampleNames;
 }
 
