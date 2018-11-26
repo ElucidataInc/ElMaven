@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 class Adduct;
@@ -116,20 +117,22 @@ public:
     /**
      * @brief Load sample filenames saved in the DB from a previous session.
      * @details The filename of the sample is saved during the save process,
-     * and that filename is used to load the sample back in (unless its already
-     * loaded). If the file no longer exists, the sample file is searched for
-     * in the project directory (i.e., path of the database file connected
-     * through this interface). Additionally, two levels of parent paths
-     * relative to the executable are also searched for the sample file. Once
-     * the samples from these filenames are loaded in, the `updateSamples`
-     * method should be used to read in attributes of the samples from the
-     * previous session.
+     * and that filename should be used to load the sample back in. If the file
+     * no longer exists, the sample file is searched for in the project
+     * directory (i.e., path of the database file connected through this
+     * interface). Additionally, two levels of parent paths relative to the
+     * executable are also searched for the sample file. If the files are still
+     * not found, they are returned in a second vector. Once the samples from
+     * these filenames are loaded in, the `updateSamples` method can be used to
+     * read in attributes of the samples from the previous session.
      * @param loaded A vector of samples that have already been loaded. These
      * samples' names will not be returned even if they are saved in the DB.
-     * @return A vector of strings, each a filename from which a sample can be
-     * loaded.
+     * @return A pair of string vectors, the first containing filenames of
+     * samples that were found and the second containing filenames of samples
+     * that were not automatically found.
      */
-    vector<string> loadSampleNames(const vector<mzSample*> loaded);
+    pair<vector<string>, vector<string>>
+    getSampleNames(const vector<mzSample*> loaded);
 
     /**
      * @brief Update sample attributes saved in the DB from a previous session.
