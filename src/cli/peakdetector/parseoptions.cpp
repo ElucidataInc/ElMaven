@@ -1,4 +1,5 @@
 #include "parseoptions.h"
+#include <QString>
 
 ParseOptions::ParseOptions() {
 
@@ -28,40 +29,29 @@ void ParseOptions::addChildren(xml_node args, char* nodeName, QStringList cliArg
 
     for(int i = 0;i < cliArguments.size();i = i + 3) {
 
-        char* ArgName = qStringtocharPointer(cliArguments[i + 1]);
+        string argName = cliArguments[i+1].toStdString();
         string strType = cliArguments[i].toStdString();
-        char* Type = qStringtocharPointer(cliArguments[i]);
+        string value = cliArguments[i+2].toStdString();
 
-        QString nodeValue = cliArguments[i + 2];
-        xml_node nodeArg = addNode(node, ArgName);
-        addAttribute(nodeArg, "type", Type);
+        xml_node nodeArg = addNode(node, const_cast<char*>(argName.c_str()));
+        addAttribute(nodeArg, "type", const_cast<char*>(strType.c_str()));
 
         if (strType == "int") {
-            int Value = nodeValue.toInt();
+            int Value = stoi(value);
             addAttribute(nodeArg, "value", Value);
-        } else if (strType == "float") {
-            float Value = nodeValue.toDouble();
-            addAttribute(nodeArg, "value", Value);
-        } else if (strType == "string") {
-            char* Value = qStringtocharPointer(nodeValue);
-            addAttribute(nodeArg, "value", Value);
-        } else {
-            cerr << "Unknown Type" << endl;
         }
-
-
+        else if (strType == "float") {
+            float Value = stof(value);
+            addAttribute(nodeArg, "value", Value);
+        }
+        else if (strType == "string") {
+            addAttribute(nodeArg, "value", const_cast<char*>(value.c_str()));
+        }
+        else
+            cerr << "Unknown Type" << endl;
     }
 
 }
-
-char* ParseOptions::qStringtocharPointer(QString stringToBeConverted) {
-
-    QByteArray array = stringToBeConverted.toLocal8Bit();
-    char* buffer = array.data();
-
-    return buffer;
-}
-
 
 template <typename T> 
 xml_node ParseOptions::addNode(T &doc, char* nodeName, char* nodeValue) {
