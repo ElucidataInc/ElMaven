@@ -18,9 +18,7 @@
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
-#ifndef __APPLE__
 #include <omp.h>
-#endif
 
 #include "mzUtils.h"
 #include "Compound.h"

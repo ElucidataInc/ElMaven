@@ -13,8 +13,7 @@ QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 linux: QMAKE_CXXFLAGS += -Ofast -ffast-math
 win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
-!macx: QMAKE_CXXFLAGS += -fopenmp
-!macx: LIBS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp
 
 TARGET = maven
 
@@ -27,14 +26,16 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
-                $$top_srcdir/3rdparty/obiwarp
+                $$top_srcdir/3rdparty/obiwarp \
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
+
 LIBS += -lobiwarp
 
 macx{
 
-    INCLUDEPATH += /usr/local/include/
+    INCLUDEPATH += /usr/local/include/ \
+                   /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
     QMAKE_LFLAGS += -L/usr/local/lib/
     LIBS +=  -lboost_signals
 }
