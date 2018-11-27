@@ -1,8 +1,6 @@
 #include "testEIC.h"
 
-TestEIC::TestEIC() {
-    samples = new Samples();
-}
+TestEIC::TestEIC() {}
 
 void TestEIC::initTestCase() {
     // This function is being executed at the beginning of each test suite
@@ -13,7 +11,6 @@ void TestEIC::initTestCase() {
 
 void TestEIC::cleanupTestCase() {
     // Similarly to initTestCase(), this function is executed at the end of test suite
-    delete samples;
 }
 
 void TestEIC::init() {
@@ -26,7 +23,7 @@ void TestEIC::cleanup() {
 
 void TestEIC::testgetEIC() {
     unsigned int numberOfScans = 445;
-    mzSample* mzsample = samples->smallSample;
+    mzSample* mzsample = maventests::samples.smallSample;
     EIC e;
 
     bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0, "");
@@ -34,8 +31,8 @@ void TestEIC::testgetEIC() {
 }
 
 void TestEIC::testgetEICms2() {
-    mzSample* mzsample = samples->ms2Samples[1];
-    mzSample* mzsample_2 = samples->ms2Samples[0];
+    mzSample* mzsample = maventests::samples.ms2TestSamples[1];
+    mzSample* mzsample_2 = maventests::samples.ms2TestSamples[0];
     
     EIC* e = NULL;
     e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
@@ -58,7 +55,7 @@ void TestEIC::testgetEICms2() {
 
 void TestEIC::testcomputeSpline()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -76,7 +73,7 @@ void TestEIC::testcomputeSpline()
 
 void TestEIC::testgetPeakPositions()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -98,7 +95,7 @@ void TestEIC::testgetPeakPositions()
 
 void TestEIC::testcomputeBaselineThreshold()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -117,7 +114,7 @@ void TestEIC::testcomputeBaselineThreshold()
 
 void TestEIC::testcomputeBaselineAsLSSmoothing()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -150,7 +147,7 @@ void TestEIC::testcomputeBaselineAsLSSmoothing()
 void TestEIC::testcomputeBaselineZeroIntensity()
 {
     // obtain a zero intensity EIC (all entries in intensity vector are zero)
-    EIC* e = samples->regularSamples[0]->getEIC(381.123744f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(381.123744f,
                                                 381.123754f,
                                                 12.0,
                                                 16.0,
@@ -194,7 +191,7 @@ void TestEIC::testcomputeBaselineEmptyEIC()
 
 void TestEIC::testfindPeakBounds()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -219,13 +216,13 @@ void TestEIC::testfindPeakBounds()
          intensity.push_back(e->intensity[i]);
     }
 
-    QVERIFY(common::floatCompare(*max_element(intensity.begin(), intensity.end()), e->intensity[e->peaks[10].pos]));
+    QVERIFY(TestUtils::floatCompare(*max_element(intensity.begin(), intensity.end()), e->intensity[e->peaks[10].pos]));
    
 }
 
 void TestEIC:: testGetPeakDetails()
 {
-    EIC* e = samples->regularSamples[0]->getEIC(402.9929f,
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
                                                 402.9969f,
                                                 12.0,
                                                 16.0,
@@ -265,17 +262,17 @@ void TestEIC:: testGetPeakDetails()
 
     float peakAreaCorrected = peakArea - baselineArea;
 
-    QVERIFY(common::floatCompare(*max_element(intensity.begin(), intensity.end()), e->peaks[10].peakIntensity));
+    QVERIFY(TestUtils::floatCompare(*max_element(intensity.begin(), intensity.end()), e->peaks[10].peakIntensity));
 
     QVERIFY(e->peaks[10].noNoiseObs == noNoiseObs);
 
-    QVERIFY(common::floatCompare(peakArea, e->peaks[10].peakArea));
+    QVERIFY(TestUtils::floatCompare(peakArea, e->peaks[10].peakArea));
 
-    QVERIFY(common::floatCompare(peakSplineArea, e->peaks[10].peakSplineArea));
+    QVERIFY(TestUtils::floatCompare(peakSplineArea, e->peaks[10].peakSplineArea));
 
-    QVERIFY(common::floatCompare(peakAreaCorrected, e->peaks[10].peakAreaCorrected));
+    QVERIFY(TestUtils::floatCompare(peakAreaCorrected, e->peaks[10].peakAreaCorrected));
 
-    QVERIFY(common::floatCompare(peakAreaCorrected / (e->totalIntensity + 1), e->peaks[10].peakAreaFractional));
+    QVERIFY(TestUtils::floatCompare(peakAreaCorrected / (e->totalIntensity + 1), e->peaks[10].peakAreaFractional));
     
     QVERIFY(e->peaks[10].gaussFitSigma > 0);
     
@@ -291,11 +288,11 @@ void TestEIC:: testgroupPeaks() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (auto mzsample: samples->regularSamples) {
+    for (auto mzsample: maventests::samples.ms1TestSamples) {
         samplesToLoad.push_back(mzsample);
     }
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
 
     // for(std::vector<Compound*>::iterator it = compounds.begin(); it != compounds.end(); ++it) {
     //     cerr << (*it)->name << endl; 
@@ -370,11 +367,11 @@ void TestEIC:: testeicMerge() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (auto mzsample: samples->regularSamples) {
+    for (auto mzsample: maventests::samples.ms1TestSamples) {
         samplesToLoad.push_back(mzsample);
     }
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
 
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];

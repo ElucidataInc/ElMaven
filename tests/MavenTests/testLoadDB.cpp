@@ -1,7 +1,5 @@
 #include "testLoadDB.h"
 
-Databases DB;
-
 TestLoadDB::TestLoadDB() {
 
 }
@@ -42,11 +40,11 @@ void TestLoadDB::testExtractCompoundfromEachLineNormal() {
 
     int loadCount = 4;
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
-    Compound* compound = DB.extractCompoundfromEachLine(fields, header, loadCount, filename);
+    Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(common::floatCompare(compound->mass, 588.07523818) && \
-    common::floatCompare(compound->expectedRt, 14.14) && \
-    common::floatCompare(compound->charge, -1) && \
+    QVERIFY(TestUtils::floatCompare(compound->mass, 588.07523818) && \
+    TestUtils::floatCompare(compound->expectedRt, 14.14) && \
+    TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
     formula.compare(compound->formula) == 0 && \
     id.compare(compound->id) == 0 && \
@@ -70,11 +68,11 @@ void TestLoadDB::testExtractCompoundfromEachLineWithNoMz() {
 
     int loadCount = 4;
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
-    Compound* compound = DB.extractCompoundfromEachLine(fields, header, loadCount, filename);
+    Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(common::floatCompare(compound->mass, 589.082238 - 1.007) && \
-    common::floatCompare(compound->expectedRt, 14.14) && \
-    common::floatCompare(compound->charge, -1) && \
+    QVERIFY(TestUtils::floatCompare(compound->mass, 589.082238 - 1.007) && \
+    TestUtils::floatCompare(compound->expectedRt, 14.14) && \
+    TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
     formula.compare(compound->formula) == 0 && \
     id.compare(compound->id) == 0 && \
@@ -98,7 +96,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithNoMzandFormula() {
 
     int loadCount = 4;
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
-    Compound* compound = DB.extractCompoundfromEachLine(fields, header, loadCount, filename);
+    Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
     QVERIFY(compound == NULL);
 }
@@ -121,11 +119,11 @@ void TestLoadDB::testExtractCompoundfromEachLineWithExpRTandRT() {
 
     int loadCount = 4;
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
-    Compound* compound = DB.extractCompoundfromEachLine(fields, header, loadCount, filename);
+    Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(common::floatCompare(compound->mass, 589.082238 - 1.007) && \
-    common::floatCompare(compound->expectedRt, 12.14) && \
-    common::floatCompare(compound->charge, -1) && \
+    QVERIFY(TestUtils::floatCompare(compound->mass, 589.082238 - 1.007) && \
+    TestUtils::floatCompare(compound->expectedRt, 12.14) && \
+    TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
     formula.compare(compound->formula) == 0 && \
     id.compare(compound->id) == 0 && \
@@ -151,11 +149,11 @@ void TestLoadDB::testExtractCompoundfromEachLineWithCompoundField() {
 
     int loadCount = 4;
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
-    Compound* compound = DB.extractCompoundfromEachLine(fields, header, loadCount, filename);
+    Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(common::floatCompare(compound->mass, 588.07523818) && \
-    common::floatCompare(compound->expectedRt, 14.14) && \
-    common::floatCompare(compound->charge, -1) && \
+    QVERIFY(TestUtils::floatCompare(compound->mass, 588.07523818) && \
+    TestUtils::floatCompare(compound->expectedRt, 14.14) && \
+    TestUtils::floatCompare(compound->charge, -1) && \
     compoundname.compare(compound->name) == 0 && \
     formula.compare(compound->formula) == 0 && \
     id.compare(compound->id) == 0 && \
@@ -163,17 +161,17 @@ void TestLoadDB::testExtractCompoundfromEachLineWithCompoundField() {
 }
 
 void TestLoadDB::testloadCompoundCSVFileWithIssues() {
-        int numberofCompounds = DB.loadCompoundCSVFile("bin/methods/compoundlist.csv");
+        int numberofCompounds = maventests::database.loadCompoundCSVFile("bin/methods/compoundlist.csv");
         QVERIFY(numberofCompounds == 7);
 }
 
 void TestLoadDB::testloadCompoundCSVFileWithRep() {
-        int numberofCompounds = DB.loadCompoundCSVFile("bin/methods/compoundlist_rep.csv");
+        int numberofCompounds = maventests::database.loadCompoundCSVFile("bin/methods/compoundlist_rep.csv");
         QVERIFY(numberofCompounds == 7);
 }
 
 /* void TestLoadDB::testloadCompoundCSVFileWithRepNoId() {
-        int numberofCompounds = DB.loadCompoundCSVFile("bin/methods/compoundlist_rep_with_noId.csv");
+        int numberofCompounds = maventests::database.loadCompoundCSVFile("bin/methods/compoundlist_rep_with_noId.csv");
         QVERIFY(numberofCompounds == 7);
 } */
 

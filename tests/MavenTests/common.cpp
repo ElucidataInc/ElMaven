@@ -1,61 +1,72 @@
 #include "common.h"
-Databases DBS;
 
-common::common() {}
+namespace maventests {
+    Databases database;
+    TestSamples samples;
+}
 
-bool common::floatCompare(float a, float b) {
+TestUtils::TestUtils() {}
+
+bool TestUtils::floatCompare(float a, float b)
+{
     float EPSILON = 0.001;
     return fabs(a - b) < EPSILON;
 }
 
-bool common::compareMaps(const map<string,int> & l, const map<string,int> & k) {
-  // same types, proceed to compare maps here
+bool TestUtils::compareMaps(const map<string, int>& l,
+                            const map<string, int>& k)
+{
+    // same types, proceed to compare maps here
 
-  if(l.size() != k.size())
-    return false;  // differing sizes, they are not the same
+    if (l.size() != k.size())
+        return false;  // differing sizes, they are not the same
 
- map<string,int>::const_iterator i, j;
-  for(i = l.begin(), j = k.begin(); i != l.end(); ++i, ++j)
-  {
-    if(*i != *j)
-      return false;
-  }
+    map<string, int>::const_iterator i, j;
+    for (i = l.begin(), j = k.begin(); i != l.end(); ++i, ++j) {
+        if (*i != *j)
+            return false;
+    }
 
-  return true;
+    return true;
 }
 
-vector<Compound*> common::getCompoudDataBaseWithRT() {
-    const char* loadCompoundDB = \
-    "bin/methods/qe3_v11_2016_04_29.csv";;
+vector<Compound*> TestUtils::getCompoudDataBaseWithRT()
+{
+    const char* loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+    ;
 
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
+    maventests::database.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds =
+        maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
 
     return compounds;
 }
 
-vector<Compound*> common::getCompoudDataBaseWithNORT() {
-    const char* loadCompoundDB = \
-    "bin/methods/KNOWNS.csv";;
+vector<Compound*> TestUtils::getCompoudDataBaseWithNORT()
+{
+    const char* loadCompoundDB = "bin/methods/KNOWNS.csv";
+    ;
 
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCompoundsSubset("KNOWNS");
-
-    return compounds;
-}
-
-vector<Compound*> common::getFaltyCompoudDataBase() {
-    const char* loadCompoundDB = \
-    "bin/methods/compoundlist.csv";
-
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCompoundsSubset("compoundlist");
+    maventests::database.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds =
+        maventests::database.getCompoundsSubset("KNOWNS");
 
     return compounds;
 }
 
-void common::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
-                                      MavenParameters* mavenparameters)
+vector<Compound*> TestUtils::getFaltyCompoudDataBase()
+{
+    const char* loadCompoundDB = "bin/methods/compoundlist.csv";
+
+    maventests::database.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds =
+        maventests::database.getCompoundsSubset("compoundlist");
+
+    return compounds;
+}
+
+void TestUtils::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
+                                         MavenParameters* mavenparameters)
 {
     QStringList files;
     files << "bin/methods/testsample_2.mzxml"
@@ -69,7 +80,7 @@ void common::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
     ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
     string loadmodel = "bin/default.model";
     clsf->loadModel(loadmodel);
-    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10, "ppm");
     mavenparameters->clsf = clsf;
     mavenparameters->ionizationMode = -1;
     mavenparameters->matchRtFlag = true;
@@ -83,13 +94,12 @@ void common::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
     mavenparameters->baseline_dropTopX = 80;
 }
 
-vector<PeakGroup> common::getGroupsFromProcessCompounds(){
-
-    const char* loadCompoundDB = \
-    "bin/methods/qe3_v11_2016_04_29.csv";;
-
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
+vector<PeakGroup> TestUtils::getGroupsFromProcessCompounds()
+{
+    const char* loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";
+    maventests::database.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds =
+        maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
 
     vector<mzSample*> samplesToLoad;
     MavenParameters* mavenparameters = new MavenParameters();
@@ -97,10 +107,9 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = 
-	    peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices =
+        peakDetector.processCompounds(compounds, "compounds");
     peakDetector.processSlices(slices, "compounds");
 
     return mavenparameters->allgroups;
-
 }

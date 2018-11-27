@@ -32,9 +32,9 @@ void Testbase64::testdecode_base64() {
         base64::decode_base64(b64String, 4, true, false);
 
     QVERIFY(decodedArray.size()==3);
-    QVERIFY(common::floatCompare(decodedArray[0],70.0663604736328));
-    QVERIFY(common::floatCompare(decodedArray[1],2311.00512695312));
-    QVERIFY(common::floatCompare(decodedArray[2],70.0742645263672));
+    QVERIFY(TestUtils::floatCompare(decodedArray[0],70.0663604736328));
+    QVERIFY(TestUtils::floatCompare(decodedArray[1],2311.00512695312));
+    QVERIFY(TestUtils::floatCompare(decodedArray[2],70.0742645263672));
 }
 
 void Testbase64::testencode_base64() {

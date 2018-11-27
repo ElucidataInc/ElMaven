@@ -90,10 +90,10 @@ void TestCSVReports::testopenPeakReport() {
 
 void TestCSVReports::testaddGroup()
 {
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
     MavenParameters* mavenparameters = new MavenParameters();
     vector<mzSample*> samplesToLoad;
-    common::loadSamplesAndParameters(samplesToLoad, mavenparameters);
+    TestUtils::loadSamplesAndParameters(samplesToLoad, mavenparameters);
 
     PeakDetector targetedPeakDetector;
     targetedPeakDetector.setMavenParameters(mavenparameters);

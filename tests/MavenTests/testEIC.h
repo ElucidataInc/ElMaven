@@ -18,9 +18,6 @@ class TestEIC : public QObject {
     public:
         TestEIC();
 
-    private:
-        Samples* samples;
-
     private Q_SLOTS:
         // functions executed by QtTest before and after test suite
         void initTestCase();

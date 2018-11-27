@@ -7,8 +7,6 @@
 #include "common.h"
 #include "databases.h"
 
-extern Databases DBS;
-
 class TestMassCalculator : public QObject {
     Q_OBJECT
 

@@ -8,8 +8,6 @@
 #include "databases.h"
 #include "mzSample.h"
 
-extern Databases DB;
-
 class TestLoadDB : public QObject {
     Q_OBJECT
 

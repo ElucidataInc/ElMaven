@@ -24,7 +24,7 @@ void TestMzSlice::cleanup() {
 }
 
 void TestMzSlice::testCalculateMzMaxMinWithCF() {
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     MavenParameters* mavenparameters = new MavenParameters();
@@ -38,12 +38,12 @@ void TestMzSlice::testCalculateMzMaxMinWithCF() {
 
     slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
-    common::floatCompare(slice->mzmax,mzMax));
+    QVERIFY(TestUtils::floatCompare(slice->mzmin,mzMin) && \
+    TestUtils::floatCompare(slice->mzmax,mzMax));
 }
 
 void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
-    vector<Compound*> compounds = common::getFaltyCompoudDataBase();
+    vector<Compound*> compounds = TestUtils::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     MavenParameters* mavenparameters = new MavenParameters();
@@ -59,13 +59,13 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
 
     slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
-    QVERIFY(common::floatCompare(slice->mzmin,mzMin) && \
-    common::floatCompare(slice->mzmax,mzMax));
+    QVERIFY(TestUtils::floatCompare(slice->mzmin,mzMin) && \
+    TestUtils::floatCompare(slice->mzmax,mzMax));
 }
 
 
 void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
-    vector<Compound*> compounds = common::getFaltyCompoudDataBase();
+    vector<Compound*> compounds = TestUtils::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[1];
     compounds[1]->mass = 0;
@@ -77,7 +77,7 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
 }
 
 void TestMzSlice::testcalculateRTMinMaxWithRTandEnabled() {
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     bool matchRtFlag = true;
@@ -88,14 +88,14 @@ void TestMzSlice::testcalculateRTMinMaxWithRTandEnabled() {
 
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
 
-    QVERIFY(common::floatCompare(slice->rtmin,rtmin) && \
-    common::floatCompare(slice->rtmax,rtmax));
+    QVERIFY(TestUtils::floatCompare(slice->rtmin,rtmin) && \
+    TestUtils::floatCompare(slice->rtmax,rtmax));
 
 
 }
 
 void TestMzSlice::testcalculateRTMinMaxWithNORTandEnabled() {
-    vector<Compound*> compounds = common::getCompoudDataBaseWithNORT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithNORT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     bool matchRtFlag = true;
@@ -103,12 +103,12 @@ void TestMzSlice::testcalculateRTMinMaxWithNORTandEnabled() {
 
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
 
-    QVERIFY(common::floatCompare(slice->rtmin,0) && \
-    common::floatCompare(slice->rtmax,1e9));
+    QVERIFY(TestUtils::floatCompare(slice->rtmin,0) && \
+    TestUtils::floatCompare(slice->rtmax,1e9));
 }
 
 void TestMzSlice::testcalculateRTMinMaxWithNORTandDisabled() {
-    vector<Compound*> compounds = common::getCompoudDataBaseWithNORT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithNORT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     bool matchRtFlag = false;
@@ -116,14 +116,14 @@ void TestMzSlice::testcalculateRTMinMaxWithNORTandDisabled() {
 
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
 
-    QVERIFY(common::floatCompare(slice->rtmin,0)  && \
-    common::floatCompare(slice->rtmax,1e9));
+    QVERIFY(TestUtils::floatCompare(slice->rtmin,0)  && \
+    TestUtils::floatCompare(slice->rtmax,1e9));
 }
 
 
 void TestMzSlice::testcalculateRTMinMaxWithRTandDisabled() {
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[0];
     bool matchRtFlag = false;
@@ -131,8 +131,8 @@ void TestMzSlice::testcalculateRTMinMaxWithRTandDisabled() {
 
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
 
-    QVERIFY(common::floatCompare(slice->rtmin,0) && \
-    common::floatCompare(slice->rtmax,1e9));
+    QVERIFY(TestUtils::floatCompare(slice->rtmin,0) && \
+    TestUtils::floatCompare(slice->rtmax,1e9));
 }
 
 

@@ -45,18 +45,18 @@ void TestMzFit::testSort_xy() {
 
     sort_xy(x, y, 6, 1, 0);
 
-    QVERIFY(common::floatCompare(x[0],(double) 6/7));
-    QVERIFY(common::floatCompare(y[0],(double) 2/9));
-    QVERIFY(common::floatCompare(x[1],(double) 2/7));
-    QVERIFY(common::floatCompare(y[1],(double) 3/9));
-    QVERIFY(common::floatCompare(x[2],(double) 8/9));
-    QVERIFY(common::floatCompare(y[2],(double) 4/9));
-    QVERIFY(common::floatCompare(x[3],(double) 5/7));
-    QVERIFY(common::floatCompare(y[3],(double) 5/9));
-    QVERIFY(common::floatCompare(x[4],(double) 3/7));
-    QVERIFY(common::floatCompare(y[4],(double) 6/9));
-    QVERIFY(common::floatCompare(x[5],(double) 1/7));
-    QVERIFY(common::floatCompare(y[5],(double) 7/9));
+    QVERIFY(TestUtils::floatCompare(x[0],(double) 6/7));
+    QVERIFY(TestUtils::floatCompare(y[0],(double) 2/9));
+    QVERIFY(TestUtils::floatCompare(x[1],(double) 2/7));
+    QVERIFY(TestUtils::floatCompare(y[1],(double) 3/9));
+    QVERIFY(TestUtils::floatCompare(x[2],(double) 8/9));
+    QVERIFY(TestUtils::floatCompare(y[2],(double) 4/9));
+    QVERIFY(TestUtils::floatCompare(x[3],(double) 5/7));
+    QVERIFY(TestUtils::floatCompare(y[3],(double) 5/9));
+    QVERIFY(TestUtils::floatCompare(x[4],(double) 3/7));
+    QVERIFY(TestUtils::floatCompare(y[4],(double) 6/9));
+    QVERIFY(TestUtils::floatCompare(x[5],(double) 1/7));
+    QVERIFY(TestUtils::floatCompare(y[5],(double) 7/9));
 
     delete x;
     delete y;
@@ -78,7 +78,7 @@ void TestMzFit::testGauss() {
     gauss(degree + 1, w, wdim, b, r);
     bool flag=true;
     for (i=0;i<10;i++)
-        if(!common::floatCompare(r[i],rcomp[i])) {
+        if(!TestUtils::floatCompare(r[i],rcomp[i])) {
             flag=false;
             break;
         }
@@ -87,7 +87,7 @@ void TestMzFit::testGauss() {
 
     flag=true;
     for (i=0;i<5;i++)
-        if(!common::floatCompare(b[i],bcomp[i])) {
+        if(!TestUtils::floatCompare(b[i],bcomp[i])) {
             flag=false;
             break;
         }
@@ -96,7 +96,7 @@ void TestMzFit::testGauss() {
     flag=true;
     for (i=0;i<100;i++){
 
-        if(!common::floatCompare(w[i],wcomp[i])) {
+        if(!TestUtils::floatCompare(w[i],wcomp[i])) {
             flag=false;
             break;
         }
@@ -122,8 +122,8 @@ void TestMzFit::testStasum() {
     double ysdev=2.35117935805516e-317;
     int n=6;
     stasum(y, n, &ybar, &ysdev, 1);
-    QVERIFY(common::floatCompare(ybar,(double) 0.5));
-    QVERIFY(common::floatCompare(ysdev,(double) 0.207869854820775));
+    QVERIFY(TestUtils::floatCompare(ybar,(double) 0.5));
+    QVERIFY(TestUtils::floatCompare(ysdev,(double) 0.207869854820775));
 
 }
 
@@ -151,45 +151,45 @@ void TestMzFit::testLeasqu() {
 
     leasqu(6, x, y, ideg, w, maxdeg, result);
 
-    QVERIFY(common::floatCompare(result[0],(double) 0.701591));
-    QVERIFY(common::floatCompare(result[1],(double) -0.337347));
-    QVERIFY(common::floatCompare(result[2],(double) -0.0389572));
-    QVERIFY(common::floatCompare(w[0],(double) 6));
-    QVERIFY(common::floatCompare(w[1],(double) 3.31746));
-    QVERIFY(common::floatCompare(w[2],(double) 2.32074));
-    QVERIFY(common::floatCompare(w[3],(double) 0));
-    QVERIFY(common::floatCompare(w[4],(double) 0));
-    QVERIFY(common::floatCompare(w[5],(double) 0));
-    QVERIFY(common::floatCompare(w[6],(double) 3.31746));
-    QVERIFY(common::floatCompare(w[7],(double) 0.486479));
-    QVERIFY(common::floatCompare(w[8],(double) 0.518299));
-    QVERIFY(common::floatCompare(w[9],(double) 0));
-    QVERIFY(common::floatCompare(w[10],(double) 0));
-    QVERIFY(common::floatCompare(w[11],(double) 0));
-    QVERIFY(common::floatCompare(w[12],(double) 2.32074));
-    QVERIFY(common::floatCompare(w[13],(double) 0.518299));
-    QVERIFY(common::floatCompare(w[14],(double) 0.0153577));
-    QVERIFY(common::floatCompare(w[15],(double) 0));
-    QVERIFY(common::floatCompare(w[16],(double) 0));
-    QVERIFY(common::floatCompare(w[17],(double) 0));
-    QVERIFY(common::floatCompare(w[18],(double) 0));
-    QVERIFY(common::floatCompare(w[19],(double) 0));
-    QVERIFY(common::floatCompare(w[20],(double) 0));
-    QVERIFY(common::floatCompare(w[21],(double) 0));
-    QVERIFY(common::floatCompare(w[22],(double) 0));
-    QVERIFY(common::floatCompare(w[23],(double) 0));
-    QVERIFY(common::floatCompare(w[24],(double) 0));
-    QVERIFY(common::floatCompare(w[25],(double) 0));
-    QVERIFY(common::floatCompare(w[26],(double) 0));
-    QVERIFY(common::floatCompare(w[27],(double) 0));
-    QVERIFY(common::floatCompare(w[28],(double) 0));
-    QVERIFY(common::floatCompare(w[29],(double) 0));
-    QVERIFY(common::floatCompare(w[30],(double) 0));
-    QVERIFY(common::floatCompare(w[31],(double) 0));
-    QVERIFY(common::floatCompare(w[32],(double) 0));
-    QVERIFY(common::floatCompare(w[33],(double) 0));
-    QVERIFY(common::floatCompare(w[34],(double) 0));
-    QVERIFY(common::floatCompare(w[35],(double) 0));
+    QVERIFY(TestUtils::floatCompare(result[0],(double) 0.701591));
+    QVERIFY(TestUtils::floatCompare(result[1],(double) -0.337347));
+    QVERIFY(TestUtils::floatCompare(result[2],(double) -0.0389572));
+    QVERIFY(TestUtils::floatCompare(w[0],(double) 6));
+    QVERIFY(TestUtils::floatCompare(w[1],(double) 3.31746));
+    QVERIFY(TestUtils::floatCompare(w[2],(double) 2.32074));
+    QVERIFY(TestUtils::floatCompare(w[3],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[4],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[5],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[6],(double) 3.31746));
+    QVERIFY(TestUtils::floatCompare(w[7],(double) 0.486479));
+    QVERIFY(TestUtils::floatCompare(w[8],(double) 0.518299));
+    QVERIFY(TestUtils::floatCompare(w[9],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[10],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[11],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[12],(double) 2.32074));
+    QVERIFY(TestUtils::floatCompare(w[13],(double) 0.518299));
+    QVERIFY(TestUtils::floatCompare(w[14],(double) 0.0153577));
+    QVERIFY(TestUtils::floatCompare(w[15],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[16],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[17],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[18],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[19],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[20],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[21],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[22],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[23],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[24],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[25],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[26],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[27],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[28],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[29],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[30],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[31],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[32],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[33],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[34],(double) 0));
+    QVERIFY(TestUtils::floatCompare(w[35],(double) 0));
 }
 
 void TestMzFit::testLeasev() {
@@ -207,7 +207,7 @@ void TestMzFit::testLeasev() {
     for(int ii=0; ii < n; ii++)  {
         newrt = leasev(result, ideg, x[ii]);
     }
-    QVERIFY(common::floatCompare(newrt,(double)0.782730460166931));
+    QVERIFY(TestUtils::floatCompare(newrt,(double)0.782730460166931));
 
 
 }

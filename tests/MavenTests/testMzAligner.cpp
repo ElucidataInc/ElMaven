@@ -1,9 +1,6 @@
 #include "testMzAligner.h"
 
-TestMzAligner::TestMzAligner() {
-
-    samples = new Samples;
-}
+TestMzAligner::TestMzAligner() {}
 
 void TestMzAligner::initTestCase() {
     // This function is being executed at the beginning of each test suite
@@ -24,7 +21,7 @@ void TestMzAligner::cleanup() {
 
 void TestMzAligner::testDoAlignment() {
 
-    vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
+    vector<PeakGroup> allgroups = TestUtils::getGroupsFromProcessCompounds();
 
     vector<PeakGroup*> peakgroups(allgroups.size());
     for (unsigned int i = 0; i < allgroups.size(); i++)
@@ -43,7 +40,7 @@ void TestMzAligner::testObiWarp()
     mavenparameters->minQuality = 0.8;
     mavenparameters->minIntensity = 10000;
     mavenparameters->matchRtFlag = false;
-    mavenparameters->samples = samples->alignmentSamples;
+    mavenparameters->samples = maventests::samples.alignmentSamples;
     mavenparameters->clsf = new ClassifierNeuralNet;
     mavenparameters->clsf->loadModel("bin/default.model");
 
@@ -51,8 +48,8 @@ void TestMzAligner::testObiWarp()
     Aligner aligner;
     aligner.alignWithObiWarp(mavenparameters->samples, &params);
 
-    DBS.loadCompoundCSVFile("bin/methods/KNOWNS.csv");
-    vector<Compound*> compounds = DBS.getCompoundsSubset("KNOWNS");
+    maventests::database.loadCompoundCSVFile("bin/methods/KNOWNS.csv");
+    vector<Compound*> compounds = maventests::database.getCompoundsSubset("KNOWNS");
 
 
     PeakDetector peakDetector;
@@ -87,7 +84,7 @@ void TestMzAligner::testObiWarp()
 
 void TestMzAligner::testSaveFit(){
 
-    vector<mzSample*> samplesToLoad  = samples->alignmentSamples;
+    vector<mzSample*> samplesToLoad  = maventests::samples.alignmentSamples;
 
     Aligner aligner;
     aligner.samples = samplesToLoad;
