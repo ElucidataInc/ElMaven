@@ -135,9 +135,10 @@ void TestEIC::testcomputeBaselineAsLSSmoothing()
     // test whether all values are greater than zero, otherwise EIC widget
     // behaves erratically
     auto allGreaterThanZero = true;
-    for (unsigned int i = 0; i < e->intensity.size(); ++i)
-        if (e->baseline[i] < 0.0f)
-            allGreaterThanZero = false;
+    if(std::all_of(e->intensity.begin(),
+                   e->intensity.end(),
+                   [](float intensity) { return intensity < 0.0f; }))
+        allGreaterThanZero = false;
     QVERIFY(allGreaterThanZero);
 
     // deallocate
