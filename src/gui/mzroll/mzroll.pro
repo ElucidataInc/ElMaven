@@ -103,6 +103,10 @@ macx {
   LIBS -= -lcdfread
 }
 
+QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+
+LIBS += -lboost_system -lboost_filesystem -lsqlite3
+
 message($$LDFLAGS)
 
 INSTALLS += sources target
