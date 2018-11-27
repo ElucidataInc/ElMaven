@@ -472,7 +472,7 @@ void BackgroundPeakUpdate::align() {
                         aligner.doAlignment(groups);
                         mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);
                         mainwindow->sampleRtWidget->setCoefficientMap(aligner.sampleCoefficient);
-                } else if (alignAlgo == 1) {
+                } else if (alignAlgo == 2) {
                         aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
                         // initialize processedDataFromPython with null 
                         processedDataFromPython="";

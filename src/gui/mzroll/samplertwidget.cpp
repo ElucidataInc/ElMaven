@@ -7,7 +7,7 @@ SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     this->_mw= mw;
     ui->setupUi(this);
     setObjectName("SampleRtWidget");
-    setWindowTitle("Sample Retention Time Deviation Visualization");
+    setWindowTitle("Sample Deviation");
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
@@ -43,6 +43,8 @@ SampleRtWidget::~SampleRtWidget()
 }
 
 void SampleRtWidget::plotGraph() {
+
+    if(!isVisible()) return;
 
     intialSetup();
 
@@ -151,10 +153,10 @@ void SampleRtWidget::plotIndividualGraph(mzSample* sample)
         prepareGraphDataPolyFit(xAxis, yAxis, sample);
 
     if(alignAlgo == 1)
-        prepareGraphDataLoessFit(xAxis, yAxis, sample);
+        prepareGraphDataObiWarp(xAxis, yAxis, sample);
 
     if(alignAlgo == 2)
-        prepareGraphDataObiWarp(xAxis, yAxis, sample);
+        prepareGraphDataLoessFit(xAxis, yAxis, sample);
 
     if(!xAxis.isEmpty() && !yAxis.isEmpty()){
 

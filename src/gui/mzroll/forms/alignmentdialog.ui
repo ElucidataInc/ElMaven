@@ -324,12 +324,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Loess Fit  [Deprecated]</string>
+          <string>OBI-Warp [Beta]</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>OBI-Warp (beta)</string>
+          <string>Loess Fit  [Deprecated]</string>
          </property>
         </item>
        </widget>

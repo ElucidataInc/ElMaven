@@ -329,10 +329,10 @@ using namespace mzUtils;
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
 
-    groupRtDockWidget = createDockWidget("Per Group Alignment Visualization", groupRtVizPlot); 
+    groupRtDockWidget = createDockWidget("Per Group Deviation", groupRtVizPlot);
     groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
 
-    alignmentVizAllGroupsDockWidget = createDockWidget("Alignment Visualization For All Groups", alignmentVizAllGroupsPlot);
+    alignmentVizAllGroupsDockWidget = createDockWidget("All Groups Deviation", alignmentVizAllGroupsPlot);
     alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this, alignmentVizAllGroupsDockWidget);
 
 
@@ -2605,9 +2605,9 @@ void MainWindow::createToolBars() {
     btnAlignment->setPopupMode(QToolButton::InstantPopup);
 
 
-    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per group Alignment Visualization");
-    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Alignment Visualization For All Groups");
-    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Retention time Deviation Visualization");
+    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per Group Deviation");
+    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All Groups Deviation");
+    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Deviation");
 
 
     connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
@@ -2842,7 +2842,7 @@ void MainWindow::Align() {
 
 	BackgroundPeakUpdate* workerThread;
 
-	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+    if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		workerThread = newWorkerThread("alignWithObiWarp");
 		workerThread->setMavenParameters(mavenParameters);
 		workerThread->start();
@@ -2919,7 +2919,7 @@ void MainWindow::showAlignmentWidget() {
 }
 
 void MainWindow::UndoAlignment() {
-	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+    if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		for (int i = 0; i < samples.size(); i++) {
 			for(int j = 0; j < samples[i]->scans.size(); ++j)
 				if(samples[i]->scans[j]->originalRt >= 0)
