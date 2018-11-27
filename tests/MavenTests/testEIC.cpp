@@ -175,18 +175,15 @@ void TestEIC::testcomputeBaselineZeroIntensity()
 void TestEIC::testcomputeBaselineEmptyEIC()
 {
     // create an empty EIC, i.e., its intensity vector is empty
-    EIC* e = new EIC();
+    EIC e;
 
     // change default baseline mode
-    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
-    e->setAsLSSmoothness(5);
-    e->setAsLSAsymmetry(4);
+    e.setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e.setAsLSSmoothness(5);
+    e.setAsLSAsymmetry(4);
 
-    e->computeBaseline();
-    QVERIFY(e->baseline == nullptr);
-
-    // deallocate
-    delete e;
+    e.computeBaseline();
+    QVERIFY(e.baseline == nullptr);
 }
 
 void TestEIC::testfindPeakBounds()
