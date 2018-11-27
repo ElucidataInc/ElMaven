@@ -141,34 +141,38 @@ bool EIC::_clearBaseline()
     if (!n)
         return false;
 
-    try
-    {
-        baseline = new float[n];
-        std::fill_n(baseline, n, 0.0f);
-    }
-    catch (...)
-    {
-        cerr << "Exception caught while allocating memory "
-             << n << " floating point values." << endl;
-        return false;
-    }
+    baseline = new float[n];
+    std::fill_n(baseline, n, 0.0f);
 
     return true;
 }
 
-void EIC::_computeAsLSBaseline(float lambda, float p, int numIterations)
+void EIC::_computeAsLSBaseline(const float lambda,
+                               const float p,
+                               const int numIterations)
 {
-    if (!_clearBaseline())
-        return;
-
     using namespace Eigen;
-    unsigned int n = static_cast<unsigned int>(intensity.size());
+    auto n = static_cast<unsigned int>(intensity.size());
+
+    // Perform difference operation (pseudo-differentiation) on a sparse matrix
+    auto diff = [](Eigen::SparseMatrix<float> mat)
+    {
+        Eigen::SparseMatrix<float> E1 = mat.block(0,
+                                                  0,
+                                                  mat.rows() - 1,
+                                                  mat.cols());
+        Eigen::SparseMatrix<float> E2 = mat.block(1,
+                                                  0,
+                                                  mat.rows() - 1,
+                                                  mat.cols());
+        return Eigen::SparseMatrix<float>(E2 - E1);
+    };
 
     // create a sparse identity matrix of size `n`
     auto ident = MatrixXf::Identity(n, n).sparseView();
 
     // compute approximate second derivative of the identity matrix
-    auto D = _diff(_diff(ident));
+    auto D = diff(diff(ident));
 
     // create a weights vector of length `n` initially containing only ones
     // for coefficients
@@ -228,19 +232,10 @@ void EIC::_computeAsLSBaseline(float lambda, float p, int numIterations)
     std::copy(begin(clippedBaseline), end(clippedBaseline), baseline);
 }
 
-Eigen::SparseMatrix<float> EIC::_diff(Eigen::SparseMatrix<float> mat)
+void EIC::_computeThresholdBaseline(const int smoothingWindow,
+                                    const int dropTopX)
 {
-    Eigen::SparseMatrix<float> E1 = mat.block(0, 0, mat.rows() - 1, mat.cols());
-    Eigen::SparseMatrix<float> E2 = mat.block(1, 0, mat.rows() - 1, mat.cols());
-    return E2 - E1;
-}
-
-void EIC::_computeThresholdBaseline(int smoothingWindow, int dropTopX)
-{
-    if (!_clearBaseline())
-        return;
-
-    unsigned int n = static_cast<unsigned int>(intensity.size());
+    auto n = intensity.size();
 
     //sort intensity vector
     vector<float> tmpv = intensity;
@@ -287,11 +282,18 @@ void EIC::_computeThresholdBaseline(int smoothingWindow, int dropTopX)
 
 void EIC::computeBaseline()
 {
-    if (_baselineMode == BaselineMode::Threshold)
+    if (!_clearBaseline())
+        return;
+
+    switch (_baselineMode) {
+    case BaselineMode::Threshold:
         _computeThresholdBaseline(baselineSmoothingWindow, baselineDropTopX);
-    else if (_baselineMode == BaselineMode::AsLSSmoothing)
+        break;
+    case BaselineMode::AsLSSmoothing:
         _computeAsLSBaseline(pow(10.0f, static_cast<float>(_aslsSmoothness)),
                              static_cast<float>(_aslsAsymmetry) / 100.0f);
+        break;
+    }
 }
 
 void EIC::subtractBaseLine()

@@ -324,7 +324,8 @@ class EIC
      * @param smoothingWindow is the size of window used for 1D guassian smoothing.
      * @param dropTopX percent of the highest intensities will be truncated.
      */
-    void _computeThresholdBaseline(int smoothingWindow, int dropTopX);
+    void _computeThresholdBaseline(const int smoothingWindow,
+                                   const int dropTopX);
 
     /**
      * @brief Computes a baseline using Asymmetric Least Squares Smoothing techinique.
@@ -344,13 +345,8 @@ class EIC
      * @param numIterations for the number of iterations that should be
      * performed (since this is an iterative optimization algorithm).
      */
-    void _computeAsLSBaseline(float lambda, float p, int numIterations=10);
-
-    /**
-     * @brief Calculate and return approximate derivative of a sparse matrix.
-     * @param mat instance of Eigen::SparseMatrix containing double values.
-     * @return Difference matrix of the mat sparse matrix.
-     */
-    Eigen::SparseMatrix<float> _diff(Eigen::SparseMatrix<float> mat);
+    void _computeAsLSBaseline(const float lambda,
+                              const float p,
+                              const int numIterations=10);
 };
 #endif //MZEIC_H
