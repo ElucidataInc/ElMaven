@@ -19,6 +19,7 @@ mzFileIO::mzFileIO(QWidget*) {
             SIGNAL(sampleLoaded()),
             this,
             SLOT(_postSampleLoadOperations()));
+    _sqliteDBLoadInProgress = false;
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
