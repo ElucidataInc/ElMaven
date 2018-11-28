@@ -705,17 +705,17 @@ void mzFileIO::closeSQLiteProject()
 
 void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
 {
+    vector<PeakGroup*> groupVector;
     set<Compound*> compoundSet;
     if (_currentProject) {
         _currentProject->deleteTableGroups(tableName.toStdString());
         for (auto group : groups) {
             // assuming all groups are parent groups.
-            _currentProject->saveGroupAndPeaks(group,
-                                               0,
-                                               tableName.toStdString());
+            groupVector.push_back(group);
             if (group->compound)
                 compoundSet.insert(group->compound);
         }
+        _currentProject->saveGroups(groupVector, tableName.toStdString());
         _currentProject->saveCompounds(compoundSet);
     }
 }
@@ -743,6 +743,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         _currentProject->saveSamples(sampleSet);
         _currentProject->saveAlignment(sampleSet);
 
+        vector<PeakGroup*> groupVector;
         set<Compound*> compoundSet;
         int topLevelGroupCount = 0;
         auto allTablesList = _mainwindow->getPeakTableList();
@@ -751,12 +752,13 @@ bool mzFileIO::writeSQLiteProject(QString filename)
             for (PeakGroup* group : peakTable->getGroups()) {
                 topLevelGroupCount++;
                 string tableName = peakTable->windowTitle().toStdString();
-                _currentProject->saveGroupAndPeaks(group,
-                                                   0,
-                                                   tableName);
+                groupVector.push_back(group);
                 if (group->compound)
                     compoundSet.insert(group->compound);
             }
+            _currentProject->saveGroups(groupVector,
+                                        peakTable->windowTitle().toStdString());
+            groupVector.clear();
         }
         _currentProject->saveCompounds(compoundSet);
         return true;

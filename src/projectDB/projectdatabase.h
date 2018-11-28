@@ -45,9 +45,13 @@ public:
     void saveSamples(const vector<mzSample*>& samples);
 
     /**
-     * @brief Save a given ser of peak groups.
+     * @brief Save a given set of peak groups.
      * @details For each group, this method calls `saveGroupAndPeaks. The peaks
-     * associated with every group are also saved.
+     * associated with every group are also saved. A major advantage of using
+     * this method over simply calling `saveGroupAndPeaks` within a loop is that
+     * all groups and their peaks are saved using a database transaction making
+     * the bulk write performance orders of magnitude better. This method
+     * is preferable when there is a need to write multiple peak groups.
      * @param groups A vector of pointers to PeakGroup objects to be saved.
      * @param tableName An optional parameter to save table name for groups.
      */

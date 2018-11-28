@@ -46,6 +46,8 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
                       , :transform_a4 \
                       , :transform_a5 )");
 
+    _connection->begin();
+
     for (auto s : samples) {
         samplesQuery->bind(":sample_id", s->getSampleId());
         samplesQuery->bind(":name", s->getSampleName());
@@ -78,8 +80,12 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
 void ProjectDatabase::saveGroups(const vector<PeakGroup*>& groups,
                                  const string& tableName)
 {
+    _connection->begin();
+
     for (const auto group : groups)
         saveGroupAndPeaks(group, 0, tableName);
+
+    _connection->commit();
 }
 
 int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
@@ -152,7 +158,6 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     for (auto child: group->children)
         saveGroupAndPeaks(&child, lastInsertedGroupId, tableName);
 
-    _connection->commit();
     return lastInsertedGroupId;
 }
 
@@ -244,8 +249,6 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
         if (!peaksQuery->execute())
             cerr << "Error: failed to write peak" << endl;
     }
-
-    _connection->commit();
 }
 
 void ProjectDatabase::saveCompounds(const vector<PeakGroup>& groups)
@@ -291,6 +294,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :category              \
                       , :fragment_mzs          \
                       , :fragment_intensity    )");
+
+    _connection->begin();
 
     for (Compound* c : seenCompounds) {
         stringstream categories;
@@ -359,6 +364,8 @@ void ProjectDatabase::saveAlignment(const vector<mzSample*>& samples)
                      , :rt_original \
                      , :rt_updated  )");
 
+    _connection->begin();
+
     for (auto s : samples) {
         for (auto scan : s->scans) {
             float rt_original = scan->originalRt;
@@ -400,6 +407,8 @@ void ProjectDatabase::saveScans(const vector<mzSample*>& sampleSet)
                      , :minmz            \
                      , :maxmz            \
                      , :data             )");
+
+    _connection->begin();
 
     float ppm = 20;
     for (auto s : sampleSet) {
