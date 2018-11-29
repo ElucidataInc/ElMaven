@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "EIC.h"
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"

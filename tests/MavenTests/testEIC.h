@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include "common.h"
+#include "utilities.h"
 #include "EIC.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"

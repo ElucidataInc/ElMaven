@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"

@@ -5,7 +5,7 @@
 #include <QtTest>
 #include <string>
 
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"

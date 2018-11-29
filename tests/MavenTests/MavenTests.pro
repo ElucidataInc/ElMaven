@@ -38,7 +38,6 @@ macx {
 
 # Input
 HEADERS += \
-    common.h \
     testLoadSamples.h \
     testMassCalculator.h \
     testCSVReports.h \
@@ -60,10 +59,10 @@ HEADERS += \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
     $$top_srcdir/src/cli/peakdetector/parseOptions.h \
-    $$top_srcdir/src/cli/peakdetector/options.h
+    $$top_srcdir/src/cli/peakdetector/options.h \
+    utilities.h
 
 SOURCES += \
-    common.cpp \
     testLoadSamples.cpp \
     testMassCalculator.cpp \
     testCSVReports.cpp \
@@ -86,4 +85,5 @@ SOURCES += \
     $$top_srcdir/src/cli/peakdetector/options.cpp \
     $$top_srcdir/src/core/libmaven/classifier.cpp \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
-    $$top_srcdir/src/cli/peakdetector/parseOptions.cpp
+    $$top_srcdir/src/cli/peakdetector/parseOptions.cpp \
+    utilities.cpp

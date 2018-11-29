@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "EIC.h"
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "csvreports.h"
 #include "PeakDetector.h"
