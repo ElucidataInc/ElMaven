@@ -2342,12 +2342,14 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
     QMessageBox msgBox(this);
     msgBox.setText("Please wait. Your project is being saved…");
+    msgBox.setStandardButtons(QMessageBox::NoButton);
     msgBox.open();
 
     writeSettings();
 
     // wait until autosave has finished
-    while(autosave->isRunning());
+    while(autosave->isRunning())
+        QApplication::processEvents();
 
     event->accept();
 }
