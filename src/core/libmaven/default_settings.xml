@@ -37,6 +37,9 @@
         <eic_smoothingAlgorithm>0</eic_smoothingAlgorithm>
         <eic_smoothingWindow>10</eic_smoothingWindow>
         <grouping_maxRtWindow>0.25</grouping_maxRtWindow>
+        <aslsBaselineMode>0</aslsBaselineMode>
+        <aslsSmoothness>5</aslsSmoothness>
+        <aslsAsymmetry>3</aslsAsymmetry>
         <baseline_quantile>80</baseline_quantile>
         <baseline_smoothing>5</baseline_smoothing>
         <isIsotopeEqualPeakFilter>0</isIsotopeEqualPeakFilter>
