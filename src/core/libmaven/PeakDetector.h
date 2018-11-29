@@ -136,17 +136,7 @@ public:
 
     static vector<EIC*> pullEICs(mzSlice* slice,
                                  std::vector<mzSample*>& samples,
-                                 int peakDetect,
-                                 int smoothingWindow,
-                                 int smoothingAlgorithm,
-                                 float amuQ1,
-                                 float amuQ3,
-                                 EIC::BaselineMode baselineMode,
-                                 int firstBaselineParameter,
-                                 int secondBaselineParameter,
-                                 double minSignalBaselineDifference,
-                                 int eicType,
-                                 string filterline);
+                                 MavenParameters* mp);
 
         private:
 

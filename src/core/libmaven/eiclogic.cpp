@@ -99,35 +99,14 @@ mzSlice EICLogic::setMzSlice(float mz1,MassCutoff *massCutoff, float mz2) {
 
 void EICLogic::getEIC(mzSlice bounds,
                       vector<mzSample*> samples,
-                      int eic_smoothingWindow,
-                      int eic_smoothingAlgorithm,
-                      float amuQ1,
-                      float amuQ3,
-                      EIC::BaselineMode baselineMode,
-                      int firstBaselineMode,
-                      int secondBaselineMode,
-                      double minSignalBaselineDifference,
-                      int eicType,
-                      string filterline)
+                      MavenParameters* mp)
 {
     mzSlice slice = _slice;
     slice.rtmin = bounds.rtmin;
     slice.rtmax = bounds.rtmax;
 
     // get eics
-    eics = PeakDetector::pullEICs(&slice,
-                                  samples,
-                                  EicLoader::PeakDetection,
-                                  eic_smoothingWindow,
-                                  eic_smoothingAlgorithm,
-                                  amuQ1,
-                                  amuQ3,
-                                  baselineMode,
-                                  firstBaselineMode,
-                                  secondBaselineMode,
-                                  minSignalBaselineDifference,
-                                  eicType,
-                                  filterline);
+    eics = PeakDetector::pullEICs(&slice, samples, mp);
 
         //find peaks
 	//for(int i=0; i < eics.size(); i++ )  eics[i]->getPeakPositions(eic_smoothingWindow);

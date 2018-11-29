@@ -315,32 +315,19 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->overlapWeight = 2;
     mavenparameters->useOverlap = 0;
 
-    vector<EIC*> eics =
-        PeakDetector::pullEICs(slice,
-                               mavenparameters->samples,
-                               1,
-                               mavenparameters->eic_smoothingWindow,
-                               mavenparameters->eic_smoothingAlgorithm,
-                               mavenparameters->amuQ1,
-                               mavenparameters->amuQ3,
-                               EIC::BaselineMode::Threshold,
-                               mavenparameters->baseline_smoothingWindow,
-                               mavenparameters->baseline_dropTopX,
-                               mavenparameters->minSignalBaselineDifference,
-                               mavenparameters->eicType,
-                               mavenparameters->filterline);
+    vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                               mavenparameters->samples,
+                                               mavenparameters);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                    mavenparameters->eic_smoothingWindow,
-                                                    mavenparameters->grouping_maxRtWindow,
-                                                    mavenparameters->minQuality,
-                                                    mavenparameters->distXWeight,
-                                                    mavenparameters->distYWeight,
-                                                    mavenparameters->overlapWeight,
-                                                    mavenparameters->useOverlap,
-                                                    mavenparameters->minSignalBaselineDifference);
-
-
+                                                   mavenparameters->eic_smoothingWindow,
+                                                   mavenparameters->grouping_maxRtWindow,
+                                                   mavenparameters->minQuality,
+                                                   mavenparameters->distXWeight,
+                                                   mavenparameters->distYWeight,
+                                                   mavenparameters->overlapWeight,
+                                                   mavenparameters->useOverlap,
+                                                   mavenparameters->minSignalBaselineDifference);
 
     QVERIFY(peakgroups.size() == 3);
     QVERIFY(13.2378 < peakgroups[0].meanRt < 13.238);
@@ -384,22 +371,10 @@ void TestEIC:: testeicMerge() {
     mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
-    //mavenparameters->grouping_maxRtWindow = 0.5;
 
-    vector<EIC*> eics =
-        PeakDetector::pullEICs(slice,
-                               mavenparameters->samples,
-                               1,
-                               mavenparameters->eic_smoothingWindow,
-                               mavenparameters->eic_smoothingAlgorithm,
-                               mavenparameters->amuQ1,
-                               mavenparameters->amuQ3,
-                               EIC::BaselineMode::Threshold,
-                               mavenparameters->baseline_smoothingWindow,
-                               mavenparameters->baseline_dropTopX,
-                               mavenparameters->minSignalBaselineDifference,
-                               mavenparameters->eicType,
-                               mavenparameters->filterline);
+    vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                               mavenparameters->samples,
+                                               mavenparameters);
 
     EIC* m = EIC::eicMerge(eics);
 

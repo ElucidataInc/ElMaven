@@ -51,18 +51,7 @@ public:
 	//	find absolute min and max for samples
 	mzSlice visibleSamplesBounds(vector<mzSample*> samples);
 
-    void getEIC(mzSlice bounds,
-                vector<mzSample*> samples,
-                int eic_smoothingWindow,
-                int eic_smoothingAlgorithm,
-                float amuQ1,
-                float amuQ3,
-                EIC::BaselineMode baselineMode,
-                int firstBaselineParameter,
-                int secondBaselineParameter,
-                double minSignalBaselineDifference,
-                int eicType,
-                string filterline);
+    void getEIC(mzSlice bounds, vector<mzSample*> samples, MavenParameters* mp);
 
         //associate compound names with peak groups
 	void associateNameWithPeakGroups();

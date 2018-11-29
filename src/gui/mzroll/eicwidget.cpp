@@ -315,41 +315,11 @@ void EicWidget::computeEICs() {
 		return;
 
 	QSettings *settings = getMainWindow()->getSettings();
-	int eic_smoothingWindow =
-			getMainWindow()->mavenParameters->eic_smoothingWindow;
-	int eic_smoothingAlgorithm =
-			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
-    float amuQ1 = getMainWindow()->mavenParameters->amuQ1;
-    float amuQ3 = getMainWindow()->mavenParameters->amuQ3;
-    EIC::BaselineMode baselineMode = EIC::BaselineMode::Threshold;
-    int firstBaselineParam =
-        getMainWindow()->mavenParameters->baseline_smoothingWindow;
-    int secondBaselineParam =
-        getMainWindow()->mavenParameters->baseline_dropTopX;
-    if (getMainWindow()->mavenParameters->aslsBaselineMode) {
-        baselineMode = EIC::BaselineMode::AsLSSmoothing;
-        firstBaselineParam = getMainWindow()->mavenParameters->aslsSmoothness;
-        secondBaselineParam = getMainWindow()->mavenParameters->aslsAsymmetry;
-    }
-    double minSignalBaselineDifference =
-        getMainWindow()->mavenParameters->minSignalBaselineDifference;
-    int eic_type = getMainWindow()->mavenParameters->eicType;
-    string filterline = getMainWindow()->mavenParameters->filterline;
-
     mzSlice bounds = visibleSamplesBounds();
 
     eicParameters->getEIC(bounds,
                           samples,
-                          eic_smoothingWindow,
-                          eic_smoothingAlgorithm,
-                          amuQ1,
-                          amuQ3,
-                          baselineMode,
-                          firstBaselineParam,
-                          secondBaselineParam,
-                          minSignalBaselineDifference,
-                          eic_type,
-                          filterline);
+                          getMainWindow()->mavenParameters);
 
     // score peak quality
     ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
