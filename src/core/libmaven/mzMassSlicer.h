@@ -6,9 +6,8 @@
 #include "mzUtils.h"
 #include "Matrix.h"
 
-#ifndef __APPLE__
 #include <omp.h>
-#endif
+
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>

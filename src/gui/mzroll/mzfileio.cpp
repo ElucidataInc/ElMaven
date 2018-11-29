@@ -2,9 +2,7 @@
 #include <QStringList>
 #include <QTextStream>
 
-#ifndef __APPLE__
 #include <omp.h>
-#endif
 
 #include <MavenException.h>
 #include <errorcodes.h>
@@ -567,18 +565,14 @@ void mzFileIO::fileImport(void) {
     qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
     if (uploadMultiprocessing) {
         int iter = 0;
-        #ifndef __APPLE__
         #pragma omp parallel for shared(iter)
-        #endif
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
             if (sample && sample->scans.size() > 0)
                 emit addNewSample(sample);
 
-            #ifndef __APPLE__
             #pragma omp atomic
-            #endif
             iter++;
 
             Q_EMIT (updateProgressBar( tr("Importing file %1").arg(filename), iter, samples.size()));
