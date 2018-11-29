@@ -967,7 +967,7 @@ string ProjectDatabase::projectPath()
 {
     string databaseFile = _connection->dbPath();
     boost::filesystem::path path(databaseFile);
-    return path.parent_path().native();
+    return path.parent_path().string();
 }
 
 string ProjectDatabase::projectName()
@@ -1068,7 +1068,7 @@ string ProjectDatabase::_getScanSignature(Scan* scan, int limitSize)
 }
 
 string ProjectDatabase::_locateSample(const string filepath,
-                     const vector<string>& pathlist)
+                                      const vector<string>& pathlist)
 {
     // found file, all is good
     boost::filesystem::path sampleFile(filepath);
@@ -1081,7 +1081,7 @@ string ProjectDatabase::_locateSample(const string filepath,
         boost::filesystem::path possiblePath(path);
         auto filepath = possiblePath / fileName;
         if (boost::filesystem::exists(filepath))
-            return filepath.native();
+            return filepath.string();
     }
     return "";
 }
