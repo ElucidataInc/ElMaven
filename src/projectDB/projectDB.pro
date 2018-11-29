@@ -24,22 +24,11 @@ INCLUDEPATH += $$top_srcdir/src/core/libmaven \
                $$top_srcdir/src/pollyCLI \
                /usr/local/include/
 
-QMAKE_LFLAGS += -L$$top_builddir/libs/
-
-LIBS += -lmaven \
-        -fopenmp \
-        -lboost_filesystem \
-        -lsqlite3
-
-macx {
-    LIBS -= -fopenmp
-}
-
 SOURCES	= connection.cpp \
           cursor.cpp \
           projectdatabase.cpp
 
-HEADERS += 	schema.h \
+HEADERS +=  schema.h \
             connection.h \
             cursor.h \
             projectdatabase.h

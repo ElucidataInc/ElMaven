@@ -103,9 +103,14 @@ macx {
   LIBS -= -lcdfread
 }
 
-QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+unix {
+    QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+    LIBS += -lboost_system -lboost_filesystem -lsqlite3
+}
 
-LIBS += -lboost_system -lboost_filesystem -lsqlite3
+win32 {
+    LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
+}
 
 message($$LDFLAGS)
 
