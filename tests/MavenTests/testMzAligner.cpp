@@ -2,16 +2,7 @@
 
 TestMzAligner::TestMzAligner() {
 
-    files << "bin/methods/Alignment/SAMPLE_#SPGDYAF_3_3.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SPGDYAF_3_6.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SPGDYAF_4_7.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SQLDY72_3_7.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_2_7.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_3_5.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_3_7.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SQY3FB3_4_6.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SRCLG3V_4_3.mzxml"
-          << "bin/methods/Alignment/SAMPLE_#SSSLMX8_4_6.mzxml";
+    samples = new Samples;
 }
 
 void TestMzAligner::initTestCase() {
@@ -44,14 +35,59 @@ void TestMzAligner::testDoAlignment() {
     QVERIFY(true);
 }
 
+void TestMzAligner::testObiWarp()
+{
+
+    MavenParameters* mavenparameters = new MavenParameters;
+    mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(5,"ppm");
+    mavenparameters->minQuality = 0.8;
+    mavenparameters->minIntensity = 10000;
+    mavenparameters->matchRtFlag = false;
+    mavenparameters->samples = samples->alignmentSamples;
+    mavenparameters->clsf = new ClassifierNeuralNet;
+    mavenparameters->clsf->loadModel("bin/default.model");
+
+    ObiParams params("cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
+    Aligner aligner;
+    aligner.alignWithObiWarp(mavenparameters->samples, &params);
+
+    DBS.loadCompoundCSVFile("bin/methods/KNOWNS.csv");
+    vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
+
+
+    PeakDetector peakDetector;
+    peakDetector.setMavenParameters(mavenparameters);
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processSlices(slices, "compounds");
+
+    for(PeakGroup grp: mavenparameters->allgroups) {
+
+        if(grp.getName() == "NAD+" || grp.getName() == "methionine" || grp.getName() == "dTMP") {
+            float refSampleOriginalRt;
+            vector<float> sampleOriginalRt;
+            vector<float> sampleNewRt;
+            for(Peak peak: grp.peaks) {
+                if(peak.getSample()->sampleName == aligner.refSample->sampleName) {
+                    refSampleOriginalRt = peak.getScan()->originalRt;
+                }
+                else {
+                    sampleOriginalRt.push_back(peak.getScan()->originalRt);
+                    sampleNewRt.push_back(peak.getScan()->rt);
+                }
+            }
+            for(int rtCount=0; rtCount<sampleOriginalRt.size(); rtCount++) {
+                 float newDiff = std::abs(refSampleOriginalRt - sampleNewRt[rtCount]);
+                 float originalDiff = std::abs(refSampleOriginalRt - sampleOriginalRt[rtCount]);
+                 QVERIFY((int)(newDiff) <= (int)(originalDiff));
+             }
+        }
+    }
+
+}
+
 void TestMzAligner::testSaveFit(){
 
-    vector<mzSample*> samplesToLoad;
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* sample = new mzSample();
-        sample->loadSample(files.at(i).toLatin1().data());
-        samplesToLoad.push_back(sample);
-    }
+    vector<mzSample*> samplesToLoad  = samples->alignmentSamples;
 
     Aligner aligner;
     aligner.samples = samplesToLoad;
