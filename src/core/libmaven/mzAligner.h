@@ -47,6 +47,8 @@ class Aligner {
     QJsonObject groupsJson;
     QJsonObject rtsJson;
 
+    mzSample* refSample;
+
 
    private:
     vector<PeakGroup*> allgroups;
