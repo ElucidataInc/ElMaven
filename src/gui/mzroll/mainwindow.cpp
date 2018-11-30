@@ -597,12 +597,6 @@ using namespace mzUtils;
 
 	showNormal();	//return from full screen on startup
 
-	//remove close button from dockwidget
-	QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
-	for (int i = 0; i < dockWidgets.size(); i++) {
-		dockWidgets[i]->setFeatures(
-				dockWidgets[i]->features() ^ QDockWidget::DockWidgetClosable);
-	}
 
 	//Starting server to fetch remote data - Kiran
 	//Added when merged with Maven776
@@ -938,7 +932,7 @@ void MainWindow::savePeaksTable(TableDockWidget* peaksTable, QString fileName, Q
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	dock->setFloating(false);
+    dock->setFloating(false);
 	dock->setVisible(false);
 	dock->setObjectName(title);
 	dock->setWidget(w);

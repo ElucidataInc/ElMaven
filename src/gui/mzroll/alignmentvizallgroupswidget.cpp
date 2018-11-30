@@ -8,17 +8,6 @@ AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw, QDockWi
     _mw(mw),
     _dockWidget(dockWidget)
 {
-    QToolBar *toolBar = new QToolBar(_dockWidget);
-    toolBar->setFloatable(false);
-    toolBar->setMovable(false);
-    toolBar->setLayoutDirection(Qt::RightToLeft);
-
-    QToolButton *btnHide = new QToolButton(toolBar);
-    btnHide->setIcon(_dockWidget->style()->standardIcon(QStyle::SP_DialogCloseButton));
-    connect(btnHide, SIGNAL(clicked()), _dockWidget, SLOT(hide()));
-    toolBar->addWidget(btnHide);
-
-    dockWidget->setTitleBarWidget(toolBar);
 
     setXAxis();
     setYAxis();

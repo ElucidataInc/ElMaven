@@ -9,30 +9,6 @@ SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     setObjectName("SampleRtWidget");
     setWindowTitle("Sample Deviation");
 
-    QToolBar *toolBar = new QToolBar(this);
-    toolBar->setFloatable(false);
-    toolBar->setMovable(false);
-
-    QWidget* spacer1 = new QWidget();
-    spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer1);
-
-    QToolButton *btnResetZoom = new QToolButton(toolBar);
-    btnResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-    connect(btnResetZoom, SIGNAL(clicked()), SLOT(refresh()));
-    toolBar->addWidget(btnResetZoom);
-
-    QWidget* spacer2 = new QWidget();
-    spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer2);
-
-    QToolButton *btnHide = new QToolButton(toolBar);
-    btnHide->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-    connect(btnHide, SIGNAL(clicked()),SLOT(hide()));
-    toolBar->addWidget(btnHide);
-
-    setTitleBarWidget(toolBar);
-
     setXAxis();
     setYAxis();
 }
