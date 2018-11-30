@@ -151,43 +151,49 @@ void EIC::_computeAsLSBaseline(const float lambda,
                                const float p,
                                const int numIterations)
 {
+    // Eigen behaves better with double values compared to float
+    vector<double> intensity;
+    for(unsigned int i = 0; i < this->intensity.size(); ++i)
+        intensity.push_back(static_cast<double>(this->intensity[i]));
+
     using namespace Eigen;
     auto n = static_cast<unsigned int>(intensity.size());
 
     // Perform difference operation (pseudo-differentiation) on a sparse matrix
-    auto diff = [](Eigen::SparseMatrix<float> mat)
+    auto diff = [](Eigen::SparseMatrix<double> mat)
     {
-        Eigen::SparseMatrix<float> E1 = mat.block(0,
-                                                  0,
-                                                  mat.rows() - 1,
-                                                  mat.cols());
-        Eigen::SparseMatrix<float> E2 = mat.block(1,
-                                                  0,
-                                                  mat.rows() - 1,
-                                                  mat.cols());
-        return Eigen::SparseMatrix<float>(E2 - E1);
+        Eigen::SparseMatrix<double> E1 = mat.block(0,
+                                                   0,
+                                                   mat.rows() - 1,
+                                                   mat.cols());
+        Eigen::SparseMatrix<double> E2 = mat.block(1,
+                                                   0,
+                                                   mat.rows() - 1,
+                                                   mat.cols());
+        return Eigen::SparseMatrix<double>(E2 - E1);
     };
 
     // create a sparse identity matrix of size `n`
-    auto ident = MatrixXf::Identity(n, n).sparseView();
+    Eigen::SparseMatrix<double> ident(n, n);
+    ident.setIdentity();
 
     // compute approximate second derivative of the identity matrix
     auto D = diff(diff(ident));
 
     // create a weights vector of length `n` initially containing only ones
     // for coefficients
-    auto w = VectorXf(ArrayXf::Ones(n));
+    auto w = VectorXd(ArrayXd::Ones(n));
 
     // instantiate a Cholesky decomposition linear solver for sparse matrices
-    SimplicialCholesky<SparseMatrix<float>> solver;
+    SimplicialCholesky<SparseMatrix<double>> solver;
 
     // instantiate a vector for intensity and one to store baseline
-    VectorXf intensityVec = Map<VectorXf>(intensity.data(), n);
-    VectorXf baselineVec;
+    VectorXd intensityVec = Map<VectorXd>(intensity.data(), n);
+    VectorXd baselineVec;
 
     // helper matrices for `select` operation used when creating binary vectors
-    auto ones = VectorXf(MatrixXf::Ones(n, 1));
-    auto zeros = VectorXf(MatrixXf::Zero(n, 1));
+    auto ones = VectorXd(MatrixXd::Ones(n, 1));
+    auto zeros = VectorXd(MatrixXd::Zero(n, 1));
 
     // TODO: ideally this should converge to a point where the baseline does
     // not change anymnore, but since we do not have good float comparators
@@ -195,41 +201,45 @@ void EIC::_computeAsLSBaseline(const float lambda,
     // baseline as possible
     for (int i=0; i < numIterations; ++i) {
         // create a square matrix 'W' with the weights as its diagonal
-        auto W = SparseMatrix<float>(w.asDiagonal());
+        auto W = SparseMatrix<double>(w.asDiagonal());
 
         // compute 'A' and 'b', and then solve for 'x' that satisfies the
         // equation 'A·x = b', where x will be the iteratively estimated
         // baseline
         auto A = W + (lambda * (D.transpose() * D));
         solver.compute(A);
-        auto b = VectorXf(w.array() * intensityVec.array());
+        auto b = VectorXd(w.array() * intensityVec.array());
         baselineVec = solver.solve(b);
 
         // calculate weights for the next iteration
-        auto gtBin = VectorXf(
-            ((intensityVec - baselineVec).array() > 0.0f).select(ones, zeros)
+        auto gtBin = VectorXd(
+            ((intensityVec - baselineVec).array() > 0.0).select(ones, zeros)
         );
-        auto ltBin = VectorXf(
-            ((intensityVec - baselineVec).array() < 0.0f).select(ones, zeros)
+        auto ltBin = VectorXd(
+            ((intensityVec - baselineVec).array() < 0.0).select(ones, zeros)
         );
         w = (p * gtBin) + ((1.0f - p) * ltBin);
     }
 
     // copy data from an Eigen vector to std::vector
-    vector<float> clippedBaseline(baselineVec.data(),
-                                  baselineVec.data()
-                                  + baselineVec.rows()
-                                  * baselineVec.cols());
+    vector<double> tempVector(baselineVec.data(),
+                              baselineVec.data()
+                              + baselineVec.rows()
+                              * baselineVec.cols());
 
-    // clip negative values from the baseline vector
-    std::transform(begin(clippedBaseline),
-                   end(clippedBaseline),
-                   begin(clippedBaseline),
-                   [](float f) { return f < 0.0f ? 0.0f : f; });
+    // clip negative values from the vector and switch back to float
+    vector<float> clippedFloatBaseline;
+    for(unsigned int i = 0; i < tempVector.size(); ++i) {
+        auto val = static_cast<float>(tempVector[i]);
+        if (val < 0.0f)
+            clippedFloatBaseline.push_back(0.0f);
+        else
+            clippedFloatBaseline.push_back(val);
+    }
 
     // since baseline right now is an array of float, the data from clipped
     // vector is copied to this array
-    std::copy(begin(clippedBaseline), end(clippedBaseline), baseline);
+    std::copy(begin(clippedFloatBaseline), end(clippedFloatBaseline), baseline);
 }
 
 void EIC::_computeThresholdBaseline(const int smoothingWindow,
