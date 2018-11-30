@@ -610,7 +610,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //     mavenParameters->setIonizationMode();
         // }
 
-        mavenParameters->setCompounds(DB.getCopoundsSubset(
+        mavenParameters->setCompounds(DB.getCompoundsSubset(
             compoundDatabase->currentText().toStdString()));
 
         mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();

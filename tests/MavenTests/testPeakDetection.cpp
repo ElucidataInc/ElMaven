@@ -28,7 +28,7 @@ void TestPeakDetection::cleanup() {
 
 void TestPeakDetection::testProcessCompound() {
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
 
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");

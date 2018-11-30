@@ -52,7 +52,7 @@ void TestMzAligner::testObiWarp()
     aligner.alignWithObiWarp(mavenparameters->samples, &params);
 
     DBS.loadCompoundCSVFile("bin/methods/KNOWNS.csv");
-    vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("KNOWNS");
 
 
     PeakDetector peakDetector;

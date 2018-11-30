@@ -361,7 +361,7 @@ vector<string> Database::getCompoundReactions(string compound_id) {
 	return compounds;
 }
 
-vector<Compound*> Database::getCopoundsSubset(string dbname) {
+vector<Compound*> Database::getCompoundsSubset(string dbname) {
 	vector<Compound*> subset;
 	for (unsigned int i=0; i < compoundsDB.size(); i++ ) {
 			if (compoundsDB[i]->db == dbname) {
@@ -372,7 +372,7 @@ vector<Compound*> Database::getCopoundsSubset(string dbname) {
 }
 
 vector<Compound*> Database::getKnowns() {
-	return getCopoundsSubset("KNOWNS");
+    return getCompoundsSubset("KNOWNS");
 }
 
 map<string,int> Database::getDatabaseNames() {

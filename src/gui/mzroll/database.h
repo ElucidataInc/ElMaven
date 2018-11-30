@@ -43,7 +43,7 @@ class Database {
 	bool addCompound(Compound* c);
 	void loadReactions(string modelName);
 
-	vector<Compound*> getCopoundsSubset(string database);
+    vector<Compound*> getCompoundsSubset(string database);
 	vector<Pathway*> getPathways();
 	vector<Compound*> getKnowns();
 

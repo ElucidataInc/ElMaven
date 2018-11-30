@@ -2847,7 +2847,7 @@ void MainWindow::Align() {
 	
 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
-		mavenParameters->setCompounds(DB.getCopoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
+        mavenParameters->setCompounds(DB.getCompoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
 
 	} else {
 		workerThread = newWorkerThread("processMassSlices");
