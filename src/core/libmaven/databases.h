@@ -10,7 +10,7 @@ class Databases {
     public:
         bool addCompound(Compound* c);
         int loadCompoundCSVFile(string filename);
-        vector<Compound*> getCopoundsSubset(string dbname);
+        vector<Compound*> getCompoundsSubset(string dbname);
         Compound* extractCompoundfromEachLine(vector<string>& fields, map<string, int> & header, int loadCount, string filename);
         float getChargeFromDB(vector<string>& fields, map<string, int> & header);
         vector<string> getCategoryFromDB(vector<string>& fields, map<string, int> & header);

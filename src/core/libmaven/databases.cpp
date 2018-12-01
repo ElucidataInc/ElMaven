@@ -227,7 +227,7 @@ bool Databases::addCompound(Compound* c) {
     return compoundAdded;
 }
 
-vector<Compound*> Databases::getCopoundsSubset(string dbname) {
+vector<Compound*> Databases::getCompoundsSubset(string dbname) {
 	vector<Compound*> subset;
 	for (unsigned int i=0; i < compoundsDB.size(); i++ ) {
 	    if (compoundsDB[i]->db == dbname) {

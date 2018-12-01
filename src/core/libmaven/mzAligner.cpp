@@ -8,6 +8,8 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
+mzSample* Aligner::refSample = nullptr;
+
 Aligner::Aligner() {
        maxItterations=10;
        polynomialDegree=3;
@@ -483,31 +485,32 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     }
 }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,int referenceSampleIndex){
-    std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
-    if(referenceSampleIndex < 0){
-        /**
-         * currently reference sample is choosen randomly,
-         * TODO: give user options to choose reference sample and pass index of
-         * that sample as referenceSampleIndex
-         */
+void Aligner::setRefSample(mzSample* sample)
+{
+    if(sample != nullptr)
+        std::cerr << "reference sample :  " << sample->sampleName << std::endl;
+    refSample = sample;
+}
+
+void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams) {
+
+
+    if(refSample == nullptr) {
         srand(time(NULL));
-        referenceSampleIndex = rand()%samples.size();
+        refSample = samples[rand()%samples.size()];
     }
-    assert(referenceSampleIndex < samples.size());
+
 
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
-    
-    mzSample* referenceSample = samples[referenceSampleIndex];
-    for(int j=0;j<referenceSample->scans.size();++j){
-            for(int k=0;k<referenceSample->scans[j]->mz.size();++k){
-                minMzRange = min ( minMzRange, referenceSample->scans[j]->mz[k] );
-                maxMzRange = max ( maxMzRange, referenceSample->scans[j]->mz[k] );
+    for(int j=0;j<refSample->scans.size();++j){
+            for(int k=0;k<refSample->scans[j]->mz.size();++k){
+                minMzRange = min ( minMzRange, refSample->scans[j]->mz[k] );
+                maxMzRange = max ( maxMzRange, refSample->scans[j]->mz[k] );
             }
     }
 
@@ -517,22 +520,23 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
         minMzRange = 0.f;
     minMzRange = floor(minMzRange);
     maxMzRange = ceil(maxMzRange);
-
     vector<float> mzPoints;
     for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(referenceSample, mzPoints, *obiWarp, true);
+    alignSampleRts(refSample, mzPoints, *obiWarp, true);
 
-    #pragma omp parallel for
+    int samplesAligned = 0;
+    #pragma omp parallel for shared(samplesAligned)
     for(int i=0 ; i < samples.size();++i){
-        cerr<<"Alignment: "<<(i+1)<<"/"<<samples.size()<<" processing..."<<endl;
-        if(i == referenceSampleIndex)
+        if(samples[i] == refSample)
             continue;
         alignSampleRts(samples[i], mzPoints, *obiWarp, false);
+
+        samplesAligned++;
+        setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
     }
-    
+
     delete obiWarp;
-    cerr<<"Alignment complete"<<endl;    
-    
+    cerr<<"Alignment complete"<<endl;
 }

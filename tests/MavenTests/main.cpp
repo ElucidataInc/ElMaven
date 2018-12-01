@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     if (freopen("testMassCalculator.xml", "w", stdout))
         result |= QTest::qExec(new TestMassCalculator, argc, argv);
     result|=readLog("testMassCalculator.xml");
-    
+
     if(freopen("testCLI.xml",  "w", stdout))
         result |= QTest::qExec(new TestCLI, argc, argv);
     result|=readLog("testCLI.xml");
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     if (freopen("testIsotopeDetection.xml", "w", stdout))
         result |= QTest::qExec(new TestIsotopeDetection, argc, argv);
     result|=readLog("testIsotopeDetection.xml");
-    
+
     if(freopen("testCharge.xml",  "w", stdout))
         result |= QTest::qExec(new TestCharge, argc, argv);
     result|=readLog("testCharge.xml");
@@ -83,6 +83,12 @@ int main(int argc, char** argv) {
     if (freopen("testIsotopeLogic.xml", "w", stdout))
         result |= QTest::qExec(new TestIsotopeLogic, argc, argv);
     result|=readLog("testIsotopeLogic.xml");
+
+
+    if (freopen("testMzAligner.xml", "w", stdout)) {
+        result |= QTest::qExec(new TestMzAligner, argc, argv);
+    }
+    result|=readLog("testMzAligner.xml");
 
     return result;
 }

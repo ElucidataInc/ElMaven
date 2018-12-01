@@ -14,11 +14,29 @@ extern Databases DBS;
 
 using namespace std;
 
+struct Samples
+{
+    vector<mzSample*> alignmentSamples;
+    Samples() {
+
+        alignmentSamples.push_back(new mzSample);
+        alignmentSamples.push_back(new mzSample);
+        alignmentSamples.push_back(new mzSample);
+        alignmentSamples.push_back(new mzSample);
+
+
+        alignmentSamples[0]->loadSample("bin/methods/091215_120i.mzXML");
+        alignmentSamples[1]->loadSample("bin/methods/091215_120M.mzXML");
+        alignmentSamples[2]->loadSample("bin/methods/091215_240i.mzXML");
+        alignmentSamples[3]->loadSample("bin/methods/091215_240M.mzXML");
+
+    }
+};
+
 class common {
 
     private:
         common();
-
     public:
         static bool floatCompare(float a, float b);
         static bool compareMaps(const map<string,int> & l, const map<string,int> & k);
@@ -28,7 +46,6 @@ class common {
         static vector<PeakGroup> getGroupsFromProcessCompounds();
         static void loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
                                              MavenParameters* mavenparameters);
-
 };
 
 #endif // COMMON_H

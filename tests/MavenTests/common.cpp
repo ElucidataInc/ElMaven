@@ -30,7 +30,7 @@ vector<Compound*> common::getCompoudDataBaseWithRT() {
     "bin/methods/qe3_v11_2016_04_29.csv";;
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
 
     return compounds;
 }
@@ -40,7 +40,7 @@ vector<Compound*> common::getCompoudDataBaseWithNORT() {
     "bin/methods/KNOWNS.csv";;
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("KNOWNS");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("KNOWNS");
 
     return compounds;
 }
@@ -50,7 +50,7 @@ vector<Compound*> common::getFaltyCompoudDataBase() {
     "bin/methods/compoundlist.csv";
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("compoundlist");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("compoundlist");
 
     return compounds;
 }
@@ -90,7 +90,7 @@ vector<PeakGroup> common::getGroupsFromProcessCompounds(){
     "bin/methods/qe3_v11_2016_04_29.csv";;
 
     DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCopoundsSubset("qe3_v11_2016_04_29");
+    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
 
     vector<mzSample*> samplesToLoad;
     MavenParameters* mavenparameters = new MavenParameters();

@@ -21,9 +21,14 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void setMainWindow(MainWindow* mw);
 		void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread) {workerThread = alignmentWorkerThread;}
 		MainWindow* _mw;
-		BackgroundPeakUpdate* workerThread;
+        BackgroundPeakUpdate* workerThread;
 
-	public Q_SLOTS:
+    Q_SIGNALS:
+        void changeRefSample(mzSample* sample);
+
+
+    public Q_SLOTS:
+        void refSampleChanged();
 		void cancel();
 		void show();
 		void inputInitialValuesAlignmentDialog();
