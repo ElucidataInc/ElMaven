@@ -8,10 +8,11 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
+mzSample* Aligner::refSample = nullptr;
+
 Aligner::Aligner() {
        maxItterations=10;
        polynomialDegree=3;
-       refSample = nullptr;
 }
 
 void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpectedRt) {
@@ -484,23 +485,25 @@ void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& 
     }
 }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams, int referenceSampleIndex) {
-    std::cerr<<"Aligning Sample Retention times..."<<std::endl;
 
-    if(referenceSampleIndex < 0){
-        /**
-         * currently reference sample is choosen randomly,
-         * TODO: give user options to choose reference sample and pass index of
-         * that sample as referenceSampleIndex
-         */
+void Aligner::setRefSample(mzSample* sample)
+{
+    if(sample != nullptr)
+        std::cerr << "reference sample :  " << sample->sampleName << std::endl;
+    refSample = sample;
+}
+
+void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams) {
+
+
+    if(refSample == nullptr) {
         srand(time(NULL));
-        referenceSampleIndex = rand()%samples.size();
+        refSample = samples[rand()%samples.size()];
     }
-    assert(referenceSampleIndex < samples.size());
+
 
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
-    refSample = samples[referenceSampleIndex];
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
@@ -526,7 +529,7 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams,
     int samplesAligned = 0;
     #pragma omp parallel for shared(samplesAligned)
     for(int i=0 ; i < samples.size();++i){
-        if(i == referenceSampleIndex)
+        if(samples[i] == refSample)
             continue;
         alignSampleRts(samples[i], mzPoints, *obiWarp, false);
 
