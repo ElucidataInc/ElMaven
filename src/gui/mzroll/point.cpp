@@ -142,7 +142,7 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     if (_group) Q_EMIT peakGroupSelected(_group);
     if (_peak)  Q_EMIT peakSelected(_peak);
 
-    _mw->alignmentVizWidget->plotGraph(_group);
+    _mw->groupRtWidget->plotGraph(_group);
 
     if ( _group && _group->isIsotope() == false ) {
         _mw->isotopeWidget->updateIsotopicBarplot(_group);

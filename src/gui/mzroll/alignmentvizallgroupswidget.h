@@ -12,13 +12,14 @@ class MainWindow;
 class PeakGroup;
 class mzSample;
 class Peak;
+class QDockWidget;
 
 class AlignmentVizAllGroupsWidget : public QObject
 {
     Q_OBJECT
 
 public:
-    AlignmentVizAllGroupsWidget(MainWindow* mw);
+    AlignmentVizAllGroupsWidget(MainWindow* mw, QDockWidget* dockWidget);
     map<pair<float, float>, PeakGroup> pairPeakGroup;
     map<mzSample*, QVector<double> > retentionTime;
     map<mzSample*, QVector<double> > retentionTimeDeviation;
@@ -39,6 +40,7 @@ public Q_SLOTS:
 
 private:
     MainWindow* _mw;
+    QDockWidget* _dockWidget;
 };
 
 #endif

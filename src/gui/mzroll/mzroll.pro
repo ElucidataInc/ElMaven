@@ -113,7 +113,7 @@ FORMS = forms/settingsform.ui  \
         forms/spectramatching.ui\
         forms/peptidefragmentation.ui \
     forms/awsbucketcredentialsdialog.ui \
-    forms/alignmentpolyvizdockwidget.ui \
+    forms/samplertwidget.ui \
     forms/isotopeplotdockwidget.ui \
     forms/gettingstarted.ui \
     forms/pollywaitdialog.ui \
@@ -171,7 +171,7 @@ HEADERS +=  stable.h \
                     mzfileio.h \
                     logwidget.h \
                     spectralhit.h \
-                    alignmentvizwidget.h \
+                    grouprtwidget.h \
                     alignmentvizallgroupswidget.h \
                    spectralhitstable.h\
                     clusterdialog.h \
@@ -182,7 +182,7 @@ HEADERS +=  stable.h \
                     saveJson.h \
                     messageBoxResize.h \
                     awsbucketcredentialsdialog.h \
-                    alignmentpolyvizdockwidget.h \
+                    samplertwidget.h \
                     controller.h \
                     numeric_treewidgetitem.h \
                     analytics.h \
@@ -249,14 +249,14 @@ database.cpp \
  spectramatching.cpp \
  mzfileio.cpp \
  spectralhitstable.cpp \
- alignmentvizwidget.cpp \
+ grouprtwidget.cpp \
  alignmentvizallgroupswidget.cpp \
  logwidget.cpp \
  peptidefragmentation.cpp \
  qcustomplot.cpp \
  saveJson.cpp \
     awsbucketcredentialsdialog.cpp \
-    alignmentpolyvizdockwidget.cpp \
+    samplertwidget.cpp \
     controller.cpp \
     numeric_treewidgetitem.cpp \
     analytics.cpp \

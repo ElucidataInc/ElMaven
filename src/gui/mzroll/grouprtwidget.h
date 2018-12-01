@@ -1,5 +1,5 @@
-#ifndef ALIGNMENTVIZWIDGET_H
-#define ALIGNMENTVIZWIDGET_H
+#ifndef GROUPRTWIDGET_H
+#define GROUPRTWIDGET_H
 
 #include "stable.h"
 #include "qcustomplot.h"
@@ -13,12 +13,13 @@ class MainWindow;
 class PeakGroup;
 class mzSample;
 class Peak;
+class QDockWidget;
 
-class AlignmentVizWidget : public QObject
+class GroupRtWidget : public QObject
 {
     Q_OBJECT
 public:
-    AlignmentVizWidget(MainWindow* mw);
+    GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget);
     void updateGraph();
     QCPBars *bar;
     map<int, mzSample*> mapSample;
@@ -55,7 +56,7 @@ public Q_SLOTS:
 private:
     MainWindow* _mw;
     PeakGroup* currentDisplayedGroup;
-
+    QDockWidget* _dockWidget;
 };
 
 #endif

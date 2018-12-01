@@ -25,8 +25,8 @@
         <file>images/flip.png</file>
         <file>images/exportxml.png</file>
         <file>images/spectra.png</file>
-        <file>images/alignmentViz.png</file>
-        <file>images/alignmentPolyViz.png</file>
+        <file>images/groupRtViz.png</file>
+        <file>images/sampleRtViz.png</file>
         <file>images/alignmentVizAllGroups.png</file>
         <file>images/merge.png</file>
         <file>images/success.png</file>
@@ -95,6 +95,7 @@
         <file>images/firstView.png</file>
         <file>images/flux.png</file>
         <file>images/close.png</file>
+        <file>images/alignmentButton.png</file>
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
     </qresource>

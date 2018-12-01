@@ -12,7 +12,6 @@
 #include "settingsform.h"
 #include "pathwaywidget.h"
 #include "spectrawidget.h"
-#include "alignmentvizwidget.h"
 #include "alignmentvizallgroupswidget.h"
 #include "qcustomplot.h"
 #include "masscalcgui.h"
@@ -22,7 +21,7 @@
 #include "isotopeswidget.h"
 #include "treedockwidget.h"
 #include "tabledockwidget.h"
-#include "alignmentpolyvizdockwidget.h"
+#include "samplertwidget.h"
 #include "isotopeplotdockwidget.h"
 #include "isotopeplot.h"
 #include "peakdetectiondialog.h"
@@ -66,7 +65,7 @@ class AwsBucketCredentialsDialog;
 class AlignmentDialog;
 //class RConsoleDialog;
 class SpectraWidget;
-class AlignmentVizWidget;
+class GroupRtWidget;
 class AlignmentVizAllGroupsWidget;
 class QCustomPlot;
 class IsotopicPlots;
@@ -79,7 +78,7 @@ class MassCalcWidget;
 class TreeDockWidget;
 class BookmarkTableDockWidget;
 class PeakTableDockWidget;
-class AlignmentPolyVizDockWidget;
+class SampleRtWidget;
 class IsotopePlotDockWidget;
 class IsotopePlot;
 class Classifier;
@@ -162,14 +161,14 @@ public:
 	
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
-	AlignmentVizWidget *alignmentVizWidget;
-	AlignmentPolyVizDockWidget *alignmentPolyVizDockWidget;
+    GroupRtWidget* groupRtWidget;
+    SampleRtWidget *sampleRtWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
 	IsotopePlotDockWidget *isotopePlotDockWidget;
 	IsotopePlot *isotopePlot;
 	QCustomPlot *customPlot;
-	QCustomPlot *alignmentVizPlot;
-	QCustomPlot *alignmentPolyVizPlot;
+    QCustomPlot *groupRtVizPlot;
+    QCustomPlot *sampleRtVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
 	AdductWidget *adductWidget;
@@ -182,7 +181,7 @@ public:
 	TreeDockWidget *srmDockWidget;
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
-	QDockWidget *alignmentVizDockWidget;
+    QDockWidget *groupRtDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
@@ -302,6 +301,9 @@ protected:
 	void dropEvent(QDropEvent *event);
 
 public Q_SLOTS:
+    void togglePerGroupAlignmentWidget();
+    void toggleAllGroupAlignmentWidget();
+    void toggleSampleRtWidget();
 	void showAlignmetErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
@@ -328,8 +330,6 @@ public Q_SLOTS:
 	void analyticsBoxPlot();
 	void analyticsAverageSpectra();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
-	void replotAlignmentVizAllGroupGraph(bool active);
-	void plotAlignmentPolyVizDockWidget(bool active);
 	void createPeakTable(QString);
 
 	void setIonizationModeLabel();

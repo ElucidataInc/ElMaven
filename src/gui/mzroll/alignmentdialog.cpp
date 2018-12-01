@@ -151,7 +151,7 @@ void AlignmentDialog::toggleObiParams(bool show){
 }
 void AlignmentDialog::algoChanged() {
 
-	bool obiWarp = (alignAlgo->currentIndex() == 2);
+    bool obiWarp = (alignAlgo->currentIndex() == 1);
 	toggleObiParams(obiWarp);
 	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
 	showAdvanceParams->setVisible(obiWarp);

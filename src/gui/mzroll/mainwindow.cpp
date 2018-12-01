@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "grouprtwidget.h"
 #include <QStandardPaths>
 #include "notificator.h"
 #ifdef WIN32
@@ -297,11 +298,9 @@ using namespace mzUtils;
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	spectraWidget = new SpectraWidget(this);
-	alignmentVizWidget = new AlignmentVizWidget(this);
-	alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this);
 	customPlot = new QCustomPlot(this);
-	alignmentVizPlot = new QCustomPlot(this);
-	alignmentPolyVizPlot = new QCustomPlot(this);
+    groupRtVizPlot = new QCustomPlot(this);
+    sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
@@ -320,8 +319,8 @@ using namespace mzUtils;
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
-	alignmentPolyVizDockWidget = new AlignmentPolyVizDockWidget(this);
-	alignmentPolyVizDockWidget->setWidget(alignmentPolyVizPlot);
+    sampleRtWidget = new SampleRtWidget(this);
+    sampleRtWidget->setWidget(sampleRtVizPlot);
 
 	isotopePlotDockWidget = new IsotopePlotDockWidget(this);
 	isotopePlotDockWidget->setWidget(customPlot);
@@ -329,9 +328,15 @@ using namespace mzUtils;
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
-	alignmentVizDockWidget = createDockWidget("AlignmentVisualization", alignmentVizPlot);
-	alignmentVizAllGroupsDockWidget = createDockWidget("AlignmentVisualizationForAllGroups", alignmentVizAllGroupsPlot);
-	pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
+
+    groupRtDockWidget = createDockWidget("Per Group Deviation", groupRtVizPlot);
+    groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
+
+    alignmentVizAllGroupsDockWidget = createDockWidget("All Groups Deviation", alignmentVizAllGroupsPlot);
+    alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this, alignmentVizAllGroupsDockWidget);
+
+
+    pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
 	scatterDockWidget = new ScatterPlot(this);
@@ -345,22 +350,22 @@ using namespace mzUtils;
 	setIsotopicPlotStyling();
 
 	// prepare x axis:
-	alignmentVizPlot->xAxis->setTicks(false);
-	alignmentVizPlot->xAxis->setBasePen(QPen(Qt::white));
-	alignmentVizPlot->xAxis->grid()->setVisible(false);	
+    groupRtVizPlot->xAxis->setTicks(false);
+    groupRtVizPlot->xAxis->setBasePen(QPen(Qt::white));
+    groupRtVizPlot->xAxis->grid()->setVisible(false);
 	// prepare y axis:
-	alignmentVizPlot->yAxis->setTicks(false);
-	alignmentVizPlot->yAxis->setBasePen(QPen(Qt::white));
-	alignmentVizPlot->yAxis->grid()->setVisible(true);
+    groupRtVizPlot->yAxis->setTicks(false);
+    groupRtVizPlot->yAxis->setBasePen(QPen(Qt::white));
+    groupRtVizPlot->yAxis->grid()->setVisible(true);
 
  	// prepare x axis:
-	alignmentPolyVizPlot->xAxis->setTicks(false);
-	alignmentPolyVizPlot->xAxis->setBasePen(QPen(Qt::white));
-	alignmentPolyVizPlot->xAxis->grid()->setVisible(false);	
+    sampleRtVizPlot->xAxis->setTicks(false);
+    sampleRtVizPlot->xAxis->setBasePen(QPen(Qt::white));
+    sampleRtVizPlot->xAxis->grid()->setVisible(false);
 	// prepare y axis:
-	alignmentPolyVizPlot->yAxis->setTicks(false);
-	alignmentPolyVizPlot->yAxis->setBasePen(QPen(Qt::white));
-	alignmentPolyVizPlot->yAxis->grid()->setVisible(true);
+    sampleRtVizPlot->yAxis->setTicks(false);
+    sampleRtVizPlot->yAxis->setBasePen(QPen(Qt::white));
+    sampleRtVizPlot->yAxis->grid()->setVisible(true);
 
 
 	// prepare x axis:
@@ -383,8 +388,8 @@ using namespace mzUtils;
 	bookmarkedPeaks->setVisible(false);
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
-	alignmentVizDockWidget->setVisible(false);
-	alignmentPolyVizDockWidget->setVisible(false);
+    groupRtDockWidget->setVisible(false);
+    sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
 	notesDockWidget->setVisible(false);
@@ -440,8 +445,8 @@ using namespace mzUtils;
 	projectDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, alignmentPolyVizDockWidget, Qt::Horizontal);
+    addDockWidget(Qt::BottomDockWidgetArea, groupRtDockWidget, Qt::Horizontal);
+    addDockWidget(Qt::BottomDockWidgetArea, sampleRtWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
@@ -469,8 +474,8 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
 	tabifyDockWidget(spectraDockWidget, isotopeWidget);
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
-	tabifyDockWidget(spectraDockWidget, alignmentVizDockWidget);
-	tabifyDockWidget(spectraDockWidget, alignmentPolyVizDockWidget);
+    tabifyDockWidget(spectraDockWidget, groupRtDockWidget);
+    tabifyDockWidget(spectraDockWidget, sampleRtWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
@@ -521,8 +526,8 @@ using namespace mzUtils;
     fragPanel->hide();
     projectDockWidget->raise();
     spectraDockWidget->raise();
-	alignmentVizDockWidget->raise();
-	alignmentPolyVizDockWidget->raise();
+    groupRtDockWidget->raise();
+    sampleRtWidget->raise();
 	alignmentVizAllGroupsDockWidget->raise();	
 
 	createToolBars();
@@ -592,12 +597,6 @@ using namespace mzUtils;
 
 	showNormal();	//return from full screen on startup
 
-	//remove close button from dockwidget
-	QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
-	for (int i = 0; i < dockWidgets.size(); i++) {
-		dockWidgets[i]->setFeatures(
-				dockWidgets[i]->features() ^ QDockWidget::DockWidgetClosable);
-	}
 
 	//Starting server to fetch remote data - Kiran
 	//Added when merged with Maven776
@@ -933,7 +932,7 @@ void MainWindow::savePeaksTable(TableDockWidget* peaksTable, QString fileName, Q
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
 	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	dock->setFloating(false);
+    dock->setFloating(false);
 	dock->setVisible(false);
 	dock->setObjectName(title);
 	dock->setWidget(w);
@@ -2590,9 +2589,25 @@ void MainWindow::createToolBars() {
     QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
-    QToolButton* btnAlignmentViz = addDockWidgetButton(sideBar, alignmentVizDockWidget, QIcon(rsrcPath + "/alignmentViz.png"), "Show Alignment Visualization Widget");
-	QToolButton* btnAlignmentPolyViz = addDockWidgetButton(sideBar, alignmentPolyVizDockWidget, QIcon(rsrcPath + "/alignmentPolyViz.png"), "Show Alignment Polynomial Fit Plot Widget");
-	QToolButton* btnAlignmentVizAllGroups = addDockWidgetButton(sideBar, alignmentVizAllGroupsDockWidget, QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "Show Alignment Visualization (for All Groups) Widget");
+
+    QToolButton* btnAlignment = new QToolButton(sideBar);
+    btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
+    btnAlignment->setText("Alignment Visualizations");
+    QMenu* alignmentMenu = new QMenu("Alignment Visualizations Menu");
+
+    btnAlignment->setMenu(alignmentMenu);
+    btnAlignment->setPopupMode(QToolButton::InstantPopup);
+
+
+    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per Group Deviation");
+    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All Groups Deviation");
+    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Deviation");
+
+
+    connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
+    connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
+    connect(sampleRtDeviation, &QAction::triggered, this, &MainWindow::toggleSampleRtWidget);
+
     QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
@@ -2620,18 +2635,14 @@ void MainWindow::createToolBars() {
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
 	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
-	connect(btnAlignmentVizAllGroups, SIGNAL(clicked(bool)), SLOT(replotAlignmentVizAllGroupGraph(bool)));
-	connect(btnAlignmentPolyViz, SIGNAL(clicked(bool)), SLOT(plotAlignmentPolyVizDockWidget(bool)));
 
 	sideBar->setOrientation(Qt::Vertical);
 	sideBar->setMovable(false);
 
 	sideBar->addWidget(btnSamples);
 	sideBar->addWidget(btnLigands);
-	sideBar->addWidget(btnSpectra);
-	sideBar->addWidget(btnAlignmentViz);
-	sideBar->addWidget(btnAlignmentPolyViz);
-	sideBar->addWidget(btnAlignmentVizAllGroups);
+    sideBar->addWidget(btnSpectra);
+    sideBar->addWidget(btnAlignment);
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
@@ -2646,6 +2657,38 @@ void MainWindow::createToolBars() {
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
+}
+
+void MainWindow::togglePerGroupAlignmentWidget()
+{
+    if(groupRtDockWidget->isVisible()) {
+        groupRtDockWidget->hide();
+        return;
+    }
+
+    groupRtDockWidget->show();
+}
+
+void MainWindow::toggleAllGroupAlignmentWidget()
+{
+
+    if(alignmentVizAllGroupsDockWidget->isVisible()) {
+        alignmentVizAllGroupsDockWidget->hide();
+        return;
+    }
+
+    alignmentVizAllGroupsDockWidget->show();
+
+}
+
+void MainWindow::toggleSampleRtWidget()
+{
+    if(sampleRtWidget->isVisible()) {
+        sampleRtWidget->hide();
+        return;
+    }
+
+    sampleRtWidget->show();
 }
 
 void MainWindow::setMassCutoffType(QString massCutoffType){
@@ -2793,7 +2836,7 @@ void MainWindow::Align() {
 
 	BackgroundPeakUpdate* workerThread;
 
-	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+    if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		workerThread = newWorkerThread("alignWithObiWarp");
 		workerThread->setMavenParameters(mavenParameters);
 		workerThread->start();
@@ -2861,13 +2904,6 @@ void MainWindow::plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups) {
 	alignmentVizAllGroupsWidget->plotGraph(allgroups);
 }
 
-void MainWindow::replotAlignmentVizAllGroupGraph(bool active) {
-	if (active) alignmentVizAllGroupsWidget->replotGraph();
-}
-
-void MainWindow::plotAlignmentPolyVizDockWidget(bool active) {
-	if (active) alignmentPolyVizDockWidget->plotGraph();
-}
 
 void MainWindow::showAlignmentWidget() {
 
@@ -2877,7 +2913,7 @@ void MainWindow::showAlignmentWidget() {
 }
 
 void MainWindow::UndoAlignment() {
-	if(alignmentDialog->alignAlgo->currentIndex() == 2){
+    if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		for (int i = 0; i < samples.size(); i++) {
 			for(int j = 0; j < samples[i]->scans.size(); ++j)
 				if(samples[i]->scans[j]->originalRt >= 0)

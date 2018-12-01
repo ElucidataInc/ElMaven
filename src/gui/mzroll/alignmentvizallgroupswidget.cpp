@@ -1,9 +1,16 @@
 #include "alignmentvizallgroupswidget.h"
+#include <QDockWidget>
+#include <QToolBar>
 
 using namespace std;
 
-AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw) {
-    this->_mw = mw;
+AlignmentVizAllGroupsWidget::AlignmentVizAllGroupsWidget(MainWindow* mw, QDockWidget* dockWidget):
+    _mw(mw),
+    _dockWidget(dockWidget)
+{
+
+    setXAxis();
+    setYAxis();
 }
 
 void AlignmentVizAllGroupsWidget::replotGraph() {
@@ -16,8 +23,6 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
     saveGroups = allgroups;
 
     _mw->alignmentVizAllGroupsPlot->clearPlottables();
-    setXAxis();
-    setYAxis();
 
     pairPeakGroup.clear();
     retentionTime.clear();
