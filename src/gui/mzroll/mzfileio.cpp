@@ -795,8 +795,6 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
     if (!_currentProject)
         return;
 
-    Q_EMIT(updateProgressBar(tr("Loading peak tables and groups…"), 0, 1));
-
     // set of compound databases that need to be communicated with ligand widget
     set<QString> dbNames;
 
