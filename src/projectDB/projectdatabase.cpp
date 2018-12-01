@@ -169,44 +169,45 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
     }
 
     auto peaksQuery = _connection->prepare(
-        "INSERT INTO peaks                    \
-              VALUES ( :peak_id               \
-                     , :group_id              \
-                     , :sample_id             \
-                     , :pos                   \
-                     , :minpos                \
-                     , :maxpos                \
-                     , :rt                    \
-                     , :rtmin                 \
-                     , :rtmax                 \
-                     , :mzmin                 \
-                     , :mzmax                 \
-                     , :scan                  \
-                     , :minscan               \
-                     , :maxscan               \
-                     , :peak_area             \
-                     , :peak_area_corrected   \
-                     , :peak_area_top         \
-                     , :peak_area_fractional  \
-                     , :peak_rank             \
-                     , :peak_intensity        \
-                     , :peak_baseline_level   \
-                     , :peak_mz               \
-                     , :median_mz             \
-                     , :base_mz               \
-                     , :quality               \
-                     , :width                 \
-                     , :gauss_fit_sigma       \
-                     , :gauss_fit_r2          \
-                     , :no_noise_obs          \
-                     , :no_noise_fraction     \
-                     , :symmetry              \
-                     , :signal_baseline_ratio \
-                     , :group_overlap         \
-                     , :group_overlap_frac    \
-                     , :local_max_flag        \
-                     , :from_blank_sample     \
-                     , :label                 )");
+        "INSERT INTO peaks                      \
+              VALUES ( :peak_id                 \
+                     , :group_id                \
+                     , :sample_id               \
+                     , :pos                     \
+                     , :minpos                  \
+                     , :maxpos                  \
+                     , :rt                      \
+                     , :rtmin                   \
+                     , :rtmax                   \
+                     , :mzmin                   \
+                     , :mzmax                   \
+                     , :scan                    \
+                     , :minscan                 \
+                     , :maxscan                 \
+                     , :peak_area               \
+                     , :peak_area_corrected     \
+                     , :peak_area_top           \
+                     , :peak_area_top_corrected \
+                     , :peak_area_fractional    \
+                     , :peak_rank               \
+                     , :peak_intensity          \
+                     , :peak_baseline_level     \
+                     , :peak_mz                 \
+                     , :median_mz               \
+                     , :base_mz                 \
+                     , :quality                 \
+                     , :width                   \
+                     , :gauss_fit_sigma         \
+                     , :gauss_fit_r2            \
+                     , :no_noise_obs            \
+                     , :no_noise_fraction       \
+                     , :symmetry                \
+                     , :signal_baseline_ratio   \
+                     , :group_overlap           \
+                     , :group_overlap_frac      \
+                     , :local_max_flag          \
+                     , :from_blank_sample       \
+                     , :label                   )");
 
     for (Peak p : group->peaks) {
         peaksQuery->bind(":group_id", groupId);
@@ -225,6 +226,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
         peaksQuery->bind(":peak_area", p.peakArea);
         peaksQuery->bind(":peak_area_corrected", p.peakAreaCorrected);
         peaksQuery->bind(":peak_area_top", p.peakAreaTop);
+        peaksQuery->bind(":peak_area_top_corrected", p.peakAreaTopCorrected);
         peaksQuery->bind(":peak_area_fractional", p.peakAreaFractional);
         peaksQuery->bind(":peak_rank", p.peakRank);
         peaksQuery->bind(":peak_intensity", p.peakIntensity);
@@ -645,6 +647,8 @@ void ProjectDatabase::loadGroupPeaks(PeakGroup* parentGroup,
         peak.peakArea = peaksQuery->floatValue("peak_area");
         peak.peakAreaCorrected = peaksQuery->floatValue("peak_area_corrected");
         peak.peakAreaTop = peaksQuery->floatValue("peak_area_top");
+        peak.peakAreaTopCorrected =
+            peaksQuery->floatValue("peak_area_top_corrected");
         peak.peakAreaFractional =
             peaksQuery->floatValue("peak_area_fractional");
         peak.peakRank = peaksQuery->floatValue("peak_rank");

@@ -36,43 +36,44 @@
                                       , data TEXT                                          );"
 
 #define CREATE_PEAKS_TABLE \
-    "CREATE TABLE IF NOT EXISTS peaks ( peak_id               INTEGER PRIMARY KEY AUTOINCREMENT \
-                                      , group_id              INTEGER                           \
-                                      , sample_id             INTEGER                           \
-                                      , pos                   INTEGER                           \
-                                      , minpos                INTEGER                           \
-                                      , maxpos                INTEGER                           \
-                                      , rt                    REAL                              \
-                                      , rtmin                 REAL                              \
-                                      , rtmax                 REAL                              \
-                                      , mzmin                 REAL                              \
-                                      , mzmax                 REAL                              \
-                                      , scan                  INTEGER                           \
-                                      , minscan               INTEGER                           \
-                                      , maxscan               INTEGER                           \
-                                      , peak_area             REAL                              \
-                                      , peak_area_corrected   REAL                              \
-                                      , peak_area_top         REAL                              \
-                                      , peak_area_fractional  REAL                              \
-                                      , peak_rank             REAL                              \
-                                      , peak_intensity        REAL                              \
-                                      , peak_baseline_level   REAL                              \
-                                      , peak_mz               REAL                              \
-                                      , median_mz             REAL                              \
-                                      , base_mz               REAL                              \
-                                      , quality               REAL                              \
-                                      , width                 INTEGER                           \
-                                      , gauss_fit_sigma       REAL                              \
-                                      , gauss_fit_r2          REAL                              \
-                                      , no_noise_obs          INTEGER                           \
-                                      , no_noise_fraction     REAL                              \
-                                      , symmetry              REAL                              \
-                                      , signal_baseline_ratio REAL                              \
-                                      , group_overlap         REAL                              \
-                                      , group_overlap_frac    REAL                              \
-                                      , local_max_flag        REAL                              \
-                                      , from_blank_sample     INTEGER                           \
-                                      , label                 INTEGER                           );"
+    "CREATE TABLE IF NOT EXISTS peaks ( peak_id                 INTEGER PRIMARY KEY AUTOINCREMENT \
+                                      , group_id                INTEGER                           \
+                                      , sample_id               INTEGER                           \
+                                      , pos                     INTEGER                           \
+                                      , minpos                  INTEGER                           \
+                                      , maxpos                  INTEGER                           \
+                                      , rt                      REAL                              \
+                                      , rtmin                   REAL                              \
+                                      , rtmax                   REAL                              \
+                                      , mzmin                   REAL                              \
+                                      , mzmax                   REAL                              \
+                                      , scan                    INTEGER                           \
+                                      , minscan                 INTEGER                           \
+                                      , maxscan                 INTEGER                           \
+                                      , peak_area               REAL                              \
+                                      , peak_area_corrected     REAL                              \
+                                      , peak_area_top           REAL                              \
+                                      , peak_area_top_corrected REAL                              \
+                                      , peak_area_fractional    REAL                              \
+                                      , peak_rank               REAL                              \
+                                      , peak_intensity          REAL                              \
+                                      , peak_baseline_level     REAL                              \
+                                      , peak_mz                 REAL                              \
+                                      , median_mz               REAL                              \
+                                      , base_mz                 REAL                              \
+                                      , quality                 REAL                              \
+                                      , width                   INTEGER                           \
+                                      , gauss_fit_sigma         REAL                              \
+                                      , gauss_fit_r2            REAL                              \
+                                      , no_noise_obs            INTEGER                           \
+                                      , no_noise_fraction       REAL                              \
+                                      , symmetry                REAL                              \
+                                      , signal_baseline_ratio   REAL                              \
+                                      , group_overlap           REAL                              \
+                                      , group_overlap_frac      REAL                              \
+                                      , local_max_flag          REAL                              \
+                                      , from_blank_sample       INTEGER                           \
+                                      , label                   INTEGER                           );"
 
 #define CREATE_PEAK_GROUPS_TABLE \
     "CREATE TABLE IF NOT EXISTS peakgroups ( group_id           INTEGER PRIMARY KEY AUTOINCREMENT \
