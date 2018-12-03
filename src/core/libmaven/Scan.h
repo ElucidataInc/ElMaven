@@ -33,13 +33,22 @@ class Scan
      * @brief Obtain the smallest m/z value stored.
      * @return Fractional m/z value.
      */
-    inline float minMz()  { if(nobs() > 0) return mz[0]; return 0; }
+    inline float minMz() {
+        if(nobs() > 0)
+            return *(std::min_element(begin(mz),
+                                      end(mz)));
+        return 0.0f;
+    }
 
     /**
      * @brief Obtain the largest m/z value stored.
      * @return Fractional m/z value.
      */
-    inline float maxMz()  { if(nobs() > 0) return mz[nobs()-1]; return 0; }
+    inline float maxMz() {
+        if(nobs() > 0)
+            return *(std::max_element(begin(mz),
+                                      end(mz)));
+        return 0.0f; }
 
     /**
     *@brief return the corresponding sample
