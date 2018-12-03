@@ -12,80 +12,81 @@ void PeakDetector::resetProgressBar() {
 	zeroStatus = true;
 }
 
-//TODO: Refactor this function. Too many parameters - Sahil
 vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
-                                    std::vector<mzSample*>&samples,
-                                    int peakDetect, 
-                                    int smoothingWindow,
-                                    int smoothingAlgorithm, 
-                                    float amuQ1, 
-                                    float amuQ3,
-                                    int baseline_smoothingWindow,
-                                    int baseline_dropTopX, 
-                                    double minSignalBaselineDifference,
-                                    int eicType,
-                                    string filterline) 
+                                    std::vector<mzSample*>& samples,
+                                    MavenParameters* mp)
 {
-
-        vector<EIC*> eics;
-        vector<mzSample*> vsamples;
-        #pragma omp parallel default(shared)
-        {
-
-                #pragma omp for
-                for (unsigned int i = 0; i < samples.size(); i++) {
-                        if (samples[i] == NULL)
-                                continue;
-                        if (samples[i]->isSelected == false)
-                                continue;
-                        #pragma omp critical
-                        vsamples.push_back(samples[i]);
-                }
-
-                // single threaded version - getting EICs of selected samples.
-                // #pragma omp parallel for ordered
-
-                #pragma omp for
-                for (unsigned int i = 0; i < vsamples.size(); i++) {
-                //Samples been selected
-                mzSample* sample = vsamples[i];
-                //getting the slice with which EIC has to be pulled
-                Compound* c = slice->compound;
-
-                EIC* e = NULL;
-
-                if (!slice->srmId.empty()) {
-                    
-                    e = sample->getEIC(slice->srmId, eicType);
-                }
-                else if (c && c->precursorMz > 0 && c->productMz > 0) {
-
-                    e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-                                    filterline, amuQ1, amuQ3);
-                } else {
-
-                        e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-                                        slice->rtmax, 1, eicType, filterline);
-                }
-                
-
-                if (e) {
-                        //if eic exists, perform smoothing
-                        EIC::SmootherType smootherType =
-                                (EIC::SmootherType) smoothingAlgorithm;
-                        e->setSmootherType(smootherType);
-                        e->setBaselineSmoothingWindow(baseline_smoothingWindow);
-                        e->setBaselineDropTopX(baseline_dropTopX);
-                        e->setFilterSignalBaselineDiff(minSignalBaselineDifference);
-                        e->getPeakPositions(smoothingWindow);
-                        //smoohing over
-
-                        //push eic to all eics vector
-                        #pragma omp critical
-                        eics.push_back(e);
-                }
-                }
+    vector<EIC*> eics;
+    vector<mzSample*> vsamples;
+#pragma omp parallel default(shared)
+    {
+#pragma omp for
+        for (unsigned int i = 0; i < samples.size(); i++) {
+            if (samples[i] == NULL)
+                continue;
+            if (samples[i]->isSelected == false)
+                continue;
+#pragma omp critical
+            vsamples.push_back(samples[i]);
         }
+
+        // single threaded version - getting EICs of selected samples.
+        // #pragma omp parallel for ordered
+#pragma omp for
+        for (unsigned int i = 0; i < vsamples.size(); i++) {
+            // Samples been selected
+            mzSample* sample = vsamples[i];
+            // getting the slice with which EIC has to be pulled
+            Compound* c = slice->compound;
+
+            EIC* e = nullptr;
+
+            if (!slice->srmId.empty()) {
+                e = sample->getEIC(slice->srmId, mp->eicType);
+            } else if (c && c->precursorMz > 0 && c->productMz > 0) {
+                e = sample->getEIC(c->precursorMz,
+                                   c->collisionEnergy,
+                                   c->productMz,
+                                   mp->eicType,
+                                   mp->filterline,
+                                   mp->amuQ1,
+                                   mp->amuQ3);
+            } else {
+                e = sample->getEIC(slice->mzmin,
+                                   slice->mzmax,
+                                   slice->rtmin,
+                                   slice->rtmax,
+                                   1,
+                                   mp->eicType,
+                                   mp->filterline);
+            }
+
+            if (e) {
+                // if eic exists, perform smoothing
+                EIC::SmootherType smootherType =
+                    (EIC::SmootherType)mp->eic_smoothingAlgorithm;
+                e->setSmootherType(smootherType);
+
+                // set appropriate baseline parameters
+                if (mp->aslsBaselineMode) {
+                    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+                    e->setAsLSSmoothness(mp->aslsSmoothness);
+                    e->setAsLSAsymmetry(mp->aslsAsymmetry);
+                } else {
+                    e->setBaselineMode(EIC::BaselineMode::Threshold);
+                    e->setBaselineSmoothingWindow(mp->baseline_smoothingWindow);
+                    e->setBaselineDropTopX(mp->baseline_dropTopX);
+                }
+                e->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+                e->getPeakPositions(mp->eic_smoothingWindow);
+                // smoohing over
+
+#pragma omp critical
+                // push eic to all eics vector
+                eics.push_back(e);
+            }
+        }
+    }
     return eics;
 }
 
@@ -324,20 +325,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             foundGroups = mavenParameters->allgroups.size();
         }
 
-        vector<EIC *> eics;
-        eics = pullEICs(slice,
-                        mavenParameters->samples,
-                        EicLoader::PeakDetection,
-                        mavenParameters->eic_smoothingWindow,
-                        mavenParameters->eic_smoothingAlgorithm,
-                        mavenParameters->amuQ1,
-                        mavenParameters->amuQ3,
-                        mavenParameters->baseline_smoothingWindow,
-                        mavenParameters->baseline_dropTopX,
-                        mavenParameters->minSignalBaselineDifference,
-                        mavenParameters->eicType,
-                        mavenParameters->filterline);
-
+        vector<EIC *> eics = pullEICs(slice,
+                                      mavenParameters->samples,
+                                      mavenParameters);
 
         if (mavenParameters->clsf->hasModel())
         {

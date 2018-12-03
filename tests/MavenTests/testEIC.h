@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include "common.h"
+#include "utilities.h"
 #include "EIC.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"
@@ -17,11 +17,6 @@ class TestEIC : public QObject {
 
     public:
         TestEIC();
-    private:
-        const char* loadFile;
-        const char* loadGoodSample;
-        QStringList files;
-        QStringList files_ms2;
 
     private Q_SLOTS:
         // functions executed by QtTest before and after test suite
@@ -38,7 +33,10 @@ class TestEIC : public QObject {
         void testgetEICms2();
         void testcomputeSpline();
         void testgetPeakPositions();
-        void testcomputeBaseLine();
+        void testcomputeBaselineThreshold();
+        void testcomputeBaselineAsLSSmoothing();
+        void testcomputeBaselineZeroIntensity();
+        void testcomputeBaselineEmptyEIC();
         void testfindPeakBounds();
         void testGetPeakDetails();
         void testgroupPeaks();

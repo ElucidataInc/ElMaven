@@ -27,8 +27,8 @@ void TestPeakDetection::cleanup() {
 }
 
 void TestPeakDetection::testProcessCompound() {
-    DBS.loadCompoundCSVFile(loadCompoundDB);
-    vector<Compound*> compounds = DBS.getCompoundsSubset("qe3_v11_2016_04_29");
+    maventests::database.loadCompoundCSVFile(loadCompoundDB);
+    vector<Compound*> compounds = maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
 
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
@@ -60,7 +60,7 @@ void TestPeakDetection::testPullEICs() {
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[2];
     slice->calculateRTMinMax(matchRtFlag, compoundRTWindow);
@@ -71,24 +71,19 @@ void TestPeakDetection::testPullEICs() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                               mavenparameters->samples,
+                                               mavenparameters);
     QVERIFY(eics.size() == 2);
 }
 
 void TestPeakDetection::testprocessSlices() {
 
-    vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
+    vector<PeakGroup> allgroups = TestUtils::getGroupsFromProcessCompounds();
     QVERIFY(allgroups.size() > 0);
 
 }

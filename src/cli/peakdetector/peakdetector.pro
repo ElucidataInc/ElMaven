@@ -14,7 +14,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
 				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread \
-				$$top_srcdir/src/pollyCLI $$top_srcdir/3rdparty/obiwarp
+                $$top_srcdir/src/pollyCLI $$top_srcdir/3rdparty/obiwarp \
+                $$top_srcdir/3rdparty/Eigen
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 

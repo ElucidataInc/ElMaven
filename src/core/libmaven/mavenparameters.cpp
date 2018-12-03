@@ -48,8 +48,13 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         // peak detection
         eic_smoothingWindow = 10;
         eic_smoothingAlgorithm = 0;
+
+        // baseline estimation
+        aslsBaselineMode = false;
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 80;
+        aslsSmoothness = 5;
+        aslsAsymmetry = 30;
 
         isIsotopeEqualPeakFilter = false;
         minSignalBaselineDifference = 0;
@@ -322,11 +327,20 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "grouping_maxRtWindow") == 0)
         grouping_maxRtWindow = atof(value);
 
+    if(strcmp(key, "aslsBaselineMode") == 0)
+        aslsBaselineMode = static_cast<bool>(atof(value));
+
     if(strcmp(key, "baseline_quantile") == 0)
         baseline_dropTopX = atof(value);
 
     if(strcmp(key, "baseline_smoothing") == 0)
         baseline_smoothingWindow = atof(value);
+
+    if(strcmp(key, "aslsSmoothness") == 0)
+        aslsSmoothness = atoi(value);
+
+    if(strcmp(key, "aslsAsymmetry") == 0)
+        aslsAsymmetry = atoi(value);
 
     if(strcmp(key, "isIsotopeEqualPeakFilter") == 0)
         isIsotopeEqualPeakFilter = atof(value);    

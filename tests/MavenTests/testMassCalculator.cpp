@@ -30,36 +30,36 @@ void TestMassCalculator::testGetComposition() {
     map<string,int> massCompoH20Man;
     massCompoH20Man["H"] = 2;
     massCompoH20Man["O"] = 1;
-    QVERIFY(common::compareMaps(massCompoH20, massCompoH20Man));
+    QVERIFY(TestUtils::compareMaps(massCompoH20, massCompoH20Man));
 
     map<string,int> massCompoC2H6O = MassCalculator::getComposition("C2H6O");
     map<string,int> massCompoC2H6OMan;
     massCompoC2H6OMan["C"] = 2;
     massCompoC2H6OMan["H"] = 6;
     massCompoC2H6OMan["O"] = 1;
-    QVERIFY(common::compareMaps(massCompoC2H6O, massCompoC2H6OMan));
+    QVERIFY(TestUtils::compareMaps(massCompoC2H6O, massCompoC2H6OMan));
 
     map<string,int> massCompoC2H5OH = MassCalculator::getComposition("C2H5OH");
     map<string,int> massCompoC2H5OHMan;
     massCompoC2H5OHMan["C"] = 2;
     massCompoC2H5OHMan["H"] = 6;
     massCompoC2H5OHMan["O"] = 1;
-    QVERIFY(common::compareMaps(massCompoC2H5OH,massCompoC2H5OHMan));
+    QVERIFY(TestUtils::compareMaps(massCompoC2H5OH,massCompoC2H5OHMan));
 
     map<string,int> massCompoHCl = MassCalculator::getComposition("HCl");
     map<string,int> massCompoHClMan;
     massCompoHClMan["H"] = 1;
     massCompoHClMan["Cl"] = 1;
-    QVERIFY(common::compareMaps(massCompoHCl,massCompoHClMan));
+    QVERIFY(TestUtils::compareMaps(massCompoHCl,massCompoHClMan));
 
 }
 
 void TestMassCalculator::testNeutralMass() {
     double alcoholMonoIsotopicMass = 46.041866;
 
-    QVERIFY(common::floatCompare(MassCalculator::computeNeutralMass("C2H6O"), alcoholMonoIsotopicMass));
+    QVERIFY(TestUtils::floatCompare(MassCalculator::computeNeutralMass("C2H6O"), alcoholMonoIsotopicMass));
 
-    QVERIFY(common::floatCompare(MassCalculator::computeNeutralMass("C2H5OH"), alcoholMonoIsotopicMass));
+    QVERIFY(TestUtils::floatCompare(MassCalculator::computeNeutralMass("C2H5OH"), alcoholMonoIsotopicMass));
 
 }
 
@@ -68,11 +68,11 @@ void TestMassCalculator::testComputeMass() {
     double XanthosineMonoIso = 284.075684;
     double HydrogenMass =  1.007;
 
-    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, 0), XanthosineMonoIso));
+    QVERIFY(TestUtils::floatCompare(MassCalculator::computeMass(XanthosineChe, 0), XanthosineMonoIso));
 
-    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, -1), XanthosineMonoIso - HydrogenMass ));
+    QVERIFY(TestUtils::floatCompare(MassCalculator::computeMass(XanthosineChe, -1), XanthosineMonoIso - HydrogenMass ));
 
-    QVERIFY(common::floatCompare(MassCalculator::computeMass(XanthosineChe, +1), XanthosineMonoIso + HydrogenMass ));
+    QVERIFY(TestUtils::floatCompare(MassCalculator::computeMass(XanthosineChe, +1), XanthosineMonoIso + HydrogenMass ));
 
 }
 

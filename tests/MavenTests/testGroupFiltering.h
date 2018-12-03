@@ -4,7 +4,7 @@
 #include <iostream>
 #include <QtTest>
 
-#include "common.h"
+#include "utilities.h"
 #include "PeakGroup.h"
 #include "groupFiltering.h"
 #include "mavenparameters.h"

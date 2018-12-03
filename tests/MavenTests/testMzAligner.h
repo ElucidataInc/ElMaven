@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
 #include "mavenparameters.h"
@@ -17,9 +17,6 @@ class TestMzAligner : public QObject {
 
     public:
         TestMzAligner();
-
-    private:
-        Samples* samples;
 
     private Q_SLOTS:
         // functions executed by QtTest before and after test suite

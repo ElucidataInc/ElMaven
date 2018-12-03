@@ -103,9 +103,9 @@ void TestLoadSamples:: testMinMaxMz() {
     float maxMz = 769.953;
     mzsample.loadSample(loadFile);
 
-    QVERIFY(common::floatCompare(mzsample.minMz, minMz));
+    QVERIFY(TestUtils::floatCompare(mzsample.minMz, minMz));
 
-    QVERIFY(common::floatCompare(mzsample.maxMz, maxMz));
+    QVERIFY(TestUtils::floatCompare(mzsample.maxMz, maxMz));
 
 }
 
@@ -115,9 +115,9 @@ void TestLoadSamples:: testMinMaxRT() {
     float maxRT = 7.20475;
     mzsample.loadSample(loadFile);
 
-    QVERIFY(common::floatCompare(mzsample.minRt, minRT));
+    QVERIFY(TestUtils::floatCompare(mzsample.minRt, minRT));
 
-    QVERIFY(common::floatCompare(mzsample.maxRt, maxRT));
+    QVERIFY(TestUtils::floatCompare(mzsample.maxRt, maxRT));
 
 }
 

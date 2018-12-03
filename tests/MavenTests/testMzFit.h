@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <string.h>
-#include "common.h"
+#include "utilities.h"
 #include "mzFit.h"
 
 

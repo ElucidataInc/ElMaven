@@ -85,6 +85,10 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             MainWindow *mainwindow;
             OptionsDialogSettings* optionSettings;
 
+      private Q_SLOTS:
+            void _smoothnessChanged(int value);
+            void _asymmetryChanged(int value);
+
       
       public:
             bool deltaRtCheckFlag;

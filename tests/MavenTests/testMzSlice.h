@@ -4,7 +4,7 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "common.h"
+#include "utilities.h"
 #include "mzSample.h"
 #include "mavenparameters.h"
 

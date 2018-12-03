@@ -134,8 +134,13 @@ class MavenParameters
         */
         int eic_smoothingWindow;
         int eic_smoothingAlgorithm;
+
+        // baseline estimation
+        bool aslsBaselineMode;
         int baseline_smoothingWindow;
         int baseline_dropTopX;
+        int aslsSmoothness;
+        int aslsAsymmetry;
 
         bool isIsotopeEqualPeakFilter;
         double minSignalBaselineDifference;

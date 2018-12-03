@@ -928,18 +928,6 @@ void SpectralHitsDockWidget::integrateMS1() {
 
    QSettings *settings 		= _mainwindow->getSettings();
 
-   int eic_smoothingWindow = _mainwindow->mavenParameters->eic_smoothingWindow;
-   int   eic_smoothingAlgorithm = _mainwindow->mavenParameters->eic_smoothingAlgorithm;
-   float amuQ1 = _mainwindow->mavenParameters->amuQ1;
-   float amuQ3 = _mainwindow->mavenParameters->amuQ3;
-
-   int baseline_smoothing = _mainwindow->mavenParameters->baseline_smoothingWindow;
-   int baseline_quantile =  _mainwindow->mavenParameters->baseline_dropTopX;
-   double minSignalBaselineDifference = _mainwindow->mavenParameters->minSignalBaselineDifference;
-   float grouping_maxRtWindow = _mainwindow->mavenParameters->grouping_maxRtWindow;
-   int eic_type = _mainwindow->mavenParameters->eicType;
-   string filterline = _mainwindow->mavenParameters->filterline;
-
    QMap<QString,mzSlice>  peptideMap;
 
    Q_FOREACH(SpectralHit* hit, allhits) {
@@ -972,39 +960,29 @@ void SpectralHitsDockWidget::integrateMS1() {
        }
    }
 
-
-   Q_FOREACH(QString peptide, peptideMap.keys()) {
+    MavenParameters* mp = _mainwindow->mavenParameters;
+    Q_FOREACH(QString peptide, peptideMap.keys()) {
         mzSlice* slice = &peptideMap[peptide];
         slice->rt = slice->rt/slice->ionCount;
         if(slice->rtmin < 0) slice->rtmin=0;
         if(slice->rtmax < 0) slice->rtmax=0;
 
-       //qDebug() << "group: " << peptide << " rt=" << slice->rt;
+        //qDebug() << "group: " << peptide << " rt=" << slice->rt;
 
-       vector<EIC*> eics = PeakDetector::pullEICs(slice,
-                                                    samples,
-                                                    EicLoader::PeakDetection,
-                                                    eic_smoothingWindow,
-                                                    eic_smoothingAlgorithm,
-                                                    amuQ1,
-                                                    amuQ3,
-                                                    baseline_smoothing,
-                                                    baseline_quantile,
-                                                    minSignalBaselineDifference,
-                                                    eic_type,
-                                                    filterline);
+        vector<EIC*> eics = PeakDetector::pullEICs(slice, samples, mp);
 
-       //qDebug() << "here.. .here.. here " << eics.size();
+        //qDebug() << "here.. .here.. here " << eics.size();
 
-       vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                    eic_smoothingWindow,
-                                                    grouping_maxRtWindow,
-                                                    _mainwindow->mavenParameters->minQuality,
-                                                    _mainwindow->mavenParameters->distXWeight,
-                                                    _mainwindow->mavenParameters->distYWeight,
-                                                    _mainwindow->mavenParameters->overlapWeight,
-                                                    _mainwindow->mavenParameters->useOverlap,
-                                                    _mainwindow->mavenParameters->minSignalBaselineDifference);
+        vector<PeakGroup> peakgroups =
+            EIC::groupPeaks(eics,
+                            mp->eic_smoothingWindow,
+                            mp->grouping_maxRtWindow,
+                            mp->minQuality,
+                            mp->distXWeight,
+                            mp->distYWeight,
+                            mp->overlapWeight,
+                            mp->useOverlap,
+                            mp->minSignalBaselineDifference);
 
 
        PeakGroup* nearestGrp = NULL;

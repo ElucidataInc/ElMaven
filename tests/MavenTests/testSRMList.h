@@ -2,7 +2,7 @@
 #define TESTSRMLIST_H
 
 #include <QtTest>
-#include "common.h"
+#include "utilities.h"
 #include "SRMList.h"
 
 class TestSRMList : public QObject {

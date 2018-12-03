@@ -6,7 +6,7 @@ TestGroupFiltering::TestGroupFiltering()
 }
 
 void TestGroupFiltering::testquantileFilters() {
-    vector<PeakGroup> allgroups = common::getGroupsFromProcessCompounds();
+    vector<PeakGroup> allgroups = TestUtils::getGroupsFromProcessCompounds();
     PeakGroup group = allgroups[0];
     MavenParameters* mavenparameters = new MavenParameters();
     GroupFiltering groupFiltering(mavenparameters);

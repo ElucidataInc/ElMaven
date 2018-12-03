@@ -315,29 +315,16 @@ void EicWidget::computeEICs() {
 		return;
 
 	QSettings *settings = getMainWindow()->getSettings();
-	int eic_smoothingWindow =
-			getMainWindow()->mavenParameters->eic_smoothingWindow;
-	int eic_smoothingAlgorithm =
-			getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
-    float amuQ1 = getMainWindow()->mavenParameters->amuQ1;
-    float amuQ3 = getMainWindow()->mavenParameters->amuQ3;
-	int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
-	int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
-	double minSignalBaselineDifference = getMainWindow()->mavenParameters->minSignalBaselineDifference;
-	int eic_type = getMainWindow()->mavenParameters->eicType;
-	string filterline = getMainWindow()->mavenParameters->filterline;
+    mzSlice bounds = visibleSamplesBounds();
 
-	mzSlice bounds = visibleSamplesBounds();
+    eicParameters->getEIC(bounds,
+                          samples,
+                          getMainWindow()->mavenParameters);
 
-	eicParameters->getEIC(bounds, samples, eic_smoothingWindow,
-			eic_smoothingAlgorithm, amuQ1, amuQ3, baseline_smoothing,
-			baseline_quantile, minSignalBaselineDifference, eic_type,
-			filterline);
-
-	//score peak quality
-	ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
-	if (clsf != NULL) {
-		clsf->scoreEICs(eicParameters->eics);
+    // score peak quality
+    ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
+    if (clsf != NULL) {
+        clsf->scoreEICs(eicParameters->eics);
 	}
 
 	bool isIsotope = false;
@@ -746,10 +733,22 @@ void EicWidget::addMergedEIC() {
 
 void EicWidget::addBaseLine(EIC* eic) {
     QSettings* settings = this->getMainWindow()->getSettings();
-    int baseline_smoothing = getMainWindow()->mavenParameters->baseline_smoothingWindow;
-    int baseline_quantile = getMainWindow()->mavenParameters->baseline_dropTopX;
 
-    eic->computeBaseLine(baseline_smoothing, baseline_quantile);
+    if (!eic->baseline) {
+        auto parameters = getMainWindow()->mavenParameters;
+        eic->setBaselineDropTopX(parameters->baseline_dropTopX);
+        eic->setBaselineSmoothingWindow(parameters->baseline_smoothingWindow);
+        eic->setAsLSSmoothness(parameters->aslsSmoothness);
+        eic->setAsLSAsymmetry(parameters->aslsAsymmetry);
+
+        if (parameters->aslsBaselineMode) {
+            eic->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+        }
+        else {
+            eic->setBaselineMode(EIC::BaselineMode::Threshold);
+        }
+        eic->computeBaseline();
+    }
 
     if (eic->size() == 0)
         return;

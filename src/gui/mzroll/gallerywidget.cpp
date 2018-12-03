@@ -247,35 +247,14 @@ void GalleryWidget::addEicPlots(std::vector<mzSlice*>&slices) {
 TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
 	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
 	if (samples.size() == 0 ) return NULL;
-        QSettings* settings = mainwindow->getSettings();
-        float amuQ1 = mainwindow->mavenParameters->amuQ1;
-        float amuQ3 = mainwindow->mavenParameters->amuQ3;
-        int smoothingWindow = mainwindow->mavenParameters->eic_smoothingWindow;
-        int smoothingAlgorithm = mainwindow->mavenParameters->eic_smoothingAlgorithm;
+    QSettings* settings = mainwindow->getSettings();
 
-        int baseline_smoothing = mainwindow->mavenParameters->baseline_smoothingWindow;
-		int baseline_quantile =  mainwindow->mavenParameters->baseline_dropTopX;
-		double minSignalBaselineDifference = mainwindow->mavenParameters->minSignalBaselineDifference;
-		int eic_type = mainwindow->mavenParameters->eicType;
-		string filterline = mainwindow->mavenParameters->filterline;
-
-	//qDebug() << "addEicPlot(slice)";
-
-        vector<EIC*> eics = PeakDetector::pullEICs(&slice,
-                                                           samples,
-                                                           EicLoader::NoPeakDetection,
-                                                           smoothingWindow,
-                                                           smoothingAlgorithm,
-                                                           amuQ1,
-                                                           amuQ3,
-                                                           baseline_smoothing,
-                                                           baseline_quantile,
-														   minSignalBaselineDifference,
-														   eic_type,
-														   filterline);
-	TinyPlot* plot = addEicPlot(eics);
-	delete_all(eics);
-	return plot;
+    vector<EIC*> eics = PeakDetector::pullEICs(&slice,
+                                               samples,
+                                               mainwindow->mavenParameters);
+    TinyPlot* plot = addEicPlot(eics);
+    delete_all(eics);
+    return plot;
 }
 
 TinyPlot* GalleryWidget::addEicPlot(std::vector<EIC*>& eics) {

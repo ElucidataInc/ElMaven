@@ -4,11 +4,9 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "common.h"
+#include "utilities.h"
 #include "databases.h"
 #include "mzSample.h"
-
-extern Databases DB;
 
 class TestLoadDB : public QObject {
     Q_OBJECT

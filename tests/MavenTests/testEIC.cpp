@@ -1,13 +1,6 @@
 #include "testEIC.h"
 
-TestEIC::TestEIC() {
-    loadFile = "bin/methods/testsample_1.mzxml";
-    loadGoodSample = "bin/methods/testsample_2.mzxml";
-
-    files << "bin/methods/testsample_2.mzxml" << "bin/methods/testsample_3.mzxml";
-    files_ms2 << "bin/methods/ms2test1.mzML" << "bin/methods/ms2test2.mzML";
-
-}
+TestEIC::TestEIC() {}
 
 void TestEIC::initTestCase() {
     // This function is being executed at the beginning of each test suite
@@ -30,8 +23,7 @@ void TestEIC::cleanup() {
 
 void TestEIC::testgetEIC() {
     unsigned int numberOfScans = 445;
-    mzSample* mzsample = new mzSample();
-    mzsample->loadSample(loadFile);
+    mzSample* mzsample = maventests::samples.smallSample;
     EIC e;
 
     bool status = e.makeEICSlice(mzsample, 180.002,180.004, 0, 2, 1, 0, "");
@@ -39,94 +31,182 @@ void TestEIC::testgetEIC() {
 }
 
 void TestEIC::testgetEICms2() {
-    mzSample* mzsample = new mzSample();
-    mzSample* mzsample_2 = new mzSample();
+    mzSample* mzsample = maventests::samples.ms2TestSamples[1];
+    mzSample* mzsample_2 = maventests::samples.ms2TestSamples[0];
     
-    mzsample->loadSample(files_ms2.at(1).toLatin1().data());
     EIC* e = NULL;
     e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
     QVERIFY(e->rt.size() == 305);
     QVERIFY(e->scannum[e->scannum.size()-1] == 3351);
     QVERIFY(e->maxIntensity == 20200);
 
-    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
     EIC* e2 = NULL;
     e2 = mzsample_2->getEIC(195,0,69,1,"",0.5,0.5);
     QVERIFY(e2->rt.size() == 305);
     QVERIFY(e2->scannum[e2->scannum.size()-1] == 3041);
     QVERIFY(e2->maxIntensity == 10600);
 
-    mzsample_2->loadSample(files_ms2.at(0).toLatin1().data());
     EIC* e3 = NULL;
     e3 = mzsample_2->getEIC(195,0,69,1,"",2,2);
     QVERIFY(e3->rt.size() == 305);
-    QVERIFY(e3->scannum[e3->scannum.size()-1] == 6080);
+    QVERIFY(e3->scannum[e3->scannum.size()-1] == 3040);
     QVERIFY(e3->maxIntensity == 49400);
 }
 
-void TestEIC::testcomputeSpline() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testcomputeSpline()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
-
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
     e->computeSpline(10);
     QVERIFY(true);
 }
 
-void TestEIC::testgetPeakPositions() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testgetPeakPositions()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    EIC::SmootherType smootherType =
-            (EIC::SmootherType) 1;
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(80);
+
     e->setFilterSignalBaselineDiff(0);
     e->getPeakPositions(10);
     QVERIFY(true);
 }
 
-void TestEIC::testcomputeBaseLine() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
-    
-    EIC::SmootherType smootherType =
-            (EIC::SmootherType) 1;
-    e->setSmootherType(smootherType);
+void TestEIC::testcomputeBaselineThreshold()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
+
     e->setBaselineSmoothingWindow(5);
     e->setBaselineDropTopX(60);
-    e->computeBaseLine(5, 60);
+    e->computeBaseline();
     QVERIFY(true);
+
+    // deallocate
+    delete e;
 }
 
-void TestEIC::testfindPeakBounds() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
+void TestEIC::testcomputeBaselineAsLSSmoothing()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
 
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
+    // change default baseline mode
+    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e->setAsLSSmoothness(5);
+    e->setAsLSAsymmetry(4);
+
+    // TODO: for lack of better floating point comparators to test the
+    // consistency of the output, we can at least test whether the operation
+    // completes successfully
+    e->computeBaseline();
+
+    // test whether all values are greater than zero, otherwise EIC widget
+    // behaves erratically
+    auto allGreaterThanZero = true;
+    if(std::all_of(e->intensity.begin(),
+                   e->intensity.end(),
+                   [](float intensity) { return intensity < 0.0f; }))
+        allGreaterThanZero = false;
+    QVERIFY(allGreaterThanZero);
+
+    // deallocate
+    delete e;
+}
+
+void TestEIC::testcomputeBaselineZeroIntensity()
+{
+    // obtain a zero intensity EIC (all entries in intensity vector are zero)
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(381.123744f,
+                                                381.123754f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
+
+    // change default baseline mode
+    e->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e->setAsLSSmoothness(5);
+    e->setAsLSAsymmetry(4);
+
+    e->computeBaseline();
+
+    // find the max of baseline and test if its an extremely small value
+    // (there's no reliable way of comparing with zero in floating point)
+    auto maxVal = std::max_element(e->baseline,
+                                   e->baseline + e->intensity.size());
+    QVERIFY(fabs(*maxVal) <= 1e-10f);
+
+    // deallocate
+    delete e;
+}
+
+void TestEIC::testcomputeBaselineEmptyEIC()
+{
+    // create an empty EIC, i.e., its intensity vector is empty
+    EIC e;
+
+    // change default baseline mode
+    e.setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+    e.setAsLSSmoothness(5);
+    e.setAsLSAsymmetry(4);
+
+    e.computeBaseline();
+    QVERIFY(e.baseline == nullptr);
+}
+
+void TestEIC::testfindPeakBounds()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
     
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
-
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(80);
+
     e->computeSpline(10);
     e->findPeaks();
-    e->computeBaseLine(5, 80);
+    e->computeBaseline();
     e->findPeakBounds(e->peaks[10]);
 
     vector<float> intensity;
@@ -134,26 +214,30 @@ void TestEIC::testfindPeakBounds() {
          intensity.push_back(e->intensity[i]);
     }
 
-    QVERIFY(common::floatCompare(*max_element(intensity.begin(), intensity.end()), e->intensity[e->peaks[10].pos]));
+    QVERIFY(TestUtils::floatCompare(*max_element(intensity.begin(), intensity.end()), e->intensity[e->peaks[10].pos]));
    
 }
 
-
-void TestEIC:: testGetPeakDetails() {
-    mzSample* mzsample = new mzSample();
-    EIC* e = NULL;
-
-    mzsample->loadSample(loadGoodSample);
-    e = mzsample->getEIC(402.9929, 402.9969, 12.0, 16.0, 1, 0, "");
+void TestEIC:: testGetPeakDetails()
+{
+    EIC* e = maventests::samples.ms1TestSamples[0]->getEIC(402.9929f,
+                                                402.9969f,
+                                                12.0,
+                                                16.0,
+                                                1,
+                                                0,
+                                                "");
     
-    //if eic exists, perform smoothing
-    EIC::SmootherType smootherType = 
-        (EIC::SmootherType) 1;
-
+    // if eic exists, perform smoothing
+    EIC::SmootherType smootherType = static_cast<EIC::SmootherType>(1);
     e->setSmootherType(smootherType);
+
+    e->setBaselineSmoothingWindow(5);
+    e->setBaselineDropTopX(80);
+
     e->computeSpline(10);
     e->findPeaks();
-    e->computeBaseLine(5, 80);
+    e->computeBaseline();
     e->findPeakBounds(e->peaks[10]);
     e->getPeakDetails(e->peaks[10]);
 
@@ -176,17 +260,17 @@ void TestEIC:: testGetPeakDetails() {
 
     float peakAreaCorrected = peakArea - baselineArea;
 
-    QVERIFY(common::floatCompare(*max_element(intensity.begin(), intensity.end()), e->peaks[10].peakIntensity));
+    QVERIFY(TestUtils::floatCompare(*max_element(intensity.begin(), intensity.end()), e->peaks[10].peakIntensity));
 
     QVERIFY(e->peaks[10].noNoiseObs == noNoiseObs);
 
-    QVERIFY(common::floatCompare(peakArea, e->peaks[10].peakArea));
+    QVERIFY(TestUtils::floatCompare(peakArea, e->peaks[10].peakArea));
 
-    QVERIFY(common::floatCompare(peakSplineArea, e->peaks[10].peakSplineArea));
+    QVERIFY(TestUtils::floatCompare(peakSplineArea, e->peaks[10].peakSplineArea));
 
-    QVERIFY(common::floatCompare(peakAreaCorrected, e->peaks[10].peakAreaCorrected));
+    QVERIFY(TestUtils::floatCompare(peakAreaCorrected, e->peaks[10].peakAreaCorrected));
 
-    QVERIFY(common::floatCompare(peakAreaCorrected / (e->totalIntensity + 1), e->peaks[10].peakAreaFractional));
+    QVERIFY(TestUtils::floatCompare(peakAreaCorrected / (e->totalIntensity + 1), e->peaks[10].peakAreaFractional));
     
     QVERIFY(e->peaks[10].gaussFitSigma > 0);
     
@@ -202,13 +286,11 @@ void TestEIC:: testgroupPeaks() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* mzsample = new mzSample();
-        mzsample->loadSample(files.at(i).toLatin1().data());
+    for (auto mzsample: maventests::samples.ms1TestSamples) {
         samplesToLoad.push_back(mzsample);
     }
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
 
     // for(std::vector<Compound*>::iterator it = compounds.begin(); it != compounds.end(); ++it) {
     //     cerr << (*it)->name << endl; 
@@ -224,6 +306,7 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
     mavenparameters->grouping_maxRtWindow = 0.5;
@@ -232,28 +315,19 @@ void TestEIC:: testgroupPeaks() {
     mavenparameters->overlapWeight = 2;
     mavenparameters->useOverlap = 0;
 
-
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                               mavenparameters->samples,
+                                               mavenparameters);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                    mavenparameters->eic_smoothingWindow,
-                                                    mavenparameters->grouping_maxRtWindow,
-                                                    mavenparameters->minQuality,
-                                                    mavenparameters->distXWeight,
-                                                    mavenparameters->distYWeight,
-                                                    mavenparameters->overlapWeight,
-                                                    mavenparameters->useOverlap,
-                                                    mavenparameters->minSignalBaselineDifference);
-
-
+                                                   mavenparameters->eic_smoothingWindow,
+                                                   mavenparameters->grouping_maxRtWindow,
+                                                   mavenparameters->minQuality,
+                                                   mavenparameters->distXWeight,
+                                                   mavenparameters->distYWeight,
+                                                   mavenparameters->overlapWeight,
+                                                   mavenparameters->useOverlap,
+                                                   mavenparameters->minSignalBaselineDifference);
 
     QVERIFY(peakgroups.size() == 3);
     QVERIFY(13.2378 < peakgroups[0].meanRt < 13.238);
@@ -278,13 +352,11 @@ void TestEIC:: testeicMerge() {
 
     vector<mzSample*> samplesToLoad;
 
-    for (int i = 0; i <  files.size(); ++i) {
-        mzSample* mzsample = new mzSample();
-        mzsample->loadSample(files.at(i).toLatin1().data());
+    for (auto mzsample: maventests::samples.ms1TestSamples) {
         samplesToLoad.push_back(mzsample);
     }
 
-    vector<Compound*> compounds = common::getCompoudDataBaseWithRT();
+    vector<Compound*> compounds = TestUtils::getCompoudDataBaseWithRT();
 
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[4];
@@ -296,19 +368,13 @@ void TestEIC:: testeicMerge() {
     mavenparameters->eic_smoothingAlgorithm = 1;
     mavenparameters->amuQ1 = 0.25;
     mavenparameters->amuQ3 = 0.30;
+    mavenparameters->aslsBaselineMode = false;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
-    //mavenparameters->grouping_maxRtWindow = 0.5;
 
-    vector<EIC*> eics = PeakDetector::pullEICs(slice, mavenparameters->samples,
-                                    1, mavenparameters->eic_smoothingWindow,
-                                    mavenparameters->eic_smoothingAlgorithm, mavenparameters->amuQ1,
-                                    mavenparameters->amuQ3,
-                                    mavenparameters->baseline_smoothingWindow,
-                                    mavenparameters->baseline_dropTopX,
-                                    mavenparameters->minSignalBaselineDifference,
-                                    mavenparameters->eicType,
-                                    mavenparameters->filterline);
+    vector<EIC*> eics = PeakDetector::pullEICs(slice,
+                                               mavenparameters->samples,
+                                               mavenparameters);
 
     EIC* m = EIC::eicMerge(eics);
 

@@ -72,6 +72,10 @@ void Controller::syncMpWithUi(T* dialogPtr)
             updateMavenParameters(key, v.value<QComboBox*>()->currentIndex());
         }
 
+        if(QString(v.typeName()).contains("QTabWidget")) {
+            updateMavenParameters(key, v.value<QTabWidget*>()->currentIndex());
+        }
+
         /*note: this updates massCutOffType of
          * - massCutoffMerge
          * - compoundMassCutoffWindow

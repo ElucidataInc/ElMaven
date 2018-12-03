@@ -1,4 +1,5 @@
 #include "EIC.h"
+
 /**
  * @file EIC.cpp
  * @author Sabu George
@@ -20,9 +21,12 @@ EIC::EIC()
     filterSignalBaselineDiff = 0;
     eic_noNoiseObs = 0;
     smootherType = GAUSSIAN;
+    _baselineMode = BaselineMode::Threshold;
     baselineSmoothingWindow = 5;
     //TODO make sure initialization value is same everywhere
     baselineDropTopX = 60;
+    _aslsAsymmetry = 30;
+    _aslsSmoothness = 5;
     for (unsigned int i = 0; i < 4; i++)
         color[i] = 0;
 }
@@ -124,28 +128,124 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     return meic;
 }
 
-void EIC::computeBaseLine(int smoothing_window, int dropTopX)
+bool EIC::_clearBaseline()
 {
-    if (baseline != NULL)
+    if (baseline != nullptr)
     { //delete previous baseline if exists
         delete[] baseline;
-        baseline = NULL;
+        baseline = nullptr;
         eic_noNoiseObs = 0;
     }
 
-    int n = intensity.size();
-    if (n == 0)
-        return;
+    unsigned int n = static_cast<unsigned int>(intensity.size());
+    if (!n)
+        return false;
 
-    try
+    baseline = new float[n];
+    std::fill_n(baseline, n, 0.0f);
+
+    return true;
+}
+
+void EIC::_computeAsLSBaseline(const float lambda,
+                               const float p,
+                               const int numIterations)
+{
+    // Eigen behaves better with double values compared to float
+    vector<double> intensity;
+    for(unsigned int i = 0; i < this->intensity.size(); ++i)
+        intensity.push_back(static_cast<double>(this->intensity[i]));
+
+    using namespace Eigen;
+    auto n = static_cast<unsigned int>(intensity.size());
+
+    // Perform difference operation (pseudo-differentiation) on a sparse matrix
+    auto diff = [](Eigen::SparseMatrix<double> mat)
     {
-        baseline = new float[n];
-        std::fill_n(baseline, n, 0);
+        Eigen::SparseMatrix<double> E1 = mat.block(0,
+                                                   0,
+                                                   mat.rows() - 1,
+                                                   mat.cols());
+        Eigen::SparseMatrix<double> E2 = mat.block(1,
+                                                   0,
+                                                   mat.rows() - 1,
+                                                   mat.cols());
+        return Eigen::SparseMatrix<double>(E2 - E1);
+    };
+
+    // create a sparse identity matrix of size `n`
+    Eigen::SparseMatrix<double> ident(n, n);
+    ident.setIdentity();
+
+    // compute approximate second derivative of the identity matrix
+    auto D = diff(diff(ident));
+
+    // create a weights vector of length `n` initially containing only ones
+    // for coefficients
+    auto w = VectorXd(ArrayXd::Ones(n));
+
+    // instantiate a Cholesky decomposition linear solver for sparse matrices
+    SimplicialCholesky<SparseMatrix<double>> solver;
+
+    // instantiate a vector for intensity and one to store baseline
+    VectorXd intensityVec = Map<VectorXd>(intensity.data(), n);
+    VectorXd baselineVec;
+
+    // helper matrices for `select` operation used when creating binary vectors
+    auto ones = VectorXd(MatrixXd::Ones(n, 1));
+    auto zeros = VectorXd(MatrixXd::Zero(n, 1));
+
+    // TODO: ideally this should converge to a point where the baseline does
+    // not change anymnore, but since we do not have good float comparators
+    // yet we can use a decent number of iterations to get as close to the true
+    // baseline as possible
+    for (int i=0; i < numIterations; ++i) {
+        // create a square matrix 'W' with the weights as its diagonal
+        auto W = SparseMatrix<double>(w.asDiagonal());
+
+        // compute 'A' and 'b', and then solve for 'x' that satisfies the
+        // equation 'A·x = b', where x will be the iteratively estimated
+        // baseline
+        auto A = W + (lambda * (D.transpose() * D));
+        solver.compute(A);
+        auto b = VectorXd(w.array() * intensityVec.array());
+        baselineVec = solver.solve(b);
+
+        // calculate weights for the next iteration
+        auto gtBin = VectorXd(
+            ((intensityVec - baselineVec).array() > 0.0).select(ones, zeros)
+        );
+        auto ltBin = VectorXd(
+            ((intensityVec - baselineVec).array() < 0.0).select(ones, zeros)
+        );
+        w = (p * gtBin) + ((1.0f - p) * ltBin);
     }
-    catch (...)
-    {
-        cerr << "Exception caught while allocating memory " << n << "floats " << endl;
+
+    // copy data from an Eigen vector to std::vector
+    vector<double> tempVector(baselineVec.data(),
+                              baselineVec.data()
+                              + baselineVec.rows()
+                              * baselineVec.cols());
+
+    // clip negative values from the vector and switch back to float
+    vector<float> clippedFloatBaseline;
+    for(unsigned int i = 0; i < tempVector.size(); ++i) {
+        auto val = static_cast<float>(tempVector[i]);
+        if (val < 0.0f)
+            clippedFloatBaseline.push_back(0.0f);
+        else
+            clippedFloatBaseline.push_back(val);
     }
+
+    // since baseline right now is an array of float, the data from clipped
+    // vector is copied to this array
+    std::copy(begin(clippedFloatBaseline), end(clippedFloatBaseline), baseline);
+}
+
+void EIC::_computeThresholdBaseline(const int smoothingWindow,
+                                    const int dropTopX)
+{
+    auto n = intensity.size();
 
     //sort intensity vector
     vector<float> tmpv = intensity;
@@ -178,7 +278,7 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX)
     }
 
     //smooth baseline
-    gaussian1d_smoothing(n, smoothing_window, baseline);
+    gaussian1d_smoothing(n, smoothingWindow, baseline);
 
     //count number of observation in EIC above baseline
     for (int i = 0; i < n; i++)
@@ -188,6 +288,22 @@ void EIC::computeBaseLine(int smoothing_window, int dropTopX)
     }
     //cerr << "eic size = " << n << "\n";
     //cerr << "eic no noise obs = " << eic_noNoiseObs << "\n";
+}
+
+void EIC::computeBaseline()
+{
+    if (!_clearBaseline())
+        return;
+
+    switch (_baselineMode) {
+    case BaselineMode::Threshold:
+        _computeThresholdBaseline(baselineSmoothingWindow, baselineDropTopX);
+        break;
+    case BaselineMode::AsLSSmoothing:
+        _computeAsLSBaseline(pow(10.0f, static_cast<float>(_aslsSmoothness)),
+                             static_cast<float>(_aslsAsymmetry) / 100.0f);
+        break;
+    }
 }
 
 void EIC::subtractBaseLine()
@@ -291,7 +407,7 @@ void EIC::getPeakPositions(int smoothWindow)
 
     findPeaks();
 
-    computeBaseLine(baselineSmoothingWindow, baselineDropTopX);
+    computeBaseline();
     getPeakStatistics();
 
     filterPeaks();

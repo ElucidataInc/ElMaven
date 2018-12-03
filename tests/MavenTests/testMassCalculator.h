@@ -4,10 +4,8 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "common.h"
+#include "utilities.h"
 #include "databases.h"
-
-extern Databases DBS;
 
 class TestMassCalculator : public QObject {
     Q_OBJECT
