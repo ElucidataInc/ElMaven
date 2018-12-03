@@ -38,6 +38,11 @@ class MassCalculator {
     public:
         enum IonizationType { ESI=0, EI=1};
         static IonizationType ionizationType;
+
+        // TODO: We only need these declarations so as to be compatible with
+        // MAVEN's projectDB exports. Once our "Database" and "Databases"
+        // classes are merged we will be able to use all "findSpeciesBy_X" type
+        // of methods from there itself, and remove this.
         static Adduct* PlusHAdduct;
         static Adduct* MinusHAdduct;
         static Adduct* ZeroMassAdduct;
