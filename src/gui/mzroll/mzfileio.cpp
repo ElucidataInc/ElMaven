@@ -717,6 +717,10 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
         }
         _currentProject->saveGroups(groupVector, tableName.toStdString());
         _currentProject->saveCompounds(compoundSet);
+        Q_EMIT(updateStatusString(QString("Saved %1 groups from %2 to project")
+                                  .arg(QString::number(groups.size()))
+                                  .arg(tableName))
+        );
     }
 }
 
@@ -761,9 +765,13 @@ bool mzFileIO::writeSQLiteProject(QString filename)
             groupVector.clear();
         }
         _currentProject->saveCompounds(compoundSet);
+        qDebug() << "finished writing to project" << filename;
+        Q_EMIT(updateStatusString(
+            QString("Project successfully saved to %1").arg(filename)
+        ));
         return true;
     }
-    qDebug() << "Error: Cannot write to closed project" << filename;
+    qDebug() << "cannot write to closed project" << filename;
     return false;
 }
 
