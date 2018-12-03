@@ -38,11 +38,6 @@
 #define ISINF(x) (!isnan(x) && (x >= FLT_MAX || x <= FLT_MIN))
 #define FLOATROUND(x, sd) (int(x * sd + 0.5) / sd)
 
-//TODO: Kiran-Sahil, Added while merging spectrahitstable
-#define EMASS  0.00054857971f  //(6.022141×10^23 ⋅ 9.10938×10^-28 )
-#define HMASS  1.007825032f
-#define PROTON HMASS - EMASS
-
 #if defined _WIN32 && !defined __CYGWIN__
 /* Use Windows separators on all _WIN32 defining
  *       environments, except Cygwin. */

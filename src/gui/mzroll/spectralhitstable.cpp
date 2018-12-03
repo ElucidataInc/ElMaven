@@ -500,7 +500,7 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
                         if (charge)
                             hit->precursorMz = (precursorMz
                                                 + charge
-                                                * PROTON) / charge;
+                                                * PROTON_MASS) / charge;
                         hit->charge = charge;
                         hit->decoy = decoy;
                         hit->rank = hit_rank;

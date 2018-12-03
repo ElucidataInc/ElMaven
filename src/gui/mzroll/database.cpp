@@ -1,3 +1,4 @@
+#include "constants.h"
 #include "database.h"
 #include <QFile>
 
@@ -405,7 +406,7 @@ void Database::loadAdducts(string filename) {
 		a->nmol = nmol;
 		a->charge = charge;
 		a->isParent = false;
-		if (abs(abs(a->mass)-HMASS)< 0.01) a->isParent=true;
+        if (abs(abs(a->mass) - H_MASS)< 0.01) a->isParent=true;
 		adductsDB.push_back(a);
 	}
 	myfile.close();
