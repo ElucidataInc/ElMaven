@@ -6,6 +6,7 @@
 #include <limits>
 #include <map>
 #include "EIC.h"
+#include "Fragment.h"
 #include "Peak.h"
 #include "Scan.h"
 #include "mzSample.h"
@@ -58,14 +59,22 @@ class PeakGroup{
         PeakGroup* parent;
         Compound* compound;
 
+        // have to do this since `GroupType` enum also has an Adduct.
+        // In future use "enum class" instead. Also from MAVEN (upstream).
+        class Adduct* adduct;
+
         vector<Peak> peaks;
         vector<PeakGroup> children;
         vector<PeakGroup> childrenBarPlot;
         vector<PeakGroup> childrenIsoWidget;
-        vector<mzSample*> samples;  //this varibale will hold only those sample which has been 
+        vector<mzSample*> samples;  //this varibale will hold only those sample which has been
                                     //used for peak detection
         string srmId;
         string tagString;
+
+        // Stores the name of Peak Table this group belongs to.
+        string searchTableName;
+
         /** classification label */
         char label;
         /**
@@ -97,6 +106,12 @@ class PeakGroup{
         float meanMz;
         float expectedMz;
         int totalSampleCount;
+
+        // TODO: from MAVEN (upstream), what is an MS2 event?
+        int  ms2EventCount;
+
+        // TODO: from MAVEN(upstream), see FragmentMatchScore from Fragment.h
+        FragmentationMatchScore fragMatchScore;
 
         //isotopic information
         float expectedAbundance;

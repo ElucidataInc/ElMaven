@@ -15,7 +15,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     font.setPointSize(10);
 
     lastUsedSampleColor = QColor(Qt::green);
-
+    setLastOpenedProject("");
+    setLastSavedProject("");
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);
@@ -65,7 +66,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
     blankButton->setToolTip("Set As a Blank Sample");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
-
 
     toolBar->addWidget(loadButton);
     toolBar->addWidget(loadMetaDataButton);
@@ -184,7 +184,6 @@ void ProjectDockWidget::updateSampleList() {
         _mainwindow->isotopeWidget->updateSampleList();
     }
 }
-
 
 void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
     if (item && item->type() == SampleType ) {
@@ -332,7 +331,7 @@ void ProjectDockWidget::unloadSelectedSamples() {
         msgBox->exec();
         if (msgBox->clickedButton() == connectButton) {
             QSet<QString> fileNames;
-            _mainwindow->SaveMzrollListvar.clear();
+            _mainwindow->pendingMzRollSaves.clear();
             _mainwindow->reBootApp();
         }
      }
@@ -586,8 +585,149 @@ void ProjectDockWidget::dropEvent(QDropEvent* e) {
     if (item && item->type() == SampleType ) changeSampleOrder();
 }
 
-void ProjectDockWidget::saveProject() {
-    
+QTreeWidget* ProjectDockWidget::getTreeWidget(){
+    return _treeWidget;
+}
+
+QString ProjectDockWidget::getLastOpenedProject()
+{
+    return _lastOpenedProject;
+}
+
+std::chrono::time_point<std::chrono::system_clock>
+ProjectDockWidget::getLastOpenedTime()
+{
+    return _lastLoad;
+}
+
+void ProjectDockWidget::setLastOpenedProject(QString filename)
+{
+    _lastOpenedProject = filename;
+    _lastLoad = std::chrono::system_clock::now();
+}
+
+QString ProjectDockWidget::getLastSavedProject()
+{
+    return _lastSavedProject;
+}
+
+std::chrono::time_point<std::chrono::system_clock>
+ProjectDockWidget::getLastSavedTime()
+{
+    return _lastSave;
+}
+
+void ProjectDockWidget::setLastSavedProject(QString filename)
+{
+    _lastSavedProject = filename;
+    _lastSave = std::chrono::system_clock::now();
+}
+
+void ProjectDockWidget::saveProjectAsSQLite()
+{
+    QSettings* settings = _mainwindow->getSettings();
+
+    QString dir = ".";
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+    QString fileName = QFileDialog::getSaveFileName(
+        _mainwindow,
+        "Save project as (.emDB)",
+        dir,
+        "emDB Project(*.emDB)"
+    );
+
+    if (fileName.isEmpty())
+        return;
+
+    if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
+        fileName = fileName + ".emDB";
+
+    _mainwindow->threadSave(fileName);
+}
+
+void ProjectDockWidget::saveSQLiteProject(QString filename)
+{
+    auto success = _mainwindow->fileLoader->writeSQLiteProject(filename);
+    if (success)
+        setLastSavedProject(filename);
+    setLastSavedProject(filename);
+}
+
+void ProjectDockWidget::saveSQLiteProject()
+{
+    if (_mainwindow->fileLoader->sqliteProjectIsOpen()) {
+        _mainwindow->threadSave(getLastOpenedProject());
+    } else {
+        saveProjectAsSQLite();
+    }
+}
+
+void ProjectDockWidget::savePeakTableInSQLite(TableDockWidget* table,
+                                              QString filename)
+{
+    if (!_mainwindow->fileLoader->sqliteProjectIsOpen()
+            && !filename.isEmpty()) {
+        saveSQLiteProject(filename);
+    } else {
+        auto groupList = table->getGroups();
+        auto tableName = table->windowTitle();
+        _mainwindow->fileLoader->writeGroups(groupList, tableName);
+    }
+}
+
+void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
+{
+    // return if there are no samples, since its unlikely that the user has done
+    // any sort of work yet
+    if (_mainwindow->getSamples().size() == 0) {
+        clearSession();
+        return;
+    }
+
+    auto userSessionWarning =
+        "Do you want to save your current session before opening the project?";
+    if (_mainwindow->fileLoader->sqliteProjectIsOpen())
+        userSessionWarning =
+            "Do you want to save and close the current project?";
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        "Opening Project",
+        userSessionWarning,
+        QMessageBox::Yes | QMessageBox::Cancel
+    );
+    if (reply == QMessageBox::Yes) {
+        saveSQLiteProject();
+        _mainwindow->fileLoader->closeSQLiteProject();
+        setLastSavedProject("");
+        setLastOpenedProject("");
+    } else {
+        _mainwindow->fileLoader->closeSQLiteProject();
+        setLastSavedProject("");
+        setLastOpenedProject("");
+    }
+
+    // if an existing project is being saved, stall before clearing the session
+    while(_mainwindow->fileLoader->isRunning());
+
+    // clear session regardless of whether the project was saved
+    clearSession();
+}
+
+void ProjectDockWidget::clearSession()
+{
+    for (auto sample : _mainwindow->getSamples())
+        unloadSample(sample);
+    _mainwindow->removeAllPeakTables();
+    _mainwindow->bookmarkedPeaks->deleteAll();
+}
+
+void ProjectDockWidget::saveProjectAsMzRoll()
+{
     QSettings* settings = _mainwindow->getSettings();
 
     QString dir = ".";
@@ -596,41 +736,140 @@ void ProjectDockWidget::saveProject() {
         QDir test(ldir);
         if (test.exists()) dir = ldir;
     }
-    QString fileName = QFileDialog::getSaveFileName( this,
-            "Save Project As(.mzroll)", dir, "mzRoll Project(*.mzroll)");
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Project As(.mzroll)",
+        dir,
+        "mzRoll Project(*.mzroll)"
+    );
 
-    if(!fileName.endsWith(".mzroll",Qt::CaseInsensitive)) fileName = fileName + ".mzroll";
+    if(!fileName.endsWith(".mzroll", Qt::CaseInsensitive))
+        fileName = fileName + ".mzroll";
 
-	QList<QPointer<TableDockWidget> > peaksTableList =
-		_mainwindow->getPeakTableList();
-	peaksTableList.append(0);
-
-	TableDockWidget* peaksTable;
-
-	int j = 1;
-	_mainwindow->SaveMzrollListvar.clear();
-	Q_FOREACH(peaksTable, peaksTableList) {
-        _mainwindow->savePeaksTable(peaksTable, fileName, QString::number(j));
-		j++;
-	}
+    saveMzRollProject(fileName);
 }
 
-QTreeWidget* ProjectDockWidget::getTreeWidget(){
-    return _treeWidget;
+void ProjectDockWidget::saveMzRollProject()
+{
+    if (!getLastSavedProject().isEmpty()) {
+        saveMzRollProject(getLastSavedProject());
+    } else {
+        saveProjectAsMzRoll();
+    }
 }
 
-void ProjectDockWidget::loadProject() {
+void ProjectDockWidget::saveMzRollProject(QString filename)
+{
+    auto peaksTableList = _mainwindow->getPeakTableList();
+    _mainwindow->pendingMzRollSaves.clear();
 
+    if (peaksTableList.size()) {
+        int j = 1;
+        Q_FOREACH(auto peaksTable, peaksTableList) {
+            _mainwindow->savePeakTableAsMzRoll(peaksTable,
+                                               filename,
+                                               QString::number(j));
+            j++;
+        }
+    } else {
+        _mainwindow->savePeakTableAsMzRoll(nullptr, filename, "");
+    }
+}
+
+void ProjectDockWidget::saveMzRollTable(QString filename,
+                                        TableDockWidget* peakTable)
+{
+    if (filename.isEmpty() ) return;
+    QFile file(filename);
+    if (!file.open(QFile::WriteOnly) ) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return;
+    }
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartElement("project");
+    stream.writeAttribute("mzrollVersion", "1.0");
+    stream.writeStartElement("samples");
+
+    vector<mzSample*> samples = _mainwindow->getSamples();
+    for(int i=0; i < samples.size(); i++ ) {
+        mzSample* sample = samples[i];
+        if (sample == NULL ) continue;
+
+        stream.writeStartElement("sample");
+        stream.writeAttribute("name",  sample->sampleName.c_str() );
+        stream.writeAttribute("id", QString::number(sample->getSampleId()));
+        stream.writeAttribute("filename",  sample->fileName.c_str() );
+        stream.writeAttribute("sampleOrder", QString::number(sample->getSampleOrder()));
+        stream.writeAttribute("setName", sample->getSetName().c_str());
+        stream.writeAttribute("isSelected", QString::number(sample->isSelected==true ? 1 : 0));
+
+        stream.writeStartElement("color");
+        stream.writeAttribute("red", QString::number(sample->color[0],'f',2));
+        stream.writeAttribute("blue", QString::number(sample->color[1],'f',2));
+        stream.writeAttribute("green", QString::number(sample->color[2],'f',2));
+        stream.writeAttribute("alpha", QString::number(sample->color[3],'f',2));
+        stream.writeEndElement();
+        stream.writeEndElement();
+
+    }
+    stream.writeEndElement();
+
+    stream.writeStartElement("projectDescription");
+    stream.writeCharacters(getProjectDescription());
+    stream.writeEndElement();
+
+    TableDockWidget* tableToSave = peakTable;
+    if(!peakTable) {
+        tableToSave = _mainwindow->bookmarkedPeaks;
+    }
+    auto peakgroups = tableToSave->allgroups;
+    vector<PeakGroup> groups;
+    Q_FOREACH(auto group, peakgroups) groups.push_back(group);
+    _mainwindow->fileLoader->writeGroupsXML(stream,
+                                            groups);
+
+    stream.writeStartElement("database");
+
+    string dbname = _mainwindow->ligandWidget->getDatabaseName().toStdString();
+    stream.writeAttribute("name",  dbname.c_str());
+    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
+        Compound* compound = DB.compoundsDB[i];
+        if(compound->db != dbname ) continue; //skip compounds from other databases
+
+        stream.writeStartElement("compound");
+        stream.writeAttribute("id",  compound->id.c_str());
+        stream.writeAttribute("name",  compound->name.c_str());
+        stream.writeAttribute("mz", QString::number(compound->mass, 'f', 6));
+        if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt, 'f', 6));
+
+        if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
+        if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
+        if (compound->precursorMz) stream.writeAttribute("precursorMz", QString::number(compound->precursorMz, 'f', 6));
+        if (compound->productMz) stream.writeAttribute("productMz", QString::number(compound->productMz, 'f', 6));
+        if (compound->collisionEnergy) stream.writeAttribute("collisionEnergy", QString::number(compound->collisionEnergy, 'f' ,6));
+
+        if(compound->category.size() > 0) {
+            stream.writeStartElement("categories");
+            for(unsigned int i=0; i<compound->category.size();i++) {
+                stream.writeAttribute("category" + QString::number(i), compound->category[i].c_str());
+            }
+            stream.writeEndElement();
+        }
+
+        stream.writeEndElement();
+    }
+    stream.writeEndElement();
+
+    stream.writeEndElement();
     QSettings* settings = _mainwindow->getSettings();
-    QString dir = ".";
-    if ( settings->contains("lastDir") ) dir = settings->value("lastDir").value<QString>();
-
-    QString fileName = QFileDialog::getOpenFileName( this, "Select Project To Open", dir, "All Files(*.mzroll *.mzRoll)");
-    if (fileName.isEmpty()) return;
-    loadProject(fileName);
+    settings->setValue("lastSavedProject", filename);
+    setLastSavedProject(filename);
 }
 
-void ProjectDockWidget::loadProject(QString fileName) {
+void ProjectDockWidget::loadMzRollProject(QString fileName) {
     int samplecount = 0;
 
     QFile data(fileName);
@@ -705,7 +944,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
                         _mainwindow->addSample(sample);
                         currentSample=sample;
                         if (!sname.isEmpty() ) sample->sampleName = sname.toStdString();
-                        if (id > 0) sample->id = id;
+                        if (id > 0) sample->setSampleId(id);
                         if (!setname.isEmpty() ) sample->setSetName(setname.toStdString());
                         if (!sampleOrder.isEmpty()) sample->setSampleOrder(sampleOrder.toInt());
                         if (!isSelected.isEmpty()) sample->isSelected = isSelected.toInt();
@@ -743,96 +982,7 @@ void ProjectDockWidget::loadProject(QString fileName) {
     }
     data.close();
 
-    lastOpennedProject = fileName;
-}
-
-void ProjectDockWidget::saveProject(QString filename, TableDockWidget* peakTable) {
-
-
-    if (filename.isEmpty() ) return;
-    QFile file(filename);
-    if (!file.open(QFile::WriteOnly) ) {
-        QErrorMessage errDialog(this);
-        errDialog.showMessage("File open " + filename + " failed");
-        return;
-    }
-
-    QXmlStreamWriter stream(&file);
-    stream.setAutoFormatting(true);
-    stream.writeStartElement("project");
-    stream.writeAttribute("mzrollVersion", "1.0");
-    stream.writeStartElement("samples");
-
-    vector<mzSample*> samples = _mainwindow->getSamples();
-    for(int i=0; i < samples.size(); i++ ) {
-        mzSample* sample = samples[i];
-        if (sample == NULL ) continue;
-
-        stream.writeStartElement("sample");
-        stream.writeAttribute("name",  sample->sampleName.c_str() );
-        stream.writeAttribute("id", QString::number(sample->id));
-        stream.writeAttribute("filename",  sample->fileName.c_str() );
-        stream.writeAttribute("sampleOrder", QString::number(sample->getSampleOrder()));
-        stream.writeAttribute("setName", sample->getSetName().c_str());
-        stream.writeAttribute("isSelected", QString::number(sample->isSelected==true ? 1 : 0));
-
-        stream.writeStartElement("color");
-        stream.writeAttribute("red", QString::number(sample->color[0],'f',2));
-        stream.writeAttribute("blue", QString::number(sample->color[1],'f',2));
-        stream.writeAttribute("green", QString::number(sample->color[2],'f',2));
-        stream.writeAttribute("alpha", QString::number(sample->color[3],'f',2));
-        stream.writeEndElement();
-        stream.writeEndElement();
-
-    }
-    stream.writeEndElement();
-    
-    stream.writeStartElement("projectDescription");
-    stream.writeCharacters(getProjectDescription());
-    stream.writeEndElement();
-
-    if( peakTable ){
-         peakTable->writePeakTableXML(stream);
-    } else {
-        _mainwindow->bookmarkedPeaks->writePeakTableXML(stream);
-    }
-
-    stream.writeStartElement("database");
-    
-    string dbname = _mainwindow->ligandWidget->getDatabaseName().toStdString();
-    stream.writeAttribute("name",  dbname.c_str());
-    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
-        Compound* compound = DB.compoundsDB[i];
-        if(compound->db != dbname ) continue; //skip compounds from other databases
-
-        stream.writeStartElement("compound");
-        stream.writeAttribute("id",  compound->id.c_str());
-        stream.writeAttribute("name",  compound->name.c_str());
-        stream.writeAttribute("mz", QString::number(compound->mass, 'f', 6));
-        if(compound->expectedRt > 0) stream.writeAttribute("rt", QString::number(compound->expectedRt, 'f', 6));
-
-        if (compound->charge) stream.writeAttribute("Charge",  QString::number(compound->charge));
-        if (compound->formula.length()) stream.writeAttribute("Formula", compound->formula.c_str());
-        if (compound->precursorMz) stream.writeAttribute("precursorMz", QString::number(compound->precursorMz, 'f', 6));
-        if (compound->productMz) stream.writeAttribute("productMz", QString::number(compound->productMz, 'f', 6));
-        if (compound->collisionEnergy) stream.writeAttribute("collisionEnergy", QString::number(compound->collisionEnergy, 'f' ,6));
-
-        if(compound->category.size() > 0) {
-            stream.writeStartElement("categories");
-            for(unsigned int i=0; i<compound->category.size();i++) {
-                stream.writeAttribute("category" + QString::number(i), compound->category[i].c_str());
-            }
-            stream.writeEndElement();
-        }
-
-        stream.writeEndElement();
-    }
-    stream.writeEndElement();  
-    
-    stream.writeEndElement();
-    QSettings* settings = _mainwindow->getSettings();
-    settings->setValue("lastSavedProject", filename);
-    lastSavedProject=filename;
+    setLastOpenedProject(fileName);
 }
 
 void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {

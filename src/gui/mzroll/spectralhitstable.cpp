@@ -471,7 +471,6 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
 
     SpectralHit* lasthit=NULL;
     map<int,float> mods;
-    double PROTON = HMASS-EMASS;
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
@@ -497,7 +496,11 @@ void SpectralHitsDockWidget::loadPepXML(QString fileName) {
                     if(precursorMz and hit_rank < 2 and !decoy) {
                         SpectralHit* hit = new SpectralHit();
                         hit->scannum = scannum;
-                        hit->precursorMz = precursorMz; if (charge) hit->precursorMz = (precursorMz+charge*PROTON)/charge;
+                        hit->precursorMz = precursorMz;
+                        if (charge)
+                            hit->precursorMz = (precursorMz
+                                                + charge
+                                                * PROTON_MASS) / charge;
                         hit->charge = charge;
                         hit->decoy = decoy;
                         hit->rank = hit_rank;

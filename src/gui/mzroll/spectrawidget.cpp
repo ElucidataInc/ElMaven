@@ -1180,7 +1180,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *
     for(int i=0; i < DB.adductsDB.size(); i++ ) {
     	if ( SIGN(DB.adductsDB[i]->charge) != SIGN(ionizationMode) ) continue;
         float parentMass=DB.adductsDB[i]->computeParentMass(centerMz);
-        parentMass += ionizationMode*HMASS;   //adjusted mass
+        parentMass += ionizationMode * H_MASS;   //adjusted mass
 
         if( abs(parentMass-centerMz)>0.1 && scan->hasMz(parentMass,massCutoff)) {
             cerr << DB.adductsDB[i]->name << " " << DB.adductsDB[i]->charge << " " << parentMass << endl;
@@ -1192,7 +1192,7 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *
     //adduct check
     for(int i=0; i < DB.adductsDB.size(); i++ ) {
     	if ( SIGN(DB.adductsDB[i]->charge) != SIGN(ionizationMode) ) continue;
-        float parentMass = centerMz-ionizationMode*HMASS;   //adjusted mass
+        float parentMass = centerMz-ionizationMode * H_MASS;   //adjusted mass
         float adductMass=DB.adductsDB[i]->computeAdductMass(parentMass);
         if( abs(adductMass-centerMz)>0.1 && scan->hasMz(adductMass,massCutoff)) {
             QString noteText = tr("Adduct %1").arg(QString(DB.adductsDB[i]->name.c_str()));

@@ -94,10 +94,10 @@ void MainWindow::printvalue() {
         QString AutosavePath = samplePath + timestamp + ".mzroll";
         this->fileName = AutosavePath;
         this->doAutosave = true;
-        this->saveMzRoll();
+        this->saveProject();
         unsigned int countCrashState = 0;
         settings->beginWriteArray("crashTables");
-        Q_FOREACH( QString newFileName, this->SaveMzrollListvar) {
+        Q_FOREACH( QString newFileName, this->pendingMzRollSaves) {
             settings->setArrayIndex(countCrashState++);
             settings->setValue("crashTable", newFileName);
         }
@@ -487,9 +487,12 @@ using namespace mzUtils;
 	// tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
-	connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveMzRoll()));
+    connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
 
-    //added while merging with Maven776 - Kiran
+    connect(fileLoader,
+            SIGNAL(updateStatusString(QString)),
+            SLOT(_setStatusString(QString)));
+
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
@@ -508,7 +511,10 @@ using namespace mzUtils;
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
-	connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(fileLoader,
+            SIGNAL(peakTablesPopulated()),
+            SLOT(refreshIntensities()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -782,74 +788,259 @@ void MainWindow::showNotification(TableDockWidget* table) {
 	connect(fluxomicsPrompt, SIGNAL(promptClicked(TableDockWidget*)), pollyElmavenInterfaceDialog, SLOT(setActiveTable(TableDockWidget*)));
 }
 
-void MainWindow::createPeakTable(QString filenameNew) {	
-	TableDockWidget * peaksTable = this->addPeaksTable("title");
-	peaksTable->loadPeakTable(filenameNew);
-	peaksTable->showAllGroups();
+void MainWindow::createPeakTable(QString filenameNew) {
+    projectDockWidget->setLastOpenedProject(filenameNew);
+    TableDockWidget * peaksTable = this->addPeaksTable("");
+    auto groups = fileLoader->readGroupsXML(filenameNew);
+    for (auto group : groups) {
+        peaksTable->addPeakGroup(group);
+    }
+    peaksTable->showAllGroups();
 }
 
-bool MainWindow::askAutosave() {
-
-	bool doAutosave = false;
-	QMessageBox::StandardButton reply;
-	reply = QMessageBox::question(this, "Autosave", "Do you want to enable autosave?",
-								QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-	if (reply == QMessageBox::Yes) {
-		doAutosave = true;
-	} else {
-		doAutosave = false;
-	}
-	return doAutosave;
+bool MainWindow::askAutosave()
+{
+    bool doAutosave = false;
+    _setProjectFilenameFromProjectDockWidget();
+    if (this->fileName.isEmpty()) {
+        auto reply = QMessageBox::question(this,
+                                           "Autosave",
+                                           "Do you want to enable autosave? "
+                                           "You will have to create a new "
+                                           "project to save in.",
+                                           QMessageBox::Yes | QMessageBox::No,
+                                           QMessageBox::Yes);
+        if (reply == QMessageBox::Yes) {
+            doAutosave = true;
+        } else {
+            doAutosave = false;
+        }
+    }
+    return doAutosave;
 }
 
-AutoSave::AutoSave(MainWindow* mw){
-
-	_mainwindow = mw;
-	_mainwindow->doAutosave = false;
-	_mainwindow->askAutosaveMain = 0;
-
+AutoSave::AutoSave(MainWindow* mw)
+{
+    _mainwindow = mw;
+    _mainwindow->doAutosave = false;
+    _mainwindow->askAutosaveMain = 0;
+    saveTablesOnly = false;
 }
 
-void MainWindow::saveMzRollList(QString MzrollFileName){
-	 SaveMzrollListvar.insert(MzrollFileName);
- }
+void MainWindow::_saveMzRollList(QString projectFileName)
+{
+    pendingMzRollSaves.insert(projectFileName);
+}
 
-void AutoSave::saveMzRollWorker() {
-	this->start();
+void AutoSave::saveProjectWorker(bool tablesOnly)
+{
+    saveTablesOnly = tablesOnly;
+    this->start();
 }
-void AutoSave::run() {
-	_mainwindow->saveMzRoll();
-}
-void MainWindow::showAlignmetErrorDialog(QString errorMessage){
-	QErrorMessage alignmentErrorDialog(this);
-	alignmentErrorDialog.setWindowTitle("Alignment Error");
-	alignmentErrorDialog.showMessage(errorMessage);
-	alignmentErrorDialog.exec();
-}
-void MainWindow::autosaveMzRoll() {
-	if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
-		this->askAutosaveMain++;
-		this->doAutosave = this->askAutosave();
-		if (this->doAutosave) {
-			QString dir = ".";
-			if ( settings->contains("lastDir") ) {
-				QString ldir = settings->value("lastDir").value<QString>();
-				QDir test(ldir);
-				if (test.exists()) dir = ldir;
-			}
 
-			this->fileName = QFileDialog::getSaveFileName( this,
-					"Save Project (.mzroll)", dir, "mzRoll Project(*.mzroll)");
-			if (this->fileName.isEmpty()) {
-				this->doAutosave = false;
-				return;
-			}
-			if(!this->fileName.endsWith(".mzroll",Qt::CaseInsensitive)) this->fileName = this->fileName + ".mzroll";
-			autosave->saveMzRollWorker();
-		}
-	} else if (this->doAutosave) {
-		autosave->saveMzRollWorker();
-	}
+void AutoSave::run()
+{
+    _mainwindow->saveProjectForFilename(saveTablesOnly);
+}
+
+void MainWindow::_setProjectFilenameIfEmpty()
+{
+    if (this->fileName.isEmpty()) {
+        QString dir = ".";
+        if (settings->contains("lastDir")) {
+            QString ldir = settings->value("lastDir").value<QString>();
+            QDir test(ldir);
+            if (test.exists())
+                dir = ldir;
+        }
+
+        // we prefer "emDB" format as the default
+        auto filename =
+            QFileDialog::getSaveFileName(this,
+                                         "Save Project (.emDB)",
+                                         dir,
+                                         "El-MAVEN Database Format(*.emDB)");
+        if (!filename.isEmpty()) {
+            if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
+                this->fileName = filename + ".emDB";
+            } else {
+                this->fileName = filename;
+            }
+        }
+    }
+}
+
+void MainWindow::_setProjectFilenameFromProjectDockWidget()
+{
+    auto lastSave = projectDockWidget->getLastSavedTime();
+    auto lastLoad = projectDockWidget->getLastOpenedTime();
+    if (!projectDockWidget->getLastOpenedProject().isEmpty()
+            && lastLoad > lastSave)
+        fileName = projectDockWidget->getLastOpenedProject();
+    if (!projectDockWidget->getLastSavedProject().isEmpty()
+            && lastSave > lastLoad)
+        fileName = projectDockWidget->getLastSavedProject();
+}
+
+void MainWindow::autosaveProject()
+{
+    if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
+        this->askAutosaveMain++;
+        this->doAutosave = this->askAutosave();
+        if (this->doAutosave) {
+            _setProjectFilenameIfEmpty();
+            if (this->fileName.isEmpty()) {
+                this->doAutosave = false;
+                return;
+            }
+            autosave->saveProjectWorker();
+        }
+    } else if (this->doAutosave) {
+        autosave->saveProjectWorker();
+    }
+}
+
+void MainWindow::explicitSave()
+{
+    saveProject(true);
+}
+
+void MainWindow::threadSave(QString filename)
+{
+    fileName = filename;
+    autosave->saveProjectWorker();
+}
+
+void MainWindow::saveProject(bool explicitSave)
+{
+    QSettings* settings = this->getSettings();
+    if (settings->value("closeEvent").toInt() == 1) {
+        // if there are no samples, its unlikely that there has been any work
+        // done by the user
+        if (getSamples().size() == 0)
+            return;
+
+        if (fileName.isEmpty())
+            _setProjectFilenameFromProjectDockWidget();
+
+        // if fileName is still empty, no projects were closed or opened
+        if (fileName.isEmpty()) {
+            QString message =
+                "Would you like to save your data for this session as a project?";
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this,
+                                          "Save as project",
+                                          message,
+                                          QMessageBox::Yes | QMessageBox::No,
+                                          QMessageBox::Yes);
+
+            if (reply == QMessageBox::Yes) {
+                _setProjectFilenameIfEmpty();
+
+                // if the filename is still empty, (confused user?) do not save
+                if (fileName.isEmpty())
+                    return;
+            } else {
+                return;
+            }
+        }
+        this->autosave->saveProjectWorker();
+    } else if (explicitSave) {
+        _setProjectFilenameFromProjectDockWidget();
+        if (fileName.isEmpty()) {
+            auto reply = QMessageBox::question(this,
+                                               "No project open",
+                                               "You do not have a project for "
+                                               "this session. Would you like "
+                                               "to create one?",
+                                               QMessageBox::No|QMessageBox::Yes,
+                                               QMessageBox::Yes);
+            if (reply == QMessageBox::Yes)
+                _setProjectFilenameIfEmpty();
+
+            // still empty?!
+            if (fileName.isEmpty())
+                return;
+        }
+        this->autosave->saveProjectWorker();
+    } else if (this->doAutosave) {
+        this->autosave->saveProjectWorker(true);
+    } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
+        this->autosave->saveProjectWorker();
+    }
+}
+
+void MainWindow::saveProjectForFilename(bool tablesOnly)
+{
+    if (fileLoader->isMzRollProject(fileName)) {
+        _saveAllTablesAsMzRoll();
+    } else if (fileLoader->isSQLiteProject(fileName)) {
+        if (tablesOnly) {
+            auto allTables = getPeakTableList();
+            allTables.append(bookmarkedPeaks);
+            for (auto table : allTables)
+                projectDockWidget->savePeakTableInSQLite(table, fileName);
+        } else {
+            projectDockWidget->saveSQLiteProject(fileName);
+        }
+    }
+}
+
+void MainWindow::_saveAllTablesAsMzRoll()
+{
+    if (fileName.isEmpty()) {
+        fileName = this->projectDockWidget->getLastSavedProject();
+        if (!fileLoader->isMzRollProject(fileName)) {
+            projectDockWidget->saveProjectAsMzRoll();
+            return;
+        }
+    }
+    if (!newFileName.isEmpty()
+            && this->projectDockWidget->getLastSavedProject() == newFileName) {
+        projectDockWidget->saveMzRollProject(newFileName);
+    } else {
+        projectDockWidget->saveMzRollProject(fileName);
+    }
+}
+
+void MainWindow::savePeakTableAsMzRoll(TableDockWidget* peaksTable,
+                                        QString fileName,
+                                        QString tableName)
+{
+    if (fileName.endsWith(".mzroll", Qt::CaseInsensitive)) {
+        QRegExp rxr("_table-[0-9]+");
+        fileName = fileName.replace(rxr, "");
+        QRegExp rxr1("_bookmarkedPeaks");
+        fileName = fileName.replace(rxr1, "");
+        QFileInfo fi(fileName);
+
+        if (peaksTable) {
+            newFileName = fi.absolutePath() + QDir::separator()
+                          + fi.completeBaseName() + "_table-" + tableName
+                          + ".mzroll";
+            _saveMzRollList(newFileName);
+            this->projectDockWidget->saveMzRollTable(newFileName, peaksTable);
+        } else if (!this->bookmarkedPeaks->getGroups().isEmpty()) {
+            newFileName = fi.absolutePath() + QDir::separator()
+                          + fi.completeBaseName() + "_bookmarkedPeaks"
+                          + ".mzroll";
+            _saveMzRollList(newFileName);
+            this->projectDockWidget->saveMzRollTable(newFileName);
+        } else {
+            newFileName = fi.absolutePath() + QDir::separator()
+                          + fi.completeBaseName() + ".mzroll";
+            _saveMzRollList(newFileName);
+            this->projectDockWidget->saveMzRollTable(newFileName);
+        }
+    }
+}
+
+void MainWindow::showAlignmetErrorDialog(QString errorMessage)
+{
+    QErrorMessage alignmentErrorDialog(this);
+    alignmentErrorDialog.setWindowTitle("Alignment Error");
+    alignmentErrorDialog.showMessage(errorMessage);
+    alignmentErrorDialog.exec();
 }
 
 void MainWindow::openAWSDialog()
@@ -860,73 +1051,6 @@ void MainWindow::openAWSDialog()
 	awsBucketCredentialsDialog->setMainWindow(this);
 	awsBucketCredentialsDialog->setSettings(settings);
 
-}
-
-
-
-void MainWindow::saveMzRoll() {
-
-    QSettings* settings = this->getSettings();
-	if (this->peaksMarked > 5) {
-			this->saveMzRollAllTables();
-	} else if (this->allPeaksMarked) {
-			this->saveMzRollAllTables();
-	} else if (settings->value("closeEvent").toInt() == 1) {
-		this->saveMzRollAllTables();
-	} else if(this->doAutosave) {
-		this->saveMzRollAllTables();
-	}
-}
-
-void MainWindow::saveMzRollAllTables() {
-
-    QSettings* settings = this->getSettings();
-
-	if (fileName.isEmpty()) {
-		fileName = this->projectDockWidget->lastSavedProject;
-	}
-	QList<QPointer<TableDockWidget> > peaksTableList =
-		this->getPeakTableList();
-	peaksTableList.append(0);
-
-	TableDockWidget* peaksTable;
-
-	int j = 1;
-	SaveMzrollListvar.clear();
-	Q_FOREACH(peaksTable, peaksTableList) {
-
-		if ( !newFileName.isEmpty() && this->projectDockWidget->lastSavedProject == newFileName ) {
-			savePeaksTable(peaksTable, fileName, QString::number(j));
-		} else {
-			savePeaksTable(peaksTable, fileName, QString::number(j));
-		}
-		j++;
-	}
-
-}
-
-void MainWindow::savePeaksTable(TableDockWidget* peaksTable, QString fileName, QString tableName) {
-	if(fileName.endsWith(".mzroll",Qt::CaseInsensitive)) {
-		QRegExp rxr("_table-[0-9]+");
-		fileName = fileName.replace(rxr, "");
-		QRegExp rxr1("_bookmarkedPeaks");
-		fileName = fileName.replace(rxr1, "");
-		QFileInfo fi(fileName);
-
-		if (peaksTable) {
-			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_table-" + tableName + ".mzroll";
-			saveMzRollList(newFileName);
-			this->projectDockWidget->saveProject(newFileName, peaksTable);
-		} else if (!this->bookmarkedPeaks->getGroups().isEmpty()) {
-			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + "_bookmarkedPeaks" + ".mzroll";
-			saveMzRollList(newFileName);
-			this->projectDockWidget->saveProject(newFileName);
-		} else {
-			newFileName = fi.absolutePath() + QDir::separator() + fi.completeBaseName() + ".mzroll";
-			saveMzRollList(newFileName);
-			this->projectDockWidget->saveProject(newFileName);
-		}
-	}
 }
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
@@ -1027,9 +1151,18 @@ void MainWindow::setUrl(Reaction* r) {
 }
 
 TableDockWidget* MainWindow::addPeaksTable(QString title) {
-	TableDockWidget* panel = new PeakTableDockWidget(this);
+    int customTableId = -1;
 
-	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
+    // attempt to extract out peak table ID from its name, assuming ID is
+    // at the end of the title passed
+    auto stringList = title.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    if (stringList.size()) {
+        auto idString = stringList[stringList.size() - 1].toStdString();
+        customTableId = std::atoi(idString.c_str());
+    }
+    TableDockWidget* panel = new PeakTableDockWidget(this, customTableId);
+
+    addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
 	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
 
     groupTables.push_back(panel);
@@ -1047,6 +1180,15 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 	}
 	if (groupTables.contains(panel))
 		groupTables.removeAll(panel);
+}
+
+void MainWindow::removeAllPeakTables()
+{
+    for (auto table : getPeakTableList()) {
+        auto peakTable = static_cast<PeakTableDockWidget*>(table.data());
+        peakTable->destroy();
+    }
+    lastPeakTableId = 0;
 }
 
 // SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
@@ -1471,63 +1613,67 @@ void MainWindow::analyticsAverageSpectra(){
     analytics->hitEvent("Average Spectra","Clicked");
 }
 
+void MainWindow::open()
+{
+    QString dir = ".";
 
-void MainWindow::open() {
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
 
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select projects, peaks, samples to open:",
+        dir,
+        tr("All Known Formats(*.mzroll *.emDB *.mzPeaks *.mzXML *.mzxml "
+           "*.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
+            + tr("mzXML Format(*.mzXML *.mzxml);;")
+            + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
+            + tr("mzML Format(*.mzml *.mzML);;")
+            + tr("NetCDF Format(*.cdf *.nc);;")
+            + tr("Thermo (*.raw);;")  // TODO: Sahil-Kiran, Added while merging
+                                      // mainwindow
+            + tr("Maven Project File (*.mzroll *.emDB);;")
+            + tr("Maven Peaks File (*.mzPeaks);;")
+            + tr("Peptide XML(*.pep.xml *.pepXML);;")
+            + tr("Peptide idpDB(*.idpDB);;") + tr("All Files(*.*)"));
 
-	QString dir = ".";
+    if (filelist.size() == 0)
+        return;
 
-	if (settings->contains("lastDir")) {
-		QString ldir = settings->value("lastDir").value<QString>();
-		QDir test(ldir);
-		if (test.exists())
-			dir = ldir;
-	}
+    analytics->hitEvent("ProjectDockWidget", "open", filelist.size());
 
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this,
-					"Select projects, peaks, samples to open:", dir,
-					tr(
-							"All Known Formats(*.mzroll *.mzPeaks *.mzXML *.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
-							+ tr("mzXML Format(*.mzXML *.mzxml);;")
-							+ tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
-							+ tr("mzML Format(*.mzml *.mzML);;")
-							+ tr("NetCDF Format(*.cdf *.nc);;")
-							+ tr("Thermo (*.raw);;") //TODO: Sahil-Kiran, Added while merging mainwindow
-							+ tr("Maven Project File (*.mzroll);;")
-							+ tr("Maven Peaks File (*.mzPeaks);;")
-							+ tr("Peptide XML(*.pep.xml *.pepXML);;")
-							+ tr("Peptide idpDB(*.idpDB);;")
-							+ tr("All Files(*.*)"));
-							
-	if (filelist.size() == 0)
-		return;
+    // Saving the file location into the QSettings class so that it can be
+    // used the next time the user opens
+    QString absoluteFilePath(filelist[0]);
+    QFileInfo fileInfo(absoluteFilePath);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastDir", tmp.absolutePath());
 
-	analytics->hitEvent("ProjectDockWidget", "open", filelist.size());
+    // Changing the title of the main window after selecting the samples
+    setWindowTitle(programName
+                   + "_"
+                   + STR(EL_MAVEN_VERSION)
+                   + " "
+                   + fileInfo.fileName());
 
-	//Saving the file location into the Qsettings class so that it can be
-	//used the next time the user opens
-	QString absoluteFilePath(filelist[0]);
-	QFileInfo fileInfo(absoluteFilePath);
-	QDir tmp = fileInfo.absoluteDir();
-	if (tmp.exists())
-		settings->setValue("lastDir", tmp.absolutePath());
+    Q_FOREACH (QString filename, filelist)
+        fileLoader->addFileToQueue(filename);
 
-  //Changing the title of the main window after selecting the samples
-	setWindowTitle(
-			programName + "_" + STR(EL_MAVEN_VERSION) + " "
-					+ fileInfo.fileName());
-    //updated while merging with Maven776 - Kiran
-    Q_FOREACH (QString filename, filelist)  fileLoader->addFileToQueue(filename);
+    if (filelist.size())
+        projectDockWidget->saveAndCloseCurrentSQLiteProject();
 
-	bool cancelUploading = false;
-	cancelUploading = updateSamplePathinMzroll(filelist);
-	if (!cancelUploading) {
-		fileLoader->start();
-	}
-	else {
-		fileLoader->removeAllFilefromQueue();
-	}
+    bool cancelUploading = false;
+    cancelUploading = updateSamplePathinMzroll(filelist);
+    if (!cancelUploading) {
+        fileLoader->start();
+    } else {
+        fileLoader->removeAllFilefromQueue();
+    }
 }
 
 bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
@@ -1538,7 +1684,7 @@ bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
     Q_FOREACH(QString filename, filelist ) {
         QFileInfo fileInfo(filename);
         if (!fileInfo.exists()) continue;
-        if (fileLoader->isProjectFileType(filename)) {
+        if (fileLoader->isMzRollProject(filename)) {
             projects << filename;
         }
     }
@@ -2057,6 +2203,13 @@ void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
 	}
 }
 
+void MainWindow::_setStatusString(QString text)
+{
+    setStatusText(text);
+    if (progressBar->isVisible())
+        progressBar->hide();
+}
+
 void MainWindow::readSettings() {
 	settings = new QSettings("mzRoll", "Application Settings");
 
@@ -2182,12 +2335,23 @@ void MainWindow::writeSettings() {
 	qDebug() << "Settings saved to " << settings->fileName();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
-	settings->setValue("closeEvent", 1);
-	this->saveMzRoll();
-	writeSettings();
-	event->accept();
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    settings->setValue("closeEvent", 1);
+    this->saveProject();
 
+    QMessageBox msgBox(this);
+    msgBox.setText("Please wait. Your project is being saved…");
+    msgBox.setStandardButtons(QMessageBox::NoButton);
+    msgBox.open();
+
+    writeSettings();
+
+    // wait until autosave has finished
+    while(autosave->isRunning())
+        QApplication::processEvents();
+
+    event->accept();
 }
 
 /**
@@ -2200,8 +2364,7 @@ void MainWindow::createMenus() {
 	QMenu* widgetsMenu = menuBar()->addMenu(tr("&Widgets"));
 	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
 
-	QAction* openAct = new QAction(QIcon(":/images/open.png"),
-			tr("&Load Samples|Projects|Peaks"), this);
+    QAction* openAct = new QAction(tr("&Load Samples|Projects|Peaks"), this);
 	openAct->setShortcut(tr("Ctrl+O"));
 	openAct->setToolTip(tr("Open an existing file"));
 	connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
@@ -2215,11 +2378,36 @@ void MainWindow::createMenus() {
 	connect(loadCompoundsFile, SIGNAL(triggered()), SLOT(loadCompoundsFile()));
 	fileMenu->addAction(loadCompoundsFile);
 
-	QAction* saveProjectFile = new QAction(tr("Save Project As"), this);
-	saveProjectFile->setShortcut(tr("Ctrl+S"));
-	connect(saveProjectFile, SIGNAL(triggered()), projectDockWidget,
-			SLOT(saveProject()));
-	fileMenu->addAction(saveProjectFile);
+    // add option to save the current project, if any
+    QAction* saveProject = new QAction(tr("Save Project"),
+                                       this);
+    saveProject->setShortcut(tr("Ctrl+S"));
+    connect(saveProject,
+            SIGNAL(triggered()),
+            this,
+            SLOT(explicitSave()));
+    fileMenu->addAction(saveProject);
+
+    QMenu* saveProjectFile = new QMenu(tr("Save Project As…"), this);
+
+    // add option to save as a database
+    QAction* saveProjectAsSQLite = new QAction(tr("El-MAVEN Database Format (.emDB)"),
+                                               this);
+    connect(saveProjectAsSQLite,
+            SIGNAL(triggered()),
+            projectDockWidget,
+            SLOT(saveProjectAsSQLite()));
+    saveProjectFile->addAction(saveProjectAsSQLite);
+
+    // add option to save as mzroll
+    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll)"),
+                                               this);
+    connect(saveProjectAsMzRoll,
+            SIGNAL(triggered()),
+            projectDockWidget,
+            SLOT(saveMzRollProject()));
+    saveProjectFile->addAction(saveProjectAsMzRoll);
+    fileMenu->addMenu(saveProjectFile);
 
     QAction* saveSettings = new QAction("Save Settings", this);
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);

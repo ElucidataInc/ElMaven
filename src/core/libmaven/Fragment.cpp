@@ -1,4 +1,5 @@
 #include "Fragment.h"
+#include "Scan.h"
 
 #include "PeptideRecord.h"
 

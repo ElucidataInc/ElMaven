@@ -12,7 +12,7 @@ int mzSample::filter_mslevel = 0;
 mzSample::mzSample()
 	: _setName(""), injectionOrder(0)
 {
-	id = 0;
+    _id = -1;
 	maxMz = maxRt = 0;
 	minMz = minRt = 0;
 	isBlank = false;

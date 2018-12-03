@@ -29,6 +29,26 @@ class Scan
     */
     inline unsigned int nobs() const { return mz.size(); }
 
+    /**
+     * @brief Obtain the smallest m/z value stored.
+     * @return Fractional m/z value.
+     */
+    inline float minMz() {
+        if(nobs() > 0)
+            return *(std::min_element(begin(mz),
+                                      end(mz)));
+        return 0.0f;
+    }
+
+    /**
+     * @brief Obtain the largest m/z value stored.
+     * @return Fractional m/z value.
+     */
+    inline float maxMz() {
+        if(nobs() > 0)
+            return *(std::max_element(begin(mz),
+                                      end(mz)));
+        return 0.0f; }
 
     /**
     *@brief return the corresponding sample
@@ -144,6 +164,9 @@ class Scan
     * @brief removes intensities from scan that are  lower than minQuantile
     */
     void quantileFilter(int minQuantile);
+
+    // TODO: from MAVEN (upstream). What for? Always returns 0.0  for now.
+    double getPrecursorPurity(float ppm);
 
     /**
     *@brief print the info present in a scan

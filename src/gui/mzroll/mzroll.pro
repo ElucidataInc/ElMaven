@@ -71,7 +71,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/Logger \
-                $$top_srcdir/src/pollyCLI
+                $$top_srcdir/src/pollyCLI \
+                $$top_srcdir/src/projectDB
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -82,12 +83,33 @@ win32 {
 }
 
 
-LIBS +=  -lmaven -lobiwarp -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lpollyCLI               #64bit
+LIBS +=  -lmaven \
+         -lobiwarp \
+         -lpugixml \
+         -lneural \
+         -lcsvparser \
+         -lpls \
+         -lErrorHandling \
+         -lLogger \
+         -lcdfread \
+         -lnetcdf \
+         -lz \
+         -lpollyCLI \
+         -lprojectDB
 
 macx {
 
   LIBS -= -lnetcdf
   LIBS -= -lcdfread
+}
+
+unix {
+    QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+    LIBS += -lboost_system -lboost_filesystem -lsqlite3
+}
+
+win32 {
+    LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
 }
 
 message($$LDFLAGS)

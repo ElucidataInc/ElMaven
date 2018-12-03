@@ -72,13 +72,6 @@ public:
   int tableId;
 
   /**
-   * for making old mzroll compatible, this will act as a flag whether loaded
-   * mzroll file is old or new one. this will be set by class method
-   * <markv_0_1_5mzroll>
-   */
-  bool mzrollv_0_1_5;
-
-  /**
    * @brief Update the name of the intensity type field in table
    * according to the quantity type currenly selected by the user.
    */
@@ -105,15 +98,6 @@ public Q_SLOTS:
   void showFocusedGroups();
   void clearFocusedGroups();
   void unhideFocusedGroups();
-
-  // input from xml
-  void loadPeakTable();
-  void loadPeakTable(QString infile);
-
-  // output to xml
-  void savePeakTable();
-  void savePeakTable(QString fileName);
-  void writePeakTableXML(QXmlStreamWriter &stream);
 
   // output to csv file
   void exportGroupsToSpreadsheet();
@@ -164,16 +148,6 @@ public Q_SLOTS:
   void markGroupIgnored();
   void showAllGroups();
   void showHeatMap();
-
-  /**
-   * @brief  modify name appropriate for xml attribute naming
-   * @detail This method makes sample name appropriate for using in attribute
-   * naming in mzroll file It is just replacing '#' with '_' and adding 's' for
-   * letting sample name start with english letter In future, if sample name has
-   * some other special character, we have to replace those also with
-   * appropriate character Error can be seen at compilation time
-   */
-  void cleanString(QString &name);
   void showScatterPlot();
   void setClipboard();
 
@@ -221,28 +195,6 @@ private:
   QPalette pal;
   void addRow(PeakGroup *group, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
-  PeakGroup *readGroupXML(QXmlStreamReader &xml, PeakGroup *parent);
-  void writeGroupXML(QXmlStreamWriter &stream, PeakGroup *g);
-  void readPeakXML(QXmlStreamReader &xml, PeakGroup *parent);
-
-  /**
-   * @brief- it will add samples used to group being generated while creating
-   * from mzroll file
-   * @detail This method will add all sample to group being
-   * created from mzroll file. It will read SamplesUsed attribute of a group
-   * and if it's value is "Used", then assign this mzSample to that group
-   */
-  void readSamplesXML(QXmlStreamReader &xml,
-                      PeakGroup *group,
-                      float mzrollVersion);
-
-  /**
-   * @brief-mark varible <mzrollv_0_1_5> true or false
-   * @details  this method marks varible <mzrollv_0_1_5> true if loaded mzroll
-   * file is of v0.1.5 or older otherwise false based on one attribute
-   * <SamplesUsed> which is introduced here.
-   */
-  void markv_0_1_5mzroll(QString fileName);
 
   // TODO: investigate and remove this dialog if not being used
   void setupFiltersDialog();
@@ -261,7 +213,7 @@ class PeakTableDockWidget : public TableDockWidget {
   Q_OBJECT
 
 public:
-  PeakTableDockWidget (MainWindow *mw);
+  PeakTableDockWidget (MainWindow *mw, const int tableId=-1);
   ~PeakTableDockWidget();
 
 public Q_SLOTS:

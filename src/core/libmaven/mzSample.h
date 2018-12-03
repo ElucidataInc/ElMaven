@@ -465,6 +465,18 @@ class mzSample
     inline unsigned int scanCount() const { return (scans.size()); }
 
     /**
+     * @brief Obtain the unique sample ID for the sample.
+     * @return Sample ID as an integer.
+     */
+    inline int getSampleId() { return _id; }
+
+    /**
+     * @brief Set the sample ID for this sample.
+     * @param id An integer which is not an ID for another sample.
+     */
+    inline void setSampleId(const int id) { _id = id; }
+
+    /**
                           * [get Sample Name]
                           * @method getSampleName
                           * @return [name of the sample]
@@ -656,7 +668,6 @@ class mzSample
 
     vector<float> getIntensityDistribution(int mslevel);
 
-    unsigned int id;
     deque<Scan *> scans;
     string sampleName;
     string fileName;
@@ -701,6 +712,7 @@ class mzSample
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 
   private:
+    int _id;
     void sampleNaming(const char *filename);
     void checkSampleBlank(const char *filename);
 
@@ -851,6 +863,14 @@ class Adduct
         charge = 1;
         nmol = 1;
     }
+
+    Adduct(string name, float mass, int charge, int nmol){
+        this->name=name;
+        this->mass=mass;
+        this->charge=charge;
+        this->nmol=nmol;
+    }
+
     string name;
     int nmol;
     float mass;
@@ -858,9 +878,16 @@ class Adduct
     bool isParent;
 
     //given adduct mass compute parent ion mass
-    inline float computeParentMass(float mz) { return (mz * abs(charge) - mass) / nmol; }
+    inline float computeParentMass(float mz)
+    {
+        return (mz * abs(charge) - mass) / nmol;
+    }
+
     //given perent compute adduct mass
-    inline float computeAdductMass(float pmz) { return (pmz * nmol + mass) / abs(charge); }
+    inline float computeAdductMass(float pmz)
+    {
+        return (pmz * nmol + mass) / abs(charge);
+    }
 };
 
 /**
