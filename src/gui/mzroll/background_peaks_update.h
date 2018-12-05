@@ -126,6 +126,11 @@ Q_SIGNALS:
 	void alignmentError(QString);
 
 	/**
+	 * @brief signals whether alignment is in effect
+	 */
+	void samplesAligned(bool);
+
+	/**
 	 * [new PeakGroup]
 	 * @param group [pointer to PeakGroup]
 	 */

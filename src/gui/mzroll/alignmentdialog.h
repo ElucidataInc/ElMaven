@@ -43,6 +43,7 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void restorDefaultValues(bool checked);
 		void toggleObiParams(bool show);
 		void showAdvanceParameters(bool checked);
+		void samplesAligned(bool status);
 };
 
 #endif

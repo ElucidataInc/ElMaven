@@ -135,7 +135,7 @@ public:
     int lastPeakTableId = 0;
 	int totalCharge = 0;
 	bool allPeaksMarked = false;
-	bool aligned = false;
+	bool samplesAlignedFlag = false;
 	map<pair<string,string>, double> deltaRt;
 
 	Analytics* getAnalytics(){
