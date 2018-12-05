@@ -812,8 +812,14 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
         if (group->compound && !group->compound->db.empty()) {
-            group->compound = DB.findSpeciesById(group->compound->id,
-                                                 group->compound->db);
+            auto matches = DB.findSpeciesByName(group->compound->name,
+                                                group->compound->db);
+            if (matches.size()) {
+                group->compound = matches.at(0);
+            } else {
+                group->compound = DB.findSpeciesById(group->compound->id,
+                                                     group->compound->db);
+            }
             dbNames.insert(QString::fromStdString(group->compound->db));
         }
 
