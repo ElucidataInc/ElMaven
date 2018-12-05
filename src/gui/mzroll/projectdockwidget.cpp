@@ -712,7 +712,7 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
     }
 
     // if an existing project is being saved, stall before clearing the session
-    while(_mainwindow->fileLoader->isRunning());
+    while(_mainwindow->autosave->isRunning());
 
     // clear session regardless of whether the project was saved
     clearSession();
