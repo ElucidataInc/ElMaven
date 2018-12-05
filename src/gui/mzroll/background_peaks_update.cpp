@@ -325,6 +325,7 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
         delete obiParams;
 
         mainwindow->sampleRtWidget->plotGraph();
+        Q_EMIT(samplesAligned(true));
 
 }
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
@@ -533,6 +534,7 @@ void BackgroundPeakUpdate::align() {
         }	
 
         Q_EMIT(alignmentComplete(listGroups));
+        Q_EMIT(samplesAligned(true));
 }
 
 void BackgroundPeakUpdate::alignUsingDatabase() {

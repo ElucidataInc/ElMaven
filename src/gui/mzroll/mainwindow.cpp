@@ -2128,6 +2128,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 
 	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
 			alignmentDialog, SLOT(setProgressBar(QString, int,int)));
+	connect(workerThread, SIGNAL(samplesAligned(bool)), alignmentDialog, SLOT(samplesAligned(bool)));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;
@@ -3020,8 +3021,6 @@ void MainWindow::Align() {
 	if (sampleCount() < 2)
 		return;
 
-	aligned = true;
-
 	BackgroundPeakUpdate* workerThread;
 
     if(alignmentDialog->alignAlgo->currentIndex() == 1){
@@ -3101,6 +3100,7 @@ void MainWindow::showAlignmentWidget() {
 }
 
 void MainWindow::UndoAlignment() {
+	alignmentDialog->samplesAligned(false);
     if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		for (int i = 0; i < samples.size(); i++) {
 			for(int j = 0; j < samples[i]->scans.size(); ++j)
@@ -3113,7 +3113,6 @@ void MainWindow::UndoAlignment() {
 		return;
 	}
 
-	aligned = false;
 	for (int i = 0; i < samples.size(); i++) {
 		if (samples[i])
 			samples[i]->restoreOriginalRetentionTimes();

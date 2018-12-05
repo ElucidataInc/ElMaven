@@ -35,6 +35,12 @@ AlignmentDialog::~AlignmentDialog() {
 	if (workerThread) delete (workerThread);
 }
 
+void AlignmentDialog::samplesAligned(bool status)
+{
+	_mw->samplesAlignedFlag = status;
+	UndoAlignment->setEnabled(status);
+}
+
 void AlignmentDialog::refSampleChanged()
 {
     mzSample* sample = static_cast<mzSample*>(samplesBox->currentData().value<void*>());
@@ -97,6 +103,7 @@ void AlignmentDialog::showInfo(QString text) {
 }
 
 void AlignmentDialog::intialSetup() {
+	UndoAlignment->setEnabled(_mw->samplesAlignedFlag);
 	setProgressBar("Status", 0, 1);
 	setDatabase();
 	setDatabase(_mw->ligandWidget->getDatabaseName());
