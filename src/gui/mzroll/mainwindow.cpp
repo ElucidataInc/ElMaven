@@ -1677,10 +1677,15 @@ void MainWindow::open()
                    + " "
                    + fileInfo.fileName());
 
-    Q_FOREACH (QString filename, filelist)
-        fileLoader->addFileToQueue(filename);
+    bool sqliteProjectBeingLoaded = false;
+    Q_FOREACH (QString filename, filelist) {
+        if (fileLoader->isSQLiteProject(filename))
+            sqliteProjectBeingLoaded = true;
 
-    if (filelist.size())
+        fileLoader->addFileToQueue(filename);
+    }
+
+    if (sqliteProjectBeingLoaded)
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
 
     bool cancelUploading = false;
