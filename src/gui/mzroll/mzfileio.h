@@ -207,7 +207,11 @@ Q_OBJECT
      void peaklistLoaded();
      void createPeakTableSignal(QString);
      void addNewSample(mzSample*);
-     void peakTablesPopulated();
+     void sqliteDBLoadStarted(QString);
+     void sqliteDBSamplesLoaded();
+     void sqliteDBPeakTablesCreated();
+     void sqliteDBAlignmentDone();
+     void sqliteDBPeakTablesPopulated();
 
     protected:
       /**

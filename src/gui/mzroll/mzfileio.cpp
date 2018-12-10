@@ -492,10 +492,17 @@ void mzFileIO::run(void)
     if (_sqliteDBLoadInProgress) {
         auto samples = _mainwindow->getSamples();
         _currentProject->updateSamples(samples);
+        Q_EMIT(sqliteDBSamplesLoaded());
 
         Q_EMIT(updateStatusString(tr("Loading alignment data…")));
         _currentProject->loadAndPerformAlignment(samples);
+        Q_EMIT(sqliteDBAlignmentDone());
+
         readAllPeakTablesSQLite(samples);
+
+        // assuming this was the last step in loading of a SQLite project
+        Q_EMIT(projectLoaded());
+
         _sqliteDBLoadInProgress = false;
     }
 
@@ -564,6 +571,8 @@ void mzFileIO::fileImport(void) {
                 _mainwindow->bookmarkedPeaks->showAllGroups();
             }
         } else if (isSQLiteProject(filename)) {
+            auto fileInfo = QFileInfo(filename);
+            Q_EMIT(sqliteDBLoadStarted(fileInfo.fileName()));
             auto samplePaths = readSamplesFromSQLiteProject(filename);
             if (samplePaths.size()) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
@@ -573,6 +582,12 @@ void mzFileIO::fileImport(void) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 // just to trigger `_postSampleLoadOperations`
                 Q_EMIT(sampleLoaded());
+            } else {
+                // emit mock signals for empty database load
+                Q_EMIT(sqliteDBSamplesLoaded());
+                Q_EMIT(sqliteDBPeakTablesCreated());
+                Q_EMIT(sqliteDBAlignmentDone());
+                Q_EMIT(sqliteDBPeakTablesPopulated());
             }
         }
     }
@@ -847,10 +862,7 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
         Q_EMIT(_mainwindow->ligandWidget->mzrollSetDB(db));
 
     // table widgets are ready to show groups
-    Q_EMIT(peakTablesPopulated());
-
-    // assuming this was the last step in loading of a SQLite project
-    Q_EMIT(projectLoaded());
+    Q_EMIT(sqliteDBPeakTablesPopulated());
 }
 
 void mzFileIO::_postSampleLoadOperations()
@@ -931,6 +943,7 @@ void mzFileIO::_postSampleLoadOperations()
         if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
             _mainwindow->addPeaksTable(tableName);
     }
+    Q_EMIT(sqliteDBPeakTablesCreated());
 
     _sqliteDBLoadInProgress = true;
     start();
