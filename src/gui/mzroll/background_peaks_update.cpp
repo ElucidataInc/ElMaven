@@ -316,7 +316,7 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
                                         mainwindow->alignmentDialog->noStdNormal->isChecked(),
                                         mainwindow->alignmentDialog->binSizeObiWarp->value()
                                 );
-        Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+        Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
 
         Aligner aligner;
         aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
