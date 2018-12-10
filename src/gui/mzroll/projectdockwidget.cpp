@@ -700,19 +700,15 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         userSessionWarning,
         QMessageBox::Yes | QMessageBox::Cancel
     );
-    if (reply == QMessageBox::Yes) {
+    if (reply == QMessageBox::Yes)
         saveSQLiteProject();
-        _mainwindow->fileLoader->closeSQLiteProject();
-        setLastSavedProject("");
-        setLastOpenedProject("");
-    } else {
-        _mainwindow->fileLoader->closeSQLiteProject();
-        setLastSavedProject("");
-        setLastOpenedProject("");
-    }
 
     // if an existing project is being saved, stall before clearing the session
     while(_mainwindow->autosave->isRunning());
+
+    _mainwindow->fileLoader->closeSQLiteProject();
+    setLastSavedProject("");
+    setLastOpenedProject("");
 
     // clear session regardless of whether the project was saved
     clearSession();
