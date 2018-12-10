@@ -7,6 +7,7 @@
                                         , filename     TEXT                              \
                                         , set_name     TEXT                              \
                                         , sample_order INTEGER                           \
+                                        , is_blank     INTEGER                           \
                                         , is_selected  INTEGER                           \
                                         , color_red    REAL                              \
                                         , color_green  REAL                              \
