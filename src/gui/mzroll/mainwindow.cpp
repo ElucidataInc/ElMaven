@@ -2878,6 +2878,7 @@ void MainWindow::toggleSampleRtWidget()
     }
 
     sampleRtWidget->show();
+	sampleRtWidget->plotGraph();
 }
 
 void MainWindow::setMassCutoffType(QString massCutoffType){
