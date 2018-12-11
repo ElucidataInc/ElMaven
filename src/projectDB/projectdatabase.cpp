@@ -34,6 +34,7 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
                       , :filename     \
                       , :set_name     \
                       , :sample_order \
+                      , :is_blank     \
                       , :is_selected  \
                       , :color_red    \
                       , :color_green  \
@@ -54,6 +55,7 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
         samplesQuery->bind(":filename", s->fileName);
         samplesQuery->bind(":set_name", s->getSetName());
         samplesQuery->bind(":sample_order", s->getSampleOrder());
+        samplesQuery->bind(":is_blank", s->isBlank);
         samplesQuery->bind(":is_selected", s->isSelected);
 
         samplesQuery->bind(":color_red", s->color[0]);
@@ -496,6 +498,7 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
         int sampleId = samplesQuery->integerValue("sample_id");
 
         int sampleOrder = samplesQuery->integerValue("sample_order");
+        int isBlank = samplesQuery->integerValue("is_blank");
         int isSelected = samplesQuery->integerValue("is_selected");
         float color_red = samplesQuery->floatValue("color_red");
         float color_blue = samplesQuery->floatValue("color_blue");
@@ -518,7 +521,8 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
             sample->setSampleId(sampleId);
             sample->setSetName(setName);
             sample->setSampleOrder(sampleOrder);
-            sample->isSelected = isSelected;
+            sample->isBlank = static_cast<bool>(isBlank);
+            sample->isSelected = static_cast<bool>(isSelected);
             sample->color[0] = color_red;
             sample->color[1] = color_green;
             sample->color[2] = color_blue;
