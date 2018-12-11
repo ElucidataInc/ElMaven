@@ -19,6 +19,12 @@ mzFileIO::mzFileIO(QWidget*) {
             SIGNAL(sampleLoaded()),
             this,
             SLOT(_postSampleLoadOperations()));
+    qRegisterMetaType< QList<QString> >("QList<QString>");
+    connect(this,
+            SIGNAL(sqliteDBInadequateSamplesFound(QList<QString>)),
+            this,
+            SLOT(_promptForMissingSamples(QList<QString>)));
+
     _sqliteDBLoadInProgress = false;
 }
 
@@ -574,14 +580,14 @@ void mzFileIO::fileImport(void) {
             auto fileInfo = QFileInfo(filename);
             Q_EMIT(sqliteDBLoadStarted(fileInfo.fileName()));
             auto samplePaths = readSamplesFromSQLiteProject(filename);
-            if (samplePaths.size()) {
+            if (!samplePaths.empty() && _missingSamples.empty()) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 for (auto sample : samplePaths)
-                    samples << QString::fromStdString(sample);
-            } else if (_missingSamples.size()) {
+                    samples << sample;
+            }
+            if (!_missingSamples.empty()) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
-                // just to trigger `_postSampleLoadOperations`
-                Q_EMIT(sampleLoaded());
+                Q_EMIT(sqliteDBInadequateSamplesFound(samplePaths));
             } else {
                 // emit mock signals for empty database load
                 Q_EMIT(sqliteDBSamplesLoaded());
@@ -790,12 +796,12 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     return false;
 }
 
-vector<string> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
+QList<QString> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
 {
     if (_currentProject)
         closeSQLiteProject();
 
-    vector<string> empty;
+    QList<QString> empty;
     if (_currentProject)
         return empty;
 
@@ -809,8 +815,14 @@ vector<string> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
     auto samples = _currentProject->getSampleNames(_mainwindow->getSamples());
 
     // set missing samples before returning found samples to be loaded
-    _missingSamples = samples.second;
-    return samples.first;
+    for (auto missingSample : samples.second)
+        _missingSamples.append(QString::fromStdString(missingSample));
+
+    QList<QString> foundSamples;
+    for (auto foundSample : samples.first)
+        foundSamples.append(QString::fromStdString(foundSample));
+
+    return foundSamples;
 }
 
 void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
@@ -872,13 +884,35 @@ void mzFileIO::_postSampleLoadOperations()
 
     while(isRunning());
 
+    // create tables for stored peak groups, this can only be done in the
+    // main loop
+    auto tableNames = _currentProject->getTableNames();
+    for (auto name : tableNames) {
+        auto tableName = QString::fromStdString(name);
+        TableDockWidget* table = nullptr;
+        for (auto t : _mainwindow->getPeakTableList())
+            if (t->windowTitle() == tableName)
+                table = t;
+
+        if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
+            _mainwindow->addPeaksTable(tableName);
+    }
+
+    _sqliteDBLoadInProgress = true;
+    start();
+}
+
+void mzFileIO::_promptForMissingSamples(QList<QString> foundSamples)
+{
+    while(isRunning());
+
     // load samples that were originally missing, can be a method by itself?
-    vector<string> missingSamples = _missingSamples;
+    QList<QString> missingSamples = _missingSamples;
     int samplesRemaining = static_cast<int>(missingSamples.size());
     while(samplesRemaining) {
         QString path = QString::fromStdString(_currentProject->projectPath());
         for (auto& originalFilename : _missingSamples) {
-            auto filename = QString::fromStdString(originalFilename);
+            auto filename = originalFilename;
             QFileInfo sampleFile(filename);
 
             // first check in the current set path
@@ -924,29 +958,15 @@ void mzFileIO::_postSampleLoadOperations()
     }
     _missingSamples.clear();
 
+    for (const auto& sampleFilepath : foundSamples) {
+        addFileToQueue(sampleFilepath);
+    }
+
     // retry loading samples that were previously missing
     if (filelist.size()) {
         start();
         return;
     }
-
-    // create tables for stored peak groups, this can only be done in the
-    // main loop
-    auto tableNames = _currentProject->getTableNames();
-    for (auto name : tableNames) {
-        auto tableName = QString::fromStdString(name);
-        TableDockWidget* table = nullptr;
-        for (auto t : _mainwindow->getPeakTableList())
-            if (t->windowTitle() == tableName)
-                table = t;
-
-        if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
-            _mainwindow->addPeaksTable(tableName);
-    }
-    Q_EMIT(sqliteDBPeakTablesCreated());
-
-    _sqliteDBLoadInProgress = true;
-    start();
 }
 
 void mzFileIO::markv_0_1_5mzroll(QString fileName)

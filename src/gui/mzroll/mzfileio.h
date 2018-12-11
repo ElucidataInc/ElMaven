@@ -9,6 +9,8 @@
 class ProjectDatabase;
 class ProjectDockWidget;
 
+Q_DECLARE_METATYPE(QList<QString>)
+
 /**
  * @class mzPoint
  * @ingroup mzroll
@@ -128,7 +130,7 @@ Q_OBJECT
          * @param filename String name of SQLite database to be read.
          * @return A vector of sample paths found in the database.
          */
-        vector<string> readSamplesFromSQLiteProject(QString filename);
+        QList<QString> readSamplesFromSQLiteProject(QString filename);
 
         /**
          * @brief For a given set of samples, load the peak groups and their
@@ -185,6 +187,7 @@ Q_OBJECT
 
         private Q_SLOTS:
         void _postSampleLoadOperations();
+        void _promptForMissingSamples(QList<QString> foundSamples);
 
     public Q_SLOTS:
         void readThermoRawFileImport();
@@ -212,6 +215,7 @@ Q_OBJECT
      void sqliteDBPeakTablesCreated();
      void sqliteDBAlignmentDone();
      void sqliteDBPeakTablesPopulated();
+     void sqliteDBInadequateSamplesFound(QList<QString> foundSamples);
 
     protected:
       /**
@@ -255,7 +259,7 @@ Q_OBJECT
          * @brief A vector containing names of samples that were not found, and
          * whose paths need to be explicitly specified by the user.
          */
-        vector<string> _missingSamples;
+        QList<QString> _missingSamples;
 };
 
 #endif // MZFILEIO_H
