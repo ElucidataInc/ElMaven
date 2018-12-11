@@ -448,6 +448,8 @@ private Q_SLOTS:
     };
 
     void _setStatusString(QString);
+    void _showEMDBProgressBar(QString projectFilename);
+    void _updateEMDBProgressBar(int progress, int finish);
 
 private:
 	int m_value;
@@ -464,7 +466,9 @@ private:
 
 	QToolBar* sideBar;
 
-	vector<string> unloadableFiles;
+    vector<string> unloadableFiles;
+
+    QProgressDialog* _loadProgressDialog;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 	QString fileName;

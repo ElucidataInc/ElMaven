@@ -277,7 +277,9 @@ using namespace mzUtils;
 
 	progressBar = new QProgressBar(this);
 	progressBar->hide();
-	statusBar()->addPermanentWidget(progressBar);
+    statusBar()->addPermanentWidget(progressBar);
+
+    _loadProgressDialog = nullptr;
 
 	QToolButton *btnBugs = new QToolButton(this);
 	btnBugs->setIcon(QIcon(rsrcPath + "/bug.png"));
@@ -512,8 +514,22 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
     connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+
+    // EMDB singals and slots
     connect(fileLoader,
-            SIGNAL(peakTablesPopulated()),
+            SIGNAL(sqliteDBLoadStarted(QString)),
+            SLOT(_showEMDBProgressBar(QString)));
+    connect(fileLoader,
+            &mzFileIO::sqliteDBSamplesLoaded,
+            [=] { _updateEMDBProgressBar(1, 4); });
+    connect(fileLoader,
+            &mzFileIO::sqliteDBPeakTablesCreated,
+            [=] { _updateEMDBProgressBar(2, 4); });
+    connect(fileLoader,
+            &mzFileIO::sqliteDBAlignmentDone,
+            [=] { _updateEMDBProgressBar(3, 4); });
+    connect(fileLoader,
+            SIGNAL(sqliteDBPeakTablesPopulated()),
             SLOT(refreshIntensities()));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
@@ -2528,6 +2544,39 @@ void MainWindow::saveSettings()
 
 }
 
+void MainWindow::_showEMDBProgressBar(QString projectFilename)
+{
+    if (_loadProgressDialog != nullptr) {
+        delete _loadProgressDialog;
+    }
+
+    _loadProgressDialog = new QProgressDialog(this);
+    QLabel* label = new QLabel(QString("<b>Loading Project \"%1\"</b>")
+                               .arg(projectFilename));
+    label->setStyleSheet("QLabel { margin-top: 6px; }");
+    label->setAlignment(Qt::AlignCenter);
+    _loadProgressDialog->setLabel(label);
+    _loadProgressDialog->setCancelButton(nullptr);
+
+    // ensure label gets fully accomodated, adjustSize itself did not help
+    _loadProgressDialog->setMinimumWidth(label->width() + 48);
+
+    _loadProgressDialog->setModal(true);
+    _loadProgressDialog->open();
+}
+
+void MainWindow::_updateEMDBProgressBar(int progress, int finish)
+{
+    QApplication::processEvents();
+    if (_loadProgressDialog != nullptr and _loadProgressDialog->isVisible()) {
+        _loadProgressDialog->setMinimum(0);
+        _loadProgressDialog->setMaximum(finish);
+        _loadProgressDialog->setValue(progress);
+    }
+    if (progress == finish)
+        _setStatusString("Project loaded");
+}
+
 void MainWindow::loadPollySettings(QString fileName)
 {
     bool fileLoaded = false;
@@ -2894,7 +2943,8 @@ void MainWindow::refreshIntensities() {
 	for(int i=0; i<peaksTableList.size(); i++) {
 		peaksTableList[i]->showAllGroups();
 	}
-	bookmarkedPeaks->showAllGroups();
+    bookmarkedPeaks->showAllGroups();
+    _updateEMDBProgressBar(4, 4);
 }
 
 void MainWindow::showspectraMatchingForm() {
