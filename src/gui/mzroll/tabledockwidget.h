@@ -40,6 +40,7 @@ public:
    * @see- <TableDockWidget::exportJson>
    */
   vector<PeakGroup> vallgroups;
+  int maxPeaks;
   QList<PeakGroup> allgroups;
 
   enum tableViewType { groupView = 0, peakView = 1 };
@@ -141,6 +142,11 @@ public Q_SLOTS:
   void updateTable();
   void updateItem(QTreeWidgetItem *item);
   void updateStatus();
+
+  //Group validation functions
+  void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
+  void markGroupGood(PeakGroup* grp, QTreeWidgetItem* item);
+  void markGroupBad(PeakGroup* grp, QTreeWidgetItem* item);
 
   virtual void markGroupBad();
   virtual void markGroupGood();

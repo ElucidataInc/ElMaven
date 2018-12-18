@@ -220,7 +220,11 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
-
+	groupClsf = new groupClassifier();
+ 	groupClsf->loadModel("bin/group.weights");
+ 
+  	groupPred = new svmPredictor();
+ 	groupPred->loadModel("bin/svm.model");
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
