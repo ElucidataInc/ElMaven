@@ -138,6 +138,11 @@ class PeakGroup{
         unsigned int maxNoNoiseObs;
         unsigned int  maxPeakOverlap;
         float maxQuality;
+        float avgPeakQuality;
+        //@Kailash: group quality computed using neural network
+        float groupQuality;
+        float weightedAvgPeakQuality;
+        int predictedLabel;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;

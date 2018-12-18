@@ -12,6 +12,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setPalette(pal);
 
   viewType = groupView;
+  maxPeaks = 0; //Maximum Number of Peaks in a Group
 
   treeWidget = new QTreeWidget(this);
   treeWidget->setSortingEnabled(false);
@@ -173,7 +174,21 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
       item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(1, QString(group->getName().c_str()));
   }
+  //Find maximum number of peaks
+  if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
 
+  //score group quality
+  groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
+  if (groupClsf != NULL) {
+      groupClsf->classify(group);
+  }
+
+  //get probability good/bad from svm
+  svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+  if (groupPred != NULL) {
+      groupPred->predict(group);
+  }
+  
   // Updating the peakid
   item->setText(0, QString::number(group->groupId));
 
@@ -325,6 +340,26 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
       item->setText(13, QString::number(group->changeFoldRatio, 'f', 2));
       item->setText(14, QString::number(group->changePValue, 'e', 4));
     }
+    item->setText(15,QString::number(group->avgPeakQuality,'f',2));
+    //Find maximum number of peaks
+    if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
+
+    //Get group quality from neural network
+    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
+    if (groupClsf != NULL) {
+        groupClsf->classify(group);
+    }
+    //Add group quality to peak table
+    item->setText(16,QString::number(group->groupQuality,'f',2));
+    item->setText(17,QString::number(group->weightedAvgPeakQuality,'f',2));
+
+    //Get prediction labels from svm
+    svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+    if (groupPred != NULL) {
+        groupPred->predict(group);
+    }
+    item->setText(18,QString::number(group->predictedLabel,'f', 0));
+    
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -439,6 +474,16 @@ void TableDockWidget::showAllGroups() {
   treeWidget->setSortingEnabled(true);
   updateStatus();
   updateCompoundWidget();
+  //@Kailash: Check and validate all groups automatically
+  QTreeWidgetItemIterator itr(treeWidget);
+  while(*itr) {
+      QTreeWidgetItem* item = (*itr);
+      QVariant v = item->data(0,Qt::UserRole);
+      PeakGroup* grp = v.value<PeakGroup*>();
+      validateGroup(grp, item);
+      itr++;
+  }
+
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup *group) {
@@ -2449,6 +2494,10 @@ void ScatterplotTableDockWidget::setupPeakTable() {
     // add scatterplot table columns
     colNames << "Ratio Change";
     colNames << "P-value";
+    colNames << "Avg Peak Quality";
+    colNames << "Group Quality";
+    colNames << "Weighted Peak Quality";
+    colNames << "Predicted Label";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -2463,4 +2512,98 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   treeWidget->header()->adjustSize();
   treeWidget->setSortingEnabled(true);
+}
+
+//@Kailash: Put decision sequence/tree for automatic validation here
+void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    int mark=0;
+    bool decisionConflict=false;
+    if (grp != NULL)
+    {
+        //Disjoint Decision Tree
+        //Require improvements
+
+        //Decisions to mark group good
+        if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69 && grp->weightedAvgPeakQuality > 0.73) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->groupQuality > 0.73) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->predictedLabel==1) {
+            if (grp->avgPeakQuality > 0.76) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;   
+            }
+
+            if (grp->weightedAvgPeakQuality > 0.69) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;
+            }
+        }
+        else if (grp->predictedLabel==0 && grp->avgPeakQuality > 0.72 && grp->weightedAvgPeakQuality > 0.76) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+
+        //Decisions to mark group bad
+        if (grp->avgPeakQuality < 0.25 && grp->weightedAvgPeakQuality < 0.35) {
+            if (mark!=1) mark=-1;
+            else decisionConflict=true;
+        }
+
+        if (grp->predictedLabel==-1) {
+            if (grp->avgPeakQuality < 0.29) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+
+            if (grp->weightedAvgPeakQuality < 0.31) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+        }
+
+        //Decisions to not mark group
+        if (grp->peakCount() < int(maxPeaks/4) || grp->peakCount() == 1) decisionConflict=true; //Do not mark if number of peaks in the group is less
+
+        if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
+            decisionConflict=true;
+        }
+
+        if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
+            decisionConflict=true;
+        }
+
+        //Call respected functions to mark the groups
+        if (mark==1 && !decisionConflict) {
+            markGroupGood(grp, item);
+        }
+        else if (mark==-1 && !decisionConflict) {
+            markGroupBad(grp, item);
+        }
+    }
+}
+ 
+void TableDockWidget::markGroupGood(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    if(item && grp != NULL)
+    {
+        grp->setLabel('g');
+        updateItem(item);
+    }
+    updateStatus();
+}
+
+void TableDockWidget::markGroupBad(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    if(item && grp != NULL)
+    {
+        grp->setLabel('b');
+        updateItem(item);
+    }
+    updateStatus();
 }
