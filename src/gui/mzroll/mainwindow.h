@@ -284,11 +284,9 @@ public:
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
 	// bool isProjectFileType(QString filename);
-	bool askAutosave();
     void saveProject(bool explicitSave=false);
     void saveProjectForFilename(bool tablesOnly=false);
-    bool doAutosave;
-	int askAutosaveMain;
+    bool autosaveEnabled;
 	void loadPollySettings(QString fileName);
 Q_SIGNALS:
 	void valueChanged(int newValue);
@@ -412,6 +410,7 @@ public Q_SLOTS:
     void showNotification(TableDockWidget* table);
     void explicitSave();
     void threadSave(QString filename);
+    void resetAutosave();
 
 private Q_SLOTS:
 	void createMenus();
@@ -471,8 +470,11 @@ private:
     QProgressDialog* _loadProgressDialog;
 
 	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
-	QString fileName;
+    QString _currentProjectName;
+    QString _loadedProjectName;
     QString newFileName;
+
+    QString _newAutosaveFile();
     void _setProjectFilenameIfEmpty();
     void _setProjectFilenameFromProjectDockWidget();
     void _saveMzRollList(QString projectFileName);
