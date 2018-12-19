@@ -67,7 +67,7 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpecte
     copy(samplesSet.begin(), samplesSet.end(),samples.begin());        
 	
     for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
+        samples[i]->saveCurrentRetentionTimes();
         QJsonArray jArr;
         for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
             jArr.push_back(samples[i]->scans[ii]->rt);
@@ -172,7 +172,7 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
 	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
 
     for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
+        samples[i]->saveCurrentRetentionTimes();
     }
 
 	 saveFit();
@@ -455,36 +455,44 @@ void Aligner::Fit(int ideg) {
 	delete[] c;
 	delete[] d;
 }
-void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
-
+void Aligner::alignSampleRts(mzSample* sample,
+                             vector<float> &mzPoints,
+                             ObiWarp& obiWarp,
+                             bool setAsReference,
+                             const MavenParameters* mp)
+{
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
-    for(int j = 0; j < sample->scans.size(); ++j){
+    for (int j = 0; j < sample->scans.size(); ++j) {
+        if (mp->stop) return;
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
 
-    for(int j=0;j<sample->scans.size();++j){
-            for(int k=0;k<sample->scans[j]->mz.size();++k){
-                if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
-                    continue;
-                int index = upper_bound( mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k] )
-                                - mzPoints.begin() -1;
+    for (int j = 0 ; j < sample->scans.size(); ++j) {
+        for (int k = 0; k < sample->scans[j]->mz.size(); ++k) {
+            if (mp->stop) return;
+            if (sample->scans[j]->mz[k] < mzPoints.front()
+                || sample->scans[j]->mz[k] > mzPoints.back())
+                continue;
+            int index = upper_bound(mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k])
+                            - mzPoints.begin() -1;
 
-                mxn[j][index] =  max(mxn[j][index] , sample->scans[j]->intensity[k]);
-
-            }
+            mxn[j][index] = max(mxn[j][index], sample->scans[j]->intensity[k]);
+        }
     }
     
-    if(setAsReference)
+    if (setAsReference) {
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
-    else{
+    }
+    else {
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
-        for(int j = 0; j < sample->scans.size(); ++j)
+        for(int j = 0; j < sample->scans.size(); ++j) {
+            if (mp->stop) return;
             sample->scans[j]->rt = rtPoints[j];
+        }
     }
 }
-
 
 void Aligner::setRefSample(mzSample* sample)
 {
@@ -493,25 +501,25 @@ void Aligner::setRefSample(mzSample* sample)
     refSample = sample;
 }
 
-int Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams, MavenParameters* mavenParameters) {
-
-
-    if(refSample == nullptr) {
+int Aligner::alignWithObiWarp(vector<mzSample*> samples,
+                              ObiParams* obiParams,
+                              const MavenParameters* mp)
+{
+    if (refSample == nullptr) {
         srand(time(NULL));
         refSample = samples[rand()%samples.size()];
     }
-
 
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
-    for(int j=0;j<refSample->scans.size();++j){
-            for(int k=0;k<refSample->scans[j]->mz.size();++k){
-                minMzRange = min ( minMzRange, refSample->scans[j]->mz[k] );
-                maxMzRange = max ( maxMzRange, refSample->scans[j]->mz[k] );
-            }
+    for (int j = 0; j < refSample->scans.size(); ++j) {
+        for (int k = 0; k < refSample->scans[j]->mz.size(); ++k) {
+            minMzRange = min(minMzRange, refSample->scans[j]->mz[k]);
+            maxMzRange = max(maxMzRange, refSample->scans[j]->mz[k]);
+        }
     }
 
     maxMzRange += 10;
@@ -521,24 +529,28 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams, 
     minMzRange = floor(minMzRange);
     maxMzRange = ceil(maxMzRange);
     vector<float> mzPoints;
-    for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
+    for (float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(refSample, mzPoints, *obiWarp, true);
+    alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
+
+    if (mp->stop) {
+        delete obiWarp;
+        return (1);
+    }
 
     int samplesAligned = 0;
     bool stopped = false;
     #pragma omp parallel for shared(samplesAligned)
-    for(int i=0 ; i < samples.size();++i){
-        if(samples[i] == refSample)
+    for (int i = 0; i < samples.size(); ++i) {
+        if (samples[i] == refSample)
             continue;
-        if (mavenParameters->stop) {
+        if (mp->stop) {
             stopped = true;
             #pragma omp cancel for
         }
-        cerr << "stopped = " << stopped << endl;
         #pragma omp cancellation point for
-        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
+        alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp);
 
         samplesAligned++;
         cerr << "aligning: " << samplesAligned;
@@ -546,7 +558,10 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams, 
     }
 
     delete obiWarp;
-    if (stopped) return(1);
-    cerr<<"Alignment complete"<<endl;
+    if (stopped) {
+        cerr << "Alignment Canceled" << endl;
+        return(1);
+    }
+    cerr << "Alignment complete" << endl;
     return(0);
 }

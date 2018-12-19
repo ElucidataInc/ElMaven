@@ -29,8 +29,14 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    int alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, MavenParameters* mavenParameters);
-    void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
+    int alignWithObiWarp(vector<mzSample*> samples,
+                         ObiParams* obiParams,
+                         const MavenParameters* mp);
+    void alignSampleRts(mzSample* sample,
+                        vector<float> &mzPoints,
+                        ObiWarp& obiWarp,
+                        bool setAsReference,
+                        const MavenParameters* mp);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;
     vector<vector<float> > fit;

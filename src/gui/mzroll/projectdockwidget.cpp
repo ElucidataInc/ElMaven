@@ -969,7 +969,7 @@ void ProjectDockWidget::loadMzRollProject(QString fileName) {
 				}
 				qDebug() << "polynomialAlignmentTransformation: "; printF(transform);
 				currentSample->polynomialAlignmentTransformation = transform;
-				currentSample->saveOriginalRetentionTimes();
+				currentSample->saveCurrentRetentionTimes();
 				currentSample->applyPolynomialTransform();
 			}
         }

@@ -429,15 +429,15 @@ class mzSample
 
     /**
              * [save Original Retention Times]
-             * @method saveOriginalRetentionTimes
+             * @method saveCurrentRetentionTimes
              */
-    void saveOriginalRetentionTimes();
+    void saveCurrentRetentionTimes();
 
     /**
                           * [restore Original Retention Times]
-                          * @method restoreOriginalRetentionTimes
+                          * @method restorePreviousRetentionTimes
                           */
-    void restoreOriginalRetentionTimes();
+    void restorePreviousRetentionTimes();
 
     void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
 

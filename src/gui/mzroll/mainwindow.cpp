@@ -3189,10 +3189,10 @@ void MainWindow::showAlignmentWidget() {
 void MainWindow::UndoAlignment() {
 	alignmentDialog->samplesAligned(false);
     if(alignmentDialog->alignAlgo->currentIndex() == 1){
-		for (int i = 0; i < samples.size(); i++) {
-			for(int j = 0; j < samples[i]->scans.size(); ++j)
-				if(samples[i]->scans[j]->originalRt >= 0)
-					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
+		for (auto sample : samples) {
+			for(auto scan : sample->scans)
+				if(scan->originalRt >= 0)
+					scan->rt = scan->originalRt;
 		}
 
 		eicWidget->replotForced();
@@ -3200,17 +3200,17 @@ void MainWindow::UndoAlignment() {
 		return;
 	}
 
-	for (int i = 0; i < samples.size(); i++) {
-		if (samples[i])
-			samples[i]->restoreOriginalRetentionTimes();
+	for (auto sample : samples) {
+		if (sample)
+			sample->restorePreviousRetentionTimes();
 	}
 	getEicWidget()->replotForced();
 
 	mavenParameters->alignButton = 0;
 
 	QList<PeakGroup> listGroups;
-	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
-			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
+	for (auto group : mavenParameters->undoAlignmentGroups) {
+		listGroups.append(group);
 	}
 
 	Q_EMIT(undoAlignment(listGroups));

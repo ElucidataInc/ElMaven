@@ -1790,7 +1790,7 @@ Scan *mzSample::getAverageScan(float rtmin, float rtmax, int mslevel, int polari
 	return avgScan;
 }
 
-void mzSample::saveOriginalRetentionTimes()
+void mzSample::saveCurrentRetentionTimes()
 {
 	if (originalRetentionTimes.size() > 0)
 		return;
@@ -1802,7 +1802,7 @@ void mzSample::saveOriginalRetentionTimes()
 	}
 }
 
-void mzSample::restoreOriginalRetentionTimes()
+void mzSample::restorePreviousRetentionTimes()
 {
 	//TODO naman unused function
 
