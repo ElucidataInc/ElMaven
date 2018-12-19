@@ -3112,6 +3112,7 @@ void MainWindow::Align() {
     if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		workerThread = newWorkerThread("alignWithObiWarp");
 		workerThread->setMavenParameters(mavenParameters);
+		alignmentDialog->setWorkerThread(workerThread);
 		workerThread->start();
 		connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 		connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
@@ -3121,9 +3122,10 @@ void MainWindow::Align() {
 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
         mavenParameters->setCompounds(DB.getCompoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
-
+		alignmentDialog->setWorkerThread(workerThread);
 	} else {
 		workerThread = newWorkerThread("processMassSlices");
+		alignmentDialog->setWorkerThread(workerThread);
 	}
 
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
@@ -3163,7 +3165,6 @@ void MainWindow::Align() {
 	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
-	alignmentDialog->setWorkerThread(workerThread);
 
     //connect new connections
     connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow

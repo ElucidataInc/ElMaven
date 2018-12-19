@@ -260,25 +260,8 @@ void BackgroundPeakUpdate::run(void) {
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->groupRtWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->sampleRtWidget, SLOT(plotGraph()));
         mavenParameters->stop = false;
-        //_stopped = false;
+        started();
 
-        //populating the maven setting insatnces with with the samples
-        // if (mavenParameters->samples.size() == 0) {
-        //         mavenParameters->samples = mainwindow->getSamples();
-        // }
-        //Getting the classification model
-        //mavenParameters->clsf = mainwindow->getClassifier();
-
-        //Setting the ionization mode if the user specifies the ionization mode
-        //then its given the priority else the ionization mode is taken from the
-        //sample
-        //TODO: See how the ionization mode is effected if the user selects
-        //Neutral or autodetect
-        // if (mainwindow->getIonizationMode()) {
-        //         mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        // } else {
-        //         mavenParameters->setIonizationMode();
-        // }
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();
         } else if (runFunction == "alignUsingDatabase") {
@@ -321,9 +304,13 @@ void BackgroundPeakUpdate::alignWithObiWarp(){
         Aligner aligner;
         aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
                                                          this, _1, _2, _3));
-        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
+        int stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
         delete obiParams;
 
+        if (stopped) {
+            return;
+        }
+        
         mainwindow->sampleRtWidget->plotGraph();
         Q_EMIT(samplesAligned(true));
 

@@ -58,6 +58,7 @@ void AlignmentDialog::cancel() {
     if (workerThread) {
         if (workerThread->isRunning()) {
             workerThread->completeStop();
+			cerr << "completeStop done" << endl;
             return;
         }
     }

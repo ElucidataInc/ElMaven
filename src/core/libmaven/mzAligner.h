@@ -10,6 +10,7 @@
 #include "mzSample.h"
 #include "Compound.h"
 #include "obiwarp.h"
+#include "mavenparameters.h"
 #include <QJsonObject>
 
 #include <boost/signals2.hpp>
@@ -28,7 +29,7 @@ class Aligner {
     void restoreFit();
     void setMaxItterations(int x) { maxItterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams);
+    int alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams, MavenParameters* mavenParameters);
     void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;

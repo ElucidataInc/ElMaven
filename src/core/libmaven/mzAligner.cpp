@@ -493,7 +493,7 @@ void Aligner::setRefSample(mzSample* sample)
     refSample = sample;
 }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams) {
+int Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams, MavenParameters* mavenParameters) {
 
 
     if(refSample == nullptr) {
@@ -527,16 +527,26 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams)
     alignSampleRts(refSample, mzPoints, *obiWarp, true);
 
     int samplesAligned = 0;
+    bool stopped = false;
     #pragma omp parallel for shared(samplesAligned)
     for(int i=0 ; i < samples.size();++i){
         if(samples[i] == refSample)
             continue;
+        if (mavenParameters->stop) {
+            stopped = true;
+            #pragma omp cancel for
+        }
+        cerr << "stopped = " << stopped << endl;
+        #pragma omp cancellation point for
         alignSampleRts(samples[i], mzPoints, *obiWarp, false);
 
         samplesAligned++;
+        cerr << "aligning: " << samplesAligned;
         setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
     }
 
     delete obiWarp;
+    if (stopped) return(1);
     cerr<<"Alignment complete"<<endl;
+    return(0);
 }
