@@ -788,9 +788,10 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         }
         _currentProject->saveCompounds(compoundSet);
         qDebug() << "finished writing to project" << filename;
-        Q_EMIT(updateStatusString(
-            QString("Project successfully saved to %1").arg(filename)
-        ));
+        if (!_mainwindow->autosaveEnabled)
+            Q_EMIT(updateStatusString(
+                QString("Project successfully saved to %1").arg(filename)
+            ));
         return true;
     }
     qDebug() << "cannot write to closed project" << filename;
