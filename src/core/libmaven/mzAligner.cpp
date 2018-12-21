@@ -510,6 +510,11 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
         refSample = samples[rand()%samples.size()];
     }
 
+    //save current retention times
+    for (auto sample : samples) {
+        sample->saveCurrentRetentionTimes();
+    }
+
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
     float binSize = obiParams->binSize;

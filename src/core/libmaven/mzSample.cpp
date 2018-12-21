@@ -1802,12 +1802,15 @@ void mzSample::saveCurrentRetentionTimes()
 
 void mzSample::restorePreviousRetentionTimes()
 {
-	if (lastSavedRTs.size() == 0)
-		return;
-
-	for (unsigned int ii = 0; ii < scans.size(); ii++)
-	{
-		scans[ii]->rt = lastSavedRTs[ii];
+	if (lastSavedRTs.size() == 0) {
+		//restore original RTs if no alignment has been performed
+		for (auto scan : scans) {
+			scan->rt = scan->originalRt;
+		}
+	} else {
+		for (unsigned int ii = 0; ii < scans.size(); ii++) {
+			scans[ii]->rt = lastSavedRTs[ii];
+		}
 	}
 }
 

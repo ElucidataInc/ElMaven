@@ -287,32 +287,36 @@ void BackgroundPeakUpdate::run(void) {
         quit();
         return;
 }
-void BackgroundPeakUpdate::alignWithObiWarp(){
-        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
-                                        mainwindow->alignmentDialog->local->isChecked(),
-                                        mainwindow->alignmentDialog->factorDiag->value(),
-                                        mainwindow->alignmentDialog->factorGap->value(),
-                                        mainwindow->alignmentDialog->gapInit->value(),
-                                        mainwindow->alignmentDialog->gapExtend->value(),
-                                        mainwindow->alignmentDialog->initPenalty->value(),
-                                        mainwindow->alignmentDialog->responseObiWarp->value(),
-                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
-                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
-                                );
-        Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
+void BackgroundPeakUpdate::alignWithObiWarp()
+{
+    ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+                                         mainwindow->alignmentDialog->local->isChecked(),
+                                         mainwindow->alignmentDialog->factorDiag->value(),
+                                         mainwindow->alignmentDialog->factorGap->value(),
+                                         mainwindow->alignmentDialog->gapInit->value(),
+                                         mainwindow->alignmentDialog->gapExtend->value(),
+                                         mainwindow->alignmentDialog->initPenalty->value(),
+                                         mainwindow->alignmentDialog->responseObiWarp->value(),
+                                         mainwindow->alignmentDialog->noStdNormal->isChecked(),
+                                         mainwindow->alignmentDialog->binSizeObiWarp->value());
 
-        Aligner aligner;
-        aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
-                                                         this, _1, _2, _3));
-        int stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
-        delete obiParams;
+    Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
 
-        if (stopped) {
-            return;
-        }
+    Aligner aligner;
+    aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
+                                                     this, _1, _2, _3));
+    int stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
+    delete obiParams;
+
+    if (stopped) {
+        //restore previous RTs
+        for (auto sample : mavenParameters->samples)
+            sample->restorePreviousRetentionTimes();
+        return;
+    }
         
-        mainwindow->sampleRtWidget->plotGraph();
-        Q_EMIT(samplesAligned(true));
+    mainwindow->sampleRtWidget->plotGraph();
+    Q_EMIT(samplesAligned(true));
 
 }
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
@@ -543,7 +547,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
-                Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
+                Q_EMIT(updateProgressBar("Calculating Isotopes", 1, 100));
         }
 
         writeCSVRep(setName);
