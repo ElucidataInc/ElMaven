@@ -32,7 +32,7 @@ class Aligner {
     int alignWithObiWarp(vector<mzSample*> samples,
                          ObiParams* obiParams,
                          const MavenParameters* mp);
-    void alignSampleRts(mzSample* sample,
+    int alignSampleRts(mzSample* sample,
                         vector<float> &mzPoints,
                         ObiWarp& obiWarp,
                         bool setAsReference,

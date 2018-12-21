@@ -305,13 +305,15 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     Aligner aligner;
     aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
                                                      this, _1, _2, _3));
-    int stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
+    _stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
     delete obiParams;
 
-    if (stopped) {
+    if (_stopped) {
         //restore previous RTs
-        for (auto sample : mavenParameters->samples)
+        for (auto sample : mavenParameters->samples) {
+            cerr << "restoring sample RTs" << endl;
             sample->restorePreviousRetentionTimes();
+        }
         return;
     }
         
@@ -597,7 +599,7 @@ void BackgroundPeakUpdate::completeStop() {
         
         peakDetector.resetProgressBar();
         mavenParameters->stop = true;
-        //stop();
+        stop();
 }
 
 void BackgroundPeakUpdate::computePeaks() {

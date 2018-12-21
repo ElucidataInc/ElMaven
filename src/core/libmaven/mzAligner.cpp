@@ -455,7 +455,7 @@ void Aligner::Fit(int ideg) {
 	delete[] c;
 	delete[] d;
 }
-void Aligner::alignSampleRts(mzSample* sample,
+int Aligner::alignSampleRts(mzSample* sample,
                              vector<float> &mzPoints,
                              ObiWarp& obiWarp,
                              bool setAsReference,
@@ -464,14 +464,14 @@ void Aligner::alignSampleRts(mzSample* sample,
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
     for (int j = 0; j < sample->scans.size(); ++j) {
-        if (mp->stop) return;
+        if (mp->stop) return (1);
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
 
     for (int j = 0 ; j < sample->scans.size(); ++j) {
         for (int k = 0; k < sample->scans[j]->mz.size(); ++k) {
-            if (mp->stop) return;
+            if (mp->stop) return (1);
             if (sample->scans[j]->mz[k] < mzPoints.front()
                 || sample->scans[j]->mz[k] > mzPoints.back())
                 continue;
@@ -483,15 +483,17 @@ void Aligner::alignSampleRts(mzSample* sample,
     }
     
     if (setAsReference) {
+        if (mp->stop) return (1);
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     }
     else {
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
         for(int j = 0; j < sample->scans.size(); ++j) {
-            if (mp->stop) return;
+            if (mp->stop) return (1);
             sample->scans[j]->rt = rtPoints[j];
         }
     }
+    return (0);
 }
 
 void Aligner::setRefSample(mzSample* sample)
@@ -537,7 +539,8 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
     for (float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
+    int stopped = 0;
+    stopped = alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
 
     if (mp->stop) {
         delete obiWarp;
@@ -545,28 +548,22 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
     }
 
     int samplesAligned = 0;
-    bool stopped = false;
     #pragma omp parallel for shared(samplesAligned)
     for (int i = 0; i < samples.size(); ++i) {
         if (samples[i] == refSample)
             continue;
         if (mp->stop) {
-            stopped = true;
+            stopped = 1;
             #pragma omp cancel for
         }
         #pragma omp cancellation point for
-        alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp);
+        stopped = alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp);
 
         samplesAligned++;
-        cerr << "aligning: " << samplesAligned;
         setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
     }
 
+    cerr << "Samples modified: " << samplesAligned << endl;
     delete obiWarp;
-    if (stopped) {
-        cerr << "Alignment Canceled" << endl;
-        return(1);
-    }
-    cerr << "Alignment complete" << endl;
-    return(0);
+    return(stopped);
 }
