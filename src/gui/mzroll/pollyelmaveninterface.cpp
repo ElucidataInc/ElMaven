@@ -231,7 +231,10 @@ void PollyElmavenInterfaceDialog::handleAuthentication(QString status)
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
         _loadingDialog->statusLabel->setText("No Internet Access");
         QCoreApplication::processEvents();
-        close();
+        QTimer *timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), _loadingDialog, SLOT(close()));
+        connect(timer, SIGNAL(timeout()), this, SLOT(close()));
+        timer->start(5000);
     } else {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
         _loadingDialog->statusLabel->setText("Authentication failed. Please login again.");
