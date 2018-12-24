@@ -557,10 +557,12 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
             #pragma omp cancel for
         }
         #pragma omp cancellation point for
-        stopped = alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp);
-
-        samplesAligned++;
-        setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
+        if (alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp)) {
+            stopped = 1;
+        } else {
+            samplesAligned++;
+            setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
+        }
     }
 
     cerr << "Samples modified: " << samplesAligned << endl;

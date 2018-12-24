@@ -309,9 +309,9 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     delete obiParams;
 
     if (_stopped) {
+        Q_EMIT(restoreAlignment());
         //restore previous RTs
         for (auto sample : mavenParameters->samples) {
-            cerr << "restoring sample RTs" << endl;
             sample->restorePreviousRetentionTimes();
         }
         return;

@@ -3116,6 +3116,7 @@ void MainWindow::Align() {
 		workerThread->start();
 		connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 		connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
+		connect(workerThread, SIGNAL(restoreAlignment()), alignmentDialog, SLOT(updateRestoreStatus()));
 		return;
 	}
 	

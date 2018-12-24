@@ -2,36 +2,36 @@
 #include "mzAligner.h"
 
 AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 
-		setupUi(this); 
-		setModal(false);
+	setupUi(this); 
+	setModal(false);
 
-		workerThread = NULL;
-		workerThread = new BackgroundPeakUpdate(this);
+	workerThread = NULL;
+	workerThread = new BackgroundPeakUpdate(this);
 
-		if (peakDetectionAlgo->currentIndex() == 0) {
-			selectDatabase->setVisible(true);
-		}
+	if (peakDetectionAlgo->currentIndex() == 0) {
+		selectDatabase->setVisible(true);
+	}
 
-		if (alignAlgo->currentIndex() == 0) {
-			label_7->setVisible(true);
-			label_8->setVisible(true);
-		}
-		connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
-		connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
-		connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
-		connect(alignWrtExpectedRt,SIGNAL(clicked(bool)),SLOT(setAlignWrtExpectedRt(bool)));
-		connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
-		connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
-		connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
-        connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
-        connect(samplesBox, &QComboBox::currentTextChanged, this, &AlignmentDialog::refSampleChanged);
-		QRect rec = QApplication::desktop()->screenGeometry();
-		int height = rec.height();
-        setFixedHeight(height-height/10);
-
+	if (alignAlgo->currentIndex() == 0) {
+		label_7->setVisible(true);
+		label_8->setVisible(true);
+	}
+	connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
+	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
+	connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
+	connect(alignWrtExpectedRt,SIGNAL(clicked(bool)),SLOT(setAlignWrtExpectedRt(bool)));
+	connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
+	connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
+	connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
+	connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
+	connect(samplesBox, &QComboBox::currentTextChanged, this, &AlignmentDialog::refSampleChanged);
+	QRect rec = QApplication::desktop()->screenGeometry();
+	int height = rec.height();
+    setFixedHeight(height-height/10);
 }
 
-AlignmentDialog::~AlignmentDialog() {
+AlignmentDialog::~AlignmentDialog()
+{
 	if (workerThread) delete (workerThread);
 }
 
@@ -41,46 +41,55 @@ void AlignmentDialog::samplesAligned(bool status)
 	UndoAlignment->setEnabled(status);
 }
 
+void AlignmentDialog::updateRestoreStatus()
+{
+	showInfo("Restoring to last saved point..");
+}
+
 void AlignmentDialog::refSampleChanged()
 {
     mzSample* sample = static_cast<mzSample*>(samplesBox->currentData().value<void*>());
     emit changeRefSample(sample);
 }
 
-void AlignmentDialog::setAlignWrtExpectedRt(bool checked){
-	_mw->mavenParameters->alignWrtExpectedRt=checked;
+void AlignmentDialog::setAlignWrtExpectedRt(bool checked)
+{
+	_mw->mavenParameters->alignWrtExpectedRt = checked;
 }
-void AlignmentDialog::setInitPenalty(bool checked){
+
+void AlignmentDialog::setInitPenalty(bool checked)
+{
 	initPenalty->setVisible(checked);
 	labelInitPenalty->setVisible(checked);
 }
-void AlignmentDialog::cancel() {
+
+void AlignmentDialog::cancel()
+{
+	showInfo("Canceling..");
     if (workerThread) {
         if (workerThread->isRunning()) {
             workerThread->completeStop();
-			cerr << "completeStop done" << endl;
             return;
         }
     }
     close();
 }
 
-void AlignmentDialog::setMainWindow(MainWindow* mw) {
-    _mw=mw;
-
+void AlignmentDialog::setMainWindow(MainWindow* mw)
+{
+    _mw = mw;
 }
 
-void AlignmentDialog::show() {
-
+void AlignmentDialog::show()
+{
 	_mw->getAnalytics()->hitScreenView("AlignmentDialog");
     inputInitialValuesAlignmentDialog();
 	intialSetup();
 	QDialog::exec();
-
 }
 
-void AlignmentDialog::inputInitialValuesAlignmentDialog() {
-
+void AlignmentDialog::inputInitialValuesAlignmentDialog()
+{
 	minGoodPeakCount->setValue(_mw->mavenParameters->minGoodGroupCount);
 	groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
 
@@ -92,18 +101,22 @@ void AlignmentDialog::inputInitialValuesAlignmentDialog() {
 
 }
 
-void AlignmentDialog::setProgressBar(QString text, int progress,
-                                         int totalSteps) {
-        showInfo(text);
-        progressBar->setRange(0, totalSteps);
-        progressBar->setValue(progress);
+void AlignmentDialog::setProgressBar(QString text,
+									 int progress,
+									 int totalSteps)
+{
+    showInfo(text);
+    progressBar->setRange(0, totalSteps);
+    progressBar->setValue(progress);
 }
 
-void AlignmentDialog::showInfo(QString text) {
+void AlignmentDialog::showInfo(QString text)
+{
         statusText->setText(text);
 }
 
-void AlignmentDialog::intialSetup() {
+void AlignmentDialog::intialSetup()
+{
 	UndoAlignment->setEnabled(_mw->samplesAlignedFlag);
 	setProgressBar("Status", 0, 1);
 	setDatabase();
@@ -113,15 +126,17 @@ void AlignmentDialog::intialSetup() {
 	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
 
     samplesBox->clear();
-    samplesBox->addItem("Select Randomly",QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
+    samplesBox->addItem("Select Randomly",
+						QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
     for(auto sample: _mw->samples) {
         if(sample->isSelected)
-            samplesBox->addItem(sample->sampleName.c_str(), QVariant(QVariant::fromValue(static_cast<void*>(sample))));
+            samplesBox->addItem(sample->sampleName.c_str(),
+								QVariant(QVariant::fromValue(static_cast<void*>(sample))));
     }
 }
 
-void AlignmentDialog::restorDefaultValues(bool checked){
-
+void AlignmentDialog::restorDefaultValues(bool checked)
+{
 	scoreObi->setCurrentText("cor");
 	factorGap->setValue(1);
 	factorDiag->setValue(2);
@@ -135,18 +150,18 @@ void AlignmentDialog::restorDefaultValues(bool checked){
 	restoreDefaultObiWarpParams->setChecked(false);
 	initPenalty->setVisible(false);
 	labelInitPenalty->setVisible(false);
-
 }
 
-void AlignmentDialog::showAdvanceParameters(bool checked){
+void AlignmentDialog::showAdvanceParameters(bool checked)
+{
 	toggleObiParams(checked);
 	
 	groupBox->setVisible(0);
 	groupBox_2->setVisible(0);
 }
 
-void AlignmentDialog::toggleObiParams(bool show){
-
+void AlignmentDialog::toggleObiParams(bool show)
+{
 	restoreDefaultObiWarpParams->setVisible(show);
 	responseObiWarp->setVisible(show);
 	binSizeObiWarp->setVisible(show);
@@ -174,8 +189,9 @@ void AlignmentDialog::toggleObiParams(bool show){
 	if(show)
 		setInitPenalty(local->isChecked());
 }
-void AlignmentDialog::algoChanged() {
 
+void AlignmentDialog::algoChanged()
+{
     bool obiWarp = (alignAlgo->currentIndex() == 1);
 	toggleObiParams(obiWarp);
 	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
@@ -217,8 +233,8 @@ void AlignmentDialog::algoChanged() {
 	groupBox_2->setVisible(!obiWarp);
 }
 
-void AlignmentDialog::setDatabase() {
-
+void AlignmentDialog::setDatabase()
+{
 	selectDatabaseComboBox->disconnect(SIGNAL(currentIndexChanged(QString)));
 	selectDatabaseComboBox->clear();
 	QSet<QString>set;
@@ -236,8 +252,7 @@ void AlignmentDialog::setDatabase() {
 }
 
 
-void AlignmentDialog::setDatabase(QString db) {
-
-	selectDatabaseComboBox->setCurrentIndex(selectDatabaseComboBox->findText(db));
-	
+void AlignmentDialog::setDatabase(QString db)
+{
+	selectDatabaseComboBox->setCurrentIndex(selectDatabaseComboBox->findText(db));	
 }
