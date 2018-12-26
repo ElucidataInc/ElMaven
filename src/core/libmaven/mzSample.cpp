@@ -13,7 +13,9 @@ mzSample::mzSample()
 	: _setName(""), injectionOrder(0)
 {
     _id = -1;
-	maxMz = maxRt = 0;
+    _numMS1Scans = 0;
+    _numMS2Scans = 0;
+        maxMz = maxRt = 0;
 	minMz = minRt = 0;
 	isBlank = false;
 	isSelected = true;
@@ -73,10 +75,13 @@ void mzSample::addScan(Scan *s)
 		s->intensityFilter(mzSample::filter_minIntensity);
 	}
 	//unsigned int sizeAfter3 = s->intensity.size();
-	//cerr << "addScan " << sizeBefore <<  " " << sizeAfter1 << " " << sizeAfter2 << " " << sizeAfter3 << endl;
+        //cerr << "addScan " << sizeBefore <<  " " << sizeAfter1 << " " << sizeAfter2 << " " << sizeAfter3 << endl;
 
-	scans.push_back(s);
-	s->scannum = scans.size() - 1;
+        if (s->mslevel == 1) ++_numMS1Scans;
+        if (s->mslevel == 2) ++_numMS2Scans;
+
+        scans.push_back(s);
+        s->scannum = scans.size() - 1;
 }
 
 string mzSample::getFileName(const string &filename)

@@ -464,6 +464,18 @@ class mzSample
     inline unsigned int scanCount() const { return (scans.size()); }
 
     /**
+     * @brief Get the number of MS1 level scans detected in this sample.
+     * @return MS1 scan count as unsigned int.
+     */
+    inline const unsigned int ms1ScanCount() { return _numMS1Scans; }
+
+    /**
+     * @brief Get the number of MS2 level scans detected in this sample.
+     * @return MS2 scan count as unsigned int.
+     */
+    inline const unsigned int ms2ScanCount() { return _numMS2Scans; }
+
+    /**
      * @brief Obtain the unique sample ID for the sample.
      * @return Sample ID as an integer.
      */
@@ -712,6 +724,9 @@ class mzSample
 
   private:
     int _id;
+    unsigned int _numMS1Scans;
+    unsigned int _numMS2Scans;
+
     void sampleNaming(const char *filename);
     void checkSampleBlank(const char *filename);
 
