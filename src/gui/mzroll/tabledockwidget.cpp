@@ -396,8 +396,6 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
   treeWidget->clear();
-  _mainwindow->getAnalytics()->hitEvent("PeaksTable", "ShowAllGroups",
-                                        allgroups.size());
 
   setFocus();
   if (allgroups.size() == 0) {

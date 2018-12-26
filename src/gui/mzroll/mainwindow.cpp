@@ -1207,6 +1207,7 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
         customTableId = std::atoi(idString.c_str());
     }
     TableDockWidget* panel = new PeakTableDockWidget(this, customTableId);
+	analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
 	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
@@ -1236,26 +1237,6 @@ void MainWindow::removeAllPeakTables()
     }
     lastPeakTableId = 0;
 }
-
-// SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
-// 	QPointer<SpectralHitsDockWidget> panel = new SpectralHitsDockWidget(this,
-// 			"Spectral Hits Table");
-// 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-// 	//groupTables.push_back(panel);
-
-// 	if (sideBar) {
-// 		QToolButton *btnTable = new QToolButton(sideBar);
-// 		btnTable->setIcon(QIcon(rsrcPath + "/spreadsheet.png"));
-// 		btnTable->setChecked(panel->isVisible());
-// 		btnTable->setCheckable(true);
-// 		btnTable->setToolTip(title);
-// 		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
-// 		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
-// 				SLOT(setChecked(bool)));
-// 		sideBar->addWidget(btnTable);
-// 	}
-// 	return panel;
-// }
 
 void MainWindow::setUserMassCutoff(double x) {
 	double cutoff=x;
@@ -1351,58 +1332,31 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	}
 	return vsamples;
 }
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup() {
-// 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
-// 	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
-// 	if (eicWidget)
-// 		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
-// }
 
-PeakGroup* MainWindow::bookmarkPeakGroup() {
-    //qDebug() << "MainWindow::bookmarkPeakGroup()";
-    if ( eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL) ) 
-	{
-       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
+PeakGroup* MainWindow::bookmarkPeakGroup()
+{
+    if (eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL)) {
+       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
     }
 }
 
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
-
-// 	if (bookmarkedPeaks == NULL)
-// 		return;
-
-// 	if (bookmarkedPeaks->isVisible() == false) {
-// 		bookmarkedPeaks->setVisible(true);
-// 	}
-
-// 	if (bookmarkedPeaks->hasPeakGroup(group) == false) {
-// 		bookmarkedPeaks->addPeakGroup(group);
-// 		bookmarkedPeaks->showAllGroups();
-// 	}
-// 	bookmarkedPeaks->updateTable();
-// }
-
-
-PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
-
+PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
+{
 	if ( bookmarkedPeaks == NULL ) return NULL;
 	//TODO: User feedback when group is rejected
 	if (group->peakCount() == 0) return NULL;
 
-    if ( bookmarkedPeaks->isVisible() == false ) {
-        bookmarkedPeaks->setVisible(true);
-    }
+    bookmarkedPeaks->setVisible(true);
 
-    PeakGroup* bookmarkedGroup=NULL;
-    if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
+    PeakGroup* bookmarkedGroup = NULL;
+	if (bookmarkedPeaks->allgroups.size() == 0)
+		analytics->hitEvent("New Table", "Bookmark Table");
 
+    if (bookmarkedPeaks->hasPeakGroup(group) == false) {
 
 		float rtDiff = -1;
 
-		if (group->compound != NULL && group->compound->expectedRt > 0)
-		{
+		if (group->compound != NULL && group->compound->expectedRt > 0) {
 			rtDiff = abs(group->compound->expectedRt - (group->meanRt));
 			group->expectedRtDiff = rtDiff;
 		}
@@ -1411,15 +1365,14 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
 
-        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && group->compound->expectedRt > 0)
-        {
-            group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
-                                                  * (1 /( pow(log(group->maxIntensity + 1), B)));
-        }
-        else
-        {
+        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && 
+			group->compound->expectedRt > 0) {
+            
+			group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
+                                   				* (1 /( pow(log(group->maxIntensity + 1), B)));
+        } else {
             group->groupRank = pow((1.1 - group->maxQuality), A)
-                                                  * (1 /(pow(log(group->maxIntensity + 1), B)));
+                               * (1 /(pow(log(group->maxIntensity + 1), B)));
         }
 
 		bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
