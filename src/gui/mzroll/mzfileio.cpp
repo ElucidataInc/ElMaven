@@ -588,7 +588,8 @@ void mzFileIO::fileImport(void) {
             if (!_missingSamples.empty()) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 Q_EMIT(sqliteDBInadequateSamplesFound(samplePaths));
-            } else {
+            }
+            if (samplePaths.empty() && _missingSamples.empty()) {
                 // emit mock signals for empty database load
                 Q_EMIT(sqliteDBSamplesLoaded());
                 Q_EMIT(sqliteDBPeakTablesCreated());
