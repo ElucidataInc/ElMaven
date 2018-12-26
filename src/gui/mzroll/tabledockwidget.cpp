@@ -524,16 +524,16 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   if (sFilterSel == groupsSCSV || sFilterSel == groupsSTAB ||
       sFilterSel == groupsCSV || sFilterSel == groupsTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Export Groups");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 0);
   if (sFilterSel == peaksCSV || sFilterSel == peaksTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Export Peaks");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 1);
 
   if (sFilterSel == peaksListQE) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Inclusion List");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 2);
     writeQEInclusionList(fileName);
     return;
   } else if (sFilterSel == mascotMGF) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Mascot Format");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 3);
     writeMascotGeneric(fileName);
     return;
   }
@@ -692,6 +692,8 @@ void TableDockWidget::exportJson() {
     QMessageBox::warning(this, tr("Error"), msg);
     return;
   }
+
+  _mainwindow->getAnalytics()->hitEvent("Exports", "JSON");
 
   /**
    * copy all groups from <allgroups> to <vallgroups> which is used by
@@ -946,6 +948,7 @@ void TableDockWidget::deleteGroups() {
 }
 
 void TableDockWidget::setClipboard() {
+  _mainwindow->getAnalytics()->hitEvent("Exports", "Clipboard", 3);
   QList<PeakGroup *> groups = getSelectedGroups();
   if (groups.size() > 0) {
     _mainwindow->isotopeWidget->setClipboard(groups);
@@ -1255,6 +1258,7 @@ void TableDockWidget::showScatterPlot() {
 
 void TableDockWidget::printPdfReport() {
 
+  _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", 0);
   QString dir = ".";
   QSettings *settings = _mainwindow->getSettings();
   if (settings->contains("lastDir"))

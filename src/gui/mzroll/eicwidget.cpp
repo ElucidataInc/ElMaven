@@ -1815,11 +1815,12 @@ QString EicWidget::eicToTextBuffer() {
     return eicText;
 }
 
-void EicWidget::eicToClipboard() { 
- //qDebug <<"EicWidget::eicToClipboard() "; 
+void EicWidget::eicToClipboard()
+{
 	if (eicParameters->eics.size() == 0 ) return;
+    getMainWindow()->getAnalytics()->hitEvent("Exports", "Clipboard", 4);
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText( eicToTextBuffer() );
+    clipboard->setText(eicToTextBuffer());
 }
 
 void EicWidget::selectGroupNearRt(float rt) {
@@ -1944,17 +1945,22 @@ void EicWidget::setStatusText(QString text) {
 
 }
 
-void EicWidget::markGroupGood() {
+void EicWidget::markGroupGood()
+{
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'g');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
 }
-void EicWidget::markGroupBad() {
+void EicWidget::markGroupBad()
+{
 	getMainWindow()->markGroup(eicParameters->getSelectedGroup(), 'b');
 	getMainWindow()->peaksMarked++;
 	getMainWindow()->autoSaveSignal();
 }
-void EicWidget::copyToClipboard() {
+
+void EicWidget::copyToClipboard()
+{
+	getMainWindow()->getAnalytics()->hitEvent("Exports", "Clipboard", 0);
 	getMainWindow()->setClipboardToGroup(eicParameters->getSelectedGroup());
 }
 

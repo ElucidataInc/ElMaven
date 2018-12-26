@@ -346,6 +346,7 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
 
 void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
+    mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     //set currently visible items
     PollyApp currentApp = PollyApp::FirstView;
     QPushButton* uploadButton = firstViewUpload;

@@ -1634,6 +1634,7 @@ void MainWindow::setMzValue(float mz1, float mz2) {
 }
 
 void MainWindow::print() {
+	analytics->hitEvent("Exports", "PDF", 2);
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -2217,25 +2218,9 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	return workerThread;
 }
 
-/*
- void MainWindow::terminateTheads() {
-
- for(int i=0; i < threads.size(); i++ ) {
- if (threads[i] != NULL ) {
- if (  threads[i]->isRunning())  {
- QMessageBox::StandardButton reply;
- reply = QMessageBox::critical(this, tr(  "QMessageBox::critical()"), "Do you wish to stop currently running backround job?", QMessageBox::Yes | QMessageBox::No);
- if (reply == QMessageBox::Yes) threads[i]->terminate();
- }
- if (! threads[i]->isRunning()) { delete(threads[i]); threads[i]=NULL; }
- }
- }
- }
-
-
- */
-
-void MainWindow::exportPDF() {
+void MainWindow::exportPDF()
+{
+	analytics->hitEvent("Exports", "PDF", 1);
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -2256,7 +2241,9 @@ void MainWindow::exportPDF() {
 	}
 }
 
-void MainWindow::exportSVG() {
+void MainWindow::exportSVG()
+{
+	analytics->hitEvent("Exports", "Clipboard", 5);
 
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);
