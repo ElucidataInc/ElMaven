@@ -5,7 +5,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
-
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
@@ -55,6 +54,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SIGNAL(updateProgressBar(QString, int, int)),
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
+  connect(this, SIGNAL(tenPeaksMarked()), this, SLOT(ShowStatistics()));
 
   setupFiltersDialog();
 
@@ -745,6 +745,37 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
                              _mainwindow->getVisibleSamples());
 }
 
+void TableDockWidget::ShowStatistics() {
+  int accuracy = 0;
+  int tp = 0;
+  int tn = 0;
+  int totalMarked = 0;
+  int totalMarkedByMl = 0;
+  for (int i = 0; i < allgroups.size(); i++) {
+    if (allgroups[i].label =='g' || allgroups[i].label =='b'){
+      totalMarked+=1;
+    }
+    if(allgroups[i].markedBadByMl == 1 || allgroups[i].markedGoodByMl == 1){
+      totalMarkedByMl+=1;
+    }
+    if (allgroups[i].label =='g' & allgroups[i].markedGoodByMl == 1){
+      tp+=1;
+    }
+    if (allgroups[i].label =='b' & allgroups[i].markedBadByMl == 1){
+      tn+=1;
+    }
+  }
+  if (totalMarked!=0){
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
+    msgBox->setWindowTitle("Cloud model statistics");
+    // QString Final_message = "Total groups marked by user - "+QString::number(totalMarked)+"\nTotal groups classified by ML - " +QString::number(totalMarkedByMl)+"\nTotal groups correctly classified by ML "+QString::number((tp+tn))+"\nOverall accuracy = "+QString::number(((float)(tp + tn) / totalMarked));
+    QString Final_message = " The cloud model detected " + QString::number(((float)(tp + tn) / totalMarked)) + "% of the peaks accurately.";    
+    msgBox->setText(Final_message);
+    msgBox->open();
+  }
+}
 void TableDockWidget::exportJson() {
 
   if (allgroups.size() == 0) {
@@ -897,6 +928,19 @@ void TableDockWidget::setGroupLabel(char label) {
       QVariant v = item->data(0, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
+        if (!(group->label=='g'||group->label=='b')){
+          numberOfGroupsMarked+=1;  
+        }
+        if (_mainwindow->sessionCount==1){
+          if (numberOfGroupsMarked ==10){
+            _mainwindow->sessionCount+=1;
+            Q_EMIT(tenPeaksMarked());
+          }
+        }
+        else{
+          qDebug()<<"session coiunt exceeds one.";
+        }
+
         group->setLabel(label);
       }
       updateItem(item);
@@ -1025,8 +1069,8 @@ void TableDockWidget::showConsensusSpectra() {
   }
 }
 
-void TableDockWidget::markGroupGood()
-{
+void TableDockWidget::markGroupGood() {
+  qDebug()<<"inside markGroupGood()";
   setGroupLabel('g');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
@@ -1034,8 +1078,8 @@ void TableDockWidget::markGroupGood()
   _mainwindow->autoSaveSignal();
 }
 
-void TableDockWidget::markGroupBad()
-{
+void TableDockWidget::markGroupBad() {
+  qDebug()<<"inside markGroupBad()";
   setGroupLabel('b');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
@@ -1916,7 +1960,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
-  } else if (btnName == "btnScatter") {
+  } else if (btnName == "btnMlStatistics") {
+
+    QToolButton *btnMlStatistics = new QToolButton(parent);
+    btnMlStatistics->setIcon(QIcon(rsrcPath + "/train.png"));
+    btnMlStatistics->setToolTip(tr("Get insights about the ML model"));
+    connect(btnMlStatistics, SIGNAL(clicked()), td, SLOT(ShowStatistics()));
+    return btnMlStatistics;
+  }else if (btnName == "btnScatter") {
 
     QToolButton *btnScatter = new QToolButton(parent);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
@@ -2005,6 +2056,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnMlStatistics =
+      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2038,7 +2091,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
+  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
@@ -2101,6 +2154,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnMlStatistics =
+      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2135,7 +2190,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
+  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2423,7 +2478,6 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 }
 
 void BookmarkTableDockWidget::markGroupGood() {
-
   setGroupLabel('g');
   showNextGroup();
   _mainwindow->peaksMarked++;
@@ -2458,6 +2512,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnMlStatistics =
+      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnTrain =
@@ -2488,7 +2544,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
+  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2611,13 +2667,16 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
         if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
             decisionConflict=true;
         }
-
+        grp->markedGoodByMl = 0;
+        grp->markedBadByMl = 0;
         //Call respected functions to mark the groups
         if (mark==1 && !decisionConflict) {
-            markGroupGood(grp, item);
+            // markGroupGood(grp, item);
+            grp->markedGoodByMl = 1;
         }
         else if (mark==-1 && !decisionConflict) {
-            markGroupBad(grp, item);
+            // markGroupBad(grp, item);
+            grp->markedBadByMl = 0;
         }
     }
 }
@@ -2625,11 +2684,24 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
 void TableDockWidget::markGroupGood(PeakGroup* grp, QTreeWidgetItem* item)
 {
     if(item && grp != NULL)
-    {
+    {   if (!(grp->label=='g'||grp->label=='b')){
+      numberOfGroupsMarked+=1;
+      qDebug()<<"one more new group marked";
+    }
+      qDebug()<<"group already marked";
         grp->setLabel('g');
         updateItem(item);
     }
     updateStatus();
+    if (_mainwindow->sessionCount==1){
+    if (numberOfGroupsMarked ==10){
+      _mainwindow->sessionCount+=1;
+      Q_EMIT(tenPeaksMarked());
+    }
+  }
+  else{
+    qDebug()<<"session coiunt exceeds one.";
+  }
 }
 
 void TableDockWidget::markGroupBad(PeakGroup* grp, QTreeWidgetItem* item)

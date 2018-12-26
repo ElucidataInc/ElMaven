@@ -39,6 +39,8 @@ PeakGroup::PeakGroup()  {
     maxSignalBaselineRatio=0;
     maxPeakOverlap=0;
     maxQuality=0;
+    markedGoodByCloudModel = 0;
+    markedBadByCloudModel = 0;
     avgPeakQuality=0;
     groupQuality=0;
     weightedAvgPeakQuality=0;
