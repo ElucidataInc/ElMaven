@@ -917,6 +917,7 @@ void MainWindow::threadSave(QString filename)
     autosave->saveProjectWorker();
 }
 
+// TODO: Add GA for emDB save here as well. Wait for autosave PR to get merged.
 void MainWindow::saveProject(bool explicitSave)
 {
     QSettings* settings = this->getSettings();
@@ -2447,6 +2448,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveProjectAsSQLite()));
+    connect(saveProjectAsSQLite, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("ProjectSave", "emDB");
+    });
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll
@@ -2456,6 +2461,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveMzRollProject()));
+    connect(saveProjectAsMzRoll, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("ProjectSave", "mzroll");
+    });
     saveProjectFile->addAction(saveProjectAsMzRoll);
     fileMenu->addMenu(saveProjectFile);
 
