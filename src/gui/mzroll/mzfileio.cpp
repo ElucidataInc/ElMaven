@@ -832,7 +832,7 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
         return;
 
     // set of compound databases that need to be communicated with ligand widget
-    set<QString> dbNames;
+    vector<QString> dbNames;
 
     // load all peakgroups
     auto groups = _currentProject->loadGroups(newSamples);
@@ -848,7 +848,7 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
                 group->compound = DB.findSpeciesById(group->compound->id,
                                                      group->compound->db);
             }
-            dbNames.insert(QString::fromStdString(group->compound->db));
+            dbNames.push_back(QString::fromStdString(group->compound->db));
         }
 
         // assign group to bookmark table if none exists
@@ -870,9 +870,9 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
                                  static_cast<int>(groups.size())));
     }
 
-    // notify database(s) that should be set
-    for (auto db : dbNames)
-        Q_EMIT(_mainwindow->ligandWidget->mzrollSetDB(db));
+    // emit last database name to be set in ligand widget
+    if (!dbNames.empty())
+        Q_EMIT(_mainwindow->ligandWidget->mzrollSetDB(dbNames.back()));
 
     // table widgets are ready to show groups
     Q_EMIT(sqliteDBPeakTablesPopulated());
