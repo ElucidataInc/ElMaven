@@ -57,7 +57,12 @@ void Analytics::sessionStart() {
     query.addQueryItem("t", "event"); // Hit event
     query.addQueryItem("sc", "start"); // Session start
     query.addQueryItem("ec", "session"); // Event category
-    query.addQueryItem("ea", "start"); // Event action
+
+    if (_isFirstSession)
+        query.addQueryItem("ea", "FirstStart"); // First session start
+    else
+        query.addQueryItem("ea", "start"); // Event action
+
     httpPost(query); // POST
 }
 
@@ -67,7 +72,12 @@ void Analytics::sessionEnd() {
     query.addQueryItem("t", "event"); // Hit event
     query.addQueryItem("sc", "end"); // Session end
     query.addQueryItem("ec", "session"); // Event category
-    query.addQueryItem("ea", "end"); // Event action
+
+    if (_isFirstSession)
+        query.addQueryItem("ea", "FirstEnd"); // First session end
+    else
+        query.addQueryItem("ea", "end"); // Event action
+
     httpPost(query); // POST
 }
 
@@ -88,14 +98,14 @@ QString Analytics::getClientID()
 
     QSettings settings(settingsPath, QSettings::IniFormat);
     QString clientID;
-    if (!settings.contains("analytics-cid"))
-    {
+
+    if (!settings.contains("analytics-cid")) {
         clientID = QUuid::createUuid().toString();
         settings.setValue("analytics-cid", clientID);
-    }
-    else
-    {
+        _isFirstSession = true;
+    } else {
         clientID = settings.value("analytics-cid").toString();
+        _isFirstSession = false;
     }
 
     return clientID;
