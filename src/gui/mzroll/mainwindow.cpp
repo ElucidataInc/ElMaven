@@ -2950,6 +2950,8 @@ void MainWindow::refreshIntensities() {
 	}
     bookmarkedPeaks->showAllGroups();
     _updateEMDBProgressBar(4, 4);
+    if (bookmarkedPeaks->allgroups.size() > 0)
+        bookmarkedPeaks->setVisible(true);
 }
 
 void MainWindow::showspectraMatchingForm() {
