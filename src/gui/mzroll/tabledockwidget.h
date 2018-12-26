@@ -31,7 +31,7 @@ public:
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
   int labeledGroups = 0;
-
+  int numberOfGroupsMarked = 0;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -127,6 +127,7 @@ public Q_SLOTS:
   };
 
   void exportJson();
+  void ShowStatistics();
   void showSelectedGroup();
   void setGroupLabel(char label);
   void showLastGroup();
@@ -192,6 +193,7 @@ protected:
 
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
+  void tenPeaksMarked();
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
