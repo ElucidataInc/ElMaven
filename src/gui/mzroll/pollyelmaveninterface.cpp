@@ -9,7 +9,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
 {
         setModal(true);
         setupUi(this);
-        createIcons();
         qRegisterMetaType<PollyApp>("PollyApp");
         workflowMenu->setCurrentRow(int(PollyApp::FirstView));
 
@@ -18,6 +17,8 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         pollyButton->setVisible(false);
         fluxButton->setVisible(false);
         
+        connect(workflowMenu, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+        this, SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
         connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         connect(fluxButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
         connect(firstViewUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
@@ -81,32 +82,6 @@ EPIWorkerThread::~EPIWorkerThread()
     }
     if (_pollyintegration) delete (_pollyintegration);
 };
-
-void PollyElmavenInterfaceDialog::createIcons()
-{   
-    QListWidgetItem *firstView = new QListWidgetItem(workflowMenu);
-    firstView->setIcon(QIcon(":/images/firstView.png"));
-    firstView->setText(tr("FirstView"));
-    firstView->setTextAlignment(Qt::AlignHCenter);
-    firstView->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    firstView->setToolTip("FirstView: Preview El-MAVEN processed data and perform further analysis");
-
-    QListWidgetItem *fluxomics = new QListWidgetItem(workflowMenu);
-    fluxomics->setIcon(QIcon(":/images/flux.png"));
-    fluxomics->setText(tr("PollyPhi Relative"));
-    fluxomics->setTextAlignment(Qt::AlignHCenter);
-    fluxomics->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    fluxomics->setToolTip("PollyPhi Relative: Process and derive insights from Relative flux workflow");
-
-    workflowMenu->setSizeAdjustPolicy(QListWidget::AdjustToContents);
-    workflowMenu->setViewMode(QListView::IconMode);
-    workflowMenu->setFlow(QListView::TopToBottom);
-    workflowMenu->setSpacing(18);
-    workflowMenu->setIconSize(QSize(140, 140));
-
-    connect(workflowMenu, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-        this, SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
-}
 
 void PollyElmavenInterfaceDialog::changePage(QListWidgetItem *current, QListWidgetItem *previous)
  {
