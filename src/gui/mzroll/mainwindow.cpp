@@ -3187,24 +3187,16 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-void MainWindow::UndoAlignment() {
+void MainWindow::UndoAlignment()
+{
 	alignmentDialog->samplesAligned(false);
-    if(alignmentDialog->alignAlgo->currentIndex() == 1){
-		for (auto sample : samples) {
-			for(auto scan : sample->scans)
-				if(scan->originalRt >= 0)
-					scan->rt = scan->originalRt;
-		}
-
-		eicWidget->replotForced();
-		alignmentDialog->close();
-		return;
-	}
-
+	
 	for (auto sample : samples) {
-		if (sample)
-			sample->restorePreviousRetentionTimes();
+		for(auto scan : sample->scans)
+			if(scan->originalRt >= 0)
+				scan->rt = scan->originalRt;
 	}
+
 	getEicWidget()->replotForced();
 
 	mavenParameters->alignButton = 0;
@@ -3213,9 +3205,9 @@ void MainWindow::UndoAlignment() {
 	for (auto group : mavenParameters->undoAlignmentGroups) {
 		listGroups.append(group);
 	}
-
+	
+	alignmentDialog->close();
 	Q_EMIT(undoAlignment(listGroups));
-
 }
 
 
