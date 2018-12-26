@@ -755,13 +755,13 @@ void TableDockWidget::ShowStatistics() {
     if (allgroups[i].label =='g' || allgroups[i].label =='b'){
       totalMarked+=1;
     }
-    if(allgroups[i].markedBadByMl == 1 || allgroups[i].markedGoodByMl == 1){
+    if(allgroups[i].markedBadByCloudModel == 1 || allgroups[i].markedGoodByCloudModel == 1){
       totalMarkedByMl+=1;
     }
-    if (allgroups[i].label =='g' & allgroups[i].markedGoodByMl == 1){
+    if (allgroups[i].label =='g' & allgroups[i].markedGoodByCloudModel == 1){
       tp+=1;
     }
-    if (allgroups[i].label =='b' & allgroups[i].markedBadByMl == 1){
+    if (allgroups[i].label =='b' & allgroups[i].markedBadByCloudModel == 1){
       tn+=1;
     }
   }
@@ -770,7 +770,6 @@ void TableDockWidget::ShowStatistics() {
     msgBox->setStandardButtons(QMessageBox::Ok);
     msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
     msgBox->setWindowTitle("Cloud model statistics");
-    // QString Final_message = "Total groups marked by user - "+QString::number(totalMarked)+"\nTotal groups classified by ML - " +QString::number(totalMarkedByMl)+"\nTotal groups correctly classified by ML "+QString::number((tp+tn))+"\nOverall accuracy = "+QString::number(((float)(tp + tn) / totalMarked));
     QString Final_message = " The cloud model detected " + QString::number(((float)(tp + tn) / totalMarked)) + "% of the peaks accurately.";    
     msgBox->setText(Final_message);
     msgBox->open();
@@ -2667,16 +2666,16 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
         if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
             decisionConflict=true;
         }
-        grp->markedGoodByMl = 0;
-        grp->markedBadByMl = 0;
+        grp->markedGoodByCloudModel = 0;
+        grp->markedBadByCloudModel = 0;
         //Call respected functions to mark the groups
         if (mark==1 && !decisionConflict) {
             // markGroupGood(grp, item);
-            grp->markedGoodByMl = 1;
+            grp->markedGoodByCloudModel = 1;
         }
         else if (mark==-1 && !decisionConflict) {
             // markGroupBad(grp, item);
-            grp->markedBadByMl = 0;
+            grp->markedBadByCloudModel = 0;
         }
     }
 }
