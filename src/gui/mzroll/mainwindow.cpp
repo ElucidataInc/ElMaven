@@ -950,16 +950,14 @@ void MainWindow::saveProject(bool explicitSave)
 
             // remove timestamp autosave file in any case
             QFile::remove(_currentProjectName);
-            if (reply == QMessageBox::Yes) {
-                _currentProjectName = "";
-                _setProjectFilenameIfEmpty();
-
-                // if the filename is still empty, (confused user?) do not save
-                if (_currentProjectName.isEmpty())
-                    return;
-            } else {
+            if (reply != QMessageBox::Yes)
                 return;
-            }
+
+            _currentProjectName = "";
+            _setProjectFilenameIfEmpty();
+
+            if (_currentProjectName.isEmpty())
+                return;
         } else {
             QMessageBox msgBox;
             QString message = "Please choose the project file to save your "
@@ -982,15 +980,14 @@ void MainWindow::saveProject(bool explicitSave)
             if (msgBox.clickedButton() == newButton) {
                 _currentProjectName = "";
                 _setProjectFilenameIfEmpty();
-
-                // if the filename is still empty, (confused user?) do not save
-                if (_currentProjectName.isEmpty())
-                    return;
             } else if (msgBox.clickedButton() == saveButton) {
                 _currentProjectName = _loadedProjectName;
             } else {
                 return;
             }
+
+            if (_currentProjectName.isEmpty())
+                return;
         }
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
