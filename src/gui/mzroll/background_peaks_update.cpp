@@ -464,12 +464,14 @@ void BackgroundPeakUpdate::align() {
                 int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
                 if (alignAlgo == 0) {
+                        mainwindow->getAnalytics()->hitEvent("Alignment", "PolyFit");
                         aligner.setMaxIterations(mainwindow->alignmentDialog->maxIterations->value());
                         aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
                         aligner.doAlignment(groups);
                         mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);
                         mainwindow->sampleRtWidget->setCoefficientMap(aligner.sampleCoefficient);
                 } else if (alignAlgo == 2) {
+                        mainwindow->getAnalytics()->hitEvent("Alignment", "LoessFit");
                         aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
                         // initialize processedDataFromPython with null 
                         processedDataFromPython="";
