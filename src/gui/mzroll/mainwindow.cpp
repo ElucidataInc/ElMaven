@@ -951,6 +951,8 @@ void MainWindow::saveProject(bool explicitSave)
 
             if (_currentProjectName.isEmpty())
                 return;
+
+            analytics->hitEvent("ProjectSave", "emDB");
         } else {
             QMessageBox msgBox;
             QString message = "Please choose the project file to save your "
@@ -973,8 +975,10 @@ void MainWindow::saveProject(bool explicitSave)
             if (msgBox.clickedButton() == newButton) {
                 _currentProjectName = "";
                 _setProjectFilenameIfEmpty();
+                analytics->hitEvent("ProjectSave", "emDBInNewFile");
             } else if (msgBox.clickedButton() == saveButton) {
                 _currentProjectName = _loadedProjectName;
+                analytics->hitEvent("ProjectSave", "emDBInCurrentFile");
             } else {
                 return;
             }
