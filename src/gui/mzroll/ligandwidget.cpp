@@ -37,6 +37,11 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
   loadButton->setToolTip("Load Custom Compound List");
 
+  connect(loadButton, &QToolButton::clicked, [this]()
+  {
+    _mw->getAnalytics()->hitEvent("LoadCompoundDB",
+                                  "CustomCompoundDB");
+  });
   connect(loadButton,SIGNAL(clicked()), mw, SLOT(loadCompoundsFile()));
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
