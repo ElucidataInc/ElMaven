@@ -788,7 +788,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         }
         _currentProject->saveCompounds(compoundSet);
         qDebug() << "finished writing to project" << filename;
-        if (!_mainwindow->autosaveEnabled)
+        if (!_mainwindow->timestampFileExists)
             Q_EMIT(updateStatusString(
                 QString("Project successfully saved to %1").arg(filename)
             ));

@@ -283,10 +283,28 @@ public:
 	void setValue(int value);
 	//TODO: Sahil - Kiran, removed while merging mainwindow
 	// bool isSampleFileType(QString filename);
-	// bool isProjectFileType(QString filename);
+        // bool isProjectFileType(QString filename);
+
+    /**
+     * @brief Save a session as an emDB project.
+     * @param explicitSave This boolean value tells the method whether save
+     * command was issued explicitly by the user. False by default.
+     */
     void saveProject(bool explicitSave=false);
+
+    /**
+     * @brief Call appropriate save methods for the filename set in
+     * `_currentProjectName` variable.
+     * @param tablesOnly Save only peak tables in the project file.
+     */
     void saveProjectForFilename(bool tablesOnly=false);
-    bool autosaveEnabled;
+
+    /**
+     * @brief Stores whether a timestamp file is being used to save in the
+     * background.
+     */
+    bool timestampFileExists;
+
 	void loadPollySettings(QString fileName);
 Q_SIGNALS:
 	void valueChanged(int newValue);
@@ -408,8 +426,23 @@ public Q_SLOTS:
     void saveSettings();
     void loadSettings();
     void showNotification(TableDockWidget* table);
+
+    /**
+     * @brief Save method that can be called when user explicitly asks for a
+     * project save.
+     */
     void explicitSave();
+
+    /**
+     * @brief Save a session in a filename using a background thread.
+     * @param filename String name of a  project file to save to.
+     */
     void threadSave(QString filename);
+
+    /**
+     * @brief Reset the status of autosave for current El-MAVEN session. Should
+     * be called whenever a new project is loaded into the session.
+     */
     void resetAutosave();
 
 private Q_SLOTS:
@@ -469,9 +502,19 @@ private:
 
     QProgressDialog* _loadProgressDialog;
 
-	QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
+        QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
+
+    /**
+     * @brief Name of the project to which all threaded saving will be done.
+     */
     QString _currentProjectName;
+
+    /**
+     * @brief Name of the project that was last loaded or saved and will be used
+     * when saving from explicit user command or final save when exiting app.
+     */
     QString _loadedProjectName;
+
     QString newFileName;
 
     QString _newAutosaveFile();

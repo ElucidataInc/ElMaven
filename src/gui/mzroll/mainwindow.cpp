@@ -93,7 +93,7 @@ void MainWindow::printvalue() {
         const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
         QString AutosavePath = samplePath + timestamp + ".mzroll";
         this->_currentProjectName = AutosavePath;
-        this->autosaveEnabled = true;
+        this->timestampFileExists = true;
         this->saveProject();
         unsigned int countCrashState = 0;
         settings->beginWriteArray("crashTables");
@@ -827,7 +827,7 @@ QString MainWindow::_newAutosaveFile()
 AutoSave::AutoSave(MainWindow* mw)
 {
     _mainwindow = mw;
-    _mainwindow->autosaveEnabled = false;
+    _mainwindow->timestampFileExists = false;
     saveTablesOnly = false;
 }
 
@@ -888,28 +888,20 @@ void MainWindow::_setProjectFilenameFromProjectDockWidget()
 
 void MainWindow::resetAutosave()
 {
-    if (this->autosaveEnabled)
+    if (this->timestampFileExists)
         QFile::remove(_currentProjectName);
-    this->autosaveEnabled = false;
+    this->timestampFileExists = false;
     this->peaksMarked = 0;
     _currentProjectName = "";
 }
 
 void MainWindow::autosaveProject()
 {
-    if (this->peaksMarked == 1) {
-        if (!this->autosaveEnabled)
+    if (this->peaksMarked == 1 || this->timestampFileExists) {
+        if (!this->timestampFileExists) {
             this->_currentProjectName = this->_newAutosaveFile();
-
-        if (this->_currentProjectName.isEmpty()) {
-            this->autosaveEnabled = false;
-            return;
-        } else {
-            this->autosaveEnabled = true;
+            this->timestampFileExists = true;
         }
-
-        autosave->saveProjectWorker();
-    } else if (this->autosaveEnabled) {
         autosave->saveProjectWorker();
     }
 }
@@ -974,7 +966,7 @@ void MainWindow::saveProject(bool explicitSave)
             msgBox.exec();
 
             // remove current project file only if it was created by autosave
-            if (this->autosaveEnabled)
+            if (this->timestampFileExists)
                 QFile::remove(_currentProjectName);
 
             if (msgBox.clickedButton() == newButton) {
@@ -1013,7 +1005,7 @@ void MainWindow::saveProject(bool explicitSave)
             _currentProjectName = _loadedProjectName;
         }
         this->autosave->saveProjectWorker();
-    } else if (this->autosaveEnabled) {
+    } else if (this->timestampFileExists) {
         this->autosave->saveProjectWorker(true);
     } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
         this->autosave->saveProjectWorker();
