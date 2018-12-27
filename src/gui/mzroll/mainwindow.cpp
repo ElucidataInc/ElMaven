@@ -92,8 +92,8 @@ void MainWindow::printvalue() {
         const QDateTime nowTime = QDateTime::currentDateTime();
         const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
         QString AutosavePath = samplePath + timestamp + ".mzroll";
-        this->fileName = AutosavePath;
-        this->doAutosave = true;
+        this->_currentProjectName = AutosavePath;
+        this->timestampFileExists = true;
         this->saveProject();
         unsigned int countCrashState = 0;
         settings->beginWriteArray("crashTables");
@@ -814,32 +814,20 @@ void MainWindow::createPeakTable(QString filenameNew) {
     peaksTable->showAllGroups();
 }
 
-bool MainWindow::askAutosave()
+QString MainWindow::_newAutosaveFile()
 {
-    bool doAutosave = false;
-    _setProjectFilenameFromProjectDockWidget();
-    if (this->fileName.isEmpty()) {
-        auto reply = QMessageBox::question(this,
-                                           "Autosave",
-                                           "Do you want to enable autosave? "
-                                           "You will have to create a new "
-                                           "project to save in.",
-                                           QMessageBox::Yes | QMessageBox::No,
-                                           QMessageBox::Yes);
-        if (reply == QMessageBox::Yes) {
-            doAutosave = true;
-        } else {
-            doAutosave = false;
-        }
-    }
-    return doAutosave;
+    auto now = QDateTime::currentDateTime();
+    auto tempFilename = now.toString(Qt::ISODate) + ".emDB";
+    auto firstSampleFile = getSamples()[0]->fileName;
+    auto sampleFileInfo = QFileInfo(QString::fromStdString(firstSampleFile));
+    auto samplePath = sampleFileInfo.absolutePath();
+    return samplePath + QDir::separator() + tempFilename;
 }
 
 AutoSave::AutoSave(MainWindow* mw)
 {
     _mainwindow = mw;
-    _mainwindow->doAutosave = false;
-    _mainwindow->askAutosaveMain = 0;
+    _mainwindow->timestampFileExists = false;
     saveTablesOnly = false;
 }
 
@@ -861,7 +849,7 @@ void AutoSave::run()
 
 void MainWindow::_setProjectFilenameIfEmpty()
 {
-    if (this->fileName.isEmpty()) {
+    if (this->_currentProjectName.isEmpty()) {
         QString dir = ".";
         if (settings->contains("lastDir")) {
             QString ldir = settings->value("lastDir").value<QString>();
@@ -878,9 +866,9 @@ void MainWindow::_setProjectFilenameIfEmpty()
                                          "El-MAVEN Database Format(*.emDB)");
         if (!filename.isEmpty()) {
             if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
-                this->fileName = filename + ".emDB";
+                this->_currentProjectName = filename + ".emDB";
             } else {
-                this->fileName = filename;
+                this->_currentProjectName = filename;
             }
         }
     }
@@ -892,26 +880,28 @@ void MainWindow::_setProjectFilenameFromProjectDockWidget()
     auto lastLoad = projectDockWidget->getLastOpenedTime();
     if (!projectDockWidget->getLastOpenedProject().isEmpty()
             && lastLoad > lastSave)
-        fileName = projectDockWidget->getLastOpenedProject();
+        _currentProjectName = projectDockWidget->getLastOpenedProject();
     if (!projectDockWidget->getLastSavedProject().isEmpty()
             && lastSave > lastLoad)
-        fileName = projectDockWidget->getLastSavedProject();
+        _currentProjectName = projectDockWidget->getLastSavedProject();
+}
+
+void MainWindow::resetAutosave()
+{
+    if (this->timestampFileExists)
+        QFile::remove(_currentProjectName);
+    this->timestampFileExists = false;
+    this->peaksMarked = 0;
+    _currentProjectName = "";
 }
 
 void MainWindow::autosaveProject()
 {
-    if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
-        this->askAutosaveMain++;
-        this->doAutosave = this->askAutosave();
-        if (this->doAutosave) {
-            _setProjectFilenameIfEmpty();
-            if (this->fileName.isEmpty()) {
-                this->doAutosave = false;
-                return;
-            }
-            autosave->saveProjectWorker();
+    if (this->peaksMarked == 1 || this->timestampFileExists) {
+        if (!this->timestampFileExists) {
+            this->_currentProjectName = this->_newAutosaveFile();
+            this->timestampFileExists = true;
         }
-    } else if (this->doAutosave) {
         autosave->saveProjectWorker();
     }
 }
@@ -923,7 +913,7 @@ void MainWindow::explicitSave()
 
 void MainWindow::threadSave(QString filename)
 {
-    fileName = filename;
+    _currentProjectName = filename;
     autosave->saveProjectWorker();
 }
 
@@ -936,13 +926,13 @@ void MainWindow::saveProject(bool explicitSave)
         if (getSamples().size() == 0)
             return;
 
-        if (fileName.isEmpty())
+        if (_currentProjectName.isEmpty())
             _setProjectFilenameFromProjectDockWidget();
 
-        // if fileName is still empty, no projects were closed or opened
-        if (fileName.isEmpty()) {
-            QString message =
-                "Would you like to save your data for this session as a project?";
+        // if no projects were saved or opened
+        if (_loadedProjectName.isEmpty()) {
+            QString message = "Would you like to save your data for this "
+                              "session as a project?";
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this,
                                           "Save as project",
@@ -950,20 +940,51 @@ void MainWindow::saveProject(bool explicitSave)
                                           QMessageBox::Yes | QMessageBox::No,
                                           QMessageBox::Yes);
 
-            if (reply == QMessageBox::Yes) {
-                _setProjectFilenameIfEmpty();
+            // remove timestamp autosave file in any case
+            QFile::remove(_currentProjectName);
+            if (reply != QMessageBox::Yes)
+                return;
 
-                // if the filename is still empty, (confused user?) do not save
-                if (fileName.isEmpty())
-                    return;
+            _currentProjectName = "";
+            _setProjectFilenameIfEmpty();
+
+            if (_currentProjectName.isEmpty())
+                return;
+        } else {
+            QMessageBox msgBox;
+            QString message = "Please choose the project file to save your "
+                              "progress for this session.";
+            msgBox.setText(message);
+            QPushButton* cancelButton = msgBox.addButton(tr("Cancel"),
+                                                         QMessageBox::ActionRole);
+            QPushButton* newButton = msgBox.addButton(tr("Save in new"),
+                                                      QMessageBox::ActionRole);
+            QPushButton* saveButton = msgBox.addButton(tr("Save in current"),
+                                                       QMessageBox::ActionRole);
+            msgBox.setDefaultButton(saveButton);
+            msgBox.setEscapeButton(cancelButton);
+            msgBox.exec();
+
+            // remove current project file only if it was created by autosave
+            if (this->timestampFileExists)
+                QFile::remove(_currentProjectName);
+
+            if (msgBox.clickedButton() == newButton) {
+                _currentProjectName = "";
+                _setProjectFilenameIfEmpty();
+            } else if (msgBox.clickedButton() == saveButton) {
+                _currentProjectName = _loadedProjectName;
             } else {
                 return;
             }
+
+            if (_currentProjectName.isEmpty())
+                return;
         }
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
         _setProjectFilenameFromProjectDockWidget();
-        if (fileName.isEmpty()) {
+        if (_loadedProjectName.isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",
                                                "You do not have a project for "
@@ -975,11 +996,16 @@ void MainWindow::saveProject(bool explicitSave)
                 _setProjectFilenameIfEmpty();
 
             // still empty?!
-            if (fileName.isEmpty())
+            if (_currentProjectName.isEmpty())
                 return;
+
+            _loadedProjectName = _currentProjectName;
+        } else {
+            resetAutosave();
+            _currentProjectName = _loadedProjectName;
         }
         this->autosave->saveProjectWorker();
-    } else if (this->doAutosave) {
+    } else if (this->timestampFileExists) {
         this->autosave->saveProjectWorker(true);
     } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
         this->autosave->saveProjectWorker();
@@ -988,25 +1014,25 @@ void MainWindow::saveProject(bool explicitSave)
 
 void MainWindow::saveProjectForFilename(bool tablesOnly)
 {
-    if (fileLoader->isMzRollProject(fileName)) {
+    if (fileLoader->isMzRollProject(_currentProjectName)) {
         _saveAllTablesAsMzRoll();
-    } else if (fileLoader->isSQLiteProject(fileName)) {
+    } else if (fileLoader->isSQLiteProject(_currentProjectName)) {
         if (tablesOnly) {
             auto allTables = getPeakTableList();
             allTables.append(bookmarkedPeaks);
             for (auto table : allTables)
-                projectDockWidget->savePeakTableInSQLite(table, fileName);
+                projectDockWidget->savePeakTableInSQLite(table, _currentProjectName);
         } else {
-            projectDockWidget->saveSQLiteProject(fileName);
+            projectDockWidget->saveSQLiteProject(_currentProjectName);
         }
     }
 }
 
 void MainWindow::_saveAllTablesAsMzRoll()
 {
-    if (fileName.isEmpty()) {
-        fileName = this->projectDockWidget->getLastSavedProject();
-        if (!fileLoader->isMzRollProject(fileName)) {
+    if (_currentProjectName.isEmpty()) {
+        _currentProjectName = this->projectDockWidget->getLastSavedProject();
+        if (!fileLoader->isMzRollProject(_currentProjectName)) {
             projectDockWidget->saveProjectAsMzRoll();
             return;
         }
@@ -1015,7 +1041,7 @@ void MainWindow::_saveAllTablesAsMzRoll()
             && this->projectDockWidget->getLastSavedProject() == newFileName) {
         projectDockWidget->saveMzRollProject(newFileName);
     } else {
-        projectDockWidget->saveMzRollProject(fileName);
+        projectDockWidget->saveMzRollProject(_currentProjectName);
     }
 }
 
@@ -1677,16 +1703,18 @@ void MainWindow::open()
                    + " "
                    + fileInfo.fileName());
 
-    bool sqliteProjectBeingLoaded = false;
+    QString sqliteProjectBeingLoaded = "";
     Q_FOREACH (QString filename, filelist) {
         if (fileLoader->isSQLiteProject(filename))
-            sqliteProjectBeingLoaded = true;
+            sqliteProjectBeingLoaded = filename;
 
         fileLoader->addFileToQueue(filename);
     }
 
-    if (sqliteProjectBeingLoaded)
+    if (!sqliteProjectBeingLoaded.isEmpty()) {
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
+        _loadedProjectName = sqliteProjectBeingLoaded;
+    }
 
     bool cancelUploading = false;
     cancelUploading = updateSamplePathinMzroll(filelist);

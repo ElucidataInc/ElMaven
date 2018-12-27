@@ -698,8 +698,10 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         this,
         "Opening Project",
         userSessionWarning,
-        QMessageBox::Yes | QMessageBox::Cancel
+        QMessageBox::No | QMessageBox::Yes,
+        QMessageBox::Yes
     );
+    _mainwindow->resetAutosave();
     if (reply == QMessageBox::Yes)
         saveSQLiteProject();
 
