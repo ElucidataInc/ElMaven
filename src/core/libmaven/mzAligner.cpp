@@ -11,7 +11,7 @@
 mzSample* Aligner::refSample = nullptr;
 
 Aligner::Aligner() {
-       maxItterations=10;
+       maxIterations=10;
        polynomialDegree=3;
 }
 
@@ -67,7 +67,7 @@ void Aligner::preProcessing(vector<PeakGroup*>& peakgroups, bool alignWrtExpecte
     copy(samplesSet.begin(), samplesSet.end(),samples.begin());        
 	
     for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
+        samples[i]->saveCurrentRetentionTimes();
         QJsonArray jArr;
         for(unsigned int ii=0; ii < samples[i]->scans.size(); ii++ ) {
             jArr.push_back(samples[i]->scans[ii]->rt);
@@ -139,74 +139,65 @@ void Aligner::updateRts(QJsonObject &parentObj)
 
 }
 
-void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
+void Aligner::doAlignment(vector<PeakGroup*>& peakgroups)
+{
 	if (peakgroups.size() == 0) return;
 
 	//store groups into private variable
 	allgroups = peakgroups;
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
 		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
 			Peak peak = grp->getPeaks().at(jj);
 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
 		}
 	}
 
-
-	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
-	samples.clear();
-
     samples.clear();
 	set<mzSample*> samplesSet;
-	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-			for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-					Peak& p = peakgroups[i]->peaks[j];
-					mzSample* sample = p.getSample();
-					if (sample) samplesSet.insert(sample);
-			}
+	for (unsigned int i = 0; i < peakgroups.size(); i++) {
+		for ( unsigned int j = 0; j < peakgroups[i]->peakCount(); j++) {
+			Peak& p = peakgroups[i]->peaks[j];
+			mzSample* sample = p.getSample();
+			if (sample) samplesSet.insert(sample);
+		}
 	}
 
 	//unique list of samples
 	samples.resize(samplesSet.size());
 	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
 
-    for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveOriginalRetentionTimes();
-    }
+	saveFit();
+	double R2_before = checkFit();
 
-	 saveFit();
-	 double R2_before = checkFit();
+    cerr << "Max Iterations: " << maxIterations << endl;
+    for(int iter = 0; iter < maxIterations; iter++) {
+		cerr << iter << endl;
 
-
-     cerr << "Max Itterations: " << maxItterations << endl;
-     for(int iter=0; iter < maxItterations; iter++) {
-		 cerr << iter << endl;
-
-       PolyFit(polynomialDegree);
+        PolyFit(polynomialDegree);
         double R2_after = checkFit();
-        cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
+        cerr << "Iteration:" << iter << " R2_before" << R2_before << " R2_after" << R2_after << endl;
 
 		if (R2_after > R2_before) {
-            cerr << "done...restoring previous fit.." << endl;
+            cerr << "done..restoring previous fit.." << endl;
 			restoreFit();
 			break;
 		} else {
 			saveFit();
 		}
-		R2_before = R2_after;
-	 }
+		
+        R2_before = R2_after;
+	}
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
 		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
 			Peak peak = grp->getPeaks().at(jj);
 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
 		}
-
 	}
 }
-
 
 void Aligner::saveFit() {
 	cerr << "saveFit()" << endl;
@@ -455,36 +446,46 @@ void Aligner::Fit(int ideg) {
 	delete[] c;
 	delete[] d;
 }
-void Aligner::alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference){
-
+bool Aligner::alignSampleRts(mzSample* sample,
+                             vector<float> &mzPoints,
+                             ObiWarp& obiWarp,
+                             bool setAsReference,
+                             const MavenParameters* mp)
+{
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
-    for(int j = 0; j < sample->scans.size(); ++j){
+    for (int j = 0; j < sample->scans.size(); ++j) {
+        if (mp->stop) return (true);
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
 
-    for(int j=0;j<sample->scans.size();++j){
-            for(int k=0;k<sample->scans[j]->mz.size();++k){
-                if( sample->scans[j]->mz[k] < mzPoints.front() || sample->scans[j]->mz[k] > mzPoints.back())
-                    continue;
-                int index = upper_bound( mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k] )
-                                - mzPoints.begin() -1;
+    for (int j = 0 ; j < sample->scans.size(); ++j) {
+        for (int k = 0; k < sample->scans[j]->mz.size(); ++k) {
+            if (mp->stop) return (true);
+            if (sample->scans[j]->mz[k] < mzPoints.front()
+                || sample->scans[j]->mz[k] > mzPoints.back())
+                continue;
+            int index = upper_bound(mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k])
+                            - mzPoints.begin() -1;
 
-                mxn[j][index] =  max(mxn[j][index] , sample->scans[j]->intensity[k]);
-
-            }
+            mxn[j][index] = max(mxn[j][index], sample->scans[j]->intensity[k]);
+        }
     }
     
-    if(setAsReference)
+    if (setAsReference) {
+        if (mp->stop) return (true);
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
-    else{
-        rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
-        for(int j = 0; j < sample->scans.size(); ++j)
-            sample->scans[j]->rt = rtPoints[j];
     }
+    else {
+        rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
+        for(int j = 0; j < sample->scans.size(); ++j) {
+            if (mp->stop) return (true);
+            sample->scans[j]->rt = rtPoints[j];
+        }
+    }
+    return (false);
 }
-
 
 void Aligner::setRefSample(mzSample* sample)
 {
@@ -493,25 +494,30 @@ void Aligner::setRefSample(mzSample* sample)
     refSample = sample;
 }
 
-void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams) {
-
-
-    if(refSample == nullptr) {
+bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
+                              ObiParams* obiParams,
+                              const MavenParameters* mp)
+{
+    if (refSample == nullptr) {
         srand(time(NULL));
         refSample = samples[rand()%samples.size()];
     }
 
+    //save current retention times
+    for (auto sample : samples) {
+        sample->saveCurrentRetentionTimes();
+    }
 
     ObiWarp* obiWarp = new ObiWarp(obiParams);
 
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
-    for(int j=0;j<refSample->scans.size();++j){
-            for(int k=0;k<refSample->scans[j]->mz.size();++k){
-                minMzRange = min ( minMzRange, refSample->scans[j]->mz[k] );
-                maxMzRange = max ( maxMzRange, refSample->scans[j]->mz[k] );
-            }
+    for (int j = 0; j < refSample->scans.size(); ++j) {
+        for (int k = 0; k < refSample->scans[j]->mz.size(); ++k) {
+            minMzRange = min(minMzRange, refSample->scans[j]->mz[k]);
+            maxMzRange = max(maxMzRange, refSample->scans[j]->mz[k]);
+        }
     }
 
     maxMzRange += 10;
@@ -521,22 +527,36 @@ void Aligner::alignWithObiWarp(vector<mzSample*> samples,  ObiParams* obiParams)
     minMzRange = floor(minMzRange);
     maxMzRange = ceil(maxMzRange);
     vector<float> mzPoints;
-    for(float bin = minMzRange; bin <= maxMzRange; bin += binSize)
+    for (float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    alignSampleRts(refSample, mzPoints, *obiWarp, true);
+    bool stopped = false;
+    stopped = alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
+
+    if (mp->stop || stopped) {
+        delete obiWarp;
+        return (true);
+    }
 
     int samplesAligned = 0;
     #pragma omp parallel for shared(samplesAligned)
-    for(int i=0 ; i < samples.size();++i){
-        if(samples[i] == refSample)
+    for (int i = 0; i < samples.size(); ++i) {
+        if (samples[i] == refSample)
             continue;
-        alignSampleRts(samples[i], mzPoints, *obiWarp, false);
-
-        samplesAligned++;
-        setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
+        if (mp->stop) {
+            stopped = true;
+            #pragma omp cancel for
+        }
+        #pragma omp cancellation point for
+        if (alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp)) {
+            stopped = true;
+        } else {
+            samplesAligned++;
+            setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
+        }
     }
 
+    cerr << "Samples modified: " << samplesAligned << endl;
     delete obiWarp;
-    cerr<<"Alignment complete"<<endl;
+    return(stopped);
 }

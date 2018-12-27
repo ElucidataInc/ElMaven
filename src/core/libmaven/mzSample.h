@@ -428,16 +428,15 @@ class mzSample
     EIC *getBIC(float rtmin, float rtmax, int mslevel);
 
     /**
-             * [save Original Retention Times]
-             * @method saveOriginalRetentionTimes
-             */
-    void saveOriginalRetentionTimes();
+     * @brief save alignment state before next alignment is performed
+     **/
+    void saveCurrentRetentionTimes();
 
     /**
-                          * [restore Original Retention Times]
-                          * @method restoreOriginalRetentionTimes
-                          */
-    void restoreOriginalRetentionTimes();
+     * @brief restore last state of alignment
+     * @details last saved state is restored on cancelling alignment
+     **/
+    void restorePreviousRetentionTimes();
 
     void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
 
@@ -706,8 +705,8 @@ class mzSample
 
     //saving and restoring retention times
 
-    /** saved retention times prior to alignment */
-    vector<float> originalRetentionTimes;
+    //saved retention times prior to every alignment
+    vector<float> lastSavedRTs;
 
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 

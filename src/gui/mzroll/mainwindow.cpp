@@ -696,7 +696,7 @@ void MainWindow::saveSettingsToLog() {
     summary << "\n\n-------------------Maven Parameters-------------------"<< "\n"<< "\n";
 //     summary << "runFunction =" << runFunction<< "\n";
     summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
-    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignMaxIterations="  <<  mavenParameters->alignMaxIterations << "\n";
     summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
 
     summary << "--------------------------------MASS SLICING"<< "\n";
@@ -3112,18 +3112,21 @@ void MainWindow::Align() {
     if(alignmentDialog->alignAlgo->currentIndex() == 1){
 		workerThread = newWorkerThread("alignWithObiWarp");
 		workerThread->setMavenParameters(mavenParameters);
+		alignmentDialog->setWorkerThread(workerThread);
 		workerThread->start();
 		connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 		connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
+		connect(workerThread, SIGNAL(restoreAlignment()), alignmentDialog, SLOT(updateRestoreStatus()));
 		return;
 	}
 	
 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
         mavenParameters->setCompounds(DB.getCompoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
-
+		alignmentDialog->setWorkerThread(workerThread);
 	} else {
 		workerThread = newWorkerThread("processMassSlices");
+		alignmentDialog->setWorkerThread(workerThread);
 	}
 
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
@@ -3151,7 +3154,7 @@ void MainWindow::Align() {
 
 
     mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
-    mavenParameters->alignMaxItterations = alignmentDialog->maxItterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    mavenParameters->alignMaxIterations = alignmentDialog->maxIterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
     mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
     mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -3163,7 +3166,6 @@ void MainWindow::Align() {
 	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
-	alignmentDialog->setWorkerThread(workerThread);
 
     //connect new connections
     connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -3185,35 +3187,27 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-void MainWindow::UndoAlignment() {
+void MainWindow::UndoAlignment()
+{
 	alignmentDialog->samplesAligned(false);
-    if(alignmentDialog->alignAlgo->currentIndex() == 1){
-		for (int i = 0; i < samples.size(); i++) {
-			for(int j = 0; j < samples[i]->scans.size(); ++j)
-				if(samples[i]->scans[j]->originalRt >= 0)
-					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
-		}
-
-		eicWidget->replotForced();
-		alignmentDialog->close();
-		return;
+	
+	for (auto sample : samples) {
+		for(auto scan : sample->scans)
+			if(scan->originalRt >= 0)
+				scan->rt = scan->originalRt;
 	}
 
-	for (int i = 0; i < samples.size(); i++) {
-		if (samples[i])
-			samples[i]->restoreOriginalRetentionTimes();
-	}
 	getEicWidget()->replotForced();
 
 	mavenParameters->alignButton = 0;
 
 	QList<PeakGroup> listGroups;
-	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
-			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
+	for (auto group : mavenParameters->undoAlignmentGroups) {
+		listGroups.append(group);
 	}
-
+	
+	alignmentDialog->close();
 	Q_EMIT(undoAlignment(listGroups));
-
 }
 
 

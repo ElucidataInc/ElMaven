@@ -34,7 +34,7 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "-------------------SETTINGS-------------------"<< "\n"<< "\n";
 //     summary << "runFunction =" << runFunction<< "\n";
     summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
-    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignMaxIterations="  <<  mavenParameters->alignMaxIterations << "\n";
     summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
 
     summary << "--------------------------------MASS SLICING"<< "\n";
@@ -260,25 +260,8 @@ void BackgroundPeakUpdate::run(void) {
 	connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->groupRtWidget, SLOT(setCurrentGroups(QList<PeakGroup>)));
         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->sampleRtWidget, SLOT(plotGraph()));
         mavenParameters->stop = false;
-        //_stopped = false;
+        started();
 
-        //populating the maven setting insatnces with with the samples
-        // if (mavenParameters->samples.size() == 0) {
-        //         mavenParameters->samples = mainwindow->getSamples();
-        // }
-        //Getting the classification model
-        //mavenParameters->clsf = mainwindow->getClassifier();
-
-        //Setting the ionization mode if the user specifies the ionization mode
-        //then its given the priority else the ionization mode is taken from the
-        //sample
-        //TODO: See how the ionization mode is effected if the user selects
-        //Neutral or autodetect
-        // if (mainwindow->getIonizationMode()) {
-        //         mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        // } else {
-        //         mavenParameters->setIonizationMode();
-        // }
         if (runFunction == "findPeaksQQQ") {
                 findPeaksQQQ();
         } else if (runFunction == "alignUsingDatabase") {
@@ -304,28 +287,39 @@ void BackgroundPeakUpdate::run(void) {
         quit();
         return;
 }
-void BackgroundPeakUpdate::alignWithObiWarp(){
-        ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
-                                        mainwindow->alignmentDialog->local->isChecked(),
-                                        mainwindow->alignmentDialog->factorDiag->value(),
-                                        mainwindow->alignmentDialog->factorGap->value(),
-                                        mainwindow->alignmentDialog->gapInit->value(),
-                                        mainwindow->alignmentDialog->gapExtend->value(),
-                                        mainwindow->alignmentDialog->initPenalty->value(),
-                                        mainwindow->alignmentDialog->responseObiWarp->value(),
-                                        mainwindow->alignmentDialog->noStdNormal->isChecked(),
-                                        mainwindow->alignmentDialog->binSizeObiWarp->value()
-                                );
-        Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
+void BackgroundPeakUpdate::alignWithObiWarp()
+{
+    ObiParams *obiParams = new ObiParams(mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
+                                         mainwindow->alignmentDialog->local->isChecked(),
+                                         mainwindow->alignmentDialog->factorDiag->value(),
+                                         mainwindow->alignmentDialog->factorGap->value(),
+                                         mainwindow->alignmentDialog->gapInit->value(),
+                                         mainwindow->alignmentDialog->gapExtend->value(),
+                                         mainwindow->alignmentDialog->initPenalty->value(),
+                                         mainwindow->alignmentDialog->responseObiWarp->value(),
+                                         mainwindow->alignmentDialog->noStdNormal->isChecked(),
+                                         mainwindow->alignmentDialog->binSizeObiWarp->value());
 
-        Aligner aligner;
-        aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
-                                                         this, _1, _2, _3));
-        aligner.alignWithObiWarp(mavenParameters->samples, obiParams);
-        delete obiParams;
+    Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
 
-        mainwindow->sampleRtWidget->plotGraph();
-        Q_EMIT(samplesAligned(true));
+    Aligner aligner;
+    aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
+                                                     this, _1, _2, _3));
+    _stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
+    delete obiParams;
+
+    if (_stopped) {
+        Q_EMIT(restoreAlignment());
+        //restore previous RTs
+        for (auto sample : mavenParameters->samples) {
+            sample->restorePreviousRetentionTimes();
+        }
+        mavenParameters->stop = false;
+        return;
+    }
+        
+    mainwindow->sampleRtWidget->plotGraph();
+    Q_EMIT(samplesAligned(true));
 
 }
 void BackgroundPeakUpdate::writeCSVRep(string setName) {
@@ -470,7 +464,7 @@ void BackgroundPeakUpdate::align() {
                 int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
                 if (alignAlgo == 0) {
-                        aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
+                        aligner.setMaxIterations(mainwindow->alignmentDialog->maxIterations->value());
                         aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
                         aligner.doAlignment(groups);
                         mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);
@@ -556,7 +550,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
-                Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
+                Q_EMIT(updateProgressBar("Calculating Isotopes", 1, 100));
         }
 
         writeCSVRep(setName);
@@ -606,7 +600,7 @@ void BackgroundPeakUpdate::completeStop() {
         
         peakDetector.resetProgressBar();
         mavenParameters->stop = true;
-        //stop();
+        stop();
 }
 
 void BackgroundPeakUpdate::computePeaks() {

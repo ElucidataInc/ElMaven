@@ -46,7 +46,7 @@ void TestMzAligner::testObiWarp()
 
     ObiParams params("cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
     Aligner aligner;
-    aligner.alignWithObiWarp(mavenparameters->samples, &params);
+    aligner.alignWithObiWarp(mavenparameters->samples, &params, mavenparameters);
 
     maventests::database.loadCompoundCSVFile("bin/methods/KNOWNS.csv");
     vector<Compound*> compounds = maventests::database.getCompoundsSubset("KNOWNS");

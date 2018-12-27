@@ -1790,28 +1790,27 @@ Scan *mzSample::getAverageScan(float rtmin, float rtmax, int mslevel, int polari
 	return avgScan;
 }
 
-void mzSample::saveOriginalRetentionTimes()
+void mzSample::saveCurrentRetentionTimes()
 {
-	if (originalRetentionTimes.size() > 0)
-		return;
-
-	originalRetentionTimes.resize(scans.size());
+	lastSavedRTs.resize(scans.size());
+	
 	for (unsigned int ii = 0; ii < scans.size(); ii++)
 	{
-		originalRetentionTimes[ii] = scans[ii]->rt;
+		lastSavedRTs[ii] = scans[ii]->rt;
 	}
 }
 
-void mzSample::restoreOriginalRetentionTimes()
+void mzSample::restorePreviousRetentionTimes()
 {
-	//TODO naman unused function
-
-	if (originalRetentionTimes.size() == 0)
-		return;
-
-	for (unsigned int ii = 0; ii < scans.size(); ii++)
-	{
-		scans[ii]->rt = originalRetentionTimes[ii];
+	if (lastSavedRTs.size() == 0) {
+		//restore original RTs if no alignment has been performed
+		for (auto scan : scans) {
+			scan->rt = scan->originalRt;
+		}
+	} else {
+		for (unsigned int ii = 0; ii < scans.size(); ii++) {
+			scans[ii]->rt = lastSavedRTs[ii];
+		}
 	}
 }
 
