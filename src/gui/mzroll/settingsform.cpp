@@ -177,15 +177,70 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(RProgramSelect, SIGNAL(clicked()), SLOT(selectRProgram()));
     connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
 
+    // file import settings
+    connect(centroid_scan_flag, SIGNAL(toggled(bool)), SLOT(getFormValues()));
+    connect(centroid_scan_flag, &QCheckBox::toggled, [this](const bool val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "CentroidScans",
+                                             static_cast<int>(val));
+    });
+    connect(scan_filter_polarity,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_polarity,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "ScanFilterPolarity",
+                                             val);
+    });
+    connect(scan_filter_mslevel,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_mslevel,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "ScanFilterMSLevel",
+                                             val);
+    });
+    connect(scan_filter_min_quantile,
+            SIGNAL(valueChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_min_quantile,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "ScanFilterMinQuantile",
+                                             val);
+    });
+    connect(scan_filter_min_intensity,
+            SIGNAL(valueChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_min_intensity,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "ScanFilterMinIntensity",
+                                             val);
+    });
+    connect(checkBoxMultiprocessing,
+            SIGNAL(toggled(bool)),
+            SLOT(updateMultiprocessing()));
+    connect(checkBoxMultiprocessing, &QCheckBox::toggled, [this](const bool val)
+    {
+        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
+                                             "UploadMultiprocessing",
+                                             static_cast<int>(val));
+    });
 
-    connect(centroid_scan_flag,SIGNAL(toggled(bool)), SLOT(getFormValues()));
-    connect(scan_filter_min_quantile, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
-    connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
     connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
     connect(ionizationType, SIGNAL(currentIndexChanged(int)), SLOT(setAppropriatePolarity()));
-
-    //Multiprocessing
-    connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
 
     //Group Rank
     setGroupRankStatus();
