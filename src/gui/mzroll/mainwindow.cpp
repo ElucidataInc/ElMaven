@@ -1986,56 +1986,82 @@ bool MainWindow::loadMetaInformation(QString filename) {
 	}
 }
 
-void MainWindow::loadCompoundsFile() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
-					".",
-					"All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML *.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*.massbank");
+void MainWindow::loadCompoundsFile()
+{
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select Compounds File To Load",
+        ".",
+        "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
+        "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
+        "File(*.csv);;NIST "
+        "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
+        "massbank");
 
-    if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
-	if(!loadCompoundsFile(filelist[0])) {
-		string dbfilename = filelist[0].toStdString();
-		string dbname = mzUtils::cleanFilename(dbfilename);
-		string notFoundColumns = "Following are the unknown column name(s) found: ";
+    if (filelist.size() == 0 || filelist[0].isEmpty())
+        return;
+    if (!loadCompoundsFile(filelist[0])) {
+        string dbfilename = filelist[0].toStdString();
+        string dbname = mzUtils::cleanFilename(dbfilename);
+        string notFoundColumns = "Following are the unknown column name(s) "
+                                 "found: ";
 
         QMessageBox msgBox;
-		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
+        msgBox.setText(tr("Trouble in loading compound database %1")
+                         .arg(QString::fromStdString(dbname)));
         msgBox.setIcon(QMessageBox::Warning);
-		if (DB.notFoundColumns.size() > 0) {
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
-		}
+        if (DB.notFoundColumns.size() > 0) {
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
+        }
+        analytics->hitEvent("LoadCompoundDB",
+                            "ColumnError",
+                            1);
 
-		int ret = msgBox.exec();
-	} else {
-		if (DB.notFoundColumns.size() > 0) {
-			string notFoundColumns = "Following are the unknown column name(s) found: ";
+        int ret = msgBox.exec();
+    } else {
+        if (DB.notFoundColumns.size() > 0) {
+            analytics->hitEvent("LoadCompoundDB",
+                                "ColumnError",
+                                0);
+            string notFoundColumns = "Following are the unknown column name(s) "
+                                     "found: ";
             QMessageBox msgBox;
-			msgBox.setText(tr("Found some unknown column name(s)"));
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+            msgBox.setText(tr("Found some unknown column name(s)"));
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-		if (DB.invalidRows.size() > 0) {
-			string invalidRowsString = "The following compounds had insufficient information for peak detection, and were not loaded:";
+            int ret = msgBox.exec();
+        }
+        if (DB.invalidRows.size() > 0) {
+            analytics->hitEvent("LoadCompoundDB",
+                                "RowError");
+            string invalidRowsString = "The following compounds had "
+                                       "insufficient information for peak "
+                                       "detection, and were not loaded:";
             QMessageBox msgBox;
-			msgBox.setText(tr("Invalid compounds found"));
-			for(auto compoundID: DB.invalidRows) {
-    			invalidRowsString += "\n - " + compoundID;
+            msgBox.setText(tr("Invalid compounds found"));
+            for (auto compoundID : DB.invalidRows) {
+                invalidRowsString += "\n - " + compoundID;
             }
             msgBox.setDetailedText(QString::fromStdString(invalidRowsString));
-			msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+            msgBox.setWindowFlags(Qt::CustomizeWindowHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-	}
+            int ret = msgBox.exec();
+        }
+    }
 }
 
 // open function for set csv
