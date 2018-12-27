@@ -917,7 +917,6 @@ void MainWindow::threadSave(QString filename)
     autosave->saveProjectWorker();
 }
 
-// TODO: Add GA for emDB save here as well. Wait for autosave PR to get merged.
 void MainWindow::saveProject(bool explicitSave)
 {
     QSettings* settings = this->getSettings();
@@ -1710,8 +1709,12 @@ void MainWindow::open()
 
     QString sqliteProjectBeingLoaded = "";
     Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isSQLiteProject(filename))
+        if (fileLoader->isSQLiteProject(filename)) {
             sqliteProjectBeingLoaded = filename;
+            analytics->hitEvent("ProjectLoad", "emDB");
+        } else if (fileLoader->isMzRollProject(filename)) {
+            analytics->hitEvent("ProjectLoad", "mzroll");
+        }
 
         fileLoader->addFileToQueue(filename);
     }
