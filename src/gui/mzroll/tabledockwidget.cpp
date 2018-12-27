@@ -1450,8 +1450,8 @@ void TableDockWidget::align() {
     for (int i = 0; i < allgroups.size(); i++)
       groups.push_back(&allgroups[i]);
     Aligner aligner;
-    aligner.setMaxItterations(
-        _mainwindow->alignmentDialog->maxItterations->value());
+    aligner.setMaxIterations(
+        _mainwindow->alignmentDialog->maxIterations->value());
     aligner.setPolymialDegree(
         _mainwindow->alignmentDialog->polynomialDegree->value());
     aligner.doAlignment(groups);

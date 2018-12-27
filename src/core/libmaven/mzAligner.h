@@ -27,12 +27,12 @@ class Aligner {
     void saveFit();
     void PolyFit(int poly_align_degree);
     void restoreFit();
-    void setMaxItterations(int x) { maxItterations = x; }
+    void setMaxIterations(int x) { maxIterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    int alignWithObiWarp(vector<mzSample*> samples,
+    bool alignWithObiWarp(vector<mzSample*> samples,
                          ObiParams* obiParams,
                          const MavenParameters* mp);
-    int alignSampleRts(mzSample* sample,
+    bool alignSampleRts(mzSample* sample,
                         vector<float> &mzPoints,
                         ObiWarp& obiWarp,
                         bool setAsReference,
@@ -63,7 +63,7 @@ public:
 
    private:
     vector<PeakGroup*> allgroups;
-    int maxItterations;
+    int maxIterations;
     int polynomialDegree;
 
 };

@@ -696,7 +696,7 @@ void MainWindow::saveSettingsToLog() {
     summary << "\n\n-------------------Maven Parameters-------------------"<< "\n"<< "\n";
 //     summary << "runFunction =" << runFunction<< "\n";
     summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
-    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignMaxIterations="  <<  mavenParameters->alignMaxIterations << "\n";
     summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
 
     summary << "--------------------------------MASS SLICING"<< "\n";
@@ -3154,7 +3154,7 @@ void MainWindow::Align() {
 
 
     mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
-    mavenParameters->alignMaxItterations = alignmentDialog->maxItterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    mavenParameters->alignMaxIterations = alignmentDialog->maxIterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
     mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
     mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow

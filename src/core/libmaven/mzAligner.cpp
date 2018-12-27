@@ -11,7 +11,7 @@
 mzSample* Aligner::refSample = nullptr;
 
 Aligner::Aligner() {
-       maxItterations=10;
+       maxIterations=10;
        polynomialDegree=3;
 }
 
@@ -139,74 +139,65 @@ void Aligner::updateRts(QJsonObject &parentObj)
 
 }
 
-void Aligner::doAlignment(vector<PeakGroup*>& peakgroups) {
+void Aligner::doAlignment(vector<PeakGroup*>& peakgroups)
+{
 	if (peakgroups.size() == 0) return;
 
 	//store groups into private variable
 	allgroups = peakgroups;
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
 		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
 			Peak peak = grp->getPeaks().at(jj);
 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] = peak.rt;
 		}
 	}
 
-
-	//sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
-	samples.clear();
-
     samples.clear();
 	set<mzSample*> samplesSet;
-	for (unsigned int i=0; i < peakgroups.size();  i++ ) {
-			for ( unsigned int j=0; j < peakgroups[i]->peakCount(); j++ ) {
-					Peak& p = peakgroups[i]->peaks[j];
-					mzSample* sample = p.getSample();
-					if (sample) samplesSet.insert(sample);
-			}
+	for (unsigned int i = 0; i < peakgroups.size(); i++) {
+		for ( unsigned int j = 0; j < peakgroups[i]->peakCount(); j++) {
+			Peak& p = peakgroups[i]->peaks[j];
+			mzSample* sample = p.getSample();
+			if (sample) samplesSet.insert(sample);
+		}
 	}
 
 	//unique list of samples
 	samples.resize(samplesSet.size());
 	copy(samplesSet.begin(), samplesSet.end(),samples.begin());
 
-    for(unsigned int i=0; i < samples.size(); i++ ) {
-        samples[i]->saveCurrentRetentionTimes();
-    }
+	saveFit();
+	double R2_before = checkFit();
 
-	 saveFit();
-	 double R2_before = checkFit();
+    cerr << "Max Iterations: " << maxIterations << endl;
+    for(int iter = 0; iter < maxIterations; iter++) {
+		cerr << iter << endl;
 
-
-     cerr << "Max Itterations: " << maxItterations << endl;
-     for(int iter=0; iter < maxItterations; iter++) {
-		 cerr << iter << endl;
-
-       PolyFit(polynomialDegree);
+        PolyFit(polynomialDegree);
         double R2_after = checkFit();
-        cerr << "Itteration:" << iter << " R2_before" << R2_before << " R2_after=" << R2_after << endl;
+        cerr << "Iteration:" << iter << " R2_before" << R2_before << " R2_after" << R2_after << endl;
 
 		if (R2_after > R2_before) {
-            cerr << "done...restoring previous fit.." << endl;
+            cerr << "done..restoring previous fit.." << endl;
 			restoreFit();
 			break;
 		} else {
 			saveFit();
 		}
-		R2_before = R2_after;
-	 }
+		
+        R2_before = R2_after;
+	}
 
-	for (unsigned int ii=0; ii<allgroups.size();ii++) {
+	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
 		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj=0; jj<grp->getPeaks().size(); jj++) {
+		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
 			Peak peak = grp->getPeaks().at(jj);
 			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
 		}
-
 	}
 }
-
 
 void Aligner::saveFit() {
 	cerr << "saveFit()" << endl;
@@ -455,7 +446,7 @@ void Aligner::Fit(int ideg) {
 	delete[] c;
 	delete[] d;
 }
-int Aligner::alignSampleRts(mzSample* sample,
+bool Aligner::alignSampleRts(mzSample* sample,
                              vector<float> &mzPoints,
                              ObiWarp& obiWarp,
                              bool setAsReference,
@@ -464,14 +455,14 @@ int Aligner::alignSampleRts(mzSample* sample,
     vector<float> rtPoints(sample->scans.size());
     vector<vector<float> > mxn(sample->scans.size());
     for (int j = 0; j < sample->scans.size(); ++j) {
-        if (mp->stop) return (1);
+        if (mp->stop) return (true);
         rtPoints[j] = sample->scans[j]->originalRt;
         mxn[j] = vector<float> (mzPoints.size());
     }
 
     for (int j = 0 ; j < sample->scans.size(); ++j) {
         for (int k = 0; k < sample->scans[j]->mz.size(); ++k) {
-            if (mp->stop) return (1);
+            if (mp->stop) return (true);
             if (sample->scans[j]->mz[k] < mzPoints.front()
                 || sample->scans[j]->mz[k] > mzPoints.back())
                 continue;
@@ -483,17 +474,17 @@ int Aligner::alignSampleRts(mzSample* sample,
     }
     
     if (setAsReference) {
-        if (mp->stop) return (1);
+        if (mp->stop) return (true);
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     }
     else {
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
         for(int j = 0; j < sample->scans.size(); ++j) {
-            if (mp->stop) return (1);
+            if (mp->stop) return (true);
             sample->scans[j]->rt = rtPoints[j];
         }
     }
-    return (0);
+    return (false);
 }
 
 void Aligner::setRefSample(mzSample* sample)
@@ -503,7 +494,7 @@ void Aligner::setRefSample(mzSample* sample)
     refSample = sample;
 }
 
-int Aligner::alignWithObiWarp(vector<mzSample*> samples,
+bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
                               ObiParams* obiParams,
                               const MavenParameters* mp)
 {
@@ -539,12 +530,12 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
     for (float bin = minMzRange; bin <= maxMzRange; bin += binSize)
         mzPoints.push_back(bin);
 
-    int stopped = 0;
+    bool stopped = false;
     stopped = alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
 
-    if (mp->stop) {
+    if (mp->stop || stopped) {
         delete obiWarp;
-        return (1);
+        return (true);
     }
 
     int samplesAligned = 0;
@@ -553,12 +544,12 @@ int Aligner::alignWithObiWarp(vector<mzSample*> samples,
         if (samples[i] == refSample)
             continue;
         if (mp->stop) {
-            stopped = 1;
+            stopped = true;
             #pragma omp cancel for
         }
         #pragma omp cancellation point for
         if (alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp)) {
-            stopped = 1;
+            stopped = true;
         } else {
             samplesAligned++;
             setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);

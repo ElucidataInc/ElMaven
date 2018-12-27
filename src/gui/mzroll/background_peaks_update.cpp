@@ -34,7 +34,7 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "-------------------SETTINGS-------------------"<< "\n"<< "\n";
 //     summary << "runFunction =" << runFunction<< "\n";
     summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
-    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignMaxIterations="  <<  mavenParameters->alignMaxIterations << "\n";
     summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
 
     summary << "--------------------------------MASS SLICING"<< "\n";
@@ -314,6 +314,7 @@ void BackgroundPeakUpdate::alignWithObiWarp()
         for (auto sample : mavenParameters->samples) {
             sample->restorePreviousRetentionTimes();
         }
+        mavenParameters->stop = false;
         return;
     }
         
@@ -463,7 +464,7 @@ void BackgroundPeakUpdate::align() {
                 int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
                 if (alignAlgo == 0) {
-                        aligner.setMaxItterations(mainwindow->alignmentDialog->maxItterations->value());
+                        aligner.setMaxIterations(mainwindow->alignmentDialog->maxIterations->value());
                         aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());
                         aligner.doAlignment(groups);
                         mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);

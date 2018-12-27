@@ -219,12 +219,12 @@ void AlignmentDialog::algoChanged()
 
 	if (alignAlgo->currentIndex() == 0) {
 		label_7->setVisible(true);
-		maxItterations->setVisible(true);
+		maxIterations->setVisible(true);
 		label_8->setVisible(true);
 		polynomialDegree->setVisible(true);
 	} else {
 		label_7->setVisible(false);
-		maxItterations->setVisible(false);
+		maxIterations->setVisible(false);
 		label_8->setVisible(false);
 		polynomialDegree->setVisible(false);
 	}
