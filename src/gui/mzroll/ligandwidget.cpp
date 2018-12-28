@@ -39,8 +39,8 @@ LigandWidget::LigandWidget(MainWindow* mw) {
 
   connect(loadButton, &QToolButton::clicked, [this]()
   {
-    _mw->getAnalytics()->hitEvent("LoadCompoundDB",
-                                  "CustomCompoundDB");
+    _mw->getAnalytics()->hitEvent("Load Compound DB",
+                                  "Custom Compound DB");
   });
   connect(loadButton,SIGNAL(clicked()), mw, SLOT(loadCompoundsFile()));
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));

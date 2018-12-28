@@ -951,7 +951,7 @@ void MainWindow::saveProject(bool explicitSave)
             if (_currentProjectName.isEmpty())
                 return;
 
-            analytics->hitEvent("ProjectSave", "emDB");
+            analytics->hitEvent("Project Save", "emDB");
         } else {
             QMessageBox msgBox;
             QString message = "Please choose the project file to save your "
@@ -974,10 +974,10 @@ void MainWindow::saveProject(bool explicitSave)
             if (msgBox.clickedButton() == newButton) {
                 _currentProjectName = "";
                 _setProjectFilenameIfEmpty();
-                analytics->hitEvent("ProjectSave", "emDBInNewFile");
+                analytics->hitEvent("Project Save", "emDB In New File");
             } else if (msgBox.clickedButton() == saveButton) {
                 _currentProjectName = _loadedProjectName;
-                analytics->hitEvent("ProjectSave", "emDBInCurrentFile");
+                analytics->hitEvent("Project Save", "emDB In Current File");
             } else {
                 return;
             }
@@ -1711,9 +1711,9 @@ void MainWindow::open()
     Q_FOREACH (QString filename, filelist) {
         if (fileLoader->isSQLiteProject(filename)) {
             sqliteProjectBeingLoaded = filename;
-            analytics->hitEvent("ProjectLoad", "emDB");
+            analytics->hitEvent("Project Load", "emDB");
         } else if (fileLoader->isMzRollProject(filename)) {
-            analytics->hitEvent("ProjectLoad", "mzroll");
+            analytics->hitEvent("Project Load", "mzroll");
         }
 
         fileLoader->addFileToQueue(filename);
@@ -2027,15 +2027,15 @@ void MainWindow::loadCompoundsFile()
             msgBox.setWindowFlags(msgBox.windowFlags()
                                   & ~Qt::WindowCloseButtonHint);
         }
-        analytics->hitEvent("LoadCompoundDB",
-                            "ColumnError",
+        analytics->hitEvent("Load Compound DB",
+                            "Column Error",
                             1);
 
         int ret = msgBox.exec();
     } else {
         if (DB.notFoundColumns.size() > 0) {
-            analytics->hitEvent("LoadCompoundDB",
-                                "ColumnError",
+            analytics->hitEvent("Load Compound DB",
+                                "Column Error",
                                 0);
             string notFoundColumns = "Following are the unknown column name(s) "
                                      "found: ";
@@ -2053,8 +2053,8 @@ void MainWindow::loadCompoundsFile()
             int ret = msgBox.exec();
         }
         if (DB.invalidRows.size() > 0) {
-            analytics->hitEvent("LoadCompoundDB",
-                                "RowError");
+            analytics->hitEvent("Load Compound DB",
+                                "Row Error");
             string invalidRowsString = "The following compounds had "
                                        "insufficient information for peak "
                                        "detection, and were not loaded:";
@@ -2483,7 +2483,7 @@ void MainWindow::createMenus() {
             SLOT(saveProjectAsSQLite()));
     connect(saveProjectAsSQLite, &QAction::triggered, [this]()
     {
-        this->analytics->hitEvent("ProjectSave", "emDB");
+        this->analytics->hitEvent("Project Save", "emDB");
     });
     saveProjectFile->addAction(saveProjectAsSQLite);
 
@@ -2496,7 +2496,7 @@ void MainWindow::createMenus() {
             SLOT(saveMzRollProject()));
     connect(saveProjectAsMzRoll, &QAction::triggered, [this]()
     {
-        this->analytics->hitEvent("ProjectSave", "mzroll");
+        this->analytics->hitEvent("Project Save", "mzroll");
     });
     saveProjectFile->addAction(saveProjectAsMzRoll);
     fileMenu->addMenu(saveProjectFile);

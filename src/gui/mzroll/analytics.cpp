@@ -59,7 +59,7 @@ void Analytics::sessionStart() {
     query.addQueryItem("ec", "session"); // Event category
 
     if (_isFirstSession)
-        query.addQueryItem("ea", "FirstStart"); // First session start
+        query.addQueryItem("ea", "First Start"); // First session start
     else
         query.addQueryItem("ea", "start"); // Event action
 
@@ -74,7 +74,7 @@ void Analytics::sessionEnd() {
     query.addQueryItem("ec", "session"); // Event category
 
     if (_isFirstSession)
-        query.addQueryItem("ea", "FirstEnd"); // First session end
+        query.addQueryItem("ea", "First End"); // First session end
     else
         query.addQueryItem("ea", "end"); // Event action
 

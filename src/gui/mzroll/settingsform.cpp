@@ -181,8 +181,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(centroid_scan_flag, SIGNAL(toggled(bool)), SLOT(getFormValues()));
     connect(centroid_scan_flag, &QCheckBox::toggled, [this](const bool val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "CentroidScans",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Centroid Scans",
                                              static_cast<int>(val));
     });
     connect(scan_filter_polarity,
@@ -192,8 +192,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             [this](const int val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "ScanFilterPolarity",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Polarity",
                                              val);
     });
     connect(scan_filter_mslevel,
@@ -203,8 +203,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             [this](const int val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "ScanFilterMSLevel",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter MSLevel",
                                              val);
     });
     connect(scan_filter_min_quantile,
@@ -214,8 +214,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             [this](const int val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "ScanFilterMinQuantile",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Minimum Quantile",
                                              val);
     });
     connect(scan_filter_min_intensity,
@@ -225,8 +225,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             [this](const int val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "ScanFilterMinIntensity",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Minimum Intensity",
                                              val);
     });
     connect(checkBoxMultiprocessing,
@@ -234,8 +234,8 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             SLOT(updateMultiprocessing()));
     connect(checkBoxMultiprocessing, &QCheckBox::toggled, [this](const bool val)
     {
-        mainwindow->getAnalytics()->hitEvent("FileImportSettingsChanged",
-                                             "UploadMultiprocessing",
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Upload Multiprocessing",
                                              static_cast<int>(val));
     });
 
