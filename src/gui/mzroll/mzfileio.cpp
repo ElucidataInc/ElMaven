@@ -618,6 +618,10 @@ void mzFileIO::fileImport(void) {
           break;
       }
     }
+
+    int numMS1SamplesLoaded = 0;
+    int numMS2SamplesLoaded = 0;
+    int numPRMSamplesLoaded = 0;
     qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
     if (uploadMultiprocessing) {
         int iter = 0;
@@ -625,8 +629,18 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample && sample->scans.size() > 0)
+            if (sample && sample->scans.size() > 0) {
                 emit addNewSample(sample);
+
+                if (sample->ms1ScanCount() && sample->ms2ScanCount() == 0) {
+                    ++numMS1SamplesLoaded;
+                } else if (sample->ms1ScanCount() == 0
+                           && sample->ms2ScanCount()) {
+                    ++numMS2SamplesLoaded;
+                } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
+                    ++numPRMSamplesLoaded;
+                }
+            }
 
             #pragma omp atomic
             iter++;
@@ -638,8 +652,18 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample && sample->scans.size() > 0)
+            if (sample && sample->scans.size() > 0) {
                 _mainwindow->addSample(sample);
+
+                if (sample->ms1ScanCount() && sample->ms2ScanCount() == 0) {
+                    ++numMS1SamplesLoaded;
+                } else if (sample->ms1ScanCount() == 0
+                           && sample->ms2ScanCount()) {
+                    ++numMS2SamplesLoaded;
+                } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
+                    ++numPRMSamplesLoaded;
+                }
+            }
 
             iter++;
 
@@ -647,6 +671,19 @@ void mzFileIO::fileImport(void) {
 
         }
     }
+
+    if (numMS1SamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "MS1",
+                                              numMS1SamplesLoaded);
+    if (numMS2SamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "MS2",
+                                              numMS2SamplesLoaded);
+    if (numPRMSamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "PRM",
+                                              numPRMSamplesLoaded);
 
     Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {

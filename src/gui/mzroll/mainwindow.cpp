@@ -950,6 +950,8 @@ void MainWindow::saveProject(bool explicitSave)
 
             if (_currentProjectName.isEmpty())
                 return;
+
+            analytics->hitEvent("Project Save", "emDB");
         } else {
             QMessageBox msgBox;
             QString message = "Please choose the project file to save your "
@@ -972,8 +974,10 @@ void MainWindow::saveProject(bool explicitSave)
             if (msgBox.clickedButton() == newButton) {
                 _currentProjectName = "";
                 _setProjectFilenameIfEmpty();
+                analytics->hitEvent("Project Save", "emDB In New File");
             } else if (msgBox.clickedButton() == saveButton) {
                 _currentProjectName = _loadedProjectName;
+                analytics->hitEvent("Project Save", "emDB In Current File");
             } else {
                 return;
             }
@@ -1705,8 +1709,12 @@ void MainWindow::open()
 
     QString sqliteProjectBeingLoaded = "";
     Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isSQLiteProject(filename))
+        if (fileLoader->isSQLiteProject(filename)) {
             sqliteProjectBeingLoaded = filename;
+            analytics->hitEvent("Project Load", "emDB");
+        } else if (fileLoader->isMzRollProject(filename)) {
+            analytics->hitEvent("Project Load", "mzroll");
+        }
 
         fileLoader->addFileToQueue(filename);
     }
@@ -1985,56 +1993,82 @@ bool MainWindow::loadMetaInformation(QString filename) {
 	}
 }
 
-void MainWindow::loadCompoundsFile() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
-					".",
-					"All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML *.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*.massbank");
+void MainWindow::loadCompoundsFile()
+{
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select Compounds File To Load",
+        ".",
+        "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
+        "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
+        "File(*.csv);;NIST "
+        "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
+        "massbank");
 
-    if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
-	if(!loadCompoundsFile(filelist[0])) {
-		string dbfilename = filelist[0].toStdString();
-		string dbname = mzUtils::cleanFilename(dbfilename);
-		string notFoundColumns = "Following are the unknown column name(s) found: ";
+    if (filelist.size() == 0 || filelist[0].isEmpty())
+        return;
+    if (!loadCompoundsFile(filelist[0])) {
+        string dbfilename = filelist[0].toStdString();
+        string dbname = mzUtils::cleanFilename(dbfilename);
+        string notFoundColumns = "Following are the unknown column name(s) "
+                                 "found: ";
 
         QMessageBox msgBox;
-		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
+        msgBox.setText(tr("Trouble in loading compound database %1")
+                         .arg(QString::fromStdString(dbname)));
         msgBox.setIcon(QMessageBox::Warning);
-		if (DB.notFoundColumns.size() > 0) {
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
-		}
+        if (DB.notFoundColumns.size() > 0) {
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
+        }
+        analytics->hitEvent("Load Compound DB",
+                            "Column Error",
+                            1);
 
-		int ret = msgBox.exec();
-	} else {
-		if (DB.notFoundColumns.size() > 0) {
-			string notFoundColumns = "Following are the unknown column name(s) found: ";
+        int ret = msgBox.exec();
+    } else {
+        if (DB.notFoundColumns.size() > 0) {
+            analytics->hitEvent("Load Compound DB",
+                                "Column Error",
+                                0);
+            string notFoundColumns = "Following are the unknown column name(s) "
+                                     "found: ";
             QMessageBox msgBox;
-			msgBox.setText(tr("Found some unknown column name(s)"));
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+            msgBox.setText(tr("Found some unknown column name(s)"));
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-		if (DB.invalidRows.size() > 0) {
-			string invalidRowsString = "The following compounds had insufficient information for peak detection, and were not loaded:";
+            int ret = msgBox.exec();
+        }
+        if (DB.invalidRows.size() > 0) {
+            analytics->hitEvent("Load Compound DB",
+                                "Row Error");
+            string invalidRowsString = "The following compounds had "
+                                       "insufficient information for peak "
+                                       "detection, and were not loaded:";
             QMessageBox msgBox;
-			msgBox.setText(tr("Invalid compounds found"));
-			for(auto compoundID: DB.invalidRows) {
-    			invalidRowsString += "\n - " + compoundID;
+            msgBox.setText(tr("Invalid compounds found"));
+            for (auto compoundID : DB.invalidRows) {
+                invalidRowsString += "\n - " + compoundID;
             }
             msgBox.setDetailedText(QString::fromStdString(invalidRowsString));
-			msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+            msgBox.setWindowFlags(Qt::CustomizeWindowHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-	}
+            int ret = msgBox.exec();
+        }
+    }
 }
 
 // open function for set csv
@@ -2447,6 +2481,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveProjectAsSQLite()));
+    connect(saveProjectAsSQLite, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("Project Save", "emDB");
+    });
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll
@@ -2456,6 +2494,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveMzRollProject()));
+    connect(saveProjectAsMzRoll, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("Project Save", "mzroll");
+    });
     saveProjectFile->addAction(saveProjectAsMzRoll);
     fileMenu->addMenu(saveProjectFile);
 
@@ -3530,8 +3572,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
 		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
-		connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
-				SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
+                                SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, &QToolButton::clicked, [this]()
+                {
+                    mw->getAnalytics()->hitEvent("EIC Widget Button",
+                                                 "Manual Integration");
+                });
 		return btnIntegrateArea;
 
 	}

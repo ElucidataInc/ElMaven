@@ -84,12 +84,24 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             QSettings *settings;
             MainWindow *mainwindow;
             OptionsDialogSettings* optionSettings;
+            QList<QMetaObject::Connection> _analyticsConnections;
 
       private Q_SLOTS:
             void _smoothnessChanged(int value);
             void _asymmetryChanged(int value);
 
-      
+            /**
+             * @brief Connects elements to be tracked via analytics with
+             * relevant hit events.
+             */
+            void _connectAnalytics();
+
+            /**
+             * @brief Disconnects all triggers for elements that were being
+             * tracked via analytics.
+             */
+            void _disconnectAnalytics();
+
       public:
             bool deltaRtCheckFlag;
 };
