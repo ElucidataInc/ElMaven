@@ -346,6 +346,7 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
 
 void PollyElmavenInterfaceDialog::uploadDataToPolly()
 {
+    mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     //set currently visible items
     PollyApp currentApp = PollyApp::FirstView;
     QPushButton* uploadButton = firstViewUpload;
@@ -354,12 +355,13 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
     QComboBox* projectList = firstViewProjectList;
 
     if (stackedWidget->currentIndex() == int(PollyApp::Fluxomics)) {
+        mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
         currentApp = PollyApp::Fluxomics;
         uploadButton = fluxUpload;
         statusUpdate = fluxStatus;
         newProject = fluxNewProject;
         projectList = fluxProjectList;
-    }
+    } else mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
     
     uploadButton->setEnabled(false);
 
