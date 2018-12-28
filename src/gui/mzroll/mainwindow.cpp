@@ -1804,6 +1804,14 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 		if (ligandWidget->isVisible())
 			ligandWidget->setDatabase(QString(dbname.c_str()));
 
+		int msLevel = 1;
+		vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbname);
+		if (loadedCompounds[0]->precursorMz > 0 && loadedCompounds[0]->productMz > 0) {
+			msLevel = 2;
+		}
+		
+		analytics->hitEvent("Load Compound DB", "Successful Load", msLevel);
+		
 		settings->setValue("lastDatabaseFile", filename);
 		setStatusText(tr("loadCompounds: done after loading %1 compounds").arg(QString::number(compoundCount)));
 		return true;
