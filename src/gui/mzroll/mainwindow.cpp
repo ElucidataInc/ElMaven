@@ -3572,8 +3572,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
 		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
-		connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
-				SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
+                                SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, &QToolButton::clicked, [this]()
+                {
+                    mw->getAnalytics()->hitEvent("EIC Widget Button",
+                                                 "Manual Integration");
+                });
 		return btnIntegrateArea;
 
 	}
