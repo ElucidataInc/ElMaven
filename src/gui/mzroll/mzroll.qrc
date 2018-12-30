@@ -93,7 +93,9 @@
         <file>images/splash.png</file>
         <file>images/exportOptions.png</file>
         <file>images/firstView.png</file>
+        <file>images/firstViewSelected.png</file>
         <file>images/flux.png</file>
+        <file>images/fluxSelected.png</file>
         <file>images/close.png</file>
         <file>images/alignmentButton.png</file>
         <file>databases/KNOWNS.csv</file>
