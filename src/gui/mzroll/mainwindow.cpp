@@ -874,16 +874,24 @@ void MainWindow::_setProjectFilenameIfEmpty()
     }
 }
 
-void MainWindow::_setProjectFilenameFromProjectDockWidget()
+QString MainWindow::_getProjectFilenameFromProjectDockWidget()
 {
     auto lastSave = projectDockWidget->getLastSavedTime();
     auto lastLoad = projectDockWidget->getLastOpenedTime();
-    if (!projectDockWidget->getLastOpenedProject().isEmpty()
-            && lastLoad > lastSave)
-        _currentProjectName = projectDockWidget->getLastOpenedProject();
     if (!projectDockWidget->getLastSavedProject().isEmpty()
             && lastSave > lastLoad)
-        _currentProjectName = projectDockWidget->getLastSavedProject();
+        return projectDockWidget->getLastSavedProject();
+    if (!projectDockWidget->getLastOpenedProject().isEmpty()
+            && lastLoad > lastSave)
+        return projectDockWidget->getLastOpenedProject();
+    return "";
+}
+
+QString MainWindow::getLatestUserProject()
+{
+    if (_latestUserProjectName.isEmpty())
+        return _getProjectFilenameFromProjectDockWidget();
+    return _latestUserProjectName;
 }
 
 void MainWindow::resetAutosave()
@@ -939,7 +947,7 @@ void MainWindow::saveProject(bool explicitSave)
             return;
 
         if (_currentProjectName.isEmpty())
-            _setProjectFilenameFromProjectDockWidget();
+            _currentProjectName = _getProjectFilenameFromProjectDockWidget();
 
         // if no projects were saved or opened
         if (_latestUserProjectName.isEmpty()) {
@@ -999,7 +1007,7 @@ void MainWindow::saveProject(bool explicitSave)
         }
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
-        _setProjectFilenameFromProjectDockWidget();
+        _currentProjectName = _getProjectFilenameFromProjectDockWidget();
         if (_latestUserProjectName.isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",

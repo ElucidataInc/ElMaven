@@ -659,8 +659,8 @@ void ProjectDockWidget::saveSQLiteProject(QString filename)
 
 void ProjectDockWidget::saveSQLiteProject()
 {
-    if (_mainwindow->fileLoader->sqliteProjectIsOpen()) {
-        _mainwindow->threadSave(getLastOpenedProject());
+    if (!_mainwindow->getLatestUserProject().isEmpty()) {
+        _mainwindow->threadSave(_mainwindow->getLatestUserProject());
     } else {
         saveProjectAsSQLite();
     }
@@ -688,11 +688,11 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         return;
     }
 
-    auto userSessionWarning =
-        "Do you want to save your current session before opening the project?";
-    if (_mainwindow->fileLoader->sqliteProjectIsOpen())
-        userSessionWarning =
-            "Do you want to save and close the current project?";
+    auto userSessionWarning = "Do you want to save your current session before "
+                              "opening the project?";
+    if (!_mainwindow->getLatestUserProject().isEmpty())
+        userSessionWarning = "Do you want to save and close the current "
+                             "project?";
     QMessageBox::StandardButton reply = QMessageBox::question(
         this,
         "Opening Project",
@@ -700,9 +700,11 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         QMessageBox::No | QMessageBox::Yes,
         QMessageBox::Yes
     );
-    _mainwindow->resetAutosave();
-    if (reply == QMessageBox::Yes)
+    if (reply == QMessageBox::Yes) {
         saveSQLiteProject();
+    } else {
+        _mainwindow->resetAutosave();
+    }
 
     // if an existing project is being saved, stall before clearing the session
     while(_mainwindow->autosave->isRunning());

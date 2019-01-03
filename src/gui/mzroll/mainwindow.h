@@ -445,6 +445,12 @@ public Q_SLOTS:
      */
     void resetAutosave();
 
+    /**
+     * @brief Get the latest project that was loaded/saved by the user.
+     * @return A QString storing the name of the project.
+     */
+    QString getLatestUserProject();
+
 private Q_SLOTS:
 	void createMenus();
 	void openURL(int choice);
@@ -519,7 +525,7 @@ private:
 
     QString _newAutosaveFile();
     void _setProjectFilenameIfEmpty();
-    void _setProjectFilenameFromProjectDockWidget();
+    QString _getProjectFilenameFromProjectDockWidget();
     void _saveMzRollList(QString projectFileName);
     void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();
