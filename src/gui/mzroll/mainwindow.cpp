@@ -908,6 +908,11 @@ void MainWindow::autosaveProject()
 
 void MainWindow::explicitSave()
 {
+    // the user is ordering an explicit save, reset the current project name
+    if (timestampFileExists) {
+        resetAutosave();
+    }
+
     saveProject(true);
 }
 
@@ -1005,7 +1010,6 @@ void MainWindow::saveProject(bool explicitSave)
 
             _loadedProjectName = _currentProjectName;
         } else {
-            resetAutosave();
             _currentProjectName = _loadedProjectName;
         }
         this->autosave->saveProjectWorker();

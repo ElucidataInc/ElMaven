@@ -653,9 +653,8 @@ void ProjectDockWidget::saveProjectAsSQLite()
 void ProjectDockWidget::saveSQLiteProject(QString filename)
 {
     auto success = _mainwindow->fileLoader->writeSQLiteProject(filename);
-    if (success)
+    if (success && !_mainwindow->timestampFileExists)
         setLastSavedProject(filename);
-    setLastSavedProject(filename);
 }
 
 void ProjectDockWidget::saveSQLiteProject()
