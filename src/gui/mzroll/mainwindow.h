@@ -513,7 +513,7 @@ private:
      * @brief Name of the project that was last loaded or saved and will be used
      * when saving from explicit user command or final save when exiting app.
      */
-    QString _loadedProjectName;
+    QString _latestUserProjectName;
 
     QString newFileName;
 

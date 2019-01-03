@@ -918,7 +918,14 @@ void MainWindow::explicitSave()
 
 void MainWindow::threadSave(QString filename)
 {
+    // a non-temporary file is being used to save session data,
+    // all autosave states should be discarded
+    if (timestampFileExists) {
+        resetAutosave();
+    }
+
     _currentProjectName = filename;
+    _latestUserProjectName = filename;
     autosave->saveProjectWorker();
 }
 
@@ -935,7 +942,7 @@ void MainWindow::saveProject(bool explicitSave)
             _setProjectFilenameFromProjectDockWidget();
 
         // if no projects were saved or opened
-        if (_loadedProjectName.isEmpty()) {
+        if (_latestUserProjectName.isEmpty()) {
             QString message = "Would you like to save your data for this "
                               "session as a project?";
             QMessageBox::StandardButton reply;
@@ -981,7 +988,7 @@ void MainWindow::saveProject(bool explicitSave)
                 _setProjectFilenameIfEmpty();
                 analytics->hitEvent("Project Save", "emDB In New File");
             } else if (msgBox.clickedButton() == saveButton) {
-                _currentProjectName = _loadedProjectName;
+                _currentProjectName = _latestUserProjectName;
                 analytics->hitEvent("Project Save", "emDB In Current File");
             } else {
                 return;
@@ -993,7 +1000,7 @@ void MainWindow::saveProject(bool explicitSave)
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
         _setProjectFilenameFromProjectDockWidget();
-        if (_loadedProjectName.isEmpty()) {
+        if (_latestUserProjectName.isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",
                                                "You do not have a project for "
@@ -1008,9 +1015,9 @@ void MainWindow::saveProject(bool explicitSave)
             if (_currentProjectName.isEmpty())
                 return;
 
-            _loadedProjectName = _currentProjectName;
+            _latestUserProjectName = _currentProjectName;
         } else {
-            _currentProjectName = _loadedProjectName;
+            _currentProjectName = _latestUserProjectName;
         }
         this->autosave->saveProjectWorker();
     } else if (this->timestampFileExists) {
@@ -1679,7 +1686,7 @@ void MainWindow::open()
 
     if (!sqliteProjectBeingLoaded.isEmpty()) {
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
-        _loadedProjectName = sqliteProjectBeingLoaded;
+        _latestUserProjectName = sqliteProjectBeingLoaded;
     }
 
     bool cancelUploading = false;
