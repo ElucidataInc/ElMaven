@@ -934,6 +934,14 @@ void MainWindow::threadSave(QString filename)
 
     _currentProjectName = filename;
     _latestUserProjectName = filename;
+
+    QFileInfo fileInfo(filename);
+    setWindowTitle(programName
+                   + "_"
+                   + STR(EL_MAVEN_VERSION)
+                   + " "
+                   + fileInfo.fileName());
+
     autosave->saveProjectWorker();
 }
 
@@ -1024,6 +1032,12 @@ void MainWindow::saveProject(bool explicitSave)
                 return;
 
             _latestUserProjectName = _currentProjectName;
+            QFileInfo fileInfo(_latestUserProjectName);
+            setWindowTitle(programName
+                           + "_"
+                           + STR(EL_MAVEN_VERSION)
+                           + " "
+                           + fileInfo.fileName());
         } else {
             _currentProjectName = _latestUserProjectName;
         }
@@ -1695,6 +1709,15 @@ void MainWindow::open()
     if (!sqliteProjectBeingLoaded.isEmpty()) {
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
         _latestUserProjectName = sqliteProjectBeingLoaded;
+
+        // reset filename in the title to overwrite any saves while closing last
+        // SQLite project
+        QFileInfo fileInfo(_latestUserProjectName);
+        setWindowTitle(programName
+                       + "_"
+                       + STR(EL_MAVEN_VERSION)
+                       + " "
+                       + fileInfo.fileName());
     }
 
     bool cancelUploading = false;
