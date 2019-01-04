@@ -521,12 +521,15 @@ using namespace mzUtils;
             SLOT(_showEMDBProgressBar(QString)));
     connect(fileLoader,
             &mzFileIO::sqliteDBSamplesLoaded,
+            this,
             [=] { _updateEMDBProgressBar(1, 4); });
     connect(fileLoader,
             &mzFileIO::sqliteDBPeakTablesCreated,
+            this,
             [=] { _updateEMDBProgressBar(2, 4); });
     connect(fileLoader,
             &mzFileIO::sqliteDBAlignmentDone,
+            this,
             [=] { _updateEMDBProgressBar(3, 4); });
     connect(fileLoader,
             SIGNAL(sqliteDBPeakTablesPopulated()),
