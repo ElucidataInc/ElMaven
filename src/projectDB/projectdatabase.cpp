@@ -1,4 +1,5 @@
 #include <sstream>
+#include <unordered_map>
 #include <boost/filesystem.hpp>
 #include "projectdatabase.h"
 #include "Compound.h"
@@ -371,6 +372,10 @@ void ProjectDatabase::saveAlignment(const vector<mzSample*>& samples)
     _connection->begin();
 
     for (auto s : samples) {
+        // ignore samples having MS2 scans
+        if (s->ms2ScanCount() > 0)
+            continue;
+
         for (auto scan : s->scans) {
             float rt_original = scan->originalRt;
             float rt_updated = scan->rt;
@@ -796,9 +801,13 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
               , samples                                    \
           WHERE samples.sample_id = alignment_rts.sample_id");
 
-    map<int, map<int, Scan*>> sampleScanMap;
+    unordered_map<int, unordered_map<int, Scan*>> sampleScanMap;
     for (auto sample : loaded) {
-        map<int, Scan*> scanMap;
+        // ignore samples having MS2 scans
+        if (sample->ms2ScanCount() > 0)
+            continue;
+
+        unordered_map<int, Scan*> scanMap;
         for (auto scan : sample->scans) {
             scanMap[scan->scannum] = scan;
         }
