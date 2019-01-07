@@ -200,6 +200,22 @@ void AlignmentDialog::algoChanged()
     samplesBox->setVisible(obiWarp);
     refSampleLabel->setVisible(obiWarp);
 
+    auto samples = _mw->getSamples();
+    auto ms2SamplesDetected = false;
+    for (const auto sample : samples) {
+        if (sample->ms2ScanCount() > 0) {
+            showInfo("Obi-warp does not work with MS2 scans at the moment.\nWe "
+                     "will inform you once this functionality has been added.");
+            ms2SamplesDetected = true;
+            alignButton->setDisabled(true);
+            break;
+        }
+    }
+    if (!ms2SamplesDetected || !obiWarp) {
+        alignButton->setDisabled(false);
+        setProgressBar("Status", 0, 1);
+    }
+
 	if (peakDetectionAlgo->currentIndex() == 0) {
 		selectDatabase->setVisible(true);
 		selectDatabaseComboBox->setVisible(true);
