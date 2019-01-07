@@ -1,4 +1,5 @@
 #include <sstream>
+#include <unordered_map>
 #include <boost/filesystem.hpp>
 #include "projectdatabase.h"
 #include "Compound.h"
@@ -796,9 +797,9 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
               , samples                                    \
           WHERE samples.sample_id = alignment_rts.sample_id");
 
-    map<int, map<int, Scan*>> sampleScanMap;
+    unordered_map<int, unordered_map<int, Scan*>> sampleScanMap;
     for (auto sample : loaded) {
-        map<int, Scan*> scanMap;
+        unordered_map<int, Scan*> scanMap;
         for (auto scan : sample->scans) {
             scanMap[scan->scannum] = scan;
         }
