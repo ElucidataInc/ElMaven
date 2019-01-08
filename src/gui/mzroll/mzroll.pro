@@ -12,7 +12,6 @@ QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 linux: QMAKE_CXXFLAGS += -Ofast -ffast-math
 win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
-macx: QMAKE_CXXFLAGS += -O3
 QMAKE_CXXFLAGS += -fopenmp
 !macx: LIBS += -fopenmp
 
