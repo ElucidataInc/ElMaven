@@ -53,7 +53,7 @@ static bool startCrashReporter(const wchar_t* dump_path,const wchar_t* id, void*
     cReporter->setProgram(qApp->applicationDirPath() + QDir::separator() + CRASH_REPORTER_WIN);
     cReporter->setArguments(QStringList() << QString::fromWCharArray(dump_path));
     cReporter->start();
-
+    return true;
 }
 #endif
 
@@ -78,6 +78,7 @@ static bool startCrashReporter(const char* dump_dir,const char* id, void* contex
 //    cReporter->setArguments(QStringList() << QString(eh->dump_path().c_str()));
     qDebug() << "arguments : " << cReporter->arguments();
     cReporter->startDetached(crashReporterPath,QStringList() << QString(eh->dump_path().c_str()));
+    return true;
 }
 #endif
 
