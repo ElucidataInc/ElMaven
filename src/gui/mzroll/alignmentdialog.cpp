@@ -85,7 +85,7 @@ void AlignmentDialog::show()
 	_mw->getAnalytics()->hitScreenView("AlignmentDialog");
     inputInitialValuesAlignmentDialog();
 	intialSetup();
-	QDialog::exec();
+        QDialog::open();
 }
 
 void AlignmentDialog::inputInitialValuesAlignmentDialog()
