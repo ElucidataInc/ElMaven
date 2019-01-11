@@ -251,7 +251,7 @@ void BackgroundPeakUpdate::run(void) {
                 quit();
                 return;
         }
-        connect(this,SIGNAL(alignmentError(QString)),mainwindow,SLOT(showAlignmetErrorDialog(QString)));
+        connect(this, SIGNAL(alignmentError(QString)), mainwindow, SLOT(showAlignmentErrorDialog(QString)));
         if (mavenParameters->alignSamplesFlag) {
                 connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow, SLOT(showAlignmentWidget()));
         }
@@ -305,6 +305,7 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     Aligner aligner;
     aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
                                                      this, _1, _2, _3));
+
     _stopped = aligner.alignWithObiWarp(mavenParameters->samples, obiParams, mavenParameters);
     delete obiParams;
 
@@ -314,6 +315,12 @@ void BackgroundPeakUpdate::alignWithObiWarp()
         for (auto sample : mavenParameters->samples) {
             sample->restorePreviousRetentionTimes();
         }
+
+        //stopped without user intervention
+        if (!mavenParameters->stop)
+            Q_EMIT(alignmentError(
+                   QString("There was an error during alignment. Please try again.")));
+
         mavenParameters->stop = false;
         return;
     }

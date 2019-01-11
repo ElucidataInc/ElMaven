@@ -106,11 +106,12 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
 
     VecF nOutF;
     VecF mOutF;
-    tm_axis_vals(mOut, mOutF, _tm,_tm_vals);
-    tm_axis_vals(nOut, nOutF, tm,tm_vals); //
+    vector<float> alignedRts;
+    if (!tm_axis_vals(mOut, mOutF, _tm,_tm_vals) ||
+        !tm_axis_vals(nOut, nOutF, tm,tm_vals))
+        return alignedRts;
     warp_tm(nOutF, mOutF, tm);
     
-    vector<float> alignedRts;
     float* rts = tm.pointer();
     for(int i = 0; i < tm_vals; ++i)
         alignedRts.push_back(rts[i]);
@@ -122,7 +123,7 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
 }
 
 
-void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
+bool ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals){
     VecF tmp(tmCoords.length());
     for (int i = 0; i < tmCoords.length(); ++i) {
         if (tmCoords[i] < _tm_vals) {
@@ -130,10 +131,11 @@ void ObiWarp::tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals)
         }
         else {
             printf("asking for time value at index: %d (length: %d)\n", tmCoords[i], _tm_vals);
-            exit(1);
+            return(false);
         }
     }
     tmVals.take(tmp);
+    return(true);
 }
 
 void ObiWarp::warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm){

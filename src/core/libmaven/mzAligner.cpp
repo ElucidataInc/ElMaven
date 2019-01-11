@@ -479,6 +479,7 @@ bool Aligner::alignSampleRts(mzSample* sample,
     }
     else {
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
+        if (rtPoints.empty()) return(true);
         for(int j = 0; j < sample->scans.size(); ++j) {
             if (mp->stop) return (true);
             sample->scans[j]->rt = rtPoints[j];
@@ -543,7 +544,7 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     for (int i = 0; i < samples.size(); ++i) {
         if (samples[i] == refSample)
             continue;
-        if (mp->stop) {
+        if (mp->stop || stopped) {
             stopped = true;
             #pragma omp cancel for
         }

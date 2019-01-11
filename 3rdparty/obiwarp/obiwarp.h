@@ -34,7 +34,7 @@ public:
     void setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
     vector<float> align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat);
 private:
-    void tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals);
+    bool tm_axis_vals(VecI &tmCoords, VecF &tmVals,VecF &_tm ,int _tm_vals);
     void warp_tm(VecF &selfTimes, VecF &equivTimes, VecF &_tm);
     VecF _tm;
     VecF _mz;
