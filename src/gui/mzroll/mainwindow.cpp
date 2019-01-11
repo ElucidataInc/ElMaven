@@ -1117,12 +1117,11 @@ void MainWindow::savePeakTableAsMzRoll(TableDockWidget* peaksTable,
     }
 }
 
-void MainWindow::showAlignmetErrorDialog(QString errorMessage)
+void MainWindow::showAlignmentErrorDialog(QString errorMessage)
 {
-    QErrorMessage alignmentErrorDialog(this);
-    alignmentErrorDialog.setWindowTitle("Alignment Error");
-    alignmentErrorDialog.showMessage(errorMessage);
-    alignmentErrorDialog.exec();
+    QMessageBox alignmentError;
+    alignmentError.setText(errorMessage);
+    alignmentError.open();
 }
 
 void MainWindow::openAWSDialog()

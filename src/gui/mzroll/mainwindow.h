@@ -323,7 +323,7 @@ public Q_SLOTS:
     void togglePerGroupAlignmentWidget();
     void toggleAllGroupAlignmentWidget();
     void toggleSampleRtWidget();
-	void showAlignmetErrorDialog(QString errorMessage);
+	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
 	void printvalue();
     void autosaveProject();
