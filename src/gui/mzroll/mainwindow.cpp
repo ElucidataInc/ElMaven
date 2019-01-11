@@ -2641,8 +2641,17 @@ void MainWindow::_updateEMDBProgressBar(int progress, int finish)
         _loadProgressDialog->setMaximum(finish);
         _loadProgressDialog->setValue(progress);
     }
-    if (progress == finish)
+    if (progress == finish) {
+        for (const auto sample : getSamples()) {
+            for (const auto scan : sample->scans) {
+                if (scan->originalRt != scan->rt) {
+                    samplesAlignedFlag = true;
+                    break;
+                }
+            }
+        }
         _setStatusString("Project loaded");
+    }
 }
 
 void MainWindow::loadPollySettings(QString fileName)
