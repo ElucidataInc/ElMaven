@@ -1,7 +1,9 @@
 TEMPLATE = app
 QT -= gui
 
-DESTDIR = $$top_srcdir/binaries/mac
+mac: DESTDIR = $$top_srcdir/binaries/mac
+win32: DESTDIR = $$top_srcdir/bin/
+
 
 TARGET = crashserver
 
@@ -19,6 +21,8 @@ INCLUDEPATH += ../breakpad/src/src/ \
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -framework CoreServices -lbreakpad
+mac: LIBS += -framework CoreServices 
+
+LIBS += -lbreakpad
 
 SOURCES += elmavcrashserver.cpp

@@ -7,10 +7,33 @@ OBJECTS_DIR=$$top_builddir/tmp/crashhandler/breakpad
 
 CONFIG += staticlib 
 
+INCLUDEPATH += src/src/
+
+win32 {
+
+
+    HEADERS +=  src/src/common/windows/string_utils-inl.h \
+                src/src/common/windows/guid_string.h \
+                src/src/client/windows/handler/exception_handler.h \
+                src/src/client/windows/common/ipc_protocol.h \
+                src/src/google_breakpad/common/minidump_format.h \
+                src/src/google_breakpad/common/breakpad_types.h \
+                src/src/client/windows/crash_generation/crash_generation_client.h \
+                src/src/common/scoped_ptr.h \
+                src/src/common/windows/http_upload.h
+
+    SOURCES +=  src/src/client/windows/handler/exception_handler.cc \
+                src/src/client/windows/crash_generation/client_info.cc \
+                src/src/client/windows/crash_generation/minidump_generator.cc \
+                src/src/common/windows/string_utils.cc \
+                src/src/common/windows/guid_string.cc \
+                src/src/client/windows/crash_generation/crash_generation_client.cc \
+                src/src/client/windows/crash_generation/crash_generation_server.cc \
+                src/src/common/windows/http_upload.cc
+}
 
 mac {
     
-    INCLUDEPATH += src/src/ 
 
     HEADERS +=  src/src/client/mac/handler/exception_handler.h \
 	            src/src/client/mac/crash_generation/crash_generation_client.h \

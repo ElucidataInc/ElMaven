@@ -1,8 +1,6 @@
 #ifndef elmavexceptionhandler_H
 #define elmavexceptionhandler_H
 
-#define __APPLE__
-
 #include <QProcess>
 #include <QDebug>
 #include <QTemporaryFile>
@@ -10,19 +8,31 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QDir>
+#include <QCoreApplication>
 
 #include <pthread.h>
+
+#if defined(__w64)
+#include <client/windows/handler/exception_handler.h>
+#define SERVER_BIN ":/crashserver_win"
+//extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+#endif
 
 #if defined(__APPLE__)
 #include "client/mac/handler/exception_handler.h"
 #include "common/mac/MachIPC.h"
+#define SERVER_BIN ":/crashserver_mac"
 #endif
 
-#define SERVER_BIN ":/crashserver_mac"
+
 
 namespace elmavexceptionhandler
 {
     QString dumpPath = "";
+    enum MessageId : int {
+        SERVERSTARTED = 0,
+        SERVERFAILED
+    };
 #if defined(__APPLE__)
     mach_port_t handlerPort = MACH_PORT_NULL;
     google_breakpad::ReceivePort receivePort;
@@ -132,13 +142,83 @@ namespace elmavexceptionhandler
                 "ElMaven" + QDir::separator() +  QDateTime::currentDateTime().toString("dd_MM_yyyy_hh_mm_ss") + QDir::separator();
         QDir dir;
         dir.mkpath(dumpPath);
+        qDebug() << "dump path : " << dumpPath;
+#if defined(__w64)
+        QString serverBin = QCoreApplication::applicationDirPath() + QDir::separator() + "crashserver.exe";
+        QProcess* _process = new QProcess;
+        _process->setProgram(serverBin);
+        _process->setArguments(QStringList() << dumpPath);
+        _process->start();
+        if(_process->waitForStarted(-1))
+            qDebug() << " process started successfully ";
+        else
+            qDebug() << "process failed to start : " << _process->errorString() << "  " << _process->error();
 
+        while(_process->waitForReadyRead(-1)) {
+            bool receivedInput = false;
+            QByteArray data = _process->readLine();
+            qDebug() << "reading from server side: " <<  data;
+            switch (data.toInt()) {
+            case MessageId::SERVERSTARTED:
+
+                qDebug() << "server stared successfully ";
+                _process->closeReadChannel(QProcess::StandardOutput);
+                _process->closeReadChannel(QProcess::StandardError);
+                receivedInput = true;
+                break;
+            case MessageId::SERVERFAILED:
+                qDebug() << "server failed to start ";
+                _process->closeReadChannel(QProcess::StandardOutput);
+                _process->closeReadChannel(QProcess::StandardError);
+                receivedInput = true;
+                break;
+
+            default:
+                qDebug() << "reading from server side: " <<  data;
+                break;
+            }
+
+            if(receivedInput)
+                break;
+        }
+        eh = new google_breakpad::ExceptionHandler(dumpPath.toStdWString(), NULL, NULL, NULL,
+                                           google_breakpad::ExceptionHandler::HANDLER_ALL,
+                                           MiniDumpNormal,
+                                           L"\\\\.\\pipe\\ELMAVEN_HANDLER",
+                                           nullptr);
+
+        qDebug() << "is out of process : " << eh->IsOutOfProcess();
+
+#endif
+//        qt_ntfs_permission_lookup++;
+//        QTemporaryFile* file = QTemporaryFile::createNativeFile(SERVER_BIN);
+//        file->setPermissions(QFileDevice::ReadOwner);
+//        LPSTR path = (LPSTR)file->fileName().utf16();
+//        SetNamedSecurityInfoA(path, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, NULL, NULL, NULL, NULL);
+//        if(file->open()) {
+//            qDebug() << "opened file: " << file->fileName();
+//            qDebug() << "file permissions: " << file->permissions();
+//             QProcess* _process = new QProcess;
+//            _process->setProgram("D:/maven_repo/elmaven_new/ElMaven/binaries/windows/crashserver.exe");
+
+//            _process->setProgram(file->fileName());
+//            _process->setArguments(QStringList() << QString(dumpPath));
+//            if(file->isOpen() && file->isReadable())
+//                _process->start();
+//            else
+//                qDebug() << file->error();
+
+//                    file->close();
+//        delete file;
+
+#if defined(__APPLE__)
         handlerPort = receivePort.GetPort();
         qDebug() << "initializing breakpad";
         eh = new google_breakpad::ExceptionHandler(filterCallback,
                                   nullptr,
                                   true,
                                   handlerPort);
+#endif
     }
 
 

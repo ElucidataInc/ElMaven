@@ -1,5 +1,3 @@
-#define __APPLE__ 1
-
 #include <iostream>
 #include <string>
 
@@ -8,6 +6,12 @@
 #include <QWaitCondition>
 #include <QDebug>
 #include <QProcess>
+
+#if defined(__w64)
+#include "client/windows/crash_generation/crash_generation_server.h"
+#include "client/windows/crash_generation/client_info.h"
+#include "client/windows/common/ipc_protocol.h"
+#endif
 
 #if defined(__APPLE__)
 #include "client/mac/crash_generation/client_info.h"
@@ -26,19 +30,35 @@ using google_breakpad::MachSendMessage;
 using std::string;
 
 
+enum MessageId : int {
+    SERVERSTARTED = 0,
+    SERVERFAILED
+};
+
 QMutex mutex;
 QWaitCondition handlerWait;
 
 
-#if defined(__APPLE__)
 void OnChildProcessDumpRequested(void* aContext,
+                                 #if defined(__APPLE__)
                                  const ClientInfo& aClientInfo,
-                                 const std::string& aFilePath)
-#endif
+                                 const std::string& aFilePath
+                                 #endif
+
+                                 #if defined(__w64)
+                                 const ClientInfo* aClientInfo,
+                                 const std::wstring* aFilePath
+                                 #endif
+                                 )
 {
 #if defined(__APPLE__)
     std::cerr << "handler: wrote dump for client " <<  aClientInfo.pid() << "   at path  " <<  aFilePath << "\n";
 #endif
+
+#if defined(__w64)
+    std::cerr << "handler: wrote dump for client " <<  aClientInfo->pid() << "   at path  " <<  aFilePath->c_str() << "\n";
+#endif
+
 
     mutex.lock();
     handlerWait.wakeOne();
@@ -48,11 +68,41 @@ void OnChildProcessDumpRequested(void* aContext,
 
 int main(int argc, char** argv)
 {
-    std::cerr  << "handler: starting\n" ;
     mutex.lock();
 
-    std::cerr << "dump path : " << argv[1] << "\n";
+    std::cerr << "handler starting \n";
+
+#if defined(__w64)
+    std::wstring dumpPath = QString(argv[1]).toStdWString();
+#endif
+
+#if defined(__APPLE__)
     std::string dumpPath = argv[1];
+#endif
+
+
+#if defined(__w64)
+     CrashGenerationServer* server = new CrashGenerationServer(L"\\\\.\\pipe\\ELMAVEN_HANDLER",
+                                                   NULL,
+                                                   NULL,
+                                                    NULL,
+                                                    OnChildProcessDumpRequested,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   true,
+                                                   &dumpPath);
+
+     if(!server->Start())
+        std::cout << MessageId::SERVERFAILED;
+     else
+        std::cout  << MessageId::SERVERSTARTED;
+
+    handlerWait.wait(&mutex);
+#endif
+
 #if defined(__APPLE__)
     // Use the bootstrap port, which the parent process has set, to
     // send a message to the parent process.
@@ -96,7 +146,6 @@ int main(int argc, char** argv)
                 dumpPath);
 
     std::cerr << "initialized the server " << std::endl;
-#endif
 
     if (!crash_server.Start()) {
        std::cerr << "handler: Failed to start CrashGenerationServer\n";
@@ -112,6 +161,7 @@ int main(int argc, char** argv)
     crash_server.Stop();
     std::cerr << __TIME__  <<  "  :  handler: exiting \n";
 
+#endif
 
   return 0;
 }

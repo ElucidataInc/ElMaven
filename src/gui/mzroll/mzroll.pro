@@ -46,7 +46,7 @@ linux {
 win32 {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/
-    LIBS += -lgoogle-breakpad -pthread
+    LIBS += -pthread
 }
 
 mac {
