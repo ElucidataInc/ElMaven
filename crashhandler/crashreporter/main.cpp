@@ -6,16 +6,18 @@
 #include <QFile>
 #include <iostream>
 
+
+#define _STR(X) #X
+#define STR(X) _STR(X)
+
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    qApp->setOrganizationName("ElucidataInc");
-    qApp->setApplicationName("El-Maven");
-
-
-     std::cerr << "dump path from CR : " << argv[1] << std::endl;
-    // argv[1] contains the path of dump files and logs
+    qDebug() << "dump path: " << argv[1];
+    qDebug() << "app name " << STR(APPNAME);
+    qDebug() << "version: " << STR(APPVERSION);
 
     FileUploader uploader((QString(argv[1])));
     MainWindow w(nullptr, &uploader);

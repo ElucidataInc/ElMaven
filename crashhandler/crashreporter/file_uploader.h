@@ -23,10 +23,8 @@ class FileUploader: public QObject
         /**
          * @brief prepare all the files and contents that have to be uploaded. i.e dmp file and logs
          */
-        void preProcess();
         QString dumpPath;
         QString dmpFilePath;
-        QByteArray additionalData;
 
     Q_SIGNALS:
         void uploadDone();

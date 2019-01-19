@@ -20,11 +20,8 @@
 
 FileUploader::FileUploader(const QString& dPath): dumpPath(dPath)
 {
-
-    if(!dumpPath.isEmpty())
-        preProcess();
-
 }
+
 
 FileUploader::~FileUploader()
 {}
@@ -35,7 +32,6 @@ bool FileUploader::uploadMinidump()
     typedef std::basic_string<wchar_t> wstring;
     std::map<wstring, wstring> files;
     std::map<wstring, wstring> parameters;
-    parameters[L"Logs"] =  QString(additionalData).toStdWString();
     files[L"upload_file_minidump"] = dmpFilePath.toStdWString();
     qDebug() << "uploading file: " << dmpFilePath;
 
@@ -64,7 +60,6 @@ bool FileUploader::uploadMinidump()
     QStringList args;
     args << upPath;
     args << dmpFilePath;
-    args << QString(additionalData);
 
     uProcess->setArguments(args);
     uProcess->start();
@@ -77,7 +72,6 @@ bool FileUploader::uploadMinidump()
     std::map<std::string, std::string> parameters;
     std::map<std::string, std::string> files;
     files["upload_file_minidump"] = dmpFilePath.toStdString();
-    parameters["logs"] = QString(additionalData).toStdString();
     google_breakpad::HTTPUpload::SendRequest("https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e", \
                                              parameters,files,
                                              "","","",
@@ -95,35 +89,3 @@ void FileUploader::processFinished(int exitCode)
 }
 #endif
 
-void FileUploader::preProcess()
-{
-
-    QDir dir(dumpPath);
-    if(dir.exists()) {
-        dir.setFilter(QDir::Files);
-
-        // find dmp files in the dumpPath
-        dir.setNameFilters(QStringList() << "*.dmp");
-        for(const QString& fPath: dir.entryList()) {
-            // pick the first file. ideally there should only be  one dmp file per session
-            dmpFilePath = dir.filePath(fPath);
-            break;
-        }
-
-        // find the logs and read it's contents
-        dir.setNameFilters(QStringList() << "*logs*");
-        QFile fptr;
-        for(const QString& fPath: dir.entryList()) {
-
-            fptr.setFileName(dir.filePath(fPath));
-            if(fptr.open(QIODevice::ReadOnly)) {
-                additionalData += fptr.readAll();
-            }
-            fptr.close();
-        }
-    }
-
-
-    else
-        std::cerr << "dir does not exist " << std::endl;
-}
