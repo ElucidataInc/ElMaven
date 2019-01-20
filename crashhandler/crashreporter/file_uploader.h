@@ -13,7 +13,7 @@ class FileUploader: public QObject
 
     Q_OBJECT
     public:
-        FileUploader(const QString& dPath);
+        FileUploader(const QString& dPath, const QString& endpoint);
         ~FileUploader();
 
     public slots:
@@ -23,8 +23,8 @@ class FileUploader: public QObject
         /**
          * @brief prepare all the files and contents that have to be uploaded. i.e dmp file and logs
          */
-        QString dumpPath;
-        QString dmpFilePath;
+        QString _dumpPath;
+        QString _endpoint;
 
     Q_SIGNALS:
         void uploadDone();
