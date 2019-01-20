@@ -15,9 +15,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    qDebug() << "dump path: " << argv[1];
-    qDebug() << "app name " << STR(APPNAME);
-    qDebug() << "version: " << STR(APPVERSION);
+    if(argc < 2) {
+        qDebug() << "dump path should be provided to crash reporter";
+        exit(0);
+    }
 
     FileUploader uploader((QString(argv[1])));
     MainWindow w(nullptr, &uploader);

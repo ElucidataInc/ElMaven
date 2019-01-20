@@ -18,6 +18,10 @@
 #include <common/linux/http_upload.h>
 #endif
 
+#define _STR(X) #X
+#define STR(X) _STR(X)
+
+
 FileUploader::FileUploader(const QString& dPath): dumpPath(dPath)
 {
 }
@@ -28,14 +32,21 @@ FileUploader::~FileUploader()
 
 bool FileUploader::uploadMinidump()
 {
+
+    qDebug() << "dump path: " << dumpPath;
+    qDebug() << "app name " << STR(APPNAME);
+    qDebug() << "version: " << STR(APPVERSION);
+
 #ifdef Q_OS_WIN
     typedef std::basic_string<wchar_t> wstring;
     std::map<wstring, wstring> files;
     std::map<wstring, wstring> parameters;
-    files[L"upload_file_minidump"] = dmpFilePath.toStdWString();
-    qDebug() << "uploading file: " << dmpFilePath;
+    files[L"upload_file_minidump"] = dumpPath.toStdWString();
+    parameters[L"Application"] = QString(STR(APPNAME)).toStdWString();
+    parameters[L"Version"] = QString(STR(APPVERSION)).toStdWString();
+    qDebug() << "uploading file: " << dumpPath;
 
-    google_breakpad::HTTPUpload::SendRequest(
+    bool uploaded = google_breakpad::HTTPUpload::SendRequest(
                 L"https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e",
                 parameters,
                 files,
@@ -43,6 +54,7 @@ bool FileUploader::uploadMinidump()
                 /* response body */ nullptr,
                 /* response code */ nullptr
                 );
+    qDebug() << "uploaded : " << uploaded;
     emit uploadDone();
 #endif
 
