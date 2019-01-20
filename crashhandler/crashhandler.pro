@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = breakpad crashserver 
+SUBDIRS = breakpad crashserver crashreporter 

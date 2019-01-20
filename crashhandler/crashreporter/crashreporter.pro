@@ -14,7 +14,8 @@ CONFIG += console
 
 MOC_DIR=$$top_builddir/tmp/crashreporter/
 OBJECTS_DIR=$$top_builddir/tmp/crashreporter/
-DESTDIR = $$top_srcdir/binaries/windows/
+
+win32: DESTDIR = $$top_srcdir/bin/
 
 
 QMAKE_CXXFLAGS += -std=c++11

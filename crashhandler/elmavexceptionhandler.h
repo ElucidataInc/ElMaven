@@ -147,7 +147,7 @@ namespace elmavexceptionhandler
         QString serverBin = QCoreApplication::applicationDirPath() + QDir::separator() + "crashserver.exe";
         QProcess* _process = new QProcess;
         _process->setProgram(serverBin);
-        _process->setArguments(QStringList() << dumpPath);
+        _process->setArguments(QStringList() << dumpPath << QCoreApplication::applicationDirPath());
         _process->start();
         if(_process->waitForStarted(-1))
             qDebug() << " process started successfully ";

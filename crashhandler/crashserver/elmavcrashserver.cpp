@@ -8,6 +8,8 @@
 #include <QProcess>
 
 #if defined(__w64)
+#include <QCoreApplication>
+#include <QDir>
 #include "client/windows/crash_generation/crash_generation_server.h"
 #include "client/windows/crash_generation/client_info.h"
 #include "client/windows/common/ipc_protocol.h"
@@ -35,6 +37,9 @@ enum MessageId : int {
     SERVERFAILED
 };
 
+
+std::string appDirPath = "";
+
 QMutex mutex;
 QWaitCondition handlerWait;
 
@@ -56,11 +61,27 @@ void OnChildProcessDumpRequested(void* aContext,
 #endif
 
 #if defined(__w64)
-    std::cerr << "handler: wrote dump for client " <<  aClientInfo->pid() << "   at path  " <<  aFilePath->c_str() << "\n";
+    std::wcerr << "handler: wrote dump for client " <<  aClientInfo->pid() << "   at path  " <<  *aFilePath << "\n";
 #endif
 
-
     mutex.lock();
+
+#if defined(__w64)
+    QString exePath = QString::fromStdString(appDirPath) + QDir::separator() + "crashreporter.exe";
+    std::cerr << "path of exe: " << exePath.toStdString() << "\n";
+#endif
+
+    QProcess* _proc = new QProcess;
+    _proc->setProgram(exePath);
+    _proc->setArguments(QStringList() << QString::fromStdWString((*aFilePath)));
+    _proc->start();
+
+    if(_proc->waitForStarted(-1))
+         std::cerr << "crash reporter started ";
+
+    else
+         std::cerr  << "failed to start the crash reporter " << _proc->errorString().toStdString() << "\n";
+
     handlerWait.wakeOne();
     mutex.unlock();
 
@@ -74,6 +95,7 @@ int main(int argc, char** argv)
 
 #if defined(__w64)
     std::wstring dumpPath = QString(argv[1]).toStdWString();
+    appDirPath = argv[2];
 #endif
 
 #if defined(__APPLE__)
