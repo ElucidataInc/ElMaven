@@ -1,0 +1,5 @@
+<RCC>
+  <qresource>
+    <file alias="crashserver_mac">binaries/mac/crashserver.app/Contents/MacOS/crashserver</file>
+  </qresource>
+</RCC>

@@ -40,6 +40,8 @@ class CrashGenerationClient {
     : sender_(mach_port_name) {
   }
 
+  explicit CrashGenerationClient(mach_port_t mach_port):
+        sender_(mach_port) {}
   // Request the crash server to generate a dump.
   //
   // Return true if the dump was successful; false otherwise.
