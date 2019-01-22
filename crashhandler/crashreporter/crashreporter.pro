@@ -33,7 +33,9 @@ win32: LIBS += -lwininet
 
 linux: LIBS += -ldl
 
-RESOURCES = $$top_srcdir/endpoint.qrc
+exists($$top_srcdir/keys) {
+    RESOURCES = $$top_srcdir/endpoint.qrc
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp
