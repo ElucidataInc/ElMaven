@@ -415,6 +415,24 @@ QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
     return url_with_wildcard;
 }
 
+QString PollyIntegration::UploadToCloud(QString uploadUrl, QString filePath){
+    QString upload_command = "uploadCuratedPeakDataToCloud";
+    QList<QByteArray> patch_id_result_and_error = runQtProcess(upload_command, QStringList() << uploadUrl << filePath);
+    QString status = "success";
+    return status
+}
+
+QString PollyIntegration::UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath){
+    QElapsedTimer timer;
+    timer.start();
+    QString command = "getPeakUploadUrls";
+    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << session_indentifier << fileName);
+    QString uploadUrl = getFileUploadURLs(result_and_error.at(0));
+    QString status = UploadToCloud(uploadUrl, filePath);
+    qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
+    return status
+}
+
 // name OF FUNCTION: loadDataFromPolly
 // PURPOSE:
 //    This function downloads the specified files for a given projects..

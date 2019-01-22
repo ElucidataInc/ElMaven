@@ -12,6 +12,7 @@
 #include "stable.h"
 #include "traindialog.h"
 #include <algorithm>
+#include "pollyintegration.h"
 
 class MainWindow;
 class TrainDialog;
@@ -40,8 +41,10 @@ public:
    * @see- <TableDockWidget::exportJson>
    */
   vector<PeakGroup> vallgroups;
+  vector<PeakGroup> subsetPeakGroups;
   int maxPeaks;
   QList<PeakGroup> allgroups;
+  QString sessionId;
 
   enum tableViewType { groupView = 0, peakView = 1 };
   enum peakTableSelectionType { Selected = 0, Whole = 1, Good = 2, Bad = 3 };
@@ -128,6 +131,8 @@ public Q_SLOTS:
 
   void exportJson();
   void ShowStatistics();
+  void UploadPeakBatchToCloud();
+  void StartUploadPeakBatchToCloud();
   void showSelectedGroup();
   void setGroupLabel(char label);
   void showLastGroup();
@@ -194,6 +199,7 @@ protected:
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
   void tenPeaksMarked();
+  void UploadPeakBatch();
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
@@ -383,5 +389,19 @@ public:
   virtual void keyPressEvent(QKeyEvent *event);
   void setData(QStringList vstrings) { strings = vstrings; }
 };
+
+class UploadPeaksToCloudThread : public QThread
+{
+    Q_OBJECT
+    public:
+        UploadPeaksToCloudThread();
+        ~UploadPeaksToCloudThread();
+        void run();
+        QString sessionId;
+        PollyIntegration* _pollyintegration;
+    signals:
+        void resultReady(QString sessionId);
+};
+
 
 #endif
