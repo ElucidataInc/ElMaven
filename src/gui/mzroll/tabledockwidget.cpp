@@ -55,6 +55,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
   connect(this, SIGNAL(tenPeaksMarked()), this, SLOT(ShowStatistics()));
+  connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
 
   setupFiltersDialog();
 
@@ -730,6 +731,57 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
                              _mainwindow->getVisibleSamples());
 }
 
+UploadPeaksToCloudThread::UploadPeaksToCloudThread()
+{
+    _pollyintegration = new PollyIntegration();   
+    
+};
+
+void UploadPeaksToCloudThread::run()
+{
+    qDebug() << "Checking for active internet connection..";
+    QString status;
+    if (!_pollyintegration->activeInternet()) {
+        qDebug() << "No internet connection..aborting upload";
+        return;
+    }
+    if (status == "ok") {
+      QString uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName);
+      emit resultReady(sessionId);
+    }
+}
+
+UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
+{
+  if (_pollyintegration) delete (_pollyintegration);
+};
+
+
+void TableDockWidget::UploadPeakBatchToCloud(){
+    jsonReports=new JSONReports(_mainwindow->mavenParameters);
+    QDateTime current_time;
+    const QString format = "dd-MM-yyyy_hh_mm_ss";
+    QString datetimestamp= current_time.currentDateTime().toString(format);
+    datetimestamp.replace(" ","_");
+    datetimestamp.replace(":","-");
+    QString writableTempDir = QStandardPaths::writableLocation(
+                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
+                                                + QDir::separator()
+                                                + "tmp_Elmaven_Polly_files";
+    QString fileName = writableTempDir + QDir::separator() + sessionId + "_" + datetimestamp +  ".json";
+    jsonReports->saveMzEICJson(fileName.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
+
+    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
+    connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(StartUploadPeakBatchToCloud()));
+    connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
+    uploadPeaksToCloudThread->sessionId = "1234";
+    uploadPeaksToCloudThread->start();
+}
+
+void TableDockWidget::StartUploadPeakBatchToCloud(){
+  qDebug()<<"upload finished";
+}
+
 void TableDockWidget::ShowStatistics() {
   int accuracy = 0;
   int tp = 0;
@@ -760,6 +812,7 @@ void TableDockWidget::ShowStatistics() {
     msgBox->open();
   }
 }
+
 void TableDockWidget::exportJson() {
 
   if (allgroups.size() == 0) {
@@ -911,23 +964,25 @@ void TableDockWidget::setGroupLabel(char label) {
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
         if (!(group->label=='g'||group->label=='b')){
-          numberOfGroupsMarked+=1;  
+          numberOfGroupsMarked+=1;
+          group->setLabel(label);
+          subsetPeakGroups.push_back(*group);
         }
-        if (_mainwindow->sessionCount==1){
-          if (numberOfGroupsMarked ==10){
-            _mainwindow->sessionCount+=1;
+        group->setLabel(label);
+        if (numberOfGroupsMarked ==10){
+          if (_mainwindow->sessionCount==1){
+            // This code is used to show the initial inferences from the cloud model.
             Q_EMIT(tenPeaksMarked());
           }
-        }
-        else{
-          qDebug()<<"session coiunt exceeds one.";
-        }
-
-        group->setLabel(label);
+          _mainwindow->sessionCount+=1;          
+          numberOfGroupsMarked = 0;
+          Q_EMIT(UploadPeakBatch());
+          subsetPeakGroups.clear();
+          }
       }
       updateItem(item);
     }
-  }
+}
   updateStatus();
 }
 
@@ -2641,40 +2696,7 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
         }
         else if (mark==-1 && !decisionConflict) {
             // markGroupBad(grp, item);
-            grp->markedBadByCloudModel = 0;
+            grp->markedBadByCloudModel = 1;
         }
     }
-}
- 
-void TableDockWidget::markGroupGood(PeakGroup* grp, QTreeWidgetItem* item)
-{
-    if(item && grp != NULL)
-    {   if (!(grp->label=='g'||grp->label=='b')){
-      numberOfGroupsMarked+=1;
-      qDebug()<<"one more new group marked";
-    }
-      qDebug()<<"group already marked";
-        grp->setLabel('g');
-        updateItem(item);
-    }
-    updateStatus();
-    if (_mainwindow->sessionCount==1){
-    if (numberOfGroupsMarked ==10){
-      _mainwindow->sessionCount+=1;
-      Q_EMIT(tenPeaksMarked());
-    }
-  }
-  else{
-    qDebug()<<"session coiunt exceeds one.";
-  }
-}
-
-void TableDockWidget::markGroupBad(PeakGroup* grp, QTreeWidgetItem* item)
-{
-    if(item && grp != NULL)
-    {
-        grp->setLabel('b');
-        updateItem(item);
-    }
-    updateStatus();
 }
