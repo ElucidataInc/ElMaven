@@ -126,12 +126,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
     connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
 
-    connect(ionizationMode, SIGNAL(currentIndexChanged(int)), SLOT(getFormValues()));
-    connect(ionizationMode, SIGNAL(currentIndexChanged(QString)), mainwindow, SLOT(setIonizationModeLabel()));
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
-    connect(amuQ1, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
-    connect(amuQ3, SIGNAL(valueChanged(double)), SLOT(getFormValues()));
-    connect(filterlineComboBox, SIGNAL(activated(QString)), SLOT(getFormValues()));
 
     //isotope detection setting
     connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
@@ -177,15 +172,49 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(RProgramSelect, SIGNAL(clicked()), SLOT(selectRProgram()));
     connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
 
+    // instrumentation settings
+    connect(ionizationMode,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(ionizationMode,
+            SIGNAL(currentIndexChanged(QString)),
+            mainwindow,
+            SLOT(setIonizationModeLabel()));
+    connect(ionizationType,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(ionizationType,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(setAppropriatePolarity()));
+    connect(amuQ1,
+            SIGNAL(valueChanged(double)),
+            SLOT(getFormValues()));
+    connect(amuQ3,
+            SIGNAL(valueChanged(double)),
+            SLOT(getFormValues()));
+    connect(filterlineComboBox,
+            SIGNAL(activated(QString)),
+            SLOT(getFormValues()));
 
-    connect(centroid_scan_flag,SIGNAL(toggled(bool)), SLOT(getFormValues()));
-    connect(scan_filter_min_quantile, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
-    connect(scan_filter_min_intensity, SIGNAL(valueChanged(int)), SLOT(getFormValues()));
-    connect(ionizationType,SIGNAL(currentIndexChanged(int)),SLOT(getFormValues()));
-    connect(ionizationType, SIGNAL(currentIndexChanged(int)), SLOT(setAppropriatePolarity()));
+    // file import settings
+    connect(centroid_scan_flag, SIGNAL(toggled(bool)), SLOT(getFormValues()));
+    connect(scan_filter_polarity,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_mslevel,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_min_quantile,
+            SIGNAL(valueChanged(int)),
+            SLOT(getFormValues()));
+    connect(scan_filter_min_intensity,
+            SIGNAL(valueChanged(int)),
+            SLOT(getFormValues()));
+    connect(checkBoxMultiprocessing,
+            SIGNAL(toggled(bool)),
+            SLOT(updateMultiprocessing()));
 
-    //Multiprocessing
-    connect(checkBoxMultiprocessing,SIGNAL(toggled(bool)),SLOT(updateMultiprocessing()));
+    _connectAnalytics();
 
     //Group Rank
     setGroupRankStatus();
@@ -208,8 +237,10 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
 void SettingsForm::onReset()
 {
+    _disconnectAnalytics();
     emit resetSettings(optionSettings->getSettings().keys());
-
+    QCoreApplication::processEvents();
+    _connectAnalytics();
 }
 
 void SettingsForm::setIsotopicPeakFiltering()
@@ -536,4 +567,112 @@ void SettingsForm::_asymmetryChanged(int value)
     double actualAsym = static_cast<double>(value) / 100.0;
     asymmetryValue->setText(QString::number(actualAsym, 'f', 2));
     recomputeEIC();
+}
+
+void SettingsForm::_connectAnalytics()
+{
+    // inescapable ugly types
+    auto comboBoxIndexChanged =
+        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    auto spinBoxValueChanged =
+        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+    auto doubleSpinBoxValueChanged =
+        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged);
+
+    // analytics for instrumentation settings
+    _analyticsConnections.append(connect(ionizationMode,
+                                         comboBoxIndexChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
+                                             "Ionization Mode",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(ionizationType,
+                                         comboBoxIndexChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
+                                             "Ionization Type",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(amuQ1,
+                                         doubleSpinBoxValueChanged,
+                                         [this]()
+    {
+        mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
+                                             "Q1 Accuracy");
+    }));
+    _analyticsConnections.append(connect(amuQ3,
+                                         doubleSpinBoxValueChanged,
+                                         [this]()
+    {
+        mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
+                                             "Q3 Accuracy");
+    }));
+    _analyticsConnections.append(connect(filterlineComboBox,
+                                         comboBoxIndexChanged,
+                                         [this]()
+    {
+        mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
+                                                     "Filterline");
+    }));
+
+    // analytics for file import settings
+    _analyticsConnections.append(connect(centroid_scan_flag,
+                                         &QCheckBox::toggled,
+                                         [this](const bool val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Centroid Scans",
+                                             static_cast<int>(val));
+    }));
+    _analyticsConnections.append(connect(scan_filter_polarity,
+                                         comboBoxIndexChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Polarity",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(scan_filter_mslevel,
+                                         comboBoxIndexChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter MSLevel",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(scan_filter_min_quantile,
+                                         spinBoxValueChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Minimum Quantile",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(scan_filter_min_intensity,
+                                         spinBoxValueChanged,
+                                         [this](const int val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Scan Filter Minimum Intensity",
+                                             val);
+    }));
+    _analyticsConnections.append(connect(checkBoxMultiprocessing,
+                                         &QCheckBox::toggled,
+                                         [this](const bool val)
+    {
+        mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
+                                             "Upload Multiprocessing",
+                                             static_cast<int>(val));
+    }));
+}
+
+void SettingsForm::_disconnectAnalytics()
+{
+    for (const auto& connection : _analyticsConnections)
+        QObject::disconnect(connection);
+
+    _analyticsConnections.clear();
 }

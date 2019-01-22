@@ -199,7 +199,10 @@ protected:
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
   void tenPeaksMarked();
+<<<<<<< HEAD
   void UploadPeakBatch();
+=======
+>>>>>>> 4242bdf8cef5d54d3f6e1e7386ca6fb15d12cc83
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);

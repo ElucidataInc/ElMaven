@@ -92,8 +92,8 @@ void MainWindow::printvalue() {
         const QDateTime nowTime = QDateTime::currentDateTime();
         const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
         QString AutosavePath = samplePath + timestamp + ".mzroll";
-        this->fileName = AutosavePath;
-        this->doAutosave = true;
+        this->_currentProjectName = AutosavePath;
+        this->timestampFileExists = true;
         this->saveProject();
         unsigned int countCrashState = 0;
         settings->beginWriteArray("crashTables");
@@ -525,12 +525,15 @@ using namespace mzUtils;
             SLOT(_showEMDBProgressBar(QString)));
     connect(fileLoader,
             &mzFileIO::sqliteDBSamplesLoaded,
+            this,
             [=] { _updateEMDBProgressBar(1, 4); });
     connect(fileLoader,
             &mzFileIO::sqliteDBPeakTablesCreated,
+            this,
             [=] { _updateEMDBProgressBar(2, 4); });
     connect(fileLoader,
             &mzFileIO::sqliteDBAlignmentDone,
+            this,
             [=] { _updateEMDBProgressBar(3, 4); });
     connect(fileLoader,
             SIGNAL(sqliteDBPeakTablesPopulated()),
@@ -700,7 +703,7 @@ void MainWindow::saveSettingsToLog() {
     summary << "\n\n-------------------Maven Parameters-------------------"<< "\n"<< "\n";
 //     summary << "runFunction =" << runFunction<< "\n";
     summary << "alignSamplesFlag="  <<  mavenParameters->alignSamplesFlag<< "\n";
-    summary << "alignMaxItterations="  <<  mavenParameters->alignMaxItterations << "\n";
+    summary << "alignMaxIterations="  <<  mavenParameters->alignMaxIterations << "\n";
     summary << "alignPolynomialDegree="  <<  mavenParameters->alignPolynomialDegree << "\n";
 
     summary << "--------------------------------MASS SLICING"<< "\n";
@@ -818,32 +821,20 @@ void MainWindow::createPeakTable(QString filenameNew) {
     peaksTable->showAllGroups();
 }
 
-bool MainWindow::askAutosave()
+QString MainWindow::_newAutosaveFile()
 {
-    bool doAutosave = false;
-    _setProjectFilenameFromProjectDockWidget();
-    if (this->fileName.isEmpty()) {
-        auto reply = QMessageBox::question(this,
-                                           "Autosave",
-                                           "Do you want to enable autosave? "
-                                           "You will have to create a new "
-                                           "project to save in.",
-                                           QMessageBox::Yes | QMessageBox::No,
-                                           QMessageBox::Yes);
-        if (reply == QMessageBox::Yes) {
-            doAutosave = true;
-        } else {
-            doAutosave = false;
-        }
-    }
-    return doAutosave;
+    auto now = QDateTime::currentDateTime();
+    auto tempFilename = now.toString(Qt::ISODate) + ".emDB";
+    auto firstSampleFile = getSamples()[0]->fileName;
+    auto sampleFileInfo = QFileInfo(QString::fromStdString(firstSampleFile));
+    auto samplePath = sampleFileInfo.absolutePath();
+    return samplePath + QDir::separator() + tempFilename;
 }
 
 AutoSave::AutoSave(MainWindow* mw)
 {
     _mainwindow = mw;
-    _mainwindow->doAutosave = false;
-    _mainwindow->askAutosaveMain = 0;
+    _mainwindow->timestampFileExists = false;
     saveTablesOnly = false;
 }
 
@@ -865,7 +856,7 @@ void AutoSave::run()
 
 void MainWindow::_setProjectFilenameIfEmpty()
 {
-    if (this->fileName.isEmpty()) {
+    if (this->_currentProjectName.isEmpty()) {
         QString dir = ".";
         if (settings->contains("lastDir")) {
             QString ldir = settings->value("lastDir").value<QString>();
@@ -882,52 +873,82 @@ void MainWindow::_setProjectFilenameIfEmpty()
                                          "El-MAVEN Database Format(*.emDB)");
         if (!filename.isEmpty()) {
             if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
-                this->fileName = filename + ".emDB";
+                this->_currentProjectName = filename + ".emDB";
             } else {
-                this->fileName = filename;
+                this->_currentProjectName = filename;
             }
         }
     }
 }
 
-void MainWindow::_setProjectFilenameFromProjectDockWidget()
+QString MainWindow::_getProjectFilenameFromProjectDockWidget()
 {
     auto lastSave = projectDockWidget->getLastSavedTime();
     auto lastLoad = projectDockWidget->getLastOpenedTime();
-    if (!projectDockWidget->getLastOpenedProject().isEmpty()
-            && lastLoad > lastSave)
-        fileName = projectDockWidget->getLastOpenedProject();
     if (!projectDockWidget->getLastSavedProject().isEmpty()
             && lastSave > lastLoad)
-        fileName = projectDockWidget->getLastSavedProject();
+        return projectDockWidget->getLastSavedProject();
+    if (!projectDockWidget->getLastOpenedProject().isEmpty()
+            && lastLoad > lastSave)
+        return projectDockWidget->getLastOpenedProject();
+    return "";
+}
+
+QString MainWindow::getLatestUserProject()
+{
+    if (_latestUserProjectName.isEmpty())
+        return _getProjectFilenameFromProjectDockWidget();
+    return _latestUserProjectName;
+}
+
+void MainWindow::resetAutosave()
+{
+    if (this->timestampFileExists)
+        QFile::remove(_currentProjectName);
+    this->timestampFileExists = false;
+    this->peaksMarked = 0;
+    _currentProjectName = "";
 }
 
 void MainWindow::autosaveProject()
 {
-    if (this->peaksMarked == 1 && this->askAutosaveMain == 0) {
-        this->askAutosaveMain++;
-        this->doAutosave = this->askAutosave();
-        if (this->doAutosave) {
-            _setProjectFilenameIfEmpty();
-            if (this->fileName.isEmpty()) {
-                this->doAutosave = false;
-                return;
-            }
-            autosave->saveProjectWorker();
+    if (this->peaksMarked == 1 || this->timestampFileExists) {
+        if (!this->timestampFileExists) {
+            this->_currentProjectName = this->_newAutosaveFile();
+            this->timestampFileExists = true;
         }
-    } else if (this->doAutosave) {
         autosave->saveProjectWorker();
     }
 }
 
 void MainWindow::explicitSave()
 {
+    // the user is ordering an explicit save, reset the current project name
+    if (timestampFileExists) {
+        resetAutosave();
+    }
+
     saveProject(true);
 }
 
 void MainWindow::threadSave(QString filename)
 {
-    fileName = filename;
+    // a non-temporary file is being used to save session data,
+    // all autosave states should be discarded
+    if (timestampFileExists) {
+        resetAutosave();
+    }
+
+    _currentProjectName = filename;
+    _latestUserProjectName = filename;
+
+    QFileInfo fileInfo(filename);
+    setWindowTitle(programName
+                   + "_"
+                   + STR(EL_MAVEN_VERSION)
+                   + " "
+                   + fileInfo.fileName());
+
     autosave->saveProjectWorker();
 }
 
@@ -940,13 +961,13 @@ void MainWindow::saveProject(bool explicitSave)
         if (getSamples().size() == 0)
             return;
 
-        if (fileName.isEmpty())
-            _setProjectFilenameFromProjectDockWidget();
+        if (_currentProjectName.isEmpty())
+            _currentProjectName = _getProjectFilenameFromProjectDockWidget();
 
-        // if fileName is still empty, no projects were closed or opened
-        if (fileName.isEmpty()) {
-            QString message =
-                "Would you like to save your data for this session as a project?";
+        // if no projects were saved or opened
+        if (_latestUserProjectName.isEmpty()) {
+            QString message = "Would you like to save your data for this "
+                              "session as a project?";
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this,
                                           "Save as project",
@@ -954,20 +975,55 @@ void MainWindow::saveProject(bool explicitSave)
                                           QMessageBox::Yes | QMessageBox::No,
                                           QMessageBox::Yes);
 
-            if (reply == QMessageBox::Yes) {
-                _setProjectFilenameIfEmpty();
+            // remove timestamp autosave file in any case
+            QFile::remove(_currentProjectName);
+            if (reply != QMessageBox::Yes)
+                return;
 
-                // if the filename is still empty, (confused user?) do not save
-                if (fileName.isEmpty())
-                    return;
+            _currentProjectName = "";
+            _setProjectFilenameIfEmpty();
+
+            if (_currentProjectName.isEmpty())
+                return;
+
+            analytics->hitEvent("Project Save", "emDB");
+        } else {
+            QMessageBox msgBox;
+            QString message = "Please choose the project file to save your "
+                              "progress for this session.";
+            msgBox.setText(message);
+            QPushButton* cancelButton = msgBox.addButton(tr("Cancel"),
+                                                         QMessageBox::ActionRole);
+            QPushButton* newButton = msgBox.addButton(tr("Save in new"),
+                                                      QMessageBox::ActionRole);
+            QPushButton* saveButton = msgBox.addButton(tr("Save in current"),
+                                                       QMessageBox::ActionRole);
+            msgBox.setDefaultButton(saveButton);
+            msgBox.setEscapeButton(cancelButton);
+            msgBox.exec();
+
+            // remove current project file only if it was created by autosave
+            if (this->timestampFileExists)
+                QFile::remove(_currentProjectName);
+
+            if (msgBox.clickedButton() == newButton) {
+                _currentProjectName = "";
+                _setProjectFilenameIfEmpty();
+                analytics->hitEvent("Project Save", "emDB In New File");
+            } else if (msgBox.clickedButton() == saveButton) {
+                _currentProjectName = _latestUserProjectName;
+                analytics->hitEvent("Project Save", "emDB In Current File");
             } else {
                 return;
             }
+
+            if (_currentProjectName.isEmpty())
+                return;
         }
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
-        _setProjectFilenameFromProjectDockWidget();
-        if (fileName.isEmpty()) {
+        _currentProjectName = _getProjectFilenameFromProjectDockWidget();
+        if (_latestUserProjectName.isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",
                                                "You do not have a project for "
@@ -979,11 +1035,21 @@ void MainWindow::saveProject(bool explicitSave)
                 _setProjectFilenameIfEmpty();
 
             // still empty?!
-            if (fileName.isEmpty())
+            if (_currentProjectName.isEmpty())
                 return;
+
+            _latestUserProjectName = _currentProjectName;
+            QFileInfo fileInfo(_latestUserProjectName);
+            setWindowTitle(programName
+                           + "_"
+                           + STR(EL_MAVEN_VERSION)
+                           + " "
+                           + fileInfo.fileName());
+        } else {
+            _currentProjectName = _latestUserProjectName;
         }
         this->autosave->saveProjectWorker();
-    } else if (this->doAutosave) {
+    } else if (this->timestampFileExists) {
         this->autosave->saveProjectWorker(true);
     } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
         this->autosave->saveProjectWorker();
@@ -992,25 +1058,25 @@ void MainWindow::saveProject(bool explicitSave)
 
 void MainWindow::saveProjectForFilename(bool tablesOnly)
 {
-    if (fileLoader->isMzRollProject(fileName)) {
+    if (fileLoader->isMzRollProject(_currentProjectName)) {
         _saveAllTablesAsMzRoll();
-    } else if (fileLoader->isSQLiteProject(fileName)) {
+    } else if (fileLoader->isSQLiteProject(_currentProjectName)) {
         if (tablesOnly) {
             auto allTables = getPeakTableList();
             allTables.append(bookmarkedPeaks);
             for (auto table : allTables)
-                projectDockWidget->savePeakTableInSQLite(table, fileName);
+                projectDockWidget->savePeakTableInSQLite(table, _currentProjectName);
         } else {
-            projectDockWidget->saveSQLiteProject(fileName);
+            projectDockWidget->saveSQLiteProject(_currentProjectName);
         }
     }
 }
 
 void MainWindow::_saveAllTablesAsMzRoll()
 {
-    if (fileName.isEmpty()) {
-        fileName = this->projectDockWidget->getLastSavedProject();
-        if (!fileLoader->isMzRollProject(fileName)) {
+    if (_currentProjectName.isEmpty()) {
+        _currentProjectName = this->projectDockWidget->getLastSavedProject();
+        if (!fileLoader->isMzRollProject(_currentProjectName)) {
             projectDockWidget->saveProjectAsMzRoll();
             return;
         }
@@ -1019,7 +1085,7 @@ void MainWindow::_saveAllTablesAsMzRoll()
             && this->projectDockWidget->getLastSavedProject() == newFileName) {
         projectDockWidget->saveMzRollProject(newFileName);
     } else {
-        projectDockWidget->saveMzRollProject(fileName);
+        projectDockWidget->saveMzRollProject(_currentProjectName);
     }
 }
 
@@ -1181,6 +1247,7 @@ TableDockWidget* MainWindow::addPeaksTable(QString title) {
         customTableId = std::atoi(idString.c_str());
     }
     TableDockWidget* panel = new PeakTableDockWidget(this, customTableId);
+	analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
 	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
@@ -1210,26 +1277,6 @@ void MainWindow::removeAllPeakTables()
     }
     lastPeakTableId = 0;
 }
-
-// SpectralHitsDockWidget* MainWindow::addSpectralHitsTable(QString title) {
-// 	QPointer<SpectralHitsDockWidget> panel = new SpectralHitsDockWidget(this,
-// 			"Spectral Hits Table");
-// 	addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-// 	//groupTables.push_back(panel);
-
-// 	if (sideBar) {
-// 		QToolButton *btnTable = new QToolButton(sideBar);
-// 		btnTable->setIcon(QIcon(rsrcPath + "/spreadsheet.png"));
-// 		btnTable->setChecked(panel->isVisible());
-// 		btnTable->setCheckable(true);
-// 		btnTable->setToolTip(title);
-// 		connect(btnTable, SIGNAL(clicked(bool)), panel, SLOT(setVisible(bool)));
-// 		connect(panel, SIGNAL(visibilityChanged(bool)), btnTable,
-// 				SLOT(setChecked(bool)));
-// 		sideBar->addWidget(btnTable);
-// 	}
-// 	return panel;
-// }
 
 void MainWindow::setUserMassCutoff(double x) {
 	double cutoff=x;
@@ -1325,58 +1372,31 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	}
 	return vsamples;
 }
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup() {
-// 	//qDebug() << "MainWindow::bookmarkPeakGroup()";
-// 	std::cerr << "REACHED bookmarkPeakGroup!!!!!!!!!!!!!!!!" << std::endl;
-// 	if (eicWidget)
-// 		bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
-// }
 
-PeakGroup* MainWindow::bookmarkPeakGroup() {
-    //qDebug() << "MainWindow::bookmarkPeakGroup()";
-    if ( eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL) ) 
-	{
-       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup() );
+PeakGroup* MainWindow::bookmarkPeakGroup()
+{
+    if (eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL)) {
+       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
     }
 }
 
-//TODOL - Sahil Removed this older function to add new while merging eicwidget.cpp
-// void MainWindow::bookmarkPeakGroup(PeakGroup* group) {
-
-// 	if (bookmarkedPeaks == NULL)
-// 		return;
-
-// 	if (bookmarkedPeaks->isVisible() == false) {
-// 		bookmarkedPeaks->setVisible(true);
-// 	}
-
-// 	if (bookmarkedPeaks->hasPeakGroup(group) == false) {
-// 		bookmarkedPeaks->addPeakGroup(group);
-// 		bookmarkedPeaks->showAllGroups();
-// 	}
-// 	bookmarkedPeaks->updateTable();
-// }
-
-
-PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
-
+PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
+{
 	if ( bookmarkedPeaks == NULL ) return NULL;
 	//TODO: User feedback when group is rejected
 	if (group->peakCount() == 0) return NULL;
 
-    if ( bookmarkedPeaks->isVisible() == false ) {
-        bookmarkedPeaks->setVisible(true);
-    }
+    bookmarkedPeaks->setVisible(true);
 
-    PeakGroup* bookmarkedGroup=NULL;
-    if ( bookmarkedPeaks->hasPeakGroup(group) == false) {
+    PeakGroup* bookmarkedGroup = NULL;
+	if (bookmarkedPeaks->allgroups.size() == 0)
+		analytics->hitEvent("New Table", "Bookmark Table");
 
+    if (bookmarkedPeaks->hasPeakGroup(group) == false) {
 
 		float rtDiff = -1;
 
-		if (group->compound != NULL && group->compound->expectedRt > 0)
-		{
+		if (group->compound != NULL && group->compound->expectedRt > 0) {
 			rtDiff = abs(group->compound->expectedRt - (group->meanRt));
 			group->expectedRtDiff = rtDiff;
 		}
@@ -1385,15 +1405,14 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group) {
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
 
-        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && group->compound->expectedRt > 0)
-        {
-            group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
-                                                  * (1 /( pow(log(group->maxIntensity + 1), B)));
-        }
-        else
-        {
+        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && 
+			group->compound->expectedRt > 0) {
+            
+			group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
+                                   				* (1 /( pow(log(group->maxIntensity + 1), B)));
+        } else {
             group->groupRank = pow((1.1 - group->maxQuality), A)
-                                                  * (1 /(pow(log(group->maxIntensity + 1), B)));
+                               * (1 /(pow(log(group->maxIntensity + 1), B)));
         }
 
 		bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
@@ -1608,6 +1627,7 @@ void MainWindow::setMzValue(float mz1, float mz2) {
 }
 
 void MainWindow::print() {
+	analytics->hitEvent("Exports", "PDF", 2);
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -1681,16 +1701,31 @@ void MainWindow::open()
                    + " "
                    + fileInfo.fileName());
 
-    bool sqliteProjectBeingLoaded = false;
+    QString sqliteProjectBeingLoaded = "";
     Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isSQLiteProject(filename))
-            sqliteProjectBeingLoaded = true;
+        if (fileLoader->isSQLiteProject(filename)) {
+            sqliteProjectBeingLoaded = filename;
+            analytics->hitEvent("Project Load", "emDB");
+        } else if (fileLoader->isMzRollProject(filename)) {
+            analytics->hitEvent("Project Load", "mzroll");
+        }
 
         fileLoader->addFileToQueue(filename);
     }
 
-    if (sqliteProjectBeingLoaded)
+    if (!sqliteProjectBeingLoaded.isEmpty()) {
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
+        _latestUserProjectName = sqliteProjectBeingLoaded;
+
+        // reset filename in the title to overwrite any saves while closing last
+        // SQLite project
+        QFileInfo fileInfo(_latestUserProjectName);
+        setWindowTitle(programName
+                       + "_"
+                       + STR(EL_MAVEN_VERSION)
+                       + " "
+                       + fileInfo.fileName());
+    }
 
     bool cancelUploading = false;
     cancelUploading = updateSamplePathinMzroll(filelist);
@@ -1818,6 +1853,14 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 		if (ligandWidget->isVisible())
 			ligandWidget->setDatabase(QString(dbname.c_str()));
 
+		int msLevel = 1;
+		vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbname);
+		if (loadedCompounds[0]->precursorMz > 0 && loadedCompounds[0]->productMz > 0) {
+			msLevel = 2;
+		}
+		
+		analytics->hitEvent("Load Compound DB", "Successful Load", msLevel);
+		
 		settings->setValue("lastDatabaseFile", filename);
 		setStatusText(tr("loadCompounds: done after loading %1 compounds").arg(QString::number(compoundCount)));
 		return true;
@@ -1961,56 +2004,82 @@ bool MainWindow::loadMetaInformation(QString filename) {
 	}
 }
 
-void MainWindow::loadCompoundsFile() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Compounds File To Load",
-					".",
-					"All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML *.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv);;NIST Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*.massbank");
+void MainWindow::loadCompoundsFile()
+{
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select Compounds File To Load",
+        ".",
+        "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
+        "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
+        "File(*.csv);;NIST "
+        "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
+        "massbank");
 
-    if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
-	if(!loadCompoundsFile(filelist[0])) {
-		string dbfilename = filelist[0].toStdString();
-		string dbname = mzUtils::cleanFilename(dbfilename);
-		string notFoundColumns = "Following are the unknown column name(s) found: ";
+    if (filelist.size() == 0 || filelist[0].isEmpty())
+        return;
+    if (!loadCompoundsFile(filelist[0])) {
+        string dbfilename = filelist[0].toStdString();
+        string dbname = mzUtils::cleanFilename(dbfilename);
+        string notFoundColumns = "Following are the unknown column name(s) "
+                                 "found: ";
 
         QMessageBox msgBox;
-		msgBox.setText(tr("Trouble in loading compound database %1").arg(QString::fromStdString(dbname)));
+        msgBox.setText(tr("Trouble in loading compound database %1")
+                         .arg(QString::fromStdString(dbname)));
         msgBox.setIcon(QMessageBox::Warning);
-		if (DB.notFoundColumns.size() > 0) {
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
-		}
+        if (DB.notFoundColumns.size() > 0) {
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
+        }
+        analytics->hitEvent("Load Compound DB",
+                            "Column Error",
+                            1);
 
-		int ret = msgBox.exec();
-	} else {
-		if (DB.notFoundColumns.size() > 0) {
-			string notFoundColumns = "Following are the unknown column name(s) found: ";
+        int ret = msgBox.exec();
+    } else {
+        if (DB.notFoundColumns.size() > 0) {
+            analytics->hitEvent("Load Compound DB",
+                                "Column Error",
+                                0);
+            string notFoundColumns = "Following are the unknown column name(s) "
+                                     "found: ";
             QMessageBox msgBox;
-			msgBox.setText(tr("Found some unknown column name(s)"));
-			for(std::vector<string>::iterator it = DB.notFoundColumns.begin(); it != DB.notFoundColumns.end(); ++it) {
-    			notFoundColumns += "\n" + *it;
-			}
-			msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-			msgBox.setWindowFlags(msgBox.windowFlags() & ~Qt::WindowCloseButtonHint);
+            msgBox.setText(tr("Found some unknown column name(s)"));
+            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
+                 it != DB.notFoundColumns.end();
+                 ++it) {
+                notFoundColumns += "\n" + *it;
+            }
+            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-		if (DB.invalidRows.size() > 0) {
-			string invalidRowsString = "The following compounds had insufficient information for peak detection, and were not loaded:";
+            int ret = msgBox.exec();
+        }
+        if (DB.invalidRows.size() > 0) {
+            analytics->hitEvent("Load Compound DB",
+                                "Row Error");
+            string invalidRowsString = "The following compounds had "
+                                       "insufficient information for peak "
+                                       "detection, and were not loaded:";
             QMessageBox msgBox;
-			msgBox.setText(tr("Invalid compounds found"));
-			for(auto compoundID: DB.invalidRows) {
-    			invalidRowsString += "\n - " + compoundID;
+            msgBox.setText(tr("Invalid compounds found"));
+            for (auto compoundID : DB.invalidRows) {
+                invalidRowsString += "\n - " + compoundID;
             }
             msgBox.setDetailedText(QString::fromStdString(invalidRowsString));
-			msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+            msgBox.setWindowFlags(Qt::CustomizeWindowHint);
             msgBox.setIcon(QMessageBox::Information);
-			int ret = msgBox.exec();
-		}
-	}
+            int ret = msgBox.exec();
+        }
+    }
 }
 
 // open function for set csv
@@ -2159,25 +2228,9 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	return workerThread;
 }
 
-/*
- void MainWindow::terminateTheads() {
-
- for(int i=0; i < threads.size(); i++ ) {
- if (threads[i] != NULL ) {
- if (  threads[i]->isRunning())  {
- QMessageBox::StandardButton reply;
- reply = QMessageBox::critical(this, tr(  "QMessageBox::critical()"), "Do you wish to stop currently running backround job?", QMessageBox::Yes | QMessageBox::No);
- if (reply == QMessageBox::Yes) threads[i]->terminate();
- }
- if (! threads[i]->isRunning()) { delete(threads[i]); threads[i]=NULL; }
- }
- }
- }
-
-
- */
-
-void MainWindow::exportPDF() {
+void MainWindow::exportPDF()
+{
+	analytics->hitEvent("Exports", "PDF", 1);
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -2198,7 +2251,9 @@ void MainWindow::exportPDF() {
 	}
 }
 
-void MainWindow::exportSVG() {
+void MainWindow::exportSVG()
+{
+	analytics->hitEvent("Exports", "Clipboard", 5);
 
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);
@@ -2423,6 +2478,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveProjectAsSQLite()));
+    connect(saveProjectAsSQLite, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("Project Save", "emDB");
+    });
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll
@@ -2432,6 +2491,10 @@ void MainWindow::createMenus() {
             SIGNAL(triggered()),
             projectDockWidget,
             SLOT(saveMzRollProject()));
+    connect(saveProjectAsMzRoll, &QAction::triggered, [this]()
+    {
+        this->analytics->hitEvent("Project Save", "mzroll");
+    });
     saveProjectFile->addAction(saveProjectAsMzRoll);
     fileMenu->addMenu(saveProjectFile);
 
@@ -2954,6 +3017,8 @@ void MainWindow::refreshIntensities() {
 	}
     bookmarkedPeaks->showAllGroups();
     _updateEMDBProgressBar(4, 4);
+    if (bookmarkedPeaks->allgroups.size() > 0)
+        bookmarkedPeaks->setVisible(true);
 }
 
 void MainWindow::showspectraMatchingForm() {
@@ -3083,21 +3148,25 @@ void MainWindow::Align() {
 
 	BackgroundPeakUpdate* workerThread;
 
-    if(alignmentDialog->alignAlgo->currentIndex() == 1){
+    if (alignmentDialog->alignAlgo->currentIndex() == 1) {
+		analytics->hitEvent("Alignment", "Obi-Warp");
 		workerThread = newWorkerThread("alignWithObiWarp");
 		workerThread->setMavenParameters(mavenParameters);
+		alignmentDialog->setWorkerThread(workerThread);
 		workerThread->start();
 		connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
 		connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
+		connect(workerThread, SIGNAL(restoreAlignment()), alignmentDialog, SLOT(updateRestoreStatus()));
 		return;
 	}
 	
 	if (alignmentDialog->peakDetectionAlgo->currentText() == "Compound Database Search") {
 		workerThread = newWorkerThread("alignUsingDatabase");
         mavenParameters->setCompounds(DB.getCompoundsSubset(alignmentDialog->selectDatabaseComboBox->currentText().toStdString()));
-
+		alignmentDialog->setWorkerThread(workerThread);
 	} else {
 		workerThread = newWorkerThread("processMassSlices");
+		alignmentDialog->setWorkerThread(workerThread);
 	}
 
 	connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
@@ -3125,7 +3194,7 @@ void MainWindow::Align() {
 
 
     mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
-    mavenParameters->alignMaxItterations = alignmentDialog->maxItterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
+    mavenParameters->alignMaxIterations = alignmentDialog->maxIterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
     mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
 
     mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -3137,7 +3206,6 @@ void MainWindow::Align() {
 	mavenParameters->stop = false;
 	workerThread->setMavenParameters(mavenParameters);
 	workerThread->setPeakDetector(new PeakDetector(mavenParameters));
-	alignmentDialog->setWorkerThread(workerThread);
 
     //connect new connections
     connect(workerThread, SIGNAL(newPeakGroup(PeakGroup*)), bookmarkedPeaks, SLOT(addPeakGroup(PeakGroup*))); //TODO: Sahil-Kiran, Added while merging mainwindow
@@ -3159,35 +3227,27 @@ void MainWindow::showAlignmentWidget() {
 
 }
 
-void MainWindow::UndoAlignment() {
+void MainWindow::UndoAlignment()
+{
 	alignmentDialog->samplesAligned(false);
-    if(alignmentDialog->alignAlgo->currentIndex() == 1){
-		for (int i = 0; i < samples.size(); i++) {
-			for(int j = 0; j < samples[i]->scans.size(); ++j)
-				if(samples[i]->scans[j]->originalRt >= 0)
-					samples[i]->scans[j]->rt = samples[i]->scans[j]->originalRt;
-		}
-
-		eicWidget->replotForced();
-		alignmentDialog->close();
-		return;
+	
+	for (auto sample : samples) {
+		for(auto scan : sample->scans)
+			if(scan->originalRt >= 0)
+				scan->rt = scan->originalRt;
 	}
 
-	for (int i = 0; i < samples.size(); i++) {
-		if (samples[i])
-			samples[i]->restoreOriginalRetentionTimes();
-	}
 	getEicWidget()->replotForced();
 
 	mavenParameters->alignButton = 0;
 
 	QList<PeakGroup> listGroups;
-	for (unsigned int i = 0; i<mavenParameters->undoAlignmentGroups.size(); i++) {
-			listGroups.append(mavenParameters->undoAlignmentGroups.at(i));
+	for (auto group : mavenParameters->undoAlignmentGroups) {
+		listGroups.append(group);
 	}
-
+	
+	alignmentDialog->close();
 	Q_EMIT(undoAlignment(listGroups));
-
 }
 
 
@@ -3510,8 +3570,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
 		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
-		connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
-				SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
+                                SLOT(startAreaIntegration()));
+                connect(btnIntegrateArea, &QToolButton::clicked, [this]()
+                {
+                    mw->getAnalytics()->hitEvent("EIC Widget Button",
+                                                 "Manual Integration");
+                });
 		return btnIntegrateArea;
 
 	}

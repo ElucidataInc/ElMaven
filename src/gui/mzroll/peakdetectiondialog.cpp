@@ -128,7 +128,17 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
-        connect(reportIsotopesOptions,SIGNAL(clicked(bool)),this,SLOT(showMethodSummary())); 
+        connect(reportIsotopesOptions,SIGNAL(clicked(bool)),this,SLOT(showMethodSummary()));
+        connect(reportIsotopesOptions,
+                &QGroupBox::toggled,
+                [this](const bool checked)
+                {
+                    this->mainwindow
+                        ->getAnalytics()
+                        ->hitEvent("Peak Detection",
+                                   "Isotope Detection Switched",
+                                   static_cast<int>(checked));
+                });
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
@@ -415,8 +425,14 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 // TODO: Sahil. Refactored this whole function. Merged with mainwindow of 776.
 // RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks() {
-    
-    mainwindow->getAnalytics()->hitEvent("PeakDetection", "FindPeaks", 0);
+
+    if (reportIsotopesOptions->isChecked()) {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             "Find Peaks With Isotopes");
+    } else {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             "Find Peaks");
+    }
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.

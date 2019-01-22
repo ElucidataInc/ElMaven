@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>638</width>
-    <height>478</height>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>210</x>
      <y>10</y>
      <width>421</width>
-     <height>461</height>
+     <height>401</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -29,7 +29,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="firstViewPage">
     <widget class="QWidget" name="horizontalLayoutWidget">
@@ -255,36 +255,11 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_4">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>240</y>
-       <width>421</width>
-       <height>80</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <spacer name="horizontalSpacer_9">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_5">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>320</y>
+       <y>240</y>
        <width>421</width>
        <height>80</height>
       </rect>
@@ -330,7 +305,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>400</y>
+       <y>360</y>
        <width>421</width>
        <height>41</height>
       </rect>
@@ -358,6 +333,31 @@
       </item>
       <item>
        <spacer name="horizontalSpacer_12">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>320</y>
+       <width>421</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <spacer name="horizontalSpacer_9">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -596,36 +596,11 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_10">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>240</y>
-       <width>421</width>
-       <height>80</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_10">
-      <item>
-       <spacer name="horizontalSpacer_21">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_11">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>320</y>
+       <y>240</y>
        <width>421</width>
        <height>80</height>
       </rect>
@@ -671,7 +646,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>400</y>
+       <y>360</y>
        <width>421</width>
        <height>41</height>
       </rect>
@@ -715,6 +690,31 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_10">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>320</y>
+       <width>421</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <item>
+       <spacer name="horizontalSpacer_21">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
   <widget class="QListWidget" name="workflowMenu">
@@ -723,13 +723,13 @@
      <x>10</x>
      <y>50</y>
      <width>191</width>
-     <height>401</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
-     <verstretch>1</verstretch>
+     <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="verticalScrollBarPolicy">
@@ -746,18 +746,18 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>145</width>
-     <height>145</height>
+     <width>140</width>
+     <height>140</height>
     </size>
    </property>
    <property name="movement">
     <enum>QListView::Static</enum>
    </property>
-   <property name="isWrapping" stdset="0">
-    <bool>false</bool>
+   <property name="flow">
+    <enum>QListView::TopToBottom</enum>
    </property>
-   <property name="resizeMode">
-    <enum>QListView::Adjust</enum>
+   <property name="spacing">
+    <number>35</number>
    </property>
    <property name="viewMode">
     <enum>QListView::IconMode</enum>
@@ -766,11 +766,68 @@
     <bool>true</bool>
    </property>
    <property name="wordWrap">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="currentRow">
     <number>-1</number>
    </property>
+   <item>
+    <property name="text">
+     <string>FirstView</string>
+    </property>
+    <property name="toolTip">
+     <string>FirstView: Preview El-MAVEN processed data and perform further analysis</string>
+    </property>
+    <property name="font">
+     <font>
+      <italic>true</italic>
+      <underline>false</underline>
+     </font>
+    </property>
+    <property name="textAlignment">
+     <set>AlignCenter</set>
+    </property>
+    <property name="icon">
+     <iconset resource="../mzroll.qrc">
+      <normaloff>:/images/firstView.png</normaloff>
+      <normalon>:/images/firstView.png</normalon>
+      <activeoff>:/images/firstView.png</activeoff>
+      <activeon>:/images/firstViewSelected.png</activeon>
+      <selectedoff>:/images/firstViewSelected.png</selectedoff>
+      <selectedon>:/images/firstViewSelected.png</selectedon>:/images/firstView.png</iconset>
+    </property>
+    <property name="flags">
+     <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>PollyPhi Relative</string>
+    </property>
+    <property name="toolTip">
+     <string>PollyPhi Relative: Process and derive insights from Relative flux workflow</string>
+    </property>
+    <property name="font">
+     <font>
+      <italic>true</italic>
+     </font>
+    </property>
+    <property name="textAlignment">
+     <set>AlignCenter</set>
+    </property>
+    <property name="icon">
+     <iconset resource="../mzroll.qrc">
+      <normaloff>:/images/flux.png</normaloff>
+      <normalon>:/images/flux.png</normalon>
+      <activeoff>:/images/flux.png</activeoff>
+      <activeon>:/images/fluxSelected.png</activeon>
+      <selectedoff>:/images/fluxSelected.png</selectedoff>
+      <selectedon>:/images/fluxSelected.png</selectedon>:/images/flux.png</iconset>
+    </property>
+    <property name="flags">
+     <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+    </property>
+   </item>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_13">
    <property name="geometry">
@@ -796,6 +853,9 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../mzroll.qrc"/>
+  <include location="../mzroll.qrc"/>
+ </resources>
  <connections/>
 </ui>

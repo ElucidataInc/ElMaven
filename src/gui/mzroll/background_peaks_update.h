@@ -131,6 +131,11 @@ Q_SIGNALS:
 	void samplesAligned(bool);
 
 	/**
+	 * @brief signal for alignment cancellation and restore
+	 */
+	void restoreAlignment();
+
+	/**
 	 * [new PeakGroup]
 	 * @param group [pointer to PeakGroup]
 	 */

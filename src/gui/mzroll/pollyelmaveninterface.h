@@ -72,7 +72,6 @@ class PollyElmavenInterfaceDialog : public QDialog, public Ui_PollyElmavenInterf
 
         private:
                 TableDockWidget* _activeTable = NULL ;
-                void createIcons();
                 QString getRedirectionUrl(PollyApp currentApp, QString datetimestamp, QString uploadProjectIdThread);
                 void setUiElementsFlux();
                 void setUiElementsFV();

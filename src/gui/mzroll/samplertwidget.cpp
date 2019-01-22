@@ -59,60 +59,60 @@ void SampleRtWidget::setYAxis() {
 
 }
 
-void SampleRtWidget::prepareGraphDataPolyFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataPolyFit(QVector<double>&xAxis,
+                                             QVector<double>&yAxis,
+                                             mzSample* sample)
 {
-        vector<double> coefficients;
-        double degree;
+    vector<double> coefficients;
+    double degree;
 
-        if (degreeMap.empty()) return;
-        if (coefficientMap.empty()) return;
+    if (degreeMap.empty()) return;
+    if (coefficientMap.empty()) return;
 
-        degree = degreeMap[sample];
-        coefficients = coefficientMap[sample];
-        double *coe = &coefficients[0];
+    degree = degreeMap[sample];
+    coefficients = coefficientMap[sample];
+    double *coe = &coefficients[0];
 
-        /* just a sanity check to prevent SIGSEV
-         */
-        if(!sample->scans.empty() && coe != NULL){
+    // just a sanity check to prevent SIGSEV
+    if (!sample->scans.empty() && coe != NULL) {
+        for (auto const scan : sample->scans) {
+            xAxis.push_back(scan->rt);
 
-            for(unsigned int i=0; i < sample->scans.size(); i++ ) {
-                double rt = sample->scans[i]->rt;
-                xAxis.push_back(rt);
+            double y = 0;
+            y = leasev(coe, degree, scan->rt);
 
-                double y = 0;
-                y = leasev(coe, degree, rt);
-
-                yAxis.push_back(y - rt);
-            }
+            yAxis.push_back(y - scan->rt);
         }
+    }
 }
 
-void SampleRtWidget::prepareGraphDataLoessFit(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataLoessFit(QVector<double>&xAxis,
+                                              QVector<double>&yAxis,
+                                              mzSample* sample)
 {
     double rt, rtDiff;
-    if(!sample->originalRetentionTimes.empty() && !sample->scans.empty()){
-
-        for(unsigned int i=0; i < sample->scans.size(); i++ ) {
-
-            rt = sample->originalRetentionTimes[i];
+    if (!sample->scans.empty()) {
+        for (auto const scan : sample->scans) {
+            rt = scan->originalRt;
             xAxis.push_back(rt);
 
-            rtDiff = sample->originalRetentionTimes[i] - sample->scans[i]->rt;
+            rtDiff = scan->originalRt - scan->rt;
             yAxis.push_back(rtDiff);
         }
     }
 }
 
-void SampleRtWidget::prepareGraphDataObiWarp(QVector<double>&xAxis, QVector<double>&yAxis, mzSample* sample)
+void SampleRtWidget::prepareGraphDataObiWarp(QVector<double>&xAxis,
+                                             QVector<double>&yAxis,
+                                             mzSample* sample)
 {
     double rt, rtDiff;
 
-    for(unsigned int i=0; i < sample->scans.size(); i++ ) {
-
-        rt = sample->scans[i]->originalRt;
+    for (auto const scan : sample->scans) {
+        rt = scan->originalRt;
         xAxis.push_back(rt);
 
-        rtDiff = sample->scans[i]->originalRt - sample->scans[i]->rt;
+        rtDiff = scan->originalRt - scan->rt;
         yAxis.push_back(rtDiff);
     }
 }

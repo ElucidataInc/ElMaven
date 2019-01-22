@@ -13,6 +13,8 @@ class Analytics {
         QString hostname;
         QString language;
         QNetworkRequest req;
+        bool _isFirstSession;
+
         void httpPost(QUrlQuery query);
         QUrlQuery intialSetup();
         QString getClientID();

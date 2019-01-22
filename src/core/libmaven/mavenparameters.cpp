@@ -113,7 +113,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	S34Labeled_IsoWidget = false;
 	D2Labeled_IsoWidget = false;
 
-        alignMaxItterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
+        alignMaxIterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
         alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow
         
         quantileQuality = 0.0;

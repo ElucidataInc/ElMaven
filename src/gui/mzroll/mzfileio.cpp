@@ -588,7 +588,8 @@ void mzFileIO::fileImport(void) {
             if (!_missingSamples.empty()) {
                 _mainwindow->projectDockWidget->setLastOpenedProject(filename);
                 Q_EMIT(sqliteDBInadequateSamplesFound(samplePaths));
-            } else {
+            }
+            if (samplePaths.empty() && _missingSamples.empty()) {
                 // emit mock signals for empty database load
                 Q_EMIT(sqliteDBSamplesLoaded());
                 Q_EMIT(sqliteDBPeakTablesCreated());
@@ -617,6 +618,10 @@ void mzFileIO::fileImport(void) {
           break;
       }
     }
+
+    int numMS1SamplesLoaded = 0;
+    int numMS2SamplesLoaded = 0;
+    int numPRMSamplesLoaded = 0;
     qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
     if (uploadMultiprocessing) {
         int iter = 0;
@@ -624,8 +629,18 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample && sample->scans.size() > 0)
+            if (sample && sample->scans.size() > 0) {
                 emit addNewSample(sample);
+
+                if (sample->ms1ScanCount() && sample->ms2ScanCount() == 0) {
+                    ++numMS1SamplesLoaded;
+                } else if (sample->ms1ScanCount() == 0
+                           && sample->ms2ScanCount()) {
+                    ++numMS2SamplesLoaded;
+                } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
+                    ++numPRMSamplesLoaded;
+                }
+            }
 
             #pragma omp atomic
             iter++;
@@ -637,8 +652,18 @@ void mzFileIO::fileImport(void) {
         for (int i = 0; i < samples.size(); i++) {
             QString filename = samples.at(i);
             mzSample* sample = loadSample(filename);
-            if (sample && sample->scans.size() > 0)
+            if (sample && sample->scans.size() > 0) {
                 _mainwindow->addSample(sample);
+
+                if (sample->ms1ScanCount() && sample->ms2ScanCount() == 0) {
+                    ++numMS1SamplesLoaded;
+                } else if (sample->ms1ScanCount() == 0
+                           && sample->ms2ScanCount()) {
+                    ++numMS2SamplesLoaded;
+                } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
+                    ++numPRMSamplesLoaded;
+                }
+            }
 
             iter++;
 
@@ -646,6 +671,19 @@ void mzFileIO::fileImport(void) {
 
         }
     }
+
+    if (numMS1SamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "MS1",
+                                              numMS1SamplesLoaded);
+    if (numMS2SamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "MS2",
+                                              numMS2SamplesLoaded);
+    if (numPRMSamplesLoaded)
+        _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
+                                              "PRM",
+                                              numPRMSamplesLoaded);
 
     Q_FOREACH(QString filename, spectralhits ) {
         if (filename.contains("pepXML",Qt::CaseInsensitive)) {
@@ -787,9 +825,10 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         }
         _currentProject->saveCompounds(compoundSet);
         qDebug() << "finished writing to project" << filename;
-        Q_EMIT(updateStatusString(
-            QString("Project successfully saved to %1").arg(filename)
-        ));
+        if (!_mainwindow->timestampFileExists)
+            Q_EMIT(updateStatusString(
+                QString("Project successfully saved to %1").arg(filename)
+            ));
         return true;
     }
     qDebug() << "cannot write to closed project" << filename;
@@ -831,7 +870,7 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
         return;
 
     // set of compound databases that need to be communicated with ligand widget
-    set<QString> dbNames;
+    vector<QString> dbNames;
 
     // load all peakgroups
     auto groups = _currentProject->loadGroups(newSamples);
@@ -847,7 +886,7 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
                 group->compound = DB.findSpeciesById(group->compound->id,
                                                      group->compound->db);
             }
-            dbNames.insert(QString::fromStdString(group->compound->db));
+            dbNames.push_back(QString::fromStdString(group->compound->db));
         }
 
         // assign group to bookmark table if none exists
@@ -869,9 +908,9 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
                                  static_cast<int>(groups.size())));
     }
 
-    // notify database(s) that should be set
-    for (auto db : dbNames)
-        Q_EMIT(_mainwindow->ligandWidget->mzrollSetDB(db));
+    // emit last database name to be set in ligand widget
+    if (!dbNames.empty())
+        Q_EMIT(_mainwindow->ligandWidget->mzrollSetDB(dbNames.back()));
 
     // table widgets are ready to show groups
     Q_EMIT(sqliteDBPeakTablesPopulated());

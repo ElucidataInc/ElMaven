@@ -10,6 +10,7 @@
 #include "mzSample.h"
 #include "Compound.h"
 #include "obiwarp.h"
+#include "mavenparameters.h"
 #include <QJsonObject>
 
 #include <boost/signals2.hpp>
@@ -26,10 +27,16 @@ class Aligner {
     void saveFit();
     void PolyFit(int poly_align_degree);
     void restoreFit();
-    void setMaxItterations(int x) { maxItterations = x; }
+    void setMaxIterations(int x) { maxIterations = x; }
     void setPolymialDegree(int x) { polynomialDegree = x; }
-    void alignWithObiWarp(vector<mzSample*> samples , ObiParams* obiParams);
-    void alignSampleRts(mzSample* sample, vector<float> &mzPoints,ObiWarp& obiWarp, bool setAsReference);
+    bool alignWithObiWarp(vector<mzSample*> samples,
+                         ObiParams* obiParams,
+                         const MavenParameters* mp);
+    bool alignSampleRts(mzSample* sample,
+                        vector<float> &mzPoints,
+                        ObiWarp& obiWarp,
+                        bool setAsReference,
+                        const MavenParameters* mp);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;
     vector<vector<float> > fit;
@@ -56,7 +63,7 @@ public:
 
    private:
     vector<PeakGroup*> allgroups;
-    int maxItterations;
+    int maxIterations;
     int polynomialDegree;
 
 };

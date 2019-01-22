@@ -428,16 +428,15 @@ class mzSample
     EIC *getBIC(float rtmin, float rtmax, int mslevel);
 
     /**
-             * [save Original Retention Times]
-             * @method saveOriginalRetentionTimes
-             */
-    void saveOriginalRetentionTimes();
+     * @brief save alignment state before next alignment is performed
+     **/
+    void saveCurrentRetentionTimes();
 
     /**
-                          * [restore Original Retention Times]
-                          * @method restoreOriginalRetentionTimes
-                          */
-    void restoreOriginalRetentionTimes();
+     * @brief restore last state of alignment
+     * @details last saved state is restored on cancelling alignment
+     **/
+    void restorePreviousRetentionTimes();
 
     void applyPolynomialTransform(); //TODO: Sahil, Added while merging projectdockwidget
 
@@ -463,6 +462,18 @@ class mzSample
                           * @return [scan count]
                           */
     inline unsigned int scanCount() const { return (scans.size()); }
+
+    /**
+     * @brief Get the number of MS1 level scans detected in this sample.
+     * @return MS1 scan count as unsigned int.
+     */
+    inline const unsigned int ms1ScanCount() { return _numMS1Scans; }
+
+    /**
+     * @brief Get the number of MS2 level scans detected in this sample.
+     * @return MS2 scan count as unsigned int.
+     */
+    inline const unsigned int ms2ScanCount() { return _numMS2Scans; }
 
     /**
      * @brief Obtain the unique sample ID for the sample.
@@ -706,13 +717,16 @@ class mzSample
 
     //saving and restoring retention times
 
-    /** saved retention times prior to alignment */
-    vector<float> originalRetentionTimes;
+    //saved retention times prior to every alignment
+    vector<float> lastSavedRTs;
 
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 
   private:
     int _id;
+    unsigned int _numMS1Scans;
+    unsigned int _numMS2Scans;
+
     void sampleNaming(const char *filename);
     void checkSampleBlank(const char *filename);
 

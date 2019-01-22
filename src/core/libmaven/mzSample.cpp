@@ -13,7 +13,9 @@ mzSample::mzSample()
 	: _setName(""), injectionOrder(0)
 {
     _id = -1;
-	maxMz = maxRt = 0;
+    _numMS1Scans = 0;
+    _numMS2Scans = 0;
+        maxMz = maxRt = 0;
 	minMz = minRt = 0;
 	isBlank = false;
 	isSelected = true;
@@ -73,10 +75,13 @@ void mzSample::addScan(Scan *s)
 		s->intensityFilter(mzSample::filter_minIntensity);
 	}
 	//unsigned int sizeAfter3 = s->intensity.size();
-	//cerr << "addScan " << sizeBefore <<  " " << sizeAfter1 << " " << sizeAfter2 << " " << sizeAfter3 << endl;
+        //cerr << "addScan " << sizeBefore <<  " " << sizeAfter1 << " " << sizeAfter2 << " " << sizeAfter3 << endl;
 
-	scans.push_back(s);
-	s->scannum = scans.size() - 1;
+        if (s->mslevel == 1) ++_numMS1Scans;
+        if (s->mslevel == 2) ++_numMS2Scans;
+
+        scans.push_back(s);
+        s->scannum = scans.size() - 1;
 }
 
 string mzSample::getFileName(const string &filename)
@@ -1790,28 +1795,27 @@ Scan *mzSample::getAverageScan(float rtmin, float rtmax, int mslevel, int polari
 	return avgScan;
 }
 
-void mzSample::saveOriginalRetentionTimes()
+void mzSample::saveCurrentRetentionTimes()
 {
-	if (originalRetentionTimes.size() > 0)
-		return;
-
-	originalRetentionTimes.resize(scans.size());
+	lastSavedRTs.resize(scans.size());
+	
 	for (unsigned int ii = 0; ii < scans.size(); ii++)
 	{
-		originalRetentionTimes[ii] = scans[ii]->rt;
+		lastSavedRTs[ii] = scans[ii]->rt;
 	}
 }
 
-void mzSample::restoreOriginalRetentionTimes()
+void mzSample::restorePreviousRetentionTimes()
 {
-	//TODO naman unused function
-
-	if (originalRetentionTimes.size() == 0)
-		return;
-
-	for (unsigned int ii = 0; ii < scans.size(); ii++)
-	{
-		scans[ii]->rt = originalRetentionTimes[ii];
+	if (lastSavedRTs.size() == 0) {
+		//restore original RTs if no alignment has been performed
+		for (auto scan : scans) {
+			scan->rt = scan->originalRt;
+		}
+	} else {
+		for (unsigned int ii = 0; ii < scans.size(); ii++) {
+			scans[ii]->rt = lastSavedRTs[ii];
+		}
 	}
 }
 

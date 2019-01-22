@@ -432,8 +432,6 @@ void TableDockWidget::deleteAll() {
 
 void TableDockWidget::showAllGroups() {
   treeWidget->clear();
-  _mainwindow->getAnalytics()->hitEvent("PeaksTable", "ShowAllGroups",
-                                        allgroups.size());
 
   setFocus();
   if (allgroups.size() == 0) {
@@ -570,16 +568,16 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   if (sFilterSel == groupsSCSV || sFilterSel == groupsSTAB ||
       sFilterSel == groupsCSV || sFilterSel == groupsTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Export Groups");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 0);
   if (sFilterSel == peaksCSV || sFilterSel == peaksTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Export Peaks");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 1);
 
   if (sFilterSel == peaksListQE) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Inclusion List");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 2);
     writeQEInclusionList(fileName);
     return;
   } else if (sFilterSel == mascotMGF) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "Mascot Format");
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 3);
     writeMascotGeneric(fileName);
     return;
   }
@@ -812,7 +810,6 @@ void TableDockWidget::ShowStatistics() {
     msgBox->open();
   }
 }
-
 void TableDockWidget::exportJson() {
 
   if (allgroups.size() == 0) {
@@ -820,6 +817,8 @@ void TableDockWidget::exportJson() {
     QMessageBox::warning(this, tr("Error"), msg);
     return;
   }
+
+  _mainwindow->getAnalytics()->hitEvent("Exports", "JSON");
 
   /**
    * copy all groups from <allgroups> to <vallgroups> which is used by
@@ -1089,6 +1088,7 @@ void TableDockWidget::deleteGroups() {
 }
 
 void TableDockWidget::setClipboard() {
+  _mainwindow->getAnalytics()->hitEvent("Exports", "Clipboard", 3);
   QList<PeakGroup *> groups = getSelectedGroups();
   if (groups.size() > 0) {
     _mainwindow->isotopeWidget->setClipboard(groups);
@@ -1398,6 +1398,7 @@ void TableDockWidget::showScatterPlot() {
 
 void TableDockWidget::printPdfReport() {
 
+  _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", 0);
   QString dir = ".";
   QSettings *settings = _mainwindow->getSettings();
   if (settings->contains("lastDir"))
@@ -1593,8 +1594,8 @@ void TableDockWidget::align() {
     for (int i = 0; i < allgroups.size(); i++)
       groups.push_back(&allgroups[i]);
     Aligner aligner;
-    aligner.setMaxItterations(
-        _mainwindow->alignmentDialog->maxItterations->value());
+    aligner.setMaxIterations(
+        _mainwindow->alignmentDialog->maxIterations->value());
     aligner.setPolymialDegree(
         _mainwindow->alignmentDialog->polynomialDegree->value());
     aligner.doAlignment(groups);
@@ -2334,10 +2335,15 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     peakTable->showAllGroups();
     showAllGroups();
 
+    bool merged = true;
+
     if (finalSize == peakTable->allgroups.size())
-        showMsgBox(true, j);
+        merged = true;
     else
-        showMsgBox(false, j);
+        merged = false;
+    
+    showMsgBox(merged, j);
+    _mainwindow->getAnalytics()->hitEvent("Bookmark Table", "Merge Table", merged);
 }
 
 void BookmarkTableDockWidget::acceptGroup() {
