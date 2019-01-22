@@ -69,18 +69,11 @@ void OnChildProcessDumpRequested(void* aContext,
 #if defined(__w64)
     QString exePath = QString::fromStdString(appDirPath) + QDir::separator() + "crashreporter.exe";
     std::cerr << "path of exe: " << exePath.toStdString() << "\n";
-#endif
 
     QProcess* _proc = new QProcess;
-    _proc->setProgram(exePath);
-    _proc->setArguments(QStringList() << QString::fromStdWString((*aFilePath)));
-    _proc->start();
+    _proc->startDetached(exePath, QStringList() << QString::fromStdWString((*aFilePath)));
 
-    if(_proc->waitForStarted(-1))
-         std::cerr << "crash reporter started ";
-
-    else
-         std::cerr  << "failed to start the crash reporter " << _proc->errorString().toStdString() << "\n";
+#endif
 
     handlerWait.wakeOne();
     mutex.unlock();
