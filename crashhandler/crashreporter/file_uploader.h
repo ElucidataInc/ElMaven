@@ -5,7 +5,7 @@
 
 
 #ifdef Q_OS_MAC
-class QProcess;
+class UploaderInterface;
 #endif
 
 class FileUploader: public QObject
@@ -17,7 +17,7 @@ class FileUploader: public QObject
         ~FileUploader();
 
     public slots:
-        bool uploadMinidump();
+        void uploadMinidump();
 
     private:
         /**
@@ -29,11 +29,9 @@ class FileUploader: public QObject
     Q_SIGNALS:
         void uploadDone();
 
-    #ifdef Q_OS_MAC
-    public slots:
-        void processFinished(int exitCode);
+#ifdef Q_OS_MAC
     private:
-        QProcess* uProcess;
-    #endif
+        UploaderInterface* _iuploader;
+#endif
 };
 #endif

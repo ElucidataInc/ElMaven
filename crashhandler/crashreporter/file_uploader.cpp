@@ -5,7 +5,7 @@
 #include <QApplication>
 
 #ifdef Q_OS_MAC
-#include <QProcess>
+#include "macuploader/interface.h"
 #endif
 
 #ifdef Q_OS_WIN
@@ -25,6 +25,9 @@
 FileUploader::FileUploader(const QString& dPath, const QString& endpoint):
     _dumpPath(dPath),
     _endpoint(endpoint)
+#if defined(Q_OS_MAC)
+    ,_iuploader(nullptr)
+#endif
 {
 }
 
@@ -32,7 +35,7 @@ FileUploader::FileUploader(const QString& dPath, const QString& endpoint):
 FileUploader::~FileUploader()
 {}
 
-bool FileUploader::uploadMinidump()
+void FileUploader::uploadMinidump()
 {
 
     qDebug() << "dump path: " << _dumpPath;
@@ -61,22 +64,13 @@ bool FileUploader::uploadMinidump()
 #endif
 
 #ifdef Q_OS_MAC
-    qDebug() << "uploading ...";
-    QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-    + QDir::separator() + ".." + QDir::separator();
-
-    QString upPath = binFolder  + "sup.sh";
-
-    uProcess = new QProcess;
-    uProcess->setProgram(QStandardPaths::findExecutable("bash"));
-    connect(uProcess, SIGNAL(finished(int)), this, SLOT(processFinished(int)));
-
-    QStringList args;
-    args << upPath;
-    args << dmpFilePath;
-
-    uProcess->setArguments(args);
-    uProcess->start();
+    _iuploader = new UploaderInterface;
+    _iuploader->init(_endpoint.toStdString().c_str(),
+                     _dumpPath.toStdString().c_str(),
+                     STR(APPNAME),
+                     STR(APPVERSION));
+    _iuploader->upload();
+    emit uploadDone();
 #endif
 
 
@@ -94,12 +88,4 @@ bool FileUploader::uploadMinidump()
 
 #endif
 }
-
-#ifdef Q_OS_MAC
-void FileUploader::processFinished(int exitCode)
-{
-    qDebug() << " exit status : " << uProcess->exitStatus();
-    emit uploadDone();
-}
-#endif
 
