@@ -64,7 +64,7 @@ namespace elmavexceptionhandler
             QProcess* process = new QProcess;
             process->setProgram(temp.data()->fileName());
             process->setReadChannelMode(QProcess::MergedChannels);
-            process->setArguments(QStringList() << dumpPath);
+            process->setArguments(QStringList() << dumpPath << QCoreApplication::applicationDirPath());
             process->start();
             if(process->waitForStarted(5000)) {
                 qDebug()  << "process started successfully \n";

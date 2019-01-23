@@ -6,10 +6,10 @@
 #include <QWaitCondition>
 #include <QDebug>
 #include <QProcess>
+#include <QDir>
 
 #if defined(__w64)
 #include <QCoreApplication>
-#include <QDir>
 #include "client/windows/crash_generation/crash_generation_server.h"
 #include "client/windows/crash_generation/client_info.h"
 #include "client/windows/common/ipc_protocol.h"
@@ -70,9 +70,18 @@ void OnChildProcessDumpRequested(void* aContext,
     QString exePath = QString::fromStdString(appDirPath) + QDir::separator() + "crashreporter.exe";
     std::cerr << "path of exe: " << exePath.toStdString() << "\n";
 
-    QProcess* _proc = new QProcess;
-    _proc->startDetached(exePath, QStringList() << QString::fromStdWString((*aFilePath)));
+#elif defined (__APPLE__)
+    QString exePath = QString::fromStdString(appDirPath) + QDir::separator()  + ".." + QDir::separator()  + ".." + QDir::separator() + ".." \
+            + QDir::separator() + "crashreporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "crashreporter";
+    std::cerr << "path of exe: " << exePath.toStdString() << "\n";
+#endif
 
+    QProcess* _proc = new QProcess;
+
+#if defined(__w64)
+    _proc->startDetached(exePath, QStringList() << QString::fromStdWString((*aFilePath)));
+#elif defined (__APPLE__)
+    _proc->startDetached(exePath, QStringList() << QString::fromStdString(aFilePath));
 #endif
 
     handlerWait.wakeOne();
@@ -88,13 +97,13 @@ int main(int argc, char** argv)
 
 #if defined(__w64)
     std::wstring dumpPath = QString(argv[1]).toStdWString();
-    appDirPath = argv[2];
 #endif
 
 #if defined(__APPLE__)
     std::string dumpPath = argv[1];
 #endif
 
+    appDirPath = argv[2];
 
 #if defined(__w64)
      CrashGenerationServer* server = new CrashGenerationServer(L"\\\\.\\pipe\\ELMAVEN_HANDLER",

@@ -16,7 +16,6 @@ QMAKE_CFLAGS_DEBUG -= -O1 -O2 -O3
 QMAKE_CFLAGS_RELEASE -= -O1 -O2 -O3
 
 
-
 INCLUDEPATH += ../breakpad/src/src/ \
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
