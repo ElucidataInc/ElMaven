@@ -44,7 +44,8 @@ public:
   vector<PeakGroup> subsetPeakGroups;
   int maxPeaks;
   QList<PeakGroup> allgroups;
-  QString sessionId;
+  QString uploadId;
+  int uploadCount = 0;
 
   enum tableViewType { groupView = 0, peakView = 1 };
   enum peakTableSelectionType { Selected = 0, Whole = 1, Good = 2, Bad = 3 };
@@ -151,8 +152,6 @@ public Q_SLOTS:
 
   //Group validation functions
   void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
-  void markGroupGood(PeakGroup* grp, QTreeWidgetItem* item);
-  void markGroupBad(PeakGroup* grp, QTreeWidgetItem* item);
 
   virtual void markGroupBad();
   virtual void markGroupGood();
@@ -199,10 +198,7 @@ protected:
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
   void tenPeaksMarked();
-<<<<<<< HEAD
   void UploadPeakBatch();
-=======
->>>>>>> 4242bdf8cef5d54d3f6e1e7386ca6fb15d12cc83
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
@@ -401,6 +397,8 @@ class UploadPeaksToCloudThread : public QThread
         ~UploadPeaksToCloudThread();
         void run();
         QString sessionId;
+        QString fileName;
+        QString filePath;
         PollyIntegration* _pollyintegration;
     signals:
         void resultReady(QString sessionId);

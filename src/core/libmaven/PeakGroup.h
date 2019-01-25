@@ -140,8 +140,8 @@ class PeakGroup{
         float maxQuality;
         float avgPeakQuality;
         //@Kailash: group quality computed using neural network
-        int markedGoodByCloudModel;
-        int markedBadByCloudModel;
+        int markedGoodByCloudModel = 0;
+        int markedBadByCloudModel = 0;
         float groupQuality;
         float weightedAvgPeakQuality;
         int predictedLabel;
