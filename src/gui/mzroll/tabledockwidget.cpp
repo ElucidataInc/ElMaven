@@ -2,6 +2,13 @@
 #include "peaktabledeletiondialog.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
+  QDateTime current_time;
+  const QString format = "dd-MM-yyyy_hh_mm_ss";
+  QString datetimestamp= current_time.currentDateTime().toString(format);
+  datetimestamp.replace(" ","_");
+  datetimestamp.replace(":","-");
+  
+  uploadId = datetimestamp+"_Peak_table_"+QString::number(this->tableId);
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
@@ -743,10 +750,8 @@ void UploadPeaksToCloudThread::run()
         qDebug() << "No internet connection..aborting upload";
         return;
     }
-    if (status == "ok") {
-      QString uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName);
-      emit resultReady(sessionId);
-    }
+    QString uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
+    emit resultReady(sessionId);
 }
 
 UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
@@ -766,13 +771,21 @@ void TableDockWidget::UploadPeakBatchToCloud(){
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
                                                 + "tmp_Elmaven_Polly_files";
-    QString fileName = writableTempDir + QDir::separator() + sessionId + "_" + datetimestamp +  ".json";
-    jsonReports->saveMzEICJson(fileName.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
+    QDir qdir(writableTempDir);
+    if (!qdir.exists()){
+        QDir().mkdir(writableTempDir);
+        QDir qdir(writableTempDir);
+    }
+
+    QString filePath = writableTempDir + QDir::separator() + uploadId + "_" + datetimestamp +  ".json";
+    jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
-    connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(StartUploadPeakBatchToCloud()));
+    connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
     connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
-    uploadPeaksToCloudThread->sessionId = "1234";
+    uploadPeaksToCloudThread->sessionId = uploadId;
+    uploadPeaksToCloudThread->fileName = uploadId + "_" + uploadCount ;
+    uploadPeaksToCloudThread->filePath = filePath;
     uploadPeaksToCloudThread->start();
 }
 
@@ -786,9 +799,28 @@ void TableDockWidget::ShowStatistics() {
   int tn = 0;
   int totalMarked = 0;
   int totalMarkedByMl = 0;
+  
+  // for(int i=0; i < subsetPeakGroups.size(); i++ ) {
+  //   PeakGroup& grp = subsetPeakGroups[i];
+  //   qDebug()<<"group label - "<<grp.label<< "  model marked label - "<<grp.markedBadByCloudModel<<grp.markedGoodByCloudModel;
+  //   if (grp.label =='g' || grp.label =='b'){
+  //     totalMarked+=1;
+  //   }
+  //   if(grp.markedBadByCloudModel == 1 || grp.markedGoodByCloudModel == 1){
+  //     totalMarkedByMl+=1;
+  //   }
+  //   if (grp.label =='g' & grp.markedGoodByCloudModel == 1){
+  //     tp+=1;
+  //   }
+  //   if (grp.label =='b' & grp.markedBadByCloudModel == 1){
+  //     tn+=1;
+  //   }
+  // }
+
   for (int i = 0; i < allgroups.size(); i++) {
     if (allgroups[i].label =='g' || allgroups[i].label =='b'){
       totalMarked+=1;
+      qDebug()<<"group label - "<<allgroups[i].label<< "  model marked label - "<<allgroups[i].markedBadByCloudModel<<allgroups[i].markedGoodByCloudModel;
     }
     if(allgroups[i].markedBadByCloudModel == 1 || allgroups[i].markedGoodByCloudModel == 1){
       totalMarkedByMl+=1;
@@ -978,6 +1010,7 @@ void TableDockWidget::setGroupLabel(char label) {
           numberOfGroupsMarked = 0;
           Q_EMIT(UploadPeakBatch());
           subsetPeakGroups.clear();
+          uploadCount+=1;
           }
       }
       updateItem(item);
