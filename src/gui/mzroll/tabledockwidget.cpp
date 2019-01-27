@@ -777,14 +777,14 @@ void TableDockWidget::UploadPeakBatchToCloud(){
         QDir qdir(writableTempDir);
     }
 
-    QString filePath = writableTempDir + QDir::separator() + uploadId + "_" + datetimestamp +  ".json";
+    QString filePath = writableTempDir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
     jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
     connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
     connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
     uploadPeaksToCloudThread->sessionId = uploadId;
-    uploadPeaksToCloudThread->fileName = uploadId + "_" + uploadCount ;
+    uploadPeaksToCloudThread->fileName = uploadId + "_" + QString::number(uploadCount) ;
     uploadPeaksToCloudThread->filePath = filePath;
     uploadPeaksToCloudThread->start();
 }
@@ -820,7 +820,6 @@ void TableDockWidget::ShowStatistics() {
   for (int i = 0; i < allgroups.size(); i++) {
     if (allgroups[i].label =='g' || allgroups[i].label =='b'){
       totalMarked+=1;
-      qDebug()<<"group label - "<<allgroups[i].label<< "  model marked label - "<<allgroups[i].markedBadByCloudModel<<allgroups[i].markedGoodByCloudModel;
     }
     if(allgroups[i].markedBadByCloudModel == 1 || allgroups[i].markedGoodByCloudModel == 1){
       totalMarkedByMl+=1;
@@ -837,7 +836,7 @@ void TableDockWidget::ShowStatistics() {
     msgBox->setStandardButtons(QMessageBox::Ok);
     msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
     msgBox->setWindowTitle("Cloud model statistics");
-    QString Final_message = " The cloud model detected " + QString::number(((float)(tp + tn) / totalMarked)) + "% of the peaks accurately.";    
+    QString Final_message = " The cloud model detected " + QString::number(((float)(tp + tn)*100 / totalMarked)) + "% of the peaks accurately.";    
     msgBox->setText(Final_message);
     msgBox->open();
   }
