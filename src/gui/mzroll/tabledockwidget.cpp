@@ -869,7 +869,7 @@ void TableDockWidget::ShowStatistics(int curationTime) {
                       QString::number(accuracy) + 
                       "% of the peaks accurately." +
                       timeMessage +
-                      "<br> <a href=\"http://www.qtcentre.org\">Know more</a>");
+                      "<br> <a href=\"https://github.com/ElucidataInc/ElMaven/issues/964\">Know more</a>");
       Notificator::showMessage(icon, title, message);
   }
 }
