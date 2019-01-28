@@ -131,7 +131,7 @@ public Q_SLOTS:
   };
 
   void exportJson();
-  void ShowStatistics(int curationTime);
+  void ShowStatistics(int curationTime = 0);
   void UploadPeakBatchToCloud();
   void StartUploadPeakBatchToCloud();
   void showSelectedGroup();
