@@ -131,7 +131,7 @@ public Q_SLOTS:
   };
 
   void exportJson();
-  void ShowStatistics();
+  void ShowStatistics(int curationTime);
   void UploadPeakBatchToCloud();
   void StartUploadPeakBatchToCloud();
   void showSelectedGroup();
@@ -197,7 +197,7 @@ protected:
 
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
-  void tenPeaksMarked();
+  void tenPeaksMarked(int);
   void UploadPeakBatch();
 
 protected Q_SLOTS:
@@ -220,6 +220,7 @@ private:
   QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
+  QTime curationTimer;
 };
 
 class PeakTableDockWidget : public TableDockWidget {

@@ -1,5 +1,6 @@
 #include "tabledockwidget.h";
 #include "peaktabledeletiondialog.h"
+#include "notificator.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   QDateTime current_time;
@@ -61,7 +62,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SIGNAL(updateProgressBar(QString, int, int)),
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
-  connect(this, SIGNAL(tenPeaksMarked()), this, SLOT(ShowStatistics()));
+  connect(this, SIGNAL(tenPeaksMarked(int)), this, SLOT(ShowStatistics(int)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
 
   setupFiltersDialog();
@@ -810,7 +811,7 @@ void TableDockWidget::StartUploadPeakBatchToCloud(){
   qDebug()<<"upload finished";
 }
 
-void TableDockWidget::ShowStatistics() {
+void TableDockWidget::ShowStatistics(int curationTime) {
   int accuracy = 0;
   int tp = 0;
   int tn = 0;
@@ -849,13 +850,27 @@ void TableDockWidget::ShowStatistics() {
     }
   }
   if (totalMarked!=0){
-    QMessageBox *msgBox = new QMessageBox(this);
-    msgBox->setStandardButtons(QMessageBox::Ok);
-    msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
-    msgBox->setWindowTitle("Cloud model statistics");
-    QString Final_message = " The cloud model detected " + QString::number(((float)(tp + tn)*100 / totalMarked)) + "% of the peaks accurately.";    
-    msgBox->setText(Final_message);
-    msgBox->open();
+      float accuracy = (float)(tp + tn)*100 / totalMarked;
+      //convert from milliseconds to min
+      int timeMins = (curationTime/1000)/60;
+      QString timeMessage("");
+      if (timeMins > 0) {
+          timeMessage = QString("<br> It would save you " +
+                                QString::number(timeMins) +
+                                " minutes to do this curation using the model!");
+      } else if (curationTime/1000 > 20) {
+        timeMessage = QString("<br> It would save you " +
+                              QString::number(curationTime/1000) +
+                              " seconds to do this curation using the model!");
+      }
+      QIcon icon = QIcon(":/images/notification.png");
+      QString title("");
+      QString message("The training model detected " + 
+                      QString::number(accuracy) + 
+                      "% of the peaks accurately." +
+                      timeMessage +
+                      "<br> <a href=\"http://www.qtcentre.org\">Know more</a>");
+      Notificator::showMessage(icon, title, message);
   }
 }
 
@@ -1013,6 +1028,7 @@ void TableDockWidget::setGroupLabel(char label) {
       if (group != NULL) {
         if (!(group->label=='g'||group->label=='b')){
           numberOfGroupsMarked+=1;
+          if (numberOfGroupsMarked == 1) curationTimer.start();
           group->setLabel(label);
           subsetPeakGroups.push_back(*group);
         }
@@ -1020,7 +1036,7 @@ void TableDockWidget::setGroupLabel(char label) {
         if (numberOfGroupsMarked ==10){
           if (_mainwindow->sessionCount==1){
             // This code is used to show the initial inferences from the cloud model.
-            Q_EMIT(tenPeaksMarked());
+            Q_EMIT(tenPeaksMarked(curationTimer.elapsed()));
           }
           _mainwindow->sessionCount+=1;          
           numberOfGroupsMarked = 0;
