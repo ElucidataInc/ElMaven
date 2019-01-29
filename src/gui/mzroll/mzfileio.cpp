@@ -244,8 +244,8 @@ int mzFileIO::loadNISTLibrary(QString filename) {
     QTextStream stream(&data);
     while (!stream.atEnd()) {
         QString line = stream.readLine();
-        if (line.startsWith("NAME:", Qt::CaseInsensitive)) {
-            // before reading the next record, save the
+        if (line.startsWith("NAME:", Qt::CaseInsensitive) || stream.atEnd()) {
+            // before reading the next record or ending stream, save the
             // compound created from last record
             if (currentCompound and !currentCompound->name.empty()) {
                 if (!currentCompound->formula.empty()) {
@@ -257,14 +257,18 @@ int mzFileIO::loadNISTLibrary(QString filename) {
                 ++compoundCount;
             }
 
-            // new compound
-            QString name = line.mid(5, line.length()).simplified();
-            currentCompound = new Compound(name.toStdString(),
-                                           name.toStdString(),
-                                           "",
-                                           0);
-            currentCompound->db = dbname;
-            capturePeaks = false;
+            // we need to check this again before creating a new compound,
+            // otherwise it would create one at stream end as well
+            if (line.startsWith("NAME:", Qt::CaseInsensitive)) {
+                // new compound
+                QString name = line.mid(5, line.length()).simplified();
+                currentCompound = new Compound(name.toStdString(),
+                                               name.toStdString(),
+                                               "",
+                                               0);
+                currentCompound->db = dbname;
+                capturePeaks = false;
+            }
         }
 
         if(currentCompound == nullptr)
