@@ -59,8 +59,14 @@ class Compound{
         string hmdb_id;         /**@param  -  hmdb_id-    Human Metabolome Database id */
         string alias;       /**@param   -  alias name of compound   */
 
-        // TODO: from MAVEN (upstream), find out what this is
+        /**
+         * @brief A simple string in form of a line notation for describing the
+         * structure of chemical species using short ASCII strings.
+         */
         string smileString;
+
+        // TODO: from MAVEN (upstream), find out what this is
+        string adductString;
 
         /**
         *@param -  srmId will hold filterLine string from mzxml file which represent type of
@@ -92,9 +98,28 @@ class Compound{
         string db;			/**@param -   name of database for example KEGG, ECOCYC.. etc..    */
 
         int transition_id;  /**  TODO */
-        vector<float>fragment_mzs;  /**@param  -   mzs of fragments generated from this compund   */
-        vector<float>fragment_intensity;    /**@param  -  intensities of fragments generated from this compund     */
-        vector<string> category;    /**@param  -   categories of this compund- peptide etc.   */
+
+        /**
+         * @brief Vector of m/z values of fragments generated from this compund.
+         */
+        vector<float>fragmentMzValues;
+
+        /**
+         * @brief Vector of intensities of fragments generated from this
+         * compund.
+         */
+        vector<float>fragmentIntensities;
+
+        /**
+         * @brief Collection of indices of fragment values mapping to its
+         * ionisation type information.
+         */
+        map<int, string>fragmentIonTypes;
+
+        /**
+         * @brief categories of this compund or peptide etc.
+         */
+        vector<string> category;
 
         float adjustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
         void addReaction(Reaction* r) { reactions.push_back(r); }   /**  add reaction of this compound   */
