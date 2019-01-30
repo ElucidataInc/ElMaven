@@ -224,7 +224,8 @@ PK$PEAK: m/z int. rel.int.
     return compoundCount;
 }
 
-int mzFileIO::loadNISTLibrary(QString filename) {
+int mzFileIO::loadNISTLibrary(QString filename)
+{
     qDebug() << "Loading NIST Libary: " << filename;
     QFile data(filename);
     if (!data.open(QFile::ReadOnly) ) {
@@ -572,8 +573,9 @@ void mzFileIO::fileImport(void) {
     QStringList peaks;
     QStringList projects;
     QStringList spectralhits;
+    QStringList compoundsDatabases;
 
-    Q_FOREACH(QString filename, filelist ) {
+    Q_FOREACH (QString filename, filelist) {
         try {
             QFileInfo fileInfo(filename);
             if (!fileInfo.exists())
@@ -587,12 +589,12 @@ void mzFileIO::fileImport(void) {
                 peaks << filename;
             } else if (isSpectralHitType(filename)) {
                 spectralhits << filename;
-            }
-            else
+            } else if (isCompoundDatabaseType(filename)) {
+                compoundsDatabases << filename;
+            } else {
                 throw MavenException(ErrorMsg::UnsupportedFormat);
-        }
-
-        catch (MavenException& excp) {
+            }
+        } catch (MavenException& excp) {
             qDebug() << "Error: " << excp.what();
         }
     }
@@ -727,25 +729,37 @@ void mzFileIO::fileImport(void) {
                                               "",
                                               numPRMSamplesLoaded);
 
-    Q_FOREACH(QString filename, spectralhits ) {
-        if (filename.contains("pepXML",Qt::CaseInsensitive)) {
+    Q_FOREACH (QString filename, spectralhits) {
+        if (filename.contains("pepXML", Qt::CaseInsensitive)) {
             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        } else if (filename.contains("pep.xml", Qt::CaseInsensitive)) {
+            _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        } else if (filename.contains("idpDB", Qt::CaseInsensitive)) {
+            _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
         }
-        else if (filename.contains("pep.xml",Qt::CaseInsensitive)) {
-             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
-        }
-        else if (filename.contains("idpDB",Qt::CaseInsensitive)) {
-             _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
-        }
-   }
+    }
 
-    //done..
-    Q_EMIT (updateProgressBar( "Done importing", samples.size(), samples.size()));
-    if (samples.size() > 0)       Q_EMIT(sampleLoaded());
-    if (spectralhits.size() >0)   Q_EMIT(spectraLoaded());
-    if (projects.size() >0)       Q_EMIT(projectLoaded());
-    if (peaks.size() > 0)    	  Q_EMIT(peaklistLoaded());
-    filelist.clear(); //empty queue
+    Q_EMIT(updateStatusString("Loading compounds…"));
+    map<QString, int> databaseCompoundCounts;
+    Q_FOREACH (QString filename, compoundsDatabases) {
+        int compoundCount = loadCompoundsFromFile(filename);
+        databaseCompoundCounts[filename] = compoundCount;
+    }
+
+    Q_EMIT(updateProgressBar("Done importing", samples.size(), samples.size()));
+    if (samples.size() > 0)
+        Q_EMIT(sampleLoaded());
+    if (spectralhits.size() > 0)
+        Q_EMIT(spectraLoaded());
+    if (projects.size() > 0)
+        Q_EMIT(projectLoaded());
+    if (peaks.size() > 0)
+        Q_EMIT(peaklistLoaded());
+    for (auto dbEntry : databaseCompoundCounts)
+        Q_EMIT(compoundsLoaded(dbEntry.first, dbEntry.second));
+
+    // clear queue
+    filelist.clear();
 }
 
 void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples, int total_samples)
@@ -754,12 +768,38 @@ void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples
 
 }
 
+int mzFileIO::loadCompoundsFromFile(QString filename)
+{
+   int compoundCount = 0;
+   if (filename.endsWith("msp", Qt::CaseInsensitive)
+       || filename.endsWith("sptxt", Qt::CaseInsensitive)) {
+       compoundCount = loadNISTLibrary(filename);
+   } else if (filename.endsWith("massbank", Qt::CaseInsensitive)) {
+       compoundCount = loadMassBankLibrary(filename);
+   } else if (filename.contains("csv", Qt::CaseInsensitive)
+              || filename.contains("tab", Qt::CaseInsensitive)) {
+       compoundCount = DB.loadCompoundCSVFile(filename.toStdString());
+   }
+   return compoundCount;
+}
 
 bool mzFileIO::isKnownFileType(QString filename) {
     if (isSampleFileType(filename))  return true;
     if (isProjectFileType(filename)) return true;
     if (isSpectralHitType(filename)) return true;
     if (isPeakListType(filename)) return true;
+    if (isCompoundDatabaseType(filename)) return true;
+    return false;
+}
+
+bool mzFileIO::isCompoundDatabaseType(QString filename)
+{
+    QStringList extList;
+    extList << ".csv" << ".tab" << "msp" << "sptxt" << "massbank";
+    Q_FOREACH (QString suffix, extList) {
+        if (filename.endsWith(suffix, Qt::CaseInsensitive))
+            return true;
+    }
     return false;
 }
 
