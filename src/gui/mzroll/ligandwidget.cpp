@@ -374,12 +374,18 @@ void LigandWidget::showTable() {
         parent->setData(0, Qt::UserRole, QVariant::fromValue(compound));
         parent->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsEnabled);
 
-        if (compound->charge) addItem(parent,"Charge", compound->charge);
-        if (compound->formula.length()) addItem(parent,"Formula", compound->formula.c_str());
-        if (compound->precursorMz) addItem(parent,"Precursor Mz", compound->precursorMz);
-        if (compound->productMz) addItem(parent,"Product Mz", compound->productMz);
-        if (compound->collisionEnergy) addItem(parent,"Collision Energy", compound->collisionEnergy);
-        if (compound->hasGroup() ) parent->setIcon(0,QIcon(":/images/link.png"));
+        if (compound->charge)
+            addItem(parent, "Charge", compound->charge);
+        if (compound->formula.length())
+            addItem(parent, "Formula", compound->formula.c_str());
+        if (compound->precursorMz && compound->fragmentMzValues.size() == 0)
+            addItem(parent, "Precursor Mz", compound->precursorMz);
+        if (compound->productMz)
+            addItem(parent, "Product Mz", compound->productMz);
+        if (compound->collisionEnergy)
+            addItem(parent, "Collision Energy", compound->collisionEnergy);
+        if (compound->hasGroup())
+            parent->setIcon(0, QIcon(":/images/link.png"));
 
         if(compound->category.size() > 0) {
             QStringList catList;
