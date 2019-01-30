@@ -224,12 +224,22 @@ PK$PEAK: m/z int. rel.int.
     return compoundCount;
 }
 
-int mzFileIO::loadNISTLibrary(QString filename)
+int mzFileIO::loadNISTLibrary(QString filepath)
 {
-    qDebug() << "Loading NIST Libary: " << filename;
-    QFile data(filename);
+    QString filename = QFileInfo(filepath).fileName();
+    Q_EMIT(updateStatusString(tr("Preprocessing database %1").arg(filename)));
+
+    qDebug() << "Counting number of lines in NIST Libary file…" << filepath;
+    ifstream file(filepath.toStdString());
+    file.unsetf(ios_base::skipws); // do not skip newlines
+    unsigned lineCount = std::count(istream_iterator<char>(file),
+                                    istream_iterator<char>(),
+                                    '\n');
+
+    qDebug() << "Loading NIST Libary: " << filepath;
+    QFile data(filepath);
     if (!data.open(QFile::ReadOnly) ) {
-        qDebug() << "Can't open " << filename;
+        qDebug() << "Can't open " << filepath;
         return 0;
     }
 
@@ -237,10 +247,11 @@ int mzFileIO::loadNISTLibrary(QString filename)
     QRegExp formulaMatch("Formula\\=(C\\d+H\\d+\\S*)");
     QRegExp retentionTimeMatch("AvgRt\\=(\\S+)");
 
-    string dbname = mzUtils::cleanFilename(filename.toStdString());
+    string dbName = mzUtils::cleanFilename(filepath.toStdString());
     Compound* currentCompound = nullptr;
     bool capturePeaks = false;
     int compoundCount = 0;
+    int currentLine = 0;
 
     QTextStream stream(&data);
     while (!stream.atEnd()) {
@@ -267,7 +278,7 @@ int mzFileIO::loadNISTLibrary(QString filename)
                                                name.toStdString(),
                                                "",
                                                0);
-                currentCompound->db = dbname;
+                currentCompound->db = dbName;
                 capturePeaks = false;
             }
         }
@@ -370,6 +381,10 @@ int mzFileIO::loadNISTLibrary(QString filename)
                     mzIntensityPair.at(2).toStdString();
             }
         }
+        ++currentLine;
+        Q_EMIT(updateProgressBar(tr("Loading database: %1").arg(filename),
+                                 currentLine,
+                                 lineCount));
     }
 
     return compoundCount;
