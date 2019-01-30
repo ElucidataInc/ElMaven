@@ -335,8 +335,8 @@ public Q_SLOTS:
 	void setMzValue(float mz1, float mz2 = 0.0);
 	void loadModel();
 	void refreshIntensities();
-	void loadCompoundsFile();
-	bool loadCompoundsFile(QString filename);
+    void loadCompoundsFile();
+    void loadCompoundsFile(QString filename, bool threaded=true);
     void loadMetaInformation();
     bool loadMetaInformation(QString filename);
     int loadMetaCsvFile(string filename);
@@ -488,6 +488,7 @@ private Q_SLOTS:
     void _setStatusString(QString);
     void _showEMDBProgressBar(QString projectFilename);
     void _updateEMDBProgressBar(int progress, int finish);
+    void _postCompoundsDBLoadActions(QString filename, int compoundCount);
 
 private:
 	int m_value;
@@ -530,7 +531,7 @@ private:
     void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
-
+    void _notifyIfBadCompoundsDB(QString filename, bool failedToLoadCompletely);
 };
 
 struct FileLoader {
