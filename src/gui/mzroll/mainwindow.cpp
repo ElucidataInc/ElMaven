@@ -1865,7 +1865,15 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
 							"Successful Load",
 							QString("MS") + QString::number(msLevel));
 
-        settings->setValue("lastDatabaseFile", filename);
+        // do not save NIST library files for automatic load when starting next
+        // session, unless they are less than 2Mb in size
+        QFileInfo fileInfo(filename);
+        bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
+        bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
+        bool notNISTFile = !(isMSPFile || isSPTXTFile);
+        bool smallerThan5Mb = fileInfo.size() < 2000000;
+        if (notNISTFile || smallerThan5Mb)
+            settings->setValue("lastDatabaseFile", filename);
 
         setStatusText(tr("Loaded %1 compounds successfully")
                         .arg(QString::number(compoundCount)));
