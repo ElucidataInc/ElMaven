@@ -2001,18 +2001,28 @@ bool MainWindow::loadMetaInformation(QString filename) {
 
 void MainWindow::loadCompoundsFile()
 {
+    QString dir = ".";
+    if (settings->contains("lastCompoundsDir")) {
+        QString ldir = settings->value("lastCompoundsDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+
     QStringList filelist = QFileDialog::getOpenFileNames(
         this,
         "Select Compounds File To Load",
-        ".",
+        dir,
         "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
         "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
         "File(*.csv);;NIST "
         "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
         "massbank");
 
+    // why even allow loading multiple files if only the first one is read
     if (filelist.size() == 0 || filelist[0].isEmpty())
         return;
+
     if (!loadCompoundsFile(filelist[0])) {
         string dbfilename = filelist[0].toStdString();
         string dbname = mzUtils::cleanFilename(dbfilename);
@@ -2075,6 +2085,14 @@ void MainWindow::loadCompoundsFile()
             int ret = msgBox.exec();
         }
     }
+
+    // Saving the file location into QSettings class so that it can be
+    // used the next time user wants to load a compounds DB
+    QString absoluteFilePath(filelist[0]);
+    QFileInfo fileInfo(absoluteFilePath);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastCompoundsDir", tmp.absolutePath());
 }
 
 // open function for set csv
