@@ -2014,7 +2014,7 @@ void MainWindow::loadCompoundsFile()
             dir = ldir;
     }
 
-    QStringList filelist = QFileDialog::getOpenFileNames(
+    QString filename = QFileDialog::getOpenFileName(
         this,
         "Select Compounds File To Load",
         dir,
@@ -2024,12 +2024,11 @@ void MainWindow::loadCompoundsFile()
         "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
         "massbank");
 
-    // why even allow loading multiple files if only the first one is read
-    if (filelist.size() == 0 || filelist[0].isEmpty())
+    if (filename.isEmpty())
         return;
 
-    if (!loadCompoundsFile(filelist[0])) {
-        string dbfilename = filelist[0].toStdString();
+    if (!loadCompoundsFile(filename)) {
+        string dbfilename = filename.toStdString();
         string dbname = mzUtils::cleanFilename(dbfilename);
         string notFoundColumns = "Following are the unknown column name(s) "
                                  "found: ";
@@ -2093,7 +2092,7 @@ void MainWindow::loadCompoundsFile()
 
     // Saving the file location into QSettings class so that it can be
     // used the next time user wants to load a compounds DB
-    QString absoluteFilePath(filelist[0]);
+    QString absoluteFilePath(filename);
     QFileInfo fileInfo(absoluteFilePath);
     QDir tmp = fileInfo.absoluteDir();
     if (tmp.exists())
