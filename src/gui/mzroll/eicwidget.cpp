@@ -156,10 +156,12 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 			if (eic->rt[j] >= rtmin && eic->rt[j] <= rtmax) {
 				if (peak.minpos == 0) {
 					peak.minpos = j;
+					peak.splineminpos = j;
 					peak.rtmin = eic->rt[j];
 				}
 				if (peak.maxpos < j) {
 					peak.maxpos = j;
+					peak.splinemaxpos = j;
 					peak.rtmax = eic->rt[j];
 				}
 				peak.peakArea += eic->intensity[j];

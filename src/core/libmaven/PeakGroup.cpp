@@ -166,6 +166,12 @@ void PeakGroup::clear() {
     groupRank=INT_MAX;
 }
 
+void PeakGroup::addPeak(const Peak &peak)
+{
+	peaks.push_back(peak);
+	peaks.back().groupNum = groupId;
+}
+
 //TODO: a duplicate function getPeak exists. Delete this function
 Peak* PeakGroup::getSamplePeak(mzSample* sample) {
     for (unsigned int i=0; i< peaks.size(); i++ ) {

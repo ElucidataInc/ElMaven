@@ -567,7 +567,6 @@ void EIC::getPeakDetails(Peak &peak)
     peak.peakArea = 0;
     peak.peakSplineArea = 0;
     float baselineArea = 0;
-    int jj = 0;
 
     if (sample != NULL && sample->isBlank)
     {
@@ -581,9 +580,9 @@ void EIC::getPeakDetails(Peak &peak)
     if (peak.minpos >= N)
         peak.minpos = peak.pos; //unsigned number weirdness.
 
-    for (unsigned int ii = peak.splineminpos; ii <=peak.splinemaxpos; ii++)
-    {
-        peak.peakSplineArea += spline[ii];
+    for (unsigned int i = peak.splineminpos; i <= peak.splinemaxpos; i++) {
+        if (peak.splineminpos == 0 && peak.splinemaxpos == 0) break;
+        peak.peakSplineArea += spline[i];
     }
 
     float lastValue = intensity[peak.minpos];
@@ -624,7 +623,6 @@ void EIC::getPeakDetails(Peak &peak)
         }
 
         lastValue = intensity[j];
-        jj++;
     }
 
     getPeakWidth(peak);
