@@ -91,15 +91,6 @@ bool Database::addCompound(Compound* newCompound)
 
     bool compoundAdded = false;
 
-    // lambda that checks if a compound contains PRM information
-    auto isPRM = [](const Compound* cpd) -> bool {
-        bool hasMzValues = cpd->fragmentMzValues.size() > 0;
-        bool hasIntensityValues =
-            cpd->fragmentIntensities.size()
-            == cpd->fragmentMzValues.size();
-        return hasMzValues && hasIntensityValues;
-    };
-
     // new compound id, insert into compound list
     if (!compoundIdMap.count(newCompound->id)) {
         compoundIdMap[newCompound->id] = newCompound;
@@ -112,7 +103,8 @@ bool Database::addCompound(Compound* newCompound)
             Compound* currentCompound = compoundsDB[i];
             bool sameID = currentCompound->id == newCompound->id;
             bool sameDB = currentCompound->db == newCompound->db;
-            bool bothPRM = isPRM(currentCompound) && isPRM(newCompound);
+            bool bothPRM = (currentCompound->type() == Compound::Type::PRM
+                            && newCompound->type() == Compound::Type::PRM);
 
             // compound with same ID and from the same database but not PRM
             if (sameDB && sameID && !bothPRM) {
@@ -432,6 +424,13 @@ map<string,int> Database::getDatabaseNames() {
 	return dbnames;
 }
 
+bool Database::isNISTLibrary(string dbName) {
+    auto compounds = getCompoundsSubset(dbName);
+    if (compounds.size() > 0) {
+        return compounds.at(0)->type() == Compound::Type::PRM;
+    }
+    return false;
+}
 
 void Database::loadAdducts(string filename) {
     ifstream myfile(filename.c_str());
