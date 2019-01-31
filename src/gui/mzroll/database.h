@@ -74,11 +74,12 @@ class Database {
 	deque<Molecule2D*> coordinatesDB;
 
 	map<string, Compound*> compoundIdMap;
-	map<string, Reaction*> reactionIdMap;
+        map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
     vector<string> notFoundColumns;
     vector<string> invalidRows;
+    map<string, int> prmIdCount;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:
