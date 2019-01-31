@@ -99,6 +99,7 @@ bool Database::addCompound(Compound* newCompound)
         compoundAdded = true;
     } else {
         bool matched = false;
+        bool newFragmentPattern = false;
         for (int i = 0; i < compoundsDB.size(); i++) {
             Compound* currentCompound = compoundsDB[i];
             bool sameID = currentCompound->id == newCompound->id;
@@ -141,20 +142,21 @@ bool Database::addCompound(Compound* newCompound)
                 if (equalMzs && equalIntensities && equalIonTypes) {
                     matched = true;
                 } else {
-                    // same compound but different fragmentation spectra, change
-                    // its name according to the number of compounds with the
-                    // same ID
-                    int loadOrder = prmIdCount.at(newCompound->id);
-                    newCompound->name = newCompound->name
-                                        + " ("
-                                        + to_string(loadOrder)
-                                        + ")";
-                    prmIdCount[newCompound->id] = ++loadOrder;
-                    break;
+                    newFragmentPattern = true;
                 }
             }
         }
         if (!matched) {
+            // existing compound but different fragmentation spectra, change
+            // its name according to the number of compounds with the same ID
+            if (newFragmentPattern) {
+                int loadOrder = prmIdCount.at(newCompound->id);
+                newCompound->name = newCompound->name
+                                    + " ("
+                                    + to_string(loadOrder)
+                                    + ")";
+                prmIdCount[newCompound->id] = ++loadOrder;
+            }
             compoundsDB.push_back(newCompound);
             compoundAdded = true;
         }
