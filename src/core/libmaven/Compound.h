@@ -27,6 +27,13 @@ class Compound{
         bool      _groupUnlinked;
 
     public:
+        enum class Type {
+            MS1,
+            MRM,
+            PRM,
+            UNKNOWN
+        };
+
         /**
         *@brief  -   constructor for this compound
         */
@@ -120,6 +127,13 @@ class Compound{
          * @brief categories of this compund or peptide etc.
          */
         vector<string> category;
+
+        /**
+         * @brief Get the type of this compound, whether it can be used for
+         * targeted analysis of MS (level 1), SRM, MRM or PRM datasets.
+         * @return Type of the compound as a `Compound::Type` enum.
+         */
+        Type type();
 
         float adjustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
         void addReaction(Reaction* r) { reactions.push_back(r); }   /**  add reaction of this compound   */
