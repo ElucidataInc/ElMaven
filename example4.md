@@ -58,8 +58,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.6.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/hkz2q35pf4bm9t4/Win_El-Maven-v0.6.1.exe?dl=1' style='display:hidden' id='win_0.6.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.6.1')" data-target="win0.6" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="win0.6" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -71,8 +70,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.5.0</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/du6rc6ymgv57f48/Win_El-Maven-v0.5.0.exe?dl=1' style='display:hidden' id='win_0.5.0'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.5.0')" data-target="win0.5" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="win0.5" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -84,9 +82,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.2.4.1(El-MAVEN Polly Integration)</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/wtc01djphcnsr55/El-Maven-v0.2.4.1.exe?dl=1' style='display:hidden'
-                                id='win_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('win_0.2.4.1')" data-target="win0.2" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="win0.2" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -117,8 +113,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.6.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/rk1rrwk1i5hxumb/Mac_El-Maven-v0.6.1.zip?dl=1' style='display:hidden' id='mac_0.6.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.6.1')" data-target="mac0.6" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="mac0.6" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -130,8 +125,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.5.0</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/juwvmdu00ae0gjx/Mac_El-Maven-v0.5.0.zip?dl=1' style='display:hidden' id='mac_0.5.0'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.5.0')" data-target="mac0.5" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="mac0.5" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -143,8 +137,7 @@ permalink: /Downloads/
                             <font color="#8985db">v0.2.4.1(El-MAVEN Polly Integration)</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <a href='https://www.dropbox.com/s/2bvautna8m2mz1e/El-Maven-v0.2.4.1.zip?dl=1' style='display:hidden' id='mac_0.2.4.1'></a>
-                            <button style="background-color:#8985db;" onClick="setLink('mac_0.2.4.1')" data-target="win0.2" class="btn modal-trigger">
+                            <button style="background-color:#8985db;" data-target="win0.2" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
