@@ -79,7 +79,7 @@ void Controller::syncMpWithUi(T* dialogPtr)
         /*note: this updates massCutOffType of
          * - massCutoffMerge
          * - compoundMassCutoffWindow
-         * - fragmentMatchMassCutoffTolr
+         * - fragmentTolerance
          * @see PeakDetectionSettings::updatePeakSettings
          */
 
