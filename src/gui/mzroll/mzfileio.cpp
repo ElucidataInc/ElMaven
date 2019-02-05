@@ -798,7 +798,8 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         qDebug() << "saving in existing project…";
     } else {
         qDebug() << "creating new project to save…";
-        _currentProject = new ProjectDatabase(filename.toStdString());
+        auto version = _mainwindow->appVersion().toStdString();
+        _currentProject = new ProjectDatabase(filename.toStdString(), version);
     }
 
     if (_currentProject) {
@@ -844,7 +845,8 @@ QList<QString> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
     if (_currentProject)
         return empty;
 
-    _currentProject = new ProjectDatabase(fileName.toStdString());
+    auto version = _mainwindow->appVersion().toStdString();
+    _currentProject = new ProjectDatabase(fileName.toStdString(), version);
 
     // load compounds stored in the project file
     auto compounds = _currentProject->loadCompounds();

@@ -271,11 +271,12 @@ public:
 
 	PeakGroup::QType getUserQuantType();
 
-	//TODO: Sahil - Kiran, removed while merging mainwindow
-	// QSqlDatabase* getLocalDB() {
-	// 	return &localDB;
-	// }
-	int versionCheck();
+        /**
+         * @brief Converts `EL_MAVEN_VERSION" macro value to a usable QString
+         * and returns it.
+         * @return Application version as a QString.
+         */
+        QString appVersion();
 
 	void saveSettingsToLog();
 

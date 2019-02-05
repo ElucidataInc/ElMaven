@@ -3892,27 +3892,9 @@ void MainWindow::markGroup(PeakGroup* group, char label) {
 	//getPlotWidget()->scene()->update();
 }
 
-int MainWindow::versionCheck() {
-
-//define a MACRO for converting DEFINES to strings.. jfc!
-#define xstr(s) str(s)
-#define str(s) #s
-
-	QString hostname = "http://genomics-pubs.princeton.edu";
-	QString path = "/mzroll/vercheck.php?";
-	QString os = "os=" + QString(xstr(PLATFORM));
-	//QString ver = "ver=" + QString::number(EL_MAVEN_VERSION);
-	QString ver = "ver=620";
-	QString query = os + "&" + ver;
-
-	logWidget->append("Latest version check: " + hostname + path + query);
-
-	QDownloader* downloader = new QDownloader(this);
-	downloader->getPage(hostname + path + query);
-	connect(downloader, SIGNAL(downloadResult(QString)), logWidget,
-			SLOT(append(QString)));
-
-	return 0;
+QString MainWindow::appVersion() {
+        auto version = STR(EL_MAVEN_VERSION);
+        return QString(version);
 }
 
 void MainWindow::toggleIsotopicBarPlot(bool show)
