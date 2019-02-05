@@ -30,7 +30,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
 
     // fragmentation settings
-    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentatioOptions));
+    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentationFlag));
 
     // isotope detection
     settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
@@ -200,29 +200,39 @@ void PeakDetectionDialog::showSettingsForm() {
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
 
-void PeakDetectionDialog::dbOptionsClicked() {
+void PeakDetectionDialog::dbOptionsClicked()
+{
     if (dbOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
+        matchFragmentationFlag->setEnabled(true);
+        reportIsotopesOptions->setEnabled(true);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
+        matchFragmentationFlag->setEnabled(false);
+        reportIsotopesOptions->setEnabled(false);
     }
 }
 
 void PeakDetectionDialog::dialogRejected()
 {
-  // happens when users presses 'esc' key; 
-  emit updateSettings(peakSettings);
+    // happens when users presses 'esc' key; 
+    emit updateSettings(peakSettings);
 }
 
-void PeakDetectionDialog::featureOptionsClicked() {
+void PeakDetectionDialog::featureOptionsClicked()
+{
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbOptions->setChecked(false);
+        matchFragmentationFlag->setEnabled(false);
+        reportIsotopesOptions->setEnabled(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
+        matchFragmentationFlag->setEnabled(true);
+        reportIsotopesOptions->setEnabled(true);
     }
 }
 
@@ -381,9 +391,11 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             // Fragment Score
             minFragMatchScore->setValue(
-                settings->value("minFragmentMatchScore").toDouble());
-            matchFragmentatioOptions->setChecked(
-                settings->value("matchFragmentation").toBool());
+                settings->value("minFragMatchScore").toDouble());
+            matchFragmentationFlag->setChecked(
+                settings->value("matchFragmentationFlag").toBool());
+            minFragMatch->setValue(
+                settings->value("minFragMatch").toDouble());
 
         }
         /**
@@ -579,9 +591,10 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
 
     // Fragment Score
-    settings->setValue("minFragmentMatchScore", minFragMatchScore->value());
-    settings->setValue("matchFragmentation",
-                       matchFragmentatioOptions->isChecked());
+    settings->setValue("minFragMatchScore", minFragMatchScore->value());
+    settings->setValue("minFragMatch", minFragMatch->value());
+    settings->setValue("matchFragmentationFlag",
+                       matchFragmentationFlag->isChecked());
 
     // Enabling feature detection or compound search
     ////////////////////////////////////////////////////////////
@@ -600,11 +613,12 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
         // Fragment Score
-        mavenParameters->minFragmentMatchScore =
-           settings->value("minFragmentMatchScore").toDouble();
-        mavenParameters->minFragmentMatchScore > 0
-           ? mavenParameters->matchFragmentation = true
-           : mavenParameters->matchFragmentation = false;
+        mavenParameters->minFragMatchScore =
+           settings->value("minFragMatchScore").toDouble();
+        mavenParameters->minFragMatch = settings->value("minFragMatch").toDouble();
+        mavenParameters->minFragMatchScore > 0
+           ? mavenParameters->matchFragmentationFlag = true
+           : mavenParameters->matchFragmentationFlag = false;
 
         //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {

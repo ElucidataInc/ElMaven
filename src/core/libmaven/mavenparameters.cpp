@@ -30,10 +30,10 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 
         alignButton = 0;
         /*
-        * Whenever we create an instance of this class, massCutoffType must be set for fragmentMatchMassCutoffTolr
+        * Whenever we create an instance of this class, massCutoffType must be set for fragmentTolerance
         */
-        fragmentMatchMassCutoffTolr = new MassCutoff();
-        fragmentMatchMassCutoffTolr->setMassCutoff(1000);
+        fragmentTolerance = new MassCutoff();
+        fragmentTolerance->setMassCutoff(1000);
         mzBinStep = 0.01;
         rtStepSize = 20;
         /*
@@ -189,8 +189,8 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
          if(compoundMassCutoffWindow != nullptr)
              compoundMassCutoffWindow->setMassCutoffType(value);
 
-         if(fragmentMatchMassCutoffTolr != nullptr)
-             fragmentMatchMassCutoffTolr->setMassCutoffType(value);
+         if(fragmentTolerance != nullptr)
+             fragmentTolerance->setMassCutoffType(value);
      }
 
 
@@ -252,7 +252,7 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
         eicMaxGroups = atof(value);
 
     if(strcmp(key, "matchFragmentationOptions") == 0 )
-        matchFragmentation = atof(value);
+        matchFragmentationFlag = atof(value);
 
     if(strcmp(key, "reportIsotopesOptions") == 0 )
         pullIsotopesFlag = atof(value);
