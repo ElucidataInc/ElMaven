@@ -49,7 +49,19 @@ class Database {
 
 	vector<string> getPathwayReactions(string pathway_id);
 
-	map<string, int> getDatabaseNames();
+        /**
+         * @brief Checks whether the library with the given name is an NIST
+         * library or not.
+         * @details The first compound in the database (if it has any compounds)
+         * is checked for PRM information and if found, the database is
+         * regarded as an NIST library.
+         * @param dbName String name of the database to be checked.
+         * @return True if the database with given name is an NIST library,
+         * false otherwise.
+         */
+        bool isNISTLibrary(string dbName);
+
+        map<string, int> getDatabaseNames();
 	map<string, int> getChromotographyMethods();
 
 	Molecule2D* getMolecularCoordinates(QString id);
@@ -74,11 +86,12 @@ class Database {
 	deque<Molecule2D*> coordinatesDB;
 
 	map<string, Compound*> compoundIdMap;
-	map<string, Reaction*> reactionIdMap;
+        map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
     vector<string> notFoundColumns;
     vector<string> invalidRows;
+    map<string, int> prmIdCount;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:

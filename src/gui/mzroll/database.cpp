@@ -84,36 +84,80 @@ void Database::loadCategories() {
 	return;
 }
 
-bool Database::addCompound(Compound* c) {
-    if(c == NULL) return false;
+bool Database::addCompound(Compound* newCompound)
+{
+    if(newCompound == nullptr)
+        return false;
+
     bool compoundAdded = false;
 
-    //new compound id .. insert into compound list
-    if (!compoundIdMap.count(c->id)) {
-        compoundIdMap[c->id] = c;
-        compoundsDB.push_back(c);
+    // new compound id, insert into compound list
+    if (!compoundIdMap.count(newCompound->id)) {
+        compoundIdMap[newCompound->id] = newCompound;
+        prmIdCount[newCompound->id] = 1;
+        compoundsDB.push_back(newCompound);
         compoundAdded = true;
-    } else { //compound exists with the same name, match database
-        bool matched=false;
-        for(int i=0; i < compoundsDB.size();i++) {
+    } else {
+        bool matched = false;
+        bool newFragmentPattern = false;
+        for (int i = 0; i < compoundsDB.size(); i++) {
             Compound* currentCompound = compoundsDB[i];
-            if ( currentCompound->db == c->db && currentCompound->id==c->id) { //compound from the same database
-                currentCompound->id=c->id;
-                currentCompound->name=c->name;
-                currentCompound->formula = c->formula;
-                currentCompound->srmId = c->srmId;
-                currentCompound->expectedRt = c->expectedRt;
-                currentCompound->charge = c->charge;
-                currentCompound->mass = c->mass;
-                currentCompound->precursorMz = c->precursorMz;
-                currentCompound->productMz = c->productMz;
-                currentCompound->collisionEnergy = c->collisionEnergy;
-                currentCompound->category = c->category;
-                matched=true;
+            bool sameID = currentCompound->id == newCompound->id;
+            bool sameDB = currentCompound->db == newCompound->db;
+            bool bothPRM = (currentCompound->type() == Compound::Type::PRM
+                            && newCompound->type() == Compound::Type::PRM);
+
+            // compound with same ID and from the same database but not PRM
+            if (sameDB && sameID && !bothPRM) {
+                currentCompound->name = newCompound->name;
+                currentCompound->formula = newCompound->formula;
+                currentCompound->srmId = newCompound->srmId;
+                currentCompound->expectedRt = newCompound->expectedRt;
+                currentCompound->charge = newCompound->charge;
+                currentCompound->mass = newCompound->mass;
+                currentCompound->precursorMz = newCompound->precursorMz;
+                currentCompound->productMz = newCompound->productMz;
+                currentCompound->collisionEnergy = newCompound->collisionEnergy;
+                currentCompound->category = newCompound->category;
+
+                currentCompound->fragmentMzValues =
+                    newCompound->fragmentMzValues;
+                currentCompound->fragmentIntensities =
+                    newCompound->fragmentIntensities;
+                currentCompound->fragmentIonTypes =
+                    newCompound->fragmentIonTypes;
+
+                matched = true;
+            } else if (sameDB && sameID && bothPRM) {
+                bool equalMzs =
+                    newCompound->fragmentMzValues
+                    == currentCompound->fragmentMzValues;
+                bool equalIntensities =
+                    newCompound->fragmentIntensities
+                    == currentCompound->fragmentIntensities;
+                bool equalIonTypes =
+                    newCompound->fragmentIonTypes
+                    == currentCompound->fragmentIonTypes;
+
+                if (equalMzs && equalIntensities && equalIonTypes) {
+                    matched = true;
+                } else {
+                    newFragmentPattern = true;
+                }
             }
         }
-        if(!matched) {
-            compoundsDB.push_back(c);
+        if (!matched) {
+            // existing compound but different fragmentation spectra, change
+            // its name according to the number of compounds with the same ID
+            if (newFragmentPattern) {
+                int loadOrder = prmIdCount.at(newCompound->id);
+                newCompound->name = newCompound->name
+                                    + " ("
+                                    + to_string(loadOrder)
+                                    + ")";
+                prmIdCount[newCompound->id] = ++loadOrder;
+            }
+            compoundsDB.push_back(newCompound);
             compoundAdded = true;
         }
     }
@@ -382,6 +426,13 @@ map<string,int> Database::getDatabaseNames() {
 	return dbnames;
 }
 
+bool Database::isNISTLibrary(string dbName) {
+    auto compounds = getCompoundsSubset(dbName);
+    if (compounds.size() > 0) {
+        return compounds.at(0)->type() == Compound::Type::PRM;
+    }
+    return false;
+}
 
 void Database::loadAdducts(string filename) {
     ifstream myfile(filename.c_str());

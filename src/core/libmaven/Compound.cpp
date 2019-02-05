@@ -29,5 +29,23 @@ float Compound::adjustedMass(int charge) {
     *@return    -    total mass by formula minus loss of electrons' mass 
     *@see  -  double MassCalculator::computeMass(string formula, int charge) in mzMassCalculator.cpp
     */
-    return MassCalculator::computeMass(formula,charge); 
+    return MassCalculator::computeMass(formula,charge);
+}
+
+Compound::Type Compound::type() {
+    bool hasFragMzs = fragmentMzValues.size() > 0;
+    bool hasFragInts = fragmentIntensities.size() == fragmentMzValues.size();
+    if (hasFragMzs && hasFragInts)
+        return Type::PRM;
+
+    bool hasPrecursorMz = precursorMz > 0;
+    bool hasProductMz = productMz > 0;
+    if (hasPrecursorMz && hasProductMz)
+        return Type::MRM;
+
+    // Is this the only requirement for being usable as an MS1 compound?
+    if (mass)
+        return Type::MS1;
+
+    return Type::UNKNOWN;
 }

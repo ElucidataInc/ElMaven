@@ -311,14 +311,14 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         catStr = catStr.substr(0, catStr.size() - 1);
 
         stringstream fragMz;
-        for (float f : c->fragment_mzs) {
+        for (float f : c->fragmentMzValues) {
             fragMz << fixed << setprecision(5) << f << ";";
         }
         string fragMzStr = fragMz.str();
         fragMzStr = fragMzStr.substr(0, fragMzStr.size() - 1);
 
         stringstream fragIntensity;
-        for (float f : c->fragment_intensity) {
+        for (float f : c->fragmentIntensities) {
             fragIntensity << fixed << setprecision(5) << f << ";";
         }
         string fragIntensityStr = fragIntensity.str();
@@ -766,17 +766,17 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compound->category.push_back(category);
         }
 
-        string fragment_mzs = compoundsQuery->stringValue("fragment_mzs");
-        for (string frag_mz : split(fragment_mzs, ';')) {
-            if (!frag_mz.empty())
-                compound->fragment_mzs.push_back(stof(frag_mz));
+        string fragmentMzValues = compoundsQuery->stringValue("fragment_mzs");
+        for (string fragMz : split(fragmentMzValues, ';')) {
+            if (!fragMz.empty())
+                compound->fragmentMzValues.push_back(stof(fragMz));
         }
 
-        string fragment_intensities =
+        string fragmentIntensities =
                 compoundsQuery->stringValue("fragment_intensity");
-        for (string frag_intensity : split(fragment_intensities, ';')) {
-            if (!frag_intensity.empty())
-                compound->fragment_intensity.push_back(stof(frag_intensity));
+        for (string fragIntensity : split(fragmentIntensities, ';')) {
+            if (!fragIntensity.empty())
+                compound->fragmentIntensities.push_back(stof(fragIntensity));
         }
 
         _compoundIdMap[compound->id + compound->db] = compound;

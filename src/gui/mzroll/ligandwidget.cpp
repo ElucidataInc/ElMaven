@@ -374,12 +374,18 @@ void LigandWidget::showTable() {
         parent->setData(0, Qt::UserRole, QVariant::fromValue(compound));
         parent->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsEnabled);
 
-        if (compound->charge) addItem(parent,"Charge", compound->charge);
-        if (compound->formula.length()) addItem(parent,"Formula", compound->formula.c_str());
-        if (compound->precursorMz) addItem(parent,"Precursor Mz", compound->precursorMz);
-        if (compound->productMz) addItem(parent,"Product Mz", compound->productMz);
-        if (compound->collisionEnergy) addItem(parent,"Collision Energy", compound->collisionEnergy);
-        if (compound->hasGroup() ) parent->setIcon(0,QIcon(":/images/link.png"));
+        if (compound->charge)
+            addItem(parent, "Charge", compound->charge);
+        if (compound->formula.length())
+            addItem(parent, "Formula", compound->formula.c_str());
+        if (compound->precursorMz && compound->fragmentMzValues.size() == 0)
+            addItem(parent, "Precursor Mz", compound->precursorMz);
+        if (compound->productMz)
+            addItem(parent, "Product Mz", compound->productMz);
+        if (compound->collisionEnergy)
+            addItem(parent, "Collision Energy", compound->collisionEnergy);
+        if (compound->hasGroup())
+            parent->setIcon(0, QIcon(":/images/link.png"));
 
         if(compound->category.size() > 0) {
             QStringList catList;
@@ -389,12 +395,12 @@ void LigandWidget::showTable() {
             parent->setText(3,catList.join(";"));
         }
 
-        if (compound->fragment_mzs.size()) {
+        if (compound->fragmentMzValues.size()) {
             QStringList mzList;
-            for(unsigned int i=0; i<compound->fragment_mzs.size();i++) {
-                mzList << QString::number(compound->fragment_mzs[i],'f',2);
+            for(unsigned int i=0; i<compound->fragmentMzValues.size();i++) {
+                mzList << QString::number(compound->fragmentMzValues[i],'f',2);
             }
-            QTreeWidgetItem* child = addItem(parent,"Fragments",compound->fragment_mzs[0]);
+            QTreeWidgetItem* child = addItem(parent,"Fragments",compound->fragmentMzValues[0]);
             child->setText(1,mzList.join(";"));
         }
 
@@ -722,20 +728,20 @@ Compound* LigandWidget::getSelectedCompound() {
 void LigandWidget::matchFragmentation() {
     // New feature added - Merged with Maven776 - Kiran
 	Compound* c = getSelectedCompound();
-	if (!c or c->fragment_mzs.size() == 0) return;
+        if (!c or c->fragmentMzValues.size() == 0) return;
 
     QStringList searchText;
-	int mzCount = c->fragment_mzs.size();
-	int intsCount = c->fragment_intensity.size(); 
+        int mzCount = c->fragmentMzValues.size();
+        int intsCount = c->fragmentIntensities.size();
 
     int charge = _mw->mavenParameters->getCharge(c); //user specified ionization mode
 	float precursorMz = c->precursorMz;
     if (!c->formula.empty()) precursorMz = c->adjustedMass(charge);
 
     for(int i=0; i < mzCount; i++ ) {
-			float mz = c->fragment_mzs[i];
-			float ints = 0; 
-			if (i < intsCount) ints = c->fragment_intensity[i];
+                        float mz = c->fragmentMzValues[i];
+			float ints = 0;
+                        if (i < intsCount) ints = c->fragmentIntensities[i];
 
             searchText  << tr("%1\t%2")
                 .arg(QString::number(mz,'f', 5))
