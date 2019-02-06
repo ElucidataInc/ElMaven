@@ -234,7 +234,11 @@ class PeakGroup{
 
         vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
 
-        vector<Scan*> getFragmenationEvents();
+        /**
+         * @brief find all MS2 scans for this group
+         * @return vector of all MS2 scans for this group
+         */
+        vector<Scan*> getFragmentationEvents();
 
         Scan* getAverageFragmenationScan(MassCutoff* massCutoff);
 

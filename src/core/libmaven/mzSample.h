@@ -558,6 +558,12 @@ class mzSample
     static float getMaxRt(const vector<mzSample *> &samples);
 
     /**
+     * @brief find all MS2 scans within the slice
+     * @return vector of all matching MS2 scans
+     */
+    vector<Scan*> getFragmentationEvents(mzSlice* slice);
+
+    /**
                           * [C13Labeled?]
                           * @method C13Labeled
                           * @return [true or false]

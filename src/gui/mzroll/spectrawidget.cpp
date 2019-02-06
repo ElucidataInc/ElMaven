@@ -275,7 +275,7 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
     Scan* cons = group->getAverageFragmenationScan(mainwindow->getUserMassCutoff());
 
     if (cons) {
-        _scanset = group->getFragmenationEvents();
+        _scanset = group->getFragmentationEvents();
         _currentScan=cons;
         _currentScan->scannum=0;
         _currentScan->sample=0;

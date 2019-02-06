@@ -670,29 +670,19 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
-/*
-   @author: Sahil
-   */ 
-//TODO: Sahil, Added while merging Spectrawidget
-vector<Scan*> PeakGroup::getFragmenationEvents() {
-    vector<Scan*>matchedscans;
-    for(unsigned int i=0; i < peaks.size(); i++ ) {
-        mzSample* sample = peaks[i].getSample();
-        if ( sample == NULL ) continue;
+vector<Scan*> PeakGroup::getFragmentationEvents()
+{
+    vector<Scan*> matchedScans;
+    for(auto peak : peaks) {
+        mzSample* sample = peak.getSample();
+        if (sample == NULL) continue;
+        mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
+        vector<Scan*> scans = sample->getFragmentationEvents(&slice));
 
-        for( unsigned int j=0; j < sample->scans.size(); j++ ) {
-            Scan* scan = sample->scans[j];
-            if (scan->mslevel <= 1) continue; //ms2 + scans only
-            if (scan->rt < peaks[i].rtmin) continue;
-            if (scan->rt > peaks[i].rtmax) break;
-            if( scan->precursorMz >= minMz and scan->precursorMz <= maxMz) {
-                matchedscans.push_back(scan);
-            }
-        }
+        matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
     }
-    return matchedscans;
+    return matchedScans;
 }
-
 
 /*
    @author: Sahil
@@ -705,7 +695,7 @@ Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
     map<float,double> mz_bin_map;
     map<float,int> mz_count;
 
-    vector<Scan*> scans = getFragmenationEvents();
+    vector<Scan*> scans = getFragmentationEvents();
     if (scans.size() == 0 ) return NULL;
 
     Scan* avgScan = new Scan(NULL,0,0,0,0,0);

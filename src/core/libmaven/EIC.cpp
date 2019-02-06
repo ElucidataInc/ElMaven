@@ -1044,7 +1044,7 @@ void EIC::interpolate()
     }
 }
 
-vector<Scan *> EIC::getFragmenationEvents()
+vector<Scan *> EIC::getFragmentationEvents()
 {
     // Merged to 776
     vector<Scan *> matchedscans;
