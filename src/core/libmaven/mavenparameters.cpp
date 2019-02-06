@@ -33,14 +33,18 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         * Whenever we create an instance of this class, massCutoffType must be set for fragmentTolerance
         */
         fragmentTolerance = new MassCutoff();
-        fragmentTolerance->setMassCutoff(1000);
-        mzBinStep = 0.01;
-        rtStepSize = 20;
+        fragmentTolerance->setMassCutoffAndType(20, "ppm");
+        minFragMatchScore = 0;
+        minFragMatch = 3;
+        
+        
         /*
         * Whenever we create an instance of this class, massCutoffType must be set for massCutoffMerge
         */
         massCutoffMerge = new MassCutoff();
-        massCutoffMerge->setMassCutoff(30);
+        massCutoffMerge->setMassCutoffAndType(30, "ppm");
+        mzBinStep = 0.01;
+        rtStepSize = 20;
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -85,7 +89,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         * Whenever we create an instance of this class, massCutoffType must be set for compoundMassCutoffWindow
         */
         compoundMassCutoffWindow=new MassCutoff();
-        compoundMassCutoffWindow->setMassCutoff(10);
+        compoundMassCutoffWindow->setMassCutoffAndType(10, "ppm");
         compoundRTWindow = 1;
         eicMaxGroups = INT_MAX;
 
