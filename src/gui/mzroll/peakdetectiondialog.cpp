@@ -30,7 +30,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
 
     // fragmentation settings
-    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentationFlag));
+    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentationOptions));
+    settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
+    settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
+    settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
 
     // isotope detection
     settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
@@ -204,12 +207,12 @@ void PeakDetectionDialog::dbOptionsClicked()
     if (dbOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        matchFragmentationFlag->setEnabled(true);
+        matchFragmentationOptions->setEnabled(true);
         reportIsotopesOptions->setEnabled(true);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
-        matchFragmentationFlag->setEnabled(false);
+        matchFragmentationOptions->setEnabled(false);
         reportIsotopesOptions->setEnabled(false);
     }
 }
@@ -225,12 +228,12 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbOptions->setChecked(false);
-        matchFragmentationFlag->setEnabled(false);
+        matchFragmentationOptions->setEnabled(false);
         reportIsotopesOptions->setEnabled(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
-        matchFragmentationFlag->setEnabled(true);
+        matchFragmentationOptions->setEnabled(true);
         reportIsotopesOptions->setEnabled(true);
     }
 }
@@ -387,14 +390,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             //     settings->value("checkBox_3").toBool());  // D2
             // checkBox_4->setChecked(
             //     settings->value("checkBox_4").toBool());  // S34
-
-            // Fragment Score
-            minFragMatchScore->setValue(
-                settings->value("minFragMatchScore").toDouble());
-            matchFragmentationFlag->setChecked(
-                settings->value("matchFragmentationFlag").toBool());
-            minFragMatch->setValue(
-                settings->value("minFragMatch").toDouble());
 
         }
         /**
@@ -589,12 +584,6 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
     // settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
 
-    // Fragment Score
-    settings->setValue("minFragMatchScore", minFragMatchScore->value());
-    settings->setValue("minFragMatch", minFragMatch->value());
-    settings->setValue("matchFragmentationFlag",
-                       matchFragmentationFlag->isChecked());
-
     // Enabling feature detection or compound search
     ////////////////////////////////////////////////////////////
     // TODO: what is this?
@@ -611,13 +600,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
-        // Fragment Score
-        mavenParameters->minFragMatchScore =
-           settings->value("minFragMatchScore").toDouble();
-        mavenParameters->minFragMatch = settings->value("minFragMatch").toDouble();
-        mavenParameters->minFragMatchScore > 0
-           ? mavenParameters->matchFragmentationFlag = true
-           : mavenParameters->matchFragmentationFlag = false;
 
         //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {
@@ -628,17 +610,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         }
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
-
-        //Setting the ionization mode if the user specifies the ionization mode
-        //then its given the priority else the ionization mode is taken from the
-        //sample
-        //TODO: See how the ionization mode is effected if the user selects
-        //Neutral or autodetect
-        // if (mainwindow->getIonizationMode()) {
-        //     mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        // } else {
-        //     mavenParameters->setIonizationMode();
-        // }
 
         mavenParameters->setCompounds(DB.getCompoundsSubset(
             compoundDatabase->currentText().toStdString()));

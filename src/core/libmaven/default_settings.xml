@@ -18,7 +18,10 @@
         <matchRt>0</matchRt>
         <eicMaxGroups>10</eicMaxGroups>
         <matchFragmentationOptions>0</matchFragmentationOptions>
-        <reportIsotopesOptions>0</reportIsotopesOptions>
+        <fragmentTolerance>20</fragmentTolerance>
+        <minFragMatch>3</minFragMatch>
+        <minFragMatchScore>0.00</minFragMatchScore>
+        <reportIsotopesOptions>1</reportIsotopesOptions>
         <minGroupIntensity>5000</minGroupIntensity>
         <peakQuantitation>0</peakQuantitation>
         <quantileIntensity>0</quantileIntensity> 

@@ -61,7 +61,7 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "compoundMassCutoffWindow=" << mavenParameters->compoundMassCutoffWindow->getMassCutoff()
             << "\n";
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
-    summary << "matchFragmentationFlag=" << mavenParameters->matchFragmentationFlag
+    summary << "matchFragmentationOptions=" << mavenParameters->matchFragmentationFlag
             << "\n";
     summary << "fragmentTolerance=" << mavenParameters->fragmentTolerance->getMassCutoff()
             << "\n";
@@ -142,8 +142,6 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "matchRtFlag" ,QString::number( mavenParameters->matchRtFlag));
     stream.writeAttribute( "compoundMassCutoffWindow" ,QString::number( mavenParameters->compoundMassCutoffWindow->getMassCutoff()));
     stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
-    stream.writeAttribute( "matchFragmentationFlag" ,QString::number( mavenParameters->matchFragmentationFlag));
-    stream.writeAttribute( "fragmentTolerance" ,QString::number( mavenParameters->fragmentTolerance->getMassCutoff()));
 
     stream.writeAttribute( "eic_smoothingWindow" ,QString::number( mavenParameters->eic_smoothingWindow));
     stream.writeAttribute( "eic_smoothingAlgorithm" ,QString::number( mavenParameters->eic_smoothingAlgorithm));
@@ -196,8 +194,8 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                 // Fragment Score
                 // settings->setValue("minFragMatchScore",
                 //                   minFragMatchScore->value());
-                settings->setValue("matchFragmentationFlag",
-                        xml.attributes().value("matchFragmentationFlag").toString().toInt());
+                //settings->setValue("matchFragmentationOptions",
+                //        xml.attributes().value("matchFragmentationFlag").toString().toInt());
 
                 // Enabling feature detection or compound search
                 // mavenParameters->runFunction =
