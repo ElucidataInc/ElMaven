@@ -50,6 +50,11 @@ bool Connection::executeMulti(const std::string sql_string)
     return res_code == SQLITE_OK;
 }
 
+bool Connection::vacuum()
+{
+    return prepare("VACUUM")->execute();
+}
+
 Cursor* Connection::prepare(const std::string& query)
 {
     sqlite3_stmt* statement;

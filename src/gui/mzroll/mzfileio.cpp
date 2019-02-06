@@ -769,6 +769,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
             Q_EMIT(updateStatusString(
                 QString("Project successfully saved to %1").arg(filename)
             ));
+        _currentProject->vacuum();
         return true;
     }
     qDebug() << "cannot write to closed project" << filename;

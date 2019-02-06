@@ -32,8 +32,11 @@ public:
     ProjectDatabase(const string& dbFilename, const string& version);
 
     /**
-      * @brief Destroy the object and close database connection.
-      */
+     * @brief Destroy the object and close database connection.
+     * @details Before destroying and closing the database connection, a
+     * vacuum operation is performed to repack and defragment the database file
+     * if possible.
+     */
     ~ProjectDatabase();
 
     /**
@@ -295,6 +298,12 @@ public:
      * @return True if the database contains no tables, false otherwise.
      */
     bool isEmpty();
+
+    /**
+     * @brief Simply calls `vacuum` method of the private connection object. See
+     * the documentation for `Connection::vacuum` to know more about its uses.
+     */
+    void vacuum();
 
 private:
     /**

@@ -1125,6 +1125,11 @@ bool ProjectDatabase::isEmpty()
     return tableCount == 0;
 }
 
+void ProjectDatabase::vacuum()
+{
+    _connection->vacuum();
+}
+
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
     int maxSampleId = -1;
     for (auto sample : samples)
