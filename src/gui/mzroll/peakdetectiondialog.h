@@ -32,7 +32,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 		public Q_SLOTS:
 				 void findPeaks();
 				 void loadModel();
-				 void setOutputDir();
+    void setModel(const string& modelPath);
+                                 void setOutputDir();
 				 void setProgressBar(QString text, int progress, int totalSteps);
 				 void runBackgroupJob(QString func);
                  void dbOptionsClicked();

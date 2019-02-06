@@ -35,6 +35,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void dialogRejected();
             void setIsotopicPeakFiltering();
             void onReset();
+            void setFilterline(string filterlineString);
 
             /*
              * @brief: Sets polarity based on the ionization type selected.
