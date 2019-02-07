@@ -677,7 +677,7 @@ vector<Scan*> PeakGroup::getFragmentationEvents()
         mzSample* sample = peak.getSample();
         if (sample == NULL) continue;
         mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
-        vector<Scan*> scans = sample->getFragmentationEvents(&slice));
+        vector<Scan*> scans = sample->getFragmentationEvents(&slice);
 
         matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
     }
