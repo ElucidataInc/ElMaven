@@ -408,7 +408,7 @@ Series:  Prentice-Hall Series in Automatic Computation
     double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
 
         if(massCutoff->getMassCutoffType()=="ppm"){
-            return ( abs((mz2-mz1)/(mz1/1e6)) );
+            return ppmDist(mz1, mz2);
         }
         else if(massCutoff->getMassCutoffType()=="mDa"){
             return abs((mz2-mz1)*1e3) ;
@@ -419,7 +419,13 @@ Series:  Prentice-Hall Series in Automatic Computation
         }
     }
 
+    float ppmDist(const float mz1, const float mz2) {
+        return (abs((mz2-mz1)/(mz1/1e6)));
+    }
 
+    double ppmDist(const double mz1, const double mz2) {
+        return (abs((mz2-mz1)/(mz1/1e6)));
+    }
 
     float ppmround(const float mz1, const float resolution) {
         //resolution parameter =10  -> one digit after decimal point,

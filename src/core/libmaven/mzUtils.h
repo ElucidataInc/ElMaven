@@ -410,6 +410,10 @@ namespace mzUtils {
      */
     double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff);
 
+    float ppmDist(const float mz1, const float mz2);
+
+    double ppmDist(const double mz1, const double mz2);
+
     /**
      * [ppmround ]
      * @method ppmround

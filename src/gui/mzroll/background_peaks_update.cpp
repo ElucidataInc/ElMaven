@@ -63,7 +63,7 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
     summary << "matchFragmentationOptions=" << mavenParameters->matchFragmentationFlag
             << "\n";
-    summary << "fragmentTolerance=" << mavenParameters->fragmentTolerance->getMassCutoff()
+    summary << "fragmentTolerance=" << mavenParameters->fragmentTolerance
             << "\n";
 
     summary << "------------------------------EIC CONSTRUCTION"

@@ -29,11 +29,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         showProgressFlag = true;
 
         alignButton = 0;
-        /*
-        * Whenever we create an instance of this class, massCutoffType must be set for fragmentTolerance
-        */
-        fragmentTolerance = new MassCutoff();
-        fragmentTolerance->setMassCutoffAndType(20, "ppm");
+
+        fragmentTolerance = 20;
         minFragMatchScore = 0;
         minFragMatch = 3;
         
@@ -192,9 +189,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
          if(compoundMassCutoffWindow != nullptr)
              compoundMassCutoffWindow->setMassCutoffType(value);
-
-         if(fragmentTolerance != nullptr)
-             fragmentTolerance->setMassCutoffType(value);
      }
 
 
@@ -207,6 +201,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
      }
 
+
+    if(strcmp(key, "fragmentTolerance") == 0)
+        fragmentTolerance = atof(value);
 
     if(strcmp(key,"rtStep") == 0)
         rtStepSize = atof(value);

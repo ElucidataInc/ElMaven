@@ -161,7 +161,7 @@ class MavenParameters
         //match fragmentation settings
         float minFragMatchScore;
         bool matchFragmentationFlag;
-        MassCutoff* fragmentTolerance;
+        float fragmentTolerance;
         float minFragMatch;
 
         // Peak Group Rank
