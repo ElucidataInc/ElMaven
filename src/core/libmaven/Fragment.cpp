@@ -156,46 +156,47 @@ vector<int> Fragment::locatePositions(Fragment* a, Fragment* b, float productAmu
     return ranks;
 }
 
-void Fragment::addFragment(Fragment* b) { brothers.push_back(b); }
+void Fragment::addBrotherFragment(Fragment* b) { brothers.push_back(b); }
 
-void Fragment::buildConsensus(float productAmuToll)
-{ 
-    Fragment* Cons = new Fragment(this);  //make a copy
-    Cons->sortByMz();
+void Fragment::buildConsensus(float productPpmTolr)
+{   
+    //create a copy
+    Fragment* consensusFrag = new Fragment(this);
+    consensusFrag->sortByMz();
 
     for(unsigned int i = 0; i < brothers.size(); i++) {
         Fragment* brother = brothers[i];
 
-        vector<int> ranks = locatePositions(brother, Cons, productAmuToll);	//location 
+        vector<int> ranks = locatePositions(brother, consensusFrag, productPpmTolr); 
 
         for(unsigned int j = 0; j < ranks.size(); j++) {
             int posA = ranks[j];	
             float mzB = brother->mzValues[j];
             float intB = brother->intensityValues[j];
             if (posA >= 0) {
-                Cons->intensityValues[posA] += intB;
-                Cons->obscount[posA] += 1;
+                consensusFrag->intensityValues[posA] += intB;
+                consensusFrag->obscount[posA] += 1;
             } else if (posA == -1) {
-                Cons->mzValues.push_back(mzB);
-                Cons->intensityValues.push_back(intB);
-                Cons->obscount.push_back(1);
+                consensusFrag->mzValues.push_back(mzB);
+                consensusFrag->intensityValues.push_back(intB);
+                consensusFrag->obscount.push_back(1);
             }
         }
-        Cons->sortByMz();
+        consensusFrag->sortByMz();
     }
 
     //average values 
     int N = 1 + brothers.size();
-    for(unsigned int i = 0; i < Cons->intensityValues.size(); i++) {
-        Cons->intensityValues[i] /= N;
+    for(unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
+        consensusFrag->intensityValues[i] /= N;
     }
-    Cons->sortByIntensity();
-    float maxValue = Cons->intensityValues[0];
+    consensusFrag->sortByIntensity();
+    float maxValue = consensusFrag->intensityValues[0];
 
-    for(unsigned int i = 0; i < Cons->intensityValues.size(); i++) {
-        Cons->intensityValues[i] = Cons->intensityValues[i] / maxValue * 10000;
+    for(unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
+        consensusFrag->intensityValues[i] = consensusFrag->intensityValues[i] / maxValue * 10000;
     }
-    this->consensus = Cons; 
+    this->consensus = consensusFrag; 
 }
 
 vector<int> Fragment::intensityOrderDesc()
@@ -217,23 +218,23 @@ vector<int> Fragment::intensityOrderDesc()
     return position;
 }
 
-vector<int> Fragment::mzOrderInc()
+vector<int> Fragment::mzSortIncreasing()
 {
     int nobs = mzValues.size();
-    vector<pair<float, int>> _pairsarray(nobs);
-    vector<int> position(nobs);
+    vector<pair<float, int>> pairsarray(nobs);
+    vector<int> sortedPositions(nobs);
     for(int pos = 0; pos < nobs; pos++) {
-        _pairsarray[pos] = make_pair(mzValues[pos], pos);
+        pairsarray[pos] = make_pair(mzValues[pos], pos);
     }
 
     //forward sort first key
-    sort(_pairsarray.begin(), _pairsarray.end());
+    sort(pairsarray.begin(), pairsarray.end());
 
-    //return positions in order from highest to lowest intenisty
-    for(unsigned int i = 0; i < _pairsarray.size(); i++) {
-        position[i] = _pairsarray[i].second;
+    //return positions for lowest to highest mz
+    for(unsigned int i = 0; i < pairsarray.size(); i++) {
+        sortedPositions[i] = pairsarray[i].second;
     }
-    return position;
+    return sortedPositions;
 }
 
 
@@ -258,23 +259,23 @@ void Fragment::sortByIntensity()
 
 void Fragment::sortByMz()
 { 
-    vector<int> order = mzOrderInc();
-    vector<float> a(mzValues.size());
-    vector<float> b(intensityValues.size());
-    vector<int> c(obscount.size());
-    map<int, string> d;
+    vector<int> order = mzSortIncreasing();
+    vector<float> tempMz(mzValues.size());
+    vector<float> tempIntensity(intensityValues.size());
+    vector<int> tempObscount(obscount.size());
+    map<int, string> tempAnnotations;
 
     for(unsigned int i = 0; i < order.size(); i++) {
-        b[i] = intensityValues[order[i]];
-        a[i] = mzValues[order[i]];
-        c[i] = obscount[order[i]];
-        if (annotations.count(order[i]) > 0) d[i] = annotations[order[i]];
+        tempIntensity[i] = intensityValues[order[i]];
+        tempMz[i] = mzValues[order[i]];
+        tempObscount[i] = obscount[order[i]];
+        if (annotations.count(order[i]) > 0) tempAnnotations[i] = annotations[order[i]];
     };
 
-    mzValues = a;
-    intensityValues = b;
-    obscount = c;
-    annotations = d;
+    mzValues = tempMz;
+    intensityValues = tempIntensity;
+    obscount = tempObscount;
+    annotations = tempAnnotations;
 }	
 
 void Fragment::buildConsensusAvg()

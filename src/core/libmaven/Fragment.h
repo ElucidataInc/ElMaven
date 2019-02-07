@@ -47,13 +47,13 @@ class Fragment {
 
         static vector<int> locatePositions( Fragment* a, Fragment* b, float productAmuToll); 
 
-        void addFragment(Fragment* b);
+        void addBrotherFragment(Fragment* b);
 
-        void buildConsensus(float productAmuToll);
+        void buildConsensus(float productPpmTolr);
 
         vector<int> intensityOrderDesc();
 
-        vector<int> mzOrderInc();
+        vector<int> mzSortIncreasing();
 
         void sortByIntensity();
 
