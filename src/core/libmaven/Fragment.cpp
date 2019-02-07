@@ -105,52 +105,30 @@ int Fragment::findClosestHighestIntensityPos(float mz, float tolr)
     return bestPos;
 }
 
-vector<int> Fragment::compareRanks(Fragment* a, Fragment* b, float productAmuToll)
+vector<int> Fragment::compareRanks(Fragment* a, Fragment* b, float productPpmTolr)
 { 
-    bool verbose=false;
-    if (verbose) {
-        cerr << "\t\t ";
-        a->printMzList();
-        cerr << " vs ";
-        b->printMzList(); 
-    }
+    bool verbose = false;
     vector<int> ranks (a->mzValues.size(), -1);	//missing value == -1
     for(unsigned int i = 0; i < a->mzValues.size(); i++) {
         for( unsigned int j = 0; j < b->mzValues.size(); j++) {
-            if (abs(a->mzValues[i] - b->mzValues[j]) < productAmuToll) {
+            if (mzUtils::ppmDist(a->mzValues[i], b->mzValues[j]) < productPpmTolr) {
                 ranks[i] = j;
                 break;
-            }   //this needs optimization.. 
+            }
         }
     }
     if (verbose) {
-        cerr << " compareranks: ";
+        cerr << " compareranks: " << a->sampleName << endl;
         for(unsigned int i = 0; i < ranks.size(); i++) {
-            cerr << ranks[i] << " ";
-        }
-    }
-    return ranks;
-}
+            float mz2 = 0;
+            float int2 = 0;
 
-vector<int> Fragment::locatePositions(Fragment* a, Fragment* b, float productAmuToll)
-{ 
-    bool verbose = false;
-    if (verbose) {
-        cerr << "\t\t ";
-        a->printMzList();
-        cerr << " vs ";
-        b->printMzList(); 
-    }
-    
-    vector<int> ranks (a->mzValues.size(), -1);	//missing value == -1
-    for(unsigned int i = 0; i < a->mzValues.size(); i++) {
-        int pos = b->findClosestHighestIntensityPos(a->mzValues[i], productAmuToll);
-        ranks[i] = pos;
-    }
-    if (verbose) {
-        cerr << " compareranks: ";
-        for(unsigned int i = 0; i < ranks.size(); i++) {
-            cerr << ranks[i] << " ";
+            if (ranks[i] > = 0) {
+                mz2 = b->mzValues[ranks[i]];
+                int2 = b->intensityValues[ranks[i]];
+            }
+            cerr << ranks[i] << "," << a->mzValues[i] << "\t" << mz2 << "\t\t";
+            cerr << a->intensityValues[i] << "\t" << int2 << endl;
         }
     }
     return ranks;
@@ -160,29 +138,44 @@ void Fragment::addBrotherFragment(Fragment* b) { brothers.push_back(b); }
 
 void Fragment::buildConsensus(float productPpmTolr)
 {   
-    //create a copy
-    Fragment* consensusFrag = new Fragment(this);
-    consensusFrag->sortByMz();
+    if(this->consensus != NULL) {
+        delete(this->consensus);
+        this->consensus = NULL;
+    }
+    
+    if (!(brothers.size() > 0)) return;
+
+    //find brother with largest nobs
+	Fragment* seed = this;
+    for(Fragment* brother: brothers) {
+        if (brother->nobs() > seed->nobs())
+            seed = brother;
+    }
+
+    //create a copy of seed fragment
+    Fragment* consensusFrag = new Fragment(seed);
 
     for(unsigned int i = 0; i < brothers.size(); i++) {
+        consensusFrag->sortByMz();
         Fragment* brother = brothers[i];
 
-        vector<int> ranks = locatePositions(brother, consensusFrag, productPpmTolr); 
+        vector<int> ranks = compareRanks(brother, consensusFrag, productPpmTolr); 
 
         for(unsigned int j = 0; j < ranks.size(); j++) {
             int posA = ranks[j];	
             float mzB = brother->mzValues[j];
             float intB = brother->intensityValues[j];
             if (posA >= 0) {
+                //sum intensities for m/z within ppm tolerance
                 consensusFrag->intensityValues[posA] += intB;
                 consensusFrag->obscount[posA] += 1;
             } else if (posA == -1) {
+                //new entry if m/z does not fall within ppm tolerance of existing m/z
                 consensusFrag->mzValues.push_back(mzB);
                 consensusFrag->intensityValues.push_back(intB);
                 consensusFrag->obscount.push_back(1);
             }
         }
-        consensusFrag->sortByMz();
     }
 
     //average values 

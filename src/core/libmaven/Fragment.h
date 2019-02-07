@@ -45,10 +45,15 @@ class Fragment {
 
         static vector<int> compareRanks(Fragment* a, Fragment* b, float productAmuToll);
 
-        static vector<int> locatePositions( Fragment* a, Fragment* b, float productAmuToll); 
-
         void addBrotherFragment(Fragment* b);
 
+        /**
+         * @brief create a consensus spectra for all brother fragments
+         * @details go through all brother fragments and create a spectra where 
+         * a new m/z is added if it does not fall within the PPM tolerance range of existing m/zs.
+         * intensity for every m/z is calculated as the sum of intensities in that m/z bracket
+         * averaged over the number of brother fragments and further normalized against the highest intensity.
+         */
         void buildConsensus(float productPpmTolr);
 
         vector<int> intensityOrderDesc();

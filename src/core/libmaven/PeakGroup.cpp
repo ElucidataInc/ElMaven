@@ -670,6 +670,33 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
+void PeakGroup::computeFragPattern(float productPpmTolr)
+{
+    vector<Scan*> ms2Events = getFragmentationEvents();
+    if (ms2Events.size() == 0) return;
+    sort(ms2Events.begin(), ms2Events.end(), Scan::compIntensity);
+
+    float minFractionalIntensity = 0.01;
+    float minSignalNoiseRatio = 1;
+    int maxFragmentSize = 1024;
+    Fragment fragment(ms2Events[0],
+                      minFractionalIntensity,
+                      minSignalNoiseRatio,
+                      maxFragmentSize);
+    
+    for(Scan* scan : ms2Events) {
+        fragment.addBrotherFragment(new Fragment(scan,
+                                          minFractionalIntensity,
+                                          minSignalNoiseRatio,
+                                          maxFragmentSize));
+    }
+    
+    fragment.buildConsensus(productPpmTolr);
+    fragment.consensus->sortByMz();
+    fragmentationPattern = fragment.consensus;
+    ms2EventCount = ms2Events.size();
+}
+
 vector<Scan*> PeakGroup::getFragmentationEvents()
 {
     vector<Scan*> matchedScans;
