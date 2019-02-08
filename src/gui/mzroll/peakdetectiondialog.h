@@ -40,6 +40,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showInfo(QString text);
 				 void cancel();
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
+                 void toggleFragmentation(QString);
 				 void showMethodSummary(); //TODO: Sahil - Kiran, Added while merging mainwindow
                  void saveMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
                  void loadMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow

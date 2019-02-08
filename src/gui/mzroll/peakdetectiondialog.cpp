@@ -125,6 +125,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
+        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -204,18 +205,19 @@ void PeakDetectionDialog::showSettingsForm() {
 }
 
 void PeakDetectionDialog::dbOptionsClicked()
-{
+{   
     if (dbOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        matchFragmentationOptions->setEnabled(true);
         reportIsotopesOptions->setEnabled(true);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
-        matchFragmentationOptions->setEnabled(false);
         reportIsotopesOptions->setEnabled(false);
     }
+    
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 }
 
 void PeakDetectionDialog::dialogRejected()
@@ -229,14 +231,15 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbOptions->setChecked(false);
-        matchFragmentationOptions->setEnabled(false);
         reportIsotopesOptions->setEnabled(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
-        matchFragmentationOptions->setEnabled(true);
         reportIsotopesOptions->setEnabled(true);
     }
+
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -412,8 +415,21 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
         compoundDatabase->setCurrentIndex(
             compoundDatabase->findText(selectedDB));
+        
+        //match fragmentation only enabled during targeted detection with NIST library
+        toggleFragmentation(selectedDB);
 
         QDialog::exec();
+    }
+}
+
+void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
+{
+    if (dbOptions->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
+        matchFragmentationOptions->setEnabled(true);
+    } else {
+        matchFragmentationOptions->setChecked(false);
+        matchFragmentationOptions->setEnabled(false);
     }
 }
 
