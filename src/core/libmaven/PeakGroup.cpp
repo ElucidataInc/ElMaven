@@ -679,21 +679,21 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     float minFractionalIntensity = 0.01;
     float minSignalNoiseRatio = 1;
     int maxFragmentSize = 1024;
-    Fragment fragment(ms2Events[0],
+    Fragment* fragment = new Fragment(ms2Events[0],
                       minFractionalIntensity,
                       minSignalNoiseRatio,
                       maxFragmentSize);
     
     for(Scan* scan : ms2Events) {
-        fragment.addBrotherFragment(new Fragment(scan,
+        fragment->addBrotherFragment(new Fragment(scan,
                                           minFractionalIntensity,
                                           minSignalNoiseRatio,
                                           maxFragmentSize));
     }
     
-    fragment.buildConsensus(productPpmTolr);
-    fragment.consensus->sortByMz();
-    fragmentationPattern = fragment.consensus;
+    fragment->buildConsensus(productPpmTolr);
+    fragment->consensus->sortByMz();
+    fragmentationPattern = fragment->consensus;
     ms2EventCount = ms2Events.size();
 }
 

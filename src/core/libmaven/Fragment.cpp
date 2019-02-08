@@ -123,7 +123,7 @@ vector<int> Fragment::compareRanks(Fragment* a, Fragment* b, float productPpmTol
             float mz2 = 0;
             float int2 = 0;
 
-            if (ranks[i] > = 0) {
+            if (ranks[i] >= 0) {
                 mz2 = b->mzValues[ranks[i]];
                 int2 = b->intensityValues[ranks[i]];
             }

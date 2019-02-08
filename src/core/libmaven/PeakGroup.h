@@ -26,7 +26,7 @@ using namespace std;
 class PeakGroup{
 
     public:
-        enum GroupType {None=0, C13=1, Adduct=2, Fragment=3, Covariant=4, Isotope=5 };     //group types
+        enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
         enum QType	   {AreaTop=0,
                         Area=1,
                         Height=2,
@@ -112,6 +112,7 @@ class PeakGroup{
 
         // TODO: from MAVEN(upstream), see FragmentMatchScore from Fragment.h
         FragmentationMatchScore fragMatchScore;
+        Fragment* fragmentationPattern;
 
         //isotopic information
         float expectedAbundance;
@@ -240,6 +241,12 @@ class PeakGroup{
          */
         vector<Scan*> getFragmentationEvents();
 
+        /**
+         * @brief build a consensus fragment spectra for this group
+         * @param productPpmTolr ppm tolerance for fragment m/z
+         */
+        void computeFragPattern(float productPpmTolr);
+
         Scan* getAverageFragmenationScan(MassCutoff* massCutoff);
 
         
@@ -317,13 +324,6 @@ class PeakGroup{
          * @return []
          */
         inline bool isIsotope() const { return _type == Isotope; }
-
-        /**
-         * [isFragment ]
-         * @method isFragment
-         * @return []
-         */
-        inline bool isFragment() const { return _type == Fragment; }
 
         /**
          * [isAdduct ]

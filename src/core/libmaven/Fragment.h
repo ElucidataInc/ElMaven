@@ -70,6 +70,8 @@ class Fragment {
 
         double fractionMatched(const vector<int>& X);
 
+        inline unsigned int nobs() { return mzValues.size(); }
+
         static bool compPrecursorMz(const Fragment* a, const Fragment* b);
         bool operator<(const Fragment* b) const;
         bool operator==(const Fragment* b) const;
