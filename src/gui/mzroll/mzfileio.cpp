@@ -17,15 +17,15 @@ mzFileIO::mzFileIO(QWidget*) {
     process = NULL;
     _currentProject = nullptr;
 
+    qRegisterMetaType<QList<QString>>("QList<QString>");
+    qRegisterMetaType<map<string, variant>>("map<string, variant>");
     connect(this,
             SIGNAL(sampleLoaded()),
             this,
             SLOT(_postSampleLoadOperations()));
-    qRegisterMetaType< QList<QString> >("QList<QString>");
     connect(this,
-            SIGNAL(sqliteDBInadequateSamplesFound(QList<QString>)),
-            this,
-            SLOT(_promptForMissingSamples(QList<QString>)));
+            SIGNAL(appSettingsUpdated()),
+            SLOT(_readSamplesFromCurrentSQLiteProject()));
 
     _sqliteDBLoadInProgress = false;
 }
@@ -395,7 +395,7 @@ void mzFileIO::run(void)
         _currentProject->loadAndPerformAlignment(samples);
         Q_EMIT(sqliteDBAlignmentDone());
 
-        readAllPeakTablesSQLite(samples);
+        _readPeakTablesFromSQLiteProject(samples);
 
         // assuming this was the last step in loading of a SQLite project
         Q_EMIT(projectLoaded());
@@ -469,25 +469,10 @@ void mzFileIO::fileImport(void) {
                 _mainwindow->bookmarkedPeaks->showAllGroups();
             }
         } else if (isSQLiteProject(filename)) {
+            openSQLiteProject(filename);
             auto fileInfo = QFileInfo(filename);
             Q_EMIT(sqliteDBLoadStarted(fileInfo.fileName()));
-            auto samplePaths = readSamplesFromSQLiteProject(filename);
-            if (!samplePaths.empty() && _missingSamples.empty()) {
-                _mainwindow->projectDockWidget->setLastOpenedProject(filename);
-                for (auto sample : samplePaths)
-                    samples << sample;
-            }
-            if (!_missingSamples.empty()) {
-                _mainwindow->projectDockWidget->setLastOpenedProject(filename);
-                Q_EMIT(sqliteDBInadequateSamplesFound(samplePaths));
-            }
-            if (samplePaths.empty() && _missingSamples.empty()) {
-                // emit mock signals for empty database load
-                Q_EMIT(sqliteDBSamplesLoaded());
-                Q_EMIT(sqliteDBPeakTablesCreated());
-                Q_EMIT(sqliteDBAlignmentDone());
-                Q_EMIT(sqliteDBPeakTablesPopulated());
-            }
+            _beginSQLiteProjectLoad();
         }
     }
 
@@ -687,6 +672,11 @@ bool mzFileIO::isSQLiteProject(QString filename)
     return false;
 }
 
+void mzFileIO::insertSettingForSave(const string key, const variant var)
+{
+    _settingsMap[key] = var;
+}
+
 bool mzFileIO::sqliteProjectIsOpen()
 {
     return _currentProject != nullptr;
@@ -743,6 +733,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
 
     if (_currentProject) {
         _currentProject->deleteAll();  // this is crazy
+        _currentProject->saveSettings(_settingsMap);
         _currentProject->saveSamples(sampleSet);
         _currentProject->saveAlignment(sampleSet);
 
@@ -776,23 +767,38 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     return false;
 }
 
-QList<QString> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
+void mzFileIO::openSQLiteProject(QString filename)
 {
     if (_currentProject)
         closeSQLiteProject();
 
-    QList<QString> empty;
-    if (_currentProject)
-        return empty;
-
     auto version = _mainwindow->appVersion().toStdString();
-    _currentProject = new ProjectDatabase(fileName.toStdString(), version);
+    _currentProject = new ProjectDatabase(filename.toStdString(), version);
+}
 
-    // load compounds stored in the project file
+void mzFileIO::_beginSQLiteProjectLoad()
+{
+    emit updateStatusString("Loading compounds…");
     auto compounds = _currentProject->loadCompounds();
     for (auto compound : compounds)
         DB.addCompound(compound);
 
+    emit updateStatusString("Loading user settings…");
+    auto settings = _currentProject->loadSettings();
+    for (const auto& it : settings)
+        _settingsMap[it.first] = it.second;
+
+    emit settingsLoaded(_settingsMap);
+}
+
+void mzFileIO::_readSamplesFromCurrentSQLiteProject()
+{
+    while(isRunning());
+
+    if (!_currentProject)
+        return;
+
+    auto filename = QString(_currentProject->projectPath().c_str());
     auto samples = _currentProject->getSampleNames(_mainwindow->getSamples());
 
     // set missing samples before returning found samples to be loaded
@@ -803,10 +809,92 @@ QList<QString> mzFileIO::readSamplesFromSQLiteProject(QString fileName)
     for (auto foundSample : samples.first)
         foundSamples.append(QString::fromStdString(foundSample));
 
-    return foundSamples;
+    if (!foundSamples.empty() && _missingSamples.empty()) {
+        _mainwindow->projectDockWidget->setLastOpenedProject(filename);
+        for (auto sample : foundSamples)
+            addFileToQueue(sample);
+        start();
+        return;
+    }
+    if (!_missingSamples.empty()) {
+        _mainwindow->projectDockWidget->setLastOpenedProject(filename);
+        _promptForMissingSamples(foundSamples);
+    }
+    if (foundSamples.empty() && _missingSamples.empty()) {
+        // emit mock signals for empty database load
+        Q_EMIT(sqliteDBSamplesLoaded());
+        Q_EMIT(sqliteDBPeakTablesCreated());
+        Q_EMIT(sqliteDBAlignmentDone());
+        Q_EMIT(sqliteDBPeakTablesPopulated());
+    }
 }
 
-void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
+void mzFileIO::_promptForMissingSamples(QList<QString> foundSamples)
+{
+    // load samples that were originally missing, can be a method by itself?
+    QList<QString> missingSamples = _missingSamples;
+    int samplesRemaining = static_cast<int>(missingSamples.size());
+    while(samplesRemaining) {
+        QString path = QString::fromStdString(_currentProject->projectPath());
+        for (auto& originalFilename : _missingSamples) {
+            auto filename = originalFilename;
+            QFileInfo sampleFile(filename);
+
+            // first check in the current set path
+            if (!sampleFile.exists()) {
+                auto fname = path + QDir::separator() + sampleFile.fileName();
+                sampleFile.setFile(fname);
+            }
+
+            // if not in project path, prompt user to locate path
+            while (!sampleFile.exists()) {
+                QString message = filename + " was not found. Add new folder "
+                                  "for locating samples?";
+
+                QMessageBox::StandardButton reply;
+                reply =
+                    QMessageBox::question(_mainwindow,
+                                          "Unable to locate sample",
+                                          message,
+                                          QMessageBox::Ok | QMessageBox::Cancel,
+                                          QMessageBox::Ok);
+
+                if (reply == QMessageBox::Cancel) {
+                    return;
+                }
+
+                path = QFileDialog::getExistingDirectory(_mainwindow,
+                                                         tr("Open Directory"),
+                                                         path);
+                auto fname = path + QDir::separator() + sampleFile.fileName();
+                sampleFile.setFile(fname);
+            }
+
+            // once found, add these files to load queue
+            if (sampleFile.exists()) {
+                missingSamples.erase(remove(missingSamples.begin(),
+                                            missingSamples.end(),
+                                            originalFilename),
+                                     missingSamples.end());
+                samplesRemaining = static_cast<int>(missingSamples.size());
+                addFileToQueue(sampleFile.filePath());
+            }
+        }
+    }
+    _missingSamples.clear();
+
+    for (const auto& sampleFilepath : foundSamples) {
+        addFileToQueue(sampleFilepath);
+    }
+
+    // retry loading samples that were previously missing
+    if (filelist.size()) {
+        start();
+        return;
+    }
+}
+
+void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSamples)
 {
     if (!_currentProject)
         return;
@@ -882,73 +970,6 @@ void mzFileIO::_postSampleLoadOperations()
 
     _sqliteDBLoadInProgress = true;
     start();
-}
-
-void mzFileIO::_promptForMissingSamples(QList<QString> foundSamples)
-{
-    while(isRunning());
-
-    // load samples that were originally missing, can be a method by itself?
-    QList<QString> missingSamples = _missingSamples;
-    int samplesRemaining = static_cast<int>(missingSamples.size());
-    while(samplesRemaining) {
-        QString path = QString::fromStdString(_currentProject->projectPath());
-        for (auto& originalFilename : _missingSamples) {
-            auto filename = originalFilename;
-            QFileInfo sampleFile(filename);
-
-            // first check in the current set path
-            if (!sampleFile.exists()) {
-                auto fname = path + QDir::separator() + sampleFile.fileName();
-                sampleFile.setFile(fname);
-            }
-
-            // if not in project path, prompt user to locate path
-            while (!sampleFile.exists()) {
-                QString message = filename + " was not found. Add new folder "
-                                  "for locating samples?";
-
-                QMessageBox::StandardButton reply;
-                reply =
-                    QMessageBox::question(_mainwindow,
-                                          "Unable to locate sample",
-                                          message,
-                                          QMessageBox::Ok | QMessageBox::Cancel,
-                                          QMessageBox::Ok);
-
-                if (reply == QMessageBox::Cancel) {
-                    return;
-                }
-
-                path = QFileDialog::getExistingDirectory(_mainwindow,
-                                                         tr("Open Directory"),
-                                                         path);
-                auto fname = path + QDir::separator() + sampleFile.fileName();
-                sampleFile.setFile(fname);
-            }
-
-            // once found, add these files to load queue
-            if (sampleFile.exists()) {
-                missingSamples.erase(remove(missingSamples.begin(),
-                                            missingSamples.end(),
-                                            originalFilename),
-                                     missingSamples.end());
-                samplesRemaining = static_cast<int>(missingSamples.size());
-                addFileToQueue(sampleFile.filePath());
-            }
-        }
-    }
-    _missingSamples.clear();
-
-    for (const auto& sampleFilepath : foundSamples) {
-        addFileToQueue(sampleFilepath);
-    }
-
-    // retry loading samples that were previously missing
-    if (filelist.size()) {
-        start();
-        return;
-    }
 }
 
 void mzFileIO::markv_0_1_5mzroll(QString fileName)

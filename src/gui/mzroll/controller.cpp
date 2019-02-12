@@ -1,80 +1,83 @@
-#include "controller.h"
-#include "mainwindow.h"
+#include <cstdlib>
 #include <map>
 
-#include <cstdlib>
+#include "controller.h"
+#include "mainwindow.h"
 
 Controller::Controller()
 {
-    mw = new MainWindow();
+    _mw = new MainWindow();
     updateUi();
-    connect(mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
-    connect(mw->settingsForm, &SettingsForm::updateSettings,this,&Controller::updateOptionsDialogSettings);
-    connect(mw,  &MainWindow::loadedSettings, this, &Controller::updateUi);
-    connect(mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
-    connect(mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
+    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
+    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
+    connect(_mw->settingsForm, &SettingsForm::updateSettings, this, &Controller::updateOptionsDialogSettings);
+    connect(_mw->settingsForm, &SettingsForm::settingsUpdated, this, &Controller::_updateSettingsForSave);
+    connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
+    connect(_mw, &MainWindow::loadedSettings, this, &Controller::updateUi);
+    connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
+    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
+    _mw->settingsForm->triggerSettingsUpdate();
+    _mw->peakDetectionDialog->triggerSettingsUpdate();
 }
-
 
 Controller::~Controller()
 {
-    delete mw;
+    delete _mw;
 }
 
 void Controller::resetMP(QList<QString> keys)
 {
-
     // we need to change the 'type' from QString to std::string since maven parameters
     // needs to independent of Qt
     QList<std::string> _keys;
     for(auto key: keys)
         _keys.append(key.toStdString());
 
-    mw->mavenParameters->reset(_keys.toStdList());
+    _mw->mavenParameters->reset(_keys.toStdList());
     updateUi();
 }
 
 template <typename T>
-void Controller::syncMpWithUi(T* dialogPtr)
+void Controller::_syncMpWithUi(T* dialogPtr)
 {
-
-
     QMap<QString, QVariant>& settings = dialogPtr->getSettings();
 
     for(const QString& key: settings.keys()) {
-
         const QVariant& v = settings.value(key);
 
         /** NOTE: QVariant is storing different  types and hence we can't say which type it points to. Therefore we check the typename to know what type 
         it's containing and then convert to it. can't say if this can be considered as a HACK or not **/
 
         if(QString(v.typeName()).contains("QDoubleSpinBox")) {
-            updateMavenParameters(key, v.value<QDoubleSpinBox*>()->value());
+            _updateMavenParameters(key, v.value<QDoubleSpinBox*>()->value());
         }
 
         if(QString(v.typeName()).contains("QGroupBox")) {
-            updateMavenParameters(key, v.value<QGroupBox*>()->isChecked());
+            _updateMavenParameters(key, v.value<QGroupBox*>()->isChecked());
         }
 
         if(QString(v.typeName()).contains("QCheckBox")) {
-            updateMavenParameters(key, v.value<QCheckBox*>()->isChecked());
+            _updateMavenParameters(key, v.value<QCheckBox*>()->isChecked());
         }
 
         if(QString(v.typeName()).contains("QSpinBox")) {
-            updateMavenParameters(key, v.value<QSpinBox*>()->value());
+            _updateMavenParameters(key, v.value<QSpinBox*>()->value());
         }
 
         if(QString(v.typeName()).contains("QSlider")) {
-            updateMavenParameters(key, v.value<QSlider*>()->value());
+            _updateMavenParameters(key, v.value<QSlider*>()->value());
         }
 
         if(QString(v.typeName()).contains("QComboBox")) {
-            updateMavenParameters(key, v.value<QComboBox*>()->currentIndex());
+            _updateMavenParameters(key, v.value<QComboBox*>()->currentIndex());
         }
 
         if(QString(v.typeName()).contains("QTabWidget")) {
-            updateMavenParameters(key, v.value<QTabWidget*>()->currentIndex());
+            _updateMavenParameters(key, v.value<QTabWidget*>()->currentIndex());
         }
+
+        if(QString(v.typeName()).contains("QLineEdit"))
+            _updateMavenParameters(key, v.value<QLineEdit*>()->text());
 
         /*note: this updates massCutOffType of
          * - massCutoffMerge
@@ -84,36 +87,46 @@ void Controller::syncMpWithUi(T* dialogPtr)
          */
 
         if(QString(v.typeName()).contains("QString")) {
-            updateMavenParameters(key, *v.value<QString*>());
+            _updateMavenParameters(key, *v.value<QString*>());
         }
-
     }
 }
 
 void Controller::updateOptionsDialogSettings(OptionsDialogSettings* od)
 {
-    syncMpWithUi(od);
+    _syncMpWithUi(od);
+
+    auto settings = od->getSettings();
+    for(const auto& k : settings.keys()) {
+        const QVariant& v = settings.value(k);
+        _updateSettingsForSave(k, v);
+    }
+
 }
 
 void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
 {
-    syncMpWithUi(pd);
+    _syncMpWithUi(pd);
 
+    auto settings = pd->getSettings();
+    for(const auto& k : settings.keys()) {
+        const QVariant& v = settings.value(k);
+        _updateSettingsForSave(k, v);
+    }
 }
 
 void Controller::updateUi()
 {
-    std::map<std::string, std::string>& mavenSettings = mw->mavenParameters->getSettings();
+    std::map<std::string, std::string>& mavenSettings = _mw->mavenParameters->getSettings();
 
     for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
-        emit mw->peakDetectionDialog->settingsChanged(it->first, it->second);
-        emit mw->settingsForm->settingsChanged(it->first, it->second);
+        emit _mw->peakDetectionDialog->settingsChanged(it->first, it->second);
+        emit _mw->settingsForm->settingsChanged(it->first, it->second);
     }
 }
 
-void Controller::updateMavenParameters(const QString& key,  const QVariant& value)
+void Controller::_updateMavenParameters(const QString& key,  const QVariant& value)
 {
-
     /*TODO: can this be solved in a better way?.
      * In case of bool(if QVariant holds a bool val), "value.toByteArray().data()" retruns "false" for 0 and "true" for 1  but "false"  and "true" cant be converted 
      * to float(@see MavenParameters::setPeakDetectionSettings) and double(@see  PeakDetectionSettings::updatePeakSettings), hence we explicitly convert them 
@@ -125,6 +138,69 @@ void Controller::updateMavenParameters(const QString& key,  const QVariant& valu
     if(value.type() == QVariant::Bool)
         data = std::to_string(value.toBool());
 
-    mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),data.c_str());
-    mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),data.c_str());
+    _mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),data.c_str());
+    _mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),data.c_str());
+}
+
+void Controller::_updateSettingsForSave(const QString& k, const QVariant& v)
+{
+    variant var;
+
+    if (QString(v.typeName()).contains("QDoubleSpinBox"))
+        var = v.value<QDoubleSpinBox*>()->value();
+
+    if (QString(v.typeName()).contains("QSpinBox"))
+        var = v.value<QSpinBox*>()->value();
+
+    if (QString(v.typeName()).contains("QSlider"))
+        var = v.value<QSlider*>()->value();
+
+    if (QString(v.typeName()).contains("QGroupBox"))
+        var = static_cast<int>(v.value<QGroupBox*>()->isChecked());
+
+    if (QString(v.typeName()).contains("QCheckBox"))
+        var = static_cast<int>(v.value<QCheckBox*>()->isChecked());
+
+    if (QString(v.typeName()).contains("QComboBox"))
+        var = v.value<QComboBox*>()->currentIndex();
+
+    if (QString(v.typeName()).contains("QTabWidget"))
+        var = v.value<QTabWidget*>()->currentIndex();
+
+    if (QString(v.typeName()).contains("QLineEdit"))
+        var = v.value<QLineEdit*>()->text().toStdString();
+
+    // specifically for massCutoffType
+    if (QString(v.typeName()).contains("QString"))
+        var = v.value<QString*>()->toStdString();
+
+    _mw->fileLoader->insertSettingForSave(k.toStdString(), var);
+}
+
+void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap)
+{
+    for (const auto& it : settingsMap) {
+        string key = it.first;
+        variant var = it.second;
+        string value = boost::apply_visitor(stringify(), var);
+        _mw->mavenParameters->setOptionsDialogSettings(key.c_str(),
+                                                       value.c_str());
+        _mw->mavenParameters->setPeakDetectionSettings(key.c_str(),
+                                                       value.c_str());
+
+        // handle settings that need to be explicitly updated
+        if (key == "uploadMultiprocessing")
+            _mw->getSettings()->setValue(QString(key.c_str()), stoi(value));
+        if (key == "mainWindowCharge")
+            _mw->ionChargeBox->setValue(stoi(value));
+        if (key == "mainWindowPeakQuantitation")
+            _mw->quantType->setCurrentIndex(stoi(value));
+        if (key == "mainWindowMassResolution")
+            _mw->massCutoffWindowBox->setValue(stod(value));
+        if (key == "mainWindowSelectedDbName")
+            _mw->ligandWidget->setDatabase(QString(value.c_str()));
+    }
+
+    updateUi();
+    emit _mw->fileLoader->appSettingsUpdated();
 }

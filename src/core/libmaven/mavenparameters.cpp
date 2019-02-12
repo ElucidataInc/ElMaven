@@ -250,7 +250,7 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "reportIsotopes") == 0 )
         pullIsotopesFlag = atof(value);
 
-    if(strcmp(key, "minPeakIntensity") == 0 )
+    if(strcmp(key, "minGroupIntensity") == 0 )
         minGroupIntensity = atof(value);
 
     if(strcmp(key, "peakQuantitation") == 0 )
@@ -296,6 +296,12 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
         setIonizationMode((Polarity)polarity);
     }
 
+    if (strcmp(key, "ionizationType") == 0 && stoi(value) == 1) {
+        MassCalculator::ionizationType = MassCalculator::EI;
+    } else {
+        MassCalculator::ionizationType = MassCalculator::ESI;
+    }
+
     if(strcmp(key, "q1Accuracy") == 0)
         amuQ1 = atof(value);
 
@@ -305,6 +311,40 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     // TODO
     // if(strcmp(key, "filterline") == 0)
     //     filterline = atof(value);
+
+    if (strcmp(key, "centroidScans") == 0 && stoi(value) == 1) {
+        mzSample::setFilter_centroidScans(true);
+    } else {
+        mzSample::setFilter_centroidScans(false);
+    }
+
+    if (strcmp(key, "scanFilterMinIntensity") == 0) {
+        mzSample::setFilter_minIntensity(stof(value));
+    }
+
+    if (strcmp(key, "scanFilterMinQuantile") == 0) {
+        mzSample::setFilter_intensityQuantile(stoi(value));
+    }
+
+    if (strcmp(key, "scanFilterPolarity") == 0) {
+        if (stoi(value) == 0) {
+            mzSample::setFilter_polarity(0);
+        } else if (stoi(value) == 1) {
+            mzSample::setFilter_polarity(+1);
+        } else {
+            mzSample::setFilter_polarity(-1);
+        }
+    }
+
+    if (strcmp(key, "scanFilterMsLevel") == 0) {
+        if (stoi(value) == 0) {
+            mzSample::setFilter_mslevel(0);
+        } else if (stoi(value) == 1) {
+            mzSample::setFilter_mslevel(1);
+        } else {
+            mzSample::setFilter_mslevel(2);
+        }
+    }
 
     if(strcmp(key, "eicSmoothingAlgorithm") == 0)
         eic_smoothingAlgorithm = atof(value);

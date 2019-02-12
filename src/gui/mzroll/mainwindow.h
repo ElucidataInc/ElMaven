@@ -502,6 +502,8 @@ private Q_SLOTS:
      */
     void _warnIfNISTPolarityMismatch();
 
+    void _postProjectLoadActions();
+
 private:
 	int m_value;
 	Analytics* analytics;

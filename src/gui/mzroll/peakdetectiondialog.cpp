@@ -35,7 +35,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
     // group filtering settings
     settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
-    settings.insert("minPeakIntensity", QVariant::fromValue(pd->minGroupIntensity));
+    settings.insert("minGroupIntensity", QVariant::fromValue(pd->minGroupIntensity));
     settings.insert("intensityQuantile", QVariant::fromValue(pd->quantileIntensity));
     settings.insert("minGroupQuality", QVariant::fromValue(pd->doubleSpinBoxMinQuality));
     settings.insert("qualityQuantile", QVariant::fromValue(pd->quantileQuality));
@@ -57,9 +57,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
 void PeakDetectionSettings::updatePeakSettings(string key, string value)
 {
-    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
-
-        const QVariant& v = settings[QString(key.c_str())];
+    QString k(QString(key.c_str()));
+    if (settings.find(k) != settings.end()
+        && !value.empty()) {
+        const QVariant& v = settings[k];
         // convert the val to proper type;
         if(QString(v.typeName()).contains("QDoubleSpinBox"))
             v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
@@ -82,7 +83,6 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
         if(QString(v.typeName()).contains("QLineEdit"))
             v.value<QLineEdit*>()->setText(QString(value.c_str()));
 
-
         /* IMPORTANT
          * special case: only pd->massCutOfftype  and the places where it is used are updated here
          * there is no other Ui element that with  typeName as "QString".
@@ -93,6 +93,8 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
             pd->massCutoffType = value.c_str();
             pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
         }
+
+        emit pd->settingsUpdated(k, v);
     }
 }
 
@@ -143,7 +145,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
         connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
 
-        connect(this, &QDialog::rejected, this, &PeakDetectionDialog::dialogRejected);
+        connect(this, &QDialog::rejected, this, &PeakDetectionDialog::triggerSettingsUpdate);
 
         label_20->setVisible(false);
         chargeMin->setVisible(false);
@@ -157,6 +159,11 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
         connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
+
+        connect(classificationModelFilename,
+                SIGNAL(textChanged(QString)),
+                this,
+                SLOT(setModel(QString)));
 
         connect(this, &PeakDetectionDialog::settingsChanged, peakSettings, &PeakDetectionSettings::updatePeakSettings);
 
@@ -177,6 +184,7 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
     string EICExtractionWindow="EIC Extraction Window  +/- "+type.toStdString();
     label_11->setText(QApplication::translate("PeakDetectionDialog", &EICExtractionWindow[0], 0));
     compoundPPMWindow->setSuffix(type);
+    emit updateSettings(peakSettings);
 }
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
@@ -209,7 +217,7 @@ void PeakDetectionDialog::dbOptionsClicked()
     toggleFragmentation(dbName);
 }
 
-void PeakDetectionDialog::dialogRejected()
+void PeakDetectionDialog::triggerSettingsUpdate()
 {
     // happens when users presses 'esc' key; 
     emit updateSettings(peakSettings);
@@ -313,7 +321,7 @@ void PeakDetectionDialog::loadModel() {
                                      "Select Classification Model",
                                      ".",
                                      tr("Model File (*.model)"));
-    classificationModelFilename->setText(modelPathString);
+    classificationModelFilename->setText(modelPath);
 }
 
 void PeakDetectionDialog::setModel(const QString& modelPath)

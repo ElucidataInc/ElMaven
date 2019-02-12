@@ -63,9 +63,11 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 
 void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 {
-    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
+    QString k(QString(key.c_str()));
+    if (settings.find(k) != settings.end()
+        && !value.empty()) {
+        const QVariant& v = settings[k];
 
-        const QVariant& v = settings[QString(key.c_str())];
         // convert the val to proper type;
         if(QString(v.typeName()).contains("QDoubleSpinBox"))
             v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
@@ -87,10 +89,10 @@ void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 
         if (QString(v.typeName()).contains("QTabWidget"))
             v.value<QTabWidget*>()->setCurrentIndex(std::stoi(value));
+
+        emit sf->settingsUpdated(k, v);
     }
 }
-
-
 
 SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
     setupUi(this);
@@ -242,7 +244,7 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     toggleDeltaRtWeight();
 
     connect(this,&SettingsForm::settingsChanged, optionSettings, &OptionsDialogSettings::updateOptionsDialog);
-    connect(this, &QDialog::rejected, this, &SettingsForm::dialogRejected);
+    connect(this, &QDialog::rejected, this, &SettingsForm::triggerSettingsUpdate);
 }
 
 void SettingsForm::setFilterline(string filterline)
@@ -275,9 +277,8 @@ void SettingsForm::closeEvent(QCloseEvent* event)
      QDialog::closeEvent(event);
 }
 
-void SettingsForm::dialogRejected()
+void SettingsForm::triggerSettingsUpdate()
 {
-  // happens when user presses 'esc' key
   emit updateSettings(optionSettings);
 }
 
@@ -530,7 +531,7 @@ void SettingsForm::setMavenParameters() {
         }
 
         mavenParameters->aslsBaselineMode =
-                settings->value("baselineMode").toBool();
+                settings->value("aslsBaselineMode").toBool();
         mavenParameters->baseline_dropTopX =
                 settings->value("baselineQuantile").toInt();
         mavenParameters->baseline_smoothingWindow =

@@ -2,66 +2,66 @@
 <Settings>
         <automatedDetection>0</automatedDetection>
         <massCutoffType>ppm</massCutoffType>
-        <massCutoffMerge>20</massCutoffMerge>
-        <rtStep>10</rtStep>
-        <mzMin>0</mzMin>
-        <mzMax>1000000000.00</mzMax>
-        <rtMin>0.00</rtMin>
-        <rtMax>1000000000.00</rtMax>
+        <massDomainResolution>20</massDomainResolution>
+        <timeDomainResolution>10</timeDomainResolution>
+        <minMz>0</minMz>
+        <maxMz>1000000000.00</maxMz>
+        <minRt>0.00</minRt>
+        <maxRt>1000000000.00</maxRt>
         <minIntensity>50000.00</minIntensity>
         <maxIntensity>9999999999.000000</maxIntensity>
         <chargeMin>0</chargeMin>
-        <chargeMax>0</chargeMax>        
-        <dbDetection>1</dbDetection> 
-        <compoundMassCutoffWindow>5</compoundMassCutoffWindow>
-        <compoundRTWindow>1</compoundRTWindow>
+        <chargeMax>0</chargeMax>
+        <databaseSearch>1</databaseSearch>
+        <compoundExtractionWindow>5</compoundExtractionWindow>
+        <compoundRtWindow>1</compoundRtWindow>
         <matchRt>0</matchRt>
-        <eicMaxGroups>10</eicMaxGroups>
-        <matchFragmentationOptions>0</matchFragmentationOptions>
+        <limitGroupsPerCompound>10</limitGroupsPerCompound>
+        <matchFragmentation>0</matchFragmentation>
         <fragmentTolerance>20</fragmentTolerance>
         <minFragMatch>3</minFragMatch>
         <minFragMatchScore>0.00</minFragMatchScore>
-        <reportIsotopesOptions>1</reportIsotopesOptions>
+        <reportIsotopes>0</reportIsotopes>
         <minGroupIntensity>5000</minGroupIntensity>
         <peakQuantitation>0</peakQuantitation>
-        <quantileIntensity>0</quantileIntensity> 
-        <minQuality>0.50</minQuality>
-        <quantileQuality>0</quantileQuality>
-        <sigBlankRatio>2</sigBlankRatio>
-        <quantileSignalBlankRatio>0</quantileSignalBlankRatio>        
-        <sigBaselineRatio>2</sigBaselineRatio>
-        <quantileSignalBaselineRatio>0</quantileSignalBaselineRatio>
-        <minNoNoiseObs>3</minNoNoiseObs>
-        <minGoodGroupCount>1</minGoodGroupCount>
+        <intensityQuantile>0</intensityQuantile>
+        <minGroupQuality>0.50</minGroupQuality>
+        <qualityQuantile>0</qualityQuantile>
+        <minSignalBlankRatio>2</minSignalBlankRatio>
+        <signalBlankRatioQuantile>0</signalBlankRatioQuantile>
+        <minSignalBaselineRatio>2</minSignalBaselineRatio>
+        <signalBaselineRatioQuantile>0</signalBaselineRatioQuantile>
+        <minPeakWidth>3</minPeakWidth>
+        <minGoodPeakCount>1</minGoodPeakCount>
         <ionizationMode>0</ionizationMode>
-        <amuQ1>0.50</amuQ1>
-        <amuQ3>0.50</amuQ3>
+        <q1Accuracy>0.50</q1Accuracy>
+        <q3Accuracy>0.50</q3Accuracy>
         <filterline></filterline>
-        <eic_smoothingAlgorithm>0</eic_smoothingAlgorithm>
-        <eic_smoothingWindow>10</eic_smoothingWindow>
-        <grouping_maxRtWindow>0.25</grouping_maxRtWindow>
+        <eicSmoothingAlgorithm>0</eicSmoothingAlgorithm>
+        <eicSmoothingWindow>10</eicSmoothingWindow>
+        <maxRtDiffBetweenPeaks>0.25</maxRtDiffBetweenPeaks>
         <aslsBaselineMode>0</aslsBaselineMode>
         <aslsSmoothness>5</aslsSmoothness>
         <aslsAsymmetry>3</aslsAsymmetry>
-        <baseline_quantile>80</baseline_quantile>
-        <baseline_smoothing>5</baseline_smoothing>
-        <isIsotopeEqualPeakFilter>0</isIsotopeEqualPeakFilter>
+        <baselineQuantile>80</baselineQuantile>
+        <baselineSmoothing>5</baselineSmoothing>
+        <isotopeFilterEqualPeak>0</isotopeFilterEqualPeak>
         <minSignalBaselineDifference>0.00</minSignalBaselineDifference>
-        <isotopicMinSignalBaselineDifference>0.00</isotopicMinSignalBaselineDifference>
+        <isotopeMinSignalBaselineDifference>0.00</isotopeMinSignalBaselineDifference>
         <minPeakQuality>0.00</minPeakQuality>
-        <minIsotopicPeakQuality>0.00</minIsotopicPeakQuality>
-        <D2Labeled_BPE>0</D2Labeled_BPE>
-        <C13Labeled_BPE>1</C13Labeled_BPE>
-        <N15Labeled_BPE>0</N15Labeled_BPE>
-        <S34Labeled_BPE>0</S34Labeled_BPE>
-        <D2Labeled_IsoWidget>0</D2Labeled_IsoWidget>
-        <C13Labeled_IsoWidget>1</C13Labeled_IsoWidget>
-        <N15Labeled_IsoWidget>0</N15Labeled_IsoWidget>
-        <S34Labeled_IsoWidget>0</S34Labeled_IsoWidget>
-        <isotopeC13Correction>0</isotopeC13Correction>
-        <minIsotopicCorrelation>0.20</minIsotopicCorrelation>
+        <isotopeMinPeakQuality>0.00</isotopeMinPeakQuality>
+        <D2LabelBPE>0</D2LabelBPE>
+        <C13LabelBPE>1</C13LabelBPE>
+        <N15LabelBPE>0</N15LabelBPE>
+        <S34LabelBPE>0</S34LabelBPE>
+        <D2LabelIsoWidget>0</D2LabelIsoWidget>
+        <C13LabelIsoWidget>1</C13LabelIsoWidget>
+        <N15LabelIsoWidget>0</N15LabelIsoWidget>
+        <S34LabelIsoWidget>0</S34LabelIsoWidget>
+        <correctC13IsotopeAbundance>0</correctC13IsotopeAbundance>
+        <minIsotopeParentCorrelation>0.20</minIsotopeParentCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>
-        <maxNaturalAbundanceErr>100.00</maxNaturalAbundanceErr>
+        <maxNaturalAbundanceError>100.00</maxNaturalAbundanceError>
         <eicType>0</eicType>
         <useOverlap>1</useOverlap>
         <distXWeight>10</distXWeight>
@@ -70,6 +70,5 @@
         <qualityWeight>10</qualityWeight>
         <intensityWeight>10</intensityWeight>
         <deltaRTWeight>10</deltaRTWeight>
-        <deltaRTCheck>0</deltaRTCheck>
+        <considerDeltaRT>0</considerDeltaRT>
 </Settings>
-        
