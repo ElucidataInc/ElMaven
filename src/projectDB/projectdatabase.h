@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/variant.hpp>
+
 class Adduct;
 class Compound;
 class Connection;
@@ -15,6 +17,22 @@ class PeakGroup;
 class Scan;
 
 using namespace std;
+using variant = boost::variant<int, float, double, bool, string>;
+
+/**
+ * @brief The stringify struct is a visitor, that can be used to convert a boost
+ * variant storing either of int, float, double, char, boolean (and obviously
+ * string) to a string form.
+ */
+struct stringify : public boost::static_visitor<string>
+{
+    string operator()(const int& val) const { return to_string(val); }
+    string operator()(const float& val) const { return to_string(val); }
+    string operator()(const double& val) const { return to_string(val); }
+    string operator()(const bool& val) const { return to_string(val); }
+    string operator()(const char& val) const { return to_string(val); }
+    string operator()(const string& val) const { return val; }
+};
 
 /**
  * @brief The ProjectDatabase class is the main interface meant to be used by
@@ -124,6 +142,19 @@ public:
     void saveScans(const vector<mzSample*>& sampleSet);
 
     /**
+     * @brief Save all user settings for the session into SQLite database.
+     * @details Since the value of a setting might be of different types, a
+     * variant is used to wrap them into a single type. However, it is worth
+     * noting that only the types - int, float, double, bool and string are
+     * supported types that are allowed to be contained within each variant.
+     * The values from the variants will be extracted depending upon the type of
+     * the settings as described by the schema.
+     * @param settingsMap A map of settings (string identifiers) and their
+     * values for the session.
+     */
+    void saveSettings(const map<string, variant>& settingsMap);
+
+    /**
      * @brief Load sample filenames saved in the DB from a previous session.
      * @details The filename of the sample is saved during the save process,
      * and that filename should be used to load the sample back in. If the file
@@ -207,6 +238,25 @@ public:
     void loadAndPerformAlignment(const vector<mzSample*>& loaded);
 
     /**
+     * @brief Load user settings saved in the SQLite project database.
+     * @details Since the values in this map can be of different types, a
+     * variant is used to wrap each of them into a single type. It is left to
+     * the application developer to safely extract the expected type of value
+     * from each variant. For ease, these variants might be converted to strings
+     * using the visitor pattern (`stringify`) provided by this header, after
+     * which the conversion functions provided by the standard library may be
+     * used to get the required value.
+     *
+     * Alternatively, get functions provided by the boost library can also be
+     * used: `boost::get<type_name>(value_as_variant)` to get the actualy value
+     * of desired type. However, this should only be used if the type is known
+     * to be of a particular type.
+     * @return A map with settings (string identifiers) mapping to their values
+     * loaded from the database.
+     */
+    map<string, variant> loadSettings();
+
+    /**
      * @brief Drop all tables, deleting all data stored by any of the save
      * methods.
      */
@@ -238,6 +288,11 @@ public:
      * @brief Drop all alignment data stored.
      */
     void deleteAllAlignmentData();
+
+    /**
+     * @brief Drop all user settings stored in the database.
+     */
+    void deleteSettings();
 
     /**
      * @brief Delete compounds for the given database name.
