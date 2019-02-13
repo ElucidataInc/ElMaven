@@ -59,6 +59,7 @@ int Databases::loadCompoundCSVFile(string filename) {
 
 Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<string, int> & header, int loadCount, string filename) {
     string id, name, formula, polarityString;
+    string note;
     float rt = 0, mz = 0, charge = 0, collisionenergy = 0, precursormz = 0, productmz = 0;
     int NumOfFields = fields.size();
     vector<string> categorylist;
@@ -110,6 +111,9 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
     if (header.count("CE") && header["CE"] < NumOfFields) 
         collisionenergy=string2float(fields[header["CE"]]);
 
+    if (header.count("note") && header["note"] < NumOfFields)
+        note = fields[header["note"]];
+
     categorylist = getCategoryFromDB(fields, header);
 
     charge = getChargeFromDB(fields, header);
@@ -139,6 +143,7 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
         compound->precursorMz = precursormz;
         compound->productMz = productmz;
         compound->collisionEnergy = collisionenergy;
+        compound->note = note;
 
         for(unsigned int i=0; i < categorylist.size(); i++) 
             compound->category.push_back(categorylist[i]);

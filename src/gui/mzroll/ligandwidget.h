@@ -104,6 +104,13 @@ private Q_SLOTS:
     void fetchRemoteCompounds();
     QList<Compound*> parseXMLRemoteCompounds();
 
+    /**
+     * @brief This sets the tooltip for the tree-widget to show the note for the
+     * compound being hovered over.
+     * @param item The item for the compound entered.
+     */
+    void _setTooltipForItem(QTreeWidgetItem* item);
+
 private:
 
     QTreeWidget *treeWidget;

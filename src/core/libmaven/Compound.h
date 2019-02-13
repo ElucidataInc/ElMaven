@@ -105,9 +105,16 @@ class Compound{
         // Also maybe use an enum.
         int ionizationMode;
 
-        string db;			/**@param -   name of database for example KEGG, ECOCYC.. etc..    */
+        /**
+         * @brief Name of database this compound belongs to for example KEGG,
+         * ECOCYC, etc.
+         */
+        string db;
 
-        int transition_id;  /**  TODO */
+        /**
+         * TODO
+         */
+        int transition_id;
 
         /**
          * @brief Vector of m/z values of fragments generated from this compund.
@@ -127,7 +134,8 @@ class Compound{
         map<int, string>fragmentIonTypes;
 
         /**
-         * @brief categories of this compund or peptide etc.
+         * @brief Categories of this compound. For e.g., amino acids, nucleic
+         * acids, peptide, etc.
          */
         vector<string> category;
 
@@ -137,6 +145,11 @@ class Compound{
          * @return Type of the compound as a `Compound::Type` enum.
          */
         Type type() const;
+
+        /**
+         * @brief A note containing any miscellaneous details for this compound.
+         */
+        string note;
 
         FragmentationMatchScore scoreCompoundHit(Fragment* expFrag,
                                                  float productPpmTolr = 20,

@@ -19,9 +19,15 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   treeWidget->setHeaderHidden(false);
   treeWidget->setObjectName("CompoundTable");
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
+  treeWidget->setMouseTracking(true);
 
-  connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showLigand()));
-  connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  connect(treeWidget,
+          SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+          SLOT(showLigand()));
+  connect(treeWidget,
+          SIGNAL(itemEntered(QTreeWidgetItem*, int)),
+          SLOT(_setTooltipForItem(QTreeWidgetItem*)));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -758,4 +764,14 @@ void LigandWidget::matchFragmentation() {
 	_mw->spectraMatchingForm->precursorMz->setText(QString::number(precursorMz,'f',6));
 
 //	_mw->spectraMatchingForm->show();
+}
+
+void LigandWidget::_setTooltipForItem(QTreeWidgetItem* item)
+{
+    QVariant v = item->data(0, Qt::UserRole);
+    Compound* c = v.value<Compound*>();
+    QString note(c->note.c_str());
+    setToolTip(note);
+    if (note.isEmpty())
+        QToolTip::hideText();
 }
