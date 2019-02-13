@@ -217,6 +217,15 @@ class mzSample
     * @brief Load sample (supported formats: .mzxml, .mzml, .mzdata, .mzcsv and .cdf)
     * @param filename Sample file name
     */
+
+    enum SampleType: int {
+        NONE = 0,
+        MS,
+        SRM,
+        MRM,
+        PRM
+    };
+
     void loadSample(const char *filename);
 
     /**
@@ -685,6 +694,7 @@ class mzSample
 
     vector<float> getIntensityDistribution(int mslevel);
 
+    SampleType sType;
     deque<Scan *> scans;
     string sampleName;
     string fileName;

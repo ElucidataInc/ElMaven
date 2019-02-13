@@ -10,7 +10,9 @@ int mzSample::filter_polarity = 0;
 int mzSample::filter_mslevel = 0;
 
 mzSample::mzSample()
-	: _setName(""), injectionOrder(0)
+    : _setName(""),
+      injectionOrder(0),
+      sType(SampleType::NONE)
 {
     _id = -1;
     _numMS1Scans = 0;
@@ -181,6 +183,17 @@ void mzSample::loadSample(const char *filename)
 
 	//Checking if a sample is blank or not
 	checkSampleBlank(filename);
+
+    // assign a type to sample
+    if(ms1ScanCount() && ms2ScanCount())
+        sType = SampleType::PRM;
+
+    if(ms1ScanCount() && ms2ScanCount() == 0)
+        sType = SampleType::MS;
+
+    if(ms1ScanCount() == 0 && ms2ScanCount())
+        // either srm or mrm
+        sType = SampleType::SRM;
 }
 
 void mzSample::parseMzCSV(const char *filename)
