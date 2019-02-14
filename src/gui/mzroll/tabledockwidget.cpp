@@ -962,17 +962,19 @@ void TableDockWidget::showConsensusSpectra() {
   }
 }
 
-void TableDockWidget::markGroupGood() {
-
+void TableDockWidget::markGroupGood()
+{
   setGroupLabel('g');
+  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
   _mainwindow->peaksMarked++;
   _mainwindow->autoSaveSignal();
 }
 
-void TableDockWidget::markGroupBad() {
-
+void TableDockWidget::markGroupBad()
+{
   setGroupLabel('b');
+  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->peaksMarked++;
   _mainwindow->autoSaveSignal();
