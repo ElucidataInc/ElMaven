@@ -547,6 +547,9 @@ using namespace mzUtils;
     connect(fileLoader,
             SIGNAL(sqliteDBPeakTablesPopulated()),
             SLOT(_postProjectLoadActions()));
+    connect(fileLoader,
+            SIGNAL(sqliteDBUnrecognizedVersion(QString)),
+            SLOT(_handleUnrecognizedProjectVersion(QString)));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -3133,6 +3136,18 @@ void MainWindow::_postProjectLoadActions()
         bookmarkedPeaks->setVisible(true);
 
     _updateEMDBProgressBar(5, 5);
+}
+
+void MainWindow::_handleUnrecognizedProjectVersion(QString projectFilename)
+{
+    QString message("The project \"%1\" seems to have been created in a later "
+                    "version of El-MAVEN. It cannot be opened in El-MAVEN %2.");
+    message = message.arg(projectFilename).arg(appVersion());
+    QMessageBox::warning(this,
+                         tr("Unrecognized Project Version"),
+                         message,
+                         QMessageBox::Ok,
+                         QMessageBox::Ok);
 }
 
 void MainWindow::showspectraMatchingForm() {

@@ -471,8 +471,13 @@ void mzFileIO::fileImport(void) {
         } else if (isSQLiteProject(filename)) {
             openSQLiteProject(filename);
             auto fileInfo = QFileInfo(filename);
-            Q_EMIT(sqliteDBLoadStarted(fileInfo.fileName()));
-            _beginSQLiteProjectLoad();
+
+            if (!_currentProject->openConnection()) {
+                Q_EMIT(sqliteDBUnrecognizedVersion(fileInfo.fileName()));
+            } else {
+                Q_EMIT(sqliteDBLoadStarted(fileInfo.fileName()));
+                _beginSQLiteProjectLoad();
+            }
         }
     }
 

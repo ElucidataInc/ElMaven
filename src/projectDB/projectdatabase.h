@@ -360,6 +360,13 @@ public:
      */
     void vacuum();
 
+    /**
+     * @brief Check whether this project can be read or written to, by checking
+     * the existence of an open connection.
+     * @return True if the connection exists or is open, false otherwise.
+     */
+    bool openConnection();
+
 private:
     /**
      * @brief _connection A Connection object mediating connection with a SQLite

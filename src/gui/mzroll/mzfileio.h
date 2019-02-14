@@ -252,6 +252,7 @@ Q_OBJECT
      void sqliteDBPeakTablesCreated();
      void sqliteDBAlignmentDone();
      void sqliteDBPeakTablesPopulated();
+     void sqliteDBUnrecognizedVersion(QString);
      void settingsLoaded(map<string, variant>);
      void appSettingsUpdated();
 

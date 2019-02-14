@@ -503,6 +503,7 @@ private Q_SLOTS:
     void _warnIfNISTPolarityMismatch();
 
     void _postProjectLoadActions();
+    void _handleUnrecognizedProjectVersion(QString projectFilename);
 
 private:
 	int m_value;

@@ -28,28 +28,35 @@ ProjectDatabase::ProjectDatabase(const string& dbFilename,
     auto currentDbVersion = this->version();
 
     // if build is ahead by non-zero number of commits, then its a dev build
-    if (aheadBy > 0) {
+    if (aheadBy > 0)
         requiredDbVersion = getLatestDbVersion();
-    }
 
-    if (currentDbVersion != requiredDbVersion && !this->isEmpty()) {
-        // upgrade needed, close existing connection
+    // if current version is greater than what is required, this is probably a
+    // project created by a future release of the application and is, therefore,
+    // unsafe read or write to this file.
+    if (currentDbVersion > requiredDbVersion) {
         delete _connection;
+        _connection = nullptr;
+    } else {
+        if (currentDbVersion != requiredDbVersion && !this->isEmpty()) {
+            // upgrade needed, close existing connection
+            delete _connection;
 
-        string upgradeScript = generateUpgradeScript(currentDbVersion,
-                                                     requiredDbVersion);
-        cout << "Debug: Upgrading database from v"
-             << currentDbVersion
-             << " to v"
-             << requiredDbVersion
-             << endl;
-        upgradeDatabase(dbFilename, upgradeScript, version);
+            string upgradeScript = generateUpgradeScript(currentDbVersion,
+                                                         requiredDbVersion);
+            cout << "Debug: Upgrading database from v"
+                 << currentDbVersion
+                 << " to v"
+                 << requiredDbVersion
+                 << endl;
+            upgradeDatabase(dbFilename, upgradeScript, version);
 
-        // upgrade complete, re-establish connection
-        _connection = new Connection(dbFilename);
+            // upgrade complete, re-establish connection
+            _connection = new Connection(dbFilename);
+        }
+
+        _setVersion(requiredDbVersion);
     }
-
-    _setVersion(requiredDbVersion);
 }
 
 ProjectDatabase::~ProjectDatabase()
@@ -1456,6 +1463,11 @@ bool ProjectDatabase::isEmpty()
 void ProjectDatabase::vacuum()
 {
     _connection->vacuum();
+}
+
+bool ProjectDatabase::openConnection()
+{
+    return _connection != nullptr;
 }
 
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
