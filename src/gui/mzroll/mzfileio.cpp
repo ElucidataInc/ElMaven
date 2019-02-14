@@ -675,14 +675,17 @@ void mzFileIO::fileImport(void) {
     if (numMS1SamplesLoaded)
         _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
                                               "MS1",
+                                              "",
                                               numMS1SamplesLoaded);
     if (numMS2SamplesLoaded)
         _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
                                               "MS2",
+                                              "",
                                               numMS2SamplesLoaded);
     if (numPRMSamplesLoaded)
         _mainwindow->getAnalytics()->hitEvent("Samples Loaded",
                                               "PRM",
+                                              "",
                                               numPRMSamplesLoaded);
 
     Q_FOREACH(QString filename, spectralhits ) {

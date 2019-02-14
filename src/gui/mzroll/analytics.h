@@ -24,7 +24,10 @@ class Analytics {
     public:
         Analytics();
         void hitScreenView(QString screenName);
-        void hitEvent(QString category, QString action, int value = 0);
+        void hitEvent(QString category,
+                      QString action,
+                      QString label="",
+                      int value = 0);
         void sessionStart();
         void sessionEnd();
 

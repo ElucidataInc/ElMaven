@@ -1622,7 +1622,7 @@ void MainWindow::setMzValue(float mz1, float mz2) {
 }
 
 void MainWindow::print() {
-	analytics->hitEvent("Exports", "PDF", 2);
+        analytics->hitEvent("Exports", "PDF", "From EIC");
 	QPrinter printer;
 	QPrintDialog dialog(&printer);
 
@@ -1641,11 +1641,11 @@ void MainWindow::print() {
 
 
 void MainWindow::analyticsBoxPlot(){
-    analytics->hitEvent("BoxPlot","Clicked");
+    analytics->hitEvent("Box Plot", "Clicked");
 }
 
 void MainWindow::analyticsAverageSpectra(){
-    analytics->hitEvent("Average Spectra","Clicked");
+    analytics->hitEvent("Average Spectra", "Clicked");
 }
 
 void MainWindow::open()
@@ -1679,7 +1679,7 @@ void MainWindow::open()
     if (filelist.size() == 0)
         return;
 
-    analytics->hitEvent("ProjectDockWidget", "open", filelist.size());
+    analytics->hitEvent("Project Dock Widget", "Open");
 
     // Saving the file location into the QSettings class so that it can be
     // used the next time the user opens
@@ -1841,28 +1841,33 @@ bool MainWindow::loadCompoundsFile(QString filename) {
 		}
 	}
 
-	//check status in case the same file had been uploaded earlier
-	//without modifications
-	if ((compoundCount > 0 || reloading) && ligandWidget) {
-		ligandWidget->setDatabaseNames();
-		if (ligandWidget->isVisible())
-			ligandWidget->setDatabase(QString(dbname.c_str()));
+        // check status in case the same file had been uploaded earlier
+        // without modifications
+        if ((compoundCount > 0 || reloading) && ligandWidget) {
+            ligandWidget->setDatabaseNames();
+            if (ligandWidget->isVisible())
+                ligandWidget->setDatabase(QString(dbname.c_str()));
 
-		int msLevel = 1;
-		vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbname);
-		if (loadedCompounds[0]->precursorMz > 0 && loadedCompounds[0]->productMz > 0) {
-			msLevel = 2;
-		}
-		
-		analytics->hitEvent("Load Compound DB", "Successful Load", msLevel);
-		
-		settings->setValue("lastDatabaseFile", filename);
-		setStatusText(tr("loadCompounds: done after loading %1 compounds").arg(QString::number(compoundCount)));
-		return true;
-	} else {
-		setStatusText(tr("loadCompounds: not able to load %1 database").arg(filename));
-		return false;
-	}
+            int msLevel = 1;
+            vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbname);
+            if (loadedCompounds[0]->precursorMz > 0
+                && loadedCompounds[0]->productMz > 0) {
+                msLevel = 2;
+            }
+
+            analytics->hitEvent("Load Compound DB",
+                                "Successful Load",
+                                QString("MS") + QString::number(msLevel));
+
+            settings->setValue("lastDatabaseFile", filename);
+            setStatusText(tr("loadCompounds: done after loading %1 compounds")
+                              .arg(QString::number(compoundCount)));
+            return true;
+        } else {
+            setStatusText(tr("loadCompounds: not able to load %1 database")
+                              .arg(filename));
+            return false;
+        }
 }
 
 
@@ -2035,14 +2040,14 @@ void MainWindow::loadCompoundsFile()
         }
         analytics->hitEvent("Load Compound DB",
                             "Column Error",
-                            1);
+                            "Complete Failure");
 
         int ret = msgBox.exec();
     } else {
         if (DB.notFoundColumns.size() > 0) {
             analytics->hitEvent("Load Compound DB",
                                 "Column Error",
-                                0);
+                                "Partial Failure");
             string notFoundColumns = "Following are the unknown column name(s) "
                                      "found: ";
             QMessageBox msgBox;
@@ -2225,7 +2230,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 
 void MainWindow::exportPDF()
 {
-	analytics->hitEvent("Exports", "PDF", 1);
+        analytics->hitEvent("Exports", "PDF", "From Dropdown");
 	const QString fileName = QFileDialog::getSaveFileName(this,
 			"Export File Name", QString(), "PDF Documents (*.pdf)");
 
@@ -2248,7 +2253,7 @@ void MainWindow::exportPDF()
 
 void MainWindow::exportSVG()
 {
-	analytics->hitEvent("Exports", "Clipboard", 5);
+        analytics->hitEvent("Exports", "Clipboard", "From Dropdown");
 
 	QPixmap image(eicWidget->width() * 2, eicWidget->height() * 2);
 	image.fill(Qt::white);

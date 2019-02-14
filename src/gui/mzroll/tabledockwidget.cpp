@@ -522,16 +522,16 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   if (sFilterSel == groupsSCSV || sFilterSel == groupsSTAB ||
       sFilterSel == groupsCSV || sFilterSel == groupsTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 0);
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Groups");
   if (sFilterSel == peaksCSV || sFilterSel == peaksTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 1);
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks");
 
   if (sFilterSel == peaksListQE) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 2);
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks List");
     writeQEInclusionList(fileName);
     return;
   } else if (sFilterSel == mascotMGF) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", 3);
+    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Mascot");
     writeMascotGeneric(fileName);
     return;
   }
@@ -946,7 +946,9 @@ void TableDockWidget::deleteGroups() {
 }
 
 void TableDockWidget::setClipboard() {
-  _mainwindow->getAnalytics()->hitEvent("Exports", "Clipboard", 3);
+  _mainwindow->getAnalytics()->hitEvent("Exports",
+                                        "Clipboard",
+                                        "From Peak Table Menu");
   QList<PeakGroup *> groups = getSelectedGroups();
   if (groups.size() > 0) {
     _mainwindow->isotopeWidget->setClipboard(groups);
@@ -1256,7 +1258,7 @@ void TableDockWidget::showScatterPlot() {
 
 void TableDockWidget::printPdfReport() {
 
-  _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", 0);
+  _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", "From Table");
   QString dir = ".";
   QSettings *settings = _mainwindow->getSettings();
   if (settings->contains("lastDir"))
@@ -2190,7 +2192,10 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
         merged = false;
     
     showMsgBox(merged, j);
-    _mainwindow->getAnalytics()->hitEvent("Bookmark Table", "Merge Table", merged);
+    QString status = merged? "Success" : "Failure";
+    _mainwindow->getAnalytics()->hitEvent("Bookmark Table",
+                                          "Merge Table",
+                                          status);
 }
 
 void BookmarkTableDockWidget::acceptGroup() {

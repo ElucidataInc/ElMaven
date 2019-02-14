@@ -39,14 +39,21 @@ void Analytics::hitScreenView(QString screenName)
     httpPost(query); // POST
 }
 
-void Analytics::hitEvent(QString category, QString action, int value)
+void Analytics::hitEvent(QString category,
+                         QString action,
+                         QString label,
+                         int value)
 {
     QUrlQuery query = intialSetup(); // Get query
 
     query.addQueryItem("t", "event"); // Event hit type
     query.addQueryItem("ec", category); // Event category
     query.addQueryItem("ea", action); // Event action
-    if(value>0) query.addQueryItem("ev", QString::number(value)); // Event value
+
+    if (!label.isEmpty())
+        query.addQueryItem("el", label); // Event label
+    if (value > 0)
+        query.addQueryItem("ev", QString::number(value)); // Event value
 
     httpPost(query); // POST
 }

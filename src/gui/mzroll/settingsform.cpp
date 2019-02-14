@@ -584,17 +584,19 @@ void SettingsForm::_connectAnalytics()
                                          comboBoxIndexChanged,
                                          [this](const int val)
     {
+        QString mode = ionizationMode->currentText();
         mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
                                              "Ionization Mode",
-                                             val);
+                                             mode);
     }));
     _analyticsConnections.append(connect(ionizationType,
                                          comboBoxIndexChanged,
                                          [this](const int val)
     {
+        QString type = ionizationType->currentText();
         mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
                                              "Ionization Type",
-                                             val);
+                                             type);
     }));
     _analyticsConnections.append(connect(amuQ1,
                                          doubleSpinBoxValueChanged,
@@ -615,7 +617,7 @@ void SettingsForm::_connectAnalytics()
                                          [this]()
     {
         mainwindow->getAnalytics()->hitEvent("Instrumentation Settings Changed",
-                                                     "Filterline");
+                                             "Filterline");
     }));
 
     // analytics for file import settings
@@ -623,49 +625,51 @@ void SettingsForm::_connectAnalytics()
                                          &QCheckBox::toggled,
                                          [this](const bool val)
     {
+        QString state = val? "On" : "Off";
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
                                              "Centroid Scans",
-                                             static_cast<int>(val));
+                                             state);
     }));
     _analyticsConnections.append(connect(scan_filter_polarity,
                                          comboBoxIndexChanged,
                                          [this](const int val)
     {
+        QString polarity = scan_filter_polarity->currentText();
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
                                              "Scan Filter Polarity",
-                                             val);
+                                             polarity);
     }));
     _analyticsConnections.append(connect(scan_filter_mslevel,
                                          comboBoxIndexChanged,
                                          [this](const int val)
     {
+        QString mslevel = scan_filter_mslevel->currentText();
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
                                              "Scan Filter MSLevel",
-                                             val);
+                                             mslevel);
     }));
     _analyticsConnections.append(connect(scan_filter_min_quantile,
                                          spinBoxValueChanged,
-                                         [this](const int val)
+                                         [this]()
     {
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
-                                             "Scan Filter Minimum Quantile",
-                                             val);
+                                             "Scan Filter Minimum Quantile");
     }));
     _analyticsConnections.append(connect(scan_filter_min_intensity,
                                          spinBoxValueChanged,
-                                         [this](const int val)
+                                         [this]()
     {
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
-                                             "Scan Filter Minimum Intensity",
-                                             val);
+                                             "Scan Filter Minimum Intensity");
     }));
     _analyticsConnections.append(connect(checkBoxMultiprocessing,
                                          &QCheckBox::toggled,
                                          [this](const bool val)
     {
+        QString state = val? "On" : "Off";
         mainwindow->getAnalytics()->hitEvent("File Import Settings Changed",
                                              "Upload Multiprocessing",
-                                             static_cast<int>(val));
+                                             state);
     }));
 }
 

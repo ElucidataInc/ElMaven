@@ -133,11 +133,12 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
                 &QGroupBox::toggled,
                 [this](const bool checked)
                 {
+                    QString state = checked? "On" : "Off";
                     this->mainwindow
                         ->getAnalytics()
                         ->hitEvent("Peak Detection",
                                    "Isotope Detection Switched",
-                                   static_cast<int>(checked));
+                                   state);
                 });
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow

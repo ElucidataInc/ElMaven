@@ -221,15 +221,17 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 }
 
 void EicPoint::setClipboardToGroup()
-{ 
-    _mw->getAnalytics()->hitEvent("Exports", "Clipboard", 1);
+{
+    _mw->getAnalytics()->hitEvent("Exports", "Clipboard", "Group Information");
     if(_group) _mw->setClipboardToGroup(_group); 
 }
 
 void EicPoint::bookmark() { if(_group) _mw->bookmarkPeakGroup(_group); }
 
 void EicPoint::setClipboardToIsotopes() {
-    _mw->getAnalytics()->hitEvent("Exports", "Clipboard", 2);
+    _mw->getAnalytics()->hitEvent("Exports",
+                                  "Clipboard",
+                                  "Isotopes Information");
     if (_group &&_group->compound != NULL && ! _group->compound->formula.empty() )  {
         _mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
