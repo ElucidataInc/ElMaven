@@ -69,15 +69,15 @@ void IsotopeWidget::clearWidget()
 
 void IsotopeWidget::peakSelected(Peak *peak, PeakGroup *group)
 {
-	clearWidget();
-	if (!(peak && group && group->compound))
-		return;
+    clearWidget();
+    if (!(peak && group && group->compound))
+        return;
 
-	//set selectedSample for isotope calculation
-	_selectedSample = peak->getSample();
-	sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
+    //set selectedSample for isotope calculation
+    _selectedSample = peak->getSample();
+    setPeakGroupAndMore(group);
 
-	setPeakGroupAndMore(group);
+    sampleList->setCurrentText(QString::fromStdString(_selectedSample->sampleName));
 }
 
 void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
@@ -315,62 +315,61 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
 	}
 }
 
-void IsotopeWidget::pullIsotopes(PeakGroup *group)
+void IsotopeWidget::pullIsotopes(PeakGroup* group)
 {
-	if (!group)
-		return;
+    if (!group)
+        return;
 
-	//clear clipboard
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->clear(QClipboard::Clipboard);
+    // clear clipboard
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->clear(QClipboard::Clipboard);
 
-	if (group->compound == NULL)
-	{
-		_mw->setStatusText(
-			tr("Unknown compound. Clipboard set to %1").arg(group->tagString.c_str()));
-	}
+    if (group->compound == NULL) {
+        _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
+                               .arg(group->tagString.c_str()));
+    }
 
-	vector<mzSample *> vsamples = _mw->getVisibleSamples();
-	if (workerThread->stopped())
-	{
-		workerThread->started();
-		MavenParameters *mavenParameters =
-			workerThread->peakDetector.getMavenParameters();
-		//TODO: mavenParameters->-group is not thread-safe. Accessing it might lead to crashes
-		mavenParameters->setPeakGroup(group);
-		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
-		workerThread->start();
-		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
-	}
+    vector<mzSample*> vsamples = _mw->getVisibleSamples();
+    if (workerThread->stopped()) {
+        workerThread->started();
+
+        // TODO: mavenParameters->-group is not thread-safe. Accessing it might
+        // lead to crashes
+        workerThread->mavenParameters->setPeakGroup(group);
+        workerThread->mavenParameters->setSamples(vsamples);
+        workerThread->mavenParameters->compoundMassCutoffWindow =
+            _mw->getUserMassCutoff();
+
+        workerThread->start();
+        _mw->setStatusText("Isotopes pulled");
+    }
 }
 
-void IsotopeWidget::pullIsotopesForBarplot(PeakGroup *group)
+void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
 {
-	if (!group)
-		return;
+    if (!group)
+        return;
 
-	if (group->compound == NULL)
-	{
-		_mw->setStatusText(
-			tr("Unknown compound. Clipboard set to %1").arg(group->tagString.c_str()));
-		return;
-	}
+    if (group->compound == NULL) {
+        _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
+                               .arg(group->tagString.c_str()));
+        return;
+    }
 
-	vector<mzSample *> vsamples = _mw->getVisibleSamples();
-	if (workerThreadBarplot->stopped())
-	{
-		workerThreadBarplot->started();
-		MavenParameters *mavenParameters =
-			workerThreadBarplot->peakDetector.getMavenParameters();
-		//TODO: mavenParameters->-group is not thread-safe. Accessing it might lead to crashes
-		mavenParameters->setPeakGroup(group);
-		mavenParameters->setSamples(vsamples);
-		mavenParameters->compoundMassCutoffWindow = _mw->getUserMassCutoff();
+    vector<mzSample*> vsamples = _mw->getVisibleSamples();
+    if (workerThreadBarplot->stopped()) {
+        workerThreadBarplot->started();
 
-		workerThreadBarplot->start();
-		_mw->setStatusText("IsotopeWidget:: pullIsotopes(() started");
-	}
+        // TODO: mavenParameters->-group is not thread-safe. Accessing it might
+        // lead to crashes
+        workerThreadBarplot->mavenParameters->setPeakGroup(group);
+        workerThreadBarplot->mavenParameters->setSamples(vsamples);
+        workerThreadBarplot->mavenParameters->compoundMassCutoffWindow =
+            _mw->getUserMassCutoff();
+
+        workerThreadBarplot->start();
+        _mw->setStatusText("Isotopes pulled");
+    }
 }
 
 void IsotopeWidget::setClipboard()
