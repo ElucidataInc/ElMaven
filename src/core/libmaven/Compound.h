@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "constants.h"
 #include "PeakGroup.h"
 class Reaction;
 class PeakGroup;
@@ -134,6 +135,10 @@ class Compound{
          * @return Type of the compound as a `Compound::Type` enum.
          */
         Type type();
+
+        FragmentationMatchScore scoreCompoundHit(Fragment* expFrag,
+                                                 float productPpmTolr = 20,
+                                                 bool searchProton = false);
 
         float adjustedMass(int charge);  /**   total mass by formula minus loss of electrons' mass  */
         void addReaction(Reaction* r) { reactions.push_back(r); }   /**  add reaction of this compound   */

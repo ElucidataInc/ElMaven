@@ -49,3 +49,32 @@ Compound::Type Compound::type() {
 
     return Type::UNKNOWN;
 }
+
+FragmentationMatchScore Compound::scoreCompoundHit(Fragment* expFrag,
+                                                   float productPpmTolr,
+                                                   bool searchProton)
+{
+    FragmentationMatchScore s;
+
+    if (fragmentMzValues.size() == 0) return s;
+
+    Fragment libFrag;
+    libFrag.precursorMz = precursorMz;
+    libFrag.mzValues = fragmentMzValues;
+    libFrag.intensityValues = fragmentIntensities;
+    libFrag.annotations = fragmentIonTypes;
+    if (searchProton)  { //special case, check for loss or gain of protons
+        int N = libFrag.mzValues.size();
+        for(int i = 0; i < N; i++) {
+            libFrag.mzValues.push_back(libFrag.mzValues[i] + PROTON_MASS);
+            libFrag.intensityValues.push_back(libFrag.intensityValues[i]);
+            libFrag.mzValues.push_back( libFrag.mzValues[i] - PROTON_MASS);
+            libFrag.intensityValues.push_back(libFrag.intensityValues[i]);
+        }
+    }
+    //theory fragmentation or library fragmentation = libFrag
+    //experimental data = expFrag
+    libFrag.sortByIntensity();
+    s = libFrag.scoreMatch(expFrag, productPpmTolr);
+    return s;
+}

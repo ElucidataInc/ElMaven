@@ -242,12 +242,14 @@ void Fragment::sortByIntensity()
         b[i] = intensityValues[order[i]];
         a[i] = mzValues[order[i]];
         c[i] = obscount[order[i]];
-        if (annotations.count(order[i]) > 0) d[i] = annotations[order[i]];
+        if (annotations.count(order[i]) > 0)
+            d[i] = annotations[order[i]];
     };
+
     mzValues = a;
     intensityValues = b;
     obscount = c;
-    annotations=d;
+    annotations = d;
 }	
 
 void Fragment::sortByMz()
@@ -298,28 +300,198 @@ void Fragment::buildConsensusAvg()
     }
 }
 
+double Fragment::totalIntensity()
+{
+    double TIC = 0;
+    for(unsigned int i = 0; i < nobs(); i++)
+        TIC += intensityValues[i];
+    
+    return TIC;
+}
+
+vector<float> Fragment::asDenseVector(float mzmin, float mzmax, int nbins)
+{ 
+	vector<float> v(nbins, 0);
+	double mzrange = mzmax - mzmin;
+	for(int i = 0; i < mzValues.size(); i++) {
+		if (mzValues[i] < mzmin || mzValues[i] > mzmax) continue;
+		
+        int bin = (int) (mzValues[i] - mzmin) / (mzrange * nbins);
+		if (bin > 0 && bin < nbins) v[bin] += intensityValues[i];
+	}
+	return v;
+}
+
+double Fragment::logNchooseK(int N, int k)
+{
+    if (N == k || k == 0) return 0;
+    if (N == k) return -1;
+
+    double x = k / (double) N;
+    return (N * x * log(1 / x) + (1 - x) * log(1 / (1-x)));
+}
 
 double Fragment::spearmanRankCorrelation(const vector<int>& X)
 {
     double d2 = 0;
-    int n = X.size();
-    for(unsigned int i = 0; i < X.size(); i++) {	
-        if (X[i] == -1 )
-            d2 += (i - n) * (i - n);	//mising values set to average distance
-        else
+    int N = 0;
+    for(unsigned int i = 0; i < N; i++) {	
+        if (X[i] == -1 ) {
+            d2 += 2 * i;	//mising values set to average distance
+        } else {
             d2 += (i - X[i]) * (i - X[i]);
+        }
     }
-    return 1.00 - (6.0 * d2) / (n * ((n * n) - 1));
+    return 1.00 - (6.0 * d2) / (N * ((N * N) - 1));
 }
 
-double Fragment::fractionMatched(const vector<int>& X)
+double Fragment::ticMatched(const vector<int>& X)
 {
     if (X.size() == 0) return 0;
-    int matchCount = 0;
-    for(unsigned int i = 0; i < X.size(); i++) {
-        if (X[i] != -1 ) matchCount++;
+    double TIC = totalIntensity();
+    double matchedTIC = 0;
+
+    for(unsigned int i = 0; i < X.size(); i++) { 
+        if (X[i] != -1)
+            matchedTIC += intensityValues[i];
     }
-    return ((double)matchCount / X.size());
+    
+    if (TIC > 0) return (matchedTIC / TIC);
+    else return 0;
+}
+
+double Fragment::mzErr(const vector<int>& X, Fragment* other)
+{
+    if (X.size() == 0) return 0;
+    
+    double ERR = 1000;
+    for(unsigned int i = 0; i < X.size(); i++) {
+        if (X[i] != -1)
+        //TODO: confirm the formula with Eugene
+            ERR += POW2(mzValues[i] - other->mzValues[X[i]]);
+    }
+    
+    return sqrt(ERR);
+}
+
+double Fragment::dotProduct(Fragment* other)
+{
+    double thisTIC = totalIntensity();
+    double otherTIC = other->totalIntensity();
+
+    if(thisTIC == 0 or otherTIC == 0) return 0;
+    //TODO: find out why min and max mzValues are not used
+    vector<float> va = asDenseVector(100, 2000, 2000);
+    vector<float> vb = other->asDenseVector(100, 2000, 2000);
+    
+    return mzUtils::correlation(va, vb);
+}
+
+double Fragment::hyperGeometricScore(int k, int m, int n, int N)
+{
+    //k=matched, m=len1, n=len2
+    if (k == 0) return 0;
+    
+    if (k > min(m, n))
+        k = min(m, n);
+    
+    double A = logNchooseK(m, k);
+    double B = logNchooseK(N - m, n - k);
+    double C = logNchooseK(N, n);
+    return -(A + B - C);
+}
+
+double Fragment::MVH(const vector<int>& X, Fragment* other)
+{
+    //other is experimental spectra
+    int N = 100000;
+    if (X.size() == 0) return 0;
+    int n = other->nobs();
+
+    //TODO: find out why these values are being used
+    int Ak = 0; 
+    int Am = 0.2 * n;
+    int Bk = 0;
+    int Bm = 0.5 * n;
+    int Ck = 0;
+    int Cm = 0.8 * n;
+    int Dk = 0;
+
+    for(unsigned int j : X) {
+        if (j == -1)  Dk++;
+        else if (j < 0.2*n) Ak++; //class A matched
+        else if (j < 0.5*n) Bk++; //class B matched
+        else if (j < 0.8*n) Ck++; //class C matched
+        else Dk++;                //class D matched
+    }
+
+    if (Ak > Am) Ak = Am;
+    if (Bk > Bm) Bk = Bm;
+    if (Ck > Cm) Ck = Cm;
+
+
+    double A = logNchooseK(Am, Ak) + 0.1 * logNchooseK(Bm, Bk) + 0.001 * logNchooseK(Cm, Ck);
+    double B = logNchooseK((N - Am - Bm - Cm), (n - Ak - Bk - Ck));
+    double C = logNchooseK(N, n);
+    return -(A + B - C);
+}
+
+double Fragment::mzWeightedDotProduct(const vector<int>& X, Fragment* other)
+{
+    if (X.size() == 0) return 0;
+    double thisTIC = 0;
+    double otherTIC = 0;
+
+    for(unsigned int i = 0; i < nobs(); i++)
+        thisTIC +=  mzValues[i] * intensityValues[i];
+    for(unsigned int j = 0; j < other->nobs(); j++)
+        otherTIC += other->mzValues[j] * other->intensityValues[j];
+
+    if (thisTIC == 0 or otherTIC == 0) return 0;
+
+    double dotP = 0;
+    for(unsigned int i = 0; i < X.size(); i++) {
+        int j = X[i];
+        if (j != -1)
+            dotP += mzValues[i] *
+                    intensityValues[i] *
+                    other->mzValues[j] *
+                    other->intensityValues[j];
+    }
+
+    return (sqrt(dotP / (thisTIC * otherTIC))); //SIM
+}
+
+FragmentationMatchScore Fragment::scoreMatch(Fragment* other, float productPpmTolr)
+{
+    FragmentationMatchScore s;
+    if (mzValues.size() < 2 or other->mzValues.size() < 2) return s;
+
+    //which one is smaller;
+    Fragment* a = this;
+    Fragment* b =  other;
+
+    s.ppmError = abs((a->precursorMz - b->precursorMz) / a->precursorMz * 1e6);
+    vector<int> ranks = compareRanks(a, b, productPpmTolr);
+    for(int rank: ranks) {
+        if(rank != -1) s.numMatches++;
+    }
+
+    //annotate?
+    for(int i = 0; i < ranks.size(); i++)
+        other->annotations[ranks[i]] = annotations[i];
+
+    s.fractionMatched = s.numMatches / a->nobs();
+    s.spearmanRankCorrelation = spearmanRankCorrelation(ranks);
+    s.ticMatched = ticMatched(ranks);
+    s.mzFragError =  mzErr(ranks,b);
+    s.dotProduct = dotProduct(b);
+    s.hypergeomScore  = hyperGeometricScore(s.numMatches, a->nobs(), b->nobs(), 100000) +
+                        s.ticMatched; // ticMatch is tie breaker
+    s.mvhScore = MVH(ranks, b);
+    s.weightedDotProduct = mzWeightedDotProduct(ranks, b);
+
+    return s;
 }
 
 bool Fragment::compPrecursorMz(const Fragment* a, const Fragment* b) {
