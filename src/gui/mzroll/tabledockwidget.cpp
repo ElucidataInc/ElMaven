@@ -788,7 +788,7 @@ void TableDockWidget::UploadPeakBatchToCloud(){
     QString writableTempDir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
-                                                + "tmp_Elmaven_Polly_files";
+                                                + "tmp_Elmaven_s3_files";
     QDir qdir(writableTempDir);
     if (!qdir.exists()){
         QDir().mkdir(writableTempDir);
