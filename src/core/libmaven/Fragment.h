@@ -75,93 +75,81 @@ class Fragment {
         static bool compPrecursorMz(const Fragment* a, const Fragment* b);
         bool operator<(const Fragment* b) const;
         bool operator==(const Fragment* b) const;
-    };
+};
 
-    // TODO: from MAVEN (upstream). find out what this is.
-    struct FragmentationMatchScore {
-        double fractionMatched;
-        double spearmanRankCorrelation;
-        double ticMatched;
-        double numMatches;
-        double ppmError;
-        double mzFragError;
-        double mergedScore;
-        double dotProduct;
-        double weightedDotProduct;
-        double dotProductShuffle;
-        double hypergeomScore;
-        double mvhScore;
-        double ms2purity;
-        vector<double> matchedQuantiles;
+struct FragmentationMatchScore {
 
-        static vector<string> getScoringAlgorithmNames()
-        {
-            vector<string> names;
-            names.push_back("HyperGeomScore");
-            names.push_back("MVH");
-            names.push_back("DotProduct");
-            names.push_back("WeightedDotProduct");
-            names.push_back("SpearmanRank");
-            names.push_back("TICMatched");
-            names.push_back("NumMatches");
-            return names;
-        }
+    double fractionMatched;
+    double ppmError;
+    double mzFragError;
+    double mergedScore;
+    double hypergeomScore;
+    double mvhScore;
+    double dotProduct;
+    double weightedDotProduct;
+    double spearmanRankCorrelation;
+    double ticMatched;
+    double numMatches;
 
-        double getScoreByName(string scoringAlgorithm)
-        {
-            if (scoringAlgorithm == "HyperGeomScore")
-                return hypergeomScore;
-            else if (scoringAlgorithm == "MVH")
-                return mvhScore;
-            else if (scoringAlgorithm == "DotProduct")
-                return dotProduct;
-            else if (scoringAlgorithm == "SpearmanRank")
-                return spearmanRankCorrelation;
-            else if (scoringAlgorithm == "TICMatched")
-                return ticMatched;
-            else if (scoringAlgorithm == "WeightedDotProduct")
-                return weightedDotProduct;
-            else if (scoringAlgorithm == "NumMatches")
-                return numMatches;
-            else
-                return hypergeomScore;
-        }
+    static vector<string> getScoringAlgorithmNames() {
+        vector<string> names;
+        names.push_back("HyperGeomScore");
+        names.push_back("MVH");
+        names.push_back("DotProduct");
+        names.push_back("WeightedDotProduct");
+        names.push_back("SpearmanRank");
+        names.push_back("TICMatched");
+        names.push_back("NumMatches");
+        return names;
+    }
 
-        FragmentationMatchScore()
-        {
-            fractionMatched = 0;
-            spearmanRankCorrelation = 0;
-            ticMatched = 0;
-            numMatches = 0;
-            ppmError = 1000;
-            mzFragError = 1000;
-            mergedScore = 0;
-            dotProduct = 0;
-            weightedDotProduct = 0;
-            hypergeomScore = 0;
-            mvhScore = 0;
-            ms2purity = 0;
-            dotProductShuffle = 0;
-        }
+    double getScoreByName(string scoringAlgorithm) {
+        if (scoringAlgorithm == "HyperGeomScore")
+            return hypergeomScore;
+        else if (scoringAlgorithm == "MVH")
+            return mvhScore;
+        else if (scoringAlgorithm == "DotProduct")
+            return dotProduct;
+        else if (scoringAlgorithm == "SpearmanRank")
+            return spearmanRankCorrelation;
+        else if (scoringAlgorithm == "TICMatched")
+            return ticMatched;
+        else if (scoringAlgorithm == "WeightedDotProduct")
+            return weightedDotProduct;
+        else if (scoringAlgorithm == "NumMatches")
+            return numMatches;
+        else return hypergeomScore;
 
-        FragmentationMatchScore& operator=(const FragmentationMatchScore& b)
-        {
-            fractionMatched = b.fractionMatched;
-            spearmanRankCorrelation = b.spearmanRankCorrelation;
-            ticMatched = b.ticMatched;
-            numMatches = b.numMatches;
-            ppmError = b.ppmError;
-            mzFragError = b.mzFragError;
-            mergedScore = b.mergedScore;
-            dotProduct = b.dotProduct;
-            weightedDotProduct = b.weightedDotProduct;
-            hypergeomScore = b.hypergeomScore;
-            mvhScore = b.mvhScore;
-            ms2purity = b.ms2purity;
-            matchedQuantiles = b.matchedQuantiles;
-            dotProductShuffle = b.dotProductShuffle;
-            return *this;
-        }
-    };
+    }
+
+    FragmentationMatchScore() {
+        fractionMatched = 0;
+        spearmanRankCorrelation = 0;
+        ticMatched = 0;
+        numMatches = 0;
+        ppmError = 1000;
+        mzFragError = 1000;
+        mergedScore = 0;
+        dotProduct = 0;
+        weightedDotProduct = 0;
+        hypergeomScore = 0;
+        mvhScore = 0;
+    }
+
+    FragmentationMatchScore& operator=(const FragmentationMatchScore& b) {
+        fractionMatched = b.fractionMatched;
+        spearmanRankCorrelation = b.spearmanRankCorrelation;
+        ticMatched = b.ticMatched;
+        numMatches = b.numMatches;
+        ppmError = b.ppmError;
+        mzFragError = b.mzFragError;
+        mergedScore = b.mergedScore;
+        dotProduct = b.dotProduct;
+        weightedDotProduct = b.weightedDotProduct;
+        hypergeomScore = b.hypergeomScore;
+        mvhScore = b.mvhScore;
+        return *this;
+    }
+};
 
 #endif
