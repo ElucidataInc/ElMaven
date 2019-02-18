@@ -4,7 +4,8 @@ PollyIntegration::PollyIntegration(): nodePath(""), jsPath("")
 {
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
-    // nodePath = QStandardPaths::findExecutable("node");
+    // It's important to look for node in the system first, as it might not always be present in the bin dir.
+     nodePath = QStandardPaths::findExecutable("node");
     jsPath = qApp->applicationDirPath() + QDir::separator() + "index.js";
 
     #ifdef Q_OS_WIN

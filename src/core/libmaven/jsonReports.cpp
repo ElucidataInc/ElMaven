@@ -1,6 +1,8 @@
 #include"jsonReports.h"
 
-JSONReports::JSONReports(MavenParameters* _mp){
+JSONReports::JSONReports(MavenParameters* _mp, bool pollyUpload):
+    _uploadToPolly(pollyUpload)
+{
     mavenParameters=_mp;
 }
 
@@ -35,7 +37,13 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
     myfile << "\"";
     if (lab == 'g' || lab == 'b') myfile << lab;
     myfile << "\"";
-        
+
+    if(_uploadToPolly) {
+        string mlLabel = grp.markedGoodByCloudModel ? "g" : "u";
+        mlLabel = grp.markedBadByCloudModel ? "b" : "u";
+        myfile  << ",\n" << "\"ml-label\": " << sanitizeJSONstring(mlLabel);
+    }
+
     myfile << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
     myfile << ",\n" << "\"meanMz\": " << grp.meanMz  ;
     myfile << ",\n" << "\"meanRt\": " << grp.meanRt ;

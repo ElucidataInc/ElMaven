@@ -151,6 +151,11 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     changePValue    = o.changePValue;
     peaks = o.peaks;
     samples=o.samples;
+
+    markedBadByCloudModel = o.markedBadByCloudModel;
+    markedGoodByCloudModel = o.markedGoodByCloudModel;
+
+
     copyChildren(o);
 }
 
