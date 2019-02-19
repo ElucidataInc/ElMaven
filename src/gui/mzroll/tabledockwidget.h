@@ -33,6 +33,7 @@ public:
   JSONReports *jsonReports;
   int labeledGroups = 0;
   int numberOfGroupsMarked = 0;
+  QString writableTempS3Dir;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard

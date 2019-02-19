@@ -9,7 +9,19 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   datetimestamp.replace(" ","_");
   datetimestamp.replace(":","-");
   
-  uploadId = datetimestamp+"_Peak_table_"+QString::number(this->tableId);
+  uploadId = datetimestamp+"_Peak_table_"+QString::number(mw->lastPeakTableId);
+
+  writableTempS3Dir = QStandardPaths::writableLocation(
+                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
+                                                + QDir::separator()
+                                                + "tmp_Elmaven_s3_files_"
+                                                + QString::number(mw->lastPeakTableId);
+  QDir qdir(writableTempS3Dir);
+  if (!qdir.exists()){
+      QDir().mkdir(writableTempS3Dir);
+      QDir qdir(writableTempS3Dir);
+  }
+
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
@@ -77,6 +89,11 @@ TableDockWidget::~TableDockWidget() {
     delete clusterDialog;
 
   delete treeWidget;
+  QDir qDirS3(writableTempS3Dir);
+  if(qDirS3.exists()){
+    qDirS3.removeRecursively();
+  }
+
 }
 
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
@@ -780,22 +797,7 @@ UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
 
 void TableDockWidget::UploadPeakBatchToCloud(){
     jsonReports=new JSONReports(_mainwindow->mavenParameters);
-    QDateTime current_time;
-    const QString format = "dd-MM-yyyy_hh_mm_ss";
-    QString datetimestamp= current_time.currentDateTime().toString(format);
-    datetimestamp.replace(" ","_");
-    datetimestamp.replace(":","-");
-    QString writableTempDir = QStandardPaths::writableLocation(
-                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
-                                                + QDir::separator()
-                                                + "tmp_Elmaven_s3_files";
-    QDir qdir(writableTempDir);
-    if (!qdir.exists()){
-        QDir().mkdir(writableTempDir);
-        QDir qdir(writableTempDir);
-    }
-
-    QString filePath = writableTempDir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
+    QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
     jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
