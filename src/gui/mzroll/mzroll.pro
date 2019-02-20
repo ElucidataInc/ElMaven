@@ -6,6 +6,8 @@ include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
+QT += multimedia multimediawidgets
+
 CONFIG += qt thread warn_off sql svg console precompile_header
 
 #Faster build + C++11 ++ OpenMP
@@ -229,7 +231,7 @@ HEADERS +=  stable.h \
                     notificator.h \
                     notificator_p.h \
                     $$top_srcdir/crashhandler/elmavexceptionhandler.h \
-
+                    videoplayer.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -301,6 +303,7 @@ database.cpp \
     pollywaitdialog.cpp \
     peaktabledeletiondialog.cpp \
     notificator.cpp \
+    videoplayer.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

@@ -57,6 +57,7 @@
 #include "groupClassifier.h"
 #include "svmPredictor.h"
 
+class VideoPlayer;
 class SettingsForm;
 class EicWidget;
 class PlotDockWidget;
@@ -162,6 +163,7 @@ public:
 	SRMList *srmList;
     map<string, Compound*> annotation;
 	
+    VideoPlayer* vidPlayer;
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
