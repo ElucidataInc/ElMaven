@@ -39,9 +39,9 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
     myfile << "\"";
 
     if(_uploadToPolly) {
-        string mlLabel = grp.markedGoodByCloudModel ? "g" : "u";
-        mlLabel = grp.markedBadByCloudModel ? "b" : "u";
-        myfile  << ",\n" << "\"ml-label\": " << sanitizeJSONstring(mlLabel);
+
+        int mlLabel =  (grp.markedGoodByCloudModel) ? 1 : (grp.markedBadByCloudModel) ? -1 : 0;
+        myfile  << ",\n" << "\"ml-label\": " << mlLabel;
     }
 
     myfile << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;

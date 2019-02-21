@@ -299,8 +299,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
 
     if(_uploadToPolly) {
-        char mlLabel = group->markedGoodByCloudModel ? 'g' : 'u';
-        mlLabel = group->markedBadByCloudModel ? 'b': 'u';
+        int mlLabel =  (group->markedGoodByCloudModel) ? 1 : (group->markedBadByCloudModel) ? -1 : 0;
         groupReport << mlLabel;
         groupReport << SEP;
 
