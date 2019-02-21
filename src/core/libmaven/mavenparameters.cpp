@@ -33,6 +33,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         fragmentTolerance = 20;
         minFragMatchScore = 0;
         minFragMatch = 3;
+        scoringAlgo = "Hypergeometric Score";
         
         
         /*

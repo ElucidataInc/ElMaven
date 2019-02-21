@@ -107,10 +107,8 @@ class PeakGroup{
         float expectedMz;
         int totalSampleCount;
 
-        // TODO: from MAVEN (upstream), what is an MS2 event?
         int  ms2EventCount;
 
-        // TODO: from MAVEN(upstream), see FragmentMatchScore from Fragment.h
         FragmentationMatchScore fragMatchScore;
         Fragment* fragmentationPattern;
 
@@ -249,6 +247,7 @@ class PeakGroup{
 
         Scan* getAverageFragmenationScan(MassCutoff* massCutoff);
 
+        void matchFragmentation(float ppmTolerance, string scoringAlgo);
         
         double getExpectedMz(int charge);
 

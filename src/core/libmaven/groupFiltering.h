@@ -32,7 +32,9 @@ class GroupFiltering
 
     void filter(vector<PeakGroup> &peakgroups);
 
-	bool filter(PeakGroup &peakgroup);
+		bool filterByMS1(PeakGroup &peakgroup);
+
+		bool filterByMS2(PeakGroup& peakgroup);
 
 	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]

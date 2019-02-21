@@ -670,6 +670,20 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
+vector<Scan*> PeakGroup::getFragmentationEvents()
+{
+    vector<Scan*> matchedScans;
+    for(auto peak : peaks) {
+        mzSample* sample = peak.getSample();
+        if (sample == NULL) continue;
+        mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
+        vector<Scan*> scans = sample->getFragmentationEvents(&slice);
+
+        matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
+    }
+    return matchedScans;
+}
+
 void PeakGroup::computeFragPattern(float productPpmTolr)
 {
     vector<Scan*> ms2Events = getFragmentationEvents();
@@ -695,20 +709,6 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     fragment->consensus->sortByMz();
     fragmentationPattern = fragment->consensus;
     ms2EventCount = ms2Events.size();
-}
-
-vector<Scan*> PeakGroup::getFragmentationEvents()
-{
-    vector<Scan*> matchedScans;
-    for(auto peak : peaks) {
-        mzSample* sample = peak.getSample();
-        if (sample == NULL) continue;
-        mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
-        vector<Scan*> scans = sample->getFragmentationEvents(&slice);
-
-        matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
-    }
-    return matchedScans;
 }
 
 /*
@@ -780,6 +780,14 @@ Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
     //cout << "getAverageScan() from:" << from << " to:" << to << " scanCount:" << scanCount << "scans. mzs=" << avgScan->nobs() << endl;
     return avgScan;
     }
+
+void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
+{
+    if (this->compound == NULL || ms2EventCount == 0) return;
+
+    fragMatchScore = compound->scoreCompoundHit(fragmentationPattern, ppmTolerance);
+    fragMatchScore.mergedScore = fragMatchScore.getScoreByName(scoringAlgo);
+}
 
 void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
                             int qualityWeight,

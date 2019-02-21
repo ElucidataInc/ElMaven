@@ -163,6 +163,7 @@ class MavenParameters
         bool matchFragmentationFlag;
         float fragmentTolerance;
         float minFragMatch;
+        string scoringAlgo;
 
         // Peak Group Rank
         int qualityWeight;

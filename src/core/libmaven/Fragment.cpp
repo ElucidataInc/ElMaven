@@ -241,7 +241,8 @@ void Fragment::sortByIntensity()
     for(unsigned int i = 0; i < order.size(); i++) {
         b[i] = intensityValues[order[i]];
         a[i] = mzValues[order[i]];
-        c[i] = obscount[order[i]];
+        if(order[i] < obscount.size())
+            c[i] = obscount[order[i]];
         if (annotations.count(order[i]) > 0)
             d[i] = annotations[order[i]];
     };

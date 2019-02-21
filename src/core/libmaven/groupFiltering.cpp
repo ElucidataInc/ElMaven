@@ -18,19 +18,25 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
     unsigned int i = 0;
     while (i < peakgroups.size())
     {
-        if (filter(peakgroups[i]))
+        if (filterByMS1(peakgroups[i]))
         {
             peakgroups.erase(peakgroups.begin() + i);
+            continue;
         }
-        else
-        {
-            ++i;
+        
+        if (_mavenParameters->matchFragmentationFlag &&
+            filterByMS2(peakgroups[i])) {
+            peakgroups.erase(peakgroups.begin() + i);
+            continue;
         }
+
+        i++;
+        
     }
 
 }
 
-bool GroupFiltering::filter(PeakGroup &peakgroup)
+bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
 {
 
     Compound* compound = _slice->compound;
@@ -82,6 +88,23 @@ bool GroupFiltering::filter(PeakGroup &peakgroup)
 
     return false;
 
+}
+
+bool GroupFiltering::filterByMS2(PeakGroup& peakgroup)
+{
+    peakgroup.computeFragPattern(_mavenParameters->fragmentTolerance);
+    peakgroup.matchFragmentation(_mavenParameters->fragmentTolerance,
+                                 _mavenParameters->scoringAlgo);
+    
+    FragmentationMatchScore score = peakgroup.fragMatchScore;
+
+    if (score.numMatches < _mavenParameters->minFragMatch)
+        return true;
+    
+    if (score.mergedScore < _mavenParameters->minFragMatchScore)
+        return true;
+    
+    return false;
 }
 
 bool GroupFiltering::quantileFilters(PeakGroup *group) {

@@ -390,11 +390,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         GroupFiltering groupFiltering(mavenParameters, slice);
         groupFiltering.filter(peakgroups);
 
-        if (mavenParameters->matchFragmentationFlag) {
-            computeFragmentationPattern(peakgroups);
-            //add match fragmentation and filter methods;
-        }
-
         //sort groups according to their rank
         std::sort(peakgroups.begin(), peakgroups.end(),
                   PeakGroup::compRank);
@@ -430,15 +425,6 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
         }
-    }
-}
-
-void PeakDetector::computeFragmentationPattern(vector<PeakGroup>& groups)
-{
-    if (groups.size() == 0) return;
-    
-    for (auto group : groups) {
-        group.computeFragPattern(mavenParameters->fragmentTolerance);
     }
 }
 
