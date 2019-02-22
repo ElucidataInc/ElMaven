@@ -53,6 +53,12 @@ Fragment::Fragment(Fragment* other)
     this->precursorCharge= other->precursorCharge;
 }
 
+Fragment::~Fragment()
+{
+    mzUtils::delete_all(brothers);
+    if(consensus != NULL) delete(consensus);
+}
+
 void Fragment::appendBrothers(Fragment* other)
 {
     //copy other's brothers

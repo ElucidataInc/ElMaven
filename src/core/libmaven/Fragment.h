@@ -97,6 +97,8 @@ class Fragment {
 
         Fragment(Fragment* other);
 
+        ~Fragment();
+
         double precursorMz;				//parent
         int polarity;					//scan polarity 	+1 or -1
         vector<float> mzValues;				//mz values
