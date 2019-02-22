@@ -110,7 +110,7 @@ class PeakGroup{
         int  ms2EventCount;
 
         FragmentationMatchScore fragMatchScore;
-        Fragment* fragmentationPattern;
+        Fragment fragmentationPattern;
 
         //isotopic information
         float expectedAbundance;

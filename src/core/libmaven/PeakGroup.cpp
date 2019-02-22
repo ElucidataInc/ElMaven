@@ -93,7 +93,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     meanMz=o.meanMz;
     expectedMz=o.expectedMz;
 
+    ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
+    fragmentationPattern = o.fragmentationPattern;
     adduct = o.adduct;
 
     blankMax=o.blankMax;
@@ -693,21 +695,21 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     float minFractionalIntensity = 0.01;
     float minSignalNoiseRatio = 1;
     int maxFragmentSize = 1024;
-    Fragment* fragment = new Fragment(ms2Events[0],
+    Fragment fragment(ms2Events[0],
                       minFractionalIntensity,
                       minSignalNoiseRatio,
                       maxFragmentSize);
     
     for(Scan* scan : ms2Events) {
-        fragment->addBrotherFragment(new Fragment(scan,
-                                          minFractionalIntensity,
-                                          minSignalNoiseRatio,
-                                          maxFragmentSize));
+        fragment.addBrotherFragment(new Fragment(scan,
+                                                 minFractionalIntensity,
+                                                 minSignalNoiseRatio,
+                                                 maxFragmentSize));
     }
     
-    fragment->buildConsensus(productPpmTolr);
-    fragment->consensus->sortByMz();
-    fragmentationPattern = fragment->consensus;
+    fragment.buildConsensus(productPpmTolr);
+    fragment.consensus->sortByMz();
+    fragmentationPattern = fragment.consensus;
     ms2EventCount = ms2Events.size();
 }
 
@@ -785,7 +787,7 @@ void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
 {
     if (this->compound == NULL || ms2EventCount == 0) return;
 
-    fragMatchScore = compound->scoreCompoundHit(fragmentationPattern, ppmTolerance);
+    fragMatchScore = compound->scoreCompoundHit(&fragmentationPattern, ppmTolerance);
     fragMatchScore.mergedScore = fragMatchScore.getScoreByName(scoringAlgo);
 }
 
