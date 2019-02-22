@@ -826,7 +826,8 @@ void MainWindow::saveSettingsToLog() {
 void MainWindow::showNotification(TableDockWidget* table) {
 	QIcon icon = QIcon(":/images/notification.png");
 	QString title("");
-	QString message("View your fluxomics workflow on Polly!");
+    QString message("Make your analyses more insightful with Machine learning.\n \
+                    View your fluxomics workflow in PollyPhi.");
 	
 	if (table->groupCount() == 0 || table->labeledGroups == 0)
 		return;
