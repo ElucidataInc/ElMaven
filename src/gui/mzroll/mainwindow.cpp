@@ -448,7 +448,7 @@ using namespace mzUtils;
 	pathwayWidgetController();
 
 
-    vidPlayer = new VideoPlayer(settings, nullptr);
+    vidPlayer = new VideoPlayer(settings, this, nullptr);
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, pathwayPanel, Qt::Vertical);
@@ -2669,7 +2669,10 @@ void MainWindow::createMenus() {
 	connect(doc,SIGNAL(triggered(bool)), signalMapper, SLOT(map()));
 
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
-	connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
+    connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
+
+    QAction* mlModelVideo = helpMenu->addAction("How ML model works");
+    connect(mlModelVideo, &QAction::triggered, vidPlayer, &VideoPlayer::show);
 
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));

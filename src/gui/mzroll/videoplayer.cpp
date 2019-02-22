@@ -1,4 +1,5 @@
 #include "videoplayer.h"
+#include "mainwindow.h"
 
 #include <QtWidgets>
 #include <QVideoWidget>
@@ -6,11 +7,26 @@
 #include <QSettings>
 #include <QPushButton>
 
-VideoPlayer::VideoPlayer(QSettings *settings,QWidget* parent)
+
+UrlLabel::UrlLabel(VideoPlayer* parent):
+    QLabel(parent)
+{
+    setOpenExternalLinks(true);
+    setText("<a href=\"https://github.com/ElucidataInc/ElMaven/issues/964\">Know more</a>");
+}
+
+void UrlLabel::mousePressEvent(QMouseEvent* event)
+{
+    emit clicked();
+}
+
+VideoPlayer::VideoPlayer(QSettings *settings,MainWindow* mw, QWidget* parent)
     : QWidget(parent)
     , m_settings(settings)
+    , m_mainWindow(mw)
 {
     resize(750,700);
+    setWindowTitle("New Machine learning Algorithm");
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(20,20,20,20);
     m_title = new QLabel(this);
@@ -39,8 +55,11 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
     m_vidWidget->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_vidWidget);
 
+    m_knowMoreLabel = new UrlLabel(this);
+    layout->addWidget(m_knowMoreLabel);
 
     layout->itemAt(0)->setAlignment(Qt::AlignCenter);
+    layout->itemAt(4)->setAlignment(Qt::AlignCenter);
 
 
     m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
@@ -66,10 +85,14 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
     m_checkBox = new QCheckBox(this);
     m_checkBox->setText("Don't show this again");
     m_checkBox->setChecked(m_settings->value("hideVideoPlayer", 0).toBool());
+    if(m_checkBox->isChecked())
+        m_checkBox->setEnabled(false);
     footerLayout->addWidget(m_checkBox);
 
     m_closeButton = new QPushButton(this);
     m_closeButton->setText("Close");
+
+
 
     footerLayout->addWidget(m_closeButton);
     footerLayout->itemAt(1)->setAlignment(Qt::AlignRight);
@@ -92,6 +115,13 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
 
     connect(m_closeButton, &QPushButton::clicked, this , &VideoPlayer::close);
 
+    connect(m_knowMoreLabel, &UrlLabel::clicked, this, &VideoPlayer::linkClicked);
+
+
+    m_mediaPlayer->setPosition(0);
+
+    playedVideoOnce = 0;
+    linkClickedOnce = 0;
 }
 
 VideoPlayer::~VideoPlayer()
@@ -101,9 +131,23 @@ VideoPlayer::~VideoPlayer()
 
 void VideoPlayer::closeEvent(QCloseEvent *event)
 {
-    std::cerr << "closing the video player";
-    std::cerr << "checked state :" <<  m_checkBox->isChecked();
     m_settings->setValue("hideVideoPlayer", (int)m_checkBox->isChecked());
+
+    if(m_checkBox->isChecked())
+        m_checkBox->setEnabled(false);
+
+    m_mediaPlayer->pause();
+    m_mediaPlayer->setPosition(0);
+
+}
+
+void VideoPlayer::linkClicked()
+{
+    if(!linkClickedOnce) {
+        std::cerr << "sending event for Know more prompt\n";
+        m_mainWindow->getAnalytics()->hitEvent("VideoPlayer","KnowMoreMLPrompt");
+        linkClickedOnce++;
+    }
 }
 
 void VideoPlayer::setUrl(const QUrl &url)
@@ -115,6 +159,13 @@ void VideoPlayer::setUrl(const QUrl &url)
 
 void VideoPlayer::play()
 {
+    if(!playedVideoOnce) {
+        // for every session we only want one event
+        std::cerr << "sending event for Ml Video\n";
+        m_mainWindow->getAnalytics()->hitEvent("VideoPlayer", "PlayedVideoMLPrompt");
+        playedVideoOnce++;
+    }
+
     switch (m_mediaPlayer->state()) {
     case QMediaPlayer::PlayingState:
         m_mediaPlayer->pause();

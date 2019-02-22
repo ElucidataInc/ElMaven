@@ -3,6 +3,7 @@
 
 #include <QMediaPlayer>
 #include <QWidget>
+#include <QLabel>
 
 class QAbstractButton;
 class QSlider;
@@ -11,12 +12,24 @@ class QUrl;
 class QCheckBox;
 class QPushButton;
 class QSettings;
+class MainWindow;
+
+class VideoPlayer;
+class UrlLabel: public QLabel
+{
+    Q_OBJECT
+public:
+    UrlLabel(VideoPlayer* parent);
+    virtual void mousePressEvent(QMouseEvent* event);
+signals:
+    void clicked();
+};
 
 class VideoPlayer : public QWidget
 {
     Q_OBJECT
 public:
-    VideoPlayer(QSettings* settings, QWidget *parent = nullptr);
+    VideoPlayer(QSettings* settings, MainWindow* mw, QWidget *parent = nullptr);
     ~VideoPlayer();
 
     void setUrl(const QUrl &url);
@@ -33,6 +46,7 @@ private slots:
     void setPosition(int position);
     void setPosition();
     void mediaError(QMediaPlayer::Error error);
+    void linkClicked();
 
 private:
     QLabel* m_title;
@@ -46,8 +60,13 @@ private:
     QPushButton* m_closeButton;
     QVideoWidget* m_vidWidget;
     QSlider *m_positionSlider;
+    UrlLabel* m_knowMoreLabel;
     QLabel *m_errorLabel;
     QSettings* m_settings;
+    MainWindow* m_mainWindow;
+
+    int playedVideoOnce;
+    int linkClickedOnce;
 };
 
 #endif
