@@ -138,30 +138,27 @@ void Fragment::addBrotherFragment(Fragment* b) { brothers.push_back(b); }
 
 void Fragment::buildConsensus(float productPpmTolr)
 {   
-    if(this->consensus != NULL) {
+    if (this->consensus != NULL) {
         delete(this->consensus);
         this->consensus = NULL;
     }
     
-    if (!(brothers.size() > 0)) return;
-
     //find brother with largest nobs
 	Fragment* seed = this;
-    for(Fragment* brother: brothers) {
+    for (Fragment* brother: brothers) {
         if (brother->nobs() > seed->nobs())
             seed = brother;
     }
 
     //create a copy of seed fragment
     Fragment* consensusFrag = new Fragment(seed);
+    this->consensus = consensusFrag;
+    consensusFrag->sortByMz();
 
-    for(unsigned int i = 0; i < brothers.size(); i++) {
-        consensusFrag->sortByMz();
-        Fragment* brother = brothers[i];
-
+    for (auto brother : brothers) {
         vector<int> ranks = compareRanks(brother, consensusFrag, productPpmTolr); 
 
-        for(unsigned int j = 0; j < ranks.size(); j++) {
+        for (unsigned int j = 0; j < ranks.size(); j++) {
             int posA = ranks[j];	
             float mzB = brother->mzValues[j];
             float intB = brother->intensityValues[j];
@@ -176,17 +173,22 @@ void Fragment::buildConsensus(float productPpmTolr)
                 consensusFrag->obscount.push_back(1);
             }
         }
+        consensusFrag->sortByMz();
     }
+
+    //TODO calculate for fragmentation spectra widget
+    //consensusFrag->rt = consensusRt();
+    //consensusFrag->purity = consensusPurity();
 
     //average values 
     int N = 1 + brothers.size();
-    for(unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
+    for (unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
         consensusFrag->intensityValues[i] /= N;
     }
     consensusFrag->sortByIntensity();
     float maxValue = consensusFrag->intensityValues[0];
 
-    for(unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
+    for (unsigned int i = 0; i < consensusFrag->intensityValues.size(); i++) {
         consensusFrag->intensityValues[i] = consensusFrag->intensityValues[i] / maxValue * 10000;
     }
     this->consensus = consensusFrag; 
@@ -197,7 +199,7 @@ vector<int> Fragment::intensityOrderDesc()
     int nobs = intensityValues.size();
     vector<pair<float,int>> _pairsarray(nobs);
     vector<int> position(nobs);
-    for(int pos = 0; pos < nobs; pos++) {
+    for (int pos = 0; pos < nobs; pos++) {
         _pairsarray[pos] = make_pair(intensityValues[pos], pos);
     }
 
@@ -205,7 +207,7 @@ vector<int> Fragment::intensityOrderDesc()
     sort(_pairsarray.rbegin(), _pairsarray.rend());
 
     //return positions in order from highest to lowest intenisty
-    for(unsigned int i = 0; i < _pairsarray.size(); i++) {
+    for (unsigned int i = 0; i < _pairsarray.size(); i++) {
         position[i] = _pairsarray[i].second;
     }
     return position;
