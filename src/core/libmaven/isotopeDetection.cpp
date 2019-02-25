@@ -224,6 +224,7 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
     float rt = 0;
     mzSample* sample = scan->getSample();
     //TODO: use maxIsotopeScanDiff instead of arbitrary number
+    //TODO: handle in case of MS2 scans. -2 and +2 scan numbers will probably be MSMS scans
     for (int i = scan->scannum - 2; i < scan->scannum + 2; i++)
     {
 		Scan* s = sample->getScan(i);
