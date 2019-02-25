@@ -25,6 +25,8 @@ public:
     QString getLastSavedProject();
     std::chrono::time_point<std::chrono::system_clock> getLastSavedTime();
     void setLastSavedProject(QString filename);
+    QColor getSampleColor(mzSample* sample);
+    QIcon getSampleIcon(mzSample* sample);
 
 Q_SIGNALS:
 

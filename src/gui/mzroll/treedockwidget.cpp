@@ -93,9 +93,9 @@ void TreeDockWidget::showInfo() {
                                 if (scan) {
                                     mainwindow->getSpectraWidget()->setScan(scan);
                                     mainwindow->getEicWidget()->setFocusLine(scan->rt);
-                                    if (scan->mslevel > 1) {
-                                     mainwindow->peptideFragmentation->setScan(scan);
-                                    }
+                                    // if (scan->mslevel > 1) {
+                                    //  mainwindow->peptideFragmentation->setScan(scan);
+                                    // }
                                 }
 				
                         } else if (itemType == EICType ) {
@@ -269,15 +269,30 @@ void TreeDockWidget::filterTree(QString needle) {
         }
 }
 
+void TreeDockWidget::setupScanListHeader()
+{
+    QStringList colNames;
+    colNames << "sample" << "pre m/z" << "rt" << "purity" << "TIC"
+             << "#fragments";
+    treeWidget->setColumnCount(colNames.size());
+    treeWidget->setHeaderLabels(colNames);
+    treeWidget->setSortingEnabled(true);
+    treeWidget->setHeaderHidden(false);
+}
+
 void TreeDockWidget::addScanItem(Scan* scan) {
         if (scan == NULL) return;
-        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget,ScanType);
-        item->setData(0,Qt::UserRole,QVariant::fromValue(scan));	
-        item->setText(0,QString::number(scan->precursorMz,'f',4));	
-        item->setText(1,QString::number(scan->rt));
-        item->setText(2,QString::number(scan->scannum));
-        item->setText(3,QString(scan->sample->sampleName.c_str()));
-        item->setText(4,QString(scan->filterLine.c_str()));
+
+        QIcon icon = _mainWindow->projectDockWidget->getSampleIcon(scan->sample);
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget, ScanType);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(scan));
+        item->setIcon(0, icon);	
+        item->setText(1, QString::number(scan->precursorMz, 'f', 4));	
+        item->setText(2, QString::number(scan->rt));
+        item->setText(3,QString::number(scan->getPrecursorPurity(20.00),'g',3));
+        item->setText(4,QString::number(scan->totalIntensity(),'g',3));
+        item->setText(5,QString::number(scan->nobs()));
 }
 
 
