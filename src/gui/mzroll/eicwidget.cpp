@@ -29,17 +29,16 @@ EicWidget::EicWidget(QWidget *p) {
 	showCubicSpline(false);
 	showBaseLine(true);
 	showTicLine(false);
-	showBicLine(false); //TODO: Sahil, added while merging eicwidget
-    showNotes(false); //TODO: Sahil, added while merging eicwidget
+	showBicLine(false); //TODO: find what this is
+    showNotes(false); //TODO: find what this is
 	showBarPlot(true);
 	showBoxPlot(false);
-    automaticPeakGrouping(true); //TODO: Sahil, added while merging eicwidget
-    showMergedEIC(false); //TODO: Sahil, added while merging eicwidget
-    showEICLines(false); //TODO: Sahil, added while merging eicwidget
-    showMS2Events(false); //TODO: Sahil, added while merging eicwidget
+    automaticPeakGrouping(true);
+    showMergedEIC(false);
+    showEICLines(false);
+    showMS2Events(false);
 
     scene()->setItemIndexMethod(QGraphicsScene::NoIndex); //TODO: Sahil, uncommed this while merging eicwidget
-    //scene()->setItemIndexMethod(QGraphicsScene::BspTreeIndex); //TODO: Sahil, commented it while merging eicwidget
 	setDragMode(QGraphicsView::RubberBandDrag);
 	setCacheMode(CacheBackground);
 	setMinimumSize(QSize(1, 1));
@@ -886,7 +885,6 @@ void EicWidget::unSetPeakTableGroup(PeakGroup* group)
 }
 
 void EicWidget::replot(PeakGroup* group) {
-	//qDebug <<" EicWidget::replot(PeakGroup* group )";
 
 	if (eicParameters->eics.size() == 0)
 		return;
@@ -907,31 +905,23 @@ void EicWidget::replot(PeakGroup* group) {
 			_focusLineRt = group->compound->expectedRt;
 	else _focusLineRt = 0;
 
-    if(_showCubicSpline) addCubicSpline();
-    if(_showBaseline)  addBaseLine();   //qDebug() << "\tshowBaseLine msec=" << timerX.elapsed();
-	if(_showTicLine or _showBicLine)   addTicLine();    //qDebug() << "\tshowTic msec=" << timerX.elapsed();
-    if(_showMergedEIC) addMergedEIC();
-    if(_focusLineRt >0) setFocusLine(_focusLineRt);  //qDebug() << "\tsetFocusLine msec=" << timerX.elapsed();
-    if(_showNotes)	 getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);	//get notes that fall withing this mzrange
-    if(_showMS2Events && eicParameters->_slice.mz>0) { addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax); }
+    if (_showCubicSpline) addCubicSpline();
+    if (_showBaseline) addBaseLine();
+	if (_showTicLine || _showBicLine) addTicLine();
+    if (_showMergedEIC) addMergedEIC();
+    if (_focusLineRt >0) setFocusLine(_focusLineRt);
+    if (_showNotes)	getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);	//get notes that fall withing this mzrange
+    if (_showMS2Events && eicParameters->_slice.mz > 0) { 
+		addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
+	}
 
 	addAxes();
-
-	//setStatusText("Unknown Expected Retention Time!");
-
 	getMainWindow()->addToHistory(eicParameters->_slice);
     emit eicUpdated();
 	scene()->update();
-
-	//qDebug << "\t Number of eics " << eics.size();
-	//qDebug << "\t Number of peakgroups " << peakgroups.size();
-	//qDebug << "\t Number of graphic objects " << scene()->items().size();
-	//qDebug << "\t BSP Depth " << scene()->bspTreeDepth();
-	//qDebug << "\t EicWidget::replot() done ";
 }
 
 void EicWidget::setTitle() {
-	//qDebug <<" EicWidget::setTitle()";
     QFont font = QApplication::font();
 	int pxSize = scene()->height() * 0.03;
 	if (pxSize < 14)
@@ -1994,35 +1984,39 @@ void EicWidget::timerEvent(QTimerEvent * event) {
 	}
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added this function while merging eicwidget
-void EicWidget::addMS2Events(float mzmin, float mzmax) {
-
+void EicWidget::addMS2Events(float mzmin, float mzmax)
+{
     qDebug() << "addMS2Events() " << mzmin << " " << mzmax;
 
     MainWindow* mw = getMainWindow();
     vector <mzSample*> samples = mw->getVisibleSamples();
 
     if (samples.size() <= 0 ) return;
-    MassCutoff *massCutoff = mw->getUserMassCutoff();
 
-    mw->fragPanel->clearTree();
-    int count=0;
-    for ( unsigned int i=0; i < samples.size(); i++ ) {
-        mzSample* sample = samples[i];
-
-        for (unsigned int j=0; j < sample->scans.size(); j++ ) {
-            Scan* scan = sample->scans[j];
-
-            if (scan->mslevel > 1 && scan->precursorMz >= mzmin && scan->precursorMz <= mzmax) {
+    //clear MS2 events list
+	mw->fragPanel->clearTree();
+    
+	int count = 0;
+    for (auto sample : samples) {
+        for (auto scan : sample->scans) {
+            if (scan->mslevel > 1 &&
+				scan->precursorMz >= mzmin &&
+				scan->precursorMz <= mzmax) {
 
                 mw->fragPanel->addScanItem(scan);
-                if (scan->rt < eicParameters->_slice.rtmin || scan->rt > eicParameters->_slice.rtmax) continue;
+                if (scan->rt < eicParameters->_slice.rtmin || 
+					scan->rt > eicParameters->_slice.rtmax) {
+					continue;
+				}
 
-        		QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
-                EicPoint* p  = new EicPoint(toX(scan->rt), toY(10), NULL, getMainWindow());
+        		QColor color = QColor::fromRgbF(sample->color[0],
+												sample->color[1],
+												sample->color[2],
+												1);
+                EicPoint* p  = new EicPoint(toX(scan->rt),
+											toY(10),
+											NULL,
+											getMainWindow());
                 p->setPointShape(EicPoint::TRIANGLE_UP);
                 p->forceFillColor(true);;
                 p->setScan(scan);
@@ -2037,5 +2031,4 @@ void EicWidget::addMS2Events(float mzmin, float mzmax) {
     }
 
     qDebug() << "addMS2Events()  found=" << count;
-
 }
