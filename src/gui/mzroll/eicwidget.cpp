@@ -36,7 +36,7 @@ EicWidget::EicWidget(QWidget *p) {
     automaticPeakGrouping(true);
     showMergedEIC(false);
     showEICLines(false);
-    showMS2Events(false);
+    showMS2Events(true);
 
     scene()->setItemIndexMethod(QGraphicsScene::NoIndex); //TODO: Sahil, uncommed this while merging eicwidget
 	setDragMode(QGraphicsView::RubberBandDrag);
