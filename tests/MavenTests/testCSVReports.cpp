@@ -40,7 +40,7 @@ void TestCSVReports::testopenGroupReport() {
 
     CSVReports* csvreports =  new CSVReports(mzsamples);
 
-    csvreports->openGroupReport(outputfile,true);
+    csvreports->openGroupReport(outputfile, false, true);
 
     ifstream ifile(outputfile.c_str());
     string temp;
@@ -135,7 +135,7 @@ void TestCSVReports::verifyTargetedGroupReport(vector<mzSample*>& samplesToLoad,
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
     csvreports->setMavenParameters(mavenparameters);
-    csvreports->openGroupReport(outputfile,true);
+    csvreports->openGroupReport(outputfile, false, true);
     csvreports->addGroup(&(parent));
 
     string headersString;
@@ -208,7 +208,7 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
 
     CSVReports* csvreports =  new CSVReports(samplesToLoad);
     csvreports->setMavenParameters(mavenparameters);
-    csvreports->openGroupReport(outputfile,true);
+    csvreports->openGroupReport(outputfile, false, true);
     csvreports->addGroup(&(parent));
 
     string headersString;

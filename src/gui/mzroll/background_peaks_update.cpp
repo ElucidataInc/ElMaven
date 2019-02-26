@@ -327,20 +327,29 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     Q_EMIT(samplesAligned(true));
 
 }
-void BackgroundPeakUpdate::writeCSVRep(string setName) {
+void BackgroundPeakUpdate::writeCSVRep(string setName)
+{
+    auto prmGroupAt = find_if(begin(mavenParameters->allgroups),
+                              end(mavenParameters->allgroups),
+                              [] (PeakGroup& group) {
+                                  return group.compound->type() == Compound::Type::PRM;
+                              });
+    bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
 
-        //write reports
-        CSVReports* csvreports = NULL;
-        if (mavenParameters->writeCSVFlag) {
-                //Added to pass into csvreports file when merged with Maven776 - Kiran
-                bool includeSetNamesLine=true;
-                string groupfilename = mavenParameters->outputdir + setName + ".csv";
-                csvreports = new CSVReports(mavenParameters->samples);
-                csvreports->setMavenParameters(mavenParameters);
-                csvreports->setUserQuantType(mainwindow->getUserQuantType());
-                //Added to pass into csvreports file when merged with Maven776 - Kiran
-                csvreports->openGroupReport(groupfilename,includeSetNamesLine);
-        }
+    //write reports
+    CSVReports* csvreports = NULL;
+    if (mavenParameters->writeCSVFlag) {
+        //Added to pass into csvreports file when merged with Maven776 - Kiran
+        bool includeSetNamesLine=true;
+        string groupfilename = mavenParameters->outputdir + setName + ".csv";
+        csvreports = new CSVReports(mavenParameters->samples);
+        csvreports->setMavenParameters(mavenParameters);
+        csvreports->setUserQuantType(mainwindow->getUserQuantType());
+        //Added to pass into csvreports file when merged with Maven776 - Kiran
+        csvreports->openGroupReport(groupfilename,
+                                    prmGroupExists,
+                                    includeSetNamesLine);
+    }
 
         peakDetector.pullAllIsotopes();
 

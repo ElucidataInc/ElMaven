@@ -542,19 +542,29 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
+  auto prmGroupAt = find_if(begin(allgroups),
+                            end(allgroups),
+                            [] (PeakGroup& group) {
+                              return group.compound->type() == Compound::Type::PRM;
+                            });
+  bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
   } else if (sFilterSel == peaksTAB) {
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString());
+    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
@@ -630,19 +640,29 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
+  auto prmGroupAt = find_if(begin(allgroups),
+                            end(allgroups),
+                            [] (PeakGroup& group) {
+                              return group.compound->type() == Compound::Type::PRM;
+                            });
+  bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
   } else if (sFilterSel == peaksTAB) {
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString());
+    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();

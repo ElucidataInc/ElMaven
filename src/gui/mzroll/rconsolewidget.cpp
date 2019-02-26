@@ -242,12 +242,14 @@ void RconsoleWidget::readStdErr() {
     errFile.close();
 }
 
-void RconsoleWidget::exportGroupsToTable() {
+void RconsoleWidget::exportGroupsToTable()
+{
     if( _linkedTable) groups = _linkedTable->getSelectedGroups();
 
     //prepare data
     QFile peaks(groupsTableFile);
-	//Added to pass into csvreports file when merged with Maven776 - Kiran
+
+    //Added to pass into csvreports file when merged with Maven776 - Kiran
     bool includeSetNames=false;
     if(peaks.open(QFile::WriteOnly | QFile::Truncate)) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
@@ -255,11 +257,22 @@ void RconsoleWidget::exportGroupsToTable() {
         CSVReports* csvreports = new CSVReports(vsamples);
         csvreports->setTabDelimited();
         csvreports->setUserQuantType( _mainwindow->getUserQuantType());
-		//Updated when csvreports file was merged with Maven776 - Kiran
-        csvreports->openGroupReport(groupsTableFile.toStdString(),includeSetNames);
+
+        auto prmGroupAt = find_if(begin(groups),
+                                  end(groups),
+                                  [] (PeakGroup* group) {
+                                      return group->compound->type() == Compound::Type::PRM;
+                                  });
+        bool prmGroupExists = prmGroupAt != end(groups);
+
+        csvreports->openGroupReport(groupsTableFile.toStdString(),
+                                    prmGroupExists,
+                                    includeSetNames);
+
         for(int i=0; i<groups.size(); i++ ) {
             csvreports->addGroup(groups[i]);
         }
+
         csvreports->closeFiles();
         peaks.close();
     } else {
