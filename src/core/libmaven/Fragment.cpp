@@ -346,7 +346,7 @@ double Fragment::logNchooseK(int N, int k)
 double Fragment::spearmanRankCorrelation(const vector<int>& X)
 {
     double d2 = 0;
-    int N = 0;
+    int N = X.size();
     for(unsigned int i = 0; i < N; i++) {	
         if (X[i] == -1 ) {
             d2 += 2 * i;	//mising values set to average distance
