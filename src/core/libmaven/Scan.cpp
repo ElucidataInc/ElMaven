@@ -10,15 +10,12 @@ Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursor
     this->precursorMz = precursorMz;
     this->mslevel = mslevel;
     this->polarity = polarity;
-    this->productMz=0;
-    this->collisionEnergy=0;
-    this->centroided=0;
-	this->precursorCharge=0;
-	this->precursorIntensity=0;
-
-    /*if ( polarity != 1 && polarity != -1 ) {
-        cerr << "Warning: polarity of scan is not 1 or -1 " << polarity << endl;
-    }*/
+    this->productMz = 0;
+    this->collisionEnergy = 0;
+    this->centroided = 0;
+	this->precursorCharge = 0;
+	this->precursorIntensity = 0;
+    this->isolationWindow = 1;
 }
 
 void Scan::deepcopy(Scan* b) {
@@ -39,6 +36,7 @@ void Scan::deepcopy(Scan* b) {
     this->filterLine = b->filterLine;
     this->setPolarity( b->getPolarity() );
     this->originalRt = b->originalRt;
+    this->isolationWindow = b->isolationWindow;
 
 }
 
@@ -539,7 +537,72 @@ vector<int> Scan::assignCharges(MassCutoff *massCutoffTolr) {
     return parentPeaks;
 }
 
-double Scan::getPrecursorPurity(float ppm = 10.0) {
-    // Just a stub for now. See Eugene's maven_core for actual implementation.
-    return 0.0;
+Scan* Scan::getLastFullScan(int historySize)
+{
+	if (!this->sample) return 0;
+    int scanNum = this->scannum;
+    for(int i = scanNum; i > (scanNum - historySize); i--) {
+        Scan* lscan = this->sample->getScan(i);
+        if (!lscan or lscan->mslevel > 1) continue;
+		return lscan; // found ms1 scan, all is good
+	}
+	return 0;
+}
+
+vector<mzPoint> Scan::getIsolatedRegion(float isolationWindowAmu)
+{
+	vector<mzPoint> isolatedSegment;
+	if(! this->sample) return isolatedSegment;
+
+	//find last ms1 scan or get out
+	Scan* lastFullScan = this->getLastFullScan();
+	if (!lastFullScan) return isolatedSegment;
+
+	//no precursor information
+	if (this->precursorMz <= 0) return isolatedSegment;
+
+	//extract isolated region 
+	float minMz = this->precursorMz - (isolationWindowAmu / 2.0);
+	float maxMz = this->precursorMz + (isolationWindowAmu / 2.0);
+	
+	for(int i = 0; i < lastFullScan->nobs(); i++ ) {
+		if (lastFullScan->mz[i] < minMz) continue;
+		if (lastFullScan->mz[i] > maxMz) break;
+		isolatedSegment.push_back(mzPoint(lastFullScan->rt,
+                                          lastFullScan->intensity[i],
+                                          lastFullScan->mz[i]));
+	}
+	return isolatedSegment;
+}
+
+double Scan::getPrecursorPurity(float ppm)
+{
+    if (this->precursorMz <= 0 ) return 0;
+    if (this->sample == 0 ) return 0;
+
+	//extract isolated window
+    vector<mzPoint> isolatedSegment = this->getIsolatedRegion(this->isolationWindow);
+	if (isolatedSegment.size() == 0) return 0;
+
+	//get last full scan
+	Scan* lastFullScan = this->getLastFullScan();
+	if (!lastFullScan) return 0;
+
+	//locate intensity of isolated mass
+    MassCutoff* massCutoff = new MassCutoff();
+    massCutoff->setMassCutoffAndType(ppm, "ppm");
+    int pos = lastFullScan->findHighestIntensityPos(this->precursorMz, massCutoff);
+	if (pos < 0) return 0;
+	double targetInt = lastFullScan->intensity[pos];
+
+	//calculate total intensity in isolated segment
+	double totalInt = 0;
+	for (mzPoint& point: isolatedSegment)
+        totalInt += point.y;
+
+	if (totalInt > 0) {
+		return (targetInt / totalInt);
+	} else {
+		return 0;
+	}
 }

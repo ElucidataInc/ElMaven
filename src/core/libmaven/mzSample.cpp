@@ -495,6 +495,11 @@ void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 		if (string2float(precursorMzStr) > 0)
 			precursorMz = string2float(precursorMzStr);
 
+		string precursorIsolationStr = isolationWindow["isolation window lower offset"];
+		float precursorIsolationWindow = 1.0;
+		if (string2float(precursorIsolationStr) > 0)
+			precursorIsolationWindow = string2float(precursorIsolationStr);
+
 		string productMzStr = spectrum.first_element_by_path("product/isolationWindow/cvParam").attribute("value").value();
 		float productMz = 0;
 		if (string2float(productMzStr) > 0)
@@ -534,6 +539,7 @@ void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 
 		cerr << " scan=" << scannum << "\tms=" << mslevel << "\tprecMz" << precursorMz << "\t rt=" << rt << endl;
 		Scan *scan = new Scan(this, scannum++, mslevel, rt, precursorMz, scanpolarity);
+		scan->isolationWindow = precursorIsolationWindow;
 		scan->productMz = productMz;
 		scan->filterLine = spectrumId;
 		scan->intensity = intsVector;
