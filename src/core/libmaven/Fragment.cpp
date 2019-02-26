@@ -319,16 +319,19 @@ double Fragment::totalIntensity()
 }
 
 vector<float> Fragment::asDenseVector(float mzmin, float mzmax, int nbins)
-{ 
-	vector<float> v(nbins, 0);
-	double mzrange = mzmax - mzmin;
-	for(int i = 0; i < mzValues.size(); i++) {
-		if (mzValues[i] < mzmin || mzValues[i] > mzmax) continue;
-		
-        int bin = (int) (mzValues[i] - mzmin) / (mzrange * nbins);
-		if (bin > 0 && bin < nbins) v[bin] += intensityValues[i];
-	}
-	return v;
+{
+    vector<float> v(nbins, 0);
+    double mzrange = mzmax - mzmin;
+    for (int i = 0; i < mzValues.size(); i++) {
+        if (mzValues[i] < mzmin || mzValues[i] > mzmax)
+            continue;
+
+        int bin = int(((mzValues[i] - mzmin) / mzrange ) * nbins);
+        cerr << bin << endl;
+        if (bin > 0 && bin < nbins)
+            v[bin] += intensityValues[i];
+    }
+    return v;
 }
 
 double Fragment::logNchooseK(int N, int k)
