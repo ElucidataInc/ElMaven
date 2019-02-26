@@ -108,8 +108,12 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
                                 << "weigtedDotProduct"
                                 << "hyperGeomScore"
                                 << "spearmanRankCorrelation"
+<<<<<<< HEAD
                                 << "mzFragmentError"
                                 << "ms2purity";
+=======
+                                << "mzFragmentError";
+>>>>>>> Export fragmentation match scores for PRM analysis
         }
 
         int cohort_offset = groupReportcolnames.size() - 1;
@@ -344,8 +348,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
                     << SEP << groupToWrite->fragMatchScore.weightedDotProduct
                     << SEP << groupToWrite->fragMatchScore.hypergeomScore
                     << SEP << groupToWrite->fragMatchScore.spearmanRankCorrelation
-                    << SEP << groupToWrite->fragMatchScore.mzFragError
-                    << SEP << groupToWrite->fragMatchScore.mergedScore;
+                    << SEP << groupToWrite->fragMatchScore.mzFragError;
     }
 
     // for intensity values, we only write two digits of floating point precision
