@@ -53,7 +53,7 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 EPIWorkerThread::EPIWorkerThread()
 {
     _pollyintegration = new PollyIntegration();
-};
+}
 
 void EPIWorkerThread::run()
 {
@@ -84,6 +84,15 @@ void EPIWorkerThread::run()
         QStringList patchId = _pollyintegration->exportData(filesToUpload,
                                                             uploadProjectIdThread);
         emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
+    } else if (state == "send_email") {
+        qDebug() << "starting thread for sending email to user…";
+        bool emailSent = _pollyintegration->sendEmail(username,
+                                                      filesToUpload[0],
+                                                      filesToUpload[1],
+                                                      filesToUpload[2]);
+        QString message = emailSent ? "Sent an email containing URL to user."
+                                    : "Failed to send email to user.";
+        qDebug() << message;
     }
 }
 
@@ -488,6 +497,37 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
     if (!redirectionUrl.isEmpty()) {
         statusUpdate->setText("");
         _showPollyButtonIfUrlExists();
+
+        // send an email to the user, this is a way of persisting their URLs
+        QString project = _projectNameIdMap.value(_pollyProjectId).toString();
+        QString emailSubject = QString("Data successfully uploaded to Polly "
+                                       "project - \"%1\"").arg(project);
+        QString emailContent = QString("<a href='%1'></a>").arg(redirectionUrl);
+        QString appname = "";
+        switch (_selectedApp) {
+        case PollyApp::FirstView:
+            appname = "firstview";
+            break;
+        case PollyApp::Fluxomics:
+            appname = "pollyphi";
+            break;
+        case PollyApp::QuantFit:
+            appname = "quantfit";
+            break;
+        default:
+            break;
+        }
+        EPIWorkerThread* workerThread = new EPIWorkerThread();
+        connect(workerThread,
+                &EPIWorkerThread::finished,
+                workerThread,
+                &QObject::deleteLater);
+        workerThread->state = "send_email";
+        workerThread->username = usernameLabel->text();
+        workerThread->filesToUpload << emailSubject
+                                    << emailContent
+                                    << appname;
+        workerThread->start();
     } else {
         statusUpdate->setStyleSheet("QLabel {color : red;}");
         QString errorTitle = "An unexpected error occured";
@@ -508,19 +548,16 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
 {
     QString redirectionUrl;
 
-    // redirect to firstView
-    if (_selectedApp == PollyApp::FirstView) {
+    switch (_selectedApp) {
+    case PollyApp::FirstView: {
         redirectionUrl =
             QString("https://polly.elucidata.io/"
                     "main#project=%1&auto-redirect=%2&elmavenTimestamp=%3")
                     .arg(uploadProjectIdThread)
                     .arg("firstview")
                     .arg(datetimestamp);
-        return redirectionUrl;
-    }
-
-    // redirect to fluxomics
-    if (_selectedApp == PollyApp::Fluxomics) {
+        break;
+    } case PollyApp::Fluxomics: {
         QString landingPage = QString("relative_lcms_elmaven");
         QString workflowRequestId =
             _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
@@ -540,10 +577,8 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
                     .arg(landingPage)
                     .arg(uploadProjectIdThread)
                     .arg(datetimestamp);
-    }
-
-    // redirect to quantfit
-    if (_selectedApp == PollyApp::QuantFit) {
+        break;
+    } case PollyApp::QuantFit: {
         QString componentId = _pollyIntegration->obtainComponentId("calibration");
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
@@ -555,6 +590,9 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         } else {
             redirectionUrl = "";
         }
+        break;
+    } default:
+        break;
     }
 
     return redirectionUrl;

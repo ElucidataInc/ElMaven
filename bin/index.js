@@ -397,7 +397,7 @@ module.exports.createProject = function (token_filename,name) {
     });
 }
 
-module.exports.send_email = function (user_email,email_content,email_message) {
+module.exports.send_email = function (user_email, email_message, redirection_url, app_name) {
     if (!user_email) {
         console.log(chalk.red.bold("Email is required param."));
         return;
@@ -407,7 +407,7 @@ module.exports.send_email = function (user_email,email_content,email_message) {
             return;
             }
         }
-    if (!email_content) {
+    if (!redirection_url) {
         console.log(chalk.red.bold("email_content is required param."));
         return;
     }
@@ -417,16 +417,17 @@ module.exports.send_email = function (user_email,email_content,email_message) {
     }
     var options = {
         method: 'POST',
-        url: ' https://7w9r94dq3h.execute-api.ap-south-1.amazonaws.com/cpj_beta/pyemail',
+        url: 'https://7w9r94dq3h.execute-api.ap-south-1.amazonaws.com/cpj_beta/pyemail',
         headers:
             {
                 'content-type': 'application/json'
             },
         body:
             {
-                user_email:user_email,
-                email_content:email_content,
-                email_message:email_message
+                user_email: user_email,
+                email_message: email_message,
+                email_content: redirection_url,
+                app_name: app_name
             },
         json: true
     };

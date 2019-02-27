@@ -411,17 +411,25 @@ QString PollyIntegration::redirectionUiEndpoint(QString componentId,
     return "";
 }
 
-bool PollyIntegration::sendEmail(QString userEmail, QString emailContent,
-                        QString emailMessage) {
-
+bool PollyIntegration::sendEmail(QString userEmail,
+                                 QString emailMessage,
+                                 QString emailContent,
+                                 QString appName)
+{
     QString command2 = "send_email";
-    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << userEmail << emailContent << emailMessage);
+    qDebug() << userEmail << emailMessage << emailContent << appName;
+    QList<QByteArray> resultAndError = runQtProcess(command2,
+                                                    QStringList() << userEmail
+                                                                  << emailMessage
+                                                                  << emailContent
+                                                                  << appName);
     QList<QByteArray> testList = resultAndError.at(0).split('\n');
     int size = testList.size();
-    QByteArray result2 = testList[size-2];
-     
-    if (result2 == "1")
-        return true;
+    if (size > 2) {
+        QByteArray result2 = testList[size-2];
+        if (result2 == "1")
+            return true;
+    }
 
     return false;
 }

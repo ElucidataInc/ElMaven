@@ -66,7 +66,9 @@ public:
 
     bool sendEmail(QString user_email,
                    QString email_content,
-                   QString email_message);
+                   QString email_message,
+                   QString appName);
+
     QString authenticateLogin(QString username, QString password);
     int checkLoginStatus();
     int checkNodeExecutable();
