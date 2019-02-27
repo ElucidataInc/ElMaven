@@ -37,6 +37,13 @@ enum MessageId : int {
     SERVERFAILED
 };
 
+#if defined (__APPLE__)
+std::string dumpDir = "";
+#endif
+
+#if defined (__w64)
+std::wstring dumpDir = L"";
+#endif
 
 std::string appDirPath = "";
 
@@ -79,9 +86,9 @@ void OnChildProcessDumpRequested(void* aContext,
     QProcess* _proc = new QProcess;
 
 #if defined(__w64)
-    _proc->startDetached(exePath, QStringList() << QString::fromStdWString((*aFilePath)));
+    _proc->startDetached(exePath, QStringList() << QString::fromStdWString((*aFilePath)) << QString::fromStdWString(dumpDir));
 #elif defined (__APPLE__)
-    _proc->startDetached(exePath, QStringList() << QString::fromStdString(aFilePath));
+    _proc->startDetached(exePath, QStringList() << QString::fromStdString(aFilePath) << QString::fromStdString(dumpDir));
 #endif
 
     handlerWait.wakeOne();
@@ -97,10 +104,12 @@ int main(int argc, char** argv)
 
 #if defined(__w64)
     std::wstring dumpPath = QString(argv[1]).toStdWString();
+    dumpDir = dumpPath;
 #endif
 
 #if defined(__APPLE__)
     std::string dumpPath = argv[1];
+    dumpDir = dumpPath;
 #endif
 
     appDirPath = argv[2];

@@ -22,8 +22,9 @@
 #define STR(X) _STR(X)
 
 
-FileUploader::FileUploader(const QString& dPath, const QString& endpoint):
+FileUploader::FileUploader(const QString& dPath, const QString& dir, const QString& endpoint):
     _dumpPath(dPath),
+    _dumpDir(dir),
     _endpoint(endpoint)
 #if defined(Q_OS_MAC)
     ,_iuploader(nullptr)
@@ -33,7 +34,18 @@ FileUploader::FileUploader(const QString& dPath, const QString& endpoint):
 
 
 FileUploader::~FileUploader()
-{}
+{
+    QDir dir(_dumpDir);
+    if(dir.exists()) {
+
+        if(dir.removeRecursively())
+            qDebug() << "removed " << _dumpDir;
+        else
+            qDebug() << "failed to remove " << _dumpDir;
+    }
+    else
+        qDebug() << "dir : " << _dumpDir << "does not exist";
+}
 
 void FileUploader::uploadMinidump()
 {
@@ -60,7 +72,6 @@ void FileUploader::uploadMinidump()
                 /* response code */ nullptr
                 );
     qDebug() << "uploaded : " << uploaded;
-    emit uploadDone();
 #endif
 
 #ifdef Q_OS_MAC
@@ -70,7 +81,6 @@ void FileUploader::uploadMinidump()
                      STR(APPNAME),
                      STR(APPVERSION));
     _iuploader->upload();
-    emit uploadDone();
 #endif
 
 
@@ -84,8 +94,9 @@ void FileUploader::uploadMinidump()
                                              parameters,files,
                                              "","","",
                                              nullptr,nullptr, nullptr);
-    emit uploadDone();
 
 #endif
+
+    emit uploadDone();
 }
 

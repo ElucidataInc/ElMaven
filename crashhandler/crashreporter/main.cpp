@@ -26,12 +26,13 @@ int main(int argc, char *argv[])
         qDebug() << "could not find the file containing the sentry endpoint";
         exit(0);
     }
-    if(argc < 2) {
-        qDebug() << "dump path should be provided to crash reporter";
+    if(argc < 3) {
+        qDebug() << "dump dir and dump file  should be provided to crash reporter";
         exit(0);
     }
 
-    FileUploader uploader((QString(argv[1])),endpoint);
+
+    FileUploader uploader((QString(argv[1])),QString(argv[2]),endpoint);
     MainWindow w(nullptr, &uploader);
     w.show();
 
