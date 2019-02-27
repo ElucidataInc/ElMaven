@@ -7,6 +7,11 @@ win32: DESTDIR = $$top_srcdir/bin/
 
 TARGET = crashserver
 
+CONFIG(force_debug_info, force_debug_info) {
+  warning("Removing 'force_debug_info' flag since it adds -O2 optimization flag")
+  CONFIG -= force_debug_info
+}
+
 # With optimizations the program does not work as expected therefore we need to disable them
 # Clang by default uses -O2
 QMAKE_CXXFLAGS_DEBUG -= -O1 -O2 -O3
