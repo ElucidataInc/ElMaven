@@ -161,6 +161,7 @@ public:
 	
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
+	SpectraWidget* fragSpectraWidget;
     GroupRtWidget* groupRtWidget;
     SampleRtWidget *sampleRtWidget;
 	AlignmentVizAllGroupsWidget * alignmentVizAllGroupsWidget;
@@ -181,6 +182,7 @@ public:
 	TreeDockWidget *srmDockWidget;
 	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
+	QDockWidget* fragSpectraDockWidget;
     QDockWidget *groupRtDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *pathwayDockWidget;
