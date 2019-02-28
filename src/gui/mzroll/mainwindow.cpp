@@ -3269,8 +3269,9 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
     if ( group->compound != NULL) {
+		if (fragSpectraDockWidget->isVisible())
+			fragSpectraWidget->showConsensusSpectra(group);
         QString compoundName(group->compound->name.c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->compound);

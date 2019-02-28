@@ -1458,7 +1458,7 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
   for (int i = 0; i < selected.size(); i++) {
     PeakGroup *g = selected[i];
     Scan *cons =
-        g->getAverageFragmenationScan(_mainwindow->getUserMassCutoff());
+        g->getAverageFragmentationScan(_mainwindow->mavenParameters->fragmentTolerance);
 
     if (cons) {
       string scandata = cons->toMGF();

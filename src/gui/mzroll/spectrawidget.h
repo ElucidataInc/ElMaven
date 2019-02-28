@@ -33,7 +33,7 @@ public:
                     void spectraToClipboardTop();
                     void overlayPeptideFragmentation(QString proteinSeq,MassCutoff *productMassCutoff); //TODO: Sahil, Added while merging point
                     void overlayCompoundFragmentation(Compound* c); //TODO: Sahil, Added while merging spectrawidget
-                    void showConsensusSpectra(PeakGroup* group); //TODO: Sahil, Added while merging spectrawidget
+                    void showConsensusSpectra(PeakGroup* group);
                     void overlaySpectralHit(SpectralHit& hit);
                     void drawSpectralHit(SpectralHit& hit); //TODO: Sahil, Added while merging spectrawidget
                     void resetZoom();

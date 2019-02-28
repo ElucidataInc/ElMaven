@@ -21,7 +21,7 @@ void SpectraWidget::initPlot() {
     _zoomFactor = 0;
     setScene(new QGraphicsScene(this));
     scene()->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
-    scene()->setSceneRect(0, 0, width()-0, height()-0);
+    scene()->setSceneRect(0, 0, width()-10, height()-10);
 
     setDragMode(QGraphicsView::RubberBandDrag);
     //setCacheMode(CacheBackground);
@@ -267,22 +267,26 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         }
 }
 
-
-void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
+void SpectraWidget::showConsensusSpectra(PeakGroup* group)
+{
     qDebug() << "showConsensusSpectra()";
+    if (!group) return;
     _scanset.clear();
 
-    Scan* cons = group->getAverageFragmenationScan(mainwindow->getUserMassCutoff());
+    float fragTolerance = mainwindow->mavenParameters->fragmentTolerance;
+    Scan* consensus = group->getAverageFragmentationScan(fragTolerance);
 
-    if (cons) {
+    if (consensus) {
         _scanset = group->getFragmentationEvents();
-        _currentScan=cons;
-        _currentScan->scannum=0;
-        _currentScan->sample=0;
+        _currentScan = consensus;
+        _currentScan->scannum = 0;
+        _currentScan->sample = 0;
+        _currentScan->rt = group->meanRt;
+        _currentScan->precursorMz = group->meanMz;
+        this->findBounds(true, true);
         this->drawGraph();
     }
 }
-
 
 void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
 
@@ -452,8 +456,6 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor, int
         } else {
                 sline->addPoint(x,yzero);
                 sline->addPoint(x,y);
-
-                //sline->addPoint(x,yzero);
         }
 
         if( abs(scan->mz[j]-_focusedMz)<0.002 ) {
@@ -589,19 +591,18 @@ void SpectraWidget::drawGraph() {
     }
 
     setTitle(_currentScan);
-    drawScanSet(_scanset);
-    drawScan(_currentScan,sampleColor);
+    //if (_scanset.size() > 0 ) drawScanSet(_scanset);
+    drawScan(_currentScan, sampleColor);
     drawMzLabels(_currentScan);
     drawAnnotations();
 
-    
     // overlay spectra
     if ( fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5 ) {
-          drawSpectralHit(_spectralHit);
+        drawSpectralHit(_spectralHit);
     //} else if (_spectralHit.scan !=NULL and _spectralHit.scan->scannum == _currentScan->scannum  ) {
     //      drawSpectralHit(_spectralHit);
     } else {
-        qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
+       qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
     }
 
     addAxes();
