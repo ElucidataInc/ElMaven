@@ -387,36 +387,35 @@ void SpectraWidget::clearGraph() {
     _items.clear();
     scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
 }
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::setTitle(Scan* scan) {
+
+void SpectraWidget::setTitle(Scan* scan)
+{
     _titleText = QString();
 
-    QString polarity;
-    scan->getPolarity() > 0 ? polarity = "+" : polarity = "-";
     QString sampleName;
     if (_currentScan->sample)  sampleName = QString(scan->sample->sampleName.c_str());
 
-    _titleText = tr("%1 scan#<b>%2</b>   rt:<b>%3</b>    ms:<b>%4</b>   ion:<b>%5</b> ").arg(
-            sampleName,
-            QString::number(scan->scannum),
-            QString::number(scan->rt,'f',2),
-            QString::number(scan->mslevel),
-            polarity
-    );
+    _titleText = tr(sampleName + "  ");
+    
+    if (scan->scannum)
+        _titleText += tr("Scan#<b>%1</b>  ").arg(QString::number(scan->scannum));
+
+    if (scan->rt)
+        _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(scan->rt, 'f', 2));
+
+    if (scan->mslevel)
+        _titleText += tr("MS Level:<b>%1</b>  ").arg(QString::number(scan->mslevel));
 
     if (scan->precursorMz) {
-        _titleText += tr("preMZ:<b>%1</b> ").arg(QString::number(scan->precursorMz,'f',4));
+        _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(scan->precursorMz,'f',4));
     }
 
     if (scan->collisionEnergy) {
-        _titleText += tr("ce:<b>%1</b> ").arg(QString::number(scan->collisionEnergy,'f',0));
+        _titleText += tr("CE:<b>%1</b>  ").arg(QString::number(scan->collisionEnergy,'f',0));
     }
 
     if (scan->productMz) {    
-       _titleText += tr("prodMz:<b>%1</b> ").arg(QString::number(scan->productMz,'f',3));
+       _titleText += tr("Prod m/z:<b>%1</b>  ").arg(QString::number(scan->productMz,'f',3));
     }
 
     setTitle(_titleText);
