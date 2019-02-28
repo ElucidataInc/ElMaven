@@ -1,3 +1,4 @@
+include($$mac_compiler)
 TEMPLATE = lib
 
 OBJECTS_DIR = $$top_builddir/tmp/projectDB/

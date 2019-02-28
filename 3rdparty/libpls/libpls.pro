@@ -1,4 +1,4 @@
-
+include($$mac_compiler)
 DESTDIR=$$top_builddir/libs/
 
 MOC_DIR=$$top_builddir/tmp/pls/

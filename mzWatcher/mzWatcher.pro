@@ -1,4 +1,4 @@
-
+include($$mac_compiler)
 
 TEMPLATE = app
 TARGET = mzWatcher

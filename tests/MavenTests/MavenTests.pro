@@ -1,3 +1,4 @@
+include($$mac_compiler)
 DESTDIR = $$top_srcdir/bin/
 
 MOC_DIR=$$top_builddir/tmp/maven_tests/
@@ -29,8 +30,6 @@ LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -l
 !macx: LIBS += -fopenmp
 
 macx {
-    INCLUDEPATH += /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
-    QMAKE_LFLAGS +=-L/usr/local/Cellar/llvm/6.0.1/lib/
     LIBS += -lomp
     LIBS -= -lnetcdf -lcdfread
 }

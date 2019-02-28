@@ -1,4 +1,4 @@
-
+include($$mac_compiler)
 
 MOC_DIR=$$top_builddir/tmp/neural/
 OBJECTS_DIR=$$top_builddir/tmp/neural/

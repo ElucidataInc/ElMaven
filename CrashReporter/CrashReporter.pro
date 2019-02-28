@@ -7,6 +7,7 @@
 TEMPLATE = app
 TARGET = CrashReporter
 
+include($$mac_compiler)
 
 QT       += widgets core gui network
 CONFIG += console

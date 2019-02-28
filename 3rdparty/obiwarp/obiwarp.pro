@@ -1,3 +1,4 @@
+include($$mac_compiler)
 include($$mzroll_pri)
 
 MOC_DIR=$$top_builddir/tmp/obiwarp/

@@ -1,3 +1,4 @@
+include($$mac_compiler)
 DESTDIR = $$top_srcdir/bin
 
 MOC_DIR=$$top_builddir/tmp/peakdetector/
@@ -22,8 +23,6 @@ QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lobiwarp -lpollyCLI
 macx {
     QMAKE_CXXFLAGS += -fopenmp
-    INCLUDEPATH += /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
-    QMAKE_LFLAGS +=-L/usr/local/Cellar/llvm/6.0.1/lib/
     LIBS += -lomp
     LIBS -= -lnetcdf -lcdfread
 }

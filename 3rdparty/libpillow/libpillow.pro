@@ -1,4 +1,4 @@
-
+include($$mac_compiler)
 include(config.pri)
 
 MOC_DIR=$$top_builddir/tmp/pillow/
