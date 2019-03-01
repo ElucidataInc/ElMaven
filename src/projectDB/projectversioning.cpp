@@ -122,7 +122,14 @@ int Version::_compare(const Version& other) const
     int majorDiff = _major - other.major();
     int minorDiff = _minor - other.minor();
     int patchDiff = _patch - other.patch();
-    return majorDiff + minorDiff + patchDiff;
+
+    if (majorDiff)
+        return majorDiff;
+
+    if (minorDiff)
+        return minorDiff;
+
+    return patchDiff;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
