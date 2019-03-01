@@ -25,7 +25,8 @@ VideoPlayer::VideoPlayer(QSettings *settings,MainWindow* mw, QWidget* parent)
     , m_settings(settings)
     , m_mainWindow(mw)
 {
-    resize(750,700);
+    QRect availableGeometry = QApplication::desktop()->availableGeometry();
+    resize(availableGeometry.width()/1.7, availableGeometry.height()/1.3);
     setWindowTitle("New Machine learning Algorithm");
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(20,20,20,20);
@@ -51,7 +52,13 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
     layout->addWidget(m_extraText);
 
     m_vidWidget = new QVideoWidget(this);
+
+#if defined(__w64)
+    m_vidWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+#elif defined(__APPLE__)
     m_vidWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+#endif
+
     m_vidWidget->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_vidWidget);
 
@@ -128,6 +135,13 @@ VideoPlayer::~VideoPlayer()
 {
 }
 
+void VideoPlayer::showEvent(QShowEvent* event)
+{
+    // avoid the empty/black screen when the widget shows
+    m_mediaPlayer->play();
+    m_mediaPlayer->pause();
+}
+
 
 void VideoPlayer::closeEvent(QCloseEvent *event)
 {
@@ -172,6 +186,17 @@ void VideoPlayer::play()
         break;
     default:
         m_mediaPlayer->play();
+
+#if defined (__APPLE__)
+        // BUG: Videos, on macOS,  dont scale according to the widget size. As a result videos get cut off from the widget
+        // SOLUTION: Resize the video widget.
+        // Kudos to https://stackoverflow.com/a/51736245/4069760 .
+        QSize originalSize = m_vidWidget->size();
+        QSize newSize = originalSize + QSize(1,1);
+        m_vidWidget->resize(newSize);
+        m_vidWidget->resize(originalSize);
+#endif
+
         break;
     }
 }

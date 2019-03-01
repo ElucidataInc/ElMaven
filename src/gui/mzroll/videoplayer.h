@@ -35,6 +35,7 @@ public:
     void setUrl(const QUrl &url);
 
     virtual void closeEvent(QCloseEvent* event);
+    virtual void showEvent(QShowEvent* event);
 
 public slots:
     void play();
