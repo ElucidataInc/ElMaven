@@ -6,11 +6,45 @@
 #include "connection.h"
 #include "cursor.h"
 #include "mzSample.h"
+#include "projectversioning.h"
 #include "schema.h"
 
-ProjectDatabase::ProjectDatabase(const string& dbFilename)
+ProjectDatabase::ProjectDatabase(const string& dbFilename,
+                                 const string& version)
 {
     _connection = new Connection(dbFilename);
+
+    // figure out whether this database needs upgrade
+    using namespace ProjectVersioning;
+    auto aheadBy = 0;
+    auto versionInfo = extractVersionInfoFromTag(version, &aheadBy);
+    auto appVersion = Version(versionInfo.first);
+    auto requiredDbVersion = getDbVersionForApp(appVersion);
+    auto currentDbVersion = this->version();
+
+    // if build is ahead by non-zero number of commits, then its a dev build
+    if (aheadBy > 0) {
+        requiredDbVersion = getLatestDbVersion();
+    }
+
+    if (currentDbVersion != requiredDbVersion && !this->isEmpty()) {
+        // upgrade needed, close existing connection
+        delete _connection;
+
+        string upgradeScript = generateUpgradeScript(currentDbVersion,
+                                                     requiredDbVersion);
+        cout << "Debug: Upgrading database from v"
+             << currentDbVersion
+             << " to v"
+             << requiredDbVersion
+             << endl;
+        upgradeDatabase(dbFilename, upgradeScript, version);
+
+        // upgrade complete, re-establish connection
+        _connection = new Connection(dbFilename);
+    }
+
+    _setVersion(requiredDbVersion);
 }
 
 ProjectDatabase::~ProjectDatabase()
@@ -994,6 +1028,27 @@ string ProjectDatabase::projectName()
     return path.filename().string();
 }
 
+int ProjectDatabase::version()
+{
+    auto query = _connection->prepare("PRAGMA user_version");
+    auto version = 0;
+    while (query->next())
+        version = query->integerValue("user_version");
+    return version;
+}
+
+bool ProjectDatabase::isEmpty()
+{
+    auto query = _connection->prepare(
+        "SELECT COUNT(*) as table_count \
+           FROM sqlite_master           \
+          WHERE type = 'table'          ");
+    auto tableCount = 0;
+    while (query->next())
+        tableCount = query->integerValue("table_count");
+    return tableCount == 0;
+}
+
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
     int maxSampleId = -1;
     for (auto sample : samples)
@@ -1101,4 +1156,13 @@ string ProjectDatabase::_locateSample(const string filepath,
             return filepath.string();
     }
     return "";
+}
+
+void ProjectDatabase::_setVersion(int version)
+{
+    // using this syntax, because SQLite does not support
+    // binding for PRAGMA statements
+    auto query = _connection->prepare("PRAGMA user_version  = "
+                                      + to_string(version));
+    query->execute();
 }

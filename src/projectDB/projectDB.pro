@@ -26,9 +26,11 @@ INCLUDEPATH += $$top_srcdir/src/core/libmaven \
 
 SOURCES	= connection.cpp \
           cursor.cpp \
-          projectdatabase.cpp
+          projectdatabase.cpp \
+          projectversioning.cpp
 
 HEADERS +=  schema.h \
             connection.h \
             cursor.h \
-            projectdatabase.h
+            projectdatabase.h \
+            projectversioning.h

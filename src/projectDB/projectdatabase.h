@@ -26,8 +26,10 @@ public:
     /**
      * @brief Create a ProjectDatabase instance and connect to the database.
      * @param dbFilename Absolute filename for the database file to be used.
+     * @param version Version string for the application. This value will be
+     * used to deduce whether the database needs schema upgrade.
      */
-    ProjectDatabase(const string& dbFilename);
+    ProjectDatabase(const string& dbFilename, const string& version);
 
     /**
       * @brief Destroy the object and close database connection.
@@ -270,6 +272,30 @@ public:
      */
     string projectName();
 
+    /**
+     * @brief Obtain the user version of the database, useful for application(s)
+     * using this database.
+     * @details The `schema.user_version` attribute of SQLite databases is
+     * free for application developers to use however they intend to and will
+     * be treated as the schema version in context to our application. There is
+     * another `schema.schema_version` variable provided by SQLite DB, but
+     * should not be used since it has use cases for the SQLite library itself
+     * and tampering with it may lead to database corruption. Both these version
+     * attributes are of integer type.
+     * @return The user version of database as an integer.
+     */
+    int version();
+
+    /**
+     * @brief Check whether the underlying database has not yet been used (or
+     * appears to be so).
+     * @details Essentially any database that does not contain any tables, will
+     * be considered a fresh database - either it was not added with any data
+     * since it was created or any existing data has then purged.
+     * @return True if the database contains no tables, false otherwise.
+     */
+    bool isEmpty();
+
 private:
     /**
      * @brief _connection A Connection object mediating connection with a SQLite
@@ -346,6 +372,12 @@ private:
      */
     string _locateSample(const string filepath,
                          const vector<string>& pathlist);
+
+    /**
+     * @brief Write the database format version into the SQLite DB user version.
+     * @param version The integer version to set for database.
+     */
+    void _setVersion(int version);
 };
 
 #endif // PROJECTDATABASE_H
