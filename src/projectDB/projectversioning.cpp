@@ -68,6 +68,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "                       , fragment_mzs          TEXT                 "
         "                       , fragment_intensity    TEXT                 "
         "                       , fragment_ion_types    TEXT                 "
+        "                       , note                  TEXT                 "
         "                       , PRIMARY KEY (compound_id, name, db_name) );"
         "INSERT INTO compounds ( compound_id           "
         "                      , db_name               "
@@ -275,7 +276,7 @@ int getDbVersionForApp(const Version& currentVersion)
 int getLatestDbVersion()
 {
     if (!appDbVersionMap.empty()) {
-        auto lastElement = --end(appDbVersionMap);
+        auto lastElement = appDbVersionMap.rbegin();
         return lastElement->second;
     }
     return -1;
@@ -338,6 +339,9 @@ bool backupFile(const string& originalFilepath, const string& newFilepath)
 
     bfs::path originalPath(originalFilepath);
     bfs::path newPath(newFilepath);
+    if (bfs::exists(newPath))
+        return false;
+
     try {
         bfs::copy_file(originalPath, newPath);
     } catch(boost::system::error_code) {
