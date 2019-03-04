@@ -276,7 +276,7 @@ public:
          * and returns it.
          * @return Application version as a QString.
          */
-        QString appVersion();
+        static QString appVersion();
 
 	void saveSettingsToLog();
 
