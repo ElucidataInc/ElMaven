@@ -47,8 +47,9 @@ public Q_SLOTS:
 	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
 	 * @param selected compound object
 	 **/
-	PeakGroup* setCompound(Compound* c);
+	void setCompound(Compound* c);
 	void setSelectedGroup(PeakGroup* group);
+	PeakGroup* getSelectedGroup() { return (eicParameters->getSelectedGroup()); }
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();

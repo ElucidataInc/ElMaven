@@ -1500,22 +1500,17 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-		PeakGroup *selectedGroup;
-		selectedGroup = eicWidget->setCompound(c);
-		//mavenParameters->_group is closest group to expected Rt
-		if (isotopeWidget && isotopeWidget->isVisible())
-		{
+		eicWidget->setCompound(c);
+		PeakGroup *selectedGroup = eicWidget->getSelectedGroup();
+		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
 		}
+		//if (fragSpectraWidget->isVisible())
+		//	fragSpectraWidget->overlayPeakGroup(selectedGroup);
     }
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    if ( spectraDockWidget->isVisible()) {
-			spectraWidget->overlayCompoundFragmentation(c);
-	}
-
-    if(fragPanel->isVisible()   )
+    if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
     QString compoundName(c->name.c_str());
@@ -3270,15 +3265,13 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
     if ( group->compound != NULL) {
-		if (fragSpectraDockWidget->isVisible())
+		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->showConsensusSpectra(group);
+			fragSpectraWidget->overlayCompoundFragmentation(group->compound);
+		}
         QString compoundName(group->compound->name.c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->compound);
-            if ( spectraDockWidget->isVisible()  ) {
-                //spectraWidget->showConsensusSpectra(group);
-                //spectraWidget->overlayCompoundFragmentation(group->compound);
-            }
         }
     }
 
