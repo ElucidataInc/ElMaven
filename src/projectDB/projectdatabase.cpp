@@ -182,7 +182,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :fragmentation_weighted_dot_product \
                      , :fragmentation_spearman_rank_corr   \
                      , :fragmentation_tic_matched          \
-                     , :fragmentation_num_matches          )");
+                     , :fragmentation_num_matches          \
+                     , :sample_ids                         )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
@@ -228,6 +229,16 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
+
+    string sample_ids = accumulate(next(begin(group->samples)),
+                                   end(group->samples),
+                                   to_string(group->samples[0]->getSampleId()),
+                                   [](string current, mzSample* s) {
+                                       return move(current)
+                                              + ';'
+                                              + to_string(s->getSampleId());
+                                   });
+    groupsQuery->bind(":sample_ids", sample_ids);
 
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
@@ -924,6 +935,20 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                                                            compoundDB);
             if (matches.size() > 0)
                 group->compound = matches[0];
+        }
+
+        vector<string> sample_ids;
+        mzUtils::split(groupsQuery->stringValue("sample_ids"), ';', sample_ids);
+        for (auto id_string : sample_ids) {
+            int sampleId = stoi(id_string);
+            auto sampleIter = find_if(begin(loaded),
+                                      end(loaded),
+                                      [sampleId](mzSample* s) {
+                                          return sampleId == s->getSampleId();
+                                      });
+            if (sampleIter != end(loaded)) {
+                group->samples.push_back(*sampleIter);
+            }
         }
 
         loadGroupPeaks(group, loaded);

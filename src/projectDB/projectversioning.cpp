@@ -42,6 +42,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_spearman_rank_corr REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_tic_matched REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_num_matches REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN sample_ids TEXT;"
 
         // changes to peaks table
         "ALTER TABLE peaks ADD COLUMN peak_spline_area REAL;"
