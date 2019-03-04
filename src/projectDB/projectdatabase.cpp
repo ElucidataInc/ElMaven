@@ -1160,7 +1160,9 @@ string ProjectDatabase::_locateSample(const string filepath,
 
 void ProjectDatabase::_setVersion(int version)
 {
-    auto query = _connection->prepare("PRAGMA user_version = :user_version");
-    query->bind(":user_version", version);
+    // using this syntax, because SQLite does not support
+    // binding for PRAGMA statements
+    auto query = _connection->prepare("PRAGMA user_version  = "
+                                      + to_string(version));
     query->execute();
 }
