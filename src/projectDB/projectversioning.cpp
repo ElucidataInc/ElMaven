@@ -236,8 +236,10 @@ void upgradeDatabase(const string& dbFilename,
              << endl;
     }
 
-    Connection connection(dbFilename);
-    connection.prepare(upgradeScript)->execute();
+    if (!upgradeScript.empty()) {
+        Connection connection(dbFilename);
+        connection.prepare(upgradeScript)->execute();
+    }
 }
 
 bool backupFile(const string& originalFilepath, const string& newFilepath)
