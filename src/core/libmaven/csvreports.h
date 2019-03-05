@@ -30,7 +30,7 @@ public:
     *@brief-    creating CSVReports by all the samples uploaded
     *@see -     see details in its definition
     */
-    CSVReports(vector<mzSample*>& insamples, bool pollyUpload = false);
+    CSVReports(vector<mzSample*>& insamples);
     /**
     *@brief-    destructor, just close all open output files opened for writing csv or tab file
     */

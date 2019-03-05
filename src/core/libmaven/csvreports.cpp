@@ -1,8 +1,7 @@
 #include "csvreports.h"
 
 
-CSVReports::CSVReports(vector<mzSample*>&insamples, bool pollyUpload):
-    _uploadToPolly(pollyUpload)
+CSVReports::CSVReports(vector<mzSample*>&insamples)
 {
     /*
     *@detail -   constructor for instantiating class by all samples uploaded,
@@ -86,9 +85,6 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
 {
     if (groupReport.is_open()) {
         QStringList groupReportcolnames;
-
-        if(_uploadToPolly)
-            groupReportcolnames << "labelML";
 
         groupReportcolnames << "label"
                             << "metaGroupId"
@@ -329,14 +325,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
 
     char label[2];
     sprintf(label, "%c", group->label);
-
-
-    if(_uploadToPolly) {
-        int mlLabel =  (group->markedGoodByCloudModel) ? 1 : (group->markedBadByCloudModel) ? -1 : 0;
-        groupReport << mlLabel;
-        groupReport << SEP;
-
-    }
 
     groupReport << label
                 << SEP << parentGroup->groupId

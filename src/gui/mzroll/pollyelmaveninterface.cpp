@@ -574,7 +574,11 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentAp
                             + QDir::separator()
                             + datetimestamp
                             + "_Peaks_information_json_Elmaven_Polly.json";
-    peakTable->exportJsonToPolly(writableTempDir, json_filename);
+    if(currentApp == PollyApp::Fluxomics)
+        peakTable->exportJsonToPolly(writableTempDir, json_filename, true);
+    else
+        peakTable->exportJsonToPolly(writableTempDir, json_filename, false);
+
     
     if (currentApp == PollyApp::Fluxomics) {
         fluxStatus->setStyleSheet("QLabel {color : green; }");
