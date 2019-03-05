@@ -126,6 +126,7 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
 
 
     m_mediaPlayer->setPosition(0);
+    setUrl(QUrl("qrc:/videos/PollyPhi-Workflow.mp4"));
 
     playedVideoOnce = 0;
     linkClickedOnce = 0;
