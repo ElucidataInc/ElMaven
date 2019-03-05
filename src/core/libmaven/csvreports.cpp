@@ -262,6 +262,38 @@ void CSVReports::closeFiles() {
         peakReport.close();
 }
 
+void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup> groups)
+{
+    groupReport.open(file.c_str());
+    if(groupReport.is_open()) {
+        groupReport << "labelML" << "," << "isotopeLabel" << "," << "compound";
+        groupReport << endl;
+        for(auto grp: groups) {
+            for(auto child: grp.children) {
+
+                int mlLabel =  (child.markedGoodByCloudModel) ? 1 : (child.markedBadByCloudModel) ? -1 : 0;
+                groupReport << mlLabel;
+                groupReport << ",";
+
+                string tagString = child.srmId + child.tagString;
+                tagString = sanitizeString(tagString.c_str()).toStdString();
+                groupReport << tagString ;
+                groupReport << ",";
+
+
+                string compoundName = "";
+                if(child.compound != NULL)
+                    compoundName = sanitizeString(child.compound->name.c_str()).toStdString();
+                else
+                    compoundName = std::to_string(child.meanMz) + "@" + std::to_string(child.meanRt);
+                groupReport << compoundName;
+
+                groupReport << endl;
+            }
+        }
+    }
+    groupReport.close();
+}
 void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (!groupReport.is_open())
         return;
@@ -294,6 +326,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string tagString = group->srmId + group->tagString;
     // using the new funtionality added - Kiran
     tagString = sanitizeString(tagString.c_str()).toStdString();
+
     char label[2];
     sprintf(label, "%c", group->label);
 

@@ -25,7 +25,7 @@ public:
     /**
     *empty constructor
     */
-    CSVReports();
+    CSVReports() {}
     /**
     *@brief-    creating CSVReports by all the samples uploaded
     *@see -     see details in its definition
@@ -85,6 +85,8 @@ public:
         */
         mavenparameters = mp;
     }
+
+    void writeDataForPolly(const std::string& file, std::list<PeakGroup> groups);
     
     MavenParameters* getMavenParameters() {
        /**
