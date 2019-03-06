@@ -29,9 +29,8 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
          //mouse hover events
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
+         connect(this, SIGNAL(peakGroupSelected(PeakGroup*)), mw->fragSpectraWidget, SLOT(overlayPeakGroup(PeakGroup*)));
     }
-
-
 }
 
 EicPoint::~EicPoint() {}

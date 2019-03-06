@@ -31,8 +31,9 @@ public:
                     void replot();
                     void spectraToClipboard();
                     void spectraToClipboardTop();
+                    void overlayPeakGroup(PeakGroup* group);
                     void overlayPeptideFragmentation(QString proteinSeq,MassCutoff *productMassCutoff); //TODO: Sahil, Added while merging point
-                    void overlayCompoundFragmentation(Compound* c); //TODO: Sahil, Added while merging spectrawidget
+                    void overlayCompoundFragmentation(Compound* c);
                     void showConsensusSpectra(PeakGroup* group);
                     void overlaySpectralHit(SpectralHit& hit);
                     void drawSpectralHit(SpectralHit& hit); //TODO: Sahil, Added while merging spectrawidget
@@ -49,7 +50,7 @@ public:
                     void assignCharges(); //TODO: Sahil, Added while merging spectrawidget
 
                     void drawScanSet(vector<Scan*>& scanset); //TODO: Sahil, Added while merging spectrawidget
-                    void drawScan(Scan* scan, QColor sampleColor, int offsetXpx, int offsetYpx); //TODO: Sahil, Added while merging spectrawidget
+                    void drawScan(Scan* scan, QColor sampleColor);
                     void drawMzLabels(Scan *scan); //TODO: Sahil, Added while merging spectrawidget
                     void drawAnnotations(); //TODO: Sahil, Added while merging spectrawidget
 
@@ -65,6 +66,7 @@ public:
                     vector<mzLink> links;
                     bool  _drawXAxis;
                     bool  _drawYAxis;
+                    bool _showOverlay;
                     bool  _resetZoomFlag;
                     bool  _profileMode;
                     float _minX;
@@ -109,11 +111,12 @@ public:
                     void setDrawXAxis(bool flag) { _drawXAxis = flag; }
                     void setDrawYAxis(bool flag) { _drawYAxis = flag; }
                     void addLabel(QString text, float x, float y);
-                    void setTitle(Scan*); //TODO: Sahil, Added while merging spectrawidget
+                    void setTitle(Scan*);
                     void setTitle(QString);
                     void compareScans(Scan*, Scan*);
                     void annotateScan();
-                    void clearGraph(); //TODO: Sahil, Added while merging spectrawidget
+                    void clearGraph();
+                    void clearOverlay();
 
 		protected:
                     void leaveEvent ( QEvent * event );

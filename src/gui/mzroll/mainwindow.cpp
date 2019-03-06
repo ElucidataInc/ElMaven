@@ -1506,8 +1506,8 @@ void MainWindow::setCompoundFocus(Compound*c) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
 		}
-		//if (fragSpectraWidget->isVisible())
-		//	fragSpectraWidget->overlayPeakGroup(selectedGroup);
+		if (fragSpectraWidget->isVisible())
+			fragSpectraWidget->overlayPeakGroup(selectedGroup);
     }
 
     if (fragPanel->isVisible())
@@ -3266,8 +3266,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 
     if ( group->compound != NULL) {
 		if (fragSpectraDockWidget->isVisible()) {
-			fragSpectraWidget->showConsensusSpectra(group);
-			fragSpectraWidget->overlayCompoundFragmentation(group->compound);
+			fragSpectraWidget->overlayPeakGroup(group);
 		}
         QString compoundName(group->compound->name.c_str());
         if (! setPeptideSequence(compoundName)) {
