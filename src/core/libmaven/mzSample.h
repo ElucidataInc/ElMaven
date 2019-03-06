@@ -223,7 +223,8 @@ class mzSample
         MS,
         SRM,
         MRM,
-        PRM
+        DDA, // Data Dependent Acquisition
+        DIA, // Data Independent Acquisition
     };
 
     void loadSample(const char *filename);

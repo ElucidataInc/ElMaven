@@ -186,7 +186,7 @@ void mzSample::loadSample(const char *filename)
 
     // assign a type to sample
     if(ms1ScanCount() && ms2ScanCount())
-        sType = SampleType::PRM;
+        sType = SampleType::DDA;
 
     if(ms1ScanCount() && ms2ScanCount() == 0)
         sType = SampleType::MS;
