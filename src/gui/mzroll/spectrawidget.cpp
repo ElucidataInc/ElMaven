@@ -178,11 +178,7 @@ void SpectraWidget::setScan(Peak* peak) {
     repaint();
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging point
-void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff) {
+void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq, MassCutoff *productMassCutoff) {
     qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productMassCutoff->getMassCutoff() << endl;
     if(!_currentScan) return;
 	if(peptideSeq.isEmpty()) return;
@@ -195,14 +191,14 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 	hit.score = 0;
 	hit.matchCount=0;
     hit.sampleName="";
-    hit.productMassCutoff=productMassCutoff;
+    hit.productPPM = productMassCutoff->getMassCutoff();
     hit.precursorMz=record.monoisotopicMZ();
 	hit.scan = _currentScan;
 	
     vector<bool>seen(_currentScan->nobs(),false);
 	for(unsigned int i=0; i < ions.size(); i++) {
 		FragmentIon* ion = ions[i];
-        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz,productMassCutoff);
+        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz, productMassCutoff);
         if(pos != -1 and seen[pos] == false) {
             ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
             qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
@@ -230,7 +226,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
         hit.precursorMz = c->precursorMz;
         hit.matchCount=0;
         hit.sampleName="";
-        hit.productMassCutoff=mainwindow->getUserMassCutoff();
+        hit.productPPM = mainwindow->mavenParameters->fragmentTolerance;
         hit.scan=NULL;
         for(int i=0; i < c->fragmentMzValues.size();i++)        hit.mzList << c->fragmentMzValues[i];
         for(int i=0; i < c->fragmentIntensities.size();i++)  hit.intensityList<< c->fragmentIntensities[i];
@@ -259,7 +255,9 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         repaint();
 
         double focusMz = hit.mzList.first();
-        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productMassCutoff);
+        MassCutoff* productMassCutOff = new MassCutoff();
+        productMassCutOff->setMassCutoffAndType(hit.productPPM, "ppm")
+        int pos = _currentScan->findHighestIntensityPos(focusMz, hit.productPPM);
         if(pos>=0) {
                 _focusCoord.setX(focusMz);
                 _focusCoord.setY(_currentScan->intensity[pos]);
@@ -290,7 +288,8 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group)
 
 void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
 
-    MassCutoff *massCutoffWindow=hit.productMassCutoff;
+    MassCutoff *massCutoffWindow = new MassCutoff();
+    massCutoffWindow->setMassCutoffAndType(hit.productPPM, "ppm");
     double maxIntensityHit= hit.getMaxIntensity();
 
    // qDebug() << "overlaySpectra() started.." <<  massCutoffWindow->getMassCutoff() << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
@@ -298,7 +297,7 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
     QPen bluepen(Qt::blue, 3);
 
     for(int i=0; i < hit.mzList.size(); i++) {
-        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],massCutoffWindow);
+        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i], massCutoffWindow);
 
 
         double hitIntensity=0;
