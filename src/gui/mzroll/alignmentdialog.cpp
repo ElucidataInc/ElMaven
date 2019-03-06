@@ -203,7 +203,7 @@ void AlignmentDialog::algoChanged()
     auto samples = _mw->getSamples();
     auto srmMrmData = false;
     for (const auto sample : samples) {
-        if (sample->sType == mzSample::SRM || sample->sType == mzSample::MRM ) {
+        if (sample->sType == mzSample::SampleType::SRM || sample->sType == mzSample::SampleType::MRM ) {
             showInfo("Obi-warp does not work with SRM/MRM data at the moment.\nWe "
                      "will inform you once this functionality has been added.");
             srmMrmData = true;

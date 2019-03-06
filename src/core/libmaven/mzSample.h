@@ -218,7 +218,7 @@ class mzSample
     * @param filename Sample file name
     */
 
-    enum SampleType: int {
+    enum class SampleType: int {
         NONE = 0,
         MS,
         SRM,
