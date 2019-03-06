@@ -1,10 +1,14 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include <boost/signals2.hpp>
+
 #include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "stable.h"
+
+namespace bsignal = boost::signals2;
 
 class Molecule2D {
        public:
@@ -48,6 +52,18 @@ class Database {
 	vector<Compound*> getKnowns();
 
 	vector<string> getPathwayReactions(string pathway_id);
+
+        /**
+         * @brief Load metabolites from a file at a given path by treating it as
+         * having NIST library format.
+         * @param filepath The absolute path of the NIST library file.
+         * @param signal Pointer to a boost signal object that can be called
+         * with a string for update message, an integer for current steps of
+         * progress and another integer for total steps to completion.
+         * @return The number of compounds that were loaded into the database.
+         */
+        int loadNISTLibrary(QString filepath,
+                            bsignal::signal<void (string, int, int)>* signal=nullptr);
 
         /**
          * @brief Checks whether the library with the given name is an NIST

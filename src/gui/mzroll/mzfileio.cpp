@@ -1,3 +1,5 @@
+#include <boost/signals2.hpp>
+
 #include "mzfileio.h"
 #include "projectdatabase.h"
 #include <QStringList>
@@ -221,172 +223,6 @@ PK$PEAK: m/z int. rel.int.
              }
          }
     } while (!line.isNull());
-    return compoundCount;
-}
-
-int mzFileIO::loadNISTLibrary(QString filepath)
-{
-    QString filename = QFileInfo(filepath).fileName();
-    Q_EMIT(updateStatusString(tr("Preprocessing database %1").arg(filename)));
-
-    qDebug() << "Counting number of lines in NIST Libary file…" << filepath;
-    ifstream file(filepath.toStdString());
-    file.unsetf(ios_base::skipws); // do not skip newlines
-    unsigned lineCount = std::count(istream_iterator<char>(file),
-                                    istream_iterator<char>(),
-                                    '\n');
-
-    qDebug() << "Loading NIST Libary: " << filepath;
-    QFile data(filepath);
-    if (!data.open(QFile::ReadOnly) ) {
-        qDebug() << "Can't open " << filepath;
-        return 0;
-    }
-
-    QRegExp whiteSpace("\\s+");
-    QRegExp formulaMatch("Formula\\=(C\\d+H\\d+\\S*)");
-    QRegExp retentionTimeMatch("AvgRt\\=(\\S+)");
-
-    string dbName = mzUtils::cleanFilename(filepath.toStdString());
-    Compound* currentCompound = nullptr;
-    bool capturePeaks = false;
-    int compoundCount = 0;
-    int currentLine = 0;
-
-    QTextStream stream(&data);
-    while (!stream.atEnd()) {
-        QString line = stream.readLine();
-        if (line.startsWith("NAME:", Qt::CaseInsensitive) || stream.atEnd()) {
-            // before reading the next record or ending stream, save the
-            // compound created from last record
-            if (currentCompound and !currentCompound->name.empty()) {
-                if (!currentCompound->formula.empty()) {
-                    auto formula = currentCompound->formula;
-                    auto exactMass = MassCalculator::computeMass(formula, 0);
-                    currentCompound->mass = exactMass;
-                }
-                DB.addCompound(currentCompound);
-                ++compoundCount;
-            }
-
-            // we need to check this again before creating a new compound,
-            // otherwise it would create one at stream end as well
-            if (line.startsWith("NAME:", Qt::CaseInsensitive)) {
-                // new compound
-                QString name = line.mid(5, line.length()).simplified();
-                currentCompound = new Compound(name.toStdString(),
-                                               name.toStdString(),
-                                               "",
-                                               0);
-                currentCompound->db = dbName;
-                capturePeaks = false;
-            }
-        }
-
-        if(currentCompound == nullptr)
-            continue;
-
-        if (line.startsWith("MW:", Qt::CaseInsensitive)) {
-            currentCompound->mass = line.mid(3, line.length())
-                                        .simplified()
-                                        .toDouble();
-        } else if (line.startsWith("CE:", Qt::CaseInsensitive)) {
-            currentCompound->collisionEnergy = line.mid(3, line.length())
-                                                   .simplified()
-                                                   .toDouble();
-        } else if (line.startsWith("ID:", Qt::CaseInsensitive)) {
-            QString id = line.mid(3, line.length()).simplified();
-            if (!id.isEmpty())
-                currentCompound->id = id.toStdString();
-        } else if (line.startsWith("LOGP:", Qt::CaseInsensitive)) {
-            currentCompound->logP = line.mid(5, line.length())
-                                        .simplified()
-                                        .toDouble();
-        } else if (line.startsWith("RT:", Qt::CaseInsensitive)) {
-            currentCompound->expectedRt = line.mid(3, line.length())
-                                              .simplified()
-                                              .toDouble();
-        } else if (line.startsWith("SMILE:", Qt::CaseInsensitive)) {
-            QString smileString = line.mid(7, line.length()).simplified();
-            if (!smileString.isEmpty())
-                currentCompound->smileString = smileString.toStdString();
-        } else if (line.startsWith("SMILES:", Qt::CaseInsensitive)) {
-            QString smileString = line.mid(8, line.length()).simplified();
-            if (!smileString.isEmpty())
-                currentCompound->smileString = smileString.toStdString();
-        } else if (line.startsWith("PRECURSORMZ:", Qt::CaseInsensitive)) {
-            currentCompound->precursorMz = line.mid(13, line.length())
-                                               .simplified()
-                                               .toDouble();
-        } else if (line.startsWith("EXACTMASS:", Qt::CaseInsensitive)) {
-            currentCompound->mass = line.mid(10, line.length())
-                                        .simplified()
-                                        .toDouble();
-        } else if (line.startsWith("ADDUCT:", Qt::CaseInsensitive)) {
-            currentCompound->adductString = line.mid(8, line.length())
-                                                .simplified()
-                                                .toStdString();
-        } else if (line.startsWith("FORMULA:", Qt::CaseInsensitive)) {
-            QString formula = line.mid(9, line.length()).simplified();
-            formula.replace("\"", "", Qt::CaseInsensitive);
-            if (!formula.isEmpty())
-                currentCompound->formula = formula.toStdString();
-        } else if (line.startsWith("MOLECULE FORMULA:", Qt::CaseInsensitive)) {
-            QString formula = line.mid(17, line.length()).simplified();
-            formula.replace("\"", "", Qt::CaseInsensitive);
-            if (!formula.isEmpty())
-                currentCompound->formula = formula.toStdString();
-        } else if (line.startsWith("CATEGORY:", Qt::CaseInsensitive)) {
-            currentCompound->category.push_back(line.mid(10, line.length())
-                                                    .simplified()
-                                                    .toStdString());
-        } else if (line.startsWith("TAG:", Qt::CaseInsensitive)) {
-            if (line.contains("VIRTUAL", Qt::CaseInsensitive))
-                currentCompound->virtualFragmentation = true;
-        } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)) {
-            if (line.contains("NEG", Qt::CaseInsensitive))
-                currentCompound->ionizationMode = -1;
-            if (line.contains("POS", Qt::CaseInsensitive))
-                currentCompound->ionizationMode = +1;
-        } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)) {
-            QString comment = line.mid(8, line.length()).simplified();
-            if (comment.contains(formulaMatch)) {
-                currentCompound->formula = formulaMatch.capturedTexts()
-                                                       .at(1)
-                                                       .toStdString();
-            }
-            if (comment.contains(retentionTimeMatch)) {
-                currentCompound->expectedRt = retentionTimeMatch.capturedTexts()
-                                                                .at(1)
-                                                                .simplified()
-                                                                .toDouble();
-            }
-        } else if (line.startsWith("NUM PEAKS:", Qt::CaseInsensitive)
-                   || line.startsWith("NUMPEAKS:", Qt::CaseInsensitive)) {
-            capturePeaks = true;
-        } else if (capturePeaks) {
-            QStringList mzIntensityPair = line.split(whiteSpace);
-            if (mzIntensityPair.size() >= 2) {
-                double mz = mzIntensityPair.at(0).toDouble();
-                double in = mzIntensityPair.at(1).toDouble();
-                if (mz >= 0.0 && in >= 0.0) {
-                    currentCompound->fragmentMzValues.push_back(mz);
-                    currentCompound->fragmentIntensities.push_back(in);
-                }
-            }
-
-            int fragIdx = currentCompound->fragmentMzValues.size() - 1;
-            if (mzIntensityPair.size() >= 3) {
-                currentCompound->fragmentIonTypes[fragIdx] =
-                    mzIntensityPair.at(2).toStdString();
-            }
-        }
-        ++currentLine;
-        Q_EMIT(updateProgressBar(tr("Loading database: %1").arg(filename),
-                                 currentLine,
-                                 lineCount));
-    }
-
     return compoundCount;
 }
 
@@ -788,7 +624,13 @@ int mzFileIO::loadCompoundsFromFile(QString filename)
    int compoundCount = 0;
    if (filename.endsWith("msp", Qt::CaseInsensitive)
        || filename.endsWith("sptxt", Qt::CaseInsensitive)) {
-       compoundCount = loadNISTLibrary(filename);
+       boost::signals2::signal<void (string, int, int)> signal;
+       signal.connect([&](string message, int currentSteps, int totalSteps) {
+           Q_EMIT(updateProgressBar(QString::fromStdString(message),
+                                    currentSteps,
+                                    totalSteps));
+       });
+       compoundCount = DB.loadNISTLibrary(filename, &signal);
    } else if (filename.endsWith("massbank", Qt::CaseInsensitive)) {
        compoundCount = loadMassBankLibrary(filename);
    } else if (filename.contains("csv", Qt::CaseInsensitive)

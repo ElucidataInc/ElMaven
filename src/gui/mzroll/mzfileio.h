@@ -56,13 +56,8 @@ Q_OBJECT
          */
         void setMainWindow(MainWindow*);
 
-        /**
-         * [load NIST Library]
-         * @param  filename [name of the file]
-         * @return          [int]
-         */
-        int loadNISTLibrary(QString filename);        
         int loadMassBankLibrary(QString filename);
+
         /**
          * [load Pep XML]
          * @param  filename [name of the file]
