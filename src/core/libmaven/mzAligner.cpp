@@ -520,11 +520,13 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
-    for (int j = 0; j < refSample->scans.size(); ++j) {
-        if(refSample->scans[j]->mslevel  == 1 ){
-            for (int k = 0; k < refSample->scans[j]->mz.size(); ++k) {
-                minMzRange = min(minMzRange, refSample->scans[j]->mz[k]);
-                maxMzRange = max(maxMzRange, refSample->scans[j]->mz[k]);
+
+    for(const auto scan: refSample->scans) {
+        // PRM/DDA data have both mslevel 1 and mslevel 2 scans. We only want to align mslevel 1 scans
+        if(scan->mslevel == 1) {
+            for(const auto mz: scan->mz) {
+                minMzRange = min(minMzRange, mz);
+                maxMzRange = max(maxMzRange, mz);
             }
         }
     }
