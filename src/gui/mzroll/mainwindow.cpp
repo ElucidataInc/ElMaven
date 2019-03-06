@@ -1871,8 +1871,8 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
         bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
         bool notNISTFile = !(isMSPFile || isSPTXTFile);
-        bool smallerThan5Mb = fileInfo.size() < 2000000;
-        if (notNISTFile || smallerThan5Mb)
+        bool smallerThan2Mb = fileInfo.size() < 2000000;
+        if (notNISTFile || smallerThan2Mb)
             settings->setValue("lastDatabaseFile", filename);
 
         setStatusText(tr("Loaded %1 compounds successfully")
