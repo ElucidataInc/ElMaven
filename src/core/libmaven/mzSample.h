@@ -695,7 +695,6 @@ class mzSample
 
     vector<float> getIntensityDistribution(int mslevel);
 
-    SampleType sType;
     deque<Scan *> scans;
     string sampleName;
     string fileName;
@@ -739,7 +738,10 @@ class mzSample
 
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 
+    SampleType getSampleType();
+
   private:
+    SampleType sType;
     int _id;
     unsigned int _numMS1Scans;
     unsigned int _numMS2Scans;

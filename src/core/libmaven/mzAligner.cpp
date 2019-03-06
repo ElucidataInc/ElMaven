@@ -467,12 +467,12 @@ bool Aligner::alignSampleRts(mzSample* sample,
     for(auto scan: sample->scans) {
         if(scan->mslevel == 1) {
             mxnCount++;
-            for(int indice = 0; indice <  scan->mz.size(); indice++) {
+            for(int i = 0; i <  scan->mz.size(); i++) {
                 if (mp->stop) return (true);
-                if (scan->mz[indice] < mzPoints.front() || scan->mz[indice] > mzPoints.back())
+                if (scan->mz[i] < mzPoints.front() || scan->mz[i] > mzPoints.back())
                     continue;
-                int index = upper_bound(mzPoints.begin(), mzPoints.end(), scan->mz[indice]) - mzPoints.begin() -1;
-                mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity[indice]);
+                int index = upper_bound(mzPoints.begin(), mzPoints.end(), scan->mz[i]) - mzPoints.begin() -1;
+                mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity[i]);
             }
         }
     }

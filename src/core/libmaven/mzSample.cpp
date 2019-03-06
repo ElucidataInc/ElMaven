@@ -86,6 +86,11 @@ void mzSample::addScan(Scan *s)
         s->scannum = scans.size() - 1;
 }
 
+mzSample::SampleType  mzSample::getSampleType()
+{
+    return sType;
+}
+
 string mzSample::getFileName(const string &filename)
 {
 

@@ -201,17 +201,17 @@ void AlignmentDialog::algoChanged()
     refSampleLabel->setVisible(obiWarp);
 
     auto samples = _mw->getSamples();
-    auto srmMrmData = false;
+    auto mrmData = false;
     for (const auto sample : samples) {
-        if (sample->sType == mzSample::SampleType::SRM || sample->sType == mzSample::SampleType::MRM ) {
+        if (sample->getSampleType() == mzSample::SampleType::SRM || sample->getSampleType() == mzSample::SampleType::MRM ) {
             showInfo("Obi-warp does not work with SRM/MRM data at the moment.\nWe "
                      "will inform you once this functionality has been added.");
-            srmMrmData = true;
+            mrmData = true;
             alignButton->setDisabled(true);
             break;
         }
     }
-    if (!srmMrmData || !obiWarp) {
+    if (!mrmData || !obiWarp) {
         alignButton->setDisabled(false);
         setProgressBar("Status", 0, 1);
     }
