@@ -101,9 +101,9 @@ public:
                     void drawGraph();
 
                     float toX(float x)  { return( (x-_minX)/(_maxX-_minX) * scene()->width()); }
-                    float toY(float y)  { return( scene()->height()- ((y-_minY)/(_maxY-_minY) * scene()->height())); } //TODO: Sahil, Added while merging spectrawidget
-                    float invX(float x) { return(  x/scene()->width())  * (_maxX-_minX) + _minX; }
-                    float invY(float y) { return  -1*((y-scene()->height())/scene()->height() * (_maxY-_minY) + _minY); }
+                    float toY(float y, float scale = 1.0, float offset = 0);
+                    float invX(float x) { return (x/scene()->width())  * (_maxX-_minX) + _minX; }
+                    float invY(float y);
 
                     int findNearestMz(QPointF pos);
                     void drawArrow(float mz1, float int1, float mz2, float ints2);
@@ -111,7 +111,7 @@ public:
                     void setDrawXAxis(bool flag) { _drawXAxis = flag; }
                     void setDrawYAxis(bool flag) { _drawYAxis = flag; }
                     void addLabel(QString text, float x, float y);
-                    void setTitle(Scan*);
+                    void setTitle();
                     void setTitle(QString);
                     void compareScans(Scan*, Scan*);
                     void annotateScan();
