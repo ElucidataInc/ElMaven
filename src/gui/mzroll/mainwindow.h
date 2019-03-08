@@ -491,6 +491,17 @@ private Q_SLOTS:
     void _updateEMDBProgressBar(int progress, int finish);
     void _postCompoundsDBLoadActions(QString filename, int compoundCount);
 
+    /**
+     * @brief Warn the user if the polarity of loaded samples and polarity of
+     * NIST library compounds do not match.
+     * @details This method should be called whenever loading either a set of
+     * samples or loading a NIST metabolite library has successfully completed.
+     * The checks will be done with the entire sample set and the currently
+     * selected compound library. A notification message will only appear if any
+     * of the loaded samples and the selected library are PRM compatible.
+     */
+    void _warnIfNISTPolarityMismatch();
+
 private:
 	int m_value;
 	Analytics* analytics;
@@ -532,6 +543,13 @@ private:
     void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
+
+    /**
+     * @brief Notfiy the user about bad entries in compound database.
+     * @param filename The filename of the partially database loaded.
+     * @param failedToLoadCompletely Whether the loading of compounds from DB
+     * failed completely, i.e., no compounds were loaded.
+     */
     void _notifyIfBadCompoundsDB(QString filename, bool failedToLoadCompletely);
 };
 

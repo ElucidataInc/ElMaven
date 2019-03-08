@@ -547,7 +547,9 @@ int Database::loadNISTLibrary(QString filepath,
         } else if (line.startsWith("TAG:", Qt::CaseInsensitive)) {
             if (line.contains("VIRTUAL", Qt::CaseInsensitive))
                 currentCompound->virtualFragmentation = true;
-        } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)) {
+        } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)
+                   || line.startsWith("IONMODE:", Qt::CaseInsensitive)
+                   || line.startsWith("IONIZATION:", Qt::CaseInsensitive)) {
             if (line.contains("NEG", Qt::CaseInsensitive))
                 currentCompound->ionizationMode = -1;
             if (line.contains("POS", Qt::CaseInsensitive))

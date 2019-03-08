@@ -496,6 +496,11 @@ using namespace mzUtils;
             SLOT(_setStatusString(QString)));
 
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+    connect(fileLoader,
+            SIGNAL(sampleLoaded()),
+            this,
+            SLOT(_warnIfNISTPolarityMismatch()));
+
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
@@ -1870,10 +1875,13 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         QFileInfo fileInfo(filename);
         bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
         bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
-        bool notNISTFile = !(isMSPFile || isSPTXTFile);
+        bool nistFile = isMSPFile || isSPTXTFile;
         bool smallerThan2Mb = fileInfo.size() < 2000000;
-        if (notNISTFile || smallerThan2Mb)
+        if (!nistFile || smallerThan2Mb)
             settings->setValue("lastDatabaseFile", filename);
+
+        if (nistFile)
+            _warnIfNISTPolarityMismatch();
 
         setStatusText(tr("Loaded %1 compounds successfully")
                         .arg(QString::number(compoundCount)));
@@ -1943,6 +1951,45 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
             }
             msgBox.setDetailedText(QString::fromStdString(msgString));
             msgBox.open();
+        }
+    }
+}
+
+void MainWindow::_warnIfNISTPolarityMismatch()
+{
+    if (samples.size() == 0)
+        return;
+
+    // make sure the samples contain PRM data (TODO: check needs revision)
+    mzSample* sample = samples[0];
+    if (sample->ms1ScanCount() == 0 || sample->ms2ScanCount() == 0)
+        return;
+
+    // make sure the database is a spectral library
+    string dbName = ligandWidget->getDatabaseName().toStdString();
+    if (!DB.isNISTLibrary(dbName))
+        return;
+
+    int samplePolarity = sample->getPolarity();
+    int dbPolarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    if (samplePolarity != dbPolarity) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Data Polarity Mismatch"));
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+        QString msg = "The polarity of loaded samples and spectral library do "
+                      "not match. To perform precise fragmentation search, "
+                      "please upload a spectral library of correct polarity %1";
+        QString polarity = (samplePolarity > 0) ? "(positive)" : "(negative)";
+        msg = msg.arg(polarity);
+        msgBox.setText(msg);
+        QPushButton* upload = msgBox.addButton(tr("Upload Spectral Library"),
+                                               QMessageBox::ActionRole);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == upload) {
+            loadCompoundsFile();
         }
     }
 }
