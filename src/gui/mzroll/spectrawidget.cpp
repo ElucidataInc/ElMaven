@@ -236,6 +236,11 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 	
     SpectralHit hit;
   	hit.score = 0;
+    //TODO: precursormz should be preset as the compound m/z
+    //compound->mass should be reserved for exact mass or renamed
+    if (!c->formula.empty())
+        c->precursorMz = c->adjustedMass(mainwindow->mavenParameters->getCharge(c));
+    if (c->precursorMz == 0) c->precursorMz = c->mass;
     hit.precursorMz = c->precursorMz;
     hit.matchCount = 0;
     hit.sampleName = "";
@@ -589,6 +594,7 @@ void SpectraWidget::drawGraph()
         drawSpectralHit(_spectralHit);
         drawSpectralHit(_spectralHit);
     } else {
+        //TODO: either remove the check or inform user on the UI in case of failure
        qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
     }
 

@@ -723,6 +723,10 @@ Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
         avgScan->mz.push_back(fragmentationPattern.mzValues[i]);
         avgScan->intensity.push_back(fragmentationPattern.intensityValues[i]);
     }
+
+    avgScan->precursorMz = meanMz;
+    avgScan->rt = meanRt;
+    
     return avgScan;
 }
 
