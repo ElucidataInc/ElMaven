@@ -51,6 +51,12 @@ win32 {
 mac {
     QMAKE_CXXFLAGS += -fopenmp
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    DYLIBPATH = $$(LDFLAGS)
+    isEmpty(DYLIBPATH) {
+        warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
+        warning("Please follow the README to make sure you have correctly set the LDFLAGS variable")
+    }
+    QMAKE_LFLAGS += $$(LDFLAGS)
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices

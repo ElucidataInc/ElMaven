@@ -20,8 +20,16 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
+
 LIBS +=  -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lnetcdf -lz -lobiwarp -lpollyCLI
 macx {
+
+    DYLIBPATH = $$(LDFLAGS)
+    isEmpty(DYLIBPATH) {
+        warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
+        warning("Please follow the README to make sure you have correctly set the LDFLAGS variable")
+    }
+    QMAKE_LFLAGS += $$(LDFLAGS)
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -lomp
     LIBS -= -lnetcdf -lcdfread
