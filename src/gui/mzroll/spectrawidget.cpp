@@ -218,11 +218,13 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 
 void SpectraWidget::overlayPeakGroup(PeakGroup* group)
 {
+    _currentGroup = NULL;
     if (!group) return;
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
     setScan(avgScan);
-    if (group->compound)  {
+    if (group->compound) {
+        _currentGroup = group;
         overlayCompoundFragmentation(group->compound);
         //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
     }
@@ -385,7 +387,7 @@ void SpectraWidget::clearOverlay()
     _showOverlay = false;
 }
 
-void SpectraWidget::setTitle()
+void SpectraWidget::setScanTitle()
 {
     _titleText = QString();
 
@@ -397,10 +399,10 @@ void SpectraWidget::setTitle()
     QString sampleName;
     if (_currentScan->sample)  sampleName = QString(_currentScan->sample->sampleName.c_str());
 
-    _titleText += tr("<b>%1</b>").arg(sampleName);
+    _titleText += tr("<b>%1</b>  ").arg(sampleName);
     
     if (_currentScan->scannum)
-        _titleText += tr(" Scan#<b>%1</b>  ").arg(QString::number(_currentScan->scannum));
+        _titleText += tr("Scan#<b>%1</b>  ").arg(QString::number(_currentScan->scannum));
 
     if (_currentScan->rt)
         _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(_currentScan->rt, 'f', 2));
@@ -419,6 +421,43 @@ void SpectraWidget::setTitle()
     if (_currentScan->productMz) {    
        _titleText += tr("Prod m/z:<b>%1</b>  ").arg(QString::number(_currentScan->productMz,'f',3));
     }
+
+    setTitle(_titleText);
+}
+
+void SpectraWidget::setGroupTitle()
+{
+    _titleText = QString();
+    if (!_currentGroup) {
+        setTitle(_titleText);
+        return;
+    }
+
+    QString compoundName;
+    if (_currentGroup->compound) compoundName = QString(_currentGroup->compound->name.c_str());
+    
+    float purity = 0;
+    if (_currentGroup->fragmentationPattern.mzValues.size()) {
+        purity = _currentGroup->fragmentationPattern.purity * 100;
+    }
+
+    float rt = 0;
+    if (_currentGroup->fragmentationPattern.mzValues.size()) {
+        //mean RT of all MS2 events in this group
+        rt = _currentGroup->fragmentationPattern.rt;
+    }
+    else {
+        //mean RT of the precursor group
+        rt = _currentGroup->meanRt;
+    }
+    
+    _titleText += tr("<b>%1</b>  ").arg(compoundName);
+
+    _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(rt, 'f', 2));
+    
+    _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(_currentGroup->meanMz, 'f', 4));
+    
+    _titleText += tr("Purity:<b>%1</b>  ").arg(QString::number(purity, 'f', 2));
 
     setTitle(_titleText);
 }
@@ -587,7 +626,7 @@ void SpectraWidget::drawGraph()
         sampleColor = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
     }
 
-    setTitle();
+    setScanTitle();
     drawScan(_currentScan, sampleColor);
     drawMzLabels(_currentScan);
     drawAnnotations();
@@ -595,7 +634,7 @@ void SpectraWidget::drawGraph()
     // overlay spectra
     if ( fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5 ) {
         drawSpectralHit(_spectralHit);
-        drawSpectralHit(_spectralHit);
+        if (_currentGroup) setGroupTitle();
     } else {
         //TODO: either remove the check or inform user on the UI in case of failure
        qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
