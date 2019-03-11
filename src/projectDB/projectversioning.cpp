@@ -17,6 +17,7 @@ namespace ProjectVersioning {
  */
 map<Version, int> appDbVersionMap = {
     {Version("0.6.0"), 0},
+    {Version("0.7.0"), 1}
 };
 
 /**
@@ -25,7 +26,20 @@ map<Version, int> appDbVersionMap = {
  * format to the next. And DO NOT assume that any of the tables that should be
  * transformed already exist.
  */
-map<int, string> dbVersionUpgradeScripts = {};
+map<int, string> dbVersionUpgradeScripts = {
+    {
+        0,
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_fraction_matched REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_mz_frag_error REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_hypergeom_score REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_mvh_score REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_dot_product REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_weighted_dot_product REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_spearman_rank_corr REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_tic_matched REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN fragmentation_num_matches REAL;"
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

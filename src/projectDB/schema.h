@@ -77,24 +77,33 @@
                                       , label                   INTEGER                           );"
 
 #define CREATE_PEAK_GROUPS_TABLE \
-    "CREATE TABLE IF NOT EXISTS peakgroups ( group_id           INTEGER PRIMARY KEY AUTOINCREMENT \
-                                           , parent_group_id    INTEGER                           \
-                                           , meta_group_id      INTEGER                           \
-                                           , tag_string         TEXT                              \
-                                           , expected_mz        REAL                              \
-                                           , expected_abundance REAL                              \
-                                           , expected_rt_diff   REAL                              \
-                                           , group_rank         REAL                              \
-                                           , label              TEXT                              \
-                                           , type               INTEGER                           \
-                                           , srm_id             TEXT                              \
-                                           , ms2_event_count    INTEGER                           \
-                                           , ms2_score          REAL                              \
-                                           , adduct_name        TEXT                              \
-                                           , compound_id        TEXT                              \
-                                           , compound_name      TEXT                              \
-                                           , compound_db        TEXT                              \
-                                           , table_name         TEXT                              );"
+    "CREATE TABLE IF NOT EXISTS peakgroups ( group_id                           INTEGER PRIMARY KEY AUTOINCREMENT \
+                                           , parent_group_id                    INTEGER                           \
+                                           , meta_group_id                      INTEGER                           \
+                                           , tag_string                         TEXT                              \
+                                           , expected_mz                        REAL                              \
+                                           , expected_abundance                 REAL                              \
+                                           , expected_rt_diff                   REAL                              \
+                                           , group_rank                         REAL                              \
+                                           , label                              TEXT                              \
+                                           , type                               INTEGER                           \
+                                           , srm_id                             TEXT                              \
+                                           , ms2_event_count                    INTEGER                           \
+                                           , ms2_score                          REAL                              \
+                                           , adduct_name                        TEXT                              \
+                                           , compound_id                        TEXT                              \
+                                           , compound_name                      TEXT                              \
+                                           , compound_db                        TEXT                              \
+                                           , table_name                         TEXT                              \
+                                           , fragmentation_fraction_matched     REAL                              \
+                                           , fragmentation_mz_frag_error        REAL                              \
+                                           , fragmentation_hypergeom_score      REAL                              \
+                                           , fragmentation_mvh_score            REAL                              \
+                                           , fragmentation_dot_product          REAL                              \
+                                           , fragmentation_weighted_dot_product REAL                              \
+                                           , fragmentation_spearman_rank_corr   REAL                              \
+                                           , fragmentation_tic_matched          REAL                              \
+                                           , fragmentation_num_matches          REAL                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT         \

@@ -142,25 +142,34 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     }
 
     auto groupsQuery = _connection->prepare(
-        "INSERT INTO peakgroups            \
-              VALUES ( :group_id           \
-                     , :parent_group_id    \
-                     , :meta_group_id      \
-                     , :tag_string         \
-                     , :expected_mz        \
-                     , :expected_rt_diff   \
-                     , :expected_abundance \
-                     , :group_rank         \
-                     , :label              \
-                     , :type               \
-                     , :srm_id             \
-                     , :ms2_event_count    \
-                     , :ms2_score          \
-                     , :adduct_name        \
-                     , :compound_id        \
-                     , :compound_name      \
-                     , :compound_db        \
-                     , :table_name         )");
+        "INSERT INTO peakgroups                            \
+              VALUES ( :group_id                           \
+                     , :parent_group_id                    \
+                     , :meta_group_id                      \
+                     , :tag_string                         \
+                     , :expected_mz                        \
+                     , :expected_rt_diff                   \
+                     , :expected_abundance                 \
+                     , :group_rank                         \
+                     , :label                              \
+                     , :type                               \
+                     , :srm_id                             \
+                     , :ms2_event_count                    \
+                     , :ms2_score                          \
+                     , :adduct_name                        \
+                     , :compound_id                        \
+                     , :compound_name                      \
+                     , :compound_db                        \
+                     , :table_name                         \
+                     , :fragmentation_fraction_matched     \
+                     , :fragmentation_mz_frag_error        \
+                     , :fragmentation_hypergeom_score      \
+                     , :fragmentation_mvh_score            \
+                     , :fragmentation_dot_product          \
+                     , :fragmentation_weighted_dot_product \
+                     , :fragmentation_spearman_rank_corr   \
+                     , :fragmentation_tic_matched          \
+                     , :fragmentation_num_matches          )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
@@ -175,6 +184,26 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     groupsQuery->bind(":ms2_event_count", group->ms2EventCount);
     groupsQuery->bind(":ms2_score", group->fragMatchScore.mergedScore);
+
+    groupsQuery->bind(":fragmentation_fraction_matched",
+                      group->fragMatchScore.fractionMatched);
+    groupsQuery->bind(":fragmentation_mz_frag_error",
+                      group->fragMatchScore.mzFragError);
+    groupsQuery->bind(":fragmentation_hypergeom_score",
+                      group->fragMatchScore.hypergeomScore);
+    groupsQuery->bind(":fragmentation_mvh_score",
+                      group->fragMatchScore.mvhScore);
+    groupsQuery->bind(":fragmentation_dot_product",
+                      group->fragMatchScore.dotProduct);
+    groupsQuery->bind(":fragmentation_weighted_dot_product",
+                      group->fragMatchScore.weightedDotProduct);
+    groupsQuery->bind(":fragmentation_spearman_rank_corr",
+                      group->fragMatchScore.spearmanRankCorrelation);
+    groupsQuery->bind(":fragmentation_tic_matched",
+                      group->fragMatchScore.ticMatched);
+    groupsQuery->bind(":fragmentation_num_matches",
+                      group->fragMatchScore.numMatches);
+
     groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
 
     groupsQuery->bind(":compound_id",
@@ -594,6 +623,25 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         group->ms2EventCount = groupsQuery->integerValue("ms2_event_count");
         group->fragMatchScore.mergedScore =
             groupsQuery->doubleValue("ms2_score");
+        group->fragMatchScore.fractionMatched =
+            groupsQuery->doubleValue("fragmentation_fraction_matched");
+        group->fragMatchScore.mzFragError =
+            groupsQuery->doubleValue("fragmentation_mz_frag_error");
+        group->fragMatchScore.hypergeomScore =
+            groupsQuery->doubleValue("fragmentation_hypergeom_score");
+        group->fragMatchScore.mvhScore =
+            groupsQuery->doubleValue("fragmentation_mvh_score");
+        group->fragMatchScore.dotProduct =
+            groupsQuery->doubleValue("fragmentation_dot_product");
+        group->fragMatchScore.weightedDotProduct =
+            groupsQuery->doubleValue("fragmentation_weighted_dot_product");
+        group->fragMatchScore.spearmanRankCorrelation =
+            groupsQuery->doubleValue("fragmentation_spearman_rank_corr");
+        group->fragMatchScore.ticMatched =
+            groupsQuery->doubleValue("fragmentation_tic_matched");
+        group->fragMatchScore.numMatches =
+            groupsQuery->doubleValue("fragmentation_num_matches");
+
         group->setType(PeakGroup::GroupType(groupsQuery->integerValue("type")));
         group->searchTableName = groupsQuery->stringValue("table_name");
 
