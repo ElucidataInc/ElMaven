@@ -11,6 +11,7 @@ Fragment::Fragment() {
     collisionEnergy = 0;
     consensus = NULL;
     precursorCharge = 0;
+    purity = 0;
 }
 
 // build fragment based on MS2 scan
@@ -37,6 +38,8 @@ Fragment::Fragment(Scan* scan,
     this->obscount = vector<int>(this->mzValues.size(), 1);
     this->consensus = NULL;
     this->rt = scan->rt;
+    //TODO: why use hard-coded PPM value? use user set PPM
+    this->purity = scan->getPrecursorPurity(10.0);
 }
 
 //make a copy of Fragment.
@@ -52,6 +55,8 @@ Fragment::Fragment(Fragment* other)
     this->sampleName = other->sampleName;
     this->collisionEnergy = other->collisionEnergy;
     this->precursorCharge= other->precursorCharge;
+    this->purity = other->purity;
+    this->rt = other->rt;
 }
 
 Fragment::~Fragment()
@@ -183,9 +188,8 @@ void Fragment::buildConsensus(float productPpmTolr)
         consensusFrag->sortByMz();
     }
 
-    //TODO calculate for fragmentation spectra widget
-    //consensusFrag->rt = consensusRt();
-    //consensusFrag->purity = consensusPurity();
+    consensusFrag->rt = consensusRt();
+    consensusFrag->purity = consensusPurity();
 
     //average values 
     int N = 1 + brothers.size();
@@ -199,6 +203,34 @@ void Fragment::buildConsensus(float productPpmTolr)
         consensusFrag->intensityValues[i] = consensusFrag->intensityValues[i] / maxValue * 10000;
     }
     this->consensus = consensusFrag; 
+}
+
+float Fragment::consensusRt()
+{
+    if (brothers.size() == 0) 
+		return this->rt;
+
+    StatisticsVector<float> retentionTimes;
+    retentionTimes.push_back(this->rt);
+    
+    for (auto brother : brothers)
+        retentionTimes.push_back(brother->rt);
+
+	return retentionTimes.mean();
+}
+
+float Fragment::consensusPurity() 
+{
+    if (brothers.size() == 0)
+        return this->purity;
+
+    StatisticsVector<float> purityVector;
+    purityVector.push_back(this->purity);
+
+    for (auto brother : brothers)
+        purityVector.push_back(brother->purity);
+    
+    return purityVector.mean();
 }
 
 vector<int> Fragment::intensityOrderDesc()

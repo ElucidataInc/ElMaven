@@ -109,6 +109,7 @@ class Fragment {
         float rt;						//retention time of parent scan
         float collisionEnergy;
         int precursorCharge;	
+        float purity;
 
         Fragment* consensus; //consensus pattern build on brothers
         vector<int> obscount; // vector size =  mzValues vector size, with counts of number of times mz was observed
@@ -132,6 +133,10 @@ class Fragment {
          * averaged over the number of brother fragments and further normalized against the highest intensity.
          */
         void buildConsensus(float productPpmTolr);
+
+        float consensusRt();
+
+        float consensusPurity();
 
         vector<int> intensityOrderDesc();
 
