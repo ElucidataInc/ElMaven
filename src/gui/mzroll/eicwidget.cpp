@@ -1820,7 +1820,9 @@ QString EicWidget::eicToTextBuffer() {
 void EicWidget::eicToClipboard()
 {
 	if (eicParameters->eics.size() == 0 ) return;
-    getMainWindow()->getAnalytics()->hitEvent("Exports", "Clipboard", 4);
+    getMainWindow()->getAnalytics()->hitEvent("Exports",
+                                              "Clipboard",
+                                              "From EIC Menu");
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(eicToTextBuffer());
 }
@@ -1962,7 +1964,9 @@ void EicWidget::markGroupBad()
 
 void EicWidget::copyToClipboard()
 {
-	getMainWindow()->getAnalytics()->hitEvent("Exports", "Clipboard", 0);
+        getMainWindow()->getAnalytics()->hitEvent("Exports",
+                                                  "Clipboard",
+                                                  "From Dropdown");
 	getMainWindow()->setClipboardToGroup(eicParameters->getSelectedGroup());
 }
 
