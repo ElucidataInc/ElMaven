@@ -26,7 +26,8 @@ Fragment::Fragment(Scan* scan,
     this->scanNum = scan->scannum;
     this->precursorCharge = scan->precursorCharge;
     vector<pair<float, float>> mzarray = scan->getTopPeaks(minFractionalIntensity,
-                                                           minSigNoiseRatio, 5);
+                                                           minSigNoiseRatio,
+                                                           5);
 
     for (unsigned int j = 0; j < mzarray.size() && j < maxFragmentSize;
             j++) {

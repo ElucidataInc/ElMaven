@@ -1821,8 +1821,8 @@ void mzSample::restorePreviousRetentionTimes()
 
 vector<Scan*> mzSample::getFragmentationEvents(mzSlice* slice)
 {
-	vector<Scan*> matchedScans;
-	for (auto scan : scans) {
+    vector<Scan*> matchedScans;
+    for (auto scan : scans) {
         if (scan->mslevel <= 1) continue; //ms2 + scans only
         if (scan->rt < slice->rtmin) continue;
         if (scan->rt > slice->rtmax) break;
