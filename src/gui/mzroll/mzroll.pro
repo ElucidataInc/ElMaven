@@ -31,7 +31,6 @@ TARGET = "El-MAVEN $$VERSION"
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
 
-mac: RESOURCES += $$top_srcdir/extras.qrc
 
 ICON = maven.icns
 

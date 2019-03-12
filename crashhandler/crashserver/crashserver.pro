@@ -1,10 +1,10 @@
 TEMPLATE = app
 QT -= gui
 
-mac: DESTDIR = $$top_srcdir/binaries/mac
+mac: DESTDIR = $$APPDIR
 win32: DESTDIR = $$top_srcdir/bin/
 
-
+CONFIG -= app_bundle
 TARGET = crashserver
 
 CONFIG(force_debug_info, force_debug_info) {
