@@ -23,12 +23,15 @@ map<Version, int> appDbVersionMap = {
 /**
  * Update this for every release where DB format changes. Please only add the
  * absolute minimum change that would be needed for moving from one database
- * format to the next. And DO NOT assume that any of the tables that should be
- * transformed already exist.
+ * format to the next. Also, please ensure that each SQL statement ends with a
+ * semi-colon (;), as it would according to SQLite standard syntax.
  */
 map<int, string> dbVersionUpgradeScripts = {
     {
         0,
+        "BEGIN TRANSACTION;"
+
+        // changes to peakgroups table
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_fraction_matched REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_mz_frag_error REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_hypergeom_score REAL;"
@@ -38,6 +41,69 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_spearman_rank_corr REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_tic_matched REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_num_matches REAL;"
+
+        // due to change in primary key, the entire table needs to be recreated
+        "ALTER TABLE compounds RENAME TO compounds_old;"
+        "CREATE TABLE compounds ( compound_id           TEXT                 "
+        "                       , db_name               TEXT                 "
+        "                       , name                  TEXT                 "
+        "                       , formula               TEXT                 "
+        "                       , smile_string          TEXT                 "
+        "                       , srm_id                TEXT                 "
+        "                       , mass                  REAL                 "
+        "                       , charge                INTEGER              "
+        "                       , expected_rt           REAL                 "
+        "                       , precursor_mz          REAL                 "
+        "                       , product_mz            REAL                 "
+        "                       , collision_energy      REAL                 "
+        "                       , log_p                 REAL                 "
+        "                       , virtual_fragmentation INTEGER              "
+        "                       , ionization_mode       INTEGER              "
+        "                       , category              TEXT                 "
+        "                       , fragment_mzs          TEXT                 "
+        "                       , fragment_intensity    TEXT                 "
+        "                       , fragment_ion_types    TEXT                 "
+        "                       , PRIMARY KEY (compound_id, name, db_name) );"
+        "INSERT INTO compounds ( compound_id           "
+        "                      , db_name               "
+        "                      , name                  "
+        "                      , formula               "
+        "                      , smile_string          "
+        "                      , srm_id                "
+        "                      , mass                  "
+        "                      , charge                "
+        "                      , expected_rt           "
+        "                      , precursor_mz          "
+        "                      , product_mz            "
+        "                      , collision_energy      "
+        "                      , log_p                 "
+        "                      , virtual_fragmentation "
+        "                      , ionization_mode       "
+        "                      , category              "
+        "                      , fragment_mzs          "
+        "                      , fragment_intensity   )"
+        "                 SELECT compound_id           "
+        "                      , db_name               "
+        "                      , name                  "
+        "                      , formula               "
+        "                      , smile_string          "
+        "                      , srm_id                "
+        "                      , mass                  "
+        "                      , charge                "
+        "                      , expected_rt           "
+        "                      , precursor_mz          "
+        "                      , product_mz            "
+        "                      , collision_energy      "
+        "                      , log_p                 "
+        "                      , virtual_fragmentation "
+        "                      , ionization_mode       "
+        "                      , category              "
+        "                      , fragment_mzs          "
+        "                      , fragment_intensity    "
+        "                   FROM compounds_old        ;"
+        "DROP TABLE compounds_old;"
+
+        "COMMIT;"
     }
 };
 

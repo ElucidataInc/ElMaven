@@ -361,7 +361,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :ionization_mode       \
                       , :category              \
                       , :fragment_mzs          \
-                      , :fragment_intensity    )");
+                      , :fragment_intensity    \
+                      , :fragment_ion_types    )");
 
     _connection->begin();
 
@@ -374,19 +375,30 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         catStr = catStr.substr(0, catStr.size() - 1);
 
         stringstream fragMz;
-        for (float f : c->fragmentMzValues) {
-            fragMz << fixed << setprecision(5) << f << ";";
-        }
-        string fragMzStr = fragMz.str();
-        fragMzStr = fragMzStr.substr(0, fragMzStr.size() - 1);
-
         stringstream fragIntensity;
-        for (float f : c->fragmentIntensities) {
-            fragIntensity << fixed << setprecision(5) << f << ";";
+        stringstream fragIonType;
+        size_t numFragments = c->fragmentMzValues.size();
+        if (numFragments != 0
+            && (numFragments == c->fragmentIntensities.size())
+            && (numFragments == c->fragmentIonTypes.size())) {
+            for (size_t i = 0; i < numFragments - 1; ++i) {
+                // presumption: all three containers are of the same size
+                auto mz = c->fragmentMzValues[i];
+                auto intensity = c->fragmentIntensities[i];
+                auto ionType = c->fragmentIonTypes[i];
+
+                fragMz << fixed << setprecision(10) << mz << ";";
+                fragIntensity << fixed << setprecision(10) << intensity << ";";
+                fragIonType << ionType << ";";
+            }
+            fragMz << fixed
+                   << setprecision(10)
+                   << c->fragmentMzValues.back();
+            fragIntensity << fixed
+                          << setprecision(10)
+                          << c->fragmentIntensities.back();
+            fragIonType << c->fragmentIonTypes.rbegin()->second;
         }
-        string fragIntensityStr = fragIntensity.str();
-        fragIntensityStr = fragIntensityStr.substr(0,
-                                                   fragIntensityStr.size() - 1);
 
         compoundsQuery->bind(":compound_id", c->id);
         compoundsQuery->bind(":db_name", c->db);
@@ -407,8 +419,9 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":ionization_mode", c->ionizationMode);
 
         compoundsQuery->bind(":category", catStr);
-        compoundsQuery->bind(":fragment_mzs", fragMzStr);
-        compoundsQuery->bind(":fragment_intensity", fragIntensityStr);
+        compoundsQuery->bind(":fragment_mzs", fragMz.str());
+        compoundsQuery->bind(":fragment_intensity", fragIntensity.str());
+        compoundsQuery->bind(":fragment_ion_types", fragIonType.str());
 
         if (!compoundsQuery->execute())
             cerr << "Error: failed to save compound " << c->name << endl;
@@ -658,7 +671,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             group->adduct = _findAdductByName(adductName);
 
         if (!compoundId.empty()) {
-            Compound* compound = _findSpeciesById(compoundId, compoundDB);
+            Compound* compound = _findSpeciesByIdAndName(compoundId,
+                                                         compoundName,
+                                                         compoundDB);
             if (compound) {
                 group->compound = compound;
             } else {
@@ -806,7 +821,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         float expectedRt = compoundsQuery->floatValue("expected_rt");
 
         // skip if compound already exists in internal database
-        if (_compoundIdMap.find(id + db) != end(_compoundIdMap))
+        if (_compoundIdMap.find(id + name + db) != end(_compoundIdMap))
             continue;
 
         // the neutral mass is computed automatically inside the constructor
@@ -861,7 +876,15 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compound->fragmentIntensities.push_back(stof(fragIntensity));
         }
 
-        _compoundIdMap[compound->id + compound->db] = compound;
+        vector<string> fragmentIonTypes =
+            split(compoundsQuery->stringValue("fragment_ion_types"), ';');
+        for (size_t i = 0; i < fragmentIonTypes.size(); ++i) {
+            string fragIonType = fragmentIonTypes[i];
+            if (!fragIonType.empty())
+                compound->fragmentIonTypes[i] = fragIonType;
+        }
+
+        _compoundIdMap[compound->id  + compound->name + compound->db] = compound;
         compounds.push_back(compound);
         loadCount++;
     }
@@ -1129,16 +1152,17 @@ Adduct* ProjectDatabase::_findAdductByName(string id)
     return nullptr;
 }
 
-Compound* ProjectDatabase::_findSpeciesById(string id, string databaseName)
+Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,
+                                                   string name,
+                                                   string databaseName)
 {
     // load compounds from database if not already loaded.
     if (!databaseName.empty() && !_compoundDatabaseLoaded(databaseName))
         loadCompounds(databaseName);
 
-    if (_compoundIdMap.count(id + databaseName))
-        return _compoundIdMap[id + databaseName];
-    if (_compoundIdMap.count(id))
-        return _compoundIdMap[id];
+    if (_compoundIdMap.count(id + name + databaseName))
+        return _compoundIdMap[id + name + databaseName];
+
     return nullptr;
 }
 

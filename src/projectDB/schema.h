@@ -106,25 +106,26 @@
                                            , fragmentation_num_matches          REAL                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
-    "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT         \
-                                          , db_name               TEXT         \
-                                          , name                  TEXT         \
-                                          , formula               TEXT         \
-                                          , smile_string          TEXT         \
-                                          , srm_id                TEXT         \
-                                          , mass                  REAL         \
-                                          , charge                INTEGER      \
-                                          , expected_rt           REAL         \
-                                          , precursor_mz          REAL         \
-                                          , product_mz            REAL         \
-                                          , collision_energy      REAL         \
-                                          , log_p                 REAL         \
-                                          , virtual_fragmentation INTEGER      \
-                                          , ionization_mode       INTEGER      \
-                                          , category              TEXT         \
-                                          , fragment_mzs          TEXT         \
-                                          , fragment_intensity    TEXT         \
-                                          , PRIMARY KEY (compound_id, db_name) );"
+    "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
+                                          , db_name               TEXT               \
+                                          , name                  TEXT               \
+                                          , formula               TEXT               \
+                                          , smile_string          TEXT               \
+                                          , srm_id                TEXT               \
+                                          , mass                  REAL               \
+                                          , charge                INTEGER            \
+                                          , expected_rt           REAL               \
+                                          , precursor_mz          REAL               \
+                                          , product_mz            REAL               \
+                                          , collision_energy      REAL               \
+                                          , log_p                 REAL               \
+                                          , virtual_fragmentation INTEGER            \
+                                          , ionization_mode       INTEGER            \
+                                          , category              TEXT               \
+                                          , fragment_mzs          TEXT               \
+                                          , fragment_intensity    TEXT               \
+                                          , fragment_ion_types    TEXT               \
+                                          , PRIMARY KEY (compound_id, name, db_name) );"
 
 #define CREATE_ALIGNMENT_TABLE \
     "CREATE TABLE IF NOT EXISTS alignment_rts ( sample_id   INTEGER NOT NULL \

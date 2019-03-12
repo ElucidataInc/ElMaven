@@ -333,12 +333,16 @@ private:
     Adduct* _findAdductByName(string id);
 
     /**
-     * @brief Find compound with the given ID and from the given database
-     * @param id A string ID for the compound (unique for a compound database)
+     * @brief Find compound with the given ID and name from the given database.
+     * @param id A string ID for the compound (may not be unique for a NIST
+     * library).
+     * @param name A string name for the compound (unique for an NIST library).
      * @param db Name of the compound database.
      * @return A Compound object if found, otherwise nullptr.
      */
-    Compound* _findSpeciesById(string id, string databaseName);
+    Compound* _findSpeciesByIdAndName(string id,
+                                      string name,
+                                      string databaseName);
 
     /**
      * @brief Find a compound using its name.
