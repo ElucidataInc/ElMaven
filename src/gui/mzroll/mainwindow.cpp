@@ -3265,6 +3265,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
     if ( group->compound != NULL) {
+		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
 		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->overlayPeakGroup(group);
 		}

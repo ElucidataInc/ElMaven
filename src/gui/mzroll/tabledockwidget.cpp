@@ -976,7 +976,8 @@ void TableDockWidget::setClipboard() {
 void TableDockWidget::showConsensusSpectra() {
   QList<PeakGroup *> groups = getSelectedGroups();
   if (groups.size() > 0) {
-    _mainwindow->spectraWidget->showConsensusSpectra(groups[groups.size() - 1]);
+    _mainwindow->fragSpectraDockWidget->setVisible(true);
+    _mainwindow->fragSpectraWidget->overlayPeakGroup(groups[groups.size() - 1]);
   }
 }
 
