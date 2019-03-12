@@ -161,6 +161,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :compound_name                      \
                      , :compound_db                        \
                      , :table_name                         \
+                     , :min_quality                        \
                      , :fragmentation_fraction_matched     \
                      , :fragmentation_mz_frag_error        \
                      , :fragmentation_hypergeom_score      \
@@ -214,6 +215,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                       group->compound ? group->compound->db : "");
 
     groupsQuery->bind(":table_name", tableName);
+    groupsQuery->bind(":min_quality", group->minQuality);
 
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
@@ -657,6 +659,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
 
         group->setType(PeakGroup::GroupType(groupsQuery->integerValue("type")));
         group->searchTableName = groupsQuery->stringValue("table_name");
+        group->minQuality = groupsQuery->doubleValue("min_quality");
 
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");

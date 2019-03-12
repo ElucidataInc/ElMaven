@@ -32,6 +32,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "BEGIN TRANSACTION;"
 
         // changes to peakgroups table
+        "ALTER TABLE peakgroups ADD COLUMN min_quality REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_fraction_matched REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_mz_frag_error REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_hypergeom_score REAL;"

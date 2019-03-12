@@ -95,6 +95,7 @@
                                            , compound_name                      TEXT                              \
                                            , compound_db                        TEXT                              \
                                            , table_name                         TEXT                              \
+                                           , min_quality                        REAL                              \
                                            , fragmentation_fraction_matched     REAL                              \
                                            , fragmentation_mz_frag_error        REAL                              \
                                            , fragmentation_hypergeom_score      REAL                              \
