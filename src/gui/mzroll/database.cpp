@@ -517,13 +517,13 @@ int Database::loadNISTLibrary(QString filepath,
                 if (mz >= 0.0 && in >= 0.0) {
                     currentCompound->fragmentMzValues.push_back(mz);
                     currentCompound->fragmentIntensities.push_back(in);
-                }
-            }
 
-            int fragIdx = currentCompound->fragmentMzValues.size() - 1;
-            if (mzIntensityPair.size() >= 3) {
-                currentCompound->fragmentIonTypes[fragIdx] =
-                    mzIntensityPair.at(2).toStdString();
+                    int fragIdx = currentCompound->fragmentMzValues.size() - 1;
+                    if (mzIntensityPair.size() >= 3) {
+                        currentCompound->fragmentIonTypes[fragIdx] =
+                            mzIntensityPair.at(2).toStdString();
+                    }
+                }
             }
         }
         ++currentLine;
