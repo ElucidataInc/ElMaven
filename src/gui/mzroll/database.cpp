@@ -19,7 +19,7 @@ void Database::loadAll() {
 	loadPathways();
 	loadCategories();
 
-    cerr << "compoundsDB=" << compoundsDB.size() << " " << compoundIdMap.size() << endl;
+    cerr << "compoundsDB=" << compoundsDB.size() << " " << compoundIdNameMap.size() << endl;
     cerr << "reactionsDB=" << reactionsDB.size() << endl;
     cerr << "pathwaysDB=" <<  pathwayDB.size() << endl;
     cerr << "adductsDB=" << adductsDB.size() << endl;
@@ -47,7 +47,7 @@ multimap<string,Compound*> Database::keywordSearch(string needle) {
         std::string id  = query.value(0).toString().toStdString();
         std::string keyword  = query.value(1).toString().toStdString();
         //Updated while merging with Maven776 - Kiran
-        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
+        Compound* cmpd = findSpeciesByIdAndName(id, "", ANYDATABASE);
         if (cmpd != NULL ) matches.insert(pair<string,Compound*>(keyword,cmpd));
     }
 	return matches;
@@ -62,7 +62,7 @@ void Database::loadCategories() {
         std::string keyword  = query.value(0).toString().toStdString();
         std::string id  = query.value(1).toString().toStdString();
         //Updated while merging with Maven776 - Kiran
-        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
+        Compound* cmpd = findSpeciesByIdAndName(id, "",ANYDATABASE);
         if (cmpd != NULL ) {
          //   cmpd->category.push_back(keyword);
         }
@@ -75,7 +75,7 @@ void Database::loadCategories() {
         std::string keyword  = query.value(0).toString().toStdString();
         std::string id  = query.value(1).toString().toStdString();
         //Updated while merging with Maven776 - Kiran
-        Compound* cmpd = findSpeciesById(id,ANYDATABASE);
+        Compound* cmpd = findSpeciesByIdAndName(id, "", ANYDATABASE);
         if (cmpd != NULL ) {
          //   cmpd->category.push_back(keyword);
         }
@@ -89,79 +89,22 @@ bool Database::addCompound(Compound* newCompound)
     if(newCompound == nullptr)
         return false;
 
-    bool compoundAdded = false;
-
-    // new compound id, insert into compound list
-    if (!compoundIdMap.count(newCompound->id)) {
-        compoundIdMap[newCompound->id] = newCompound;
-        prmIdCount[newCompound->id] = 1;
-        compoundsDB.push_back(newCompound);
-        compoundAdded = true;
+    // existing compound, change its name according to the number of
+    // compounds with the same ID
+    if (compoundIdCount.count(newCompound->id)) {
+        int loadOrder = compoundIdCount.at(newCompound->id);
+        newCompound->name = newCompound->name
+                            + " ("
+                            + to_string(loadOrder)
+                            + ")";
+        compoundIdCount[newCompound->id] = ++loadOrder;
     } else {
-        bool matched = false;
-        bool newFragmentPattern = false;
-        for (int i = 0; i < compoundsDB.size(); i++) {
-            Compound* currentCompound = compoundsDB[i];
-            bool sameID = currentCompound->id == newCompound->id;
-            bool sameDB = currentCompound->db == newCompound->db;
-            bool bothPRM = (currentCompound->type() == Compound::Type::PRM
-                            && newCompound->type() == Compound::Type::PRM);
-
-            // compound with same ID and from the same database but not PRM
-            if (sameDB && sameID && !bothPRM) {
-                currentCompound->name = newCompound->name;
-                currentCompound->formula = newCompound->formula;
-                currentCompound->srmId = newCompound->srmId;
-                currentCompound->expectedRt = newCompound->expectedRt;
-                currentCompound->charge = newCompound->charge;
-                currentCompound->mass = newCompound->mass;
-                currentCompound->precursorMz = newCompound->precursorMz;
-                currentCompound->productMz = newCompound->productMz;
-                currentCompound->collisionEnergy = newCompound->collisionEnergy;
-                currentCompound->category = newCompound->category;
-
-                currentCompound->fragmentMzValues =
-                    newCompound->fragmentMzValues;
-                currentCompound->fragmentIntensities =
-                    newCompound->fragmentIntensities;
-                currentCompound->fragmentIonTypes =
-                    newCompound->fragmentIonTypes;
-
-                matched = true;
-            } else if (sameDB && sameID && bothPRM) {
-                bool equalMzs =
-                    newCompound->fragmentMzValues
-                    == currentCompound->fragmentMzValues;
-                bool equalIntensities =
-                    newCompound->fragmentIntensities
-                    == currentCompound->fragmentIntensities;
-                bool equalIonTypes =
-                    newCompound->fragmentIonTypes
-                    == currentCompound->fragmentIonTypes;
-
-                if (equalMzs && equalIntensities && equalIonTypes) {
-                    matched = true;
-                } else {
-                    newFragmentPattern = true;
-                }
-            }
-        }
-        if (!matched) {
-            // existing compound but different fragmentation spectra, change
-            // its name according to the number of compounds with the same ID
-            if (newFragmentPattern) {
-                int loadOrder = prmIdCount.at(newCompound->id);
-                newCompound->name = newCompound->name
-                                    + " ("
-                                    + to_string(loadOrder)
-                                    + ")";
-                prmIdCount[newCompound->id] = ++loadOrder;
-            }
-            compoundsDB.push_back(newCompound);
-            compoundAdded = true;
-        }
+        compoundIdCount[newCompound->id] = 1;
     }
-    return compoundAdded;
+
+    compoundIdNameMap[newCompound->id + newCompound->name] = newCompound;
+    compoundsDB.push_back(newCompound);
+    return true;
 }
 
 void Database::loadSpecies(string db) {
@@ -206,18 +149,12 @@ set<Compound*> Database::findSpeciesByMass(float mz, MassCutoff *massCutoff) {
     return uniqset;
 }
 
-        //Updated while merging with Maven776 - Kiran
-Compound* Database::findSpeciesById(string id, string dbName) {
-    if ( compoundIdMap.count(id) ) return compoundIdMap[id];
+Compound* Database::findSpeciesByIdAndName(string id,
+                                           string name,
+                                           string dbName)
+{
+    if ( compoundIdNameMap.count(id + name) ) return compoundIdNameMap[id + name];
     return NULL;
-
-    Compound* c = NULL;
-    for(int i=0; i < compoundsDB.size(); i++ ) {
-        //Updated while merging with Maven776 - Kiran
-        if (!dbName.empty() and compoundsDB[i]->db != dbName) continue;
-        if (compoundsDB[i]->id == id ) { c = compoundsDB[i]; break; }
-    }
-    return c;
 }
 
 Molecule2D* Database::getMolecularCoordinates(QString id) {
@@ -286,7 +223,9 @@ void Database::loadReactions(string db) {
 
 			//cerr << id << " " << species << " " << species_type << endl;
             //Updated while merging with Maven776 - Kiran
-            Compound* c = findSpeciesById(species_id,ANYDATABASE);
+                        Compound* c = findSpeciesByIdAndName(species_id,
+                                                             "",
+                                                             ANYDATABASE);
 
 			if ( c != NULL && r != NULL && seenSpeciesReactions.count(c->id + r->id) == 0 ) {
 				seenSpeciesReactions[ c->id + r->id ]=true;
@@ -356,7 +295,7 @@ void Database::loadRetentionTimes(QString method) {
 		std::string cid = query.value(0).toString().toStdString();
 		float rt = query.value(1).toDouble();
         //Updated while merging with Maven776 - Kiran
-        Compound* c = findSpeciesById(cid,ANYDATABASE);
+                Compound* c = findSpeciesByIdAndName(cid, "", ANYDATABASE);
 		if (c) c->expectedRt = rt;
 	}
 }

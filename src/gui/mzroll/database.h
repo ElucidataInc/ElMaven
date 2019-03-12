@@ -82,7 +82,7 @@ class Database {
 
 	Molecule2D* getMolecularCoordinates(QString id);
     //Added while merging with Maven776 - Kiran
-	Compound* findSpeciesById(string id, string dbName);
+        Compound* findSpeciesByIdAndName(string id, string name, string dbName);
 
 	deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
 	set<Compound*> findSpeciesByMass(float mz, MassCutoff *massCutoff);
@@ -101,13 +101,13 @@ class Database {
 	deque<Pathway*> pathwayDB;
 	deque<Molecule2D*> coordinatesDB;
 
-	map<string, Compound*> compoundIdMap;
+        map<string, Compound*> compoundIdNameMap;
         map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
     vector<string> notFoundColumns;
     vector<string> invalidRows;
-    map<string, int> prmIdCount;
+    map<string, int> compoundIdCount;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:

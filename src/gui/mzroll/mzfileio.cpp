@@ -824,8 +824,9 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
             if (matches.size()) {
                 group->compound = matches.at(0);
             } else {
-                group->compound = DB.findSpeciesById(group->compound->id,
-                                                     group->compound->db);
+                group->compound = DB.findSpeciesByIdAndName(group->compound->id,
+                                                            group->compound->name,
+                                                            group->compound->db);
             }
             dbNames.push_back(QString::fromStdString(group->compound->db));
         }
@@ -1199,7 +1200,9 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         if (matches.size() > 0)
             group->compound = matches[0];
     } else if (!compoundId.empty()) {
-        Compound* c = DB.findSpeciesById(compoundId, DB.ANYDATABASE);
+        Compound* c = DB.findSpeciesByIdAndName(compoundId,
+                                                group->compound->name,
+                                                DB.ANYDATABASE);
         if (c)
             group->compound = c;
     }
