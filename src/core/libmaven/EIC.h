@@ -222,7 +222,6 @@ class EIC
     void subtractBaseLine();
     void clearEICContents();
     void interpolate();
-    vector<Scan *> getFragmentationEvents();
     /**
          * [size ]
          * @method size

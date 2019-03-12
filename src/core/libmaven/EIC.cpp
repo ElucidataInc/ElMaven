@@ -1044,27 +1044,6 @@ void EIC::interpolate()
     }
 }
 
-vector<Scan *> EIC::getFragmentationEvents()
-{
-    // Merged to 776
-    vector<Scan *> matchedscans;
-    for (unsigned int j = 0; j < sample->scans.size(); j++)
-    {
-        Scan *scan = sample->scans[j];
-        if (scan->mslevel <= 1)
-            continue; // skip ms1 events
-        if (scan->rt < rtmin)
-            continue;
-        if (scan->rt > rtmax)
-            break;
-        if (scan->precursorMz >= mzmin and scan->precursorMz <= mzmax)
-        {
-            matchedscans.push_back(scan);
-        }
-    }
-    return matchedscans;
-}
-
 void EIC::getRTMinMaxPerScan()
 {
     if (this->rt.size() > 0)
