@@ -40,6 +40,16 @@ bool Connection::rollback()
     return prepare("ROLLBACK")->execute();
 }
 
+bool Connection::executeMulti(const std::string sql_string)
+{
+    int res_code = sqlite3_exec(_database,
+                                sql_string.c_str(),
+                                nullptr,
+                                nullptr,
+                                nullptr);
+    return res_code == SQLITE_OK;
+}
+
 Cursor* Connection::prepare(const std::string& query)
 {
     sqlite3_stmt* statement;

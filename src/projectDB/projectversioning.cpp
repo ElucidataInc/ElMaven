@@ -252,7 +252,7 @@ void upgradeDatabase(const string& dbFilename,
 
     if (!upgradeScript.empty()) {
         Connection connection(dbFilename);
-        connection.prepare(upgradeScript)->execute();
+        connection.executeMulti(upgradeScript);
     }
 }
 
