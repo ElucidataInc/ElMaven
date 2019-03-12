@@ -467,6 +467,24 @@ namespace mzUtils {
     int isDir(const char* path);
 
     /**
+     * @brief Check whether two double precision fractions are almost equal to
+     * each other.
+     * @param a First double value to be compared.
+     * @param b Second double value to be compared.
+     * @return True if the values are relatively close to each other.
+     */
+    bool almostEqual(double a, double b);
+
+    /**
+     * @brief Check whether two single precision fractions are almost equal to
+     * each other.
+     * @param a First float value to be compared.
+     * @param b Second float value to be compared.
+     * @return True if the values are relatively close to each other.
+     */
+    bool almostEqual(float a, float b);
+
+    /**
      * [fractional overlap between two line segments]
      * @method checkOverlap
      * @param  a            []
