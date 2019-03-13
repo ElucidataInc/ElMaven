@@ -496,6 +496,11 @@ using namespace mzUtils;
             SLOT(_setStatusString(QString)));
 
     connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+    connect(fileLoader,
+            SIGNAL(sampleLoaded()),
+            this,
+            SLOT(_warnIfNISTPolarityMismatch()));
+
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
@@ -514,6 +519,10 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
     connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(fileLoader,
+            SIGNAL(compoundsLoaded(QString, int)),
+            this,
+            SLOT(_postCompoundsDBLoadActions(QString,int)));
 
     // EMDB singals and slots
     connect(fileLoader,
@@ -595,30 +604,30 @@ using namespace mzUtils;
 		loadPathwaysFolder(pathwaysFolder);
 	}
 
-	setCentralWidget(eicWidgetController());	
+        setCentralWidget(eicWidgetController());
 
-	if (ligandWidget) {
-		if (settings->contains("lastDatabaseFile")) {
-			QString lfile =
-					settings->value("lastDatabaseFile").value<QString>();
-			QFile testf(lfile);
-			qDebug() << "Loading last database" << lfile;
-			if (testf.exists())
-				loadCompoundsFile(lfile);
-		}
-		QString databaseSet;
-		if (settings->contains("lastCompoundDatabase")) {
-			ligandWidget->setDatabase(
-					settings->value("lastCompoundDatabase").toString());
-			databaseSet = settings->value("lastCompoundDatabase").toString();
-		} else {
-			ligandWidget->setDatabase("KNOWNS");
-			databaseSet = "KNOWNS";
-		}
+        if (ligandWidget) {
+            if (settings->contains("lastDatabaseFile")) {
+                QString lfile =
+                    settings->value("lastDatabaseFile").value<QString>();
+                QFile testf(lfile);
+                qDebug() << "Loading last database" << lfile;
+                if (testf.exists())
+                    loadCompoundsFile(lfile, false);
+            }
+            QString databaseSet;
+            if (settings->contains("lastCompoundDatabase")) {
+                ligandWidget->setDatabase(
+                    settings->value("lastCompoundDatabase").toString());
+                databaseSet =
+                    settings->value("lastCompoundDatabase").toString();
+            } else {
+                ligandWidget->setDatabase("KNOWNS");
+                databaseSet = "KNOWNS";
+            }
+        }
 
-	}
-
-	setAcceptDrops(true);
+        setAcceptDrops(true);
 
 	showNormal();	//return from full screen on startup
 
@@ -1814,62 +1823,180 @@ void MainWindow::loadModel() {
 		clsf->loadModel(filelist[0].toStdString());
 }
 
-bool MainWindow::loadCompoundsFile(QString filename) {
-
-	string dbfilename = filename.toStdString();
-	string dbname = mzUtils::cleanFilename(dbfilename);
-	int compoundCount = 0;
-	bool reloading = false;
-
-    //added while merging with Maven776 - Kiran
-    if ( filename.endsWith("pepXML",Qt::CaseInsensitive)) {
-       // compoundCount=fileLoader->loadPepXML(filename);
-    } else if ( filename.endsWith("msp",Qt::CaseInsensitive) || filename.endsWith("sptxt",Qt::CaseInsensitive)) {
-        compoundCount=fileLoader->loadNISTLibrary(filename);
-    } else if ( filename.endsWith("massbank",Qt::CaseInsensitive)) { 
-        compoundCount=fileLoader->loadMassBankLibrary(filename);
-    } else {
-        compoundCount = DB.loadCompoundCSVFile(dbfilename);
+void MainWindow::loadCompoundsFile(QString filename, bool threaded)
+{
+    // added while merging with Maven776 - Kiran
+    if (threaded) {
+        fileLoader->addFileToQueue(filename);
+        fileLoader->start();
+        return;
     }
-	deque<Compound*> compoundsDB = DB.getCompoundsDB();
 
-	for (int i=0; i < compoundsDB.size(); i++) {
-        Compound* currentCompound = compoundsDB[i];
-		if (currentCompound->db == dbname) {
-			reloading = true;
-			break;
-		}
-	}
-
-        // check status in case the same file had been uploaded earlier
-        // without modifications
-        if ((compoundCount > 0 || reloading) && ligandWidget) {
-            ligandWidget->setDatabaseNames();
-            if (ligandWidget->isVisible())
-                ligandWidget->setDatabase(QString(dbname.c_str()));
-
-            int msLevel = 1;
-            vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbname);
-            if (loadedCompounds[0]->precursorMz > 0
-                && loadedCompounds[0]->productMz > 0) {
-                msLevel = 2;
-            }
-
-            analytics->hitEvent("Load Compound DB",
-                                "Successful Load",
-                                QString("MS") + QString::number(msLevel));
-
-            settings->setValue("lastDatabaseFile", filename);
-            setStatusText(tr("loadCompounds: done after loading %1 compounds")
-                              .arg(QString::number(compoundCount)));
-            return true;
-        } else {
-            setStatusText(tr("loadCompounds: not able to load %1 database")
-                              .arg(filename));
-            return false;
-        }
+    int compoundCount = fileLoader->loadCompoundsFromFile(filename);
+    _postCompoundsDBLoadActions(filename, compoundCount);
 }
 
+void MainWindow::_postCompoundsDBLoadActions(QString filename,
+                                             int compoundCount)
+{
+    string dbName = mzUtils::cleanFilename(filename.toStdString());
+
+    bool reloading = false;
+    deque<Compound*> compoundsDB = DB.getCompoundsDB();
+    for (int i = 0; i < compoundsDB.size(); i++) {
+        Compound* currentCompound = compoundsDB[i];
+        if (currentCompound->db == dbName) {
+            reloading = true;
+            break;
+        }
+    }
+
+    // check status in case the same file had been uploaded earlier
+    // without modifications
+    if ((compoundCount > 0 || reloading) && ligandWidget) {
+        ligandWidget->setDatabaseNames();
+        if (ligandWidget->isVisible())
+            ligandWidget->setDatabase(QString(dbName.c_str()));
+
+        int msLevel = 1;
+        vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
+        if (loadedCompounds[0]->precursorMz > 0
+            && (loadedCompounds[0]->productMz > 0
+                || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
+            msLevel = 2;
+        }
+
+		analytics->hitEvent("Load Compound DB",
+							"Successful Load",
+							QString("MS") + QString::number(msLevel));
+
+        // do not save NIST library files for automatic load when starting next
+        // session, unless they are less than 2Mb in size
+        QFileInfo fileInfo(filename);
+        bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
+        bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
+        bool nistFile = isMSPFile || isSPTXTFile;
+        bool smallerThan2Mb = fileInfo.size() < 2000000;
+        if (!nistFile || smallerThan2Mb)
+            settings->setValue("lastDatabaseFile", filename);
+
+        if (nistFile)
+            _warnIfNISTPolarityMismatch();
+
+        setStatusText(tr("Loaded %1 compounds successfully")
+                        .arg(QString::number(compoundCount)));
+        _notifyIfBadCompoundsDB(filename, false);
+    } else {
+        setStatusText(tr("Failed to load compound database")
+                        .arg(filename));
+        _notifyIfBadCompoundsDB(filename, true);
+    }
+}
+
+void MainWindow::_notifyIfBadCompoundsDB(QString filename,
+                                         bool failedToLoadCompletely)
+{
+    if (failedToLoadCompletely) {
+        analytics->hitEvent("Load Compound DB",
+                            "Column Error",
+                            "Complete Failure");
+
+        string dbfilename = filename.toStdString();
+        string dbname = mzUtils::cleanFilename(dbfilename);
+
+        QMessageBox msgBox;
+        msgBox.setText(tr("Failed to load compound database %1")
+                         .arg(QString::fromStdString(dbname)));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowFlags(msgBox.windowFlags()
+                              & ~Qt::WindowCloseButtonHint);
+
+        string msgString = "Following are the unknown column name(s) found:";
+        if (DB.notFoundColumns.size() > 0) {
+            for (const auto& column : DB.notFoundColumns) {
+                 msgString += "\n - " + column;
+            }
+            msgBox.setDetailedText(QString::fromStdString(msgString));
+        }
+        msgBox.open();
+    } else {
+        if (DB.notFoundColumns.size() > 0) {
+            analytics->hitEvent("Load Compound DB",
+                                "Column Error",
+                                "Partial Failure");
+
+            QMessageBox msgBox;
+            msgBox.setText(tr("Found some unknown column name(s)"));
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.setWindowFlags(msgBox.windowFlags()
+                                  & ~Qt::WindowCloseButtonHint);
+
+            string msgString = "Following are the unknown column name(s) "
+                               "found:";
+            for (const auto& column : DB.notFoundColumns) {
+                 msgString += "\n - " + column;
+            }
+            msgBox.setDetailedText(QString::fromStdString(msgString));
+            msgBox.open();
+        }
+        if (DB.invalidRows.size() > 0) {
+            analytics->hitEvent("Load Compound DB", "Row Error");
+
+            QMessageBox msgBox;
+            msgBox.setText(tr("Invalid compounds found"));
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+
+            string msgString = "The following compounds had insufficient "
+                               "information for peak detection, and were not "
+                               "loaded:";
+            for (auto compoundID : DB.invalidRows) {
+                msgString += "\n - " + compoundID;
+            }
+            msgBox.setDetailedText(QString::fromStdString(msgString));
+            msgBox.open();
+        }
+    }
+}
+
+void MainWindow::_warnIfNISTPolarityMismatch()
+{
+    if (samples.size() == 0)
+        return;
+
+    // make sure the samples contain PRM data (TODO: check needs revision)
+    mzSample* sample = samples[0];
+    if (sample->ms1ScanCount() == 0 || sample->ms2ScanCount() == 0)
+        return;
+
+    // make sure the database is a spectral library
+    string dbName = ligandWidget->getDatabaseName().toStdString();
+    if (!DB.isNISTLibrary(dbName))
+        return;
+
+    int samplePolarity = sample->getPolarity();
+    int dbPolarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    if (samplePolarity != dbPolarity) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Data Polarity Mismatch"));
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+        QString msg = "The polarity of loaded samples and spectral library do "
+                      "not match. To perform precise fragmentation search, "
+                      "please upload a spectral library of correct polarity %1";
+        QString polarity = (samplePolarity > 0) ? "(positive)" : "(negative)";
+        msg = msg.arg(polarity);
+        msgBox.setText(msg);
+        QPushButton* upload = msgBox.addButton(tr("Upload Spectral Library"),
+                                               QMessageBox::ActionRole);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == upload) {
+            loadCompoundsFile();
+        }
+    }
+}
 
 void MainWindow::checkCorruptedSampleInjectionOrder()
 {
@@ -2006,80 +2133,36 @@ bool MainWindow::loadMetaInformation(QString filename) {
 
 void MainWindow::loadCompoundsFile()
 {
-    QStringList filelist = QFileDialog::getOpenFileNames(
+    QString dir = ".";
+    if (settings->contains("lastCompoundsDir")) {
+        QString ldir = settings->value("lastCompoundsDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+
+    QString filename = QFileDialog::getOpenFileName(
         this,
         "Select Compounds File To Load",
-        ".",
+        dir,
         "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
         "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
         "File(*.csv);;NIST "
         "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
         "massbank");
 
-    if (filelist.size() == 0 || filelist[0].isEmpty())
+    if (filename.isEmpty())
         return;
-    if (!loadCompoundsFile(filelist[0])) {
-        string dbfilename = filelist[0].toStdString();
-        string dbname = mzUtils::cleanFilename(dbfilename);
-        string notFoundColumns = "Following are the unknown column name(s) "
-                                 "found: ";
 
-        QMessageBox msgBox;
-        msgBox.setText(tr("Trouble in loading compound database %1")
-                         .arg(QString::fromStdString(dbname)));
-        msgBox.setIcon(QMessageBox::Warning);
-        if (DB.notFoundColumns.size() > 0) {
-            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
-                 it != DB.notFoundColumns.end();
-                 ++it) {
-                notFoundColumns += "\n" + *it;
-            }
-            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-            msgBox.setWindowFlags(msgBox.windowFlags()
-                                  & ~Qt::WindowCloseButtonHint);
-        }
-        analytics->hitEvent("Load Compound DB",
-                            "Column Error",
-                            "Complete Failure");
+    loadCompoundsFile(filename);
 
-        int ret = msgBox.exec();
-    } else {
-        if (DB.notFoundColumns.size() > 0) {
-            analytics->hitEvent("Load Compound DB",
-                                "Column Error",
-                                "Partial Failure");
-            string notFoundColumns = "Following are the unknown column name(s) "
-                                     "found: ";
-            QMessageBox msgBox;
-            msgBox.setText(tr("Found some unknown column name(s)"));
-            for (std::vector<string>::iterator it = DB.notFoundColumns.begin();
-                 it != DB.notFoundColumns.end();
-                 ++it) {
-                notFoundColumns += "\n" + *it;
-            }
-            msgBox.setDetailedText(QString::fromStdString(notFoundColumns));
-            msgBox.setWindowFlags(msgBox.windowFlags()
-                                  & ~Qt::WindowCloseButtonHint);
-            msgBox.setIcon(QMessageBox::Information);
-            int ret = msgBox.exec();
-        }
-        if (DB.invalidRows.size() > 0) {
-            analytics->hitEvent("Load Compound DB",
-                                "Row Error");
-            string invalidRowsString = "The following compounds had "
-                                       "insufficient information for peak "
-                                       "detection, and were not loaded:";
-            QMessageBox msgBox;
-            msgBox.setText(tr("Invalid compounds found"));
-            for (auto compoundID : DB.invalidRows) {
-                invalidRowsString += "\n - " + compoundID;
-            }
-            msgBox.setDetailedText(QString::fromStdString(invalidRowsString));
-            msgBox.setWindowFlags(Qt::CustomizeWindowHint);
-            msgBox.setIcon(QMessageBox::Information);
-            int ret = msgBox.exec();
-        }
-    }
+    // Saving the file location into QSettings class so that it can be
+    // used the next time user wants to load a compounds DB
+    QString absoluteFilePath(filename);
+    QFileInfo fileInfo(absoluteFilePath);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastCompoundsDir", tmp.absolutePath());
 }
 
 // open function for set csv

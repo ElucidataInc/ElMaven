@@ -1,3 +1,5 @@
+#include <boost/signals2.hpp>
+
 #include "mzfileio.h"
 #include "projectdatabase.h"
 #include <QStringList>
@@ -167,8 +169,8 @@ PK$PEAK: m/z int. rel.int.
                Compound* cpd = new Compound( id.toStdString(), name.toStdString(), formula.toStdString(), charge);
                cpd->precursorMz=precursor;
                cpd->db=dbname;
-               cpd->fragment_mzs = mzs;
-               cpd->fragment_intensity = intest;
+               cpd->fragmentMzValues = mzs;
+               cpd->fragmentIntensities = intest;
 			   Q_FOREACH (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
                DB.addCompound(cpd);
                compoundCount++;
@@ -221,115 +223,6 @@ PK$PEAK: m/z int. rel.int.
              }
          }
     } while (!line.isNull());
-    return compoundCount;
-}
-//TODO: Shouldnot be here
-int mzFileIO::loadNISTLibrary(QString fileName) {
-    qDebug() << "Loading Nist Libary: " << fileName;
-    QFile data(fileName);
-
-    if (!data.open(QFile::ReadOnly) ) {
-        qDebug() << "Can't open " << fileName; 
-        return 0;
-    }
-
-    string dbfilename = fileName.toStdString();
-    string dbname = mzUtils::cleanFilename(dbfilename);
-
-   QTextStream stream(&data);
-
-   /* sample
-   Name: DGDG 8:0; [M-H]-; DGDG(2:0/6:0)
-   MW: 555.22888
-   PRECURSORMZ: 555.22888
-   Comment: Parent=555.22888 Mz_exact=555.22888 ; DGDG 8:0; [M-H]-; DGDG(2:0/6:0); C23H40O15
-   Num Peaks: 2
-   115.07586 999 "sn2 FA"
-   59.01330 999 "sn1 FA"
-   */
-
-   QRegExp whiteSpace("\\s+");
-   QRegExp formulaMatch("Formula\\=(C\\d+H\\d+\\S*)");
-   QRegExp retentionTimeMatch("AvgRt\\=(\\S+)");
-
-   int charge=0;
-   QString line;
-   QString name, comment,formula;
-   double retentionTime;
-   double mw=0;
-   double precursor=0;
-   int peaks=0;
-   vector<float>mzs;
-   vector<float>intest;
-
-   int compoundCount=0;
-
-    do {
-        line = stream.readLine();
-
-        if(line.startsWith("Name:",Qt::CaseInsensitive) && !name.isEmpty()) {
-            if (!name.isEmpty()) { //insert new compound
-
-                Compound* cpd = new Compound(
-                           name.toStdString(),
-                           name.toStdString(),
-                           formula.toStdString(),
-                           charge);
-			   if (precursor and mw) { cpd->mass=precursor; cpd->precursorMz=precursor; }
-			   else if (mw) { cpd->mass=mw; cpd->precursorMz=precursor; }
-               //cpd->mass=mw;
-               //cpd->precursorMz=mw;
-               cpd->db=dbname;
-               cpd->fragment_mzs = mzs;
-               cpd->fragment_intensity = intest;
-			   cpd->expectedRt=retentionTime;
-               DB.addCompound(cpd);
-               compoundCount++;
-            }
-
-            //reset for the next record
-           name = comment = formula = QString();
-           mw=precursor=0;
-		   retentionTime=0;
-           peaks=0;
-           mzs.clear();
-           intest.clear();
-        }
-
-         if(line.startsWith("Name:",Qt::CaseInsensitive)) {
-             name = line.mid(5,line.length()).simplified();
-         } else if (line.startsWith("MW:",Qt::CaseInsensitive)) {
-             mw = line.mid(4,line.length()).simplified().toDouble();
-         } else if (line.startsWith("PRECURSORMZ:",Qt::CaseInsensitive)) {
-             precursor = line.mid(13,line.length()).simplified().toDouble();
-         } else if (line.startsWith("Comment:",Qt::CaseInsensitive)) {
-             comment = line.mid(8,line.length()).simplified();
-             if (comment.contains(formulaMatch)){
-                 formula=formulaMatch.capturedTexts().at(1);
-                 qDebug() << "Formula=" << formula;
-             }
-			if (comment.contains(retentionTimeMatch)){
-                 retentionTime=retentionTimeMatch.capturedTexts().at(1).simplified().toDouble();
-                 //qDebug() << "retentionTime=" << retentionTimeString;
-             }
-         } else if (line.startsWith("Num Peaks:",Qt::CaseInsensitive) || line.startsWith("NumPeaks:",Qt::CaseInsensitive)) {
-            //  peaks = line.mid(11,line.length()).simplified().toInt();
-             peaks = 1;
-         } else if ( peaks ) {
-             QStringList mzintpair = line.split(whiteSpace);
-             if( mzintpair.size() >=2 ) {
-                 bool ok=false; bool ook=false;
-                 float mz = mzintpair.at(0).toDouble(&ok);
-                 float ints = mzintpair.at(1).toDouble(&ook);
-                 if (ok && ook && mz >= 0 && ints >= 0) {
-                     mzs.push_back(mz);
-                     intest.push_back(ints);
-                 }
-             }
-         }
-
-    } while (!line.isNull());
-
     return compoundCount;
 }
 
@@ -390,8 +283,6 @@ int mzFileIO::loadPepXML(QString fileName) {
 		    cpd->mass=precursorMz;
 		    cpd->precursorMz=precursorMz;
 		    cpd->db=dbname;
-		    //cpd->fragment_mzs = mzs;
-		    //cpd->fragment_intensity = intest;
 		    DB.addCompound(cpd);
 
                 } else if (xml.name() == "mod_aminoacid_mass" ) {
@@ -533,8 +424,9 @@ void mzFileIO::fileImport(void) {
     QStringList peaks;
     QStringList projects;
     QStringList spectralhits;
+    QStringList compoundsDatabases;
 
-    Q_FOREACH(QString filename, filelist ) {
+    Q_FOREACH (QString filename, filelist) {
         try {
             QFileInfo fileInfo(filename);
             if (!fileInfo.exists())
@@ -548,12 +440,12 @@ void mzFileIO::fileImport(void) {
                 peaks << filename;
             } else if (isSpectralHitType(filename)) {
                 spectralhits << filename;
-            }
-            else
+            } else if (isCompoundDatabaseType(filename)) {
+                compoundsDatabases << filename;
+            } else {
                 throw MavenException(ErrorMsg::UnsupportedFormat);
-        }
-
-        catch (MavenException& excp) {
+            }
+        } catch (MavenException& excp) {
             qDebug() << "Error: " << excp.what();
         }
     }
@@ -688,25 +580,37 @@ void mzFileIO::fileImport(void) {
                                               "",
                                               numPRMSamplesLoaded);
 
-    Q_FOREACH(QString filename, spectralhits ) {
-        if (filename.contains("pepXML",Qt::CaseInsensitive)) {
+    Q_FOREACH (QString filename, spectralhits) {
+        if (filename.contains("pepXML", Qt::CaseInsensitive)) {
             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        } else if (filename.contains("pep.xml", Qt::CaseInsensitive)) {
+            _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
+        } else if (filename.contains("idpDB", Qt::CaseInsensitive)) {
+            _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
         }
-        else if (filename.contains("pep.xml",Qt::CaseInsensitive)) {
-             _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
-        }
-        else if (filename.contains("idpDB",Qt::CaseInsensitive)) {
-             _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
-        }
-   }
+    }
 
-    //done..
-    Q_EMIT (updateProgressBar( "Done importing", samples.size(), samples.size()));
-    if (samples.size() > 0)       Q_EMIT(sampleLoaded());
-    if (spectralhits.size() >0)   Q_EMIT(spectraLoaded());
-    if (projects.size() >0)       Q_EMIT(projectLoaded());
-    if (peaks.size() > 0)    	  Q_EMIT(peaklistLoaded());
-    filelist.clear(); //empty queue
+    Q_EMIT(updateStatusString("Loading compounds…"));
+    map<QString, int> databaseCompoundCounts;
+    Q_FOREACH (QString filename, compoundsDatabases) {
+        int compoundCount = loadCompoundsFromFile(filename);
+        databaseCompoundCounts[filename] = compoundCount;
+    }
+
+    Q_EMIT(updateProgressBar("Done importing", samples.size(), samples.size()));
+    if (samples.size() > 0)
+        Q_EMIT(sampleLoaded());
+    if (spectralhits.size() > 0)
+        Q_EMIT(spectraLoaded());
+    if (projects.size() > 0)
+        Q_EMIT(projectLoaded());
+    if (peaks.size() > 0)
+        Q_EMIT(peaklistLoaded());
+    for (auto dbEntry : databaseCompoundCounts)
+        Q_EMIT(compoundsLoaded(dbEntry.first, dbEntry.second));
+
+    // clear queue
+    filelist.clear();
 }
 
 void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples, int total_samples)
@@ -715,12 +619,44 @@ void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples
 
 }
 
+int mzFileIO::loadCompoundsFromFile(QString filename)
+{
+   int compoundCount = 0;
+   if (filename.endsWith("msp", Qt::CaseInsensitive)
+       || filename.endsWith("sptxt", Qt::CaseInsensitive)) {
+       boost::signals2::signal<void (string, int, int)> signal;
+       signal.connect([&](string message, int currentSteps, int totalSteps) {
+           Q_EMIT(updateProgressBar(QString::fromStdString(message),
+                                    currentSteps,
+                                    totalSteps));
+       });
+       compoundCount = DB.loadNISTLibrary(filename, &signal);
+   } else if (filename.endsWith("massbank", Qt::CaseInsensitive)) {
+       compoundCount = loadMassBankLibrary(filename);
+   } else if (filename.contains("csv", Qt::CaseInsensitive)
+              || filename.contains("tab", Qt::CaseInsensitive)) {
+       compoundCount = DB.loadCompoundCSVFile(filename.toStdString());
+   }
+   return compoundCount;
+}
 
 bool mzFileIO::isKnownFileType(QString filename) {
     if (isSampleFileType(filename))  return true;
     if (isProjectFileType(filename)) return true;
     if (isSpectralHitType(filename)) return true;
     if (isPeakListType(filename)) return true;
+    if (isCompoundDatabaseType(filename)) return true;
+    return false;
+}
+
+bool mzFileIO::isCompoundDatabaseType(QString filename)
+{
+    QStringList extList;
+    extList << ".csv" << ".tab" << "msp" << "sptxt" << "massbank";
+    Q_FOREACH (QString suffix, extList) {
+        if (filename.endsWith(suffix, Qt::CaseInsensitive))
+            return true;
+    }
     return false;
 }
 
@@ -888,8 +824,9 @@ void mzFileIO::readAllPeakTablesSQLite(const vector<mzSample*> newSamples)
             if (matches.size()) {
                 group->compound = matches.at(0);
             } else {
-                group->compound = DB.findSpeciesById(group->compound->id,
-                                                     group->compound->db);
+                group->compound = DB.findSpeciesByIdAndName(group->compound->id,
+                                                            group->compound->name,
+                                                            group->compound->db);
             }
             dbNames.push_back(QString::fromStdString(group->compound->db));
         }
@@ -1263,7 +1200,9 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         if (matches.size() > 0)
             group->compound = matches[0];
     } else if (!compoundId.empty()) {
-        Compound* c = DB.findSpeciesById(compoundId, DB.ANYDATABASE);
+        Compound* c = DB.findSpeciesByIdAndName(compoundId,
+                                                group->compound->name,
+                                                DB.ANYDATABASE);
         if (c)
             group->compound = c;
     }

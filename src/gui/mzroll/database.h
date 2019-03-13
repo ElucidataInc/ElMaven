@@ -1,10 +1,14 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include <boost/signals2.hpp>
+
 #include "Compound.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "stable.h"
+
+namespace bsignal = boost::signals2;
 
 class Molecule2D {
        public:
@@ -49,12 +53,36 @@ class Database {
 
 	vector<string> getPathwayReactions(string pathway_id);
 
-	map<string, int> getDatabaseNames();
+        /**
+         * @brief Load metabolites from a file at a given path by treating it as
+         * having NIST library format.
+         * @param filepath The absolute path of the NIST library file.
+         * @param signal Pointer to a boost signal object that can be called
+         * with a string for update message, an integer for current steps of
+         * progress and another integer for total steps to completion.
+         * @return The number of compounds that were loaded into the database.
+         */
+        int loadNISTLibrary(QString filepath,
+                            bsignal::signal<void (string, int, int)>* signal=nullptr);
+
+        /**
+         * @brief Checks whether the library with the given name is an NIST
+         * library or not.
+         * @details The first compound in the database (if it has any compounds)
+         * is checked for PRM information and if found, the database is
+         * regarded as an NIST library.
+         * @param dbName String name of the database to be checked.
+         * @return True if the database with given name is an NIST library,
+         * false otherwise.
+         */
+        bool isNISTLibrary(string dbName);
+
+        map<string, int> getDatabaseNames();
 	map<string, int> getChromotographyMethods();
 
 	Molecule2D* getMolecularCoordinates(QString id);
     //Added while merging with Maven776 - Kiran
-	Compound* findSpeciesById(string id, string dbName);
+        Compound* findSpeciesByIdAndName(string id, string name, string dbName);
 
 	deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
 	set<Compound*> findSpeciesByMass(float mz, MassCutoff *massCutoff);
@@ -73,12 +101,13 @@ class Database {
 	deque<Pathway*> pathwayDB;
 	deque<Molecule2D*> coordinatesDB;
 
-	map<string, Compound*> compoundIdMap;
-	map<string, Reaction*> reactionIdMap;
+        map<string, Compound*> compoundIdNameMap;
+        map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;
     vector<string> notFoundColumns;
     vector<string> invalidRows;
+    map<string, int> compoundIdCount;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:

@@ -224,7 +224,7 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 */
 //TODO: Sahil, Added while merging spectrawidget
 void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
-    if(_currentScan and c->fragment_mzs.size()) {
+    if(_currentScan and c->fragmentMzValues.size()) {
 		SpectralHit hit;
 	  	hit.score = 0;
         hit.precursorMz = c->precursorMz;
@@ -232,8 +232,8 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
         hit.sampleName="";
         hit.productMassCutoff=mainwindow->getUserMassCutoff();
         hit.scan=NULL;
-        for(int i=0; i < c->fragment_mzs.size();i++)        hit.mzList << c->fragment_mzs[i];
-        for(int i=0; i < c->fragment_intensity.size();i++)  hit.intensityList<< c->fragment_intensity[i];
+        for(int i=0; i < c->fragmentMzValues.size();i++)        hit.mzList << c->fragmentMzValues[i];
+        for(int i=0; i < c->fragmentIntensities.size();i++)  hit.intensityList<< c->fragmentIntensities[i];
         _spectralHit = hit;//copy hit
        	cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name << " " << c->precursorMz << endl;
 

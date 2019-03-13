@@ -56,13 +56,8 @@ Q_OBJECT
          */
         void setMainWindow(MainWindow*);
 
-        /**
-         * [load NIST Library]
-         * @param  filename [name of the file]
-         * @return          [int]
-         */
-        int loadNISTLibrary(QString filename);        
         int loadMassBankLibrary(QString filename);
+
         /**
          * [load Pep XML]
          * @param  filename [name of the file]
@@ -71,11 +66,14 @@ Q_OBJECT
         int loadPepXML(QString filename);
         int ThermoRawFileImport(QString fileName);
 
+        int loadCompoundsFromFile(QString filename);
+
         bool isKnownFileType(QString filename);
         bool isSampleFileType(QString filename);
         bool isProjectFileType(QString filename);
         bool isSpectralHitType(QString filename);
         bool isPeakListType(QString filename);
+        bool isCompoundDatabaseType(QString filename);
 
         /**
          * @brief Check whether the filename ends with a ".mzroll" extension.
@@ -208,6 +206,7 @@ Q_OBJECT
      void spectraLoaded();
      void projectLoaded();
      void peaklistLoaded();
+     void compoundsLoaded(QString, int);
      void createPeakTableSignal(QString);
      void addNewSample(mzSample*);
      void sqliteDBLoadStarted(QString);
