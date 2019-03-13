@@ -41,6 +41,8 @@ class Compound{
         Compound(string id, string name, string formula, int charge );
         ~Compound(){};
 
+        bool operator == (const Compound& rhs) const;
+
         PeakGroup* getPeakGroup() { return &_group; }
         /**@brief   -   set this compound to a group and vice-versa   */
         void setPeakGroup(const PeakGroup& group ) { _group = group; _group.compound = this; }
@@ -134,7 +136,7 @@ class Compound{
          * targeted analysis of MS (level 1), SRM, MRM or PRM datasets.
          * @return Type of the compound as a `Compound::Type` enum.
          */
-        Type type();
+        Type type() const;
 
         FragmentationMatchScore scoreCompoundHit(Fragment* expFrag,
                                                  float productPpmTolr = 20,

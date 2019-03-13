@@ -24,6 +24,47 @@ Compound::Compound(string id, string name, string formula, int charge ) {
     ionizationMode = 0;
 }
 
+bool Compound::operator == (const Compound& rhs) const
+{
+    return (id == rhs.id
+            && name == rhs.name
+            && formula == rhs.formula
+            && kegg_id == rhs.kegg_id
+            && pubchem_id == rhs.pubchem_id
+            && hmdb_id == rhs.hmdb_id
+            && alias == rhs.alias
+            && smileString == rhs.smileString
+            && adductString == rhs.adductString
+            && srmId == rhs.srmId
+            && almostEqual(expectedRt, rhs.expectedRt)
+            && charge == rhs.charge
+            && almostEqual(mass, rhs.mass)
+            && method_id == rhs.method_id
+            && almostEqual(precursorMz, rhs.precursorMz)
+            && almostEqual(productMz, rhs.productMz)
+            && almostEqual(collisionEnergy, rhs.collisionEnergy)
+            && almostEqual(logP, rhs.logP)
+            && virtualFragmentation == virtualFragmentation
+            && isDecoy == rhs.isDecoy
+            && ionizationMode == rhs.ionizationMode
+            && db == rhs.db
+            && equal(begin(fragmentMzValues),
+                     end(fragmentMzValues),
+                     begin(rhs.fragmentMzValues),
+                     [](float a, float b) {
+                        return almostEqual(a, b);
+                     })
+            && equal(begin(fragmentIntensities),
+                     end(fragmentIntensities),
+                     begin(rhs.fragmentIntensities),
+                     [](float a, float b) {
+                        return almostEqual(a, b);
+                     })
+            && fragmentIonTypes == rhs.fragmentIonTypes
+            && category == rhs.category
+            && type() == rhs.type());
+}
+
 float Compound::adjustedMass(int charge) { 
      /**   
     *@return    -    total mass by formula minus loss of electrons' mass 
@@ -32,7 +73,7 @@ float Compound::adjustedMass(int charge) {
     return MassCalculator::computeMass(formula,charge);
 }
 
-Compound::Type Compound::type() {
+Compound::Type Compound::type() const {
     bool hasFragMzs = fragmentMzValues.size() > 0;
     bool hasFragInts = fragmentIntensities.size() == fragmentMzValues.size();
     if (hasFragMzs && hasFragInts)

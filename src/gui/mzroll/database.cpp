@@ -19,7 +19,11 @@ void Database::loadAll() {
 	loadPathways();
 	loadCategories();
 
-    cerr << "compoundsDB=" << compoundsDB.size() << " " << compoundIdNameMap.size() << endl;
+    cerr << "compoundsDB="
+         << compoundsDB.size()
+         << " "
+         << compoundIdNameDbMap.size()
+         << endl;
     cerr << "reactionsDB=" << reactionsDB.size() << endl;
     cerr << "pathwaysDB=" <<  pathwayDB.size() << endl;
     cerr << "adductsDB=" << adductsDB.size() << endl;
@@ -93,6 +97,21 @@ bool Database::addCompound(Compound* newCompound)
     // compounds with the same ID
     if (compoundIdCount.count(newCompound->id)) {
         int loadOrder = compoundIdCount.at(newCompound->id);
+
+        // return false if any of the compounds having the same ID are the
+        // exact same in all aspects.
+        for (int i = 0; i < loadOrder; ++i) {
+            string name = newCompound->name;
+            if (i != 0)
+                name = name + " (" + to_string(i) + ")";
+
+            Compound* possibleCopy = compoundIdNameDbMap[newCompound->id
+                                                         + name
+                                                         + newCompound->db];
+            if (possibleCopy != nullptr && *newCompound == *possibleCopy)
+                return false;
+        }
+
         newCompound->name = newCompound->name
                             + " ("
                             + to_string(loadOrder)
@@ -102,7 +121,9 @@ bool Database::addCompound(Compound* newCompound)
         compoundIdCount[newCompound->id] = 1;
     }
 
-    compoundIdNameMap[newCompound->id + newCompound->name] = newCompound;
+    compoundIdNameDbMap[newCompound->id
+                        + newCompound->name
+                        + newCompound->db] = newCompound;
     compoundsDB.push_back(newCompound);
     return true;
 }
@@ -153,7 +174,8 @@ Compound* Database::findSpeciesByIdAndName(string id,
                                            string name,
                                            string dbName)
 {
-    if ( compoundIdNameMap.count(id + name) ) return compoundIdNameMap[id + name];
+    if (compoundIdNameDbMap.count(id + name + dbName))
+        return compoundIdNameDbMap[id + name + dbName];
     return NULL;
 }
 
