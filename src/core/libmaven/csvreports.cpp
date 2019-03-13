@@ -108,12 +108,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
                                 << "weigtedDotProduct"
                                 << "hyperGeomScore"
                                 << "spearmanRankCorrelation"
-<<<<<<< HEAD
-                                << "mzFragmentError"
-                                << "ms2purity";
-=======
                                 << "mzFragmentError";
->>>>>>> Export fragmentation match scores for PRM analysis
         }
 
         int cohort_offset = groupReportcolnames.size() - 1;
