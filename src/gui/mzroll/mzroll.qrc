@@ -103,5 +103,6 @@
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
         <file>videos/PollyPhi-Workflow.mp4</file>
+        <file>videos/PollyPhi-Workflow.avi</file>
     </qresource>
 </RCC>

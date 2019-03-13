@@ -124,9 +124,13 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
 
     connect(m_knowMoreLabel, &UrlLabel::clicked, this, &VideoPlayer::linkClicked);
 
-
     m_mediaPlayer->setPosition(0);
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     setUrl(QUrl("qrc:/videos/PollyPhi-Workflow.mp4"));
+#elif defined(Q_OS_WIN32)
+    setUrl(QUrl("qrc:/videos/PollyPhi-Workflow.avi"));
+#endif
 
     playedVideoOnce = 0;
     linkClickedOnce = 0;
