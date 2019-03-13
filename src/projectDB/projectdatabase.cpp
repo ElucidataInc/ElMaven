@@ -846,6 +846,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compoundsQuery->floatValue("collision_energy");
         compound->smileString = compoundsQuery->stringValue("smile_string");
         compound->logP = compoundsQuery->floatValue("log_p");
+        compound->ionizationMode = compoundsQuery->floatValue("ionization_mode");
 
         // mark compound as decoy if names contains DECOY string
         if (compound->name.find("DECOY") != string::npos)
