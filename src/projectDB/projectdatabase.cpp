@@ -848,7 +848,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         compound->logP = compoundsQuery->floatValue("log_p");
 
         // mark compound as decoy if names contains DECOY string
-        if (compound->name.find("DECOY") > 0)
+        if (compound->name.find("DECOY") != string::npos)
             compound->isDecoy = true;
 
         // lambda function to split a string using given delimiters
