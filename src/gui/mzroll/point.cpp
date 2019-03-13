@@ -149,6 +149,10 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     if(_scan) {
+        if (_mw->spectraDockWidget) {
+            _mw->spectraDockWidget->setVisible(true);
+            _mw->spectraDockWidget->raise();
+        }
         if (_mw->spectraWidget->isVisible())
             _mw->spectraWidget->setScan(_scan);
             //_mw->peptideFragmentation->setScan(_scan);

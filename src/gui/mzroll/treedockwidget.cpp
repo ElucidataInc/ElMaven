@@ -91,8 +91,10 @@ void TreeDockWidget::showInfo() {
                         } else if ( itemType == ScanType ) {
                                 Scan*  scan =  v.value<Scan*>();
                                 if (scan) {
-                                    if (mainwindow->spectraDockWidget)
+                                    if (mainwindow->spectraDockWidget) {
                                         mainwindow->spectraDockWidget->setVisible(true);
+                                        mainwindow->spectraDockWidget->raise();
+                                    }
                                     mainwindow->getSpectraWidget()->setScan(scan);
                                     mainwindow->getEicWidget()->setFocusLine(scan->rt);
                                     // if (scan->mslevel > 1) {
