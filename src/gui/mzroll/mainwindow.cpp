@@ -1897,7 +1897,9 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
                                          bool failedToLoadCompletely)
 {
     if (failedToLoadCompletely) {
-        analytics->hitEvent("Load Compound DB", "Column Error", 1);
+        analytics->hitEvent("Load Compound DB",
+                            "Column Error",
+                            "Complete Failure");
 
         string dbfilename = filename.toStdString();
         string dbname = mzUtils::cleanFilename(dbfilename);
@@ -1919,7 +1921,9 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
         msgBox.open();
     } else {
         if (DB.notFoundColumns.size() > 0) {
-            analytics->hitEvent("Load Compound DB", "Column Error", 0);
+            analytics->hitEvent("Load Compound DB",
+                                "Column Error",
+                                "Partial Failure");
 
             QMessageBox msgBox;
             msgBox.setText(tr("Found some unknown column name(s)"));
