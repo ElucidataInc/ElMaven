@@ -86,14 +86,23 @@ void FileUploader::uploadMinidump()
 
 #if defined(Q_OS_X11) || defined (Q_OS_LINUX)
     std::cerr << "uploading ...." << std::endl;
-    std::cerr << dmpFilePath.toStdString() << std::endl;
+    std::cerr << _dumpPath.toStdString() << std::endl;
     std::map<std::string, std::string> parameters;
     std::map<std::string, std::string> files;
-    files["upload_file_minidump"] = dmpFilePath.toStdString();
-    google_breakpad::HTTPUpload::SendRequest("https://sentry.io/api/294375/minidump?sentry_key=5428a76c424142128a3ff1c04e5e342e", \
-                                             parameters,files,
-                                             "","","",
-                                             nullptr,nullptr, nullptr);
+    files["upload_file_minidump"] = _dumpPath.toStdString();
+    parameters["Application"] = QString(STR(APPNAME)).toStdString();
+    parameters["Version"] = QString(STR(APPVERSION)).toStdString();
+    google_breakpad::HTTPUpload::SendRequest(
+                _endpoint.toStdString(),
+                parameters,
+                files,
+                "",
+                "",
+                "",
+                nullptr,
+                nullptr,
+                nullptr
+                );
 
 #endif
 

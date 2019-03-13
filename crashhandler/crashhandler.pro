@@ -1,3 +1,8 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = breakpad crashserver crashreporter 
+SUBDIRS = breakpad
+macx|win32 {
+    SUBDIRS += crashserver
+}
+
+SUBDIRS += crashreporter

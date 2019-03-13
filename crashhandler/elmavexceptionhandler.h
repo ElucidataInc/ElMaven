@@ -12,6 +12,10 @@
 
 #include <pthread.h>
 
+#if defined(Q_OS_LINUX)
+#include <client/linux/handler/exception_handler.h>
+#endif
+
 #if defined(__w64)
 #include <client/windows/handler/exception_handler.h>
 #define SERVER_BIN ":/crashserver_win"
@@ -38,7 +42,22 @@ namespace elmavexceptionhandler
     google_breakpad::ReceivePort receivePort;
 #endif
     google_breakpad::ExceptionHandler* eh = nullptr;
+#if defined(Q_OS_LINUX)
+    google_breakpad::MinidumpDescriptor* md = nullptr;
+#endif
 
+#if defined(Q_OS_LINUX)
+    bool filterCallback(const google_breakpad::MinidumpDescriptor& descriptor,void* context, bool succeeded)
+    {
+        std::cerr << "path of dump file: " << descriptor.directory().c_str() << std::endl;
+        QProcess* cReporter = new QProcess(nullptr);
+
+        cReporter->startDetached(qApp->applicationDirPath() + QDir::separator() + "crashreporter", \
+        QStringList() <<  QString::fromStdString(descriptor.path()) << QString(descriptor.directory().c_str()));
+
+        return succeeded;
+    }
+#endif
     bool filterCallback(void *context)
     {
         #if defined(__APPLE__)
@@ -204,6 +223,11 @@ namespace elmavexceptionhandler
                                   nullptr,
                                   true,
                                   handlerPort);
+#endif
+#if defined(Q_OS_LINUX)
+        md = new google_breakpad::MinidumpDescriptor(dumpPath.toStdString());
+        eh = new google_breakpad::ExceptionHandler(*md, 0, filterCallback,0, true, -1);
+
 #endif
     }
 
