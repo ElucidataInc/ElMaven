@@ -74,7 +74,8 @@
                                       , group_overlap_frac      REAL                              \
                                       , local_max_flag          REAL                              \
                                       , from_blank_sample       INTEGER                           \
-                                      , label                   INTEGER                           );"
+                                      , label                   INTEGER                           \
+                                      , peak_spline_area        REAL                              );"
 
 #define CREATE_PEAK_GROUPS_TABLE \
     "CREATE TABLE IF NOT EXISTS peakgroups ( group_id                           INTEGER PRIMARY KEY AUTOINCREMENT \
