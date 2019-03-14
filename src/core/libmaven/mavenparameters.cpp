@@ -187,9 +187,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
         if(compoundMassCutoffWindow != nullptr)
             compoundMassCutoffWindow->setMassCutoffType(value);
-
-        if(fragmentMatchMassCutoffTolr != nullptr)
-            fragmentMatchMassCutoffTolr->setMassCutoffType(value);
     }
 
     if(strcmp(key, "massDomainResolution") == 0
@@ -245,7 +242,7 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
         eicMaxGroups = atof(value);
 
     if(strcmp(key, "matchFragmentation") == 0 )
-        matchFragmentation = atof(value);
+        matchFragmentationFlag = atof(value);
 
     if(strcmp(key, "reportIsotopes") == 0 )
         pullIsotopesFlag = atof(value);

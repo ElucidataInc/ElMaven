@@ -25,7 +25,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
 
     // fragmentation settings
-    settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentatioOptions));
+    settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
     settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
     settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
