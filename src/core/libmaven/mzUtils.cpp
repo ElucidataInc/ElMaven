@@ -408,7 +408,7 @@ Series:  Prentice-Hall Series in Automatic Computation
     double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
 
         if(massCutoff->getMassCutoffType()=="ppm"){
-            return ( abs((mz2-mz1)/(mz1/1e6)) );
+            return ppmDist(mz1, mz2);
         }
         else if(massCutoff->getMassCutoffType()=="mDa"){
             return abs((mz2-mz1)*1e3) ;
@@ -419,7 +419,13 @@ Series:  Prentice-Hall Series in Automatic Computation
         }
     }
 
+    float ppmDist(const float mz1, const float mz2) {
+        return (abs((mz2-mz1)/(mz1/1e6)));
+    }
 
+    double ppmDist(const double mz1, const double mz2) {
+        return (abs((mz2-mz1)/(mz1/1e6)));
+    }
 
     float ppmround(const float mz1, const float resolution) {
         //resolution parameter =10  -> one digit after decimal point,
@@ -516,6 +522,29 @@ Series:  Prentice-Hall Series in Automatic Computation
         return (!retval && (sbuf.st_mode & S_IFDIR));
     }
 
+    bool almostEqual(double a, double b)
+    {
+        // the machine epsilon has to be scaled to the magnitude of the values
+        // used and multiplied by the desired precision in ULPs (units in the
+        // last place).
+        return std::abs(a - b) <= std::numeric_limits<double>::epsilon()
+                * std::abs(a + b)
+                * 2
+                // unless the result is subnormal
+                || std::abs(a - b) < std::numeric_limits<double>::min();
+    }
+
+    bool almostEqual(float a, float b)
+    {
+        // the machine epsilon has to be scaled to the magnitude of the values
+        // used and multiplied by the desired precision in ULPs (units in the
+        // last place).
+        return std::abs(a - b) <= std::numeric_limits<float>::epsilon()
+                * std::abs(a + b)
+                * 1
+                // unless the result is subnormal
+                || std::abs(a - b) < std::numeric_limits<float>::min();
+    }
 
     float correlation(const vector<float>&x, const vector<float>&y) {
         int n = x.size();

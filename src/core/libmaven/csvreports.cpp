@@ -35,12 +35,20 @@ QString CSVReports::sanitizeString(const char* s) {
     return out;
 }
 
-void CSVReports::openGroupReport(string outputfile,bool includeSetNamesLine) {
+void CSVReports::openGroupReport(string outputfile,
+                                 bool prmReport,
+                                 bool includeSetNamesLine)
+{
+    // if number of sample is zero, output file will not open
+    initialCheck(outputfile);
 
-    initialCheck(outputfile);                                                                                               /**@brief-  if number of sample is zero, output file will not open*/
-    openGroupReportCSVFile(outputfile);                                                                        /**@brief-  after checking initial check, open output file*/
-    insertGroupReportColumnNamesintoCSVFile(outputfile, includeSetNamesLine);   /**@brief-  write name of column  if output file is open */
+    // after checking initial check, open output file
+    openGroupReportCSVFile(outputfile);
 
+    // write name of column  if output file is open
+    insertGroupReportColumnNamesintoCSVFile(outputfile,
+                                            prmReport,
+                                            includeSetNamesLine);
 }
 
 void CSVReports::openPeakReport(string outputfile) {
@@ -69,12 +77,40 @@ void CSVReports::openPeakReportCSVFile(string outputfile) {
      peakReport.open(outputfile.c_str());
 }
 
-void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool includeSetNamesLine){
+void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
+                                                         bool prmReport,
+                                                         bool includeSetNamesLine)
+{
     if (groupReport.is_open()) {
         QStringList groupReportcolnames;
-        groupReportcolnames << "label" << "metaGroupId" << "groupId" << "goodPeakCount"
-                << "medMz" << "medRt" << "maxQuality" << "isotopeLabel" << "compound"
-                << "compoundId" << "formula" << "expectedRtDiff" << "ppmDiff" << "parent";
+        groupReportcolnames << "label"
+                            << "metaGroupId"
+                            << "groupId"
+                            << "goodPeakCount"
+                            << "medMz"
+                            << "medRt"
+                            << "maxQuality"
+                            << "isotopeLabel"
+                            << "compound"
+                            << "compoundId"
+                            << "formula"
+                            << "expectedRtDiff"
+                            << "ppmDiff"
+                            << "parent";
+
+        // if this is a PRM report, add PRM specific columns
+        if (prmReport) {
+            groupReportcolnames << "ms2EventCount"
+                                << "fragNumIonsMatched"
+                                << "fragmentFractionMatched"
+                                << "TICMatched"
+                                << "dotProduct"
+                                << "weigtedDotProduct"
+                                << "hyperGeomScore"
+                                << "spearmanRankCorrelation"
+                                << "mzFragmentError";
+        }
+
         int cohort_offset = groupReportcolnames.size() - 1;
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
@@ -82,6 +118,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
             groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
         }
         groupReport << endl;
+
         //TODO: Remove this to remove row in csv reports --@Giridhari
         if (includeSetNamesLine){
              for(unsigned int i = 0; i < cohort_offset; i++) { groupReport << SEP; }
@@ -90,8 +127,11 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,bool 
          }
     }
     else {
-        errorReport = "Unable to write to file \"" + QString::fromStdString(outputfile) + "\"\n";
-        errorReport += "Please check if you have permission to write to the specified location or the file is not in use";
+        errorReport = "Unable to write to file \""
+                      + QString::fromStdString(outputfile)
+                      + "\"\n";
+        errorReport += "Please check if you have permission to write to the "
+                       "specified location or the file is not in use";
     }
 }
 
@@ -285,6 +325,25 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         groupReport << SEP << group->parent->meanMz;
     } else {
         groupReport << SEP << group->meanMz;
+    }
+
+    if (group->compound && group->compound->type() == Compound::Type::PRM) {
+        auto groupToWrite = group;
+
+        // if this is a C12 PARENT, then all PRM attributes should be taken from
+        // its parent group.
+        if (group->tagString.find("C12 PARENT") != std::string::npos)
+            groupToWrite = group->parent;
+
+        groupReport << SEP << groupToWrite->ms2EventCount
+                    << SEP << groupToWrite->fragMatchScore.numMatches
+                    << SEP << groupToWrite->fragMatchScore.fractionMatched
+                    << SEP << groupToWrite->fragMatchScore.ticMatched
+                    << SEP << groupToWrite->fragMatchScore.dotProduct
+                    << SEP << groupToWrite->fragMatchScore.weightedDotProduct
+                    << SEP << groupToWrite->fragMatchScore.hypergeomScore
+                    << SEP << groupToWrite->fragMatchScore.spearmanRankCorrelation
+                    << SEP << groupToWrite->fragMatchScore.mzFragError;
     }
 
     // for intensity values, we only write two digits of floating point precision

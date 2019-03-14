@@ -30,7 +30,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
 
     // fragmentation settings
-    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentatioOptions));
+    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentationOptions));
+    settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
+    settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
+    settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
 
     // isotope detection
     settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
@@ -122,6 +125,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
 
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
+        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -200,30 +204,42 @@ void PeakDetectionDialog::showSettingsForm() {
     mainwindow->settingsForm->setIsotopeDetectionTab();
 }
 
-void PeakDetectionDialog::dbOptionsClicked() {
+void PeakDetectionDialog::dbOptionsClicked()
+{   
     if (dbOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
+        reportIsotopesOptions->setEnabled(true);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
+        reportIsotopesOptions->setEnabled(false);
     }
+    
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 }
 
 void PeakDetectionDialog::dialogRejected()
 {
-  // happens when users presses 'esc' key; 
-  emit updateSettings(peakSettings);
+    // happens when users presses 'esc' key; 
+    emit updateSettings(peakSettings);
 }
 
-void PeakDetectionDialog::featureOptionsClicked() {
+void PeakDetectionDialog::featureOptionsClicked()
+{
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbOptions->setChecked(false);
+        reportIsotopesOptions->setEnabled(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbOptions->setChecked(true);
+        reportIsotopesOptions->setEnabled(true);
     }
+
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -379,12 +395,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             // checkBox_4->setChecked(
             //     settings->value("checkBox_4").toBool());  // S34
 
-            // Fragment Score
-            minFragMatchScore->setValue(
-                settings->value("minFragmentMatchScore").toDouble());
-            matchFragmentatioOptions->setChecked(
-                settings->value("matchFragmentation").toBool());
-
         }
         /**
          * Getting the database present and updating in the dropdown of the
@@ -405,8 +415,21 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
         compoundDatabase->setCurrentIndex(
             compoundDatabase->findText(selectedDB));
+        
+        //match fragmentation only enabled during targeted detection with NIST library
+        toggleFragmentation(selectedDB);
 
         QDialog::exec();
+    }
+}
+
+void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
+{
+    if (dbOptions->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
+        matchFragmentationOptions->setEnabled(true);
+    } else {
+        matchFragmentationOptions->setChecked(false);
+        matchFragmentationOptions->setEnabled(false);
     }
 }
 
@@ -578,11 +601,6 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
     // settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
 
-    // Fragment Score
-    settings->setValue("minFragmentMatchScore", minFragMatchScore->value());
-    settings->setValue("matchFragmentation",
-                       matchFragmentatioOptions->isChecked());
-
     // Enabling feature detection or compound search
     ////////////////////////////////////////////////////////////
     // TODO: what is this?
@@ -599,12 +617,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
-        // Fragment Score
-        mavenParameters->minFragmentMatchScore =
-           settings->value("minFragmentMatchScore").toDouble();
-        mavenParameters->minFragmentMatchScore > 0
-           ? mavenParameters->matchFragmentation = true
-           : mavenParameters->matchFragmentation = false;
 
         //Pointing the output directory
         if (!outputDirName->text().isEmpty()) {
@@ -615,17 +627,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         }
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
-
-        //Setting the ionization mode if the user specifies the ionization mode
-        //then its given the priority else the ionization mode is taken from the
-        //sample
-        //TODO: See how the ionization mode is effected if the user selects
-        //Neutral or autodetect
-        // if (mainwindow->getIonizationMode()) {
-        //     mavenParameters->ionizationMode = mainwindow->getIonizationMode();
-        // } else {
-        //     mavenParameters->setIonizationMode();
-        // }
 
         mavenParameters->setCompounds(DB.getCompoundsSubset(
             compoundDatabase->currentText().toStdString()));

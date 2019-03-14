@@ -29,18 +29,20 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         showProgressFlag = true;
 
         alignButton = 0;
-        /*
-        * Whenever we create an instance of this class, massCutoffType must be set for fragmentMatchMassCutoffTolr
-        */
-        fragmentMatchMassCutoffTolr = new MassCutoff();
-        fragmentMatchMassCutoffTolr->setMassCutoff(1000);
-        mzBinStep = 0.01;
-        rtStepSize = 20;
+
+        fragmentTolerance = 20;
+        minFragMatchScore = 0;
+        minFragMatch = 3;
+        scoringAlgo = "Hypergeometric Score";
+        
+        
         /*
         * Whenever we create an instance of this class, massCutoffType must be set for massCutoffMerge
         */
         massCutoffMerge = new MassCutoff();
-        massCutoffMerge->setMassCutoff(30);
+        massCutoffMerge->setMassCutoffAndType(30, "ppm");
+        mzBinStep = 0.01;
+        rtStepSize = 20;
         avgScanTime = 0.2;
 
         limitGroupCount = INT_MAX;
@@ -85,7 +87,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         * Whenever we create an instance of this class, massCutoffType must be set for compoundMassCutoffWindow
         */
         compoundMassCutoffWindow=new MassCutoff();
-        compoundMassCutoffWindow->setMassCutoff(10);
+        compoundMassCutoffWindow->setMassCutoffAndType(10, "ppm");
         compoundRTWindow = 1;
         eicMaxGroups = INT_MAX;
 
@@ -188,9 +190,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
          if(compoundMassCutoffWindow != nullptr)
              compoundMassCutoffWindow->setMassCutoffType(value);
-
-         if(fragmentMatchMassCutoffTolr != nullptr)
-             fragmentMatchMassCutoffTolr->setMassCutoffType(value);
      }
 
 
@@ -203,6 +202,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
      }
 
+
+    if(strcmp(key, "fragmentTolerance") == 0)
+        fragmentTolerance = atof(value);
 
     if(strcmp(key,"rtStep") == 0)
         rtStepSize = atof(value);
@@ -252,7 +254,7 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
         eicMaxGroups = atof(value);
 
     if(strcmp(key, "matchFragmentationOptions") == 0 )
-        matchFragmentation = atof(value);
+        matchFragmentationFlag = atof(value);
 
     if(strcmp(key, "reportIsotopesOptions") == 0 )
         pullIsotopesFlag = atof(value);

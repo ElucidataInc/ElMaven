@@ -328,12 +328,12 @@
         </widget>
        </item>
        <item row="4" column="0">
-        <widget class="QGroupBox" name="matchFragmentatioOptions">
+        <widget class="QGroupBox" name="matchFragmentationOptions">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="title">
-          <string>Match Fragmenation</string>
+          <string>Match Fragmentation</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -342,10 +342,58 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_scoringAlgo">
+            <property name="text">
+             <string>Scoring Algorithm</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_fragmentTolerance">
+            <property name="text">
+             <string>Fragment Mass Tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="fragmentTolerance">
+            <property name="suffix">
+             <string> ppm</string>
+            </property>
+            <property name="maximum">
+             <double>1000.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_matchAtLeastX">
+            <property name="text">
+             <string>Match at least X peaks</string>
+            </property>
+           </widget>
           </item>
           <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="minFragMatch">
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <double>3.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_minMatchScore">
+            <property name="text">
+             <string>Minumum Score</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
            <widget class="QDoubleSpinBox" name="minFragMatchScore">
             <property name="prefix">
              <string/>
@@ -361,43 +409,40 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Precursor Match Tollerance</string>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="scoringAlgo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Fragment Peak Matching Tollerance</string>
+            <property name="cursor">
+             <cursorShape>BlankCursor</cursorShape>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_22">
             <property name="text">
-             <string>Minumum Match Score</string>
+             <string>Hypergeometric Score</string>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
          </layout>
-         <zorder>label_22</zorder>
+         <zorder>scoringAlgo</zorder>
+         <zorder>label_minMatchScore</zorder>
          <zorder>minFragMatchScore</zorder>
-         <zorder>doubleSpinBox</zorder>
-         <zorder>label_4</zorder>
-         <zorder>doubleSpinBox_2</zorder>
-         <zorder>label_21</zorder>
+         <zorder>minFragMatch</zorder>
+         <zorder>label_matchAtLeastX</zorder>
+         <zorder>fragmentTolerance</zorder>
+         <zorder>label_fragmentTolerance</zorder>
+         <zorder>label_scoringAlgo</zorder>
         </widget>
        </item>
        <item row="4" column="1">
         <widget class="QGroupBox" name="reportIsotopesOptions">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="title">
           <string>Report Isotopic Peaks</string>
@@ -1025,9 +1070,9 @@
   <tabstop>matchRt</tabstop>
   <tabstop>compoundRTWindow</tabstop>
   <tabstop>eicMaxGroups</tabstop>
-  <tabstop>matchFragmentatioOptions</tabstop>
-  <tabstop>doubleSpinBox_2</tabstop>
-  <tabstop>doubleSpinBox</tabstop>
+  <tabstop>matchFragmentationOptions</tabstop>
+  <tabstop>fragmentTolerance</tabstop>
+  <tabstop>minFragMatch</tabstop>
   <tabstop>minFragMatchScore</tabstop>
   <tabstop>reportIsotopesOptions</tabstop>
   <tabstop>changeIsotopeOptions</tabstop>

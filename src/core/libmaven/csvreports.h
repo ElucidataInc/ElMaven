@@ -35,14 +35,19 @@ public:
     *@brief-    destructor, just close all open output files opened for writing csv or tab file
     */
     ~CSVReports();
+
     /**
-    * @brief-   open output file in which group info will be written
-    */
-    void openGroupReport(string filename,bool includeSetNamesLine = false);
+     * @brief Open output file in which group info will be written.
+     */
+    void openGroupReport(string filename,
+                         bool prmReport = false,
+                         bool includeSetNamesLine = false);
+
     /**
-    * @brief-   open output file in which peak info will be written
-    */
+     * @brief Open output file in which peak info will be written.
+     */
     void openPeakReport(string filename);
+
     /**
     *@brief-    add group for writing csv about
     */
@@ -116,8 +121,19 @@ private:
     void initialCheck(string outputfile);                   /**@brief-  if number of samples is zero, no output file will be opened*/
     void openGroupReportCSVFile(string outputfile);     /**@brief-  after performing initial check, it will open output file for groups report*/
     void openPeakReportCSVFile(string outputfile);        /**@brief-  after performing initial check, it will open output file for peaks report*/
-    void insertGroupReportColumnNamesintoCSVFile(string outputfile, bool includeSetNamesLine);  /**@brief-  write column name in output file for group report*/
-    void insertPeakReportColumnNamesintoCSVFile();          /**@brief-  write column name in output file for group report*/
+
+    /**
+     * @brief Write column name in output file for group report.
+     */
+    void insertGroupReportColumnNamesintoCSVFile(string outputfile,
+                                                 bool prmReport,
+                                                 bool includeSetNamesLine);
+
+    /**
+     * Write column name in output file for group report.
+     */
+    void insertPeakReportColumnNamesintoCSVFile();
+
     void insertPeakInformationIntoCSVFile(PeakGroup* group);        /**@brief-  TODO, not a required method, it's just calling another function. Maybe
                                                                                                                 *written to look consistent with   insertGroupInformationIntoCSVFile
                                                                                                                 */

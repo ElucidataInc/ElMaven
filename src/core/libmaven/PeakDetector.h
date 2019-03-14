@@ -126,6 +126,11 @@ public:
 	vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
 
 	/**
+	 * @brief compute fragmentation pattern for all groups
+	 */
+	void computeFragmentationPattern(vector<PeakGroup> &peakgroups);
+
+	/**
 	 * [process Compounds]
 	 * @method processCompounds
 	 * @param  set        [vector of pointer to Compound]

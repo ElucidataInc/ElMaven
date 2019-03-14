@@ -93,7 +93,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     meanMz=o.meanMz;
     expectedMz=o.expectedMz;
 
+    ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
+    fragmentationPattern = o.fragmentationPattern;
     adduct = o.adduct;
 
     blankMax=o.blankMax;
@@ -670,29 +672,46 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
-/*
-   @author: Sahil
-   */ 
-//TODO: Sahil, Added while merging Spectrawidget
-vector<Scan*> PeakGroup::getFragmenationEvents() {
-    vector<Scan*>matchedscans;
-    for(unsigned int i=0; i < peaks.size(); i++ ) {
-        mzSample* sample = peaks[i].getSample();
-        if ( sample == NULL ) continue;
+vector<Scan*> PeakGroup::getFragmentationEvents()
+{
+    vector<Scan*> matchedScans;
+    for(auto peak : peaks) {
+        mzSample* sample = peak.getSample();
+        if (sample == NULL) continue;
+        mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
+        vector<Scan*> scans = sample->getFragmentationEvents(&slice);
 
-        for( unsigned int j=0; j < sample->scans.size(); j++ ) {
-            Scan* scan = sample->scans[j];
-            if (scan->mslevel <= 1) continue; //ms2 + scans only
-            if (scan->rt < peaks[i].rtmin) continue;
-            if (scan->rt > peaks[i].rtmax) break;
-            if( scan->precursorMz >= minMz and scan->precursorMz <= maxMz) {
-                matchedscans.push_back(scan);
-            }
-        }
+        matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
     }
-    return matchedscans;
+    return matchedScans;
 }
 
+void PeakGroup::computeFragPattern(float productPpmTolr)
+{
+    vector<Scan*> ms2Events = getFragmentationEvents();
+    if (ms2Events.size() == 0) return;
+    sort(ms2Events.begin(), ms2Events.end(), Scan::compIntensity);
+
+    float minFractionalIntensity = 0.01;
+    float minSignalNoiseRatio = 1;
+    int maxFragmentSize = 1024;
+    Fragment fragment(ms2Events[0],
+                      minFractionalIntensity,
+                      minSignalNoiseRatio,
+                      maxFragmentSize);
+    
+    for(Scan* scan : ms2Events) {
+        fragment.addBrotherFragment(new Fragment(scan,
+                                                 minFractionalIntensity,
+                                                 minSignalNoiseRatio,
+                                                 maxFragmentSize));
+    }
+    
+    fragment.buildConsensus(productPpmTolr);
+    fragment.consensus->sortByMz();
+    fragmentationPattern = fragment.consensus;
+    ms2EventCount = ms2Events.size();
+}
 
 /*
    @author: Sahil
@@ -705,7 +724,7 @@ Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
     map<float,double> mz_bin_map;
     map<float,int> mz_count;
 
-    vector<Scan*> scans = getFragmenationEvents();
+    vector<Scan*> scans = getFragmentationEvents();
     if (scans.size() == 0 ) return NULL;
 
     Scan* avgScan = new Scan(NULL,0,0,0,0,0);
@@ -763,6 +782,14 @@ Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
     //cout << "getAverageScan() from:" << from << " to:" << to << " scanCount:" << scanCount << "scans. mzs=" << avgScan->nobs() << endl;
     return avgScan;
     }
+
+void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
+{
+    if (this->compound == NULL || ms2EventCount == 0) return;
+
+    fragMatchScore = compound->scoreCompoundHit(&fragmentationPattern, ppmTolerance);
+    fragMatchScore.mergedScore = fragMatchScore.getScoreByName(scoringAlgo);
+}
 
 void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
                             int qualityWeight,

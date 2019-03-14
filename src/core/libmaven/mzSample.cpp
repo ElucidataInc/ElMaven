@@ -1819,6 +1819,20 @@ void mzSample::restorePreviousRetentionTimes()
 	}
 }
 
+vector<Scan*> mzSample::getFragmentationEvents(mzSlice* slice)
+{
+    vector<Scan*> matchedScans;
+    for (auto scan : scans) {
+        if (scan->mslevel <= 1) continue; //ms2 + scans only
+        if (scan->rt < slice->rtmin) continue;
+        if (scan->rt > slice->rtmax) break;
+        if( scan->precursorMz >= slice->mzmin && scan->precursorMz <= slice->mzmax) {
+            matchedScans.push_back(scan);
+        }
+    }
+    return matchedScans;
+}
+
 vector<float> mzSample::getIntensityDistribution(int mslevel)
 {
 

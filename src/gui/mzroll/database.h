@@ -101,7 +101,7 @@ class Database {
 	deque<Pathway*> pathwayDB;
 	deque<Molecule2D*> coordinatesDB;
 
-        map<string, Compound*> compoundIdNameMap;
+        map<string, Compound*> compoundIdNameDbMap;
         map<string, Reaction*> reactionIdMap;
 	map<string, Pathway*> pathwayIdMap;
 	map<string, Molecule2D*> coordinatesMap;

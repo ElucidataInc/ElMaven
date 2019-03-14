@@ -79,6 +79,23 @@ public:
     bool rollback();
 
     /**
+     * @brief This method is a convenience wrapper for executing multiple SQL
+     * queries (separated by ';') in one go.
+     * @details `executeMult` eliminates the need to create a cursor for each
+     * SQL statement and then execute them, if the user knows that a certain set
+     * of statements can be executed one after another without any special
+     * actions needed in between in each execution. There are two caveats here:
+     *  1. The user cannot use this method for "SELECT" statements. Such
+     *     statements are better of being prepared as cursors and then used
+     *     iteratively.
+     *  2. The user must ensure that each separate statement in the given SQL
+     *     string ends with a ';' delimiter.
+     * @param sql_string A string of SQL statements to be executed.
+     * @return True if the execution was successful, false otherwise.
+     */
+    bool executeMulti(const std::string sql_string);
+
+    /**
      * @brief Prepare a SQL statement and return a Cursor ready to be
      * executed. See documentation of Cursor class for details.
      * @param query A SQL query as a standard string.

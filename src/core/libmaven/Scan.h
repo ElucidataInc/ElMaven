@@ -197,6 +197,12 @@ class Scan
     int polarity; /**< +1 for positively charged, -1 for negatively charged, 0 for neutral*/
 
     /**
+     * @brief compare total intensity of two scans
+     * @return true if Scan a has a higher totalIntensity than b, else false
+     */
+    static bool compIntensity(Scan* a, Scan* b) { return a->totalIntensity() > b->totalIntensity(); }
+
+    /**
     * @brief compare retention times of two scans
     * @return return True if Scan a has lower retention time than Scan b, else false
     */

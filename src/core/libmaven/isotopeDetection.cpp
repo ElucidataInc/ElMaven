@@ -70,12 +70,11 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
             float rtmax = parentgroup->maxRt;
 
             Peak* parentPeak = parentgroup->getPeak(sample);
-            if (parentPeak)
+            if (parentPeak) {
                 rt = parentPeak->rt;
-            if (parentPeak)
                 rtmin = parentPeak->rtmin;
-            if (parentPeak)
                 rtmax = parentPeak->rtmax;
+            }
 
             float isotopePeakIntensity = 0;
             float parentPeakIntensity = 0;
@@ -87,8 +86,8 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
                 isotopePeakIntensity = isotope.first;
                 rt = isotope.second;
             }
-            
-            if(isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (isotopePeakIntensity == 0 || rt == 0) continue;
 
             if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, sample, parentgroup))
                 continue;
@@ -223,20 +222,26 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
     float highestIntensity = 0;
     float rt = 0;
     mzSample* sample = scan->getSample();
-    //TODO: use maxIsotopeScanDiff instead of arbitrary number
-    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++)
-    {
-		Scan* s = sample->getScan(i);
-		vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-		for (auto pos:matches)
-        {
-			if (s->intensity[pos] > highestIntensity)
-            {
+
+    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
+        Scan* s = sample->getScan(i);
+
+        // Filter out MS2 scans when obtaining isotope peak intensities.
+        auto pos = i;
+        while(s->mslevel > 1 && i < scan->scannum) {
+            auto index = i < scan->scannum ? --pos
+                                           : ++pos;
+            s = sample->getScan(index);
+        }
+
+        vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
+        for (auto pos : matches) {
+            if (s->intensity[pos] > highestIntensity) {
                 highestIntensity = s->intensity[pos];
                 rt = s->rt;
             }
         }
-	}
+    }
     return std::make_pair(highestIntensity, rt);
 }
 

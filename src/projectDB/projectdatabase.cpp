@@ -142,25 +142,35 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     }
 
     auto groupsQuery = _connection->prepare(
-        "INSERT INTO peakgroups            \
-              VALUES ( :group_id           \
-                     , :parent_group_id    \
-                     , :meta_group_id      \
-                     , :tag_string         \
-                     , :expected_mz        \
-                     , :expected_rt_diff   \
-                     , :expected_abundance \
-                     , :group_rank         \
-                     , :label              \
-                     , :type               \
-                     , :srm_id             \
-                     , :ms2_event_count    \
-                     , :ms2_score          \
-                     , :adduct_name        \
-                     , :compound_id        \
-                     , :compound_name      \
-                     , :compound_db        \
-                     , :table_name         )");
+        "INSERT INTO peakgroups                            \
+              VALUES ( :group_id                           \
+                     , :parent_group_id                    \
+                     , :meta_group_id                      \
+                     , :tag_string                         \
+                     , :expected_mz                        \
+                     , :expected_rt_diff                   \
+                     , :expected_abundance                 \
+                     , :group_rank                         \
+                     , :label                              \
+                     , :type                               \
+                     , :srm_id                             \
+                     , :ms2_event_count                    \
+                     , :ms2_score                          \
+                     , :adduct_name                        \
+                     , :compound_id                        \
+                     , :compound_name                      \
+                     , :compound_db                        \
+                     , :table_name                         \
+                     , :min_quality                        \
+                     , :fragmentation_fraction_matched     \
+                     , :fragmentation_mz_frag_error        \
+                     , :fragmentation_hypergeom_score      \
+                     , :fragmentation_mvh_score            \
+                     , :fragmentation_dot_product          \
+                     , :fragmentation_weighted_dot_product \
+                     , :fragmentation_spearman_rank_corr   \
+                     , :fragmentation_tic_matched          \
+                     , :fragmentation_num_matches          )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
@@ -175,6 +185,26 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     groupsQuery->bind(":ms2_event_count", group->ms2EventCount);
     groupsQuery->bind(":ms2_score", group->fragMatchScore.mergedScore);
+
+    groupsQuery->bind(":fragmentation_fraction_matched",
+                      group->fragMatchScore.fractionMatched);
+    groupsQuery->bind(":fragmentation_mz_frag_error",
+                      group->fragMatchScore.mzFragError);
+    groupsQuery->bind(":fragmentation_hypergeom_score",
+                      group->fragMatchScore.hypergeomScore);
+    groupsQuery->bind(":fragmentation_mvh_score",
+                      group->fragMatchScore.mvhScore);
+    groupsQuery->bind(":fragmentation_dot_product",
+                      group->fragMatchScore.dotProduct);
+    groupsQuery->bind(":fragmentation_weighted_dot_product",
+                      group->fragMatchScore.weightedDotProduct);
+    groupsQuery->bind(":fragmentation_spearman_rank_corr",
+                      group->fragMatchScore.spearmanRankCorrelation);
+    groupsQuery->bind(":fragmentation_tic_matched",
+                      group->fragMatchScore.ticMatched);
+    groupsQuery->bind(":fragmentation_num_matches",
+                      group->fragMatchScore.numMatches);
+
     groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
 
     groupsQuery->bind(":compound_id",
@@ -185,6 +215,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                       group->compound ? group->compound->db : "");
 
     groupsQuery->bind(":table_name", tableName);
+    groupsQuery->bind(":min_quality", group->minQuality);
 
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
@@ -332,7 +363,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :ionization_mode       \
                       , :category              \
                       , :fragment_mzs          \
-                      , :fragment_intensity    )");
+                      , :fragment_intensity    \
+                      , :fragment_ion_types    )");
 
     _connection->begin();
 
@@ -345,19 +377,30 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         catStr = catStr.substr(0, catStr.size() - 1);
 
         stringstream fragMz;
-        for (float f : c->fragmentMzValues) {
-            fragMz << fixed << setprecision(5) << f << ";";
-        }
-        string fragMzStr = fragMz.str();
-        fragMzStr = fragMzStr.substr(0, fragMzStr.size() - 1);
-
         stringstream fragIntensity;
-        for (float f : c->fragmentIntensities) {
-            fragIntensity << fixed << setprecision(5) << f << ";";
+        stringstream fragIonType;
+        size_t numFragments = c->fragmentMzValues.size();
+        if (numFragments != 0
+            && (numFragments == c->fragmentIntensities.size())
+            && (numFragments == c->fragmentIonTypes.size())) {
+            for (size_t i = 0; i < numFragments - 1; ++i) {
+                // presumption: all three containers are of the same size
+                auto mz = c->fragmentMzValues[i];
+                auto intensity = c->fragmentIntensities[i];
+                auto ionType = c->fragmentIonTypes[i];
+
+                fragMz << fixed << setprecision(10) << mz << ";";
+                fragIntensity << fixed << setprecision(10) << intensity << ";";
+                fragIonType << ionType << ";";
+            }
+            fragMz << fixed
+                   << setprecision(10)
+                   << c->fragmentMzValues.back();
+            fragIntensity << fixed
+                          << setprecision(10)
+                          << c->fragmentIntensities.back();
+            fragIonType << c->fragmentIonTypes.rbegin()->second;
         }
-        string fragIntensityStr = fragIntensity.str();
-        fragIntensityStr = fragIntensityStr.substr(0,
-                                                   fragIntensityStr.size() - 1);
 
         compoundsQuery->bind(":compound_id", c->id);
         compoundsQuery->bind(":db_name", c->db);
@@ -378,8 +421,9 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":ionization_mode", c->ionizationMode);
 
         compoundsQuery->bind(":category", catStr);
-        compoundsQuery->bind(":fragment_mzs", fragMzStr);
-        compoundsQuery->bind(":fragment_intensity", fragIntensityStr);
+        compoundsQuery->bind(":fragment_mzs", fragMz.str());
+        compoundsQuery->bind(":fragment_intensity", fragIntensity.str());
+        compoundsQuery->bind(":fragment_ion_types", fragIonType.str());
 
         if (!compoundsQuery->execute())
             cerr << "Error: failed to save compound " << c->name << endl;
@@ -594,8 +638,28 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         group->ms2EventCount = groupsQuery->integerValue("ms2_event_count");
         group->fragMatchScore.mergedScore =
             groupsQuery->doubleValue("ms2_score");
+        group->fragMatchScore.fractionMatched =
+            groupsQuery->doubleValue("fragmentation_fraction_matched");
+        group->fragMatchScore.mzFragError =
+            groupsQuery->doubleValue("fragmentation_mz_frag_error");
+        group->fragMatchScore.hypergeomScore =
+            groupsQuery->doubleValue("fragmentation_hypergeom_score");
+        group->fragMatchScore.mvhScore =
+            groupsQuery->doubleValue("fragmentation_mvh_score");
+        group->fragMatchScore.dotProduct =
+            groupsQuery->doubleValue("fragmentation_dot_product");
+        group->fragMatchScore.weightedDotProduct =
+            groupsQuery->doubleValue("fragmentation_weighted_dot_product");
+        group->fragMatchScore.spearmanRankCorrelation =
+            groupsQuery->doubleValue("fragmentation_spearman_rank_corr");
+        group->fragMatchScore.ticMatched =
+            groupsQuery->doubleValue("fragmentation_tic_matched");
+        group->fragMatchScore.numMatches =
+            groupsQuery->doubleValue("fragmentation_num_matches");
+
         group->setType(PeakGroup::GroupType(groupsQuery->integerValue("type")));
         group->searchTableName = groupsQuery->stringValue("table_name");
+        group->minQuality = groupsQuery->doubleValue("min_quality");
 
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
@@ -610,7 +674,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             group->adduct = _findAdductByName(adductName);
 
         if (!compoundId.empty()) {
-            Compound* compound = _findSpeciesById(compoundId, compoundDB);
+            Compound* compound = _findSpeciesByIdAndName(compoundId,
+                                                         compoundName,
+                                                         compoundDB);
             if (compound) {
                 group->compound = compound;
             } else {
@@ -758,7 +824,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         float expectedRt = compoundsQuery->floatValue("expected_rt");
 
         // skip if compound already exists in internal database
-        if (_compoundIdMap.find(id + db) != end(_compoundIdMap))
+        if (_compoundIdMap.find(id + name + db) != end(_compoundIdMap))
             continue;
 
         // the neutral mass is computed automatically inside the constructor
@@ -779,9 +845,11 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         compound->collisionEnergy =
                 compoundsQuery->floatValue("collision_energy");
         compound->smileString = compoundsQuery->stringValue("smile_string");
+        compound->logP = compoundsQuery->floatValue("log_p");
+        compound->ionizationMode = compoundsQuery->floatValue("ionization_mode");
 
         // mark compound as decoy if names contains DECOY string
-        if (compound->name.find("DECOY") > 0)
+        if (compound->name.find("DECOY") != string::npos)
             compound->isDecoy = true;
 
         // lambda function to split a string using given delimiters
@@ -813,7 +881,15 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compound->fragmentIntensities.push_back(stof(fragIntensity));
         }
 
-        _compoundIdMap[compound->id + compound->db] = compound;
+        vector<string> fragmentIonTypes =
+            split(compoundsQuery->stringValue("fragment_ion_types"), ';');
+        for (size_t i = 0; i < fragmentIonTypes.size(); ++i) {
+            string fragIonType = fragmentIonTypes[i];
+            if (!fragIonType.empty())
+                compound->fragmentIonTypes[i] = fragIonType;
+        }
+
+        _compoundIdMap[compound->id  + compound->name + compound->db] = compound;
         compounds.push_back(compound);
         loadCount++;
     }
@@ -1081,16 +1157,17 @@ Adduct* ProjectDatabase::_findAdductByName(string id)
     return nullptr;
 }
 
-Compound* ProjectDatabase::_findSpeciesById(string id, string databaseName)
+Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,
+                                                   string name,
+                                                   string databaseName)
 {
     // load compounds from database if not already loaded.
     if (!databaseName.empty() && !_compoundDatabaseLoaded(databaseName))
         loadCompounds(databaseName);
 
-    if (_compoundIdMap.count(id + databaseName))
-        return _compoundIdMap[id + databaseName];
-    if (_compoundIdMap.count(id))
-        return _compoundIdMap[id];
+    if (_compoundIdMap.count(id + name + databaseName))
+        return _compoundIdMap[id + name + databaseName];
+
     return nullptr;
 }
 

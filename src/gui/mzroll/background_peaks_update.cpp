@@ -61,9 +61,9 @@ QString BackgroundPeakUpdate::printSettings() {
     summary << "compoundMassCutoffWindow=" << mavenParameters->compoundMassCutoffWindow->getMassCutoff()
             << "\n";
     summary << "compoundRTWindow=" << mavenParameters->compoundRTWindow << "\n";
-    summary << "matchFragmentation=" << mavenParameters->matchFragmentation
+    summary << "matchFragmentationOptions=" << mavenParameters->matchFragmentationFlag
             << "\n";
-    summary << "fragmentMatchMassCutoffTolr=" << mavenParameters->fragmentMatchMassCutoffTolr->getMassCutoff()
+    summary << "fragmentTolerance=" << mavenParameters->fragmentTolerance
             << "\n";
 
     summary << "------------------------------EIC CONSTRUCTION"
@@ -142,8 +142,6 @@ void BackgroundPeakUpdate::saveSettings(QString fileName) {
     stream.writeAttribute( "matchRtFlag" ,QString::number( mavenParameters->matchRtFlag));
     stream.writeAttribute( "compoundMassCutoffWindow" ,QString::number( mavenParameters->compoundMassCutoffWindow->getMassCutoff()));
     stream.writeAttribute( "compoundRTWindow" ,QString::number( mavenParameters->compoundRTWindow));
-    stream.writeAttribute( "matchFragmentation" ,QString::number( mavenParameters->matchFragmentation));
-    stream.writeAttribute( "fragmentMatchMassCutoffTolr" ,QString::number( mavenParameters->fragmentMatchMassCutoffTolr->getMassCutoff()));
 
     stream.writeAttribute( "eic_smoothingWindow" ,QString::number( mavenParameters->eic_smoothingWindow));
     stream.writeAttribute( "eic_smoothingAlgorithm" ,QString::number( mavenParameters->eic_smoothingAlgorithm));
@@ -194,10 +192,10 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                 //                   checkBox_4->isChecked());  // S34
 
                 // Fragment Score
-                // settings->setValue("minFragmentMatchScore",
+                // settings->setValue("minFragMatchScore",
                 //                   minFragMatchScore->value());
-                settings->setValue("matchFragmentation",
-                        xml.attributes().value("matchFragmentation").toString().toInt());
+                //settings->setValue("matchFragmentationOptions",
+                //        xml.attributes().value("matchFragmentationFlag").toString().toInt());
 
                 // Enabling feature detection or compound search
                 // mavenParameters->runFunction =
@@ -208,9 +206,9 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
                         .toString()
                         .toInt());
 
-                settings->setValue("fragmentMatchMassCutoffTolr",
+                settings->setValue("fragmentTolerance",
                         xml.attributes()
-                        .value("fragmentMatchMassCutoffTolr")
+                        .value("fragmentTolerance")
                         .toString()
                         .toFloat());
 
@@ -329,20 +327,29 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     Q_EMIT(samplesAligned(true));
 
 }
-void BackgroundPeakUpdate::writeCSVRep(string setName) {
+void BackgroundPeakUpdate::writeCSVRep(string setName)
+{
+    auto prmGroupAt = find_if(begin(mavenParameters->allgroups),
+                              end(mavenParameters->allgroups),
+                              [] (PeakGroup& group) {
+                                  return group.compound->type() == Compound::Type::PRM;
+                              });
+    bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
 
-        //write reports
-        CSVReports* csvreports = NULL;
-        if (mavenParameters->writeCSVFlag) {
-                //Added to pass into csvreports file when merged with Maven776 - Kiran
-                bool includeSetNamesLine=true;
-                string groupfilename = mavenParameters->outputdir + setName + ".csv";
-                csvreports = new CSVReports(mavenParameters->samples);
-                csvreports->setMavenParameters(mavenParameters);
-                csvreports->setUserQuantType(mainwindow->getUserQuantType());
-                //Added to pass into csvreports file when merged with Maven776 - Kiran
-                csvreports->openGroupReport(groupfilename,includeSetNamesLine);
-        }
+    //write reports
+    CSVReports* csvreports = NULL;
+    if (mavenParameters->writeCSVFlag) {
+        //Added to pass into csvreports file when merged with Maven776 - Kiran
+        bool includeSetNamesLine=true;
+        string groupfilename = mavenParameters->outputdir + setName + ".csv";
+        csvreports = new CSVReports(mavenParameters->samples);
+        csvreports->setMavenParameters(mavenParameters);
+        csvreports->setUserQuantType(mainwindow->getUserQuantType());
+        //Added to pass into csvreports file when merged with Maven776 - Kiran
+        csvreports->openGroupReport(groupfilename,
+                                    prmGroupExists,
+                                    includeSetNamesLine);
+    }
 
         peakDetector.pullAllIsotopes();
 

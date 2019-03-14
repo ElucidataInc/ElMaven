@@ -158,6 +158,13 @@ class MavenParameters
         float minGroupIntensity;
         int peakQuantitation;
 
+        //match fragmentation settings
+        float minFragMatchScore;
+        bool matchFragmentationFlag;
+        float fragmentTolerance;
+        float minFragMatch;
+        string scoringAlgo;
+
         // Peak Group Rank
         int qualityWeight;
         int intensityWeight;
@@ -167,7 +174,7 @@ class MavenParameters
         /**
         * eic window around compound, compound detection setting
         */
-        MassCutoff *compoundMassCutoffWindow;
+        MassCutoff* compoundMassCutoffWindow;
         float compoundRTWindow;
         int eicMaxGroups;
 
@@ -242,9 +249,6 @@ class MavenParameters
         int alignMaxIterations; //TODO: Sahil - Kiran, Added while merging mainwindow
         int alignPolynomialDegree; //TODO: Sahil - Kiran, Added while merging mainwindow
 
-        float minFragmentMatchScore;
-        bool matchFragmentation;
-        MassCutoff* fragmentMatchMassCutoffTolr;
         /**
         * [print parameter Settings]
         * @method printSettings

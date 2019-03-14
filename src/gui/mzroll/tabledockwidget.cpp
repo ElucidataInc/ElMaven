@@ -130,6 +130,8 @@ void TableDockWidget::setupPeakTable() {
     colNames << "Max AreaTop";
     colNames << "Max S/N";
     colNames << "Max Quality";
+    colNames << "MS2 Score";
+    colNames << "#MS2 Events";
     colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -178,8 +180,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
   item->setText(0, QString::number(group->groupId));
 
   if (viewType == groupView && fabs(group->changeFoldRatio) >= 0) {
-    item->setText(13, QString::number(group->changeFoldRatio, 'f', 3));
-    item->setText(14, QString::number(group->changePValue, 'f', 6));
+    item->setText(15, QString::number(group->changeFoldRatio, 'f', 3));
+    item->setText(16, QString::number(group->changePValue, 'f', 6));
   }
 
   int good = 0;
@@ -318,12 +320,14 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     item->setText(9, QString::number(extractMaxIntensity(group), 'g', 2));
     item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
-    item->setText(12, QString::number(group->groupRank, 'e', 6));
+    item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
+    item->setText(13, QString::number(group->ms2EventCount));
+    item->setText(14, QString::number(group->groupRank, 'e', 6));
 
     if (group->changeFoldRatio != 0) {
 
-      item->setText(13, QString::number(group->changeFoldRatio, 'f', 2));
-      item->setText(14, QString::number(group->changePValue, 'e', 4));
+      item->setText(15, QString::number(group->changeFoldRatio, 'f', 2));
+      item->setText(16, QString::number(group->changePValue, 'e', 4));
     }
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -538,19 +542,29 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
+  auto prmGroupAt = find_if(begin(allgroups),
+                            end(allgroups),
+                            [] (PeakGroup& group) {
+                              return group.compound->type() == Compound::Type::PRM;
+                            });
+  bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
   } else if (sFilterSel == peaksTAB) {
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString());
+    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
@@ -626,19 +640,29 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
+  auto prmGroupAt = find_if(begin(allgroups),
+                            end(allgroups),
+                            [] (PeakGroup& group) {
+                              return group.compound->type() == Compound::Type::PRM;
+                            });
+  bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(), includeSetNamesLines);
+    csvreports->openGroupReport(fileName.toStdString(),
+                                prmGroupExists,
+                                includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
   } else if (sFilterSel == peaksTAB) {
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString());
+    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
@@ -2458,6 +2482,8 @@ void ScatterplotTableDockWidget::setupPeakTable() {
     colNames << "Max AreaTop";
     colNames << "Max S/N";
     colNames << "Max Quality";
+    colNames << "MS2 Score";
+    colNames << "#MS2 Events";
     colNames << "Rank";
 
     // add scatterplot table columns
