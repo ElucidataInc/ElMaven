@@ -430,8 +430,8 @@ int Database::loadNISTLibrary(QString filepath,
                     auto exactMass = MassCalculator::computeMass(formula, 0);
                     currentCompound->mass = exactMass;
                 }
-                addCompound(currentCompound);
-                ++compoundCount;
+                if (addCompound(currentCompound))
+                    ++compoundCount;
             }
 
             // we need to check this again before creating a new compound,
