@@ -387,7 +387,8 @@ QString PollyIntegration::createRunRequest(QString componentId,
 }
 
 QString PollyIntegration::redirectionUiEndpoint(QString componentId,
-                                                QString runId)
+                                                QString runId,
+                                                QString datetimestamp)
 {
     QString command = "getEndpointForRuns";
     QStringList arguments = QStringList() << credFile;
@@ -405,7 +406,9 @@ QString PollyIntegration::redirectionUiEndpoint(QString componentId,
         auto id = QString::number(jsonObject.value("component_id").toInt());
         if (id == componentId) {
             auto url = jsonObject.value("url").toString();
-            return url.replace("<runid>", runId);
+            url = url.replace("<runid>", runId)
+                     .replace("<timestamp>", datetimestamp);
+            return url;
         }
     }
     return "";

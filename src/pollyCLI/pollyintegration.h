@@ -98,9 +98,13 @@ public:
      * @brief Obtain a redirection URL for a given component and run ID.
      * @param componentId The component ID for which URL will be fetched.
      * @param runId The run ID that will be replaced within the URL.
+     * @param datetimestamp The date-time string that will be replaced wwithin
+     * the URL.
      * @return A URL redirecting to web application run.
      */
-    QString redirectionUiEndpoint(QString componentId, QString runId);
+    QString redirectionUiEndpoint(QString componentId,
+                                  QString runId,
+                                  QString datetimestamp);
 
     /**
      * @brief Extract out a component ID from a.JSON response obtained by
