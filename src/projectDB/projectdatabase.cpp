@@ -610,6 +610,10 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :match_rt                         \
                       , :compound_rt_window               \
                       , :limit_groups_per_compound        \
+                      , :match_fragmentation              \
+                      , :min_frag_match_score             \
+                      , :fragment_tolerance               \
+                      , :min_frag_match                   \
                       , :report_isotopes                  \
                       , :peak_quantitation                \
                       , :min_group_intensity              \
@@ -723,6 +727,11 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":match_rt", BINT(settingsMap.at("matchRt")));
     settingsQuery->bind(":compound_rt_window", BDOUBLE(settingsMap.at("compoundRtWindow")));
     settingsQuery->bind(":limit_groups_per_compound", BINT(settingsMap.at("limitGroupsPerCompound")));
+
+    settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
+    settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
+    settingsQuery->bind(":fragment_tolerance", BDOUBLE(settingsMap.at("fragmentTolerance")));
+    settingsQuery->bind(":min_frag_match", BDOUBLE(settingsMap.at("minFragMatch")));
 
     settingsQuery->bind(":report_isotopes", BINT(settingsMap.at("reportIsotopes")));
 
@@ -1248,6 +1257,11 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
         settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
         settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
+
+        settingsMap["matchFragmentation"] = settingsQuery->doubleValue("match_fragmentation");
+        settingsMap["minFragMatchScore"] = variant(settingsQuery->integerValue("min_frag_match_score"));
+        settingsMap["fragmentTolerance"] = variant(settingsQuery->doubleValue("fragment_tolerance"));
+        settingsMap["minFragMatch"] = variant(settingsQuery->integerValue("min_frag_match"));
 
         settingsMap["reportIsotopes"] = variant(settingsQuery->integerValue("report_isotopes"));
 

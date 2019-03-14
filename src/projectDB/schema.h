@@ -197,6 +197,10 @@
                                               , match_rt                         INTEGER \
                                               , compound_rt_window               REAL    \
                                               , limit_groups_per_compound        INTEGER \
+                                              , match_fragmentation              INTEGER \
+                                              , min_frag_match_score             REAL    \
+                                              , fragment_tolerance               REAL    \
+                                              , min_frag_match                   REAL    \
                                               , report_isotopes                  INTEGER \
                                               , peak_quantitation                INTEGER \
                                               , min_group_intensity              REAL    \
