@@ -3005,6 +3005,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
+	QToolButton* btnFragEvents = addDockWidgetButton(sideBar, fragPanel, QIcon(rsrcPath + "/fragmentationEvents.png"), "Show MS2 events");
 
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
@@ -3058,6 +3059,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnSamples);
 	sideBar->addWidget(btnLigands);
     sideBar->addWidget(btnSpectra);
+	sideBar->addWidget(btnFragEvents);
     sideBar->addWidget(btnAlignment);
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
