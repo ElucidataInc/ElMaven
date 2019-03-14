@@ -905,15 +905,21 @@ void EicWidget::replot(PeakGroup* group) {
 			_focusLineRt = group->compound->expectedRt;
 	else _focusLineRt = 0;
 
-    if (_showCubicSpline) addCubicSpline();
-    if (_showBaseline) addBaseLine();
-	if (_showTicLine || _showBicLine) addTicLine();
-    if (_showMergedEIC) addMergedEIC();
-    if (_focusLineRt >0) setFocusLine(_focusLineRt);
-    if (_showNotes)	getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);	//get notes that fall withing this mzrange
-    if (_showMS2Events && eicParameters->_slice.mz > 0) { 
-		addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
-	}
+    if (_showCubicSpline)
+        addCubicSpline();
+    if (_showBaseline)
+        addBaseLine();
+    if (_showTicLine || _showBicLine)
+        addTicLine();
+    if (_showMergedEIC)
+        addMergedEIC();
+    if (_focusLineRt >0)
+        setFocusLine(_focusLineRt);
+    //get notes that fall withing this mzrange
+    if (_showNotes)
+        getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);
+    if (_showMS2Events && eicParameters->_slice.mz > 0) 
+        addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
 
 	addAxes();
 	getMainWindow()->addToHistory(eicParameters->_slice);
@@ -1997,8 +2003,8 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
 	mw->fragPanel->clearTree();
     
 	int count = 0;
-    for (auto sample : samples) {
-        for (auto scan : sample->scans) {
+    for (auto const& sample : samples) {
+        for (auto const& scan : sample->scans) {
             if (scan->mslevel > 1 &&
 				scan->precursorMz >= mzmin &&
 				scan->precursorMz <= mzmax) {

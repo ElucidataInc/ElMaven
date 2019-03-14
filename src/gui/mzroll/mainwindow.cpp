@@ -3550,29 +3550,28 @@ void MainWindow::setClipboardToGroup(PeakGroup* group) {
 	clipboard->setText(groupTextExport(group));
 }
 
-void MainWindow::showFragmentationScans(float pmz) {
-
-	if (!fragPanel || fragPanel->isVisible() == false)
-		return;
+void MainWindow::showFragmentationScans(float pmz)
+{
+    if (!fragPanel || fragPanel->isVisible() == false)
+        return;
 	
-	MassCutoff *massCutoff = getUserMassCutoff();
+    MassCutoff *massCutoff = getUserMassCutoff();
 
-	if (samples.size() <= 0)
-		return;
-	fragPanel->clearTree();
-	for (auto sample : samples) {
-		for (auto scan : sample->scans) {
-			if (scan->mslevel < 2) continue;
-			if (massCutoffDist(scan->precursorMz,
-							   pmz,
-							   massCutoff) > massCutoff->getMassCutoff()) {
-				continue;
-			}
-			fragPanel->addScanItem(scan);
-		}
-	}
+    if (samples.size() <= 0)
+        return;
+    fragPanel->clearTree();
+    for (auto sample : samples) {
+        for (auto scan : sample->scans) {
+	        if (scan->mslevel < 2) continue;
+	        if (massCutoffDist(scan->precursorMz,
+                               pmz,
+                               massCutoff) > massCutoff->getMassCutoff()) {
+                continue;
+            }
+            fragPanel->addScanItem(scan);
+        }
+    }
 }
-
 
 void MainWindow::reorderSamples(PeakGroup* group) {
 	if (group)
