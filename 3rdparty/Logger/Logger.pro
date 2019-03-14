@@ -1,3 +1,4 @@
+include($$mac_compiler)
 TEMPLATE = lib
 
 CONFIG += staticlib

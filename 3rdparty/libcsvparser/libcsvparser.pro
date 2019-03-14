@@ -1,5 +1,4 @@
-
-
+include($$mac_compiler)
 
 MOC_DIR=$$top_builddir/tmp/csv_parser/
 OBJECTS_DIR=$$top_builddir/tmp/csv_parser/

@@ -1,3 +1,5 @@
+include($$mac_compiler)
+
 MOC_DIR=$$top_builddir/tmp/mzroll/
 OBJECTS_DIR=$$top_builddir/tmp/mzroll/
 include($$mzroll_pri)
@@ -48,8 +50,14 @@ win32 {
 
 mac {
     QMAKE_CXXFLAGS += -fopenmp
-    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/ /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
-    QMAKE_LFLAGS += -L$$top_builddir/libs/ -L/usr/local/Cellar/llvm/6.0.1/lib/
+    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    DYLIBPATH = $$(LDFLAGS)
+    isEmpty(DYLIBPATH) {
+        warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
+        warning("Please follow the README to make sure you have correctly set the LDFLAGS variable")
+    }
+    QMAKE_LFLAGS += $$(LDFLAGS)
+    QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
     LIBS += -lgoogle-breakpad -lobjc -pthread

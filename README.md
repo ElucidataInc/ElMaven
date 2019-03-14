@@ -92,11 +92,20 @@ This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under 
 
 `cd ~`
 
-`touch .profile`
+_Not required if the file already exists_
+`touch .bash_profile`
 
-`echo "PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:$PATH" > .profile`
 
-`source .profile`
+> e.g. PATH_TO_LLVM_DIR = /usr/local/opt/llvm@6/
+
+`echo "export PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:/PATH_TO_LLVM_DIR/bin/:$PATH" >> .bash_profile`
+
+`echo "export LDFLAGS="-L/PATH_TO_LLVM_DIR/lib -Wl,-rpath,/PATH_TO_LLVM_DIR/lib" >> .bash_profile`
+
+`echo "export CPPFLAGS+="-I/PATH_TO_LLVM_DIR/include  -I/PATH_TO_LLVM_DIR/c++/v1/" >> .bash_profile`
+
+`source .bash_profile`
+
 
 `mkdir ~/maven_repo`
 
@@ -105,8 +114,6 @@ This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under 
 `git clone https://github.com/ElucidataInc/ElMaven.git`
 
 `cd ElMaven`
-
-`source ~/.profile`
 
 `qmake CONFIG+=debug -o Makefile build.pro`
 
@@ -131,7 +138,7 @@ For Windows and Ubuntu:
 `./run.sh`
 
 For Mac:  
-`source ~/.profile`
+`source ~/.bash_profile`
 
 `qmake CONFIG+=debug -o Makefile build.pro`
 

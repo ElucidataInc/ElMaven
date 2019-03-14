@@ -1,3 +1,4 @@
+include($$mac_compiler)
 TEMPLATE = lib
 
 DESTDIR=$$top_builddir/libs/

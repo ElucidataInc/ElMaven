@@ -1,3 +1,4 @@
+include($$mac_compiler)
 MOC_DIR=$$top_builddir/tmp/maven/
 OBJECTS_DIR=$$top_builddir/tmp/maven/
 include($$mzroll_pri)
@@ -36,8 +37,7 @@ LIBS += -lobiwarp
 
 macx{
 
-    INCLUDEPATH += /usr/local/include/ \
-                   /usr/local/Cellar/llvm/6.0.1/lib/clang/6.0.1/include/
+    INCLUDEPATH += /usr/local/include/
     QMAKE_LFLAGS += -L/usr/local/lib/
     LIBS +=  -lboost_signals
 }

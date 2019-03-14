@@ -1,3 +1,5 @@
+include($$mac_compiler)
+
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
 

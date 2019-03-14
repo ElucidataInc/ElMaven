@@ -1,3 +1,4 @@
+include($$mac_compiler)
 MOC_DIR=$$top_builddir/tmp/pugixml/
 OBJECTS_DIR=$$top_builddir/tmp/pugixml/
 include($$mzroll_pri)
