@@ -290,11 +290,6 @@ private Q_SLOTS:
     void _goToPolly();
 
     /**
-     * @brief This function closes the EPI dialog.
-     */
-    void _cancel();
-
-    /**
      * @brief Log-out of Polly for the currently logged in user.
      */
     void _logout();
