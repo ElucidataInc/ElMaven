@@ -398,10 +398,8 @@ void SpectraWidget::setScanTitle()
         return;
     }
 
-    QString sampleName;
+    QString sampleName("");
     if (_currentScan->sample)  sampleName = QString(_currentScan->sample->sampleName.c_str());
-
-    _titleText += tr("<b>%1</b>  ").arg(sampleName);
     
     if (_currentScan->scannum)
         _titleText += tr("Scan#<b>%1</b>  ").arg(QString::number(_currentScan->scannum));
@@ -425,6 +423,7 @@ void SpectraWidget::setScanTitle()
     }
 
     setTitle(_titleText);
+    mainwindow->spectraDockWidget->setWindowTitle("Spectra: " + sampleName);
 }
 
 void SpectraWidget::setGroupTitle()
@@ -435,7 +434,7 @@ void SpectraWidget::setGroupTitle()
         return;
     }
 
-    QString compoundName;
+    QString compoundName("");
     if (_currentGroup->compound) compoundName = QString(_currentGroup->compound->name.c_str());
     
     float purity = 0;
@@ -453,8 +452,6 @@ void SpectraWidget::setGroupTitle()
         rt = _currentGroup->meanRt;
     }
     
-    _titleText += tr("<b>%1</b>  ").arg(compoundName);
-
     _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(rt, 'f', 2));
     
     _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(_currentGroup->meanMz, 'f', 4));
@@ -462,6 +459,7 @@ void SpectraWidget::setGroupTitle()
     _titleText += tr("Purity:<b>%1</b>  ").arg(QString::number(purity, 'f', 2));
 
     setTitle(_titleText);
+    mainwindow->fragSpectraDockWidget->setWindowTitle("Fragmentation spectra: " + compoundName);
 }
 
 void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
