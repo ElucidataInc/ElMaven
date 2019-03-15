@@ -95,11 +95,9 @@ void SpectraWidget::replot() {
 void SpectraWidget::setTitle(QString titleText) 
 {
     QFont font = QApplication::font();
+    _title->setDefaultTextColor(Qt::black);
 
-    int pxSize = scene()->height() * 0.03;
-    if ( pxSize < 12 ) pxSize = 12;
-    if ( pxSize > 20 ) pxSize = 20;
-    font.setPixelSize(pxSize);
+    font.setPointSizeF(font.pointSize()*0.8);
 
     if (!_title) _title = scene()->addText(titleText, font);
     _title->setHtml(titleText);
@@ -108,7 +106,7 @@ void SpectraWidget::setTitle(QString titleText)
     _title->update();
 
     if (_currentScan && _currentScan->nobs() == 0) {
-        font.setPixelSize(pxSize * 3);
+        font.setPointSizeF(font.pointSize()*0.8);
         _title->setHtml("EMPTY SCAN");
         int textWidth = _title->boundingRect().width();
         _title->setPos(scene()->width() / 2 - textWidth / 2, scene()->height() / 2);
@@ -402,24 +400,24 @@ void SpectraWidget::setScanTitle()
     if (_currentScan->sample)  sampleName = QString(_currentScan->sample->sampleName.c_str());
     
     if (_currentScan->scannum)
-        _titleText += tr("Scan#<b>%1</b>  ").arg(QString::number(_currentScan->scannum));
+        _titleText += tr("<b>Scan#</b> %1  ").arg(QString::number(_currentScan->scannum));
 
     if (_currentScan->rt)
-        _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(_currentScan->rt, 'f', 2));
+        _titleText += tr("<b>Rt:</b> %1  ").arg(QString::number(_currentScan->rt, 'f', 2));
 
     if (_currentScan->mslevel)
-        _titleText += tr("MS Level:<b>%1</b>  ").arg(QString::number(_currentScan->mslevel));
+        _titleText += tr("<b>MS Level:</b> %1  ").arg(QString::number(_currentScan->mslevel));
 
     if (_currentScan->precursorMz) {
-        _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(_currentScan->precursorMz,'f',4));
+        _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(_currentScan->precursorMz,'f',4));
     }
 
     if (_currentScan->collisionEnergy) {
-        _titleText += tr("CE:<b>%1</b>  ").arg(QString::number(_currentScan->collisionEnergy,'f',0));
+        _titleText += tr("<b>CE:</b> %1  ").arg(QString::number(_currentScan->collisionEnergy,'f',0));
     }
 
     if (_currentScan->productMz) {    
-       _titleText += tr("Prod m/z:<b>%1</b>  ").arg(QString::number(_currentScan->productMz,'f',3));
+       _titleText += tr("<b>Prod m/z:</b> %1  ").arg(QString::number(_currentScan->productMz,'f',3));
     }
 
     setTitle(_titleText);
@@ -452,11 +450,11 @@ void SpectraWidget::setGroupTitle()
         rt = _currentGroup->meanRt;
     }
     
-    _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(rt, 'f', 2));
+    _titleText += tr("<b>Rt:</b> %1  ").arg(QString::number(rt, 'f', 2));
     
-    _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(_currentGroup->meanMz, 'f', 4));
+    _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(_currentGroup->meanMz, 'f', 4));
     
-    _titleText += tr("Purity:<b>%1</b>  ").arg(QString::number(purity, 'f', 2));
+    _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity, 'f', 2));
 
     setTitle(_titleText);
     mainwindow->fragSpectraDockWidget->setWindowTitle("Fragmentation spectra: " + compoundName);
