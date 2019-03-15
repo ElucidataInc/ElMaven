@@ -5,6 +5,8 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
     eicparameters = new EICLogic();
    _currentScan = nullptr;
    _avgScan = nullptr;
+   _currentGroup = nullptr;
+   _spectralHit = SpectralHit();
 
     initPlot();
 
@@ -218,7 +220,7 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 
 void SpectraWidget::overlayPeakGroup(PeakGroup* group)
 {
-    _currentGroup = NULL;
+    _currentGroup = nullptr;
     if (!group) return;
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
@@ -615,10 +617,11 @@ void SpectraWidget::drawAnnotations() {
 
 void SpectraWidget::drawGraph()
 {
+    clearGraph();
+    
     if (_currentScan == NULL) return;
 
     qDebug() << "showSpectra() mzrange= " << _minX << "-" << _maxX;
-    clearGraph();
 
     QColor sampleColor(Qt::black);
     if (_currentScan->sample) {
@@ -626,19 +629,23 @@ void SpectraWidget::drawGraph()
         sampleColor = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
     }
 
-    setScanTitle();
     drawScan(_currentScan, sampleColor);
     drawMzLabels(_currentScan);
     drawAnnotations();
 
-    // overlay spectra
-    if ( fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5 ) {
-        drawSpectralHit(_spectralHit);
-        if (_currentGroup) setGroupTitle();
-    } else {
-        //TODO: either remove the check or inform user on the UI in case of failure
-       qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
-    }
+    if (_spectralHit.mzList.size() > 0) {
+        setGroupTitle();
+        if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5)
+            drawSpectralHit(_spectralHit);
+        else {
+            //TODO: either remove the check or inform user on the UI in case of failure
+            qDebug() << " overlaySpectra() skipped: "
+                     << _spectralHit.precursorMz
+                     << " "
+                     << _currentScan->precursorMz;
+        }
+    } else
+        setScanTitle();
 
     addAxes();
 }
