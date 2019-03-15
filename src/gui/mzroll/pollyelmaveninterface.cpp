@@ -229,8 +229,13 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
         _loadingDialog->statusLabel->setText("No internet access.");
         QCoreApplication::processEvents();
         QTimer* timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), _loadingDialog, SLOT(close()));
-        connect(timer, SIGNAL(timeout()), this, SLOT(close()));
+        QObject::connect(timer,
+                         &QTimer::timeout,
+                         [this, timer]() {
+                             delete timer;
+                             _loadingDialog->close();
+                             this->close();
+                         });
         timer->start(5000);
     } else {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
