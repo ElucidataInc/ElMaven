@@ -243,15 +243,15 @@ using namespace mzUtils;
 
 
 
-	if (QFile::exists(clsfModelFilename)) {
-                settings->setValue("peakClassifierFile", clsfModelFilename);
-		clsf->loadModel( clsfModelFilename.toStdString());
-		mavenParameters->clsf = getClassifier();
-	} else {
-                settings->setValue("peakClassifierFile", QString(""));
-		clsf->loadModel("");
-		mavenParameters->clsf = getClassifier();
-	}
+    if (QFile::exists(clsfModelFilename)) {
+        settings->setValue("peakClassifierFile", clsfModelFilename);
+        clsf->loadModel( clsfModelFilename.toStdString());
+        mavenParameters->clsf = getClassifier();
+    } else {
+        settings->setValue("peakClassifierFile", QString(""));
+        clsf->loadModel("");
+        mavenParameters->clsf = getClassifier();
+    }
 
 
 	analytics = new Analytics();
@@ -2974,7 +2974,7 @@ void MainWindow::createToolBars() {
     quantType->addItem("AreaTopNotCorrected");
     quantType->addItem("Retention Time");
     quantType->addItem("Quality");
-    quantType->setToolTip("Peak Quntitation Type");
+    quantType->setToolTip("Peak Quantitation Type");
     connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
     connect(quantType,
             SIGNAL(currentIndexChanged(int)),
