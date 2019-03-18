@@ -496,10 +496,15 @@ void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 		if (string2float(precursorMzStr) > 0)
 			precursorMz = string2float(precursorMzStr);
 
-		string precursorIsolationStr = isolationWindow["isolation window lower offset"];
-		float precursorIsolationWindow = 1.0f;
-		if (string2float(precursorIsolationStr) > 0)
-			precursorIsolationWindow = string2float(precursorIsolationStr);
+        string precursorIsolationStrLower = isolationWindow["isolation window lower offset"];
+        string precursorIsolationStrUpper = isolationWindow["isolation window upper offset"];
+		
+		float precursorIsolationWindow = 0.0f;
+		if (string2float(precursorIsolationStrLower) > 0.0f)
+			precursorIsolationWindow += string2float(precursorIsolationStrLower);
+        if (string2float(precursorIsolationStrUpper) > 0.0f)
+            precursorIsolationWindow += string2float(precursorIsolationStrUpper);
+        if (precursorIsolationWindow <= 0.0f) precursorIsolationWindow = 1.0f;
 
 		string productMzStr = spectrum.first_element_by_path("product/isolationWindow/cvParam").attribute("value").value();
 		float productMz = 0;
@@ -964,10 +969,24 @@ void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 		scanpolarity = getPolarityFromfilterLine(filterLine);
 	}
 
-	//TODO: What is this for this is zero
-	precursorMz = string2float(string(scan.child_value("precursorMz")));
+    xml_node precursor = mzxml_scan_node.child("precursorMz");
+    if (precursor) {
+        _scan->precursorMz = string2float(mzxml_scan_node.child_value("precursorMz"));
+        _scan->isolationWindow = 1.0f;
 
-	// string b64String; naman Unused variable: b64String
+        for (xml_attribute attr = precursor.first_attribute(); attr; attr = attr.next_attribute()) {
+            if (strncasecmp(attr.name(), "precursorIntensity", 15) == 0)
+                _scan->precursorIntensity = string2float(attr.value());
+            else if (strncasecmp(attr.name(), "precursorCharge", 15) == 0)
+                _scan->precursorCharge = string2integer(attr.value());
+            else if (strncasecmp(attr.name(), "activationMethod", 15) == 0)
+                _scan->activationMethod = string(attr.value());
+            else if (strncasecmp(attr.name(), "precursorScanNum", 15) == 0)
+                _scan->precursorScanNum = string2integer(attr.value());
+            else if (strncasecmp(attr.name(), "windowWideness", 13) == 0)
+                _scan->isolationWindow = string2float(attr.value());
+         }
+    }
 
 	//no m/z intensity values
 	mzint = parsePeaksFromMzXML(scan);
