@@ -3,8 +3,8 @@
 SpectraWidget::SpectraWidget(MainWindow* mw) { 
     this->mainwindow = mw;
     eicparameters = new EICLogic();
-   _currentScan = NULL;
-   _avgScan = NULL;
+   _currentScan = nullptr;
+   _avgScan = nullptr;
 
     initPlot();
 
@@ -240,12 +240,13 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
     //compound->mass should be reserved for exact mass or renamed
     if (!c->formula.empty())
         c->precursorMz = c->adjustedMass(mainwindow->mavenParameters->getCharge(c));
-    if (c->precursorMz == 0) c->precursorMz = c->mass;
+    if (mzUtils::almostEqual(c->precursorMz, 0.0f))
+        c->precursorMz = c->mass;
     hit.precursorMz = c->precursorMz;
     hit.matchCount = 0;
     hit.sampleName = "";
     hit.productPPM = mainwindow->mavenParameters->fragmentTolerance;
-    hit.scan = NULL;
+    hit.scan = nullptr;
     for (unsigned int i = 0; i < c->fragmentMzValues.size(); i++) {
         hit.mzList << c->fragmentMzValues[i];
         hit.intensityList << c->fragmentIntensities[i];
@@ -285,6 +286,7 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
             _focusCoord.setX(hit.precursorMz);
             _focusCoord.setY(_currentScan->intensity[pos]);
         }
+        delete productMassCutoff;
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
@@ -362,6 +364,7 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit)
         }
     }
     scene()->update();
+    delete massCutoffWindow;
 }
 
 void SpectraWidget::clearGraph() {
