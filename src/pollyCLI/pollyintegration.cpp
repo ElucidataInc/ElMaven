@@ -391,8 +391,7 @@ QString PollyIntegration::redirectionUiEndpoint(QString componentId,
                                                 QString datetimestamp)
 {
     QString command = "getEndpointForRuns";
-    QStringList arguments = QStringList() << credFile;
-    QList<QByteArray> resultAndError = runQtProcess(command, arguments);
+    QList<QByteArray> resultAndError = runQtProcess(command, QStringList(credFile));
     QByteArray result = resultAndError.at(0);
 
     // split based on newlines, JSON is second last string after split

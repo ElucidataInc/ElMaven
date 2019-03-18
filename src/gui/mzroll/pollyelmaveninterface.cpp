@@ -20,6 +20,24 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _pollyIntegration = new PollyIntegration();
     _loadingDialog = new PollyWaitDialog(this);
 
+    workflowMenu->setStyleSheet("QListView::item {"
+                                "border: 1px solid transparent;"
+                                "border-radius: 4px;"
+                                "padding: 6px;"
+                                "}"
+                                "QListView::item:selected {"
+                                "border-color: rgb(150, 150, 255);"
+                                "background-color: rgb(235, 235, 255);"
+                                "}"
+                                "QListView::item:enabled {"
+                                "color: black;"
+                                "}"
+                                "QListView::item:disabled {"
+                                "color: gray;"
+                                "}"
+                                "QListView {"
+                                "outline: 0;"
+                                "}");
     workflowMenu->setCurrentRow(int(PollyApp::FirstView));
     gotoPollyButton->setVisible(false);
     gotoPollyButton->setDefault(true);
@@ -281,8 +299,7 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
 
     QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
-        existingProjectCombo->addItem(projectIcon,
-                                      _projectNameIdMap[key].toString());
+        existingProjectCombo->addItem(_projectNameIdMap[key].toString());
     }
 
     _bookmarkTable = _mainwindow->getBookmarkedPeaks();
