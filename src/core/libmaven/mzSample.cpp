@@ -496,7 +496,7 @@ void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 			precursorMz = string2float(precursorMzStr);
 
 		string precursorIsolationStr = isolationWindow["isolation window lower offset"];
-		float precursorIsolationWindow = 1.0;
+		float precursorIsolationWindow = 1.0f;
 		if (string2float(precursorIsolationStr) > 0)
 			precursorIsolationWindow = string2float(precursorIsolationStr);
 
