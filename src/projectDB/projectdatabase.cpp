@@ -648,7 +648,7 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :obi_warp_factor_gap              \
                       , :obi_warp_no_standard_normal      \
                       , :obi_warp_local                   \
-                      , :main_window_compound_db_selected \
+                      , :main_window_selected_db_name     \
                       , :main_window_charge               \
                       , :main_window_peak_quantitation    \
                       , :main_window_mass_resolution      )");
