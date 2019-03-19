@@ -13,6 +13,12 @@ macx {
     }
 }
 
+win32 {
+    #package 'mingw-w64-x86_64-curl' is required by libnetcdf.
+    CONFIG += link_pkgconfig
+    PKGCONFIG = libcurl
+}
+
 include($$mac_compiler)
 
 TEMPLATE = subdirs
