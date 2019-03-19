@@ -49,10 +49,9 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
     if (_mavenParameters->clsf->hasModel()) {
         _mavenParameters->clsf->classify(&peakgroup);
         peakgroup.updateQuality();
+        if (peakgroup.goodPeakCount < _mavenParameters->minGoodGroupCount)
+            return true;
     }
-
-    if (peakgroup.goodPeakCount < _mavenParameters->minGoodGroupCount)
-        return true;
 
     if (peakgroup.maxNoNoiseObs < _mavenParameters->minNoNoiseObs)
         return true;
