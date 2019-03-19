@@ -165,16 +165,10 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
     return;
   heatmapBackground(item);
 
-  // score peak quality
-  Classifier *clsf = _mainwindow->getClassifier();
-  if (clsf != NULL) {
-    clsf->classify(group);
-    group->updateQuality();
+  if (viewType == groupView)
+    item->setText(11, QString::number(group->maxQuality, 'f', 2));
 
-    if (viewType == groupView)
-      item->setText(11, QString::number(group->maxQuality, 'f', 2));
-    item->setText(1, QString(group->getName().c_str()));
-  }
+  item->setText(1, QString(group->getName().c_str()));
 
   // Updating the peakid
   item->setText(0, QString::number(group->groupId));
