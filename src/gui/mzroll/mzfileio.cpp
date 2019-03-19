@@ -733,6 +733,12 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     } else {
         qDebug() << "creating new project to save…";
         auto version = _mainwindow->appVersion().toStdString();
+
+        // if file already exists, delete it before opening a new one
+        QFile projectFile(filename);
+        if (projectFile.exists())
+            projectFile.remove();
+
         _currentProject = new ProjectDatabase(filename.toStdString(), version);
     }
 
