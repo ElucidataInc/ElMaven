@@ -25,9 +25,6 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   connect(treeWidget,
           SIGNAL(itemClicked(QTreeWidgetItem*, int)),
           SLOT(showLigand()));
-  connect(treeWidget,
-          SIGNAL(itemEntered(QTreeWidgetItem*, int)),
-          SLOT(_setTooltipForItem(QTreeWidgetItem*)));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -345,7 +342,8 @@ void LigandWidget::showTable() {
     //	treeWidget->clear();
     treeWidget->clear();
     treeWidget->setColumnCount(4);
-    QStringList header; header << "name" << "m/z" << "rt" << "category";
+    QStringList header;
+    header << "name" << "m/z" << "rt" << "category" << "notes";
     treeWidget->setHeaderLabels( header );
     treeWidget->setSortingEnabled(false);
 
@@ -403,6 +401,10 @@ void LigandWidget::showTable() {
                 catList << compound->category[i].c_str();
             }
             parent->setText(3,catList.join(";"));
+        }
+
+        if (!compound->note.empty()) {
+            parent->setText(4, QString::fromStdString(compound->note));
         }
 
         if (compound->fragmentMzValues.size()) {
@@ -764,14 +766,4 @@ void LigandWidget::matchFragmentation() {
 	_mw->spectraMatchingForm->precursorMz->setText(QString::number(precursorMz,'f',6));
 
 //	_mw->spectraMatchingForm->show();
-}
-
-void LigandWidget::_setTooltipForItem(QTreeWidgetItem* item)
-{
-    QVariant v = item->data(0, Qt::UserRole);
-    Compound* c = v.value<Compound*>();
-    QString note(c->note.c_str());
-    setToolTip(note);
-    if (note.isEmpty())
-        QToolTip::hideText();
 }
