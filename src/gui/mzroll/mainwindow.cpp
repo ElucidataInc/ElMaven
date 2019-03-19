@@ -243,15 +243,15 @@ using namespace mzUtils;
 
 
 
-	if (QFile::exists(clsfModelFilename)) {
-		settings->setValue("clsfModelFilename", clsfModelFilename);
-		clsf->loadModel( clsfModelFilename.toStdString());
-		mavenParameters->clsf = getClassifier();
-	} else {
-		settings->setValue("clsfModelFilename", QString(""));
-		clsf->loadModel("");
-		mavenParameters->clsf = getClassifier();
-	}
+    if (QFile::exists(clsfModelFilename)) {
+        settings->setValue("peakClassifierFile", clsfModelFilename);
+        clsf->loadModel( clsfModelFilename.toStdString());
+        mavenParameters->clsf = getClassifier();
+    } else {
+        settings->setValue("peakClassifierFile", QString(""));
+        clsf->loadModel("");
+        mavenParameters->clsf = getClassifier();
+    }
 
 
 	analytics = new Analytics();
@@ -529,20 +529,27 @@ using namespace mzUtils;
             SIGNAL(sqliteDBLoadStarted(QString)),
             SLOT(_showEMDBProgressBar(QString)));
     connect(fileLoader,
+            &mzFileIO::settingsLoaded,
+            this,
+            [=] { _updateEMDBProgressBar(1, 5); });
+    connect(fileLoader,
             &mzFileIO::sqliteDBSamplesLoaded,
             this,
-            [=] { _updateEMDBProgressBar(1, 4); });
+            [=] { _updateEMDBProgressBar(2, 5); });
     connect(fileLoader,
             &mzFileIO::sqliteDBPeakTablesCreated,
             this,
-            [=] { _updateEMDBProgressBar(2, 4); });
+            [=] { _updateEMDBProgressBar(3, 5); });
     connect(fileLoader,
             &mzFileIO::sqliteDBAlignmentDone,
             this,
-            [=] { _updateEMDBProgressBar(3, 4); });
+            [=] { _updateEMDBProgressBar(4, 5); });
     connect(fileLoader,
             SIGNAL(sqliteDBPeakTablesPopulated()),
-            SLOT(refreshIntensities()));
+            SLOT(_postProjectLoadActions()));
+    connect(fileLoader,
+            SIGNAL(sqliteDBUnrecognizedVersion(QString)),
+            SLOT(_handleUnrecognizedProjectVersion(QString)));
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
@@ -570,7 +577,6 @@ using namespace mzUtils;
 
 	setIonizationModeLabel();
 	setTotalCharge();
-	connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
 
   // This been set here why is this here; beacuse of this
   // in the show function of peak detector its been made to set to this
@@ -1282,15 +1288,16 @@ void MainWindow::removeAllPeakTables()
     lastPeakTableId = 0;
 }
 
-void MainWindow::setUserMassCutoff(double x) {
-	double cutoff=x;
-	string type=massCutoffComboBox->currentText().toStdString();
-	_massCutoffWindow->setMassCutoffAndType(cutoff,type);
-	massCalcWidget->setMassCutoff(_massCutoffWindow);
-	eicWidget->setMassCutoff(_massCutoffWindow);
-
+void MainWindow::setUserMassCutoff(double x)
+{
+    double cutoff = x;
+    string type = massCutoffComboBox->currentText().toStdString();
+    _massCutoffWindow->setMassCutoffAndType(cutoff, type);
+    massCalcWidget->setMassCutoff(_massCutoffWindow);
+    eicWidget->setMassCutoff(_massCutoffWindow);
+    fileLoader->insertSettingForSave("mainWindowMassResolution",
+                                     variant(cutoff));
 }
-
 
 void MainWindow::setIonizationModeLabel() {
 
@@ -1357,14 +1364,14 @@ void MainWindow::setFilterLine() {
 
 }
 
-void MainWindow::setTotalCharge() {
-
-	mavenParameters->charge = ionChargeBox->value();
-	totalCharge = mavenParameters->ionizationMode * ionChargeBox->value();
-
-	ligandWidget->updateTable();
-
-} 
+void MainWindow::setTotalCharge()
+{
+    int charge = ionChargeBox->value();
+    mavenParameters->charge = charge;
+    fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
+    totalCharge = mavenParameters->ionizationMode * charge;
+    ligandWidget->updateTable();
+}
 
 vector<mzSample*> MainWindow::getVisibleSamples() {
 
@@ -2403,14 +2410,14 @@ void MainWindow::readSettings() {
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 			
-    if (!settings->contains("clsfModelFilename") || settings->value("clsfModelFilename").toString().length() <=0) {
+    if (!settings->contains("peakClassifierFile") || settings->value("peakClassifierFile").toString().length() <=0) {
         #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-          settings->setValue("clsfModelFilename",  QApplication::applicationDirPath() + "/" + "default.model");
+          settings->setValue("peakClassifierFile",  QApplication::applicationDirPath() + "/" + "default.model");
         #endif
         #if defined(Q_OS_MAC)
           QString binPath = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
                   + QDir::separator() + "default.model";
-          settings->setValue("clsfModelFilename", binPath);
+          settings->setValue("peakClassifierFile", binPath);
         #endif
     }
 
@@ -2432,8 +2439,8 @@ void MainWindow::readSettings() {
     //Pull Isotopes in options
 
 
-	if (!settings->contains("AbthresholdBarplot"))
-		settings->setValue("AbthresholdBarplot", 1);
+        if (!settings->contains("abundanceThreshold"))
+                settings->setValue("abundanceThreshold", 1);
 
 
     //Main window right hand top
@@ -2884,23 +2891,9 @@ void MainWindow::createToolBars() {
 	layout->setSpacing(0);
 	layout->addWidget(new QWidget(hBox), 15); // spacer
 
-	//ppmValue
-	massCutoffWindowBox = new QDoubleSpinBox(hBox);
-	massCutoffWindowBox->setRange(0.00, 100000.0);
-	massCutoffWindowBox->setDecimals(6);
-	massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
-	massCutoffWindowBox->setToolTip("Mass Cut-off Unit");
-	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
-	// 		SLOT(setUserPPM(double)));
-	// connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
-	// 		SLOT(setPPM(double)));
-	connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
-	SLOT(setUserMassCutoff(double)));
-
 	massCutoffComboBox=  new QComboBox(hBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
-	massCutoffWindowBox->setSingleStep(0.5);
     /*if(settings->value("massCutoffType")=="mDa"){
         massCutoffComboBox->setCurrentText("mDa");
     }
@@ -2912,6 +2905,22 @@ void MainWindow::createToolBars() {
 
     /* note: on changing mass cut off type from mainwindow, it's important that it's also changed in peaks dialog */
     connect(massCutoffComboBox, &QComboBox::currentTextChanged, peakDetectionDialog, &PeakDetectionDialog::setMassCutoffType);
+
+    //ppmValue
+    massCutoffWindowBox = new QDoubleSpinBox(hBox);
+    massCutoffWindowBox->setRange(0.00, 100000.0);
+    massCutoffWindowBox->setDecimals(6);
+    massCutoffWindowBox->setSingleStep(0.5);
+    massCutoffWindowBox->setToolTip("Mass Cut-off Unit");
+    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
+    // 		SLOT(setUserPPM(double)));
+    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
+    // 		SLOT(setPPM(double)));
+    connect(massCutoffWindowBox,
+            SIGNAL(valueChanged(double)),
+            this,
+            SLOT(setUserMassCutoff(double)));
+    massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
 
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
@@ -2953,40 +2962,44 @@ void MainWindow::createToolBars() {
 	ionizationModeLabel->setFrameShape(QFrame::Panel);
 	ionizationModeLabel->setFrameShadow(QFrame::Raised);
 
-	
-	ionChargeBox = new QSpinBox(hBox);
-	ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
+    ionChargeBox = new QSpinBox(hBox);
+    connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
+    ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
 
-	quantType = new QComboBox(hBox);
-	quantType->addItem("AreaTop");
-	quantType->addItem("Area");
+    quantType = new QComboBox(hBox);
+    quantType->addItem("AreaTop");
+    quantType->addItem("Area");
     quantType->addItem("Height");
-    quantType->addItem("AreaNotCorrected"); //TODO: Sahil-Kiran, Added while merging mainwindow
+    quantType->addItem("AreaNotCorrected");
     quantType->addItem("AreaTopNotCorrected");
     quantType->addItem("Retention Time");
-	quantType->addItem("Quality");
-	quantType->setToolTip("Peak Quntitation Type");
-	connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
-	connect(quantType, SIGNAL(currentIndexChanged(int)), SLOT(refreshIntensities()));
+    quantType->addItem("Quality");
+    quantType->setToolTip("Peak Quantitation Type");
+    connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
+    connect(quantType,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(refreshIntensities()));
+    fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
+                                     variant(0));
 
-	settings->beginGroup("searchHistory");
-	QStringList keys = settings->childKeys();
-	Q_FOREACH(QString key, keys)suggestPopup->addToHistory(key, settings->value(key).toInt());
-	settings->endGroup();
+    settings->beginGroup("searchHistory");
+    QStringList keys = settings->childKeys();
+    Q_FOREACH (QString key, keys)
+        suggestPopup->addToHistory(key, settings->value(key).toInt());
+    settings->endGroup();
 
-	layout->addWidget(ionizationModeLabel, 0);
-	layout->addWidget(new QLabel("Charge", hBox), 0);
-	layout->addWidget(ionChargeBox, 0);
-	layout->addWidget(quantType, 0);
-	layout->addWidget(new QLabel("[m/z]", hBox), 0);
-	layout->addWidget(searchText, 0);
-	layout->addWidget(new QLabel("+/-", 0, 0));
-	layout->addWidget(massCutoffWindowBox, 0);
-	layout->addWidget(massCutoffComboBox,0);
-	
-	sideBar = new QToolBar(this);
-	sideBar->setObjectName("sideBar");
+    layout->addWidget(ionizationModeLabel, 0);
+    layout->addWidget(new QLabel("Charge", hBox), 0);
+    layout->addWidget(ionChargeBox, 0);
+    layout->addWidget(quantType, 0);
+    layout->addWidget(new QLabel("[m/z]", hBox), 0);
+    layout->addWidget(searchText, 0);
+    layout->addWidget(new QLabel("+/-", 0, 0));
+    layout->addWidget(massCutoffWindowBox, 0);
+    layout->addWidget(massCutoffComboBox, 0);
 
+    sideBar = new QToolBar(this);
+    sideBar->setObjectName("sideBar");
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
@@ -3102,15 +3115,39 @@ void MainWindow::setMassCutoffType(QString massCutoffType){
 	eicWidget->setMassCutoff(_massCutoffWindow);
 }
 
-void MainWindow::refreshIntensities() {
-	QList<QPointer<TableDockWidget> > peaksTableList = getPeakTableList();
-	for(int i=0; i<peaksTableList.size(); i++) {
-		peaksTableList[i]->showAllGroups();
-	}
+void MainWindow::refreshIntensities()
+{
+    QList<QPointer<TableDockWidget> > peaksTableList = getPeakTableList();
+    for(const auto& groupTable : peaksTableList) {
+        groupTable->showAllGroups();
+    }
     bookmarkedPeaks->showAllGroups();
-    _updateEMDBProgressBar(4, 4);
+
+    fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
+                                     variant(quantType->currentIndex()));
+}
+
+void MainWindow::_postProjectLoadActions()
+{
+    emit loadedSettings();
+
+    refreshIntensities();
     if (bookmarkedPeaks->allgroups.size() > 0)
         bookmarkedPeaks->setVisible(true);
+
+    _updateEMDBProgressBar(5, 5);
+}
+
+void MainWindow::_handleUnrecognizedProjectVersion(QString projectFilename)
+{
+    QString message("The project \"%1\" seems to have been created in a later "
+                    "version of El-MAVEN. It cannot be opened in El-MAVEN %2.");
+    message = message.arg(projectFilename).arg(appVersion());
+    QMessageBox::warning(this,
+                         tr("Unrecognized Project Version"),
+                         message,
+                         QMessageBox::Ok,
+                         QMessageBox::Ok);
 }
 
 void MainWindow::showspectraMatchingForm() {

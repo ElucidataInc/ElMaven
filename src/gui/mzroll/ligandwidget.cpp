@@ -223,9 +223,13 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
 }
 
 void LigandWidget::setDatabase(QString dbname) {
-   int currentIndex = databaseSelect->currentIndex();
-   int index = databaseSelect->findText(dbname,Qt::MatchExactly);
-   if (index != -1 ) databaseSelect->setCurrentIndex(index);
+    int currentIndex = databaseSelect->currentIndex();
+    int index = databaseSelect->findText(dbname,Qt::MatchExactly);
+    if (index != -1 ) {
+        databaseSelect->setCurrentIndex(index);
+        _mw->fileLoader->insertSettingForSave("mainWindowSelectedDbName",
+                                              variant(dbname.toStdString()));
+    }
 
     _mw->getSettings()->setValue("lastCompoundDatabase", getDatabaseName());
     Q_EMIT databaseChanged(getDatabaseName());

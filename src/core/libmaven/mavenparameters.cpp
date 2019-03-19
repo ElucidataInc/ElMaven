@@ -178,47 +178,38 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
-
     if(strcmp(key, "automatedDetection") == 0 )
         processAllSlices = atof(value);
 
+    if(strcmp(key, "massCutoffType") == 0 ) {
+        if(massCutoffMerge != nullptr)
+            massCutoffMerge->setMassCutoffType(value);
 
-     if(strcmp(key, "massCutoffType") == 0 ) {
+        if(compoundMassCutoffWindow != nullptr)
+            compoundMassCutoffWindow->setMassCutoffType(value);
+    }
 
-         if(massCutoffMerge != nullptr)
-             massCutoffMerge->setMassCutoffType(value);
-
-         if(compoundMassCutoffWindow != nullptr)
-             compoundMassCutoffWindow->setMassCutoffType(value);
-     }
-
-
-     if(strcmp(key, "massCutoffMerge") == 0 ) {
-
-
-         if(massCutoffMerge != nullptr) {
-             massCutoffMerge->setMassCutoff(atof(value));
-         }
-
-     }
-
+    if(strcmp(key, "massDomainResolution") == 0
+        && massCutoffMerge != nullptr) {
+        massCutoffMerge->setMassCutoff(atof(value));
+    }
 
     if(strcmp(key, "fragmentTolerance") == 0)
         fragmentTolerance = atof(value);
 
-    if(strcmp(key,"rtStep") == 0)
+    if(strcmp(key,"timeDomainResolution") == 0)
         rtStepSize = atof(value);
 
-    if(strcmp(key,"mzMin") == 0)
+    if(strcmp(key,"minMz") == 0)
         minMz = atof(value);
 
-    if(strcmp(key,"mzMax") == 0)
+    if(strcmp(key,"maxMz") == 0)
         maxMz = atof(value);
 
-    if(strcmp(key,"rtMin") == 0)
+    if(strcmp(key,"minRt") == 0)
         minRt = atof(value);
 
-    if(strcmp(key,"rtMax") == 0)
+    if(strcmp(key,"maxRt") == 0)
         maxRt = atof(value);
 
     if(strcmp(key,"minIntensity") == 0)
@@ -233,30 +224,27 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key,"chargeMax") == 0)
         maxCharge = atof(value);
 
-    if(strcmp(key, "dbDetection") == 0 );
+    if(strcmp(key, "databaseSearch") == 0 );
         //TODO
 
-     if(strcmp(key, "compoundMassCutoffWindow") == 0 ) {
+    if(strcmp(key, "compoundExtractionWindow") == 0
+        && compoundMassCutoffWindow != nullptr) {
+        compoundMassCutoffWindow->setMassCutoff(atof(value));
+    }
 
-         if(compoundMassCutoffWindow != nullptr) {
-            compoundMassCutoffWindow->setMassCutoff(atof(value));
-         }
-
-     }
-
-    if(strcmp(key, "compoundRTWindow") == 0 )
+    if(strcmp(key, "compoundRtWindow") == 0 )
         compoundRTWindow = atof(value);
 
     if(strcmp(key, "matchRt") == 0 )
         matchRtFlag = atof(value);
 
-    if(strcmp(key, "eicMaxGroups") == 0 )
+    if(strcmp(key, "limitGroupsPerCompound") == 0 )
         eicMaxGroups = atof(value);
 
-    if(strcmp(key, "matchFragmentationOptions") == 0 )
+    if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);
 
-    if(strcmp(key, "reportIsotopesOptions") == 0 )
+    if(strcmp(key, "reportIsotopes") == 0 )
         pullIsotopesFlag = atof(value);
 
     if(strcmp(key, "minGroupIntensity") == 0 )
@@ -265,36 +253,32 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "peakQuantitation") == 0 )
         peakQuantitation = atof(value);
 
-
-    if(strcmp(key, "quantileIntensity") == 0 )
+    if(strcmp(key, "intensityQuantile") == 0 )
         quantileIntensity = atof(value);
 
-    if(strcmp(key, "minQuality") == 0 )
+    if(strcmp(key, "minGroupQuality") == 0 )
         minQuality = atof(value);
 
-    if(strcmp(key, "quantileQuality") == 0 )
+    if(strcmp(key, "qualityQuantile") == 0 )
         quantileQuality = atof(value);
 
-
-    if(strcmp(key, "sigBlankRatio") == 0 )
+    if(strcmp(key, "minSignalBlankRatio") == 0 )
         minSignalBlankRatio = atof(value);
 
-    if(strcmp(key, "quantileSignalBlankRatio") == 0 )
+    if(strcmp(key, "signalBlankRatioQuantile") == 0 )
         quantileSignalBlankRatio = atof(value);
 
-    if(strcmp(key, "sigBaselineRatio") == 0 )
+    if(strcmp(key, "minSignalBaselineRatio") == 0 )
         minSignalBaseLineRatio = atof(value);
 
-    if(strcmp(key, "quantileSignalBaselineRatio") == 0 )
+    if(strcmp(key, "signalBaselineRatioQuantile") == 0 )
         quantileSignalBaselineRatio = atof(value);
 
-
-    if(strcmp(key, "minNoNoiseObs") == 0 )
+    if(strcmp(key, "minPeakWidth") == 0 )
         minNoNoiseObs = atof(value);
 
-    if(strcmp(key, "minGoodGroupCount") == 0 )
+    if(strcmp(key, "minGoodPeakCount") == 0 )
         minGoodGroupCount = atof(value);
-
 }
 
 void MavenParameters::setOptionsDialogSettings(const char* key, const char* value)
@@ -304,38 +288,77 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
-    if(strcmp(key, "ionizationMode") == 0){
+    if(strcmp(key, "ionizationMode") == 0) {
         int polarity=atoi(value);
         setIonizationMode((Polarity)polarity);
-
     }
 
-    if(strcmp(key, "amuQ1") == 0)
+    if (strcmp(key, "ionizationType") == 0 && stoi(value) == 1) {
+        MassCalculator::ionizationType = MassCalculator::EI;
+    } else {
+        MassCalculator::ionizationType = MassCalculator::ESI;
+    }
+
+    if(strcmp(key, "q1Accuracy") == 0)
         amuQ1 = atof(value);
 
-    if(strcmp(key, "amuQ3") == 0)
+    if(strcmp(key, "q3Accuracy") == 0)
         amuQ3 = atof(value);
 
-    //TODO
-//     if(strcmp(key, "filterline") == 0)
-//         filterline = atof(value);
+    // TODO
+    // if(strcmp(key, "filterline") == 0)
+    //     filterline = atof(value);
 
-    if(strcmp(key, "eic_smoothingAlgorithm") == 0)
+    if (strcmp(key, "centroidScans") == 0 && stoi(value) == 1) {
+        mzSample::setFilter_centroidScans(true);
+    } else {
+        mzSample::setFilter_centroidScans(false);
+    }
+
+    if (strcmp(key, "scanFilterMinIntensity") == 0) {
+        mzSample::setFilter_minIntensity(stof(value));
+    }
+
+    if (strcmp(key, "scanFilterMinQuantile") == 0) {
+        mzSample::setFilter_intensityQuantile(stoi(value));
+    }
+
+    if (strcmp(key, "scanFilterPolarity") == 0) {
+        if (stoi(value) == 0) {
+            mzSample::setFilter_polarity(0);
+        } else if (stoi(value) == 1) {
+            mzSample::setFilter_polarity(+1);
+        } else {
+            mzSample::setFilter_polarity(-1);
+        }
+    }
+
+    if (strcmp(key, "scanFilterMsLevel") == 0) {
+        if (stoi(value) == 0) {
+            mzSample::setFilter_mslevel(0);
+        } else if (stoi(value) == 1) {
+            mzSample::setFilter_mslevel(1);
+        } else {
+            mzSample::setFilter_mslevel(2);
+        }
+    }
+
+    if(strcmp(key, "eicSmoothingAlgorithm") == 0)
         eic_smoothingAlgorithm = atof(value);
 
-    if(strcmp(key, "eic_smoothingWindow") == 0)
+    if(strcmp(key, "eicSmoothingWindow") == 0)
         eic_smoothingWindow = atof(value);
 
-    if(strcmp(key, "grouping_maxRtWindow") == 0)
+    if(strcmp(key, "maxRtDiffBetweenPeaks") == 0)
         grouping_maxRtWindow = atof(value);
 
     if(strcmp(key, "aslsBaselineMode") == 0)
         aslsBaselineMode = static_cast<bool>(atof(value));
 
-    if(strcmp(key, "baseline_quantile") == 0)
+    if(strcmp(key, "baselineQuantile") == 0)
         baseline_dropTopX = atof(value);
 
-    if(strcmp(key, "baseline_smoothing") == 0)
+    if(strcmp(key, "baselineSmoothing") == 0)
         baseline_smoothingWindow = atof(value);
 
     if(strcmp(key, "aslsSmoothness") == 0)
@@ -344,55 +367,55 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "aslsAsymmetry") == 0)
         aslsAsymmetry = atoi(value);
 
-    if(strcmp(key, "isIsotopeEqualPeakFilter") == 0)
+    if(strcmp(key, "isotopeFilterEqualPeak") == 0)
         isIsotopeEqualPeakFilter = atof(value);    
 
     if(strcmp(key, "minSignalBaselineDifference") == 0)
         minSignalBaselineDifference = atof(value);
 
-    if(strcmp(key, "isotopicMinSignalBaselineDifference") == 0)
+    if(strcmp(key, "isotopeMinSignalBaselineDifference") == 0)
         isotopicMinSignalBaselineDifference = atof(value);
 
     if(strcmp(key, "minPeakQuality") == 0)
         minPeakQuality = atof(value);
 
-    if(strcmp(key, "minIsotopicPeakQuality") == 0)
+    if(strcmp(key, "minIsotopePeakQuality") == 0)
         minIsotopicPeakQuality = atof(value);
 
-    if(strcmp(key, "D2Labeled_BPE") == 0)
+    if(strcmp(key, "D2LabelBPE") == 0)
         D2Labeled_BPE = atof(value);
 
-    if(strcmp(key, "C13Labeled_BPE") == 0)
+    if(strcmp(key, "C13LabelBPE") == 0)
         C13Labeled_BPE = atof(value);
 
-    if(strcmp(key, "N15Labeled_BPE") == 0)
+    if(strcmp(key, "N15LabelBPE") == 0)
         N15Labeled_BPE = atof(value);
 
-    if(strcmp(key, "S34Labeled_BPE") == 0)
+    if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
 
-    if(strcmp(key, "D2Labeled_IsoWidget") == 0)
+    if(strcmp(key, "D2LabelIsoWidget") == 0)
         D2Labeled_IsoWidget = atof(value);
 
-    if(strcmp(key, "C13Labeled_IsoWidget") == 0)
+    if(strcmp(key, "C13LabelIsoWidget") == 0)
         C13Labeled_IsoWidget = atof(value);
 
-    if(strcmp(key, "N15Labeled_IsoWidget") == 0)
+    if(strcmp(key, "N15LabelIsoWidget") == 0)
         N15Labeled_IsoWidget = atof(value);
 
-    if(strcmp(key, "S34Labeled_IsoWidget") == 0)
+    if(strcmp(key, "S34LabelIsoWidget") == 0)
         S34Labeled_IsoWidget = atof(value);
 
-    if(strcmp(key, "isotopeC13Correction") == 0)
+    if(strcmp(key, "correctC13IsotopeAbundance") == 0)
         isotopeC13Correction = atof(value);
 
-    if(strcmp(key, "minIsotopicCorrelation") == 0)
+    if(strcmp(key, "minIsotopeParentCorrelation") == 0)
         minIsotopicCorrelation = atof(value);
 
     if(strcmp(key, "maxIsotopeScanDiff") == 0)
         maxIsotopeScanDiff = atof(value);
 
-    if(strcmp(key, "maxNaturalAbundanceErr") == 0)
+    if(strcmp(key, "maxNaturalAbundanceError") == 0)
         maxNaturalAbundanceErr = atof(value);
 
     if(strcmp(key, "eicType") == 0)
@@ -419,9 +442,8 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "deltaRTWeight") == 0)
         deltaRTWeight = atof(value);
 
-    if(strcmp(key, "deltaRTCheck") == 0)
+    if(strcmp(key, "considerDeltaRT") == 0)
         deltaRtCheckFlag = atof(value);
-
 }
 
 bool MavenParameters::saveSettings(const char* path)

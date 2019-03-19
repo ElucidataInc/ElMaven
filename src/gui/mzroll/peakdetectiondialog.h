@@ -32,7 +32,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 		public Q_SLOTS:
 				 void findPeaks();
 				 void loadModel();
-				 void setOutputDir();
+    void setModel(const QString& modelPath);
+                                 void setOutputDir();
 				 void setProgressBar(QString text, int progress, int totalSteps);
 				 void runBackgroupJob(QString func);
                  void dbOptionsClicked();
@@ -53,11 +54,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showBlankQuantileStatus(int);
                  void setMassCutoffType(QString type);
                 virtual void closeEvent(QCloseEvent* event) override;
-				void dialogRejected();
+                                void triggerSettingsUpdate();
                 void onReset();
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
+                    void settingsUpdated(QString key, QVariant value);
                     void settingsChanged(string key, string value);
                     void resetSettings(QList<QString> keys);
         public:

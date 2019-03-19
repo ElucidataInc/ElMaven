@@ -32,9 +32,10 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setSettingsIonizationMode(QString);
             void setGroupRankStatus();
             void setInitialGroupRank();
-            void dialogRejected();
+            void triggerSettingsUpdate();
             void setIsotopicPeakFiltering();
             void onReset();
+            void setFilterline(string filterlineString);
 
             /*
              * @brief: Sets polarity based on the ionization type selected.
@@ -77,6 +78,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
     Q_SIGNALS:
         void settingsChanged(string key, string value);
         void updateSettings(OptionsDialogSettings* od);
+        void settingsUpdated(QString key, QVariant value);
         void resetSettings(QList<QString> keys);
 
 

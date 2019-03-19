@@ -96,6 +96,17 @@ public:
     bool executeMulti(const std::string sql_string);
 
     /**
+     * @brief This method perform's SQLite vacuum operation on the database.
+     * Vacuuming a SQLite database can repack and free pages that are no longer
+     * being used by the database. It can also defragment any fragmentation that
+     * might have occurred due to repeated modifications to the file. Therefore,
+     * vacuuming can help minimize file size and potentially speed up read/write
+     * operations on a SQLite database.
+     * @return True if the vacuum operation was executed successfully.
+     */
+    bool vacuum();
+
+    /**
      * @brief Prepare a SQL statement and return a Cursor ready to be
      * executed. See documentation of Cursor class for details.
      * @param query A SQL query as a standard string.

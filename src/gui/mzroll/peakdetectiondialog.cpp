@@ -6,54 +6,46 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 {
     // automated feature detection settings
     settings.insert("automatedDetection", QVariant::fromValue(pd->featureOptions));
-
-    //TODO: replace with massCutoffMerge
-    settings.insert("massCutoffMerge", QVariant::fromValue(pd->ppmStep));
-
-    settings.insert("rtStep", QVariant::fromValue(pd->rtStep));
-    settings.insert("mzMin", QVariant::fromValue(pd->mzMin));
-    settings.insert("mzMax", QVariant::fromValue(pd->mzMax));
-    settings.insert("rtMin", QVariant::fromValue(pd->rtMin));
-    settings.insert("rtMax", QVariant::fromValue(pd->rtMax));
+    settings.insert("massDomainResolution", QVariant::fromValue(pd->ppmStep));
+    settings.insert("timeDomainResolution", QVariant::fromValue(pd->rtStep));
+    settings.insert("minMz", QVariant::fromValue(pd->mzMin));
+    settings.insert("maxMz", QVariant::fromValue(pd->mzMax));
+    settings.insert("minRt", QVariant::fromValue(pd->rtMin));
+    settings.insert("maxRt", QVariant::fromValue(pd->rtMax));
     settings.insert("minIntensity", QVariant::fromValue(pd->minIntensity));
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
 
     // db search settings
-    settings.insert("dbDetection", QVariant::fromValue(pd->dbOptions));
-
-    settings.insert("compoundMassCutoffWindow", QVariant::fromValue(pd->compoundPPMWindow));
-
-    settings.insert("compoundRTWindow", QVariant::fromValue(pd->compoundRTWindow));
+    settings.insert("databaseSearch", QVariant::fromValue(pd->dbOptions));
+    settings.insert("compoundExtractionWindow", QVariant::fromValue(pd->compoundPPMWindow));
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
-    settings.insert("eicMaxGroups", QVariant::fromValue(pd->eicMaxGroups));
+    settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
+    settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
 
     // fragmentation settings
-    settings.insert("matchFragmentationOptions", QVariant::fromValue(pd->matchFragmentationOptions));
+    settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
     settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
     settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
 
     // isotope detection
-    settings.insert("reportIsotopesOptions", QVariant::fromValue(pd->reportIsotopesOptions));
+    settings.insert("reportIsotopes", QVariant::fromValue(pd->reportIsotopesOptions));
 
     // group filtering settings
-    settings.insert("minGroupIntensity", QVariant::fromValue(pd->minGroupIntensity));
     settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
-    settings.insert("quantileIntensity", QVariant::fromValue(pd->quantileIntensity));
-
-    settings.insert("minQuality", QVariant::fromValue(pd->doubleSpinBoxMinQuality));
-    settings.insert("quantileQuality", QVariant::fromValue(pd->quantileQuality));
-
-    settings.insert("sigBlankRatio", QVariant::fromValue(pd->sigBlankRatio));
-    settings.insert("quantileSignalBlankRatio", QVariant::fromValue(pd->quantileSignalBlankRatio));
-
-    settings.insert("sigBaselineRatio", QVariant::fromValue(pd->sigBaselineRatio));
-    settings.insert("quantileSignalBaselineRatio", QVariant::fromValue(pd->quantileSignalBaselineRatio));
-
-    settings.insert("minNoNoiseObs", QVariant::fromValue(pd->minNoNoiseObs));
-    settings.insert("minGoodGroupCount", QVariant::fromValue(pd->minGoodGroupCount));
+    settings.insert("minGroupIntensity", QVariant::fromValue(pd->minGroupIntensity));
+    settings.insert("intensityQuantile", QVariant::fromValue(pd->quantileIntensity));
+    settings.insert("minGroupQuality", QVariant::fromValue(pd->doubleSpinBoxMinQuality));
+    settings.insert("qualityQuantile", QVariant::fromValue(pd->quantileQuality));
+    settings.insert("minSignalBlankRatio", QVariant::fromValue(pd->sigBlankRatio));
+    settings.insert("signalBlankRatioQuantile", QVariant::fromValue(pd->quantileSignalBlankRatio));
+    settings.insert("minSignalBaselineRatio", QVariant::fromValue(pd->sigBaselineRatio));
+    settings.insert("signalBaselineRatioQuantile", QVariant::fromValue(pd->quantileSignalBaselineRatio));
+    settings.insert("minPeakWidth", QVariant::fromValue(pd->minNoNoiseObs));
+    settings.insert("minGoodPeakCount", QVariant::fromValue(pd->minGoodGroupCount));
+    settings.insert("peakClassifierFile", QVariant::fromValue(pd->classificationModelFilename));
 
     /* special case: there is no Ui element defined inside Peaks dialog that can be used
      * to change/access massCutOfftype. the only way to change massCutofftype is to change it from mainWindow(top right corner).
@@ -65,18 +57,16 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
 void PeakDetectionSettings::updatePeakSettings(string key, string value)
 {
-
-    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
-
-
-        const QVariant& v = settings[QString(key.c_str())];
+    QString k(QString(key.c_str()));
+    if (settings.find(k) != settings.end()
+        && !value.empty()) {
+        const QVariant& v = settings[k];
         // convert the val to proper type;
         if(QString(v.typeName()).contains("QDoubleSpinBox"))
             v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
 
         if(QString(v.typeName()).contains("QGroupBox"))
             v.value<QGroupBox*>()->setChecked(std::stod(value));
-
 
         if(QString(v.typeName()).contains("QCheckBox"))
             v.value<QCheckBox*>()->setChecked(std::stod(value));
@@ -90,6 +80,9 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
         if(QString(v.typeName()).contains("QComboBox"))
             v.value<QComboBox*>()->setCurrentIndex(std::stoi(value));
 
+        if(QString(v.typeName()).contains("QLineEdit"))
+            v.value<QLineEdit*>()->setText(QString(value.c_str()));
+
         /* IMPORTANT
          * special case: only pd->massCutOfftype  and the places where it is used are updated here
          * there is no other Ui element that with  typeName as "QString".
@@ -101,9 +94,8 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
             pd->getMainWindow()->massCutoffComboBox->setCurrentText(pd->massCutoffType);
         }
 
-
+        emit pd->settingsUpdated(k, v);
     }
-
 }
 
 PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
@@ -153,7 +145,7 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
         connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
 
-        connect(this, &QDialog::rejected, this, &PeakDetectionDialog::dialogRejected);
+        connect(this, &QDialog::rejected, this, &PeakDetectionDialog::triggerSettingsUpdate);
 
         label_20->setVisible(false);
         chargeMin->setVisible(false);
@@ -168,10 +160,14 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
         connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
 
+        connect(classificationModelFilename,
+                SIGNAL(textChanged(QString)),
+                this,
+                SLOT(setModel(QString)));
+
         connect(this, &PeakDetectionDialog::settingsChanged, peakSettings, &PeakDetectionSettings::updatePeakSettings);
 
 }
-
 
 void PeakDetectionDialog::onReset()
 {
@@ -188,6 +184,7 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
     string EICExtractionWindow="EIC Extraction Window  +/- "+type.toStdString();
     label_11->setText(QApplication::translate("PeakDetectionDialog", &EICExtractionWindow[0], 0));
     compoundPPMWindow->setSuffix(type);
+    emit updateSettings(peakSettings);
 }
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
@@ -220,7 +217,7 @@ void PeakDetectionDialog::dbOptionsClicked()
     toggleFragmentation(dbName);
 }
 
-void PeakDetectionDialog::dialogRejected()
+void PeakDetectionDialog::triggerSettingsUpdate()
 {
     // happens when users presses 'esc' key; 
     emit updateSettings(peakSettings);
@@ -319,16 +316,22 @@ void PeakDetectionDialog::show() {
 void PeakDetectionDialog::loadModel() {
     
     // This gives the name of the file that is selected by the user
-    const QString name = QFileDialog::getOpenFileName(
-        this, "Select Classification Model", ".", tr("Model File (*.model)"));
-    // This is applying the text to the window that the user has selected
-    classificationModelFilename->setText(name);
+    const QString modelPath =
+        QFileDialog::getOpenFileName(this,
+                                     "Select Classification Model",
+                                     ".",
+                                     tr("Model File (*.model)"));
+    classificationModelFilename->setText(modelPath);
+}
+
+void PeakDetectionDialog::setModel(const QString& modelPath)
+{
     // Getting the classifier instance from the main window
     Classifier* clsf = mainwindow->getClassifier();
 
     // Loading the model to the to the model instance
     if (clsf)
-        clsf->loadModel(classificationModelFilename->text().toStdString());
+        clsf->loadModel(modelPath.toStdString());
 }
 
 /*
@@ -384,7 +387,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             showBlankQuantileStatus(quantileSignalBlankRatio->value());
             showIntensityQuantileStatus(quantileIntensity->value());
 
-            classificationModelFilename->setText(settings->value("clsfModelFilename").toString());
+            classificationModelFilename->setText(settings->value("peakClassifierFile").toString());
 
             // Isotope detection in peakdetection dialogue box
             // checkBox->setChecked(settings->value("checkBox").toBool());  // C13

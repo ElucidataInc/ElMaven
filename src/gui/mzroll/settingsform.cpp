@@ -2,60 +2,72 @@
 
 OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 {
-
     settings.insert("ionizationMode", QVariant::fromValue(sf->ionizationMode));
-    settings.insert("amuQ1", QVariant::fromValue(sf->amuQ1));
-    settings.insert("amuQ3", QVariant::fromValue(sf->amuQ3));
-    settings.insert("eic_smoothingAlgorithm", QVariant::fromValue(sf->eic_smoothingAlgorithm));
-    settings.insert("eic_smoothingWindow", QVariant::fromValue(sf->eic_smoothingWindow));
-    settings.insert("grouping_maxRtWindow", QVariant::fromValue(sf->grouping_maxRtWindow));
+    settings.insert("ionizationType", QVariant::fromValue(sf->ionizationType));
+    settings.insert("instrumentType", QVariant::fromValue(sf->instrumentType));
+    settings.insert("q1Accuracy", QVariant::fromValue(sf->amuQ1));
+    settings.insert("q3Accuracy", QVariant::fromValue(sf->amuQ3));
+    settings.insert("filterline", QVariant::fromValue(sf->filterlineComboBox));
+
+    settings.insert("centroidScans", QVariant::fromValue(sf->centroid_scan_flag));
+    settings.insert("scanFilterPolarity", QVariant::fromValue(sf->scan_filter_polarity));
+    settings.insert("scanFilterMsLevel", QVariant::fromValue(sf->scan_filter_mslevel));
+    settings.insert("scanFilterMinQuantile", QVariant::fromValue(sf->scan_filter_min_quantile));
+    settings.insert("scanFilterMinIntensity", QVariant::fromValue(sf->scan_filter_min_intensity));
+    settings.insert("uploadMultiprocessing", QVariant::fromValue(sf->checkBoxMultiprocessing));
+
+    settings.insert("eicSmoothingAlgorithm", QVariant::fromValue(sf->eic_smoothingAlgorithm));
+    settings.insert("eicSmoothingWindow", QVariant::fromValue(sf->eic_smoothingWindow));
+    settings.insert("maxRtDiffBetweenPeaks", QVariant::fromValue(sf->grouping_maxRtWindow));
 
     settings.insert("aslsBaselineMode", QVariant::fromValue(sf->baselineModeTab));
-    settings.insert("baseline_quantile", QVariant::fromValue(sf->baseline_quantile));
-    settings.insert("baseline_smoothing", QVariant::fromValue(sf->baseline_smoothing));
+    settings.insert("baselineQuantile", QVariant::fromValue(sf->baseline_quantile));
+    settings.insert("baselineSmoothing", QVariant::fromValue(sf->baseline_smoothing));
     settings.insert("aslsSmoothness", QVariant::fromValue(sf->smoothnessSlider));
     settings.insert("aslsAsymmetry", QVariant::fromValue(sf->asymmetrySlider));
 
-    settings.insert("isIsotopeEqualPeakFilter", QVariant::fromValue(sf->isIsotopeEqualPeakFilter));
+    settings.insert("isotopeFilterEqualPeak", QVariant::fromValue(sf->isIsotopeEqualPeakFilter));
     settings.insert("minSignalBaselineDifference", QVariant::fromValue(sf->minSignalBaselineDifference));
-    settings.insert("isotopicMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
+    settings.insert("isotopeMinSignalBaselineDifference", QVariant::fromValue(sf->isotopicMinSignalBaselineDifference));
     settings.insert("minPeakQuality", QVariant::fromValue(sf->minPeakQuality));
-    settings.insert("minIsotopicPeakQuality", QVariant::fromValue(sf->minIsotopicPeakQuality));
+    settings.insert("isotopeMinPeakQuality", QVariant::fromValue(sf->minIsotopicPeakQuality));
 
-    settings.insert("D2Labeled_BPE", QVariant::fromValue(sf->D2Labeled_BPE));
-    settings.insert("C13Labeled_BPE", QVariant::fromValue(sf->C13Labeled_BPE));
-    settings.insert("N15Labeled_BPE", QVariant::fromValue(sf->N15Labeled_BPE));
-    settings.insert("S34Labeled_BPE", QVariant::fromValue(sf->S34Labeled_BPE));
+    settings.insert("D2LabelBPE", QVariant::fromValue(sf->D2Labeled_BPE));
+    settings.insert("C13LabelBPE", QVariant::fromValue(sf->C13Labeled_BPE));
+    settings.insert("N15LabelBPE", QVariant::fromValue(sf->N15Labeled_BPE));
+    settings.insert("S34LabelBPE", QVariant::fromValue(sf->S34Labeled_BPE));
 
-    settings.insert("D2Labeled_IsoWidget", QVariant::fromValue(sf->D2Labeled_IsoWidget));
-    settings.insert("C13Labeled_IsoWidget", QVariant::fromValue(sf->C13Labeled_IsoWidget));
-    settings.insert("N15Labeled_IsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
-    settings.insert("S34Labeled_IsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
+    settings.insert("D2LabelIsoWidget", QVariant::fromValue(sf->D2Labeled_IsoWidget));
+    settings.insert("C13LabelIsoWidget", QVariant::fromValue(sf->C13Labeled_IsoWidget));
+    settings.insert("N15LabelIsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
+    settings.insert("S34LabelIsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
 
-    settings.insert("isotopeC13Correction", QVariant::fromValue(sf->isotopeC13Correction));
-    settings.insert("minIsotopicCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
+    settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->maxIsotopeScanDiff));
-    settings.insert("maxNaturalAbundanceErr", QVariant::fromValue(sf->maxNaturalAbundanceErr));
+    settings.insert("abundanceThreshold", QVariant::fromValue(sf->doubleSpinBoxAbThresh));
+    settings.insert("maxNaturalAbundanceError", QVariant::fromValue(sf->maxNaturalAbundanceErr));
+    settings.insert("correctC13IsotopeAbundance", QVariant::fromValue(sf->isotopeC13Correction));
 
     settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
+
     settings.insert("useOverlap", QVariant::fromValue(sf->useOverlap));
     settings.insert("distXWeight", QVariant::fromValue(sf->distXSlider));
     settings.insert("distYWeight", QVariant::fromValue(sf->distYSlider));
-
     settings.insert("overlapWeight", QVariant::fromValue(sf->overlapSlider));
+
+    settings.insert("considerDeltaRT", QVariant::fromValue(sf->deltaRTCheck));
     settings.insert("qualityWeight", QVariant::fromValue(sf->qualityWeight));
     settings.insert("intensityWeight", QVariant::fromValue(sf->intensityWeight));
     settings.insert("deltaRTWeight", QVariant::fromValue(sf->deltaRTWeight));
-    settings.insert("deltaRTCheck", QVariant::fromValue(sf->deltaRTCheck));
-
 }
 
 void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 {
+    QString k(QString(key.c_str()));
+    if (settings.find(k) != settings.end()
+        && !value.empty()) {
+        const QVariant& v = settings[k];
 
-    if(settings.find(QString(key.c_str())) != settings.end() && !value.empty()) {
-
-        const QVariant& v = settings[QString(key.c_str())];
         // convert the val to proper type;
         if(QString(v.typeName()).contains("QDoubleSpinBox"))
             v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
@@ -77,10 +89,10 @@ void OptionsDialogSettings::updateOptionsDialog(string key, string value)
 
         if (QString(v.typeName()).contains("QTabWidget"))
             v.value<QTabWidget*>()->setCurrentIndex(std::stoi(value));
+
+        emit sf->settingsUpdated(k, v);
     }
 }
-
-
 
 SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) { 
     setupUi(this);
@@ -232,7 +244,13 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     toggleDeltaRtWeight();
 
     connect(this,&SettingsForm::settingsChanged, optionSettings, &OptionsDialogSettings::updateOptionsDialog);
-    connect(this, &QDialog::rejected, this, &SettingsForm::dialogRejected);
+    connect(this, &QDialog::rejected, this, &SettingsForm::triggerSettingsUpdate);
+}
+
+void SettingsForm::setFilterline(string filterline)
+{
+    QString filterlineString = QString::fromStdString(filterline);
+    filterlineComboBox->setCurrentText(filterlineString);
 }
 
 void SettingsForm::onReset()
@@ -259,9 +277,8 @@ void SettingsForm::closeEvent(QCloseEvent* event)
      QDialog::closeEvent(event);
 }
 
-void SettingsForm::dialogRejected()
+void SettingsForm::triggerSettingsUpdate()
 {
-  // happens when user presses 'esc' key
   emit updateSettings(optionSettings);
 }
 
@@ -368,11 +385,11 @@ void SettingsForm::updateSettingFormGUI() {
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
 
-    doubleSpinBoxAbThresh->setValue(settings->value("AbthresholdBarplot").toDouble());
+    doubleSpinBoxAbThresh->setValue(settings->value("abundanceThreshold").toDouble());
 
-    centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
-    scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
-    scan_filter_min_quantile->setValue(  settings->value("scan_filter_min_quantile").toInt());
+    centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroidScans").toInt());
+    scan_filter_min_intensity->setValue( settings->value("scanFilterMinIntensity").toInt());
+    scan_filter_min_quantile->setValue(  settings->value("scanFilterMinQuantile").toInt());
 
     QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram << RawExtractProgram;
     QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram" << "RawExtractProgram";
@@ -386,14 +403,14 @@ void SettingsForm::updateSettingFormGUI() {
     if(settings->contains("data_server_url"))
         data_server_url->setText( settings->value("data_server_url").toString());
 
-    if(settings->contains("centroid_scan_flag"))
-        centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroid_scan_flag").toInt());
+    if(settings->contains("centroidScans"))
+        centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroidScans").toInt());
 
-    if(settings->contains("scan_filter_min_intensity"))
-        scan_filter_min_intensity->setValue( settings->value("scan_filter_min_intensity").toInt());
+    if(settings->contains("scanFilterMinIntensity"))
+        scan_filter_min_intensity->setValue( settings->value("scanFilterMinIntensity").toInt());
 
-    if(settings->contains("scan_filter_min_quantile"))
-        scan_filter_min_quantile->setValue( settings->value("scan_filter_min_quantile").toInt());
+    if(settings->contains("scanFilterMinQuantile"))
+        scan_filter_min_quantile->setValue( settings->value("scanFilterMinQuantile").toInt());
 }
 
 
@@ -403,24 +420,24 @@ void SettingsForm::getFormValues()
     //qDebug() << "SettingsForm::getFormValues() ";
 
     /*Isotopic settings for barplot*/
-    settings->setValue("AbthresholdBarplot",  doubleSpinBoxAbThresh->value());
+    settings->setValue("abundanceThreshold",  doubleSpinBoxAbThresh->value());
 
-    settings->setValue("filterlineComboBox", filterlineComboBox->currentText());
+    settings->setValue("filterline", filterlineComboBox->currentText());
 
-    settings->setValue("centroid_scan_flag", centroid_scan_flag->checkState() );
-    settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
-    settings->setValue("scan_filter_min_quantile", scan_filter_min_quantile->value());
+    settings->setValue("centroidScans", centroid_scan_flag->checkState() );
+    settings->setValue("scanFilterMinIntensity", scan_filter_min_intensity->value());
+    settings->setValue("scanFilterMinQuantile", scan_filter_min_quantile->value());
 
     settings->setValue("data_server_url", data_server_url->text());
 
-    settings->setValue("centroid_scan_flag", centroid_scan_flag->checkState());
-    settings->setValue("scan_filter_min_intensity", scan_filter_min_intensity->value());
-    settings->setValue("scan_filter_min_quantile", scan_filter_min_quantile->value());
+    settings->setValue("centroidScanFlag", centroid_scan_flag->checkState());
+    settings->setValue("scanFilterMinIntensity", scan_filter_min_intensity->value());
+    settings->setValue("scanFilterMinQuantile", scan_filter_min_quantile->value());
 
     // change baseline estimation parameters
-    settings->setValue("baselineMode", baselineModeTab->currentIndex());
-    settings->setValue("baseline_quantile", baseline_quantile->value());
-    settings->setValue("baseline_smoothing", baseline_smoothing->value());
+    settings->setValue("aslsBaselineMode", baselineModeTab->currentIndex());
+    settings->setValue("baselineQuantile", baseline_quantile->value());
+    settings->setValue("baselineSmoothing", baseline_smoothing->value());
     settings->setValue("aslsSmoothness", smoothnessSlider->value());
     settings->setValue("aslsAsymmetry", asymmetrySlider->value());
 
@@ -507,18 +524,18 @@ void SettingsForm::setMavenParameters() {
 
     if (settings != NULL) {
 
-        if (settings->value("filterlineComboBox") == "All") {
+        if (settings->value("filterline") == "All") {
             mavenParameters->filterline = "";
         } else {
-            mavenParameters->filterline = settings->value("filterlineComboBox").toString().toStdString();
+            mavenParameters->filterline = settings->value("filterline").toString().toStdString();
         }
 
         mavenParameters->aslsBaselineMode =
-                settings->value("baselineMode").toBool();
+                settings->value("aslsBaselineMode").toBool();
         mavenParameters->baseline_dropTopX =
-                settings->value("baseline_quantile").toInt();
+                settings->value("baselineQuantile").toInt();
         mavenParameters->baseline_smoothingWindow =
-                settings->value("baseline_smoothing").toInt();
+                settings->value("baselineSmoothing").toInt();
         mavenParameters->aslsSmoothness =
                 settings->value("aslsSmoothness").toInt();
         mavenParameters->aslsAsymmetry =

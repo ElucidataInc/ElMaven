@@ -2,9 +2,14 @@
 #define MZFILEIO_H
 
 #include <mutex>
+
+#include <boost/variant.hpp>
+
 #include "globals.h"
 #include "mainwindow.h"
 #include "mzAligner.h"
+
+using variant = boost::variant<int, float, double, bool, string>;
 
 class ProjectDatabase;
 class ProjectDockWidget;
@@ -76,6 +81,15 @@ Q_OBJECT
         bool isCompoundDatabaseType(QString filename);
 
         /**
+         * @brief Insert a key-value pair into the `_settingsMap` map of values
+         * to be saved.
+         * @param key A standard string key.
+         * @param var A boost variant capable of storing, integer, floats,
+         * doubles, booleans and string values.
+         */
+        void insertSettingForSave(const string key, const variant var);
+
+        /**
          * @brief Check whether the filename ends with a ".mzroll" extension.
          * @param filename String name of the file to be checked.
          * @return true if the filename ends with ".mzroll" extension, false
@@ -123,20 +137,10 @@ Q_OBJECT
         bool writeSQLiteProject(QString filename);
 
         /**
-         * @brief Read samples data from a SQLite database previously saved
-         * using `writeSQLiteProject` method.
-         * @param filename String name of SQLite database to be read.
-         * @return A vector of sample paths found in the database.
+         * @brief Create a `ProjectDatabase` instance for the given filename.
+         * @param filename Name of SQLite project to be set as `currentProject`.
          */
-        QList<QString> readSamplesFromSQLiteProject(QString filename);
-
-        /**
-         * @brief For a given set of samples, load the peak groups and their
-         * peaks from the currently open SQLite database project.
-         * @param newSamples A vector of pointers to mzSample objects to which
-         * loaded peaks will be associated (according to their sample ID).
-         */
-        void readAllPeakTablesSQLite(const vector<mzSample*> newSamples);
+        void openSQLiteProject(QString filename);
 
         /**
          * @brief For making old mzroll compatible, this will act as a flag
@@ -183,8 +187,42 @@ Q_OBJECT
         void readPeakXML(QXmlStreamReader& xml, PeakGroup* parent);
         vector<PeakGroup*> readGroupsXML(QString infile);
 
-        private Q_SLOTS:
+    private Q_SLOTS:
+        /**
+         * @brief Load in settings and compounds, such that the session is ready
+         * to load in samples and other user data.
+         * @param filename A SQLite project filename to be read.
+         */
+        void _beginSQLiteProjectLoad();
+
+        /**
+         * @brief Read in samples data from a SQLite database previously saved
+         * using `writeSQLiteProject` method. A project must be already open as
+         * the `_currentProject` for this object.
+         */
+        void _readSamplesFromCurrentSQLiteProject();
+
+        /**
+         * @brief For a given set of samples, load the peak groups and their
+         * peaks from the currently open SQLite database project.
+         * @param newSamples A vector of pointers to mzSample objects to which
+         * loaded peaks will be associated (according to their sample ID).
+         */
+        void _readPeakTablesFromSQLiteProject(const vector<mzSample*> newSamples);
+
+        /**
+         * @brief Perform some operations in the main thread that need to take
+         * place after samples have been loaded.
+         */
         void _postSampleLoadOperations();
+
+        /**
+         * @brief This method, intended to be run from main thread, handles the
+         * case where some samples were missing from the path saved in database.
+         * @param foundSamples A list of sample names that were found
+         * automatically. This list can be modified by adding samples one-by-one
+         * as the user provides their paths.
+         */
         void _promptForMissingSamples(QList<QString> foundSamples);
 
     public Q_SLOTS:
@@ -214,7 +252,9 @@ Q_OBJECT
      void sqliteDBPeakTablesCreated();
      void sqliteDBAlignmentDone();
      void sqliteDBPeakTablesPopulated();
-     void sqliteDBInadequateSamplesFound(QList<QString> foundSamples);
+     void sqliteDBUnrecognizedVersion(QString);
+     void settingsLoaded(map<string, variant>);
+     void appSettingsUpdated();
 
     protected:
       /**
@@ -259,6 +299,12 @@ Q_OBJECT
          * whose paths need to be explicitly specified by the user.
          */
         QList<QString> _missingSamples;
+
+        /**
+         * @brief A map of settings (identified by their keys) and their values
+         * that will be saved whenever a SQLite project is saved.
+         */
+        map<string, variant> _settingsMap;
 };
 
 #endif // MZFILEIO_H
