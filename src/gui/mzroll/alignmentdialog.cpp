@@ -203,9 +203,9 @@ void AlignmentDialog::algoChanged()
     auto samples = _mw->getSamples();
     auto mrmData = false;
     for (const auto sample : samples) {
-        if (sample->getSampleType() == mzSample::SampleType::SRM || sample->getSampleType() == mzSample::SampleType::MRM ) {
-            showInfo("Obi-warp does not work with SRM/MRM data at the moment.\nWe "
-                     "will inform you once this functionality has been added.");
+        if(sample->ms1ScanCount() == 0 && sample->ms2ScanCount()) {
+            showInfo("No MS1 scans found. Obi-warp works only with MS1 scans.\nWe "
+                     "will inform you once the support for MS2 scans has been added.");
             mrmData = true;
             alignButton->setDisabled(true);
             break;

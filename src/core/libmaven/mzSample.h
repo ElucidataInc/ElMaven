@@ -218,15 +218,6 @@ class mzSample
     * @param filename Sample file name
     */
 
-    enum class SampleType: int {
-        NONE = 0,
-        MS,
-        SRM,
-        MRM,
-        DDA, // Data Dependent Acquisition
-        DIA, // Data Independent Acquisition
-    };
-
     void loadSample(const char *filename);
 
     /**
@@ -738,10 +729,7 @@ class mzSample
 
     vector<double> polynomialAlignmentTransformation; //parameters for polynomial transform
 
-    SampleType getSampleType();
-
   private:
-    SampleType sType;
     int _id;
     unsigned int _numMS1Scans;
     unsigned int _numMS2Scans;

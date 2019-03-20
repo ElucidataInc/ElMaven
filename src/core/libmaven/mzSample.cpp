@@ -11,8 +11,7 @@ int mzSample::filter_mslevel = 0;
 
 mzSample::mzSample()
     : _setName(""),
-      injectionOrder(0),
-      sType(SampleType::NONE)
+      injectionOrder(0)
 {
     _id = -1;
     _numMS1Scans = 0;
@@ -84,11 +83,6 @@ void mzSample::addScan(Scan *s)
 
         scans.push_back(s);
         s->scannum = scans.size() - 1;
-}
-
-mzSample::SampleType  mzSample::getSampleType()
-{
-    return sType;
 }
 
 string mzSample::getFileName(const string &filename)
@@ -188,17 +182,6 @@ void mzSample::loadSample(const char *filename)
 
 	//Checking if a sample is blank or not
 	checkSampleBlank(filename);
-
-    // assign a type to sample
-    if(ms1ScanCount() && ms2ScanCount())
-        sType = SampleType::DDA;
-
-    if(ms1ScanCount() && ms2ScanCount() == 0)
-        sType = SampleType::MS;
-
-    if(ms1ScanCount() == 0 && ms2ScanCount())
-        // either srm or mrm
-        sType = SampleType::SRM;
 }
 
 void mzSample::parseMzCSV(const char *filename)
