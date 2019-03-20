@@ -105,7 +105,8 @@
                                            , fragmentation_weighted_dot_product REAL                              \
                                            , fragmentation_spearman_rank_corr   REAL                              \
                                            , fragmentation_tic_matched          REAL                              \
-                                           , fragmentation_num_matches          REAL                              );"
+                                           , fragmentation_num_matches          REAL                              \
+                                           , sample_ids                         TEXT                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \

@@ -196,7 +196,7 @@ public:
      * loaded group and try to associate with it. If not found, the group will
      * be added as a top-level group itself.
      * @param loaded A vector of loaded samples which will be associated with
-     * peaks.
+     * peak groups and their peaks.
      * @return A vector of PeakGroup objects that were successfully loaded.
      */
     vector<PeakGroup*> loadGroups(const vector<mzSample*>& loaded);
