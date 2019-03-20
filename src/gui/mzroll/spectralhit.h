@@ -26,10 +26,9 @@ class SpectralHit {
 		double score;
 		Scan* scan;
 		QString sampleName;
-		QVector<double>mzList;
-		QVector<double>intensityList;
-        QVector<QString>annotations; //TODO: Sahil, Added whiler merging point
-		MassCutoff *productMassCutoff;
+		QVector<double> mzList;
+		QVector<double> intensityList;
+		float productPPM;
 		int matchCount;
 		float precursorMz;
 		float xcorr;
@@ -39,34 +38,31 @@ class SpectralHit {
 		int charge;
 		double massdiff;
  		int scannum;
-		//QString compoundId;
+		QString compoundId;
 		QString fragmentId;
         QString unmodPeptideSeq;
-        QString geneId;
-        bool isFocused; //TODO: Sahil, Added while merging mzfileio
-        float rt; //TODO: Sahil, Added while merging mzfileio
-        int id; //TODO: Sahil, Added while merging mzfileio
-
-		QMap<QString,int>proteins; //TODO: Sahil, Added while merging mzfileio
-        QMap<int,float> mods; //TODO: Sahil, Added while merging mzfileio
-
-
+        bool isFocused;
+        float rt;
+        int id;
+        QMap<QString,int> proteins;
+        QMap<int,float> mods;
+        
 	SpectralHit() { 
 		scan = NULL; 
-		precursorMz=0;
-		matchCount=0; 
-		productMassCutoff=NULL; 
-		score=0;
-		xcorr=0; 
-		massdiff=0;
-		mvh=0; 
-		rank=0; 
-		decoy=false;
-		charge=0;
-		scannum=0;
-        isFocused=false; //TODO: Sahil, Added while merging mzfileio
-        rt=0; //TODO: Sahil, Added while merging mzfileio
-        id=0; //TODO: Sahil, Added while merging mzfileio
+		precursorMz = 0;
+		matchCount = 0; 
+		productPPM = 0.0; 
+		score = 0;
+		xcorr = 0; 
+		massdiff = 0;
+		mvh = 0; 
+		rank = 0; 
+		decoy = false;
+		charge = 0;
+		scannum = 0;
+        isFocused = false;
+        rt = 0;
+        id = 0;
 	}
 
         double getMaxIntensity() { 

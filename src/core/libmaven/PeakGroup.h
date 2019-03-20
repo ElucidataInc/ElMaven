@@ -245,7 +245,7 @@ class PeakGroup{
          */
         void computeFragPattern(float productPpmTolr);
 
-        Scan* getAverageFragmenationScan(MassCutoff* massCutoff);
+        Scan* getAverageFragmentationScan(float productPpmTolr);
 
         void matchFragmentation(float ppmTolerance, string scoringAlgo);
         

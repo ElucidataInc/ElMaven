@@ -713,75 +713,22 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     ms2EventCount = ms2Events.size();
 }
 
-/*
-   @author: Sahil
-   */
-//TODO: Sahil, Added while merging spectrawidget
-Scan* PeakGroup::getAverageFragmenationScan( MassCutoff *massCutoff) {
+Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
+{
+    //build consensus ms2 specta
+    computeFragPattern(productPpmTolr);
+    Scan* avgScan = new Scan(NULL, 0, 0, 0, 0, 0);
 
-    int scanCount=0;
-    map<float,double> mz_intensity_map;
-    map<float,double> mz_bin_map;
-    map<float,int> mz_count;
-
-    vector<Scan*> scans = getFragmentationEvents();
-    if (scans.size() == 0 ) return NULL;
-
-    Scan* avgScan = new Scan(NULL,0,0,0,0,0);
-    avgScan->deepcopy(scans[0]);
-
-    if (scans.size() == 1) return avgScan;
-
-    for(unsigned int s=0; s < scans.size(); s++) {
-        Scan* scan = scans[s];
-        scanCount++;
-
-        //vector<int>positions = scan->intensityOrderDesc();
-        //for(unsigned int p=0; p <positions.size() and p<100; p++ ) {
-        for(unsigned int i=0; i < scan->nobs(); i++ ) {
-            int pos = avgScan->findClosestHighestIntensityPos(scan->mz[i],massCutoff);
-            float bin;
-            if (pos >= 0) {
-                bin = FLOATROUND(avgScan->mz[pos],1000);
-            } else {
-                bin = FLOATROUND(scan->mz[i],1000);
-            }
-            mz_intensity_map[bin] += ((double) scan->intensity[i]);
-            mz_bin_map[bin] += ((double)(scan->intensity[i])*(scan->mz[i]));
-            mz_count[bin]++;
-        }
-
-
-        //resort
-        vector<float> avgmzs;
-        vector<float> avgints;
-        map<float,double>::iterator itr;
-        for(itr = mz_intensity_map.begin(); itr != mz_intensity_map.end(); ++itr ) {
-            avgmzs.push_back((*itr).first);
-            avgints.push_back((*itr).second);
-        }
-        avgScan->mz = avgmzs;
-        avgScan->intensity = avgints;
+    for(unsigned int i = 0; i < fragmentationPattern.mzValues.size(); i++) {
+        avgScan->mz.push_back(fragmentationPattern.mzValues[i]);
+        avgScan->intensity.push_back(fragmentationPattern.intensityValues[i]);
     }
 
-    //average
-    vector<float> avgmzs;
-    vector<float> avgints;
-    map<float,double>::iterator itr;
-    for(itr = mz_intensity_map.begin(); itr != mz_intensity_map.end(); ++itr ) {
-        float bin = (*itr).first;
-        double totalIntensity=(*itr).second;
-        double avgMz =  mz_bin_map[bin] / totalIntensity;
-        avgmzs.push_back((float)avgMz);
-        avgints.push_back((float) totalIntensity / scanCount);
-    }
-
-    avgScan->mz = avgmzs;
-    avgScan->intensity = avgints;
-
-    //cout << "getAverageScan() from:" << from << " to:" << to << " scanCount:" << scanCount << "scans. mzs=" << avgScan->nobs() << endl;
+    avgScan->precursorMz = meanMz;
+    avgScan->rt = meanRt;
+    
     return avgScan;
-    }
+}
 
 void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
 {

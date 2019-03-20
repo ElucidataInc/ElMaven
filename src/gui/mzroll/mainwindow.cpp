@@ -300,6 +300,7 @@ using namespace mzUtils;
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	spectraWidget = new SpectraWidget(this);
+	fragSpectraWidget = new SpectraWidget(this);
 	customPlot = new QCustomPlot(this);
     groupRtVizPlot = new QCustomPlot(this);
     sampleRtVizPlot = new QCustomPlot(this);
@@ -331,6 +332,7 @@ using namespace mzUtils;
 	//treemap	 = 	  new TreeMap(this);
 	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
+	fragSpectraDockWidget = createDockWidget("Fragmentation Spectra", fragSpectraWidget);
 
     groupRtDockWidget = createDockWidget("Per Group Deviation", groupRtVizPlot);
     groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
@@ -391,6 +393,7 @@ using namespace mzUtils;
 	bookmarkedPeaks->setVisible(false);
 	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
+	fragSpectraDockWidget->setVisible(false);
     groupRtDockWidget->setVisible(false);
     sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
@@ -448,6 +451,7 @@ using namespace mzUtils;
 	projectDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
+	addDockWidget(Qt::BottomDockWidgetArea, fragSpectraDockWidget, Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea, groupRtDockWidget, Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea, sampleRtWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
@@ -487,6 +491,7 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, notesDockWidget);
 	tabifyDockWidget(spectraDockWidget, galleryDockWidget);
 	tabifyDockWidget(spectraDockWidget, logWidget);
+	tabifyDockWidget(spectraDockWidget, fragSpectraDockWidget);
 	// tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
@@ -568,6 +573,7 @@ using namespace mzUtils;
     fragPanel->hide();
     projectDockWidget->raise();
     spectraDockWidget->raise();
+	fragSpectraDockWidget->raise();
     groupRtDockWidget->raise();
     sampleRtWidget->raise();
 	alignmentVizAllGroupsDockWidget->raise();	
@@ -1494,22 +1500,17 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-		PeakGroup *selectedGroup;
-		selectedGroup = eicWidget->setCompound(c);
-		//mavenParameters->_group is closest group to expected Rt
-		if (isotopeWidget && isotopeWidget->isVisible())
-		{
+		eicWidget->setCompound(c);
+		PeakGroup *selectedGroup = eicWidget->getSelectedGroup();
+		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
 		}
+		if (fragSpectraWidget->isVisible())
+			fragSpectraWidget->overlayPeakGroup(selectedGroup);
     }
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    if ( spectraDockWidget->isVisible()) {
-			spectraWidget->overlayCompoundFragmentation(c);
-	}
-
-    if(fragPanel->isVisible()   )
+    if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
     QString compoundName(c->name.c_str());
@@ -3002,10 +3003,26 @@ void MainWindow::createToolBars() {
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
 
-    QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
-    QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
-    QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
-	QToolButton* btnFragEvents = addDockWidgetButton(sideBar, fragPanel, QIcon(rsrcPath + "/fragmentationEvents.png"), "Show MS2 events");
+    QToolButton* btnSamples = addDockWidgetButton(sideBar,
+												  projectDockWidget,
+												  QIcon(rsrcPath + "/samples.png"),
+												  "Show Samples Widget (F2)");
+    QToolButton* btnLigands = addDockWidgetButton(sideBar,
+												  ligandWidget,
+												  QIcon(rsrcPath + "/molecule.png"),
+												  "Show Compound Widget (F3)");
+    QToolButton* btnSpectra = addDockWidgetButton(sideBar,
+												  spectraDockWidget,
+												  QIcon(rsrcPath + "/spectra.png"),
+												  "Show Spectra Widget (F4)");
+	QToolButton* btnFragSpectra = addDockWidgetButton(sideBar,
+													  fragSpectraDockWidget,
+													  QIcon(rsrcPath + "/fragSpectra.png"),
+													  "Show Fragmentation Spectra");
+	QToolButton* btnFragEvents = addDockWidgetButton(sideBar,
+													 fragPanel,
+													 QIcon(rsrcPath + "/fragmentationEvents.png"),
+													 "Show MS2 Events List");
 
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
@@ -3059,6 +3076,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnSamples);
 	sideBar->addWidget(btnLigands);
     sideBar->addWidget(btnSpectra);
+	sideBar->addWidget(btnFragSpectra);
 	sideBar->addWidget(btnFragEvents);
     sideBar->addWidget(btnAlignment);
 	sideBar->addWidget(btnIsotopes);
@@ -3246,15 +3264,13 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
     if ( group->compound != NULL) {
+		if (fragSpectraDockWidget->isVisible()) {
+			fragSpectraWidget->overlayPeakGroup(group);
+		}
         QString compoundName(group->compound->name.c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->compound);
-            if ( spectraDockWidget->isVisible()  ) {
-                //spectraWidget->showConsensusSpectra(group);
-                //spectraWidget->overlayCompoundFragmentation(group->compound);
-            }
         }
     }
 

@@ -211,7 +211,7 @@ void SpectraMatching::addHit(double score, float precursormz, QString samplename
        hit.scan = scan;
        hit.mzList = mzs;
        hit.intensityList=ints;
-       hit.productMassCutoff=_productMassCutoff;
+       hit.productPPM = _productMassCutoff->getMassCutoff();
        matches.push_back(hit);
 }
 

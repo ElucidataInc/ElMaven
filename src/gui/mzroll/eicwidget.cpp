@@ -1351,23 +1351,22 @@ void EicWidget::setSrmId(string srmId) {
 	replot();
 }
 
-PeakGroup* EicWidget::setCompound(Compound* c) {
+void EicWidget::setCompound(Compound* c)
+{
 	//qDebug << "EicWidget::setCompound()";
 	//benchmark
 //	timespec tS;
 	//timespec tE;
 	//clock_gettime(CLOCK_REALTIME, &tS);
 
-//	for(int i =0; i < 100000; i++ ) { findPlotBounds(); }
-
 	if (c == NULL)
-		return NULL;
+		return;
 	if (getMainWindow()->sampleCount() == 0)
-		return NULL;
+		return;
 
 	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
 	if (samples.size() == 0)
-		return NULL;
+		return;
 
 	int ionizationMode = samples[0]->getPolarity();
 	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
@@ -1382,10 +1381,6 @@ PeakGroup* EicWidget::setCompound(Compound* c) {
 		mz = c->mass;
 	}
 
-	//else {
-	//    MassCalculator mcalc;
-	//    mz =mcalc.adjustMass(c->mass,ionizationMode);
-	//}
 	cerr<<"massCutoffValue   eicWidget\n";
 	float minmz = mz -massCutoff->massCutoffValue(mz);
 	float maxmz = mz + massCutoff->massCutoffValue(mz);
@@ -1423,7 +1418,6 @@ PeakGroup* EicWidget::setCompound(Compound* c) {
 		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
-	return eicParameters->selectedGroup;
 	//clock_gettime(CLOCK_REALTIME, &tE);
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 }

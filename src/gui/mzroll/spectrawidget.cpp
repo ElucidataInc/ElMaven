@@ -3,25 +3,27 @@
 SpectraWidget::SpectraWidget(MainWindow* mw) { 
     this->mainwindow = mw;
     eicparameters = new EICLogic();
-   _currentScan = NULL;
-   _avgScan = NULL;
+   _currentScan = nullptr;
+   _avgScan = nullptr;
 
     initPlot();
 
     _drawXAxis = true;
     _drawYAxis = true;
+    _showOverlay = false;
     _resetZoomFlag = true;
     _profileMode = false;
     _nearestCoord = QPointF(0,0);
     _focusCoord = QPointF(0,0);
 }
 
-void SpectraWidget::initPlot() {
+void SpectraWidget::initPlot()
+{
     _titleText = QString();
     _zoomFactor = 0;
     setScene(new QGraphicsScene(this));
     scene()->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
-    scene()->setSceneRect(0, 0, width()-0, height()-0);
+    scene()->setSceneRect(10, 10, width()-10, height()-10);
 
     setDragMode(QGraphicsView::RubberBandDrag);
     //setCacheMode(CacheBackground);
@@ -59,8 +61,8 @@ void SpectraWidget::initPlot() {
 
 }
 
-void SpectraWidget::setCurrentScan(Scan* scan) {
-
+void SpectraWidget::setCurrentScan(Scan* scan)
+{
     qDebug() << "setCurrentScan: " << scan;
 
     if (!_currentScan) {
@@ -88,35 +90,33 @@ void SpectraWidget::replot() {
 }
 
 
-void SpectraWidget::setTitle(QString titleText) {
-
-    // if (mainwindow) {
-    //     mainwindow->spectraDockWidget->setWindowTitle("Spectra: " + title);
-
+void SpectraWidget::setTitle(QString titleText) 
+{
     QFont font = QApplication::font();
 
-    int pxSize = scene()->height()*0.03;
+    int pxSize = scene()->height() * 0.03;
     if ( pxSize < 12 ) pxSize = 12;
     if ( pxSize > 20 ) pxSize = 20;
     font.setPixelSize(pxSize);
 
     if (!_title) _title = scene()->addText(titleText, font);
     _title->setHtml(titleText);
-    int titleWith = _title->boundingRect().width();
-    _title->setPos(scene()->width()/2-titleWith/2, 3);
+    int titleWidth = _title->boundingRect().width();
+    _title->setPos(scene()->width() / 2 - titleWidth / 2, 3);
     _title->update();
 
-    if (_currentScan->nobs() == 0) {
-        font.setPixelSize(pxSize*3);
+    if (_currentScan && _currentScan->nobs() == 0) {
+        font.setPixelSize(pxSize * 3);
         _title->setHtml("EMPTY SCAN");
-        int textWith = _title->boundingRect().width();
-        _title->setPos(scene()->width()/2-textWith/2, scene()->height()/2);
-        _title->setDefaultTextColor(QColor(200,200,200));
+        int textWidth = _title->boundingRect().width();
+        _title->setPos(scene()->width() / 2 - textWidth / 2, scene()->height() / 2);
+        _title->setDefaultTextColor(QColor(200, 200, 200));
         _title->update();
     }
 }
 
-void SpectraWidget::setScan(Scan* scan) {
+void SpectraWidget::setScan(Scan* scan)
+{
     if ( scan == NULL ) return;
     setCurrentScan(scan);
     cerr << "SpectraWidget::setScan(scan) " << endl;
@@ -125,7 +125,8 @@ void SpectraWidget::setScan(Scan* scan) {
     repaint();
 }
 
-void SpectraWidget::setScan(Scan* scan, float mzmin, float mzmax) {
+void SpectraWidget::setScan(Scan* scan, float mzmin, float mzmax)
+{
     if ( scan == NULL ) return;
     cerr << "SpectraWidget::setScan(scan,min,max) : " << scan->scannum << endl;
     setCurrentScan(scan);
@@ -137,7 +138,8 @@ void SpectraWidget::setScan(Scan* scan, float mzmin, float mzmax) {
     repaint();
 }
 
-void SpectraWidget::setScan(mzSample* sample, int scanNum=-1) {
+void SpectraWidget::setScan(mzSample* sample, int scanNum=-1)
+{
     if (!sample) return;
     if (sample->scans.size() == 0 ) return;
     if (_currentScan && scanNum < 0 ) scanNum = _currentScan->scannum;
@@ -152,8 +154,8 @@ void SpectraWidget::setScan(mzSample* sample, int scanNum=-1) {
     }
 }
 
-
-void SpectraWidget::setScan(Peak* peak) {
+void SpectraWidget::setScan(Peak* peak)
+{
     cerr << "SpectraWidget::setScan(peak) " << endl;
     links.clear();
 
@@ -178,11 +180,8 @@ void SpectraWidget::setScan(Peak* peak) {
     repaint();
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging point
-void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff) {
+void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff)
+{
     qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productMassCutoff->getMassCutoff() << endl;
     if(!_currentScan) return;
 	if(peptideSeq.isEmpty()) return;
@@ -195,21 +194,20 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 	hit.score = 0;
 	hit.matchCount=0;
     hit.sampleName="";
-    hit.productMassCutoff=productMassCutoff;
+    hit.productPPM = productMassCutoff->getMassCutoff();
     hit.precursorMz=record.monoisotopicMZ();
 	hit.scan = _currentScan;
 	
     vector<bool>seen(_currentScan->nobs(),false);
 	for(unsigned int i=0; i < ions.size(); i++) {
 		FragmentIon* ion = ions[i];
-        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz,productMassCutoff);
+        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz, productMassCutoff);
         if(pos != -1 and seen[pos] == false) {
             ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
             qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
 
             hit.mzList << _currentScan->mz[pos];
             hit.intensityList << _currentScan->intensity[pos];
-            hit.annotations << ion->m_ion.c_str();
             seen[pos]=true;
 		}
 	}
@@ -218,36 +216,58 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
     overlaySpectralHit(hit);
 }
 
-
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::overlayCompoundFragmentation(Compound* c) {
-    if(_currentScan and c->fragmentMzValues.size()) {
-		SpectralHit hit;
-	  	hit.score = 0;
-        hit.precursorMz = c->precursorMz;
-        hit.matchCount=0;
-        hit.sampleName="";
-        hit.productMassCutoff=mainwindow->getUserMassCutoff();
-        hit.scan=NULL;
-        for(int i=0; i < c->fragmentMzValues.size();i++)        hit.mzList << c->fragmentMzValues[i];
-        for(int i=0; i < c->fragmentIntensities.size();i++)  hit.intensityList<< c->fragmentIntensities[i];
-        _spectralHit = hit;//copy hit
-       	cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name << " " << c->precursorMz << endl;
-
-       if(_currentScan) {
-            if (_currentScan->mslevel != 1) {
-                 overlaySpectralHit(_spectralHit);
-            }
-       }
-	}
+void SpectraWidget::overlayPeakGroup(PeakGroup* group)
+{
+    if (!group) return;
+    float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
+    Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
+    setScan(avgScan);
+    if (group->compound)  {
+        overlayCompoundFragmentation(group->compound);
+        //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
+    }
+    delete(avgScan);
 }
 
+void SpectraWidget::overlayCompoundFragmentation(Compound* c)
+{
+    clearOverlay();
+    if (!_currentScan || !c || c->fragmentMzValues.size() == 0) return;
+	
+    SpectralHit hit;
+  	hit.score = 0;
+    //TODO: precursormz should be preset as the compound m/z
+    //compound->mass should be reserved for exact mass or renamed
+    if (!c->formula.empty())
+        c->precursorMz = c->adjustedMass(mainwindow->mavenParameters->getCharge(c));
+    if (mzUtils::almostEqual(c->precursorMz, 0.0f))
+        c->precursorMz = c->mass;
+    hit.precursorMz = c->precursorMz;
+    hit.matchCount = 0;
+    hit.sampleName = "";
+    hit.productPPM = mainwindow->mavenParameters->fragmentTolerance;
+    hit.scan = nullptr;
+    for (unsigned int i = 0; i < c->fragmentMzValues.size(); i++) {
+        hit.mzList << c->fragmentMzValues[i];
+        hit.intensityList << c->fragmentIntensities[i];
+    }
 
-void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
-        _spectralHit = hit;//copy hit
+    links.clear();
+
+    _spectralHit = hit;
+
+    cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name << " " << c->precursorMz << endl;
+
+    if (_currentScan && _currentScan->mslevel != 1) {
+        _showOverlay = true;
+        overlaySpectralHit(_spectralHit);
+        resetZoom();
+    }
+}
+
+void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
+{
+        _spectralHit = hit;
 
         //determine limits of overlayed spectra
         if(hit.scan and _currentScan != hit.scan) {
@@ -258,86 +278,78 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit) {
         drawGraph();
         repaint();
 
-        double focusMz = hit.mzList.first();
-        int pos = _currentScan->findHighestIntensityPos(focusMz,hit.productMassCutoff);
-        if(pos>=0) {
-                _focusCoord.setX(focusMz);
-                _focusCoord.setY(_currentScan->intensity[pos]);
-                //setMzFocus(focusMz);
+        if (!_currentScan) return;
+        MassCutoff* productMassCutOff = new MassCutoff();
+        productMassCutOff->setMassCutoffAndType(hit.productPPM, "ppm");
+        int pos = _currentScan->findHighestIntensityPos(hit.precursorMz, productMassCutOff);
+        if(pos >= 0) {
+            _focusCoord.setX(hit.precursorMz);
+            _focusCoord.setY(_currentScan->intensity[pos]);
         }
+        delete productMassCutoff;
 }
 
-
-void SpectraWidget::showConsensusSpectra(PeakGroup* group) {
+void SpectraWidget::showConsensusSpectra(PeakGroup* group)
+{
     qDebug() << "showConsensusSpectra()";
+    if (!group) return;
     _scanset.clear();
 
-    Scan* cons = group->getAverageFragmenationScan(mainwindow->getUserMassCutoff());
+    float fragTolerance = mainwindow->mavenParameters->fragmentTolerance;
+    Scan* consensus = group->getAverageFragmentationScan(fragTolerance);
 
-    if (cons) {
+    if (consensus) {
         _scanset = group->getFragmentationEvents();
-        _currentScan=cons;
-        _currentScan->scannum=0;
-        _currentScan->sample=0;
+        _currentScan = consensus;
+        _currentScan->scannum = 0;
+        _currentScan->sample = 0;
+        _currentScan->rt = group->meanRt;
+        _currentScan->precursorMz = group->meanMz;
+        this->findBounds(true, true);
         this->drawGraph();
     }
 }
 
+void SpectraWidget::drawSpectralHit(SpectralHit& hit)
+{
+    MassCutoff *massCutoffWindow = new MassCutoff();
+    massCutoffWindow->setMassCutoffAndType(hit.productPPM, "ppm");
+    double maxIntensity = hit.getMaxIntensity();
 
-void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
+    QPen redpen(Qt::red, 1);
+    QPen bluepen(Qt::blue, 2);
+    QPen graypen(Qt::gray, 1);
 
-    MassCutoff *massCutoffWindow=hit.productMassCutoff;
-    double maxIntensityHit= hit.getMaxIntensity();
+    float SCALE = 0.45;
 
-   // qDebug() << "overlaySpectra() started.." <<  massCutoffWindow->getMassCutoff() << "  " << maxIntensityHit <<  " " << hit.mzList.size() << endl;
-    QPen redpen(Qt::red, 3);
-    QPen bluepen(Qt::blue, 3);
+    QGraphicsTextItem* text = new QGraphicsTextItem(hit.compoundId);
+    text->setFont(_title->font());
+    text->setPos(_title->pos().x(), toY(_maxY * 0.95, SCALE));
+    scene()->addItem(text);
+    _items.push_back(text);
 
-    for(int i=0; i < hit.mzList.size(); i++) {
-        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],massCutoffWindow);
+    for(int i = 0; i < hit.mzList.size(); i++) {
+        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i], massCutoffWindow);
+        double hitIntensity = 0;
+        if (i < hit.intensityList.size())
+            hitIntensity = hit.intensityList[i];
 
+        int x = toX(hit.mzList[i]);
+        int y = toY((hitIntensity / maxIntensity) * _maxY, SCALE);
 
-        double hitIntensity=0;
-            if (i < hit.intensityList.size()) hitIntensity= hit.intensityList[i];
-        QString label;
-            if (i < hit.annotations.size()) label += hit.annotations[i];
-
-        //cerr << "drawSpectralHit() " << pos << " mz=" << setprecision(6) << hit.mzList[i];
+        QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, toY(0), 0);
+        pos > 0 ? line->setPen(bluepen) : line->setPen(redpen);
+        scene()->addItem(line);
+        _items.push_back(line);
 
         if (pos >= 0 && pos < _currentScan->nobs()) {
-			//matched peak
+            //matched peak
             int x = toX(_currentScan->mz[pos]);
-            int yA = toY(_currentScan->intensity[pos]);
-            int yB = toY(_maxY*(hitIntensity/maxIntensityHit));
-            QGraphicsLineItem* line = new QGraphicsLineItem(x,yA,x,toY(0),0);
-
-            line->setPen(bluepen);
+            int y = toY(_maxY * (hitIntensity / maxIntensity));
+            QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, toY(0), 0);
+            line->setPen(graypen);
             scene()->addItem(line);
             _items.push_back(line);
-
-            EicPoint* pA  = new EicPoint(x,yA,NULL,mainwindow);
-            QColor bluecolorA = QColor(0,0,250);
-            QBrush bluebrushA = QBrush(bluecolorA,Qt::SolidPattern);
-            pA->setColor(bluecolorA); pA->setPen(bluepen); pA->setBrush(bluebrushA);
-            pA->setPointShape(EicPoint::TRIANGLE_DOWN);
-            scene()->addItem(pA);
-            _items.push_back(pA);
-
-            EicPoint* pB  = new EicPoint(x,yB,NULL,mainwindow);
-            QColor bluecolorB = QColor(0,0,200);
-            QBrush bluebrushB = QBrush(bluecolorB,Qt::SolidPattern);
-            pB->setColor(bluecolorB); pB->setPen(bluepen); pB->setBrush(bluebrushB);
-            pB->setPointShape(EicPoint::TRIANGLE_UP);
-            scene()->addItem(pB);
-            _items.push_back(pB);
-
-            if (!label.isEmpty() ) {
-                QGraphicsTextItem* text = new QGraphicsTextItem(label,0);
-                scene()->addItem(text);
-                text->setPos(x,yA-10);
-                _items.push_back(text);
-            }
-
         } else {
             /*
 			//unmatched paek
@@ -351,27 +363,10 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit) {
             */
         }
     }
-
-    /*
-    QPen bluepen(Qt::blue,3);
-    for(int i=0; i < mzs.size(); i++) {
-        int x = toX(mzs[i]+0.01);
-        int y = toY(_maxY*0.75);
-        if (i < ints.size()) y = toY(_maxY*0.75*ints[i]);   // qDebug()<< "Overlay: " << x << " " << y;
-        QGraphicsLineItem* line = new QGraphicsLineItem(x,y,x,toY(0),0);
-        line->setPen(bluepen);
-        scene()->addItem(line);
-        _items.push_back(line);
-    }
-    */
-
     scene()->update();
+    delete massCutoffWindow;
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
 void SpectraWidget::clearGraph() {
     qDebug() << "drawSpectra() mzrange= " << _minX << "-" << _maxX;
 
@@ -383,82 +378,96 @@ void SpectraWidget::clearGraph() {
     _items.clear();
     scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
 }
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::setTitle(Scan* scan) {
+
+void SpectraWidget::clearOverlay()
+{
+    _spectralHit = SpectralHit();
+    _showOverlay = false;
+}
+
+void SpectraWidget::setTitle()
+{
     _titleText = QString();
 
-    QString polarity;
-    scan->getPolarity() > 0 ? polarity = "+" : polarity = "-";
+    if (! _currentScan) {
+        setTitle(_titleText);
+        return;
+    }
+
     QString sampleName;
-    if (_currentScan->sample)  sampleName = QString(scan->sample->sampleName.c_str());
+    if (_currentScan->sample)  sampleName = QString(_currentScan->sample->sampleName.c_str());
 
-    _titleText = tr("%1 scan#<b>%2</b>   rt:<b>%3</b>    ms:<b>%4</b>   ion:<b>%5</b> ").arg(
-            sampleName,
-            QString::number(scan->scannum),
-            QString::number(scan->rt,'f',2),
-            QString::number(scan->mslevel),
-            polarity
-    );
+    _titleText += tr("<b>%1</b>").arg(sampleName);
+    
+    if (_currentScan->scannum)
+        _titleText += tr(" Scan#<b>%1</b>  ").arg(QString::number(_currentScan->scannum));
 
-    if (scan->precursorMz) {
-        _titleText += tr("preMZ:<b>%1</b> ").arg(QString::number(scan->precursorMz,'f',4));
+    if (_currentScan->rt)
+        _titleText += tr("Rt:<b>%1</b>  ").arg(QString::number(_currentScan->rt, 'f', 2));
+
+    if (_currentScan->mslevel)
+        _titleText += tr("MS Level:<b>%1</b>  ").arg(QString::number(_currentScan->mslevel));
+
+    if (_currentScan->precursorMz) {
+        _titleText += tr("Pre m/z:<b>%1</b>  ").arg(QString::number(_currentScan->precursorMz,'f',4));
     }
 
-    if (scan->collisionEnergy) {
-        _titleText += tr("ce:<b>%1</b> ").arg(QString::number(scan->collisionEnergy,'f',0));
+    if (_currentScan->collisionEnergy) {
+        _titleText += tr("CE:<b>%1</b>  ").arg(QString::number(_currentScan->collisionEnergy,'f',0));
     }
 
-    if (scan->productMz) {    
-       _titleText += tr("prodMz:<b>%1</b> ").arg(QString::number(scan->productMz,'f',3));
+    if (_currentScan->productMz) {    
+       _titleText += tr("Prod m/z:<b>%1</b>  ").arg(QString::number(_currentScan->productMz,'f',3));
     }
 
     setTitle(_titleText);
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::drawScan(Scan* scan, QColor sampleColor, int
-                             offsetXpx=0, int offsetYpx=0) {
+void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
+{
     float _focusedMz = _focusCoord.x();
 
     QPen slineColor(sampleColor, 2);
-    EicLine* sline = new EicLine(NULL,scene());
+    EicLine* sline = new EicLine(NULL, scene());
     sline->setColor(sampleColor);
     sline->setPen(slineColor);
    _items.push_back(sline);
 
-   if( _profileMode ) {
+    if (_profileMode) {
         QBrush slineFill(sampleColor);
         sline->setFillPath(true);
         sline->setBrush(slineFill);
     } else {
-       sline->setClosePath(false);
-       sline->setFillPath(false);
-   }
+        sline->setClosePath(false);
+        sline->setFillPath(false);
+    }
 
-    int yzero = toY(0)+offsetYpx;
-    for(int j=0; j<scan->nobs(); j++ ) {
+    float SCALE = 1.0;
+    float OFFSET = 0;
+    if (_showOverlay) {
+        SCALE = 0.45;
+        OFFSET = -scene()->height() / 2.0;
+    }
+
+    int yzero = toY(0, SCALE, OFFSET);
+    sline->addPoint(toX(_maxX),yzero);
+    sline->addPoint(toX(_minX),yzero);
+    
+    for (int j = 0; j < scan->nobs(); j++) {
         if ( scan->mz[j] < _minX  || scan->mz[j] > _maxX ) continue;
-        int x = toX(scan->mz[j])+offsetXpx;
-        int y = toY(scan->intensity[j])+offsetYpx;
+        int x = toX(scan->mz[j]);
+        int y = toY(scan->intensity[j], SCALE, OFFSET);
 
-        if( _profileMode ) {
-               sline->addPoint(x,y);
+        if (_profileMode) {
+               sline->addPoint(x, y);
         } else {
-                sline->addPoint(x,yzero);
-                sline->addPoint(x,y);
-
-                //sline->addPoint(x,yzero);
+                sline->addPoint(x, yzero);
+                sline->addPoint(x, y);
         }
 
-        if( abs(scan->mz[j]-_focusedMz)<0.002 ) {
+        if (abs(scan->mz[j] - _focusedMz) < 0.005) {
             QPen redpen(Qt::red, 3);
-            QGraphicsLineItem* line = new QGraphicsLineItem(x,y,x,yzero,0);
+            QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, yzero, 0);
             scene()->addItem(line);
             line->setPen(redpen);
             _items.push_back(line);
@@ -466,10 +475,6 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor, int
     }
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
 void SpectraWidget::drawScanSet(vector<Scan*>& scanset) {
     qDebug() << "drawScanSet() " << scanset.size();
  /*
@@ -494,51 +499,52 @@ void SpectraWidget::drawScanSet(vector<Scan*>& scanset) {
             mzSample* sample = scanset[i]->sample;
             sampleColor = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 0.6 );
         }
-        drawScan(scanset[i],sampleColor,i,-i-3);
+        drawScan(scanset[i],sampleColor);
      }
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::drawMzLabels(Scan* scan) {
+void SpectraWidget::drawMzLabels(Scan* scan)
+{
     if (!scan) return;
 
-    //show labels
-    unsigned int labelCount=0;
-    QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
+    unsigned int labelCount = 0;
+    
+    QFont font = QApplication::font();
+    font.setPointSizeF(font.pointSize()*0.8);
+    
+    float SCALE = 1.0;
+    float OFFSET = 0;
+    if (_showOverlay) {
+        SCALE = 0.45;
+        OFFSET = -scene()->height() / 2.0;
+    }
 
     vector<int> positions = scan->intensityOrderDesc();
-    float xRange = _maxX - _minX;
-    float mzFloatAccuracy=1;
-    if (xRange < 10 ) mzFloatAccuracy=6;
-    else if (xRange < 50 ) mzFloatAccuracy=4;
-    else if (xRange < 100 ) mzFloatAccuracy=2;
+    float xRange = abs(_maxX - _minX);
+    float precision = 2;
+    if (xRange > 100) precision = 3;
+    if (xRange > 50) precision = 4;
+    if (xRange > 10) precision = 6;
 
-    for(int i=0; i < positions.size(); i++) {
-        int pos = positions[i];
-        if (scan->mz[pos] < _minX or scan->mz[pos] > _maxX) continue;
-        if (scan->intensity[pos] / _maxY < 0.005 ) continue;
+    for(auto pos : positions) {
+        if ((scan->mz[pos] < _minX) || (scan->mz[pos] > _maxX)) continue;
+        if ((scan->intensity[pos] / _maxY) < 0.005 ) continue;
 
         //position label
         int x = toX(scan->mz[pos]);
-        int y = toY(scan->intensity[pos]);
+        int y = toY(scan->intensity[pos], SCALE, OFFSET);
 
         //create label
-        QString labelText = QString::number(scan->mz[pos],'f',mzFloatAccuracy);
-        if (pos< chargeStates.size() and chargeStates[pos]>0)
-            labelText += "<sup>z=" +  QString::number(chargeStates[pos]) + "</sup>";
-
-        QGraphicsTextItem* text = new QGraphicsTextItem(labelText,0);
+        QString labelText = QString::number(scan->mz[pos], 'f', precision);
+        QGraphicsTextItem* text = new QGraphicsTextItem(labelText, 0);
         text->setHtml(labelText);
         text->setFont(font);
+        text->setPos(x - 2, y - 20);
 
         scene()->addItem(text);
         _items.push_back(text);
-        text->setPos(x-2,y-20);
 
-        Q_FOREACH(QGraphicsItem* item,  scene()->collidingItems(text) ) {
+        Q_FOREACH(QGraphicsItem* item, scene()->collidingItems(text) ) {
             if (qgraphicsitem_cast<QGraphicsTextItem *>(item)) {
                 text->hide(); break;
             }
@@ -548,10 +554,6 @@ void SpectraWidget::drawMzLabels(Scan* scan) {
     }
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
 void SpectraWidget::drawAnnotations() {
    QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
 
@@ -572,11 +574,8 @@ void SpectraWidget::drawAnnotations() {
     }
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Refactored this to small functions whiler merging spectrawidget
-void SpectraWidget::drawGraph() {
+void SpectraWidget::drawGraph()
+{
     if (_currentScan == NULL) return;
 
     qDebug() << "showSpectra() mzrange= " << _minX << "-" << _maxX;
@@ -588,28 +587,25 @@ void SpectraWidget::drawGraph() {
         sampleColor = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
     }
 
-    setTitle(_currentScan);
-    drawScanSet(_scanset);
-    drawScan(_currentScan,sampleColor);
+    setTitle();
+    drawScan(_currentScan, sampleColor);
     drawMzLabels(_currentScan);
     drawAnnotations();
 
-    
     // overlay spectra
     if ( fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5 ) {
-          drawSpectralHit(_spectralHit);
-    //} else if (_spectralHit.scan !=NULL and _spectralHit.scan->scannum == _currentScan->scannum  ) {
-    //      drawSpectralHit(_spectralHit);
+        drawSpectralHit(_spectralHit);
+        drawSpectralHit(_spectralHit);
     } else {
-        qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
+        //TODO: either remove the check or inform user on the UI in case of failure
+       qDebug() << " overlaySpectra() skipped: " << _spectralHit.precursorMz << " " << _currentScan->precursorMz;
     }
 
     addAxes();
 }
 
-
-
-void SpectraWidget::findBounds(bool checkX, bool checkY) {
+void SpectraWidget::findBounds(bool checkX, bool checkY)
+{
     //bounds
     if (_currentScan == NULL) return;
 
@@ -626,8 +622,6 @@ void SpectraWidget::findBounds(bool checkX, bool checkY) {
 		minMZ = _currentScan->mz[0]-0.01;
 		maxMZ = _currentScan->mz[_currentScan->mz.size()-1]+0.01;
 	}
-
-
 
 	cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
     cerr << "findBounds():  RANGE=" << minMZ << "-" << maxMZ << endl;
@@ -651,7 +645,8 @@ void SpectraWidget::findBounds(bool checkX, bool checkY) {
    // cerr << "findBounds():  mz=" << _minX << "-" << _maxX << " ints=" << _minY << "-" << _maxY << endl;
 }
 
-void SpectraWidget::keyPressEvent( QKeyEvent *e ) {
+void SpectraWidget::keyPressEvent( QKeyEvent *e )
+{
     switch( e->key() ) {
     case Qt::Key_Left:
         showLastScan(); return;
@@ -669,14 +664,13 @@ void SpectraWidget::keyPressEvent( QKeyEvent *e ) {
     e->accept();
 }
 
-
 void SpectraWidget::showNextScan() { incrementScan(+1, 0); }
 void SpectraWidget::showLastScan() { incrementScan(-1, 0); }
 void SpectraWidget::showNextFullScan() { incrementScan(+1, 1); }
 void SpectraWidget::showLastFullScan() { incrementScan(-1, 1); }
 
-
-void SpectraWidget::incrementScan(int increment, int msLevel=0 ) {
+void SpectraWidget::incrementScan(int increment, int msLevel=0 )
+{
 	if (_currentScan == NULL || _currentScan->sample == NULL) return;
 
 	mzSample* sample = _currentScan->getSample();
@@ -701,7 +695,8 @@ void SpectraWidget::incrementScan(int increment, int msLevel=0 ) {
 }
 
 
-void SpectraWidget::resizeEvent (QResizeEvent * event) {
+void SpectraWidget::resizeEvent (QResizeEvent * event)
+{
     QSize newsize = event->size();
     replot();
 }
@@ -714,96 +709,108 @@ void SpectraWidget::leaveEvent (QEvent*) {
     releaseKeyboard();
 }
 
-void SpectraWidget::addAxes() {
-
-	if (_drawXAxis ) {
-		Axes* x = new Axes(0,_minX, _maxX,10);
+void SpectraWidget::addAxes()
+{
+	if (_drawXAxis) {
+		Axes* x = new Axes(0, _minX, _maxX, 10);
 		scene()->addItem(x);
 		x->setZValue(998);
 		_items.push_back(x);
 	}
 
-    if (_drawYAxis ) {
-    	Axes* y = new Axes(1,_minY, _maxY,10);
+    if (_drawYAxis) {
+    	Axes* y = new Axes(1, _minY, _maxY, 10);
     	scene()->addItem(y);
-        // y->setZValue(999);
-        // y->showTicLines(false);
-        y->setZValue(-10);
-        y->showTicLines(true);
+        y->setZValue(999);
+        y->showTicLines(false);
 		y->setOffset(5);
     	_items.push_back(y);
     }
-
 }
 
-void SpectraWidget::mousePressEvent(QMouseEvent *event) {
+float SpectraWidget::toY(float y, float scale, float offset)
+{ 
+    float height = scene()->height();
+    return(height - (((y - _minY) / (_maxY - _minY) * height) * scale) + offset);
+}
+
+float SpectraWidget::invY(float y)
+{
+    float height = scene()->height();
+    return  -1 * ((y - height) / scene()->height() * (_maxY - _minY) + _minY);
+}
+
+void SpectraWidget::mousePressEvent(QMouseEvent *event)
+{
     QGraphicsView::mousePressEvent(event);
     _mouseStartPos = event->pos();
-
 }
 
-void SpectraWidget::mouseReleaseEvent(QMouseEvent *event) {
+void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
+{
     QGraphicsView::mouseReleaseEvent(event);
 
-    _mouseEndPos	= event->pos();
+    _mouseEndPos = event->pos();
 
-    int deltaX =  _mouseEndPos.x() - _mouseStartPos.x();
-    float deltaXfrac = (float) deltaX / (width()+1);
+    int deltaX = _mouseEndPos.x() - _mouseStartPos.x();
+    float deltaXfrac = (float) deltaX / (width() + 1);
 
 
-    if ( deltaXfrac > 0.01 ) {
-        float xmin = invX( std::min(_mouseStartPos.x(), _mouseEndPos.x()) );
-        float xmax = invX( std::max(_mouseStartPos.x(), _mouseEndPos.x()) );
+    if (deltaXfrac > 0.01) {
+        float xmin = invX(std::min(_mouseStartPos.x(), _mouseEndPos.x()));
+        float xmax = invX(std::max(_mouseStartPos.x(), _mouseEndPos.x()));
         _minX = xmin;
         _maxX = xmax;
-    } else if ( deltaXfrac < -0.01 ) {
-		if ( _currentScan->mz.size() > 0 ) {
+    } else if (deltaXfrac < -0.01) {
+		if (_currentScan->mz.size() > 0) {
 			float minmz = _currentScan->mz[0];
-			float maxmz = _currentScan->mz[_currentScan->nobs()-1];
+			float maxmz = _currentScan->mz[_currentScan->nobs() - 1];
             _minX *= 0.9;
             _maxX *= 1.1;
-            if (_minX < minmz ) _minX=minmz;
-            if (_maxX > maxmz ) _maxX=maxmz;
+            if (_minX < minmz ) _minX = minmz;
+            if (_maxX > maxmz ) _maxX = maxmz;
         }
-    } else if (_nearestCoord.x() > 0 ) {
+    } else if (_nearestCoord.x() > 0) {
         setMzFocus(_nearestCoord.x());
     }
-    findBounds(false,true);
+    findBounds(false, true);
     replot();
 }
 
-void SpectraWidget::setMzFocus(Peak* peak) {
+void SpectraWidget::setMzFocus(Peak* peak)
+{
     setMzFocus(peak->peakMz);
 }
 
-void SpectraWidget::setMzFocus(float mz) {
+void SpectraWidget::setMzFocus(float mz)
+{
 	if (_currentScan == NULL) return;
     //int bestMatch=-1;
     //float bestMatchDiff=FLT_MAX;
 
 	MassCutoff *massCutoff= mainwindow->getUserMassCutoff();
 
-	if (_currentScan->mslevel==1) {
-		int pos = _currentScan->findHighestIntensityPos(mz,massCutoff);
-		if(pos>=0) { 
+	if (_currentScan->mslevel == 1) {
+		int pos = _currentScan->findHighestIntensityPos(mz, massCutoff);
+		if(pos >= 0) { 
 			float bestMz = _currentScan->mz[pos];
 			mainwindow->setMzValue(bestMz);
 			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 		}
 
-	} else if (_currentScan->mslevel==2 and _currentScan->precursorMz > 0) {
+	} else if (_currentScan->mslevel == 2 && _currentScan->precursorMz > 0) {
 			float bestMz = _currentScan->precursorMz;
 			mainwindow->setMzValue(bestMz);
 			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 
-	} else if (!_currentScan->filterLine.empty() ) {
+	} else if (!_currentScan->filterLine.empty()) {
 		float mzmin = mz - massCutoff->massCutoffValue(mz);
 		float mzmax = mz + massCutoff->massCutoffValue(mz);
     	mzSlice eicSlice = mainwindow->getEicWidget()->getParameters()->getMzSlice();
-        mzSlice slice(mzmin,mzmax,eicSlice.rtmin,eicSlice.rtmax); 
-		slice.srmId=_currentScan->filterLine;
+        mzSlice slice(mzmin, mzmax, eicSlice.rtmin, eicSlice.rtmax); 
+		slice.srmId =_currentScan->filterLine;
 
         mainwindow->getEicWidget()->setMzSlice(slice);
 		mainwindow->getEicWidget()->setFocusLine(_currentScan->rt);
@@ -836,17 +843,18 @@ void SpectraWidget::mouseDoubleClickEvent(QMouseEvent* event){
     _focusCoord = _nearestCoord;
  //   annotateScan();
     drawGraph();
-
 }
 
-void SpectraWidget::addLabel(QString text,float x, float y) {
+void SpectraWidget::addLabel(QString text,float x, float y)
+{
     QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
 
     QGraphicsTextItem* _label = scene()->addText(text, font);
     _label->setPos(toX(x), toY(y));  
 }
 
-void SpectraWidget::mouseMoveEvent(QMouseEvent* event){
+void SpectraWidget::mouseMoveEvent(QMouseEvent* event)
+{
 	if (_currentScan == NULL ) return;
 
     QGraphicsView::mouseMoveEvent(event);
@@ -871,67 +879,73 @@ void SpectraWidget::mouseMoveEvent(QMouseEvent* event){
 
 }
 
-int SpectraWidget::findNearestMz(QPointF pos) {
-
+int SpectraWidget::findNearestMz(QPointF pos)
+{
     float mz = invX(pos.x());
-    float mzmin = invX(pos.x()-50);
-    float mzmax = invX(pos.x()+50);
-    float ycoord  =invY(pos.y());
-    int best=-1;
+    float mzmin = invX(pos.x() - 50);
+    float mzmax = invX(pos.x() + 50);
+    float ycoord = invY(pos.y());
+    int best = -1;
 
 	vector<int> matches = _currentScan->findMatchingMzs(mzmin,mzmax);
     if (matches.size() > 0) {
-        float dist=FLT_MAX;
-        for(int i=0; i < matches.size(); i++ ) {
+        float dist = FLT_MAX;
+        for(int i = 0; i < matches.size(); i++) {
             int p = matches[i];
-			float d = sqrt(POW2(_currentScan->intensity[p]-ycoord)+POW2(_currentScan->mz[p]-mz));
-            if ( d < dist ){ best=p; dist=d; }
+			float d = sqrt(POW2(_currentScan->intensity[p] - ycoord) + 
+                                POW2(_currentScan->mz[p] - mz));
+            if (d < dist) { best = p; dist = d; }
         }
-
-
     }
     return best;
 }
 
-void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float intensity2) {
-    int x1=  toX(mz1);
-    int y1=  toY(intensity1);
+void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float intensity2)
+{
+    float SCALE = 1.0;
+    float OFFSET = 0;
+    if (_showOverlay) {
+        SCALE = 0.45;
+        OFFSET = -scene()->height() / 2.0;
+    }
+    
+    int x1 = toX(mz1);
+    int y1 = toY(intensity1, SCALE, OFFSET);
 
     int x2 = toX(mz2);
-    int y2 = toY(intensity2);
+    int y2 = toY(intensity2, SCALE, OFFSET);
 
     int x3 = toX(_focusCoord.x());
-    int y3 = toY(_focusCoord.y());
-    float mz3 = _focusCoord.x();
+    int y3 = toY(_focusCoord.y(), SCALE, OFFSET);
 
+    //change user cutoff to fragment tolerance if this is MS2 m/z
     if ( massCutoffDist(mz1,mz2,mainwindow->getUserMassCutoff()) < 0.1 ) return;
-
 
     if (_arrow != NULL ) {
         _arrow->setVisible(true);
         _arrow->setLine(x1,y1,x2,y2);
     }
 
-    float distance = mz1-_focusCoord.x();
-    //float totalInt = _focusCoord.y()+intensity1;
+    float distance = mz1 - _focusCoord.x();
     float totalInt = _focusCoord.y();
-    float diff=0;
-    if (totalInt)  diff = intensity1/totalInt;
+    float diff = 0;
+    if (totalInt)
+        diff = intensity1 / totalInt;
 
     if (_varrow != NULL && abs(distance) > 0.1 ) {
-        _varrow->setLine(x1,y1,x3,y3);
-        _vnote->setPos(x1+(x3-x1)/2.0, y1+(y3-y1)/2.0);
-        _vnote->setPlainText(QString::number(diff*100,'f',2) + "%" );
+        _varrow->setLine(x1, y1, x3, y3);
+        _vnote->setPos(x1 + (x3 - x1) / 2.0, y1 + (y3 - y1) / 2.0);
+        _vnote->setPlainText(QString::number(diff * 100, 'f', 2) + "%" );
         _varrow->show(); _vnote->show();
     } else {
         _varrow->hide(); _vnote->hide();
     }
 
+    QString note = tr("m/z: %1 &Delta;%2").arg(QString::number(mz1, 'f', 6),
+                                               QString::number(distance, 'f', 3));
 
-    QString note = tr("m/z: %1 &Delta;%2").arg( QString::number(mz1,'f',6),QString::number(distance,'f',3));
-
-    if (_note  != NULL ) {
-        _note->setPos(x2+1,y2-30);
+    if (_note != NULL ) {
+        _note->setPos(x2 + 1, y2 - 30);
         _note->setHtml(note);
     }
 
@@ -940,7 +954,8 @@ void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float inte
 }
 
 
-void SpectraWidget::wheelEvent(QWheelEvent *event) {
+void SpectraWidget::wheelEvent(QWheelEvent *event)
+{
     if ( event->delta() > 0 ) {
         zoomOut();
     } else {
@@ -980,8 +995,8 @@ void SpectraWidget::assignCharges() {
     chargeStates = _currentScan->assignCharges(mainwindow->getUserMassCutoff());
 }
 
-void SpectraWidget::annotateScan() {
-
+void SpectraWidget::annotateScan()
+{
     float mzfocus = _focusCoord.x();
     if (mzfocus==0 || _currentScan == NULL || _currentScan->nobs() < 2 ) return;
     float noiseLevel=1;
@@ -1015,14 +1030,13 @@ void SpectraWidget::annotateScan() {
     }    
 }
 
-
-
 void SpectraWidget::resetZoom() {
     findBounds(true,true);
     replot();
 }
 
-void SpectraWidget::zoomIn() {
+void SpectraWidget::zoomIn()
+{
     float D = (_maxX-_minX)/2;
     if (D < 0.5 ) return;
 
@@ -1039,7 +1053,8 @@ void SpectraWidget::zoomIn() {
 
 }
 
-void SpectraWidget::zoomOut() {
+void SpectraWidget::zoomOut()
+{
 	cerr << "zoomOut" << endl;
     _minX = _minX * 0.9;
     _maxX = _maxX * 1.1;
@@ -1057,7 +1072,8 @@ void SpectraWidget::compareScans(Scan* s1, Scan* s2) {
 
 }
 
-void SpectraWidget::contextMenuEvent(QContextMenuEvent * event) {
+void SpectraWidget::contextMenuEvent(QContextMenuEvent * event)
+{
     event->ignore();
     QMenu menu;
 
@@ -1090,7 +1106,8 @@ void SpectraWidget::contextMenuEvent(QContextMenuEvent * event) {
     QAction *selectedAction = menu.exec(event->globalPos());
 }
 
-void SpectraWidget::spectraToClipboard() {
+void SpectraWidget::spectraToClipboard()
+{
 	if(!_currentScan) return;
 
     QStringList clipboardText;
@@ -1103,7 +1120,8 @@ void SpectraWidget::spectraToClipboard() {
 
 }
 
-void SpectraWidget::spectraToClipboardTop() {
+void SpectraWidget::spectraToClipboardTop()
+{
     if(!_currentScan) return;
     vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05, 3.0,40);
 
@@ -1117,7 +1135,8 @@ void SpectraWidget::spectraToClipboardTop() {
     QApplication::clipboard()->setText(clipboardText.join("\n"));
 }
 
-void SpectraWidget::gotoScan() { 
+void SpectraWidget::gotoScan()
+{ 
         if (_currentScan == NULL or _currentScan->sample == NULL) return;
 		int curScanNum = _currentScan->scannum;
 		int maxScanNum = _currentScan->sample->scans.size()-1;
@@ -1132,8 +1151,8 @@ void SpectraWidget::gotoScan() {
 		}
 }
 
-vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode) {
-
+vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode)
+{
     vector<mzLink> links;
     //check for possible C13s
     /*
@@ -1204,8 +1223,8 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *
     return links;
 }
 
-
-void SpectraWidget::constructAverageScan(float rtmin, float rtmax) {
+void SpectraWidget::constructAverageScan(float rtmin, float rtmax)
+{
     if (_avgScan != NULL) delete(_avgScan);
     _avgScan=NULL;
 
@@ -1217,8 +1236,8 @@ void SpectraWidget::constructAverageScan(float rtmin, float rtmax) {
     }
 }
 
-
-void SpectraWidget::findSimilarScans() {
+void SpectraWidget::findSimilarScans()
+{
     if(!_currentScan) return;
     vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05, 1.0,40);
 
@@ -1233,15 +1252,11 @@ void SpectraWidget::findSimilarScans() {
     mainwindow->spectraMatchingForm->fragmentsText->setPlainText(clipboardText.join("\n"));
     mainwindow->spectraMatchingForm->precursorMz->setText(QString::number(_currentScan->precursorMz,'f',6));
     mainwindow->spectraMatchingForm->show();
-
 }
 
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging spectrawidget
-void SpectraWidget::copyImageToClipboard() {
-    QPixmap image(this->width(),this->height());
+void SpectraWidget::copyImageToClipboard()
+{
+    QPixmap image(this->width(), this->height());
     image.fill(Qt::white);
     QPainter painter;
     painter.begin(&image);
