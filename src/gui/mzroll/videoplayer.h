@@ -50,24 +50,24 @@ private slots:
     void linkClicked();
 
 private:
-    QLabel* m_title;
-    QLabel* m_message;
-    QLabel* m_extraText;
-    QMediaPlayer* m_mediaPlayer;
-    QAbstractButton *m_playButton;
-    QWidget* m_hboxWidget;
-    QWidget* m_vboxWidget;
-    QCheckBox* m_checkBox;
-    QPushButton* m_closeButton;
-    QVideoWidget* m_vidWidget;
-    QSlider *m_positionSlider;
-    UrlLabel* m_knowMoreLabel;
-    QLabel *m_errorLabel;
-    QSettings* m_settings;
-    MainWindow* m_mainWindow;
+    QLabel* _title;
+    QLabel* _message;
+    QLabel* _extraText;
+    QMediaPlayer* _mediaPlayer;
+    QAbstractButton *_playButton;
+    QWidget* _hboxWidget;
+    QWidget* _vboxWidget;
+    QCheckBox* _checkBox;
+    QPushButton* _closeButton;
+    QVideoWidget* _vidWidget;
+    QSlider *_positionSlider;
+    UrlLabel* _knowMoreLabel;
+    QLabel *_errorLabel;
+    QSettings* _settings;
+    MainWindow* _mainWindow;
 
-    int playedVideoOnce;
-    int linkClickedOnce;
+    int _playedVideoOnce;
+    int _linkClickedOnce;
 };
 
 #endif
