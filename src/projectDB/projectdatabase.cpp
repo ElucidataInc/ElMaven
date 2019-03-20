@@ -287,7 +287,8 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
                      , :group_overlap_frac      \
                      , :local_max_flag          \
                      , :from_blank_sample       \
-                     , :label                   )");
+                     , :label                   \
+                     , :peak_spline_area        )");
 
     for (Peak p : group->peaks) {
         peaksQuery->bind(":group_id", groupId);
@@ -304,6 +305,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
         peaksQuery->bind(":minscan", static_cast<int>(p.minscan));
         peaksQuery->bind(":maxscan", static_cast<int>(p.maxscan));
         peaksQuery->bind(":peak_area", p.peakArea);
+        peaksQuery->bind(":peak_spline_area", p.peakSplineArea);
         peaksQuery->bind(":peak_area_corrected", p.peakAreaCorrected);
         peaksQuery->bind(":peak_area_top", p.peakAreaTop);
         peaksQuery->bind(":peak_area_top_corrected", p.peakAreaTopCorrected);
@@ -985,6 +987,7 @@ void ProjectDatabase::loadGroupPeaks(PeakGroup* parentGroup,
         peak.maxscan =
             static_cast<unsigned int>(peaksQuery->integerValue("maxscan"));
         peak.peakArea = peaksQuery->floatValue("peak_area");
+        peak.peakSplineArea = peaksQuery->floatValue("peak_spline_area");
         peak.peakAreaCorrected = peaksQuery->floatValue("peak_area_corrected");
         peak.peakAreaTop = peaksQuery->floatValue("peak_area_top");
         peak.peakAreaTopCorrected =

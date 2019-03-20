@@ -43,6 +43,9 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_tic_matched REAL;"
         "ALTER TABLE peakgroups ADD COLUMN fragmentation_num_matches REAL;"
 
+        // changes to peaks table
+        "ALTER TABLE peaks ADD COLUMN peak_spline_area REAL;"
+
         // due to change in primary key, the entire table needs to be recreated
         "ALTER TABLE compounds RENAME TO compounds_old;"
         "CREATE TABLE compounds ( compound_id           TEXT                 "
