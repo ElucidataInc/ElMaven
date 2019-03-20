@@ -208,10 +208,10 @@ void Fragment::buildConsensus(float productPpmTolr)
 float Fragment::consensusRt()
 {
     if (brothers.size() == 0) 
-		return this->rt;
+		return rt;
 
     StatisticsVector<float> retentionTimes;
-    retentionTimes.push_back(this->rt);
+    retentionTimes.push_back(rt);
     
     for (auto brother : brothers)
         retentionTimes.push_back(brother->rt);
@@ -222,10 +222,10 @@ float Fragment::consensusRt()
 float Fragment::consensusPurity() 
 {
     if (brothers.size() == 0)
-        return this->purity;
+        return purity;
 
     StatisticsVector<float> purityVector;
-    purityVector.push_back(this->purity);
+    purityVector.push_back(purity);
 
     for (auto brother : brothers)
         purityVector.push_back(brother->purity);

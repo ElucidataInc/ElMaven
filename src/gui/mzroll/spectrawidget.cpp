@@ -420,7 +420,7 @@ void SpectraWidget::setScanTitle()
        _titleText += tr("<b>Prod m/z:</b> %1  ").arg(QString::number(_currentScan->productMz,'f',3));
     }
 
-    if (_currentScan->precursorMz > 0 && _currentScan->sample) {
+    if (_currentScan->precursorMz > 0) {
         //TODO: Use masscutoff set by user
 		double purity = _currentScan->getPrecursorPurity(10.0) * 100.0;
         _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity,
