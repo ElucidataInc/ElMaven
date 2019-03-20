@@ -412,7 +412,8 @@ void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
     item->setBackgroundColor(1,color);
 }
 
-void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color) {
+void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color)
+{
     if (!color.isValid()) return;
     if ( sample == NULL) return;
 
@@ -422,6 +423,22 @@ void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color) {
     sample->color[3] = color.alphaF();
 }
 
+QColor ProjectDockWidget::getSampleColor(mzSample* sample)
+{
+    if(!sample) return Qt::black;
+    return QColor::fromRgbF(sample->color[0],
+                            sample->color[1],
+                            sample->color[2],
+                            sample->color[3]);
+}
+
+QIcon ProjectDockWidget::getSampleIcon(mzSample* sample)
+{
+    QColor color = getSampleColor(sample);
+    QPixmap pixmap = QPixmap(20, 20);
+    pixmap.fill(color);
+    return QIcon(pixmap);
+}
 
 void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 

@@ -6,6 +6,7 @@
 #include <QStringList>
 
 class mzSample;
+class mzPoint;
 class ChargedSpecies;
 class MassCutoff;
 
@@ -165,8 +166,12 @@ class Scan
     */
     void quantileFilter(int minQuantile);
 
-    // TODO: from MAVEN (upstream). What for? Always returns 0.0  for now.
-    double getPrecursorPurity(float ppm);
+    /**
+     * @brief calculates purity of the spectra
+     * @details if the parent full scan has multiple readings within a precursor m/z window
+     * the fragmentation scan would be a mixture of fragments from all those species
+     */ 
+    double getPrecursorPurity(float ppm = 10.0);
 
     /**
     *@brief print the info present in a scan
@@ -186,6 +191,10 @@ class Scan
     int precursorCharge;
     string activationMethod;
     int precursorScanNum;
+    /**
+     * @brief precursor mass resolution for fragmentation event
+     */
+    float isolationWindow;
     float productMz;
     float collisionEnergy;
 
@@ -238,6 +247,16 @@ class Scan
     void findBrotherPeaks(ChargedSpecies *x, float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, int minDeconvolutionCharge, int maxDeconvolutionCharge, int minDeconvolutionMass, int maxDeconvolutionMass, int minChargedStates);
     bool setParentPeakData(float mzfocus, float noiseLevel, MassCutoff *massCutoffMerge, float minSigNoiseRatio);
     void findError(ChargedSpecies *x);
+    
+    /**
+     * @brief gets the previous MS1 scan till historySize
+     */ 
+    Scan* getLastFullScan(int historySize = 50);
+    
+    /**
+     * @brief gets the full-scan m/z-int readings that fall within the isolation window of the precursor
+     */
+    vector<mzPoint> getIsolatedRegion(float isolationWindowAmu = 1.0);
 
     vector<float> smoothenIntensitites();
     /**

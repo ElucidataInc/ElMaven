@@ -61,7 +61,7 @@ public Q_SLOTS:
 	void addBarPlot(PeakGroup*);
 	void addBoxPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
-    void addMS2Events(float mzmin, float mzmax); //TODO: Sahil Added while merging eicWidget
+    void addMS2Events(float mzmin, float mzmax);
 	void integrateRegion(float rtmin, float rtmax);
 	void recompute();
 	void replot(PeakGroup*);
@@ -75,7 +75,6 @@ public Q_SLOTS:
 	void updateNote(Note*);
 	void saveRetentionTime();
 	void setGalleryToEics();
-	// void align(); //TODO: Sahil Removed while merging the eicWidget
 
 	void selectGroupNearRt(float rt);
 	void eicToClipboard();
@@ -104,17 +103,17 @@ public Q_SLOTS:
 	void showNotes(bool f) {
 		_showNotes = f;
 	}
-    void showMergedEIC(bool f) { //TODO: Sahil Added while mergin eicWidget
+    void showMergedEIC(bool f) { 
 		_showMergedEIC=f;
 	}
-    void showEICLines(bool f) { //TODO: Sahil Added while mergin eicWidget
+    void showEICLines(bool f) { 
 		_showEICLines=f;
 	}
-    void automaticPeakGrouping(bool f) { //TODO: Sahil Added while mergin eicWidget
+    void automaticPeakGrouping(bool f) { 
 		_groupPeaks=f;
 	}
-    void showMS2Events(bool f) { //TODO: Sahil Added while mergin eicWidget
-		_showMS2Events=f;
+    void showMS2Events(bool f) {
+		_showMS2Events = f;
 	}
 
 	void startAreaIntegration() {
@@ -213,7 +212,7 @@ private:
     bool _showEICLines; //TODO: Sahil Added while mergin eicWidget
 	bool _autoZoom;
     bool _groupPeaks; //TODO: Sahil Added while mergin eicWidget
-    bool _showMS2Events; //TODO: Sahil Added while mergin eicWidget
+    bool _showMS2Events;
 
 	bool _areaIntegration;
 	bool _spectraAveraging;

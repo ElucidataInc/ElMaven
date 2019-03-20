@@ -36,7 +36,7 @@ public Q_SLOTS:
 	  void setInfo(vector<mzLink>&links);
 	  void setInfo(vector<mzSlice*>&slices);
 	  void setInfo(deque<Pathway*>&pathways);
-
+    void setupScanListHeader();
 	  void addScanItem(Scan* scan);
 	  void clearTree();
 	  void filterTree(QString needle);

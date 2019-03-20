@@ -314,6 +314,7 @@ using namespace mzUtils;
 	massCalcWidget = new MassCalcWidget(this);
 	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
 	fragPanel = new TreeDockWidget(this, "Fragmentation", 5);
+	fragPanel->setupScanListHeader();
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
@@ -2637,7 +2638,7 @@ void MainWindow::createMenus() {
     QAction* aj = widgetsMenu->addAction("MS2 Events");
     aj->setCheckable(true); 
 	aj->setChecked(false);
-    connect(aj,SIGNAL(toggled(bool)),fragPanel,SLOT(setVisible(bool)));
+    connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
 
     QAction* al = widgetsMenu->addAction("Peptide Fragmentation");
     al->setCheckable(true);  al->setChecked(false);
@@ -3004,6 +3005,7 @@ void MainWindow::createToolBars() {
     QToolButton* btnSamples = addDockWidgetButton(sideBar,projectDockWidget,QIcon(rsrcPath + "/samples.png"), "Show Samples Widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,ligandWidget,QIcon(rsrcPath + "/molecule.png"), "Show Compound Widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,spectraDockWidget,QIcon(rsrcPath + "/spectra.png"), "Show Spectra Widget (F4)");
+	QToolButton* btnFragEvents = addDockWidgetButton(sideBar, fragPanel, QIcon(rsrcPath + "/fragmentationEvents.png"), "Show MS2 events");
 
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
@@ -3057,6 +3059,7 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnSamples);
 	sideBar->addWidget(btnLigands);
     sideBar->addWidget(btnSpectra);
+	sideBar->addWidget(btnFragEvents);
     sideBar->addWidget(btnAlignment);
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
@@ -3413,7 +3416,7 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 	if (fragPanel->isVisible()) {
 		showFragmentationScans(_peak->peakMz);
 	}
-	//TODO: Sahil-Kiran, Added while merging mainwindow
+
     if (spectralHitsDockWidget->isVisible() && scan) {
         spectralHitsDockWidget->limitPrecursorMz(_peak->peakMz);
     }
@@ -3547,25 +3550,28 @@ void MainWindow::setClipboardToGroup(PeakGroup* group) {
 	clipboard->setText(groupTextExport(group));
 }
 
-void MainWindow::showFragmentationScans(float pmz) {
+void MainWindow::showFragmentationScans(float pmz)
+{
+    if (!fragPanel || fragPanel->isVisible() == false)
+        return;
+	
+    MassCutoff *massCutoff = getUserMassCutoff();
 
-	if (!fragPanel || fragPanel->isVisible() == false)
-		return;
-	MassCutoff *massCutoff = getUserMassCutoff();
-
-	if (samples.size() <= 0)
-		return;
-	fragPanel->clearTree();
-	for (unsigned int i = 0; i < samples.size(); i++) {
-		for (unsigned int j = 0; j < samples[i]->scans.size(); j++) {
-			if (samples[i]->scans[j]->mslevel > 1
-					&& massCutoffDist(samples[i]->scans[j]->precursorMz, pmz,massCutoff) < massCutoff->getMassCutoff()) {
-				fragPanel->addScanItem(samples[i]->scans[j]);
-			}
-		}
-	}
+    if (samples.size() <= 0)
+        return;
+    fragPanel->clearTree();
+    for (auto sample : samples) {
+        for (auto scan : sample->scans) {
+	        if (scan->mslevel < 2) continue;
+	        if (massCutoffDist(scan->precursorMz,
+                               pmz,
+                               massCutoff) > massCutoff->getMassCutoff()) {
+                continue;
+            }
+            fragPanel->addScanItem(scan);
+        }
+    }
 }
-
 
 void MainWindow::reorderSamples(PeakGroup* group) {
 	if (group)

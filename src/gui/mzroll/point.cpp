@@ -151,7 +151,7 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     if(_scan) {
         if (_mw->spectraWidget->isVisible())
             _mw->spectraWidget->setScan(_scan);
-            _mw->peptideFragmentation->setScan(_scan);
+            //_mw->peptideFragmentation->setScan(_scan);
             if(_scan->mslevel >= 2)  _mw->spectralHitsDockWidget->limitPrecursorMz(_scan->precursorMz);
 
     }
