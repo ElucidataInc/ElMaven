@@ -160,8 +160,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :meta_group_id                      \
                      , :tag_string                         \
                      , :expected_mz                        \
-                     , :expected_rt_diff                   \
                      , :expected_abundance                 \
+                     , :expected_rt_diff                   \
                      , :group_rank                         \
                      , :label                              \
                      , :type                               \
