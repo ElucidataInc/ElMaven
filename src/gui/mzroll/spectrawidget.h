@@ -60,7 +60,7 @@ public:
                     EICLogic* eicparameters;
                     MainWindow* mainwindow;
                     Scan* _currentScan;
-                    PeakGroup* _currentGroup;
+                    PeakGroup _currentGroup;
                     Scan* _avgScan;
                     vector<Scan*>_scanset;
 

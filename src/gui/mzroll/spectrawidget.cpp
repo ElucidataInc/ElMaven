@@ -5,7 +5,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
     eicparameters = new EICLogic();
    _currentScan = nullptr;
    _avgScan = nullptr;
-   _currentGroup = nullptr;
+   _currentGroup = PeakGroup();
    _spectralHit = SpectralHit();
 
     initPlot();
@@ -218,13 +218,14 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 
 void SpectraWidget::overlayPeakGroup(PeakGroup* group)
 {
-    _currentGroup = nullptr;
+    _currentGroup = PeakGroup();
     if (!group) return;
+    
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
     setScan(avgScan);
     if (group->compound) {
-        _currentGroup = group;
+        _currentGroup.copyObj(*group);
         overlayCompoundFragmentation(group->compound);
         //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
     }
@@ -438,32 +439,32 @@ void SpectraWidget::setScanTitle()
 void SpectraWidget::setGroupTitle()
 {
     _titleText = QString();
-    if (!_currentGroup) {
-        setTitle(_titleText);
-        return;
-    }
 
     QString compoundName("");
-    if (_currentGroup->compound) compoundName = QString(_currentGroup->compound->name.c_str());
+    if (_currentGroup.compound) compoundName = QString(_currentGroup.compound->name.c_str());
     
     float purity = 0;
-    if (_currentGroup->fragmentationPattern.mzValues.size()) {
-        purity = _currentGroup->fragmentationPattern.purity * 100;
+    if (_currentGroup.fragmentationPattern.mzValues.size()) {
+        purity = _currentGroup.fragmentationPattern.purity * 100;
     }
 
     float rt = 0;
-    if (_currentGroup->fragmentationPattern.mzValues.size()) {
+    if (_currentGroup.fragmentationPattern.mzValues.size()) {
         //mean RT of all MS2 events in this group
-        rt = _currentGroup->fragmentationPattern.rt;
+        rt = _currentGroup.fragmentationPattern.rt;
     }
     else {
         //mean RT of the precursor group
-        rt = _currentGroup->meanRt;
+        rt = _currentGroup.meanRt;
     }
+
+    float meanMz = 0.0f;
+    if (_currentGroup.meanMz)
+        meanMz = _currentGroup.meanMz;
     
     _titleText += tr("<b>Rt:</b> %1  ").arg(QString::number(rt, 'f', 2));
     
-    _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(_currentGroup->meanMz, 'f', 4));
+    _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(meanMz, 'f', 4));
     
     _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity, 'f', 2));
 
