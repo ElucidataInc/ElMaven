@@ -3,6 +3,10 @@ sudo: required
 matrix:
   include:
     - os: linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb http://archive.neon.kde.org/user/lts xenial/main amd64 Packages'
       dist: xenial
       language: cpp
       compiler: gcc-5
@@ -59,12 +63,13 @@ script:
       sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
       g++ -v;
       lcov -v;
-      echo no | ./run.sh
-      lcov -b src/core/libmaven/ --capture --directory ../build/tmp/maven/ --output-file lcov.info --no-external
-      lcov --summary lcov.info
+      qmake -v;
+      #echo no | ./run.sh
+      #lcov -b src/core/libmaven/ --capture --directory ../build/tmp/maven/ --output-file lcov.info --no-external
+      #lcov --summary lcov.info
     fi
 
 
 after_script:
-  - export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
-  - bash <(curl -s https://codecov.io/bash)
+  #- export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
+  #- bash <(curl -s https://codecov.io/bash)
