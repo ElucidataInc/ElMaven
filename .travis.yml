@@ -33,8 +33,9 @@ install:
     fi
 
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      sudo apt-get install -qq lcov;
       sudo apt-get update -qq;
-      sudo apt-get install -y -qq qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libqt5opengl5 libsqlite3-dev libboost-all-dev libnetcdf-dev lcov;
+      sudo apt-get install -y -qq --allow-unauthenticated qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libqt5opengl5 libsqlite3-dev libboost-all-dev libnetcdf-dev;
       eval "${MATRIX_EVAL}";
     fi
 
