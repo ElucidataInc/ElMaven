@@ -7,17 +7,17 @@ groupClassifier::groupClassifier() {
 	hidden_layer = 4;
 	num_outputs = 1;
 	trainingSize = 0;
-	network = NULL;
+        network = nullptr;
 }
 
 groupClassifier::~groupClassifier() {
 	if (network)
 		delete (network);
-	network = NULL;
+        network = nullptr;
 }
 
 bool groupClassifier::hasModel() {
-	return network != NULL;
+        return network != nullptr;
 }
 
 void groupClassifier::loadModel(string filename) {
@@ -25,7 +25,7 @@ void groupClassifier::loadModel(string filename) {
 		cerr << "Can't load " << filename << endl;
 		return;
 	}
-	if (network != NULL)
+        if (network != nullptr)
 		delete (network);
 	network = new nnwork(num_features, hidden_layer, num_outputs);
 	network->load((char*) filename.c_str());
@@ -33,7 +33,7 @@ void groupClassifier::loadModel(string filename) {
 }
 
 void groupClassifier::classify(PeakGroup* grp) {
-	if (network == NULL)
+        if (network == nullptr)
 		return;
 	
 	grp->groupQuality=scoreGroup(grp);
@@ -41,7 +41,7 @@ void groupClassifier::classify(PeakGroup* grp) {
 
 float groupClassifier::scoreGroup(PeakGroup* grp) {
     float result[1] = {0.1};
-    if(network != NULL) {
+    if(network != nullptr) {
         float fts[num_features];
         vector<float> features = getFeatures(grp);
         for(int k=0;k<num_features;k++)
