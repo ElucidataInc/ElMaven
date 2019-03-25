@@ -496,10 +496,15 @@ void mzSample::parseMzMLSpectrumList(const xml_node &spectrumList)
 		if (string2float(precursorMzStr) > 0)
 			precursorMz = string2float(precursorMzStr);
 
-		string precursorIsolationStr = isolationWindow["isolation window lower offset"];
-		float precursorIsolationWindow = 1.0f;
-		if (string2float(precursorIsolationStr) > 0)
-			precursorIsolationWindow = string2float(precursorIsolationStr);
+        string precursorIsolationStrLower = isolationWindow["isolation window lower offset"];
+        string precursorIsolationStrUpper = isolationWindow["isolation window upper offset"];
+		
+		float precursorIsolationWindow = 0.0f;
+		if (string2float(precursorIsolationStrLower) > 0.0f)
+			precursorIsolationWindow += string2float(precursorIsolationStrLower);
+        if (string2float(precursorIsolationStrUpper) > 0.0f)
+            precursorIsolationWindow += string2float(precursorIsolationStrUpper);
+        if (precursorIsolationWindow <= 0.0f) precursorIsolationWindow = 1.0f;
 
 		string productMzStr = spectrum.first_element_by_path("product/isolationWindow/cvParam").attribute("value").value();
 		float productMz = 0;
@@ -911,7 +916,7 @@ void mzSample::populateFilterline(const string& filterLine, Scan *_scan)
 void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 {
 
-    float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;
+    float rt = 0.0, precursorMz = 0.0f, productMz = 0, collisionEnergy = 0;
 	int scanpolarity = 0, msLevel = 1;
 	string filterLine, scanType;
 	vector<float> mzint;
@@ -964,18 +969,30 @@ void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 		scanpolarity = getPolarityFromfilterLine(filterLine);
 	}
 
-	//TODO: What is this for this is zero
-	precursorMz = string2float(string(scan.child_value("precursorMz")));
-
-	// string b64String; naman Unused variable: b64String
-
-	//no m/z intensity values
-	mzint = parsePeaksFromMzXML(scan);
+    //no m/z intensity values
+    mzint = parsePeaksFromMzXML(scan);
     if (mzint.empty()) {
         return;
     }
 
-	Scan *_scan = new Scan(this, scannum, msLevel, rt, precursorMz, scanpolarity);
+    Scan *_scan = new Scan(this, scannum, msLevel, rt, precursorMz, scanpolarity);
+
+    xml_node precursor = scan.child("precursorMz");
+    if (precursor) {
+        _scan->precursorMz = string2float(scan.child_value("precursorMz"));
+        _scan->isolationWindow = 1.0f;
+
+        for (xml_attribute attr = precursor.first_attribute(); attr; attr = attr.next_attribute()) {
+            if (strncasecmp(attr.name(), "precursorIntensity", 15) == 0)
+                _scan->precursorIntensity = string2float(attr.value());
+            else if (strncasecmp(attr.name(), "precursorCharge", 15) == 0)
+                _scan->precursorCharge = string2integer(attr.value());
+            else if (strncasecmp(attr.name(), "precursorScanNum", 15) == 0)
+                _scan->precursorScanNum = string2integer(attr.value());
+            else if (strncasecmp(attr.name(), "windowWideness", 13) == 0)
+                _scan->isolationWindow = string2float(attr.value());
+         }
+    }
 
 	if (!scanType.empty())
 		_scan->scanType = scanType;

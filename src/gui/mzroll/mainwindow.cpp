@@ -314,7 +314,7 @@ using namespace mzUtils;
 
 	massCalcWidget = new MassCalcWidget(this);
 	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
-	fragPanel = new TreeDockWidget(this, "Fragmentation", 5);
+	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
 	fragPanel->setupScanListHeader();
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
@@ -3265,6 +3265,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 	}
 
     if ( group->compound != NULL) {
+		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
 		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->overlayPeakGroup(group);
 		}

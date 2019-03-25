@@ -25,11 +25,12 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
         //mouse press events
          connect(this, SIGNAL(peakSelected(Peak*)), mw, SLOT(showPeakInfo(Peak*)));
          connect(this, SIGNAL(peakSelected(Peak*)), mw->getEicWidget(), SLOT(showPeakArea(Peak*)));
+         connect(this, SIGNAL(peakSelected(Peak*)), mw->spectraWidget, SLOT(setScan(Peak*)));
+         connect(this, SIGNAL(peakGroupSelected(PeakGroup*)), mw->fragSpectraWidget, SLOT(overlayPeakGroup(PeakGroup*)));
 
          //mouse hover events
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
-         connect(this, SIGNAL(peakGroupSelected(PeakGroup*)), mw->fragSpectraWidget, SLOT(overlayPeakGroup(PeakGroup*)));
     }
 }
 
@@ -148,6 +149,10 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     if(_scan) {
+        if (_mw->spectraDockWidget) {
+            _mw->spectraDockWidget->setVisible(true);
+            _mw->spectraDockWidget->raise();
+        }
         if (_mw->spectraWidget->isVisible())
             _mw->spectraWidget->setScan(_scan);
             //_mw->peptideFragmentation->setScan(_scan);

@@ -60,6 +60,7 @@ public:
                     EICLogic* eicparameters;
                     MainWindow* mainwindow;
                     Scan* _currentScan;
+                    PeakGroup* _currentGroup;
                     Scan* _avgScan;
                     vector<Scan*>_scanset;
 
@@ -111,7 +112,8 @@ public:
                     void setDrawXAxis(bool flag) { _drawXAxis = flag; }
                     void setDrawYAxis(bool flag) { _drawYAxis = flag; }
                     void addLabel(QString text, float x, float y);
-                    void setTitle();
+                    void setScanTitle();
+                    void setGroupTitle();
                     void setTitle(QString);
                     void compareScans(Scan*, Scan*);
                     void annotateScan();
