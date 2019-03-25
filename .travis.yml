@@ -6,7 +6,7 @@ matrix:
       addons:
         apt:
           sources:
-            - sourceline: 'deb http://archive.neon.kde.org/user/lts xenial/main amd64 Packages'
+            - sourceline: 'deb http://archive.neon.kde.org/user/lts/ xenial main binary-amd64'
       dist: xenial
       language: cpp
       compiler: gcc-5
