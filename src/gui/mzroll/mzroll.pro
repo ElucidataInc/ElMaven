@@ -37,7 +37,7 @@ QT += sql network xml printsupport
 
 linux {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
-    QMAKE_LFLAGS += -L$$top_builddir/libs/
+    QMAKE_LFLAGS += -L$$top_builddir/libs/ -L/usr/lib/x86_64-linux-gnu/
     LIBS += -lgoogle-breakpad -pthread
 }
 

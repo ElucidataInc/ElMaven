@@ -23,6 +23,10 @@ macx {
 	LIBS -= -lnetcdf -lcdfread
 }
 
+linux {
+    QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+}
+
 SOURCES	= 	PeakDetectorCLI.cpp  \
 		 	options.cpp \
 			$$top_srcdir/src/core/libmaven/classifier.cpp \

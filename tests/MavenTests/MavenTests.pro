@@ -31,6 +31,9 @@ macx {
 LIBS -= -lnetcdf -lcdfread
 }
 
+linux {
+    QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/
+}
 
 # Input
 HEADERS += \
