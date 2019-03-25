@@ -189,7 +189,6 @@ class Scan
     float precursorMz;
     float precursorIntensity;
     int precursorCharge;
-    string activationMethod;
     int precursorScanNum;
     /**
      * @brief precursor mass resolution for fragmentation event

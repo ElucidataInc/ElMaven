@@ -281,9 +281,9 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
         repaint();
 
         if (!_currentScan) return;
-        MassCutoff* productMassCutOff = new MassCutoff();
-        productMassCutOff->setMassCutoffAndType(hit.productPPM, "ppm");
-        int pos = _currentScan->findHighestIntensityPos(hit.precursorMz, productMassCutOff);
+        MassCutoff* productMassCutoff = new MassCutoff();
+        productMassCutoff->setMassCutoffAndType(hit.productPPM, "ppm");
+        int pos = _currentScan->findHighestIntensityPos(hit.precursorMz, productMassCutoff);
         if(pos >= 0) {
             _focusCoord.setX(hit.precursorMz);
             _focusCoord.setY(_currentScan->intensity[pos]);
@@ -642,7 +642,7 @@ void SpectraWidget::drawGraph()
 
     if (_spectralHit.mzList.size() > 0) {
         setGroupTitle();
-        if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.5)
+        if (mzUtils::almostEqual(_spectralHit.precursorMz, _currentScan->precursorMz))
             drawSpectralHit(_spectralHit);
         else {
             //TODO: either remove the check or inform user on the UI in case of failure

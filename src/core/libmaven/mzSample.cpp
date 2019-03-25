@@ -916,7 +916,7 @@ void mzSample::populateFilterline(const string& filterLine, Scan *_scan)
 void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 {
 
-    float rt = 0.0, precursorMz = 0.0, productMz = 0, collisionEnergy = 0;
+    float rt = 0.0, precursorMz = 0.0f, productMz = 0, collisionEnergy = 0;
 	int scanpolarity = 0, msLevel = 1;
 	string filterLine, scanType;
 	vector<float> mzint;
@@ -969,9 +969,17 @@ void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
 		scanpolarity = getPolarityFromfilterLine(filterLine);
 	}
 
-    xml_node precursor = mzxml_scan_node.child("precursorMz");
+    //no m/z intensity values
+    mzint = parsePeaksFromMzXML(scan);
+    if (mzint.empty()) {
+        return;
+    }
+
+    Scan *_scan = new Scan(this, scannum, msLevel, rt, precursorMz, scanpolarity);
+
+    xml_node precursor = scan.child("precursorMz");
     if (precursor) {
-        _scan->precursorMz = string2float(mzxml_scan_node.child_value("precursorMz"));
+        _scan->precursorMz = string2float(scan.child_value("precursorMz"));
         _scan->isolationWindow = 1.0f;
 
         for (xml_attribute attr = precursor.first_attribute(); attr; attr = attr.next_attribute()) {
@@ -979,22 +987,12 @@ void mzSample::parseMzXMLScan(const xml_node &scan, const int& scannum)
                 _scan->precursorIntensity = string2float(attr.value());
             else if (strncasecmp(attr.name(), "precursorCharge", 15) == 0)
                 _scan->precursorCharge = string2integer(attr.value());
-            else if (strncasecmp(attr.name(), "activationMethod", 15) == 0)
-                _scan->activationMethod = string(attr.value());
             else if (strncasecmp(attr.name(), "precursorScanNum", 15) == 0)
                 _scan->precursorScanNum = string2integer(attr.value());
             else if (strncasecmp(attr.name(), "windowWideness", 13) == 0)
                 _scan->isolationWindow = string2float(attr.value());
          }
     }
-
-	//no m/z intensity values
-	mzint = parsePeaksFromMzXML(scan);
-    if (mzint.empty()) {
-        return;
-    }
-
-	Scan *_scan = new Scan(this, scannum, msLevel, rt, precursorMz, scanpolarity);
 
 	if (!scanType.empty())
 		_scan->scanType = scanType;
