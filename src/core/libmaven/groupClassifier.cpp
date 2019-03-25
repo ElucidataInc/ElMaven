@@ -28,7 +28,7 @@ void groupClassifier::loadModel(string filename) {
         if (network != nullptr)
 		delete (network);
 	network = new nnwork(num_features, hidden_layer, num_outputs);
-	network->load((char*) filename.c_str());
+        network->load(const_cast<char*>(filename.c_str()));
 	cout << "Read in classification model " << filename << endl;
 }
 
