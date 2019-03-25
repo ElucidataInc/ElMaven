@@ -16,11 +16,8 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
                                                 + QDir::separator()
                                                 + "tmp_Elmaven_s3_files_"
                                                 + QString::number(mw->lastPeakTableId);
-  QDir qdir(writableTempS3Dir);
-  if (!qdir.exists()){
-      QDir().mkdir(writableTempS3Dir);
-      QDir qdir(writableTempS3Dir);
-  }
+  if (!QDir(writableTempS3Dir).exists())
+    QDir().mkdir(writableTempS3Dir);
 
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
