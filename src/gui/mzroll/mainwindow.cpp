@@ -222,10 +222,10 @@ using namespace mzUtils;
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
 	groupClsf = new groupClassifier();
- 	groupClsf->loadModel("bin/group.weights");
+        groupClsf->loadModel("bin/weights/group.weights");
  
   	groupPred = new svmPredictor();
- 	groupPred->loadModel("bin/svm.model");
+        groupPred->loadModel("bin/weights/svm.model");
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
