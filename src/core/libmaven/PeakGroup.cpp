@@ -438,20 +438,17 @@ void PeakGroup::updateQuality() {
     float highestIntensity=0;
 
     float peakQualitySum=0;
-    for(unsigned int i=0; i < peaks.size(); i++) {
-        if(peaks[i].quality > maxQuality) maxQuality = peaks[i].quality;
-        if(peaks[i].quality > minQuality) goodPeakCount++; //Sabu
-        if(peaks[i].peakIntensity > highestIntensity) highestIntensity = peaks[i].peakIntensity;
-        peakQualitySum += peaks[i].quality;
-    }
-     avgPeakQuality = peakQualitySum / peaks.size();
- 
     float weightedSum=0;
     float sumWeights=0;
-    for (unsigned int i=0; i < peaks.size(); i++) {
-        weightedSum += peaks[i].quality * peaks[i].peakIntensity;
-        sumWeights += peaks[i].peakIntensity;
+    for(const auto peak : peaks) {
+        if(peak.quality > maxQuality) maxQuality = peak.quality;
+        if(peak.quality > minQuality) goodPeakCount++; //Sabu
+        if(peak.peakIntensity > highestIntensity) highestIntensity = peak.peakIntensity;
+        peakQualitySum += peak.quality;
+        weightedSum += peak.quality * peak.peakIntensity;
+        sumWeights += peak.peakIntensity;
     }
+    avgPeakQuality = peakQualitySum / peaks.size();
     weightedAvgPeakQuality = weightedSum / sumWeights;
 }
 
@@ -576,13 +573,6 @@ void PeakGroup::groupStatistics() {
     }
     avgPeakQuality = peakQualitySum / peaks.size();
 
-    float weightedSum=0;
-    float sumWeights=0;
-    for (unsigned int i=0; i < peaks.size(); i++) {
-        weightedSum += peaks[i].quality * peaks[i].peakIntensity / highestIntensity;
-        sumWeights += peaks[i].peakIntensity / highestIntensity;
-    }
-    weightedAvgPeakQuality = weightedSum / sumWeights;
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {
         meanRt = rtSum/nonZeroCount;
