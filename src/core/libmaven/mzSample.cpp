@@ -10,7 +10,8 @@ int mzSample::filter_polarity = 0;
 int mzSample::filter_mslevel = 0;
 
 mzSample::mzSample()
-	: _setName(""), injectionOrder(0)
+    : _setName(""),
+      injectionOrder(0)
 {
     _id = -1;
     _numMS1Scans = 0;

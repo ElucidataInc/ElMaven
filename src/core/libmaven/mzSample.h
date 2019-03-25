@@ -217,6 +217,7 @@ class mzSample
     * @brief Load sample (supported formats: .mzxml, .mzml, .mzdata, .mzcsv and .cdf)
     * @param filename Sample file name
     */
+
     void loadSample(const char *filename);
 
     /**

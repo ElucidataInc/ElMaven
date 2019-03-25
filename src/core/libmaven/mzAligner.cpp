@@ -452,26 +452,31 @@ bool Aligner::alignSampleRts(mzSample* sample,
                              bool setAsReference,
                              const MavenParameters* mp)
 {
-    vector<float> rtPoints(sample->scans.size());
-    vector<vector<float> > mxn(sample->scans.size());
-    for (int j = 0; j < sample->scans.size(); ++j) {
-        if (mp->stop) return (true);
-        rtPoints[j] = sample->scans[j]->originalRt;
-        mxn[j] = vector<float> (mzPoints.size());
-    }
+    vector<float> rtPoints;
+    vector<vector<float> > mxn;
 
-    for (int j = 0 ; j < sample->scans.size(); ++j) {
-        for (int k = 0; k < sample->scans[j]->mz.size(); ++k) {
-            if (mp->stop) return (true);
-            if (sample->scans[j]->mz[k] < mzPoints.front()
-                || sample->scans[j]->mz[k] > mzPoints.back())
-                continue;
-            int index = upper_bound(mzPoints.begin(), mzPoints.end(), sample->scans[j]->mz[k])
-                            - mzPoints.begin() -1;
-
-            mxn[j][index] = max(mxn[j][index], sample->scans[j]->intensity[k]);
+    int mxnCount = 0;
+    for(auto scan: sample->scans) {
+        if(mp->stop) return (true);
+        if(scan->mslevel == 1 ) {
+            rtPoints.push_back(scan->originalRt);
+            mxn.push_back(vector<float> (mzPoints.size()));
         }
     }
+
+    for(auto scan: sample->scans) {
+        if(scan->mslevel == 1) {
+            mxnCount++;
+            for(int i = 0; i <  scan->mz.size(); i++) {
+                if (mp->stop) return (true);
+                if (scan->mz[i] < mzPoints.front() || scan->mz[i] > mzPoints.back())
+                    continue;
+                int index = upper_bound(mzPoints.begin(), mzPoints.end(), scan->mz[i]) - mzPoints.begin() -1;
+                mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity[i]);
+            }
+        }
+    }
+
     
     if (setAsReference) {
         if (mp->stop) return (true);
@@ -482,7 +487,8 @@ bool Aligner::alignSampleRts(mzSample* sample,
         if (rtPoints.empty()) return(true);
         for(int j = 0; j < sample->scans.size(); ++j) {
             if (mp->stop) return (true);
-            sample->scans[j]->rt = rtPoints[j];
+            if(sample->scans[j]->mslevel == 1)
+                sample->scans[j]->rt = rtPoints[j];
         }
     }
     return (false);
@@ -514,10 +520,14 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     float binSize = obiParams->binSize;
     float minMzRange = 1e9;
     float maxMzRange = 0;
-    for (int j = 0; j < refSample->scans.size(); ++j) {
-        for (int k = 0; k < refSample->scans[j]->mz.size(); ++k) {
-            minMzRange = min(minMzRange, refSample->scans[j]->mz[k]);
-            maxMzRange = max(maxMzRange, refSample->scans[j]->mz[k]);
+
+    for(const auto scan: refSample->scans) {
+        // PRM/DDA data have both mslevel 1 and mslevel 2 scans. We only want to align mslevel 1 scans
+        if(scan->mslevel == 1) {
+            for(const auto mz: scan->mz) {
+                minMzRange = min(minMzRange, mz);
+                maxMzRange = max(maxMzRange, mz);
+            }
         }
     }
 

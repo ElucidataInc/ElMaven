@@ -201,17 +201,17 @@ void AlignmentDialog::algoChanged()
     refSampleLabel->setVisible(obiWarp);
 
     auto samples = _mw->getSamples();
-    auto ms2SamplesDetected = false;
+    auto mrmData = false;
     for (const auto sample : samples) {
-        if (sample->ms2ScanCount() > 0) {
-            showInfo("Obi-warp does not work with MS2 scans at the moment.\nWe "
-                     "will inform you once this functionality has been added.");
-            ms2SamplesDetected = true;
+        if(sample->ms1ScanCount() == 0 && sample->ms2ScanCount()) {
+            showInfo("No MS1 scans found. Obi-warp works only with MS1 scans.\nWe "
+                     "will inform you once the support for MS2 scans has been added.");
+            mrmData = true;
             alignButton->setDisabled(true);
             break;
         }
     }
-    if (!ms2SamplesDetected || !obiWarp) {
+    if (!mrmData || !obiWarp) {
         alignButton->setDisabled(false);
         setProgressBar("Status", 0, 1);
     }
