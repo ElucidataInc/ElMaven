@@ -1346,7 +1346,7 @@ void EicWidget::resetZoom() {
 
 	eicParameters->_slice.rtmin = bounds.rtmin;
 	eicParameters->_slice.rtmax = bounds.rtmax;
-	//qDebug() << "EicWidget::resetZoom() " << _slice.rtmin << " " << _slice.rtmax << endl;
+
 	replot(NULL);
 }
 
@@ -1385,7 +1385,7 @@ void EicWidget::setSrmId(string srmId) {
 	replot();
 }
 
-void EicWidget::setCompound(Compound* c)
+void EicWidget::setCompound(Compound* c, bool replotEic)
 {
 	//qDebug << "EicWidget::setCompound()";
 	//benchmark
@@ -1434,7 +1434,7 @@ void EicWidget::setCompound(Compound* c)
 	slice.compound = c;
 	if (!c->srmId.empty())
 		slice.srmId = c->srmId;
-	setMzSlice(slice);
+	setMzSlice(slice, replotEic);
 
 	//clock_gettime(CLOCK_REALTIME, &tE);
 	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
@@ -1449,14 +1449,17 @@ void EicWidget::setCompound(Compound* c)
 		//remove previous focusline
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
+
 		getMainWindow()->mavenParameters->setPeakGroup(NULL);
-		resetZoom();
+
+		if (replotEic)
+			resetZoom();
 	}
 	//clock_gettime(CLOCK_REALTIME, &tE);
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 }
 
-void EicWidget::setMzSlice(const mzSlice& slice) {
+void EicWidget::setMzSlice(const mzSlice& slice, bool replotEic) {
 	//qDebug << "EicWidget::setmzSlice()";
 	if (slice.mzmin != eicParameters->_slice.mzmin
 			|| slice.mzmax != eicParameters->_slice.mzmax
@@ -1482,7 +1485,9 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 	} else {
 		eicParameters->_slice = slice;
 	}
-	replot(NULL);
+
+	if (replotEic)
+		replot(NULL);
 }
 
 void EicWidget::setPeakGroup(PeakGroup* group) {
@@ -1502,7 +1507,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	if (!group->srmId.empty()) {
 		setSrmId(group->srmId);
 	} else if (group->compound) {
-		setCompound(group->compound);
+		setCompound(group->compound, false);
 	}
 
 	if (_autoZoom && group->parent != NULL) {

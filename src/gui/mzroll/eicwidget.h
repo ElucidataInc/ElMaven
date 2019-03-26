@@ -38,19 +38,24 @@ public Q_SLOTS:
 	void setMassCutoff(MassCutoff *massCutoff);
 	void resetZoom();
 	void zoom(float factor);
-	void setMzSlice(const mzSlice& slice);
+	void setMzSlice(const mzSlice& slice, bool replotEic=true);
 
 	void setRtWindow(float rtmin, float rtmax);
 	void setSrmId(string srmId);
 	void setPeakGroup(PeakGroup* group);
+
 	/**
-	 * @brief updates EIC widget for the selected compound
-	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
-	 * @param selected compound object
+	 * @brief Updates EIC widget for the selected compound.
+	 * @details Sets appropriate slice in the EIC widget and focusLine for
+	 * expected retention time, if the `replot` flag is true.
+	 * @param c Selected compound object
+	 * @param replot A boolean flag to indicate whether EIC should be
+	 * replotted to show the slice for given compound.
 	 **/
-	void setCompound(Compound* c);
-        void setSelectedGroup(PeakGroup* group);
-        PeakGroup* getSelectedGroup();
+	void setCompound(Compound* c, bool replotEic=true);
+
+	void setSelectedGroup(PeakGroup* group);
+	PeakGroup* getSelectedGroup();
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
