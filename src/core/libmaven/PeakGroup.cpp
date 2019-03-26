@@ -435,7 +435,6 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
 void PeakGroup::updateQuality() {
     maxQuality=0;
     goodPeakCount=0;
-    float highestIntensity=0;
 
     float peakQualitySum=0;
     float weightedSum=0;
@@ -443,7 +442,6 @@ void PeakGroup::updateQuality() {
     for(const auto peak : peaks) {
         if(peak.quality > maxQuality) maxQuality = peak.quality;
         if(peak.quality > minQuality) goodPeakCount++; //Sabu
-        if(peak.peakIntensity > highestIntensity) highestIntensity = peak.peakIntensity;
         peakQualitySum += peak.quality;
         weightedSum += peak.quality * peak.peakIntensity;
         sumWeights += peak.peakIntensity;
