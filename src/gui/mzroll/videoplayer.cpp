@@ -25,6 +25,7 @@ VideoPlayer::VideoPlayer(QSettings *settings,MainWindow* mw, QWidget* parent)
     , _settings(settings)
     , _mainWindow(mw)
 {
+    setWindowModality(Qt::WindowModal);
     QRect availableGeometry = QApplication::desktop()->availableGeometry();
     resize(availableGeometry.width()/1.7, availableGeometry.height()/1.3);
     setWindowTitle("New Machine learning Algorithm");
