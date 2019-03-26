@@ -94,6 +94,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
                             << "compound"
                             << "compoundId"
                             << "formula"
+                            << "note"
                             << "expectedRtDiff"
                             << "ppmDiff"
                             << "parent";
@@ -115,36 +116,60 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
         QString header = groupReportcolnames.join(SEP.c_str());
         groupReport << header.toStdString();
         for (unsigned int i = 0; i < samples.size(); i++) {
-            groupReport << SEP << sanitizeString(samples[i]->sampleName.c_str()).toStdString();
+            string name = samples[i]->getSampleName();
+            groupReport << SEP
+                        << sanitizeString(name.c_str()).toStdString();
         }
         groupReport << endl;
 
-        //TODO: Remove this to remove row in csv reports --@Giridhari
-        if (includeSetNamesLine){
-             for(unsigned int i = 0; i < cohort_offset; i++) { groupReport << SEP; }
-             for(unsigned int i = 0; i < samples.size(); i++) { groupReport << SEP << sanitizeString(samples[i]->getSetName().c_str()).toStdString(); }
-             groupReport << endl;
-         }
+        if (includeSetNamesLine) {
+            for(unsigned int i = 0; i < cohort_offset; i++)
+                groupReport << SEP;
+
+            for(unsigned int i = 0; i < samples.size(); i++) {
+                string name = samples[i]->getSetName();
+                groupReport << SEP
+                            << sanitizeString(name.c_str()).toStdString();
+            }
+            groupReport << endl;
+        }
     }
     else {
         errorReport = "Unable to write to file \""
-                      + QString::fromStdString(outputfile)
-                      + "\"\n";
-        errorReport += "Please check if you have permission to write to the "
-                       "specified location or the file is not in use";
+            + QString::fromStdString(outputfile)
+            + "\"\n"
+            + "Please check if you have permission to write to the specified "
+            + "location or the file is not in use";
     }
 }
 
-void CSVReports::insertPeakReportColumnNamesintoCSVFile(){
-
+void CSVReports::insertPeakReportColumnNamesintoCSVFile()
+{
     if (peakReport.is_open()) {
         QStringList peakReportcolnames;
-        peakReportcolnames << "groupId" << "compound" << "compoundId" << "formula" << "sample" << "peakMz"
-                << "medianMz" << "baseMz" << "rt" << "rtmin" << "rtmax" << "quality"
-                << "peakIntensity" << "peakArea" << "peakSplineArea" << "peakAreaTop"
-                << "peakAreaCorrected" << "peakAreaTopCorrected"
-                << "noNoiseObs" << "signalBaseLineRatio"
-                << "fromBlankSample";
+        peakReportcolnames << "groupId"
+                           << "compound"
+                           << "compoundId"
+                           << "formula"
+                           << "note"
+                           << "sample"
+                           << "peakMz"
+                           << "medianMz"
+                           << "baseMz"
+                           << "rt"
+                           << "rtmin"
+                           << "rtmax"
+                           << "quality"
+                           << "peakIntensity"
+                           << "peakArea"
+                           << "peakSplineArea"
+                           << "peakAreaTop"
+                           << "peakAreaCorrected"
+                           << "peakAreaTopCorrected"
+                           << "noNoiseObs"
+                           << "signalBaseLineRatio"
+                           << "fromBlankSample";
+
         QString header = peakReportcolnames.join(SEP.c_str());
         peakReport << header.toStdString() << endl;
     }
@@ -277,15 +302,16 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    string compoundNote = "";
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
-
 
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        compoundNote = sanitizeString(group->compound->note.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
             if (group->parent != NULL) {
@@ -318,6 +344,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     groupReport << SEP << compoundName
                 << SEP << compoundID
                 << SEP << formula
+                << SEP << compoundNote
                 << SEP << setprecision(3) << expectedRtDiff
                 << SEP << setprecision(6) << ppmDist;
 
@@ -371,10 +398,12 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    string compoundNote = "";
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
+        compoundNote = sanitizeString(group->compound->note.c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
@@ -411,6 +440,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
+                   << SEP << compoundNote
                    << SEP << sampleName
                    << SEP << peak.peakMz
                    << SEP << peak.medianMz

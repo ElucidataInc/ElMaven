@@ -128,6 +128,7 @@
                                           , fragment_mzs          TEXT               \
                                           , fragment_intensity    TEXT               \
                                           , fragment_ion_types    TEXT               \
+                                          , note                  TEXT               \
                                           , PRIMARY KEY (compound_id, name, db_name) );"
 
 #define CREATE_ALIGNMENT_TABLE \

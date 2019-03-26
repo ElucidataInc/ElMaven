@@ -389,7 +389,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :category              \
                       , :fragment_mzs          \
                       , :fragment_intensity    \
-                      , :fragment_ion_types    )");
+                      , :fragment_ion_types    \
+                      , :note                  )");
 
     _connection->begin();
 
@@ -450,6 +451,7 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":fragment_intensity", fragIntensity.str());
         compoundsQuery->bind(":fragment_ion_types", fragIonType.str());
 
+        compoundsQuery->bind(":note", c->note);
         if (!compoundsQuery->execute())
             cerr << "Error: failed to save compound " << c->name << endl;
     }
@@ -1106,6 +1108,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         compound->smileString = compoundsQuery->stringValue("smile_string");
         compound->logP = compoundsQuery->floatValue("log_p");
         compound->ionizationMode = compoundsQuery->floatValue("ionization_mode");
+        compound->note = compoundsQuery->stringValue("note");
 
         // mark compound as decoy if names contains DECOY string
         if (compound->name.find("DECOY") != string::npos)

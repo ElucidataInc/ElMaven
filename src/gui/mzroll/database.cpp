@@ -639,8 +639,8 @@ int Database::loadCompoundCSVFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"mz", "rt", "expectedrt", "charge", "formula", "id", "name", 
-    "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity"};
+    static const string allHeadersarr[] = {"mz", "rt", "expectedrt", "charge", "formula", "id", "name",
+        "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity", "note"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -685,6 +685,7 @@ int Database::loadCompoundCSVFile(string filename){
         }
 
         string id, name, formula;
+        string note;
         float rt=0;
         float mz=0;
         float charge=0;
@@ -711,6 +712,9 @@ int Database::loadCompoundCSVFile(string filename){
         if ( header.count("Q1") && header["Q1"]<N) precursormz=string2float(fields[ header["Q1"]]);
         if ( header.count("Q3") && header["Q3"]<N)  productmz = string2float(fields[header["Q3"]]);
         if ( header.count("CE") && header["CE"]<N) collisionenergy=string2float(fields[ header["CE"]]);
+
+        if (header.count("note") && header["note"] < N)
+            note = fields[header["note"]];
 
         //cerr << lineCount << " " << endl;
         //for(int i=0; i<headers.size(); i++) cerr << headers[i] << ", ";
@@ -747,14 +751,12 @@ int Database::loadCompoundCSVFile(string filename){
 
             if (mz == 0) mz = MassCalculator::computeMass(formula,charge);
             compound->mass = mz;
-
-
-
             compound->db = dbname;
             compound->expectedRt=rt;
             compound->precursorMz=precursormz;
             compound->productMz=productmz;
             compound->collisionEnergy=collisionenergy;
+            compound->note = note;
             for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
             if (addCompound(compound))
                 loadCount++;

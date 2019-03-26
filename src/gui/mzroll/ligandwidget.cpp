@@ -19,9 +19,12 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   treeWidget->setHeaderHidden(false);
   treeWidget->setObjectName("CompoundTable");
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
+  treeWidget->setMouseTracking(true);
 
-  connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showLigand()));
-  connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  connect(treeWidget,
+          SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+          SLOT(showLigand()));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -339,7 +342,8 @@ void LigandWidget::showTable() {
     //	treeWidget->clear();
     treeWidget->clear();
     treeWidget->setColumnCount(4);
-    QStringList header; header << "name" << "m/z" << "rt" << "category";
+    QStringList header;
+    header << "name" << "m/z" << "rt" << "category" << "notes";
     treeWidget->setHeaderLabels( header );
     treeWidget->setSortingEnabled(false);
 
@@ -397,6 +401,10 @@ void LigandWidget::showTable() {
                 catList << compound->category[i].c_str();
             }
             parent->setText(3,catList.join(";"));
+        }
+
+        if (!compound->note.empty()) {
+            parent->setText(4, QString::fromStdString(compound->note));
         }
 
         if (compound->fragmentMzValues.size()) {
