@@ -33,10 +33,11 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
   treeWidget->setMouseTracking(true);
 
-  connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
+  _lastSelection = nullptr; 
   connect(treeWidget,
           SIGNAL(itemClicked(QTreeWidgetItem*, int)),
-          SLOT(showLigand()));
+          SLOT(_onItemClicked(QTreeWidgetItem*)));
+  connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
 
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -594,6 +595,15 @@ void LigandWidget::showLigand() {
 
     }
 }
+
+void LigandWidget::_onItemClicked(QTreeWidgetItem *item)
+{
+    if (item == _lastSelection)
+        showLigand();
+
+    _lastSelection = item;
+}
+
 void LigandWidget::fetchRemoteCompounds()
 {
     qDebug() << "fetchRemoteCompounds()";

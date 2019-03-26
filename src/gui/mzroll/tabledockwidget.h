@@ -222,6 +222,15 @@ protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
 
+private Q_SLOTS:
+  /**
+   * @brief This slot is called whenever an item is clicked but, it activates
+   * the item only if it was the last selected item. So as to force the selected
+   * group to show itself when focus comes back into the tree-widget.
+   * @param item The tree-widget item that was clicked.
+   */
+  void _onItemClicked(QTreeWidgetItem* item);
+
 private:
   QPalette pal;
   void addRow(PeakGroup *group, QTreeWidgetItem *root);
@@ -238,6 +247,7 @@ private:
   QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
+  QTreeWidgetItem* _lastSelection; 
 };
 
 class PeakTableDockWidget : public TableDockWidget {
