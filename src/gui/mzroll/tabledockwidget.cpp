@@ -71,7 +71,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SIGNAL(updateProgressBar(QString, int, int)),
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
-  connect(this, SIGNAL(tenPeaksMarked(int)), this, SLOT(ShowStatistics(int)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
 
   setupFiltersDialog();
@@ -810,69 +809,6 @@ void TableDockWidget::UploadPeakBatchToCloud(){
 
 void TableDockWidget::StartUploadPeakBatchToCloud(){
   qDebug()<<"upload finished";
-}
-
-void TableDockWidget::ShowStatistics(int curationTime) {
-  int accuracy = 0;
-  int tp = 0;
-  int tn = 0;
-  int totalMarked = 0;
-  int totalMarkedByMl = 0;
-  
-  // for(int i=0; i < subsetPeakGroups.size(); i++ ) {
-  //   PeakGroup& grp = subsetPeakGroups[i];
-  //   qDebug()<<"group label - "<<grp.label<< "  model marked label - "<<grp.markedBadByCloudModel<<grp.markedGoodByCloudModel;
-  //   if (grp.label =='g' || grp.label =='b'){
-  //     totalMarked+=1;
-  //   }
-  //   if(grp.markedBadByCloudModel == 1 || grp.markedGoodByCloudModel == 1){
-  //     totalMarkedByMl+=1;
-  //   }
-  //   if (grp.label =='g' & grp.markedGoodByCloudModel == 1){
-  //     tp+=1;
-  //   }
-  //   if (grp.label =='b' & grp.markedBadByCloudModel == 1){
-  //     tn+=1;
-  //   }
-  // }
-
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (allgroups[i].label =='g' || allgroups[i].label =='b'){
-      totalMarked+=1;
-    }
-    if(allgroups[i].markedBadByCloudModel == 1 || allgroups[i].markedGoodByCloudModel == 1){
-      totalMarkedByMl+=1;
-    }
-    if (allgroups[i].label =='g' & allgroups[i].markedGoodByCloudModel == 1){
-      tp+=1;
-    }
-    if (allgroups[i].label =='b' & allgroups[i].markedBadByCloudModel == 1){
-      tn+=1;
-    }
-  }
-  if (totalMarked!=0){
-      float accuracy = (float)(tp + tn)*100 / totalMarked;
-      //convert from milliseconds to min
-      int timeMins = (curationTime/1000)/60;
-      QString timeMessage("");
-      if (timeMins > 0) {
-          timeMessage = QString("<br> It would save you " +
-                                QString::number(timeMins) +
-                                " minutes to do this curation using the model!");
-      } else if (curationTime/1000 > 20) {
-        timeMessage = QString("<br> It would save you " +
-                              QString::number(curationTime/1000) +
-                              " seconds to do this curation using the model!");
-      }
-      QIcon icon = QIcon(":/images/notification.png");
-      QString title("");
-      QString message("The training model detected " + 
-                      QString::number(accuracy) + 
-                      "% of the peaks accurately." +
-                      timeMessage +
-                      "<br> <a href=\"https://github.com/ElucidataInc/ElMaven/issues/964\">Know more</a>");
-      Notificator::showMessage(icon, title, message);
-  }
 }
 
 void TableDockWidget::exportJson() {
@@ -2063,14 +1999,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
-  } else if (btnName == "btnMlStatistics") {
-
-    QToolButton *btnMlStatistics = new QToolButton(parent);
-    btnMlStatistics->setIcon(QIcon(rsrcPath + "/train.png"));
-    btnMlStatistics->setToolTip(tr("Get insights about the ML model"));
-    connect(btnMlStatistics, SIGNAL(clicked()), td, SLOT(ShowStatistics()));
-    return btnMlStatistics;
-  }else if (btnName == "btnScatter") {
+  } else if (btnName == "btnScatter") {
 
     QToolButton *btnScatter = new QToolButton(parent);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
@@ -2159,8 +2088,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnMlStatistics =
-      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2194,7 +2121,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
@@ -2257,8 +2183,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnMlStatistics =
-      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2293,7 +2217,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2615,8 +2538,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnMlStatistics =
-      new TableToolBarWidgetAction(toolBar, this, "btnMlStatistics");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnTrain =
@@ -2647,7 +2568,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnMlStatistics);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
