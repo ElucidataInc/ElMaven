@@ -965,17 +965,11 @@ void TableDockWidget::setGroupLabel(char label) {
       if (group != NULL) {
         if (!(group->label=='g'||group->label=='b')){
           numberOfGroupsMarked+=1;
-          if (numberOfGroupsMarked == 1) curationTimer.start();
           group->setLabel(label);
           subsetPeakGroups.push_back(*group);
         }
         group->setLabel(label);
         if (numberOfGroupsMarked ==10){
-          if (_mainwindow->sessionCount==1){
-            // This code is used to show the initial inferences from the cloud model.
-            Q_EMIT(tenPeaksMarked(curationTimer.elapsed()));
-          }
-          _mainwindow->sessionCount+=1;          
           numberOfGroupsMarked = 0;
           Q_EMIT(UploadPeakBatch());
           subsetPeakGroups.clear();
@@ -1109,7 +1103,6 @@ void TableDockWidget::showConsensusSpectra() {
 }
 
 void TableDockWidget::markGroupGood() {
-  qDebug()<<"inside markGroupGood()";
   setGroupLabel('g');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
@@ -1118,7 +1111,6 @@ void TableDockWidget::markGroupGood() {
 }
 
 void TableDockWidget::markGroupBad() {
-  qDebug()<<"inside markGroupBad()";
   setGroupLabel('b');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();

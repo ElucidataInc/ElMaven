@@ -197,7 +197,6 @@ protected:
 
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
-  void tenPeaksMarked(int);
   void UploadPeakBatch();
 
 protected Q_SLOTS:
@@ -220,7 +219,6 @@ private:
   QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
-  QTime curationTimer;
 };
 
 class PeakTableDockWidget : public TableDockWidget {
