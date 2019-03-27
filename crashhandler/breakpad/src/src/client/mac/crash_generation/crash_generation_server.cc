@@ -60,6 +60,24 @@ CrashGenerationServer::CrashGenerationServer(
       mach_port_name_(mach_port_name) {
 }
 
+CrashGenerationServer::CrashGenerationServer(
+    mach_port_t mach_port,
+    OnClientDumpRequestCallback dump_callback,
+    void *dump_context,
+    OnClientExitingCallback exit_callback,
+    void *exit_context,
+    bool generate_dumps,
+    const std::string &dump_path)
+    : dump_callback_(dump_callback),
+      dump_context_(dump_context),
+      exit_callback_(exit_callback),
+      exit_context_(exit_context),
+      generate_dumps_(generate_dumps),
+      dump_dir_(dump_path.empty() ? "/tmp" : dump_path),
+      started_(false),
+      receive_port_(mach_port) {
+}
+
 CrashGenerationServer::~CrashGenerationServer() {
   if (started_)
     Stop();
@@ -77,7 +95,7 @@ bool CrashGenerationServer::Stop() {
     return false;
 
   // Send a quit message to the background thread, and then join it.
-  MachPortSender sender(mach_port_name_.c_str());
+  MachPortSender sender(receive_port_.GetPort());
   MachSendMessage quit_message(kQuitMessage);
   const mach_msg_timeout_t kSendTimeoutMs = 2 * 1000;
   kern_return_t result = sender.SendMessage(quit_message, kSendTimeoutMs);

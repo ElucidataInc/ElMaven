@@ -30,9 +30,7 @@
 #include <QDateTime>
 #endif
 
-//#ifndef Q_OS_MAC
-#include "ElmavCrashHandler.h"
-//#endif
+#include "elmavexceptionhandler.h"
 
 #include <QDir>
 #include <list>
@@ -71,13 +69,8 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
 
-    initializeLogger();
 
-//#ifndef Q_OS_MAC
-    ElmavCrashHandler elMavCh;
-    Q_UNUSED(elMavCh);
-//#endif
-
+    elmavexceptionhandler::init();
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);

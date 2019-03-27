@@ -93,6 +93,27 @@ class CrashGenerationServer {
                         bool generate_dumps,
                         const std::string &dump_path);
 
+  // Create an instance with the given parameters.
+  //
+  // mach_port: Server port to listen on.
+  // dump_callback: Callback for a client crash dump request.
+  // dump_context: Context for client crash dump request callback.
+  // exit_callback: Callback for client process exit.
+  // exit_context: Context for client exit callback.
+  // generate_dumps: Whether to automatically generate dumps.
+  //     Client code of this class might want to generate dumps explicitly
+  //     in the crash dump request callback. In that case, false can be
+  //     passed for this parameter.
+  // dump_path: Path for generating dumps; required only if true is
+  //     passed for generateDumps parameter; NULL can be passed otherwise.
+  CrashGenerationServer(mach_port_t mach_port,
+                        OnClientDumpRequestCallback dump_callback,
+                        void *dump_context,
+                        OnClientExitingCallback exit_callback,
+                        void *exit_context,
+                        bool generate_dumps,
+                        const std::string &dump_path);
+
   ~CrashGenerationServer();
 
   // Perform initialization steps needed to start listening to clients.

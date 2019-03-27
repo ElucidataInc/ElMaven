@@ -111,6 +111,11 @@ class ExceptionHandler {
                    void *callback_context, bool install_handler,
 		   const char *port_name);
 
+  // A purely out-of-process exception handler.
+  ExceptionHandler(FilterCallback filter,  void *callback_context,
+                   bool install_handler,
+                   mach_port_t port);
+
   // A special constructor if we want to bypass minidump writing and
   // simply get a callback with the exception information.
   ExceptionHandler(DirectCallback callback,

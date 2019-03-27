@@ -248,6 +248,27 @@ ExceptionHandler::ExceptionHandler(const string &dump_path,
   Setup(install_handler);
 }
 
+ExceptionHandler::ExceptionHandler(FilterCallback filter,
+                                   void *callback_context,
+                                   bool install_handler,
+                                   mach_port_t port)
+    : dump_path_(),
+      filter_(filter),
+      callback_(NULL),
+      callback_context_(callback_context),
+      directCallback_(NULL),
+      handler_thread_(NULL),
+      handler_port_(MACH_PORT_NULL),
+      previous_(NULL),
+      installed_exception_handler_(false),
+      is_in_teardown_(false),
+      last_minidump_write_result_(false),
+      use_minidump_write_mutex_(false) {
+  MinidumpGenerator::GatherSystemInformation();
+  crash_generation_client_.reset(new CrashGenerationClient(port));
+  Setup(install_handler);
+}
+
 // special constructor if we want to bypass minidump writing and
 // simply get a callback with the exception information
 ExceptionHandler::ExceptionHandler(DirectCallback callback,

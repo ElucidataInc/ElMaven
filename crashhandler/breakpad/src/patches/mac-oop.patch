@@ -1,0 +1,279 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1295898035 18000
+# Node ID 52161e309dc0430bab867aaabe1b52d3b1430d04
+# Parent  e97af0ca10a8d28cdfa8806f799c8223ac514391
+Fiddle some constructors for Mac CrashGeneration{Client,Server} and ExceptionHandler to allow passing mach ports directly
+
+diff --git a/src/client/mac/Breakpad.xcodeproj/project.pbxproj b/src/client/mac/Breakpad.xcodeproj/project.pbxproj
+--- a/src/client/mac/Breakpad.xcodeproj/project.pbxproj
++++ b/src/client/mac/Breakpad.xcodeproj/project.pbxproj
+@@ -566,17 +566,17 @@
+ 		D2F9A43E12131F65002747C1 /* gtest_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = ../../testing/gtest/src/gtest_main.cc; sourceTree = "<group>"; };
+ 		D2F9A43F12131F65002747C1 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "../../testing/gtest/src/gtest-all.cc"; sourceTree = "<group>"; };
+ 		D2F9A4C4121336C7002747C1 /* client_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = client_info.h; path = crash_generation/client_info.h; sourceTree = "<group>"; };
+ 		D2F9A4C5121336C7002747C1 /* crash_generation_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crash_generation_client.h; path = crash_generation/crash_generation_client.h; sourceTree = "<group>"; };
+ 		D2F9A4C6121336C7002747C1 /* crash_generation_client.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = crash_generation_client.cc; path = crash_generation/crash_generation_client.cc; sourceTree = "<group>"; };
+ 		D2F9A4C7121336C7002747C1 /* crash_generation_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crash_generation_server.h; path = crash_generation/crash_generation_server.h; sourceTree = "<group>"; };
+ 		D2F9A4C8121336C7002747C1 /* crash_generation_server.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = crash_generation_server.cc; path = crash_generation/crash_generation_server.cc; sourceTree = "<group>"; };
+ 		D2F9A4CE121336F7002747C1 /* crash_generation_server_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = crash_generation_server_test.cc; path = tests/crash_generation_server_test.cc; sourceTree = "<group>"; };
+-		D2F9A546121383A1002747C1 /* crash_generation_server_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = crash_generation_server_test; sourceTree = BUILT_PRODUCTS_DIR; };
++		D2F9A546121383A1002747C1 /* handler_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handler_test; sourceTree = BUILT_PRODUCTS_DIR; };
+ 		DE43467411C72855004F095F /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = sender/da.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467511C72857004F095F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = sender/de.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467611C7285B004F095F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = sender/es.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467711C72862004F095F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = sender/fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467811C72869004F095F /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = sender/it.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467911C7286D004F095F /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = sender/nl.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467A11C72873004F095F /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = sender/no.lproj/Localizable.strings; sourceTree = "<group>"; };
+ 		DE43467B11C72877004F095F /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sender/sl.lproj/Localizable.strings; sourceTree = "<group>"; };
+@@ -800,17 +800,17 @@
+ 				F92C563C0ECD10B3009BE4BA /* breakpadUtilities.dylib */,
+ 				F92C56A00ECE04A7009BE4BA /* crash_report_sender.app */,
+ 				F9C44DA50EF060A8003AEBAA /* BreakpadTest.app */,
+ 				F9C77DDA0F7DD5CF0045F7DB /* UnitTests.octest */,
+ 				F93803BE0F80820F004D428B /* generator_test */,
+ 				F93DE2D10F82A67300608B94 /* minidump_file_writer_unittest */,
+ 				F93DE32C0F82C55600608B94 /* handler_test */,
+ 				D2F9A41512131EF0002747C1 /* libgtest.a */,
+-				D2F9A546121383A1002747C1 /* crash_generation_server_test */,
++				D2F9A546121383A1002747C1 /* handler_test */,
+ 				D23F4BAB12A868A500686C8D /* minidump_generator_test_helper */,
+ 			);
+ 			name = Products;
+ 			sourceTree = "<group>";
+ 		};
+ 		0867D691FE84028FC02AAC07 /* Breakpad */ = {
+ 			isa = PBXGroup;
+ 			children = (
+@@ -1178,17 +1178,17 @@
+ 			);
+ 			buildRules = (
+ 			);
+ 			dependencies = (
+ 				D2F9A52B121383A1002747C1 /* PBXTargetDependency */,
+ 			);
+ 			name = crash_generation_server_test;
+ 			productName = handler_test;
+-			productReference = D2F9A546121383A1002747C1 /* crash_generation_server_test */;
++			productReference = D2F9A546121383A1002747C1 /* handler_test */;
+ 			productType = "com.apple.product-type.tool";
+ 		};
+ 		F92C53530ECCE349009BE4BA /* Inspector */ = {
+ 			isa = PBXNativeTarget;
+ 			buildConfigurationList = F92C53580ECCE36D009BE4BA /* Build configuration list for PBXNativeTarget "Inspector" */;
+ 			buildPhases = (
+ 				F94584840F27FB40009A47BF /* Change install name of breakpadUtilities */,
+ 				F92C53510ECCE349009BE4BA /* Sources */,
+diff --git a/src/client/mac/crash_generation/crash_generation_client.h b/src/client/mac/crash_generation/crash_generation_client.h
+--- a/src/client/mac/crash_generation/crash_generation_client.h
++++ b/src/client/mac/crash_generation/crash_generation_client.h
+@@ -35,16 +35,20 @@
+ namespace google_breakpad {
+ 
+ class CrashGenerationClient {
+  public:
+   explicit CrashGenerationClient(const char* mach_port_name)
+     : sender_(mach_port_name) {
+   }
+ 
++  explicit CrashGenerationClient(mach_port_t mach_port)
++    : sender_(mach_port) {
++  }
++
+   // Request the crash server to generate a dump.
+   //
+   // Return true if the dump was successful; false otherwise.
+   bool RequestDumpForException(int exception_type,
+ 			       int exception_code,
+ 			       int exception_subcode,
+ 			       mach_port_t crashing_thread);
+ 
+diff --git a/src/client/mac/crash_generation/crash_generation_server.cc b/src/client/mac/crash_generation/crash_generation_server.cc
+--- a/src/client/mac/crash_generation/crash_generation_server.cc
++++ b/src/client/mac/crash_generation/crash_generation_server.cc
+@@ -45,18 +45,35 @@
+     const std::string &dump_path)
+     : dump_callback_(dump_callback),
+       dump_context_(dump_context),
+       exit_callback_(exit_callback),
+       exit_context_(exit_context),
+       generate_dumps_(generate_dumps),
+       dump_dir_(dump_path.empty() ? "/tmp" : dump_path),
+       started_(false),
+-      receive_port_(mach_port_name),
+-      mach_port_name_(mach_port_name) {
++      receive_port_(mach_port_name) {
++}
++
++CrashGenerationServer::CrashGenerationServer(
++    mach_port_t mach_port,
++    OnClientDumpRequestCallback dump_callback,
++    void *dump_context,
++    OnClientExitingCallback exit_callback,
++    void *exit_context,
++    bool generate_dumps,
++    const std::string &dump_path)
++    : dump_callback_(dump_callback),
++      dump_context_(dump_context),
++      exit_callback_(exit_callback),
++      exit_context_(exit_context),
++      generate_dumps_(generate_dumps),
++      dump_dir_(dump_path.empty() ? "/tmp" : dump_path),
++      started_(false),
++      receive_port_(mach_port) {
+ }
+ 
+ CrashGenerationServer::~CrashGenerationServer() {
+   if (started_)
+     Stop();
+ }
+ 
+ bool CrashGenerationServer::Start() {
+@@ -66,17 +83,17 @@
+   return started_;
+ }
+ 
+ bool CrashGenerationServer::Stop() {
+   if (!started_)
+     return false;
+ 
+   // Send a quit message to the background thread, and then join it.
+-  MachPortSender sender(mach_port_name_.c_str());
++  MachPortSender sender(receive_port_.GetPort());
+   MachSendMessage quit_message(kQuitMessage);
+   const mach_msg_timeout_t kSendTimeoutMs = 2 * 1000;
+   kern_return_t result = sender.SendMessage(quit_message, kSendTimeoutMs);
+   if (result == KERN_SUCCESS) {
+     int thread_join_result = pthread_join(server_thread_, NULL);
+     started_ = thread_join_result != 0;
+   }
+ 
+diff --git a/src/client/mac/crash_generation/crash_generation_server.h b/src/client/mac/crash_generation/crash_generation_server.h
+--- a/src/client/mac/crash_generation/crash_generation_server.h
++++ b/src/client/mac/crash_generation/crash_generation_server.h
+@@ -82,16 +82,37 @@
+   CrashGenerationServer(const char *mach_port_name,
+                         OnClientDumpRequestCallback dump_callback,
+                         void *dump_context,
+                         OnClientExitingCallback exit_callback,
+                         void *exit_context,
+                         bool generate_dumps,
+                         const std::string &dump_path);
+ 
++  // Create an instance with the given parameters.
++  //
++  // mach_port: Server port to listen on.
++  // dump_callback: Callback for a client crash dump request.
++  // dump_context: Context for client crash dump request callback.
++  // exit_callback: Callback for client process exit.
++  // exit_context: Context for client exit callback.
++  // generate_dumps: Whether to automatically generate dumps.
++  //     Client code of this class might want to generate dumps explicitly
++  //     in the crash dump request callback. In that case, false can be
++  //     passed for this parameter.
++  // dump_path: Path for generating dumps; required only if true is
++  //     passed for generateDumps parameter; NULL can be passed otherwise.
++  CrashGenerationServer(mach_port_t mach_port,
++                        OnClientDumpRequestCallback dump_callback,
++                        void *dump_context,
++                        OnClientExitingCallback exit_callback,
++                        void *exit_context,
++                        bool generate_dumps,
++                        const std::string &dump_path);
++
+   ~CrashGenerationServer();
+ 
+   // Perform initialization steps needed to start listening to clients.
+   //
+   // Return true if initialization is successful; false otherwise.
+   bool Start();
+ 
+   // Stop the server.
+@@ -119,20 +140,16 @@
+ 
+   std::string dump_dir_;
+ 
+   bool started_;
+ 
+   // The mach port that receives requests to dump from child processes.
+   ReceivePort receive_port_;
+ 
+-  // The name of the mach port. Stored so the Stop method can message
+-  // the background thread to shut it down.
+-  std::string mach_port_name_;
+-
+   // The thread that waits on the receive port.
+   pthread_t server_thread_;
+ 
+   // Disable copy constructor and operator=.
+   CrashGenerationServer(const CrashGenerationServer&);
+   CrashGenerationServer& operator=(const CrashGenerationServer&);
+ };
+ 
+diff --git a/src/client/mac/handler/exception_handler.cc b/src/client/mac/handler/exception_handler.cc
+--- a/src/client/mac/handler/exception_handler.cc
++++ b/src/client/mac/handler/exception_handler.cc
+@@ -239,16 +239,37 @@
+   // This will update to the ID and C-string pointers
+   set_dump_path(dump_path);
+   MinidumpGenerator::GatherSystemInformation();
+   if (port_name)
+     crash_generation_client_.reset(new CrashGenerationClient(port_name));
+   Setup(install_handler);
+ }
+ 
++ExceptionHandler::ExceptionHandler(FilterCallback filter,
++                                   void *callback_context,
++                                   bool install_handler,
++                                   mach_port_t port)
++    : dump_path_(),
++      filter_(filter),
++      callback_(NULL),
++      callback_context_(callback_context),
++      directCallback_(NULL),
++      handler_thread_(NULL),
++      handler_port_(MACH_PORT_NULL),
++      previous_(NULL),
++      installed_exception_handler_(false),
++      is_in_teardown_(false),
++      last_minidump_write_result_(false),
++      use_minidump_write_mutex_(false) {
++  MinidumpGenerator::GatherSystemInformation();
++  crash_generation_client_.reset(new CrashGenerationClient(port));
++  Setup(install_handler);
++}
++
+ // special constructor if we want to bypass minidump writing and
+ // simply get a callback with the exception information
+ ExceptionHandler::ExceptionHandler(DirectCallback callback,
+                                    void *callback_context,
+                                    bool install_handler)
+     : dump_path_(),
+       filter_(NULL),
+       callback_(NULL),
+diff --git a/src/client/mac/handler/exception_handler.h b/src/client/mac/handler/exception_handler.h
+--- a/src/client/mac/handler/exception_handler.h
++++ b/src/client/mac/handler/exception_handler.h
+@@ -101,16 +101,21 @@
+   // be written when WriteMinidump is called.
+   // If port_name is non-NULL, attempt to perform out-of-process dump generation
+   // If port_name is NULL, in-process dump generation will be used.
+   ExceptionHandler(const string &dump_path,
+                    FilterCallback filter, MinidumpCallback callback,
+                    void *callback_context, bool install_handler,
+ 		   const char *port_name);
+ 
++  // A purely out-of-process exception handler.
++  ExceptionHandler(FilterCallback filter,  void *callback_context,
++                   bool install_handler,
++                   mach_port_t port);
++
+   // A special constructor if we want to bypass minidump writing and
+   // simply get a callback with the exception information.
+   ExceptionHandler(DirectCallback callback,
+                    void *callback_context,
+                    bool install_handler);
+ 
+   ~ExceptionHandler();
+ 

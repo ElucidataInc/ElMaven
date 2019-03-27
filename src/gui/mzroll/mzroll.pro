@@ -30,6 +30,8 @@ TARGET = "El-MAVEN $$VERSION"
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
+
+
 ICON = maven.icns
 
 
@@ -38,13 +40,13 @@ QT += sql network xml printsupport
 linux {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/
-    LIBS += -lgoogle-breakpad -pthread
+    LIBS += -pthread
 }
 
 win32 {
     INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/
-    LIBS += -lgoogle-breakpad -pthread
+    LIBS += -pthread
 }
 
 mac {
@@ -59,7 +61,7 @@ mac {
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
-    LIBS += -lgoogle-breakpad -lobjc -pthread
+    LIBS += -lbreakpad -lobjc -pthread
     LIBS += -lomp
 }
 
@@ -79,7 +81,9 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/Logger \
                 $$top_srcdir/src/pollyCLI \
-                $$top_srcdir/src/projectDB
+                $$top_srcdir/src/projectDB \
+                $$top_srcdir/crashhandler/ \
+                $$top_srcdir/crashhandler/breakpad/src/src/
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -102,8 +106,8 @@ LIBS +=  -lmaven \
          -lnetcdf \
          -lz \
          -lpollyCLI \
-         -lprojectDB
-
+         -lprojectDB \
+         -lbreakpad
 macx {
 
   LIBS -= -lnetcdf
@@ -215,13 +219,13 @@ HEADERS +=  stable.h \
                     controller.h \
                     numeric_treewidgetitem.h \
                     analytics.h \
-                    ElmavCrashHandler.h \
                     isotopeplotdockwidget.h \
                     gettingstarted.h \
                     pollywaitdialog.h \
                     peaktabledeletiondialog.h \
                     notificator.h \
-                    notificator_p.h
+                    notificator_p.h \
+                    $$top_srcdir/crashhandler/elmavexceptionhandler.h \
 
 
 
@@ -289,12 +293,11 @@ database.cpp \
     controller.cpp \
     numeric_treewidgetitem.cpp \
     analytics.cpp \
-    ElmavCrashHandler.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
     pollywaitdialog.cpp \
     peaktabledeletiondialog.cpp \
-    notificator.cpp
+    notificator.cpp \
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

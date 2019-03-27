@@ -24,6 +24,7 @@
 *.lib
 
 # Executables
+!crashserver.app
 *.out
 *.app
 
@@ -112,3 +113,10 @@ object_script.pillowcore
 
 #Feature Testing
 tests/featureTesting/results
+
+#breakpad
+.gclient*
+
+#mac-specific
+.DS_Store
+*dSYM
