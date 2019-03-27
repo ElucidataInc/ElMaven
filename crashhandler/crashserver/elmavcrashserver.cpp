@@ -32,7 +32,7 @@ using google_breakpad::MachSendMessage;
 using std::string;
 
 
-enum MessageId : int {
+enum class MessageId : int {
     SERVERSTARTED = 0,
     SERVERFAILED
 };

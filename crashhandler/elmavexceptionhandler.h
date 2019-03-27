@@ -33,7 +33,7 @@
 namespace elmavexceptionhandler
 {
     QString dumpPath = "";
-    enum MessageId : int {
+    enum class MessageId : int {
         SERVERSTARTED = 0,
         SERVERFAILED
     };
