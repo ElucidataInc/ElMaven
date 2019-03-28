@@ -63,11 +63,7 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
     _vidWidget->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(_vidWidget);
 
-    _knowMoreLabel = new UrlLabel(this);
-    layout->addWidget(_knowMoreLabel);
-
     layout->itemAt(0)->setAlignment(Qt::AlignCenter);
-    layout->itemAt(4)->setAlignment(Qt::AlignCenter);
 
 
     _mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
@@ -87,6 +83,10 @@ algorithm. Save time classifying data and spend more time analyzing it. ");
     controlsLayout->addWidget(_positionSlider);
 
     layout->addLayout(controlsLayout);
+
+    _knowMoreLabel = new UrlLabel(this);
+    layout->addWidget(_knowMoreLabel);
+    layout->itemAt(5)->setAlignment(Qt::AlignCenter);
 
     QBoxLayout* footerLayout = new QHBoxLayout(this);
 
