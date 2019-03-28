@@ -6,6 +6,7 @@ OBJECTS_DIR=$$top_builddir/tmp/crashhandler/breakpad
 
 
 CONFIG += staticlib 
+QMAKE_CXXFLAGS += -std=c++11
 
 INCLUDEPATH += src/src/
 

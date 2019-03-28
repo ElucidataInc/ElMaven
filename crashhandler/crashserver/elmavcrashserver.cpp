@@ -32,7 +32,7 @@ using google_breakpad::MachSendMessage;
 using std::string;
 
 
-enum class MessageId : int {
+enum class MessageId {
     SERVERSTARTED = 0,
     SERVERFAILED
 };
@@ -129,9 +129,9 @@ int main(int argc, char** argv)
                                                    &dumpPath);
 
      if(!server->Start())
-        std::cout << MessageId::SERVERFAILED;
+        std::cout << "server failed to start";
      else
-        std::cout  << MessageId::SERVERSTARTED;
+        std::cout  << "server started successfully";
 
     handlerWait.wait(&mutex);
 #endif

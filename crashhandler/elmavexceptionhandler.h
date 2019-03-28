@@ -33,7 +33,7 @@
 namespace elmavexceptionhandler
 {
     QString dumpPath = "";
-    enum class MessageId : int {
+    enum class MessageId {
         SERVERSTARTED = 0,
         SERVERFAILED
     };
@@ -164,14 +164,14 @@ namespace elmavexceptionhandler
             QByteArray data = _process->readLine();
             qDebug() << "reading from server side: " <<  data;
             switch (data.toInt()) {
-            case MessageId::SERVERSTARTED:
+            case static_cast<int>(elmavexceptionhandler::MessageId::SERVERSTARTED):
 
                 qDebug() << "server stared successfully ";
                 _process->closeReadChannel(QProcess::StandardOutput);
                 _process->closeReadChannel(QProcess::StandardError);
                 receivedInput = true;
                 break;
-            case MessageId::SERVERFAILED:
+            case static_cast<int>(elmavexceptionhandler::MessageId::SERVERFAILED):
                 qDebug() << "server failed to start ";
                 _process->closeReadChannel(QProcess::StandardOutput);
                 _process->closeReadChannel(QProcess::StandardError);
