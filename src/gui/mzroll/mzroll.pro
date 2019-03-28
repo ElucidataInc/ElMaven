@@ -32,8 +32,7 @@ TARGET = "El-MAVEN"
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
-
-
+win32: RESOURCES += win_pollyphi.qrc
 ICON = maven.icns
 
 
