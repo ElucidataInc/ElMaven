@@ -842,7 +842,7 @@ void MainWindow::createPeakTable(QString filenameNew) {
 QString MainWindow::_newAutosaveFile()
 {
     auto now = QDateTime::currentDateTime();
-    auto tempFilename = now.toString(Qt::ISODate) + ".emDB";
+    auto tempFilename = now.toString("dd_MM_yyyy_hh_mm_ss") + ".emDB";
     auto firstSampleFile = getSamples()[0]->fileName;
     auto sampleFileInfo = QFileInfo(QString::fromStdString(firstSampleFile));
     auto samplePath = sampleFileInfo.absolutePath();
