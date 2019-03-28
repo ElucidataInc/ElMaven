@@ -1,4 +1,4 @@
-#include "PeakDetectorCLI.h"
+#include "peakdetectorcli.h"
 
 int main(int argc, char *argv[]) {
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
 	//align samples
     if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag) {
-        peakdetectorCLI->peakDetector->alignSamples((int)peakdetectorCLI->alignType);
+        peakdetectorCLI->peakDetector->alignSamples((int)peakdetectorCLI->alignMode);
 	}
 
 

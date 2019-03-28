@@ -1,4 +1,4 @@
-#include "parseOptions.h"
+#include "parseoptions.h"
 
 ParseOptions::ParseOptions() {
 

@@ -6,7 +6,7 @@
 
 #include "pugixml.hpp"
 
-#include "PeakDetectorCLI.h"
+#include "peakdetectorcli.h"
 
 using namespace std;
 using namespace pugi;
