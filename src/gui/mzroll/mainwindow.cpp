@@ -921,8 +921,10 @@ QString MainWindow::getLatestUserProject()
 
 void MainWindow::resetAutosave()
 {
-    if (this->timestampFileExists)
+    if (this->timestampFileExists) {
+        fileLoader->closeSQLiteProject();
         QFile::remove(_currentProjectName);
+    }
     this->timestampFileExists = false;
     this->peaksMarked = 0;
     _currentProjectName = "";
@@ -994,6 +996,7 @@ void MainWindow::saveProject(bool explicitSave)
                                           QMessageBox::Yes);
 
             // remove timestamp autosave file in any case
+            fileLoader->closeSQLiteProject();
             QFile::remove(_currentProjectName);
             if (reply != QMessageBox::Yes)
                 return;
@@ -1021,8 +1024,10 @@ void MainWindow::saveProject(bool explicitSave)
             msgBox.exec();
 
             // remove current project file only if it was created by autosave
-            if (this->timestampFileExists)
+            if (this->timestampFileExists) {
+                fileLoader->closeSQLiteProject();
                 QFile::remove(_currentProjectName);
+            }
 
             if (msgBox.clickedButton() == newButton) {
                 _currentProjectName = "";

@@ -727,18 +727,30 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     if (sampleSet.size() == 0)
         return false;
 
-    if (_currentProject
-            and _currentProject->projectName() == filename.toStdString()) {
+    auto projectIsAlreadyOpen = false;
+    if (_currentProject) {
+        auto currentName = QString::fromStdString(_currentProject->projectName());
+        auto currentPath = QString::fromStdString(_currentProject->projectPath());
+        auto currentFilename = currentPath + QDir::separator() + currentName;
+        qDebug() << currentFilename;
+        qDebug() << filename;
+        if (currentFilename == filename)
+            projectIsAlreadyOpen = true;
+    }
+
+    if (projectIsAlreadyOpen) {
         qDebug() << "saving in existing project…";
     } else {
-        qDebug() << "creating new project to save…";
-        auto version = _mainwindow->appVersion().toStdString();
+        qDebug() << "closing the current project…";
+        closeSQLiteProject();
 
         // if file already exists, delete it before opening a new one
         QFile projectFile(filename);
         if (projectFile.exists())
             projectFile.remove();
 
+        qDebug() << "creating new project to save…";
+        auto version = _mainwindow->appVersion().toStdString();
         _currentProject = new ProjectDatabase(filename.toStdString(), version);
     }
 
