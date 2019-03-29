@@ -6,6 +6,10 @@
 #include <QFile>
 #include <iostream>
 
+#ifdef Q_OS_WIN64
+#include <windows.h>
+#endif
+
 
 #define _STR(X) #X
 #define STR(X) _STR(X)
@@ -31,10 +35,15 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+#ifdef Q_OS_WIN64
+    DWORD procID = GetCurrentProcessId();
+    AllowSetForegroundWindow(procID);
+#endif
 
     FileUploader uploader((QString(argv[1])),QString(argv[2]),endpoint);
     MainWindow w(nullptr, &uploader);
     w.show();
+    w.activateWindow();
 
     return a.exec();
 }
