@@ -48,6 +48,12 @@ public:
         PolyFit
     };
 
+    enum class PollyApp {
+        None,
+        PollyPhi,
+        QuantFit
+    };
+
     bool status;
     string textStatus;
     vector<string> filenames;
@@ -195,6 +201,7 @@ public:
             "y?eicSmoothingWindow: Enter number of scans used for smoothing at a time. <int>",
             "z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group. <float>",
             "P?pollyCred: Polly sign in credentials, username, password provided in xml file. <string>",
+            "A?pollyApp: Polly application to upload to after peak detection finishes. Enter 1 for PollyPhi or 2 for QuantFit. <int>",
             "N?pollyProject: Polly project where we want to upload our files. <string>",
             "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. <string>",
             nullptr
@@ -212,6 +219,7 @@ private:
     Databases _db;
     JSONReports* _jsonReports;
     bool _reduceGroupsFlag;
+    PollyApp _currentPollyApp;
 
     /**
      * [Load Arguments for Options Dialog]
@@ -238,7 +246,7 @@ private:
     void _makeSampleCohortFile(QString sampleCohortFilename,
                                QStringList loadedSamples);
 
-    bool _sendUserEmail(QMap<QString, QString> creds, QString redirection_url);
+    bool _sendUserEmail(QMap<QString, QString> creds, QString redirectionUrl);
 
     QMap<QString, QString> _readCredentialsFromXml(QString filename);
 
@@ -247,6 +255,17 @@ private:
      * @return QString message/warning regarding incompatibility
      */
     QString _isReadyForPolly();
+
+    /**
+     * @brief Creates a redirection URL based on the current state of the
+     * dialog.
+     * @param datetimestamp A timestamp string that will be used to generate a
+     * unique URL for a project.
+     * @param uploadProjectIdThread Project ID of the user project to send files
+     * to.
+     * @return Redirection URL as a QString.
+     */
+    QString _getRedirectionUrl(QString datetimestamp, QString uploadProjectId);
 };
 
 struct Arguments
