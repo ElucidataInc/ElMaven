@@ -197,6 +197,12 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "fragmentTolerance") == 0)
         fragmentTolerance = atof(value);
 
+    if (strcmp(key, "minFragMatch") == 0)
+        minFragMatch = atof(value);
+
+    if (strcmp(key, "minFragMatchScore") == 0)
+        minFragMatchScore = atof(value);
+
     if(strcmp(key,"timeDomainResolution") == 0)
         rtStepSize = atof(value);
 

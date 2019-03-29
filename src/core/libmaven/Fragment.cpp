@@ -360,7 +360,6 @@ vector<float> Fragment::asDenseVector(float mzmin, float mzmax, int nbins)
             continue;
 
         int bin = int(((mzValues[i] - mzmin) / mzrange ) * nbins);
-        cerr << bin << endl;
         if (bin > 0 && bin < nbins)
             v[bin] += intensityValues[i];
     }
