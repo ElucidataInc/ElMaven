@@ -136,6 +136,17 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
                                    "Isotope Detection Switched",
                                    state);
                 });
+        connect(matchFragmentationOptions,
+                &QGroupBox::toggled,
+                [this](const bool checked)
+                {
+                    QString state = checked? "On" : "Off";
+                    this->mainwindow
+                        ->getAnalytics()
+                        ->hitEvent("Peak Detection",
+                                   "Match Fragmentation Switched",
+                                   state);
+                });
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));

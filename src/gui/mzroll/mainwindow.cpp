@@ -2645,6 +2645,11 @@ void MainWindow::createMenus() {
     aj->setCheckable(true); 
 	aj->setChecked(false);
     connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
+	connect(aj, &QAction::toggled, [this]()
+    {
+        analytics->hitEvent("MS2 Events List",
+                                  "Clicked");
+    });
 
     QAction* al = widgetsMenu->addAction("Peptide Fragmentation");
     al->setCheckable(true);  al->setChecked(false);
