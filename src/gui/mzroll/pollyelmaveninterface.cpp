@@ -120,7 +120,18 @@ EPIWorkerThread::~EPIWorkerThread()
     }
     if (_pollyintegration)
         delete (_pollyintegration);
-};
+}
+
+void PollyElmavenInterfaceDialog::setSelectedTable(TableDockWidget *table)
+{
+    if (table)
+        peakTableCombo->setCurrentText(table->titlePeakTable->text());
+}
+
+void PollyElmavenInterfaceDialog::switchToApp(PollyApp app)
+{
+    workflowMenu->setCurrentRow(static_cast<int>(app));
+}
 
 void PollyElmavenInterfaceDialog::_changePage()
 {

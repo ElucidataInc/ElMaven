@@ -73,6 +73,24 @@ public:
      */
     void startupDataLoad();
 
+public Q_SLOTS:
+
+    /**
+     * @brief Switch to a given Polly app.
+     * @param app A PollyApp enum that signifies which application should be
+     * selected.
+     */
+    void switchToApp(PollyApp app);
+
+    /**
+     * @brief Select the peak table in the table combo box, if the given table
+     * name exists.
+     * @param tableName The peak table to be selected automatically. If the name
+     * of this peak table does not exist in the list of table names, nothing
+     * will happen.
+     */
+    void setSelectedTable(TableDockWidget* table);
+
 Q_SIGNALS:
 
     /**
