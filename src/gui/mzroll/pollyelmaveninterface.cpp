@@ -343,7 +343,6 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     }
 
     _loadingDialog->close();
-    _showPollyButtonIfUrlExists();
     QCoreApplication::processEvents();
 }
 
