@@ -34,6 +34,15 @@
 #include "pollyintegration.h"
 #include "pugixml.hpp"
 
+#ifndef __APPLE__
+    #ifdef OMP_PARALLEL
+        #define getTime() omp_get_wtime()
+    #else
+        #define getTime() get_wall_time()
+        #define omp_get_thread_num()  1
+    #endif
+#endif
+
 using namespace std;
 
 class PollyIntegration;
@@ -313,5 +322,8 @@ struct Arguments
         optionsDialogArgs << "float" << "compoundPPMWindow" << "10";
     }
 };
+
+double get_wall_time();
+double get_cpu_time();
 
 #endif
