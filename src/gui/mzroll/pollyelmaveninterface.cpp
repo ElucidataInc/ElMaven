@@ -420,7 +420,14 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     QDir qdir(_writeableTempDir);
     if (!qdir.exists()) {
         QDir().mkdir(_writeableTempDir);
-        QDir qdir(_writeableTempDir);
+    }
+
+    // clear all temporary files that might not have been deleted from preivous
+    // operations.
+    qdir.setFilter(QDir::AllEntries);
+    foreach(QString dirFile, qdir.entryList())
+    {
+        qdir.remove(dirFile);
     }
 
     // add datetimestamp to identify files from one upload thread
@@ -622,7 +629,6 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
                                                 uploadProjectIdThread);
-
         if (runRequestId.isEmpty())
             return redirectionUrl;
 
