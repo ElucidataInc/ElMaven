@@ -107,9 +107,8 @@ void EPIWorkerThread::run()
                                                       filesToUpload[0],
                                                       filesToUpload[1],
                                                       filesToUpload[2]);
-        QString message = emailSent ? "Sent an email containing URL to user."
-                                    : "Failed to send email to user.";
-        qDebug() << message;
+        qDebug() << (emailSent ? "Sent an email containing URL to user."
+                               : "Failed to send email to user.");
     }
 }
 
@@ -581,7 +580,7 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
 QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
                                                         QString uploadProjectIdThread)
 {
-    QString redirectionUrl;
+    QString redirectionUrl = "";
 
     switch (_selectedApp) {
     case PollyApp::FirstView: {
@@ -596,6 +595,8 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         QString landingPage = QString("relative_lcms_elmaven");
         QString workflowRequestId =
             _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
+        if (workflowRequestId.isEmpty())
+            return redirectionUrl;
 
         // send to google sheets if sample cohort file is not valid
         QString CohortFileName = _writeableTempDir + QDir::separator()
@@ -615,17 +616,19 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         break;
     } case PollyApp::QuantFit: {
         QString componentId = _pollyIntegration->obtainComponentId("calibration");
+        if (componentId == "-1")
+            return redirectionUrl;
+
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
                                                 uploadProjectIdThread);
-        if (!runRequestId.isEmpty()) {
-            redirectionUrl =
-                _pollyIntegration->redirectionUiEndpoint(componentId,
-                                                         runRequestId,
-                                                         datetimestamp);
-        } else {
-            redirectionUrl = "";
-        }
+
+        if (runRequestId.isEmpty())
+            return redirectionUrl;
+
+        redirectionUrl = _pollyIntegration->redirectionUiEndpoint(componentId,
+                                                                  runRequestId,
+                                                                  datetimestamp);
         break;
     } default:
         break;
