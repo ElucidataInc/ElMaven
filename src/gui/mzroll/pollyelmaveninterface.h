@@ -167,6 +167,12 @@ private:
     QString _writeableTempDir;
 
     /**
+     * @brief An indicator of whether an upload thread is running in the
+     * background.
+     */
+    bool _uploadInProgress;
+
+    /**
      * @brief This function calls login form UI to take credentials from user.
      */
     void _callLoginForm();

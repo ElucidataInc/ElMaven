@@ -210,8 +210,10 @@ void PollyElmavenInterfaceDialog::_callLoginForm()
 
 void PollyElmavenInterfaceDialog::_callInitialEPIForm()
 {
-    statusUpdate->setStyleSheet("QLabel { color : green;}");
-    statusUpdate->setText("");
+    if (!_uploadInProgress) {
+        statusUpdate->setStyleSheet("QLabel { color : green;}");
+        statusUpdate->clear();
+    }
     usernameLabel->setText("");
     uploadButton->setEnabled(false);
     existingProjectCombo->clear();
@@ -282,6 +284,10 @@ void PollyElmavenInterfaceDialog::_handleResults(QVariantMap projectNameIdMap)
 
 void PollyElmavenInterfaceDialog::_resetUiElements()
 {
+    // if upload is already in progress, refuse this UI reset request
+    if (_uploadInProgress)
+        return;
+
     peakTableCombo->clear();
 
     newProjectRadio->setChecked(true);
@@ -293,7 +299,7 @@ void PollyElmavenInterfaceDialog::_resetUiElements()
     existingProjectCombo->clear();
 
     uploadButton->setEnabled(true);
-    gotoPollyButton->setVisible(false);
+    _showPollyButtonIfUrlExists();
 
     statusUpdate->clear();
     QCoreApplication::processEvents();
@@ -337,7 +343,6 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     }
 
     _loadingDialog->close();
-    _showPollyButtonIfUrlExists();
     QCoreApplication::processEvents();
 }
 
@@ -353,7 +358,7 @@ void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 
     if (_redirectionUrlMap[_selectedApp].isEmpty()) {
         gotoPollyButton->setVisible(false);
-    } else {
+    } else if (!_uploadInProgress) {
         gotoPollyButton->setVisible(true);
     }
 }
@@ -375,6 +380,7 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
 
 void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 {
+    _uploadInProgress = true;
     gotoPollyButton->setVisible(false);
     uploadButton->setEnabled(false);
     peakTableCombo->setEnabled(false);
@@ -454,7 +460,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _pollyProjectId = _getProjectId();
     if (_pollyProjectId.isEmpty()) {
         emit uploadFinished(false);
-        statusUpdate->setText("");
+        statusUpdate->clear();
         return;
     }
 
@@ -536,7 +542,8 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
     }
 
     if (!redirectionUrl.isEmpty()) {
-        statusUpdate->setText("");
+        _performPostUploadTasks(true);
+        statusUpdate->clear();
         _showPollyButtonIfUrlExists();
 
         // send an email to the user, this is a way of persisting their URLs
@@ -570,6 +577,7 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
                                     << appname;
         workerThread->start();
     } else {
+        _performPostUploadTasks(false);
         statusUpdate->setStyleSheet("QLabel {color : red;}");
         QString errorTitle = "An unexpected error occured";
         QString errorMessage = patchId.isEmpty() ? "Sorry. We were unable to "
@@ -581,7 +589,6 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
         _showErrorMessage(errorTitle,
                           errorMessage);
     }
-    emit uploadFinished(false);
 }
 
 QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
@@ -660,8 +667,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
     peakTable = _tableNameMapping[peakTableCombo->currentText()];
 
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing compound database file…");
     QCoreApplication::processEvents();
 
     // Now uploading the Compound DB that was used for peak detection.
@@ -679,8 +684,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
     qDebug() << "Uploading all groups, needed for firstview app…";
 
     // Preparing the CSV file
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing CSV file…");
     QCoreApplication::processEvents();
 
     peakTable->wholePeakSet();
@@ -691,8 +694,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
                                     datetimestamp + "_Peak_table_all_");
 
     // Preparing the json file
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing JSON file…");
     QCoreApplication::processEvents();
 
     QString jsonFilename = _writeableTempDir
@@ -706,8 +707,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
     
     if (_selectedApp == PollyApp::Fluxomics) {
-        statusUpdate->setStyleSheet("QLabel {color : green; }");
-        statusUpdate->setText("Preparing sample cohort file..");
         QCoreApplication::processEvents();
         //Preparing the sample cohort file
         QString sampleCohortFileName = _writeableTempDir + QDir::separator() + datetimestamp +
@@ -761,6 +760,7 @@ void PollyElmavenInterfaceDialog::_logout()
 
 void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
 {
+    _uploadInProgress = false;
     uploadButton->setEnabled(true);
     peakTableCombo->setEnabled(true);
     projectOptions->setEnabled(true);
