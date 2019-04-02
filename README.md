@@ -36,26 +36,32 @@ Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following t
 ### Windows
 
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
-- Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:  
-- **For 64 bit**:  
-`pacman --force -Sy`  
-`pacman --force -Syu`  
-`pacman --force -Su`  
-`pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git`  
+- Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
+##### **For 64 bit**:  _Following commands needs to be executed from msys2 shell_
 
-- **For 32 bit**:  
-`pacman --force -Sy`  
-`pacman --force -Syu`  
-`pacman --force -Su`  
-`pacman --force -Sy base-devel msys2-devel mingw-i686-toolchain mingw-i686-qt5 mingw32/mingw-i686-hdf5 mingw32/mingw-i686-netcdf mingw32/mingw-i686-boost msys/git`  
+- `pacman --force -Sy`
+- `pacman --force -Syu`
+- `pacman --force -Su`
+- `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git mingw-w64-x86_64-curl`
+- `export PATH=/c/msys64/mingw64/bin/:$PATH`. It will be benefical if this change is made permanent. To do so, you will have to make changes
+in the .bashrc file. It can be achieved by either manually editing the .bashrc file or via command line.
 
-- Open mingw64.exe from the MSYS2 folder and give the following commands:  
-`cd <PathToInstallationFolder>    #for example: cd /c/User/Admin/Desktop`  
-`git clone https://github.com/ElucidataInc/ElMaven.git`  
-`./run.sh`  
-`./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`  
+  **For manually editing:**
+    - Open .bashrc(located in C:\msys64\home\USERNAME\\) in any text editor
+    - Add `export PATH=/c/msys64/mingw64/bin/:$PATH` at the end of the file
+    - Save and exit the editor
+    - From msys2 shell: `source ~/.bashrc`
 
-El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.  
+  **For editing the file via command line:**
+    - `echo export PATH=/c/msys64/mingw64/bin/:$PATH > ~/.bashrc`
+    - `source ~/.bashrc`
+
+- `cd <PathToInstallationFolder>    #for example: cd /c/User/Admin/Desktop`
+- `git clone https://github.com/ElucidataInc/ElMaven.git`
+- `./run.sh`
+- `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
+
+El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
 
 ### Ubuntu  
 
