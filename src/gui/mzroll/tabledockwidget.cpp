@@ -746,7 +746,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
 void TableDockWidget::exportJsonToPolly(QString writableTempDir,
                                         QString jsonfileName,
-                                        bool uploadToPolly)
+                                        bool addMLInfo)
 {
 
   if (allgroups.size() == 0) {
@@ -763,7 +763,7 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
   for (int i = 0; i < allgroups.size(); ++i) {
     vallgroups.push_back(allgroups[i]);
   }
-  jsonReports = new JSONReports(_mainwindow->mavenParameters, uploadToPolly);
+  jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
   jsonReports->saveMzEICJson(jsonfileName.toStdString(),
                              vallgroups,
                              _mainwindow->getVisibleSamples());

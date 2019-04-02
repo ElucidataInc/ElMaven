@@ -110,7 +110,7 @@ public Q_SLOTS:
   void prepareDataForPolly(QString writableTempDir,
                            QString exportFormat,
                            QString userFilename);
-  void exportJsonToPolly(QString writableTempDir, QString jsonfileName, bool uploadToPolly);
+  void exportJsonToPolly(QString writableTempDir, QString jsonfileName, bool addMLInfo);
 
   void showTrainDialog();
   void showClusterDialog();
