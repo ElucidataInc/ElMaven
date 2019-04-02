@@ -84,7 +84,7 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/src/projectDB \
                 $$top_srcdir/crashhandler/ \
-                $$top_srcdir/crashhandler/breakpad/src/src/
+                $$top_srcdir/crashhandler/breakpad/src/src/ \
                 $$top_srcdir/3rdparty/libsvm
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
@@ -109,7 +109,7 @@ LIBS +=  -lmaven \
          -lz \
          -lpollyCLI \
          -lprojectDB \
-         -lbreakpad
+         -lbreakpad \
          -lsvm
 
 macx {
