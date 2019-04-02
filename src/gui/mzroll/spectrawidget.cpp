@@ -643,7 +643,7 @@ void SpectraWidget::drawGraph()
 
     if (_spectralHit.mzList.size() > 0) {
         setGroupTitle();
-        if (mzUtils::almostEqual(_spectralHit.precursorMz, _currentScan->precursorMz))
+        if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.1f)
             drawSpectralHit(_spectralHit);
         else {
             //TODO: either remove the check or inform user on the UI in case of failure
