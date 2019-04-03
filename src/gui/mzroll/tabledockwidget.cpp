@@ -1,17 +1,34 @@
 #include "tabledockwidget.h";
 #include "peaktabledeletiondialog.h"
+#include "notificator.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
+  QDateTime current_time;
+  const QString format = "dd-MM-yyyy_hh_mm_ss";
+  QString datetimestamp= current_time.currentDateTime().toString(format);
+  datetimestamp.replace(" ","_");
+  datetimestamp.replace(":","-");
+  
+  uploadId = datetimestamp+"_Peak_table_"+QString::number(mw->lastPeakTableId);
+
+  writableTempS3Dir = QStandardPaths::writableLocation(
+                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
+                                                + QDir::separator()
+                                                + "tmp_Elmaven_s3_files_"
+                                                + QString::number(mw->lastPeakTableId);
+  if (!QDir(writableTempS3Dir).exists())
+    QDir().mkdir(writableTempS3Dir);
+
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
-
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
 
   viewType = groupView;
+  maxPeaks = 0; //Maximum Number of Peaks in a Group
 
   treeWidget = new QTreeWidget(this);
   treeWidget->setSortingEnabled(false);
@@ -54,6 +71,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SIGNAL(updateProgressBar(QString, int, int)),
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
+  connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
 
   setupFiltersDialog();
 
@@ -67,6 +85,11 @@ TableDockWidget::~TableDockWidget() {
     delete clusterDialog;
 
   delete treeWidget;
+  QDir qDirS3(writableTempS3Dir);
+  if(qDirS3.exists()){
+    qDirS3.removeRecursively();
+  }
+
 }
 
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
@@ -165,11 +188,24 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
     return;
   heatmapBackground(item);
 
-  if (viewType == groupView)
-    item->setText(11, QString::number(group->maxQuality, 'f', 2));
+    if (viewType == groupView) {
+        item->setText(11, QString::number(group->maxQuality, 'f', 2));
+        item->setText(1, QString(group->getName().c_str()));
+  }
+  //Find maximum number of peaks
+  if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
+  //score group quality
+  groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
+  if (groupClsf != NULL) {
+      groupClsf->classify(group);
+  }
 
-  item->setText(1, QString(group->getName().c_str()));
-
+  //get probability good/bad from svm
+  svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+  if (groupPred != NULL) {
+      groupPred->predict(group);
+  }
+  
   // Updating the peakid
   item->setText(0, QString::number(group->groupId));
 
@@ -323,6 +359,22 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
       item->setText(15, QString::number(group->changeFoldRatio, 'f', 2));
       item->setText(16, QString::number(group->changePValue, 'e', 4));
     }
+
+    //Find maximum number of peaks
+    if (maxPeaks < group->peakCount())
+        maxPeaks = group->peakCount();
+
+    //TODO: Move this to peak detector or peakgroup
+    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
+    if (groupClsf != NULL) {
+        groupClsf->classify(group);
+    }
+
+    //Get prediction labels from svm
+    svmPredictor* groupPred = _mainwindow->getSVMPredictor();
+    if (groupPred != NULL) {
+        groupPred->predict(group);
+    }
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -435,6 +487,16 @@ void TableDockWidget::showAllGroups() {
   treeWidget->setSortingEnabled(true);
   updateStatus();
   updateCompoundWidget();
+  //@Kailash: Check and validate all groups automatically
+  QTreeWidgetItemIterator itr(treeWidget);
+  while(*itr) {
+      QTreeWidgetItem* item = (*itr);
+      QVariant v = item->data(0,Qt::UserRole);
+      PeakGroup* grp = v.value<PeakGroup*>();
+      validateGroup(grp, item);
+      itr++;
+  }
+
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup *group) {
@@ -679,7 +741,9 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 }
 
 void TableDockWidget::exportJsonToPolly(QString writableTempDir,
-                                        QString jsonfileName) {
+                                        QString jsonfileName,
+                                        bool addMLInfo)
+{
 
   if (allgroups.size() == 0) {
     QString msg = "Peaks Table is Empty";
@@ -695,10 +759,52 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
   for (int i = 0; i < allgroups.size(); ++i) {
     vallgroups.push_back(allgroups[i]);
   }
-  jsonReports = new JSONReports(_mainwindow->mavenParameters);
+  jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
   jsonReports->saveMzEICJson(jsonfileName.toStdString(),
                              vallgroups,
                              _mainwindow->getVisibleSamples());
+}
+
+UploadPeaksToCloudThread::UploadPeaksToCloudThread()
+{
+    _pollyintegration = new PollyIntegration();   
+    
+};
+
+void UploadPeaksToCloudThread::run()
+{
+    qDebug() << "Checking for active internet connection..";
+    QString status;
+    if (!_pollyintegration->activeInternet()) {
+        qDebug() << "No internet connection..aborting upload";
+        return;
+    }
+    QString uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
+    emit resultReady(sessionId);
+}
+
+UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
+{
+  if (_pollyintegration) delete (_pollyintegration);
+};
+
+
+void TableDockWidget::UploadPeakBatchToCloud(){
+    jsonReports=new JSONReports(_mainwindow->mavenParameters);
+    QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
+    jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
+
+    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
+    connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
+    connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
+    uploadPeaksToCloudThread->sessionId = uploadId;
+    uploadPeaksToCloudThread->fileName = uploadId + "_" + QString::number(uploadCount) ;
+    uploadPeaksToCloudThread->filePath = filePath;
+    uploadPeaksToCloudThread->start();
+}
+
+void TableDockWidget::StartUploadPeakBatchToCloud(){
+  qDebug()<<"upload finished";
 }
 
 void TableDockWidget::exportJson() {
@@ -853,11 +959,22 @@ void TableDockWidget::setGroupLabel(char label) {
       QVariant v = item->data(0, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
+        if (!(group->label=='g'||group->label=='b')){
+          numberOfGroupsMarked+=1;
+          group->setLabel(label);
+          subsetPeakGroups.push_back(*group);
+        }
         group->setLabel(label);
+        if (numberOfGroupsMarked ==10){
+          numberOfGroupsMarked = 0;
+          Q_EMIT(UploadPeakBatch());
+          subsetPeakGroups.clear();
+          uploadCount+=1;
+          }
       }
       updateItem(item);
     }
-  }
+}
   updateStatus();
 }
 
@@ -981,8 +1098,7 @@ void TableDockWidget::showConsensusSpectra() {
   }
 }
 
-void TableDockWidget::markGroupGood()
-{
+void TableDockWidget::markGroupGood() {
   setGroupLabel('g');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
@@ -990,8 +1106,7 @@ void TableDockWidget::markGroupGood()
   _mainwindow->autoSaveSignal();
 }
 
-void TableDockWidget::markGroupBad()
-{
+void TableDockWidget::markGroupBad() {
   setGroupLabel('b');
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
@@ -1994,7 +2109,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
@@ -2091,7 +2205,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2379,7 +2492,6 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 }
 
 void BookmarkTableDockWidget::markGroupGood() {
-
   setGroupLabel('g');
   showNextGroup();
   _mainwindow->peaksMarked++;
@@ -2444,7 +2556,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
-
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2498,4 +2609,81 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   treeWidget->header()->adjustSize();
   treeWidget->setSortingEnabled(true);
+}
+
+//@Kailash: Put decision sequence/tree for automatic validation here
+void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    int mark=0;
+    bool decisionConflict=false;
+    if (grp != NULL)
+    {
+        //Disjoint Decision Tree
+        //Require improvements
+
+        //Decisions to mark group good
+        if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69 && grp->weightedAvgPeakQuality > 0.73) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->groupQuality > 0.73) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+        else if (grp->predictedLabel==1) {
+            if (grp->avgPeakQuality > 0.76) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;   
+            }
+
+            if (grp->weightedAvgPeakQuality > 0.69) {
+                if (mark!=-1) mark=1;
+                else decisionConflict=true;
+            }
+        }
+        else if (grp->predictedLabel==0 && grp->avgPeakQuality > 0.72 && grp->weightedAvgPeakQuality > 0.76) {
+            if (mark!=-1) mark=1;
+            else decisionConflict=true;
+        }
+
+        //Decisions to mark group bad
+        if (grp->avgPeakQuality < 0.25 && grp->weightedAvgPeakQuality < 0.35) {
+            if (mark!=1) mark=-1;
+            else decisionConflict=true;
+        }
+
+        if (grp->predictedLabel==-1) {
+            if (grp->avgPeakQuality < 0.29) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+
+            if (grp->weightedAvgPeakQuality < 0.31) {
+                if (mark!=1) mark=-1;
+                else decisionConflict=true;
+            }
+        }
+
+        //Decisions to not mark group
+        if (grp->peakCount() < int(maxPeaks/4) || grp->peakCount() == 1) decisionConflict=true; //Do not mark if number of peaks in the group is less
+
+        if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
+            decisionConflict=true;
+        }
+
+        if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
+            decisionConflict=true;
+        }
+        grp->markedGoodByCloudModel = 0;
+        grp->markedBadByCloudModel = 0;
+        //Call respected functions to mark the groups
+        if (mark==1 && !decisionConflict) {
+            // markGroupGood(grp, item);
+            grp->markedGoodByCloudModel = 1;
+        }
+        else if (mark==-1 && !decisionConflict) {
+            // markGroupBad(grp, item);
+            grp->markedBadByCloudModel = 1;
+        }
+    }
 }

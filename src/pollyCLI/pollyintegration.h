@@ -38,7 +38,8 @@ class PollyIntegration
 	    QStringList get_project_upload_url_commands(QString url_with_wildcard, QStringList filenames);
 		QString getFileUploadURLs(QByteArray result2);
 		QStringList get_projectFiles_download_url_commands(QByteArray result2, QStringList filenames);
-	    
+	    QString UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath);
+		QString UploadToCloud(QString uploadUrl, QString filePath);
 		/**
  		 * @brief Parse and return the project ID for a new Polly project
  		 * @param result output from running "createproject" command that creates a new Polly project

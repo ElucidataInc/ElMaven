@@ -6,6 +6,8 @@ include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
+QT += multimedia multimediawidgets
+
 CONFIG += qt thread warn_off sql svg console precompile_header
 
 #Faster build + C++11 ++ OpenMP
@@ -30,8 +32,7 @@ TARGET = "El-MAVEN"
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
-
-
+win32: RESOURCES += win_pollyphi.qrc
 ICON = maven.icns
 
 
@@ -83,7 +84,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/src/projectDB \
                 $$top_srcdir/crashhandler/ \
-                $$top_srcdir/crashhandler/breakpad/src/src/
+                $$top_srcdir/crashhandler/breakpad/src/src/ \
+                $$top_srcdir/3rdparty/libsvm
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -107,7 +109,9 @@ LIBS +=  -lmaven \
          -lz \
          -lpollyCLI \
          -lprojectDB \
-         -lbreakpad
+         -lbreakpad \
+         -lsvm
+
 macx {
 
   LIBS -= -lnetcdf
@@ -226,7 +230,7 @@ HEADERS +=  stable.h \
                     notificator.h \
                     notificator_p.h \
                     $$top_srcdir/crashhandler/elmavexceptionhandler.h \
-
+                    videoplayer.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -298,6 +302,7 @@ database.cpp \
     pollywaitdialog.cpp \
     peaktabledeletiondialog.cpp \
     notificator.cpp \
+    videoplayer.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

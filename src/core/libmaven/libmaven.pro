@@ -29,7 +29,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/obiwarp/ \
-                $$top_srcdir/3rdparty/Eigen/
+                $$top_srcdir/3rdparty/Eigen/ \
+                $$top_srcdir/3rdparty/libsvm
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 
@@ -79,7 +80,10 @@ SOURCES = 	base64.cpp \
                 peakFiltering.cpp \
                 groupFiltering.cpp \
                 isotopeDetection.cpp \
-                datastructures/mzSlice.cpp
+                datastructures/mzSlice.cpp \
+                groupClassifier.cpp \
+                groupFeatures.cpp \
+                svmPredictor.cpp
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -119,4 +123,7 @@ HEADERS += 	constants.h \
                 groupFiltering.h \
                 isotopeDetection.h \
                 datastructures/mzSlice.h \
-                settings.h
+                settings.h \
+                groupClassifier.h \
+                groupFeatures.h \
+                svmPredictor.h 

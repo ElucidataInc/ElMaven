@@ -4,7 +4,8 @@ PollyIntegration::PollyIntegration(): nodePath(""), jsPath("")
 {
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
-    // nodePath = QStandardPaths::findExecutable("node");
+    // It's important to look for node in the system first, as it might not always be present in the bin dir.
+     nodePath = QStandardPaths::findExecutable("node");
     jsPath = qApp->applicationDirPath() + QDir::separator() + "index.js";
 
     #ifdef Q_OS_WIN
@@ -413,6 +414,24 @@ QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
     QString url_with_wildcard =  json_map["file_upload_urls"].toString();
 
     return url_with_wildcard;
+}
+
+QString PollyIntegration::UploadToCloud(QString uploadUrl, QString filePath){
+    QString upload_command = "uploadCuratedPeakDataToCloud";
+    QList<QByteArray> patch_id_result_and_error = runQtProcess(upload_command, QStringList() << uploadUrl << filePath);
+    QString status = "success";
+    return status;
+}
+
+QString PollyIntegration::UploadPeaksToCloud(QString session_indentifier, QString fileName, QString filePath){
+    QElapsedTimer timer;
+    timer.start();
+    QString command = "getPeakUploadUrls";
+    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << session_indentifier << fileName);
+    QString uploadUrl = getFileUploadURLs(result_and_error.at(0));
+    QString status = UploadToCloud(uploadUrl, filePath);
+    qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
+    return status;
 }
 
 // name OF FUNCTION: loadDataFromPolly

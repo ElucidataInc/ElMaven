@@ -1,4 +1,5 @@
 #include "peakdetectiondialog.h"
+#include "videoplayer.h"
 #include <string>
 #include <QVariant>
 
@@ -536,6 +537,8 @@ void PeakDetectionDialog::findPeaks() {
     // connect(peakupdater, SIGNAL(terminated()), peaksTable,
             // SLOT(showAllGroups()));
     connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
+    if(!settings->value("hideVideoPlayer", 0).toBool())
+        connect(peakupdater, SIGNAL(finished()), mainwindow->vidPlayer, SLOT(show()));
     // connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 

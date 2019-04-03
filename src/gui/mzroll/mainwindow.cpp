@@ -2,6 +2,7 @@
 #include "grouprtwidget.h"
 #include <QStandardPaths>
 #include "notificator.h"
+#include "videoplayer.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -220,7 +221,11 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
-
+	groupClsf = new groupClassifier();
+        groupClsf->loadModel("bin/weights/group.weights");
+ 
+  	groupPred = new svmPredictor();
+        groupPred->loadModel("bin/weights/svm.model");
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
@@ -441,6 +446,9 @@ using namespace mzUtils;
 	connect(scatterDockWidget, SIGNAL(groupSelected(PeakGroup*)),
 			SLOT(setPeakGroup(PeakGroup*)));
 	pathwayWidgetController();
+
+
+    vidPlayer = new VideoPlayer(settings, this, nullptr);
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, pathwayPanel, Qt::Vertical);
@@ -818,7 +826,8 @@ void MainWindow::saveSettingsToLog() {
 void MainWindow::showNotification(TableDockWidget* table) {
 	QIcon icon = QIcon(":/images/notification.png");
 	QString title("");
-	QString message("View your fluxomics workflow on Polly!");
+    QString message("Make your analyses more insightful with Machine learning.\n \
+                    View your fluxomics workflow in PollyPhi.");
 	
 	if (table->groupCount() == 0 || table->labeledGroups == 0)
 		return;
@@ -2660,7 +2669,10 @@ void MainWindow::createMenus() {
 	connect(doc,SIGNAL(triggered(bool)), signalMapper, SLOT(map()));
 
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
-	connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
+    connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
+
+    QAction* mlModelVideo = helpMenu->addAction("How ML model works");
+    connect(mlModelVideo, &QAction::triggered, vidPlayer, &VideoPlayer::show);
 
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));

@@ -25,7 +25,7 @@ public:
     /**
     *empty constructor
     */
-    CSVReports();
+    CSVReports() {}
     /**
     *@brief-    creating CSVReports by all the samples uploaded
     *@see -     see details in its definition
@@ -85,6 +85,8 @@ public:
         */
         mavenparameters = mp;
     }
+
+    void writeDataForPolly(const std::string& file, std::list<PeakGroup> groups);
     
     MavenParameters* getMavenParameters() {
        /**
@@ -169,6 +171,7 @@ private:
     PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
     MavenParameters * mavenparameters;
     int selectionFlag;      /**@param-  TODO*/
+    bool _uploadToPolly;
 };
 
 #endif

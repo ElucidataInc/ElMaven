@@ -1,6 +1,7 @@
 #include "pollyelmaveninterface.h"
 #include <string>
 #include <QVariant>
+#include "csvreports.h"
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
         QDialog(mw),
@@ -562,6 +563,7 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentAp
                                    datetimestamp
                                    + "_Peak_table_all_");
     
+
     //Preparing the json file
     statusUpdate->setStyleSheet("QLabel {color : green; }");
     statusUpdate->setText("Preparing json file..");
@@ -572,7 +574,11 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentAp
                             + QDir::separator()
                             + datetimestamp
                             + "_Peaks_information_json_Elmaven_Polly.json";
-    peakTable->exportJsonToPolly(writableTempDir, json_filename);
+    if(currentApp == PollyApp::Fluxomics)
+        peakTable->exportJsonToPolly(writableTempDir, json_filename, true);
+    else
+        peakTable->exportJsonToPolly(writableTempDir, json_filename, false);
+
     
     if (currentApp == PollyApp::Fluxomics) {
         fluxStatus->setStyleSheet("QLabel {color : green; }");
@@ -582,6 +588,21 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentAp
         QString sampleCohortFileName = writableTempDir + QDir::separator() + datetimestamp +
                                         "_Cohort_Mapping_Elmaven.csv";
         mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
+
+        CSVReports csvrpt;
+        QList<PeakGroup *> selectedGroups = peakTable->getSelectedGroups();
+        std::list<PeakGroup> groups;
+
+        for (int i = 0; i < peakTable->allgroups.size(); i++) {
+            if (selectedGroups.contains(&peakTable->allgroups[i])) {
+                  groups.push_back(peakTable->allgroups[i]);
+            }
+        }
+        QString modelFile = writableTempDir
+                            + QDir::separator()
+                            + datetimestamp
+                            + "_Cloud_model_mapping_file.csv";
+        csvrpt.writeDataForPolly(modelFile.toStdString(), groups);
     }
     
     //Saving settings file

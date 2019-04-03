@@ -119,7 +119,6 @@ function refreshToken(token_filename,email){
     });
 }
 
-
 module.exports.authenticate = function(token_filename,email, password){
     if (has_id_token(token_filename) && has_id_token(token_filename+"_refreshToken")) {
         var public_token_header = read_id_token(token_filename);
@@ -369,6 +368,63 @@ module.exports.shareProject = function (token_filename,project_id,permission,use
     });
 }
 
+module.exports.uploadCuratedPeakDataToCloud = function (signed_url, filePath) {
+    var options = {
+        method: 'PUT',
+        url: signed_url,
+        headers:
+            {
+                'x-amz-acl': 'bucket-owner-full-control',                
+            },
+        body: fs.readFileSync(filePath)
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        if (response.statusCode != 200) {
+            console.log(chalk.red.bold("Unable to post project data.Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            return;
+        }
+        console.log(chalk.green.bold(response.statusCode));
+    });
+}
+
+module.exports.getPeakUploadUrls = function (session_indentifier,file_name) {
+    if (!session_indentifier) {
+        console.log(chalk.red.bold("session_indentifier is required param."));
+        return;
+    }
+    var options = {
+        method: 'POST',
+        url: 'https://zk0hjeh138.execute-api.ap-southeast-1.amazonaws.com/dev/eluploader',
+        headers:
+            {
+                'content-type': 'application/json'
+            },
+        body:
+            {
+                format:"json",
+                file_name: file_name,
+                folder_name: session_indentifier
+            },
+        json: true
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`getPeakUploadUrls Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to get signed urls for uploading peak data. Please check your APIs. Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
+   
 module.exports.get_upload_Project_urls = function (token_filename,id) {
     if (has_id_token(token_filename)) {
         public_token_header = read_id_token(token_filename);

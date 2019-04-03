@@ -54,7 +54,10 @@
 #include <csignal>
 #include <QList>
 #include <QRegExp>
+#include "groupClassifier.h"
+#include "svmPredictor.h"
 
+class VideoPlayer;
 class SettingsForm;
 class EicWidget;
 class PlotDockWidget;
@@ -159,6 +162,7 @@ public:
 	SRMList *srmList;
     map<string, Compound*> annotation;
 	
+    VideoPlayer* vidPlayer;
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
@@ -245,6 +249,14 @@ public:
 	ClassifierNeuralNet* getClassifier() {
 		return clsf;
 	}
+
+	groupClassifier * getGroupClassifier() {
+ 		return groupClsf;
+ 	}
+ 
+  	svmPredictor * getSVMPredictor() {
+ 		return groupPred;
+ 	}
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
@@ -512,6 +524,9 @@ private:
 	Analytics* analytics;
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
+	groupClassifier* groupClsf;
+ 	svmPredictor* groupPred;
+	 
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
