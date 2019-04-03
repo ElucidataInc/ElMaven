@@ -97,7 +97,6 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
                             << "compound"
                             << "compoundId"
                             << "formula"
-                            << "note"
                             << "expectedRtDiff"
                             << "ppmDiff"
                             << "parent";
@@ -154,7 +153,6 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile()
                            << "compound"
                            << "compoundId"
                            << "formula"
-                           << "note"
                            << "sample"
                            << "peakMz"
                            << "medianMz"
@@ -290,6 +288,7 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
     }
     groupReport.close();
 }
+
 void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (!groupReport.is_open())
         return;
@@ -339,7 +338,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    string compoundNote = "";
     string categoryString;
     float expectedRtDiff = 0;
     float ppmDist = 0;
@@ -348,7 +346,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
-        compoundNote = sanitizeString(group->compound->note.c_str()).toStdString();
         if (!group->compound->formula.empty()) {
             int charge = getMavenParameters()->getCharge(group->compound);
             if (group->parent != NULL) {
@@ -381,7 +378,6 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     groupReport << SEP << compoundName
                 << SEP << compoundID
                 << SEP << formula
-                << SEP << compoundNote
                 << SEP << setprecision(3) << expectedRtDiff
                 << SEP << setprecision(6) << ppmDist;
 
@@ -435,12 +431,10 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    string compoundNote = "";
     if (group->compound != NULL) {
         compoundName = sanitizeString(group->compound->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->compound->id.c_str()).toStdString();
         formula = sanitizeString(group->compound->formula.c_str()).toStdString();
-        compoundNote = sanitizeString(group->compound->note.c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
@@ -477,7 +471,6 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
-                   << SEP << compoundNote
                    << SEP << sampleName
                    << SEP << peak.peakMz
                    << SEP << peak.medianMz
