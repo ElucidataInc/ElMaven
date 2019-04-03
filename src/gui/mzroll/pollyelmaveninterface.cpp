@@ -400,6 +400,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     statusUpdate->setText("Connecting…");
     QCoreApplication::processEvents();
     // check for active internet connection
+    if (!_pollyIntegration->activeInternet()) {
         statusUpdate->setText("No internet access.");
         uploadButton->setEnabled(true);
         return;

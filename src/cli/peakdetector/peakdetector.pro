@@ -38,6 +38,8 @@ LIBS +=  -lmaven         \
          -lobiwarp       \
          -lpollyCLI
 
+LIBS += -fopenmp
+
 macx {
     DYLIBPATH = $$(LDFLAGS)
     isEmpty(DYLIBPATH) {
