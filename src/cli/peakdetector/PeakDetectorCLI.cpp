@@ -1009,11 +1009,17 @@ QString PeakDetectorCLI::UploadToPolly(QString jsPath, QString nodePath,
 	return upload_project_id;
 }
 
-bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds, QString redirection_url) {
-	QString user_email = creds["polly_username"];
-	QString email_message = "Data Successfully uploaded to Polly project " + pollyProject;
-	status = _pollyIntegration->sendEmail(user_email, redirection_url, email_message);
-	return status;
+bool PeakDetectorCLI::send_user_email(QMap<QString, QString> creds,
+                                      QString redirection_url)
+{
+    QString user_email = creds["polly_username"];
+    QString email_message = "Data Successfully uploaded to Polly project "
+                            + pollyProject;
+    status = _pollyIntegration->sendEmail(user_email,
+                                          email_message,
+                                          redirection_url,
+                                          "pollyphi");
+    return status;
 }
 
 void PeakDetectorCLI::saveMzRoll(string setName) {

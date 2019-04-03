@@ -1,78 +1,114 @@
 #include "pollyelmaveninterface.h"
-#include <string>
 #include <QVariant>
 #include "csvreports.h"
+#include <string>
 
-PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw) :
-        QDialog(mw),
-        mainwindow(mw),
-        _loginform(NULL)
+
+PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
+    : QDialog(mw), _mainwindow(mw), _loginform(nullptr)
 {
-        setModal(true);
-        setupUi(this);
-        qRegisterMetaType<PollyApp>("PollyApp");
-        workflowMenu->setCurrentRow(int(PollyApp::FirstView));
+    setupUi(this);
+    setModal(true);
 
-        _pollyIntegration = new PollyIntegration();
-        _loadingDialog = new PollyWaitDialog(this);
-        pollyButton->setVisible(false);
-        fluxButton->setVisible(false);
-        
-        connect(workflowMenu, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-        this, SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
-        connect(pollyButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
-        connect(fluxButton, SIGNAL(clicked(bool)), SLOT(goToPolly()));
-        connect(firstViewUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
-        connect(fluxUpload, SIGNAL(clicked(bool)), SLOT(uploadDataToPolly()));
-        connect(firstViewCancel, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(fluxCancel, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(firstViewCreateProject, SIGNAL(clicked(bool)), SLOT(handleNewProject()));
-        connect(fluxCreateProject, SIGNAL(clicked(bool)), SLOT(handleNewProject()));
-        connect(firstViewSelectProject, SIGNAL(clicked(bool)), SLOT(handleSelectProject()));
-        connect(fluxSelectProject, SIGNAL(clicked(bool)), SLOT(handleSelectProject()));
-        connect(firstViewLogout, SIGNAL(clicked(bool)), SLOT(logout()));
-        connect(fluxLogout, SIGNAL(clicked(bool)), SLOT(logout()));
-        connect(this, SIGNAL(uploadFinished(PollyApp, bool)), SLOT(performPostUploadTasks(PollyApp, bool)));
+    qRegisterMetaType<PollyApp>("PollyApp");
+
+    auto configLocation = QStandardPaths::QStandardPaths::GenericConfigLocation;
+    _writeableTempDir = QStandardPaths::writableLocation(configLocation)
+                        + QDir::separator()
+                        + "tmp_Elmaven_Polly_files";
+    _activeTable = nullptr;
+    _pollyIntegration = new PollyIntegration();
+    _loadingDialog = new PollyWaitDialog(this);
+
+    workflowMenu->setStyleSheet("QListView::item {"
+                                "border: 1px solid transparent;"
+                                "border-radius: 4px;"
+                                "padding: 6px;"
+                                "}"
+                                "QListView::item:selected {"
+                                "border-color: rgb(150, 150, 255);"
+                                "background-color: rgb(235, 235, 255);"
+                                "}"
+                                "QListView::item:enabled {"
+                                "color: black;"
+                                "}"
+                                "QListView::item:disabled {"
+                                "color: gray;"
+                                "}"
+                                "QListView {"
+                                "outline: 0;"
+                                "}");
+    workflowMenu->setCurrentRow(int(PollyApp::FirstView));
+    gotoPollyButton->setVisible(false);
+    gotoPollyButton->setDefault(true);
+
+    connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
+    connect(workflowMenu,
+            SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+            this,
+            SLOT(_changePage()));
+    connect(newProjectRadio,
+            SIGNAL(clicked(bool)),
+            SLOT(_enableNewProjectUi()));
+    connect(existingProjectRadio,
+            SIGNAL(clicked(bool)),
+            SLOT(_enableExistingProjectUi()));
+    connect(gotoPollyButton, SIGNAL(clicked(bool)), SLOT(_goToPolly()));
+    connect(uploadButton, SIGNAL(clicked(bool)), SLOT(_uploadDataToPolly()));
+    connect(this,
+            SIGNAL(uploadFinished(bool)),
+            SLOT(_performPostUploadTasks(bool)));
 }
- 
+
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
-    qDebug()<<"exiting PollyElmavenInterfaceDialog now....";
-    if (_loginform) delete (_loginform);
+    qDebug() << "exiting PollyElmavenInterfaceDialog now....";
+    if (_loginform)
+        delete (_loginform);
 }
 
 EPIWorkerThread::EPIWorkerThread()
 {
-    _pollyintegration = new PollyIntegration();   
-    
-};
+    _pollyintegration = new PollyIntegration();
+}
 
 void EPIWorkerThread::run()
 {
-    if (state == "initial_setup"){
+    if (state == "initial_setup") {
         qDebug() << "Checking for active internet connection..";
         QString status;
         if (!_pollyintegration->activeInternet()) {
             status = "error";
-            emit authentication_result(status);
+            emit authentication_result("", status);
             return;
         }
 
         qDebug() << "Authenticating..";
-        status = _pollyintegration->authenticateLogin("","");
-        emit authentication_result(status);
-        
+        status = _pollyintegration->authenticateLogin("", "");
+        emit authentication_result(_pollyintegration->getCurrentUsername(),
+                                   status);
+
         qDebug() << "Fetching projects from Polly..";
         if (status == "ok") {
-            QVariantMap projectNamesId = _pollyintegration->getUserProjects();
-            emit resultReady(projectNamesId);
+            QVariantMap _projectNameIdMap = _pollyintegration->getUserProjects();
+            emit resultReady(_projectNameIdMap);
         }
     } else if (state == "upload_files") {
         qDebug() << "starting thread for uploading files to polly..";
-        //re-login to polly may be required because the token expires after 30 minutes..
-        QString statusInside = _pollyintegration->authenticateLogin("","");
-        QStringList patchId  = _pollyintegration->exportData(filesToUpload, uploadProjectIdThread);
-        emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp, currentApp);
+        // re-login to polly may be required because the token expires after 30
+        // minutes..
+        QString statusInside = _pollyintegration->authenticateLogin("", "");
+        QStringList patchId = _pollyintegration->exportData(filesToUpload,
+                                                            uploadProjectIdThread);
+        emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
+    } else if (state == "send_email") {
+        qDebug() << "starting thread for sending email to user…";
+        bool emailSent = _pollyintegration->sendEmail(username,
+                                                      filesToUpload[0],
+                                                      filesToUpload[1],
+                                                      filesToUpload[2]);
+        qDebug() << (emailSent ? "Sent an email containing URL to user."
+                               : "Failed to send email to user.");
     }
 }
 
@@ -81,52 +117,58 @@ EPIWorkerThread::~EPIWorkerThread()
     for (auto fileName : filesToUpload) {
         tmpDir.remove(fileName);
     }
-    if (_pollyintegration) delete (_pollyintegration);
-};
-
-void PollyElmavenInterfaceDialog::changePage(QListWidgetItem *current, QListWidgetItem *previous)
- {
-    if (!current)
-        current = previous;
-
-    stackedWidget->setCurrentIndex(workflowMenu->row(current));
- }
-
-void PollyElmavenInterfaceDialog::goToPolly()
-{
-    QDesktopServices::openUrl(pollyURL);
+    if (_pollyintegration)
+        delete (_pollyintegration);
 }
 
-void PollyElmavenInterfaceDialog::handleNewProject()
+void PollyElmavenInterfaceDialog::setSelectedTable(TableDockWidget *table)
 {
-    if (stackedWidget->currentIndex() == int(PollyApp::FirstView)) {
-        firstViewNewProject->setEnabled(true);
-        firstViewProjectList->setEnabled(false);
+    if (table)
+        peakTableCombo->setCurrentText(table->titlePeakTable->text());
+}
+
+void PollyElmavenInterfaceDialog::switchToApp(PollyApp app)
+{
+    workflowMenu->setCurrentRow(static_cast<int>(app));
+}
+
+void PollyElmavenInterfaceDialog::_changePage()
+{
+    _selectedApp = PollyApp(workflowMenu->currentRow());
+    if (_selectedApp == PollyApp::FirstView) {
+        viewTitle->setText("Upload to Polly™ FirstView");
+    } else if (_selectedApp == PollyApp::Fluxomics) {
+        viewTitle->setText("Upload to PollyPhi™ Relative");
+    } else if (_selectedApp == PollyApp::QuantFit) {
+        viewTitle->setText("Upload to Polly™ QuantFit");
     }
-    
-    if (stackedWidget->currentIndex() == int(PollyApp::Fluxomics)) {
-        fluxNewProject->setEnabled(true);
-        fluxProjectList->setEnabled(false);
-    }
+
+    startupDataLoad();
+}
+
+void PollyElmavenInterfaceDialog::_goToPolly()
+{
+    QDesktopServices::openUrl(_redirectionUrlMap[_selectedApp]);
+}
+
+void PollyElmavenInterfaceDialog::_enableNewProjectUi()
+{
+    newProjectEntry->setEnabled(true);
+    existingProjectCombo->setEnabled(false);
+    existingProjectRadio->setChecked(false);
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::handleSelectProject()
+void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
 {
-    if (stackedWidget->currentIndex() == int(PollyApp::FirstView)) {
-        firstViewNewProject->setEnabled(false);
-        firstViewProjectList->setEnabled(true);
-    }
-    
-    if (stackedWidget->currentIndex() == int(PollyApp::Fluxomics)) {
-        fluxNewProject->setEnabled(false);
-        fluxProjectList->setEnabled(true);
-    }
+    existingProjectCombo->setEnabled(true);
+    newProjectEntry->setEnabled(false);
+    newProjectRadio->setChecked(false);
     QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()
-{   
+{
     int nodeStatus = _pollyIntegration->checkNodeExecutable();
     if (nodeStatus == 0) {
         QMessageBox msgBox(this);
@@ -138,270 +180,291 @@ void PollyElmavenInterfaceDialog::initialSetup()
     int askForLogin = _pollyIntegration->askForLogin();
     if (askForLogin == 1) {
         try {
-            call_login_form();
-        } catch(...) {
-                QMessageBox msgBox(this);
-                msgBox.setWindowModality(Qt::NonModal);
-                msgBox.setWindowTitle("Error in loading login form");
-                msgBox.exec();
+            _callLoginForm();
+        } catch (...) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowModality(Qt::NonModal);
+            msgBox.setWindowTitle("Error in loading login form");
+            msgBox.exec();
         }
         return;
     } else {
         try {
-            call_initial_EPI_form();
-        } catch(...) {
-                QMessageBox msgBox(this);
-                msgBox.setWindowModality(Qt::NonModal);
-                msgBox.setWindowTitle("Error in loading Polly dialog");
-                msgBox.exec();
+            _callInitialEPIForm();
+        } catch (...) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowModality(Qt::NonModal);
+            msgBox.setWindowTitle("Error in loading Polly dialog");
+            msgBox.exec();
         }
         return;
     }
 }
 
-void PollyElmavenInterfaceDialog::call_login_form()
+void PollyElmavenInterfaceDialog::_callLoginForm()
 {
     _loginform = new LoginForm(this);
     _loginform->setModal(true);
     _loginform->show();
 }
 
-void PollyElmavenInterfaceDialog::call_initial_EPI_form() 
+void PollyElmavenInterfaceDialog::_callInitialEPIForm()
 {
-    fluxStatus->setStyleSheet("QLabel { color : green;}");
-    fluxStatus->setText("");
-    fluxUpload->setEnabled(false);
-    fluxProjectList->clear();
-    
-    firstViewStatus->setStyleSheet("QLabel { color : green;}");
-    firstViewStatus->setText("");
-    firstViewUpload->setEnabled(false);
-    firstViewProjectList->clear();
-    
-    EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
-    connect(EPIworkerThread, SIGNAL(resultReady(QVariantMap)), this, SLOT(handleResults(QVariantMap)));
-    connect(EPIworkerThread, SIGNAL(authentication_result(QString)), this, SLOT(handleAuthentication(QString)));
-    connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
-    EPIworkerThread->state = "initial_setup";
-    EPIworkerThread->start();
+    if (!_uploadInProgress) {
+        statusUpdate->setStyleSheet("QLabel { color : green;}");
+        statusUpdate->clear();
+    }
+    usernameLabel->setText("");
+    uploadButton->setEnabled(false);
+    existingProjectCombo->clear();
+
+    EPIWorkerThread* workerThread = new EPIWorkerThread();
+    connect(workerThread,
+            SIGNAL(resultReady(QVariantMap)),
+            this,
+            SLOT(_handleResults(QVariantMap)));
+    connect(workerThread,
+            SIGNAL(authentication_result(QString, QString)),
+            this,
+            SLOT(_handleAuthentication(QString, QString)));
+    connect(workerThread,
+            &EPIWorkerThread::finished,
+            workerThread,
+            &QObject::deleteLater);
+    workerThread->state = "initial_setup";
+    workerThread->start();
     show();
-    
+
     _loadingDialog->setModal(true);
     _loadingDialog->show();
     _loadingDialog->statusLabel->setVisible(true);
     _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
-    _loadingDialog->statusLabel->setText("Authenticating..");
+    _loadingDialog->statusLabel->setText("Authenticating…");
     _loadingDialog->label->setVisible(true);
     _loadingDialog->label->setMovie(_loadingDialog->movie);
     _loadingDialog->label->setAlignment(Qt::AlignCenter);
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::handleAuthentication(QString status)
+void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
+                                                        QString status)
 {
     if (status == "ok") {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
-        _loadingDialog->statusLabel->setText("Fetching your projects..");
+        _loadingDialog->statusLabel->setText("Fetching your projects…");
+        usernameLabel->setText(username);
         QCoreApplication::processEvents();
     } else if (status == "error") {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
-        _loadingDialog->statusLabel->setText("No Internet Access");
+        _loadingDialog->statusLabel->setText("No internet access.");
         QCoreApplication::processEvents();
-        QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), _loadingDialog, SLOT(close()));
-        connect(timer, SIGNAL(timeout()), this, SLOT(close()));
+        QTimer* timer = new QTimer(this);
+        QObject::connect(timer,
+                         &QTimer::timeout,
+                         [this, timer]() {
+                             delete timer;
+                             _loadingDialog->close();
+                             this->close();
+                         });
         timer->start(5000);
     } else {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
-        _loadingDialog->statusLabel->setText("Authentication failed. Please login again.");
+        _loadingDialog->statusLabel->setText("Authentication failed. "
+                                             "Please login again.");
         QCoreApplication::processEvents();
-        logout();
+        _logout();
     }
 }
 
-void PollyElmavenInterfaceDialog::handleResults(QVariantMap projectnamesIdMap)
+void PollyElmavenInterfaceDialog::_handleResults(QVariantMap projectNameIdMap)
 {
-    projectNamesId = projectnamesIdMap;
+    _projectNameIdMap = projectNameIdMap;
     startupDataLoad();
 }
 
-void PollyElmavenInterfaceDialog::setFluxPage()
+void PollyElmavenInterfaceDialog::_resetUiElements()
 {
-    stackedWidget->setCurrentIndex(int(PollyApp::Fluxomics));
-    workflowMenu->setCurrentRow(int(PollyApp::Fluxomics));
-}
+    // if upload is already in progress, refuse this UI reset request
+    if (_uploadInProgress)
+        return;
 
-void PollyElmavenInterfaceDialog::setUiElementsFlux()
-{
-    fluxTableList->clear();
-    fluxCreateProject->setChecked(true);
-    fluxNewProject->setEnabled(true);
-    
-    fluxSelectProject->setChecked(false);
-    fluxProjectList->setEnabled(false);
-    fluxProjectList->clear();
-    
-    fluxButton->setVisible(false);
-    fluxUpload->setEnabled(true);
+    peakTableCombo->clear();
 
-    fluxStatus->clear();
-}
+    newProjectRadio->setChecked(true);
+    newProjectEntry->setEnabled(true);
+    newProjectEntry->clear();
 
-void PollyElmavenInterfaceDialog::setUiElementsFV()
-{
-    firstViewTableList->clear();
+    existingProjectRadio->setChecked(false);
+    existingProjectCombo->setEnabled(false);
+    existingProjectCombo->clear();
 
-    firstViewCreateProject->setChecked(true);
-    firstViewNewProject->setEnabled(true);
-    
-    firstViewSelectProject->setChecked(false);
-    firstViewProjectList->setEnabled(false);
-    firstViewProjectList->clear();
-    
-    pollyButton->setVisible(false);
-    firstViewUpload->setEnabled(true);
+    uploadButton->setEnabled(true);
+    _showPollyButtonIfUrlExists();
 
-    firstViewStatus->clear();
+    statusUpdate->clear();
+    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::startupDataLoad()
 {
-    setUiElementsFlux();
-    setUiElementsFV();
+    _resetUiElements();
+    QIcon projectIcon(rsrcPath + "/POLLY.png");
+    if (_projectNameIdMap.isEmpty()) {
+        _projectNameIdMap = _pollyIntegration->getUserProjects();
+    }
 
-    QCoreApplication::processEvents();
-
-    QIcon project_icon(rsrcPath + "/POLLY.png");
-    if (projectNamesId.isEmpty()) {
-        projectNamesId = _pollyIntegration->getUserProjects();
-    }    
-    
-    QStringList keys= projectNamesId.keys();
+    QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
-        fluxProjectList->addItem(project_icon, projectNamesId[key].toString());
-        firstViewProjectList->addItem(project_icon, projectNamesId[key].toString());
+        existingProjectCombo->addItem(_projectNameIdMap[key].toString());
     }
 
-    bookmarkedPeaks = mainwindow->getBookmarkedPeaks();
-    QString tableName = "Bookmark Table ";
-    if (!bookmarkedPeaks->getGroups().isEmpty()) {
-        firstViewTableList->insertItem(0, tableName);
-        if (bookmarkedPeaks->labeledGroups > 0)
-            fluxTableList->insertItem(0, tableName);
-        tableNameMapping[tableName] = bookmarkedPeaks;
-    } 
+    _bookmarkTable = _mainwindow->getBookmarkedPeaks();
+    _addTableIfPossible(_bookmarkTable, "Bookmark Table ");
 
-    QList<QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
     for (auto peakTable : peaksTableList) {
-        if (peakTable->getGroups().isEmpty())
-            continue;
-        
-        QString peakTableName = QString("Peak Table " + QString::number(peakTable->tableId) + " ");
-        firstViewTableList->insertItem(0, peakTableName);
-        if (peakTable->labeledGroups > 0)
-            fluxTableList->insertItem(0, peakTableName);
-        tableNameMapping[peakTableName] = peakTable;
+        QString peakTableName = QString("Peak Table "
+                                        + QString::number(peakTable->tableId)
+                                        + " ");
+        _addTableIfPossible(peakTable, peakTableName);
     }
 
-    //set latest table by default
-    firstViewTableList->setCurrentIndex(0);
-    fluxTableList->setCurrentIndex(0);
+    // set latest table by default
+    peakTableCombo->setCurrentIndex(peakTableCombo->count() - 1);
 
-    //set to active table if available
-    if (_activeTable && tableNameMapping.values().contains(_activeTable)) {
-        QString tableName = tableNameMapping.key(_activeTable);
-        firstViewTableList->setCurrentText(tableName);
-        fluxTableList->setCurrentText(tableName);
-        //reset active table
-        _activeTable = NULL;
+    // set to active table if available
+    if (_activeTable && _tableNameMapping.values().contains(_activeTable)) {
+        QString tableName = _tableNameMapping.key(_activeTable);
+        peakTableCombo->setCurrentText(tableName);
+
+        // reset active table
+        _activeTable = nullptr;
     }
 
     _loadingDialog->close();
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::uploadDataToPolly()
+void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 {
-    mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
-    //set currently visible items
-    PollyApp currentApp = PollyApp::FirstView;
-    QPushButton* uploadButton = firstViewUpload;
-    QLabel* statusUpdate = firstViewStatus;
-    QLineEdit* newProject = firstViewNewProject;
-    QComboBox* projectList = firstViewProjectList;
+    if (_selectedApp == PollyApp::FirstView) {
+        gotoPollyButton->setText("Go to FirstView");
+    } else if (_selectedApp == PollyApp::Fluxomics) {
+        gotoPollyButton->setText("Start Fluxing");
+    } else if (_selectedApp == PollyApp::QuantFit) {
+        gotoPollyButton->setText("Start Quantification");
+    }
 
-    if (stackedWidget->currentIndex() == int(PollyApp::Fluxomics)) {
-        mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
-        currentApp = PollyApp::Fluxomics;
-        uploadButton = fluxUpload;
-        statusUpdate = fluxStatus;
-        newProject = fluxNewProject;
-        projectList = fluxProjectList;
-    } else mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
-    
+    if (_redirectionUrlMap[_selectedApp].isEmpty()) {
+        gotoPollyButton->setVisible(false);
+    } else if (!_uploadInProgress) {
+        gotoPollyButton->setVisible(true);
+    }
+}
+
+void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
+                                                      QString tableName)
+{
+    if (!table->getGroups().isEmpty()) {
+        if (_selectedApp == PollyApp::Fluxomics
+            && table->labeledGroups > 0) {
+            peakTableCombo->addItem(tableName);
+        } else if (_selectedApp == PollyApp::FirstView
+                   || _selectedApp == PollyApp::QuantFit) {
+            peakTableCombo->addItem(tableName);
+        }
+        _tableNameMapping[tableName] = table;
+    }
+}
+
+void PollyElmavenInterfaceDialog::_uploadDataToPolly()
+{
+    _uploadInProgress = true;
+    gotoPollyButton->setVisible(false);
     uploadButton->setEnabled(false);
+    peakTableCombo->setEnabled(false);
+    projectOptions->setEnabled(false);
+    workflowMenu->setEnabled(false);
+
+    _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
+    if (_selectedApp == PollyApp::FirstView) {
+        _mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
+    } else if (_selectedApp == PollyApp::Fluxomics) {
+        _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
+    } else if (_selectedApp == PollyApp::QuantFit) {
+        _mainwindow->getAnalytics()->hitEvent("Polly upload", "QuantFit");
+    }
 
     statusUpdate->setStyleSheet("QLabel { color : green;}");
-    statusUpdate->setText("Connecting..");
+    statusUpdate->setText("Connecting…");
     QCoreApplication::processEvents();
 
-    //check for active internet connection
+    // check for active internet connection
     if (!_pollyIntegration->activeInternet()) {
         statusUpdate->setStyleSheet("QLabel {color : red;}");
-        statusUpdate->setText("No Internet Access");
+        statusUpdate->setText("No internet access.");
         uploadButton->setEnabled(true);
         return;
     }
 
-    //redirect to login form if user credentials have not been saved
+    // redirect to login form if user credentials have not been saved
     int askForLogin = _pollyIntegration->askForLogin();
     if (askForLogin == 1) {
-        call_login_form();
-        emit uploadFinished(currentApp, false);
+        _callLoginForm();
+        emit uploadFinished(false);
         return;
     }
-    
+
     statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing files..");
+    statusUpdate->setText("Preparing files…");
     QCoreApplication::processEvents();
 
-    //create a temporary directory to store polly files
-    qDebug() << "writing Polly temp file in this directory -" << writableTempDir;
-    QDir qdir(writableTempDir);
-    if (!qdir.exists()){
-        QDir().mkdir(writableTempDir);
-        QDir qdir(writableTempDir);
+    // create a temporary directory to store polly files
+    qDebug() << "writing Polly temp file in this directory -"
+             << _writeableTempDir;
+    QDir qdir(_writeableTempDir);
+    if (!qdir.exists()) {
+        QDir().mkdir(_writeableTempDir);
     }
-    
-    //add datetimestamp to identify files from one upload thread
+
+    // clear all temporary files that might not have been deleted from preivous
+    // operations.
+    qdir.setFilter(QDir::AllEntries);
+    foreach(QString dirFile, qdir.entryList())
+    {
+        qdir.remove(dirFile);
+    }
+
+    // add datetimestamp to identify files from one upload thread
     QDateTime current_time;
     const QString format = "dd-MM-yyyy_hh_mm_ss";
-	QString datetimestamp= current_time.currentDateTime().toString(format);
-    datetimestamp.replace(" ","_");
-    datetimestamp.replace(":","-");
-    
-    QStringList filenames = prepareFilesToUpload(currentApp, qdir, datetimestamp);
+    QString datetimestamp = current_time.currentDateTime().toString(format);
+    datetimestamp.replace(" ", "_");
+    datetimestamp.replace(":", "-");
+
+    QStringList filenames = _prepareFilesToUpload(qdir, datetimestamp);
     if (filenames.isEmpty()) {
         statusUpdate->setStyleSheet("QLabel { color : red;}");
         statusUpdate->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
-        emit uploadFinished(currentApp, false);
+        emit uploadFinished(false);
         return;
     }
 
     statusUpdate->setStyleSheet("QLabel { color : green;}");
-    statusUpdate->setText("Sending files to Polly..");  
+    statusUpdate->setText("Sending files to Polly…");
     QCoreApplication::processEvents();
 
-    uploadProjectId = getProjectId(projectList, newProject);
-    if (uploadProjectId.isEmpty()) {
-        emit uploadFinished(currentApp, false);
-        statusUpdate->setText("");
+    _pollyProjectId = _getProjectId();
+    if (_pollyProjectId.isEmpty()) {
+        emit uploadFinished(false);
+        statusUpdate->clear();
         return;
     }
-    
-    //check for active internet again before upload
+
+    // check for active internet again before upload
     if (!_pollyIntegration->activeInternet()) {
         statusUpdate->setStyleSheet("QLabel {color : red;}");
         statusUpdate->setText("Internet connection interrupted");
@@ -409,185 +472,242 @@ void PollyElmavenInterfaceDialog::uploadDataToPolly()
         return;
     }
 
-    EPIWorkerThread *EPIworkerThread = new EPIWorkerThread();
-    connect(EPIworkerThread, SIGNAL(filesUploaded(QStringList, QString, QString, PollyApp)), this, SLOT(postUpload(QStringList, QString, QString, PollyApp)));
-    connect(EPIworkerThread, &EPIWorkerThread::finished, EPIworkerThread, &QObject::deleteLater);
-    EPIworkerThread->state = "upload_files";
-    EPIworkerThread->filesToUpload = filenames;
-    EPIworkerThread->tmpDir = qdir;
-    EPIworkerThread->uploadProjectIdThread = uploadProjectId;
-    EPIworkerThread->datetimestamp = datetimestamp;
-    EPIworkerThread->currentApp = currentApp;
-    EPIworkerThread->start();
+    EPIWorkerThread* workerThread = new EPIWorkerThread();
+    connect(workerThread,
+            SIGNAL(filesUploaded(QStringList, QString, QString)),
+            this,
+            SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
+    connect(workerThread,
+            &EPIWorkerThread::finished,
+            workerThread,
+            &QObject::deleteLater);
+    workerThread->state = "upload_files";
+    workerThread->filesToUpload = filenames;
+    workerThread->tmpDir = qdir;
+    workerThread->uploadProjectIdThread = _pollyProjectId;
+    workerThread->datetimestamp = datetimestamp;
+    workerThread->currentApp = _selectedApp;
+    workerThread->start();
 }
 
-QString PollyElmavenInterfaceDialog::getProjectId(QComboBox* projectList, QLineEdit* newProject)
+QString PollyElmavenInterfaceDialog::_getProjectId()
 {
-    if (projectList->isEnabled()) {
-        QString projectId;
-        QStringList keys = projectNamesId.keys();
-        projectId = projectNamesId.key(projectList->currentText());
+    if (existingProjectRadio->isChecked()) {
+        QStringList keys = _projectNameIdMap.keys();
+        QString projectId =
+            _projectNameIdMap.key(existingProjectCombo->currentText());
 
         if (projectId.isEmpty())
-            showErrorMessage("Error", "No such project on Polly");
-        
+            _showErrorMessage("Error", "No such project on Polly.");
+
         return projectId;
     }
-    
-    if (newProject->isEnabled()) {
-        if (newProject->text().isEmpty()) {
-            showErrorMessage("Error", "Invalid Project name");
+
+    if (newProjectRadio->isChecked()) {
+        if (newProjectEntry->text().isEmpty()) {
+            _showErrorMessage("Error",
+                              "Invalid project name. "
+                              "Please enter a non-empty name.");
             return "";
         }
 
-        return _pollyIntegration->createProjectOnPolly(newProject->text());
+        QString newProjectId =
+            _pollyIntegration->createProjectOnPolly(newProjectEntry->text());
+        _projectNameIdMap.insert(newProjectId, newProjectEntry->text());
+        return newProjectId;
     }
-    
-    showErrorMessage("Error", "Please select at least one option");
+
+    _showErrorMessage("Error", "Please select at least one option");
     return "";
 }
 
-void PollyElmavenInterfaceDialog::showErrorMessage(QString title, QString message)
+void PollyElmavenInterfaceDialog::_showErrorMessage(QString title,
+                                                    QString message)
 {
-    QMessageBox errorBox(mainwindow);
-    errorBox.setWindowTitle(title);
-    errorBox.setText(message);
-    errorBox.exec();
+    QMessageBox::warning(this, title, message);
 }
 
-void PollyElmavenInterfaceDialog::postUpload(QStringList patchId, QString uploadProjectIdThread, QString datetimestamp, PollyApp currentApp)
+void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patchId,
+                                                               QString uploadProjectIdThread,
+                                                               QString datetimestamp)
 {
     QCoreApplication::processEvents();
-    
-    //set UI elements
-    QLabel* statusUpdate = firstViewStatus;
-    QPushButton* redirectButton = pollyButton;
+    QString redirectionUrl = "";
 
-    if (currentApp == PollyApp::Fluxomics) {
-        statusUpdate = fluxStatus;
-        redirectButton = fluxButton;
-    }
-    
     if (!patchId.isEmpty()) {
-        statusUpdate->setText("");
-        QString redirection_url = getRedirectionUrl(currentApp, datetimestamp, uploadProjectIdThread);
-        qDebug() << "redirection_url     - " << redirection_url;
-        pollyURL.setUrl(redirection_url);
-        redirectButton->setVisible(true);
-    } else {
-        statusUpdate->setStyleSheet("QLabel {color : red; }");
-        statusUpdate->setText("Error!");
-        
-        showErrorMessage("Warning!", "Unable to send data");
-        statusUpdate->setText("");
+        redirectionUrl = _getRedirectionUrl(datetimestamp,
+                                            uploadProjectIdThread);
+        qDebug() << "redirection_url -" << redirectionUrl;
+        _redirectionUrlMap[_selectedApp] = QUrl(redirectionUrl);
     }
-    emit uploadFinished(currentApp, false);
+
+    if (!redirectionUrl.isEmpty()) {
+        _performPostUploadTasks(true);
+        statusUpdate->clear();
+        _showPollyButtonIfUrlExists();
+
+        // send an email to the user, this is a way of persisting their URLs
+        QString project = _projectNameIdMap.value(_pollyProjectId).toString();
+        QString emailSubject = QString("Data successfully uploaded to Polly "
+                                       "project - \"%1\"").arg(project);
+        QString emailContent = QString("<a href='%1'></a>").arg(redirectionUrl);
+        QString appname = "";
+        switch (_selectedApp) {
+        case PollyApp::FirstView:
+            appname = "firstview";
+            break;
+        case PollyApp::Fluxomics:
+            appname = "pollyphi";
+            break;
+        case PollyApp::QuantFit:
+            appname = "quantfit";
+            break;
+        default:
+            break;
+        }
+        EPIWorkerThread* workerThread = new EPIWorkerThread();
+        connect(workerThread,
+                &EPIWorkerThread::finished,
+                workerThread,
+                &QObject::deleteLater);
+        workerThread->state = "send_email";
+        workerThread->username = usernameLabel->text();
+        workerThread->filesToUpload << emailSubject
+                                    << emailContent
+                                    << appname;
+        workerThread->start();
+    } else {
+        _performPostUploadTasks(false);
+        statusUpdate->setStyleSheet("QLabel {color : red;}");
+        QString errorTitle = "An unexpected error occured";
+        QString errorMessage = patchId.isEmpty() ? "Sorry. We were unable to "
+                                                   "send data."
+                                                 : "There seems to be a server "
+                                                   "issue. Please try again "
+                                                   "later.";
+        statusUpdate->setText(errorTitle);
+        _showErrorMessage(errorTitle,
+                          errorMessage);
+    }
 }
 
-QString PollyElmavenInterfaceDialog::getRedirectionUrl(PollyApp currentApp, QString datetimestamp, QString uploadProjectIdThread)
+QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
+                                                        QString uploadProjectIdThread)
 {
-    QString redirectionUrl;
-    //redirect to firstView
-    if (currentApp == PollyApp::FirstView) {
-        redirectionUrl = QString("https://polly.elucidata.io/main#project=%1&auto-redirect=%2&elmavenTimestamp=%3").arg(uploadProjectIdThread).arg("firstview").arg(datetimestamp);
-        return redirectionUrl;
-    }
-    
-    //redirect to fluxomics
-    if (currentApp == PollyApp::Fluxomics) { 
+    QString redirectionUrl = "";
+
+    switch (_selectedApp) {
+    case PollyApp::FirstView: {
+        redirectionUrl =
+            QString("https://polly.elucidata.io/"
+                    "main#project=%1&auto-redirect=%2&elmavenTimestamp=%3")
+                    .arg(uploadProjectIdThread)
+                    .arg("firstview")
+                    .arg(datetimestamp);
+        break;
+    } case PollyApp::Fluxomics: {
         QString landingPage = QString("relative_lcms_elmaven");
-        QString workflowRequestId = _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
-        
-        //send to google sheets if sample cohort file is not valid
-        QString CohortFileName = writableTempDir + QDir::separator() + datetimestamp + "_Cohort_Mapping_Elmaven.csv";
+        QString workflowRequestId =
+            _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
+        if (workflowRequestId.isEmpty())
+            return redirectionUrl;
+
+        // send to google sheets if sample cohort file is not valid
+        QString CohortFileName = _writeableTempDir + QDir::separator()
+                                 + datetimestamp
+                                 + "_Cohort_Mapping_Elmaven.csv";
         if (!_pollyIntegration->validSampleCohort(CohortFileName))
             landingPage = QString("gsheet_sym_polly_elmaven");
 
-        redirectionUrl = QString(
-                            "https://polly.elucidata.io/workflow-requests/%1/lcms_tstpl_pvd/dashboard#redirect-from=%2#project=%3#timestamp=%4")
-                            .arg(workflowRequestId)
-                            .arg(landingPage)
-                            .arg(uploadProjectIdThread)
-                            .arg(datetimestamp);
-        
-    }  
-    return redirectionUrl;  
+        redirectionUrl =
+            QString("https://polly.elucidata.io/workflow-requests/%1/"
+                    "lcms_tstpl_pvd/"
+                    "dashboard#redirect-from=%2#project=%3#timestamp=%4")
+                    .arg(workflowRequestId)
+                    .arg(landingPage)
+                    .arg(uploadProjectIdThread)
+                    .arg(datetimestamp);
+        break;
+    } case PollyApp::QuantFit: {
+        QString componentId = _pollyIntegration->obtainComponentId("calibration");
+        if (componentId == "-1")
+            return redirectionUrl;
+
+        QString runRequestId =
+            _pollyIntegration->createRunRequest(componentId,
+                                                uploadProjectIdThread);
+        if (runRequestId.isEmpty())
+            return redirectionUrl;
+
+        redirectionUrl = _pollyIntegration->redirectionUiEndpoint(componentId,
+                                                                  runRequestId,
+                                                                  datetimestamp);
+        break;
+    } default:
+        break;
+    }
+
+    return redirectionUrl;
 }
 
-QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentApp,
-                                                              QDir qdir,
-                                                              QString datetimestamp)
+QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
+                                                               QString datetimestamp)
 {
     QStringList filenames;
-    TableDockWidget* peakTable = NULL;
+    TableDockWidget* peakTable = nullptr;
 
-    //set UI elements
-    QComboBox* tableList = firstViewTableList;
-    QLabel* statusUpdate = firstViewStatus;
-
-    if (currentApp == PollyApp::Fluxomics) {
-        tableList = fluxTableList;
-        statusUpdate = fluxStatus;
-    }
-
-    //check for no peak tables
-    if (tableList->currentIndex() == -1)
-    {        
-        showErrorMessage("Error", "No Peak tables");
+    // check for no peak tables
+    if (peakTableCombo->currentIndex() == -1) {
+        _showErrorMessage("Error", "No peak tables available. Either there are "
+                                   "no peak tables in the current session or "
+                                   "the existing ones are not suitable for "
+                                   "the selected Polly app.");
         return filenames;
     }
-    
-    peakTable = tableNameMapping[tableList->currentText()];
 
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing compound database file..");
-    
+    peakTable = _tableNameMapping[peakTableCombo->currentText()];
+
     QCoreApplication::processEvents();
 
     // Now uploading the Compound DB that was used for peak detection.
     // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
     // ToDo Kailash, Keep track of compound DB used for each peak table,
-    // As of now, uploading what is currently there in the compound section of Elmaven.
-    QString compoundDb = mainwindow->ligandWidget->getDatabaseName();
-    mainwindow->ligandWidget->saveCompoundList(writableTempDir
-                                               + QDir::separator()
-                                               + datetimestamp
-                                               + "_Compound_DB_Elmaven.csv",
-                                               compoundDb);
+    // As of now, uploading what is currently there in the compound section of
+    // Elmaven.
+    QString compoundDb = _mainwindow->ligandWidget->getDatabaseName();
+    _mainwindow->ligandWidget->saveCompoundList(_writeableTempDir
+                                                + QDir::separator()
+                                                + datetimestamp
+                                                + "_Compound_DB_Elmaven.csv",
+                                                compoundDb);
 
-    qDebug() << "Now uploading all groups, needed for firstview app..";
+    qDebug() << "Uploading all groups, needed for firstview app…";
+
+    // Preparing the CSV file
+    QCoreApplication::processEvents();
+
     peakTable->wholePeakSet();
     peakTable->treeWidget->selectAll();
-    peakTable->prepareDataForPolly(writableTempDir,
-                                   "Groups Summary Matrix Format Comma Delimited (*.csv)",
-                                   datetimestamp
-                                   + "_Peak_table_all_");
-    
+    peakTable->prepareDataForPolly(_writeableTempDir,
+                                   "Groups Summary Matrix Format "
+                                   "Comma Delimited (*.csv)",
+                                    datetimestamp + "_Peak_table_all_");
 
-    //Preparing the json file
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing json file..");
-    
+    // Preparing the json file
     QCoreApplication::processEvents();
- 
-    QString json_filename = writableTempDir
+
+    QString jsonFilename = _writeableTempDir
                             + QDir::separator()
                             + datetimestamp
                             + "_Peaks_information_json_Elmaven_Polly.json";
-    if(currentApp == PollyApp::Fluxomics)
-        peakTable->exportJsonToPolly(writableTempDir, json_filename, true);
-    else
-        peakTable->exportJsonToPolly(writableTempDir, json_filename, false);
 
-    
-    if (currentApp == PollyApp::Fluxomics) {
-        fluxStatus->setStyleSheet("QLabel {color : green; }");
-        fluxStatus->setText("Preparing sample cohort file..");
+    if (_selectedApp == PollyApp::Fluxomics) {
+        peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, true);
         QCoreApplication::processEvents();
         //Preparing the sample cohort file
-        QString sampleCohortFileName = writableTempDir + QDir::separator() + datetimestamp +
+        QString sampleCohortFileName = _writeableTempDir + QDir::separator() + datetimestamp +
                                         "_Cohort_Mapping_Elmaven.csv";
-        mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
+        _mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
 
         CSVReports csvrpt;
         QList<PeakGroup *> selectedGroups = peakTable->getSelectedGroups();
@@ -598,47 +718,48 @@ QStringList PollyElmavenInterfaceDialog::prepareFilesToUpload(PollyApp currentAp
                   groups.push_back(peakTable->allgroups[i]);
             }
         }
-        QString modelFile = writableTempDir
+        QString modelFile = _writeableTempDir
                             + QDir::separator()
                             + datetimestamp
                             + "_Cloud_model_mapping_file.csv";
         csvrpt.writeDataForPolly(modelFile.toStdString(), groups);
-    }
-    
-    //Saving settings file
-    QByteArray ba = (writableTempDir
-                    + QDir::separator()
-                    + datetimestamp
-                    + "_maven_analysis_settings"
-                    + ".xml").toLatin1();
-    const char *save_path = ba.data();
-    mainwindow->mavenParameters->saveSettings(save_path);
-    qDebug() << "settings saved now";
-    
+    } else
+        peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
+
+    // Saving settings file
+    QByteArray ba = (_writeableTempDir + QDir::separator()
+                     + datetimestamp
+                     + "_maven_analysis_settings"
+                     + ".xml").toLatin1();
+    const char* savePath = ba.data();
+    _mainwindow->mavenParameters->saveSettings(savePath);
+    qDebug() << "Settings saved";
+
     qdir.setFilter(QDir::Files | QDir::NoSymLinks);
-    QFileInfoList file_list = qdir.entryInfoList();
-    
-    for (auto fileInfo : file_list) {
-        QString tmp_filename = writableTempDir + QDir::separator() + fileInfo.fileName();
+    QFileInfoList fileList = qdir.entryInfoList();
+
+    for (auto fileInfo : fileList) {
+        QString tmp_filename = _writeableTempDir
+                               + QDir::separator()
+                               + fileInfo.fileName();
         filenames.append(tmp_filename);
     }
+
     return filenames;
 }
 
-void PollyElmavenInterfaceDialog::cancel()
-{
-    close();   
-}
-
-void PollyElmavenInterfaceDialog::logout()
+void PollyElmavenInterfaceDialog::_logout()
 {
     _pollyIntegration->logout();
-    projectNamesId = QVariantMap();
-    close();   
+    _projectNameIdMap = QVariantMap();
+    close();
 }
 
-void PollyElmavenInterfaceDialog::performPostUploadTasks(PollyApp currentApp, bool uploadSuccessful)
+void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
 {
-    if (currentApp == PollyApp::FirstView) firstViewUpload->setEnabled(true);
-    else if (currentApp == PollyApp::Fluxomics) fluxUpload->setEnabled(true);
+    _uploadInProgress = false;
+    uploadButton->setEnabled(true);
+    peakTableCombo->setEnabled(true);
+    projectOptions->setEnabled(true);
+    workflowMenu->setEnabled(true);
 }

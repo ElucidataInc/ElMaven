@@ -74,6 +74,35 @@ QString PollyIntegration::parseId(QByteArray result){
     return run_id;
 }
 
+QString PollyIntegration::obtainComponentId(QString componentName)
+{
+    QString command = "getComponentId";
+    QList<QByteArray> resultAndError = runQtProcess(command,
+                                                    QStringList() << credFile);
+    QByteArray result = resultAndError.at(0);
+
+    // replace doubly escaped quotes
+    result = result.replace("\\\"", "\"");
+
+    // split based on newlines, JSON is second last string after split
+    QList<QByteArray> resultList = result.split('\n');
+    result = resultList[resultList.size() - 2];
+
+    // remove extra quotation around JSON array
+    result = result.right(result.size() - 1);
+    result = result.left(result.size() - 1);
+
+    QJsonDocument doc(QJsonDocument::fromJson(result));
+    auto array = doc.array();
+    for (auto elem : array) {
+        auto jsonObject = elem.toObject();
+        auto name = jsonObject.value("component").toString();
+        if (name == componentName)
+            return QString::number(jsonObject.value("id").toInt());
+    }
+    return QString::number(-1);
+}
+
 QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_wildcard, 
                                 QStringList filenames) {
     
@@ -151,6 +180,11 @@ int PollyIntegration::checkLoginStatus(){
     QByteArray statusLine = testList[0];
     if (statusLine == "already logged in") {
         status = 1;
+
+        // logged in successfully, there must be a user email
+        QByteArray userline = testList[1];
+        QList<QByteArray> split = userline.split(' ');
+        _username = QString(split.back());
     }
     else {
         status = 0;
@@ -188,6 +222,11 @@ QString PollyIntegration::authenticateLogin(QString username, QString password) 
     return status;
 }
 
+QString PollyIntegration::getCurrentUsername()
+{
+    return _username;
+}
+
 // This function checks if node executable path has been defined for the library or not..
 int PollyIntegration::checkNodeExecutable() {
     if (nodePath == "") {
@@ -211,6 +250,7 @@ int PollyIntegration::askForLogin() {
 
 // This function deletes the token and logs out the user..
 void PollyIntegration::logout() {
+    _username = "";
     QFile file (credFile);
     file.remove();
     QFile refreshTokenFile (credFile + "_refreshToken");
@@ -327,12 +367,6 @@ QString PollyIntegration::createProjectOnPolly(QString projectname) {
     return runId;
 }
 
-/**
-* @brief This function parses the output of "createWorkflowRequest" command run from Qtprocess..
-* @param projectId
-* @return Return workflow request id for the pollyphi workflow..
-*/
-
 QString PollyIntegration::createWorkflowRequest(QString projectId){
     QString command2 = "createWorkflowRequest";
     QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << credFile << projectId);
@@ -340,43 +374,66 @@ QString PollyIntegration::createWorkflowRequest(QString projectId){
     return workflowRequestId;
 }
 
-bool PollyIntegration::sendEmail(QString userEmail, QString emailContent,
-                        QString emailMessage) {
+QString PollyIntegration::createRunRequest(QString componentId,
+                                           QString projectId)
+{
+    QString command = "createRunRequest";
+    QStringList arguments = QStringList() << credFile
+                                          << componentId
+                                          << projectId;
+    QList<QByteArray> resultAndError = runQtProcess(command, arguments);
+    QString runId = parseId(resultAndError.at(0));
+    return runId;
+}
 
+QString PollyIntegration::redirectionUiEndpoint(QString componentId,
+                                                QString runId,
+                                                QString datetimestamp)
+{
+    QString command = "getEndpointForRuns";
+    QList<QByteArray> resultAndError = runQtProcess(command, QStringList(credFile));
+    QByteArray result = resultAndError.at(0);
+
+    // split based on newlines, JSON is second last string after split
+    QList<QByteArray> resultList = result.split('\n');
+    result = resultList[resultList.size() - 2];
+
+    QJsonDocument doc(QJsonDocument::fromJson(result));
+    auto array = doc.array();
+    for (auto elem : array) {
+        auto jsonObject = elem.toObject();
+        auto id = QString::number(jsonObject.value("component_id").toInt());
+        if (id == componentId) {
+            auto url = jsonObject.value("url").toString();
+            url = url.replace("<runid>", runId)
+                     .replace("<timestamp>", datetimestamp);
+            return url;
+        }
+    }
+    return "";
+}
+
+bool PollyIntegration::sendEmail(QString userEmail,
+                                 QString emailMessage,
+                                 QString emailContent,
+                                 QString appName)
+{
     QString command2 = "send_email";
-    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << userEmail << emailContent << emailMessage);
+    qDebug() << userEmail << emailMessage << emailContent << appName;
+    QList<QByteArray> resultAndError = runQtProcess(command2,
+                                                    QStringList() << userEmail
+                                                                  << emailMessage
+                                                                  << emailContent
+                                                                  << appName);
     QList<QByteArray> testList = resultAndError.at(0).split('\n');
     int size = testList.size();
-    QByteArray result2 = testList[size-2];
-     
-    if (result2 == "1")
-        return true;
+    if (size > 2) {
+        QByteArray result2 = testList[size-2];
+        if (result2 == "1")
+            return true;
+    }
 
     return false;
-}
-
-QString PollyIntegration::getShareStatus(QByteArray result){
-    QList<QByteArray> test_list = result.split('\n');
-    int size = test_list.size();
-    QByteArray result2 = test_list[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(result2));
-    // Get JSON object
-    QJsonObject json = doc.object();
-    QVariantMap json_map = json.toVariantMap();
-    QString status =  json_map["status"].toString();
-    return status;
-}
-
-
-QString PollyIntegration::shareProjectOnPolly(QString project_id,QVariantMap collaborators_map){
-    
-    QString command = "shareProject";
-    QStringList usernames = collaborators_map.keys();
-    // As of now, only write permissions are being granted..We will need to modify the code written below, when more permissions are allowed on polly
-    QString permission = collaborators_map[usernames.at(0)].toString();
-    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << credFile<< project_id<<permission<<usernames);
-    QString status = getShareStatus(result_and_error.at(0));
-    return status;
 }
 
 // name OF FUNCTION: exportData

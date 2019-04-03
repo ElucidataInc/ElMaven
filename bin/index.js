@@ -76,7 +76,7 @@ function refreshToken(token_filename,email){
     
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/userpool',
+        url: 'https://testpolly.elucidata.io/userpool',
         json: true
     };
 
@@ -128,6 +128,7 @@ module.exports.authenticate = function(token_filename,email, password){
         // console.log(token_expiry_date,nowDate);
         if (token_expiry_date > nowDate) {
             console.log(chalk.green.bold("already logged in"));
+            console.log("current user:", decoded.email.valueOf());
             return;
         }
         else{
@@ -150,7 +151,7 @@ module.exports.authenticate = function(token_filename,email, password){
     console.log(chalk.yellow.bold("Fetching user pool..."));
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/userpool',
+        url: 'https://testpolly.elucidata.io/userpool',
         json: true
     };
 
@@ -214,13 +215,13 @@ module.exports.createWorkflowRequest = function (token_filename, project_id) {
             "workflow_name": "relative_lcms_elmaven",
             "workflow_id": 4
         },
-        "name": "PollyPhi™ Relative LCMS El-MAVEN Untitled Untitled",
+        "name": "PollyPhi™ Relative LCMS El-MAVEN Untitled",
         "project_id": project_id
-    }
+    };
 
     var options = {
         method: 'PUT',
-        url: 'https://polly.elucidata.io/api/wf-request',
+        url: 'https://testpolly.elucidata.io/api/wf-request',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -247,6 +248,119 @@ module.exports.createWorkflowRequest = function (token_filename, project_id) {
     });
 }
 
+module.exports.createRunRequest = function (token_filename, component_id, project_id) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var payload = {
+        "component_details":{
+            "component_name": "calibration",
+            "component_id": component_id
+        },
+        "project_id": project_id,
+        "name": "Polly™ QuantFit Untitled"
+    };
+    var options = {
+        method: 'PUT',
+        url: 'https://testpolly.elucidata.io/api/run',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header
+            },
+        body:
+            {
+                payload: JSON.stringify(payload)
+            },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`createRunRequest Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to create run request ID.",
+                                       "An unexpected error occurred.",
+                                       "Status code:",
+                                       response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
+module.exports.getComponentId = function (token_filename) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var options = {
+        method: 'GET',
+        url: 'https://testpolly.elucidata.io/api/component',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header
+            },
+        body:
+            {
+            },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`PostRun Response: `));
+        if (response.statusCode != 200) {
+            console.log(chalk.red.bold("Unable to get component IDs.",
+                                       "An unexpected error occurred.",
+                                       "Status code:"));
+            console.log(chalk.red.bold(response.statusCode));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
+module.exports.getEndpointForRuns = function (token_filename) {
+    if (has_id_token(token_filename)) {
+        public_token_header = read_id_token(token_filename);
+    }
+    var options = {
+        method: 'GET',
+        url: 'https://testpolly.elucidata.io/api/ui-endpoints',
+        headers:
+            {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'public-token': public_token_header
+            },
+        body:
+            {
+            },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(chalk.bold.red(error));
+        console.log(chalk.yellow.bgBlack.bold(`getEndpointForRun Response: `));
+        if ((response.statusCode != 200) && (response.statusCode != 400)) {
+            console.log(chalk.red.bold("Unable to get UI endpoints.",
+                                       "An unexpected error occurred.",
+                                       "Status code:",
+                                       response.statusCode));
+            console.log(chalk.green.bold(JSON.stringify(body)));
+            return;
+        }
+        console.log(chalk.green.bold(JSON.stringify(body)));
+        return body
+    });
+}
+
 module.exports.createProject = function (token_filename,name) {
     if (has_id_token(token_filename)) {
         public_token_header = read_id_token(token_filename);
@@ -256,7 +370,7 @@ module.exports.createProject = function (token_filename,name) {
     }
     var options = {
         method: 'POST',
-        url: 'https://polly.elucidata.io/api/project',
+        url: 'https://testpolly.elucidata.io/api/project',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -283,7 +397,7 @@ module.exports.createProject = function (token_filename,name) {
     });
 }
 
-module.exports.send_email = function (user_email,email_content,email_message) {
+module.exports.send_email = function (user_email, email_message, redirection_url, app_name) {
     if (!user_email) {
         console.log(chalk.red.bold("Email is required param."));
         return;
@@ -293,7 +407,7 @@ module.exports.send_email = function (user_email,email_content,email_message) {
             return;
             }
         }
-    if (!email_content) {
+    if (!redirection_url) {
         console.log(chalk.red.bold("email_content is required param."));
         return;
     }
@@ -303,16 +417,17 @@ module.exports.send_email = function (user_email,email_content,email_message) {
     }
     var options = {
         method: 'POST',
-        url: ' https://7w9r94dq3h.execute-api.ap-south-1.amazonaws.com/cpj_beta/pyemail',
+        url: 'https://7w9r94dq3h.execute-api.ap-south-1.amazonaws.com/cpj_beta/pyemail',
         headers:
             {
                 'content-type': 'application/json'
             },
         body:
             {
-                user_email:user_email,
-                email_content:email_content,
-                email_message:email_message
+                user_email: user_email,
+                email_message: email_message,
+                email_content: redirection_url,
+                app_name: app_name
             },
         json: true
     };
@@ -341,7 +456,7 @@ module.exports.shareProject = function (token_filename,project_id,permission,use
     }
     var options = {
         method: 'POST',
-        url: 'https://polly.elucidata.io/api/sharing/share_project',
+        url: 'https://testpolly.elucidata.io/api/sharing/share_project',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -431,7 +546,7 @@ module.exports.get_upload_Project_urls = function (token_filename,id) {
     }
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/api/project',
+        url: 'https://testpolly.elucidata.io/api/project',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -466,7 +581,7 @@ module.exports.get_Project_names = function (token_filename) {
     }
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/api/project',
+        url: 'https://testpolly.elucidata.io/api/project',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -498,7 +613,7 @@ module.exports.get_organizational_databases = function (token_filename,organizat
     }
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/api/project',
+        url: 'https://testpolly.elucidata.io/api/project',
         headers:
             {
                 'cache-control': 'no-cache',
@@ -532,7 +647,7 @@ module.exports.get_Project_files = function (token_filename,id) {
     }
     var options = {
         method: 'GET',
-        url: 'https://polly.elucidata.io/api/project',
+        url: 'https://testpolly.elucidata.io/api/project',
         headers:
             {
                 'cache-control': 'no-cache',
