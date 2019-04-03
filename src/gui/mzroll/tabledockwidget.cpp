@@ -647,7 +647,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
                                           QString userFilename) {
 
   vector<mzSample *> samples = _mainwindow->getSamples();
-  CSVReports *csvreports = new CSVReports(samples);
+  CSVReports *csvreports = new CSVReports(samples, true);
   csvreports->setMavenParameters(_mainwindow->mavenParameters);
   if (allgroups.size() == 0) {
     QString msg = "Peaks Table is Empty";

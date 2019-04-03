@@ -30,7 +30,7 @@ public:
     *@brief-    creating CSVReports by all the samples uploaded
     *@see -     see details in its definition
     */
-    CSVReports(vector<mzSample*>& insamples);
+    CSVReports(vector<mzSample*>& insamples, bool pollyExport = false);
     /**
     *@brief-    destructor, just close all open output files opened for writing csv or tab file
     */
@@ -171,7 +171,7 @@ private:
     PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
     MavenParameters * mavenparameters;
     int selectionFlag;      /**@param-  TODO*/
-    bool _uploadToPolly;
+    bool _pollyExport;
 };
 
 #endif
