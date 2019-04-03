@@ -359,26 +359,22 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
       item->setText(15, QString::number(group->changeFoldRatio, 'f', 2));
       item->setText(16, QString::number(group->changePValue, 'e', 4));
     }
-    item->setText(15,QString::number(group->avgPeakQuality,'f',2));
-    //Find maximum number of peaks
-    if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
 
-    //Get group quality from neural network
+    //Find maximum number of peaks
+    if (maxPeaks < group->peakCount())
+        maxPeaks = group->peakCount();
+
+    //TODO: Move this to peak detector or peakgroup
     groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (groupClsf != NULL) {
         groupClsf->classify(group);
     }
-    //Add group quality to peak table
-    item->setText(16,QString::number(group->groupQuality,'f',2));
-    item->setText(17,QString::number(group->weightedAvgPeakQuality,'f',2));
 
     //Get prediction labels from svm
     svmPredictor* groupPred = _mainwindow->getSVMPredictor();
     if (groupPred != NULL) {
         groupPred->predict(group);
     }
-    item->setText(18,QString::number(group->predictedLabel,'f', 0));
-    
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -2599,10 +2595,6 @@ void ScatterplotTableDockWidget::setupPeakTable() {
     // add scatterplot table columns
     colNames << "Ratio Change";
     colNames << "P-value";
-    colNames << "Avg Peak Quality";
-    colNames << "Group Quality";
-    colNames << "Weighted Peak Quality";
-    colNames << "Predicted Label";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
