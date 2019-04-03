@@ -55,7 +55,6 @@ public:
     QString UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath);
     QString UploadToCloud(QString uploadUrl, QString filePath);
 
-
     /**
      * @brief Parse and return the project ID for a new Polly project
      * @param result output from running "createproject" command that creates a
@@ -68,7 +67,6 @@ public:
                    QString email_content,
                    QString email_message,
                    QString appName);
-
     QString authenticateLogin(QString username, QString password);
     int checkLoginStatus();
     int checkNodeExecutable();

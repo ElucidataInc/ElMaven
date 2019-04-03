@@ -12,7 +12,7 @@
 #include "csvreports.h"
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
-#include "PeakDetectorCLI.h"
+#include "peakdetectorcli.h"
 
 
 

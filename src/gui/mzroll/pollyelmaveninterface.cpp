@@ -399,10 +399,8 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Connecting…");
     QCoreApplication::processEvents();
-
     // check for active internet connection
     if (!_pollyIntegration->activeInternet()) {
-        statusUpdate->setStyleSheet("QLabel {color : red;}");
         statusUpdate->setText("No internet access.");
         uploadButton->setEnabled(true);
         return;
