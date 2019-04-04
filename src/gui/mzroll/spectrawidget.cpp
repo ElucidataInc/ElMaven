@@ -1318,3 +1318,10 @@ void SpectraWidget::copyImageToClipboard()
     painter.end();
     QApplication::clipboard()->setPixmap(image);
 }
+
+void SpectraWidget::clearScans()
+{
+    _currentScan = nullptr;
+    _avgScan = nullptr;
+    _scanset.clear();
+}

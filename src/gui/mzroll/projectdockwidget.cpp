@@ -87,6 +87,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     setTitleBarWidget(toolBar);
     setWidget(window);
+
 }
 
 QString ProjectDockWidget::getProjectDescription() {
@@ -338,6 +339,8 @@ void ProjectDockWidget::unloadSelectedSamples() {
 
     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
     _mainwindow->sampleRtWidget->plotGraph();
+
+    emit samplesDeleted();
 }
 
 void ProjectDockWidget::SetAsBlankSamples() {

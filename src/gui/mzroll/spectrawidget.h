@@ -53,6 +53,7 @@ public:
                     void drawScan(Scan* scan, QColor sampleColor);
                     void drawMzLabels(Scan *scan); //TODO: Sahil, Added while merging spectrawidget
                     void drawAnnotations(); //TODO: Sahil, Added while merging spectrawidget
+                    void clearScans();
 
 
 

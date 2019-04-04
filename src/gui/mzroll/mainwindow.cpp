@@ -533,6 +533,7 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
     connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(projectDockWidget, &ProjectDockWidget::samplesDeleted, spectraWidget, &SpectraWidget::clearScans);
     connect(fileLoader,
             SIGNAL(compoundsLoaded(QString, int)),
             this,
