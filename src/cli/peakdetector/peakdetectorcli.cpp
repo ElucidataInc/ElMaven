@@ -721,7 +721,7 @@ void PeakDetectorCLI::writeReport(string setName,
         saveMzRoll(fileName);
 
         // save output CSV
-        saveCSV(fileName);
+        saveCSV(fileName, false);
     } else {
         // try uploading to Polly
         QMap<QString, QString> creds = _readCredentialsFromXml(pollyArgs);
@@ -769,7 +769,7 @@ void PeakDetectorCLI::writeReport(string setName,
         saveJson(jsonFilename.toStdString());
 
         // save output CSV
-        saveCSV(csvFilename.toStdString());
+        saveCSV(csvFilename.toStdString(), true);
 
         try {
             // add more files to upload, if desired…
@@ -1085,7 +1085,7 @@ void PeakDetectorCLI::saveMzRoll(string setName)
     }
 }
 
-void PeakDetectorCLI::saveCSV(string setName)
+void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 {
 #ifndef __APPLE__
     double startSavingCSV = getTime();
@@ -1093,7 +1093,7 @@ void PeakDetectorCLI::saveCSV(string setName)
 
     string fileName = setName + ".csv";
 
-    CSVReports* csvreports = new CSVReports(mavenParameters->samples);
+    CSVReports* csvreports = new CSVReports(mavenParameters->samples, pollyExport);
     csvreports->setMavenParameters(mavenParameters);
 
     if (mavenParameters->allgroups.size() == 0) {

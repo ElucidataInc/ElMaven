@@ -1,7 +1,7 @@
 #include "csvreports.h"
 
 
-CSVReports::CSVReports(vector<mzSample*>&insamples)
+CSVReports::CSVReports(vector<mzSample*>&insamples, bool pollyExport)
 {
     /*
     *@detail -   constructor for instantiating class by all samples uploaded,
@@ -14,6 +14,7 @@ CSVReports::CSVReports(vector<mzSample*>&insamples)
     */
     samples = insamples;
     groupId = 0;
+    _pollyExport = pollyExport;
     /**@brief-  set user quant type-  generally represent intensity but not always check QType enum in PeaKGroup.h  */
     setUserQuantType(PeakGroup::AreaTop);
     setTabDelimited();      /**@brief-  set output file separator as tab*/
@@ -102,7 +103,7 @@ void CSVReports::insertGroupReportColumnNamesintoCSVFile(string outputfile,
                             << "parent";
 
         // if this is a PRM report, add PRM specific columns
-        if (prmReport) {
+        if (prmReport && !_pollyExport) {
             groupReportcolnames << "ms2EventCount"
                                 << "fragNumIonsMatched"
                                 << "fragmentFractionMatched"
@@ -387,7 +388,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         groupReport << SEP << group->meanMz;
     }
 
-    if (group->compound && group->compound->type() == Compound::Type::PRM) {
+    if (group->compound && group->compound->type() == Compound::Type::PRM && !_pollyExport) {
         auto groupToWrite = group;
 
         // if this is a C12 PARENT, then all PRM attributes should be taken from

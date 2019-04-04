@@ -139,7 +139,7 @@ public:
      * @brief save project as .mzroll
      * @param setName file name with full path
      */
-    void saveCSV(string setName);
+    void saveCSV(string setName, bool pollyExport);
 
     /**
      * [Uploads Maven data to Polly and redirects the user to polly]
