@@ -469,10 +469,10 @@ bool Aligner::alignSampleRts(mzSample* sample,
             mxnCount++;
             for(int i = 0; i <  scan->mz.size(); i++) {
                 if (mp->stop) return (true);
-                if (scan->mz[i] < mzPoints.front() || scan->mz[i] > mzPoints.back())
+                if (scan->mz.at(i) < mzPoints.front() || scan->mz.at(i) > mzPoints.back())
                     continue;
-                int index = upper_bound(mzPoints.begin(), mzPoints.end(), scan->mz[i]) - mzPoints.begin() -1;
-                mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity[i]);
+                int index = upper_bound(mzPoints.begin(), mzPoints.end(), scan->mz.at(i)) - mzPoints.begin() -1;
+                mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity.at(i));
             }
         }
     }
@@ -487,8 +487,8 @@ bool Aligner::alignSampleRts(mzSample* sample,
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
         if (rtPoints.empty()) return(true);
         for(int j = 0, i=0 ; j < rtPoints.size(); i++) {
-            if(sample->scans[i]->mslevel ==1) {
-                sample->scans[i]->rt = rtPoints[j];
+            if(sample->scans.at(i)->mslevel ==1) {
+                sample->scans.at(i)->rt = rtPoints.at(j);
                 j++;
             }
         }
