@@ -483,12 +483,14 @@ bool Aligner::alignSampleRts(mzSample* sample,
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     }
     else {
+
         rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
         if (rtPoints.empty()) return(true);
-        for(int j = 0; j < sample->scans.size(); ++j) {
-            if (mp->stop) return (true);
-            if(sample->scans[j]->mslevel == 1)
-                sample->scans[j]->rt = rtPoints[j];
+        for(int j = 0, i=0 ; j < rtPoints.size(); i++) {
+            if(sample->scans[i]->mslevel ==1) {
+                sample->scans[i]->rt = rtPoints[j];
+                j++;
+            }
         }
     }
     return (false);
