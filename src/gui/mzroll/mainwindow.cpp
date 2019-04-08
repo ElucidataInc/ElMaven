@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include "notificator.h"
 #include "videoplayer.h"
+#include "background_peaks_update.h"
 #ifdef WIN32
 #include <windows.h>
 #endif

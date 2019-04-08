@@ -29,7 +29,6 @@
 #include "alignmentdialog.h"
 #include "awsbucketcredentialsdialog.h"
 //#include "rconsoledialog.h"
-#include "background_peaks_update.h"
 #include "heatmap.h"
 #include "treemap.h"
 #include "note.h"
