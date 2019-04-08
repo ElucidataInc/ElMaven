@@ -2601,7 +2601,7 @@ void MainWindow::createMenus() {
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll
-    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll)"),
+    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll) [Deprecated]"),
                                                this);
     connect(saveProjectAsMzRoll,
             SIGNAL(triggered()),
