@@ -53,7 +53,7 @@ namespace base64 {
 
         if (decompress) {
 #ifdef ZLIB
-            destStr =mzUtils::decompress_string(destStr);
+            destStr = mzUtils::decompressString(destStr);
 #endif
         }
 

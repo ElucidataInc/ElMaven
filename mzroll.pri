@@ -9,13 +9,13 @@ win32 {
     DEFINES += MINGW
     DEFINES += WIN32
     DEFINES += CDFPARSER
-    LIBS += -lcdfread -lnetcdf -lz
+    LIBS += -lcdfread -lnetcdf -lz -lboost_iostreams-mt
 }
 
 unix: {
     INCLUDEPATH += /usr/local/include/ $$top_srcdir/3rdparty/obiwarp
     QMAKE_LFLAGS += -L/usr/local/lib/ -L$$top_builddir/libs/
-    LIBS +=  -lboost_signals -lErrorHandling -lobiwarp
+    LIBS +=  -lboost_signals -lErrorHandling -lobiwarp -lboost_iostreams
 }
 
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
