@@ -87,6 +87,8 @@ public:
                     QPointF _nearestCoord;
 
                     QGraphicsTextItem* _title;
+                    QGraphicsTextItem* _lowerLabel;
+                    QGraphicsTextItem* _upperLabel;
                     QGraphicsTextItem* _note;
                     QGraphicsTextItem* _vnote;
                     QGraphicsLineItem* _arrow;
@@ -120,6 +122,7 @@ public:
                     void annotateScan();
                     void clearGraph();
                     void clearOverlay();
+                    void _placeLabels();
 
 		protected:
                     void leaveEvent ( QEvent * event );
