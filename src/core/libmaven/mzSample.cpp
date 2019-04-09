@@ -361,8 +361,7 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         float productMz = string2float(productMzStr);
         // int mslevel=2;
 
-        for (xml_node binaryDataArray =
-                 binaryDataArrayList.child("binaryDataArray");
+        for (xml_node binaryDataArray = binaryDataArrayList.child("binaryDataArray");
              binaryDataArray;
              binaryDataArray =
                  binaryDataArray.next_sibling("binaryDataArray")) {
@@ -373,10 +372,16 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
             if (attr.count("32-bit float"))
                 precision = 32;
 
+            bool decompress = false;
+            if(attr.count("zlib compression"))
+                decompress=true;
+
             string binaryDataStr =
                 binaryDataArray.child("binary").child_value();
-            vector<float> binaryData = base64::decode_base64(
-                binaryDataStr, precision / 8, false, false);
+            vector<float> binaryData = base64::decodeBase64(binaryDataStr,
+                                                             precision / 8,
+                                                             false,
+                                                             decompress);
 
             if (attr.count("time array")) {
                 timeVector = binaryData;
@@ -531,11 +536,17 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
             if (attr.count("32-bit float"))
                 precision = 32;
 
+            bool decompress = false;
+            if(attr.count("zlib compression"))
+                decompress=true;
+
             string binaryDataStr =
                 binaryDataArray.child("binary").child_value();
             if (!binaryDataStr.empty()) {
-                vector<float> binaryData = base64::decode_base64(
-                    binaryDataStr, precision / 8, false, false);
+                vector<float> binaryData = base64::decodeBase64(binaryDataStr,
+                                                                 precision / 8,
+                                                                 false,
+                                                                 decompress);
                 if (attr.count("m/z array")) {
                     mzVector = binaryData;
                 }
@@ -648,7 +659,7 @@ void mzSample::parseMzData(const char* filename)
         string b64intensity =
             spectrum.child("intenArrayBinary").child("data").child_value();
         scan->intensity =
-            base64::decode_base64(b64intensity, precision1 / 8, false, false);
+            base64::decodeBase64(b64intensity, precision1 / 8, false, false);
 
         // cout << "mz" << endl;
         int precision2 = spectrum.child("mzArrayBinary")
@@ -657,7 +668,7 @@ void mzSample::parseMzData(const char* filename)
                              .as_int();
         string b64mz =
             spectrum.child("mzArrayBinary").child("data").child_value();
-        scan->mz = base64::decode_base64(b64mz, precision2 / 8, false, false);
+        scan->mz = base64::decodeBase64(b64mz, precision2 / 8, false, false);
 
         // cout << "spectrum " << spectrum.attribute("title").value() << endl;
     }
@@ -827,15 +838,12 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan)
         if (b64String.empty())
             return mzint;
 
-        bool decompress = false;
-#ifdef ZLIB
         // if the data is been compressed in zlib format this part will
         // take care.
-        if (strncasecmp(peaks.attribute("compressionType").value(), "zlib", 4)
-            == 0) {
+        bool decompress = false;
+        if (strncasecmp(peaks.attribute("compressionType").value(), "zlib", 4) == 0) {
             decompress = true;
         }
-#endif
 
         bool networkorder = false;  // naman The scope of the variable
                                     // 'networkorder' can be reduced.
@@ -857,7 +865,7 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan)
         // << " precMz=" << precursorMz << " polar=" << scanpolarity
         //    << " prec=" << precision << endl;
 
-        mzint = base64::decode_base64(
+        mzint = base64::decodeBase64(
             b64String, precision / 8, networkorder, decompress);
 
         return mzint;
