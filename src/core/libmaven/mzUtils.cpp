@@ -909,8 +909,6 @@ Series:  Prentice-Hall Series in Automatic Computation
         return ( t );
     }
 
-
-    /** Decompress an STL string using zlib and return the original data. */
     std::string decompressString(const std::string& str)
     {
         string outstring;

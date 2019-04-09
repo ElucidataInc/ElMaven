@@ -372,10 +372,10 @@ namespace mzUtils {
             std::string& uncompressedBytes);
 
     /**
-     * [decompress_string ]
-     * @method decompress_string
-     * @param  str               []
-     * @return []
+     * @method Decompress an STL string using zlib (deflate) filter of Boost
+     * Iostream library and return uncompressed data.
+     * @param str A STL string containing compressed zlib binary data.
+     * @return An STL string containing uncompressed data.
      */
     std::string decompressString(const std::string& str);
 
