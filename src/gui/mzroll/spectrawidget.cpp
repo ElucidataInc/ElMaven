@@ -106,24 +106,24 @@ void SpectraWidget::_placeLabels()
         _upperLabel = scene()->addText("", font);
         _upperLabel->setHtml(upperLabelText);
         _upperLabel->setDefaultTextColor(Qt::black);
-        int upperLabelWidth = _upperLabel->boundingRect().width();
-        _upperLabel->setPos(scene()->width() - upperLabelWidth, 3);
         _upperLabel->update();
     } else {
         _upperLabel->setVisible(true);
     }
+    int upperLabelWidth = _upperLabel->boundingRect().width();
+    _upperLabel->setPos(scene()->width() - upperLabelWidth, 3);
 
     if (!_lowerLabel) {
         _lowerLabel = scene()->addText("", font);
         _lowerLabel->setHtml(lowerLabelText);
         _lowerLabel->setDefaultTextColor(Qt::black);
-        int lowerLabelWidth = _lowerLabel->boundingRect().width();
-        _lowerLabel->setPos(scene()->width() - lowerLabelWidth,
-                            scene()->height() / 2);
         _lowerLabel->update();
     } else {
         _lowerLabel->setVisible(true);
     }
+    int lowerLabelWidth = _lowerLabel->boundingRect().width();
+    _lowerLabel->setPos(scene()->width() - lowerLabelWidth,
+                        scene()->height() / 2);
 }
 
 void SpectraWidget::setTitle(QString titleText) 
