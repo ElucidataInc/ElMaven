@@ -389,7 +389,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="label_minMatchScore">
             <property name="text">
-             <string>Minumum Score</string>
+             <string>Minimum Score</string>
             </property>
            </widget>
           </item>
