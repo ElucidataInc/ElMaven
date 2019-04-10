@@ -222,32 +222,37 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
+
+
+    QString clsfModelFilename;
+    QString weightsFile;
+    QString modelFile;
+    QString appDir;
+
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator();
+    #endif
+
+    #if defined(Q_OS_MAC)
+        appDir =  qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
+              + QDir::separator();
+    #endif
+
+    clsfModelFilename = appDir + "default.model";
+    weightsFile = appDir + "group.weights";
+    modelFile = appDir + "svm.model";
+
 	groupClsf = new groupClassifier();
-        groupClsf->loadModel("bin/weights/group.weights");
+        groupClsf->loadModel(weightsFile.toStdString());
  
   	groupPred = new svmPredictor();
-        groupPred->loadModel("bin/weights/svm.model");
+        groupPred->loadModel(modelFile.toStdString());
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
       string massCutoffType=settings->value("massCutoffType").toString().toStdString();
       _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
     */
-
-
-    // always load model file present in the bin directory.
-    QString clsfModelFilename;
-
-    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-      clsfModelFilename = QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator() + "default.model");
-    #endif
-
-    #if defined(Q_OS_MAC)
-      clsfModelFilename = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-              + QDir::separator() + "default.model";
-    #endif
-
-
 
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
