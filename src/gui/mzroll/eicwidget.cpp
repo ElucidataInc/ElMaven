@@ -197,16 +197,16 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 		}
 	}
 
-	eicParameters->_integratedGroup.groupStatistics();
+    eicParameters->_integratedGroup.groupStatistics();
     int ms2Events = eicParameters->_integratedGroup.getFragmentationEvents().size();
     if (ms2Events) {
-		float ppm = getMainWindow()->mavenParameters->fragmentTolerance;
-		string scoringAlgo = getMainWindow()->mavenParameters->scoringAlgo;
+        float ppm = getMainWindow()->mavenParameters->fragmentTolerance;
+        string scoringAlgo = getMainWindow()->mavenParameters->scoringAlgo;
         eicParameters->_integratedGroup.computeFragPattern(ppm);
-		eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
+        eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
     }
-	getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
-	getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
+    getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
+    getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
 }
 
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
