@@ -59,27 +59,33 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
-							float grouping_maxRtWindow,
-							double minQuality,
-							double distXWeight,
-							double distYWeight,
-							double overlapWeight,
-							bool useOverlap,
-							double minSignalBaselineDifference) {
-
-	peakgroups = EIC::groupPeaks(eics,
-								eic_smoothingWindow,
-								grouping_maxRtWindow,
-								minQuality,
+                          Compound* compound,
+                          float grouping_maxRtWindow,
+                          double minQuality,
+                          double distXWeight,
+                          double distYWeight,
+                          double overlapWeight,
+                          bool useOverlap,
+                          double minSignalBaselineDifference,
+                          float productPpmTolerance,
+                          string scoringAlgo)
+{
+    peakgroups = EIC::groupPeaks(eics,
+                                compound,
+                                eic_smoothingWindow,
+                                grouping_maxRtWindow,
+                                minQuality,
                                 distXWeight,
                                 distYWeight,
                                 overlapWeight,
                                 useOverlap,
-								minSignalBaselineDifference);
+                                minSignalBaselineDifference,
+                                productPpmTolerance,
+                                scoringAlgo);
 
 
-	//keep only top X groups ( ranked by intensity )
-	EIC::removeLowRankGroups(peakgroups, 50);
+    //keep only top X groups ( ranked by intensity )
+    EIC::removeLowRankGroups(peakgroups, 50);
 }
 
 mzSlice EICLogic::setMzSlice(float mz1,MassCutoff *massCutoff, float mz2) {

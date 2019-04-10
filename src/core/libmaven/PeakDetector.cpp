@@ -378,6 +378,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 
         vector<PeakGroup> peakgroups =
             EIC::groupPeaks(eics,
+                            compound,
                             mavenParameters->eic_smoothingWindow,
                             mavenParameters->grouping_maxRtWindow,
                             mavenParameters->minQuality,
@@ -385,8 +386,10 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
                             mavenParameters->distYWeight,
                             mavenParameters->overlapWeight,
                             mavenParameters->useOverlap,
-                            mavenParameters->minSignalBaselineDifference);
-
+                            mavenParameters->minSignalBaselineDifference,
+                            mavenParameters->fragmentTolerance,
+                            mavenParameters->scoringAlgo);
+        
         GroupFiltering groupFiltering(mavenParameters, slice);
         groupFiltering.filter(peakgroups);
 

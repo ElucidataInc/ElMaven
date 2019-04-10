@@ -15,6 +15,7 @@ class PeakGroup;
 class mzSample;
 class mzPoint;
 class Scan;
+class Compound;
 
 class EIC
 {
@@ -248,6 +249,7 @@ class EIC
      * @return vector of peak groups found
     **/
     static vector<PeakGroup> groupPeaks(vector<EIC *> &eics,
+                                        Compound* compound,
                                         int smoothingWindow,
                                         float maxRtDiff,
                                         double minQuality,
@@ -255,7 +257,9 @@ class EIC
                                         double distYWeight,
                                         double overlapWeight,
                                         bool useOverlap,
-                                        double minSignalBaselineDifference);
+                                        double minSignalBaselineDifference,
+                                        float fragmentPpmTolerance,
+                                        string scoringAlgo);
     /**
          * [eicMerge ]
          * @method eicMerge
