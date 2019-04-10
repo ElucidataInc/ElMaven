@@ -320,6 +320,16 @@ void ProjectDockWidget::unloadSelectedSamples() {
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
      _mainwindow->isotopeWidget->updateSampleList();
+
+     // delete any parent folder items that now have zero samples
+     for (const auto parentFolder : parentMap.keys()) {
+         QTreeWidgetItem* parent = parentMap.value(parentFolder);
+         if (parent->childCount() == 0) {
+             parentMap.remove(parentFolder);
+             delete parent;
+         }
+     }
+
      if (_mainwindow->samples.size() < 1) {
 		QMessageBox* msgBox = new QMessageBox( this );
 		msgBox->setStandardButtons( QMessageBox::Ok );
