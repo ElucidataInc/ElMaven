@@ -850,7 +850,7 @@ void MainWindow::showNotification(TableDockWidget* table) {
 
 void MainWindow::createPeakTable(QString filenameNew) {
     projectDockWidget->setLastOpenedProject(filenameNew);
-    TableDockWidget * peaksTable = this->addPeaksTable("");
+    TableDockWidget * peaksTable = this->addPeaksTable();
     auto groups = fileLoader->readGroupsXML(filenameNew);
     for (auto group : groups) {
         peaksTable->addPeakGroup(group);
@@ -1277,21 +1277,18 @@ void MainWindow::setUrl(Reaction* r) {
 	setUrl(url, link);
 }
 
-TableDockWidget* MainWindow::addPeaksTable(QString title) {
+TableDockWidget* MainWindow::addPeaksTable(int tableId) {
     int customTableId = -1;
 
-    // attempt to extract out peak table ID from its name, assuming ID is
-    // at the end of the title passed
-    auto stringList = title.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-    if (stringList.size()) {
-        auto idString = stringList[stringList.size() - 1].toStdString();
-        customTableId = std::atoi(idString.c_str());
-    }
-    TableDockWidget* panel = new PeakTableDockWidget(this, customTableId);
+    TableDockWidget* panel = new PeakTableDockWidget(this, tableId);
 	analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
+
+    QToolButton* btnTable = addDockWidgetButton(sideBar,
+                                                panel,
+                                                QIcon(rsrcPath + "/featuredetect.png"),
+                                                "");
 
     groupTables.push_back(panel);
 	groupTablesButtons[panel]=btnTable;

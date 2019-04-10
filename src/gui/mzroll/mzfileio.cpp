@@ -483,7 +483,7 @@ void mzFileIO::fileImport(void) {
 
     Q_FOREACH(QString filename, peaks ) {
         QFileInfo fileInfo(filename);
-        TableDockWidget* tableX = _mainwindow->addPeaksTable("Group Set " + fileInfo.fileName());
+        TableDockWidget* tableX = _mainwindow->addPeaksTable();
         auto groups = readGroupsXML(filename);
         for (auto group : groups) {
             _mainwindow->bookmarkedPeaks->addPeakGroup(group);
@@ -988,7 +988,7 @@ void mzFileIO::_postSampleLoadOperations()
                 table = t;
 
         if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
-            _mainwindow->addPeaksTable(tableName);
+            _mainwindow->addPeaksTable();
     }
 
     _sqliteDBLoadInProgress = true;
