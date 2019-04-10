@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include "notificator.h"
 #include "videoplayer.h"
+#include "background_peaks_update.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -221,32 +222,37 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
+
+
+    QString clsfModelFilename;
+    QString weightsFile;
+    QString modelFile;
+    QString appDir;
+
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator();
+    #endif
+
+    #if defined(Q_OS_MAC)
+        appDir =  qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
+              + QDir::separator();
+    #endif
+
+    clsfModelFilename = appDir + "default.model";
+    weightsFile = appDir + "group.weights";
+    modelFile = appDir + "svm.model";
+
 	groupClsf = new groupClassifier();
-        groupClsf->loadModel("bin/weights/group.weights");
+        groupClsf->loadModel(weightsFile.toStdString());
  
   	groupPred = new svmPredictor();
-        groupPred->loadModel("bin/weights/svm.model");
+        groupPred->loadModel(modelFile.toStdString());
 
 
    /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
       string massCutoffType=settings->value("massCutoffType").toString().toStdString();
       _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
     */
-
-
-    // always load model file present in the bin directory.
-    QString clsfModelFilename;
-
-    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-      clsfModelFilename = QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator() + "default.model");
-    #endif
-
-    #if defined(Q_OS_MAC)
-      clsfModelFilename = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-              + QDir::separator() + "default.model";
-    #endif
-
-
 
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
@@ -533,6 +539,7 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
     connect(fileLoader,SIGNAL(projectLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
+    connect(projectDockWidget, &ProjectDockWidget::samplesDeleted, spectraWidget, &SpectraWidget::clearScans);
     connect(fileLoader,
             SIGNAL(compoundsLoaded(QString, int)),
             this,
@@ -848,7 +855,7 @@ void MainWindow::showNotification(TableDockWidget* table) {
 
 void MainWindow::createPeakTable(QString filenameNew) {
     projectDockWidget->setLastOpenedProject(filenameNew);
-    TableDockWidget * peaksTable = this->addPeaksTable("");
+    TableDockWidget * peaksTable = this->addPeaksTable();
     auto groups = fileLoader->readGroupsXML(filenameNew);
     for (auto group : groups) {
         peaksTable->addPeakGroup(group);
@@ -1275,21 +1282,18 @@ void MainWindow::setUrl(Reaction* r) {
 	setUrl(url, link);
 }
 
-TableDockWidget* MainWindow::addPeaksTable(QString title) {
+TableDockWidget* MainWindow::addPeaksTable(int tableId) {
     int customTableId = -1;
 
-    // attempt to extract out peak table ID from its name, assuming ID is
-    // at the end of the title passed
-    auto stringList = title.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-    if (stringList.size()) {
-        auto idString = stringList[stringList.size() - 1].toStdString();
-        customTableId = std::atoi(idString.c_str());
-    }
-    TableDockWidget* panel = new PeakTableDockWidget(this, customTableId);
+    TableDockWidget* panel = new PeakTableDockWidget(this, tableId);
 	analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
-	QToolButton* btnTable = addDockWidgetButton(sideBar, panel, QIcon(rsrcPath + "/featuredetect.png"), title);
+
+    QToolButton* btnTable = addDockWidgetButton(sideBar,
+                                                panel,
+                                                QIcon(rsrcPath + "/featuredetect.png"),
+                                                "");
 
     groupTables.push_back(panel);
 	groupTablesButtons[panel]=btnTable;
@@ -2599,7 +2603,7 @@ void MainWindow::createMenus() {
     saveProjectFile->addAction(saveProjectAsSQLite);
 
     // add option to save as mzroll
-    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll)"),
+    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll) [Deprecated]"),
                                                this);
     connect(saveProjectAsMzRoll,
             SIGNAL(triggered()),

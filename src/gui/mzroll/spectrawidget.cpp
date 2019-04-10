@@ -7,6 +7,8 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
    _avgScan = nullptr;
    _currentGroup = PeakGroup();
    _spectralHit = SpectralHit();
+   _lowerLabel = nullptr;
+   _upperLabel = nullptr;
 
     initPlot();
 
@@ -91,6 +93,38 @@ void SpectraWidget::replot() {
     drawGraph();
 }
 
+void SpectraWidget::_placeLabels()
+{
+    if (_currentScan && _currentScan->nobs() == 0)
+        return;
+
+    QString upperLabelText = tr("<b>Group Spectra</b>");
+    QString lowerLabelText = tr("<b>Reference Spectra</b>");
+    QFont font = QApplication::font();
+
+    if (!_upperLabel) {
+        _upperLabel = scene()->addText("", font);
+        _upperLabel->setHtml(upperLabelText);
+        _upperLabel->setDefaultTextColor(Qt::black);
+        _upperLabel->update();
+    } else {
+        _upperLabel->setVisible(true);
+    }
+    int upperLabelWidth = _upperLabel->boundingRect().width();
+    _upperLabel->setPos(scene()->width() - upperLabelWidth, 3);
+
+    if (!_lowerLabel) {
+        _lowerLabel = scene()->addText("", font);
+        _lowerLabel->setHtml(lowerLabelText);
+        _lowerLabel->setDefaultTextColor(Qt::black);
+        _lowerLabel->update();
+    } else {
+        _lowerLabel->setVisible(true);
+    }
+    int lowerLabelWidth = _lowerLabel->boundingRect().width();
+    _lowerLabel->setPos(scene()->width() - lowerLabelWidth,
+                        scene()->height() / 2);
+}
 
 void SpectraWidget::setTitle(QString titleText) 
 {
@@ -375,6 +409,11 @@ void SpectraWidget::clearGraph() {
 
     //clean up previous plot
     if ( _arrow ) _arrow->setVisible(false);
+    if (_upperLabel)
+        _upperLabel->setVisible(false);
+    if (_lowerLabel)
+        _lowerLabel->setVisible(false);
+
     for(unsigned int i=0; i < _items.size(); i++) {
         if(_items[i] != NULL) delete(_items[i]); _items[i]=NULL;
     }
@@ -643,6 +682,7 @@ void SpectraWidget::drawGraph()
 
     if (_spectralHit.mzList.size() > 0) {
         setGroupTitle();
+        _placeLabels();
         if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.1f)
             drawSpectralHit(_spectralHit);
         else {
@@ -1317,4 +1357,11 @@ void SpectraWidget::copyImageToClipboard()
     render(&painter);
     painter.end();
     QApplication::clipboard()->setPixmap(image);
+}
+
+void SpectraWidget::clearScans()
+{
+    _currentScan = nullptr;
+    _avgScan = nullptr;
+    _scanset.clear();
 }

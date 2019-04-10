@@ -53,6 +53,7 @@ public:
                     void drawScan(Scan* scan, QColor sampleColor);
                     void drawMzLabels(Scan *scan); //TODO: Sahil, Added while merging spectrawidget
                     void drawAnnotations(); //TODO: Sahil, Added while merging spectrawidget
+                    void clearScans();
 
 
 
@@ -86,6 +87,8 @@ public:
                     QPointF _nearestCoord;
 
                     QGraphicsTextItem* _title;
+                    QGraphicsTextItem* _lowerLabel;
+                    QGraphicsTextItem* _upperLabel;
                     QGraphicsTextItem* _note;
                     QGraphicsTextItem* _vnote;
                     QGraphicsLineItem* _arrow;
@@ -119,6 +122,7 @@ public:
                     void annotateScan();
                     void clearGraph();
                     void clearOverlay();
+                    void _placeLabels();
 
 		protected:
                     void leaveEvent ( QEvent * event );

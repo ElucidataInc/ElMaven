@@ -853,6 +853,7 @@ void EIC::removeLowRankGroups(vector<PeakGroup> &groups, unsigned int rankLimit)
 
 //TODO: Lots of parameters. Refactor this code - Sahil
 vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
+                                  Compound* compound,
                                   int smoothingWindow,
                                   float maxRtDiff,
                                   double minQuality,
@@ -860,7 +861,9 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   double distYWeight,
                                   double overlapWeight,
                                   bool useOverlap,
-                                  double minSignalBaselineDifference)
+                                  double minSignalBaselineDifference,
+                                  float productPpmTolerance,
+                                  string scoringAlgo)
 {
     vector<mzSample*> samples;
     for(int i=0;i<eics.size();++i){
@@ -900,6 +903,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     {
         PeakGroup grp;
         grp.groupId = i;
+        grp.compound = compound;
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }
@@ -994,7 +998,10 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         //Feng note: fillInPeaks is unecessary
         grp.groupStatistics();
         grp.computeAvgBlankArea(eics);
-
+        if (grp.getFragmentationEvents().size()) {
+            grp.computeFragPattern(productPpmTolerance);
+            grp.matchFragmentation(productPpmTolerance, scoringAlgo);
+        }
     }
 
     //now merge overlapping groups

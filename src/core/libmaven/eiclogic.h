@@ -34,14 +34,17 @@ public:
 								int intensityWeight,
 								int deltaRTWeight);
 
-	void groupPeaks(float eic_smoothingWindow,
-					float grouping_maxRtWindow,
-					double minQuality,
-					double distXWeight,
-					double distYWeight,
-					double overlapWeight,
-					bool useOverlap,
-					double minSignalBaselineDifference);
+    void groupPeaks(float eic_smoothingWindow,
+                    Compound* compound,
+                    float grouping_maxRtWindow,
+                    double minQuality,
+                    double distXWeight,
+                    double distYWeight,
+                    double overlapWeight,
+                    bool useOverlap,
+                    double minSignalBaselineDifference,
+                    float productPpmTolerance,
+                    string scoringAlgo);
 
 	mzSlice setMzSlice(float mz1, MassCutoff *massCutoff, float mz2 = 0.0);
 

@@ -38,7 +38,7 @@ LIBS +=  -lmaven         \
          -lobiwarp       \
          -lpollyCLI
 
-LIBS += -fopenmp
+!macx: LIBS += -fopenmp
 
 macx {
     DYLIBPATH = $$(LDFLAGS)

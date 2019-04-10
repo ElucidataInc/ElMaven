@@ -1297,7 +1297,7 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["reportIsotopes"] = variant(settingsQuery->integerValue("report_isotopes"));
 
         settingsMap["peakQuantitation"] = variant(settingsQuery->integerValue("peak_quantitation"));
-        settingsMap["minGroupIntensity"] = variant(settingsQuery->doubleValue("minGroupIntensity"));
+        settingsMap["minGroupIntensity"] = variant(settingsQuery->doubleValue("min_group_intensity"));
         settingsMap["intensityQuantile"] = variant(settingsQuery->integerValue("intensity_quantile"));
         settingsMap["minGroupQuality"] = variant(settingsQuery->doubleValue("min_group_quality"));
         settingsMap["qualityQuantile"] = variant(settingsQuery->integerValue("quality_quantile"));

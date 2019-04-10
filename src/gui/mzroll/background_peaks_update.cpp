@@ -260,9 +260,7 @@ void BackgroundPeakUpdate::run(void) {
         mavenParameters->stop = false;
         started();
 
-        if (runFunction == "findPeaksQQQ") {
-                findPeaksQQQ();
-        } else if (runFunction == "alignUsingDatabase") {
+        if (runFunction == "alignUsingDatabase") {
                 alignUsingDatabase();
         } else if (runFunction == "processSlices") {
                 processSlices();
@@ -627,28 +625,6 @@ void BackgroundPeakUpdate::computePeaks() {
                 return;
 
         processCompounds(mavenParameters->compounds, "compounds");
-}
-
-//TODO: Not being used anywhere right now - Sahil
-void BackgroundPeakUpdate::findPeaksQQQ() {
-
-        if(mainwindow == NULL) return;
-
-        int userPolarity = 0;
-	if (mainwindow->getIonizationMode()) userPolarity = mainwindow->getIonizationMode();
-        
-        bool associateCompoundNames = false;
-
-        deque<Compound*> compoundsDB = DB.getCompoundsDB();
-
-        double amuQ1 = mainwindow->getSettings()->value("amuQ1").toDouble();
-        double amuQ3 = mainwindow->getSettings()->value("amuQ3").toDouble();
-
-	vector<mzSlice*>slices = mainwindow->srmList->getSrmSlices(amuQ1, amuQ3, userPolarity, associateCompoundNames);
-
-        processSlices(slices,"QQQ Peaks");
-	delete_all(slices);
-	slices.clear();
 }
 
 /**

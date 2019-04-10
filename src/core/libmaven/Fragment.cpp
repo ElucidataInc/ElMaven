@@ -406,16 +406,21 @@ double Fragment::ticMatched(const vector<int>& X)
 
 double Fragment::mzErr(const vector<int>& X, Fragment* other)
 {
-    if (X.size() == 0) return 0;
-    
-    double ERR = 1000;
-    for(unsigned int i = 0; i < X.size(); i++) {
-        if (X[i] != -1)
-        //TODO: confirm the formula with Eugene
-            ERR += POW2(mzValues[i] - other->mzValues[X[i]]);
+    if (X.size() == 0)
+        return 1000.0;
+
+    bool errorChanged = false;
+    double err = 0.0;
+    for (unsigned int i = 0; i < X.size(); i++) {
+        if (X[i] != -1) {
+            err += POW2(mzValues[i] - other->mzValues[X[i]]);
+            errorChanged = true;
+        }
     }
-    
-    return sqrt(ERR);
+    if (!errorChanged)
+        return 1000.0;
+
+    return sqrt(err);
 }
 
 double Fragment::dotProduct(Fragment* other)

@@ -29,6 +29,7 @@ public:
     QIcon getSampleIcon(mzSample* sample);
 
 Q_SIGNALS:
+    void samplesDeleted();
 
 public Q_SLOTS:
     void showInfo();

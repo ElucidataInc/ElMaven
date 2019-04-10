@@ -87,6 +87,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     setTitleBarWidget(toolBar);
     setWidget(window);
+
 }
 
 QString ProjectDockWidget::getProjectDescription() {
@@ -319,25 +320,36 @@ void ProjectDockWidget::unloadSelectedSamples() {
      _treeWidget->update();
      _mainwindow->getEicWidget()->replotForced();
      _mainwindow->isotopeWidget->updateSampleList();
+
+     // delete any parent folder items that now have zero samples
+     for (const auto parentFolder : parentMap.keys()) {
+         QTreeWidgetItem* parent = parentMap.value(parentFolder);
+         if (parent->childCount() == 0) {
+             parentMap.remove(parentFolder);
+             delete parent;
+         }
+     }
+
      if (_mainwindow->samples.size() < 1) {
 		QMessageBox* msgBox = new QMessageBox( this );
-		msgBox->setAttribute( Qt::WA_DeleteOnClose );
 		msgBox->setStandardButtons( QMessageBox::Ok );
         QPushButton *connectButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
 		msgBox->setIcon(QMessageBox::Information);
 		msgBox->setText(tr("All the samples have been deleted. \nPlease restart El-Maven if you want to process another set of samples for better experience."));
 		msgBox->setModal( false );
-		msgBox->open();
         msgBox->exec();
         if (msgBox->clickedButton() == connectButton) {
             QSet<QString> fileNames;
             _mainwindow->pendingMzRollSaves.clear();
             _mainwindow->reBootApp();
         }
+        delete msgBox;
      }
 
     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
     _mainwindow->sampleRtWidget->plotGraph();
+
+    emit samplesDeleted();
 }
 
 void ProjectDockWidget::SetAsBlankSamples() {

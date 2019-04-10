@@ -39,6 +39,7 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
 bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
 {
 
+    //TODO: remove compound assignment from filtering
     Compound* compound = _slice->compound;
     peakgroup.setQuantitationType((PeakGroup::QType)_mavenParameters->peakQuantitation);
     peakgroup.minQuality = _mavenParameters->minQuality;
@@ -96,6 +97,8 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
 
 bool GroupFiltering::filterByMS2(PeakGroup& peakgroup)
 {
+    //TODO: remove MS2 stats calculation from filtering.
+    //Already calculated during grouping
     peakgroup.computeFragPattern(_mavenParameters->fragmentTolerance);
     peakgroup.matchFragmentation(_mavenParameters->fragmentTolerance,
                                  _mavenParameters->scoringAlgo);

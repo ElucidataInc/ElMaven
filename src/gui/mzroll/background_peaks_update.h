@@ -228,7 +228,7 @@ private:
 	/**
 	 * [find Peaks for Orbitrap machine mode]
 	 */
-	void findPeaksOrbi(void);
+    void findPeaksOrbi(void);
 
 	/**
 	 * @brief Find peaks using SRM Slices
@@ -236,8 +236,6 @@ private:
 	 * These mzSlices are then used to find peaks.
 	 * @see SRMList
 	 */
-	void findPeaksQQQ(void);
-
 	bool covertToMzXML(QString filename, QString outfile);
 
 

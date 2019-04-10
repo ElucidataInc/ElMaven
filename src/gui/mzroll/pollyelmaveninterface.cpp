@@ -19,6 +19,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _activeTable = nullptr;
     _pollyIntegration = new PollyIntegration();
     _loadingDialog = new PollyWaitDialog(this);
+    _uploadInProgress = false;
 
     workflowMenu->setStyleSheet("QListView::item {"
                                 "border: 1px solid transparent;"
@@ -308,7 +309,6 @@ void PollyElmavenInterfaceDialog::_resetUiElements()
 void PollyElmavenInterfaceDialog::startupDataLoad()
 {
     _resetUiElements();
-    QIcon projectIcon(rsrcPath + "/POLLY.png");
     if (_projectNameIdMap.isEmpty()) {
         _projectNameIdMap = _pollyIntegration->getUserProjects();
     }
