@@ -230,7 +230,7 @@ using namespace mzUtils;
     QString appDir;
 
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        appDir =  QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator();
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath() + QDir::separator());
     #endif
 
     #if defined(Q_OS_MAC)
