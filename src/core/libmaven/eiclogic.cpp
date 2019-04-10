@@ -59,15 +59,19 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
+                          Compound* compound,
 							float grouping_maxRtWindow,
 							double minQuality,
 							double distXWeight,
 							double distYWeight,
 							double overlapWeight,
 							bool useOverlap,
-							double minSignalBaselineDifference) {
+							double minSignalBaselineDifference,
+							float productPpmTolerance,
+							string scoringAlgo) {
 
 	peakgroups = EIC::groupPeaks(eics,
+                                compound,
 								eic_smoothingWindow,
 								grouping_maxRtWindow,
 								minQuality,
@@ -75,7 +79,9 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
                                 distYWeight,
                                 overlapWeight,
                                 useOverlap,
-								minSignalBaselineDifference);
+								minSignalBaselineDifference,
+								productPpmTolerance,
+								scoringAlgo);
 
 
 	//keep only top X groups ( ranked by intensity )

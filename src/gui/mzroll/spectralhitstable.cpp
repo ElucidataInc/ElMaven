@@ -978,6 +978,7 @@ void SpectralHitsDockWidget::integrateMS1() {
 
         vector<PeakGroup> peakgroups =
             EIC::groupPeaks(eics,
+                            nullptr,
                             mp->eic_smoothingWindow,
                             mp->grouping_maxRtWindow,
                             mp->minQuality,
@@ -985,7 +986,9 @@ void SpectralHitsDockWidget::integrateMS1() {
                             mp->distYWeight,
                             mp->overlapWeight,
                             mp->useOverlap,
-                            mp->minSignalBaselineDifference);
+                            mp->minSignalBaselineDifference,
+                            mp->fragmentTolerance,
+                            mp->scoringAlgo);
 
 
        PeakGroup* nearestGrp = NULL;
