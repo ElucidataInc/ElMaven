@@ -748,6 +748,7 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
 void PollyElmavenInterfaceDialog::_logout()
 {
+    usernameLabel->setText("");
     _pollyIntegration->logout();
     _projectNameIdMap = QVariantMap();
     close();
