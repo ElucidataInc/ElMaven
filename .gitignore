@@ -27,6 +27,8 @@
 !crashserver.app
 *.out
 *.app
+bin/crashreporter
+bin/El-MAVEN
 
 # Project Files
 */tmp/
