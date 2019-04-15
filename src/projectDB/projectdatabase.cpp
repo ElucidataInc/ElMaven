@@ -941,8 +941,11 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
 
         vector<string> sample_ids;
         mzUtils::split(groupsQuery->stringValue("sample_ids"), ';', sample_ids);
-        for (auto id_string : sample_ids) {
-            int sampleId = stoi(id_string);
+        for (auto idString : sample_ids) {
+            if (idString.empty())
+                continue;
+
+            int sampleId = stoi(idString);
             auto sampleIter = find_if(begin(loaded),
                                       end(loaded),
                                       [sampleId](mzSample* s) {

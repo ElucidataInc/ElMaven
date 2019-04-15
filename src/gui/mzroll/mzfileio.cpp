@@ -2,6 +2,7 @@
 
 #include "mzfileio.h"
 #include "projectdatabase.h"
+#include "mzrolldbconverter.h"
 #include <QStringList>
 #include <QTextStream>
 
@@ -468,8 +469,8 @@ void mzFileIO::fileImport(void) {
                 }
                 _mainwindow->bookmarkedPeaks->showAllGroups();
             }
-        } else if (isSQLiteProject(filename)) {
-            openSQLiteProject(filename);
+        } else if (isEmdbProject(filename) || isMzrollDbProject(filename)) {
+            filename = openSQLiteProject(filename);
             auto fileInfo = QFileInfo(filename);
 
             if (!_currentProject->openConnection()) {
@@ -660,7 +661,9 @@ bool mzFileIO::isSampleFileType(QString filename) {
 }
 
 bool mzFileIO::isProjectFileType(QString filename) {
-    return (isMzRollProject(filename) || isSQLiteProject(filename));
+    return (isMzRollProject(filename)
+            || isEmdbProject(filename)
+            || isMzrollDbProject(filename));
 }
 
 bool mzFileIO::isMzRollProject(QString filename)
@@ -670,9 +673,16 @@ bool mzFileIO::isMzRollProject(QString filename)
     return false;
 }
 
-bool mzFileIO::isSQLiteProject(QString filename)
+bool mzFileIO::isEmdbProject(QString filename)
 {
     if (filename.endsWith("emDB", Qt::CaseInsensitive))
+        return true;
+    return false;
+}
+
+bool mzFileIO::isMzrollDbProject(QString filename)
+{
+    if (filename.endsWith("mzrollDB", Qt::CaseInsensitive))
         return true;
     return false;
 }
@@ -790,13 +800,28 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     return false;
 }
 
-void mzFileIO::openSQLiteProject(QString filename)
+QString mzFileIO::openSQLiteProject(QString filename)
 {
     if (_currentProject)
         closeSQLiteProject();
 
+    // if the user has opened an mzrollDB project, then we copy its data to a
+    // new emDB file and then open that project for use in El-MAVEN.
+    QString openedFilename = filename;
+    if (isMzrollDbProject(filename)) {
+        QFileInfo fileInfo(filename);
+        QDir parentDir = QDir(fileInfo.path());
+        QString baseName = fileInfo.completeBaseName();
+        openedFilename = parentDir.filePath(baseName + ".emDB");
+        qDebug() << openedFilename;
+        MzrollDbConverter::convertLegacyToCurrent(filename.toStdString(),
+                                                  openedFilename.toStdString());
+    }
+
     auto version = _mainwindow->appVersion().toStdString();
-    _currentProject = new ProjectDatabase(filename.toStdString(), version);
+    _currentProject = new ProjectDatabase(openedFilename.toStdString(),
+                                          version);
+    return openedFilename;
 }
 
 void mzFileIO::_beginSQLiteProjectLoad()
