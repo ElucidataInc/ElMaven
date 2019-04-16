@@ -1897,17 +1897,17 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         if (ligandWidget->isVisible())
             ligandWidget->setDatabase(QString(dbName.c_str()));
 
-        int msLevel = 1;
+        QString eventLabel = "MS1";
         vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
         if (loadedCompounds[0]->precursorMz > 0
             && (loadedCompounds[0]->productMz > 0
                 || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
-            msLevel = 2;
+            eventLabel = DB.isNISTLibrary(dbName) ? "MS2 (PRM)"
+                                                  : "MS2 (MRM)";
         }
-
-		analytics->hitEvent("Load Compound DB",
-							"Successful Load",
-							QString("MS") + QString::number(msLevel));
+        analytics->hitEvent("Load Compound DB",
+                            "Successful Load",
+                            eventLabel);
 
         // do not save NIST library files for automatic load when starting next
         // session, unless they are less than 2Mb in size
