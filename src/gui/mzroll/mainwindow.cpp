@@ -994,7 +994,7 @@ void MainWindow::threadSave(QString filename)
 
     QFileInfo fileInfo(filename);
     setWindowTitle(programName
-                   + "_"
+                   + " "
                    + STR(EL_MAVEN_VERSION)
                    + " "
                    + fileInfo.fileName());
@@ -1094,7 +1094,7 @@ void MainWindow::saveProject(bool explicitSave)
             _latestUserProjectName = _currentProjectName;
             QFileInfo fileInfo(_latestUserProjectName);
             setWindowTitle(programName
-                           + "_"
+                           + " "
                            + STR(EL_MAVEN_VERSION)
                            + " "
                            + fileInfo.fileName());
@@ -1741,7 +1741,7 @@ void MainWindow::open()
 
     // Changing the title of the main window after selecting the samples
     setWindowTitle(programName
-                   + "_"
+                   + " "
                    + STR(EL_MAVEN_VERSION)
                    + " "
                    + fileInfo.fileName());
@@ -1770,7 +1770,7 @@ void MainWindow::open()
         // SQLite project
         QFileInfo fileInfo(_latestUserProjectName);
         setWindowTitle(programName
-                       + "_"
+                       + " "
                        + STR(EL_MAVEN_VERSION)
                        + " "
                        + fileInfo.fileName());
