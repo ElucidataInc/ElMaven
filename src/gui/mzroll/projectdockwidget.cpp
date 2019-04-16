@@ -433,6 +433,7 @@ void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color)
     sample->color[1] = color.greenF();
     sample->color[2] = color.blueF();
     sample->color[3] = color.alphaF();
+    storeSampleColors[sample] = color;
 }
 
 QColor ProjectDockWidget::getSampleColor(mzSample* sample)
@@ -488,17 +489,20 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         sample->setSampleOrder(i);
 
-		float hue = 1 - 0.6 * ((float) (i + 1) / N);
-		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
-
-        storeSampleColors[sample] = c;
-
-		sample->color[0] = c.redF();
-		sample->color[1] = c.greenF();
-		sample->color[2] = c.blueF();
-		sample->color[3] = c.alphaF();
-
+		QColor c;
+        if (storeSampleColors.contains(sample))
+            c = storeSampleColors[sample];
+        else { 
+            float hue = 1 - 0.6 * ((float) (i + 1) / N);
+            c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
+            storeSampleColors[sample] = c;
+        }
         
+        sample->color[0] = c.redF();
+        sample->color[1] = c.greenF();
+        sample->color[2] = c.blueF();
+        sample->color[3] = c.alphaF();
+
         QTreeWidgetItem* parent = getParentFolder(QString(sample->fileName.c_str()));
         QTreeWidgetItem *item=NULL;
 
