@@ -12,11 +12,19 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     
     ui->setupUi(this);
-    ui->label_3->setOpenExternalLinks(true);
+    setWindowTitle("Sign in to Polly™");
+    ui->lineEdit_username->setFocus();
 
-    setWindowTitle("Polly");
-    // pushButton_about_polly->setFlat(true);
-    connect(ui->pushButton_about_polly, SIGNAL(clicked(bool)), SLOT(showAboutPolly()));
+    connect(ui->registerLabel,
+            &QLabel::linkActivated,
+            [=](const QString &link) {
+                QDesktopServices::openUrl(QUrl(link));
+            });
+    connect(ui->aboutLabel,
+            &QLabel::linkActivated,
+            [=] {
+                showAboutPolly();
+            });
 }
 
 LoginForm::~LoginForm()
@@ -50,7 +58,7 @@ WorkerThread::~WorkerThread()
 void LoginForm::on_pushButton_clicked()
 {   
     ui->login_label->setStyleSheet("QLabel {color : green; }");
-    ui->login_label->setText("Authenticating..");
+    ui->login_label->setText("Authenticating…");
     QCoreApplication::processEvents();
     ui->pushButton->setEnabled(false);
     QCoreApplication::processEvents();
@@ -66,8 +74,8 @@ void LoginForm::on_pushButton_clicked()
 void LoginForm::handleResults(QString status)
 {
     if (status == "ok") {
-        qDebug() << "Logged in, moving on now....";
-        ui->login_label->setText("Fetching data from Polly..");
+        qDebug() << "Logged in, moving on now…";
+        ui->login_label->setText("Fetching user data…");
         QCoreApplication::processEvents();
         _pollyelmaveninterfacedialog->startupDataLoad();
         hide();
@@ -86,7 +94,7 @@ void LoginForm::handleResults(QString status)
 
 void LoginForm::cancel()
 {
-    qDebug() << "closing the log in form now..";
+    qDebug() << "closing the log in form now…";
     close();
 }
 

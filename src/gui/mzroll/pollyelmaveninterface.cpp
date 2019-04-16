@@ -763,3 +763,8 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
 }
+
+MainWindow* PollyElmavenInterfaceDialog::getMainWindow()
+{
+    return _mainwindow;
+}
