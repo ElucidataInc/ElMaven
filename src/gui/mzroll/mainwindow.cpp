@@ -1707,7 +1707,7 @@ void MainWindow::open()
         this,
         "Select projects, peaks, samples to open:",
         dir,
-        tr("All Known Formats(*.mzroll *.emDB *mzrollDB *.mzPeaks *.mzXML "
+        tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks *.mzXML "
            "*.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
             + tr("mzXML Format(*.mzXML *.mzxml);;")
             + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
