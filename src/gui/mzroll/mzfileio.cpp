@@ -1008,8 +1008,19 @@ void mzFileIO::_postSampleLoadOperations()
             if (t->windowTitle() == tableName)
                 table = t;
 
-        if (!table && tableName != _mainwindow->bookmarkedPeaks->windowTitle())
-            _mainwindow->addPeaksTable();
+        if (!table
+            && tableName != _mainwindow->bookmarkedPeaks->windowTitle()) {
+            int customTableId = 0;
+            // attempt to extract out peak table ID from its name, assuming ID
+            // is at the end of the title passed
+            auto stringList = tableName.split(QRegExp("\\s+"),
+                                              QString::SkipEmptyParts);
+            if (stringList.size()) {
+                auto idString = stringList[stringList.size() - 1].toStdString();
+                customTableId = std::stoi(idString);
+            }
+            _mainwindow->addPeaksTable(customTableId);
+        }
     }
 
     _sqliteDBLoadInProgress = true;
