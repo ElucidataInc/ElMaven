@@ -15,15 +15,19 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     setWindowTitle("Sign in to Polly™");
     ui->lineEdit_username->setFocus();
 
+    auto analytics = _pollyelmaveninterfacedialog->getMainWindow()
+                                                 ->getAnalytics();
     connect(ui->registerLabel,
             &QLabel::linkActivated,
             [=](const QString &link) {
                 QDesktopServices::openUrl(QUrl(link));
+                analytics->hitEvent("PollyDialog", "Register");
             });
     connect(ui->aboutLabel,
             &QLabel::linkActivated,
             [=] {
                 showAboutPolly();
+                analytics->hitEvent("PollyDialog", "AboutPolly");
             });
 }
 
