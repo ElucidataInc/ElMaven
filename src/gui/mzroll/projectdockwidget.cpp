@@ -499,9 +499,12 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         }
 
         QColor color;
-        if (storeSampleColors.contains(sample))
+        if (storeSampleColors.contains(sample)) {
             color = storeSampleColors[sample];
-        else { 
+        } else if (sample->color[0] || sample->color[1] || sample->color[2]) {
+            color = getSampleColor(sample);
+            storeSampleColors[sample] = color;
+        } else { 
             float hue = 1 - 0.6 * ((float) (i + 1) / N);
             color = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
             storeSampleColors[sample] = color;
