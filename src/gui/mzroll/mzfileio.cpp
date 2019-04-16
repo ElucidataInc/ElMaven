@@ -809,11 +809,7 @@ QString mzFileIO::openSQLiteProject(QString filename)
     // new emDB file and then open that project for use in El-MAVEN.
     QString openedFilename = filename;
     if (isMzrollDbProject(filename)) {
-        QFileInfo fileInfo(filename);
-        QDir parentDir = QDir(fileInfo.path());
-        QString baseName = fileInfo.completeBaseName();
-        openedFilename = parentDir.filePath(baseName + ".emDB");
-        qDebug() << openedFilename;
+        openedFilename = swapFilenameExtension(filename, "emDB");
         MzrollDbConverter::convertLegacyToCurrent(filename.toStdString(),
                                                   openedFilename.toStdString());
     }
@@ -1018,6 +1014,16 @@ void mzFileIO::_postSampleLoadOperations()
 
     _sqliteDBLoadInProgress = true;
     start();
+}
+
+QString mzFileIO::swapFilenameExtension(QString filename, QString ext)
+{
+    QString newFilename = filename;
+    QFileInfo fileInfo(filename);
+    QDir parentDir = QDir(fileInfo.path());
+    QString baseName = fileInfo.completeBaseName();
+    newFilename = parentDir.filePath(baseName + "." + ext);
+    return newFilename;
 }
 
 void mzFileIO::markv_0_1_5mzroll(QString fileName)

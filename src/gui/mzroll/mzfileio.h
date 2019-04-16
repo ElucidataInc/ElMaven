@@ -155,6 +155,15 @@ Q_OBJECT
         QString openSQLiteProject(QString filename);
 
         /**
+         * @brief Create a new file name from the given file name, with its
+         * extension changed.
+         * @param filename The name of the file, to be used as a template.
+         * @param ext The new extension to be replaced in the given filename.
+         * @return A new filename with the given extension.
+         */
+        QString swapFilenameExtension(QString filename, QString ext);
+
+        /**
          * @brief For making old mzroll compatible, this will act as a flag
          * whether loaded mzroll file is old or new one. this will be set by
          * class method <markv_0_1_5mzroll>

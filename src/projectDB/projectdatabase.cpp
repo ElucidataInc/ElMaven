@@ -230,14 +230,17 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
 
-    string sample_ids = accumulate(next(begin(group->samples)),
-                                   end(group->samples),
-                                   to_string(group->samples[0]->getSampleId()),
-                                   [](string current, mzSample* s) {
-                                       return move(current)
-                                              + ';'
-                                              + to_string(s->getSampleId());
-                                   });
+    string sample_ids = "";
+    if (group->samples.size() > 0) {
+        sample_ids = accumulate(next(begin(group->samples)),
+                                end(group->samples),
+                                to_string(group->samples[0]->getSampleId()),
+                                [](string current, mzSample* s) {
+                                    return move(current)
+                                           + ';'
+                                           + to_string(s->getSampleId());
+                                });
+    }
     groupsQuery->bind(":sample_ids", sample_ids);
 
     if (!groupsQuery->execute())

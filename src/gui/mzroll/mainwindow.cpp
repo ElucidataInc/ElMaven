@@ -1746,6 +1746,8 @@ void MainWindow::open()
             emdbProjectBeingLoaded = filename;
             analytics->hitEvent("Project Load", "emDB");
         } else if (fileLoader->isMzrollDbProject(filename)) {
+            emdbProjectBeingLoaded = fileLoader->swapFilenameExtension(filename,
+                                                                       "emDB");
             analytics->hitEvent("Project Load", "mzrollDB");
         } else if (fileLoader->isMzRollProject(filename)) {
             analytics->hitEvent("Project Load", "mzroll");

@@ -3,6 +3,7 @@
 #include "connection.h"
 #include "cursor.h"
 #include "mzrolldbconverter.h"
+#include "mzUtils.h"
 #include "schema.h"
 
 using namespace std;
@@ -66,7 +67,7 @@ void MzrollDbConverter::copySamples(Connection &mzrollDb, Connection &emDb)
         writeQuery->bind(":sample_id",
                          readQuery->integerValue("sampleId"));
         writeQuery->bind(":name",
-                         readQuery->stringValue("name"));
+                         mzUtils::cleanFilename(readQuery->stringValue("name")));
         writeQuery->bind(":filename",
                          readQuery->stringValue("filename"));
         writeQuery->bind(":set_name",
