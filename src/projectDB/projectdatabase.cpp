@@ -481,10 +481,13 @@ void ProjectDatabase::saveAlignment(const vector<mzSample*>& samples)
 
     for (auto s : samples) {
         // ignore samples having MS2 scans
-        if (s->ms2ScanCount() > 0)
+        if (s->ms1ScanCount() == 0)
             continue;
 
         for (auto scan : s->scans) {
+            if (scan->mslevel > 1)
+                continue;
+
             float rt_original = scan->originalRt;
             float rt_updated = scan->rt;
             alignmentQuery->bind(":sample_id", s->getSampleId());
@@ -1182,11 +1185,14 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
     unordered_map<int, unordered_map<int, Scan*>> sampleScanMap;
     for (auto sample : loaded) {
         // ignore samples having MS2 scans
-        if (sample->ms2ScanCount() > 0)
+        if (sample->ms1ScanCount() == 0)
             continue;
 
         unordered_map<int, Scan*> scanMap;
         for (auto scan : sample->scans) {
+            if (scan->mslevel > 1)
+                continue;
+
             scanMap[scan->scannum] = scan;
         }
         sampleScanMap[sample->getSampleId()] = scanMap;
