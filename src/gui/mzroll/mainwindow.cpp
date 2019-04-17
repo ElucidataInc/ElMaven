@@ -831,16 +831,21 @@ void MainWindow::saveSettingsToLog() {
 }
 
 void MainWindow::showNotification(TableDockWidget* table) {
-	QIcon icon = QIcon(":/images/notification.png");
-	QString title("");
-    QString message("Make your analyses more insightful with Machine learning.\n \
-                    View your fluxomics workflow in PollyPhi.");
-	
-	if (table->groupCount() == 0 || table->labeledGroups == 0)
-		return;
-	
-	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message, table);
-	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
+    QIcon icon = QIcon(":/images/notification.png");
+    QString title("");
+    QString message("Make your analyses more insightful with Machine learning."
+                    "\nView your fluxomics workflow in PollyPhi.");
+
+    if (table->groupCount() == 0 || table->labeledGroups == 0)
+        return;
+
+    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
+                                                            title,
+                                                            message,
+                                                            table);
+    connect(fluxomicsPrompt,
+            SIGNAL(promptClicked()),
+            SLOT(showPollyElmavenInterfaceDialog()));
     connect(fluxomicsPrompt,
             &Notificator::promptClicked,
             this,
