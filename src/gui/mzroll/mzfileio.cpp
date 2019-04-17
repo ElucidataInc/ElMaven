@@ -778,13 +778,13 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         for (const auto& peakTable : allTablesList) {
             for (PeakGroup* group : peakTable->getGroups()) {
                 topLevelGroupCount++;
-                string tableName = peakTable->windowTitle().toStdString();
                 groupVector.push_back(group);
                 if (group->compound)
                     compoundSet.insert(group->compound);
             }
-            _currentProject->saveGroups(groupVector,
-                                        peakTable->windowTitle().toStdString());
+            string tableName = peakTable->titlePeakTable
+                                        ->text().toStdString();
+            _currentProject->saveGroups(groupVector, tableName);
             groupVector.clear();
         }
         _currentProject->saveCompounds(compoundSet);
