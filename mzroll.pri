@@ -23,6 +23,9 @@ unix: {
         message("linking with gcov")
         DEFINES += NO_OPENMP
         QMAKE_LFLAGS += -lgcov --coverage
+        QMAKE_CXXFLAGS -= -DOMP_PARALLEL
+        QMAKE_CXXFLAGS -= -fopenmp
+        LIBS-= -fopenmp
     }
 }
 
