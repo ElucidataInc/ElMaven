@@ -2007,6 +2007,7 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
     
 	int count = 0;
     for (auto const& sample : samples) {
+		if (sample->ms1ScanCount() == 0) continue;
         for (auto const& scan : sample->scans) {
             if (scan->mslevel > 1 &&
 				scan->precursorMz >= mzmin &&
