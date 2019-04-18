@@ -433,6 +433,7 @@ void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color)
     sample->color[1] = color.greenF();
     sample->color[2] = color.blueF();
     sample->color[3] = color.alphaF();
+    storeSampleColors[sample] = color;
 }
 
 QColor ProjectDockWidget::getSampleColor(mzSample* sample)
@@ -488,17 +489,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
         sample->setSampleOrder(i);
 
-		float hue = 1 - 0.6 * ((float) (i + 1) / N);
-		QColor c = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
-
-        storeSampleColors[sample] = c;
-
-		sample->color[0] = c.redF();
-		sample->color[1] = c.greenF();
-		sample->color[2] = c.blueF();
-		sample->color[3] = c.alphaF();
-
-        
         QTreeWidgetItem* parent = getParentFolder(QString(sample->fileName.c_str()));
         QTreeWidgetItem *item=NULL;
 
@@ -508,21 +498,38 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
             item = new NumericTreeWidgetItem(_treeWidget,SampleType); 
         }
 
-        QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], sample->color[3] );
+        QColor color;
+        if (storeSampleColors.contains(sample)) {
+            color = storeSampleColors[sample];
+        } else if (sample->color[0] || sample->color[1] || sample->color[2]) {
+            color = getSampleColor(sample);
+            storeSampleColors[sample] = color;
+        } else { 
+            float hue = 1 - 0.6 * ((float) (i + 1) / N);
+            color = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
+            storeSampleColors[sample] = color;
+        }
 
-        QPixmap pixmap = QPixmap(20,20); pixmap.fill(color); QIcon coloricon = QIcon(pixmap);
+        sample->color[0] = color.redF();
+        sample->color[1] = color.greenF();
+        sample->color[2] = color.blueF();
+        sample->color[3] = color.alphaF();
 
-        item->setBackgroundColor(0,color);
-        item->setIcon(0,coloricon);
-        item->setText(0,QString(sample->sampleName.c_str()));
-        item->setData(0,Qt::UserRole,QVariant::fromValue(samples[i]));
-        item->setIcon(1,QIcon(QPixmap(rsrcPath + "/edit.png")));
-        item->setText(1,QString(sample->getSetName().c_str()));
-        item->setText(2,QString::number(sample->getNormalizationConstant(),'f',2));
+        QPixmap pixmap = QPixmap(20, 20);
+        pixmap.fill(color);
+        QIcon coloricon = QIcon(pixmap);
+
+        item->setBackgroundColor(0, color);
+        item->setIcon(0, coloricon);
+        item->setText(0, QString(sample->sampleName.c_str()));
+        item->setData(0, Qt::UserRole,QVariant::fromValue(samples[i]));
+        item->setIcon(1, QIcon(QPixmap(rsrcPath + "/edit.png")));
+        item->setText(1, QString(sample->getSetName().c_str()));
+        item->setText(2, QString::number(sample->getNormalizationConstant(), 'f', 2));
         if( sample->getInjectionOrder() > 0 )
-            item->setText(3,QString::number(sample->getInjectionOrder()));
+            item->setText(3, QString::number(sample->getInjectionOrder()));
         else
-            item->setText(3,QString("NA"));
+            item->setText(3, QString("NA"));
 
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
