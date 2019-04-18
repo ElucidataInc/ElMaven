@@ -1107,7 +1107,7 @@ void MainWindow::saveProjectForFilename(bool tablesOnly)
 {
     if (fileLoader->isMzRollProject(_currentProjectName)) {
         _saveAllTablesAsMzRoll();
-    } else if (fileLoader->isSQLiteProject(_currentProjectName)) {
+    } else if (fileLoader->isEmdbProject(_currentProjectName)) {
         if (tablesOnly) {
             auto allTables = getPeakTableList();
             allTables.append(bookmarkedPeaks);
@@ -1707,8 +1707,8 @@ void MainWindow::open()
         this,
         "Select projects, peaks, samples to open:",
         dir,
-        tr("All Known Formats(*.mzroll *.emDB *.mzPeaks *.mzXML *.mzxml "
-           "*.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
+        tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks *.mzXML "
+           "*.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
             + tr("mzXML Format(*.mzXML *.mzxml);;")
             + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
             + tr("mzML Format(*.mzml *.mzML);;")
@@ -1740,11 +1740,15 @@ void MainWindow::open()
                    + " "
                    + fileInfo.fileName());
 
-    QString sqliteProjectBeingLoaded = "";
+    QString emdbProjectBeingLoaded = "";
     Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isSQLiteProject(filename)) {
-            sqliteProjectBeingLoaded = filename;
+        if (fileLoader->isEmdbProject(filename)) {
+            emdbProjectBeingLoaded = filename;
             analytics->hitEvent("Project Load", "emDB");
+        } else if (fileLoader->isMzrollDbProject(filename)) {
+            emdbProjectBeingLoaded = fileLoader->swapFilenameExtension(filename,
+                                                                       "emDB");
+            analytics->hitEvent("Project Load", "mzrollDB");
         } else if (fileLoader->isMzRollProject(filename)) {
             analytics->hitEvent("Project Load", "mzroll");
         }
@@ -1752,9 +1756,9 @@ void MainWindow::open()
         fileLoader->addFileToQueue(filename);
     }
 
-    if (!sqliteProjectBeingLoaded.isEmpty()) {
+    if (!emdbProjectBeingLoaded.isEmpty()) {
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
-        _latestUserProjectName = sqliteProjectBeingLoaded;
+        _latestUserProjectName = emdbProjectBeingLoaded;
 
         // reset filename in the title to overwrite any saves while closing last
         // SQLite project

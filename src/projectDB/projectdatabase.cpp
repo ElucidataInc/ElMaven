@@ -230,14 +230,17 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
 
-    string sample_ids = accumulate(next(begin(group->samples)),
-                                   end(group->samples),
-                                   to_string(group->samples[0]->getSampleId()),
-                                   [](string current, mzSample* s) {
-                                       return move(current)
-                                              + ';'
-                                              + to_string(s->getSampleId());
-                                   });
+    string sample_ids = "";
+    if (group->samples.size() > 0) {
+        sample_ids = accumulate(next(begin(group->samples)),
+                                end(group->samples),
+                                to_string(group->samples[0]->getSampleId()),
+                                [](string current, mzSample* s) {
+                                    return move(current)
+                                           + ';'
+                                           + to_string(s->getSampleId());
+                                });
+    }
     groupsQuery->bind(":sample_ids", sample_ids);
 
     if (!groupsQuery->execute())
@@ -941,8 +944,11 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
 
         vector<string> sample_ids;
         mzUtils::split(groupsQuery->stringValue("sample_ids"), ';', sample_ids);
-        for (auto id_string : sample_ids) {
-            int sampleId = stoi(id_string);
+        for (auto idString : sample_ids) {
+            if (idString.empty())
+                continue;
+
+            int sampleId = stoi(idString);
             auto sampleIter = find_if(begin(loaded),
                                       end(loaded),
                                       [sampleId](mzSample* s) {

@@ -103,7 +103,15 @@ Q_OBJECT
          * @return true if the filename ends with ".emDB" extension, false
          * otherwise
          */
-        bool isSQLiteProject(QString filename);
+        bool isEmdbProject(QString filename);
+
+        /**
+         * @brief Check whether the filename ends with a ".mzrollDB" extension.
+         * @param filename String name of the file to be checked.
+         * @return true if the filename ends with ".mzrollDB" extension, false
+         * otherwise
+         */
+        bool isMzrollDbProject(QString filename);
 
         /**
          * @brief Check if a SQLite project is currently open.
@@ -138,9 +146,22 @@ Q_OBJECT
 
         /**
          * @brief Create a `ProjectDatabase` instance for the given filename.
+         * @details If the filename passed is of the type "mzrollDB", then a
+         * conversion is made into a new emDB file and then this file is set
+         * as the current project.
          * @param filename Name of SQLite project to be set as `currentProject`.
+         * @return Return the filename of the opened project.
          */
-        void openSQLiteProject(QString filename);
+        QString openSQLiteProject(QString filename);
+
+        /**
+         * @brief Create a new file name from the given file name, with its
+         * extension changed.
+         * @param filename The name of the file, to be used as a template.
+         * @param ext The new extension to be replaced in the given filename.
+         * @return A new filename with the given extension.
+         */
+        QString swapFilenameExtension(QString filename, QString ext);
 
         /**
          * @brief For making old mzroll compatible, this will act as a flag
