@@ -156,6 +156,8 @@ class PeakGroup{
         float changeFoldRatio;
         float changePValue;
 
+        bool isMS1();
+
         /**
          * [hasSrmId ]
          * @method hasSrmId
