@@ -188,6 +188,11 @@ void Fragment::buildConsensus(float productPpmTolr)
         consensusFrag->sortByMz();
     }
 
+    if (!consensusFrag->intensityValues.size() || 
+        !consensusFrag->mzValues.size() ||
+        !consensusFrag->obscount.size()) {
+            return;
+    }
     consensusFrag->rt = consensusRt();
     consensusFrag->purity = consensusPurity();
 
