@@ -254,7 +254,7 @@ module.exports.createRunRequest = function (token_filename, component_id, projec
     }
     var payload = {
         "component_details":{
-            "component_name": "calibration",
+            "component_name": "calibration_file_uploader_beta",
             "component_id": component_id
         },
         "project_id": project_id,

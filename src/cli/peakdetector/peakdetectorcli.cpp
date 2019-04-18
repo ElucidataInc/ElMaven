@@ -876,7 +876,7 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
         break;
     } case PollyApp::QuantFit: {
         QString componentId =
-            _pollyIntegration->obtainComponentId("calibration");
+            _pollyIntegration->obtainComponentId("calibration_file_uploader_beta");
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
                                                 uploadProjectId);
