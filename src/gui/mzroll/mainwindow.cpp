@@ -2864,12 +2864,10 @@ void MainWindow::sendAnalytics(bool checked) {
     QString btnName = QObject::sender()->objectName();
     analytics->hitScreenView(btnName);
     if (checked && btnName == "Fragmentation Spectra") {
-        cerr << "fragPSectra" << endl;
         analytics->hitEvent("PRM", "OpenedFragmentationSpectra");
     }
 
     if (checked && btnName == "Fragmentation Events") {
-        cerr << "frag events" << endl;
         analytics->hitEvent("PRM", "OpenedFragmentationEvents");
     }
 }
