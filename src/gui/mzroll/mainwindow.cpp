@@ -831,20 +831,26 @@ void MainWindow::saveSettingsToLog() {
 }
 
 void MainWindow::showNotification(TableDockWidget* table) {
-	QIcon icon = QIcon(":/images/notification.png");
-	QString title("");
-    QString message("Make your analyses more insightful with Machine learning.\n \
-                    View your fluxomics workflow in PollyPhi.");
-	
-	if (table->groupCount() == 0 || table->labeledGroups == 0)
-		return;
-	
-	Notificator* fluxomicsPrompt = Notificator::showMessage(icon, title, message, table);
-	connect(fluxomicsPrompt, SIGNAL(promptClicked()), SLOT(showPollyElmavenInterfaceDialog()));
+    QIcon icon = QIcon(":/images/notification.png");
+    QString title("");
+    QString message("Make your analyses more insightful with Machine learning."
+                    "\nView your fluxomics workflow in PollyPhi.");
+
+    if (table->groupCount() == 0 || table->labeledGroups == 0)
+        return;
+
+    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
+                                                            title,
+                                                            message,
+                                                            table);
+    connect(fluxomicsPrompt,
+            SIGNAL(promptClicked()),
+            SLOT(showPollyElmavenInterfaceDialog()));
     connect(fluxomicsPrompt,
             &Notificator::promptClicked,
             this,
             [=] {
+                analytics->hitEvent("Prompt", "Clicked", "PollyPhi");
                 pollyElmavenInterfaceDialog->switchToApp(PollyApp::Fluxomics);
             });
     connect(fluxomicsPrompt,
@@ -1897,17 +1903,20 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         if (ligandWidget->isVisible())
             ligandWidget->setDatabase(QString(dbName.c_str()));
 
-        int msLevel = 1;
+        QString eventLabel = "MS1";
         vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
         if (loadedCompounds[0]->precursorMz > 0
             && (loadedCompounds[0]->productMz > 0
                 || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
-            msLevel = 2;
+            eventLabel = DB.isNISTLibrary(dbName) ? "MS2 (PRM)"
+                                                  : "MS2 (MRM)";
         }
-
-		analytics->hitEvent("Load Compound DB",
-							"Successful Load",
-							QString("MS") + QString::number(msLevel));
+        analytics->hitEvent("Load Compound DB",
+                            "Successful Load",
+                            eventLabel);
+        if (eventLabel == "MS2 (PRM)") {
+            analytics->hitEvent("PRM", "LoadedSpectralLibrary");
+        }
 
         // do not save NIST library files for automatic load when starting next
         // session, unless they are less than 2Mb in size
@@ -2030,9 +2039,14 @@ void MainWindow::_warnIfNISTPolarityMismatch()
                                                QMessageBox::ActionRole);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
+        analytics->hitEvent("PRM", "Polarity Mismatch");
 
         if (msgBox.clickedButton() == upload) {
+            analytics->hitEvent("PRM", "Loaded Spectral Library", "Polarity Mismatch prompt");
             loadCompoundsFile();
+        }
+        else {
+            analytics->hitEvent("PRM", "Closed", "Polarity Mismatch prompt");
         }
     }
 }
@@ -2670,10 +2684,11 @@ void MainWindow::createMenus() {
     aj->setCheckable(true); 
 	aj->setChecked(false);
     connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
-	connect(aj, &QAction::toggled, [this]()
+    connect(aj, &QAction::toggled, [this](const bool checked)
     {
-        analytics->hitEvent("MS2 Events List",
-                                  "Clicked");
+        if (checked) {
+            this->analytics->hitEvent("PRM", "OpenedFragmentationEvents");
+        }
     });
 
     QAction* al = widgetsMenu->addAction("Peptide Fragmentation");
@@ -2725,7 +2740,7 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 	btn->setObjectName(dockwidget->objectName());
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(setVisible(bool)));
 	connect(btn, SIGNAL(clicked(bool)), dockwidget, SLOT(raise()));
-	connect(btn, SIGNAL(clicked(bool)), this, SLOT(sendAnalytics()));
+	connect(btn, SIGNAL(clicked(bool)), this, SLOT(sendAnalytics(bool)));
 	btn->setChecked(dockwidget->isVisible());
 	connect(dockwidget, SIGNAL(visibilityChanged(bool)), btn,
 			SLOT(setChecked(bool)));
@@ -2844,11 +2859,17 @@ void MainWindow::loadSettings()
     }
 }
 
-void MainWindow::sendAnalytics() {
+void MainWindow::sendAnalytics(bool checked) {
 
-	QString btnName = QObject::sender()->objectName();
-	analytics->hitScreenView(btnName);
+    QString btnName = QObject::sender()->objectName();
+    analytics->hitScreenView(btnName);
+    if (checked && btnName == "Fragmentation Spectra") {
+        analytics->hitEvent("PRM", "OpenedFragmentationSpectra");
+    }
 
+    if (checked && btnName == "Fragmentation Events") {
+        analytics->hitEvent("PRM", "OpenedFragmentationEvents");
+    }
 }
 
 void MainWindow::createToolBars() {

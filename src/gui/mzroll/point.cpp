@@ -176,6 +176,11 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
         _mw->isotopeWidget->peakSelected(_peak, _group);
     }
 
+    if (_peak == nullptr) {
+        //ms2 markers have no peaks
+        _mw->getAnalytics()->hitEvent("PRM", "ClickedOnMarker");
+    }
+
     scene()->update();
 }
 

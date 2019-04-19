@@ -165,7 +165,7 @@ void VideoPlayer::linkClicked()
 {
     if(!_linkClickedOnce) {
         std::cerr << "sending event for Know more prompt\n";
-        _mainWindow->getAnalytics()->hitEvent("VideoPlayer","KnowMoreMLPrompt");
+        _mainWindow->getAnalytics()->hitEvent("MLModel","ReadDocumentation");
         _linkClickedOnce++;
     }
 }
@@ -182,7 +182,7 @@ void VideoPlayer::play()
     if(!_playedVideoOnce) {
         // for every session we only want one event
         std::cerr << "sending event for Ml Video\n";
-        _mainWindow->getAnalytics()->hitEvent("VideoPlayer", "PlayedVideoMLPrompt");
+        _mainWindow->getAnalytics()->hitEvent("MLModel", "WatchedVideo");
         _playedVideoOnce++;
     }
 

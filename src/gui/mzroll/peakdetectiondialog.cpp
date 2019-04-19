@@ -147,6 +147,11 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
                         ->hitEvent("Peak Detection",
                                    "Match Fragmentation Switched",
                                    state);
+                    if (state == "On") {
+                        this->mainwindow
+                            ->getAnalytics()
+                            ->hitEvent("PRM", "PRM Analysis");
+                    }
                 });
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow

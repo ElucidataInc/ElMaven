@@ -73,6 +73,12 @@ public:
      */
     void startupDataLoad();
 
+    /**
+     * @brief Get a pointer to the main window owning this dialog.
+     * @return Pointer to a MainWindow object.
+     */
+    MainWindow* getMainWindow();
+
 public Q_SLOTS:
 
     /**

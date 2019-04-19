@@ -149,6 +149,18 @@ void PollyElmavenInterfaceDialog::_changePage()
 
 void PollyElmavenInterfaceDialog::_goToPolly()
 {
+    QString appName = "";
+    if (_selectedApp == PollyApp::FirstView) {
+        appName = "FirstView";
+    } else if (_selectedApp == PollyApp::Fluxomics) {
+        appName = "PollyPhi";
+    } else if (_selectedApp == PollyApp::QuantFit) {
+        appName = "QuantFit";
+    }
+    _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                          "DirectedToApp",
+                                          appName);
+
     QDesktopServices::openUrl(_redirectionUrlMap[_selectedApp]);
 }
 
@@ -762,4 +774,9 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     peakTableCombo->setEnabled(true);
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
+}
+
+MainWindow* PollyElmavenInterfaceDialog::getMainWindow()
+{
+    return _mainwindow;
 }
