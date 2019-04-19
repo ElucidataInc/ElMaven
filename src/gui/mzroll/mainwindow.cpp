@@ -3616,6 +3616,9 @@ void MainWindow::showFragmentationScans(float pmz)
         return;
     fragPanel->clearTree();
     for (auto sample : samples) {
+        if (sample->ms1ScanCount() == 0)
+            continue;
+
         for (auto scan : sample->scans) {
 	        if (scan->mslevel < 2) continue;
 	        if (massCutoffDist(scan->precursorMz,
