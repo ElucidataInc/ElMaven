@@ -1272,9 +1272,9 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 			e->intensity[j] *= scale;
 		}
 
-	if (e->size() == 0)
-		cerr << "getEIC(Q1,CE,Q3): is empty" << precursorMz << " " << collisionEnergy << " " << productMz << endl;
-	std::cerr << "getEIC(Q1,CE,Q3): srm" << precursorMz << " " << e->intensity.size() << endl;
+	//if (e->size() == 0)
+	//	cerr << "getEIC(Q1,CE,Q3): is empty" << precursorMz << " " << collisionEnergy << " " << productMz << endl;
+	//std::cerr << "getEIC(Q1,CE,Q3): srm" << precursorMz << " " << e->intensity.size() << endl;
 	return e;
 }
 
@@ -1377,9 +1377,9 @@ EIC *mzSample::getEIC(string srm, int eicType)
 		{
 			e->intensity[j] *= scale;
 		}
-	if (e->size() == 0)
-		cerr << "getEIC(SRM STRING): is empty" << srm << endl;
-	std::cerr << "getEIC: srm" << srm << " " << e->intensity.size() << endl;
+	//if (e->size() == 0)
+	//	cerr << "getEIC(SRM STRING): is empty" << srm << endl;
+	//std::cerr << "getEIC: srm" << srm << " " << e->intensity.size() << endl;
 
 	return e;
 }
@@ -1439,8 +1439,8 @@ EIC *mzSample::getEIC(float mzmin, float mzmax, float rtmin, float rtmax, int ms
 	float scale = getNormalizationConstant();
 	e->normalizeIntensityPerScan(scale);
 
-	if (e->size() == 0)
-		cerr << "getEIC(mzrange,rtrange,mslevel): is empty" << mzmin << " " << mzmax << " " << rtmin << " " << rtmax << endl;
+	//if (e->size() == 0)
+	//	cerr << "getEIC(mzrange,rtrange,mslevel): is empty" << mzmin << " " << mzmax << " " << rtmin << " " << rtmax << endl;
 
 	return (e);
 }
