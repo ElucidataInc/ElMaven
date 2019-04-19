@@ -358,7 +358,7 @@ public Q_SLOTS:
 	void showAlignmentWidget();
 	void showspectraMatchingForm();
 	void showsettingsForm();
-	void sendAnalytics();
+	void sendAnalytics(bool checked = false);
 	void openAWSDialog();
 	void analyticsBoxPlot();
 	void analyticsAverageSpectra();
