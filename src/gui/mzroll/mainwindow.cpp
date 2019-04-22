@@ -2026,18 +2026,17 @@ void MainWindow::_warnIfNISTPolarityMismatch()
     int dbPolarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
     if (samplePolarity != dbPolarity) {
         QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Data Polarity Mismatch"));
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setWindowFlags(Qt::CustomizeWindowHint);
+        msgBox.setWindowTitle(tr("Polarity Mismatch"));
         QString msg = "The polarity of loaded samples and spectral library do "
-                      "not match. To perform precise fragmentation search, "
-                      "please upload a spectral library of correct polarity %1";
+                      "not match. Please upload a spectral library of correct "
+					  "polarity %1";
         QString polarity = (samplePolarity > 0) ? "(positive)" : "(negative)";
         msg = msg.arg(polarity);
         msgBox.setText(msg);
         QPushButton* upload = msgBox.addButton(tr("Upload Spectral Library"),
                                                QMessageBox::ActionRole);
-        msgBox.addButton(QMessageBox::Ok);
+        msgBox.addButton(QMessageBox::Ignore);
+        msgBox.setDefaultButton(upload);
         msgBox.exec();
         analytics->hitEvent("PRM", "Polarity Mismatch");
 
