@@ -529,6 +529,8 @@ void PeakGroup::groupStatistics() {
     //@Kailash: Added for Avg Peak Quality and Intensity Weighted Peak Quality
     float peakQualitySum=0;
     float highestIntensity=0;
+    float weightedSum = 0;
+    float sumWeights = 0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
@@ -579,11 +581,14 @@ void PeakGroup::groupStatistics() {
             sampleCount++;
             if(peaks[i].peakIntensity > sampleMax) sampleMax = peaks[i].peakIntensity;
         }
-        
+
+        weightedSum += peaks[i].quality * peaks[i].peakIntensity;
+        sumWeights += peaks[i].peakIntensity;
         peakQualitySum += peaks[i].quality;
         if (peaks[i].peakIntensity > highestIntensity) highestIntensity = peaks[i].peakIntensity;
     }
     avgPeakQuality = peakQualitySum / peaks.size();
+    weightedAvgPeakQuality = weightedSum/sumWeights;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if ( nonZeroCount ) {

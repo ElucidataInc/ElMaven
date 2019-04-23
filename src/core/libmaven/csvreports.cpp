@@ -266,7 +266,7 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
         for(auto grp: groups) {
             for(auto child: grp.children) {
 
-                int mlLabel =  (child.markedGoodByCloudModel) ? 1 : (child.markedBadByCloudModel) ? -1 : 0;
+                int mlLabel =  (child.markedGoodByCloudModel) ? 1 : (child.markedBadByCloudModel) ? 0 : -1;
                 groupReport << mlLabel;
                 groupReport << ",";
 
