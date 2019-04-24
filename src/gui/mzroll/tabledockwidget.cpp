@@ -601,6 +601,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   auto prmGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
+                              if (group.compound == nullptr) return false;
                               return group.compound->type() == Compound::Type::PRM;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
