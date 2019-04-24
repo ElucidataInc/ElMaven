@@ -574,6 +574,91 @@ namespace mzUtils {
             //	my_vector.clear();
             //	my_vector.shrink_to_fit();
         }
+
+        /**
+         * @brief Zeroth-order modified bessel function of the first kind.
+         * @param x Argument for the modified bessel function.
+         * @return Solution to the bessel equation for the given argument.
+         */
+        double besseli0(double x);
+
+        /**
+         * @brief Create a Kaiser window of given size.
+         * @details Kaiser-Bessel is from the one-parameter family of window
+         * functions used in finite impulse response (FIR) filter design and
+         * spectral analysis. It is considered to be the optimum window for
+         * low-pass filtering required when resampling digital signals.
+         * @param N Desired size for the window.
+         * @param beta Beta factor parametrizing the Kaiser window.
+         * @return A vector of double precision values forming a Kaiser window.
+         */
+        std::vector<double> kaiser(size_t N, double beta);
+
+        /**
+         * @brief A sine cardinal function.
+         * @details In information theory, the nomalized sinc function is
+         * commonly defined as:
+         *   sinc(x) = sin(π•x) / (π•x)
+         * @param x The value to be passed to the sinc function.
+         * @return Value of sinc(x) as a double.
+         */
+        double sinc(double x);
+
+        /**
+         * @brief Compute the coefficients of a finite impulse response (FIR)
+         * filter using a Kaiser window.
+         * @param n Length of the desired filter. Must be greater than 0.
+         * @param fc Cutoff frequency of the filter. Must be in range (0, 0.5)
+         * @param beta Beta parameter value for Kaiser window. By default the
+         * value is set to 5.0.
+         * @param scale Optional parameter to scale the filter coefficients
+         * by the specified amount.
+         * @return A vector of coefficients that can be used to create an FIR
+         * filter optimal for resampling.
+         */
+        std::vector<double> firDesignKaiser(size_t n,
+                                            double fc,
+                                            double beta=5.0,
+                                            double scale=1.0);
+        /**
+         * @brief An abstracted function that returns filter coefficients that
+         * can be used for resampling a digital signal with given interpolation
+         * and decimation rate.
+         * @param interpRate Rate of interpolation.
+         * @param decimRate Rate of decimation.
+         * @return A vector of coefficients that be used for resampling a signal
+         * by FIR filtering.
+         */
+        std::vector<double> computeFilterCoefficients(int interpRate,
+                                                      int decimRate);
+
+        /**
+         * @brief This function can be used to approximate a resampling rate for
+         * a given data size.
+         * @details It should be noted that this function is largely ad hoc and
+         * meant for resampling of EIC intensity values. For a function to truly
+         * estimate an optimal resampling factor, without losing information, it
+         * would have to consider the nature of the signal itself.
+         * @param dataSize Length of the digital signal.
+         * @return A integer resampling factor (always ≥ 1).
+         */
+        int approximateResamplingFactor(size_t dataSize);
+
+        /**
+         * @brief Resample an input signal according to the given interpolation
+         * and decimation rates.
+         * @details The underlying method that is used to resample this signal,
+         * first interpolates the signal, low-pass filters it and then decimates
+         * it. It claims to be more efficient than two separate steps of
+         * interpolation and decimation.
+         * @param inputData Vector containing the data to be resampled.
+         * @param interpRate Rate of interpolation.
+         * @param decimRate Rate of decimation.
+         * @return A vector containing the resampled data.
+         */
+        std::vector<double> resample(const std::vector<double>& inputData,
+                                     int interpRate,
+                                     int decimRate);
 }
 
 template <typename T>
