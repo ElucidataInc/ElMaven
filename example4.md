@@ -18,12 +18,6 @@ permalink: /Downloads/
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
-     <div id="win0.2" class="modal" style="width: 100% !important; max-height:100% !important">
-        <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal3" onLoad="download('myModal3','win0.2')" style="width:100%; height:100%" src="https://goo.gl/forms/rPfqp06HGkuP7obk2"
-                frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        </div>
-    </div>
     <div id="mac0.5" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
             <iframe id="myModal4" onLoad="download('myModal4','mac0.5')" style="width:100%; height:100%" src="https://goo.gl/forms/mb9t8Hmxtn1JFBzy1"
@@ -77,18 +71,6 @@ permalink: /Downloads/
                             </button>
                         </td>
                     </tr>
-                    <tr>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.2.4.1(El-MAVEN Polly Integration)</font>
-                        </td>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <button style="background-color:#8985db;" data-target="win0.2" class="btn modal-trigger">
-                                <font color="white">
-                                    <i class="zmdi zmdi-download"></i>
-                                </font>
-                            </button>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -126,18 +108,6 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <button style="background-color:#8985db;" data-target="mac0.5" class="btn modal-trigger">
-                                <font color="white">
-                                    <i class="zmdi zmdi-download"></i>
-                                </font>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.2.4.1(El-MAVEN Polly Integration)</font>
-                        </td>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <button style="background-color:#8985db;" data-target="win0.2" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
