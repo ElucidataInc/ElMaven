@@ -344,8 +344,9 @@ class EIC
      * P. Eilers, H. Boelens, 2005
      *
      * @param lambda for smoothness. Typical values of lambda for MS data range
-     * from 10^3 to 10^9, depending on dataset. The exponent value should be
-     * passed here as integer, i.e. lambda should be within 3 to 9.
+     * from 10^2 to 10^9, depending on dataset. But since we resample the
+     * intensity signal, we can limit this range to [10^0, 10^3]. The exponent value
+     * should be passed here as integer, i.e. lambda should be in range [0, 3].
      * @param p for asymmetry. Values between 0.01 to 0.10 work reasonable well
      * for MS data.
      * @param numIterations for the number of iterations that should be

@@ -31,8 +31,8 @@ EIC::EIC()
     baselineSmoothingWindow = 5;
     //TODO make sure initialization value is same everywhere
     baselineDropTopX = 60;
-    _aslsAsymmetry = 30;
-    _aslsSmoothness = 5;
+    _aslsAsymmetry = 80;
+    _aslsSmoothness = 2;
     for (unsigned int i = 0; i < 4; i++)
         color[i] = 0;
 }

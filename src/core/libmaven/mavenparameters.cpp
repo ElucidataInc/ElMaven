@@ -56,8 +56,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         aslsBaselineMode = false;
         baseline_smoothingWindow = 5;
         baseline_dropTopX = 80;
-        aslsSmoothness = 5;
-        aslsAsymmetry = 30;
+        aslsSmoothness = 2;
+        aslsAsymmetry = 80;
 
         isIsotopeEqualPeakFilter = false;
         minSignalBaselineDifference = 0;

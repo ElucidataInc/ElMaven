@@ -41,8 +41,8 @@
         <eicSmoothingWindow>10</eicSmoothingWindow>
         <maxRtDiffBetweenPeaks>0.25</maxRtDiffBetweenPeaks>
         <aslsBaselineMode>0</aslsBaselineMode>
-        <aslsSmoothness>5</aslsSmoothness>
-        <aslsAsymmetry>3</aslsAsymmetry>
+        <aslsSmoothness>2</aslsSmoothness>
+        <aslsAsymmetry>8</aslsAsymmetry>
         <baselineQuantile>80</baselineQuantile>
         <baselineSmoothing>5</baselineSmoothing>
         <isotopeFilterEqualPeak>0</isotopeFilterEqualPeak>
