@@ -168,9 +168,9 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
         
-        connect(dbOptions, SIGNAL(clicked(bool)), SLOT(dbOptionsClicked()));
+        connect(dbOptions, SIGNAL(toggled(bool)), SLOT(dbOptionsClicked()));
         featureOptions->setChecked(false);
-        connect(featureOptions, SIGNAL(clicked(bool)), SLOT(featureOptionsClicked()));
+        connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
         compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
         reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
