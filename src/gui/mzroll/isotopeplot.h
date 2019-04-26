@@ -30,6 +30,9 @@ public:
     void showBars();
     void setPoolThreshold(double poolThreshold) { _poolThreshold = poolThreshold;}
 
+public Q_SLOTS:
+    void replot();
+
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);
 	

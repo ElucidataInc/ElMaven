@@ -43,6 +43,11 @@ void IsotopePlot::clear() {
     }
 }
 
+void IsotopePlot::replot()
+{
+    setPeakGroup(_group);
+}
+
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
     if ( group == NULL ) return;

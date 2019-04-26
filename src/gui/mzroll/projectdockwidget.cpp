@@ -231,6 +231,7 @@ void ProjectDockWidget::changeSampleOrder() {
         _mainwindow->groupRtWidget->updateGraph();
         _mainwindow->getEicWidget()->replot();
         _mainwindow->isotopeWidget->updateSampleList();
+        _mainwindow->isotopePlot->replot();
     }
 }
 
