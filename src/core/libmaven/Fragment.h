@@ -97,6 +97,8 @@ class Fragment {
 
         Fragment(Fragment* other);
 
+        Fragment& operator=(const Fragment& f);
+
         ~Fragment();
 
         double precursorMz;				//parent

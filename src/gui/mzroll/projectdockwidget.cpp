@@ -566,6 +566,9 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
 
             if(changed) {
                 cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
+                _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+                _mainwindow->sampleRtWidget->plotGraph();
+                _mainwindow->groupRtWidget->updateGraph();
                 _mainwindow->getEicWidget()->replotForced();
                 _mainwindow->isotopeWidget->updateSampleList();
                 _mainwindow->isotopePlot->replot();
