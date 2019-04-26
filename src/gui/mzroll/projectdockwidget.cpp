@@ -568,6 +568,7 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
                 cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
                 _mainwindow->getEicWidget()->replotForced();
                 _mainwindow->isotopeWidget->updateSampleList();
+                _mainwindow->isotopePlot->replot();
             }
         }
     }
