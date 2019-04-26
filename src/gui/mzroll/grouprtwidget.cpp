@@ -7,6 +7,7 @@ GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget):
     _mw(mw),
     _dockWidget(dockWidget)
 {
+    currentDisplayedGroup = nullptr;
     setXAxis();
     setYAxis();
 }
@@ -16,6 +17,9 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
     if (!_mw->groupRtDockWidget->isVisible()) return;
     currentDisplayedGroup=group;
     intialSetup();
+    if (group == nullptr)
+        return;
+
     PeakGroup groupUnalignedShadowed = *group;
 
     refRtLine(groupUnalignedShadowed);
@@ -36,7 +40,8 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
     _mw->groupRtVizPlot->replot();
 }
 void GroupRtWidget::updateGraph(){
-    if(currentDisplayedGroup) plotGraph(currentDisplayedGroup);
+    if(currentDisplayedGroup != nullptr)
+        plotGraph(currentDisplayedGroup);
 }
 void GroupRtWidget::intialSetup() {
     _mw->groupRtVizPlot->clearPlottables();
