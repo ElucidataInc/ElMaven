@@ -226,11 +226,11 @@ void ProjectDockWidget::changeSampleOrder() {
     }
 
     if (changed) {
-
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         _mainwindow->sampleRtWidget->plotGraph();
         _mainwindow->groupRtWidget->updateGraph();
         _mainwindow->getEicWidget()->replot();
+        _mainwindow->isotopeWidget->updateSampleList();
     }
 }
 
