@@ -37,8 +37,9 @@ public Q_SLOTS:
 	  void setInfo(vector<mzSlice*>&slices);
 	  void setInfo(deque<Pathway*>&pathways);
     void setupScanListHeader();
-	  void addScanItem(Scan* scan);
-	  void clearTree();
+    void addScanItem(Scan* scan);
+    void sortScansBySample();
+          void clearTree();
 	  void filterTree(QString needle);
       void copyToClipbard();
 
@@ -83,7 +84,7 @@ public Q_SLOTS:
       QDoubleSpinBox* amuQ3;
       QToolButton* associateCompounds;
       QMenu* matchCompoundMenu;
-
+      QList<Scan*> _scansList;
 };
 
 #endif

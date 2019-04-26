@@ -39,8 +39,9 @@ QTreeWidgetItem* TreeDockWidget::addItem(QTreeWidgetItem* parentItem, string key
 	return item;
 }
 
-void TreeDockWidget::clearTree() { 
-		treeWidget->clear();
+void TreeDockWidget::clearTree() {
+    treeWidget->clear();
+    _scansList.clear();
 }
 
 
@@ -285,6 +286,7 @@ void TreeDockWidget::setupScanListHeader()
 }
 
 void TreeDockWidget::addScanItem(Scan* scan) {
+        _scansList.append(scan);
         if (scan == NULL) return;
 
         QIcon icon = _mainWindow->projectDockWidget->getSampleIcon(scan->sample);
@@ -299,6 +301,17 @@ void TreeDockWidget::addScanItem(Scan* scan) {
         item->setText(5,QString::number(scan->nobs()));
 }
 
+void TreeDockWidget::sortScansBySample()
+{
+    treeWidget->clear();
+    auto samples = _mainWindow->getVisibleSamples();
+    for (auto sample : samples) {
+        for (auto scan : sample->scans) {
+            if (_scansList.contains(scan))
+                addScanItem(scan);
+        }
+    }
+}
 
 void TreeDockWidget::setInfo(vector<Compound*>&compounds) {
     clearTree();

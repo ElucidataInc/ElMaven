@@ -232,6 +232,7 @@ void ProjectDockWidget::changeSampleOrder() {
         _mainwindow->getEicWidget()->replot();
         _mainwindow->isotopeWidget->updateSampleList();
         _mainwindow->isotopePlot->replot();
+        _mainwindow->fragPanel->sortScansBySample();
     }
 }
 
