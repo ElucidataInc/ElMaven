@@ -113,7 +113,6 @@ private Q_SLOTS:
     void changeColors();
     void checkUncheck(); //TODO: Sahil, Added while merging projectdockwidget
     void setSampleColor(QTreeWidgetItem* item, QColor color);
-    void dropEvent (QDropEvent*event);
     // void unloadSample(); //TODO: Sahil, Removed while merging projectdockwidget
     void unloadSample(mzSample* sample); //TODO: Sahil, Added while merging projectdockwidget
     void filterTreeItems(QString filterString);
@@ -134,6 +133,29 @@ private:
     QString _lastSavedProject;
     std::chrono::time_point<std::chrono::system_clock> _lastSave;
     std::chrono::time_point<std::chrono::system_clock> _lastLoad;
+};
+
+/**
+ * @brief The ProjectTreeWidget class is meant to provide drag and drop
+ * functionality to the regular tree widget used for storing samples in a
+ * ProjectDockWidget class.
+ */
+class ProjectTreeWidget : public QTreeWidget
+{
+    Q_OBJECT
+
+public:
+    ProjectTreeWidget(QWidget* parent=nullptr);
+
+Q_SIGNALS:
+    void itemDropped(QTreeWidgetItem* item);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
+
+private:
+    QTreeWidgetItem* _draggedItem;
 };
 
 #endif // PROJECTDOCKWIDGET_H
