@@ -312,8 +312,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         if(lab !='g') return;
     } else if (selectionFlag == 3) {
         if(lab !='b') return;
-    } else {
-
+    } else if (selectionFlag == 4) {
+        if (lab == 'b') return;
     }
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
@@ -447,6 +447,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
         if(group->label !='g') return;
     } else if (selectionFlag == 3) {
         if(group->label !='b') return;
+    } else if (selectionFlag == 4) {
+        if (group->label == 'b') return;
     }
 
     // sort the peaks in the group according to the sample names using a comparison function

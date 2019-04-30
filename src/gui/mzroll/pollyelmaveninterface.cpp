@@ -43,6 +43,11 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     gotoPollyButton->setVisible(false);
     gotoPollyButton->setDefault(true);
 
+    groupSetCombo->addItem("All Groups");
+    groupSetCombo->addItem("Only Good Groups");
+    groupSetCombo->addItem("Exclude Bad Groups");
+    groupSetCombo->setCurrentIndex(0);
+
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
     connect(workflowMenu,
             SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
@@ -396,6 +401,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     gotoPollyButton->setVisible(false);
     uploadButton->setEnabled(false);
     peakTableCombo->setEnabled(false);
+    groupSetCombo->setEnabled(false);
     projectOptions->setEnabled(false);
     workflowMenu->setEnabled(false);
 
@@ -697,7 +703,14 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
     // Preparing the CSV file
     QCoreApplication::processEvents();
 
-    peakTable->wholePeakSet();
+    if (groupSetCombo->currentIndex() == 0) {
+        peakTable->wholePeakSet();
+    } else if (groupSetCombo->currentIndex() == 1) {
+        peakTable->goodPeakSet();
+    } else if (groupSetCombo->currentIndex() == 2) {
+        peakTable->excludeBadPeakSet();
+    }
+
     peakTable->treeWidget->selectAll();
     peakTable->prepareDataForPolly(_writeableTempDir,
                                    "Groups Summary Matrix Format "
@@ -772,6 +785,7 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     _uploadInProgress = false;
     uploadButton->setEnabled(true);
     peakTableCombo->setEnabled(true);
+    groupSetCombo->setEnabled(true);
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
 }

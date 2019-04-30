@@ -49,7 +49,13 @@ public:
   int uploadCount = 0;
 
   enum tableViewType { groupView = 0, peakView = 1 };
-  enum peakTableSelectionType { Selected = 0, Whole = 1, Good = 2, Bad = 3 };
+  enum peakTableSelectionType {
+      Selected = 0,
+      Whole = 1,
+      Good = 2,
+      Bad = 3,
+      NotBad = 4
+  };
 
   /**
    * @brief Construct and initialize a TableDockWidget.
@@ -129,6 +135,10 @@ public Q_SLOTS:
 
   inline void badPeakSet() {
     peakTableSelection = peakTableSelectionType::Bad;
+  };
+
+  inline void excludeBadPeakSet() {
+      peakTableSelection = peakTableSelectionType::NotBad;
   };
 
   void exportJson();
