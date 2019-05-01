@@ -193,13 +193,8 @@ void PeakDetectionDialog::onReset()
 
 void PeakDetectionDialog::setMassCutoffType(QString type)
 {
-    /* we are changing in peaks dialog from an event that occurs outside of peaks dialog
-     * (@see in MainWindow masscutoffCombox::currentIndexChanged)
-     */
-    massCutoffType = type;
-    label_7->setText(QString("Mass Domain Resolution (%1)").arg(type));
-    string EICExtractionWindow="EIC Extraction Window  +/- "+type.toStdString();
-    label_11->setText(QApplication::translate("PeakDetectionDialog", &EICExtractionWindow[0], 0));
+    massCutoffType = QString(" %1").arg(type);
+    ppmStep->setSuffix(type);
     compoundPPMWindow->setSuffix(type);
     emit updateSettings(peakSettings);
 }
