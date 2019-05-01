@@ -25,7 +25,7 @@ mzSample::mzSample()
 	totalIntensity = 0;
 	_normalizationConstant = 1; //TODO: Sahil Not being used anywhere
 	injectionTime = 0;
-	_sampleOrder = 0;
+        _sampleOrder = -1;
 	sampleNumber = -1;
 	_C13Labeled = false;
 	_N15Labeled = false;

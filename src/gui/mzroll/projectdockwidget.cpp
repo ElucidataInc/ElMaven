@@ -176,6 +176,21 @@ void ProjectDockWidget::updateSampleList() {
     vector<mzSample*>samples = _mainwindow->getSamples();
     std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
 
+    // obtain current maximum sample order
+    auto maxOrdSample = max_element(begin(samples),
+                                    end(samples),
+                                    [] (mzSample* s1, mzSample* s2) {
+                                        return s1->getSampleOrder()
+                                               < s2->getSampleOrder();
+                                    });
+    int maxOrder = (*maxOrdSample)->getSampleOrder();
+
+    // assign sample order to any newly added samples
+    for (const auto sample : samples) {
+        if (sample->getSampleOrder() == -1)
+            sample->setSampleOrder(++maxOrder);
+    }
+
     if ( samples.size() > 0 ) setInfo(samples);
 
     if ( _mainwindow->getEicWidget() ) {
@@ -480,7 +495,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     float N = samples.size();
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-    reverse(samples.begin(),samples.end());
     for(int i=0; i < samples.size(); i++ ) {
 
         mzSample* sample = samples[i];
@@ -547,7 +561,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     connect(_treeWidget,
             SIGNAL(itemDropped(QTreeWidgetItem*)),
             SLOT(changeSampleOrder()));
-    _treeWidget->sortItems(0, Qt::SortOrder::AscendingOrder);
     changeSampleOrder();
 }
 
