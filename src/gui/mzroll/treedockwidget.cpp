@@ -286,8 +286,8 @@ void TreeDockWidget::setupScanListHeader()
 }
 
 void TreeDockWidget::addScanItem(Scan* scan) {
-        _scansList.append(scan);
         if (scan == NULL) return;
+        _scansList.append(scan);
 
         QIcon icon = _mainWindow->projectDockWidget->getSampleIcon(scan->sample);
 
