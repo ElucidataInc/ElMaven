@@ -17,11 +17,11 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
     if (!_mw->groupRtDockWidget->isVisible()) return;
     if (currentDisplayedGroup)
         delete currentDisplayedGroup;
+    if (group == nullptr)
+        return;
     currentDisplayedGroup = new PeakGroup;
     currentDisplayedGroup->copyObj(*group);
     intialSetup();
-    if (currentDisplayedGroup == nullptr)
-        return;
     updateGraph();
 }
 void GroupRtWidget::updateGraph(){
