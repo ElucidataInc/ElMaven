@@ -165,7 +165,10 @@ PeakGroup::~PeakGroup() {
 
 void PeakGroup::copyChildren(const PeakGroup& o) {
     children = o.children;
+    childrenBarPlot = o.childrenBarPlot;
     for(unsigned int i=0; i < children.size(); i++ ) children[i].parent = this;
+    for(unsigned int i=0; i < childrenBarPlot.size(); i++ )
+        childrenBarPlot[i].parent = this;
 }
 
 bool PeakGroup::isPrimaryGroup() {

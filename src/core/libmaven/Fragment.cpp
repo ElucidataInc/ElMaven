@@ -59,6 +59,22 @@ Fragment::Fragment(Fragment* other)
     this->rt = other->rt;
 }
 
+Fragment& Fragment::operator=(const Fragment& f)  {
+    this->precursorMz = f.precursorMz;
+    this->polarity = f.polarity;
+    this->mzValues = f.mzValues;
+    this->intensityValues = f.intensityValues;
+    this->obscount = f.obscount;
+    this->consensus = f.consensus;
+    this->scanNum = f.scanNum;
+    this->sampleName = f.sampleName;
+    this->collisionEnergy = f.collisionEnergy;
+    this->precursorCharge= f.precursorCharge;
+    this->purity = f.purity;
+    this->rt = f.rt;
+    return *this;
+}
+
 Fragment::~Fragment()
 {
     mzUtils::delete_all(brothers);

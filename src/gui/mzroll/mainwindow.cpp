@@ -1419,7 +1419,8 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 		if (samples[i] && samples[i]->isSelected) {
 			vsamples.push_back(samples[i]);
 		}
-	}
+    }
+    sort(begin(vsamples), end(vsamples), mzSample::compSampleOrder);
 	return vsamples;
 }
 

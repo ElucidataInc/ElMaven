@@ -24,11 +24,11 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _editor->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MinimumExpanding);
     _editor->hide();
 
-    _treeWidget=new QTreeWidget(this);
+    _treeWidget = new ProjectTreeWidget(this);
     _treeWidget->setColumnCount(4);
-    _treeWidget->setSortingEnabled(true);
     _treeWidget->setObjectName("Samples");
     _treeWidget->setHeaderHidden(true);
+    _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
     connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
 
@@ -176,6 +176,21 @@ void ProjectDockWidget::updateSampleList() {
     vector<mzSample*>samples = _mainwindow->getSamples();
     std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
 
+    // obtain current maximum sample order
+    auto maxOrdSample = max_element(begin(samples),
+                                    end(samples),
+                                    [] (mzSample* s1, mzSample* s2) {
+                                        return s1->getSampleOrder()
+                                               < s2->getSampleOrder();
+                                    });
+    int maxOrder = (*maxOrdSample)->getSampleOrder();
+
+    // assign sample order to any newly added samples
+    for (const auto sample : samples) {
+        if (sample->getSampleOrder() == -1)
+            sample->setSampleOrder(++maxOrder);
+    }
+
     if ( samples.size() > 0 ) setInfo(samples);
 
     if ( _mainwindow->getEicWidget() ) {
@@ -226,11 +241,13 @@ void ProjectDockWidget::changeSampleOrder() {
     }
 
     if (changed) {
-
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         _mainwindow->sampleRtWidget->plotGraph();
         _mainwindow->groupRtWidget->updateGraph();
         _mainwindow->getEicWidget()->replot();
+        _mainwindow->isotopeWidget->updateSampleList();
+        _mainwindow->isotopePlot->replot();
+        _mainwindow->fragPanel->sortScansBySample();
     }
 }
 
@@ -456,10 +473,8 @@ QIcon ProjectDockWidget::getSampleIcon(mzSample* sample)
 void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     if ( _treeWidget->topLevelItemCount() == 0 )  {
-        _treeWidget->setAcceptDrops(true);
         _treeWidget->setMouseTracking(true);
         connect(_treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(selectSample(QTreeWidgetItem*, int)));
-        connect(_treeWidget,SIGNAL(itemPressed(QTreeWidgetItem*, int)), SLOT(changeSampleOrder()));
         connect(_treeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), SLOT(changeSampleColor(QTreeWidgetItem*,int)));
         connect(_treeWidget,SIGNAL(itemEntered(QTreeWidgetItem*, int)), SLOT(showSampleInfo(QTreeWidgetItem*,int)));
     }
@@ -469,7 +484,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     parentMap.clear();
     _treeWidget->clear();
 
-    _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
     QStringList header;
     header << "Sample" << "Set" << "Scaling" << "Injection Order";
     _treeWidget->setHeaderLabels( header );
@@ -481,7 +495,6 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     float N = samples.size();
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-    reverse(samples.begin(),samples.end());
     for(int i=0; i < samples.size(); i++ ) {
 
         mzSample* sample = samples[i];
@@ -545,7 +558,10 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeSampleSet(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeNormalizationConstant(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(showSample(QTreeWidgetItem*,int)));
-
+    connect(_treeWidget,
+            SIGNAL(itemDropped(QTreeWidgetItem*)),
+            SLOT(changeSampleOrder()));
+    changeSampleOrder();
 }
 
 void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
@@ -563,8 +579,12 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
 
             if(changed) {
                 cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
+                _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+                _mainwindow->sampleRtWidget->plotGraph();
+                _mainwindow->groupRtWidget->updateGraph();
                 _mainwindow->getEicWidget()->replotForced();
                 _mainwindow->isotopeWidget->updateSampleList();
+                _mainwindow->isotopePlot->replot();
             }
         }
     }
@@ -612,13 +632,6 @@ void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col) {
                    arg(sample->fileName.c_str()));
         }
     }
-
-}
-
-void ProjectDockWidget::dropEvent(QDropEvent* e) {
-    cerr << "ProjectDockWidget::dropEvent() " << endl;
-    QTreeWidgetItem *item = _treeWidget->currentItem();
-    if (item && item->type() == SampleType ) changeSampleOrder();
 }
 
 QTreeWidget* ProjectDockWidget::getTreeWidget(){
@@ -1069,4 +1082,35 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
             break;
         }
     }
+}
+
+ProjectTreeWidget::ProjectTreeWidget(QWidget* parent) : QTreeWidget(parent)
+{
+    _draggedItem = nullptr;
+}
+
+void ProjectTreeWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+    _draggedItem = currentItem();
+    QTreeWidget::dragEnterEvent(event);
+}
+
+void ProjectTreeWidget::dropEvent(QDropEvent* event)
+{
+    QModelIndex droppedIndex = indexAt(event->pos());
+    if (!droppedIndex.isValid())
+        return;
+
+    if (_draggedItem) {
+        QTreeWidgetItem* itemParent = _draggedItem->parent();
+        if (itemParent) {
+            // we are not allowing samples to be dropped in a different sample
+            // set (at least not yet)
+            if (itemFromIndex(droppedIndex.parent()) != itemParent)
+                return;
+        }
+    }
+    QTreeWidget::dropEvent(event);
+    QTreeWidgetItem* item = currentItem();
+    emit itemDropped(item);
 }

@@ -43,6 +43,17 @@ void IsotopePlot::clear() {
     }
 }
 
+void IsotopePlot::replot()
+{
+    clear();
+    _samples.clear();
+    _samples = _mw->getVisibleSamples();
+    if (_samples.size() == 0)
+        return;
+    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
+    showBars();
+}
+
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
     if ( group == NULL ) return;
@@ -50,11 +61,15 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
+        return;
     }
 
     clear();
 
-    _group = group;
+    if (_group)
+        delete _group;
+    _group = new PeakGroup;
+    _group->copyObj(*group);
 
 	_samples.clear();
 	_samples = _mw->getVisibleSamples();
@@ -62,9 +77,9 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 	    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     _isotopes.clear();
-    for(int i=0; i < group->childCountBarPlot(); i++ ) {
-        if (group->childrenBarPlot[i].isIsotope() ) {
-            PeakGroup isotope = group->childrenBarPlot[i];
+    for(int i=0; i < _group->childCountBarPlot(); i++ ) {
+        if (_group->childrenBarPlot[i].isIsotope() ) {
+            PeakGroup isotope = _group->childrenBarPlot[i];
             _isotopes.push_back(isotope);
         }
     }

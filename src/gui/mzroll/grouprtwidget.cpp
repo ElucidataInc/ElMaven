@@ -7,6 +7,7 @@ GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget):
     _mw(mw),
     _dockWidget(dockWidget)
 {
+    currentDisplayedGroup = nullptr;
     setXAxis();
     setYAxis();
 }
@@ -14,9 +15,21 @@ GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget):
 void GroupRtWidget::plotGraph(PeakGroup*  group) {
 
     if (!_mw->groupRtDockWidget->isVisible()) return;
-    currentDisplayedGroup=group;
+    if (currentDisplayedGroup)
+        delete currentDisplayedGroup;
+    if (group == nullptr)
+        return;
+    currentDisplayedGroup = new PeakGroup;
+    currentDisplayedGroup->copyObj(*group);
     intialSetup();
-    PeakGroup groupUnalignedShadowed = *group;
+    updateGraph();
+}
+void GroupRtWidget::updateGraph(){
+    if(currentDisplayedGroup == nullptr)
+        return;
+
+    intialSetup();
+    PeakGroup groupUnalignedShadowed = *currentDisplayedGroup;
 
     refRtLine(groupUnalignedShadowed);
 
@@ -34,9 +47,7 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
     _mw->groupRtVizPlot->yAxis->setRange(0, samples.size() + 1);
     _mw->groupRtVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
     _mw->groupRtVizPlot->replot();
-}
-void GroupRtWidget::updateGraph(){
-    if(currentDisplayedGroup) plotGraph(currentDisplayedGroup);
+
 }
 void GroupRtWidget::intialSetup() {
     _mw->groupRtVizPlot->clearPlottables();
@@ -256,7 +267,8 @@ vector<mzSample*> GroupRtWidget::getSamplesFromGroup(PeakGroup group) {
     vector<mzSample*> samples;
     for(unsigned int i=0; i < peaks.size(); i++ ) {
         mzSample* s = peaks[i].getSample();
-        samples.push_back(s);
+        if (s->isSelected)
+            samples.push_back(s);
     }
     sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
     reverse(samples.begin(),samples.end());
