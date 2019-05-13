@@ -3,6 +3,7 @@
 
 #include "projectdatabase.h"
 
+class DownloadManager;
 class MainWindow;
 class PeakDetectionSettings;
 class OptionsDialogSettings;
@@ -23,6 +24,8 @@ public Q_SLOTS:
 
 private:
     MainWindow* _mw;
+    DownloadManager* _dlManager;
+
 
     void _updateMavenParameters(const QString& key, const QVariant& value);
 

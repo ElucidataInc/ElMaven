@@ -56,6 +56,7 @@
 #include "groupClassifier.h"
 #include "svmPredictor.h"
 
+class Controller;
 class VideoPlayer;
 class SettingsForm;
 class EicWidget;
@@ -126,7 +127,7 @@ Q_OBJECT
 
 public:
 	int value() const { return m_value; }
-	MainWindow(QWidget *parent = 0);
+    MainWindow(Controller* controller,QWidget *parent = 0);
     ~MainWindow();
 	QSettings* getSettings() {
 		return settings;
@@ -519,6 +520,7 @@ private Q_SLOTS:
     void _handleUnrecognizedProjectVersion(QString projectFilename);
 
 private:
+    Controller* _controller;
 	int m_value;
 	Analytics* analytics;
 	QSettings* settings;

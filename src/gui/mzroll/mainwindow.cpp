@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include "notificator.h"
 #include "videoplayer.h"
+#include "controller.h"
 #include "background_peaks_update.h"
 #ifdef WIN32
 #include <windows.h>
@@ -125,7 +126,8 @@ void MainWindow::printvalue() {
 
 using namespace mzUtils;
 
- MainWindow::MainWindow(QWidget *parent) :
+ MainWindow::MainWindow(Controller* controller, QWidget *parent) :
+     _controller(controller),
 		QMainWindow(parent) {
 	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;

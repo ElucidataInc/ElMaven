@@ -3,10 +3,14 @@
 
 #include "controller.h"
 #include "mainwindow.h"
+#include "downloadmanager.h"
 
 Controller::Controller()
 {
-    _mw = new MainWindow();
+
+    _dlManager = new DownloadManager;
+
+    _mw = new MainWindow(this);
     updateUi();
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
