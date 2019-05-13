@@ -162,7 +162,7 @@ void PollyElmavenInterfaceDialog::_changePage()
             "Cloud. This FirstView application allows you to preview your data "
             "from El-MAVEN on Polly."
         );
-    } else if (_selectedApp == PollyApp::Fluxomics) {
+    } else if (_selectedApp == PollyApp::PollyPhi) {
         viewTitle->setText("Upload to PollyPhi™ Relative");
         viewTitleAdvert->setText("PollyPhi™ Relative");
         appAdvertLabel->setText(
@@ -204,7 +204,7 @@ void PollyElmavenInterfaceDialog::_goToPolly()
     QString appName = "";
     if (_selectedApp == PollyApp::FirstView) {
         appName = "FirstView";
-    } else if (_selectedApp == PollyApp::Fluxomics) {
+    } else if (_selectedApp == PollyApp::PollyPhi) {
         appName = "PollyPhi";
     } else if (_selectedApp == PollyApp::QuantFit) {
         appName = "QuantFit";
@@ -349,7 +349,7 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
 void PollyElmavenInterfaceDialog::_handleLicenses(QMap<QString, bool> licenseMap)
 {
     _licenseMap[PollyApp::FirstView] = licenseMap.value("firstview");
-    _licenseMap[PollyApp::Fluxomics] = licenseMap.value("pollyphi");
+    _licenseMap[PollyApp::PollyPhi] = licenseMap.value("pollyphi");
     _licenseMap[PollyApp::QuantFit] = licenseMap.value("quantfit");
 }
 
@@ -438,7 +438,7 @@ void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 {
     if (_selectedApp == PollyApp::FirstView) {
         gotoPollyButton->setText("Go to FirstView");
-    } else if (_selectedApp == PollyApp::Fluxomics) {
+    } else if (_selectedApp == PollyApp::PollyPhi) {
         gotoPollyButton->setText("Start Fluxing");
     } else if (_selectedApp == PollyApp::QuantFit) {
         gotoPollyButton->setText("Start Quantification");
@@ -455,7 +455,7 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
                                                       QString tableName)
 {
     if (!table->getGroups().isEmpty()) {
-        if (_selectedApp == PollyApp::Fluxomics
+        if (_selectedApp == PollyApp::PollyPhi
             && table->labeledGroups > 0) {
             peakTableCombo->addItem(tableName);
         } else if (_selectedApp == PollyApp::FirstView
@@ -479,7 +479,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     if (_selectedApp == PollyApp::FirstView) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
-    } else if (_selectedApp == PollyApp::Fluxomics) {
+    } else if (_selectedApp == PollyApp::PollyPhi) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
     } else if (_selectedApp == PollyApp::QuantFit) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "QuantFit");
@@ -644,7 +644,7 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
         case PollyApp::FirstView:
             appname = "firstview";
             break;
-        case PollyApp::Fluxomics:
+        case PollyApp::PollyPhi:
             appname = "pollyphi";
             break;
         case PollyApp::QuantFit:
@@ -695,7 +695,7 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
                     .arg("firstview")
                     .arg(datetimestamp);
         break;
-    } case PollyApp::Fluxomics: {
+    } case PollyApp::PollyPhi: {
         QString landingPage = QString("relative_lcms_elmaven");
         QString workflowRequestId =
             _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
@@ -799,7 +799,7 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
                             + datetimestamp
                             + "_Peaks_information_json_Elmaven_Polly.json";
 
-    if (_selectedApp == PollyApp::Fluxomics) {
+    if (_selectedApp == PollyApp::PollyPhi) {
         peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, true);
         QCoreApplication::processEvents();
         //Preparing the sample cohort file

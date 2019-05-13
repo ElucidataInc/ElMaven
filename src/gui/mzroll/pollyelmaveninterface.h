@@ -20,7 +20,7 @@ class PollyWaitDialog;
 enum class PollyApp: int
 {
     FirstView = 0,
-    Fluxomics = 1,
+    PollyPhi = 1,
     QuantFit = 2
 };
 
