@@ -139,28 +139,41 @@ QMap<QString, QStringList> PollyIntegration::_fetchAppLicense() {
     QList<QByteArray> resultAndError = runQtProcess(command,
                                                     QStringList() << credFile);
 
+    QMap <QString, QStringList> appLicenses;
     QByteArray result = resultAndError.at(0);
     QStringList resultList = QString::fromStdString(result.toStdString()).split('\n');
     for (int i = 0; i < resultList.length(); i++) {
         auto temp = resultList[i];
         if (temp.contains("components")) {
             temp = resultList[++i];
-            _appLicenses["components"] = temp.replace(' []', "").split(',');
+            appLicenses["components"] = temp.replace(' []', "").split(',');
         }
         if (temp.contains("workflows")) {
             temp = resultList[++i];
-            _appLicenses["workflows"] = temp.replace(' []', "").split(',');
+            appLicenses["workflows"] = temp.replace(' []', "").split(',');
         }
         if (temp.contains("license")) {
             temp = resultList[++i];
-            _appLicenses["licenseActive"] = temp.replace(' []', "").split(',');
+            appLicenses["licenseActive"] = temp.replace(' []', "").split(',');
         }
     }
 
-    return _appLicenses;
+    return appLicenses;
 }
 
-QString PollyIntegration::obtainComponentId(QString componentName)
+QString PollyIntegration::_stringForApp(PollyApp app)
+{
+    if (app == PollyApp::FirstView) {
+        return "FirstView";
+    } else if (app == PollyApp::PollyPhi) {
+        return "PollyPhi";
+    } else if (app == PollyApp::QuantFit) {
+        return "QuantFit";
+    }
+    return "";
+}
+
+QString PollyIntegration::obtainComponentId(PollyApp app)
 {
     QString command = "getComponentId";
     QList<QByteArray> resultAndError = runQtProcess(command,
@@ -183,7 +196,7 @@ QString PollyIntegration::obtainComponentId(QString componentName)
     for (auto elem : array) {
         auto jsonObject = elem.toObject();
         auto name = jsonObject.value("component").toString();
-        if (name == componentName)
+        if (name == _stringForApp(app))
             return QString::number(jsonObject.value("id").toInt());
     }
     return QString::number(-1);

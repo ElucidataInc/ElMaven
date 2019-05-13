@@ -119,10 +119,17 @@ public:
     /**
      * @brief Extract out a component ID from a.JSON response obtained by
      * requesting to api/component endpoint.
-     * @param componentName The component name for which ID is needed.
+     * @param app The Polly application for which ID is needed.
      * @return The component ID as a QString.
      */
-    QString obtainComponentId(QString componentName);
+    QString obtainComponentId(PollyApp app);
+
+    /**
+     * @brief Get the status of current user's application licenses on Polly.
+     * @return A map of PollyApp and a boolean value indicating whether the user
+     * should have access to that application.
+     */
+    QMap<PollyApp, bool> getAppLicenseStatus();
 
 private:
     void checkForIndexFile();
@@ -134,13 +141,13 @@ public slots:
 private:
     QString _username;
     QString credFile;
-    QMap <QString, QStringList> _appLicenses;
     bool validCohorts(QStringList cohorts);
     DownloadManager* _dlManager;
     QTemporaryFile* _fPtr;
     unsigned int _retries;
     
     QMap<QString, QStringList> _fetchAppLicense();
+    QString _stringForApp(PollyApp app);
 };
 
 #endif // POLLYINTEGRATION_H

@@ -720,7 +720,7 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         break;
     } case PollyApp::QuantFit: {
         QString componentId =
-            _pollyIntegration->obtainComponentId("calibration_file_uploader_beta");
+            _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
         if (componentId == "-1")
             return redirectionUrl;
 
