@@ -141,6 +141,13 @@ public:
     QString obtainComponentId(PollyApp app);
 
     /**
+     * @brief Get the status of current user's application licenses on Polly.
+     * @return A map of PollyApp and a boolean value indicating whether the user
+     * should have access to that application.
+     */
+    QMap<PollyApp, bool> getAppLicenseStatus();
+
+    /**
      * @brief Extract out a workflow ID from a JSON response obtained by
      * requesting to api/wf-fe-info endpoint.
      * @param workflowName The Polly application for which ID is needed.
@@ -179,6 +186,7 @@ private:
     QMap<QString, QStringList> _fetchAppLicense();
     void checkForIndexFile();
     bool validCohorts(QStringList cohorts);
+    QString _stringForApp(PollyApp app);
 };
 
 #endif // POLLYINTEGRATION_H
