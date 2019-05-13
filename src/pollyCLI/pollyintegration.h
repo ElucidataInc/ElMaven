@@ -2,12 +2,17 @@
 #define POLLYINTEGRATION_H
 
 #include <QtCore>
+#include <QObject>
 
-class PollyIntegration
+class QTemporaryFile;
+class DownloadManager;
+
+class PollyIntegration : public QObject
 {
+    Q_OBJECT
 public:
     ~PollyIntegration();
-    PollyIntegration();
+    PollyIntegration(DownloadManager* dlManager);
     void logout();
     QString password;
     QString jsPath;
@@ -113,9 +118,19 @@ public:
     QString obtainComponentId(QString componentName);
 
 private:
+    void checkForIndexFile();
+
+public slots:
+    void requestSuccess();
+    void requestFailed();
+
+private:
     QString _username;
     QString credFile;
     bool validCohorts(QStringList cohorts);
+    bool _hasIndexFile;
+    DownloadManager* _dlManager;
+    QTemporaryFile* _fPtr;
 };
 
 #endif // POLLYINTEGRATION_H

@@ -4,11 +4,13 @@
 #include "controller.h"
 #include "mainwindow.h"
 #include "downloadmanager.h"
+#include "pollyintegration.h"
 
 Controller::Controller()
 {
 
     _dlManager = new DownloadManager;
+    _iPolly = new PollyIntegration(_dlManager);
 
     _mw = new MainWindow(this);
     updateUi();
@@ -27,6 +29,8 @@ Controller::Controller()
 Controller::~Controller()
 {
     delete _mw;
+    delete _iPolly;
+
 }
 
 void Controller::resetMP(QList<QString> keys)

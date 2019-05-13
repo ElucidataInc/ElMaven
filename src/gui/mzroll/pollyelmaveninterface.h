@@ -331,12 +331,14 @@ private Q_SLOTS:
 
 };
 
+class PollyIntegration;
+
 class EPIWorkerThread : public QThread
 {
     Q_OBJECT
 
 public:
-    EPIWorkerThread();
+    EPIWorkerThread(PollyIntegration* iPolly);
     ~EPIWorkerThread();
     void run();
     QString username;

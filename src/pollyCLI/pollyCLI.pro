@@ -4,6 +4,8 @@ OBJECTS_DIR=$$top_builddir/tmp/pollyCLI/
 
 DESTDIR=$$top_builddir/libs/
 
+QT += core network
+
 TEMPLATE = lib
 TARGET = pollyCLI
 
@@ -13,7 +15,11 @@ QMAKE_CXXFLAGS += -std=c++11
 
 !macx: LIBS += -fopenmp
 
-SOURCES	= 	pollyintegration.cpp
+INCLUDEPATH += $$top_srcdir/src/
+
+SOURCES	=   pollyintegration.cpp \
+            $$top_srcdir/src/gui/mzroll/downloadmanager.cpp
 			
 
-HEADERS += 	pollyintegration.h
+HEADERS += 	pollyintegration.h \
+            $$top_srcdir/src/gui/mzroll/downloadmanager.h

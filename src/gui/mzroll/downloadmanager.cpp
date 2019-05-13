@@ -17,6 +17,9 @@ void DownloadManager::setRequest(const QString &url, void *requester, bool async
     _url = url;
     //reset the data for every url
     _data = "";
+    PollyIntegration* _requester = reinterpret_cast<PollyIntegration*>(requester);
+    connect(this, SIGNAL(downloaded()), _requester, SLOT(requestSuccess()));
+    connect(this, SIGNAL(failed()), _requester, SLOT(requestFailed()));
     download(async);
 }
 

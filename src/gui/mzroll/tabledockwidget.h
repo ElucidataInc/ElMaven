@@ -402,7 +402,7 @@ class UploadPeaksToCloudThread : public QThread
 {
     Q_OBJECT
     public:
-        UploadPeaksToCloudThread();
+        UploadPeaksToCloudThread(PollyIntegration* iPolly);
         ~UploadPeaksToCloudThread();
         void run();
         QString sessionId;

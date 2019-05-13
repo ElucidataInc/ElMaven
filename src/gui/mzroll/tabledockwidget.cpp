@@ -1,6 +1,7 @@
 #include "tabledockwidget.h";
 #include "peaktabledeletiondialog.h"
 #include "notificator.h"
+#include "controller.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   QDateTime current_time;
@@ -766,9 +767,9 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
                              _mainwindow->getVisibleSamples());
 }
 
-UploadPeaksToCloudThread::UploadPeaksToCloudThread()
+UploadPeaksToCloudThread::UploadPeaksToCloudThread(PollyIntegration* iPolly)
 {
-    _pollyintegration = new PollyIntegration();   
+    _pollyintegration = iPolly;
     
 };
 
@@ -786,8 +787,7 @@ void UploadPeaksToCloudThread::run()
 
 UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
 {
-  if (_pollyintegration) delete (_pollyintegration);
-};
+}
 
 
 void TableDockWidget::UploadPeakBatchToCloud(){
@@ -795,7 +795,8 @@ void TableDockWidget::UploadPeakBatchToCloud(){
     QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
     jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
-    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread();
+    PollyIntegration* iPolly = _mainwindow->getController()->_iPolly;
+    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);
     connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
     connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
     uploadPeaksToCloudThread->sessionId = uploadId;

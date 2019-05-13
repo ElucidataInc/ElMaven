@@ -47,6 +47,7 @@ using namespace std;
 
 class PollyIntegration;
 class ParseOptions;
+class DownloadManager;
 
 class PeakDetectorCLI
 {
@@ -219,6 +220,7 @@ public:
     }
 
 private:
+    DownloadManager* _dlManager;
     QString _pollyProject;
     QString _sampleCohortFile;
     QString _redirectTo;

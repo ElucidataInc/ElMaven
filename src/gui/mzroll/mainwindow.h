@@ -141,6 +141,10 @@ public:
 	bool samplesAlignedFlag = false;
 	map<pair<string,string>, double> deltaRt;
 
+    Controller* getController() {
+        return _controller;
+    }
+
 	Analytics* getAnalytics(){
 		return analytics;
 	}

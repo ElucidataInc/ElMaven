@@ -4,6 +4,7 @@
 #include "projectdatabase.h"
 
 class DownloadManager;
+class PollyIntegration;
 class MainWindow;
 class PeakDetectionSettings;
 class OptionsDialogSettings;
@@ -15,7 +16,7 @@ public:
     Controller();
     ~Controller();
     MainWindow* getMainWindow() { return _mw; }
-
+    PollyIntegration* _iPolly;
 public Q_SLOTS:
     void updatePeakDetectionSettings(PeakDetectionSettings* pd);
     void updateOptionsDialogSettings(OptionsDialogSettings* od);
