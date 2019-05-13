@@ -4,9 +4,15 @@
 #include <QtCore>
 #include <QObject>
 
+enum class PollyApp: int
+{
+    FirstView = 0,
+    PollyPhi = 1,
+    QuantFit = 2
+};
+
 class QTemporaryFile;
 class DownloadManager;
-
 class PollyIntegration : public QObject
 {
     Q_OBJECT

@@ -17,13 +17,6 @@ class LoginForm;
 class TableDockWidget;
 class PollyWaitDialog;
 
-enum class PollyApp: int
-{
-    FirstView = 0,
-    PollyPhi = 1,
-    QuantFit = 2
-};
-
 /**
 * @brief This class is responsible for creating the Polly interface and calling
 * PollyCLI library.
@@ -280,7 +273,7 @@ private Q_SLOTS:
      * @param licenseMap A map of application names to their license status on
      * Polly.
      */
-    void _handleLicenses(QMap<QString, bool> licenseMap);
+    void _handleLicenses(QMap<PollyApp, bool> licenseMap);
 
     /**
      * @brief Handle the result of authentication status post-process.
@@ -377,7 +370,7 @@ Q_SIGNALS:
     void filesUploaded(QStringList patchId,
                        QString uploadProjectIdThread,
                        QString datetimestamp);
-    void licensesReady(QMap<QString, bool> licenseMap);
+    void licensesReady(QMap<PollyApp, bool> licenseMap);
     void projectsReady(QVariantMap projectNamesId);
     void authentication_result(QString username, QString status);
 };
