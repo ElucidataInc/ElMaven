@@ -389,7 +389,6 @@ QString PollyIntegration::authenticateLogin(QString username, QString password) 
     else {
         status = "incorrect credentials";
     }
-    QMap<QString, QStringList> _fetchAppLicense();
     return status;
 }
 

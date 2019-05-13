@@ -141,6 +141,16 @@ public:
     QString obtainComponentId(PollyApp app);
 
     /**
+     * @brief Extract out a workflow ID from a JSON response obtained by
+     * requesting to api/wf-fe-info endpoint.
+     * @param workflowName The Polly application for which ID is needed.
+     * @return The workflow ID as a QString.
+     */
+    QString obtainWorkflowId(PollyApp app);
+
+    QString obtainComponentName(PollyApp app);
+
+    /**
      * @brief Get the status of current user's application licenses on Polly.
      * @return A map of PollyApp and a boolean value indicating whether the user
      * should have access to that application.
