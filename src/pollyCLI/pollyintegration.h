@@ -31,7 +31,9 @@ public:
      * @param projectId The ID of the project for which to create workflow.
      * @return Return workflow request ID as a QString.
      */
-    QString createWorkflowRequest(QString projectId);
+    QString createWorkflowRequest(QString projectId,
+                                  QString workflowName,
+                                  QString workflowId);
 
     /**
      * @brief This creates a run request for QuantFit and returns its ID.
@@ -105,17 +107,35 @@ public:
      */
     bool activeInternet();
 
+    QByteArray redirectionUiEndpoint();
+
     /**
      * @brief Obtain a redirection URL for a given component and run ID.
      * @param componentId The component ID for which URL will be fetched.
      * @param runId The run ID that will be replaced within the URL.
-     * @param datetimestamp The date-time string that will be replaced wwithin
+     * @param datetimestamp The date-time string that will be replaced within
      * the URL.
      * @return A URL redirecting to web application run.
      */
-    QString redirectionUiEndpoint(QString componentId,
-                                  QString runId,
-                                  QString datetimestamp);
+    QString getComponentEndpoint(QString componentId, QString runId, QString datetimestamp);
+
+    /**
+     * @brief Obtain a redirection URL for a given workflow and run ID.
+     * @param workflowID The workflow ID for which URL will be fetched.
+     * @param workflowRequestId The wf-request ID that will be replaced within
+     * the URL.
+     * @param landingPage The name of the landing page that will be replaced within
+     * the URL.
+     * @param uploadProjectIdThread The project ID that will be replaced within the URL.
+     * @param datetimestamp The date-time string that will be replaced within
+     * the URL.
+     * @return A URL redirecting to web application run.
+     */
+    QString getWorkflowEndpoint(QString workflowId,
+                                QString workflowRequestId,
+                                QString landingPage,
+                                QString uploadProjectIdThread,
+                                QString datetimestamp);
 
     /**
      * @brief Extract out a component ID from a.JSON response obtained by
@@ -124,6 +144,16 @@ public:
      * @return The component ID as a QString.
      */
     QString obtainComponentId(PollyApp app);
+
+    /**
+     * @brief Extract out a workflow ID from a JSON response obtained by
+     * requesting to api/wf-fe-info endpoint.
+     * @param workflowName The Polly application for which ID is needed.
+     * @return The workflow ID as a QString.
+     */
+    QString obtainWorkflowId(PollyApp app);
+
+    QString obtainComponentName(PollyApp app);
 
     /**
      * @brief Get the status of current user's application licenses on Polly.
@@ -154,7 +184,6 @@ private:
     unsigned int _retries;
     
     QMap<QString, QStringList> _fetchAppLicense();
-    QString _obtainComponentName(PollyApp app);
 };
 
 #endif // POLLYINTEGRATION_H

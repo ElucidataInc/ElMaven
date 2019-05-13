@@ -698,17 +698,23 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
 
     switch (_selectedApp) {
     case PollyApp::FirstView: {
+        QString componentId = 
+            _pollyIntegration->obtainComponentId(PollyApp::FirstView);
+        
         redirectionUrl =
-            QString("https://polly.elucidata.io/"
-                    "main#project=%1&auto-redirect=%2&elmavenTimestamp=%3")
-                    .arg(uploadProjectIdThread)
-                    .arg("firstview")
-                    .arg(datetimestamp);
+            _pollyIntegration->getComponentEndpoint(componentId,
+                                                    uploadProjectIdThread,
+                                                    datetimestamp);
         break;
     } case PollyApp::PollyPhi: {
         QString landingPage = QString("relative_lcms_elmaven");
+        QString workflowId = 
+            _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
+        QString workflowName = _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
         QString workflowRequestId =
-            _pollyIntegration->createWorkflowRequest(uploadProjectIdThread);
+            _pollyIntegration->createWorkflowRequest(uploadProjectIdThread,
+                                                     workflowName,
+                                                     workflowId);
         if (workflowRequestId.isEmpty())
             return redirectionUrl;
 
@@ -719,14 +725,15 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         if (!_pollyIntegration->validSampleCohort(CohortFileName))
             landingPage = QString("gsheet_sym_polly_elmaven");
 
-        redirectionUrl =
-            QString("https://polly.elucidata.io/workflow-requests/%1/"
-                    "lcms_tstpl_pvd/"
-                    "dashboard#redirect-from=%2#project=%3#timestamp=%4")
-                    .arg(workflowRequestId)
-                    .arg(landingPage)
-                    .arg(uploadProjectIdThread)
-                    .arg(datetimestamp);
+        if (workflowId == "-1")
+            return redirectionUrl;
+
+        redirectionUrl = 
+            _pollyIntegration->getWorkflowEndpoint(workflowId,
+                                                   workflowRequestId,
+                                                   landingPage,
+                                                   uploadProjectIdThread,
+                                                   datetimestamp);
         break;
     } case PollyApp::QuantFit: {
         QString componentId =
@@ -740,9 +747,9 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
         if (runRequestId.isEmpty())
             return redirectionUrl;
 
-        redirectionUrl = _pollyIntegration->redirectionUiEndpoint(componentId,
-                                                                  runRequestId,
-                                                                  datetimestamp);
+        redirectionUrl = _pollyIntegration->getComponentEndpoint(componentId,
+                                                                 runRequestId,
+                                                                 datetimestamp);
         break;
     } default:
         break;

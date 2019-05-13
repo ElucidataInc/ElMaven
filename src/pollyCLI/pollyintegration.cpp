@@ -176,8 +176,13 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
         it.next();
         PollyApp app = it.key();
         QString type = it.value();
+        QString componentId;
 
-        QString componentId = obtainComponentId(app);
+        if (type == "components")
+            componentId = obtainComponentId(app);
+        else if (type == "workflows")
+            componentId = obtainWorkflowId(app);
+
         if (appLicenses.value(type).contains(componentId)
             && appLicenses.value("licenseActive")[0] != "0") {
             appLicenseStatus[app] = true;
@@ -200,7 +205,7 @@ QString PollyIntegration::stringForApp(PollyApp app)
     return "";
 }
 
-QString PollyIntegration::_obtainComponentName(PollyApp app)
+QString PollyIntegration::obtainComponentName(PollyApp app)
 {
     QString command = "getComponentName";
     QList<QByteArray> resultAndError = runQtProcess(command,
@@ -230,13 +235,36 @@ QString PollyIntegration::obtainComponentId(PollyApp app)
     result = result.right(result.size() - 1);
     result = result.left(result.size() - 1);
 
-    QString componentName = _obtainComponentName(app);
+    QString componentName = obtainComponentName(app);
     QJsonDocument doc(QJsonDocument::fromJson(result));
     auto array = doc.array();
     for (auto elem : array) {
         auto jsonObject = elem.toObject();
         auto name = jsonObject.value("component").toString();
         if (name == componentName)
+            return QString::number(jsonObject.value("id").toInt());
+    }
+    return QString::number(-1);
+}
+
+QString PollyIntegration::obtainWorkflowId(PollyApp app)
+{
+    QString command = "getWorkflowId";
+    QList<QByteArray> resultAndError = runQtProcess(command,
+                                                    QStringList() << credFile);
+    QByteArray result = resultAndError.at(0);
+
+    // split based on newlines, JSON is second last string after split
+    QList<QByteArray> resultList = result.split('\n');
+    result = resultList[resultList.size() - 2];
+
+    QString workflowName = obtainComponentName(app);
+    QJsonDocument doc(QJsonDocument::fromJson(result));
+    auto array = doc.array();
+    for (auto elem : array) {
+        auto jsonObject = elem.toObject();
+        auto name = jsonObject.value("workflow").toString();
+        if (name == workflowName)
             return QString::number(jsonObject.value("id").toInt());
     }
     return QString::number(-1);
@@ -391,7 +419,6 @@ QString PollyIntegration::authenticateLogin(QString username, QString password) 
     else {
         status = "incorrect credentials";
     }
-    QMap<QString, QStringList> _fetchAppLicense();
     return status;
 }
 
@@ -540,9 +567,14 @@ QString PollyIntegration::createProjectOnPolly(QString projectname) {
     return runId;
 }
 
-QString PollyIntegration::createWorkflowRequest(QString projectId){
+QString PollyIntegration::createWorkflowRequest(QString projectId,
+                                                QString workflowName,
+                                                QString workflowId) {
     QString command2 = "createWorkflowRequest";
-    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << credFile << projectId);
+    QList<QByteArray> resultAndError = runQtProcess(command2, QStringList() << credFile 
+                                                                            << projectId
+                                                                            << workflowName
+                                                                            << workflowId);
     QString workflowRequestId = parseId(resultAndError.at(0));
     return workflowRequestId;
 }
@@ -559,9 +591,7 @@ QString PollyIntegration::createRunRequest(QString componentId,
     return runId;
 }
 
-QString PollyIntegration::redirectionUiEndpoint(QString componentId,
-                                                QString runId,
-                                                QString datetimestamp)
+QByteArray PollyIntegration::redirectionUiEndpoint()
 {
     QString command = "getEndpointForRuns";
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList(credFile));
@@ -572,6 +602,15 @@ QString PollyIntegration::redirectionUiEndpoint(QString componentId,
     QList<QByteArray> resultList = result.split('\n');
     result = resultList[resultList.size() - 2];
 
+    return result;
+}
+
+QString PollyIntegration::getComponentEndpoint(QString componentId,
+                                               QString runId,
+                                               QString datetimestamp)
+{
+    QByteArray result = redirectionUiEndpoint();
+
     QJsonDocument doc(QJsonDocument::fromJson(result));
     auto array = doc.array();
     for (auto elem : array) {
@@ -581,6 +620,31 @@ QString PollyIntegration::redirectionUiEndpoint(QString componentId,
             auto url = jsonObject.value("url").toString();
             url = url.replace("<runid>", runId)
                      .replace("<timestamp>", datetimestamp);
+            return url;
+        }
+    }
+    return "";
+}
+
+QString PollyIntegration::getWorkflowEndpoint(QString workflowId,
+                                              QString workflowRequestId,
+                                              QString landingPage,
+                                              QString uploadProjectIdThread,
+                                              QString datetimestamp)
+{
+    QByteArray result = redirectionUiEndpoint();
+
+    QJsonDocument doc(QJsonDocument::fromJson(result));
+    auto array = doc.array();
+    for (auto elem : array) {
+        auto jsonObject = elem.toObject();
+        auto id = QString::number(jsonObject.value("workflow_id").toInt());
+        if (id == workflowId) {
+            auto url = jsonObject.value("url").toString();
+            url = url.replace("<workflowRequestId>", workflowRequestId)
+                     .replace("<landingPage>", landingPage)
+                     .replace("<uploadProjectIdThread>", uploadProjectIdThread)
+                     .replace("<datetimestamp>", datetimestamp);
             return url;
         }
     }
