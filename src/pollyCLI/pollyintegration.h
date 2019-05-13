@@ -8,7 +8,8 @@ enum class PollyApp: int
 {
     FirstView = 0,
     PollyPhi = 1,
-    QuantFit = 2
+    QuantFit = 2,
+    None = 3
 };
 
 class QTemporaryFile;
@@ -131,6 +132,12 @@ public:
      */
     QMap<PollyApp, bool> getAppLicenseStatus();
 
+    /**
+     * @brief Get the string name of a PollyApp enum identifier.
+     * @return A string with name of the app.
+     */
+    static QString stringForApp(PollyApp app);
+
 private:
     void checkForIndexFile();
 
@@ -147,7 +154,7 @@ private:
     unsigned int _retries;
     
     QMap<QString, QStringList> _fetchAppLicense();
-    QString _stringForApp(PollyApp app);
+    QString _obtainComponentName(PollyApp app);
 };
 
 #endif // POLLYINTEGRATION_H

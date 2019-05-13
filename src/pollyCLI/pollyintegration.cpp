@@ -146,22 +146,49 @@ QMap<QString, QStringList> PollyIntegration::_fetchAppLicense() {
         auto temp = resultList[i];
         if (temp.contains("components")) {
             temp = resultList[++i];
-            appLicenses["components"] = temp.replace(' []', "").split(',');
+            appLicenses["components"] = temp.remove(QRegExp("[\\[\\] ]")).split(',');
         }
         if (temp.contains("workflows")) {
             temp = resultList[++i];
-            appLicenses["workflows"] = temp.replace(' []', "").split(',');
+            appLicenses["workflows"] = temp.remove(QRegExp("[\\[\\] ]")).split(',');
         }
         if (temp.contains("license")) {
             temp = resultList[++i];
-            appLicenses["licenseActive"] = temp.replace(' []', "").split(',');
+            appLicenses["licenseActive"] = temp.remove(QRegExp("[\\[\\] ]")).split(',');
         }
     }
 
     return appLicenses;
 }
 
-QString PollyIntegration::_stringForApp(PollyApp app)
+QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
+{
+    QMap<PollyApp, QString> appsWithTypes = {
+        {PollyApp::FirstView, "components"},
+        {PollyApp::PollyPhi, "workflows"},
+        {PollyApp::QuantFit, "components"}
+    };
+
+    auto appLicenses = _fetchAppLicense();
+    QMap<PollyApp, bool> appLicenseStatus;
+    QMapIterator<PollyApp, QString> it(appsWithTypes);
+    while (it.hasNext()) {
+        it.next();
+        PollyApp app = it.key();
+        QString type = it.value();
+
+        QString componentId = obtainComponentId(app);
+        if (appLicenses.value(type).contains(componentId)
+            && appLicenses.value("licenseActive")[0] != "0") {
+            appLicenseStatus[app] = true;
+        } else {
+            appLicenseStatus[app] = false;
+        }
+    }
+    return appLicenseStatus;
+}
+
+QString PollyIntegration::stringForApp(PollyApp app)
 {
     if (app == PollyApp::FirstView) {
         return "FirstView";
@@ -171,6 +198,18 @@ QString PollyIntegration::_stringForApp(PollyApp app)
         return "QuantFit";
     }
     return "";
+}
+
+QString PollyIntegration::_obtainComponentName(PollyApp app)
+{
+    QString command = "getComponentName";
+    QList<QByteArray> resultAndError = runQtProcess(command,
+                                                    QStringList() << stringForApp(app)
+                                                                  << credFile);
+    QByteArray result = resultAndError.at(0);
+    QList<QByteArray> resultList = result.split('\n');
+    QString componentName = QString(resultList.at(0).split(' ').at(1));
+    return componentName;
 }
 
 QString PollyIntegration::obtainComponentId(PollyApp app)
@@ -191,12 +230,13 @@ QString PollyIntegration::obtainComponentId(PollyApp app)
     result = result.right(result.size() - 1);
     result = result.left(result.size() - 1);
 
+    QString componentName = _obtainComponentName(app);
     QJsonDocument doc(QJsonDocument::fromJson(result));
     auto array = doc.array();
     for (auto elem : array) {
         auto jsonObject = elem.toObject();
         auto name = jsonObject.value("component").toString();
-        if (name == _stringForApp(app))
+        if (name == componentName)
             return QString::number(jsonObject.value("id").toInt());
     }
     return QString::number(-1);

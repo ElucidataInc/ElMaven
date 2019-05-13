@@ -655,6 +655,13 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
+         <widget class="QLabel" name="tutorialLink">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_9">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

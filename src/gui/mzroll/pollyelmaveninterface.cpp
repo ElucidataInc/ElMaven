@@ -11,7 +11,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     setModal(true);
 
     qRegisterMetaType<PollyApp>("PollyApp");
-    qRegisterMetaType<QMap<QString, bool>>();
+    qRegisterMetaType<QMap<PollyApp, bool>>();
 
     auto configLocation = QStandardPaths::QStandardPaths::GenericConfigLocation;
     _writeableTempDir = QStandardPaths::writableLocation(configLocation)
@@ -64,6 +64,15 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     connect(this,
             SIGNAL(uploadFinished(bool)),
             SLOT(_performPostUploadTasks(bool)));
+    connect(tutorialLink,
+            &QLabel::linkActivated,
+            [=](const QString &link) {
+                QDesktopServices::openUrl(QUrl(link));
+                auto appName = PollyIntegration::stringForApp(_selectedApp);
+                _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                                      "ViewTutorial",
+                                                      appName);
+            });
 }
 
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -96,12 +105,9 @@ void EPIWorkerThread::run()
 
         qDebug() << "Fetching licenses from Polly…";
         if (status == "ok") {
-            QMap<QString, bool> _licenseMap = {
-                {"firstview", false},
-                {"pollyphi", true},
-                {"quantfit", false}
-            };
-            emit licensesReady(_licenseMap);
+            QMap<PollyApp, bool> licenseMap =
+                _pollyintegration->getAppLicenseStatus();
+            emit licensesReady(licenseMap);
         }
 
         qDebug() << "Fetching projects from Polly…";
@@ -162,38 +168,39 @@ void PollyElmavenInterfaceDialog::_changePage()
             "Cloud. This FirstView application allows you to preview your data "
             "from El-MAVEN on Polly."
         );
+        tutorialLink->setText("");
     } else if (_selectedApp == PollyApp::PollyPhi) {
         viewTitle->setText("Upload to PollyPhi™ Relative");
         viewTitleAdvert->setText("PollyPhi™ Relative");
         appAdvertLabel->setText(
             "Relative flux (φ) workflow allows the user to process LCMS "
-            "labelled targeted single time point data with insightful "
-            "visualisations. Go from raw data to visualizations in less than 5 "
-            "minutes. The application handles C13 labelled, single time point "
+            "labeled targeted single time point data with insightful "
+            "visualizations. Go from raw data to visualizations in less than 5 "
+            "minutes. The application handles C13 labeled, single time point "
             "experiments, provides automated peak picking with manual "
-            "curation, performs natural abundance correction, calculates "
-            "fractional enrichment, pool total and allows user to visualize "
-            "them."
+            "curation, allows quality checking samples to identify and reject "
+            "outliers, performs natural abundance correction, calculates "
+            "fractional enrichment, pool total values, and allows the user to "
+            "visualize them."
         );
+        tutorialLink->setText("<a href='https://www.youtube.com/watch?v=LiMoEGXbMyo'>View Tutorial</a>");
     } else if (_selectedApp == PollyApp::QuantFit) {
         viewTitle->setText("Upload to Polly™ QuantFit");
         viewTitleAdvert->setText("Polly™ QuantFit");
         appAdvertLabel->setText(
-            "Calibration refers to the process of quantifying samples of "
-            "unknown concentrations with known (standard) samples. Mass spec "
-            "experiments are a crucial component of metabolomics experiments "
-            "but the output obtained from software like El-MAVEN or Multiquant "
-            "are intensities which are unitless. From these intensities we can "
-            "calculate fractional enrichments and do relative comparisons. But "
-            "for some analysis like kinetic flux analysis we need absolute "
-            "concentrations of the metabolites. These concentrations have "
-            "units like M, μM and mM like any other chemical concentration. In "
-            "order to absolutely quantify these metabolites, experiments are "
-            "done with standard samples of known concentrations. Using these "
-            "data points we get mathematical mappings from intensities to "
-            "concentrations which are used to calculate concentrations of "
-            "experimental intensities."
+            "For some analysis like kinetic flux analysis, absolute "
+            "concentrations of the metabolites are required. PollyTM QuantFit "
+            "supports calibration - the process of quantifying samples of "
+            "unknown concentrations with known (standard) samples. In order to "
+            "quantify metabolites, experiments are done with standard samples "
+            "of known concentrations. Using these data points we get "
+            "mathematical mappings from intensities to concentrations which "
+            "are used to calculate concentrations of experimental intensities. "
+            "It further allows normalization of data with respect to internal "
+            "standards and allows scaling which neutralizes the effect of "
+            "initial dilution."
         );
+        tutorialLink->setText("<a href='https://www.youtube.com/watch?v=Ma5Ti3GRayE'>View Tutorial</a>");
     }
 
     startupDataLoad();
@@ -290,9 +297,9 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
             this,
             SLOT(_handleProjects(QVariantMap)));
     connect(workerThread,
-            SIGNAL(licensesReady(QMap<QString, bool>)),
+            SIGNAL(licensesReady(QMap<PollyApp, bool>)),
             this,
-            SLOT(_handleLicenses(QMap<QString, bool>)));
+            SLOT(_handleLicenses(QMap<PollyApp, bool>)));
     connect(workerThread,
             SIGNAL(authentication_result(QString, QString)),
             this,
@@ -346,11 +353,9 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
     }
 }
 
-void PollyElmavenInterfaceDialog::_handleLicenses(QMap<QString, bool> licenseMap)
+void PollyElmavenInterfaceDialog::_handleLicenses(QMap<PollyApp, bool> licenseMap)
 {
-    _licenseMap[PollyApp::FirstView] = licenseMap.value("firstview");
-    _licenseMap[PollyApp::PollyPhi] = licenseMap.value("pollyphi");
-    _licenseMap[PollyApp::QuantFit] = licenseMap.value("quantfit");
+    _licenseMap = licenseMap;
 }
 
 void PollyElmavenInterfaceDialog::_handleProjects(QVariantMap projectNameIdMap)
@@ -387,6 +392,11 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     _resetUiElements();
     if (_projectNameIdMap.isEmpty()) {
         _projectNameIdMap = _pollyIntegration->getUserProjects();
+    }
+    if (_licenseMap.isEmpty()) {
+        _licenseMap = _pollyIntegration->getAppLicenseStatus();
+        _changePage();
+        return;
     }
 
     QStringList keys = _projectNameIdMap.keys();

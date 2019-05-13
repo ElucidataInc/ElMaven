@@ -11,12 +11,13 @@
 #include <QDateTime>
 #include <QMap>
 
+Q_DECLARE_METATYPE(PollyApp)
+
 class PollyIntegration;
 class MainWindow;
 class LoginForm;
 class TableDockWidget;
 class PollyWaitDialog;
-
 /**
 * @brief This class is responsible for creating the Polly interface and calling
 * PollyCLI library.
