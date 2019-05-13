@@ -242,7 +242,7 @@ QString PollyIntegration::obtainComponentId(PollyApp app)
     for (auto elem : array) {
         auto jsonObject = elem.toObject();
         auto name = jsonObject.value("component").toString();
-        if (name == _stringForApp(app))
+        if (name == componentName)
             return QString::number(jsonObject.value("id").toInt());
     }
     return QString::number(-1);
