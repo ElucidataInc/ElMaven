@@ -134,6 +134,32 @@ QString PollyIntegration::parseId(QByteArray result){
     return run_id;
 }
 
+QMap<QString, QStringList> PollyIntegration::_fetchAppLicense() {
+    QString command = "fetchAppLicense";
+    QList<QByteArray> resultAndError = runQtProcess(command,
+                                                    QStringList() << credFile);
+
+    QByteArray result = resultAndError.at(0);
+    QStringList resultList = QString::fromStdString(result.toStdString()).split('\n');
+    for (int i = 0; i < resultList.length(); i++) {
+        auto temp = resultList[i];
+        if (temp.contains("components")) {
+            temp = resultList[++i];
+            _appLicenses["components"] = temp.replace(' []', "").split(',');
+        }
+        if (temp.contains("workflows")) {
+            temp = resultList[++i];
+            _appLicenses["workflows"] = temp.replace(' []', "").split(',');
+        }
+        if (temp.contains("license")) {
+            temp = resultList[++i];
+            _appLicenses["licenseActive"] = temp.replace(' []', "").split(',');
+        }
+    }
+
+    return _appLicenses;
+}
+
 QString PollyIntegration::obtainComponentId(QString componentName)
 {
     QString command = "getComponentId";
@@ -254,6 +280,37 @@ int PollyIntegration::checkLoginStatus(){
     return status;
 }
 
+// void PollyIntegration::checkLicense() {
+//     qDebug() << "checking license";
+//     QString command = "getLicense";
+//     QString status;
+
+//     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile);
+//     QByteArray result = resultAndError.at(0);
+
+//     // split based on newlines, JSON is second last string after split
+//     QList<QByteArray> resultList = result.split('\n');
+//     result = resultList[resultList.size() - 1];
+
+//     // remove extra quotation around JSON array
+//     result = result.right(result.size() - 1);
+//     //result = result.left(result.size() - 1);
+//     // replace doubly escaped quotes
+//     result = result.replace("\\\"", "\"");
+
+
+//     qDebug() << result;
+
+//     QJsonDocument doc(QJsonDocument::fromJson(result));
+//     QJsonObject jsonObj = doc.object()["licenses"].toObject();
+//     auto licenses = jsonObj.keys();
+//     auto component = jsonObj["components"].toArray();
+//     if (component.size())
+//         qDebug() << component;
+
+//     qDebug() << "json error" << QString::number(-1);
+// }
+
 // name OF FUNCTION: authenticateLogin
 // PURPOSE:
 //    This function is responsible for authenticating the user.
@@ -281,6 +338,7 @@ QString PollyIntegration::authenticateLogin(QString username, QString password) 
     else {
         status = "incorrect credentials";
     }
+    QMap<QString, QStringList> _fetchAppLicense();
     return status;
 }
 

@@ -88,6 +88,7 @@ public:
     QStringList parseResultOrganizationalDBs(QString result);
     QString getCredFile();
     QString getCurrentUsername();
+    //void checkLicense();
 
     /**
      * @brief check for active internet connection
@@ -127,9 +128,13 @@ public slots:
 private:
     QString _username;
     QString credFile;
+    QMap <QString, QStringList> _appLicenses;
     bool validCohorts(QStringList cohorts);
     DownloadManager* _dlManager;
     QTemporaryFile* _fPtr;
+    unsigned int _retries;
+    
+    QMap<QString, QStringList> _fetchAppLicense();
 };
 
 #endif // POLLYINTEGRATION_H
