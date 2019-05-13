@@ -167,6 +167,12 @@ private:
     QVariantMap _projectNameIdMap;
 
     /**
+     * @brief A map which contains the mapping of licenses names with their
+     * active state.
+     */
+    QMap<PollyApp, bool> _licenseMap;
+
+    /**
      * @brief Name of the temporary directory where files are contained before
      * being sent to Polly.
      */
@@ -266,7 +272,15 @@ private Q_SLOTS:
      * projects.
      * @param projectNamesId A map of user project names to their IDs on Polly.
      */
-    void _handleResults(QVariantMap projectNameIdMap);
+    void _handleProjects(QVariantMap projectNameIdMap);
+
+    /**
+     * @brief Handle information fetched from Polly about current user's
+     * licenses.
+     * @param licenseMap A map of application names to their license status on
+     * Polly.
+     */
+    void _handleLicenses(QMap<QString, bool> licenseMap);
 
     /**
      * @brief Handle the result of authentication status post-process.
@@ -329,6 +343,12 @@ private Q_SLOTS:
      */
     void _changePage();
 
+    /**
+     * @brief Hide the form and switch to advert if the user is not licensed for
+     * the currently selected application.
+     */
+    void _hideFormIfNotLicensed();
+
 };
 
 class PollyIntegration;
@@ -357,7 +377,8 @@ Q_SIGNALS:
     void filesUploaded(QStringList patchId,
                        QString uploadProjectIdThread,
                        QString datetimestamp);
-    void resultReady(QVariantMap projectNamesId);
+    void licensesReady(QMap<QString, bool> licenseMap);
+    void projectsReady(QVariantMap projectNamesId);
     void authentication_result(QString username, QString status);
 };
 

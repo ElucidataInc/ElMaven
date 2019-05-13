@@ -4,7 +4,6 @@
 #include "csvreports.h"
 #include <string>
 
-
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     : QDialog(mw), _mainwindow(mw), _loginform(nullptr)
 {
@@ -12,6 +11,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     setModal(true);
 
     qRegisterMetaType<PollyApp>("PollyApp");
+    qRegisterMetaType<QMap<QString, bool>>();
 
     auto configLocation = QStandardPaths::QStandardPaths::GenericConfigLocation;
     _writeableTempDir = QStandardPaths::writableLocation(configLocation)
@@ -42,7 +42,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                 "}");
     workflowMenu->setCurrentRow(int(PollyApp::FirstView));
     gotoPollyButton->setVisible(false);
-    gotoPollyButton->setDefault(true);
 
     groupSetCombo->addItem("All Groups");
     groupSetCombo->addItem("Only Good Groups");
@@ -82,7 +81,7 @@ EPIWorkerThread::EPIWorkerThread(PollyIntegration* iPolly):
 void EPIWorkerThread::run()
 {
     if (state == "initial_setup") {
-        qDebug() << "Checking for active internet connection..";
+        qDebug() << "Checking for active internet connection…";
         QString status;
         if (!_pollyintegration->activeInternet()) {
             status = "error";
@@ -90,18 +89,28 @@ void EPIWorkerThread::run()
             return;
         }
 
-        qDebug() << "Authenticating..";
+        qDebug() << "Authenticating…";
         status = _pollyintegration->authenticateLogin("", "");
         emit authentication_result(_pollyintegration->getCurrentUsername(),
                                    status);
 
-        qDebug() << "Fetching projects from Polly..";
+        qDebug() << "Fetching licenses from Polly…";
+        if (status == "ok") {
+            QMap<QString, bool> _licenseMap = {
+                {"firstview", false},
+                {"pollyphi", true},
+                {"quantfit", false}
+            };
+            emit licensesReady(_licenseMap);
+        }
+
+        qDebug() << "Fetching projects from Polly…";
         if (status == "ok") {
             QVariantMap _projectNameIdMap = _pollyintegration->getUserProjects();
-            emit resultReady(_projectNameIdMap);
+            emit projectsReady(_projectNameIdMap);
         }
     } else if (state == "upload_files") {
-        qDebug() << "starting thread for uploading files to polly..";
+        qDebug() << "starting thread for uploading files to polly…";
         // re-login to polly may be required because the token expires after 30
         // minutes..
         QString statusInside = _pollyintegration->authenticateLogin("", "");
@@ -142,10 +151,49 @@ void PollyElmavenInterfaceDialog::_changePage()
     _selectedApp = PollyApp(workflowMenu->currentRow());
     if (_selectedApp == PollyApp::FirstView) {
         viewTitle->setText("Upload to Polly™ FirstView");
+        viewTitleAdvert->setText("Polly™ FirstView");
+        appAdvertLabel->setText(
+            "Polly supports pre-clinical research efforts in pharma and "
+            "biotech labs with plans to develop into a discovery platform that "
+            "be customized for a variety of lab-specific applications. It is "
+            "an application suite that has been developed for the analysis, "
+            "quantitation, and presentation of mass spectrometry data with an "
+            "advanced distributed data management infrastructure on the Amazon "
+            "Cloud. This FirstView application allows you to preview your data "
+            "from El-MAVEN on Polly."
+        );
     } else if (_selectedApp == PollyApp::Fluxomics) {
         viewTitle->setText("Upload to PollyPhi™ Relative");
+        viewTitleAdvert->setText("PollyPhi™ Relative");
+        appAdvertLabel->setText(
+            "Relative flux (φ) workflow allows the user to process LCMS "
+            "labelled targeted single time point data with insightful "
+            "visualisations. Go from raw data to visualizations in less than 5 "
+            "minutes. The application handles C13 labelled, single time point "
+            "experiments, provides automated peak picking with manual "
+            "curation, performs natural abundance correction, calculates "
+            "fractional enrichment, pool total and allows user to visualize "
+            "them."
+        );
     } else if (_selectedApp == PollyApp::QuantFit) {
         viewTitle->setText("Upload to Polly™ QuantFit");
+        viewTitleAdvert->setText("Polly™ QuantFit");
+        appAdvertLabel->setText(
+            "Calibration refers to the process of quantifying samples of "
+            "unknown concentrations with known (standard) samples. Mass spec "
+            "experiments are a crucial component of metabolomics experiments "
+            "but the output obtained from software like El-MAVEN or Multiquant "
+            "are intensities which are unitless. From these intensities we can "
+            "calculate fractional enrichments and do relative comparisons. But "
+            "for some analysis like kinetic flux analysis we need absolute "
+            "concentrations of the metabolites. These concentrations have "
+            "units like M, μM and mM like any other chemical concentration. In "
+            "order to absolutely quantify these metabolites, experiments are "
+            "done with standard samples of known concentrations. Using these "
+            "data points we get mathematical mappings from intensities to "
+            "concentrations which are used to calculate concentrations of "
+            "experimental intensities."
+        );
     }
 
     startupDataLoad();
@@ -238,9 +286,13 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
     connect(workerThread,
-            SIGNAL(resultReady(QVariantMap)),
+            SIGNAL(projectsReady(QVariantMap)),
             this,
-            SLOT(_handleResults(QVariantMap)));
+            SLOT(_handleProjects(QVariantMap)));
+    connect(workerThread,
+            SIGNAL(licensesReady(QMap<QString, bool>)),
+            this,
+            SLOT(_handleLicenses(QMap<QString, bool>)));
     connect(workerThread,
             SIGNAL(authentication_result(QString, QString)),
             this,
@@ -269,7 +321,7 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
 {
     if (status == "ok") {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
-        _loadingDialog->statusLabel->setText("Fetching your projects…");
+        _loadingDialog->statusLabel->setText("Fetching user data…");
         usernameLabel->setText(username);
         QCoreApplication::processEvents();
     } else if (status == "error") {
@@ -294,10 +346,17 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
     }
 }
 
-void PollyElmavenInterfaceDialog::_handleResults(QVariantMap projectNameIdMap)
+void PollyElmavenInterfaceDialog::_handleLicenses(QMap<QString, bool> licenseMap)
+{
+    _licenseMap[PollyApp::FirstView] = licenseMap.value("firstview");
+    _licenseMap[PollyApp::Fluxomics] = licenseMap.value("pollyphi");
+    _licenseMap[PollyApp::QuantFit] = licenseMap.value("quantfit");
+}
+
+void PollyElmavenInterfaceDialog::_handleProjects(QVariantMap projectNameIdMap)
 {
     _projectNameIdMap = projectNameIdMap;
-    startupDataLoad();
+    _changePage();
 }
 
 void PollyElmavenInterfaceDialog::_resetUiElements()
@@ -360,7 +419,19 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     }
 
     _loadingDialog->close();
+    _hideFormIfNotLicensed();
     QCoreApplication::processEvents();
+}
+
+void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
+{
+    if (!_licenseMap.value(_selectedApp)) {
+        stackedWidget->setCurrentWidget(advertBox);
+        demoButton->setDefault(true);
+    } else {
+        stackedWidget->setCurrentWidget(pollyForm);
+        gotoPollyButton->setDefault(true);
+    }
 }
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
