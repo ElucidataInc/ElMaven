@@ -31,7 +31,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
         nodePath = binDir + "node_bin" + QDir::separator() + "node";
     #endif
 
-     _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/index.js", this);
+     _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js", this);
 }
 
 void PollyIntegration::requestSuccess()
@@ -88,7 +88,7 @@ void PollyIntegration::checkForIndexFile()
         if(_retries < 1) {
             qDebug() << "Index file not found, trying to download index file ";
             // synchronous request;
-            _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/index.js", this, false);
+            _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js", this, false);
             if(!_dlManager->err) {
                 requestSuccess();
             } else {
