@@ -97,7 +97,6 @@ public:
     QStringList parseResultOrganizationalDBs(QString result);
     QString getCredFile();
     QString getCurrentUsername();
-    //void checkLicense();
 
     /**
      * @brief check for active internet connection
