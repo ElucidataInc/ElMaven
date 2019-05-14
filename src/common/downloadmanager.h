@@ -15,6 +15,7 @@ public:
     DownloadManager();
     void setRequest(const QString& url, void* requester, bool async=true);
     bool err;
+ //TOOD: Use this to deduce the request type instead of "bool async"
 //    enum class RequestType {
 //        ASYNC,
 //        SYNC

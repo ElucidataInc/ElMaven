@@ -333,6 +333,8 @@ private Q_SLOTS:
 
 class PollyIntegration;
 
+//TODO: Get rid of this class.We block the UI when one of the
+// apps is being used, hence a worker class is not needed
 class EPIWorkerThread : public QThread
 {
     Q_OBJECT
