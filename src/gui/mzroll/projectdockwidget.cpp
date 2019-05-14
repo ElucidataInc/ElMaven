@@ -183,7 +183,9 @@ void ProjectDockWidget::updateSampleList() {
                                         return s1->getSampleOrder()
                                                < s2->getSampleOrder();
                                     });
-    int maxOrder = (*maxOrdSample)->getSampleOrder();
+    int maxOrder = 0;
+    if (maxOrdSample != end(samples))
+        maxOrder = (*maxOrdSample)->getSampleOrder();
 
     // assign sample order to any newly added samples
     for (const auto sample : samples) {
