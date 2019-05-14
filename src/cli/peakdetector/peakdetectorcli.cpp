@@ -1,6 +1,6 @@
 #include "peakdetectorcli.h"
 #include "mzUtils.h"
-#include <mzroll/downloadmanager.h>
+#include <common/downloadmanager.h>
 
 PeakDetectorCLI::PeakDetectorCLI()
 {

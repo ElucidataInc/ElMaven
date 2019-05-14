@@ -85,7 +85,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/src/projectDB \
                 $$top_srcdir/crashhandler/ \
                 $$top_srcdir/crashhandler/breakpad/src/src/ \
-                $$top_srcdir/3rdparty/libsvm
+                $$top_srcdir/3rdparty/libsvm \
+                $$top_srcdir/src/
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -110,7 +111,8 @@ LIBS +=  -lmaven \
          -lpollyCLI \
          -lprojectDB \
          -lbreakpad \
-         -lsvm
+         -lsvm \
+         -lcommon
 
 macx {
 
@@ -231,7 +233,6 @@ HEADERS +=  stable.h \
                     notificator_p.h \
                     $$top_srcdir/crashhandler/elmavexceptionhandler.h \
                     videoplayer.h \
-                    downloadmanager.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -303,8 +304,7 @@ database.cpp \
     pollywaitdialog.cpp \
     peaktabledeletiondialog.cpp \
     notificator.cpp \
-    videoplayer.cpp \
-    downloadmanager.cpp
+    videoplayer.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

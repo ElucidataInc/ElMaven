@@ -23,7 +23,7 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven     \
                 $$top_srcdir/src/pollyCLI          \
                 $$top_srcdir/3rdparty/obiwarp      \
                 $$top_srcdir/3rdparty/Eigen        \
-                $$top_srcdir/src/gui
+                $$top_srcdir/src/
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
@@ -38,7 +38,8 @@ LIBS +=  -lmaven         \
          -lnetcdf        \
          -lz             \
          -lobiwarp       \
-         -lpollyCLI
+         -lpollyCLI      \
+         -lcommon
 
 !macx: LIBS += -fopenmp
 
@@ -57,14 +58,12 @@ macx {
 SOURCES	= options.cpp                                            \
           $$top_srcdir/src/core/libmaven/classifier.cpp          \
           $$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
-          $$top_srcdir/src/gui/mzroll/downloadmanager.cpp        \
           main.cpp                                               \
           parseoptions.cpp                                       \
           peakdetectorcli.cpp
 
 HEADERS += $$top_srcdir/src/core/libmaven/classifier.h          \
            $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
-           $$top_srcdir/src/gui/mzroll/downloadmanager.h        \
            options.h                                            \
            parseoptions.h                                       \
            peakdetectorcli.h

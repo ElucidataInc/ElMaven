@@ -1,5 +1,5 @@
 #include "pollyintegration.h"
-#include <gui/mzroll/downloadmanager.h>
+#include <common/downloadmanager.h>
 #include <QTemporaryFile>
 
 PollyIntegration::PollyIntegration(DownloadManager* dlManager):

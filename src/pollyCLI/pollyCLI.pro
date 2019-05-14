@@ -18,8 +18,6 @@ QMAKE_CXXFLAGS += -std=c++11
 INCLUDEPATH += $$top_srcdir/src/
 
 SOURCES	=   pollyintegration.cpp \
-            $$top_srcdir/src/gui/mzroll/downloadmanager.cpp
 			
 
 HEADERS += 	pollyintegration.h \
-            $$top_srcdir/src/gui/mzroll/downloadmanager.h

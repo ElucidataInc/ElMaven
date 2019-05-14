@@ -3,8 +3,8 @@
 
 #include "controller.h"
 #include "mainwindow.h"
-#include "downloadmanager.h"
 #include "pollyintegration.h"
+#include <common/downloadmanager.h>
 
 Controller::Controller()
 {

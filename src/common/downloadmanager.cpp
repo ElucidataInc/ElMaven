@@ -1,9 +1,10 @@
 #include "downloadmanager.h"
+#include <pollyCLI/pollyintegration.h>
+
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include  <QNetworkReply>
 #include <QDebug>
-#include "pollyintegration.h"
 
 DownloadManager::DownloadManager():
     _manager(new QNetworkAccessManager),
