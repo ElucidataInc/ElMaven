@@ -16,7 +16,7 @@ public:
     Controller();
     ~Controller();
     MainWindow* getMainWindow() { return _mw; }
-    PollyIntegration* _iPolly;
+    PollyIntegration* iPolly;
 public Q_SLOTS:
     void updatePeakDetectionSettings(PeakDetectionSettings* pd);
     void updateOptionsDialogSettings(OptionsDialogSettings* od);

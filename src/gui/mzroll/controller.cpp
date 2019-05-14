@@ -10,7 +10,7 @@ Controller::Controller()
 {
 
     _dlManager = new DownloadManager;
-    _iPolly = new PollyIntegration(_dlManager);
+    iPolly = new PollyIntegration(_dlManager);
 
     _mw = new MainWindow(this);
     updateUi();
@@ -29,7 +29,7 @@ Controller::Controller()
 Controller::~Controller()
 {
     delete _mw;
-    delete _iPolly;
+    delete iPolly;
 
 }
 

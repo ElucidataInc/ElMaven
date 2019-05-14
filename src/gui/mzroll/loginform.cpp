@@ -66,7 +66,7 @@ void LoginForm::on_pushButton_clicked()
     ui->pushButton->setEnabled(false);
     QCoreApplication::processEvents();
 
-    PollyIntegration* iPolly = _pollyelmaveninterfacedialog->getMainWindow()->getController()->_iPolly;
+    PollyIntegration* iPolly = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
     WorkerThread *workerThread = new WorkerThread(iPolly);
     connect(workerThread, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);

@@ -18,7 +18,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                         + QDir::separator()
                         + "tmp_Elmaven_Polly_files";
     _activeTable = nullptr;
-    _pollyIntegration = _mainwindow->getController()->_iPolly;
+    _pollyIntegration = _mainwindow->getController()->iPolly;
     _loadingDialog = new PollyWaitDialog(this);
     _uploadInProgress = false;
 
@@ -235,7 +235,7 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     uploadButton->setEnabled(false);
     existingProjectCombo->clear();
 
-    PollyIntegration* iPolly = _mainwindow->getController()->_iPolly;
+    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
     connect(workerThread,
             SIGNAL(resultReady(QVariantMap)),
@@ -488,7 +488,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
         return;
     }
 
-    PollyIntegration* iPolly = _mainwindow->getController()->_iPolly;
+    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
     connect(workerThread,
             SIGNAL(filesUploaded(QStringList, QString, QString)),
@@ -583,7 +583,7 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
             break;
         }
 
-        PollyIntegration* iPolly = _mainwindow->getController()->_iPolly;
+        PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
         EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
         connect(workerThread,
                 &EPIWorkerThread::finished,

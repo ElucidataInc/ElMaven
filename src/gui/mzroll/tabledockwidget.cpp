@@ -795,7 +795,7 @@ void TableDockWidget::UploadPeakBatchToCloud(){
     QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
     jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
-    PollyIntegration* iPolly = _mainwindow->getController()->_iPolly;
+    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);
     connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
     connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
