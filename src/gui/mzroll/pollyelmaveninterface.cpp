@@ -48,6 +48,8 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     groupSetCombo->addItem("Exclude Bad Groups");
     groupSetCombo->setCurrentIndex(0);
 
+    connect(_pollyIntegration, SIGNAL(sendEPIError(QString)), SLOT(showEPIError(QString)));
+
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
     connect(workflowMenu,
             SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
@@ -271,6 +273,16 @@ void PollyElmavenInterfaceDialog::initialSetup()
         }
         return;
     }
+}
+
+void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
+{
+    _resetUiElements();
+    QMessageBox errorDialog(this);
+    errorDialog.setWindowModality(Qt::WindowModal);
+    errorDialog.setWindowTitle("Polly Error");
+    errorDialog.setText(errorMessage);
+    errorDialog.exec();
 }
 
 void PollyElmavenInterfaceDialog::_callLoginForm()

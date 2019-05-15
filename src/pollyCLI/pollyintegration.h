@@ -184,6 +184,9 @@ public slots:
     void requestSuccess();
     void requestFailed();
 
+Q_SIGNALS:
+    void sendEPIError(QString);
+
 private:
     QString _username;
     QString credFile;
@@ -197,6 +200,7 @@ private:
     void checkForIndexFile();
     bool validCohorts(QStringList cohorts);
     QString _stringForApp(PollyApp app);
+    bool _hasError(QList<QByteArray>);
 };
 
 #endif // POLLYINTEGRATION_H
