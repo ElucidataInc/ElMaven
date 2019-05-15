@@ -184,7 +184,7 @@ private:
     unsigned int _retries;
     QString indexFileURL;
 
-    QMap<QString, QStringList> _fetchAppLicense();
+    QPair<ErrorStatus, QMap<QString, QStringList>> _fetchAppLicense();
     void checkForIndexFile();
     bool validCohorts(QStringList cohorts);
     bool _hasError(QList<QByteArray>);
