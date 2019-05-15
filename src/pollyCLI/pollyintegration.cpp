@@ -353,7 +353,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         if (!errorString.isEmpty()) {
             QString errorMessage = "Unknown error:\n" +
                                    supportMessage;
-            emit receivedEPIError(errorString);
+            emit receivedEPIError(errorMessage);
             return true;
         }
     } else if (resultAndError.size() == 0) {
