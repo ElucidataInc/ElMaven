@@ -18,6 +18,94 @@ class MainWindow;
 class LoginForm;
 class TableDockWidget;
 class PollyWaitDialog;
+
+class EPIWorkerThread : public QThread
+{
+    Q_OBJECT
+
+public:
+
+    enum class RunMethod
+    {
+        AuthenticateAndFetchData,
+        UploadFiles,
+        SendEmail
+    };
+
+    EPIWorkerThread(PollyIntegration *pi) : _pollyIntegration(pi) {}
+
+    void run();
+
+    void setMethodToRun(RunMethod method)
+    {
+        _currentMethod = method;
+    }
+
+    void setUploadArgs(QDir dir,
+                       QStringList filesToUpload,
+                       QString datetimestamp,
+                       QString pollyProjectId)
+    {
+        _uploadArgs.dir = dir;
+        _uploadArgs.filesToUpload = filesToUpload;
+        _uploadArgs.datetimestamp = datetimestamp;
+        _uploadArgs.pollyProjectId = pollyProjectId;
+    }
+
+    void setEmailArgs(QString username,
+                      QString subject,
+                      QString content,
+                      QString appname)
+    {
+        _emailArgs.username = username;
+        _emailArgs.subject = subject;
+        _emailArgs.content = content;
+        _emailArgs.appname = appname;
+    }
+
+Q_SIGNALS:
+    void filesUploaded(QStringList patchId,
+                       QString uploadProjectIdThread,
+                       QString datetimestamp);
+    void licensesReady(QMap<PollyApp, bool> licenseMap);
+    void projectsReady(QVariantMap projectNamesId);
+    void authenticationFinished(QString username, QString status);
+
+private:
+
+    struct _UploadStruct
+    {
+        QDir dir;
+        QStringList filesToUpload;
+        QString datetimestamp;
+        QString pollyProjectId;
+    };
+
+    struct _EmailStruct
+    {
+        QString username;
+        QString subject;
+        QString content;
+        QString appname;
+    };
+
+    RunMethod _currentMethod;
+
+    PollyIntegration* _pollyIntegration;
+
+    _UploadStruct _uploadArgs;
+
+    _EmailStruct _emailArgs;
+
+    void _authenticateUserAndFetchData();
+
+    void _uploadFiles();
+
+    void _sendEmail();
+
+    void _removeFilesFromDir(QDir dir, QStringList files);
+};
+
 /**
 * @brief This class is responsible for creating the Polly interface and calling
 * PollyCLI library.
@@ -179,6 +267,12 @@ private:
      * background.
      */
     bool _uploadInProgress;
+
+    /**
+     * @brief A worker thread that allows separating blocking operations from
+     * the main event loop.
+     */
+    EPIWorkerThread *_worker;
 
     /**
      * @brief This function calls login form UI to take credentials from user.
@@ -345,37 +439,6 @@ private Q_SLOTS:
      */
     void _hideFormIfNotLicensed();
 
-};
-
-class PollyIntegration;
-
-//TODO: Get rid of this class.We block the UI when one of the
-// apps is being used, hence a worker class is not needed
-class EPIWorkerThread : public QThread
-{
-    Q_OBJECT
-
-public:
-    EPIWorkerThread(PollyIntegration* iPolly);
-    ~EPIWorkerThread();
-    void run();
-    QString username;
-    QString password;
-    QString state;
-    QString datetimestamp;
-    QDir tmpDir;
-    QString uploadProjectIdThread;
-    QStringList filesToUpload;
-    PollyApp currentApp;
-    PollyIntegration* _pollyintegration;
-
-Q_SIGNALS:
-    void filesUploaded(QStringList patchId,
-                       QString uploadProjectIdThread,
-                       QString datetimestamp);
-    void licensesReady(QMap<PollyApp, bool> licenseMap);
-    void projectsReady(QVariantMap projectNamesId);
-    void authentication_result(QString username, QString status);
 };
 
 #endif
