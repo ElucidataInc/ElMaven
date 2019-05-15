@@ -288,37 +288,6 @@ QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_w
     return patchId;
 }
 
-// name OF FUNCTION: get_projectFiles_download_url_commands
-// PURPOSE:
-//    This function parses the output of "createproject" command run from Qtprocess..
-// Return project id for the new project..
-// CALLS TO: runQtProcess
-//
-// CALLED FROM: loadDataFromPolly
-
-QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray result2,QStringList filenames){
-    QStringList patchId ;
-    QList<QByteArray> test_list = result2.split('\n');
-    int size = test_list.size();
-    QByteArray url_jsons = test_list[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(url_jsons));
-    // Get JSON object
-    QJsonObject json = doc.object();
-    QVariantMap json_map = json.toVariantMap();
-    for (int i=0; i < filenames.size(); ++i){
-        QString filename = filenames.at(i);
-        QStringList test_files_list = filename.split(QDir::separator());
-        int size = test_files_list.size();
-        QString new_filename = test_files_list[size-1];
-        QString url_with_wildcard =  json_map["file_upload_urls"].toString();
-        QString url_map_json = url_with_wildcard.replace("*",new_filename) ;
-        QString upload_command = "download_project_data";
-        QList<QByteArray> result_and_error = runQtProcess(upload_command,QStringList() <<url_map_json <<filename);
-        patchId.append(result_and_error.at(0));
-    }
-    return patchId;
-}
-
 bool PollyIntegration::activeInternet()
 {
     QString command = QString("check_internet_connection");
@@ -699,32 +668,6 @@ QString PollyIntegration::UploadPeaksToCloud(QString session_indentifier, QStrin
     return status;
 }
 
-// name OF FUNCTION: loadDataFromPolly
-// PURPOSE:
-//    This function downloads the specified files for a given projects..
-// External clients can then use those files to load data back to Elmaven..
-
-// CALLS TO: runQtProcess,get_projectFiles_download_url_commands
-//
-// CALLED FROM: external clients
-
-
-
-QString PollyIntegration::loadDataFromPolly(QString ProjectId,QStringList filenames) {
-    QString get_upload_Project_urls = "get_upload_Project_urls";
-    QList<QByteArray> result_and_error = runQtProcess(get_upload_Project_urls, QStringList() << credFile << ProjectId);
-    QStringList patchId = get_projectFiles_download_url_commands(result_and_error.at(0),filenames);
-    if (0<filenames.size()&&!patchId.isEmpty()){
-        return "project data loaded";
-    }
-    else if(0<filenames.size()&&patchId.isEmpty()){
-        return "error while loading project";
-    }
-    else{
-        return "no file selected to laod";
-    }
-}
-
 bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList loadedSamples) {
 	qDebug() << "Validating sample cohort file now";
 	
@@ -785,16 +728,4 @@ bool PollyIntegration::validCohorts(QStringList cohorts) {
 		return false;
 	
 	return true;
-}
-
-QStringList PollyIntegration::parseResultOrganizationalDBs(QString result){
-    QStringList OrganizationalDBs;
-
-    return OrganizationalDBs;
-}
-QStringList PollyIntegration::getOrganizationalDBs(QString organization){
-    QString command = "get_organizational_databases";
-    QList<QByteArray> result_and_error = runQtProcess(command, QStringList() << credFile << organization);
-    QStringList OrganizationalDBs = parseResultOrganizationalDBs(result_and_error.at(0));    
-    return OrganizationalDBs;
 }

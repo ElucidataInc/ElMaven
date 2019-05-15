@@ -64,8 +64,6 @@ public:
     QStringList get_project_upload_url_commands(QString url_with_wildcard,
                                                 QStringList filenames);
     QString getFileUploadURLs(QByteArray result2);
-    QStringList get_projectFiles_download_url_commands(QByteArray result2,
-                                                       QStringList filenames);
     QString UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath);
     QString UploadToCloud(QString uploadUrl, QString filePath);
 
@@ -86,15 +84,12 @@ public:
     int checkNodeExecutable();
     int askForLogin();
     QStringList exportData(QStringList filenames, QString projectId);
-    QString loadDataFromPolly(QString ProjectId, QStringList filenames);
     QVariantMap getUserProjects();
     QVariantMap getUserProjectFiles(QStringList ProjectIds);
     QVariantMap getUserProjectsMap(QByteArray result2);
     QStringList getUserProjectFilesMap(QByteArray result2);
-    QStringList getOrganizationalDBs(QString organisation);
     bool validSampleCohort(QString sampleCohortFile,
                            QStringList loadedSamples = QStringList());
-    QStringList parseResultOrganizationalDBs(QString result);
     QString getCredFile();
     QString getCurrentUsername();
 
