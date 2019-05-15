@@ -339,12 +339,14 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
+            QString errorMessage = "Unknown error: " + "\n" +
+                                   supportMessage;
             emit receivedEPIError(errorString);
             return true;
         }
     } else if (resultAndError.size() == 0) {
         //no response or error
-        emit receivedEPIError("Qt Process failed " + supportMessage);
+        emit receivedEPIError("Error: QProcess failure.\n" + supportMessage);
         return true;
     }
 
