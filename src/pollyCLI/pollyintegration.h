@@ -167,9 +167,6 @@ public:
      */
     static QString stringForApp(PollyApp app);
 
-private:
-    void checkForIndexFile();
-
 public slots:
     void requestSuccess();
     void requestFailed();
@@ -177,12 +174,15 @@ public slots:
 private:
     QString _username;
     QString credFile;
-    bool validCohorts(QStringList cohorts);
+    bool _hasIndexFile;
     DownloadManager* _dlManager;
     QTemporaryFile* _fPtr;
     unsigned int _retries;
-    
+    QString indexFileURL;
+
     QMap<QString, QStringList> _fetchAppLicense();
+    void checkForIndexFile();
+    bool validCohorts(QStringList cohorts);
 };
 
 #endif // POLLYINTEGRATION_H
