@@ -169,12 +169,13 @@ void EPIWorkerThread::_uploadFiles()
 void EPIWorkerThread::_sendEmail()
 {
     qDebug() << "Sending email to user…";
-    bool emailSent = _pollyIntegration->sendEmail(_emailArgs.username,
+    ErrorStatus emailSent = _pollyIntegration->sendEmail(_emailArgs.username,
                                                   _emailArgs.subject,
                                                   _emailArgs.content,
                                                   _emailArgs.appname);
-    qDebug() << (emailSent ? "Sent an email containing URL to user."
-                           : "Failed to send email to user.");
+    qDebug() << (emailSent == ErrorStatus::Success
+                     ? "Sent an email containing URL to user."
+                     : "Failed to send email to user.");
 }
 
 void EPIWorkerThread::_removeFilesFromDir(QDir dir, QStringList files)
