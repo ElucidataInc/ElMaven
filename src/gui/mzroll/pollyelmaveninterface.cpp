@@ -121,30 +121,52 @@ void EPIWorkerThread::run()
 
 void EPIWorkerThread::_authenticateUserAndFetchData()
 {
-    qDebug() << "Checking for active internet connection…";
-    QString status;
-    if (!_pollyIntegration->activeInternet()) {
-        status = "error";
-        emit authenticationFinished("", status);
-        return;
-    }
+    if (state == "initial_setup") {
+        qDebug() << "Checking for active internet connection…";
+        QString status;
+        ErrorStatus response = _pollyintegration->activeInternet();
+        if (response == ErrorStatus::Failure ||
+            response == ErrorStatus::Error) {
+            status = "error";
+            emit authenticationFinished("", status);
+            return;
+        }
 
-    qDebug() << "Authenticating…";
-    status = _pollyIntegration->authenticateLogin("", "");
-    emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
-                               status);
+        qDebug() << "Authenticating…";
+        ErrorStatus loginResponse = _pollyintegration->authenticateLogin("", "");
+        if (loginResponse == ErrorStatus::Success)
+            status = "ok";
+        emit authenticationFinished(_pollyintegration->getCurrentUsername(),
+                                   status);
 
-    qDebug() << "Fetching licenses from Polly…";
-    if (status == "ok") {
-        QMap<PollyApp, bool> licenseMap =
-            _pollyIntegration->getAppLicenseStatus();
-        emit licensesReady(licenseMap);
-    }
+        qDebug() << "Fetching licenses from Polly…";
+        if (status == "ok") {
+            QMap<PollyApp, bool> licenseMap =
+                _pollyIntegration->getAppLicenseStatus();
+            emit licensesReady(licenseMap);
+        }
 
-    qDebug() << "Fetching projects from Polly…";
-    if (status == "ok") {
-        QVariantMap _projectNameIdMap = _pollyIntegration->getUserProjects();
-        emit projectsReady(_projectNameIdMap);
+        qDebug() << "Fetching projects from Polly…";
+        if (status == "ok") {
+            QVariantMap _projectNameIdMap = _pollyintegration->getUserProjects();
+            emit projectsReady(_projectNameIdMap);
+        }
+    } else if (state == "upload_files") {
+        qDebug() << "starting thread for uploading files to polly…";
+        // re-login to polly may be required because the token expires after 30
+        // minutes..
+        _pollyintegration->authenticateLogin("", "");
+        QStringList patchId = _pollyintegration->exportData(filesToUpload,
+                                                            uploadProjectIdThread);
+        emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
+    } else if (state == "send_email") {
+        qDebug() << "starting thread for sending email to user…";
+        bool emailSent = _pollyintegration->sendEmail(username,
+                                                      filesToUpload[0],
+                                                      filesToUpload[1],
+                                                      filesToUpload[2]);
+        qDebug() << (emailSent ? "Sent an email containing URL to user."
+                               : "Failed to send email to user.");
     }
 }
 
@@ -531,7 +553,9 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     statusUpdate->setText("Connecting…");
     QCoreApplication::processEvents();
     // check for active internet connection
-    if (!_pollyIntegration->activeInternet()) {
+    ErrorStatus response = _pollyIntegration->activeInternet();
+    if (response == ErrorStatus::Failure ||
+        response == ErrorStatus::Error) {
         statusUpdate->setText("No internet access.");
         uploadButton->setEnabled(true);
         return;
@@ -594,7 +618,9 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     }
 
     // check for active internet again before upload
-    if (!_pollyIntegration->activeInternet()) {
+    ErrorStatus response2 = _pollyIntegration->activeInternet();
+    if (response2 == ErrorStatus::Failure ||
+        response2 == ErrorStatus::Error) {
         statusUpdate->setStyleSheet("QLabel {color : red;}");
         statusUpdate->setText("Internet connection interrupted");
         uploadButton->setEnabled(true);

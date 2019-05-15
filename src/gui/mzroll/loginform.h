@@ -38,9 +38,9 @@ private slots:
      * 4. If failed, display incorrect credentials..
      */
     void on_pushButton_clicked();
-    QString login(QString username, QString password);
+    void login(QString username, QString password);
     void showAboutPolly();
-    void handleResults(QString status);
+    bool checkInternetConnectivity();
 
 private:
     Ui::LoginForm *ui;
