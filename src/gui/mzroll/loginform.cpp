@@ -38,12 +38,7 @@ LoginForm::~LoginForm()
     if (_aboutPolly) delete (_aboutPolly);
 }
 
-WorkerThread::WorkerThread(PollyIntegration* iPolly):
-    _pollyintegration(iPolly)
-{
-}
-
-void WorkerThread::run()
+void LoginForm::login(QString username, QString password)
 {
     QString status;
     if (!_pollyintegration->activeInternet())
@@ -54,10 +49,6 @@ void WorkerThread::run()
     emit resultReady(status);
 }
 
-WorkerThread::~WorkerThread()
-{
-}
-
 void LoginForm::on_pushButton_clicked()
 {   
     ui->login_label->setStyleSheet("QLabel {color : green; }");
@@ -66,13 +57,9 @@ void LoginForm::on_pushButton_clicked()
     ui->pushButton->setEnabled(false);
     QCoreApplication::processEvents();
 
-    PollyIntegration* iPolly = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
-    WorkerThread *workerThread = new WorkerThread(iPolly);
-    connect(workerThread, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
-    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
-    workerThread->username= ui->lineEdit_username->text();
-    workerThread->password = ui->lineEdit_password->text();
-    workerThread->start();
+    _pollyintegration = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
+    login(ui->lineEdit_username->text(), ui->lineEdit_password->text());
+    connect(this, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
 }
 
 void LoginForm::handleResults(QString status)
