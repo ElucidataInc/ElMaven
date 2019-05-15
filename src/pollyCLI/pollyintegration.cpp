@@ -703,7 +703,7 @@ ErrorStatus PollyIntegration::sendEmail(QString userEmail,
 // CALLED FROM: external clients
 
 
-QStringList PollyIntegration::exportData(QStringList filenames, QString projectId) {
+QPair<ErrorStatus, QStringList> PollyIntegration::exportData(QStringList filenames, QString projectId) {
     qDebug() << "files to be uploaded " << filenames;
     QStringList patchId;
 
@@ -712,13 +712,13 @@ QStringList PollyIntegration::exportData(QStringList filenames, QString projectI
     QString get_upload_Project_urls = "get_upload_Project_urls";
     QList<QByteArray> resultAndError = runQtProcess(get_upload_Project_urls, QStringList() << credFile << projectId);
     if (_hasError(resultAndError))
-        return patchId;
+        return qMakePair(ErrorStatus::Error, patchId);
 
-    QString url_with_wildcard = getFileUploadURLs(resultAndError.at(0));    
+    QString url_with_wildcard = getFileUploadURLs(resultAndError.at(0));
     patchId = get_project_upload_url_commands(url_with_wildcard, filenames);
     qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
     
-    return patchId;
+    return qMakePair(ErrorStatus::Success, patchId);
 }
 
 QString PollyIntegration::getFileUploadURLs(QByteArray result2) {

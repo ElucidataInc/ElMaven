@@ -90,7 +90,7 @@ public:
     ErrorStatus checkLoginStatus();
     int checkNodeExecutable();
     int askForLogin();
-    QStringList exportData(QStringList filenames, QString projectId);
+    QPair<ErrorStatus, QStringList> exportData(QStringList filenames, QString projectId);
     QVariantMap getUserProjects();
     QVariantMap getUserProjectFiles(QStringList ProjectIds);
     QStringList getUserProjectFilesMap(QByteArray result2);

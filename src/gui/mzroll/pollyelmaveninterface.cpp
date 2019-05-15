@@ -158,8 +158,16 @@ void EPIWorkerThread::_uploadFiles()
     // re-login to polly may be required because the token expires after 30
     // minutes..
     _pollyIntegration->authenticateLogin("", "");
-    QStringList patchId = _pollyIntegration->exportData(_uploadArgs.filesToUpload,
+    QStringList patchId;
+    QPair<ErrorStatus, QStringList> resultAndError = _pollyIntegration->exportData(_uploadArgs.filesToUpload,
                                                         _uploadArgs.pollyProjectId);
+
+
+    if (resultAndError.first == ErrorStatus::Success)
+        patchId = resultAndError.second;
+    else
+        return;
+
     emit filesUploaded(patchId,
                        _uploadArgs.pollyProjectId,
                        _uploadArgs.datetimestamp);
