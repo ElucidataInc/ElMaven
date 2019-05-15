@@ -6,7 +6,7 @@ include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
-QT += multimedia multimediawidgets
+QT += multimedia multimediawidgets network
 
 CONFIG += qt thread warn_off sql svg console precompile_header resources_big
 
@@ -85,7 +85,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/src/projectDB \
                 $$top_srcdir/crashhandler/ \
                 $$top_srcdir/crashhandler/breakpad/src/src/ \
-                $$top_srcdir/3rdparty/libsvm
+                $$top_srcdir/3rdparty/libsvm \
+                $$top_srcdir/src/
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
@@ -110,7 +111,8 @@ LIBS +=  -lmaven \
          -lpollyCLI \
          -lprojectDB \
          -lbreakpad \
-         -lsvm
+         -lsvm \
+         -lcommon
 
 macx {
 
@@ -230,7 +232,7 @@ HEADERS +=  stable.h \
                     notificator.h \
                     notificator_p.h \
                     $$top_srcdir/crashhandler/elmavexceptionhandler.h \
-                    videoplayer.h
+                    videoplayer.h \
 
 
 SOURCES += mainwindow.cpp  \

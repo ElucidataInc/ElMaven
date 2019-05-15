@@ -5,6 +5,7 @@ DESTDIR = $$top_srcdir/bin
 MOC_DIR = $$top_builddir/tmp/peakdetector/
 OBJECTS_DIR = $$top_builddir/tmp/peakdetector/
 
+QT += network
 TEMPLATE = app
 TARGET = peakdetector
 
@@ -21,7 +22,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven     \
                 $$top_srcdir/3rdparty/libcdfread   \
                 $$top_srcdir/src/pollyCLI          \
                 $$top_srcdir/3rdparty/obiwarp      \
-                $$top_srcdir/3rdparty/Eigen
+                $$top_srcdir/3rdparty/Eigen        \
+                $$top_srcdir/src/
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
@@ -36,7 +38,8 @@ LIBS +=  -lmaven         \
          -lnetcdf        \
          -lz             \
          -lobiwarp       \
-         -lpollyCLI
+         -lpollyCLI      \
+         -lcommon
 
 !macx: LIBS += -fopenmp
 

@@ -3,10 +3,16 @@
 
 #include "controller.h"
 #include "mainwindow.h"
+#include "pollyintegration.h"
+#include <common/downloadmanager.h>
 
 Controller::Controller()
 {
-    _mw = new MainWindow();
+
+    _dlManager = new DownloadManager;
+    iPolly = new PollyIntegration(_dlManager);
+
+    _mw = new MainWindow(this);
     updateUi();
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
@@ -23,6 +29,8 @@ Controller::Controller()
 Controller::~Controller()
 {
     delete _mw;
+    delete iPolly;
+
 }
 
 void Controller::resetMP(QList<QString> keys)

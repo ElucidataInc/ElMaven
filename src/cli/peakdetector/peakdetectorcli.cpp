@@ -1,5 +1,6 @@
 #include "peakdetectorcli.h"
 #include "mzUtils.h"
+#include <common/downloadmanager.h>
 
 PeakDetectorCLI::PeakDetectorCLI()
 {
@@ -14,9 +15,16 @@ PeakDetectorCLI::PeakDetectorCLI()
     alignMode = AlignmentMode::None;
     _reduceGroupsFlag = true;
     _parseOptions = new ParseOptions();
-    _pollyIntegration = new PollyIntegration();
+    _dlManager = new DownloadManager;
+    _pollyIntegration = new PollyIntegration(_dlManager);
     _redirectTo = "gsheet_sym_polly_elmaven";
     _currentPollyApp = PollyApp::None;
+}
+
+PeakDetectorCLI::~PeakDetectorCLI()
+{
+    delete _dlManager;
+    delete _pollyIntegration;
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[])

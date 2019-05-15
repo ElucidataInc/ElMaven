@@ -3,6 +3,8 @@
 
 #include "projectdatabase.h"
 
+class DownloadManager;
+class PollyIntegration;
 class MainWindow;
 class PeakDetectionSettings;
 class OptionsDialogSettings;
@@ -14,7 +16,7 @@ public:
     Controller();
     ~Controller();
     MainWindow* getMainWindow() { return _mw; }
-
+    PollyIntegration* iPolly;
 public Q_SLOTS:
     void updatePeakDetectionSettings(PeakDetectionSettings* pd);
     void updateOptionsDialogSettings(OptionsDialogSettings* od);
@@ -23,6 +25,8 @@ public Q_SLOTS:
 
 private:
     MainWindow* _mw;
+    DownloadManager* _dlManager;
+
 
     void _updateMavenParameters(const QString& key, const QVariant& value);
 

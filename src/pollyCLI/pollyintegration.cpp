@@ -1,12 +1,17 @@
 #include "pollyintegration.h"
+#include <common/downloadmanager.h>
+#include <QTemporaryFile>
 
-PollyIntegration::PollyIntegration(): nodePath(""), jsPath("")
+PollyIntegration::PollyIntegration(DownloadManager* dlManager):
+    _dlManager(dlManager),
+    nodePath(""),
+    jsPath(""),
+    _fPtr(nullptr)
 {
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
     // It's important to look for node in the system first, as it might not always be present in the bin dir.
      nodePath = QStandardPaths::findExecutable("node");
-    jsPath = qApp->applicationDirPath() + QDir::separator() + "index.js";
 
     #ifdef Q_OS_WIN
       if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
@@ -22,13 +27,48 @@ PollyIntegration::PollyIntegration(): nodePath(""), jsPath("")
       QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
       if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
         nodePath = binDir + "node_bin" + QDir::separator() + "node";
-
-      jsPath = binDir  + "index.js";
     #endif
+
+     _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js", this);
+}
+
+void PollyIntegration::requestSuccess()
+{
+    jsPath = qApp->applicationDirPath() + QDir::separator() + "_index.js";
+    #ifdef Q_OS_MAC
+      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
+      jsPath = binDir + "_index.js";
+    #endif
+
+    _fPtr = new QTemporaryFile(jsPath);
+    if(_fPtr->open()) {
+        _fPtr->write(_dlManager->getData());
+        qDebug() << "data written to file: " << _fPtr->fileName();
+        jsPath = _fPtr->fileName();
+    } else {
+        jsPath = "";
+        qDebug() << "unable to open temp file: " << _fPtr->errorString();
+    }
+    _fPtr->close();
+}
+
+void PollyIntegration::requestFailed()
+{
+    jsPath = "";
+    qDebug() << "failed to download file";
 }
 
 PollyIntegration::~PollyIntegration()
 {
+    if(_fPtr != nullptr) {
+        if(_fPtr->remove())
+            qDebug() << "removed file";
+        else {
+            qDebug() << "error: " << _fPtr->error();
+            qDebug() << _fPtr->errorString();
+        }
+        delete _fPtr;
+    }
     qDebug()<<"exiting PollyIntegration now....";
 }
 
@@ -36,12 +76,32 @@ QString PollyIntegration::getCredFile(){
     return credFile;
 }
 
+void PollyIntegration::checkForIndexFile()
+{
+    if(!_fPtr || !_fPtr->exists()) {
+            qDebug() << "Index file not found, trying to download index file ";
+            // synchronous request;
+            _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js", this, false);
+            if(!_dlManager->err) {
+                requestSuccess();
+            } else {
+                requestFailed();
+            }
+    }
+}
+
 QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList args){
 
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
+
+    checkForIndexFile();
+    if(jsPath == "")
+        return QList<QByteArray>();
+
     QProcess process;
     QStringList arg;
+    qDebug() << "js file being used: " << jsPath;
     arg << jsPath; // where index.js files is placed
     arg << command; // what command to pass to index.js. eg. authenticate
     arg << args; // required params by that command . eg username, password
@@ -154,12 +214,14 @@ QStringList PollyIntegration::get_projectFiles_download_url_commands(QByteArray 
 bool PollyIntegration::activeInternet()
 {
     QString command = QString("check_internet_connection");
-    QList<QByteArray> results = runQtProcess(command, QStringList()).at(0).split('\n');
-    QString status = results[1];
-    if (status == "Connected") {
-        return true;
+    QList<QByteArray> results = runQtProcess(command, QStringList());
+    if(!results.isEmpty()) {
+        results = results.at(0).split('\n');
+        QString status = results[1];
+        if (status == "Connected") {
+            return true;
+        }
     }
-
     return false; 
 }
 

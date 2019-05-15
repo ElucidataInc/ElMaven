@@ -52,7 +52,7 @@ class WorkerThread : public QThread
 {
     Q_OBJECT
     public:
-        WorkerThread();
+        WorkerThread(PollyIntegration* iPolly);
         ~WorkerThread();
         PollyIntegration* _pollyintegration;
         QString username;

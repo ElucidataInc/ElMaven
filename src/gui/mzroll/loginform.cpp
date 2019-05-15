@@ -1,6 +1,7 @@
 #include "loginform.h"
 #include "ui_loginform.h"
 #include <QMessageBox>
+#include "controller.h"
 
 
 LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
@@ -37,11 +38,10 @@ LoginForm::~LoginForm()
     if (_aboutPolly) delete (_aboutPolly);
 }
 
-WorkerThread::WorkerThread()
+WorkerThread::WorkerThread(PollyIntegration* iPolly):
+    _pollyintegration(iPolly)
 {
-    _pollyintegration = new PollyIntegration();   
-    
-};
+}
 
 void WorkerThread::run()
 {
@@ -56,8 +56,7 @@ void WorkerThread::run()
 
 WorkerThread::~WorkerThread()
 {
-    if (_pollyintegration) delete (_pollyintegration);
-};
+}
 
 void LoginForm::on_pushButton_clicked()
 {   
@@ -67,7 +66,8 @@ void LoginForm::on_pushButton_clicked()
     ui->pushButton->setEnabled(false);
     QCoreApplication::processEvents();
 
-    WorkerThread *workerThread = new WorkerThread();
+    PollyIntegration* iPolly = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
+    WorkerThread *workerThread = new WorkerThread(iPolly);
     connect(workerThread, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
     workerThread->username= ui->lineEdit_username->text();
