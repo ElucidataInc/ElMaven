@@ -77,6 +77,7 @@ public:
     AlignmentMode alignMode;
 
     PeakDetectorCLI();
+    ~PeakDetectorCLI();
 
     /**
      * [process command line Options]

@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
 	delete_all(peakdetectorCLI->mavenParameters->samples);
 	peakdetectorCLI->mavenParameters->samples.clear();
 	peakdetectorCLI->mavenParameters->allgroups.clear();
+    delete peakdetectorCLI;
 
      #ifndef __APPLE__
      cout << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;

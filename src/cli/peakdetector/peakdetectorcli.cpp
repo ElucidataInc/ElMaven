@@ -21,6 +21,12 @@ PeakDetectorCLI::PeakDetectorCLI()
     _currentPollyApp = PollyApp::None;
 }
 
+PeakDetectorCLI::~PeakDetectorCLI()
+{
+    delete _dlManager;
+    delete _pollyIntegration;
+}
+
 void PeakDetectorCLI::processOptions(int argc, char* argv[])
 {
     auto options = getOptions();
