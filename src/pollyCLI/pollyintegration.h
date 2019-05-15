@@ -128,10 +128,8 @@ private:
     QString _username;
     QString credFile;
     bool validCohorts(QStringList cohorts);
-    bool _hasIndexFile;
     DownloadManager* _dlManager;
     QTemporaryFile* _fPtr;
-    unsigned int _retries;
 };
 
 #endif // POLLYINTEGRATION_H

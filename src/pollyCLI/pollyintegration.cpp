@@ -6,9 +6,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     _dlManager(dlManager),
     nodePath(""),
     jsPath(""),
-    _hasIndexFile(false),
-    _fPtr(nullptr),
-    _retries(0)
+    _fPtr(nullptr)
 {
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
@@ -47,10 +45,8 @@ void PollyIntegration::requestSuccess()
         _fPtr->write(_dlManager->getData());
         qDebug() << "data written to file: " << _fPtr->fileName();
         jsPath = _fPtr->fileName();
-        _hasIndexFile = true;
     } else {
         jsPath = "";
-        _hasIndexFile = false;
         qDebug() << "unable to open temp file: " << _fPtr->errorString();
     }
     _fPtr->close();
@@ -59,7 +55,6 @@ void PollyIntegration::requestSuccess()
 void PollyIntegration::requestFailed()
 {
     jsPath = "";
-    _hasIndexFile = false;
     qDebug() << "failed to download file";
 }
 
@@ -83,9 +78,7 @@ QString PollyIntegration::getCredFile(){
 
 void PollyIntegration::checkForIndexFile()
 {
-    if((_fPtr && !_fPtr->exists()) || !_hasIndexFile) {
-        // try fetchting the index file once
-        if(_retries < 1) {
+    if(!_fPtr || !_fPtr->exists()) {
             qDebug() << "Index file not found, trying to download index file ";
             // synchronous request;
             _dlManager->setRequest("https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js", this, false);
@@ -94,13 +87,7 @@ void PollyIntegration::checkForIndexFile()
             } else {
                 requestFailed();
             }
-            qDebug() << "Request status: " << _hasIndexFile;
-        }
-    } else {
-        qDebug() << "index file exists : "<< _fPtr->fileName();
-        qDebug() << "js path: " << jsPath;
     }
-    _retries++;
 }
 
 QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList args){
