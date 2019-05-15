@@ -677,7 +677,7 @@ ErrorStatus PollyIntegration::sendEmail(QString userEmail,
             return ErrorStatus::Success;
     }
 
-    return ErrorStatus::Error;
+    return ErrorStatus::Failure;
 }
 
 // name OF FUNCTION: exportData
