@@ -82,7 +82,7 @@ public:
      */
     QString parseId(QByteArray result);
 
-    bool sendEmail(QString user_email,
+    ErrorStatus sendEmail(QString user_email,
                    QString email_content,
                    QString email_message,
                    QString appName);
