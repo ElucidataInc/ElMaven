@@ -1076,10 +1076,19 @@ bool PeakDetectorCLI::_sendUserEmail(QMap<QString, QString> creds,
     } default:
         break;
     }
-    status = _pollyIntegration->sendEmail(userEmail,
+
+    ErrorStatus errorstatus = _pollyIntegration->sendEmail(userEmail,
                                           emailMessage,
                                           emailUrl,
                                           appname);
+
+    if (errorstatus == ErrorStatus::Success)
+        status = true;
+    else {
+        status = false;
+    } 
+
+
     return status;
 }
 
