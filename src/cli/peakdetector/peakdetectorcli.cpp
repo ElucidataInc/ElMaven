@@ -864,10 +864,15 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
     switch (_currentPollyApp) {
     case PollyApp::PollyPhi: {
         QString workflowId = 
-            _pollyIntegration->obtainComponentId(PollyApp::PollyPhi);
-        QString workflowName = _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
+            _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
+
+        QString workflowName = 
+            _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
+
         QString workflowRequestId =
-            _pollyIntegration->createWorkflowRequest(uploadProjectId, workflowName, workflowId);
+            _pollyIntegration->createWorkflowRequest(uploadProjectId,
+                                                     workflowName,
+                                                     workflowId);
         if (!workflowRequestId.isEmpty()) {
             redirectionUrl =
                 _pollyIntegration->getWorkflowEndpoint(workflowId,
