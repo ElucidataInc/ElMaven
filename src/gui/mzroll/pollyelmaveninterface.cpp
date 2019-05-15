@@ -121,52 +121,34 @@ void EPIWorkerThread::run()
 
 void EPIWorkerThread::_authenticateUserAndFetchData()
 {
-    if (state == "initial_setup") {
-        qDebug() << "Checking for active internet connection…";
-        QString status;
-        ErrorStatus response = _pollyintegration->activeInternet();
-        if (response == ErrorStatus::Failure ||
-            response == ErrorStatus::Error) {
-            status = "error";
-            emit authenticationFinished("", status);
-            return;
-        }
+    qDebug() << "Checking for active internet connection…";
+    QString status;
+    ErrorStatus response = _pollyIntegration->activeInternet();
+    if (response == ErrorStatus::Failure ||
+        response == ErrorStatus::Error) {
+        status = "error";
+        emit authenticationFinished("", status);
+        return;
+    }
 
-        qDebug() << "Authenticating…";
-        ErrorStatus loginResponse = _pollyintegration->authenticateLogin("", "");
-        if (loginResponse == ErrorStatus::Success)
-            status = "ok";
-        emit authenticationFinished(_pollyintegration->getCurrentUsername(),
-                                   status);
+    qDebug() << "Authenticating…";
+    ErrorStatus loginResponse = _pollyIntegration->authenticateLogin("", "");
+    if (loginResponse == ErrorStatus::Success)
+        status = "ok";
+    emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
+                               status);
 
-        qDebug() << "Fetching licenses from Polly…";
-        if (status == "ok") {
-            QMap<PollyApp, bool> licenseMap =
-                _pollyIntegration->getAppLicenseStatus();
-            emit licensesReady(licenseMap);
-        }
+    qDebug() << "Fetching licenses from Polly…";
+    if (status == "ok") {
+        QMap<PollyApp, bool> licenseMap =
+            _pollyIntegration->getAppLicenseStatus();
+        emit licensesReady(licenseMap);
+    }
 
-        qDebug() << "Fetching projects from Polly…";
-        if (status == "ok") {
-            QVariantMap _projectNameIdMap = _pollyintegration->getUserProjects();
-            emit projectsReady(_projectNameIdMap);
-        }
-    } else if (state == "upload_files") {
-        qDebug() << "starting thread for uploading files to polly…";
-        // re-login to polly may be required because the token expires after 30
-        // minutes..
-        _pollyintegration->authenticateLogin("", "");
-        QStringList patchId = _pollyintegration->exportData(filesToUpload,
-                                                            uploadProjectIdThread);
-        emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
-    } else if (state == "send_email") {
-        qDebug() << "starting thread for sending email to user…";
-        bool emailSent = _pollyintegration->sendEmail(username,
-                                                      filesToUpload[0],
-                                                      filesToUpload[1],
-                                                      filesToUpload[2]);
-        qDebug() << (emailSent ? "Sent an email containing URL to user."
-                               : "Failed to send email to user.");
+    qDebug() << "Fetching projects from Polly…";
+    if (status == "ok") {
+        QVariantMap _projectNameIdMap = _pollyIntegration->getUserProjects();
+        emit projectsReady(_projectNameIdMap);
     }
 }
 
