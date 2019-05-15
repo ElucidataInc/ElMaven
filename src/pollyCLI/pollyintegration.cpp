@@ -722,29 +722,26 @@ QString PollyIntegration::getFileUploadURLs(QByteArray result2) {
     return url_with_wildcard;
 }
 
-QString PollyIntegration::UploadToCloud(QString uploadUrl, QString filePath)
+ErrorStatus PollyIntegration::UploadToCloud(QString uploadUrl, QString filePath)
 {
-    QString status;
     QString upload_command = "uploadCuratedPeakDataToCloud";
     QList<QByteArray> resultAndError = runQtProcess(upload_command, QStringList() << uploadUrl << filePath);
     if (_hasError(resultAndError))
-        return status;
+        return ErrorStatus::Error;
 
-    status = "success";
-    return status;
+    return ErrorStatus::Success;
 }
 
-QString PollyIntegration::UploadPeaksToCloud(QString session_indentifier, QString fileName, QString filePath){
-    QString status;
+ErrorStatus PollyIntegration::UploadPeaksToCloud(QString session_indentifier, QString fileName, QString filePath){
     QElapsedTimer timer;
     timer.start();
     QString command = "getPeakUploadUrls";
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << session_indentifier << fileName);
     if (_hasError(resultAndError))
-        return status;
+        return ErrorStatus::Error;
 
     QString uploadUrl = getFileUploadURLs(resultAndError.at(0));
-    status = UploadToCloud(uploadUrl, filePath);
+    ErrorStatus status = UploadToCloud(uploadUrl, filePath);
     qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
     return status;
 }
