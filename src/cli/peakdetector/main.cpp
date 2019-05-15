@@ -1,7 +1,9 @@
 #include "peakdetectorcli.h"
+#include <QApplication>
 
 int main(int argc, char *argv[]) {
 
+    QApplication app(argc, argv);
 	// setting nodepath and jspath for PollyCLI library..
 	QStringList jsPathlist = QString(argv[0]).split(QDir::separator());
 	QStringList jsPathlist_bin;
