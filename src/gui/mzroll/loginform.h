@@ -28,12 +28,6 @@ public:
     AboutPolly* _aboutPolly;
     void cancel();
 
-Q_SIGNALS:
-    void resultReady(QString status);
-
-public slots:
-    void handleResults(QString status);
-
 private slots:
     /**
      * @brief This function tries to log in the user based on credentials provided by the user
@@ -44,8 +38,9 @@ private slots:
      * 4. If failed, display incorrect credentials..
      */
     void on_pushButton_clicked();
-    void login(QString username, QString password);
+    QString login(QString username, QString password);
     void showAboutPolly();
+    void handleResults(QString status);
 
 private:
     Ui::LoginForm *ui;
