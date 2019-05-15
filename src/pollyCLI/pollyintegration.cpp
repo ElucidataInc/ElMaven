@@ -654,7 +654,7 @@ QString PollyIntegration::getWorkflowEndpoint(QString workflowId,
     return "";
 }
 
-bool PollyIntegration::sendEmail(QString userEmail,
+ErrorStatus PollyIntegration::sendEmail(QString userEmail,
                                  QString emailMessage,
                                  QString emailContent,
                                  QString appName)
@@ -667,17 +667,17 @@ bool PollyIntegration::sendEmail(QString userEmail,
                                                                   << emailContent
                                                                   << appName);
     if (_hasError(resultAndError))
-        return false;
+        return ErrorStatus::Error;
 
     QList<QByteArray> testList = resultAndError.at(0).split('\n');
     int size = testList.size();
     if (size > 2) {
         QByteArray result2 = testList[size-2];
         if (result2 == "1")
-            return true;
+            return ErrorStatus::Success;
     }
 
-    return false;
+    return ErrorStatus::Error;
 }
 
 // name OF FUNCTION: exportData
