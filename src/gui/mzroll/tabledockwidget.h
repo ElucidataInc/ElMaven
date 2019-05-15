@@ -143,7 +143,6 @@ public Q_SLOTS:
 
   void exportJson();
   void UploadPeakBatchToCloud();
-  void StartUploadPeakBatchToCloud();
   void showSelectedGroup();
   void setGroupLabel(char label);
   void showLastGroup();

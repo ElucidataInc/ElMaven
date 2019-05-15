@@ -783,8 +783,13 @@ void UploadPeaksToCloudThread::run()
         qDebug() << "No internet connection..aborting upload";
         return;
     }
-    QString uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
-    emit resultReady(sessionId);
+    ErrorStatus uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
+    if (uploadStatus == ErrorStatus::Failure ||
+        uploadStatus == ErrorStatus::Error) {
+        qDebug() << "Peaks upload failed...";
+        return;
+    }
+    return;
 }
 
 UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
@@ -799,16 +804,11 @@ void TableDockWidget::UploadPeakBatchToCloud(){
 
     PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);
-    connect(uploadPeaksToCloudThread, SIGNAL(resultReady(QString)), this, SLOT(StartUploadPeakBatchToCloud()));
     connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
     uploadPeaksToCloudThread->sessionId = uploadId;
     uploadPeaksToCloudThread->fileName = uploadId + "_" + QString::number(uploadCount) ;
     uploadPeaksToCloudThread->filePath = filePath;
     uploadPeaksToCloudThread->start();
-}
-
-void TableDockWidget::StartUploadPeakBatchToCloud(){
-  qDebug()<<"upload finished";
 }
 
 void TableDockWidget::exportJson() {
