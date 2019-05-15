@@ -71,8 +71,8 @@ public:
     QStringList get_project_upload_url_commands(QString url_with_wildcard,
                                                 QStringList filenames);
     QString getFileUploadURLs(QByteArray result2);
-    QString UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath);
-    QString UploadToCloud(QString uploadUrl, QString filePath);
+    ErrorStatus UploadPeaksToCloud(QString sessionId, QString fileName, QString filePath);
+    ErrorStatus UploadToCloud(QString uploadUrl, QString filePath);
 
     /**
      * @brief Parse and return the project ID for a new Polly project
