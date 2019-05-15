@@ -12,6 +12,13 @@ enum class PollyApp: int
     None = 3
 };
 
+enum class ErrorStatus: int
+{
+    Success = 0,
+    Failure = 1,
+    Error = 2,
+};
+
 class QTemporaryFile;
 class DownloadManager;
 class PollyIntegration : public QObject
@@ -79,7 +86,7 @@ public:
                    QString email_content,
                    QString email_message,
                    QString appName);
-    QString authenticateLogin(QString username, QString password);
+    ErrorStatus authenticateLogin(QString username, QString password);
     int checkLoginStatus();
     int checkNodeExecutable();
     int askForLogin();
@@ -99,7 +106,7 @@ public:
      * internet
      * @return true if user has an active connection
      */
-    bool activeInternet();
+    ErrorStatus activeInternet();
 
     QByteArray redirectionUiEndpoint();
 

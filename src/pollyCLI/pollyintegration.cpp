@@ -351,19 +351,19 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
     return false;
 }
 
-bool PollyIntegration::activeInternet()
+ErrorStatus PollyIntegration::activeInternet()
 {
     QString command = QString("check_internet_connection");
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList());
     if (_hasError(resultAndError))
-        return false;
+        return ErrorStatus::Error;
 
     QList<QByteArray> results = resultAndError.at(0).split('\n');
     QString status = results[1];
     if (status == "Connected") {
-        return true;
+        return ErrorStatus::Success;
     }
-    return false; 
+    return ErrorStatus::Failure; 
 }
 
 // name OF FUNCTION: checkLoginStatus
@@ -411,22 +411,22 @@ int PollyIntegration::checkLoginStatus(){
 // CALLED FROM: external clients
 
 
-QString PollyIntegration::authenticateLogin(QString username, QString password) {
+ErrorStatus PollyIntegration::authenticateLogin(QString username, QString password) {
     QString command = "authenticate";
     QString status;
     
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile << username << password);
     if (_hasError(resultAndError))
-        return "error";
+        return ErrorStatus::Error;
 
     int statusInside = checkLoginStatus();
     if (statusInside == 1) {
-        status = "ok";
+        return ErrorStatus::Success;
     } else {
-        status = "incorrect credentials";
+        return ErrorStatus::Failure;
     }
     
-    return status;
+    return ErrorStatus::Failure;
 }
 
 QString PollyIntegration::getCurrentUsername()

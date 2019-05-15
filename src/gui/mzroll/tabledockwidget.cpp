@@ -777,7 +777,9 @@ void UploadPeaksToCloudThread::run()
 {
     qDebug() << "Checking for active internet connection..";
     QString status;
-    if (!_pollyintegration->activeInternet()) {
+    ErrorStatus response = _pollyintegration->activeInternet();
+    if (response == ErrorStatus::Failure ||
+        response == ErrorStatus::Error) {
         qDebug() << "No internet connection..aborting upload";
         return;
     }

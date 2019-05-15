@@ -1006,16 +1006,18 @@ QString PeakDetectorCLI::uploadToPolly(QString jsPath,
     QFile pollyCredFile(_pollyIntegration->getCredFile());
     pollyCredFile.remove();
 
-    if (!_pollyIntegration->activeInternet()) {
+    ErrorStatus response = _pollyIntegration->activeInternet();
+    if (response == ErrorStatus::Failure ||
+        response == ErrorStatus::Error) {
         cerr << "No internet access. Please connect to the internet and try "
                 "again"
              << endl;
         return uploadProjectId;
     }
 
-    QString status = _pollyIntegration->authenticateLogin(
+    ErrorStatus loginResponse = _pollyIntegration->authenticateLogin(
         creds["polly_username"], creds["polly_password"]);
-    if (status != "ok") {
+    if (loginResponse == ErrorStatus::Failure) {
         cerr << "Incorrect credentials. Please check." << endl;
         return uploadProjectId;
     }
