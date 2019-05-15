@@ -133,10 +133,16 @@ void EPIWorkerThread::_authenticateUserAndFetchData()
 
     qDebug() << "Authenticating…";
     ErrorStatus loginResponse = _pollyIntegration->authenticateLogin("", "");
-    if (loginResponse == ErrorStatus::Success)
+    if (loginResponse == ErrorStatus::Failure ||
+        loginResponse == ErrorStatus::Error) {
+        emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
+                                    status);
+        return;
+    } else {
         status = "ok";
-    emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
-                               status);
+        emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
+                                    status);
+    }
 
     qDebug() << "Fetching licenses from Polly…";
     if (status == "ok") {
