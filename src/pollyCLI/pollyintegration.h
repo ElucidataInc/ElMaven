@@ -181,7 +181,6 @@ private:
     QMap<QString, QStringList> _fetchAppLicense();
     void checkForIndexFile();
     bool validCohorts(QStringList cohorts);
-    QString _stringForApp(PollyApp app);
     bool _hasError(QList<QByteArray>);
 };
 
