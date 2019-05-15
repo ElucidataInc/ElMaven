@@ -855,7 +855,7 @@ void MainWindow::showNotification(TableDockWidget* table) {
             this,
             [=] {
                 analytics->hitEvent("Prompt", "Clicked", "PollyPhi");
-                pollyElmavenInterfaceDialog->switchToApp(PollyApp::Fluxomics);
+                pollyElmavenInterfaceDialog->switchToApp(PollyApp::PollyPhi);
             });
     connect(fluxomicsPrompt,
             SIGNAL(promptClicked(TableDockWidget*)),

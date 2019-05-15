@@ -58,12 +58,6 @@ public:
         PolyFit
     };
 
-    enum class PollyApp {
-        None,
-        PollyPhi,
-        QuantFit
-    };
-
     bool status;
     string textStatus;
     vector<string> filenames;

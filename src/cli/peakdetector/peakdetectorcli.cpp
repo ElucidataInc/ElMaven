@@ -863,19 +863,23 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
     QString redirectionUrl = "";
     switch (_currentPollyApp) {
     case PollyApp::PollyPhi: {
+        QString workflowId = 
+            _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
+
+        QString workflowName = 
+            _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
+
         QString workflowRequestId =
-            _pollyIntegration->createWorkflowRequest(uploadProjectId);
+            _pollyIntegration->createWorkflowRequest(uploadProjectId,
+                                                     workflowName,
+                                                     workflowId);
         if (!workflowRequestId.isEmpty()) {
             redirectionUrl =
-                QString("https://polly.elucidata.io/"
-                        "workflow-requests/%1"
-                        "/lcms_tstpl_pvd/dashboard#"
-                        "redirect-from=%2"
-                        "#project=%3"
-                        "#timestamp=%4").arg(workflowRequestId)
-                                        .arg(_redirectTo)
-                                        .arg(uploadProjectId)
-                                        .arg(datetimestamp);
+                _pollyIntegration->getWorkflowEndpoint(workflowId,
+                                                        workflowRequestId,
+                                                        _redirectTo,
+                                                        uploadProjectId,
+                                                        datetimestamp);
         } else {
             cerr << "Unable to create workflow request id. "
                     "Please try again."
@@ -884,15 +888,15 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
         break;
     } case PollyApp::QuantFit: {
         QString componentId =
-            _pollyIntegration->obtainComponentId("calibration_file_uploader_beta");
+            _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
                                                 uploadProjectId);
         if (!runRequestId.isEmpty()) {
             redirectionUrl =
-                _pollyIntegration->redirectionUiEndpoint(componentId,
-                                                         runRequestId,
-                                                         datetimestamp);
+                _pollyIntegration->getComponentEndpoint(componentId,
+                                                        runRequestId,
+                                                        datetimestamp);
         }
         break;
     } default: break;
