@@ -135,14 +135,15 @@ QString PollyIntegration::parseId(QByteArray result){
     return run_id;
 }
 
-QMap<QString, QStringList> PollyIntegration::_fetchAppLicense() {
+QPair<ErrorStatus, QMap<QString, QStringList>> PollyIntegration::_fetchAppLicense() {
     QString command = "fetchAppLicense";
     QList<QByteArray> resultAndError = runQtProcess(command,
                                                     QStringList() << credFile);
 
     QMap <QString, QStringList> appLicenses;
-    if (_hasError(resultAndError))
-        return appLicenses;
+    if (_hasError(resultAndError)) {
+        return qMakePair(ErrorStatus::Error, appLicenses);
+    }
 
     QByteArray result = resultAndError.at(0);
     QStringList resultList = QString::fromStdString(result.toStdString()).split('\n');
@@ -162,7 +163,10 @@ QMap<QString, QStringList> PollyIntegration::_fetchAppLicense() {
         }
     }
 
-    return appLicenses;
+    if (appLicenses.isEmpty())
+        return qMakePair(ErrorStatus::Failure, appLicenses);
+    else
+        return qMakePair(ErrorStatus::Success, appLicenses);
 }
 
 QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
@@ -173,8 +177,16 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
         {PollyApp::QuantFit, "components"}
     };
 
-    auto appLicenses = _fetchAppLicense();
+    auto errorAndResponse = _fetchAppLicense();
+    ErrorStatus error = errorAndResponse.first;
+    auto appLicenses = errorAndResponse.second;
     QMap<PollyApp, bool> appLicenseStatus;
+
+    if (error == ErrorStatus::Error ||
+        error == ErrorStatus::Failure) {
+        return appLicenseStatus;
+    }
+
     QMapIterator<PollyApp, QString> it(appsWithTypes);
     while (it.hasNext()) {
         it.next();
