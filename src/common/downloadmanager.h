@@ -14,6 +14,7 @@ class DownloadManager : public QObject
 public:
     DownloadManager();
     void setRequest(const QString& url, void* requester, bool async=true);
+    QByteArray getData();
     bool err;
  //TOOD: Use this to deduce the request type instead of "bool async"
 //    enum class RequestType {
@@ -25,11 +26,10 @@ public:
 private:
     void download(bool async=true);
 
-public slots:
+private slots:
     void dataAvailable();
     void finished();
     void error(QNetworkReply::NetworkError error);
-    QByteArray getData();
 
 Q_SIGNALS:
     void failed();
