@@ -48,6 +48,8 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     groupSetCombo->addItem("Exclude Bad Groups");
     groupSetCombo->setCurrentIndex(0);
 
+    // init worker thread
+    _worker = new EPIWorkerThread(_pollyIntegration);
     connect(_pollyIntegration, SIGNAL(receivedEPIError(QString)), SLOT(showEPIError(QString)));
 
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
@@ -75,6 +77,22 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                                       "ViewTutorial",
                                                       appName);
             });
+    connect(_worker,
+            SIGNAL(projectsReady(QVariantMap)),
+            this,
+            SLOT(_handleProjects(QVariantMap)));
+    connect(_worker,
+            SIGNAL(licensesReady(QMap<PollyApp, bool>)),
+            this,
+            SLOT(_handleLicenses(QMap<PollyApp, bool>)));
+    connect(_worker,
+            SIGNAL(authenticationFinished(QString, QString)),
+            this,
+            SLOT(_handleAuthentication(QString, QString)));
+    connect(_worker,
+            SIGNAL(filesUploaded(QStringList, QString, QString)),
+            this,
+            SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
 }
 
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -84,62 +102,81 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
         delete (_loginform);
 }
 
-EPIWorkerThread::EPIWorkerThread(PollyIntegration* iPolly):
-    _pollyintegration(iPolly)
-{
-}
-
 void EPIWorkerThread::run()
 {
-    if (state == "initial_setup") {
-        qDebug() << "Checking for active internet connection…";
-        QString status;
-        if (!_pollyintegration->activeInternet()) {
-            status = "error";
-            emit authentication_result("", status);
-            return;
-        }
-
-        qDebug() << "Authenticating…";
-        status = _pollyintegration->authenticateLogin("", "");
-        emit authentication_result(_pollyintegration->getCurrentUsername(),
-                                   status);
-
-        qDebug() << "Fetching licenses from Polly…";
-        if (status == "ok") {
-            QMap<PollyApp, bool> licenseMap =
-                _pollyintegration->getAppLicenseStatus();
-            emit licensesReady(licenseMap);
-        }
-
-        qDebug() << "Fetching projects from Polly…";
-        if (status == "ok") {
-            QVariantMap _projectNameIdMap = _pollyintegration->getUserProjects();
-            emit projectsReady(_projectNameIdMap);
-        }
-    } else if (state == "upload_files") {
-        qDebug() << "starting thread for uploading files to polly…";
-        // re-login to polly may be required because the token expires after 30
-        // minutes..
-        QString statusInside = _pollyintegration->authenticateLogin("", "");
-        QStringList patchId = _pollyintegration->exportData(filesToUpload,
-                                                            uploadProjectIdThread);
-        emit filesUploaded(patchId, uploadProjectIdThread, datetimestamp);
-    } else if (state == "send_email") {
-        qDebug() << "starting thread for sending email to user…";
-        bool emailSent = _pollyintegration->sendEmail(username,
-                                                      filesToUpload[0],
-                                                      filesToUpload[1],
-                                                      filesToUpload[2]);
-        qDebug() << (emailSent ? "Sent an email containing URL to user."
-                               : "Failed to send email to user.");
+    switch (_currentMethod) {
+    case RunMethod::AuthenticateAndFetchData:
+        _authenticateUserAndFetchData();
+        break;
+    case RunMethod::UploadFiles:
+        _uploadFiles();
+        break;
+    case RunMethod::SendEmail:
+        _sendEmail();
+        break;
+    default:
+        break;
     }
 }
 
-EPIWorkerThread::~EPIWorkerThread()
+void EPIWorkerThread::_authenticateUserAndFetchData()
 {
-    for (auto fileName : filesToUpload) {
-        tmpDir.remove(fileName);
+    qDebug() << "Checking for active internet connection…";
+    QString status;
+    if (!_pollyIntegration->activeInternet()) {
+        status = "error";
+        emit authenticationFinished("", status);
+        return;
+    }
+
+    qDebug() << "Authenticating…";
+    status = _pollyIntegration->authenticateLogin("", "");
+    emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
+                               status);
+
+    qDebug() << "Fetching licenses from Polly…";
+    if (status == "ok") {
+        QMap<PollyApp, bool> licenseMap =
+            _pollyIntegration->getAppLicenseStatus();
+        emit licensesReady(licenseMap);
+    }
+
+    qDebug() << "Fetching projects from Polly…";
+    if (status == "ok") {
+        QVariantMap _projectNameIdMap = _pollyIntegration->getUserProjects();
+        emit projectsReady(_projectNameIdMap);
+    }
+}
+
+void EPIWorkerThread::_uploadFiles()
+{
+    qDebug() << "Uploading files to polly…";
+    // re-login to polly may be required because the token expires after 30
+    // minutes..
+    _pollyIntegration->authenticateLogin("", "");
+    QStringList patchId = _pollyIntegration->exportData(_uploadArgs.filesToUpload,
+                                                        _uploadArgs.pollyProjectId);
+    emit filesUploaded(patchId,
+                       _uploadArgs.pollyProjectId,
+                       _uploadArgs.datetimestamp);
+    _removeFilesFromDir(_uploadArgs.dir, _uploadArgs.filesToUpload);
+}
+
+void EPIWorkerThread::_sendEmail()
+{
+    qDebug() << "Sending email to user…";
+    bool emailSent = _pollyIntegration->sendEmail(_emailArgs.username,
+                                                  _emailArgs.subject,
+                                                  _emailArgs.content,
+                                                  _emailArgs.appname);
+    qDebug() << (emailSent ? "Sent an email containing URL to user."
+                           : "Failed to send email to user.");
+}
+
+void EPIWorkerThread::_removeFilesFromDir(QDir dir, QStringList files)
+{
+    for (auto fileName : files) {
+        dir.remove(fileName);
     }
 }
 
@@ -302,27 +339,8 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     uploadButton->setEnabled(false);
     existingProjectCombo->clear();
 
-    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
-    EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
-    connect(workerThread,
-            SIGNAL(projectsReady(QVariantMap)),
-            this,
-            SLOT(_handleProjects(QVariantMap)));
-    connect(workerThread,
-            SIGNAL(licensesReady(QMap<PollyApp, bool>)),
-            this,
-            SLOT(_handleLicenses(QMap<PollyApp, bool>)));
-    connect(workerThread,
-            SIGNAL(authentication_result(QString, QString)),
-            this,
-            SLOT(_handleAuthentication(QString, QString)));
-    connect(workerThread,
-            &EPIWorkerThread::finished,
-            workerThread,
-            &QObject::deleteLater);
-    workerThread->state = "initial_setup";
-    workerThread->start();
-    show();
+    _worker->setMethodToRun(EPIWorkerThread::RunMethod::AuthenticateAndFetchData);
+    _worker->start();
 
     _loadingDialog->setModal(true);
     _loadingDialog->show();
@@ -333,6 +351,8 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     _loadingDialog->label->setMovie(_loadingDialog->movie);
     _loadingDialog->label->setAlignment(Qt::AlignCenter);
     QCoreApplication::processEvents();
+
+    show();
 }
 
 void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
@@ -581,23 +601,9 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
         return;
     }
 
-    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
-    EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
-    connect(workerThread,
-            SIGNAL(filesUploaded(QStringList, QString, QString)),
-            this,
-            SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
-    connect(workerThread,
-            &EPIWorkerThread::finished,
-            workerThread,
-            &QObject::deleteLater);
-    workerThread->state = "upload_files";
-    workerThread->filesToUpload = filenames;
-    workerThread->tmpDir = qdir;
-    workerThread->uploadProjectIdThread = _pollyProjectId;
-    workerThread->datetimestamp = datetimestamp;
-    workerThread->currentApp = _selectedApp;
-    workerThread->start();
+    _worker->setMethodToRun(EPIWorkerThread::RunMethod::UploadFiles);
+    _worker->setUploadArgs(qdir, filenames, datetimestamp, _pollyProjectId);
+    _worker->start();
 }
 
 QString PollyElmavenInterfaceDialog::_getProjectId()
@@ -676,18 +682,12 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
             break;
         }
 
-        PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
-        EPIWorkerThread* workerThread = new EPIWorkerThread(iPolly);
-        connect(workerThread,
-                &EPIWorkerThread::finished,
-                workerThread,
-                &QObject::deleteLater);
-        workerThread->state = "send_email";
-        workerThread->username = usernameLabel->text();
-        workerThread->filesToUpload << emailSubject
-                                    << emailContent
-                                    << appname;
-        workerThread->start();
+        _worker->setMethodToRun(EPIWorkerThread::RunMethod::SendEmail);
+        _worker->setEmailArgs(usernameLabel->text(),
+                              emailSubject,
+                              emailContent,
+                              appname);
+        _worker->start();
     } else {
         _performPostUploadTasks(false);
         statusUpdate->setStyleSheet("QLabel {color : red;}");
