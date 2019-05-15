@@ -339,7 +339,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            QString errorMessage = "Unknown error: " + "\n" +
+            QString errorMessage = "Unknown error:\n" +
                                    supportMessage;
             emit receivedEPIError(errorString);
             return true;
@@ -377,28 +377,26 @@ ErrorStatus PollyIntegration::activeInternet()
 //
 // CALLED FROM: authenticateLogin
 
-int PollyIntegration::checkLoginStatus(){
-    int status;
+ErrorStatus PollyIntegration::checkLoginStatus() {
     QString command = QString("authenticate");
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile);
 
     if (_hasError(resultAndError))
-        return status;
+        return ErrorStatus::Error;
 
     QList<QByteArray> testList = resultAndError.at(0).split('\n');
     QByteArray statusLine = testList[0];
     if (statusLine == "already logged in") {
-        status = 1;
 
         // logged in successfully, there must be a user email
         QByteArray userline = testList[1];
         QList<QByteArray> split = userline.split(' ');
         _username = QString(split.back());
+        return ErrorStatus::Success;
     }
     else {
-        status = 0;
+        return ErrorStatus::Failure;
     }
-    return status;
 }
 
 // name OF FUNCTION: authenticateLogin
@@ -415,20 +413,12 @@ int PollyIntegration::checkLoginStatus(){
 
 ErrorStatus PollyIntegration::authenticateLogin(QString username, QString password) {
     QString command = "authenticate";
-    QString status;
     
     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile << username << password);
     if (_hasError(resultAndError))
         return ErrorStatus::Error;
 
-    int statusInside = checkLoginStatus();
-    if (statusInside == 1) {
-        return ErrorStatus::Success;
-    } else {
-        return ErrorStatus::Failure;
-    }
-    
-    return ErrorStatus::Failure;
+    return checkLoginStatus();
 }
 
 QString PollyIntegration::getCurrentUsername()
@@ -465,33 +455,6 @@ void PollyIntegration::logout() {
     QFile refreshTokenFile (credFile + "_refreshToken");
     refreshTokenFile.remove();
 }
-// name OF FUNCTION: getUserProjectsMap
-// PURPOSE:
-//    This function parses the output of "get_Project_names" command and store it in a json format to be used later..
-// When the user selects a project on Elmaven GUI, this json will be used to get ID for that project
-// This ID will then further be used for uploading and all..
-
-// Returns user projects in json format with id as keys and name as values..
-// CALLS TO: 
-//
-// CALLED FROM: getUserProjects
-
-QVariantMap PollyIntegration::getUserProjectsMap(QByteArray result2) {
-    QVariantMap userProjects;
-    QList<QByteArray> testList = result2.split('\n');
-    int size = testList.size();
-    QByteArray resultJsons = testList[size-2];
-    QJsonDocument doc(QJsonDocument::fromJson(resultJsons));
-    // Get JSON object
-    QJsonArray jsonArray = doc.array();
-    for (int i = 0; i < jsonArray.size(); ++i){
-        QJsonValue projectJson = jsonArray.at(i);
-        QJsonObject projectJsonObject = projectJson.toObject();
-        QVariantMap projectJsonObjectMap = projectJsonObject.toVariantMap();
-        userProjects[projectJsonObjectMap["id"].toString()] = projectJsonObjectMap["name"].toString();
-    }
-    return userProjects;
-}
 
 // name OF FUNCTION: getUserProjects
 // PURPOSE:
@@ -514,7 +477,16 @@ QVariantMap PollyIntegration::getUserProjects() {
     if (_hasError(resultAndError))
         return userProjects;
 
-    userProjects = getUserProjectsMap(resultAndError.at(0));
+    QList<QByteArray> testList = resultAndError.at(0).split('\n');
+    QByteArray resultJsons = testList[testList.size() - 2];
+    QJsonDocument doc(QJsonDocument::fromJson(resultJsons));
+    // Get JSON object
+    QJsonArray jsonArray = doc.array();
+    for (int i = 0; i < jsonArray.size(); ++i) {
+        QJsonValue projectJson = jsonArray.at(i);
+        QVariantMap projectMap = projectJson.toObject().toVariantMap();
+        userProjects[projectMap["id"].toString()] = projectMap["name"].toString();
+    }
     return userProjects;
 }
 
