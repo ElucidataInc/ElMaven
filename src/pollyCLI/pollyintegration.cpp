@@ -337,9 +337,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         //if proper error message is not available
         //send full error response from js process
         QString errorString = QString::fromStdString(errorResponse.toStdString());
-        qDebug() << "**************";
-        qDebug() << errorString;
-        //errorString.replace("\n", "");
+        errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
             emit sendEPIError(errorString);
             return true;
@@ -400,37 +398,6 @@ int PollyIntegration::checkLoginStatus(){
     }
     return status;
 }
-
-// void PollyIntegration::checkLicense() {
-//     qDebug() << "checking license";
-//     QString command = "getLicense";
-//     QString status;
-
-//     QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile);
-//     QByteArray result = resultAndError.at(0);
-
-//     // split based on newlines, JSON is second last string after split
-//     QList<QByteArray> resultList = result.split('\n');
-//     result = resultList[resultList.size() - 1];
-
-//     // remove extra quotation around JSON array
-//     result = result.right(result.size() - 1);
-//     //result = result.left(result.size() - 1);
-//     // replace doubly escaped quotes
-//     result = result.replace("\\\"", "\"");
-
-
-//     qDebug() << result;
-
-//     QJsonDocument doc(QJsonDocument::fromJson(result));
-//     QJsonObject jsonObj = doc.object()["licenses"].toObject();
-//     auto licenses = jsonObj.keys();
-//     auto component = jsonObj["components"].toArray();
-//     if (component.size())
-//         qDebug() << component;
-
-//     qDebug() << "json error" << QString::number(-1);
-// }
 
 // name OF FUNCTION: authenticateLogin
 // PURPOSE:

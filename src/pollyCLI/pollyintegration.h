@@ -92,7 +92,6 @@ public:
                            QStringList loadedSamples = QStringList());
     QString getCredFile();
     QString getCurrentUsername();
-    //void checkLicense();
 
     /**
      * @brief check for active internet connection
