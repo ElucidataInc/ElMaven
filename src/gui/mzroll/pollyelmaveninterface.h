@@ -91,6 +91,8 @@ public Q_SLOTS:
      */
     void setSelectedTable(TableDockWidget* table);
 
+    void showEPIError(QString errorMessage);
+
 Q_SIGNALS:
 
     /**

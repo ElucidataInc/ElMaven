@@ -139,14 +139,6 @@ public:
      */
     QString obtainComponentId(PollyApp app);
 
-    /**
-     * @brief Extract out a workflow ID from a JSON response obtained by
-     * requesting to api/wf-fe-info endpoint.
-     * @param workflowName The Polly application for which ID is needed.
-     * @return The workflow ID as a QString.
-     */
-    QString obtainWorkflowId(PollyApp app);
-
     QString obtainComponentName(PollyApp app);
 
     /**
@@ -157,6 +149,14 @@ public:
     QMap<PollyApp, bool> getAppLicenseStatus();
 
     /**
+     * @brief Extract out a workflow ID from a JSON response obtained by
+     * requesting to api/wf-fe-info endpoint.
+     * @param workflowName The Polly application for which ID is needed.
+     * @return The workflow ID as a QString.
+     */
+    QString obtainWorkflowId(PollyApp app);
+
+    /**
      * @brief Get the string name of a PollyApp enum identifier.
      * @return A string with name of the app.
      */
@@ -165,6 +165,9 @@ public:
 public slots:
     void requestSuccess();
     void requestFailed();
+
+Q_SIGNALS:
+    void receivedEPIError(QString);
 
 private:
     QString _username;
@@ -178,6 +181,7 @@ private:
     QMap<QString, QStringList> _fetchAppLicense();
     void checkForIndexFile();
     bool validCohorts(QStringList cohorts);
+    bool _hasError(QList<QByteArray>);
 };
 
 #endif // POLLYINTEGRATION_H
