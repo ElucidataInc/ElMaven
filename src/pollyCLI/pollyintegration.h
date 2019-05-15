@@ -167,7 +167,7 @@ public slots:
     void requestFailed();
 
 Q_SIGNALS:
-    void sendEPIError(QString);
+    void receivedEPIError(QString);
 
 private:
     QString _username;

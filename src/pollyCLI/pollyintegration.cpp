@@ -330,7 +330,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
             QString errorMessage = message + "\n" +
                                    "Type: " + type + "\n" +
                                    supportMessage;
-            emit sendEPIError(errorMessage);
+            emit receivedEPIError(errorMessage);
             return true;
         }
 
@@ -339,12 +339,12 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            emit sendEPIError(errorString);
+            emit receivedEPIError(errorString);
             return true;
         }
     } else if (resultAndError.size() == 0) {
         //no response or error
-        emit sendEPIError("Qt Process failed " + supportMessage);
+        emit receivedEPIError("Qt Process failed " + supportMessage);
         return true;
     }
 

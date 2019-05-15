@@ -48,7 +48,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     groupSetCombo->addItem("Exclude Bad Groups");
     groupSetCombo->setCurrentIndex(0);
 
-    connect(_pollyIntegration, SIGNAL(sendEPIError(QString)), SLOT(showEPIError(QString)));
+    connect(_pollyIntegration, SIGNAL(receivedEPIError(QString)), SLOT(showEPIError(QString)));
 
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
     connect(workflowMenu,
