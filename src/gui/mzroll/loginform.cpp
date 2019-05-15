@@ -11,6 +11,7 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
     
 {
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
+    _pollyintegration = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
     
     ui->setupUi(this);
     setWindowTitle("Sign in to Polly™");
@@ -38,7 +39,7 @@ LoginForm::~LoginForm()
     if (_aboutPolly) delete (_aboutPolly);
 }
 
-void LoginForm::login(QString username, QString password)
+QString LoginForm::login(QString username, QString password)
 {
     QString status;
     if (!_pollyintegration->activeInternet())
@@ -46,7 +47,7 @@ void LoginForm::login(QString username, QString password)
     else
         status = _pollyintegration->authenticateLogin(username, password);
     
-    emit resultReady(status);
+    return status;
 }
 
 void LoginForm::on_pushButton_clicked()
@@ -57,9 +58,8 @@ void LoginForm::on_pushButton_clicked()
     ui->pushButton->setEnabled(false);
     QCoreApplication::processEvents();
 
-    _pollyintegration = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
-    login(ui->lineEdit_username->text(), ui->lineEdit_password->text());
-    connect(this, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
+    QString status = login(ui->lineEdit_username->text(), ui->lineEdit_password->text());
+    handleResults(status);
 }
 
 void LoginForm::handleResults(QString status)
