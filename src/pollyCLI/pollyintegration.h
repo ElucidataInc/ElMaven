@@ -87,13 +87,12 @@ public:
                    QString email_message,
                    QString appName);
     ErrorStatus authenticateLogin(QString username, QString password);
-    int checkLoginStatus();
+    ErrorStatus checkLoginStatus();
     int checkNodeExecutable();
     int askForLogin();
     QStringList exportData(QStringList filenames, QString projectId);
     QVariantMap getUserProjects();
     QVariantMap getUserProjectFiles(QStringList ProjectIds);
-    QVariantMap getUserProjectsMap(QByteArray result2);
     QStringList getUserProjectFilesMap(QByteArray result2);
     bool validSampleCohort(QString sampleCohortFile,
                            QStringList loadedSamples = QStringList());
