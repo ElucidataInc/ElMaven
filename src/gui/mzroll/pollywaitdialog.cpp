@@ -8,7 +8,8 @@ PollyWaitDialog::PollyWaitDialog(QWidget *parent) : QDialog(parent), ui(new Ui::
     movie = new QMovie(":/images/loading.gif");
     movie->start();
 
-    setWindowTitle("Please Wait..");
+    //setWindowTitle("Please Wait..");
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 }
 
 PollyWaitDialog::~PollyWaitDialog()
@@ -20,9 +21,4 @@ void PollyWaitDialog::keyPressEvent(QKeyEvent* e)
 {
     if(e->key() != Qt::Key_Escape)
         QDialog::keyPressEvent(e);
-}
-
-void PollyWaitDialog::closeEvent(QCloseEvent* e)
-{
-    e->ignore();
 }
