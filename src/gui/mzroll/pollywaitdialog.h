@@ -17,6 +17,8 @@ public:
     ~PollyWaitDialog();
     QMovie* movie;
 
+    void keyPressEvent(QKeyEvent* e);
+
 private:
     Ui::PollyWaitDialog *ui;
 };

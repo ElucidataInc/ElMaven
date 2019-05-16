@@ -15,3 +15,9 @@ PollyWaitDialog::~PollyWaitDialog()
 {
     delete ui;
 }
+
+void PollyWaitDialog::keyPressEvent(QKeyEvent* e)
+{
+    if(e->key() != Qt::Key_Escape)
+        QDialog::keyPressEvent(e);
+}
