@@ -24,5 +24,5 @@ void PollyWaitDialog::keyPressEvent(QKeyEvent* e)
 
 void PollyWaitDialog::closeEvent(QCloseEvent* e)
 {
-    return;
+    e->ignore();
 }
