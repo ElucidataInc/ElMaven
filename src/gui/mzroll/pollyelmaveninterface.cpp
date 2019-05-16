@@ -713,16 +713,6 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
         _worker->start();
     } else {
         _performPostUploadTasks(false);
-        statusUpdate->setStyleSheet("QLabel {color : red;}");
-        QString errorTitle = "An unexpected error occured";
-        QString errorMessage = patchId.isEmpty() ? "Sorry. We were unable to "
-                                                   "send data."
-                                                 : "There seems to be a server "
-                                                   "issue. Please try again "
-                                                   "later.";
-        statusUpdate->setText(errorTitle);
-        _showErrorMessage(errorTitle,
-                          errorMessage);
     }
 }
 
@@ -914,6 +904,9 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     groupSetCombo->setEnabled(true);
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
+    statusUpdate->setEnabled(true);
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
+    statusUpdate->clear();
 }
 
 MainWindow* PollyElmavenInterfaceDialog::getMainWindow()
