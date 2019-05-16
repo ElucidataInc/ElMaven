@@ -47,6 +47,7 @@ void LoginForm::login(QString username, QString password)
         ui->login_label->setText("Fetching user data…");
         QCoreApplication::processEvents();
         _pollyelmaveninterfacedialog->startupDataLoad();
+        _pollyelmaveninterfacedialog->usernameLabel->setText(username);
         hide();
         _pollyelmaveninterfacedialog->show();
     } else if (response == ErrorStatus::Failure) {
