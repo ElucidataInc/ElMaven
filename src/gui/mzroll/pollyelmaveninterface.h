@@ -347,6 +347,10 @@ private:
 
     void _showPollyButtonIfUrlExists();
 
+    void _populateProjects();
+
+    void _populateTables();
+
 private Q_SLOTS:
 
     /**

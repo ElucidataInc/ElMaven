@@ -348,6 +348,10 @@ void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
 {
     _resetUiElements();
     _showErrorMessage("Polly Error", errorMessage, QMessageBox::NoIcon);
+    _populateProjects();
+    _populateTables();
+    _hideFormIfNotLicensed();
+    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_callLoginForm()
@@ -458,11 +462,24 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
         return;
     }
 
+    _populateProjects();
+    _populateTables();
+
+    _loadingDialog->close();
+    _hideFormIfNotLicensed();
+    QCoreApplication::processEvents();
+}
+
+void PollyElmavenInterfaceDialog::_populateProjects()
+{
     QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
         existingProjectCombo->addItem(_projectNameIdMap[key].toString());
     }
+}
 
+void PollyElmavenInterfaceDialog::_populateTables()
+{
     _bookmarkTable = _mainwindow->getBookmarkedPeaks();
     _addTableIfPossible(_bookmarkTable, "Bookmark Table ");
 
@@ -486,10 +503,6 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
         // reset active table
         _activeTable = nullptr;
     }
-
-    _loadingDialog->close();
-    _hideFormIfNotLicensed();
-    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
