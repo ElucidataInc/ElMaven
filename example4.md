@@ -8,7 +8,7 @@ permalink: /Downloads/
     <a id="download" onClick="downloadclick()" href="" hidden></a>
     <div id="win0.7.1" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal1" onLoad="download('myModal1','win0.7.1')" style="width:100%; height:100%" src="https://forms.gle/jTpxDqLYNH4VU4iE8"
+            <iframe id="myModal1" onLoad="download('myModal1','win0.7.1')" style="width:100%; height:100%" src="https://forms.gle/XNKsebWcsXqMvp4q7"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -26,7 +26,7 @@ permalink: /Downloads/
     </div>
     <div id="mac0.7.1" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal3" onLoad="download('myModal3','mac0.7.1')" style="width:100%; height:100%" src="https://forms.gle/JUE7BMY6mu3p4Sir9"
+            <iframe id="myModal3" onLoad="download('myModal3','mac0.7.1')" style="width:100%; height:100%" src="https://forms.gle/DBsguaHisREouXGQ9"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -114,7 +114,7 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.7.1</font>
+                            <font color="#8985db">v0.7.1-beta</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <button style="background-color:#8985db;" data-target="mac0.7.1" class="btn modal-trigger">
