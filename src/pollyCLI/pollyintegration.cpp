@@ -344,7 +344,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 
         if (!message.isEmpty() || !type.isEmpty()) {
             QString errorMessage = message + "\n" +
-                                   "Type: " + type + "\n" +
+                                   type + "\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
