@@ -1,1 +1,6 @@
+#ifdef _WIN32
+#include <windows.h>
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "../../../El-MAVEN.exe.manifest"
+#endif
+
 IDI_ICON1               ICON    DISCARDABLE     "maven.ico"
