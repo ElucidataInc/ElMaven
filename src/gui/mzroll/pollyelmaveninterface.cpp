@@ -77,6 +77,17 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                                       "ViewTutorial",
                                                       appName);
             });
+    connect(demoButton,
+            &QPushButton::clicked,
+            [=] {
+                QDesktopServices::openUrl(
+                    QUrl("https://calendly.com/elucidata/polly-demo"));
+                auto appName = PollyIntegration::stringForApp(_selectedApp);
+                _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                                      "DemoButton",
+                                                      appName);
+            });
+
     connect(_worker,
             SIGNAL(projectsReady(QVariantMap)),
             this,
