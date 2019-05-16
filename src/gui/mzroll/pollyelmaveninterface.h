@@ -328,7 +328,9 @@ private:
      * @param title Title of the message box to be shown.
      * @param message Message to be shown.
      */
-    void _showErrorMessage(QString title, QString message);
+    void _showErrorMessage(QString title,
+                           QString message,
+                           QMessageBox::Icon icon);
 
     /**
      * @brief Reset and clear UI elements of the dialog to their fresh state.
@@ -344,6 +346,10 @@ private:
     void _addTableIfPossible(TableDockWidget *table, QString tableName);
 
     void _showPollyButtonIfUrlExists();
+
+    void _populateProjects();
+
+    void _populateTables();
 
 private Q_SLOTS:
 

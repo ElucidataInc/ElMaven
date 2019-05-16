@@ -184,6 +184,11 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
 
     if (error == ErrorStatus::Error ||
         error == ErrorStatus::Failure) {
+        appLicenseStatus = {
+            {PollyApp::FirstView, false},
+            {PollyApp::PollyPhi, false},
+            {PollyApp::QuantFit, false}
+        };
         return appLicenseStatus;
     }
 
@@ -323,7 +328,6 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
     if (resultAndError.size() > 1) {
         //if there is standard error look for error message
         QByteArray errorResponse = resultAndError.at(1);
-        errorResponse.replace(QByteArray("\n"), QByteArray(""));
 
         QJsonDocument doc(QJsonDocument::fromJson(errorResponse));
         QJsonObject jsonObj = doc.object();
@@ -340,7 +344,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 
         if (!message.isEmpty() || !type.isEmpty()) {
             QString errorMessage = message + "\n" +
-                                   "Type: " + type + "\n" +
+                                   type + "\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
@@ -351,7 +355,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            QString errorMessage = "Unknown error:\n" +
+            QString errorMessage = "Unknown error: " + errorString + "\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;

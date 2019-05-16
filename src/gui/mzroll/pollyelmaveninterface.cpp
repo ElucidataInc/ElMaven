@@ -77,6 +77,17 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                                       "ViewTutorial",
                                                       appName);
             });
+    connect(demoButton,
+            &QPushButton::clicked,
+            [=] {
+                QDesktopServices::openUrl(
+                    QUrl("https://calendly.com/elucidata/polly-demo"));
+                auto appName = PollyIntegration::stringForApp(_selectedApp);
+                _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                                      "DemoButton",
+                                                      appName);
+            });
+
     connect(_worker,
             SIGNAL(projectsReady(QVariantMap)),
             this,
@@ -100,6 +111,8 @@ PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
     qDebug() << "exiting PollyElmavenInterfaceDialog now....";
     if (_loginform)
         delete (_loginform);
+    if (_worker)
+        delete _worker;
 }
 
 void EPIWorkerThread::run()
@@ -334,11 +347,11 @@ void PollyElmavenInterfaceDialog::initialSetup()
 void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
 {
     _resetUiElements();
-    QMessageBox errorDialog(this);
-    errorDialog.setWindowModality(Qt::WindowModal);
-    errorDialog.setWindowTitle("Polly Error");
-    errorDialog.setText(errorMessage);
-    errorDialog.exec();
+    _showErrorMessage("Polly Error", errorMessage, QMessageBox::NoIcon);
+    _populateProjects();
+    _populateTables();
+    _hideFormIfNotLicensed();
+    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_callLoginForm()
@@ -350,6 +363,7 @@ void PollyElmavenInterfaceDialog::_callLoginForm()
 
 void PollyElmavenInterfaceDialog::_callInitialEPIForm()
 {
+    show();
     if (!_uploadInProgress) {
         statusUpdate->setStyleSheet("QLabel { color : green;}");
         statusUpdate->clear();
@@ -361,8 +375,8 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     _worker->setMethodToRun(EPIWorkerThread::RunMethod::AuthenticateAndFetchData);
     _worker->start();
 
-    _loadingDialog->setModal(true);
-    _loadingDialog->show();
+    _loadingDialog->setWindowFlag(Qt::WindowTitleHint, true);
+    _loadingDialog->open();
     _loadingDialog->statusLabel->setVisible(true);
     _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
     _loadingDialog->statusLabel->setText("Authenticating…");
@@ -370,8 +384,6 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     _loadingDialog->label->setMovie(_loadingDialog->movie);
     _loadingDialog->label->setAlignment(Qt::AlignCenter);
     QCoreApplication::processEvents();
-
-    show();
 }
 
 void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
@@ -450,11 +462,24 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
         return;
     }
 
+    _populateProjects();
+    _populateTables();
+
+    _loadingDialog->close();
+    _hideFormIfNotLicensed();
+    QCoreApplication::processEvents();
+}
+
+void PollyElmavenInterfaceDialog::_populateProjects()
+{
     QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
         existingProjectCombo->addItem(_projectNameIdMap[key].toString());
     }
+}
 
+void PollyElmavenInterfaceDialog::_populateTables()
+{
     _bookmarkTable = _mainwindow->getBookmarkedPeaks();
     _addTableIfPossible(_bookmarkTable, "Bookmark Table ");
 
@@ -478,10 +503,6 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
         // reset active table
         _activeTable = nullptr;
     }
-
-    _loadingDialog->close();
-    _hideFormIfNotLicensed();
-    QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
@@ -637,8 +658,9 @@ QString PollyElmavenInterfaceDialog::_getProjectId()
             _projectNameIdMap.key(existingProjectCombo->currentText());
 
         if (projectId.isEmpty())
-            _showErrorMessage("Error", "No such project on Polly.");
-
+            _showErrorMessage("Error",
+                              "No such project on Polly.",
+                              QMessageBox::Warning);
         return projectId;
     }
 
@@ -646,7 +668,8 @@ QString PollyElmavenInterfaceDialog::_getProjectId()
         if (newProjectEntry->text().isEmpty()) {
             _showErrorMessage("Error",
                               "Invalid project name. "
-                              "Please enter a non-empty name.");
+                              "Please enter a non-empty name.",
+                              QMessageBox::Warning);
             return "";
         }
 
@@ -656,14 +679,18 @@ QString PollyElmavenInterfaceDialog::_getProjectId()
         return newProjectId;
     }
 
-    _showErrorMessage("Error", "Please select at least one option");
+    _showErrorMessage("Error",
+                      "Please select at least one option",
+                      QMessageBox::Warning);
     return "";
 }
 
 void PollyElmavenInterfaceDialog::_showErrorMessage(QString title,
-                                                    QString message)
+                                                    QString message,
+                                                    QMessageBox::Icon icon)
 {
-    QMessageBox::warning(this, title, message);
+    QMessageBox msgBox(icon, title, message, QMessageBox::Ok, this);
+    msgBox.exec();
 }
 
 void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patchId,
@@ -713,16 +740,6 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
         _worker->start();
     } else {
         _performPostUploadTasks(false);
-        statusUpdate->setStyleSheet("QLabel {color : red;}");
-        QString errorTitle = "An unexpected error occured";
-        QString errorMessage = patchId.isEmpty() ? "Sorry. We were unable to "
-                                                   "send data."
-                                                 : "There seems to be a server "
-                                                   "issue. Please try again "
-                                                   "later.";
-        statusUpdate->setText(errorTitle);
-        _showErrorMessage(errorTitle,
-                          errorMessage);
     }
 }
 
@@ -801,10 +818,12 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
     // check for no peak tables
     if (peakTableCombo->currentIndex() == -1) {
-        _showErrorMessage("Error", "No peak tables available. Either there are "
-                                   "no peak tables in the current session or "
-                                   "the existing ones are not suitable for "
-                                   "the selected Polly app.");
+        _showErrorMessage("Error",
+                          "No peak tables available. Either there are "
+                          "no peak tables in the current session or "
+                          "the existing ones are not suitable for "
+                          "the selected Polly app.",
+                          QMessageBox::Warning);
         return filenames;
     }
 
@@ -903,6 +922,8 @@ void PollyElmavenInterfaceDialog::_logout()
     usernameLabel->setText("");
     _pollyIntegration->logout();
     _projectNameIdMap = QVariantMap();
+    _loadingDialog->close();
+    QCoreApplication::processEvents();
     close();
 }
 
@@ -914,6 +935,9 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     groupSetCombo->setEnabled(true);
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
+    statusUpdate->setEnabled(true);
+    statusUpdate->setStyleSheet("QLabel { color : green;}");
+    statusUpdate->clear();
 }
 
 MainWindow* PollyElmavenInterfaceDialog::getMainWindow()
