@@ -1020,6 +1020,11 @@ QString PeakDetectorCLI::uploadToPolly(QString jsPath,
     if (loginResponse == ErrorStatus::Failure) {
         cerr << "Incorrect credentials. Please check." << endl;
         return uploadProjectId;
+    } else if (loginResponse == ErrorStatus::Error) {
+        cerr << "A server error was encountered. Please contact tech support "
+                "at elmaven@elucidata.io if the problem persists."
+             << endl;
+        return uploadProjectId;
     }
 
     // User is logged in, now proceeding to upload…
