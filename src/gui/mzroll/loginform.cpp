@@ -51,8 +51,14 @@ void LoginForm::login(QString username, QString password)
         hide();
         _pollyelmaveninterfacedialog->show();
     } else if (response == ErrorStatus::Failure) {
+        QCoreApplication::processEvents();
         ui->login_label->setStyleSheet("QLabel {color : red; }");
         ui->login_label->setText("Incorrect credentials");
+        ui->pushButton->setEnabled(true);
+    } else {
+        QCoreApplication::processEvents();
+        ui->login_label->setStyleSheet("Qlabel {color : green; }");
+        ui->login_label->clear();
         ui->pushButton->setEnabled(true);
     }
 }
