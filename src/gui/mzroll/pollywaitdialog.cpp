@@ -21,3 +21,8 @@ void PollyWaitDialog::keyPressEvent(QKeyEvent* e)
     if(e->key() != Qt::Key_Escape)
         QDialog::keyPressEvent(e);
 }
+
+void PollyWaitDialog::closeEvent(QCloseEvent* e)
+{
+    return;
+}
