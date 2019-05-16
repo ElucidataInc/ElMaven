@@ -184,6 +184,11 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
 
     if (error == ErrorStatus::Error ||
         error == ErrorStatus::Failure) {
+        appLicenseStatus = {
+            {PollyApp::FirstView, false},
+            {PollyApp::PollyPhi, false},
+            {PollyApp::QuantFit, false}
+        };
         return appLicenseStatus;
     }
 
