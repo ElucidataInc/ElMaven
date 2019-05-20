@@ -236,6 +236,15 @@ class PeakGroup{
         vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
 
         /**
+         * @brief Creates a mapping of m/z to intensity values, representing the
+         * significant spectra for this group averaged over samples.
+         * @param cutoff This cutoff will be used to bin m/z values. This is
+         * basically the window over which m/z sorted values are averaged.
+         * @return A mapping of m/z value to its corresponging intensity.
+         */
+        map<float, float> createAvgSpectra(MassCutoff* cutoff);
+
+        /**
          * @brief find all MS2 scans for this group
          * @return vector of all MS2 scans for this group
          */

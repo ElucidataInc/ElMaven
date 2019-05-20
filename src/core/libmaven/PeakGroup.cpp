@@ -737,6 +737,76 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
+map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff)
+{
+    map<float, float> mzIntensityMap;
+    auto scans = getRepresentativeFullScans();
+
+    // map all m/z to intensity from all scans in ascending order
+    for (auto scan : scans) {
+        for (size_t i = 0; i < scan->mz.size(); ++i)
+            mzIntensityMap[scan->mz.at(i)] = scan->intensity.at(i);
+    }
+
+    // bucket based on mass cutoff and only keep average m/z and intensity
+    // values for each bucket
+    map<float, float> binMzIntensityMap;
+    float currentMinMz = mzIntensityMap.begin()->first;
+    float lastMz = mzIntensityMap.rbegin()->first;
+    vector<float> mzBuffer;
+    vector<float> intensityBuffer;
+    for (auto elem : mzIntensityMap) {
+        auto mz = elem.first;
+        auto intensity = elem.second;
+        if (!mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)
+            || mz == lastMz) {
+            if (mz == lastMz) {
+                mzBuffer.push_back(mz);
+                intensityBuffer.push_back(intensity);
+            }
+            float avgMz = accumulate(begin(mzBuffer),
+                                     end(mzBuffer),
+                                     0.0f) / mzBuffer.size();
+            float avgIntensity = accumulate(begin(intensityBuffer),
+                                            end(intensityBuffer),
+                                            0.0f) / intensityBuffer.size();
+            binMzIntensityMap[avgMz] = avgIntensity;
+            mzBuffer.clear();
+            intensityBuffer.clear();
+            currentMinMz = mz;
+        }
+        mzBuffer.push_back(mz);
+        intensityBuffer.push_back(intensity);
+    }
+
+    // normalize to range [0, 1000]
+    auto maxIt = max_element(begin(binMzIntensityMap),
+                             end(binMzIntensityMap),
+                             [](const pair<float, float> l,
+                                 const pair<float, float> r) -> bool {
+                                 return l.second < r.second;
+                             });
+    float maxIntensity = maxIt->second;
+    for_each(begin(binMzIntensityMap),
+             end(binMzIntensityMap),
+             [&](pair<const float, float>& p) {
+                p.second = (p.second / maxIntensity) * 1000.0f;
+             });
+
+    // erase all intensities below 50 (less than 5% of maximum) as noise
+    for (auto it = begin(binMzIntensityMap);
+         it != end(binMzIntensityMap);) {
+        if(it->second < 50) {
+            it = binMzIntensityMap.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    return binMzIntensityMap;
+}
+
+
 vector<Scan*> PeakGroup::getFragmentationEvents()
 {
     vector<Scan*> matchedScans;
