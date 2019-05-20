@@ -71,6 +71,22 @@ class Database {
                             bsignal::signal<void (string, int, int)>* signal=nullptr);
 
         /**
+         * @brief Save average spectra of multiple peak groups in the NIST
+         * library file format.
+         * @param groups A vector of peak groups whose spectra has to be saved.
+         * @param cutoff Mass tolerance used for binning spectra.
+         * @param filepath Absolute path of file, where data needs to be saved.
+         * @param signal Pointer to a boost signal object that can be called
+         * with a string for update message, an integer for current steps of
+         * progress and another integer for total steps to completion.
+         * @return The number of groups whose spectra was successfully exported.
+         */
+        int saveNISTLibrary(vector<PeakGroup*> groups,
+                            MassCutoff *massCutoff,
+                            string filepath,
+                            bsignal::signal<void (string, int, int)>* signal=nullptr);
+
+        /**
          * @brief Checks whether the library with the given name is an NIST
          * library or not.
          * @details The first compound in the database (if it has any compounds)

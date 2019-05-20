@@ -584,6 +584,56 @@ int Database::loadNISTLibrary(QString filepath,
     return compoundCount;
 }
 
+int Database::saveNISTLibrary(vector<PeakGroup*> groups,
+                              MassCutoff* massCutoff,
+                              string filepath,
+                              bsignal::signal<void (string, int, int)>* signal)
+{
+    ofstream fstream(filepath);
+    int count = static_cast<int>(groups.size());
+    int progress = 0;
+    int written = 0;
+    for (auto group : groups) {
+        ++progress;
+        if (signal)
+            (*signal)("Saving spectral library: " + filepath, progress, count);
+
+        // do not write spectra of groups without a compound
+        if (group->compound == nullptr)
+            continue;
+
+        ++written;
+        fstream << "NAME: " << group->compound->name << "\n";
+        fstream << "MW: " << group->compound->mass << "\n";
+        fstream << "RT: " << group->meanRt << "\n";
+        fstream << "PRECURSORMZ: " << group->meanMz << "\n";
+        fstream << "SMILE: " << group->compound->smileString << "\n";
+        fstream << "ADDUCT: " << group->compound->adductString << "\n";
+        fstream << "FORMULA: " << group->compound->formula << "\n";
+
+        stringstream ss;
+        string separator = "";
+        for (auto category : group->compound->category) {
+            ss << separator << category;
+            separator = ",";
+        }
+        fstream << "CATEGORY: " << ss.str() << "\n";
+
+        string ionMode = group->compound->ionizationMode < 0 ? "Negative"
+                                                             : "Positive";
+        fstream << "IONMODE: " << ionMode << "\n";
+
+        auto mzIntensityMap = group->createAvgSpectra(massCutoff);
+        fstream << "NUMPEAKS: " << mzIntensityMap.size() << "\n" ;
+        for (auto elem : mzIntensityMap)
+            fstream << elem.first << "\t" << elem.second << "\n" ;
+
+        fstream << endl;
+    }
+    fstream.close();
+    return written;
+}
+
 bool Database::isNISTLibrary(string dbName) {
     auto compounds = getCompoundsSubset(dbName);
     if (compounds.size() > 0) {
