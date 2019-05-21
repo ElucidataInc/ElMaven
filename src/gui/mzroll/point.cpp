@@ -129,61 +129,57 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     }
 
 }
-void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
-    //if (_group) _group->groupOveralMatrix();
 
+void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     if (event->button() == Qt::RightButton)  {
         contextMenuEvent(event);
         return;
     }
 
     setZValue(10);
-
-    if (_group) Q_EMIT peakGroupSelected(_group);
-    if (_peak)  Q_EMIT peakSelected(_peak);
     if (_group)
-        _mw->groupRtWidget->plotGraph(_group);
-    if ( _group && _group->isIsotope() == false ) {
-        _mw->isotopeWidget->updateIsotopicBarplot(_group);
-    }
+        emit peakGroupSelected(_group);
+    if (_peak)
+        emit peakSelected(_peak);
 
-    if(_scan) {
-        if (_mw->spectraDockWidget) {
-            _mw->spectraDockWidget->setVisible(true);
-            _mw->spectraDockWidget->raise();
-        }
-        if (_mw->spectraWidget->isVisible())
-            _mw->spectraWidget->setScan(_scan);
-            //_mw->peptideFragmentation->setScan(_scan);
-            if(_scan->mslevel >= 2)  _mw->spectralHitsDockWidget->limitPrecursorMz(_scan->precursorMz);
-
-    }
-
-    //if (_peak && _mw->spectraWidget->isVisible()) {
-    //    _mw->spectraWidget->setScan(_peak);
-    //}
-
-    if (_peak && _mw->covariantsPanel->isVisible()) {
-        _mw->getLinks(_peak);
-    }
-
-    if (_peak && _mw->adductWidget->isVisible()) {
-        _mw->adductWidget->setPeak(_peak);
-    }
-
-    if (_peak && _group && _mw->isotopeWidget->isVisible()) {
-        _mw->isotopeWidget->peakSelected(_peak, _group);
-    }
-
-    if (_peak == nullptr) {
-        //ms2 markers have no peaks
-        _mw->getAnalytics()->hitEvent("PRM", "ClickedOnMarker");
-    }
-
-    scene()->update();
+    // make changes through static functions, since this object might be
+    // destroyed during the execution period of those functions.
+    _updateWidgetsForPeakGroup(_mw, _group, _peak);
+    _updateWidgetsForScan(_mw, _scan);
 }
 
+void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
+                                          PeakGroup* group,
+                                          Peak* peak)
+{
+    if (group)
+        mw->groupRtWidget->plotGraph(group);
+    if ( group && group->isIsotope() == false )
+        mw->isotopeWidget->updateIsotopicBarplot(group);
+    if (peak && group && mw->isotopeWidget->isVisible())
+        mw->isotopeWidget->peakSelected(peak, group);
+    if (peak && mw->covariantsPanel->isVisible())
+        mw->getLinks(peak);
+    if (peak && mw->adductWidget->isVisible())
+        mw->adductWidget->setPeak(peak);
+    if (peak == nullptr)
+        //ms2 markers have no peaks
+        mw->getAnalytics()->hitEvent("DDA", "ClickedOnMarker");
+}
 
+void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
+{
+    if(scan) {
+        if (mw->spectraDockWidget) {
+            mw->spectraDockWidget->setVisible(true);
+            mw->spectraDockWidget->raise();
+        }
+        if (mw->spectraWidget->isVisible())
+            mw->spectraWidget->setScan(scan);
+        if(scan->mslevel >= 2)
+            mw->spectralHitsDockWidget->limitPrecursorMz(scan->precursorMz);
+    }
+}
 
 void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
