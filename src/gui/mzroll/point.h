@@ -57,6 +57,11 @@ private:
     bool _forceFill;
     float _cSize;
 
+    static void _updateWidgetsForPeakGroup(MainWindow* mw,
+                                           PeakGroup* group,
+                                           Peak* peak);
+    static void _updateWidgetsForScan(MainWindow* mw, Scan* scan);
+
 private Q_SLOTS:
 	void bookmark();
 	void linkCompound();
