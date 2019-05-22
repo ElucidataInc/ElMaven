@@ -396,8 +396,8 @@ void mzSample::parseMzMLChromatogramList(const xml_node &chromatogramList)
 
 		// if (precursorMz and precursorMz ) {
 		if (precursorMz)
-		{					 //naman Same expression on both sides of '&&'.
-			int mslevel = 2; //naman The scope of the variable 'mslevel' can be reduced.
+		{
+			int mslevel = 2; //msLevel information cannot be read from the sample?
 			for (unsigned int i = 0; i < timeVector.size(); i++)
 			{
 				Scan *scan = new Scan(this, scannum++, mslevel, timeVector[i], precursorMz, -1);
@@ -1175,7 +1175,7 @@ EIC *mzSample::getEIC(float precursorMz, float collisionEnergy, float productMz,
 		Scan *scan = scans[i];
 		if (!(scan->filterLine == filterline || filterline == ""))
 			continue;
-		if (scan->mslevel < 2)
+		if (scan->mslevel != 2)
 			continue;
 		if (precursorMz && abs(scan->precursorMz - precursorMz) > amuQ1)
 			continue;
@@ -1847,7 +1847,7 @@ vector<Scan*> mzSample::getFragmentationEvents(mzSlice* slice)
 {
     vector<Scan*> matchedScans;
     for (auto scan : scans) {
-        if (scan->mslevel <= 1) continue; //ms2 + scans only
+        if (scan->mslevel != 2) continue; //ms2 scans only
         if (scan->rt < slice->rtmin) continue;
         if (scan->rt > slice->rtmax) break;
         if( scan->precursorMz >= slice->mzmin && scan->precursorMz <= slice->mzmax) {

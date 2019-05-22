@@ -3660,7 +3660,7 @@ void MainWindow::showFragmentationScans(float pmz)
             continue;
 
         for (auto scan : sample->scans) {
-	        if (scan->mslevel < 2) continue;
+	        if (scan->mslevel != 2) continue;
 	        if (massCutoffDist(scan->precursorMz,
                                pmz,
                                massCutoff) > massCutoff->getMassCutoff()) {

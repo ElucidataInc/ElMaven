@@ -176,7 +176,7 @@ void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
         }
         if (mw->spectraWidget->isVisible())
             mw->spectraWidget->setScan(scan);
-        if(scan->mslevel >= 2)
+        if(scan->mslevel == 2)
             mw->spectralHitsDockWidget->limitPrecursorMz(scan->precursorMz);
     }
 }
