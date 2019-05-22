@@ -295,7 +295,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 
     cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name << " " << c->precursorMz << endl;
 
-    if (_currentScan && _currentScan->mslevel != 1) {
+    if (_currentScan && _currentScan->mslevel == 2) {
         _showOverlay = true;
         overlaySpectralHit(_spectralHit);
         resetZoom();
