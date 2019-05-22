@@ -31,6 +31,7 @@ public:
     QString password;
     QString jsPath;
     QString nodePath;
+    QString nodeModulesPath;
     QString createProjectOnPolly(QString projectname);
 
     /**
