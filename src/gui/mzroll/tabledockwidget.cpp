@@ -698,21 +698,23 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
-  auto prmGroupAt = find_if(begin(allgroups),
+  auto ddaGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
+                              if (!group.compound)
+                                return false;
                               return group.compound->type() == Compound::Type::PRM;
                             });
-  bool prmGroupExists = prmGroupAt != end(allgroups);
+  bool ddaGroupExists = ddaGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
     csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
+                                ddaGroupExists,
                                 includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
     csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
+                                ddaGroupExists,
                                 includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
@@ -720,7 +722,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
+    csvreports->openGroupReport(fileName.toStdString(), ddaGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
