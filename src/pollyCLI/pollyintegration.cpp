@@ -39,7 +39,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
 void PollyIntegration::requestSuccess()
 {
     _fPtr = new QTemporaryFile();
-    _fPtr->setFileTemplate(QDir::tempPath() + "index.js");
+    _fPtr->setFileTemplate(QDir::tempPath() + QDir::separator() + "index.js");
     if(_fPtr->open()) {
         _fPtr->write(_dlManager->getData());
         qDebug() << "data written to file: " << _fPtr->fileName();
