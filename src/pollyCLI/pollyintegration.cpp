@@ -16,17 +16,20 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     #ifdef Q_OS_WIN
       if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
         nodePath = qApp->applicationDirPath() + QDir::separator() + "node.exe";
+      nodeModulesPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator();
     #endif
 
     #ifdef Q_OS_LINUX
       if(!QStandardPaths::findExecutable("node", QStringList() << qApp->applicationDirPath()).isEmpty())
           nodePath = qApp->applicationDirPath() + QDir::separator() + "node";
+      nodeModulesPath = qApp->applicationDirPath() + QDir::separator() + "node_modules" + QDir::separator();
     #endif
 
     #ifdef Q_OS_MAC
       QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
       if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
         nodePath = binDir + "node_bin" + QDir::separator() + "node";
+      nodeModulesPath = binDir + "node_modules" + QDir::separator();
     #endif
 
     indexFileURL = "https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js";
@@ -35,13 +38,8 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
 
 void PollyIntegration::requestSuccess()
 {
-    jsPath = qApp->applicationDirPath() + QDir::separator() + "_index.js";
-    #ifdef Q_OS_MAC
-      QString binDir = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-      jsPath = binDir + "_index.js";
-    #endif
-
-    _fPtr = new QTemporaryFile(jsPath);
+    _fPtr = new QTemporaryFile();
+    _fPtr->setFileTemplate(QDir::tempPath() + "index.js");
     if(_fPtr->open()) {
         _fPtr->write(_dlManager->getData());
         qDebug() << "data written to file: " << _fPtr->fileName();
@@ -110,6 +108,10 @@ QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList ar
     // qDebug()<<"args -"<<arg;
 
     // nodePath = "PATH_OF_MAVEN/bin/node.exe"
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("NODE_PATH", nodeModulesPath);
+
+    process.setProcessEnvironment(env);
     process.setProgram(nodePath);
     process.setArguments(arg);
 
