@@ -23,6 +23,7 @@ QUrlQuery Analytics::intialSetup()
     query.addQueryItem("v", "1"); // Version
     query.addQueryItem("tid", trackerID); // Tracking ID
     query.addQueryItem("cid", clientID); // Client ID
+    query.addQueryItem("uid", clientID); //User ID same as Client ID for now
     query.addQueryItem("ul", language); // Language
     query.addQueryItem("an", qApp->applicationName()); // Application Name
     query.addQueryItem("av", qApp->applicationVersion()); // Application Version
