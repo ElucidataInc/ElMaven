@@ -31,7 +31,6 @@ public:
   QTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
-  int labeledGroups = 0;
   int numberOfGroupsMarked = 0;
   QString writableTempS3Dir;
   /**
@@ -97,6 +96,18 @@ public:
    * @return Floating precision value of maximum intensity
    */
   float extractMaxIntensity(PeakGroup *group);
+
+  /**
+   * @brief Get the number of targeted groups in this peak table.
+   * @return Targeted group count as integer.
+   */
+  int getTargetedGroupCount();
+
+  /**
+   * @brief Get the number of labeled groups in this peak table.
+   * @return Targeted group count as integer.
+   */
+  int getLabeledGroupCount();
 
 public Q_SLOTS:
   void updateCompoundWidget();
@@ -199,6 +210,8 @@ public Q_SLOTS:
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
+  int _labeledGroups;
+  int _targetedGroups;
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   void focusInEvent(QFocusEvent *event);
