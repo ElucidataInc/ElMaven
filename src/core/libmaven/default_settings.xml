@@ -71,4 +71,9 @@
         <intensityWeight>10</intensityWeight>
         <deltaRTWeight>10</deltaRTWeight>
         <considerDeltaRT>0</considerDeltaRT>
+        <centroidScans>0</centroidScans>
+        <scanFilterMinIntensity>0</scanFilterMinIntensity>
+        <scanFilterMinQuantile>0</scanFilterMinQuantile>
+        <scanFilterMsLevel>0</scanFilterMsLevel>
+        <scanFilterPolarity>0</scanFilterPolarity>
 </Settings>
