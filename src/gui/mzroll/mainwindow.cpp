@@ -840,7 +840,7 @@ void MainWindow::showNotification(TableDockWidget* table) {
     QString message("Make your analyses more insightful with Machine learning."
                     "\nView your fluxomics workflow in PollyPhi.");
 
-    if (table->groupCount() == 0 || table->labeledGroups == 0)
+    if (table->groupCount() == 0 || table->getLabeledGroupCount() == 0)
         return;
 
     Notificator* fluxomicsPrompt = Notificator::showMessage(icon,

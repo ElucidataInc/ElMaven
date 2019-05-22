@@ -23,6 +23,8 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
+  _labeledGroups = 0;
+  _targetedGroups = 0;
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
@@ -407,8 +409,10 @@ void ListView::keyPressEvent(QKeyEvent *event) {
 PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
   if (group != NULL) {
     allgroups.push_back(*group);
-	if (group->childCount() > 0)
-		labeledGroups++;
+    if (group->childCount() > 0)
+      _labeledGroups++;
+    if (group->compound)
+      _targetedGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups[allgroups.size() - 1];
       for (unsigned int i = 0; i < allgroups.size(); i++) {
@@ -698,21 +702,23 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   csvreports->setUserQuantType(_mainwindow->getUserQuantType());
 
-  auto prmGroupAt = find_if(begin(allgroups),
+  auto ddaGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
+                              if (!group.compound)
+                                return false;
                               return group.compound->type() == Compound::Type::PRM;
                             });
-  bool prmGroupExists = prmGroupAt != end(allgroups);
+  bool ddaGroupExists = ddaGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
   if (sFilterSel == groupsSCSV) {
     csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
+                                ddaGroupExists,
                                 includeSetNamesLines);
   } else if (sFilterSel == groupsSTAB) {
     csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
+                                ddaGroupExists,
                                 includeSetNamesLines);
   } else if (sFilterSel == peaksCSV) {
     csvreports->openPeakReport(fileName.toStdString());
@@ -720,15 +726,15 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     csvreports->openPeakReport(fileName.toStdString());
   } else {
     // default to group summary
-    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
+    csvreports->openGroupReport(fileName.toStdString(), ddaGroupExists);
   }
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
   csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (selectedGroups.contains(&allgroups[i])) {
-      PeakGroup &group = allgroups[i];
+  for (auto& group : allgroups) {
+    // we do not set untargeted groups to Polly yet, remove this when we can.
+    if (selectedGroups.contains(&group) && group.compound != nullptr) {
       csvreports->addGroup(&group);
     }
   }
@@ -1009,7 +1015,9 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       item->setHidden(true);
 
       if (group->children.size() > 0)
-            labeledGroups--;
+        _labeledGroups--;
+      if (group->compound)
+        _targetedGroups--;
 
       // Deleting
       int posTree = treeWidget->indexOfTopLevelItem(item);
@@ -1911,6 +1919,16 @@ void TableDockWidget::switchTableView() {
   updateTable();
 }
 
+int TableDockWidget::getTargetedGroupCount()
+{
+  return _targetedGroups;
+}
+
+int TableDockWidget::getLabeledGroupCount()
+{
+  return _labeledGroups;
+}
+
 QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   if (btnName == "titlePeakTable") {
 
@@ -2455,8 +2473,10 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
     if (group != NULL and group == groupX) {
         item->setHidden(true);
 
-	    if (group->children.size() > 0)
-            	labeledGroups--;
+    if (group->children.size() > 0)
+      _labeledGroups--;
+    if (group->compound)
+      _targetedGroups--;
 
       	// Deleting
         int posTree = treeWidget->indexOfTopLevelItem(item);

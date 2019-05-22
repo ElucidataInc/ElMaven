@@ -1137,17 +1137,19 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     csvreports->setUserQuantType(quantitationType);
 
-    auto prmGroupAt =
+    auto ddaGroupAt =
         find_if(begin(mavenParameters->allgroups),
                 end(mavenParameters->allgroups),
                 [](PeakGroup& group) {
+                    if (!group.compound)
+                        return false;
                     return group.compound->type() == Compound::Type::PRM;
                 });
-    bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
+    bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
 
     // Added to pass into csvreports file when merged with Maven776 - Kiran
     // CLI exports the default Group Summary Matrix Format (without set Names)
-    csvreports->openGroupReport(fileName, prmGroupExists);
+    csvreports->openGroupReport(fileName, ddaGroupExists);
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
         PeakGroup& group = mavenParameters->allgroups[i];
@@ -1184,7 +1186,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     if (fileNeedsCorrection) {
         // rewrite file if needed
-        csvreports->openGroupReport(fileName, prmGroupExists);
+        csvreports->openGroupReport(fileName, ddaGroupExists);
         csvreports->groupId = 0;
 
         sort(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end());
