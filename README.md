@@ -36,6 +36,9 @@ Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following t
 ### Windows
 
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
+- Download OpenSSL package using https://indy.fulgan.com/SSL/openssl-1.0.2r-x64_86-win64.zip
+- Extract the contents of OpenSSL package in `/c/msys64/mingw64/bin`
+- NOTE: To verify whether the above two steps have been executed correctly make sure you have libeay32.dll and ssleay32.dll inside `/c/msys64/mingw64/bin/`
 - Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
 ##### **For 64 bit**:  _Following commands needs to be executed from msys2 shell_
 
@@ -43,9 +46,6 @@ Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following t
 - `pacman --force -Syu`
 - `pacman --force -Su`
 - `pacman --force -Sy base-devel msys2-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost msys/git mingw-w64-x86_64-curl`
--  `Download OpenSSL package using https://indy.fulgan.com/SSL/openssl-1.0.2r-x64_86-win64.zip`
-- `Extract the contents of OpenSSL package in /c/msys64/mingw64/bin`
-- `NOTE: To verify whether the above two steps have been executed correctly make sure you have  libeay32.dll and ssleay32.dll inside /c/msys64/mingw64/bin/`
 - `export PATH=/c/msys64/mingw64/bin/:$PATH`. It will be benefical if this change is made permanent. To do so, you will have to make changes
 in the .bashrc file. It can be achieved by either manually editing the .bashrc file or via command line.
 
