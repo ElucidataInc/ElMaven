@@ -705,6 +705,41 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
     }
 }
 
+bool PeakDetectorCLI::_incompatibleWithPollyApp() 
+{
+    //MRM data is not compatible with PollyPhi
+    bool onlyMS2 = true;
+    for (auto sample : mavenParameters->samples) {
+        if (sample->ms1ScanCount())
+            onlyMS2 = false;
+    }
+    if (onlyMS2 && _currentPollyApp == PollyApp::PollyPhi) {
+        cerr << "PollyPhi currently does not support purely MS2 data. "
+             << "Please use an MS1 or DDA dataset."
+             << endl;
+        return true;
+    }
+    
+    //Untargeted data is not compatible with any app atm
+    if (mavenParameters->processAllSlices) {
+        cerr << "Untargeted data is not supported on Polly. Please switch off"
+             << " mass slicing and provide a compound database."
+             << endl;
+        return true;
+    }
+
+    //Unlabelled data is not the desired data for PollyPhi
+    if (!mavenParameters->pullIsotopesFlag && 
+        _currentPollyApp == PollyApp::PollyPhi) {
+        cerr << "PollyPhi is used for the analysis of labeled data. Please "
+             << "switch on isotope detection using paramater -f."
+             << endl;
+        return true;
+    }
+
+    return false;
+}
+
 void PeakDetectorCLI::writeReport(string setName,
                                   QString jsPath,
                                   QString nodePath)
@@ -731,6 +766,9 @@ void PeakDetectorCLI::writeReport(string setName,
         // save output CSV
         saveCSV(fileName, false);
     } else {
+        if (_incompatibleWithPollyApp())
+            exit(0);
+
         // try uploading to Polly
         QMap<QString, QString> creds = _readCredentialsFromXml(pollyArgs);
         cout << "uploading to Polly now…" << endl;

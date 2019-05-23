@@ -272,6 +272,8 @@ private:
      * @return Redirection URL as a QString.
      */
     QString _getRedirectionUrl(QString datetimestamp, QString uploadProjectId);
+
+    bool _incompatibleWithPollyApp();
 };
 
 struct Arguments
