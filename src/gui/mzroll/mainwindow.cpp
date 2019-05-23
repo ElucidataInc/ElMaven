@@ -1760,6 +1760,7 @@ void MainWindow::open()
             emdbProjectBeingLoaded = fileLoader->swapFilenameExtension(filename,
                                                                        "emDB");
             analytics->hitEvent("Project Load", "mzrollDB");
+            quantType->setCurrentText("AreaTopNotCorrected");
         } else if (fileLoader->isMzRollProject(filename)) {
             analytics->hitEvent("Project Load", "mzroll");
         }
