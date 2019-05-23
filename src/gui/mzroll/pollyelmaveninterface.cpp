@@ -87,6 +87,10 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                                       "DemoButton",
                                                       appName);
             });
+    connect(peakTableCombo,
+            &QComboBox::currentTextChanged,
+            this,
+            &PollyElmavenInterfaceDialog::_reviseGroupOptions);
 
     connect(_worker,
             SIGNAL(projectsReady(QVariantMap)),
@@ -494,6 +498,7 @@ void PollyElmavenInterfaceDialog::_populateTables()
 
     // set latest table by default
     peakTableCombo->setCurrentIndex(peakTableCombo->count() - 1);
+    _reviseGroupOptions(peakTableCombo->currentText());
 
     // set to active table if available
     if (_activeTable && _tableNameMapping.values().contains(_activeTable)) {
@@ -531,6 +536,41 @@ void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
     } else if (!_uploadInProgress) {
         gotoPollyButton->setVisible(true);
     }
+}
+
+void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
+{
+    auto peakTable = _tableNameMapping.value(tableName, nullptr);
+    if (peakTable == nullptr)
+        return;
+
+    auto groups = peakTable->getGroups();
+    bool anyGood = false;
+    bool allBad = true;
+    for (auto group : groups) {
+        if (group->label == 'g')
+            anyGood = true;
+        if (group->label != 'b')
+            allBad = false;
+    }
+    auto model = dynamic_cast<QStandardItemModel*>(groupSetCombo->model());
+
+    // if any group is good, enable "Only Good Groups"
+    auto item = model->item(1, 0);
+    if (anyGood) {
+        item->setEnabled(true);
+    } else {
+        item->setEnabled(false);
+    }
+
+    // if all groups are bad, disable "Exclude Bad Groups"
+    item = model->item(2, 0);
+    if (allBad) {
+        item->setEnabled(false);
+    } else {
+        item->setEnabled(true);
+    }
+
 }
 
 void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,

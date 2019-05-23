@@ -445,6 +445,13 @@ private Q_SLOTS:
      */
     void _hideFormIfNotLicensed();
 
+    /**
+     * @brief Enable or disables group subset options, based on the table name
+     * passed.
+     * @param tableName Name of the table for which the group options have to be
+     * revised.
+     */
+    void _reviseGroupOptions(QString tableName);
 };
 
 #endif
