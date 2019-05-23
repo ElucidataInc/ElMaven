@@ -774,7 +774,7 @@ Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
 {
     //build consensus ms2 specta
     computeFragPattern(productPpmTolr);
-    Scan* avgScan = new Scan(NULL, 0, 0, 0, 0, 0);
+    Scan* avgScan = new Scan(NULL, 0, 2, 0, 0, 0);
 
     for(unsigned int i = 0; i < fragmentationPattern.mzValues.size(); i++) {
         avgScan->mz.push_back(fragmentationPattern.mzValues[i]);
