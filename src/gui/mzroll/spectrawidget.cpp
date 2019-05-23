@@ -337,11 +337,7 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group)
 
     if (consensus) {
         _scanset = group->getFragmentationEvents();
-        _currentScan = consensus;
-        _currentScan->scannum = 0;
-        _currentScan->sample = 0;
-        _currentScan->rt = group->meanRt;
-        _currentScan->precursorMz = group->meanMz;
+        _currentScan->deepcopy(consensus);
         this->findBounds(true, true);
         this->drawGraph();
     }
