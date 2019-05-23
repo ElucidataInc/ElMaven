@@ -14,7 +14,7 @@ permalink: /Features/
 <br>
 <h5 class="cdn-h3">Raw Data Files:</h5>
 <p class="cdn-content">
-ElMaven can read import raw data and export processed data in the following formats:</p>
+El-MAVEN can read import raw data and export processed data in the following formats:</p>
 <br>
 <p class="cdn-content">Input-</p>
   <ul class="dotted-list">
@@ -73,7 +73,7 @@ ElMaven can read import raw data and export processed data in the following form
 <ul>
 <br>
 <h4 class="cdn-h3 ">Automatic Peak Picking</h4>
-<p class="cdn-content">ElMaven can automatically select high intensity and high quality groups. This workflow is called automatic peak curation. The feature has been tested for accuracy against the gold standard of manually curated peaks by scientists at other tools. This feature reduces the time spent from days to a few hours in curating peaks in Untargted Global Profiling datasets.</p>
+<p class="cdn-content">El-MAVEN can automatically select high intensity and high quality groups. This workflow is called automatic peak curation. The feature has been tested for accuracy against the gold standard of manually curated peaks by scientists at other tools. This feature reduces the time spent from days to a few hours in curating peaks in Untargted Global Profiling datasets.</p>
 <br>
 
 <p class="cdn-content">

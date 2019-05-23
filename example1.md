@@ -1,13 +1,13 @@
 ---
 layout: page
-title: Why ElMaven
+title: Why El-MAVEN
 permalink: /Why-ElMaven/
 ---
 
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
 <br>
 <div class="section">
-    <p class="cdn-content"><a href="http://genomics-pubs.princeton.edu/mzroll/index.php">Maven</a> and <a href="https://elucidatainc.github.io/ElMaven/">Elmaven</a> share following features:</p>
+    <p class="cdn-content"><a href="http://genomics-pubs.princeton.edu/mzroll/index.php">Maven</a> and <a href="https://elucidatainc.github.io/ElMaven/">El-MAVEN</a> share following features:</p>
 <br>
 <!-- <ul> -->
 <div style="padding-left:3%">
@@ -23,7 +23,7 @@ permalink: /Why-ElMaven/
 <!-- </ul> -->
 <br>
 <br>
-<p class="cdn-content"><b>Elmaven is robust, faster and with more user friendly features compared to Maven.</b></p>
+<p class="cdn-content"><b>El-MAVEN is robust, faster and with more user friendly features compared to MAVEN.</b></p>
 </div>
 <br>
 <br>

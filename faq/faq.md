@@ -194,7 +194,7 @@ mark {
 			</li>
 
 			<li>
-				<a class="cd-faq-trigger" href="#0">How to mark samples as blanks in ElMaven?</a>
+				<a class="cd-faq-trigger" href="#0">How to mark samples as blanks in El-MAVEN?</a>
 				<div class="cd-faq-content">
 					<p>Samples can be marked as blanks by selecting the sample and clicking  <img src="Blank_Icon.png" alt="Blank Sample Image" height="20" width="40">  "Blank" icon. The sample gets greyed out once it is marked as a blank.</p>
 				</div> <!-- cd-faq-content -->
@@ -212,7 +212,7 @@ mark {
 First, you should check for alignment of your samples in the EIC. Misalignment is a common observation due to drift in retention time. If the samples seem to be misaligned, you should perform alignment through the following steps:</p><br />
 
 <p>● Step 1: Click on “Align” <img src="https://user-images.githubusercontent.com/29090291/42505937-fc4db6e2-845d-11e8-8f90-9521803f4664.png" alt="Align Icon Icon" height="25" width="40"> in the top menu</p>
-<p>● Step 2: Select an alignment algorithm (ElMaven provides Loess, Poly Fit, and OBI Warp alignment methods)</p>
+<p>● Step 2: Select an alignment algorithm (El-MAVEN provides Loess, Poly Fit, and OBI Warp alignment methods)</p>
 <p>● Step 3: Click on “Align” in the popup</p>
 <img src="https://user-images.githubusercontent.com/29090291/42505935-fad37d10-845d-11e8-9026-2319cb38f2e2.png" alt="Peak Grouping Alignment" height="250" width="600"><br />
 
@@ -220,10 +220,10 @@ First, you should check for alignment of your samples in the EIC. Misalignment i
 If grouping issue persists, you can increase the peak grouping parameters in the “Options” menu.</p><br />
 
 
-<p>In ElMaven, a peak grouping score is determined to decide whether a peak should be grouped together or not. The “Peak Grouping” tab in the “Options” menu gives the equation and the parameters for calculation of the score. You can tweak these parameters to improve grouping of your data.</p>
+<p>In El-MAVEN, a peak grouping score is determined to decide whether a peak should be grouped together or not. The “Peak Grouping” tab in the “Options” menu gives the equation and the parameters for calculation of the score. You can tweak these parameters to improve grouping of your data.</p>
 <br />
 
-<p>If the issue still persists, you can increase the EIC Smoothing Window under “Options” menu in “Peak Detection” tab. Smoothing of data points helps in increasing the signal/noise ratio. There are three algorithms in ElMaven on the basis of which EIC Smoothing is done, namely: Savitzky-Golay, Gaussian and Moving Average.
+<p>If the issue still persists, you can increase the EIC Smoothing Window under “Options” menu in “Peak Detection” tab. Smoothing of data points helps in increasing the signal/noise ratio. There are three algorithms in El-MAVEN on the basis of which EIC Smoothing is done, namely: Savitzky-Golay, Gaussian and Moving Average.
 </p><br />
 <p>Check <a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI" target="_blank">Documentation</a> for details.</p>
 				</div> <!-- cd-faq-content -->
@@ -265,10 +265,10 @@ Another possible could be high group filtering parameters which filter out even 
 
 
 			<li>
-				<a class="cd-faq-trigger" href="#0">How does ElMaven detect the best group in any m/z?</a>
+				<a class="cd-faq-trigger" href="#0">How does El-MAVEN detect the best group in any m/z?</a>
 				<div class="cd-faq-content">
 					<br />
-					<p>ElMaven does this on the basis of group rank. Group rank is calculated using intensity and quality score. Quality score, in turn, is calculated using 9 different metrics of a peak.You can adjust the score calculation from the "Group Rank" tab in "Options" dialog.</p>
+					<p>El-MAVEN does this on the basis of group rank. Group rank is calculated using intensity and quality score. Quality score, in turn, is calculated using 9 different metrics of a peak.You can adjust the score calculation from the "Group Rank" tab in "Options" dialog.</p>
 				</div> <!-- cd-faq-content -->
 			</li>
 		</ul> <!-- cd-faq-group -->
@@ -291,11 +291,11 @@ Another possible could be high group filtering parameters which filter out even 
 			</li>
 
 			<li>
-				<a class="cd-faq-trigger" href="#0">How can we manually curate peaks in ElMaven?</a>
+				<a class="cd-faq-trigger" href="#0">How can we manually curate peaks in El-MAVEN?</a>
 				<div class="cd-faq-content">
 					<p>● To use manual curation using the compound DB widget, the user has to iterate over all the compounds in the compound DB.</p>
 
-<p>● Once on a compound, ElMaven shows the highest ranked group for that M/Z. The user can now choose a group or reject it. There are two ways to do this.</p>
+<p>● Once on a compound, El-MAVEN shows the highest ranked group for that M/Z. The user can now choose a group or reject it. There are two ways to do this.</p>
 
 <p>● In the first workflow, the user needs to double click on the peak group of his choice. This will get the Rt line to the median of the group and also add the metabolite to the bookmarks table.</p><p>● In the second workflow, the user can "Shift"+Drag on the peak they want to add to their bookmark table.</p>
 				</div> <!-- cd-faq-content -->
@@ -308,7 +308,7 @@ Another possible could be high group filtering parameters which filter out even 
 					<p><mark>● Conversion issue:</mark> The raw files from the experiment were not converted properly to the required .mzXML or .mzML format. Sometimes conversion using 32bit MSConvert gives an issue. Check <a href="https://github.com/ElucidataInc/ElMaven/wiki/Introduction-to-ElMaven-UI" target="_blank">Documentation</a> for correct parameters to be used while conversion.</p>
 					<p><mark>● Incorrect ppm values:</mark> The ppm values can be very high or low as compared to what was used in the experiment. This leads to the peaks not getting detected. Select proper ppm value in the Top Left menu or while Peak Detection through Compound Database Search.</p>
 					<p><mark>● Incorrect polarity settings:</mark> Sometimes peaks are not detected because of incorrect polarity settings. This can be changed by selecting “Options” in the top menu and changing “Polarity/Ionization Mode” under the “Instrumentation” tab</p>
-					<p><mark>● Unit mismatch:</mark> ElMaven works with the monoisotopic mass unit, whereas mass spectrometry machines give an output in the atomic mass unit. Due to this unit mismatch, we have to raise the ppm value to negate the mismatch and detect peaks.</p>
+					<p><mark>● Unit mismatch:</mark> El-MAVEN works with the monoisotopic mass unit, whereas mass spectrometry machines give an output in the atomic mass unit. Due to this unit mismatch, we have to raise the ppm value to negate the mismatch and detect peaks.</p>
 				</div> <!-- cd-faq-content -->
 			</li>
 
@@ -627,7 +627,7 @@ Another possible could be high group filtering parameters which filter out even 
 				<div class="cd-faq-content">
 				<p>Group rank is one of the parameters for group filtering. Peaks are ranked according to their quality.</p><br />
 				<p>The score depends on the following 3 parameters and their respective weights A, B and C:</p>
-                <p>i) Q or Group Quality- Maximum peak quality of a group. Peaks are assigned a quality score by a machine learning algorithm in El Maven. Better quality leads to a higher rank.</p>      
+                <p>i) Q or Group Quality- Maximum peak quality of a group. Peaks are assigned a quality score by a machine learning algorithm in El-MAVEN. Better quality leads to a higher rank.</p>      
                 <p>ii) I or Group Intensity- Maximum intensity of a group. Better intensity leads to a higher rank.</p>
 				<p>iii) dRT or RT difference- Difference between expected RT and group mean RT.</p><br />
 				<p>● Consider Retention Time- Check the box to use retention time while group rank calculation.</p>
