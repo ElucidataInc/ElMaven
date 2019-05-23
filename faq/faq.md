@@ -20,7 +20,7 @@ mark {
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css"> 
 	<script src="js/modernizr.js"></script> 
-	<title>El-Maven | FAQs</title>
+	<title>El-MAVEN | FAQs</title>
 	
 </head>
  

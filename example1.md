@@ -7,7 +7,7 @@ permalink: /Why-ElMaven/
 <h1 class="page-title cdn-h1" style="color: #8985db !important;">{{ page.title | escape }}</h1>
 <br>
 <div class="section">
-    <p class="cdn-content"><a href="http://genomics-pubs.princeton.edu/mzroll/index.php">Maven</a> and <a href="https://elucidatainc.github.io/ElMaven/">El-MAVEN</a> share following features:</p>
+    <p class="cdn-content"><a href="http://genomics-pubs.princeton.edu/mzroll/index.php">MAVEN</a> and <a href="https://elucidatainc.github.io/ElMaven/">El-MAVEN</a> share following features:</p>
 <br>
 <!-- <ul> -->
 <div style="padding-left:3%">
