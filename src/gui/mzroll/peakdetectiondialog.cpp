@@ -463,8 +463,8 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
 
 // TODO: Sahil. Refactored this whole function. Merged with mainwindow of 776.
 // RECHECK IT AGAIN. IMPORTANT
-void PeakDetectionDialog::findPeaks() {
-
+void PeakDetectionDialog::findPeaks()
+{
     if (reportIsotopesOptions->isChecked()) {
         mainwindow->getAnalytics()->hitEvent("Peak Detection",
                                              "Find Peaks With Isotopes");
@@ -491,9 +491,11 @@ void PeakDetectionDialog::findPeaks() {
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
+        mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
     } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Untargeted");
+        mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
     } else {
         _featureDetectionType = FullSpectrum;
     }

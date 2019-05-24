@@ -2993,14 +2993,6 @@ void MainWindow::createToolBars() {
                 if (!peakDetectionDialog->isVisible())
                     peakDetectionDialog->compoundPPMWindow->setValue(value);
             });
-    connect(peakDetectionDialog->ppmStep,
-            doubleChanged,
-            massCutoffWindowBox,
-            &QDoubleSpinBox::setValue);
-    connect(peakDetectionDialog->compoundPPMWindow,
-            doubleChanged,
-            massCutoffWindowBox,
-            &QDoubleSpinBox::setValue);
     massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
 
     searchText = new QLineEdit(hBox);
