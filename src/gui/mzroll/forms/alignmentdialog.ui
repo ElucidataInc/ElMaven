@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>1058</height>
+    <height>1103</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -325,11 +325,6 @@
         <item>
          <property name="text">
           <string>OBI-Warp [Beta]</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Loess Fit  [Deprecated]</string>
          </property>
         </item>
        </widget>
