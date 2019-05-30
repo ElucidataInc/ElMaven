@@ -112,7 +112,7 @@ class Database {
 	map<string, Molecule2D*> coordinatesMap;
     vector<string> notFoundColumns;
     vector<string> invalidRows;
-    map<string, int> compoundIdCount;
+    map<string, int> compoundIdenticalCount;
     //Added while merging with Maven776 - Kiran
     const std::string ANYDATABASE;
        private:
