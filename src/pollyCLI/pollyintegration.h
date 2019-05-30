@@ -47,9 +47,13 @@ public:
      * @brief This creates a run request for QuantFit and returns its ID.
      * @param componentName The name of Polly component to create run for.
      * @param projectId The ID of the project for which to create run.
+     * @param extraInfo Extra information that can be used on Polly however it
+     * may be required.
      * @return Returns run request ID as a QString.
      */
-    QString createRunRequest(QString componentId, QString projectId);
+    QString createRunRequest(QString componentId,
+                             QString projectId,
+                             QString extraInfo="");
 
     /**
      * @brief Execute terminal commands from c++

@@ -209,6 +209,7 @@ public:
             "A?pollyApp: Polly application to upload to after peak detection finishes. Enter 1 for PollyPhi or 2 for QuantFit. <int>",
             "N?pollyProject: Polly project where we want to upload our files. <string>",
             "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. <string>",
+            "E?pollyExtra: Any miscellaneous information that needs to be sent to Polly. <string>",
             nullptr
         };
         return options;
@@ -226,6 +227,7 @@ private:
     JSONReports* _jsonReports;
     bool _reduceGroupsFlag;
     PollyApp _currentPollyApp;
+    QString _pollyExtraInfo;
 
     /**
      * [Load Arguments for Options Dialog]

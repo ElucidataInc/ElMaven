@@ -95,6 +95,11 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
                 mavenParameters->processAllSlices = false;
             break;
 
+        case 'E':
+            // parse sample cohort filename here
+            _pollyExtraInfo = QString(optarg);
+            break;
+
         case 'f': {
             mavenParameters->pullIsotopesFlag = 0;
             int label = 0;
@@ -944,7 +949,8 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
             _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
-                                                uploadProjectId);
+                                                uploadProjectId,
+                                                _pollyExtraInfo);
         if (!runRequestId.isEmpty()) {
             redirectionUrl =
                 _pollyIntegration->getComponentEndpoint(componentId,
