@@ -12,9 +12,10 @@
 #include "mzSample.h"
 #include "Scan.h"
 
-AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 
-	setupUi(this); 
-	setModal(false);
+AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
+        setupUi(this);
+        setModal(false);
+        setWindowTitle("Alignment");
 
 	workerThread = NULL;
 	workerThread = new BackgroundPeakUpdate(this);
