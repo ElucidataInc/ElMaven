@@ -88,10 +88,6 @@ public Q_SLOTS:
      */
     void clearSession();
 
-    void saveProjectAsMzRoll();
-    void saveMzRollProject();
-    void saveMzRollProject(QString filename);
-    void saveMzRollTable(QString filename, TableDockWidget* peakTable=nullptr);
     void loadMzRollProject(QString filename);
     void setSampleColor(mzSample* sample, QColor color); //TODO: Sahil, Added while merging projectdockwidget
     void unloadSelectedSamples(); //TODO: Sahil, Added while merging projectdockwidget
