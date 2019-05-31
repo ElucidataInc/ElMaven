@@ -16,7 +16,7 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		AlignmentDialog(QWidget *parent);
 		~AlignmentDialog();
 		void setMainWindow(MainWindow* mw);
-		void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread) {workerThread = alignmentWorkerThread;}
+                void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread);
 		MainWindow* _mw;
         BackgroundPeakUpdate* workerThread;
 

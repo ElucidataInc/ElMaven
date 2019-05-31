@@ -35,6 +35,27 @@ AlignmentDialog::~AlignmentDialog()
 	if (workerThread) delete (workerThread);
 }
 
+void AlignmentDialog::setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread)
+{
+    workerThread = alignmentWorkerThread;
+    connect(workerThread,
+            &QThread::started,
+            this,
+            [=] {
+                alignAlgo->setEnabled(false);
+                alignButton->setEnabled(false);
+                UndoAlignment->setEnabled(false);
+            });
+    connect(workerThread,
+            &QThread::finished,
+            this,
+            [=] {
+                alignAlgo->setEnabled(true);
+                alignButton->setEnabled(true);
+                UndoAlignment->setEnabled(true);
+            });
+}
+
 void AlignmentDialog::samplesAligned(bool status)
 {
 	_mw->samplesAlignedFlag = status;

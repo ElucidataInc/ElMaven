@@ -3435,7 +3435,6 @@ void MainWindow::Align()
         workerThread = newWorkerThread("alignWithObiWarp");
         workerThread->setMavenParameters(mavenParameters);
         alignmentDialog->setWorkerThread(workerThread);
-        workerThread->start();
         connect(workerThread,
                 SIGNAL(finished()),
                 eicWidget,
@@ -3448,6 +3447,7 @@ void MainWindow::Align()
                 SIGNAL(restoreAlignment()),
                 alignmentDialog,
                 SLOT(updateRestoreStatus()));
+        workerThread->start();
         return;
     }
 
