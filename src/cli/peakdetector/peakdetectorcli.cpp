@@ -13,7 +13,6 @@ PeakDetectorCLI::PeakDetectorCLI()
     mavenParameters = new MavenParameters();
     peakDetector = new PeakDetector();
     saveJsonEIC = false;
-    saveMzrollFile = true;
     quantitationType = PeakGroup::AreaTop;
     clsfModelFilename = "default.model";
     alignMode = AlignmentMode::None;
@@ -193,12 +192,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
 
         case 'r':
             mavenParameters->rtStepSize = atoi(optarg);
-            break;
-
-        case 's':
-            saveMzrollFile = true;
-            if (atoi(optarg) == 0)
-                saveMzrollFile = false;
             break;
 
         case 'v':
@@ -507,11 +500,6 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             mavenParameters->outputdir =
                 node.attribute("value").value() + string(DIR_SEPARATOR_STR);
 
-        } else if (strcmp(node.name(), "savemzroll") == 0) {
-            saveMzrollFile = true;
-            if (atoi(node.attribute("value").value()) == 0)
-                saveMzrollFile = false;
-
         } else if (strcmp(node.name(), "pollyExtra") == 0) {
             _pollyExtraInfo = QString(node.attribute("value").value());
 
@@ -771,9 +759,6 @@ void PeakDetectorCLI::writeReport(string setName,
 
         // save Eic Json
         saveJson(fileName);
-
-        // save Mzroll File
-        saveMzRoll(fileName);
 
         // save output CSV
         saveCSV(fileName, false);
@@ -1157,22 +1142,6 @@ bool PeakDetectorCLI::_sendUserEmail(QMap<QString, QString> creds,
 
 
     return status;
-}
-
-void PeakDetectorCLI::saveMzRoll(string setName)
-{
-    if (saveMzrollFile == true) {
-#ifndef __APPLE__
-        double startSavingMzroll = getTime();
-#endif
-
-        writePeakTableXML(setName + ".mzroll");
-
-#ifndef __APPLE__
-        cout << "\tExecution time (Saving mzroll)   : "
-             << getTime() - startSavingMzroll << " seconds \n";
-#endif
-    }
 }
 
 void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)

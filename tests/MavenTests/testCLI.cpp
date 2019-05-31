@@ -84,7 +84,6 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->minSignalBaseLineRatio == 4);
     QVERIFY(peakdetectorCLI->mavenParameters->alignSamplesFlag == 0);
     QVERIFY(peakdetectorCLI->saveJsonEIC == 1);
-    QVERIFY(peakdetectorCLI->saveMzrollFile == 1);
     QVERIFY(peakdetectorCLI->mavenParameters->peakQuantitation == 2);
     QVERIFY(peakdetectorCLI->quantitationType == 2);
     QVERIFY(peakdetectorCLI->mavenParameters->minMz == (float)10.51);
@@ -180,10 +179,6 @@ void TestCLI::testWriteReport() {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
 				peakdetectorCLI->mavenParameters->compounds, "compounds");
 		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-
-        peakdetectorCLI->writePeakTableXML(peakdetectorCLI->mavenParameters->outputdir + "testmzRoll" + ".mzroll");
-        QFileInfo mzrollFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testmzRoll" + ".mzroll"));
-        QVERIFY(mzrollFile.exists() && mzrollFile.isFile());
 
         peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv", false);
         QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));
