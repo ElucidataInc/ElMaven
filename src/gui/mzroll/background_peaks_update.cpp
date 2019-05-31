@@ -304,7 +304,7 @@ void BackgroundPeakUpdate::alignWithObiWarp()
                                          mainwindow->alignmentDialog->noStdNormal->isChecked(),
                                          mainwindow->alignmentDialog->binSizeObiWarp->value());
 
-    Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
+    Q_EMIT(updateProgressBar("Aligning samples…", 0, 100));
 
     Aligner aligner;
     aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
@@ -425,7 +425,7 @@ void BackgroundPeakUpdate::align() {
         }
 
         if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
-                Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+                Q_EMIT(updateProgressBar("Aligning samples…", 0, 0));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)
                         groups[i] = &mavenParameters->allgroups[i];
