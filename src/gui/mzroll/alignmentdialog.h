@@ -38,7 +38,6 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void setAlignWrtExpectedRt(bool checked);
 		void setInitPenalty(bool checked);
 		void restorDefaultValues(bool checked);
-		void toggleObiParams(bool show);
 		void showAdvanceParameters(bool checked);
 		void samplesAligned(bool status);
 		void updateRestoreStatus();

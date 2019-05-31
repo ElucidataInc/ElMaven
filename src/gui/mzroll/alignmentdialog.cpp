@@ -19,26 +19,15 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 	workerThread = NULL;
 	workerThread = new BackgroundPeakUpdate(this);
 
-	if (peakDetectionAlgo->currentIndex() == 0) {
-		selectDatabase->setVisible(true);
-	}
-
-	if (alignAlgo->currentIndex() == 0) {
-		label_7->setVisible(true);
-		label_8->setVisible(true);
-	}
-	connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
+        connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
-	connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
-	connect(alignWrtExpectedRt,SIGNAL(clicked(bool)),SLOT(setAlignWrtExpectedRt(bool)));
-	connect(local, SIGNAL(clicked(bool)),this, SLOT(setInitPenalty(bool)));
-	connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
-	connect(showAdvanceParams, SIGNAL(clicked(bool)), this, SLOT(showAdvanceParameters(bool)));
+        connect(cancelButton, SIGNAL(toggled(bool)), SLOT(cancel()));
+        connect(alignWrtExpectedRt,SIGNAL(toggled(bool)),SLOT(setAlignWrtExpectedRt(bool)));
+        connect(local, SIGNAL(toggled(bool)),this, SLOT(setInitPenalty(bool)));
+        connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
+        connect(showAdvanceParams, SIGNAL(toggled(bool)), this, SLOT(showAdvanceParameters(bool)));
 	connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
 	connect(samplesBox, &QComboBox::currentTextChanged, this, &AlignmentDialog::refSampleChanged);
-	QRect rec = QApplication::desktop()->screenGeometry();
-	int height = rec.height();
-    setFixedHeight(height-height/10);
 }
 
 AlignmentDialog::~AlignmentDialog()
@@ -70,8 +59,8 @@ void AlignmentDialog::setAlignWrtExpectedRt(bool checked)
 
 void AlignmentDialog::setInitPenalty(bool checked)
 {
-	initPenalty->setVisible(checked);
-	labelInitPenalty->setVisible(checked);
+        initPenalty->setEnabled(checked);
+        labelInitPenalty->setEnabled(checked);
 }
 
 void AlignmentDialog::cancel()
@@ -159,57 +148,21 @@ void AlignmentDialog::restorDefaultValues(bool checked)
 	local->setChecked(false);
 	initPenalty->setValue(0);
 	restoreDefaultObiWarpParams->setChecked(false);
-	initPenalty->setVisible(false);
-	labelInitPenalty->setVisible(false);
+        initPenalty->setEnabled(false);
+        labelInitPenalty->setEnabled(false);
 }
 
 void AlignmentDialog::showAdvanceParameters(bool checked)
 {
-	toggleObiParams(checked);
-	
-	groupBox->setVisible(0);
-	groupBox_2->setVisible(0);
-}
-
-void AlignmentDialog::toggleObiParams(bool show)
-{
-	restoreDefaultObiWarpParams->setVisible(show);
-	responseObiWarp->setVisible(show);
-	binSizeObiWarp->setVisible(show);
-	gapInit->setVisible(show);
-	gapExtend->setVisible(show);
-	factorDiag->setVisible(show);
-	factorGap->setVisible(show);
-	initPenalty->setVisible(show);
-	noStdNormal->setVisible(show);
-	local->setVisible(show);
-	scoreObi->setVisible(show);
-
-	labelRestoreDefaultObiWarpParams->setVisible(show);
-	labelResponseObiWarp->setVisible(show);
-	labelBinSizeObiWarp->setVisible(show);
-	labelGapInit->setVisible(show);
-	labelGapExtend->setVisible(show);
-	labelFactorDiag->setVisible(show);
-	labelFactorGap->setVisible(show);
-	labelInitPenalty->setVisible(show);
-	labelNoStdNormal->setVisible(show);
-	labelLocal->setVisible(show);
-	labelScoreObi->setVisible(show);
-
-	if(show)
-		setInitPenalty(local->isChecked());
+    advancedParamsBox->setVisible(checked);
+    if(checked)
+        setInitPenalty(local->isChecked());
 }
 
 void AlignmentDialog::algoChanged()
 {
     bool obiWarp = (alignAlgo->currentIndex() == 1);
-	toggleObiParams(obiWarp);
-	showAdvanceParameters(showAdvanceParams->isChecked() && obiWarp);
-	showAdvanceParams->setVisible(obiWarp);
-    labelShowAdvanceParams->setVisible(obiWarp);
-    samplesBox->setVisible(obiWarp);
-    refSampleLabel->setVisible(obiWarp);
+    showAdvanceParameters(showAdvanceParams->isChecked());
 
     auto samples = _mw->getSamples();
     auto mrmData = false;
@@ -227,37 +180,11 @@ void AlignmentDialog::algoChanged()
         setProgressBar("Status", 0, 1);
     }
 
-	if (peakDetectionAlgo->currentIndex() == 0) {
-		selectDatabase->setVisible(true);
-		selectDatabaseComboBox->setVisible(true);
-		label_10->setVisible(false);
-		label_11->setVisible(false);
-		minIntensity->setVisible(false);
-		maxIntensity->setVisible(false);
-
-	} else {
-		selectDatabase->setVisible(false);
-		selectDatabaseComboBox->setVisible(false);
-		label_10->setVisible(true);
-		label_11->setVisible(true);
-		minIntensity->setVisible(true);
-		maxIntensity->setVisible(true);
-	}
-
-	if (alignAlgo->currentIndex() == 0) {
-		label_7->setVisible(true);
-		maxIterations->setVisible(true);
-		label_8->setVisible(true);
-		polynomialDegree->setVisible(true);
-	} else {
-		label_7->setVisible(false);
-		maxIterations->setVisible(false);
-		label_8->setVisible(false);
-		polynomialDegree->setVisible(false);
-	}
-
-	groupBox->setVisible(!obiWarp);
-	groupBox_2->setVisible(!obiWarp);
+    if (peakDetectionAlgo->currentIndex() == 0) {
+        stackedWidget->setCurrentIndex(0);
+    } else {
+        stackedWidget->setCurrentIndex(1);
+    }
 }
 
 void AlignmentDialog::setDatabase()
