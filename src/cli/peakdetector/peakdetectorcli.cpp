@@ -96,7 +96,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
             break;
 
         case 'E':
-            // parse sample cohort filename here
             _pollyExtraInfo = QString(optarg);
             break;
 
@@ -513,9 +512,13 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             if (atoi(node.attribute("value").value()) == 0)
                 saveMzrollFile = false;
 
+        } else if (strcmp(node.name(), "pollyExtra") == 0) {
+            _pollyExtraInfo = QString(node.attribute("value").value());
+
         } else if (strcmp(node.name(), "samples") == 0) {
             string sampleStr = node.attribute("value").value();
             filenames.push_back(sampleStr);
+
         } else {
             cout << endl << "Unknown node : " << node.name() << endl;
         }

@@ -289,6 +289,7 @@ struct Arguments
         generalArgs << "int" << "saveEicJson" << "0";
         generalArgs << "string" << "outputdir" << "0";
         generalArgs << "int" << "savemzroll" << "0";
+        generalArgs << "string" << "pollyExtra" << "";
         generalArgs << "string" << "samples" << "path/to/sample1";
         generalArgs << "string" << "samples" << "path/to/sample2";
         generalArgs << "string" << "samples" << "path/to/sample3";
