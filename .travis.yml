@@ -1,6 +1,5 @@
 matrix:
   include:
-    # works on Precise and Trusty
     - os: linux
       addons:
         apt:
@@ -11,20 +10,22 @@ matrix:
       env:
          - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
-#os: linux
-dist: trusty
+dist: xenial
 language: cpp
 compiler: gcc-5
-group: deprecated-2017Q2
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev libnetcdf-dev
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
+  - sudo apt-get update -q
+  - sudo apt-get install --yes qt512-meta-minimal qt512script  qt512declarative qt512websockets qt512multimedia
+  - sudo apt-get install --yes libsqlite3-dev libboost1.58-all-dev libnetcdf-dev libpulse-dev libgl1-mesa-dev
   - eval "${MATRIX_EVAL}"
 
 sudo: required
 
 script:
+  - QT_ENV_SCRIPT=$(find /opt -name 'qt*-env.sh')
+  - source $QT_ENV_SCRIPT
   - export QT_SELECT=qt5
   - export CXX="g++-5"
   - export CC="gcc-5"
@@ -32,7 +33,7 @@ script:
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   - g++ -v
   - gcc -v
-  - qmake -qt=qt5 -v
-  - qmake -qt=qt5 CONFIG+=release -o Makefile build.pro
+  - qmake -v
+  - qmake CONFIG+=release -o Makefile build.pro
   - make -j4
   - ./bin/MavenTests -xml
