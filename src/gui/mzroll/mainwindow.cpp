@@ -3477,8 +3477,6 @@ void MainWindow::Align() {
     mavenParameters->minSignalBlankRatio = 0; //TODO: Sahil-Kiran, Added while merging mainwindow
     mavenParameters->alignMaxIterations = alignmentDialog->maxIterations->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
     mavenParameters->alignPolynomialDegree = alignmentDialog->polynomialDegree->value(); //TODO: Sahil-Kiran, Added while merging mainwindow
-
-    mavenParameters->checkConvergance=false; //TODO: Sahil-Kiran, Added while merging mainwindow
 	mavenParameters->alignSamplesFlag = true;
 	mavenParameters->keepFoundGroups = true;
     mavenParameters->eicMaxGroups = peakDetectionDialog->eicMaxGroups->value();

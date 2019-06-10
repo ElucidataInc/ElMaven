@@ -105,7 +105,6 @@ class MavenParameters
         bool pullIsotopesFlag;
         bool showProgressFlag;
         bool matchRtFlag;
-        bool checkConvergance;
         bool alignWrtExpectedRt;
 
         /**
