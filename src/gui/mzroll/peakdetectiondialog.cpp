@@ -496,12 +496,12 @@ void PeakDetectionDialog::findPeaks()
     if (peakupdater == NULL) return;
     if (peakupdater->isRunning()) cancel();
     if (peakupdater->isRunning()) return;
+    peakupdater->setUntargetedMustHaveMs2(false);
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
 
     mainwindow->setTotalCharge();
-
 
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
@@ -509,8 +509,17 @@ void PeakDetectionDialog::findPeaks()
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
     } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
-        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Untargeted");
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
+        if (mustHaveMs2->isChecked()) {
+            peakupdater->setUntargetedMustHaveMs2(true);
+            mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                 "Untargeted",
+                                                 "Filter for MS2 events");
+        } else {
+            mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                 "Untargeted"
+                                                 "No filter");
+        }
     } else {
         _featureDetectionType = FullSpectrum;
     }

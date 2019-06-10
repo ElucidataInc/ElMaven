@@ -377,15 +377,19 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
     peakDetector->pullAllIsotopes();
 
         for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
-			PeakGroup& group = mavenParameters->allgroups[j];
+            PeakGroup& group = mavenParameters->allgroups[j];
 
-			if (csvreports != NULL) csvreports->addGroup(&group);
+            if (csvreports != NULL)
+                csvreports->addGroup(&group);
 
+            if (mavenParameters->keepFoundGroups) {
+                if (_untargetedMustHaveMs2
+                    && mavenParameters->allgroups[j].ms2EventCount == 0)
+                    continue;
 
-			if (mavenParameters->keepFoundGroups) {
-				Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
-				QCoreApplication::processEvents();
-			}
+                Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
+                QCoreApplication::processEvents();
+            }
         }
 
         if (csvreports != NULL) {

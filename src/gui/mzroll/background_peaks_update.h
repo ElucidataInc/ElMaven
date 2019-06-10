@@ -105,7 +105,11 @@ public:
 	void writeToPythonProcess( QByteArray data);
 
     PeakDetector* peakDetector;
-	MavenParameters* mavenParameters;
+    MavenParameters* mavenParameters;
+
+    inline void setUntargetedMustHaveMs2(bool pred) {
+        _untargetedMustHaveMs2 = pred;
+    }
 
 Q_SIGNALS:
 
@@ -147,6 +151,7 @@ private Q_SLOTS:
 	void readDataFromPython();
 	
 private:
+    bool _untargetedMustHaveMs2;
 	string runFunction;
 	MainWindow *mainwindow;
 	QProcess* pythonProg;
