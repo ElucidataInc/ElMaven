@@ -577,3 +577,69 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     delete obiWarp;
     return(stopped);
 }
+
+float AligmentSegment::updateRt(float oldRt)
+{
+    // fractional distance from start of a segement
+    if (oldRt >= seg_start and oldRt < seg_end) {
+        float frac = (oldRt - seg_start) / (seg_end - seg_start);
+        return new_start + frac * (new_end - new_start);
+    } else {
+        cerr << "Bad Map: "
+             << oldRt << "\t"
+             << seg_start
+             << "\t"
+             << seg_end
+             << endl;
+
+        // could not correct return old rt
+        return oldRt;
+    }
+}
+
+void Aligner::addSegment(string sampleName, AligmentSegment* seg) {
+    if (_alignmentSegments.count(sampleName) == 0) {
+        _alignmentSegments[sampleName] = {};
+    }
+    _alignmentSegments.at(sampleName).push_back(seg);
+}
+
+void Aligner::performSegmentedAligment()
+{
+    for (auto sample : samples) {
+        if (sample == nullptr)
+            continue;
+
+        string sampleName = sample->sampleName;
+        if (_alignmentSegments.count(sampleName) == 0) {
+            cerr << "Cannot find alignment information for sample "
+                 << sampleName
+                 << endl;
+            continue;
+        }
+
+        int corcount = 0;
+        for (auto scan : sample->scans) {
+            AligmentSegment* seg = nullptr;
+            for (auto segment : _alignmentSegments[sampleName]) {
+                if (scan->rt >= segment->seg_start
+                    && scan->rt < segment->seg_end) {
+                    seg = segment;
+                    break;
+                }
+            }
+
+            if (seg) {
+                double newRt = seg->updateRt(scan->rt);
+                scan->rt = newRt;
+                corcount++;
+            } else {
+                cerr << "Cannot find segment for: "
+                     << sampleName
+                     << "\t"
+                     << scan->rt
+                     << endl;
+            }
+        }
+    }
+}

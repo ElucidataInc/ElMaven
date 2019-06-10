@@ -6,6 +6,7 @@
 #include "connection.h"
 #include "cursor.h"
 #include "mzMassCalculator.h"
+#include "mzAligner.h"
 #include "mzSample.h"
 #include "projectversioning.h"
 #include "Scan.h"
@@ -1200,6 +1201,11 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
         sampleScanMap[sample->getSampleId()] = scanMap;
     }
 
+    Aligner aligner;
+    aligner.setSamples(loaded);
+    AligmentSegment* lastSegment = nullptr;
+    int segCount = 0;
+
     while (alignmentQuery->next()) {
         string sampleName = alignmentQuery->stringValue("sample_name");
         int sampleId = alignmentQuery->integerValue("sample_id");
@@ -1209,16 +1215,39 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
         }
 
         int scannum = alignmentQuery->integerValue("scannum");
-        auto scanMap = sampleScanMap[sampleId];
-        if (!scanMap.count(scannum)) {
-            cerr << "Error: no scan with scannum " << sampleId << endl;
-            continue;
-        }
+        if (scannum != -1) {
+            // perform regular alignment
+            auto scanMap = sampleScanMap[sampleId];
+            if (!scanMap.count(scannum)) {
+                cerr << "Error: no scan with scannum " << sampleId << endl;
+                continue;
+            }
 
-        Scan* scan = scanMap[scannum];
-        scan->rt = alignmentQuery->floatValue("rt_updated");
-        scan->originalRt = alignmentQuery->floatValue("rt_original");
+            Scan* scan = scanMap[scannum];
+            scan->rt = alignmentQuery->floatValue("rt_updated");
+            scan->originalRt = alignmentQuery->floatValue("rt_original");
+        } else {
+            // perform segmented alignment
+            segCount++;
+            AligmentSegment* seg = new AligmentSegment();
+            seg->sampleName = sampleName;
+            seg->seg_start = 0;
+            seg->seg_end   = alignmentQuery->floatValue("rt_original");
+            seg->new_start = 0;
+            seg->new_end   = alignmentQuery->floatValue("rt_updated");
+
+            if (lastSegment and lastSegment->sampleName == seg->sampleName) {
+                seg->seg_start = lastSegment->seg_end;
+                seg->new_start = lastSegment->new_end;
+            }
+
+            aligner.addSegment(sampleName, seg);
+            lastSegment = seg;
+        }
     }
+
+    if (segCount > 0)
+        aligner.performSegmentedAligment();
 }
 
 map<string, variant> ProjectDatabase::loadSettings()
