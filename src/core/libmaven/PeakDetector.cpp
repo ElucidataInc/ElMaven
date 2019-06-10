@@ -403,8 +403,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             if (j >= mavenParameters->eicMaxGroups)
                 break;
 
-            PeakGroup group = peakgroups[j];
-            addPeakGroup(group);
+            mavenParameters->allgroups.push_back(peakgroups[j]);
         }
 
         //cleanup
@@ -429,24 +428,4 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
         }
     }
-}
-
-bool PeakDetector::addPeakGroup(PeakGroup& grup1) {
-        bool noOverlap = true;
-
-        for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
-                PeakGroup& grup2 = mavenParameters->allgroups[i];
-                float rtoverlap = mzUtils::checkOverlap(grup1.minRt, grup1.maxRt,
-                                                        grup2.minRt, grup2.maxRt);
-                if (rtoverlap > 0.9
-                    && massCutoffDist(grup2.meanMz, grup1.meanMz,mavenParameters->massCutoffMerge)
-                    < mavenParameters->massCutoffMerge->getMassCutoff()) {
-                        noOverlap = false;
-                break;
-                }
-        }
-
-        //push the group to the allgroups vector
-        mavenParameters->allgroups.push_back(grup1);
-        return noOverlap;
 }
