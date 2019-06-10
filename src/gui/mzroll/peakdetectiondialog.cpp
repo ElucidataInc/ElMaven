@@ -193,9 +193,10 @@ void PeakDetectionDialog::onReset()
 
 void PeakDetectionDialog::setMassCutoffType(QString type)
 {
-    massCutoffType = QString(" %1").arg(type);
-    ppmStep->setSuffix(type);
-    compoundPPMWindow->setSuffix(type);
+    massCutoffType = type;
+    auto suffix = QString(" %1").arg(type);
+    ppmStep->setSuffix(suffix);
+    compoundPPMWindow->setSuffix(suffix);
     emit updateSettings(peakSettings);
 }
 
