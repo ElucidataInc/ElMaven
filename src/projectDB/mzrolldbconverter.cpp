@@ -499,7 +499,32 @@ void MzrollDbConverter::copyAlignmentData(Connection &mzrollDb,
         cerr << "Error: failed to create alignment_rts table" << endl;
         return;
     }
-    cerr << "Warning: unable to convert alignment data from mzrollDb" << endl;
+
+    auto writeQuery = emDb.prepare(
+        "INSERT INTO alignment_rts   \
+              VALUES ( :sample_id    \
+                     , :scannum      \
+                     , :rt_original  \
+                     , :rt_updated   )");
+
+    auto readQuery = mzrollDb.prepare("SELECT *             \
+                                         FROM rt_update_key ");
+
+    emDb.begin();
+    while (readQuery->next()) {
+        writeQuery->bind(":sample_id",
+                         readQuery->integerValue("sampleId"));
+        writeQuery->bind(":scannum",
+                         -1);
+        writeQuery->bind(":rt_original",
+                         readQuery->floatValue("rt"));
+        writeQuery->bind(":rt_updated",
+                         readQuery->floatValue("rt_update"));
+
+        if (!writeQuery->execute())
+            cerr << "Error: failed to save alignment values" << endl;
+    }
+    emDb.commit();
 }
 
 void MzrollDbConverter::setVersion(Connection &emDb, int version)
