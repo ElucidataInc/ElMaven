@@ -487,19 +487,19 @@ void ProjectDatabase::saveAlignment(const vector<mzSample*>& samples)
         if (s->ms1ScanCount() == 0)
             continue;
 
-        for (auto scan : s->scans) {
-            if (scan->mslevel > 1)
-                continue;
-
-            float rt_original = scan->originalRt;
-            float rt_updated = scan->rt;
-            alignmentQuery->bind(":sample_id", s->getSampleId());
-            alignmentQuery->bind(":scannum", scan->scannum);
-            alignmentQuery->bind(":rt_original", rt_original);
-            alignmentQuery->bind(":rt_updated", rt_updated);
-
-            if (!alignmentQuery->execute())
-                cerr << "Error: failed to write alignment data" << endl;
+        for (int i = 0; i < s->scans.size(); i++) {
+            // save rt for every 200th scan (and last scan)
+            if (i % 200 == 0 || i == s->scans.size() - 1) {
+                auto scan = s->scans[i];
+                float rt_updated = scan->rt;
+                float rt_original = scan->originalRt;
+                alignmentQuery->bind(":sample_id", s->getSampleId());
+                alignmentQuery->bind(":scannum", -1);
+                alignmentQuery->bind(":rt_original", rt_original);
+                alignmentQuery->bind(":rt_updated", rt_updated);
+                if (!alignmentQuery->execute())
+                    cerr << "Error: failed to write alignment data" << endl;
+            }
         }
     }
 
