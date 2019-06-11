@@ -358,7 +358,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            QString errorMessage = "Unknown error: " + errorString + "\n\n" +
+            QString errorMessage = "Error: " + errorString + "\n\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
