@@ -326,7 +326,8 @@ QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_w
 
 bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 {
-    QString supportMessage = "Contact tech support at elmaven@elucidata.io if the problem persists";
+    QString supportMessage = "Please contact tech support at "
+                             "elmaven@elucidata.io if the problem persists.";
     if (resultAndError.size() > 1) {
         //if there is standard error look for error message
         QByteArray errorResponse = resultAndError.at(1);
@@ -346,7 +347,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 
         if (!message.isEmpty() || !type.isEmpty()) {
             QString errorMessage = message + "\n" +
-                                   type + "\n" +
+                                   type + "\n\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
@@ -357,14 +358,22 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            QString errorMessage = "Unknown error: " + errorString + "\n" +
+            QString errorMessage = "Unknown error: " + errorString + "\n\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
         }
     } else if (resultAndError.size() == 0) {
-        //no response or error
-        emit receivedEPIError("Error: QProcess failure.\n" + supportMessage);
+        // no response or error
+        if (_fPtr && !_fPtr->exists()) {
+            emit receivedEPIError("Error: Unable to fetch file required for "
+                                  "integration with Polly.");
+            return true;
+        }
+
+        // the most likely other reason could be…
+        emit receivedEPIError("Error: Unable to connect to the internet.\n\n"
+                              + supportMessage);
         return true;
     }
 
