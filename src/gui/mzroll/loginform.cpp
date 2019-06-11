@@ -37,6 +37,12 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
                 showAboutPolly();
                 analytics->hitEvent("PollyDialog", "AboutPolly");
             });
+    connect(_pollyintegration,
+            &PollyIntegration::receivedEPIError,
+            [=] {
+                ui->login_label->clear();
+                ui->pushButton->setEnabled(true);
+            });
 }
 
 LoginForm::~LoginForm()
