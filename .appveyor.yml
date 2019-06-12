@@ -8,6 +8,8 @@ environment:
   BIT: 64
 
 
+cache:
+    - C:\msys64\var\cache\pacman\pkg
 
 install:
     - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
