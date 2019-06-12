@@ -12,8 +12,7 @@ cache:
     - C:\msys64\var\cache\pacman\pkg
 
 install:
-    - SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
-    - bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-qt-creator"
+    - SET "PATH=C:\Qt\5.12.2\mingw73_64\bin;C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
     - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
 
@@ -29,6 +28,7 @@ install:
 build_script:
     - SET "QTEST_FUNCTION_TIMEOUT=1200000"
     - bash -lc "echo $QTEST_FUNCTION_TIMEOUT"
+    - bash -lc "qmake -v"
     - bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh"
     - bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
     - bash -lc "lcov --summary /c/projects/ElMaven/lcov.info"
