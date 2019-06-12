@@ -28,7 +28,8 @@ install:
   - |
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-        brew install llvm@3.7;
+        brew install llvm@6;
+        brew install grep;
         brew install cppcheck qt;
         brew link qt5 --force;
     fi
@@ -46,6 +47,9 @@ script:
   - |
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
+      export PATH="/usr/local/opt/llvm@6/bin/:$PATH"
+      export CPPFLAGS="-I/usr/local/opt/llvm@6/include -I/usr/local/opt/llvm@6/c++/v1/"
       qmake CONFIG+=debug -o Makefile build.pro;
       make -j4;
       ./run_tests.sh;
