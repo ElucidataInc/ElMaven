@@ -1041,20 +1041,24 @@ void mzSample::calculateMzRtRange()
 	totalIntensity = 0;
 	int nobs = 0;
 
-	for (unsigned int j = 0; j < scans.size(); j++)
+    unsigned int numOfScans = scans.size();
+    for (unsigned int j = 0; j < numOfScans; j++)
 	{
-		for (unsigned int i = 0; i < scans[j]->mz.size(); i++)
+        Scan* currentScan = scans[j];
+        unsigned int mzSize = currentScan->mz.size();
+        for (unsigned int i = 0; i < mzSize; i++)
 		{
-			totalIntensity += scans[j]->intensity[i];
-			float mz = scans[j]->mz[i];
+            float intensity = currentScan->intensity[i];
+            float mz = currentScan->mz[i];
+            totalIntensity += intensity;
 			if (mz < minMz && mz > 0)
 				minMz = mz; //sanity check must be greater > 0
 			if (mz > maxMz && mz < 1e9)
 				maxMz = mz; //sanity check m/z over a billion
-			if (scans[j]->intensity[i] < minIntensity)
-				minIntensity = scans[j]->intensity[i];
-			if (scans[j]->intensity[i] > maxIntensity)
-				maxIntensity = scans[j]->intensity[i];
+            if (intensity < minIntensity)
+                minIntensity = intensity;
+            if (intensity > maxIntensity)
+                maxIntensity = intensity;
 			nobs++;
 		}
 	}
