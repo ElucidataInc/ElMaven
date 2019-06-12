@@ -75,18 +75,20 @@ QString PollyIntegration::getCredFile(){
     return credFile;
 }
 
-void PollyIntegration::checkForIndexFile()
+bool PollyIntegration::_checkForIndexFile()
 {
     if(!_fPtr || !_fPtr->exists()) {
-            qDebug() << "Index file not found, trying to download index file ";
-            // synchronous request;
-            _dlManager->setRequest(indexFileURL, this, false);
-            if(!_dlManager->err) {
-                requestSuccess();
-            } else {
-                requestFailed();
-            }
+        qDebug() << "Index file not found, trying to download index file ";
+        // synchronous request;
+        _dlManager->setRequest(indexFileURL, this, false);
+        if(!_dlManager->err) {
+            requestSuccess();
+            return true;
+        }
+        requestFailed();
+        return false;
     }
+    return true;
 }
 
 QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList args){
@@ -94,7 +96,15 @@ QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList ar
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
 
-    checkForIndexFile();
+    if (!_checkForIndexFile()) {
+        QList<QByteArray> resultAndError = {
+            QByteArray(),
+            QString("Unable to fetch file required for integration with Polly. "
+                    "This could be due to internet connectivity issues.").toLatin1()
+        };
+        return resultAndError;
+    }
+
     if(jsPath == "")
         return QList<QByteArray>();
 
@@ -366,7 +376,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
     } else if (resultAndError.size() == 0) {
         // no response or error
         if (_fPtr && !_fPtr->exists()) {
-            emit receivedEPIError("Error: Unable to fetch file required for "
+            emit receivedEPIError("Error: Failed to detect file required for "
                                   "integration with Polly.");
             return true;
         }
