@@ -114,13 +114,13 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
     }
 }
 
-PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
+PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         QDialog(parent)
 {
         setupUi(this);
 
         settings = NULL;
-        mainwindow = NULL;
+        mainwindow = parent;
 
         setModal(false);
         peakupdater = NULL;
@@ -168,6 +168,10 @@ PeakDetectionDialog::PeakDetectionDialog(QWidget *parent) :
                             ->hitEvent("PRM", "PRM Analysis");
                     }
                 });
+        connect(fragmentTolerance,
+                SIGNAL(valueChanged(double)),
+                mainwindow->massCalcWidget->fragPpm,
+                SLOT(setValue(double)));
         connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));

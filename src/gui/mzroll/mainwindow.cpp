@@ -490,7 +490,6 @@ using namespace mzUtils;
 	//DIALOGS
 	//
 	peakDetectionDialog = new PeakDetectionDialog(this);
-	peakDetectionDialog->setMainWindow(this);
 	peakDetectionDialog->setSettings(settings);
 	
 	// pollyelmavengui dialog
@@ -1952,6 +1951,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
                                              int compoundCount)
 {
     string dbName = mzUtils::cleanFilename(filename.toStdString());
+    massCalcWidget->database->addItem(QString::fromStdString(dbName));
 
     bool reloading = false;
     deque<Compound*> compoundsDB = DB.getCompoundsDB();
@@ -3405,6 +3405,8 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->compound);
         }
+        if (massCalcWidget)
+            massCalcWidget->setPeakGroup(group);
     }
 
 	if (scatterDockWidget->isVisible()) {
@@ -3567,11 +3569,6 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 
 	if (spectraDockWidget->isVisible() && scan) {
 		spectraWidget->setScan(_peak);
-	}
-
-	if (massCalcWidget->isVisible()) {
-		massCalcWidget->setMass(_peak->peakMz);
-		massCalcWidget->setCharge(ionizationMode);
 	}
 
 	if (isotopeWidget->isVisible()) {

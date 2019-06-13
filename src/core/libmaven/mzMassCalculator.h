@@ -44,6 +44,8 @@ class MassCalculator {
             std::string name;
             double mass;
             double diff;
+            double rtDiff;
+            FragmentationMatchScore fragScore;
             Compound* compoundLink;
         } Match;
 

@@ -106,6 +106,10 @@ void TreeDockWidget::showInfo() {
                                         mainwindow->spectraDockWidget->setVisible(true);
                                         mainwindow->spectraDockWidget->raise();
                                     }
+
+                                    if (scan->mslevel == 2)
+                                        mainwindow->massCalcWidget->setFragmentationScan(scan);
+
                                     mainwindow->getSpectraWidget()->setScan(scan);
                                     mainwindow->getEicWidget()->setFocusLine(scan->rt);
                                     // if (scan->mslevel > 1) {

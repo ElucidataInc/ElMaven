@@ -15,7 +15,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 
 		public:
 				 enum FeatureDetectionType { FullSpectrum=0, CompoundDB, QQQ };
-				 PeakDetectionDialog(QWidget *parent);
+                                 PeakDetectionDialog(MainWindow* parent);
 				 ~PeakDetectionDialog();
 				 void setSettings(QSettings* settings) { this->settings = settings; }
 				 void setMainWindow(MainWindow* w) { this->mainwindow = w; }
