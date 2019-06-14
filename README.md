@@ -7,9 +7,9 @@
   </a>
 
 ## Build Status
-[![Build Status](https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=ElMaven-CI)](https://travis-ci.org/ElucidataInc/ElMaven)
-[![Build status](https://ci.appveyor.com/api/projects/status/hj92puovbucth7o1/branch/ElMaven-CI?svg=true)](https://ci.appveyor.com/project/ElucidataInc/elmaven/branch/develop)
-[![codecov](https://codecov.io/gh/ElucidataInc/ElMaven/branch/ElMaven-CI/graph/badge.svg)](https://codecov.io/gh/ElucidataInc/ElMaven)
+[![Build Status](https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop)](https://travis-ci.org/ElucidataInc/ElMaven)
+[![Build status](https://ci.appveyor.com/api/projects/status/hj92puovbucth7o1/branch/develop?svg=true)](https://ci.appveyor.com/project/ElucidataInc/elmaven/branch/develop)
+[![codecov](https://codecov.io/gh/ElucidataInc/ElMaven/branch/develop/graph/badge.svg)](https://codecov.io/gh/ElucidataInc/ElMaven)
 
 
 ## Digital Object Identifier (DOI) 
