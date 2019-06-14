@@ -69,16 +69,22 @@ in the .bashrc file. It can be achieved by either manually editing the .bashrc f
 
 El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
 
-### Ubuntu  
+### Ubuntu
 
-- Open the terminal and give the following commands to set up libraries and tool chains for El-MAVEN.
-`sudo apt-get update`  
-`sudo apt-get install g++`  
-`sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5multimedia5 libqt5multimedia5-plugins qtmultimedia5-dev libqt5webkit5-dev libsqlite3-dev libboost-all-dev lcov libnetcdf-dev`
-`cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`  
-`git clone https://github.com/ElucidataInc/ElMaven.git`  
-`./run.sh`  
-`./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
+- `sudo apt-get update`
+- `sudo apt-get install g++`
+- `sudo apt-get install libsqlite3-dev libboost-all-dev lcov libnetcdf-dev`
+    ###### _Execute the command below only if Ubuntu <=16.04_ (Required for installing Qt >=5.7)
+- `sudo add-apt-repository 'deb http://archive.neon.kde.org/user/lts/ xenial main binary-amd64'`
+
+    ###### _Ubuntu 18.04 and above provides Qt >=5.7 and therefore we do not need to add the repository_
+- `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5multimedia5`
+- `sudo apt-get install libqt5multimedia5-plugins qtmultimedia5-dev libqt5webkit5-dev`
+
+- `cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`
+- `git clone https://github.com/ElucidataInc/ElMaven.git`
+- `./run.sh`
+- `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
 
 El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
 
@@ -86,50 +92,43 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 
 - Install Xcode from App store
 
-- Download and Install Qt5.6 from http://download.qt.io/official_releases/qt/5.6/5.6.2/qt-opensource-mac-x64-clang-5.6.2.dmg.
+    ###### _Use Terminal for exectuing the following instructions_
+- `sudo xcodebuild -license accept`
+- `xcode-select --install`
+- `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+- `brew install boost`
+- `brew install qt`
+- `brew install llvm@6`
+- `brew install netcdf`
 
-This is will give you the Qt5.6.2 dmg file. Using the dmg file install Qt under the directory /Users/Your_User_Name/
+- `cd ~`
 
-**Using the terminal execute the following instructions**
+    ###### _Not required if the file already exists_
+- `touch .bash_profile`
 
-`sudo xcodebuild -license accept`
+    ###### _e.g. /LLVM_DIR/ = /usr/local/opt/llvm@6/_
+    ###### _e.g /QT_DIR/= /usr/local/opt/qt/_
 
-`xcode-select --install`
+- `echo "export PATH=/QT_DIR/bin:/LLVM_DIR/bin/:$PATH" >> .bash_profile`
 
-`/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+- `echo "export LDFLAGS="-L/QT_DIR/lib -L/LLVM_DIR/lib -Wl,-rpath,/LLVM_DIR/lib" >> .bash_profile`
 
-`brew install boost`
-`brew install llvm@3.7`
-`brew install netcdf`
+- `echo "export CPPFLAGS+="-I/QT_DIR/include -I/LLVM_DIR/include  -I/LLVM_DIR/c++/v1/" >> .bash_profile`
 
-`cd ~`
-
-_Not required if the file already exists_
-`touch .bash_profile`
-
-
-> e.g. PATH_TO_LLVM_DIR = /usr/local/opt/llvm@6/
-
-`echo "export PATH=/Users/$USER/Qt5.6.2/5.6/clang_64/bin/:/PATH_TO_LLVM_DIR/bin/:$PATH" >> .bash_profile`
-
-`echo "export LDFLAGS="-L/PATH_TO_LLVM_DIR/lib -Wl,-rpath,/PATH_TO_LLVM_DIR/lib" >> .bash_profile`
-
-`echo "export CPPFLAGS+="-I/PATH_TO_LLVM_DIR/include  -I/PATH_TO_LLVM_DIR/c++/v1/" >> .bash_profile`
-
-`source .bash_profile`
+- `source .bash_profile`
 
 
-`mkdir ~/maven_repo`
+- `mkdir ~/maven_repo`
 
-`cd ~/maven_repo`
+- `cd ~/maven_repo`
 
-`git clone https://github.com/ElucidataInc/ElMaven.git`
+- `git clone https://github.com/ElucidataInc/ElMaven.git`
 
-`cd ElMaven`
+- `cd ElMaven`
 
-`qmake CONFIG+=debug -o Makefile build.pro`
+- `qmake CONFIG+=debug -o Makefile build.pro`
 
-`make -j4`
+- `make -j4`
 
 ### Switching versions
 
