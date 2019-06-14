@@ -1026,43 +1026,44 @@ void mzSample::summary()
 void mzSample::calculateMzRtRange()
 {
 
-	if (scans.size() == 0)
-	{
-		cerr << "sample has no data" << endl;
-		return;
-	}
+    if (scans.size() == 0) {
+        cerr << "sample has no data" << endl;
+        return;
+    }
 
-	minRt = scans[0]->rt;
-	maxRt = scans[scans.size() - 1]->rt;
-	minMz = FLT_MAX;
-	maxMz = 0;
-	minIntensity = FLT_MAX;
-	maxIntensity = 0;
-	totalIntensity = 0;
-	int nobs = 0;
+    minRt = scans[0]->rt;
+    maxRt = scans[scans.size() - 1]->rt;
+    minMz = FLT_MAX;
+    maxMz = 0;
+    minIntensity = FLT_MAX;
+    maxIntensity = 0;
+    totalIntensity = 0;
+    int nobs = 0;
 
-	for (unsigned int j = 0; j < scans.size(); j++)
-	{
-		for (unsigned int i = 0; i < scans[j]->mz.size(); i++)
-		{
-			totalIntensity += scans[j]->intensity[i];
-			float mz = scans[j]->mz[i];
-			if (mz < minMz && mz > 0)
-				minMz = mz; //sanity check must be greater > 0
-			if (mz > maxMz && mz < 1e9)
-				maxMz = mz; //sanity check m/z over a billion
-			if (scans[j]->intensity[i] < minIntensity)
-				minIntensity = scans[j]->intensity[i];
-			if (scans[j]->intensity[i] > maxIntensity)
-				maxIntensity = scans[j]->intensity[i];
-			nobs++;
-		}
-	}
-	//sanity check
-	if (minRt <= 0)
-		minRt = 0;
-	if (maxRt >= 1e4)
-		maxRt = 1e4;
+    unsigned int numOfScans = scans.size();
+    for (unsigned int j = 0; j < numOfScans; j++) {
+        Scan* currentScan = scans[j];
+        unsigned int mzSize = currentScan->mz.size();
+        for (unsigned int i = 0; i < mzSize; i++) {
+            float intensity = currentScan->intensity[i];
+            float mz = currentScan->mz[i];
+            totalIntensity += intensity;
+            if (mz < minMz && mz > 0)
+                minMz = mz; //sanity check must be greater > 0
+            if (mz > maxMz && mz < 1e9)
+                maxMz = mz; //sanity check m/z over a billion
+            if (intensity < minIntensity)
+                minIntensity = intensity;
+            if (intensity > maxIntensity)
+                maxIntensity = intensity;
+            nobs++;
+        }
+    }
+    //sanity check
+    if (minRt <= 0)
+        minRt = 0;
+    if (maxRt >= 1e4)
+        maxRt = 1e4;
 }
 
 mzSlice mzSample::getMinMaxDimentions(const vector<mzSample *> &samples)

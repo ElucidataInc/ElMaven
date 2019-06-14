@@ -151,7 +151,6 @@ public:
 	 * @param  group        [pointer to PeakGroup]
 	 * @return [True if group is added to all groups, else False]
 	 */
-	bool addPeakGroup(PeakGroup& grup1);
 	MavenParameters* mavenParameters;
 	bool zeroStatus;
 };
