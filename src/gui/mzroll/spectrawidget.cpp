@@ -845,6 +845,9 @@ void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
     int deltaX = _mouseEndPos.x() - _mouseStartPos.x();
     float deltaXfrac = (float) deltaX / (width() + 1);
 
+    auto nearest = findNearestMz(_mouseEndPos);
+    if (mainwindow->massCalcWidget->isVisible())
+        mainwindow->massCalcWidget->setMass(_currentScan->mz[nearest]);
 
     if (deltaXfrac > 0.01) {
         float xmin = invX(std::min(_mouseStartPos.x(), _mouseEndPos.x()));
@@ -960,8 +963,6 @@ void SpectraWidget::mouseMoveEvent(QMouseEvent* event)
     if (nearestPos >= 0) {
 		_nearestCoord = QPointF(_currentScan->mz[nearestPos], _currentScan->intensity[nearestPos]);
 		drawArrow(_currentScan->mz[nearestPos], _currentScan->intensity[nearestPos], invX(pos.x()), invY(pos.y()));
-        if (mainwindow->massCalcWidget->isVisible())
-			mainwindow->massCalcWidget->setMass(_currentScan->mz[nearestPos]);
     } else {
         _vnote->hide(); _note->hide(); _varrow->hide(); _arrow->hide();
     }
