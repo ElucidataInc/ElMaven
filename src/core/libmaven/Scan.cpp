@@ -549,6 +549,30 @@ Scan* Scan::getLastFullScan(int historySize)
 	return 0;
 }
 
+void Scan::recalculatePrecursorMz(float ppm)
+{
+    if (mslevel != 2)
+        return;
+    
+    Scan* fullScan = getLastFullScan(50);
+    if (!fullScan)
+        return;
+    
+    MassCutoff* massCutoff = new MassCutoff();
+    massCutoff->setMassCutoffAndType(ppm, "ppm");
+
+    //find highest intensity precursor for this ms2 scan
+    //increase the error range till a precursor is found
+    for (int i : {1, 2, 3, 4, 5}) {
+        massCutoff->setMassCutoff(ppm * i);
+        int pos = fullScan->findHighestIntensityPos(this->precursorMz, massCutoff);
+        if (pos > 0 && pos < fullScan->nobs()) {
+            this->precursorMz = fullScan->mz[pos];
+            break;
+        }
+    }
+}
+
 vector<mzPoint> Scan::getIsolatedRegion(float isolationWindowAmu)
 {
 	vector<mzPoint> isolatedSegment;
