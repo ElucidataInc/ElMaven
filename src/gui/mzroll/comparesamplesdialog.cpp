@@ -1,4 +1,8 @@
+#include "Compound.h"
 #include "comparesamplesdialog.h"
+#include "mainwindow.h"
+#include "scatterplot.h"
+#include "tabledockwidget.h"
 
 CompareSamplesDialog::CompareSamplesDialog(QWidget *parent) :
 		QDialog(parent) {

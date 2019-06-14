@@ -1,4 +1,17 @@
+#include <QDoubleSpinBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+
+#include "eicwidget.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "numeric_treewidgetitem.h"
+#include "PeakDetector.h"
+#include "spectralhit.h"
 #include "spectralhitstable.h";
+#include "spectrawidget.h"
+#include "tabledockwidget.h"
 
 SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
     setAllowedAreas(Qt::AllDockWidgetAreas);

@@ -1,12 +1,12 @@
-#include "videoplayer.h"
-#include "mainwindow.h"
-
 #include <QtWidgets>
 #include <QVideoWidget>
 #include <QSizePolicy>
 #include <QSettings>
 #include <QPushButton>
 
+#include "analytics.h"
+#include "mainwindow.h"
+#include "videoplayer.h"
 
 UrlLabel::UrlLabel(VideoPlayer* parent):
     QLabel(parent)

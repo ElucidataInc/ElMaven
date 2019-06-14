@@ -22,9 +22,8 @@
 #ifndef HISTORY_H
 #define HISTORY_H
 
+#include "datastructures/mzSlice.h"
 #include "stable.h"
-#include "mzSample.h"
-
 
 using namespace std;
 

@@ -1,11 +1,12 @@
 #ifndef METABLITENODE_H
 #define METABLITENODE_H
 
-#include "stable.h"
 #include "node.h"
-#include "mainwindow.h"
-#include "mzSample.h"
-#include  "barplot.h"
+#include "stable.h"
+
+class BarPlot;
+class Compound;
+class Molecule2D;
 
 class MetaboliteNode: public Node
 {

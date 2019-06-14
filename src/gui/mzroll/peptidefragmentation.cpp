@@ -1,6 +1,10 @@
+#include "eicwidget.h"
+#include "mainwindow.h"
 #include "peptidefragmentation.h"
-using namespace std;
+#include "projectdockwidget.h"
+#include "spectrawidget.h"
 
+using namespace std;
 
 PeptideFragmentationWidget::PeptideFragmentationWidget(MainWindow* mw) { 
   setupUi(this);

@@ -1,6 +1,13 @@
-#include "alignmentvizallgroupswidget.h"
 #include <QDockWidget>
 #include <QToolBar>
+#include "qcustomplot.h"
+
+#include "alignmentvizallgroupswidget.h"
+#include "eicwidget.h"
+#include "mainwindow.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "projectdockwidget.h"
 
 using namespace std;
 

@@ -2,11 +2,12 @@
 #define SPECTRALHITSTABLE_H
 
 #include "stable.h"
-#include "mainwindow.h"
-#include "numeric_treewidgetitem.h"
 
+class Compound;
 class MainWindow;
 class NumericTreeWidgetItem;
+class ProteinHit;
+class SpectralHit;
 
 using namespace std;
 

@@ -1,6 +1,13 @@
+#include "Compound.h"
 #include "edge.h"
 #include "enzyme_node.h"
-
+#include "globals.h"
+#include "graphwidget.h"
+#include "mzSample.h"
+#include "datastructures/mzSlice.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+#include "Scan.h"
 
 Edge::Edge() {
 	_arrowSize = 10;

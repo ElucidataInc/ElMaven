@@ -1,3 +1,9 @@
+#include <qcustomplot.h>
+
+#include "alignmentdialog.h"
+#include "Compound.h"
+#include "mainwindow.h"
+#include "projectdockwidget.h"
 #include "samplertwidget.h"
 
 SampleRtWidget::SampleRtWidget(MainWindow *mw) :

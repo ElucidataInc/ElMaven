@@ -22,10 +22,7 @@
 #ifndef LIGANDWIDGET_H
 #define LIGANDWIDGET_H
 
-#include "globals.h"
 #include "stable.h"
-#include "mainwindow.h"
-#include "numeric_treewidgetitem.h"
 
 //Added when merged with Maven776
 #include <QtNetwork>
@@ -37,11 +34,9 @@ class QMenu;
 class QTextEdit;
 class MainWindow;
 class Database;
-
+class Compound;
 
 using namespace std;
-
-extern Database DB; 
 
 class LigandWidget: public QDockWidget {
       Q_OBJECT

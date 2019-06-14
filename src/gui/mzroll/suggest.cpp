@@ -1,3 +1,8 @@
+#include "Compound.h"
+#include "database.h"
+#include "globals.h"
+#include "mzSample.h"
+#include "numeric_treewidgetitem.h"
 #include "suggest.h"
 
 SuggestPopup::SuggestPopup(QLineEdit *parent): QObject(parent), editor(parent)

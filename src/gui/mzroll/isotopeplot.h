@@ -2,14 +2,16 @@
 #define ISOTOPEPLOT_H
 
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "qcustomplot.h"
 
 class MainWindow;
 class PeakGroup;
+class mzSample;
 class QGraphicsItem;
 class QGraphicsScene;
+class QCPItemText;
+class QCPBars;
+class QCPTextElement;
+class QCPAxisRect;
 
 class IsotopePlot : public QObject, public QGraphicsItem
 {

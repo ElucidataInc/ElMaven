@@ -1,4 +1,11 @@
+#include <QDesktopWidget>
+
 #include "alignmentdialog.h"
+#include "analytics.h"
+#include "background_peaks_update.h"
+#include "globals.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
 #include "mzAligner.h"
 
 AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 

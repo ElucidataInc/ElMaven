@@ -1,4 +1,7 @@
+#include "mainwindow.h"
+#include "numeric_treewidgetitem.h"
 #include "spectramatching.h"
+#include "spectrawidget.h"
 
 SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) { 
     setupUi(this);

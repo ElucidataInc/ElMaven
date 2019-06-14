@@ -1,4 +1,7 @@
+#include <QTextEdit>
+
 #include "logwidget.h"
+#include "mainwindow.h"
 
 LogWidget::LogWidget(QMainWindow *parent, std::ostream &stream): QDockWidget("Log", parent,Qt::Widget), m_stream(stream) {
     _mainwindow = (MainWindow*) parent;

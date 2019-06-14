@@ -1,4 +1,19 @@
+#include "adductwidget.h"
+#include "analytics.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "globals.h"
+#include "grouprtwidget.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "note.h"
+#include "pathwaywidget.h"
 #include "point.h"
+#include "spectralhitstable.h"
+#include "spectrawidget.h"
+#include "treedockwidget.h"
+
 EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
 {
 

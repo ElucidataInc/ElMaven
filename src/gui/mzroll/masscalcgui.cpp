@@ -1,6 +1,10 @@
+#include "globals.h"
+#include "mainwindow.h"
 #include "masscalcgui.h"
-using namespace std;
+#include "mavenparameters.h"
+#include "spectrawidget.h"
 
+using namespace std;
 
 MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);

@@ -1,5 +1,18 @@
-#include "pathwaywidget.h"
 #include "Matrix.h"
+#include "animationcontrol.h"
+#include "background_peaks_update.h"
+#include "edge.h"
+#include "eicwidget.h"
+#include "enzyme_node.h"
+#include "mainwindow.h"
+#include "metabolite_node.h"
+#include "mzSample.h"
+#include "node.h"
+#include "pathwaywidget.h"
+#include "PeakDetector.h"
+#include "projectdockwidget.h"
+#include "tinyplot.h"
+#include "widgets/qprog.h"
 
 PathwayWidget::PathwayWidget(MainWindow* parent) {
 	mw = parent;
@@ -873,8 +886,8 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event) {
 	e4->setChecked(_showEnzymesFlag);
 	connect(e4, SIGNAL(toggled(bool)), SLOT(showEnzymes(bool)));
 
-	MavenParameters* mavenParameters =
-			workerThread->peakDetector.getMavenParameters();
+        MavenParameters* mavenParameters =
+            workerThread->peakDetector->getMavenParameters();
 
 	QAction* e2 = options.addAction("Show Isotopes");
 	e2->setCheckable(true);
@@ -1317,8 +1330,8 @@ void PathwayWidget::showCofactors(bool flag) {
 
 void PathwayWidget::calculateIsotopes(bool flag) {
 	if (workerThread) {
-		MavenParameters* mavenParameters =
-				workerThread->peakDetector.getMavenParameters();
+            MavenParameters* mavenParameters =
+                workerThread->peakDetector->getMavenParameters();
 		mavenParameters->pullIsotopesFlag = flag;
 	}
 

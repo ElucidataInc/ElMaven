@@ -1,5 +1,13 @@
-#include "note.h"
 #include <QDebug>
+
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
+#include "globals.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+#include "note.h"
+#include "Scan.h"
 
 Note::Note(const QString &text, QGraphicsItem *parent, QGraphicsScene *scene): QGraphicsItem(parent)
 {

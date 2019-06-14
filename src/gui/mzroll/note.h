@@ -1,9 +1,9 @@
 #ifndef NOTE_H
 #define NOTE_H
 
-#include "globals.h"
 #include "stable.h"
 
+class UserNote;
 
 class Note : public QObject, public QGraphicsItem {
     Q_OBJECT

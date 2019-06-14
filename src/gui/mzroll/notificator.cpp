@@ -1,9 +1,14 @@
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
+#include "globals.h"
+#include "mzSample.h"
 #include "notificator.h"
 #include "notificator_p.h"
+#include "Peak.h"
+#include "PeakGroup.h"
 #include "tabledockwidget.h"
 
 #include <QtWidgets>
-
 
 namespace
 {

@@ -1,3 +1,7 @@
+#include "Compound.h"
+#include "globals.h"
+#include "mzSample.h"
+#include "note.h"
 #include "plotdock.h"
 
 PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {

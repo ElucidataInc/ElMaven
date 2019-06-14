@@ -1,7 +1,34 @@
-#include "tabledockwidget.h";
-#include "peaktabledeletiondialog.h"
-#include "notificator.h"
+#include <algorithm>
+
+#include <QHistogramSlider.h>
+
+#include "alignmentdialog.h"
+#include "analytics.h"
+#include "clusterdialog.h"
 #include "controller.h"
+#include "csvreports.h"
+#include "EIC.h"
+#include "eicwidget.h"
+#include "globals.h"
+#include "groupClassifier.h"
+#include "grouprtwidget.h"
+#include "heatmap.h"
+#include "isotopeswidget.h"
+#include "jsonReports.h";
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "masscalcgui.h"
+#include "mzAligner.h"
+#include "notificator.h"
+#include "numeric_treewidgetitem.h"
+#include "PeakGroup.h"
+#include "peaktabledeletiondialog.h"
+#include "saveJson.h"
+#include "scatterplot.h"
+#include "spectrawidget.h"
+#include "svmPredictor.h"
+#include "tabledockwidget.h";
+#include "traindialog.h"
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   QDateTime current_time;

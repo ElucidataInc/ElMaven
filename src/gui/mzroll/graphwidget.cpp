@@ -1,5 +1,11 @@
-#include "graphwidget.h" 
-
+#include "Compound.h"
+#include "edge.h"
+#include "globals.h"
+#include "graphwidget.h"
+#include "Matrix.h"
+#include "mzUtils.h"
+#include "mzSample.h"
+#include "node.h"
 
 void GraphWidgetScene::mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent ) {
         down =  mouseEvent->buttonDownScenePos(Qt::LeftButton);
@@ -559,8 +565,8 @@ void GraphWidget::computeAvgEdgeLength() {
                count++; 
             }
 		}
-	}
-    if (lvector.size() > 0) _averageEdgeSize = median(lvector);
+        }
+    if (lvector.size() > 0) _averageEdgeSize = mzUtils::median(lvector);
     return;
 }
 

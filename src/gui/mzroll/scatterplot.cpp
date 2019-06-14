@@ -1,6 +1,13 @@
+#include "comparesamplesdialog.h"
+#include "Compound.h"
+#include "eicwidget.h"
+#include "gallerywidget.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "pls.h"
+#include "pls.h"
 #include "scatterplot.h"
-#include "pls.h"
-#include "pls.h"
+#include "tabledockwidget.h"
 #include "utility.h"
 
 ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) { 

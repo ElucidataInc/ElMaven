@@ -2,17 +2,16 @@
 #define MASSCALCGUI_H
 
 #include "stable.h"
-#include "mainwindow.h"
-#include "ui_masscalcwidget.h"
 #include "mzMassCalculator.h"
+#include "ui_masscalcwidget.h"
 
 class QAction;
 class QTextEdit;
 class MainWindow;
 class MassCalculator;
 class Database;
-
-extern Database DB; 
+class MassCutoff;
+class Compound;
 
 class MassCalcWidget: public QDockWidget,  public Ui_MassCalcWidget {
       Q_OBJECT

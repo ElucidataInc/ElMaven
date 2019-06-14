@@ -2,7 +2,6 @@
 #define SETTINGS_FORM_H
 
 #include "ui_settingsform.h"
-#include "mainwindow.h"
 
 class MainWindow;
 class OptionsDialogSettings;

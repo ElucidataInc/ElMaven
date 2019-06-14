@@ -3,7 +3,6 @@
 #define LINE_H
 
 #include "stable.h"
-#include "mzSample.h"
 
 class EIC;
 

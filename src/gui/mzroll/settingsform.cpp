@@ -1,3 +1,10 @@
+#include "analytics.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "pathwaywidget.h"
 #include "settingsform.h"
 
 OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)

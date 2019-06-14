@@ -1,7 +1,18 @@
-#include "peakdetectiondialog.h"
-#include "videoplayer.h"
 #include <string>
+
 #include <QVariant>
+
+#include "alignmentdialog.h"
+#include "analytics.h"
+#include "background_peaks_update.h"
+#include "database.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "peakdetectiondialog.h"
+#include "PeakDetector.h"
+#include "settingsform.h"
+#include "tabledockwidget.h"
+#include "videoplayer.h"
 
 PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
 {

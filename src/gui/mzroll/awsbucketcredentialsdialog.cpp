@@ -1,4 +1,5 @@
 #include "awsbucketcredentialsdialog.h"
+#include "mainwindow.h"
 
 AwsBucketCredentialsDialog::AwsBucketCredentialsDialog(QWidget *parent) :
     QDialog(parent),

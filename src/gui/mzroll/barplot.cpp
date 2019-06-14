@@ -1,4 +1,8 @@
 #include "barplot.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "mainwindow.h"
+#include "mzSample.h"
 
 PeakGroup::QType BarPlot::qtype = PeakGroup::AreaTop;
 

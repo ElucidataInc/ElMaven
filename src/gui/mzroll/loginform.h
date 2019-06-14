@@ -2,9 +2,6 @@
 #define LOGINFORM_H
 
 #include <QWidget>
-#include "pollyintegration.h"
-#include "pollyelmaveninterface.h"
-#include "aboutpolly.h"
 
 class PollyIntegration;
 class AboutPolly;

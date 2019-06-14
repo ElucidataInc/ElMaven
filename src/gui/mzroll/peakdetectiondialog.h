@@ -3,17 +3,11 @@
 
 #include "ui_peakdetectiondialog.h"
 #include "stable.h"
-#include "database.h"
-#include "mainwindow.h"
-#include <QMap>
 
 class MainWindow;
 class TableDockWidget;
 class BackgroundPeakUpdate;
-
 class PeakDetectionSettings;
-extern Database DB;
-
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 {

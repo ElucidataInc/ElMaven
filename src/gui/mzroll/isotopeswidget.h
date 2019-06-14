@@ -2,17 +2,20 @@
 #define ISOTOPEWIDGETGUI_H
 
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "background_peaks_update.h"
 #include "ui_isotopeswidget.h"
-#include "numeric_treewidgetitem.h"
-#include "isotopelogic.h"
 
 class QAction;
 class QMenu;
 class QTextEdit;
+class BackgroundPeakUpdate;
 class MainWindow;
+class IsotopeDetection;
+class IsotopeLogic;
+class Isotope;
+class Compound;
+class mzSample;
+class Peak;
+class PeakGroup;
 
 using namespace std;
 

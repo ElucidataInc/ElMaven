@@ -1,7 +1,13 @@
-#include "loginform.h"
-#include "ui_loginform.h"
 #include <QMessageBox>
+
+#include "aboutpolly.h"
+#include "analytics.h"
 #include "controller.h"
+#include "loginform.h"
+#include "mainwindow.h"
+#include "pollyelmaveninterface.h"
+#include "pollyintegration.h"
+#include "ui_loginform.h"
 
 
 LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :

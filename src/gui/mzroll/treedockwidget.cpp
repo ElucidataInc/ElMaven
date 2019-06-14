@@ -1,6 +1,14 @@
+#include "mzSample.h"
+
+#include "eicwidget.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "pathwaywidget.h"
+#include "projectdockwidget.h"
+#include "settingsform.h"
+#include "spectrawidget.h"
+#include "SRMList.h"
 #include "treedockwidget.h"
-
-
 
 //Updated when Merging to Maven776 - Kiran
 TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {

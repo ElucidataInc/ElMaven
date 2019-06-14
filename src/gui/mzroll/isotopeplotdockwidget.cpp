@@ -1,4 +1,14 @@
+#include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QLabel>
+
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "isotopeplot.h"
 #include "isotopeplotdockwidget.h"
+#include "isotopeswidget.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
 #include "ui_isotopeplotdockwidget.h"
 
 IsotopePlotDockWidget::IsotopePlotDockWidget(MainWindow *mw) :

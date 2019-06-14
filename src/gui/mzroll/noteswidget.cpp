@@ -1,5 +1,13 @@
-#include "noteswidget.h"
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
+#include "eicwidget.h"
+#include "globals.h"
 #include "mainwindow.h"
+#include "noteswidget.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+
 //http://genomics.princeton.edu/~emelamud/mzroll/notes.xml
 //http://genomics-pubs.princeton.edu/mzroll/notes.xml
 

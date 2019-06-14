@@ -2,15 +2,12 @@
 #define ALIGNDIALOG_H
 
 #include "stable.h"
-#include "globals.h"
 #include "ui_alignmentdialog.h"
-#include "mainwindow.h"
 
 class BackgroundPeakUpdate;
 class Database;
 class MainWindow;
-
-extern Database DB; 
+class mzSample;
 
 class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 	Q_OBJECT

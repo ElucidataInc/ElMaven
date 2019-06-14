@@ -2,12 +2,9 @@
 #define HEATMAPWIDGET_H
 
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "tabledockwidget.h"
-#include "statistics.h"
 
-
+class MainWindow;
+class TableDockWidget;
 
 class HeatMap : public QGraphicsView
 {

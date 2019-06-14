@@ -1,6 +1,9 @@
+#include <QFile>
+
+#include "Compound.h"
 #include "constants.h"
 #include "database.h"
-#include <QFile>
+#include "mzUtils.h"
 
 
 bool Database::connect(string filename) {

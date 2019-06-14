@@ -1,6 +1,13 @@
-#include "grouprtwidget.h"
 #include <QDockWidget>
 #include <QToolBar>
+#include "qcustomplot.h"
+
+#include "Compound.h"
+#include "grouprtwidget.h"
+#include "mainwindow.h"
+#include "mzSample.h"
+#include "Peak.h"
+
 using namespace std;
 
 GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget):

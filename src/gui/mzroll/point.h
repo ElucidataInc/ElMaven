@@ -2,13 +2,11 @@
 #define EICPOINT_H
 
 #include "stable.h"
-#include "globals.h"
-#include "mainwindow.h"
-#include "note.h"
 
 class Peak;
 class PeakGroup;
 class MainWindow;
+class Scan;
 class SpectraWidget;
 
 class EicPoint : public QObject, public QGraphicsItem {

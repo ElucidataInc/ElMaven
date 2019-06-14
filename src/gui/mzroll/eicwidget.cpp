@@ -1,5 +1,26 @@
-
+#include "analytics.h"
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "eicwidget.h"
+#include "barplot.h"
+#include "boxplot.h"
+#include "eiclogic.h"
+#include "gallerywidget.h"
+#include "globals.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "line.h"
+#include "mainwindow.h"
+#include "note.h"
+#include "noteswidget.h"
+#include "Peak.h"
+#include "peakFiltering.h"
+#include "plot_axes.h"
+#include "point.h"
+#include "settingsform.h"
+#include "Scan.h"
+#include "spectrawidget.h"
+#include "treedockwidget.h"
 
 EicWidget::EicWidget(QWidget *p) {
 	eicParameters = new EICLogic();
@@ -1856,6 +1877,11 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//drawSelectionLine(group->minRt, group->maxRt); // TODO: Sahil commented this 
 	//addFitLine(group);
 	eicParameters->selectedGroup = group;
+}
+
+PeakGroup* EicWidget::getSelectedGroup()
+{
+    return (eicParameters->getSelectedGroup());
 }
 
 void EicWidget::setGalleryToEics() {

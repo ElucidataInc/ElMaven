@@ -1,22 +1,23 @@
 #ifndef PLOT_WIDGET_H
 #define PLOT_WIDGET_H
 
-#include "line.h"
-#include "point.h"
+#include <qnamespace.h>
+
 #include "stable.h"
-#include "boxplot.h"
-#include "barplot.h"
-#include "eiclogic.h"
-#include "plot_axes.h"
-#include "mainwindow.h"
-#include "peakFiltering.h"
 
 class EIC;
+class EICLogic;
 class Note;
 class BoxPlot;
 class BarPlot;
 class PeakGroup;
 class MainWindow;
+class MassCutoff;
+class mzSlice;
+class Compound;
+class Peak;
+class Scan;
+class mzSlice;
 
 class EicWidget: public QGraphicsView {
 Q_OBJECT
@@ -48,8 +49,8 @@ public Q_SLOTS:
 	 * @param selected compound object
 	 **/
 	void setCompound(Compound* c);
-	void setSelectedGroup(PeakGroup* group);
-	PeakGroup* getSelectedGroup() { return (eicParameters->getSelectedGroup()); }
+        void setSelectedGroup(PeakGroup* group);
+        PeakGroup* getSelectedGroup();
 	void addEICLines(bool showSpline, bool showEIC);
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();

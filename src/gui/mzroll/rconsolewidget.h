@@ -1,13 +1,14 @@
 #ifndef RCONSOLEWIDGET_H
 #define RCONSOLEWIDGET_H
 
-#include "globals.h"
 #include "stable.h"
-#include "highlighter.h"
 #include "ui_rconsolewidget.h"
-#include "mainwindow.h"
 
-
+class Highlighter;
+class MainWindow;
+class TableDockWidget;
+class Compound;
+class PeakGroup;
 
 class RconsoleWidget : public QDockWidget, public Ui_RconsoleWidget 
 {

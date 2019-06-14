@@ -1,15 +1,24 @@
+#include <omp.h>
+
 #include <boost/signals2.hpp>
 
-#include "mzfileio.h"
-#include "projectdatabase.h"
-#include "mzrolldbconverter.h"
+#include <QLabel>
 #include <QStringList>
 #include <QTextStream>
 
-#include <omp.h>
-
-#include <MavenException.h>
-#include <errorcodes.h>
+#include "analytics.h"
+#include "errorcodes.h"
+#include "globals.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "MavenException.h"
+#include "mzAligner.h"
+#include "mzfileio.h"
+#include "mzrolldbconverter.h"
+#include "projectdatabase.h"
+#include "projectdockwidget.h"
+#include "spectralhitstable.h"
+#include "tabledockwidget.h"
 
 mzFileIO::mzFileIO(QWidget*) {
     sampleId = 0;

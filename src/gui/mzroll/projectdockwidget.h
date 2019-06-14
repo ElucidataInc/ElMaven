@@ -1,13 +1,15 @@
 #ifndef PROJECTDOCKWIDGET_H
 #define PROJECTDOCKWIDGET_H
 
-#include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
-extern Database DB; 
+#include "stable.h"
+
+class QTextEdit;
+class MainWindow;
+class mzSample;
+class TableDockWidget;
 
 class ProjectDockWidget : public QDockWidget
 {

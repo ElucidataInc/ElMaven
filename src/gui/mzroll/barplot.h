@@ -1,10 +1,8 @@
 #ifndef BARPLOT_H
 #define BARPLOT_H
 
+#include "PeakGroup.h"
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-
 
 class MainWindow;
 class PeakGroup;

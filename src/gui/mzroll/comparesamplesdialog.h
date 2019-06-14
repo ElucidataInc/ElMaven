@@ -3,7 +3,6 @@
 
 #include "comparesampleslogic.h"
 #include "ui_comparesamplesdialog.h"
-#include "mainwindow.h"
 
 class MainWindow;
 class TableDockWidget;

@@ -1,5 +1,12 @@
+#include "Compound.h"
+#include "edge.h"
 #include "enzyme_node.h"
-
+#include "globals.h"
+#include "graphwidget.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+#include "Scan.h"
+#include "mzSample.h"
 
 EnzymeNode::EnzymeNode(QGraphicsItem* parent, QGraphicsScene *scene):Node(parent,scene) {
 		setMolClass(Node::Enzyme);

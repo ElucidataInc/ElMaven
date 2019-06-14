@@ -1,4 +1,10 @@
+#include "barplot.h"
+#include "Compound.h"
+#include "globals.h"
+#include "mainwindow.h"
 #include "metabolite_node.h"
+#include "mzSample.h"
+#include "pathwaywidget.h"
 
 MetaboliteNode::MetaboliteNode(QGraphicsItem* parent, QGraphicsScene *scene):Node(parent,scene) {
 		setMolClass(Node::Metabolite);

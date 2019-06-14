@@ -1,4 +1,11 @@
 #include "adductwidget.h"
+#include "edge.h"
+#include "globals.h"
+#include "graphwidget.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "node.h"
+#include "spectrawidget.h"
 
 AdductWidget::AdductWidget(MainWindow* mw) { 
   _mw = mw;
