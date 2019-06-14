@@ -167,6 +167,17 @@ class Scan
     void quantileFilter(int minQuantile);
 
     /**
+    * @brief adjusts precursor m/z for MS2 scans
+    * @details precursor m/z available in the MS2 scans have
+    * lower precision than m/z values recorded in the MS1 fullscans
+    * To ensure correct mapping of MS2 scans to parent scans, precursor
+    * m/z needs to be adjusted
+    * @param ppm lowest ppm range for finding the correct
+    * precursor m/z
+    */
+    void recalculatePrecursorMz(float ppm);
+
+    /**
      * @brief calculates purity of the spectra
      * @details if the parent full scan has multiple readings within a precursor m/z window
      * the fragmentation scan would be a mixture of fragments from all those species

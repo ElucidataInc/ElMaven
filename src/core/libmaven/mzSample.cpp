@@ -78,11 +78,18 @@ void mzSample::addScan(Scan *s)
 	//unsigned int sizeAfter3 = s->intensity.size();
         //cerr << "addScan " << sizeBefore <<  " " << sizeAfter1 << " " << sizeAfter2 << " " << sizeAfter3 << endl;
 
-        if (s->mslevel == 1) ++_numMS1Scans;
-        if (s->mslevel == 2) ++_numMS2Scans;
+    if (s->mslevel == 1) ++_numMS1Scans;
+    if (s->mslevel == 2) ++_numMS2Scans;
 
-        scans.push_back(s);
-        s->scannum = scans.size() - 1;
+    scans.push_back(s);
+    s->scannum = scans.size() - 1;
+
+    //recalculate precursorMz of MS2 scans
+    if (s->mslevel == 2 && _numMS1Scans > 0) {
+        float ppm = 10;
+        s->recalculatePrecursorMz(ppm);
+    }
+
 }
 
 string mzSample::getFileName(const string &filename)
