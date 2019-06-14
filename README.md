@@ -16,8 +16,8 @@
 [![DOI](https://zenodo.org/badge/70220005.svg)](https://zenodo.org/badge/latestdoi/70220005)
 
 ## Table of contents
-- [Download](#download) 
-- [Build](#build)
+- [Download](#download)
+- [Build](#build-from-source)
 - [El-MAVEN features](#el-maven-features)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Documentation](#documentation)
@@ -32,19 +32,26 @@
 El-MAVEN installers are available for Windows (7, 8, 10) and Mac.
 Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build for your preferred environment.
 
-## Build
+## Build from source
 
-Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. Users are recommended to download the installers provided on the El-MAVEN website. 
+Contributers can build El-MAVEN on Windows, Ubuntu or Mac systems by following these instructions. Users are recommended to download the installers provided on the El-MAVEN website.
+- Setting up Environment
+  - [Windows](#windows)
+  - [Ubuntu](#ubuntu)
+  - [Mac](#mac)
+- [Getting the source code](#source-code)
+- [Build](#build)
 
-### Windows
+
+#### <a name=setup> </a> Set up Environment(64 bit platforms only)
+1. ##### Windows
 
 - Download [MSYS2](http://www.msys2.org/) installer and follow the installation instructions provided on their website.
 - Download OpenSSL package using https://indy.fulgan.com/SSL/openssl-1.0.2r-x64_86-win64.zip
 - Extract the contents of OpenSSL package in `/c/msys64/mingw64/bin`
 - NOTE: To verify whether the above two steps have been executed correctly make sure you have libeay32.dll and ssleay32.dll inside `/c/msys64/mingw64/bin/`
-- Open MSYS2 and give the following commands to set up libraries and tool chains for El-MAVEN. Reopen MSYS2 when required:
-##### **For 64 bit**:  _Following commands needs to be executed from msys2 shell_
 
+    #####  _Following commands needs to be executed from msys2 shell_
 - `pacman --force -Sy`
 - `pacman --force -Syu`
 - `pacman --force -Su`
@@ -62,14 +69,8 @@ in the .bashrc file. It can be achieved by either manually editing the .bashrc f
     - `echo export PATH=/c/msys64/mingw64/bin/:$PATH > ~/.bashrc`
     - `source ~/.bashrc`
 
-- `cd <PathToInstallationFolder>    #for example: cd /c/User/Admin/Desktop`
-- `git clone https://github.com/ElucidataInc/ElMaven.git`
-- `./run.sh`
-- `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
 
-El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
-
-### Ubuntu
+2. ##### Ubuntu
 
 - `sudo apt-get update`
 - `sudo apt-get install g++`
@@ -81,14 +82,7 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 - `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5multimedia5`
 - `sudo apt-get install libqt5multimedia5-plugins qtmultimedia5-dev libqt5webkit5-dev`
 
-- `cd <PathToInstallationFolder>    #for example: user@pc:~$ cd Desktop/`
-- `git clone https://github.com/ElucidataInc/ElMaven.git`
-- `./run.sh`
-- `./bin/El_Maven_0.x    #for example: ./bin/El_Maven_0.2`
-
-El-MAVEN loads with two windows: one for logging the application status and another El-MAVEN application window for data analysis.
-
-### Mac
+3. ##### Mac
 
 - Install Xcode from App store
 
@@ -117,19 +111,25 @@ El-MAVEN loads with two windows: one for logging the application status and anot
 
 - `source .bash_profile`
 
+_To make sure the environment has ben setup correctly make sure the correct version of libraries have been installed by issuing the following commands_
+- Qt version should be >= 5.7: `qmake -v`
+- Boost should be >= 1.58
+  - On ubuntu : `apt-cache policy libboost-all-dev`
+  - On Mac: `brew info boost`
+  - On Windows: `pacman -Qi mingw64/mingw-w64-x86_64-boost`
 
-- `mkdir ~/maven_repo`
-
-- `cd ~/maven_repo`
-
+#### <a name=source-code> </a> Getting the source code
+- Change the directory to where you want to clone the code
 - `git clone https://github.com/ElucidataInc/ElMaven.git`
 
+
+#### <a name="build"> </a> Build
 - `cd ElMaven`
-
-- `qmake CONFIG+=debug -o Makefile build.pro`
-
+- For release builds : `qmake CONFIG+=release build.pro`
+- For debug builds : `qmake CONFIG+=debug build.pro`
 - `make -j4`
-
+- If you want to run tests and want to do a clean build, you can skip the above steps and just run the command from ElMaven directory: `./run.sh`
+- Run El-MAVEN: `bin/El-MAVEN`
 ### Switching versions
 
 Users can switch between versions once they have compiled El-MAVEN successfully on their system. Follow these steps to pull a specific release:
