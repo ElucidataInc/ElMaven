@@ -16,6 +16,7 @@ matrix:
       osx_image: xcode9.2
       language: cpp
 
+
 env:
   global:
     - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
@@ -75,3 +76,145 @@ script:
 after_success:
   - export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
   - bash <(curl -s https://codecov.io/bash)
+
+
+before_deploy:
+  # TO-DO: use regex to extract these values
+  - export ELMAVEN_TAG=`git describe --abbrev=0 --tags`
+  - export ELMAVEN_VERSION=${ELMAVEN_TAG[@]:1}
+  - |
+
+    if [ "$TRAVIS_TAG" != "" ]; then
+      export ELMAVEN_BRANCH=$TRAVIS_TAG
+    else
+      export ELMAVEN_BRANCH=$TRAVIS_BRANCH
+    fi
+
+  - export PACKAGING_REPO=elmaven-packaging
+  - git clone https://github.com/ElucidataInc/elmaven-packaging.git
+  - |
+
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      cd $PACKAGING_REPO
+
+      # define variables
+      PARENT_DIR=$PWD
+      BREAKPAD_TOOLS=$PWD/breakpad_tools/
+      ELMAVEN_BIN="$PARENT_DIR/../bin/"
+      BIN="$PARENT_DIR/bin/"
+      NODE_MAC="$PARENT_DIR/node_mac/"
+      NODE_WIN="$PARENT_DIR/node_win/"
+      ARCHIVE_FILE="maven.7z"
+      PACKAGE_DATA="$PARENT_DIR/packages/com.vendor.product/data/"
+      INSTALLER="El-MAVEN-$ELMAVEN_BRANCH"
+
+      # collect runtime plugins
+      echo "Collecting plugins ..."
+      cd $PARENT_DIR
+
+      if [ ! -d $BIN ]; then
+        mkdir $BIN
+      fi
+
+      cd $BIN
+      rm -rf *
+
+      rsync -av --progress --exclude 'windows' --exclude 'linux' --exclude 'node' --exclude 'node_bin' --exclude 'node.exe' $ELMAVEN_BIN . &>/dev/null
+
+      # prepare dSYM files
+      echo "Preparing debug symbol files ..."
+      dsymutil "El-MAVEN.app/Contents/MacOS/El-MAVEN" -o "El-MAVEN.dSYM" &>/dev/null
+      macdeployqt El-MAVEN.app &>/dev/null
+      macdeployqt peakdetector.app &>/dev/null
+      macdeployqt crashreporter.app &>/dev/null
+      # install_name_tool -add_rpath @executable_path/../Frameworks "El-MAVEN.app/Contents/MacOS/crashserver"
+
+      if [ $? != 0 ]; then
+        echo "Failed to create debug files."
+        exit 1
+      fi
+
+      # strip and upload debug symbols
+      echo "Stripping and uploading symbols ..."
+      cd $BIN
+      $BREAKPAD_TOOLS/mac/strip_symbols.sh $BREAKPAD_TOOLS "El-MAVEN.app/Contents/MacOS/El-MAVEN" El-MAVEN &>/dev/null
+      rm -r *.dSYM
+
+      # copy node
+      echo "Copying node executable ..."
+      cp -r $NODE_MAC $BIN
+
+      # download our precompiled binaries of qt-ifw
+      echo "Downloading binaries for Qt Installer Framework ..."
+      cd $PARENT_DIR
+
+      wget https://www.dropbox.com/s/jwzuf4howm71s1d/archivegen?dl=1 -O archivegen &> /dev/null
+      chmod u+x ./archivegen
+      wget https://www.dropbox.com/s/yl47a7wjyzy91o9/binarycreator?dl=1 -O binarycreator &> /dev/null
+      chmod u+x ./binarycreator
+      wget https://www.dropbox.com/s/m5xjddbxon5cry9/installerbase?dl=1 -O installerbase &> /dev/null
+      chmod u+x ./installerbase
+
+      # generate archive
+      echo "Generating archive ..."
+      cd $PARENT_DIR
+
+      if [ -f $ARCHIVE_FILE ]; then
+        rm $ARCHIVE_FILE
+      fi
+
+      if [ -f $PACKAGE_DATA/$ARCHIVE_FILE ]; then
+        rm $PACKAGE_DATA/$ARCHIVE_FILE
+      fi
+
+      ./archivegen $ARCHIVE_FILE $BIN
+
+      if [ $? != 0 ]; then
+        echo "Failed to generate archive. Make sure archivegen is in system path."
+        exit 1
+      fi
+
+      mkdir $PACKAGE_DATA
+      cp $ARCHIVE_FILE $PACKAGE_DATA
+
+      # update version
+      echo "Updating version string in config file ..."
+      cd $PARENT_DIR
+
+      python update_version.py $ELMAVEN_VERSION
+
+      if [ $? != 0 ]; then
+        echo "Failed to update version in config file."
+        exit 1
+      fi
+
+      # create installer
+      echo "Creating installer ..."
+      cd $PARENT_DIR
+
+      ./binarycreator --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
+
+      if [ $? != 0 ]; then
+        echo "Failed to create installer. Make sure binarycreator is in system path."
+        exit 1
+      fi
+
+      cd $PARENT_DIR/../
+    fi
+
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: du -h -d 1 $PACKAGING_REPO
+    on:
+      tags: false
+      all_branches: true
+      condition: $TRAVIS_OS_NAME = "osx"
+  - provider: releases
+    skip_cleanup: true
+    api_key: "INSERT_OAUTH_TOKEN"
+    file: $PACKAGING_REPO/$INSTALLER.app
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = "osx"
