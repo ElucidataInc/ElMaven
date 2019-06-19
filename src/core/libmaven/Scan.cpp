@@ -406,10 +406,14 @@ vector<int> Scan::intensityOrderDesc() {
    return position;
 }
 
-vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff,float minSNRatio=3,int dropTopX=40) {
-	unsigned int N = nobs();
+vector <pair<float,float> > Scan::getTopPeaks(float minFracCutoff,float minSNRatio=3,int dropTopX=40)
+{
+    vector<pair<float,float>> selected;
+    if (nobs() == 0)
+        return selected;
 
-    vector< pair<float,float> > selected;
+    unsigned int N = nobs();
+
 	vector<int> positions = this->intensityOrderDesc();
 	float maxI = intensity[positions[0]];
 
