@@ -103,7 +103,6 @@ before_deploy:
       ELMAVEN_BIN="$PARENT_DIR/../bin/"
       BIN="$PARENT_DIR/bin/"
       NODE_MAC="$PARENT_DIR/node_mac/"
-      NODE_WIN="$PARENT_DIR/node_win/"
       ARCHIVE_FILE="maven.7z"
       PACKAGE_DATA="$PARENT_DIR/packages/com.vendor.product/data/"
       INSTALLER="El-MAVEN-$ELMAVEN_BRANCH"
