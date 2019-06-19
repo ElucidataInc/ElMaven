@@ -199,6 +199,28 @@ before_deploy:
         exit 1
       fi
 
+      # create keychain and import certificate
+      echo "Creating new Keychain and installing developer certificate ..."
+      security create-keychain -p dummypass build.keychain
+      security default-keychain -s build.keychain
+      security unlock-keychain -p dummypass build.keychain
+
+      echo $CERTIFICATE_OSX_P12 | base64 --decode > certificate.p12
+      security import certificate.p12 -k build.keychain -P $CERTIFICATE_OSX_PASSWORD -T /usr/bin/codesign
+      security find-identity -v
+      security set-key-partition-list -S apple-tool:,apple: -s -k dummypass build.keychain
+
+      # codesign installer
+      echo "Codesigning the installer ..."
+      cd $PARENT_DIR
+
+      codesign -s "Elucidata Corporation" $INSTALLER.app
+
+      if [ $? != 0 ]; then
+        echo "Failed to sign installer. Make sure the certificate exists."
+        exit 1
+      fi
+
       cd $PARENT_DIR/../
     fi
 
