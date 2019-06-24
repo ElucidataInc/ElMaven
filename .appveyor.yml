@@ -40,10 +40,19 @@ build_script:
 
 
 after_build:
-    - ps: git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
-
     - ps: |
+          # we do not create installers for pull requests, to save time
+          if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
+              echo "This build is for a PR. Not proceeding with installer creation."
+              return
+          }
+
+          # clone packaging repo
+          echo "Cloning packaging repo ..."
+          git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
+
           # define variables
+          echo "Defining environment variables ..."
           $env:PACKAGING_REPO = "elmaven-packaging"
           $ELMAVEN_TAG = git describe --abbrev=0 --tags
           $ELMAVEN_VERSION = $ELMAVEN_TAG.TrimStart('v')
@@ -64,8 +73,8 @@ after_build:
           $env:APPNAME = "El-MAVEN"
           $env:INSTALLER = "$env:APPNAME-$ELMAVEN_BRANCH"
 
-    - ps: |
           # collect runtime plugins
+          echo "Collecting plugins ..."
           cd $PARENT_DIR
           if ( -Not (Test-Path $BIN -PathType Container) ) { mkdir $BIN }
           cd $BIN ; rm -Recurse -Force *
@@ -115,8 +124,8 @@ after_build:
           # generate qt.conf
           echo "[Paths]`nPrefix = .`n" >> qt.conf
 
-    - ps: |
           # strip and upload debug symbols
+          echo "Stripping and uploading symbols ..."
           cd $BIN
           $BREAKPAD_TOOLS = "$env:APPVEYOR_BUILD_FOLDER\$env:PACKAGING_REPO\breakpad_tools\windows"
           $exe_file = "$env:APPNAME.exe"
@@ -134,19 +143,19 @@ after_build:
           & "$BREAKPAD_TOOLS\sentry-cli.exe" --auth-token $env:SENTRY_OAUTH upload-dif -t breakpad --project el-maven-logging --org el-maven ../symbols/
           rm "$env:APPNAME.pdb"
 
-    - ps: |
           # copy node
+          echo "Copying node requirements ..."
           Get-ChildItem -Path $NODE_WIN | Move-Item -Destination $BIN
 
-    - ps: |
           # download our precompiled binaries of qt-ifw
+          echo "Downloading binaries for Qt Installer Framework ..."
           cd $PARENT_DIR
           Invoke-RestMethod https://www.dropbox.com/s/snrgft8uskxan27/archivegen.exe?dl=1 -OutFile archivegen.exe
           Invoke-RestMethod https://www.dropbox.com/s/ym2mph272rp2euj/binarycreator.exe?dl=1 -OutFile binarycreator.exe
           Invoke-RestMethod https://www.dropbox.com/s/y4s0gazvdxu34js/installerbase.exe?dl=1 -OutFile installerbase.exe
 
-    - ps: |
           # generate archive
+          echo "Generating archive ..."
           cd $PARENT_DIR
           if ( Test-Path $ARCHIVE_FILE ) { rm $ARCHIVE_FILE }
           if ( Test-Path $PACKAGE_DATA\$ARCHIVE_FILE ) { rm $PACKAGE_DATA\$ARCHIVE_FILE }
@@ -158,8 +167,8 @@ after_build:
           mkdir $PACKAGE_DATA
           Copy-Item $ARCHIVE_FILE $PACKAGE_DATA
 
-    - ps: |
           # update version
+          echo "Updating version string in config file ..."
           cd $PARENT_DIR
           if ( Get-Command "python.exe" -ErrorAction SilentlyContinue ) {
               python.exe update_version.py $ELMAVEN_VERSION
@@ -176,8 +185,8 @@ after_build:
               exit 1
           }
 
-    - ps: |
           # create installer
+          echo "Creating installer ..."
           cd $PARENT_DIR
           .\binarycreator -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
           if ( $? -eq $false ) {
