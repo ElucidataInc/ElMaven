@@ -8,6 +8,8 @@ environment:
   BIT: 64
   SENTRY_OAUTH:
     secure: +59H0p7EcOrHb6126nylf5sN7HF40cJMNa1skgWKDJNK6YZStg+agGdsX8cfqC5QBVMTK8ir/S3W1X35r4ElsgadQD54Zr8y0jvfyKN5hAw=
+  CODECOV_TOKEN:
+    secure: kDB13lf6yyaC7d63D0DcRbEjf5vZ77xt2WMxHtxx7Jz32OUaR8Ouxso7WBQoubMO
 
 
 cache:
@@ -203,8 +205,7 @@ deploy:
 
 
 on_success:
-    -bash -lc "export CODECOV_TOKEN='9a0f9704-6d63-48c6-8c1a-ded361a26597'"
-    -bash -lc "cd $APPVEYOR_BUILD_FOLDER ; bash <(curl -s https://codecov.io/bash)"
+    - bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
 
 
 notifications:
