@@ -22,6 +22,10 @@ env:
     - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
 
+git:
+  depth: false
+
+
 before_install:
     -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0C49F3730359A14518585931BC711F9BA15703C6;
@@ -78,11 +82,12 @@ after_success:
 
 
 before_deploy:
-  # TO-DO: use regex to extract these values
+  # To-Do: use regex to extract these values
   - |
-    export ELMAVEN_TAG=`git describe --abbrev=0 --tags`
+    export ELMAVEN_TAG=`git describe --tags`
     SUBSTRING=$(echo $ELMAVEN_TAG| cut -d'-' -f 1)
     export ELMAVEN_VERSION=${SUBSTRING[@]:1}
+
   - |
 
     if [ "$TRAVIS_TAG" != "" ]; then
