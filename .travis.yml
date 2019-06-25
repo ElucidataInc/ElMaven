@@ -221,6 +221,10 @@ before_deploy:
         exit 1
       fi
 
+      # compressing
+      echo "Compressing installer into a zip file ..."
+      zip -r "$INSTALLER.zip" "$INSTALLER.app" &> /dev/null
+
       cd $PARENT_DIR/../
     fi
 
@@ -236,7 +240,7 @@ deploy:
   - provider: releases
     skip_cleanup: true
     api_key: $GITHUB_RELEASE_TOKEN
-    file: $PACKAGING_REPO/$INSTALLER.app
+    file: $INSTALLER.zip
     draft: true
     overwrite: true
     on:
