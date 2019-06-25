@@ -74,7 +74,6 @@ script:
 
 
 after_success:
-  - export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
   - bash <(curl -s https://codecov.io/bash)
 
 
