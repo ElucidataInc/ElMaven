@@ -251,4 +251,5 @@ deploy:
     acl: public_read
     local_dir: $PACKAGING_REPO/$INSTALLER.zip
     on:
+      all_branches: true
       condition: $TRAVIS_OS_NAME = "osx"
