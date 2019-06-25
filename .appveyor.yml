@@ -55,7 +55,8 @@ after_build:
           echo "Defining environment variables ..."
           $env:PACKAGING_REPO = "elmaven-packaging"
           $ELMAVEN_TAG = git describe --abbrev=0 --tags
-          $ELMAVEN_VERSION = $ELMAVEN_TAG.TrimStart('v')
+          $SUBSTRING = $ELMAVEN_TAG.Substring(0, $ELMAVEN_TAG.IndexOf("-"))
+          $ELMAVEN_VERSION = $SUBSTRING.TrimStart('v')
 
           if ( Test-Path env:APPVEYOR_REPO_TAG_NAME ) {
               $ELMAVEN_BRANCH = $env:APPVEYOR_REPO_TAG_NAME

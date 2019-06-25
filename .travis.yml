@@ -79,8 +79,10 @@ after_success:
 
 before_deploy:
   # TO-DO: use regex to extract these values
-  - export ELMAVEN_TAG=`git describe --abbrev=0 --tags`
-  - export ELMAVEN_VERSION=${ELMAVEN_TAG[@]:1}
+  - |
+    export ELMAVEN_TAG=`git describe --abbrev=0 --tags`
+    SUBSTRING=$(echo $ELMAVEN_TAG| cut -d'-' -f 1)
+    export ELMAVEN_VERSION=${SUBSTRING[@]:1}
   - |
 
     if [ "$TRAVIS_TAG" != "" ]; then
