@@ -208,7 +208,6 @@ deploy:
     artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
     draft: true
     on:
-        branch: develop                # release from develop branch only
         APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only
 
 
