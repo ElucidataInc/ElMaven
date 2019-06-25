@@ -204,10 +204,9 @@ artifacts:
 deploy:
     provider: GitHub
     auth_token:
-        secure: "INSERT_OAUTH_TOKEN"
+        secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
     artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
     draft: true
-    prerelease: true
     on:
         branch: develop                # release from develop branch only
         APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only

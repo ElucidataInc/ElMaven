@@ -234,8 +234,10 @@ deploy:
       condition: $TRAVIS_OS_NAME = "osx"
   - provider: releases
     skip_cleanup: true
-    api_key: "INSERT_OAUTH_TOKEN"
+    api_key: $GITHUB_RELEASE_TOKEN
     file: $PACKAGING_REPO/$INSTALLER.app
+    draft: true
+    overwrite: true
     on:
       tags: true
       condition: $TRAVIS_OS_NAME = "osx"
