@@ -10,6 +10,10 @@ environment:
     secure: +59H0p7EcOrHb6126nylf5sN7HF40cJMNa1skgWKDJNK6YZStg+agGdsX8cfqC5QBVMTK8ir/S3W1X35r4ElsgadQD54Zr8y0jvfyKN5hAw=
   CODECOV_TOKEN:
     secure: kDB13lf6yyaC7d63D0DcRbEjf5vZ77xt2WMxHtxx7Jz32OUaR8Ouxso7WBQoubMO
+  AWS_ACCESS_KEY:
+    secure: FBWRLw84S0Uq5xlHzaNBfg9zknKUzTQ6+jUBWeQFg38=
+  AWS_SECRET_KEY:
+    secure: uYWVMV2S2RDPMKNuTmncDT75vWfYPwJfHQjog7UO2C0OdtWNuYzxDZnlEvIC/KSA
 
 
 cache:
@@ -203,15 +207,24 @@ artifacts:
 
 
 deploy:
-    provider: GitHub
-    auth_token:
-        secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
-    release: $(APPVEYOR_REPO_TAG_NAME)
-    artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
-    draft: true
-    force_update: true
-    on:
-        APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only
+    - provider: GitHub
+      auth_token:
+          secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
+      release: $(APPVEYOR_REPO_TAG_NAME)
+      artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
+      draft: true
+      force_update: true
+      on:
+          APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only
+
+    - provider: S3
+      access_key_id: $(AWS_ACCESS_KEY)
+      secret_access_key: $(AWS_SECRET_KEY)
+      region: us-west-2
+      bucket: "elmaven-installers"
+      folder: "Windows"
+      set_public: true
+      artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
 
 
 on_success:

@@ -230,20 +230,25 @@ before_deploy:
 
 
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: du -h -d 1 $PACKAGING_REPO
-    on:
-      tags: false
-      all_branches: true
-      condition: $TRAVIS_OS_NAME = "osx"
   - provider: releases
     skip_cleanup: true
     name: $TRAVIS_TAG
     api_key: $GITHUB_RELEASE_TOKEN
-    file: $INSTALLER.zip
+    file: $PACKAGING_REPO/$INSTALLER.zip
     draft: true
     overwrite: true
     on:
       tags: true
+      condition: $TRAVIS_OS_NAME = "osx"
+
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    region: us-west-2
+    bucket: "elmaven-installers"
+    upload-dir: "Mac"
+    acl: public_read
+    local_dir: $PACKAGING_REPO/$INSTALLER.zip
+    on:
       condition: $TRAVIS_OS_NAME = "osx"
