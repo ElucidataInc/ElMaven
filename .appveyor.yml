@@ -207,6 +207,7 @@ deploy:
         secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
     artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
     draft: true
+    force_update: true
     on:
         APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only
 
