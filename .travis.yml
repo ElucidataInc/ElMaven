@@ -37,7 +37,10 @@ install:
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
         brew install llvm@6;
         brew install grep;
-        brew install cppcheck qt;
+
+        # brew no longer provides Qt 5.11, so we use an older formula for the same
+        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/56c500b569c724b049be7ab9e12d9693f85522f9/Formula/qt.rb
+        brew install ./qt.rb
         brew link qt5 --force;
     fi
 
