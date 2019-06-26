@@ -203,11 +203,13 @@ after_build:
               echo 'Make sure binarycreator is in system path'
               exit 1
           }
-          cd $PARENT_DIR\..\
+
+          Copy-Item "$env:INSTALLER.exe" ..\
+          cd ..\
 
 
 artifacts:
-    - path: $(PACKAGING_REPO)\$(INSTALLER).exe
+    - path: $(INSTALLER).exe
       name: $(INSTALLER)
 
 
@@ -216,7 +218,7 @@ deploy:
       auth_token:
           secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
       release: $(APPVEYOR_REPO_TAG_NAME)
-      artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
+      artifact: $(INSTALLER).exe
       draft: true
       force_update: true
       on:
@@ -229,7 +231,7 @@ deploy:
       bucket: "elmaven-installers"
       folder: "Windows"
       set_public: true
-      artifact: $(PACKAGING_REPO)\$(INSTALLER).exe
+      artifact: $(INSTALLER).exe
 
 
 on_success:
