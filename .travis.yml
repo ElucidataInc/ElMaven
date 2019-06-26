@@ -132,7 +132,7 @@ before_deploy:
       cd $BIN
       rm -rf *
 
-      rsync -av --progress --exclude 'windows' --exclude 'linux' --exclude 'node' --exclude 'node_bin' --exclude 'node.exe' $ELMAVEN_BIN . &>/dev/null
+      rsync -av --progress --exclude={'windows', 'linux', 'node', 'node_bin', 'node.exe', 'MavenTests'} $ELMAVEN_BIN . &>/dev/null
 
       # prepare dSYM files
       echo "Preparing debug symbol files ..."

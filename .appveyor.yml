@@ -101,7 +101,7 @@ after_build:
           if ( -Not (Test-Path $BIN -PathType Container) ) { mkdir $BIN }
           cd $BIN ; rm -Recurse -Force *
 
-          $excludes = "linux","node","node_bin","node_modules","node.exe"
+          $excludes = "linux","node","node_bin","node_modules","node.exe","MavenTests.exe"
           Get-ChildItem $ELMAVEN_BIN |
               Where-Object{$_.Name -notin $excludes} |
               Copy-Item -Destination $BIN -Recurse -Force
