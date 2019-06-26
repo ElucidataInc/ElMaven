@@ -231,6 +231,11 @@ before_deploy:
       zip -r "$INSTALLER.zip" "$INSTALLER.app" &> /dev/null
 
       cd $PARENT_DIR/../
+      cp "$PACKAGING_REPO/$INSTALLER.zip" .
+
+      # S3 provider requires the file(s) for deployment to be in a directory
+      mkdir $ELMAVEN_BRANCH
+      cp "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
     fi
 
 
@@ -239,7 +244,7 @@ deploy:
     skip_cleanup: true
     name: $TRAVIS_TAG
     api_key: $GITHUB_RELEASE_TOKEN
-    file: $PACKAGING_REPO/$INSTALLER.zip
+    file: $INSTALLER.zip
     draft: true
     overwrite: true
     on:
@@ -254,7 +259,7 @@ deploy:
     bucket: "elmaven-installers"
     upload-dir: "Mac"
     acl: public_read
-    local_dir: $PACKAGING_REPO/$INSTALLER.zip
+    local_dir: $ELMAVEN_BRANCH
     on:
       all_branches: true
       condition: $TRAVIS_OS_NAME = "osx"
