@@ -85,13 +85,10 @@ after_success:
 
 
 before_deploy:
-  # To-Do: use regex to extract these values
   - |
     export ELMAVEN_TAG=`git describe --tags`
     SUBSTRING=$(echo $ELMAVEN_TAG| cut -d'-' -f 1)
     export ELMAVEN_VERSION=${SUBSTRING[@]:1}
-
-  - |
 
     if [ "$TRAVIS_TAG" != "" ]; then
       export ELMAVEN_BRANCH=$TRAVIS_TAG
@@ -99,9 +96,8 @@ before_deploy:
       export ELMAVEN_BRANCH=$TRAVIS_BRANCH
     fi
 
-  - export PACKAGING_REPO=elmaven-packaging
-  - git clone https://github.com/ElucidataInc/elmaven-packaging.git
-  - |
+    export PACKAGING_REPO=elmaven-packaging
+    git clone https://github.com/ElucidataInc/elmaven-packaging.git
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       cd $PACKAGING_REPO
