@@ -6,6 +6,8 @@ environment:
   MSYS2_DIR: msys64
   MSYSTEM: MINGW64
   BIT: 64
+  SENTRY_KEYS:
+    secure: 4h/RDAT2VRFeFncyVmupjvYW2+ZVLLt8Meb0HZnKpeXw4DgSXxy2C8PicOvkBrxGsywvi1LTBDAJdTBdCaXHXETB0zLjFrasYj9hNUYhF2hWF7XZXA9qYPyhZHNVyg8t
   SENTRY_OAUTH:
     secure: +59H0p7EcOrHb6126nylf5sN7HF40cJMNa1skgWKDJNK6YZStg+agGdsX8cfqC5QBVMTK8ir/S3W1X35r4ElsgadQD54Zr8y0jvfyKN5hAw=
   CODECOV_TOKEN:
@@ -35,6 +37,16 @@ install:
     - bash -lc "cd $APPVEYOR_BUILD_FOLDER ; ./gcc_v7.3.0.sh"
 
 build_script:
+    # write to Sentry keys file
+    - echo "$env:SENTRY_KEYS`n" >> keys
+
+    - ps: |
+          # check for Sentry keys file
+          if ( -not (Test-Path keys) ) {
+              echo "File not found - 'keys', needed for crash reporter to work properly."
+              exit 1
+          }
+
     - SET "QTEST_FUNCTION_TIMEOUT=1200000"
     - bash -lc "echo $QTEST_FUNCTION_TIMEOUT"
     - bash -lc "qmake -v"

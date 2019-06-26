@@ -54,8 +54,17 @@ install:
     fi
 
 script:
-  - |
+  # write to Sentry keys file
+  - printf "%s\n\n" $SENTRY_KEYS > keys
 
+  - |
+    # check for Sentry keys file
+    if [ ! -f keys ]; then
+      echo "File not found - 'keys', needed for crash reporter to work properly."
+      exit 1
+    fi
+
+  - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
       export PATH="/usr/local/opt/llvm@6/bin/:$PATH"
