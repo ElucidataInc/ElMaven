@@ -279,10 +279,17 @@ mzSlice* MassSlices::sliceExists(float mz, float rt)
     // For loop to iterate till best MZ slice becomes second
     for (; it != subcache.second; ++it) {
         mzSlice* slice = (*it).second;
-        if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {
-            float d = (mz-x->mzmin) + (x->mzmax-mz);
-            if ( d < bestDist ) {
-                best=x; bestDist=d;
+        float mzMin = slice->mzmin;
+        float mzMax = slice->mzmax;
+        float rtMin = slice->rtmin;
+        float rtMax = slice->rtmax;
+        if (mz > mzMin && mz < mzMax && rt > rtMin && rt < rtMax) {
+            float centerMz = (mzMin + mzMax) / 2.0f;
+            float centerRt = (rtMin + rtMax) / 2.0f;
+            float dist = hypotf(centerMz - mz, centerRt - rt);
+            if (dist < bestDist) {
+                best = slice;
+                bestDist = dist;
             }
         }
     }
