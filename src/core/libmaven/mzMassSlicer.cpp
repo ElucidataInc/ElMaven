@@ -68,38 +68,34 @@ void MassSlices::stopSlicing() {
         cache.clear();
     }
 }
-/**
- * MassSlices::algorithmB This is the main function that does the peakdetection
- * This does not need a DB to check the peaks. The function essentially loops over
- * every observation in every scan in every sample. Every observation is checked if
- * it is already present in a slice or not. If present in a slice MZmax, MZmin, RTmin,
- * RTmax, intensity, MZ and RT are modified and the  slice then put back into cache. If 
- * not then then a new slice is created and added to the slice.
- * @param userPPM      The user defined PPM for MZ range
- * @param rtStep       Minimum RT range for RT window
- */
-void MassSlices::algorithmB( MassCutoff *massCutoff,int rtStep ) {
-    //clear all previous data
+
+void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
+{
+    // clear all previous data
     delete_all(slices);
     slices.clear();
     cache.clear();
 
-	float rtWindow=2.0;
-	this->massCutoff=massCutoff;
+    float rtWindow = 2.0f;
+    this->massCutoff = massCutoff;
 
-    int totalScans = 0,currentScans = 0;
+    int totalScans = 0;
+    int currentScans = 0;
 
-    //Calculate the total number of scans
-    for(unsigned int i=0; i < samples.size(); i++) totalScans += samples[i]->scans.size();
+    // Calculate the total number of scans
+    for (auto s : samples)
+        totalScans += s->scans.size();
 
-    //Calculating the rt window using average distance between RTs and mutiplying it with RTstep (default 20a)
-    if (samples.size() > 0 and rtStep > 0) rtWindow = (samples[0]->getAverageFullScanTime()*rtStep);
+    // Calculating the rt window using average distance between RTs and
+    // mutiplying it with rtStep (default 2.0)
+    if (samples.size() > 0 and rtStep > 0)
+        rtWindow = (samples.at(0)->getAverageFullScanTime() * rtStep);
 
     sendSignal("Status", 0 , 1);
 
     // #pragma omp parallel for ordered
     // Looping over every sample
-    for(unsigned int i=0; i < samples.size(); i++) {
+    for (unsigned int i = 0; i < samples.size(); i++) {
         if (slices.size() > _maxSlices) break;
 
         // Check if Peak detection has been cancelled by the user
@@ -109,99 +105,133 @@ void MassSlices::algorithmB( MassCutoff *massCutoff,int rtStep ) {
         }
 
         string num;
-        if(i==0) num = "st";
-        else if(i==1) num = "nd";
-        else if(i==2) num = "rd";
-        else num = "th ";
+        if (i==0) {
+            num = "st";
+        } else if (i==1) {
+            num = "nd";
+        } else if (i==2) {
+            num = "rd";
+        } else {
+            num = "th";
+        }
 
         // updating progress on samples
         if (mavenParameters->showProgressFlag ) {
-            string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
-                                  + " Sample(s) Processing.....";
-            sendSignal(progressText,currentScans,totalScans);
+            string progressText = to_string(i + 1)
+                                  + num
+                                  + " out of "
+                                  + to_string(mavenParameters->samples.size())
+                                  + " sample(s) processing…";
+            sendSignal(progressText, currentScans, totalScans);
         }
 
         // #pragma omp cancel for
         // for loop for iterating over every scan of a sample
-        for(unsigned int j=0; j < samples[i]->scans.size(); j++ ) {
-
+        for (auto scan : samples[i]->scans) {
             // Check if Peak detection has been cancelled by the user
             if (mavenParameters->stop) {
                 stopSlicing();
                 break;
             }
+
             currentScans++;
-            Scan* scan = samples[i]->scans[j];
-            if (scan->mslevel != 1 ) continue;
+
+            if (scan->mslevel != 1)
+                continue;
 
             // Checking if RT is in the given min to max RT range
-            if (_maxRt and !isBetweenInclusive(scan->rt,_minRt,_maxRt)) continue;
+            if (_maxRt && !isBetweenInclusive(scan->rt, _minRt, _maxRt))
+                continue;
+
             float rt = scan->rt;
 
-            vector<int> charges;
-            if (_minCharge > 0 or _maxCharge > 0) charges = scan->assignCharges(massCutoff);
-
             // Looping over every observation in the scan
-            for(unsigned int k=0; k < scan->nobs(); k++ ) {
+            for (unsigned int k = 0; k < scan->nobs(); k++) {
+                // Checking if mz, intensity are within specified
+                // ranges
+                if (_maxMz && !isBetweenInclusive(scan->mz[k],
+                                                  _minMz,
+                                                  _maxMz)) {
+                    continue;
+                }
+                if (_maxIntensity
+                    && !isBetweenInclusive(scan->intensity[k],
+                                           _minIntensity,
+                                           _maxIntensity)) {
+                    continue;
+                }
 
-                // Checking if mz, intensity and charge are within specified range
-                if (_maxMz and !isBetweenInclusive(scan->mz[k],_minMz,_maxMz)) continue;
-                if (_maxIntensity and !isBetweenInclusive(scan->intensity[k],_minIntensity,_maxIntensity)) continue;
-                if ((_minCharge or _maxCharge) and !isBetweenInclusive(charges[k],_minCharge,_maxCharge)) continue;
-
-                // Define mz max and min for this slice
+                // Define max mz and min mz for this slice
                 float mz = scan->mz[k];
-                float mzmax = mz + massCutoff->massCutoffValue(mz);
-                float mzmin = mz - massCutoff->massCutoffValue(mz);
+                float cutoff = massCutoff->massCutoffValue(mz);
+                float mzmax = mz + cutoff;
+                float mzmin = mz - cutoff;
 
                 // #pragma omp ordered
-                // sliceExists() returns a the best slice or a null based on whether a slice exists at that location or not
-                mzSlice* Z = sliceExists(mz,rt);
-
+                // sliceExists() returns a the best slice or a null based on
+                // whether a slice exists at that location or not
+                mzSlice* Z = sliceExists(mz, rt);
                 if (Z) {
-                    //cerr << "Merged Slice " <<  Z->mzmin << " " << Z->mzmax << " " << scan->intensity[k] << "  " << Z->ionCount << endl;
-                    // If slice exists take the max of the intensity, rt and mz (max and min)
-                    Z->ionCount = std::max((float) Z->ionCount, (float ) scan->intensity[k]);
-                    Z->rtmax = std::max((float)Z->rtmax, rt+2*rtWindow);
-                    Z->rtmin = std::min((float)Z->rtmin, rt-2*rtWindow);
-                    Z->mzmax = std::max((float)Z->mzmax, mzmax);
-                    Z->mzmin = std::min((float)Z->mzmin, mzmin);
+                    // If slice exists take the max of the intensity, rt and mz
+                    // (max and min)
+                    Z->ionCount = std::max(float(Z->ionCount),
+                                           float(scan->intensity[k]));
+                    Z->rtmax = std::max(float(Z->rtmax),
+                                        rt + (2.0f * rtWindow));
+                    Z->rtmin = std::min(float(Z->rtmin),
+                                        rt - (2.0f * rtWindow));
+                    Z->mzmax = std::max(float(Z->mzmax), mzmax);
+                    Z->mzmin = std::min(float(Z->mzmin), mzmin);
 
-
-                    //make sure that mz windown doesn't get out of control
-                    if (Z->mzmin < mz-massCutoff->massCutoffValue(mz)) Z->mzmin =  mz-massCutoff->massCutoffValue(mz);
-                    if (Z->mzmax > mz+massCutoff->massCutoffValue(mz)) Z->mzmax =  mz+massCutoff->massCutoffValue(mz);
-                    Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
-                    //cerr << Z->mz << " " << Z->mzmin << " " << Z->mzmax << " " << ppmDist((float)Z->mzmin,mz) << endl;
+                    // Make sure that mz window does not get out of control
+                    if (Z->mzmin < mz - cutoff)
+                        Z->mzmin =  mz - cutoff;
+                    if (Z->mzmax > mz + cutoff)
+                        Z->mzmax =  mz + cutoff;
+                    Z->mz = (Z->mzmin + Z->mzmax) / 2.0f;
+                    Z->rt = (Z->rtmin + Z->rtmax) / 2.0f;
                 } else {
-                    //cerr << "\t" << rt << "  " << mzmin << "  "  << mzmax << endl;
-                    //Make a new slice if no slice returned by sliceExists and push it into cache
-                    mzSlice* s = new mzSlice(mzmin, mzmax, rt - 2 * rtWindow, rt + 2 * rtWindow);
+                    // Make a new slice if no slice returned by sliceExists and
+                    // push it into cache
+                    mzSlice* s = new mzSlice(mzmin,
+                                             mzmax,
+                                             rt - (2.0f * rtWindow),
+                                             rt + (2.0f * rtWindow));
                     s->ionCount = scan->intensity[k];
-                    s->rt=scan->rt;
-                    s->mz=mz;
-                    //cerr << "New Slice " <<  s->mzmin << " " << s->mzmax << " " << s->ionCount << endl;
+                    s->rt = scan->rt;
+                    s->mz = mz;
                     slices.push_back(s);
                     int mzRange = mz * 10;
-                    cache.insert( pair<int,mzSlice*>(mzRange, s));
+                    cache.insert(pair<int, mzSlice*>(mzRange, s));
                 }
             }
+
             // progress update 
             if (mavenParameters->showProgressFlag ) {
-                string progressText = to_string(i+1) + num + " out of " + to_string(mavenParameters->samples.size()) 
-                                  + " Sample(s) Processing.....\n"
-                                  + to_string(slices.size()) + " Slices Created ";
+                string progressText = to_string(i + 1)
+                                      + num
+                                      + " out of "
+                                      + to_string(mavenParameters->samples.size())
+                                      + " sample(s) processing…\n"
+                                      + to_string(slices.size())
+                                      + " slices created ";
                 sendSignal(progressText,currentScans,totalScans);
             }
-
         }
     }
-    cerr << "Found=" << slices.size() << " slices" << endl;
+
+    cerr << "Found " << slices.size() << " slices" << endl;
+
     float threshold = 100;
     removeDuplicateSlices(massCutoff, threshold);
-    sort(slices.begin(),slices.end(), mzSlice::compIntensity);
-    cerr << "After removing duplicate slices. Threshold : "<< threshold <<", Found="<< slices.size()<< " slices" <<endl;
-    sendSignal("Mass Slices Processed", 1 , 1);
+    sort(slices.begin(), slices.end(), mzSlice::compIntensity);
+    cerr << "After removing duplicate slices, with threshold "
+         << threshold
+         << ", found "
+         << slices.size()
+         << " slices"
+         << endl;
+    sendSignal("Mass slicing done.", 1 , 1);
 }
 
 void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
@@ -237,22 +267,23 @@ void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
     cerr << "#algorithmC" << slices.size() << endl;
 }
 
-//Function to check if slice is already present in cache
-mzSlice*  MassSlices::sliceExists(float mz, float rt) {
-    pair< multimap<int, mzSlice*>::iterator,  multimap<int, mzSlice*>::iterator > ppp;
-    // putting all mz slices in cache in a particular range in ppp
-    ppp = cache.equal_range( (int) (mz* 10) );
-    multimap<int, mzSlice*>::iterator it2 = ppp.first;
+mzSlice* MassSlices::sliceExists(float mz, float rt)
+{
+    // putting all mz slices stored in cache within a particular range in ppp
+    auto subcache = cache.equal_range(int(mz * 10));
+    auto it = subcache.first;
 
-    float bestDist=FLT_MAX; 
-    mzSlice* best=NULL;
+    float bestDist = FLT_MAX;
+    mzSlice* best = nullptr;
 
     // For loop to iterate till best MZ slice becomes second
-    for(; it2 != ppp.second; ++it2 ) {
-        mzSlice* x = (*it2).second;
+    for (; it != subcache.second; ++it) {
+        mzSlice* slice = (*it).second;
         if (mz > x->mzmin && mz < x->mzmax && rt > x->rtmin && rt < x->rtmax) {
             float d = (mz-x->mzmin) + (x->mzmax-mz);
-            if ( d < bestDist ) { best=x; bestDist=d; }
+            if ( d < bestDist ) {
+                best=x; bestDist=d;
+            }
         }
     }
     return best;

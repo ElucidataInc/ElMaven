@@ -31,7 +31,16 @@ class MassSlices {
                         int total_samples);
 
         vector<mzSlice*> slices;
-        mzSlice* sliceExists(float mz,float rt);
+
+        /**
+         * @brief This function finds the mz slice, present in cache, whose
+         * center is closest to a given coordinate (in m/z-rt space).
+         * @param mz The m/z value for the coordinate.
+         * @param rt The rt value for the coordinate.
+         * @return The slice that best "contains" the given m/z and rt value. If
+         * no such slice exists, a nullptr is returned.
+         */
+        mzSlice* sliceExists(float mz, float rt);
 
         void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
@@ -44,18 +53,18 @@ class MassSlices {
         void algorithmA();
 
         /**
-         * [This is the main function that does the peakdetection
-         * This does not need a DB to check the peaks. The function essentially loops over
-         * every observation in every scan in every sample. Every observation is checked if
-         * it is already present in a slice or not. If present in a slice MZmax, MZmin, RTmin,
-         * RTmax, intensity, MZ and RT are modified and the  slice then put back into cache. If 
-         * not then then a new slice is created and added to the slice.]
-         * @method AlgorithmB
-         * @param userPPM      The user defined PPM for MZ range
-         * @param rtStep       Minimum RT range for RT window
+         * This is the main function that does the untargeted peak detection.
+         * @details This function does not need a DB to check the peaks. The
+         * function essentially loops over every observation in every scan in
+         * every sample. Every observation is checked if it is already present
+         * in a slice or not. If present in a slice MZmax, MZmin, RTmin, RTmax,
+         * intensity, MZ and RT are modified and the  slice then put back into
+         * cache. If not then then a new slice is created and added to the
+         * slice.
+         * @param massCutoff The user defined mass tolerance for MZ range
+         * @param rtStep Minimum RT range for RT window
          */
-        void algorithmB( MassCutoff *massCutoff, int step);
-
+        void algorithmB( MassCutoff *massCutoff, int rtStep);
 
         void algorithmC(float ppm, float minIntensity, float rtStep);
         /**
