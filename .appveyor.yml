@@ -6,6 +6,16 @@ environment:
   MSYS2_DIR: msys64
   MSYSTEM: MINGW64
   BIT: 64
+  SENTRY_KEYS:
+    secure: 4h/RDAT2VRFeFncyVmupjvYW2+ZVLLt8Meb0HZnKpeXw4DgSXxy2C8PicOvkBrxGsywvi1LTBDAJdTBdCaXHXETB0zLjFrasYj9hNUYhF2hWF7XZXA9qYPyhZHNVyg8t
+  SENTRY_OAUTH:
+    secure: +59H0p7EcOrHb6126nylf5sN7HF40cJMNa1skgWKDJNK6YZStg+agGdsX8cfqC5QBVMTK8ir/S3W1X35r4ElsgadQD54Zr8y0jvfyKN5hAw=
+  CODECOV_TOKEN:
+    secure: kDB13lf6yyaC7d63D0DcRbEjf5vZ77xt2WMxHtxx7Jz32OUaR8Ouxso7WBQoubMO
+  AWS_ACCESS_KEY:
+    secure: FBWRLw84S0Uq5xlHzaNBfg9zknKUzTQ6+jUBWeQFg38=
+  AWS_SECRET_KEY:
+    secure: uYWVMV2S2RDPMKNuTmncDT75vWfYPwJfHQjog7UO2C0OdtWNuYzxDZnlEvIC/KSA
 
 
 cache:
@@ -19,13 +29,24 @@ install:
     - bash -lc "pacman -S --needed --noconfirm zlib-devel"
 
     - bash -lc "pacman -S --noconfirm mingw64/mingw-w64-x86_64-curl"
+    - bash -lc "pacman -S --noconfirm rsync"
     - bash -lc "wget https://github.com/linux-test-project/lcov/releases/download/v1.12/lcov-1.12.tar.gz"
     - bash -lc "tar -xzf lcov-1.12.tar.gz"
     - bash -lc "ln -s $PWD/lcov-1.12/bin/lcov /c/msys64/mingw64/bin/lcov"
     - bash -lc "ln -s $PWD/lcov-1.12/bin/geninfo /c/msys64/mingw64/bin/geninfo"
-    - bash -lc "cd /c/projects/ElMaven/ ; ./gcc_v7.3.0.sh"
+    - bash -lc "cd $APPVEYOR_BUILD_FOLDER ; ./gcc_v7.3.0.sh"
 
 build_script:
+    # write to Sentry keys file
+    - echo "$env:SENTRY_KEYS`n" >> keys
+
+    - ps: |
+          # check for Sentry keys file
+          if ( -not (Test-Path keys) ) {
+              echo "File not found - 'keys', needed for crash reporter to work properly."
+              exit 1
+          }
+
     - SET "QTEST_FUNCTION_TIMEOUT=1200000"
     - bash -lc "echo $QTEST_FUNCTION_TIMEOUT"
     - bash -lc "qmake -v"
@@ -33,6 +54,205 @@ build_script:
     - bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
     - bash -lc "lcov --summary /c/projects/ElMaven/lcov.info"
 
+
+after_build:
+    - ps: |
+          # we do not create installers for pull requests, to save time
+          if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
+              echo "This build is for a PR. Not proceeding with installer creation."
+              return
+          }
+
+          # clone packaging repo
+          echo "Cloning packaging repo ..."
+          git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
+
+          # define variables
+          echo "Defining environment variables ..."
+          $env:PACKAGING_REPO = "elmaven-packaging"
+          $ELMAVEN_TAG = git describe --abbrev=0 --tags
+          $pos = $ELMAVEN_TAG.IndexOf("-")
+          if ( $pos -eq -1 ) {
+              $ELMAVEN_VERSION = $ELMAVEN_TAG.TrimStart('v')
+          } else {
+              $substr = $ELMAVEN_TAG.Substring(0, $pos)
+              $ELMAVEN_VERSION = $substr.TrimStart('v')
+          }
+
+          if ( Test-Path env:APPVEYOR_REPO_TAG_NAME ) {
+              $ELMAVEN_BRANCH = $env:APPVEYOR_REPO_TAG_NAME
+          } elseif ( Test-Path env:APPVEYOR_REPO_BRANCH ) {
+              $ELMAVEN_BRANCH = $env:APPVEYOR_REPO_BRANCH
+          }
+
+          cd $env:PACKAGING_REPO
+          $PARENT_DIR = Convert-Path .
+          $BIN = "$PARENT_DIR\bin\"
+          $ELMAVEN_BIN = "$PARENT_DIR\..\bin\"
+          $NODE_WIN = "$PARENT_DIR\node_win"
+          $ARCHIVE_FILE = "maven.7z"
+          $PACKAGE_DATA = "$PARENT_DIR\packages\com.vendor.product\data\"
+          $env:APPNAME = "El-MAVEN"
+          $env:INSTALLER = "$env:APPNAME-$ELMAVEN_BRANCH"
+
+          # collect runtime plugins
+          echo "Collecting plugins ..."
+          cd $PARENT_DIR
+          if ( -Not (Test-Path $BIN -PathType Container) ) { mkdir $BIN }
+          cd $BIN ; rm -Recurse -Force *
+
+          $excludes = "linux","node","node_bin","node_modules","node.exe","MavenTests.exe"
+          Get-ChildItem $ELMAVEN_BIN |
+              Where-Object{$_.Name -notin $excludes} |
+              Copy-Item -Destination $BIN -Recurse -Force
+
+          $libs = $(ldd "$env:APPNAME.exe" peakdetector.exe)
+          if ( $? -eq $false ) {
+              echo "Failed to copy files from build folder to packaging folder."
+              exit 1
+          }
+
+          foreach ( $line in $( $libs -split "`n" ) ) {
+              if ( $line -match '.*=>\s*(.*bin.*dll).*') {
+                  $lib = $Matches[1]
+                  if ( $lib.StartsWith("/c/") ) {
+                      [regex]$p = "/c/"
+                      $lib = $p.replace($lib, "C:/", 1)
+                  } elseif ( $lib.StartsWith("/MINGW64/") ) {
+                      [regex]$p = "/MINGW64/"
+                      $lib = $p.replace($lib, "C:/$env:MSYS2_DIR/MINGW64/", 1)
+                  }
+                  if ( -Not ([io.path]::GetDirectoryName($lib) -eq $BIN) ) {
+                      Copy-item $lib BIN
+                  }
+              }
+          }
+
+          $qt_plugins_path = $(qmake -query QT_INSTALL_PLUGINS)
+          echo "Found plugins at $qt_plugins_path"
+
+          # since Qt5.9.7, windeployqt has stopped working. Going to use some
+          # copy paste magic instead to get all the extra plugins required.
+          Copy-item -recurse "$qt_plugins_path\platforms" .
+          Copy-item -recurse "$qt_plugins_path\imageformats" .
+          Copy-item -recurse "$qt_plugins_path\printsupport" .
+          Copy-item -recurse "$qt_plugins_path\sqldrivers" .
+          Copy-item -recurse "$qt_plugins_path\bearer" .
+          Copy-item -recurse "$qt_plugins_path\mediaservice" .
+
+          # QtNetwork module requires extra ssl dlls to work
+          Copy-item ..\libs\OpenSSL\* .
+
+          # generate qt.conf
+          echo "[Paths]`nPrefix = .`n" >> qt.conf
+
+          # strip and upload debug symbols
+          echo "Stripping and uploading symbols ..."
+          cd $BIN
+          $BREAKPAD_TOOLS = "$env:APPVEYOR_BUILD_FOLDER\$env:PACKAGING_REPO\breakpad_tools\windows"
+          $exe_file = "$env:APPNAME.exe"
+          $pdb_file = "$env:APPNAME.pdb"
+          $symbol_file = "$env:APPNAME.sym"
+
+          & "$BREAKPAD_TOOLS\cv2pdb.exe" $exe_file
+          & "$BREAKPAD_TOOLS\dump_syms.exe" $pdb_file > $symbol_file
+
+          $uuid = $( gc $symbol_file | select -first 1 | grep -o -P "(?<=x86_64).*(?=$pdb_file)" | xargs )
+          mkdir -p ..\symbols\"$env:APPNAME.pdb"\$uuid\
+          mv $symbol_file ..\symbols\"$env:APPNAME.pdb"\$uuid\
+
+          chmod +x $BREAKPAD_TOOLS\sentry-cli.exe
+          & "$BREAKPAD_TOOLS\sentry-cli.exe" --auth-token $env:SENTRY_OAUTH upload-dif -t breakpad --project el-maven-logging --org el-maven ../symbols/
+          rm "$env:APPNAME.pdb"
+
+          # copy node
+          echo "Copying node requirements ..."
+          Get-ChildItem -Path $NODE_WIN | Move-Item -Destination $BIN
+
+          # download our precompiled binaries of qt-ifw
+          echo "Downloading binaries for Qt Installer Framework ..."
+          cd $PARENT_DIR
+          Invoke-RestMethod https://www.dropbox.com/s/snrgft8uskxan27/archivegen.exe?dl=1 -OutFile archivegen.exe
+          Invoke-RestMethod https://www.dropbox.com/s/ym2mph272rp2euj/binarycreator.exe?dl=1 -OutFile binarycreator.exe
+          Invoke-RestMethod https://www.dropbox.com/s/y4s0gazvdxu34js/installerbase.exe?dl=1 -OutFile installerbase.exe
+
+          # generate archive
+          echo "Generating archive ..."
+          cd $PARENT_DIR
+          if ( Test-Path $ARCHIVE_FILE ) { rm $ARCHIVE_FILE }
+          if ( Test-Path $PACKAGE_DATA\$ARCHIVE_FILE ) { rm $PACKAGE_DATA\$ARCHIVE_FILE }
+          .\archivegen.exe $ARCHIVE_FILE $BIN > $null;
+          if ( $? -eq $false ) {
+              echo 'Failed to generate archive. Make sure archivegen is in system path.'
+              exit 1
+          }
+          mkdir $PACKAGE_DATA
+          Copy-Item $ARCHIVE_FILE $PACKAGE_DATA
+
+          # update version
+          echo "Updating version string in config file ..."
+          cd $PARENT_DIR
+          if ( Get-Command "python.exe" -ErrorAction SilentlyContinue ) {
+              python.exe update_version.py $ELMAVEN_VERSION
+          } elseif ( Get-Command "python2.7.exe" -ErrorAction SilentlyContinue ) {
+              python2.7.exe update_version.py $ELMAVEN_VERSION
+          } elseif ( Get-Command "python3.6.exe" -ErrorAction SilentlyContinue ) {
+              python3.6.exe update_version.py $ELMAVEN_VERSION
+          } else {
+              echo 'Unable to find python.'
+              exit 1
+          }
+          if ( $? -eq $false ) {
+              echo 'Failed to update version in config file.'
+              exit 1
+          }
+
+          # create installer
+          echo "Creating installer ..."
+          cd $PARENT_DIR
+          .\binarycreator -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
+          if ( $? -eq $false ) {
+              echo 'Make sure binarycreator is in system path'
+              exit 1
+          }
+
+          Copy-Item "$env:INSTALLER.exe" ..\
+          cd ..\
+
+
+artifacts:
+    - path: $(INSTALLER).exe
+      name: $(INSTALLER)
+
+
+deploy:
+    - provider: GitHub
+      auth_token:
+          secure: moaFAAsmGMUIXff8cdjiY70PtJD8M8x3e7h1qCWw6jcQX3qYYrD5qNFlbSDZtapF
+      release: $(APPVEYOR_REPO_TAG_NAME)
+      artifact: $(INSTALLER).exe
+      draft: true
+      force_update: true
+      on:
+          APPVEYOR_REPO_TAG: true        # deploy to release page on tag push only
+
+    - provider: S3
+      access_key_id: $(AWS_ACCESS_KEY)
+      secret_access_key: $(AWS_SECRET_KEY)
+      region: us-west-2
+      bucket: "elmaven-installers"
+      folder: "Windows"
+      set_public: true
+      artifact: $(INSTALLER).exe
+
+
 on_success:
-    - bash -lc "export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
     - bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
+
+
+notifications:
+    # disable annoying email notifications
+    - provider: Email
+      on_build_success: false
+      on_build_failure: false
+      on_build_status_changed: false

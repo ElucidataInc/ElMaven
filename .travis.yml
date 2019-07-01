@@ -13,10 +13,17 @@ matrix:
       compiler: gcc-5
       group: deprecated-2017Q2
     - os: osx
+      osx_image: xcode9.2
+      language: cpp
+
 
 env:
   global:
     - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+
+
+git:
+  depth: false
 
 
 before_install:
@@ -30,7 +37,10 @@ install:
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
         brew install llvm@6;
         brew install grep;
-        brew install cppcheck qt;
+
+        # brew no longer provides Qt 5.11, so we use an older formula for the same
+        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/56c500b569c724b049be7ab9e12d9693f85522f9/Formula/qt.rb
+        brew install ./qt.rb
         brew link qt5 --force;
     fi
 
@@ -44,8 +54,17 @@ install:
     fi
 
 script:
-  - |
+  # write to Sentry keys file
+  - printf "%s\n\n" $SENTRY_KEYS > keys
 
+  - |
+    # check for Sentry keys file
+    if [ ! -f keys ]; then
+      echo "File not found - 'keys', needed for crash reporter to work properly."
+      exit 1
+    fi
+
+  - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
       export PATH="/usr/local/opt/llvm@6/bin/:$PATH"
@@ -70,6 +89,185 @@ script:
     fi
 
 
-after_script:
-  - export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
+after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+
+before_deploy:
+  - |
+    export ELMAVEN_TAG=`git describe --tags`
+    SUBSTRING=$(echo $ELMAVEN_TAG| cut -d'-' -f 1)
+    export ELMAVEN_VERSION=${SUBSTRING[@]:1}
+
+    if [ "$TRAVIS_TAG" != "" ]; then
+      export ELMAVEN_BRANCH=$TRAVIS_TAG
+    else
+      export ELMAVEN_BRANCH=$TRAVIS_BRANCH
+    fi
+
+    export PACKAGING_REPO=elmaven-packaging
+    git clone https://github.com/ElucidataInc/elmaven-packaging.git
+
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      cd $PACKAGING_REPO
+
+      # define variables
+      PARENT_DIR=$PWD
+      BREAKPAD_TOOLS=$PWD/breakpad_tools/
+      ELMAVEN_BIN="$PARENT_DIR/../bin/"
+      BIN="$PARENT_DIR/bin/"
+      NODE_MAC="$PARENT_DIR/node_mac/"
+      ARCHIVE_FILE="maven.7z"
+      PACKAGE_DATA="$PARENT_DIR/packages/com.vendor.product/data/"
+      INSTALLER="El-MAVEN-$ELMAVEN_BRANCH"
+
+      # collect runtime plugins
+      echo "Collecting plugins ..."
+      cd $PARENT_DIR
+
+      if [ ! -d $BIN ]; then
+        mkdir $BIN
+      fi
+
+      cd $BIN
+      rm -rf *
+
+      rsync -av --progress --exclude={'windows', 'linux', 'node', 'node_bin', 'node.exe', 'MavenTests'} $ELMAVEN_BIN . &>/dev/null
+
+      # prepare dSYM files
+      echo "Preparing debug symbol files ..."
+      dsymutil "El-MAVEN.app/Contents/MacOS/El-MAVEN" -o "El-MAVEN.dSYM" &>/dev/null
+      macdeployqt El-MAVEN.app &>/dev/null
+      macdeployqt peakdetector.app &>/dev/null
+      macdeployqt crashreporter.app &>/dev/null
+      # install_name_tool -add_rpath @executable_path/../Frameworks "El-MAVEN.app/Contents/MacOS/crashserver"
+
+      if [ $? != 0 ]; then
+        echo "Failed to create debug files."
+        exit 1
+      fi
+
+      # strip and upload debug symbols
+      echo "Stripping and uploading symbols ..."
+      cd $BIN
+      $BREAKPAD_TOOLS/mac/strip_symbols.sh $BREAKPAD_TOOLS "El-MAVEN.app/Contents/MacOS/El-MAVEN" El-MAVEN &>/dev/null
+      rm -r *.dSYM
+
+      # copy node
+      echo "Copying node executable ..."
+      cp -r $NODE_MAC $BIN
+
+      # download our precompiled binaries of qt-ifw
+      echo "Downloading binaries for Qt Installer Framework ..."
+      cd $PARENT_DIR
+
+      wget https://www.dropbox.com/s/jwzuf4howm71s1d/archivegen?dl=1 -O archivegen &> /dev/null
+      chmod u+x ./archivegen
+      wget https://www.dropbox.com/s/yl47a7wjyzy91o9/binarycreator?dl=1 -O binarycreator &> /dev/null
+      chmod u+x ./binarycreator
+      wget https://www.dropbox.com/s/m5xjddbxon5cry9/installerbase?dl=1 -O installerbase &> /dev/null
+      chmod u+x ./installerbase
+
+      # generate archive
+      echo "Generating archive ..."
+      cd $PARENT_DIR
+
+      if [ -f $ARCHIVE_FILE ]; then
+        rm $ARCHIVE_FILE
+      fi
+
+      if [ -f $PACKAGE_DATA/$ARCHIVE_FILE ]; then
+        rm $PACKAGE_DATA/$ARCHIVE_FILE
+      fi
+
+      ./archivegen $ARCHIVE_FILE $BIN
+
+      if [ $? != 0 ]; then
+        echo "Failed to generate archive. Make sure archivegen is in system path."
+        exit 1
+      fi
+
+      mkdir $PACKAGE_DATA
+      cp $ARCHIVE_FILE $PACKAGE_DATA
+
+      # update version
+      echo "Updating version string in config file ..."
+      cd $PARENT_DIR
+
+      python update_version.py $ELMAVEN_VERSION
+
+      if [ $? != 0 ]; then
+        echo "Failed to update version in config file."
+        exit 1
+      fi
+
+      # create installer
+      echo "Creating installer ..."
+      cd $PARENT_DIR
+
+      ./binarycreator --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
+
+      if [ $? != 0 ]; then
+        echo "Failed to create installer. Make sure binarycreator is in system path."
+        exit 1
+      fi
+
+      # create keychain and import certificate
+      echo "Creating new Keychain and installing developer certificate ..."
+      security create-keychain -p dummypass build.keychain
+      security default-keychain -s build.keychain
+      security unlock-keychain -p dummypass build.keychain
+
+      echo $CERTIFICATE_OSX_P12 | base64 --decode > certificate.p12
+      security import certificate.p12 -k build.keychain -P $CERTIFICATE_OSX_PASSWORD -T /usr/bin/codesign
+      security find-identity -v
+      security set-key-partition-list -S apple-tool:,apple: -s -k dummypass build.keychain
+
+      # codesign installer
+      echo "Codesigning the installer ..."
+      cd $PARENT_DIR
+
+      codesign -s "Elucidata Corporation" $INSTALLER.app
+
+      if [ $? != 0 ]; then
+        echo "Failed to sign installer. Make sure the certificate exists."
+        exit 1
+      fi
+
+      # compressing
+      echo "Compressing installer into a zip file ..."
+      zip -r "$INSTALLER.zip" "$INSTALLER.app" &> /dev/null
+
+      cd $PARENT_DIR/../
+      cp "$PACKAGING_REPO/$INSTALLER.zip" .
+
+      # S3 provider requires the file(s) for deployment to be in a directory
+      mkdir $ELMAVEN_BRANCH
+      cp "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
+    fi
+
+
+deploy:
+  - provider: releases
+    skip_cleanup: true
+    name: $TRAVIS_TAG
+    api_key: $GITHUB_RELEASE_TOKEN
+    file: $INSTALLER.zip
+    draft: true
+    overwrite: true
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = "osx"
+
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    region: us-west-2
+    bucket: "elmaven-installers"
+    upload-dir: "Mac"
+    acl: public_read
+    local_dir: $ELMAVEN_BRANCH
+    on:
+      all_branches: true
+      condition: $TRAVIS_OS_NAME = "osx"
