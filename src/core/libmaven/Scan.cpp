@@ -1,6 +1,8 @@
 #include "Scan.h"
+#include "masscutofftype.h"
 #include "mzSample.h"
 #include "constants.h"
+#include "SavGolSmoother.h"
 
 Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursorMz, int polarity) {
     this->sample = sample;

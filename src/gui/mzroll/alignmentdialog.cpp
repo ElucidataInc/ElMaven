@@ -3,10 +3,14 @@
 #include "alignmentdialog.h"
 #include "analytics.h"
 #include "background_peaks_update.h"
+#include "Compound.h"
 #include "globals.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "mzAligner.h"
+#include "mzSample.h"
+#include "Scan.h"
 
 AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) { 
 	setupUi(this); 

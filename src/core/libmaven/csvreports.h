@@ -3,19 +3,15 @@
 
 #include <QString>
 #include <QStringList>
-#include "constants.h"
-#include "Compound.h"
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "mavenparameters.h"
+
+#include "PeakGroup.h"
 
 using namespace std;
-using namespace mzUtils;
 
 class mzSample;
 class EIC;
-class PeakGroup;
 class MavenParameters;
+
 class CSVReports {
     /**@brief -  class to write and export csv file 
     *@details   -   CSVReports will do all stuf to export group info in csv format

@@ -6,6 +6,7 @@
 #include "notificator_p.h"
 #include "Peak.h"
 #include "PeakGroup.h"
+#include "Scan.h"
 #include "tabledockwidget.h"
 
 #include <QtWidgets>

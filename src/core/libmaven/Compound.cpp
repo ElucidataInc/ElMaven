@@ -1,5 +1,9 @@
 #include "Compound.h"
+#include "constants.h"
 #include "mzMassCalculator.h"
+#include "mzUtils.h"
+
+using namespace mzUtils;
 
 Compound::Compound(string id, string name, string formula, int charge ) {
     this->id = id;

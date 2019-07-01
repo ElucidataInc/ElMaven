@@ -1,20 +1,15 @@
 #ifndef PEAK_H
 #define PEAK_H
-#include <float.h>
-#include <climits>
-#include <cstddef>
-#include <limits>
-#include "EIC.h"
-#include "Scan.h"
-#include "mzSample.h"
-#include "mzUtils.h"
+
+#include "standardincludes.h"
 
 class mzSample;
 class EIC;
 class Scan;
 class mzLink;
+
 using namespace std;
-using namespace mzUtils;
+
 class Peak {
     public:
         Peak();

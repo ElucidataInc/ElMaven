@@ -1,6 +1,11 @@
 //@Kailash: Functions to compute feature values for MLP Classifier
+#include "nnwork.h"
 
 #include "groupClassifier.h"
+#include "EIC.h"
+#include "groupFeatures.h"
+#include "PeakGroup.h"
+#include "mzUtils.h"
 
 groupClassifier::groupClassifier() {
 	num_features = 8;
@@ -21,7 +26,7 @@ bool groupClassifier::hasModel() {
 }
 
 void groupClassifier::loadModel(string filename) {
-	if (!fileExists(filename)) {
+    if (!mzUtils::fileExists(filename)) {
 		cerr << "Can't load " << filename << endl;
 		return;
 	}

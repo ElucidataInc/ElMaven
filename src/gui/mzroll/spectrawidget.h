@@ -3,6 +3,7 @@
 
 #include "stable.h"
 #include "spectralhit.h"
+#include "mzSample.h"
 #include "PeakGroup.h"
 
 class Compound;
@@ -10,8 +11,6 @@ class EICLogic;
 class MainWindow;
 class mzLink;
 class mzSample;
-class Peak;
-class PeakGroup;
 class SpectralHit;
 class MassCutoff;
 

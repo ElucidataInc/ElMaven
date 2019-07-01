@@ -1,15 +1,10 @@
 #ifndef CLASSIFER_NEURALNET
 #define CLASSIFER_NEURALNET
 
-#include "mzSample.h"
-#include <nnwork.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <vector>
 #include "classifier.h"
-#include "EIC.h"
+#include "standardincludes.h"
+
+class EIC;
 
 using namespace std;
 

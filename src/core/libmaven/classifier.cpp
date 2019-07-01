@@ -1,4 +1,8 @@
 #include "classifier.h"
+#include "Matrix.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "PeakGroup.h"
 
 Classifier::Classifier() {
 }

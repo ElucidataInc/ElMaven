@@ -7,6 +7,7 @@
 #include "ligandwidget.h"
 #include "loginform.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "pollyelmaveninterface.h"
 #include "pollywaitdialog.h"
 #include "projectdockwidget.h"

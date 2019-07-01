@@ -3,11 +3,20 @@
 #include <QLabel>
 #include <QPushButton>
 
+#include "Compound.h"
+#include "constants.h"
+#include "EIC.h"
 #include "eicwidget.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 #include "numeric_treewidgetitem.h"
 #include "PeakDetector.h"
+#include "Peptide.hpp"
+#include "Scan.h"
 #include "spectralhit.h"
 #include "spectralhitstable.h";
 #include "spectrawidget.h"

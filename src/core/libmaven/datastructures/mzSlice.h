@@ -4,9 +4,8 @@
 #include <iostream>
 #include <string>
 
-#include "masscutofftype.h"
-
 class Compound;
+class MassCutoff;
 
 using namespace std;
 

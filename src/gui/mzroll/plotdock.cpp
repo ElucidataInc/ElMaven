@@ -1,8 +1,10 @@
 #include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "globals.h"
 #include "mzSample.h"
 #include "note.h"
 #include "plotdock.h"
+#include "Scan.h"
 
 PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {
 	selectionRect = new QGraphicsRectItem(); selectionRect->hide(); selectionRect->setPen(QPen(Qt::DotLine));

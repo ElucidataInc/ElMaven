@@ -3,15 +3,9 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Compound.h"
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "mavenparameters.h"
-
 // #include "../mzroll/tabledockwidget.h"
 
 using namespace std;
-
 
 class mzSample;
 class EIC;

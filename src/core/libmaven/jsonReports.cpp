@@ -1,4 +1,10 @@
-#include"jsonReports.h"
+#include "jsonReports.h"
+#include "Compound.h"
+#include "EIC.h"
+#include "masscutofftype.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "mavenparameters.h"
 
 JSONReports::JSONReports(MavenParameters* _mp, bool pollyUpload):
     _uploadToPolly(pollyUpload)

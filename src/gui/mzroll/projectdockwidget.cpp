@@ -15,6 +15,7 @@
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
 #include "projectdockwidget.h"
+#include "Scan.h"
 #include "samplertwidget.h"
 #include "spectrawidget.h"
 #include "tabledockwidget.h"

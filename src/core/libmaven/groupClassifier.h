@@ -3,15 +3,10 @@
 #ifndef GROUP_CLASSIFIER
 #define GROUP_CLASSIFIER
 
-#include "mzSample.h"
-#include <nnwork.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <vector>
-#include "EIC.h"
-#include "groupFeatures.h"
+#include "standardincludes.h"
+
+class PeakGroup;
+class nnwork;
 
 using namespace std;
 

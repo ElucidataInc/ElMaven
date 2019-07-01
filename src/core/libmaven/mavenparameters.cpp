@@ -1,12 +1,13 @@
-#include "mavenparameters.h"
-#include "settings.h"
-
 #include <pugixml.hpp>
 
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <cstring>
+#include "mavenparameters.h"
+#include "settings.h"
+#include "mzMassCalculator.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "Compound.h"
+#include "masscutofftype.h"
+#include "classifierNeuralNet.h"
 
 MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
@@ -164,6 +165,10 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 MavenParameters::~MavenParameters()
 {
     saveSettings(lastUsedSettingsPath.c_str());
+}
+
+void MavenParameters::setOutputDir(QString outdir) {
+    outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
 }
 
 std::map<string, string>& MavenParameters::getSettings()

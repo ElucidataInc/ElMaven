@@ -1,6 +1,9 @@
 #include "peakdetectorcli.h"
 #include <QCoreApplication>
 
+#include "mavenparameters.h"
+#include "peakdetectorcli.h"
+
 int main(int argc, char *argv[]) {
 
     QCoreApplication app(argc, argv);

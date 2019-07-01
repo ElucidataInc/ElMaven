@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "mainwindow.h"
 #include "mzSample.h"
+#include "Scan.h"
 #include "statistics.h"
 #include "tabledockwidget.h"
 #include "treemap.h"

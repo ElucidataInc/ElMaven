@@ -1,14 +1,9 @@
 #ifndef POLYALIGNER
 #define POLYALIGNER
 
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include "statistics.h"
-#include "mzFit.h"
-#include "mzUtils.h"
 #include "MersenneTwister.h"
+#include "mzFit.h"
+#include "statistics.h"
 
 using namespace std;
 

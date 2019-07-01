@@ -1,6 +1,10 @@
-#include "peakdetectorcli.h"
+#include "common/downloadmanager.h"
+#include "Compound.h"
+#include "csvparser.h"
+#include "mavenparameters.h"
+#include "masscutofftype.h"
 #include "mzUtils.h"
-#include <common/downloadmanager.h>
+#include "peakdetectorcli.h"
 
 PeakDetectorCLI::PeakDetectorCLI()
 {

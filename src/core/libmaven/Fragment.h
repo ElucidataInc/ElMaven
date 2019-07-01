@@ -1,8 +1,7 @@
 #ifndef FRAGMENT_H
 #define FRAGMENT_H
-#include <vector>
-#include <string>
-#include <map>
+
+#include "standardincludes.h"
 
 class Scan;
 

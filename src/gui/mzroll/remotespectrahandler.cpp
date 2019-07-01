@@ -3,11 +3,13 @@
 #include "Compound.h"
 #include "eicwidget.h"
 #include "globals.h"
+#include "Peptide.hpp"
 #include "projectdockwidget.h"
 #include "remotespectrahandler.h"
 #include "mainwindow.h"
 #include "mzSample.h"
 #include "spectrawidget.h"
+#include "Scan.h"
 
 bool RemoteSpectraHandler::handleRequest(Pillow::HttpConnection *connection)
 {

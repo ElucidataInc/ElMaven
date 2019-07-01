@@ -1,6 +1,9 @@
 //@Pawan: Classes and methods to compute probability for peak groups
 
+#include "PeakGroup.h"
 #include "svmPredictor.h"
+#include "groupFeatures.h"
+#include "svm.h"
 
 svmPredictor::svmPredictor()
 {

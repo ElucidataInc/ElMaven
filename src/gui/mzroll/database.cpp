@@ -3,8 +3,10 @@
 #include "Compound.h"
 #include "constants.h"
 #include "database.h"
+#include "masscutofftype.h"
+#include "mzMassCalculator.h"
+#include "mzSample.h"
 #include "mzUtils.h"
-
 
 bool Database::connect(string filename) {
     QString dbname(filename.c_str());

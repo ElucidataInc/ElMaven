@@ -7,16 +7,22 @@
 #include <QTextStream>
 
 #include "analytics.h"
+#include "base64.h"
+#include "Compound.h"
 #include "errorcodes.h"
 #include "globals.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
 #include "MavenException.h"
+#include "mavenparameters.h"
 #include "mzAligner.h"
 #include "mzfileio.h"
 #include "mzrolldbconverter.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 #include "projectdatabase.h"
 #include "projectdockwidget.h"
+#include "Scan.h"
 #include "spectralhitstable.h"
 #include "tabledockwidget.h"
 

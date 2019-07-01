@@ -7,6 +7,7 @@
 #include "mzSample.h"
 #include "Peak.h"
 #include "PeakGroup.h"
+#include "Scan.h"
 
 //http://genomics.princeton.edu/~emelamud/mzroll/notes.xml
 //http://genomics-pubs.princeton.edu/mzroll/notes.xml

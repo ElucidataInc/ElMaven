@@ -4,6 +4,9 @@
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
+#include "mzMassCalculator.h"
+#include "mzSample.h"
 #include "pathwaywidget.h"
 #include "settingsform.h"
 

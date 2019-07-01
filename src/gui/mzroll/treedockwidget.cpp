@@ -1,10 +1,11 @@
+#include "Compound.h"
 #include "mzSample.h"
-
 #include "eicwidget.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "pathwaywidget.h"
 #include "projectdockwidget.h"
+#include "Scan.h"
 #include "settingsform.h"
 #include "spectrawidget.h"
 #include "SRMList.h"

@@ -1,4 +1,7 @@
+#include "Compound.h"
 #include "isotopelogic.h"
+#include "mzMassCalculator.h"
+#include "mzSample.h"
 
 IsotopeLogic::IsotopeLogic() {
 	_scan = NULL;

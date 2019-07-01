@@ -1,12 +1,16 @@
+#include <QJsonArray>
+#include <QJsonValue>
+
 #include "mzAligner.h"
 #include "mzMassSlicer.h"
 #include "mzSample.h"
-#include <cmath>
 #include "PolyAligner.h"
-#include <fstream>
-#include <iostream>
-#include <QJsonArray>
-#include <QJsonValue>
+#include "mzSample.h"
+#include "Compound.h"
+#include "obiwarp.h"
+#include "mavenparameters.h"
+#include "Peak.h"
+#include "Scan.h"
 
 mzSample* Aligner::refSample = nullptr;
 

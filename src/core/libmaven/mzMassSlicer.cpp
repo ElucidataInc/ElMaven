@@ -1,4 +1,31 @@
+#include "mavenparameters.h"
 #include "mzMassSlicer.h"
+#include "mzSample.h"
+#include "datastructures/mzSlice.h"
+#include "masscutofftype.h"
+#include "mzUtils.h"
+#include "Matrix.h"
+#include "Scan.h"
+
+using namespace mzUtils;
+
+MassSlices::MassSlices()
+{
+    _maxSlices=INT_MAX;
+    _minRt=FLT_MIN; _minMz=FLT_MIN; _minIntensity=FLT_MIN;
+    _maxRt=FLT_MAX; _maxMz=FLT_MAX; _maxIntensity=FLT_MAX;
+    _minCharge=0; _maxCharge=INT_MAX;
+    massCutoff=NULL;
+}
+
+MassSlices::~MassSlices() { delete_all(slices); cache.clear(); }
+
+void MassSlices::sendSignal(const string& progressText,
+                unsigned int completed_samples,
+                int total_samples)
+{
+    mavenParameters->sig(progressText, completed_samples, total_samples);
+}
 
 /**
  * MassSlices::algorithmA This is function is called when mass Slicing using 

@@ -3,10 +3,13 @@
 #ifndef GROUP_FEATURES_H
 #define GROUP_FEATURES_H
 
-#include "PeakGroup.h"
+#include "standardincludes.h"
+
+class PeakGroup;
+
+using namespace std;
 
 vector<float> getFeatures(PeakGroup* grp);
-
 float getAvgPeakAreaFractional(PeakGroup* grp);
 float getAvgNoNoiseFraction(PeakGroup* grp);
 float getAvgSymmetry(PeakGroup* grp);

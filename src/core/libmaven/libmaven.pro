@@ -112,6 +112,7 @@ HEADERS += 	constants.h \
                 mzMassCalculator.h \
                 mzPatterns.h \
                 mzUtils.h \
+    standardincludes.h \
                 statistics.h \
                 SavGolSmoother.h \
                 PeakDetector.h \

@@ -1,6 +1,11 @@
 #include "mzMassCalculator.h"
 #include "constants.h"
 #include "Compound.h"
+#include "Peptide.hpp"
+#include "elementMass.h"
+#include "masscutofftype.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 
 using namespace mzUtils;
 using namespace std;

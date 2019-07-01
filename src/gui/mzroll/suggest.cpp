@@ -1,7 +1,9 @@
 #include "Compound.h"
 #include "database.h"
+#include "datastructures/mzSlice.h"
 #include "globals.h"
 #include "mzSample.h"
+#include "Scan.h"
 #include "numeric_treewidgetitem.h"
 #include "suggest.h"
 

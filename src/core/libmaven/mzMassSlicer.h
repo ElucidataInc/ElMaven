@@ -1,18 +1,17 @@
 #ifndef MASSSLICES_H
 #define MASSSLICES_H
 
-#include "mavenparameters.h"
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "Matrix.h"
-
 #include <omp.h>
-
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
+#include "standardincludes.h"
+
+class MassCutoff;
 class mzSample;
+class mzSlice;
+
 using namespace std;
 
 /**
@@ -24,20 +23,12 @@ using namespace std;
 class MassSlices {
 
     public:
+        MassSlices();
+        ~MassSlices();
 
-        MassSlices()  {
-            _maxSlices=INT_MAX; 
-            _minRt=FLT_MIN; _minMz=FLT_MIN; _minIntensity=FLT_MIN;
-            _maxRt=FLT_MAX; _maxMz=FLT_MAX; _maxIntensity=FLT_MAX;
-            _minCharge=0; _maxCharge=INT_MAX;
-            massCutoff=NULL;
-        }
-        ~MassSlices() { delete_all(slices); cache.clear(); }
-
-        void sendSignal( const string& progressText, unsigned int completed_samples, int total_samples)
-        {
-            mavenParameters->sig(progressText, completed_samples, total_samples);
-        }
+        void sendSignal(const string& progressText,
+                        unsigned int completed_samples,
+                        int total_samples);
 
         vector<mzSlice*> slices;
         mzSlice* sliceExists(float mz,float rt);

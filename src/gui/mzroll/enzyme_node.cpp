@@ -1,4 +1,5 @@
 #include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "edge.h"
 #include "enzyme_node.h"
 #include "globals.h"

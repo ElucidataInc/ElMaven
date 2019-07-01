@@ -1,11 +1,17 @@
 #include "adductwidget.h"
+#include "Compound.h"
+#include "constants.h"
 #include "edge.h"
 #include "globals.h"
 #include "graphwidget.h"
 #include "mainwindow.h"
+#include "masscutofftype.h"
 #include "mavenparameters.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 #include "node.h"
 #include "spectrawidget.h"
+#include "Scan.h"
 
 AdductWidget::AdductWidget(MainWindow* mw) { 
   _mw = mw;
@@ -113,8 +119,8 @@ void AdductWidget::addLinks(float centerMz,int recursionLevel) {
 	bool maxLikeCharge=1;
 	for(int c=2; c<4; c++ ) { if (chargeCounts[c] > chargeCounts[maxLikeCharge] ) { maxLikeCharge=c; } }
 	cerr << "addLinks: charge Count" << chargeCounts[0] << " " << chargeCounts[1] << " " << chargeCounts[2] << endl;
-	cerr << "Best charge=" << maxLikeCharge << endl;
-	printF(charges[maxLikeCharge]);
+        cerr << "Best charge=" << maxLikeCharge << endl;
+        mzUtils::printF(charges[maxLikeCharge]);
 
 	//check for possible C13s
 	for(int i=-20; i<20; i++ ) {

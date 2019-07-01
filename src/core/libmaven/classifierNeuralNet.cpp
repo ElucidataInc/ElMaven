@@ -1,4 +1,8 @@
 #include "classifierNeuralNet.h"
+#include "EIC.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "PeakGroup.h"
 
 ClassifierNeuralNet::ClassifierNeuralNet() {
 	num_features = 9;

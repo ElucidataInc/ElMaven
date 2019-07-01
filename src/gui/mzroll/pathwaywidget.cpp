@@ -1,3 +1,4 @@
+#include "Compound.h"
 #include "Matrix.h"
 #include "animationcontrol.h"
 #include "background_peaks_update.h"
@@ -5,6 +6,7 @@
 #include "eicwidget.h"
 #include "enzyme_node.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "metabolite_node.h"
 #include "mzSample.h"
 #include "node.h"

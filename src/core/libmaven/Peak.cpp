@@ -1,4 +1,10 @@
 #include "Peak.h"
+#include "EIC.h"
+#include "Scan.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+
+using namespace mzUtils;
 
 Peak::Peak() {
     pos = 0;

@@ -2,7 +2,10 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
+#include <string>
+
 using namespace std;
+
 const double C12_ABUNDANCE = 0.988930;
 const double C13_ABUNDANCE = 0.011070;
 const double N14_ABUNDANCE = 0.996337;
@@ -69,4 +72,5 @@ const string CA_STRING_ID = "Ca";
 const string SE_STRING_ID = "Se";
 const string AS_STRING_ID = "As";
 const string SI_STRING_ID = "Si";
+
 #endif

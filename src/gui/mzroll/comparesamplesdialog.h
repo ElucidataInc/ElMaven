@@ -2,6 +2,7 @@
 #define COMPARESAMPLESDIALOG_H
 
 #include "comparesampleslogic.h"
+#include "PeakGroup.h"
 #include "ui_comparesamplesdialog.h"
 
 class MainWindow;

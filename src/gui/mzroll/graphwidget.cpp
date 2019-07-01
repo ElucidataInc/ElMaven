@@ -1,4 +1,5 @@
 #include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "edge.h"
 #include "globals.h"
 #include "graphwidget.h"
@@ -6,6 +7,7 @@
 #include "mzUtils.h"
 #include "mzSample.h"
 #include "node.h"
+#include "Scan.h"
 
 void GraphWidgetScene::mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent ) {
         down =  mouseEvent->buttonDownScenePos(Qt::LeftButton);

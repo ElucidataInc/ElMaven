@@ -6,16 +6,19 @@
  */
 #ifndef MZEIC_H
 #define MZEIC_H
+
 #include <Eigen>
-#include "Peak.h"
-#include "PeakGroup.h"
-#include "mzSample.h"
+
+#include "standardincludes.h"
+
 class Peak;
 class PeakGroup;
 class mzSample;
 class mzPoint;
 class Scan;
 class Compound;
+
+using namespace std;
 
 class EIC
 {

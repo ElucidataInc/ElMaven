@@ -1,19 +1,17 @@
 #ifndef MZALIGNER_H
 #define MZALIGNER_H
 
-#include <cmath>
-#include <cstddef>
-#include <float.h>
-#include <limits>
-#include <climits>
-#include <vector>
-#include "mzSample.h"
-#include "Compound.h"
-#include "obiwarp.h"
-#include "mavenparameters.h"
 #include <QJsonObject>
-
 #include <boost/signals2.hpp>
+
+#include "standardincludes.h"
+
+class PeakGroup;
+class mzSample;
+class ObiParams;
+class ObiWarp;
+class MavenParameters;
+
 using namespace std;
 
 class Aligner {

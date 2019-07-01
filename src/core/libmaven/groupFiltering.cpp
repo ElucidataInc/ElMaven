@@ -1,4 +1,8 @@
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "groupFiltering.h"
+#include "mavenparameters.h"
+#include "PeakGroup.h"
 
 GroupFiltering::GroupFiltering(MavenParameters *mavenParameters)
 {

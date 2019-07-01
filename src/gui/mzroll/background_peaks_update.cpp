@@ -8,15 +8,20 @@
 #include <QProcess>
 #include <QJsonObject>
 
+#include "Compound.h"
 #include "alignmentdialog.h"
 #include "analytics.h"
 #include "csvreports.h"
 #include "background_peaks_update.h"
 #include "database.h"
 #include "grouprtwidget.h"
+#include "isotopeDetection.h"
 #include "mainwindow.h"
+#include "masscutofftype.h"
 #include "mavenparameters.h"
+#include "mzAligner.h"
 #include "mzSample.h"
+#include "obiwarp.h"
 #include "PeakDetector.h"
 #include "samplertwidget.h"
 

@@ -1,4 +1,8 @@
 #include "comparesampleslogic.h"
+#include "MersenneTwister.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "PeakGroup.h"
 
 CompareSamplesLogic::CompareSamplesLogic() {
 }
