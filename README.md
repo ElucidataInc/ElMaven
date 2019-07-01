@@ -6,8 +6,11 @@
 	<img src="http://elucidata.io/static/images/elucidata-logo-with-text.svg">
   </a>
 
-## Travis Build
+## Build Status
 [![Build Status](https://travis-ci.org/ElucidataInc/ElMaven.svg?branch=develop)](https://travis-ci.org/ElucidataInc/ElMaven)
+[![Build status](https://ci.appveyor.com/api/projects/status/hj92puovbucth7o1/branch/develop?svg=true)](https://ci.appveyor.com/project/ElucidataInc/elmaven/branch/develop)
+[![codecov](https://codecov.io/gh/ElucidataInc/ElMaven/branch/develop/graph/badge.svg)](https://codecov.io/gh/ElucidataInc/ElMaven)
+
 
 ## Digital Object Identifier (DOI) 
 [![DOI](https://zenodo.org/badge/70220005.svg)](https://zenodo.org/badge/latestdoi/70220005)

@@ -1,0 +1,38 @@
+version: 1.0.{build}
+environment:
+  COMPILER: msys2
+  PLATFORM: x64
+  MSYS2_ARCH: x86_64
+  MSYS2_DIR: msys64
+  MSYSTEM: MINGW64
+  BIT: 64
+
+
+cache:
+    - C:\msys64\var\cache\pacman\pkg
+
+install:
+    - SET "PATH=C:\Qt\5.12.2\mingw73_64\bin;C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+
+    - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
+
+    - bash -lc "pacman -S --needed --noconfirm zlib-devel"
+
+    - bash -lc "pacman -S --noconfirm mingw64/mingw-w64-x86_64-curl"
+    - bash -lc "wget https://github.com/linux-test-project/lcov/releases/download/v1.12/lcov-1.12.tar.gz"
+    - bash -lc "tar -xzf lcov-1.12.tar.gz"
+    - bash -lc "ln -s $PWD/lcov-1.12/bin/lcov /c/msys64/mingw64/bin/lcov"
+    - bash -lc "ln -s $PWD/lcov-1.12/bin/geninfo /c/msys64/mingw64/bin/geninfo"
+    - bash -lc "cd /c/projects/ElMaven/ ; ./gcc_v7.3.0.sh"
+
+build_script:
+    - SET "QTEST_FUNCTION_TIMEOUT=1200000"
+    - bash -lc "echo $QTEST_FUNCTION_TIMEOUT"
+    - bash -lc "qmake -v"
+    - bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh"
+    - bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
+    - bash -lc "lcov --summary /c/projects/ElMaven/lcov.info"
+
+on_success:
+    - bash -lc "export CODECOV_TOKEN="9a0f9704-6d63-48c6-8c1a-ded361a26597"
+    - bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
