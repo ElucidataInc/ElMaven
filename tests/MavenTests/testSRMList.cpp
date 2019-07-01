@@ -1,4 +1,6 @@
 #include "testSRMList.h"
+#include "SRMList.h"
+#include "utilities.h"
 
 TestSRMList::TestSRMList() {
 

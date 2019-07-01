@@ -4,11 +4,6 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "utilities.h"
-#include "mzSample.h"
-#include "PeakDetector.h"
-#include "mavenparameters.h"
-#include "classifierNeuralNet.h"
 
 using namespace std;
 

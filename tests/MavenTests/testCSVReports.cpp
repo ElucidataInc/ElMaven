@@ -1,5 +1,12 @@
 #include "testCSVReports.h"
-
+#include "EIC.h"
+#include "mzSample.h"
+#include "csvreports.h"
+#include "PeakDetector.h"
+#include "mavenparameters.h"
+#include "isotopeDetection.h"
+#include "classifierNeuralNet.h"
+#include "utilities.h"
 
 TestCSVReports::TestCSVReports() {
     outputfile = "output.csv";

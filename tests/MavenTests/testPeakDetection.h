@@ -6,14 +6,6 @@
 #include <string>
 #include <sstream>
 
-#include "EIC.h"
-#include "utilities.h"
-#include "mzSample.h"
-#include "PeakDetector.h"
-#include "mavenparameters.h"
-#include "isotopeDetection.h"
-#include "classifierNeuralNet.h"
-
 class TestPeakDetection : public QObject {
     Q_OBJECT
 

@@ -1,6 +1,8 @@
 #include "testMassCalculator.h"
+#include "databases.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
+#include "utilities.h"
 
 TestMassCalculator::TestMassCalculator() {
 

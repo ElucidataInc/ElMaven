@@ -1,5 +1,6 @@
 #include "testMzFit.h"
-
+#include "mzFit.h"
+#include "utilities.h"
 
 TestMzFit::TestMzFit() {
 

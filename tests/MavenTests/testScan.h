@@ -7,9 +7,9 @@
 #include <sstream>
 #include <fstream>
 #include <string.h>
-#include "utilities.h"
-#include "mzSample.h"
 
+class mzSample;
+class Scan;
 
 class TestScan : public QObject {
     Q_OBJECT

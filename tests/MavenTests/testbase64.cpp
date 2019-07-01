@@ -1,6 +1,6 @@
 #include "testbase64.h"
-
-
+#include "base64.h"
+#include "utilities.h"
 
 Testbase64::Testbase64() {
 

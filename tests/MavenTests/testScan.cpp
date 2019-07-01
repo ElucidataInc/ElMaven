@@ -1,5 +1,9 @@
 #include "testScan.h"
-
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "Scan.h"
+#include "utilities.h"
 
 TestScan::TestScan() {
 

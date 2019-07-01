@@ -1,4 +1,14 @@
 #include "testMzAligner.h"
+#include "classifierNeuralNet.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzAligner.h"
+#include "mzSample.h"
+#include "obiwarp.h"
+#include "PeakDetector.h"
+#include "PeakGroup.h"
+#include "Scan.h"
+#include "utilities.h"
 
 TestMzAligner::TestMzAligner() {}
 

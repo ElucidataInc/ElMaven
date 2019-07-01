@@ -4,8 +4,6 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "utilities.h"
-#include "databases.h"
 
 class TestMassCalculator : public QObject {
     Q_OBJECT

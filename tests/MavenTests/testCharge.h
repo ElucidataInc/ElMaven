@@ -4,11 +4,6 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "utilities.h"
-#include "Compound.h"
-#include "mzSample.h"
-#include "mavenparameters.h"
-
 
 class TestCharge : public QObject {
     Q_OBJECT

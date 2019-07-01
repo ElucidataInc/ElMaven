@@ -1,4 +1,14 @@
 #include "testPeakDetection.h"
+#include "datastructures/mzSlice.h"
+#include "masscutofftype.h"
+#include "PeakGroup.h"
+#include "EIC.h"
+#include "utilities.h"
+#include "mzSample.h"
+#include "PeakDetector.h"
+#include "mavenparameters.h"
+#include "isotopeDetection.h"
+#include "classifierNeuralNet.h"
 
 TestPeakDetection::TestPeakDetection() {
     loadCompoundDB = "bin/methods/qe3_v11_2016_04_29.csv";

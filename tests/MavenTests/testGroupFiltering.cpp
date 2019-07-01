@@ -1,4 +1,8 @@
 #include "testGroupFiltering.h"
+#include "PeakGroup.h"
+#include "groupFiltering.h"
+#include "mavenparameters.h"
+#include "utilities.h"
 
 TestGroupFiltering::TestGroupFiltering()
 {

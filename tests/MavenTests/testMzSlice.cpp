@@ -1,4 +1,10 @@
 #include "testMzSlice.h"
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
+#include "masscutofftype.h"
+#include "mzSample.h"
+#include "mavenparameters.h"
+#include "utilities.h"
 
 TestMzSlice::TestMzSlice() {
 

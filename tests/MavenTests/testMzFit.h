@@ -7,9 +7,6 @@
 #include <sstream>
 #include <fstream>
 #include <string.h>
-#include "utilities.h"
-#include "mzFit.h"
-
 
 class TestMzFit : public QObject {
     Q_OBJECT

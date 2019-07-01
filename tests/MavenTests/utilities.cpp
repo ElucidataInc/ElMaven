@@ -1,3 +1,8 @@
+#include "classifierNeuralNet.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "PeakDetector.h"
+#include "PeakGroup.h"
 #include "utilities.h"
 
 namespace maventests {
