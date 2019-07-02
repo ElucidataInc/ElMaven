@@ -1,4 +1,7 @@
 version: 1.0.{build}
+
+os: Visual Studio 2017
+
 environment:
   COMPILER: msys2
   PLATFORM: x64
