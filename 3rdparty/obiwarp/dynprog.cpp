@@ -1301,10 +1301,5 @@ void DynProg::find_path(MatF& smat, VecF &gap_penalty, int minimize, float diag_
     _traceback(tmp_tb, smat, optimal_m, optimal_n, tmp_tbpath, _mCoords, _nCoords, _sCoords); 
     int _equivLastInd = _mCoords.dim()-1;
     _bestScore = tmp_asmat(_mCoords[_equivLastInd],_nCoords[_equivLastInd]);
-
-    _asmat.take(tmp_asmat);
-    _tb.take(tmp_tb);
-    _tbpath.take(tmp_tbpath);
-    _gapmat.take(tmp_gapmat);
 }
 
