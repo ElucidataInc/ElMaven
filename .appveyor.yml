@@ -123,7 +123,10 @@ after_build:
                       $lib = $p.replace($lib, "C:/$env:MSYS2_DIR/MINGW64/", 1)
                   }
                   if ( -Not ([io.path]::GetDirectoryName($lib) -eq $BIN) ) {
-                      Copy-item $lib BIN
+                      echo "Copying $lib"
+                      Copy-item $lib $BIN
+                  } else {
+                      echo "Skipping $lib"
                   }
               }
           }
