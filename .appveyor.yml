@@ -1,4 +1,7 @@
 version: 1.0.{build}
+
+os: Visual Studio 2017
+
 environment:
   COMPILER: msys2
   PLATFORM: x64
@@ -123,7 +126,10 @@ after_build:
                       $lib = $p.replace($lib, "C:/$env:MSYS2_DIR/MINGW64/", 1)
                   }
                   if ( -Not ([io.path]::GetDirectoryName($lib) -eq $BIN) ) {
-                      Copy-item $lib BIN
+                      echo "Copying $lib"
+                      Copy-item $lib $BIN
+                  } else {
+                      echo "Skipping $lib"
                   }
               }
           }
