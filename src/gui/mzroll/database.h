@@ -4,6 +4,7 @@
 #include <boost/signals2.hpp>
 
 #include "stable.h"
+#include "standardincludes.h"
 
 class Adduct;
 class Compound;

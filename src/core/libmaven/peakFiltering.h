@@ -2,6 +2,7 @@
 #define PEAKFILTERING_H
 
 #include <iostream>
+#include "standardincludes.h"
 
 class Peak;
 class EIC;

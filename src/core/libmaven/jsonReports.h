@@ -2,6 +2,7 @@
 #define JSONREPORTS_H
 
 #include <boost/algorithm/string.hpp>
+#include "standardincludes.h"
 
 // #include "../mzroll/tabledockwidget.h"
 
