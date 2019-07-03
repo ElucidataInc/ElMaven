@@ -12,78 +12,54 @@
 using namespace std;
 
 namespace base64 {
-
     /**
-     * [Decode a base64 character]
-     * @method decode
-     * @param  c      [char to be decoded]
-     * @return [ASCII value]
+     * @brief Reverse the order of bytes of a 32-bit word. Borrowed from xmms GNU.
+     * @param x The 32-bit structure whose order of bytes is to be reversed.
+     * @return A new 32-bit structure with bytes stored in a reverse order.
      */
-    unsigned char decode(char c);
-
-    /**
-     * [Base64 encode one byte]
-     * @method encode
-     * @param  u      [ASCII to be encoded]
-     * @return [base64 encoded character]
-     */
-    char encode(unsigned char u);
-
-    /**
-     * @return TRUE if 'c' is a valid base64 character, otherwise FALSE
-     */
-    int is_base64(char c);
-
-    /**
-     * [Decode a base64 string]
-     * @method decode
-     * @param  src      				[string to be decoded]
-     * @param  float_size      	[float size; 4 for 32 bit machines, 8 for 64 bit machines]
-     * @param  networkorder			[networkorder, LITTLE_ENDIAN or BIG_ENDIAN]
-     * @return [float array in binary representation]
-     */
-    vector<float> decode_base64(const string& src, int float_size, bool neworkorder, bool decompress);
-    /**
-     * [Base64 encode a float array in binary representation]
-     * @method encode_base64
-     * @param  farray        [float array in binary representation]
-     * @return [Base64 encoded string]
-     */
-    unsigned char *encode_base64(const vector<float>& farray);
-
-    /**
-     * [swap bytes .. borrowed from xmms  GNU]
-     * @method swapbytes
-     * @param  x         []
-     * @return []
-     */
-    inline uint32_t swapbytes(uint32_t x) {
-        return ((x & 0x000000ffU) << 24) |
-            ((x & 0x0000ff00U) <<  8) |
-            ((x & 0x00ff0000U) >>  8) |
-            ((x & 0xff000000U) >> 24);
+    inline uint32_t swapbytes(uint32_t x)
+    {
+        return   ((x & 0x000000ffU) << 24)
+               | ((x & 0x0000ff00U) <<  8)
+               | ((x & 0x00ff0000U) >>  8)
+               | ((x & 0xff000000U) >> 24);
     }
 
     /**
-     * [swap bytes .. borrowed from xmms  GNU]
-     * @method swapbytes64
-     * @param  x           []
-     * @return []
+     * @brief Reverse the order of bytes of a 64-bit word. Borrowed from xmms GNU.
+     * @param x The 64-bit structure whose order of bytes is to be reversed.
+     * @return A new 64-bit structure with bytes stored in a reverse order.
      */
-    inline uint64_t swapbytes64(uint64_t x) {
+    inline uint64_t swapbytes64(uint64_t x)
+    {
         return ((((uint64_t)swapbytes((uint32_t)(x & 0xffffffffU)) << 32) |
-                    (uint64_t)swapbytes((uint32_t)(x >> 32))));
+                 (uint64_t)swapbytes((uint32_t)(x >> 32))));
     }
 
-    void decompressString(char** dest, int& size, int float_size);
+    /**
+     * @brief Decode a base64 encoded binary data string. If the string is
+     * zlib compressed then it is uncompressed after decoding, and then
+     * converted to an array of floating point values.
+     * @param src A base64 encoded data string.
+     * @param float_size Value denoting precision of floating point data.
+     * @param neworkorder Boolean indication network order.
+     * @param decompress Whether the string needs to be decompressed after
+     * decoding step.
+     * @return A vector of floating point values extracted from undecoded binary
+     * data.
+     */
+    vector<float> decodeBase64(const string& src,
+                               int float_size,
+                               bool neworkorder,
+                               bool decompress);
 
-    char* decodeString(const string& src);
-    vector<float> convertDecodedDataBackToFloat(unsigned char* dest,
-            int float_size,
-            bool neworkorder,
-            int size);
-    unsigned char* convertFromFloatToCharacter(
-            float* srcF, const vector<float>& farray);
-    unsigned char* encodeString(unsigned char* src, int size);
+    /**
+     * @brief Decode a plain base64-encoded string.
+     * @param data A raw base64-encoded buffer.
+     * @param len Length of the buffer containing base64 data.
+     * @return A decoded form of input base64- encoded string.
+     */
+    string decodeString(const char* data, const size_t len);
 }
+
 #endif

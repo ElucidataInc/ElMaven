@@ -2,6 +2,9 @@
 #include "SavGolSmoother.h"
 #include "csvparser.h"
 #include "masscutofftype.h"
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
 
 /**
  * random collection of useful functions 
@@ -906,53 +909,17 @@ Series:  Prentice-Hall Series in Automatic Computation
         return ( t );
     }
 
-
-    /** Decompress an STL string using zlib and return the original data. */
-    std::string decompress_string(const std::string& str)
+    std::string decompressString(const std::string& str)
     {
-        std::string outstring;
-
+        string outstring;
 #ifdef ZLIB
-        z_stream zs;                        // z_stream is zlib's control structure
-        memset(&zs, 0, sizeof(zs));
-
-
-
-        if (inflateInit(&zs) != Z_OK)
-            throw(std::runtime_error("inflateInit failed while decompressing."));
-
-        zs.next_in = (Bytef*)str.data();
-        zs.avail_in = str.size();
-
-        int ret;
-        char outbuffer[32768];
-
-        // get the decompressed bytes blockwise using repeated calls to inflate
-        do {
-            zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
-            zs.avail_out = sizeof(outbuffer);
-
-            ret = inflate(&zs, Z_NO_FLUSH);
-
-            if (outstring.size() < zs.total_out) {
-                outstring.append(outbuffer,
-                        zs.total_out - outstring.size());
-            }
-
-        } while (ret == Z_OK);
-
-        cerr << "B..." << "ret=" << ret;
-
-        inflateEnd(&zs);
-
-        if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
-            std::ostringstream oss;
-            oss << "Exception during zlib decompression: (" << ret << ") "
-                << zs.msg;
-            // throw(std::runtime_error(oss.str()));
-        }
-
-        cerr << "C...";
+        stringstream compressed(str);
+        stringstream decompressed;
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+        in.push(boost::iostreams::zlib_decompressor());
+        in.push(compressed);
+        boost::iostreams::copy(in, decompressed);
+        outstring = decompressed.str();
 #endif
         return outstring;
     }
