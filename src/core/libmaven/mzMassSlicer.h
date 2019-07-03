@@ -33,14 +33,30 @@ class MassSlices {
         vector<mzSlice*> slices;
 
         /**
-         * @brief This function finds the mz slice, present in cache, whose
-         * center is closest to a given coordinate (in m/z-rt space).
-         * @param mz The m/z value for the coordinate.
-         * @param rt The rt value for the coordinate.
-         * @return The slice that best "contains" the given m/z and rt value. If
-         * no such slice exists, a nullptr is returned.
+         * @brief This function finds the `mzSlice`, present in cache, whose area
+         * overlaps with the given area (in mz-rt space) and either of the
+         * centers of these areas is contained in the other.
+         * @details This function will pick a slice from cache if either of the
+         * following conditions are satisfied:
+         *  1. If the center of an existing slice is contained within the given
+         *     area.
+         *  2. If the center of the given area is contained within the area of
+         *     and existing slice.
+         *
+         * If multiple such slices exist that satisfy either of the conditions,
+         * then the one with the shortest distance from the center of given area
+         * is returned.
+         * @param mzMinBound Lower m/z bound.
+         * @param mzMaxBound Upper m/z bound.
+         * @param rtMinBound Lower rt bound.
+         * @param rtMaxBound Upper rt bound.
+         * @return The `mzSlice` that best "contains" the given m/z and rt
+         * value. If no such slice exists, a nullptr is returned.
          */
-        mzSlice* sliceExists(float mz, float rt);
+        mzSlice* sliceExists(float mzMinBound,
+                             float mzMaxBound,
+                             float rtMinBound,
+                             float rtMaxBound);
 
         void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
