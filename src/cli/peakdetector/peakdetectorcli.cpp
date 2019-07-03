@@ -875,6 +875,17 @@ void PeakDetectorCLI::writeReport(string setName,
                 cerr << "Unable to upload data to Polly." << endl;
             }
 
+            // NOTE: Adding this to help clients of this CLI to be able to
+            // access the redirection URL.
+            QString fname = "polly_redirection_url.txt";
+            QString fpath = QStandardPaths::writableLocation(
+                                QStandardPaths::GenericConfigLocation)
+                            + QDir::separator()
+                            + fname;
+            ofstream ofs(fpath.toStdString());
+            ofs << redirectionUrl.toStdString() << endl;
+            ofs.close();
+
             // if redirection URL is not empty then we can print it on console
             // and send the user an email with that URL
             if (!redirectionUrl.isEmpty()) {
