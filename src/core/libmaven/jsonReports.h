@@ -2,16 +2,11 @@
 #define JSONREPORTS_H
 
 #include <boost/algorithm/string.hpp>
-
-#include "Compound.h"
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "mavenparameters.h"
+#include "standardincludes.h"
 
 // #include "../mzroll/tabledockwidget.h"
 
 using namespace std;
-
 
 class mzSample;
 class EIC;

@@ -1,4 +1,18 @@
+#include "Compound.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "EIC.h"
 #include "gallerywidget.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "masscutofftype.h"
+#include "mzSample.h"
+#include "PeakDetector.h"
+#include "Scan.h"
+#include "statistics.h"
+#include "tabledockwidget.h"
+#include "tinyplot.h"
 
 GalleryWidget::GalleryWidget(MainWindow* mw) {
 	this->mainwindow = mw;

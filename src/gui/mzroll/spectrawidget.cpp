@@ -1,3 +1,17 @@
+#include "line.h"
+#include "Compound.h"
+#include "constants.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "Fragment.h"
+#include "mainwindow.h"
+#include "masscalcgui.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "Peptide.hpp"
+#include "plot_axes.h"
+#include "Scan.h"
+#include "spectramatching.h"
 #include "spectrawidget.h"
 
 SpectraWidget::SpectraWidget(MainWindow* mw) { 
@@ -270,9 +284,9 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 {
     clearOverlay();
     if (!_currentScan || !c || c->fragmentMzValues.size() == 0) return;
-	
+
     SpectralHit hit;
-  	hit.score = 0;
+        hit.score = 0;
     //TODO: precursormz should be preset as the compound m/z
     //compound->mass should be reserved for exact mass or renamed
     if (!c->formula.empty())

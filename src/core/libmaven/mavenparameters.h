@@ -2,20 +2,22 @@
 #define MAVENPARAMETERS_H
 
 #include <qstring.h>
-#include <string>
-#include <vector>
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 #include <map>
 
 #include "mzMassCalculator.h"
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "Compound.h"
-#include "masscutofftype.h"
-#include "classifierNeuralNet.h"
+#include "standardincludes.h"
 
+using namespace std;
+
+class ClassifierNeuralNet;
+class Compound;
+class MassCutoff;
+class mzSample;
+class mzSlice;
+class PeakGroup;
 
 class MavenParameters 
 {
@@ -30,9 +32,7 @@ class MavenParameters
         * @method setOutputDir
         * @param  outdir       [name of the output directory]
         */
-        void setOutputDir(QString outdir) {
-            outputdir = outdir.toStdString() + string(DIR_SEPARATOR_STR);
-        }
+        void setOutputDir(QString outdir);
 
         /**
         * [set Maximum Group Count]

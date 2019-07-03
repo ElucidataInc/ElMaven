@@ -1,4 +1,7 @@
 #include "classifierNaiveBayes.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "PeakGroup.h"
 
 ClassifierNaiveBayes::ClassifierNaiveBayes() {
 	clsf_type = "NaiveBayes";

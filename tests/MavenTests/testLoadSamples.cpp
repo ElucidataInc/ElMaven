@@ -1,6 +1,8 @@
 #include "testLoadSamples.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
+#include "Scan.h"
+#include "utilities.h"
 
 TestLoadSamples::TestLoadSamples() {
     loadFile = "bin/methods/testsample_1.mzxml";

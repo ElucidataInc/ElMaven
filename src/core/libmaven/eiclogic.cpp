@@ -1,4 +1,10 @@
+#include "Compound.h"
+#include "EIC.h"
 #include "eiclogic.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "PeakDetector.h"
 
 EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);

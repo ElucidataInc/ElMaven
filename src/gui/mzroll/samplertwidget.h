@@ -2,7 +2,6 @@
 #define SAMPLERTWIDGET_H
 
 #include "stable.h"
-#include "mainwindow.h"
 #include "ui_samplertwidget.h"
 
 class MainWindow;

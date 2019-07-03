@@ -1,4 +1,5 @@
 #include "line.h"
+#include "mzSample.h"
 
 EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)
 {

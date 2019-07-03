@@ -4,17 +4,8 @@
 // #define _GLIBCXX_USE_CXX11_ABI 0
 
 #include <string>
-#include "utilities.h"
 
 #include <QtTest>
-
-#include "databases.h"
-#include "csvreports.h"
-#include "PeakDetector.h"
-#include "classifierNeuralNet.h"
-#include "peakdetectorcli.h"
-
-
 
 class PeakDetectorCLI;
 

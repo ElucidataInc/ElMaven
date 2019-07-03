@@ -1,4 +1,15 @@
+#include "Compound.h"
+#include "classifierNeuralNet.h"
+#include "constants.h"
+#include "EIC.h"
 #include "isotopeDetection.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "Peak.h"
+#include "peakFiltering.h"
+#include "PeakGroup.h"
+#include "Scan.h"
 
 IsotopeDetection::IsotopeDetection(
     MavenParameters *mavenParameters,

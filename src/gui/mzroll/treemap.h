@@ -1,13 +1,11 @@
 #ifndef TREEMAPWIDGET_H
 #define TREEMAPWIDGET_H
 
+#include "PeakGroup.h"
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "tabledockwidget.h"
-#include "statistics.h"
-#include "tabledockwidget.h"
 
+class MainWindow;
+class TableDockWidget;
 
 class TreemapItem
 {

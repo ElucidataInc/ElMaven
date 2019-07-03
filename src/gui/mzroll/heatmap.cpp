@@ -1,4 +1,13 @@
+#include <QGraphicsScene>
+
+#include "Compound.h"
+#include "globals.h"
 #include "heatmap.h"
+#include "mainwindow.h"
+#include "mzSample.h"
+#include "Scan.h"
+#include "statistics.h"
+#include "tabledockwidget.h"
 
 HeatMap::HeatMap(MainWindow* mw) { 
     this->mainwindow = mw;

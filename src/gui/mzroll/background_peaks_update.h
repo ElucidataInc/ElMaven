@@ -1,25 +1,18 @@
 #ifndef BACKGROUND_PEAK_UPDATE_H
 #define BACKGROUND_PEAK_UPDATE_H
 
+#include "PeakGroup.h"
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "database.h"
-#include "csvreports.h"
-#include <iostream>
-#include <QProcess>
-#include <QJsonObject>
-#include "PeakDetector.h"
-#include "mavenparameters.h"
 
 class MainWindow;
 class Database;
 class TableDockWidget;
 class EIC;
 class Aligner;
-
-
-extern Database DB;
+class MavenParameters;
+class PeakDetector;
+class Compound;
+class mzSlice;
 
 /**
  * @class BackgroundPeakUpdate
@@ -57,14 +50,14 @@ public:
 	 * @param pd [pointer to peakDetector]
 	 */
 	void setPeakDetector(PeakDetector* pd) {
-		peakDetector = *pd;
+                peakDetector = pd;
 	}
 
 	/**
 	 * [get Peak Detector]
 	 * @return peakDetector
 	 */
-	PeakDetector getPeakDetector() {
+        PeakDetector* getPeakDetector() {
 		return peakDetector;
 	}
 
@@ -111,7 +104,7 @@ public:
 	void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
 	void writeToPythonProcess( QByteArray data);
 
-    PeakDetector peakDetector;
+    PeakDetector* peakDetector;
 	MavenParameters* mavenParameters;
 
 Q_SIGNALS:

@@ -1,11 +1,15 @@
 #ifndef SRMLIST_H
 #define SRMLIST_H
 
-#include "Compound.h"
-#include "databases.h"
-#include "mzSample.h"
-#include "Scan.h"
 #include <QMap>
+
+#include "standardincludes.h"
+
+class Compound;
+class mzSample;
+class mzSlice;
+
+using namespace std;
 
 /**
  * @brief Calculate slices and annotate filterlines (srm-ids) 

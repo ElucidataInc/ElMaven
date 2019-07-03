@@ -1,13 +1,15 @@
 #ifndef COMPOUND_H
 #define COMPOUND_H
 
-#include <string>
-#include <vector>
-#include "constants.h"
+#include "standardincludes.h"
 #include "PeakGroup.h"
+
 class Reaction;
-class PeakGroup;
+class FragmentationMatchScore;
+class Fragment;
+
 using namespace std;
+
 class Compound{
     /*
     *@brief  -   class to represent a compound

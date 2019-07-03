@@ -1,10 +1,20 @@
 #include <cstdlib>
 #include <map>
 
-#include "controller.h"
-#include "mainwindow.h"
-#include "pollyintegration.h"
+#include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QGroupBox>
+#include <QSpinBox>
+
 #include <common/downloadmanager.h>
+#include "controller.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "mzfileio.h"
+#include "peakdetectiondialog.h"
+#include "pollyintegration.h"
+#include "settingsform.h"
 
 Controller::Controller()
 {

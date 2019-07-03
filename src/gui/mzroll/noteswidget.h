@@ -1,10 +1,11 @@
 #ifndef NOTESWIDGET_H
 #define NOTESWIDGET_H
 
-#include "globals.h"
 #include "stable.h"
 #include "ui_noteswidget.h"
-#include "mainwindow.h"
+
+class MainWindow;
+class UserNote;
 
 class NotesWidget : public QDockWidget, public Ui_NotesWidget 
 {

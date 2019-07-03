@@ -2,9 +2,7 @@
 #define BOXPLOT_H
 
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-
+#include "PeakGroup.h"
 
 class MainWindow;
 class PeakGroup;

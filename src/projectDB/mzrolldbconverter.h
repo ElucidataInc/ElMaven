@@ -1,6 +1,8 @@
 #ifndef MZROLLDBCONVERTER_H
 #define MZROLLDBCONVERTER_H
 
+#include "connection.h"
+
 namespace MzrollDbConverter
 {
     /**

@@ -8,21 +8,19 @@
 #include <iostream>
 #include <algorithm>
 
-//local
-#include "mzUtils.h"
-#include "mzSample.h"
-#include "mzMassSlicer.h"
-#include "database.h"
-#include "classifier.h"
-#include "classifierNeuralNet.h"
-#include "classifierNaiveBayes.h"
-
 //non gui qt classes
 #include <QString>
 
+class mzSample;
+class mzSlice;
+class Peak;
+class PeakGroup;
+class Compound;
+class Scan;
+class Pathway;
+
 const QString rsrcPath = ":/images";
 const QString programName = "El-MAVEN";
-
 
 static const double Pi = 3.14159265358979323846264338327950288419717;
 
@@ -68,16 +66,6 @@ enum itemType {
 		PathwayType,
 		mzSliceType, 
 		mzLinkType
-};
-
-extern Database DB; 
-
-struct compReactionCounts
-{
-		bool operator()(Compound* s1, Compound* s2) const
-		{
-				return s1->reactions.size() > s2->reactions.size();
-		}
 };
 
 #endif

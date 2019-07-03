@@ -1,20 +1,13 @@
 #ifndef MASSCALC_H
 #define MASSCALC_H
 
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include "Peptide.hpp"
 #include "elementMass.h"
-#include "mzSample.h"
-#include "mzUtils.h"
+#include "standardincludes.h"
 
 class Adduct;
 class Compound;
 class Isotope;
-
+class MassCutoff;
 
 using namespace std;
 

@@ -3,9 +3,6 @@
 
 #include "stable.h"
 #include "ui_clusterdialog.h"
-#include "tabledockwidget.h"
-
-class TableDockWidget;
 
 class ClusterDialog : public QDialog, public Ui_ClusterDialog
 {

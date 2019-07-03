@@ -1,4 +1,6 @@
 #include "history.h"
+#include "mzSample.h"
+
 using namespace std;
 
 

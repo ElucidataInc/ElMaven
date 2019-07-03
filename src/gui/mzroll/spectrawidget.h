@@ -1,11 +1,18 @@
 #ifndef SPECTRAWIDGET_H
 #define SPECTRAWIDGET_H
 
-#include "spectralhit.h"
 #include "stable.h"
+#include "spectralhit.h"
 #include "mzSample.h"
-#include "mainwindow.h"
-#include "eiclogic.h"
+#include "PeakGroup.h"
+
+class Compound;
+class EICLogic;
+class MainWindow;
+class mzLink;
+class mzSample;
+class SpectralHit;
+class MassCutoff;
 
 class SpectraWidget : public QGraphicsView
 {
@@ -78,7 +85,7 @@ public:
                     float _zoomFactor;
                     QString _titleText;
 
-                    SpectralHit  _spectralHit;
+                    SpectralHit _spectralHit;
 
                     QPointF _mouseStartPos;
                     QPointF _mouseEndPos;

@@ -1,4 +1,8 @@
 #include "testLoadDB.h"
+#include "Compound.h"
+#include "databases.h"
+#include "mzSample.h"
+#include "utilities.h"
 
 TestLoadDB::TestLoadDB() {
 

@@ -1,12 +1,13 @@
 #ifndef ISOTOPELOGIC_H
 #define ISOTOPELOGIC_H
 
-#include <string>
-#include <vector>
-
-#include "Compound.h"
 #include "mzMassCalculator.h"
-#include "mzSample.h"
+#include "standardincludes.h"
+
+class mzLink;
+class Scan;
+class PeakGroup;
+class Compound;
 
 class IsotopeLogic {
 public:

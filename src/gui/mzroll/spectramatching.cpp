@@ -1,4 +1,11 @@
+#include "mainwindow.h"
+#include "masscutofftype.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "numeric_treewidgetitem.h"
+#include "Scan.h"
 #include "spectramatching.h"
+#include "spectrawidget.h"
 
 SpectraMatching::SpectraMatching(MainWindow *w): QDialog(w) { 
     setupUi(this);

@@ -1,8 +1,8 @@
-#include <iostream>
-#include <sstream>
-#include <map>
-#include <string>
-#include <stdexcept>
+#ifndef ELEMENT_MASS_H
+#define ELEMENT_MASS_H
+
+#include "standardincludes.h"
+
 using namespace std;
 
 class ElementMass {
@@ -10,3 +10,5 @@ class ElementMass {
         ElementMass();
         map<string, double> elementMassMap;
 };
+
+#endif

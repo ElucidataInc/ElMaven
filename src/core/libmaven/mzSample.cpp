@@ -1,4 +1,15 @@
 #include "mzSample.h"
+#include "base64.h"
+#include "datastructures/mzSlice.h"
+#include "statistics.h"
+#include "mzUtils.h"
+#include "mzPatterns.h"
+#include "mzFit.h"
+#include "masscutofftype.h"
+#include "mzMassCalculator.h"
+#include "Matrix.h"
+#include "EIC.h"
+#include "Scan.h"
 
 #include <MavenException.h>
 

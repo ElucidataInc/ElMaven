@@ -1,10 +1,10 @@
 #ifndef FIT_H
 #define FIT_H
+
 #define MAXFIT 12
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #define errwin(x) {}
+
+#include "standardincludes.h"
 
 void sort_xy(double *tmp1, double *tmp2, int up, int sorton, int stype);
 void cxfree(void *ptr);

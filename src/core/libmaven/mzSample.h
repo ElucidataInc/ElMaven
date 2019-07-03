@@ -1,34 +1,13 @@
 #ifndef MZSAMPLE_H
 #define MZSAMPLE_H
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <deque>
-#include <set>
-#include <map>
-#include <sstream>
-#include <cstring>
-#include <limits.h>
-#include <regex>
-#include <float.h>
-#include <iomanip>
-#include "assert.h"
-#include "pugixml.hpp"
-#include "base64.h"
-#include "statistics.h"
-#include "mzUtils.h"
-#include "mzPatterns.h"
-#include "mzFit.h"
-#include "mzMassCalculator.h"
-#include "Matrix.h"
-#include "EIC.h"
-#include "Scan.h"
-#include "datastructures/mzSlice.h"
-
 #include <chrono_io.h>
 #include <date.h>
+
+#include "assert.h"
+#include "mzUtils.h"
+#include "pugixml.hpp"
+#include "standardincludes.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -45,7 +24,6 @@
 #define isnanwin(x) ((x) = (x))
 #endif /* Def WIN32 or Def WIN64 */
 
-class mzSample;
 class Scan;
 class Peak;
 class PeakGroup;
@@ -53,8 +31,10 @@ class EIC;
 class Compound;
 class Adduct;
 class mzLink;
+class mzSlice;
 class Reaction;
 class MassCalculator;
+class MassCutoff;
 class ChargedSpecies;
 
 using namespace pugi;

@@ -1,5 +1,16 @@
+#include "Compound.h"
 #include "ligandwidget.h"
+#include "alignmentdialog.h"
+#include "analytics.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "mzfileio.h"
+#include "mzSample.h"
 #include "numeric_treewidgetitem.h"
+#include "Scan.h"
+#include "settingsform.h"
+#include "spectramatching.h"
 
 using namespace std;
 

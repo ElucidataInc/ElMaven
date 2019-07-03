@@ -1,18 +1,10 @@
 #ifndef TABLEDOCKWIDGET_H
 #define TABLEDOCKWIDGET_H
 
-#include "QHistogramSlider.h"
-#include "grouprtwidget.h"
-#include "clusterdialog.h"
-#include "peaktabledeletiondialog.h"
-#include "jsonReports.h";
-#include "mainwindow.h"
-#include "numeric_treewidgetitem.h"
-#include "saveJson.h"
-#include "stable.h"
-#include "traindialog.h"
-#include <algorithm>
+#include <QWidgetAction>
+
 #include "pollyintegration.h"
+#include "stable.h"
 
 class MainWindow;
 class TrainDialog;
@@ -20,6 +12,11 @@ class ClusterDialog;
 class PeakTableDeletionDialog;
 class NumericTreeWidgetItem;
 class ListView;
+class JSONReports;
+class PeakGroup;
+class EIC;
+class QHistogramSlider;
+
 using namespace std;
 
 class TableDockWidget : public QDockWidget {

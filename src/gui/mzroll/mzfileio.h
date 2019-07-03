@@ -5,14 +5,13 @@
 
 #include <boost/variant.hpp>
 
-#include "globals.h"
-#include "mainwindow.h"
-#include "mzAligner.h"
-
 using variant = boost::variant<int, float, double, bool, string>;
 
+class MainWindow;
 class ProjectDatabase;
 class ProjectDockWidget;
+class mzSample;
+class PeakGroup;
 
 Q_DECLARE_METATYPE(QList<QString>)
 

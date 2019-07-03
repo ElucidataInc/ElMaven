@@ -1,4 +1,12 @@
+#include "Compound.h"
+#include "csvreports.h"
+#include "globals.h"
+#include "highlighter.h"
+#include "mainwindow.h"
+#include "mzSample.h"
 #include "rconsolewidget.h"
+#include "Scan.h"
+#include "tabledockwidget.h"
 
 RconsoleWidget::RconsoleWidget(QWidget *parent): QDockWidget(parent)
 {

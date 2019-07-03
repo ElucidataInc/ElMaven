@@ -2,8 +2,8 @@
 #define TESTSRMLIST_H
 
 #include <QtTest>
-#include "utilities.h"
-#include "SRMList.h"
+
+using namespace std;
 
 class TestSRMList : public QObject {
     Q_OBJECT

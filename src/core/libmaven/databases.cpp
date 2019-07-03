@@ -1,4 +1,9 @@
 #include "databases.h"
+#include "Compound.h"
+#include "mzMassCalculator.h"
+#include "mzUtils.h"
+
+using namespace mzUtils;
 
 int Databases::loadCompoundCSVFile(string filename) {
 

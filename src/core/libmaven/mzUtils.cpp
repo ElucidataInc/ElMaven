@@ -1,5 +1,7 @@
 #include "mzUtils.h"
-
+#include "SavGolSmoother.h"
+#include "csvparser.h"
+#include "masscutofftype.h"
 
 /**
  * random collection of useful functions 

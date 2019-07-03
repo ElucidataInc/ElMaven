@@ -4,9 +4,6 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "utilities.h"
-#include "mzSample.h"
-#include "mavenparameters.h"
 
 class TestMzSlice : public QObject {
     Q_OBJECT

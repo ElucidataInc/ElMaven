@@ -1,5 +1,11 @@
+#include "constants.h"
+#include "Compound.h"
 #include "csvreports.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "mavenparameters.h"
 
+using namespace mzUtils;
 
 CSVReports::CSVReports(vector<mzSample*>&insamples, bool pollyExport)
 {

@@ -1,4 +1,8 @@
 #include "testCharge.h"
+#include "utilities.h"
+#include "Compound.h"
+#include "mzSample.h"
+#include "mavenparameters.h"
 
 TestCharge::TestCharge() {
 

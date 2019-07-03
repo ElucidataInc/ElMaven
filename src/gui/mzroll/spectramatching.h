@@ -1,12 +1,13 @@
 #ifndef SPECTAMATCHING_FORM_H
 #define SPECTAMATCHING_FORM_H
 
+#include "statistics.h"
 #include "spectralhit.h"
 #include "ui_spectramatching.h"
-#include "mainwindow.h"
-#include "numeric_treewidgetitem.h"
 
 class MainWindow;
+class Scan;
+class MassCutoff;
 
 class SpectraMatching : public QDialog, public Ui_SpectraMatchingForm
 {

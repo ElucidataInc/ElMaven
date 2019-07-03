@@ -1,14 +1,11 @@
 #ifndef CLASSIFER_BAYES
 #define CLASSIFER_BAYES
 
-#include "mzSample.h"
-#include <nnwork.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <vector>
 #include "classifier.h"
+#include "standardincludes.h"
+
+class Peak;
+class PeakGroup;
 
 using namespace std;
 

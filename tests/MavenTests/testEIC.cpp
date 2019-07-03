@@ -1,4 +1,13 @@
 #include "testEIC.h"
+#include "datastructures/mzSlice.h"
+#include "EIC.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzMassCalculator.h"
+#include "mzSample.h"
+#include "PeakGroup.h"
+#include "PeakDetector.h"
+#include "utilities.h"
 
 TestEIC::TestEIC() {}
 

@@ -1,6 +1,16 @@
+#include "comparesamplesdialog.h"
+#include "Compound.h"
+#include "eicwidget.h"
+#include "gallerywidget.h"
+#include "globals.h"
+#include "mainwindow.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "pls.h"
+#include "pls.h"
+#include "Scan.h"
 #include "scatterplot.h"
-#include "pls.h"
-#include "pls.h"
+#include "tabledockwidget.h"
 #include "utility.h"
 
 ScatterPlot::ScatterPlot(QWidget* w):PlotDockWidget(w,0) { 
@@ -189,7 +199,7 @@ void ScatterPlot::showSelectedGroupGallery(QPointF from, QPointF to) {
             MainWindow* mw = (MainWindow*) parent();
             mw->galleryWidget->clear();
             mw->galleryWidget->addEicPlots(slices);
-            delete_all(slices);
+            mzUtils::delete_all(slices);
     }
 }
 

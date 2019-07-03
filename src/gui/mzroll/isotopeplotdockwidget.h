@@ -1,8 +1,9 @@
 #ifndef ISOTOPEPLOTDOCKWIDGET_H
 #define ISOTOPEPLOTDOCKWIDGET_H
 
-#include "mainwindow.h"
 #include <QDockWidget>
+
+class MainWindow;
 
 namespace Ui {
 class IsotopePlotDockWidget;

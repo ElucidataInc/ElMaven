@@ -2,8 +2,6 @@
 #define NODE_H
 
 #include "stable.h"
-#include "graphwidget.h"
-#include "edge.h"
 
 #define POW2(x) ((x)*(x))
 

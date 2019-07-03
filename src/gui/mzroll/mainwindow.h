@@ -1,61 +1,23 @@
 #ifndef  BODE_INCLUDED
 #define  BODE_INCLUDED
 
-#include "stable.h"
-#include "globals.h"
+#include <csignal>
 #include <ctime>
 #include <sstream>
-#include "mavenparameters.h"
-#include "SRMList.h"
-#include "scatterplot.h"
-#include "eicwidget.h"
-#include "settingsform.h"
-#include "pathwaywidget.h"
-#include "spectrawidget.h"
-#include "alignmentvizallgroupswidget.h"
-#include "qcustomplot.h"
-#include "masscalcgui.h"
-#include "adductwidget.h"
-#include "gettingstarted.h"
-#include "ligandwidget.h"
-#include "isotopeswidget.h"
-#include "treedockwidget.h"
-#include "tabledockwidget.h"
-#include "samplertwidget.h"
-#include "isotopeplotdockwidget.h"
-#include "isotopeplot.h"
-#include "peakdetectiondialog.h"
-#include "pollyelmaveninterface.h"
-#include "alignmentdialog.h"
-#include "awsbucketcredentialsdialog.h"
-//#include "rconsoledialog.h"
-#include "heatmap.h"
-#include "treemap.h"
-#include "note.h"
-#include "analytics.h"
-#include "history.h"
-#include "suggest.h"
-#include "animationcontrol.h"
-#include "noteswidget.h"
-#include "gallerywidget.h"
-#include "projectdockwidget.h"
-#include "spectramatching.h"
-#include "mzfileio.h"
-#include "logwidget.h"
-#include "qdownloader.h"
-#include "spectralhit.h"
-// #include "rconsolewidget.h"
-#include "spectralhitstable.h"
-#include "peptidefragmentation.h"
-//Added when merged with Maven776 - Kiran
-#include "remotespectrahandler.h"
-#include "messageBoxResize.h"
-#include <csignal>
-#include <QList>
-#include <QRegExp>
-#include "groupClassifier.h"
-#include "svmPredictor.h"
 
+#include <HttpServer.h>
+#include <QWidgetAction>
+
+#include "database.h"
+#include "history.h"
+#include "PeakGroup.h"
+#include "stable.h"
+
+class QCustomPlot;
+class QDoubleSpinBox;
+class QSpinBox;
+
+class SRMList;
 class Controller;
 class VideoPlayer;
 class SettingsForm;
@@ -66,11 +28,9 @@ class PeakDetectionDialog;
 class PollyElmavenInterfaceDialog;
 class AwsBucketCredentialsDialog;
 class AlignmentDialog;
-//class RConsoleDialog;
 class SpectraWidget;
 class GroupRtWidget;
 class AlignmentVizAllGroupsWidget;
-class QCustomPlot;
 class IsotopicPlots;
 class AdductWidget;
 class GettingStarted;
@@ -79,6 +39,7 @@ class PathwayWidget;
 class IsotopeWidget;
 class MassCalcWidget;
 class TreeDockWidget;
+class TableDockWidget;
 class BookmarkTableDockWidget;
 class PeakTableDockWidget;
 class SampleRtWidget;
@@ -87,11 +48,11 @@ class IsotopePlot;
 class Classifier;
 class ClassifierNeuralNet;
 class ClassifierNaiveBayes;
+class groupClassifier;
+class svmPredictor;
 class HeatMap;
 class ScatterPlot;
 class TreeMap;
-class History;
-class QSqlDatabase;
 class SuggestPopup;
 class NotesWidget;
 class GalleryWidget;
@@ -99,28 +60,14 @@ class mzFileIO;
 class ProjectDockWidget;
 class SpectraMatching;
 class LogWidget;
-// class RconsoleWidget;
 class SpectralHit;
 class SpectralHitsDockWidget;
 class PeptideFragmentationWidget;
+class Analytics;
+class AutoSave;
+class MavenParameters;
 
 extern Database DB;
-//Added when merged with Maven776 - Kiran
-class RemoteSpectraHandler;
-
-class AutoSave : public QThread
-{
-    Q_OBJECT
-
-public:
-    AutoSave(MainWindow*);
-    void saveProjectWorker(bool tablesOnly=false);
-    MainWindow* _mainwindow;
-
-private:
-    bool saveTablesOnly;
-    void run();
-};
 
 class MainWindow: public QMainWindow {
 Q_OBJECT
@@ -152,7 +99,6 @@ public:
 	AutoSave* autosave;
     QSet<QString> pendingMzRollSaves;
 	MavenParameters* mavenParameters;
-	QSqlDatabase localDB;					//local database
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
 	QLineEdit *searchText;
@@ -422,9 +368,7 @@ public Q_SLOTS:
 	void markGroup(PeakGroup* group, char label);
     //Added when merged with Maven776 - Kiran
     void startEmbededHttpServer();
-	int getIonizationMode() {
-		return mavenParameters->ionizationMode;
-	}
+        int getIonizationMode();
 	void setTotalCharge();
 
 	void setUserMassCutoff(double x);
@@ -610,6 +554,20 @@ class MainWindowWidgetAction : public QWidgetAction
 
     private:
         QString btnName;
+};
+
+class AutoSave : public QThread
+{
+    Q_OBJECT
+
+public:
+    AutoSave(MainWindow*);
+    void saveProjectWorker(bool tablesOnly=false);
+    MainWindow* _mainwindow;
+
+private:
+    bool saveTablesOnly;
+    void run();
 };
 
 #endif

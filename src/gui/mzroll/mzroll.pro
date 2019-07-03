@@ -238,6 +238,7 @@ HEADERS +=  stable.h \
 SOURCES += mainwindow.cpp  \
 database.cpp \
  plotdock.cpp \
+ spectralhit.cpp \
  treedockwidget.cpp \
  node.cpp \
  enzyme_node.cpp \

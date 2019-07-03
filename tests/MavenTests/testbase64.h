@@ -6,9 +6,6 @@
 #include <sstream>
 #include <fstream>
 #include <string.h>
-#include "utilities.h"
-#include "base64.h"
-
 
 class Testbase64 : public QObject {
     Q_OBJECT

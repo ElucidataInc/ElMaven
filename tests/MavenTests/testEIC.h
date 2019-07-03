@@ -5,12 +5,6 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include "utilities.h"
-#include "EIC.h"
-#include "PeakDetector.h"
-#include "mavenparameters.h"
-#include "mzMassCalculator.h"
-#include "mzSample.h"
 
 class TestEIC : public QObject {
     Q_OBJECT

@@ -1,5 +1,32 @@
-
+#include "analytics.h"
+#include "Compound.h"
+#include "classifierNeuralNet.h"
+#include "datastructures/mzSlice.h"
+#include "EIC.h"
 #include "eicwidget.h"
+#include "barplot.h"
+#include "boxplot.h"
+#include "eiclogic.h"
+#include "gallerywidget.h"
+#include "globals.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "line.h"
+#include "masscutofftype.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "note.h"
+#include "noteswidget.h"
+#include "Peak.h"
+#include "peakFiltering.h"
+#include "plot_axes.h"
+#include "point.h"
+#include "settingsform.h"
+#include "Scan.h"
+#include "spectrawidget.h"
+#include "treedockwidget.h"
 
 EicWidget::EicWidget(QWidget *p) {
 	eicParameters = new EICLogic();
@@ -306,11 +333,11 @@ void EicWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void EicWidget::cleanup() {
 	//qDebug <<" EicWidget::cleanup()";
-	//remove groups
-	delete_all(eicParameters->eics);
+        //remove groups
+        mzUtils::delete_all(eicParameters->eics);
 	eicParameters->peakgroups.clear();
-	if (_showTicLine == false && eicParameters->tics.size() > 0) {
-		delete_all(eicParameters->tics);
+        if (_showTicLine == false && eicParameters->tics.size() > 0) {
+            mzUtils::delete_all(eicParameters->tics);
 	}
 	clearPlot();
 }
@@ -638,8 +665,8 @@ void EicWidget::addTicLine() {
 
 	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
 	if (eicParameters->tics.size() == 0
-			|| eicParameters->tics.size() != samples.size()) {
-		delete_all (eicParameters->tics);
+                        || eicParameters->tics.size() != samples.size()) {
+            mzUtils::delete_all (eicParameters->tics);
 		for (int i = 0; i < samples.size(); i++) {
 			int mslevel = 1;
 			//attempt at automatically detecting correct scan type for construstion of TIC
@@ -1856,6 +1883,11 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//drawSelectionLine(group->minRt, group->maxRt); // TODO: Sahil commented this 
 	//addFitLine(group);
 	eicParameters->selectedGroup = group;
+}
+
+PeakGroup* EicWidget::getSelectedGroup()
+{
+    return (eicParameters->getSelectedGroup());
 }
 
 void EicWidget::setGalleryToEics() {

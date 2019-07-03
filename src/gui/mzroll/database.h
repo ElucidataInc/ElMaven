@@ -3,10 +3,15 @@
 
 #include <boost/signals2.hpp>
 
-#include "Compound.h"
-#include "mzSample.h"
-#include "mzUtils.h"
 #include "stable.h"
+#include "standardincludes.h"
+
+class Adduct;
+class Compound;
+class MassCutoff;
+class Pathway;
+class Peak;
+class Reaction;
 
 namespace bsignal = boost::signals2;
 
@@ -114,5 +119,7 @@ class Database {
 	QSqlDatabase ligandDB;
 	bool _connected;
 };
+
+extern Database DB;
 
 #endif

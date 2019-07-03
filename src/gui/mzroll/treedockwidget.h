@@ -1,11 +1,19 @@
 #ifndef TREEDOCKWIDGET_H
 #define TREEDOCKWIDGET_H
 
+#include <deque>
+
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
 
 class MainWindow;
+class QDoubleSpinBox;
+class mzSlice;
+class mzLink;
+class Peak;
+class PeakGroup;
+class Compound;
+class Pathway;
+class Scan;
 
 using namespace std;
 

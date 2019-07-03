@@ -6,9 +6,9 @@
 #include <sstream>
 #include "databases.h"
 #include "mzSample.h"
-#include "mavenparameters.h"
-#include "classifierNeuralNet.h"
-#include "PeakDetector.h"
+
+class PeakGroup;
+class MavenParameters;
 
 using namespace std;
 

@@ -1,4 +1,12 @@
 #include "testCLI.h"
+#include "databases.h"
+#include "classifierNeuralNet.h"
+#include "csvreports.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "PeakDetector.h"
+#include "peakdetectorcli.h"
+#include "utilities.h"
 
 TestCLI::TestCLI() {
 

@@ -1,3 +1,4 @@
+#include "EIC.h"
 #include "tinyplot.h"
 
 TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)  {

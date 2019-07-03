@@ -1,4 +1,14 @@
 #include "testIsotopeDetection.h"
+#include "Compound.h"
+#include "constants.h"
+#include "classifierNeuralNet.h"
+#include "isotopeDetection.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "PeakDetector.h"
+#include "PeakGroup.h"
+#include "utilities.h"
 
 TestIsotopeDetection::TestIsotopeDetection() {
     loadCompoundDB = "bin/methods/KNOWNS.csv";

@@ -1,4 +1,9 @@
 #include "SRMList.h"
+#include "datastructures/mzSlice.h"
+#include "Compound.h"
+#include "databases.h"
+#include "mzSample.h"
+#include "Scan.h"
 
 SRMList::SRMList(vector<mzSample*>samples, deque<Compound*> compoundsDB){
     this->samples = samples;

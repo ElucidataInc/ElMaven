@@ -1,13 +1,7 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-#include "globals.h"
 #include "stable.h"
-
-#include "node.h"
-//#include "enzyme_node.h"
-//#include "metabolite_node.h"
-
 
 class Node;
 class Reaction;

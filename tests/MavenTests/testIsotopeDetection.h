@@ -5,13 +5,6 @@
 #include <QtTest>
 #include <string>
 
-#include "utilities.h"
-#include "mzSample.h"
-#include "PeakDetector.h"
-#include "mavenparameters.h"
-#include "isotopeDetection.h"
-#include "classifierNeuralNet.h"
-
 class TestIsotopeDetection : public QObject {
     Q_OBJECT
 

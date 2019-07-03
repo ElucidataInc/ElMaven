@@ -1,6 +1,15 @@
+#include "Compound.h"
+#include "globals.h"
+#include "mainwindow.h"
 #include "masscalcgui.h"
-using namespace std;
+#include "masscutofftype.h".h"
+#include "mavenparameters.h"
+#include "Scan.h"
+#include "spectrawidget.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 
+using namespace std;
 
 MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);
@@ -21,7 +30,7 @@ void MassCalcWidget::setMass(float mz) {
 
     lineEdit->setText(QString::number(mz,'f',5));
     _mz = mz;
-    delete_all(matches);
+    mzUtils::delete_all(matches);
     getMatches();
     showTable();
 }
@@ -47,7 +56,7 @@ void MassCalcWidget::compute() {
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
-     delete_all(matches);
+         mzUtils::delete_all(matches);
 
 	_mw->setStatusText("Searching for formulas..");
      mcalc.enumerateMasses(_mz,_charge,_massCutoff, matches);
@@ -177,5 +186,5 @@ void MassCalcWidget::showCellInfo(int row, int col, int lrow, int lcol) {
 }
 
 MassCalcWidget::~MassCalcWidget() {
-    delete_all(matches);
+    mzUtils::delete_all(matches);
 }

@@ -1,8 +1,9 @@
 #ifndef MASSCUTOFFTYPE_h
 #define MASSCUTOFFTYPE_h
 
-#include<iostream>
-#include<assert.h>
+#include <iostream>
+#include <assert.h>
+
 using namespace std;
 
 class MassCutoff{

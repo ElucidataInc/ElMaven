@@ -2,26 +2,12 @@
 #define UTILS_INCLUDED
 
 #include <fcntl.h>
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <algorithm>
-#include <cmath>
-#include <deque>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <map>
-#include "SavGolSmoother.h"
-#include "csvparser.h"
+
+#include "standardincludes.h"
 #include "statistics.h"
-#include "masscutofftype.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -54,6 +40,8 @@
 #define PATH_SEPARATOR_CHAR ':'
 #define PATH_SEPARATOR_STR ":"
 #endif /* !DIR_SEPARATOR_CHAR */
+
+class MassCutoff;
 
 using namespace std;
 

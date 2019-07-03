@@ -1,4 +1,10 @@
 #include "EIC.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+#include "mzPatterns.h"
+#include "mzSample.h"
+#include "SavGolSmoother.h"
+#include "Scan.h"
 
 /**
  * @file EIC.cpp

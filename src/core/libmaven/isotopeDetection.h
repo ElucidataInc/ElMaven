@@ -1,14 +1,13 @@
 #ifndef ISOTOPEDETECTION_H
 #define ISOTOPEDETECTION_H
 
-#include <iostream>
+#include "standardincludes.h"
 
-#include "Peak.h"
-#include "mzSample.h"
-#include "PeakGroup.h"
-#include "constants.h"
-#include "peakFiltering.h"
-#include "mavenparameters.h"
+class Isotope;
+class MavenParameters;
+class mzSample;
+class PeakGroup;
+class Scan;
 
 using namespace std;
 

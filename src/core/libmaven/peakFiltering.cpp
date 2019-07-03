@@ -1,4 +1,8 @@
 #include "peakFiltering.h"
+#include "EIC.h"
+#include "Peak.h"
+#include "mavenparameters.h"
+
 
 PeakFiltering::PeakFiltering(MavenParameters *mavenParameters, bool isIsotope)
 {

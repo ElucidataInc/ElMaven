@@ -4,11 +4,6 @@
 #include <iostream>
 #include <QtTest>
 
-#include "utilities.h"
-#include "PeakGroup.h"
-#include "groupFiltering.h"
-#include "mavenparameters.h"
-
 using namespace std;
 
 class TestGroupFiltering : public QObject

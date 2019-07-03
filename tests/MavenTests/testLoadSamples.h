@@ -4,7 +4,6 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "utilities.h"
 
 class TestLoadSamples : public QObject {
     Q_OBJECT

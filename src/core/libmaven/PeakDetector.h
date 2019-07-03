@@ -1,37 +1,20 @@
 #ifndef PEAKDETECTOR_H
 #define PEAKDETECTOR_H
 
-#include <map>
-#include <deque>
-#include <cmath>
-#include <string>
-#include <cfloat>
-#include <vector>
-#include <utility>
-#include <climits>
-#include <iomanip>
 #include <qdebug.h>
-#include <iostream>
 #include <qstring.h>
-#include <algorithm>
 #include <qdatetime.h>
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
 #include <omp.h>
 
-#include "mzUtils.h"
-#include "Compound.h"
-#include "mzSample.h"
-#include "mzAligner.h"
-#include "constants.h"
-#include "classifier.h"
-#include "mzMassSlicer.h"
-#include "peakFiltering.h"
-#include "groupFiltering.h"
-#include "mavenparameters.h"
-#include "mzMassCalculator.h"
-#include "isotopeDetection.h"
+class Compound;
+class EIC;
+class MavenParameters;
+class mzSample;
+class mzSlice;
+class PeakGroup;
 
 /**
  * @class PeakDetector
@@ -41,7 +24,7 @@
  */
 class PeakDetector {
 public:
-    boost::signals2::signal< void (const string&,unsigned int , int ) > boostSignal;
+    boost::signals2::signal< void (const std::string&,unsigned int , int ) > boostSignal;
 
 	PeakDetector();
 	PeakDetector(MavenParameters* mp);
@@ -59,7 +42,7 @@ public:
 	}
 
     
-    void sendBoostSignal( const string& progressText, unsigned int completed_slices, int total_slices)
+    void sendBoostSignal( const std::string& progressText, unsigned int completed_slices, int total_slices)
     {
     boostSignal(progressText, completed_slices, total_slices);
     }
@@ -114,7 +97,7 @@ public:
 	 * @param  slices        [pointer to vector of pointer to mzSlice]
 	 * @param  setName       [name of set]
 	 */
-	void processSlices(vector<mzSlice*>&slices, string setName);
+        void processSlices(std::vector<mzSlice*>&slices, std::string setName);
 
 	/**
 	 * @brief Filter groups on the basis of user-defined parameters
@@ -123,12 +106,12 @@ public:
 	 * @return filteredGroups Filtered PeakGroups
 	 * @see PeakGroup
 	 */
-	vector<PeakGroup*> groupFiltering(vector<PeakGroup> &peakgroups, mzSlice* slice);
+        std::vector<PeakGroup*> groupFiltering(std::vector<PeakGroup> &peakgroups, mzSlice* slice);
 
 	/**
 	 * @brief compute fragmentation pattern for all groups
 	 */
-	void computeFragmentationPattern(vector<PeakGroup> &peakgroups);
+        void computeFragmentationPattern(std::vector<PeakGroup> &peakgroups);
 
 	/**
 	 * [process Compounds]
@@ -137,9 +120,9 @@ public:
 	 * @param  setName       [name of set]
 	 * @return [vector of pointer to mzSlice]
 	 */
-	vector<mzSlice*> processCompounds(vector<Compound*> set, string setName);
+        std::vector<mzSlice*> processCompounds(std::vector<Compound*> set, std::string setName);
 
-    static vector<EIC*> pullEICs(mzSlice* slice,
+    static std::vector<EIC*> pullEICs(mzSlice* slice,
                                  std::vector<mzSample*>& samples,
                                  MavenParameters* mp);
 
@@ -153,82 +136,6 @@ public:
 	 */
 	MavenParameters* mavenParameters;
 	bool zeroStatus;
-};
-
-/**
- * struct for EicLoader
- */
-struct EicLoader {
-
-	enum PeakDetectionFlag {
-		NoPeakDetection = 0, PeakDetection = 1
-	};
-
-	EicLoader(mzSlice* islice, int eic_type, string filter_line, PeakDetectionFlag iflag = NoPeakDetection,
-			int smoothingWindow = 5, int smoothingAlgorithm = 0, float amuQ1 =
-					0.5, float amuQ3 = 0.5, int baselineSmoothingWindow = 5,
-			int baselineDropTopX = 40, double minSignalBaselineDiff = 0) {
-
-		slice = islice;
-		eicType = eic_type;
-		filterline = filter_line;
-		pdetect = iflag;
-		eic_smoothingWindow = smoothingWindow;
-		eic_smoothingAlgorithm = smoothingAlgorithm;
-		eic_amuQ1 = amuQ1;
-		eic_amuQ3 = amuQ3;
-		eic_baselne_dropTopX = baselineDropTopX;
-		eic_baselne_smoothingWindow = baselineSmoothingWindow;
-		minSignalBaselineDifference = minSignalBaselineDiff;
-	}
-
-	typedef EIC* result_type;
-
-	/**
-	 * [operator]
-	 * @return [eic]
-	 */
-	EIC* operator()(mzSample* sample) {
-		EIC* e = NULL;
-		Compound* c = slice->compound;
-
-		if (!slice->srmId.empty()) {
-			//cout << "computeEIC srm:" << slice->srmId << endl;
-			e = sample->getEIC(slice->srmId, eicType);
-		} else if (c && c->precursorMz > 0 && c->productMz > 0) {
-			//cout << "computeEIC qqq: " << c->precursorMz << "->" << c->productMz << endl;
-			e = sample->getEIC(c->precursorMz, c->collisionEnergy, c->productMz, eicType,
-					filterline, eic_amuQ1, eic_amuQ3);
-		} else {
-			//cout << "computeEIC mzrange" << setprecision(7) << slice->mzmin  << " " << slice->mzmax << slice->rtmin  << " " << slice->rtmax << endl;
-			e = sample->getEIC(slice->mzmin, slice->mzmax, slice->rtmin,
-					slice->rtmax, 1, eicType, filterline);
-		}
-
-		if (e) {
-			e->setBaselineSmoothingWindow(eic_baselne_smoothingWindow);
-			e->setBaselineDropTopX(eic_baselne_dropTopX);
-			e->setSmootherType((EIC::SmootherType) (eic_smoothingAlgorithm));
-		}
-
-		if (pdetect == PeakDetection && e) {
-			e->setFilterSignalBaselineDiff(minSignalBaselineDifference);
-			e->getPeakPositions(eic_smoothingWindow);
-		}
-		return e;
-	}
-
-	mzSlice* slice;
-	PeakDetectionFlag pdetect;
-	int eicType;
-	string filterline;
-	int eic_smoothingWindow;
-	int eic_smoothingAlgorithm;
-	float eic_amuQ1;
-	float eic_amuQ3;
-	int eic_baselne_smoothingWindow;
-	int eic_baselne_dropTopX;
-	double minSignalBaselineDifference;
 };
 
 #endif // PEAKDETECTOR_H

@@ -3,6 +3,8 @@
 
 #include "stable.h"
 
+class EIC;
+
 class TinyPlot: public QObject, public QGraphicsItem {
     Q_OBJECT
 

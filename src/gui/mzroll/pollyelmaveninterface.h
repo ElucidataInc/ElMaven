@@ -1,15 +1,12 @@
 #ifndef POLLYELMAVENINTERFACE_H
 #define POLLYELMAVENINTERFACE_H
 
-#include "ui_pollyelmaveninterface.h"
-#include "pollywaitdialog.h"
-#include "stable.h"
-#include "database.h"
-#include "mainwindow.h"
-#include "loginform.h"
-#include "pollyintegration.h"
 #include <QDateTime>
 #include <QMap>
+
+#include "pollyintegration.h"
+#include "stable.h"
+#include "ui_pollyelmaveninterface.h"
 
 Q_DECLARE_METATYPE(PollyApp)
 

@@ -2,10 +2,11 @@
 #define PEPTIDEFRAGMENTATION_H
 
 #include "stable.h"
-#include "mainwindow.h"
 #include "ui_peptidefragmentation.h"
 
 class MainWindow;
+class MassCutoff;
+class Scan;
 
 class PeptideFragmentationWidget: public QDockWidget,  public Ui_PaptideFragmentationWidget {
       Q_OBJECT

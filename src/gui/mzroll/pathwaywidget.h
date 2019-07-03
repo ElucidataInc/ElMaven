@@ -2,23 +2,19 @@
 #define PATHWAYWIDGET_H
 
 #include "stable.h"
-#include "mainwindow.h"
-#include "mzSample.h"
-#include "edge.h"
-#include "node.h"
-#include "metabolite_node.h"
-#include "enzyme_node.h"
 #include "graphwidget.h"
-#include "background_peaks_update.h"
-#include "animationcontrol.h"
-#include "tinyplot.h"
-#include "widgets/qprog.h"
 
+class AnimationControl;
+class Compound;
 class MetaboliteNode;
+class Node;
 class EnzymeNode;
 class MainWindow;
 class BackgroundPeakUpdate;
 class BarPlot;
+class TinyPlot;
+class Reaction;
+class mzSample;
 
 struct Rpair {
     QString reaction_id;

@@ -2,13 +2,13 @@
 #ifndef REMOTESPECTRAHANDLER
 #define REMOTESPECTRAHANDLER
 #include "stable.h"
-#include "globals.h"
 
 #include "HttpServer.h"
 #include "HttpHandler.h"
 #include "HttpConnection.h"
 
 class MainWindow;
+class mzSample;
 
 class RemoteSpectraHandler : public Pillow::HttpHandler
 {

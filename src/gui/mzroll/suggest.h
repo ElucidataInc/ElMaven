@@ -1,15 +1,13 @@
 #ifndef SUGGEST_H
 #define SUGGEST_H
 
-#include "globals.h"
 #include "stable.h"
-#include "numeric_treewidgetitem.h"
 
 class QLineEdit;
 class QTimer;
 class QTreeWidget;
-extern Database DB; 
-
+class Compound;
+class Pathway;
 
 class SuggestPopup : public QObject
 {

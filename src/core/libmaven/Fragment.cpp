@@ -1,5 +1,8 @@
 #include "Fragment.h"
+#include "mzSample.h"
+#include "mzUtils.h"
 #include "Scan.h"
+#include "statistics.h"
 
 using namespace std;
 

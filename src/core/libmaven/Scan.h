@@ -1,14 +1,18 @@
 #ifndef SCAN_H
 #define SCAN_H
-#include "mzSample.h"
+
 #include <QRegExp>
 #include <QString>
 #include <QStringList>
+
+#include "standardincludes.h"
 
 class mzSample;
 class mzPoint;
 class ChargedSpecies;
 class MassCutoff;
+
+using namespace std;
 
 /**
 * @class Scan

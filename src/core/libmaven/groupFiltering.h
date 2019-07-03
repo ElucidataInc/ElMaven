@@ -1,10 +1,12 @@
 #ifndef GROUPFILTERING_H
 #define GROUPFILTERING_H
 
-#include <iostream>
+#include "classifierNeuralNet.h"
+#include "standardincludes.h"
 
-#include "mavenparameters.h"
-#include "PeakGroup.h"
+class MavenParameters;
+class PeakGroup;
+class mzSlice;
 
 using namespace std;
 

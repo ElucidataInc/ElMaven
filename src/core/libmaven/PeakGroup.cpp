@@ -1,6 +1,11 @@
 #include "PeakGroup.h"
 #include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "mzSample.h"
+#include "EIC.h"
+#include "Scan.h"
+#include "mzSample.h"
+#include "mzMassCalculator.h"
 
 PeakGroup::PeakGroup()  {
     groupId=0;
@@ -447,6 +452,11 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
         addPeak(peak);
     }
     //	cerr << "\t\t\treduce() from " << startSize << " to " << peaks.size() << endl;
+}
+
+float PeakGroup::massCutoffDist(float cmass,MassCutoff *massCutoff)
+{
+    return mzUtils::massCutoffDist(cmass,meanMz,massCutoff);
 }
 
 void PeakGroup::updateQuality() {

@@ -3,11 +3,6 @@
 
 #include "stable.h"
 
-#include "node.h"
-#include "edge.h"
-#include "Matrix.h"
-#include <string>
-
 using namespace std;
 
 class Node;

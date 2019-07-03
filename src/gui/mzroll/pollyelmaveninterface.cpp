@@ -1,8 +1,17 @@
-#include "pollyelmaveninterface.h"
-#include "controller.h"
 #include <QVariant>
+
+#include "analytics.h"
+#include "controller.h"
 #include "csvreports.h"
-#include <string>
+#include "database.h"
+#include "ligandwidget.h"
+#include "loginform.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "pollyelmaveninterface.h"
+#include "pollywaitdialog.h"
+#include "projectdockwidget.h"
+#include "tabledockwidget.h"
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     : QDialog(mw), _mainwindow(mw), _loginform(nullptr)

@@ -1,6 +1,7 @@
 //@Kailash: getting features of a group
 
 #include "groupFeatures.h"
+#include "PeakGroup.h"
 
 vector<float> getFeatures(PeakGroup* grp) {
 	vector<float> features(8, 0);

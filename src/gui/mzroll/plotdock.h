@@ -2,11 +2,12 @@
 #define  PLOT_DOCK_WIDGET
 
 #include "stable.h"
-#include "globals.h"
-#include "mzSample.h"
-#include "note.h"
 
 class TableDockWidget;
+class Note;
+class PeakGroup;
+class Peak;
+class Scan;
 
 class PlotScene : public QGraphicsScene
 {

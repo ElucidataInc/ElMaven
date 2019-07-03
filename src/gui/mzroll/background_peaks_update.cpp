@@ -1,17 +1,38 @@
-#include "background_peaks_update.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
+
 #include <QDir>
 #include <QCoreApplication>
+#include <QProcess>
+#include <QJsonObject>
+
+#include "Compound.h"
+#include "alignmentdialog.h"
+#include "analytics.h"
+#include "csvreports.h"
+#include "background_peaks_update.h"
+#include "database.h"
+#include "grouprtwidget.h"
+#include "isotopeDetection.h"
+#include "mainwindow.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzAligner.h"
+#include "mzSample.h"
+#include "obiwarp.h"
+#include "PeakDetector.h"
+#include "samplertwidget.h"
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         mainwindow = NULL;
         _stopped = true;
         setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
-        peakDetector.boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
+
+        peakDetector = new PeakDetector();
+        peakDetector->boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
 
         /**
          * create one python program for running alignment
@@ -234,6 +255,7 @@ void BackgroundPeakUpdate::loadSettings(QString fileName) {
 }
 
 BackgroundPeakUpdate::~BackgroundPeakUpdate() {
+    delete peakDetector;
     mavenParameters->cleanup();  // remove allgroups
 }
 
@@ -352,7 +374,7 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
                                     includeSetNamesLine);
     }
 
-        peakDetector.pullAllIsotopes();
+    peakDetector->pullAllIsotopes();
 
         for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
 			PeakGroup& group = mavenParameters->allgroups[j];
@@ -550,7 +572,7 @@ void BackgroundPeakUpdate::align() {
 
 void BackgroundPeakUpdate::alignUsingDatabase() {
 
-        vector<mzSlice*> slices = peakDetector.processCompounds(mavenParameters->compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector->processCompounds(mavenParameters->compounds, "compounds");
         processSlices(slices, "compounds");
 
 
@@ -561,7 +583,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         getProcessSlicesSettings();
 
-        peakDetector.processSlices(slices, setName);
+        peakDetector->processSlices(slices, setName);
 
         if (runFunction == "alignUsingDatabase") align();
 
@@ -586,7 +608,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
                 return;
 
         Q_EMIT(updateProgressBar("Processing Compounds", 0, 0));
-        vector<mzSlice*> slices = peakDetector.processCompounds(set, setName);
+        vector<mzSlice*> slices = peakDetector->processCompounds(set, setName);
         processSlices(slices, setName);
         delete_all(slices);
 }
@@ -594,7 +616,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 void BackgroundPeakUpdate::processMassSlices() {
         Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
         mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
-        peakDetector.processMassSlices();
+        peakDetector->processMassSlices();
         //cerr << "BPU IS " << mavenParameters->allgroups.size() << endl;
 
         align();
@@ -614,8 +636,8 @@ void BackgroundPeakUpdate::qtSignalSlot(const string& progressText, unsigned int
 }
 
 void BackgroundPeakUpdate::completeStop() {
-        
-        peakDetector.resetProgressBar();
+
+    peakDetector->resetProgressBar();
         mavenParameters->stop = true;
         stop();
 }

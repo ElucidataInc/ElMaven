@@ -1,19 +1,18 @@
 #ifndef GROUPRTWIDGET_H
 #define GROUPRTWIDGET_H
 
-#include "stable.h"
-#include "qcustomplot.h"
-#include "mainwindow.h"
-#include "PeakGroup.h"
-#include "mzSample.h"
-#include "Peak.h"
 #include <math.h>
 
+#include "PeakGroup.h"
+#include "stable.h"
+
 class MainWindow;
-class PeakGroup;
 class mzSample;
 class Peak;
 class QDockWidget;
+class QCPBars;
+class QCPItemText;
+class QCPItemText;
 
 class GroupRtWidget : public QObject
 {

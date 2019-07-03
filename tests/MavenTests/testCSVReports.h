@@ -8,15 +8,10 @@
 #include <fstream>
 #include <string.h>
 
-#include "EIC.h"
-#include "utilities.h"
-#include "mzSample.h"
-#include "csvreports.h"
-#include "PeakDetector.h"
-#include "mavenparameters.h"
-#include "isotopeDetection.h"
-#include "classifierNeuralNet.h"
+class mzSample;
+class MavenParameters;
 
+using namespace std;
 
 class TestCSVReports : public QObject {
     Q_OBJECT

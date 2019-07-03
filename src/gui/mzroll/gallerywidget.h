@@ -2,11 +2,14 @@
 #define GALLERYWIDGET_H
 
 #include "stable.h"
-#include "mzSample.h"
-#include "mainwindow.h"
-#include "tabledockwidget.h"
-#include "statistics.h"
 
+class TinyPlot;
+class MainWindow;
+class EIC;
+class mzLink;
+class PeakGroup;
+class mzSlice;
+class Compound;
 
 class GalleryWidget : public QGraphicsView
 {

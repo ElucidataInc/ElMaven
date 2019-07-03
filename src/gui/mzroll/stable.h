@@ -71,13 +71,6 @@
 #include <map>
 #include <vector>
 
-
-//mass spec file handling
-#include "mzSample.h"
-#include "mzUtils.h"
-#include "mzMassCalculator.h"
-#include "mzFit.h"
-
 //Linear Algebra
 #include <../Eigen/Core>
 #include <../Eigen/LU>
@@ -87,5 +80,6 @@
 // import most common Eigen types
 //USING_PART_OF_NAMESPACE_EIGEN
 using namespace Eigen;
+using namespace std;
 
 #endif

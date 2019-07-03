@@ -1,5 +1,7 @@
 #include "mzSlice.h"
 #include "Compound.h"
+#include "masscutofftype.h"
+#include "mzMassCalculator.h"
 
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {

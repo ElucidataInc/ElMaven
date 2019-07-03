@@ -23,8 +23,14 @@
 #define ADDUCTGUI_H
 
 #include "stable.h"
-#include "mainwindow.h"
-#include "graphwidget.h"
+
+class GraphWidget;
+class MainWindow;
+class Node;
+class Peak;
+class MassCutoff;
+class mzLink;
+class Scan;
 
 using namespace std;
 

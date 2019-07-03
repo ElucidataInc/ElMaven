@@ -3,8 +3,6 @@
 
 
 #include <QtGui/QIcon>
-#include "globals.h"
-
 
 class QLabel;
 class QIcon;

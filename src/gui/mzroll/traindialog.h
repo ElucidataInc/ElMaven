@@ -3,7 +3,6 @@
 
 #include "stable.h"
 #include "ui_trainingdialog.h"
-#include "tabledockwidget.h"
 
 class TableDockWidget;
 

@@ -1,5 +1,8 @@
-#include "saveJson.h"
 #include "jsonReports.h"
+#include "mainwindow.h"
+#include "tabledockwidget.h"
+#include "saveJson.h"
+
 void saveJson::run()
 {
 	Q_EMIT(_pt->updateProgressBar("Writing to json file. Please wait...", 100, 0));

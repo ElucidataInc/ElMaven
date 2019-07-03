@@ -1,4 +1,21 @@
+#include "background_peaks_update.h"
+#include "Compound.h"
+#include "datastructures/mzSlice.h"
+#include "eiclogic.h"
+#include "eicwidget.h"
+#include "globals.h"
+#include "isotopeDetection.h"
+#include "isotopelogic.h"
+#include "isotopeplot.h"
 #include "isotopeswidget.h"
+#include "mainwindow.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
+#include "numeric_treewidgetitem.h"
+#include "PeakDetector.h"
+#include "Scan.h"
+
 using namespace std;
 
 IsotopeWidget::IsotopeWidget(MainWindow *mw)

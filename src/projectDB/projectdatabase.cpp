@@ -5,8 +5,10 @@
 #include "Compound.h"
 #include "connection.h"
 #include "cursor.h"
+#include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "projectversioning.h"
+#include "Scan.h"
 #include "schema.h"
 
 #define BINT(x) boost::get<int>(x)

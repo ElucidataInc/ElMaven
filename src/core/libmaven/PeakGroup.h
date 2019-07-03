@@ -1,17 +1,9 @@
 #ifndef PEAKGROUP_H
 #define PEAKGROUP_H
-#include <float.h>
-#include <climits>
-#include <cstddef>
-#include <limits>
-#include <map>
-#include "EIC.h"
+
 #include "Fragment.h"
 #include "Peak.h"
-#include "Scan.h"
-#include "mzSample.h"
-#include "mzMassCalculator.h"
-#include <vector>
+#include "standardincludes.h"
 
 class mzSample;
 class Isotope;
@@ -20,6 +12,7 @@ class Compound;
 class Peak;
 class Scan;
 class EIC;
+class MassCutoff;
 
 using namespace std;
 
@@ -280,7 +273,7 @@ class PeakGroup{
          * @param  cmass   []
          * @return []
          */
-        inline float massCutoffDist(float cmass,MassCutoff *massCutoff) { return mzUtils::massCutoffDist(cmass,meanMz,massCutoff); }
+        float massCutoffDist(float cmass,MassCutoff *massCutoff);
 
         /**
          * [addPeak ]

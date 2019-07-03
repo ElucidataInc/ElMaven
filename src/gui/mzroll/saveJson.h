@@ -1,10 +1,10 @@
 #ifndef SAVEJSON_H
 #define SAVEJSON_H
 
-#include "mainwindow.h"
-#include "tabledockwidget.h"
-
 class JSONReports;
+class MainWindow;
+class TableDockWidget;
+
 class saveJson : public QThread
 {
     Q_OBJECT

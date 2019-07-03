@@ -19,7 +19,8 @@
 #define _STR(X) #X
 #define STR(X) _STR(X)
 #include "stable.h"
-#include "globals.h"
+#include "Compound.h"
+#include "gettingstarted.h"
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
@@ -35,9 +36,9 @@
 #include <QDir>
 #include <list>
 
-
-
+// initialize the global metabolite database
 Database DB;
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 void initializeLogger()

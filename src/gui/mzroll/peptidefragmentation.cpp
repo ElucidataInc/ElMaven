@@ -1,6 +1,15 @@
+#include "eicwidget.h"
+#include "mainwindow.h"
+#include "masscutofftype.h"
+#include "mzUtils.h"
 #include "peptidefragmentation.h"
-using namespace std;
+#include "Peptide.hpp"
+#include "projectdockwidget.h"
+#include "Scan.h"
+#include "spectrawidget.h"
 
+using namespace std;
+using namespace mzUtils;
 
 PeptideFragmentationWidget::PeptideFragmentationWidget(MainWindow* mw) { 
   setupUi(this);

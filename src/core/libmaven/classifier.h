@@ -1,14 +1,12 @@
 #ifndef CLASSIFER_H
 #define CLASSIFER_H
 
-#include "mzSample.h"
-#include "Matrix.h"
-#include <nnwork.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <vector>
+#include "nnwork.h"
+
+#include "standardincludes.h"
+
+class Peak;
+class PeakGroup;
 
 using namespace std;
 

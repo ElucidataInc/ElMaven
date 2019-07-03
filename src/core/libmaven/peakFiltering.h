@@ -2,9 +2,11 @@
 #define PEAKFILTERING_H
 
 #include <iostream>
+#include "standardincludes.h"
 
-#include "Peak.h"
-#include "mavenparameters.h"
+class Peak;
+class EIC;
+class MavenParameters;
 
 using namespace std;
 

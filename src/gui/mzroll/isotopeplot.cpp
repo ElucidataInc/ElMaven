@@ -1,4 +1,10 @@
+#include <qcustomplot.h>
+
+#include "Compound.h"
 #include "isotopeplot.h"
+#include "mainwindow.h"
+#include "mzSample.h"
+#include "settingsform.h"
 
 // import most common Eigen types
 //USING_PART_OF_NAMESPACE_EIGEN

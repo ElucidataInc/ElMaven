@@ -1,4 +1,20 @@
+#include "classifierNeuralNet.h"
+#include "datastructures/mzSlice.h"
+#include "obiwarp.h"
 #include "PeakDetector.h"
+#include "EIC.h"
+#include "mzUtils.h"
+#include "Compound.h"
+#include "mzSample.h"
+#include "mzAligner.h"
+#include "constants.h"
+#include "classifier.h"
+#include "mzMassSlicer.h"
+#include "peakFiltering.h"
+#include "groupFiltering.h"
+#include "mavenparameters.h"
+#include "mzMassCalculator.h"
+#include "isotopeDetection.h"
 
 PeakDetector::PeakDetector() {
     mavenParameters = NULL;

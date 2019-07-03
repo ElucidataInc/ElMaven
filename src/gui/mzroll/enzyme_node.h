@@ -1,14 +1,13 @@
 #ifndef ENZYMENODE_H
 #define ENZYMENODE_H
 
-#include "stable.h"
-#include "mzSample.h"
 #include "node.h"
-#include "graphwidget.h"
+#include "stable.h"
 
 class Node;
 class Edge;
 class GraphWidget;
+class Reaction;
 
 class EnzymeNode: public Node {
 	Q_OBJECT

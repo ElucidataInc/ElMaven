@@ -1,14 +1,16 @@
 #ifndef EICLOGIC_H
 #define EICLOGIC_H
 
-#include <deque>
-#include <vector>
-#include <cmath>
-#include <string>
+#include "datastructures/mzSlice.h"
+#include "PeakGroup.h"
+#include "standardincludes.h"
 
-#include "PeakDetector.h"
-#include "mzSample.h"
-#include "Compound.h"
+class Compound;
+class EIC;
+class mzSlice;
+class MassCutoff;
+class mzSample;
+class MavenParameters;
 
 class EICLogic {
 public:

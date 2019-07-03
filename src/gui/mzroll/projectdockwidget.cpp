@@ -1,4 +1,25 @@
+#include <QPushButton>
+#include <QTextEdit>
+
+#include "alignmentvizallgroupswidget.h"
+#include "Compound.h"
+#include "eicwidget.h"
+#include "globals.h"
+#include "grouprtwidget.h"
+#include "isotopeplot.h"
+#include "isotopeswidget.h"
+#include "ligandwidget.h"
+#include "mainwindow.h"
+#include "mavenparameters.h"
+#include "mzfileio.h"
+#include "mzSample.h"
+#include "numeric_treewidgetitem.h"
 #include "projectdockwidget.h"
+#include "Scan.h"
+#include "samplertwidget.h"
+#include "spectrawidget.h"
+#include "tabledockwidget.h"
+#include "treedockwidget.h"
 
 ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     QDockWidget("Samples", parent,Qt::Widget)

@@ -2,7 +2,7 @@
 #define SCATTERPLOT_H
 
 #include "plotdock.h"
-#include "comparesamplesdialog.h"
+#include "statistics.h"
 
 class CompareSamplesDialog;
 class MainWindow;

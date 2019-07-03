@@ -2,8 +2,6 @@
 #define AWSBUCKETCREDENTIALSDIALOG_H
 
 #include "stable.h"
-#include "mainwindow.h"
-
 #include "ui_awsbucketcredentialsdialog.h"
 
 class MainWindow;

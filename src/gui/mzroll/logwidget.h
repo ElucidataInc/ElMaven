@@ -1,12 +1,14 @@
 #ifndef LOGWIDGET_H
 #define LOGWIDGET_H
 
-#include "stable.h"
-#include "mainwindow.h"
 #include <iostream>
 #include <streambuf>
 #include <string>
 
+#include "stable.h"
+
+class QTextEdit;
+class MainWindow;
 
 class LogWidget : public QDockWidget, public std::basic_streambuf<char>
 {

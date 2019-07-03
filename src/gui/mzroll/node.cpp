@@ -1,4 +1,11 @@
 #include "node.h"
+#include "Compound.h"
+#include "edge.h"
+#include "graphwidget.h"
+#include "Peak.h"
+#include "PeakGroup.h"
+#include "Scan.h"
+#include "mzSample.h"
 
 Node::Node(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)
 {
