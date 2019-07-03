@@ -95,6 +95,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
                 mavenParameters->processAllSlices = false;
             break;
 
+        case 'E':
+            _pollyExtraInfo = QString(optarg);
+            break;
+
         case 'f': {
             mavenParameters->pullIsotopesFlag = 0;
             int label = 0;
@@ -508,9 +512,13 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             if (atoi(node.attribute("value").value()) == 0)
                 saveMzrollFile = false;
 
+        } else if (strcmp(node.name(), "pollyExtra") == 0) {
+            _pollyExtraInfo = QString(node.attribute("value").value());
+
         } else if (strcmp(node.name(), "samples") == 0) {
             string sampleStr = node.attribute("value").value();
             filenames.push_back(sampleStr);
+
         } else {
             cout << endl << "Unknown node : " << node.name() << endl;
         }
@@ -944,7 +952,8 @@ QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
             _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
         QString runRequestId =
             _pollyIntegration->createRunRequest(componentId,
-                                                uploadProjectId);
+                                                uploadProjectId,
+                                                _pollyExtraInfo);
         if (!runRequestId.isEmpty()) {
             redirectionUrl =
                 _pollyIntegration->getComponentEndpoint(componentId,

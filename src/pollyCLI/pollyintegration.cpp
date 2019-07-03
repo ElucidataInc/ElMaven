@@ -594,13 +594,15 @@ QString PollyIntegration::createWorkflowRequest(QString projectId,
 }
 
 QString PollyIntegration::createRunRequest(QString componentId,
-                                           QString projectId)
+                                           QString projectId,
+                                           QString extraInfo)
 {
     QString runId;
     QString command = "createRunRequest";
     QStringList arguments = QStringList() << credFile
                                           << componentId
-                                          << projectId;
+                                          << projectId
+                                          << extraInfo;
     QList<QByteArray> resultAndError = runQtProcess(command, arguments);
     if (_hasError(resultAndError))
         return runId;
