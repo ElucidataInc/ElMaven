@@ -170,7 +170,10 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                 // #pragma omp ordered
                 // sliceExists() returns a the best slice or a null based on
                 // whether a slice exists at that location or not
-                mzSlice* Z = sliceExists(mz, rt);
+                mzSlice* Z = sliceExists(mzmin,
+                                         mzmax,
+                                         rt - (2.0f * rtWindow),
+                                         rt + (2.0f * rtWindow));
                 if (Z) {
                     // If slice exists take the max of the intensity, rt and mz
                     // (max and min)
@@ -252,7 +255,7 @@ void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
                 float mz = scan->mz[ pos ];
                 float mzmax = mz + mz/1e6*ppm;
                 float mzmin = mz - mz/1e6*ppm;
-                if(! sliceExists(mz,rt) ) {
+                if(! sliceExists(mzmin, mzmax, rt-2*rtWindow, rt+2*rtWindow) ) {
                     mzSlice* s = new mzSlice(mzmin,mzmax, rt-2*rtWindow, rt+2*rtWindow);
                     s->ionCount = scan->intensity[pos];
                     s->rt=scan->rt;
@@ -267,8 +270,15 @@ void MassSlices::algorithmC(float ppm, float minIntensity, float rtWindow) {
     cerr << "#algorithmC" << slices.size() << endl;
 }
 
-mzSlice* MassSlices::sliceExists(float mz, float rt)
+mzSlice* MassSlices::sliceExists(float mzMinBound,
+                                 float mzMaxBound,
+                                 float rtMinBound,
+                                 float rtMaxBound)
 {
+    // calculate center for given bounds
+    float mz = (mzMinBound + mzMaxBound) / 2.0f;
+    float rt = (rtMinBound + rtMaxBound) / 2.0f;
+
     // putting all mz slices stored in cache within a particular range in ppp
     auto subcache = cache.equal_range(int(mz * 10));
     auto it = subcache.first;
@@ -279,14 +289,27 @@ mzSlice* MassSlices::sliceExists(float mz, float rt)
     // For loop to iterate till best MZ slice becomes second
     for (; it != subcache.second; ++it) {
         mzSlice* slice = (*it).second;
-        float mzMin = slice->mzmin;
-        float mzMax = slice->mzmax;
-        float rtMin = slice->rtmin;
-        float rtMax = slice->rtmax;
-        if (mz > mzMin && mz < mzMax && rt > rtMin && rt < rtMax) {
-            float centerMz = (mzMin + mzMax) / 2.0f;
-            float centerRt = (rtMin + rtMax) / 2.0f;
-            float dist = hypotf(centerMz - mz, centerRt - rt);
+        float sliceMzMin = slice->mzmin;
+        float sliceMzMax = slice->mzmax;
+        float sliceRtMin = slice->rtmin;
+        float sliceRtMax = slice->rtmax;
+
+        // calculate center for the current slice
+        float sliceMz = slice->mz;
+        float sliceRt = slice->rt;
+
+        // check if center of given bounds lies within slice, or whether center
+        // of the slice lies within the given bounds
+        if ((mz > sliceMzMin
+             && mz < sliceMzMax
+             && rt > sliceRtMin
+             && rt < sliceRtMax)
+            ||
+            (sliceMz > mzMinBound
+             && sliceMz < mzMaxBound
+             && sliceRt > rtMinBound
+             && sliceRt < rtMaxBound)) {
+            float dist = hypotf(sliceMz - mz, sliceRt - rt);
             if (dist < bestDist) {
                 best = slice;
                 bestDist = dist;
