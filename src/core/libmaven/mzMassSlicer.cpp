@@ -1,3 +1,4 @@
+#include "EIC.h"
 #include "mavenparameters.h"
 #include "mzMassSlicer.h"
 #include "mzSample.h"
@@ -147,24 +148,23 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
             float rt = scan->rt;
 
-            // Looping over every observation in the scan
             for (unsigned int k = 0; k < scan->nobs(); k++) {
-                // Checking if mz, intensity are within specified
-                // ranges
-                if (_maxMz && !isBetweenInclusive(scan->mz[k],
+                float mz = scan->mz[k];
+                float intensity = scan->intensity[k];
+
+                // Checking if mz, intensity are within specified ranges
+                if (_maxMz && !isBetweenInclusive(mz,
                                                   _minMz,
                                                   _maxMz)) {
                     continue;
                 }
-                if (_maxIntensity
-                    && !isBetweenInclusive(scan->intensity[k],
-                                           _minIntensity,
-                                           _maxIntensity)) {
+                if (_maxIntensity && !isBetweenInclusive(intensity,
+                                                         _minIntensity,
+                                                         _maxIntensity)) {
                     continue;
                 }
 
                 // Define max mz and min mz for this slice
-                float mz = scan->mz[k];
                 float cutoff = massCutoff->massCutoffValue(mz);
                 float mzmax = mz + cutoff;
                 float mzmin = mz - cutoff;
@@ -179,20 +179,18 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                 if (Z) {
                     // If slice exists take the max of the intensity, rt and mz
                     // (max and min)
-                    Z->ionCount = std::max(float(Z->ionCount),
-                                           float(scan->intensity[k]));
-                    Z->rtmax = std::max(float(Z->rtmax),
-                                        rt + (2.0f * rtWindow));
-                    Z->rtmin = std::min(float(Z->rtmin),
-                                        rt - (2.0f * rtWindow));
-                    Z->mzmax = std::max(float(Z->mzmax), mzmax);
-                    Z->mzmin = std::min(float(Z->mzmin), mzmin);
+                    Z->ionCount = std::max(Z->ionCount, intensity);
+                    Z->rtmax = std::max(Z->rtmax, rt + (2.0f * rtWindow));
+                    Z->rtmin = std::min(Z->rtmin, rt - (2.0f * rtWindow));
+                    Z->mzmax = std::max(Z->mzmax, mzmax);
+                    Z->mzmin = std::min(Z->mzmin, mzmin);
 
                     // Make sure that mz window does not get out of control
                     if (Z->mzmin < mz - cutoff)
                         Z->mzmin =  mz - cutoff;
                     if (Z->mzmax > mz + cutoff)
                         Z->mzmax =  mz + cutoff;
+
                     Z->mz = (Z->mzmin + Z->mzmax) / 2.0f;
                     Z->rt = (Z->rtmin + Z->rtmax) / 2.0f;
                 } else {
@@ -202,7 +200,7 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                                              mzmax,
                                              rt - (2.0f * rtWindow),
                                              rt + (2.0f * rtWindow));
-                    s->ionCount = scan->intensity[k];
+                    s->ionCount = intensity;
                     s->rt = scan->rt;
                     s->mz = mz;
                     slices.push_back(s);
@@ -230,6 +228,23 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     float threshold = 100;
     removeDuplicateSlices(massCutoff, threshold);
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
+
+    mergeOverlappingSlices(0.05f, 0.90f);
+
+    ofstream fs("slices.csv");
+    fs << "mz,rt,mzMin,mzMax,rtMin,rtMax,ionCount,srmId\n";
+    for (auto s : slices) {
+        fs << s->mz << ","
+           << s->rt << ","
+           << s->mzmin << ","
+           << s->mzmax << ","
+           << s->rtmin << ","
+           << s->rtmax << ","
+           << s->ionCount << ","
+           << s->srmId << "\n";
+    }
+    fs.close();
+
     cerr << "After removing duplicate slices, with threshold "
          << threshold
          << ", found "
@@ -319,6 +334,168 @@ mzSlice* MassSlices::sliceExists(float mzMinBound,
         }
     }
     return best;
+}
+
+void MassSlices::mergeOverlappingSlices(float rtTolerance,
+                                        float intensityRatioCutoff)
+{
+    // lambda to help expand a given slice by merging a vector of slices into it
+    auto expandSlice = [](mzSlice* mergeInto, vector<mzSlice*> slices) {
+        if (slices.empty())
+            return;
+
+        for (auto slice : slices) {
+            mergeInto->ionCount = std::max(mergeInto->ionCount, slice->ionCount);
+            mergeInto->rtmax = std::max(mergeInto->rtmax, slice->rtmax);
+            mergeInto->rtmin = std::min(mergeInto->rtmin, slice->rtmin);
+            mergeInto->mzmax = std::max(mergeInto->mzmax, slice->mzmax);
+            mergeInto->mzmin = std::min(mergeInto->mzmin, slice->mzmin);
+        }
+
+        mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
+        mergeInto->rt = (mergeInto->rtmin + mergeInto->rtmax) / 2.0f;
+    };
+
+    for (size_t n = 0; n < samples.size(); ++n) {
+        if (mavenParameters->stop) {
+            stopSlicing();
+            break;
+        }
+
+        auto sample = samples.at(n);
+        for(auto it = begin(slices); it != end(slices); ++it) {
+            if (mavenParameters->stop) {
+                stopSlicing();
+                break;
+            }
+
+            int progress = (n * slices.size()) + (it - begin(slices));
+            int total = samples.size() * slices.size();
+            sendSignal("Filtering slices from samples…", progress, total);
+
+            auto slice = *it;
+            auto mz = slice->mz;
+            auto rt = slice->rt;
+            auto mzMin = slice->mzmin;
+            auto mzMax = slice->mzmax;
+            auto rtMin = slice->rtmin;
+            auto rtMax = slice->rtmax;
+
+            vector<mzSlice*> slicesToMerge;
+            for (auto rest = it; rest != end(slices); ++rest) {
+                auto comparisonSlice = *rest;
+                if (slice == comparisonSlice)
+                    continue;
+
+                auto comparisonMz = comparisonSlice->mz;
+                auto comparisonRt = comparisonSlice->rt;
+                auto comparisonMzMin = comparisonSlice->mzmin;
+                auto comparisonMzMax = comparisonSlice->mzmax;
+                auto comparisonRtMin = comparisonSlice->rtmin;
+                auto comparisonRtMax = comparisonSlice->rtmax;
+
+                // check if center of either slice lies within the bounds of the
+                // other slice, and if not, move on to the next slice
+                if (!(mz > comparisonMzMin
+                      && mz < comparisonMzMax
+                      && rt > comparisonRtMin
+                      && rt < comparisonRtMax)
+                    &&
+                    !(comparisonMz > mzMin
+                      && comparisonMz < mzMax
+                      && comparisonRt > rtMin
+                      && comparisonRt < rtMax)) {
+                    continue;
+                }
+
+                // find common boundaries between the two slices being compared
+                auto commonLowerBound = 0.0f;
+                auto commonUpperBound = 0.0f;
+                if (mzMin <= comparisonMzMin
+                    && mzMax >= comparisonMzMax) {
+                    commonLowerBound = comparisonMzMin;
+                    commonUpperBound = comparisonMzMax;
+                } else if (mzMin >= comparisonMzMin
+                           && mzMax <= comparisonMzMax) {
+                    commonLowerBound = mzMin;
+                    commonUpperBound = mzMax;
+                } else if (mzMin >= comparisonMzMin
+                           && mzMin <= comparisonMzMax) {
+                    commonLowerBound = mzMin;
+                    commonUpperBound = min(mzMax, comparisonMzMax);
+                } else if (mzMax >= comparisonMzMin
+                           && mzMax <= comparisonMzMax) {
+                    commonLowerBound = max(mzMin, comparisonMzMin);
+                    commonUpperBound = mzMax;
+                }
+
+                if (commonLowerBound == 0.0f && commonUpperBound == 0.0f)
+                    continue;
+
+                // obtain EICs for the two slices
+                auto eic = sample->getEIC(commonLowerBound,
+                                          commonUpperBound,
+                                          rtMin,
+                                          rtMax,
+                                          1,
+                                          1,
+                                          "");
+                auto comparisonEic = sample->getEIC(commonLowerBound,
+                                                    commonUpperBound,
+                                                    comparisonRtMin,
+                                                    comparisonRtMax,
+                                                    1,
+                                                    1,
+                                                    "");
+
+                // find out the highest intensity (and its rt) in the EICs
+                auto highestIntensity = 0.0f;
+                auto rtAtHighestIntensity = 0.0f;
+                for (size_t i = 0; i < eic->size(); ++i) {
+                    auto rtAtIdx = eic->rt[i];
+                    auto intensityAtIdx = eic->intensity[i];
+                    if (intensityAtIdx > highestIntensity) {
+                        highestIntensity = intensityAtIdx;
+                        rtAtHighestIntensity = rtAtIdx;
+                    }
+                }
+                auto highestCompIntensity = 0.0f;
+                auto rtAtHighestCompIntensity = 0.0f;
+                for (size_t i = 0; i < comparisonEic->size(); ++i) {
+                    auto rtAtIdx = comparisonEic->rt[i];
+                    auto intensityAtIdx = comparisonEic->intensity[i];
+                    if (intensityAtIdx > highestCompIntensity) {
+                        highestCompIntensity = intensityAtIdx;
+                        rtAtHighestCompIntensity = rtAtIdx;
+                    }
+                }
+
+                // calculate and check for rt difference and intensity ratio,
+                // if conditions are satisfied, mark the comparison slice to be
+                // merged
+                auto rtDelta = abs(rtAtHighestIntensity
+                                   - rtAtHighestCompIntensity);
+                auto inRatio = highestCompIntensity < highestIntensity
+                                   ? (highestCompIntensity / highestIntensity)
+                                   : (highestIntensity / highestCompIntensity);
+                if (rtDelta <= rtTolerance && inRatio >= intensityRatioCutoff) {
+                    slicesToMerge.push_back(comparisonSlice);
+                }
+            }
+
+            // expand the current slice by merging all slices classified to be
+            // part of the same, and then remove (and free) the slices already
+            // merged
+            expandSlice(slice, slicesToMerge);
+            for (auto merged : slicesToMerge) {
+                slices.erase(remove_if(it,
+                                       end(slices),
+                                       [&](mzSlice* s) { return s == merged; }),
+                             slices.end());
+                delete merged;
+            }
+        }
+    }
 }
 
 void MassSlices::removeDuplicateSlices(MassCutoff *massCutoff, float threshold){

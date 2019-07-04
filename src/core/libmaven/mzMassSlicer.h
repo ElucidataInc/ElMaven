@@ -58,6 +58,19 @@ class MassSlices {
                              float rtMinBound,
                              float rtMaxBound);
 
+        /**
+         * @brief Merge slices that still contain overlapping portions of a peak
+         * group's intensities.
+         * @param rtTolerance The tolerance for retention time axis. If the
+         * highest intensity of two slices differ by more than this value on
+         * rt axis, then they will not be merged.
+         * @param intensityRatioCutoff The ratio of the highest intensities of
+         * two slices (being considered for merge) should at least be greater
+         * than this value, otherwise they will not be merged.
+         */
+        void mergeOverlappingSlices(float rtTolerance=0.005f,
+                                    float intensityRatioCutoff=0.99f);
+
         void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
         /**
