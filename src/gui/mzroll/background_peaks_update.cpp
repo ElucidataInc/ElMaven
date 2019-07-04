@@ -311,11 +311,6 @@ void BackgroundPeakUpdate::processMassSlices() {
 
         align();
 
-        if (mavenParameters->showProgressFlag
-            && mavenParameters->pullIsotopesFlag) {
-                Q_EMIT(updateProgressBar("Calculation Isotopes", 1, 100));
-        }
-
         writeCSVRep("allslices");
 }
 
