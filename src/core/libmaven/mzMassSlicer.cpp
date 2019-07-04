@@ -82,6 +82,8 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     int totalScans = 0;
     int currentScans = 0;
 
+    sort(begin(samples), end(samples), mzSample::compSampleSort);
+
     // Calculate the total number of scans
     for (auto s : samples)
         totalScans += s->scans.size();
