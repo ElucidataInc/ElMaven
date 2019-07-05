@@ -2,6 +2,7 @@
 #include "SavGolSmoother.h"
 #include "csvparser.h"
 #include "masscutofftype.h"
+#include "RealFirFilter.h"
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
@@ -1017,6 +1018,125 @@ Series:  Prentice-Hall Series in Automatic Computation
         std::getline(issa, anew);
         std::getline(issb, bnew);
         return (strcasecmp_withNumbers(anew, bnew));
+    }
+
+    double besseli0(const double x)
+    {
+        double y = 1.0;
+        double s = 1.0;
+        double n = 1.0;
+        double x2 = x * x;
+
+        while (s > y * 1.0e-9) {
+            s *= x2 / 4.0 / (n * n);
+            y += s;
+            n += 1;
+        }
+        return y;
+    }
+
+    std::vector<double> kaiser(const size_t N, const double beta)
+    {
+        std::vector<double> h(N);
+        double bb = besseli0(beta);
+        for (size_t i = 0; i < N; i++) {
+            h[i] = besseli0(beta * sqrt(4.0 * i * (N - 1 - i)) / (N - 1)) / bb;
+        }
+        return h;
+    }
+
+    double sinc(const double x)
+    {
+        // from : http://mathworld.wolfram.com/SincFunction.html
+        if (fabs(x) < 0.01)
+            return cos(M_PI * x / 2.0)
+                   * cos(M_PI * x / 4.0)
+                   * cos(M_PI * x / 8.0);
+
+        // compute sinc(x) = sin(π•x) / (π•x)
+        return sin(M_PI * x) / (M_PI * x);
+    }
+
+    std::vector<double> firDesignKaiser(const size_t n,
+                                        const double fc,
+                                        const double beta,
+                                        const double scale)
+    {
+        // validate inputs
+        if (fc < 0.0 || fc > 0.5) {
+            std::cerr << "Error: cutoff frequency "
+                      << fc
+                      << " out of range; should be within (0, 0.5)"
+                      << std::endl;
+            return {};
+        } else if (n == 0) {
+            std::cerr << "Error: filter length must be greater than zero"
+                      << std::endl;
+            return {};
+        }
+
+        // kaiser window
+        auto kw = kaiser(n, beta);
+
+        std::vector<double> filter;
+        auto t = 0.0;
+        auto h1 = 0.0;
+        auto h2 = 0.0;
+        for (size_t i = 0; i < n; i++) {
+            t = double(i) - double((n - 1) / 2.0);
+
+            // sinc prototype
+            h1 = sinc(fc * t);
+            h2 = fc * kw.at(i);
+
+            // composite
+            filter.push_back(scale * h1 * h2);
+        }
+        return filter;
+    }
+
+    std::vector<double> computeFilterCoefficients(const int interpRate,
+                                                  const int decimRate)
+    {
+        int maxRate = std::max(interpRate, decimRate);
+
+        // reasonable half-length for our sinc-like function
+        int halfLen = 10 * maxRate;
+        int numTaps = 2 * halfLen + 1;
+
+        // cutoff freq of FIR filter (rel. to Nyquist)
+        double fc = 1.0 / maxRate;
+
+        // beta for Kaiser window, 5.0 seems to work for all EICs that we tested
+        double beta = 5.0;
+
+        return firDesignKaiser(numTaps, fc, beta, interpRate);
+    }
+
+    int approximateResamplingFactor(const size_t dataSize)
+    {
+        int resamplingFactor = static_cast<int>(dataSize / 100) - 1;
+        if (resamplingFactor < 1)
+            resamplingFactor = 1;
+
+        return resamplingFactor;
+    }
+
+    std::vector<double> resample(const std::vector<double>& inputData,
+                                 const int interpRate,
+                                 const int decimRate)
+    {
+        // ignore resampling for rates less than or equal to 1
+        if (interpRate <= 1 && decimRate <= 1)
+            return inputData;
+
+        auto filterTaps = computeFilterCoefficients(interpRate, decimRate);
+        NimbleDSP::RealFirFilter<double> filter(filterTaps);
+        filter.filtOperation = NimbleDSP::ONE_SHOT_TRIM_TAILS;
+
+        NimbleDSP::RealVector<double> buf(inputData);
+        buf = filter.resample(buf, interpRate, decimRate);
+        return buf.vec;
     }
 
 } //namespace end

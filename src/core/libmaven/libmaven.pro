@@ -43,7 +43,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/obiwarp/ \
                 $$top_srcdir/3rdparty/Eigen/ \
-                $$top_srcdir/3rdparty/libsvm
+                $$top_srcdir/3rdparty/libsvm \
+                $$top_srcdir/3rdparty/NimbleDSP/src
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 

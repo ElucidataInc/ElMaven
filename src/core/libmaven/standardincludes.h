@@ -1,6 +1,8 @@
 #ifndef STANDARDINCLUDES_H
 #define STANDARDINCLUDES_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -19,9 +21,6 @@
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
-#include <cmath>
 #include <cfloat>
-#include <math.h>
-#include <float.h>
 
 #endif // STANDARDINCLUDES_H

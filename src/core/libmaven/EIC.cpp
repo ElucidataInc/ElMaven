@@ -31,8 +31,8 @@ EIC::EIC()
     baselineSmoothingWindow = 5;
     //TODO make sure initialization value is same everywhere
     baselineDropTopX = 60;
-    _aslsAsymmetry = 30;
-    _aslsSmoothness = 5;
+    _aslsAsymmetry = 80;
+    _aslsSmoothness = 2;
     for (unsigned int i = 0; i < 4; i++)
         color[i] = 0;
 }
@@ -162,6 +162,12 @@ void EIC::_computeAsLSBaseline(const float lambda,
     for(unsigned int i = 0; i < this->intensity.size(); ++i)
         intensity.push_back(static_cast<double>(this->intensity[i]));
 
+    auto originalSize = intensity.size();
+
+    // decimate the signal, if it is of very high-resolution
+    auto resamplingFactor = mzUtils::approximateResamplingFactor(originalSize);
+    intensity = mzUtils::resample(intensity, 1, resamplingFactor);
+
     using namespace Eigen;
     auto n = static_cast<unsigned int>(intensity.size());
 
@@ -232,6 +238,16 @@ void EIC::_computeAsLSBaseline(const float lambda,
                               baselineVec.data()
                               + baselineVec.rows()
                               * baselineVec.cols());
+
+    // interpolate the signal after possible decimation
+    tempVector = mzUtils::resample(tempVector, resamplingFactor, 1);
+
+    // since the interpolated vector may not be of the same size as the original
+    // intensity vector, we remove/pad (with zeros) until they are the same size
+    while (tempVector.size() < originalSize)
+        tempVector.push_back(0.0);
+    while (tempVector.size() > originalSize)
+        tempVector.pop_back();
 
     // clip negative values from the vector and switch back to float
     vector<float> clippedFloatBaseline;
