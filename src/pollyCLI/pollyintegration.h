@@ -190,7 +190,7 @@ private:
     QString indexFileURL;
 
     QPair<ErrorStatus, QMap<QString, QStringList>> _fetchAppLicense();
-    void checkForIndexFile();
+    bool _checkForIndexFile();
     bool validCohorts(QStringList cohorts);
     bool _hasError(QList<QByteArray>);
 };

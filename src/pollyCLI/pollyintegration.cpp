@@ -75,18 +75,20 @@ QString PollyIntegration::getCredFile(){
     return credFile;
 }
 
-void PollyIntegration::checkForIndexFile()
+bool PollyIntegration::_checkForIndexFile()
 {
     if(!_fPtr || !_fPtr->exists()) {
-            qDebug() << "Index file not found, trying to download index file ";
-            // synchronous request;
-            _dlManager->setRequest(indexFileURL, this, false);
-            if(!_dlManager->err) {
-                requestSuccess();
-            } else {
-                requestFailed();
-            }
+        qDebug() << "Index file not found, trying to download index file ";
+        // synchronous request;
+        _dlManager->setRequest(indexFileURL, this, false);
+        if(!_dlManager->err) {
+            requestSuccess();
+            return true;
+        }
+        requestFailed();
+        return false;
     }
+    return true;
 }
 
 QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList args){
@@ -94,7 +96,15 @@ QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList ar
     // e.g: command = "authenticate", "get_Project_names" etc
     // e.g: args = username, password, projectName  etc
 
-    checkForIndexFile();
+    if (!_checkForIndexFile()) {
+        QList<QByteArray> resultAndError = {
+            QByteArray(),
+            QString("Unable to fetch file required for integration with Polly. "
+                    "This could be due to internet connectivity issues.").toLatin1()
+        };
+        return resultAndError;
+    }
+
     if(jsPath == "")
         return QList<QByteArray>();
 
@@ -326,7 +336,8 @@ QStringList PollyIntegration::get_project_upload_url_commands(QString url_with_w
 
 bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 {
-    QString supportMessage = "Contact tech support at elmaven@elucidata.io if the problem persists";
+    QString supportMessage = "Please contact tech support at "
+                             "elmaven@elucidata.io if the problem persists.";
     if (resultAndError.size() > 1) {
         //if there is standard error look for error message
         QByteArray errorResponse = resultAndError.at(1);
@@ -346,7 +357,7 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
 
         if (!message.isEmpty() || !type.isEmpty()) {
             QString errorMessage = message + "\n" +
-                                   type + "\n" +
+                                   type + "\n\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
@@ -357,14 +368,24 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         QString errorString = QString::fromStdString(errorResponse.toStdString());
         errorString.replace("\n", "");
         if (!errorString.isEmpty()) {
-            QString errorMessage = "Unknown error: " + errorString + "\n" +
+            QString errorMessage = "Error: " + errorString + "\n\n" +
                                    supportMessage;
             emit receivedEPIError(errorMessage);
             return true;
         }
     } else if (resultAndError.size() == 0) {
-        //no response or error
-        emit receivedEPIError("Error: QProcess failure.\n" + supportMessage);
+        // no response or error
+        if (_fPtr && !_fPtr->exists()) {
+            emit receivedEPIError("Error: Failed to detect file required for "
+                                  "integration with Polly.");
+            return true;
+        }
+
+        // the most likely other reason could be…
+        emit receivedEPIError("There was an unexpected error. Please make sure "
+                              "you are connected to the internet and try again."
+                              "\n\n"
+                              + supportMessage);
         return true;
     }
 

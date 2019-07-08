@@ -738,7 +738,7 @@ void PollyElmavenInterfaceDialog::_showErrorMessage(QString title,
                                                     QString message,
                                                     QMessageBox::Icon icon)
 {
-    QMessageBox msgBox(icon, title, message, QMessageBox::Ok, this);
+    QMessageBox msgBox(icon, title, message, QMessageBox::Ok, _mainwindow);
     msgBox.exec();
 }
 
