@@ -50,11 +50,8 @@ void LoginForm::login(QString username, QString password)
     ErrorStatus response = _pollyintegration->authenticateLogin(username, password);
     if (response == ErrorStatus::Success) {
         qDebug() << "Logged in, moving on now…";
-        ui->login_label->setText("Fetching user data…");
-        QCoreApplication::processEvents();
-        _pollyelmaveninterfacedialog->startupDataLoad();
-        _pollyelmaveninterfacedialog->usernameLabel->setText(username);
         hide();
+        _pollyelmaveninterfacedialog->initialSetup();
         _pollyelmaveninterfacedialog->show();
     } else if (response == ErrorStatus::Failure) {
         QCoreApplication::processEvents();
