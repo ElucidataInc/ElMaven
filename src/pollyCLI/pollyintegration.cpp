@@ -382,7 +382,9 @@ bool PollyIntegration::_hasError(QList<QByteArray> resultAndError)
         }
 
         // the most likely other reason could be…
-        emit receivedEPIError("Error: Unable to connect to the internet.\n\n"
+        emit receivedEPIError("There was an unexpected error. Please make sure "
+                              "you are connected to the internet and try again."
+                              "\n\n"
                               + supportMessage);
         return true;
     }
