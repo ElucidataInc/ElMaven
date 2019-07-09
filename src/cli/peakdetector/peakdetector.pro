@@ -44,12 +44,12 @@ LIBS +=  -lmaven         \
 !macx: LIBS += -fopenmp
 
 macx {
-    DYLIBPATH = $$(LDFLAGS)
+    DYLIBPATH = $$system(source ~/.bash_profile ; echo $LDFLAGS)
     isEmpty(DYLIBPATH) {
         warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
         warning("Please follow the README to make sure you have correctly set the LDFLAGS variable")
     }
-    QMAKE_LFLAGS += $$(LDFLAGS)
+    QMAKE_LFLAGS += $$DYLIBPATH
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -lomp
     LIBS -= -lnetcdf -lcdfread
