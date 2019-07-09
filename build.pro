@@ -1,6 +1,5 @@
 macx {
-
-    compiler_version = $$system( clang -v 2>&1 | head -n1 | ggrep -Po  "[0-9\.]+" | head -n1 | ggrep -Po "[0-9]+" | head -n1 )
+    compiler_version = $$system(clang -v 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n1)
     message("compiler major version $$compiler_version")
     if(greaterThan(compiler_version, 5):lessThan(compiler_version, 7)) {
         message("Clang Version : $$system( clang -v 2>&1 | head -n1 )")

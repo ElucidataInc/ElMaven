@@ -24,12 +24,12 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
                 $$top_srcdir/3rdparty/Eigen $$top_srcdir/src/
 macx {
 
-    DYLIBPATH = $$(LDFLAGS)
+    DYLIBPATH = $$system(source ~/.bash_profile ; echo $LDFLAGS)
     isEmpty(DYLIBPATH) {
         warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
         warning("Please follow the README to make sure you have correctly set the LDFLAGS variable")
     }
-    QMAKE_LFLAGS += $$(LDFLAGS)
+    QMAKE_LFLAGS += $$DYLIBPATH
 }
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
