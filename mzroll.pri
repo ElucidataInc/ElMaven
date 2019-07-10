@@ -19,9 +19,11 @@ unix: {
 }
 
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
-    linux|win32 {
-        message("linking with gcov")
-        QMAKE_LFLAGS += -lgcov --coverage
+    !isEmpty(IS_TRAVIS_PR)|!isEmpty(IS_APPVEYOR_PR) {
+        linux|win32 {
+            message("linking with gcov")
+            QMAKE_LFLAGS += -lgcov --coverage
+        }
     }
 }
 

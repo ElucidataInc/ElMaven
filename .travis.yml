@@ -69,9 +69,15 @@ script:
       export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
       export PATH="/usr/local/opt/llvm@6/bin/:$PATH"
       export CPPFLAGS="-I/usr/local/opt/llvm@6/include -I/usr/local/opt/llvm@6/c++/v1/"
-      qmake CONFIG+=debug -o Makefile build.pro;
-      make -j4;
-      ./run_tests.sh;
+
+      if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+        qmake CONFIG+=debug -o Makefile build.pro;
+        make -j4;
+        ./run_tests.sh;
+      else
+        qmake CONFIG+=release CONFIG+=force_debug_info NOTESTS=yes
+        make -j4;
+      fi
     fi
 
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -90,7 +96,10 @@ script:
 
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      bash <(curl -s https://codecov.io/bash)
+    fi
 
 
 before_deploy:

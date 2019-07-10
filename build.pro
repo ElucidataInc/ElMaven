@@ -22,6 +22,6 @@ include($$mac_compiler)
 
 TEMPLATE = subdirs
 CONFIG += ordered qt thread
-SUBDIRS += 3rdparty crashhandler src tests/MavenTests 
+SUBDIRS += 3rdparty crashhandler src
 
-equals(NOTESTS, "yes"): SUBDIRS-=tests/MavenTests
+!equals(NOTESTS, "yes"): SUBDIRS+=tests/MavenTests

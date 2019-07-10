@@ -51,11 +51,21 @@ build_script:
           }
 
     - SET "QTEST_FUNCTION_TIMEOUT=1200000"
-    - bash -lc "echo $QTEST_FUNCTION_TIMEOUT"
     - bash -lc "qmake -v"
-    - bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh"
-    - bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
-    - bash -lc "lcov --summary /c/projects/ElMaven/lcov.info"
+    - ps: |
+          if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
+              echo "Compiling in debug mode ..."
+              &{ bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh" 2>&1 | %{ "$_" } }
+              bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
+              &{ bash -lc "lcov --summary /c/projects/ElMaven/lcov.info" 2>&1 | %{ "$_" } }
+          } else {
+              echo "Compiling in release mode with debug information ..."
+              qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=warn_off NOTESTS=yes
+              # have to wrap this in a script block to make sure exit code is
+              # ignored (make's warnings would otherwise be treated as error
+              # signals by powershell).
+              &{ make --silent -j4 2>&1 | %{ "$_" } }
+          }
 
 
 after_build:
@@ -253,7 +263,10 @@ deploy:
 
 
 on_success:
-    - bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
+    - ps: |
+          if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
+              bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
+          }
 
 
 notifications:
