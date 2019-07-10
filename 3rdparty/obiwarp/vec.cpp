@@ -1,8 +1,9 @@
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <numeric>
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include "vec.h"
@@ -22,54 +23,45 @@ namespace VEC {
 
 // BEGIN TEMPLATE
 
-
 /****************************************************************
  * VecF
  ***************************************************************/
 
 // Constructors:
-VecF::VecF() : _n(0), _shallow(true) {
+VecF::VecF() : _n(0) {
 #ifdef JTP_DEBUG
     puts("Creating DATA (NO ARGS)");
 #endif
 }
 
-VecF::VecF(int n) : _n(n), _shallow(false) {
+VecF::VecF(int n) : _n(n) {
 #ifdef JTP_BOUNDS_CHECK
     if (n < 0) { puts("n < 0, exiting"); exit(1); }
 #endif
-    _dat = new float[_n];
+    _dat.resize(_n);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N)");
 #endif
 }
 
-VecF::VecF(int n, const float &val) : _n(n), _shallow(false) {
-    _dat = new float[_n];
+VecF::VecF(int n, const float &val) : _n(n) {
+    _dat.reserve(_n);
     for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;            
+        _dat.push_back(val);
     }
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,float)");
 #endif
 }
 
-VecF::VecF(int n, float *arr, bool shallow) : _n(n), _dat(arr), _shallow(shallow) {
+VecF::VecF(int n, std::vector<float> arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
 }
 
-VecF::VecF(const VecF &A, bool shallow) : _n(A._n), _shallow(shallow) { 
-    if (!shallow) {
-        _dat = new float[_n];
-        for (int i = 0; i < _n; ++i) {
-            _dat[i] = A._dat[i];
-        }
-    }
-    else {
-        _dat = A._dat;
-    }
+VecF::VecF(const VecF &A) : _n(A._n) {
+    _dat = A._dat;
 #ifdef JTP_DEBUG
     puts("created with VecF(const VecF &A)");
 #endif
@@ -78,7 +70,7 @@ VecF::VecF(const VecF &A, bool shallow) : _n(A._n), _shallow(shallow) {
 void VecF::to_f(VecF &out) {
     VecF _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (float)(_dat[i]);
+        _tmp[i] = static_cast<float>(_dat[i]);
     }
     out.take(_tmp);
 }
@@ -86,51 +78,30 @@ void VecF::to_f(VecF &out) {
 void VecF::to_i(VecI &out) {
     VecI _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (int)(_dat[i]);
+        _tmp[i] = static_cast<int>(_dat[i]);
     }
     out.take(_tmp);
 }
 
 
-void VecF::set(int n, float *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecF::set(int n, std::vector<float> arr) {
     _dat = arr;
-    _shallow = true;
     _n = n;
 }
 
-void VecF::take(int n, float *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecF::take(int n, std::vector<float> arr) {
     _dat = arr;
-    _shallow = false;
     _n = n;
 }
 
 void VecF::set(VecF &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
     _dat = A._dat;
-    _shallow = true;
     _n = A._n;
 }
 
 
 void VecF::take(VecF &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
-    if (A._shallow) {
-        puts("Can't take ownership of memory of a shallow Vec!");
-        exit(1);
-    }
     _dat = A._dat;
-    A._shallow = true;
-    _shallow = false;
     _n = A._n;
 }
 
@@ -138,46 +109,15 @@ void VecF::take(VecF &A) {
 bool VecF::operator==(const VecF &A) {
     // We don't care if one is shallow and the A is not!
     if (A._n == _n) { // Same size
-        if (A._dat == _dat) { return true; }  // Same data
-        else {
-            for (int i = 0; i < _n; ++i) {
-                if (A._dat[i] != _dat[i]) { return false; } 
-            }
-            return true;
-        }
+        if (A._dat == _dat)
+            return true; // Same data
     }
-    else { 
-        return false;
-    }
+    return false;
 }
 
-void VecF::copy(VecF &receiver, bool shallow) const {
-    if (!receiver._shallow) {
-        delete[] receiver._dat;
-    }
-    if (shallow) {
-        receiver._dat = _dat;
-        receiver._n = _n;
-        receiver._shallow = true;
-    }
-    else {
-        receiver._n = _n;
-        receiver._dat = new float[_n];
-        _copy(receiver._dat, _dat, _n);
-        receiver._shallow = false;
-    }
-}
-
-void VecF::_copy(float *p1, const float *p2, int len) const {
-    // This is slightly faster on gcc Linux Mandrake
-    for (int i = 0; i < len; ++i) {
-        p1[i] = p2[i];
-    }
-    // Slightly slower
-//    float *end = p1 + len;
-//    while(p1 < end) {
-//        *p1++ = *p2++;
-//    }
+void VecF::copy(VecF &receiver) const {
+    receiver._n = _n;
+    receiver._dat = _dat;
 }
 
 VecF & VecF::operator=(const float &val) {
@@ -195,13 +135,8 @@ VecF & VecF::operator=(VecF &A) {
 #ifdef JTP_DEBUG
         puts("IN ASSIGNMENT OP MID");
 #endif
-        if (!_shallow) {
-            delete[] _dat;
-        }
         _n = A._n;
-        _dat = new float[_n];
-        _copy(_dat, A._dat, _n);
-        _shallow = false;
+        _dat = A._dat;
     }
     return *this;
 }
@@ -210,12 +145,12 @@ VecF::~VecF( ) {
 #ifdef JTP_DEBUG
     puts("DESTRUCTOR");
 #endif
-    if (!_shallow) {
-#ifdef JTP_DEBUG
-        puts("DELETING DATA");
-#endif
-        delete[] _dat;
-    }
+}
+
+std::vector<float> VecF::slice(int start, int end)
+{
+    std::vector<float> out(&_dat[start], &_dat[end]);
+    return out;
 }
 
 /*************************
@@ -227,24 +162,27 @@ void VecF::operator+=(float val) {
         _dat[i] += val;
     }
 }
+
 void VecF::operator-=(float val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] -= val;
     }
 }
+
 void VecF::operator*=(float val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] *= val;
     }
 }
+
 void VecF::operator/=(float val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] /= val;
     }
 }
+
 void VecF::operator+=(const VecF &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -253,8 +191,7 @@ void VecF::operator+=(const VecF &A) {
 }
 
 void VecF::operator-=(const VecF &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -263,8 +200,7 @@ void VecF::operator-=(const VecF &A) {
 }
 
 void VecF::operator*=(const VecF &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -273,8 +209,7 @@ void VecF::operator*=(const VecF &A) {
 }
 
 void VecF::operator/=(const VecF &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -284,70 +219,53 @@ void VecF::operator/=(const VecF &A) {
 
 void VecF::add(const VecF &toadd, VecF &out) {
     if (toadd._n == _n) {
-        float *_tmparr = new float[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] + toadd[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] + toadd[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecF::sub(const VecF &tosub, VecF &out) {
     if (tosub._n == _n) {
-        float *_tmparr = new float[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] - tosub[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] - tosub[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecF::mul(const VecF &tomul, VecF &out) {
     if (tomul._n == _n) {
-        float *_tmparr = new float[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] * tomul[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] * tomul[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
-
 void VecF::div(const VecF &todiv, VecF &out) {
     if (todiv._n == _n) {
-        float *_tmparr = new float[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] / todiv[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] / todiv[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecF::square_root() {
-    float *me = (float*)(*this);
-    for (int i = 0; i < _n; ++i) {
-        me[i] = (float)sqrt((double)me[i]);      
-    }
+    std::transform(_dat.begin(),
+                   _dat.end(),
+                   _dat.begin(),
+                   sqrtf);
 }
 
 /*
@@ -359,34 +277,28 @@ VecF VecF::operator+(const VecF &A) {
         return blank;
     }
 
-    else {
-        VecF *C = new VecF(_n);
-        VecF tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    VecF *C = new VecF(_n);
+    VecF tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 */
 
 float VecF::sum() {
-    float *me = (float*)(*this);
-    float sum = 0;
-    for( int n = 0; n < _n; n++) {
-        sum += me[n];
-    }
-    return sum;
+    return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
 char * VecF::class_name() {
-    char *name = new char[7]; 
+    char *name = new char[7];
     strcpy(name, "VecF");
     return name;
 }
-
 
 void VecF::abs_val() {
     for (int n = 0; n < _n; ++n) {
@@ -394,60 +306,34 @@ void VecF::abs_val() {
     }
 }
 
-
 void VecF::std_normal() {
     // @TODO: would like avg and stdev to stay double, even for floats!
-    (*this) -= (float)this->avg();
+    (*this) -= static_cast<float>(this->avg());
     double mean, stdev;
     this->sample_stats(mean, stdev);
-    (*this) /= (float)stdev;
+    (*this) /= static_cast<float>(stdev);
 }
-
 
 void VecF::remove(int index) {
-    float *_tmp_arr = new float[_n - 1];
-    int _cnt = 0;
-    for (int i = 0; i < _n; ++i) {
-        if (i != index) {
-            _tmp_arr[_cnt] = _dat[i];
-            ++_cnt;
-        }
-    }
-    if (!_shallow) {
-        delete []_dat;
-    }
+    _dat.erase(_dat.begin() + index);
     _n = _n - 1;
-    _dat = _tmp_arr;
-    _shallow = false;
-}
-
-// Could be faster for ints
-int VecF::floatCompare( const void *a, const void *b ) {
-    float c = *(float *)a - *(float *)b;
-    if ( c < 0 ) return -1;
-    if ( c > 0 ) return 1;
-    return 0;
 }
 
 void VecF::sort() {
-    qsort(_dat, _n, sizeof(float), floatCompare);
+    std::sort(_dat.begin(), _dat.end());
 }
 
-int VecF::index(float val) { 
-    for (int i = 0; i < _n; ++i) {
-        if (val == _dat[i]) {
-            return i;
-        }
+int VecF::index(float val) {
+    auto result = std::find(_dat.begin(), _dat.end(), val);
+    if (result != _dat.end()) {
+        return (result - _dat.begin());
     }
     return -1;
 }
 
 double VecF::avg() const {
-    double total = 0;
-    for( int n = 0; n < _n; ++n) {
-        total += _dat[n];
-    }
-    return total/_n;
+    double total = std::accumulate(_dat.begin(), _dat.end(), 0.0);
+    return total / static_cast<double>(_n);
 }
 
 //double VecF::prob_one_side_right(double x) {
@@ -459,19 +345,18 @@ double VecF::avg() const {
 //
 //    // @TODO: THIS IS BROKEN until I can figure out how to calc the normalCDF
 //    // using public domain sources:
-//    //return _normalCDF(_mean, _sigma, x); 
+//    //return _normalCDF(_mean, _sigma, x);
 //}
 
 void VecF::sample_stats(double &mean, double &std_dev) {
     // Raw score method (below) is faster (~1.5X) than deviation score method
     // commonly used
-    float *me = this->pointer();
     double _sum = 0.0;
-    double _val;
+    double _val = 0.0;
     double _sumSq = 0.0;
     int _len = this->dim();
     for( int i=0; i<_len; ++i ) {
-        _val = (double)me[i]; 
+        _val = static_cast<double>(_dat[i]);
         _sum += _val;
         _sumSq += _val *_val;
     }
@@ -491,13 +376,12 @@ double VecF::_zScore(double mean, double sigma, double x) {
 
 void VecF::mask_as_vec(float return_val, VecI &mask, VecF &out) {
     if (mask.size() != _n) { puts("mask.size() != this->length()"); exit(1); }
-    float *me = (float*)(*this);
-    int *maskptr = (int*)(mask);
-    float *tmparr = new float[_n];
+    std::vector<float> tmparr;
+    tmparr.reserve(_n);
     int newcnt = 0;
     for (int i = 0; i < _n; ++i) {
-        if (maskptr[i] == return_val) {
-            tmparr[newcnt] = me[i];
+        if (mask[i] == return_val) {
+            tmparr.push_back(_dat[i]);
             ++newcnt;
         }
     }
@@ -505,23 +389,21 @@ void VecF::mask_as_vec(float return_val, VecI &mask, VecF &out) {
 }
 
 void VecF::hist(int num_bins, VecD &bins, VecI &freqs) {
-    int i;
-
     // Create the scaling factor
-    float _min; float _max;
+    float _min = 0.0f;
+    float _max = 0.0f;
     min_max(_min, _max);
-    double dmin = (double)_min;
-    double conv = ((double)num_bins)/(double)(_max - _min);
+    double dmin = static_cast<double>(_min);
+    double conv = static_cast<double>(num_bins)/static_cast<double>(_max - _min);
 
     // initialize arrays
     VecD _bins(num_bins);
     VecI _freqs(num_bins, 0);
     int _len = this->dim();
-    float *me = this->pointer();
 
     // Create the histogram:
-    for (i = 0; i < _len; ++i) {
-        int index = (int)((me[i]-_min)*conv);
+    for (int i = 0; i < _len; ++i) {
+        int index = static_cast<int>((_dat[i] - _min) * conv);
         if (index == num_bins) {
             --index;
         }
@@ -530,7 +412,7 @@ void VecF::hist(int num_bins, VecD &bins, VecI &freqs) {
 
     // Create the bins:
     double iconv = 1.0/conv;
-    for (i = 0; i < num_bins; ++i) {
+    for (int i = 0; i < num_bins; ++i) {
         _bins[i] = ((i+0.5) * iconv) + dmin;  // avg
         // _bins[i] = ((i+0.5) * iconv) + dmin; //min
     }
@@ -540,59 +422,18 @@ void VecF::hist(int num_bins, VecD &bins, VecI &freqs) {
 }
 
 void VecF::logarithm(double base) {
-    float *me = (float*)(*this);
     for (int i = 0; i < _n; ++i) {
         //printf("ME: %f\n", me[i]);
-        me[i] = (float)(log((double)(me[i]))/log(base));
+        _dat[i] = static_cast<float>(log(static_cast<double>(_dat[i]))
+                                     / log(base));
         //printf("MELOGGED: %f\n", me[i]);
     }
 }
 
 void VecF::min_max(float &mn, float &mx) {
-    float *me = (float*)(*this);
-    mn = me[0];
-    mx = me[0];
-    for (int n = 0; n < _n; ++n) {
-        mn = min(mn, me[n]);
-        mx = max(mx, me[n]);
-    }
+    mn = *(std::min_element(_dat.begin(), _dat.end()));
+    mx = *(std::max_element(_dat.begin(), _dat.end()));
 }
-
-
-
-void VecF::print(bool without_length ) {
-    if (!without_length) {
-        std::cout << _n << std::endl;
-    }
-    int i;
-    for (i = 0; i < _n - 1; ++i) {
-        std::cout << _dat[i] << " ";
-    }
-    std::cout << _dat[i]; // the last one
-    std::cout << std::endl;
-}
-
-void VecF::print(const char *filename, bool without_length) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_length);
-    fh.close();
-}
-
-void VecF::print(std::ostream &fout, bool without_length) {
-    int i;
-    if (!without_length) {
-        fout << _n << std::endl;
-    }
-    for (i = 0; i < _n - 1; ++i) {
-        fout << _dat[i] << " ";
-    }
-    fout << _dat[i];
-    fout << std::endl;
-}
-
 
 // Class functions:
 // THIS MUST BE FOR float AND DOUBLE ONLY!!!
@@ -605,10 +446,11 @@ void VecF::print(std::ostream &fout, bool without_length) {
 // If length == 1 then derivs[0] is set to 0
 // If length == 0 then prints message to STDERR and returns;
 void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
-    float *tmp_derivs = new float[x.length()];
+    std::vector<float> tmp_derivs;
+    tmp_derivs.resize(x.length());
     // if they aren't the right type then warn
-    
-    //if (typeid(T) != typeid(float) || typeid(T) != typeid(double)) 
+
+    //if (typeid(T) != typeid(float) || typeid(T) != typeid(double))
     //    printf("vec2 calling object must be of type float or double!\n");
     //    exit(2);
     // }
@@ -626,7 +468,7 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
     float w2;
     float dmax;
     float dmin;
-    float three = (float)3.0;
+    float three = 3.0f;
     float dsave;
     float drat1;
     float drat2;
@@ -634,8 +476,8 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
 
     int ierr = 0;
     int lengthLess1 = length - 1;
-    
-    if (length < 2) { 
+
+    if (length < 2) {
         if (length == 1) {
             tmp_derivs[0] = 0;
             return;
@@ -645,18 +487,18 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
         }
     }
 
-// THIS can be done BEFORE this routine if someone cares to...
-//    // Check monotonicity
-//    for (int i = 2; i < length; i++) {
-//        if (x[i] <= x[i-1]) { 
+    // THIS can be done BEFORE this routine if someone cares to...
+    //    // Check monotonicity
+    //    for (int i = 2; i < length; i++) {
+    //        if (x[i] <= x[i-1]) {
 //            return 2;
-//        }
-//    }
+    //        }
+    //    }
 
     h1 = x[1] - x[0];
     del1 = (y[1] - y[0]) / h1;
     dsave = del1;
-    
+
     // special case length=2 --use linear interpolation
     if (lengthLess1 < 2) {
         tmp_derivs[0] = del1;
@@ -664,22 +506,22 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
         out_derivs.take(3, tmp_derivs);
         return;
     }
-    
+
     // Normal case (length >= 3)
-// 10
+    // 10
 
     h2 = x[2] - x[1];
     del2 = (y[2] - y[1]) / h2;
 
-// SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
-//     SHAPE-PRESERVING.
+    // SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
+    //     SHAPE-PRESERVING.
 
     hsum = h1 + h2;
     w1 = (h1 + hsum)/hsum;
     w2 = -h1/hsum;
     tmp_derivs[0] = (w1*del1) + (w2*del2);
     if ( pchst(tmp_derivs[0],del1) <= 0 ) {
-        tmp_derivs[0] = (float)0;
+        tmp_derivs[0] = 0.0f;
     }
     else if ( pchst(del1,del2) < 0 ) {
         // need to do this check only if monotonicity switches
@@ -700,72 +542,66 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
             del1 = del2;
             del2 = (y[ind+1] - y[ind])/h2;
         }
-// 40
-        tmp_derivs[ind] = (float)0;
+        // 40
+        tmp_derivs[ind] = 0.0f;
 
         pchstval = pchst(del1,del2);
 
-// 45
+        // 45
         if (pchstval > 0) {
             hsumt3 = hsum+hsum+hsum;
             w1 = (hsum + h1)/hsumt3;
             w2 = (hsum + h2)/hsumt3;
-            dmax = (float)max( fabs(del1), fabs(del2) );
-            dmin = (float)min( fabs(del1), fabs(del2) );
+            dmax = static_cast<float>(max(fabs(del1), fabs(del2)));
+            dmin = static_cast<float>(min(fabs(del1), fabs(del2)));
             drat1 = del1/dmax;
             drat2 = del2/dmax;
             tmp_derivs[ind] = dmin/(w1*drat1 + w2*drat2);
         }
-// 42
+        // 42
         else if (pchstval < 0 ) {
             ierr = ierr + 1;
             dsave = del2;
             continue;
         }
-// 41
+        // 41
         else {  // equal to zero
-            if (del2 == (float)0) { continue; }
+            if (del2 == 0.0f) { continue; }
             if (VecF::pchst(dsave,del2) < 0) { ierr = ierr + 1; }
             dsave = del2;
             continue;
         }
     }
 
-// 50 
+    // 50
     w1 = -h2/hsum;
     w2 = (h2 + hsum)/hsum;
     tmp_derivs[ind] = w1*del1 + w2*del2;
     if ( VecF::pchst(tmp_derivs[ind],del2) <= 0 ) {
-        tmp_derivs[ind] = (float)0;
+        tmp_derivs[ind] = 0.0f;
     }
     else if ( VecF::pchst(del1, del2) < 0) {
         // NEED DO THIS CHECK ONLY IF MONOTONICITY SWITCHES.
         dmax = three*del2;
         if (fabs(tmp_derivs[ind]) > fabs(dmax)) {
-            tmp_derivs[ind] = dmax;      
+            tmp_derivs[ind] = dmax;
         }
     }
     out_derivs.take(length, tmp_derivs);
     return;
 }
 
-
 void VecF::xy_to_x(VecF &x, VecF &y) {
-    float *_x = (float*)x;
-    float *_y = (float*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] - _x[i]; 
+        y._dat[i] = y._dat[i] - x._dat[i];
     }
 }
 
 void VecF::x_to_xy(VecF &x, VecF &y) {
-    float *_x = (float*)x;
-    float *_y = (float*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] + _x[i]; 
+        y._dat[i] = y._dat[i] + x._dat[i];
     }
 }
-
 
 void VecF::linear_derivs(VecF &x, VecF &y, VecF &out_derivs) {
     VecF tmp_d(x.size());
@@ -775,12 +611,11 @@ void VecF::linear_derivs(VecF &x, VecF &y, VecF &out_derivs) {
     out_derivs.take(tmp_d);
 }
 
-
 void VecF::linear_interp(VecF &xin, VecF &yin, VecF &xe, VecF &out_ye, int sorted) {
 
     if (out_ye.size() == 0) {
-        float *to_take = new float[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -814,7 +649,7 @@ void VecF::linear_interp(VecF &xin, VecF &yin, VecF &xe, VecF &out_ye, int sorte
                 ifirst = ir - 1;
             }
             istart = i;
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt*derivs[ifirst]);
         }
     }
@@ -841,36 +676,34 @@ void VecF::linear_interp(VecF &xin, VecF &yin, VecF &xe, VecF &out_ye, int sorte
                 ir = i - 1;
                 ifirst = ir - 1;
             }
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt * ((yin[ir] - yin[ifirst]) / (xin[ir]-xin[ifirst])) );
         }
     }
 }
 
 float VecF::sum_of_sq() {
-    float *me = this->pointer();
-    float total = 0;
-    for( int n = 0; n < this->size(); n++) {
-        total += me[n]*me[n];
-    }
-    return total;
+    double total = accumulate(_dat.begin(),
+                              _dat.end(),
+                              0.0,
+                              [](double s, double x) { return s + (x * x); });
+    return static_cast<float>(total);
 }
 
-
 double VecF::pearsons_r(VecF &x, VecF &y) {
-    
+
     // Preparation:
     double sum_xTy = VecF::dot_product(x,y);
-    double sum_x = x.sum();         
-    double sum_y = y.sum();       
+    double sum_x = x.sum();
+    double sum_y = y.sum();
     // Could this step be sped up?
     double sum_x2 = x.sum_of_sq();
     double sum_y2 = y.sum_of_sq();
     int N = x.dim();
-    
+
     // Here it is:
-    // 'E' is Capital Sigma 
-    // r = EXY - (EXEY/N) 
+    // 'E' is Capital Sigma
+    // r = EXY - (EXEY/N)
     //    -----------------
     //    sqrt( (EX^2 - (EX)^2/N) * (EY^2 - (EY)^2/N) )
 
@@ -904,7 +737,7 @@ double VecF::euclidean(VecF &x, VecF &y) {
     VecF diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
-        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]); 
+        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
     }
     return sqrt(sum_of_diffs);
 }
@@ -922,8 +755,8 @@ void VecF::chfe(VecF &xin, VecF &yin, VecF &xe, VecF &out_ye, int sorted) {
     //xin.print(); yin.print();
 
     if (out_ye.size() == 0) {
-        float *to_take = new float[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -993,9 +826,6 @@ void VecF::chfe(VecF &xin, VecF &yin, VecF &xe, VecF &out_ye, int sorted) {
     }
 }
 
-
-
-
 void VecF::calc_cubic_coeff(VecF &x, VecF &y, VecF &derivs, VecF &c2, VecF &c3) {
 
     //  COMPUTE CUBIC COEFFICIENTS (EXPANDED ABOUT X1).
@@ -1028,14 +858,12 @@ void VecF::chfev_all(float X1, float X2, float F1, float F2, float D1, float D2,
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
 
-
 void VecF::chfev(float X1, float F1, float D1, float C2, float C3, float XE, float &FE) {
     float X;
     X = XE - X1;
     //printf("X: %f F1 %f D1 %f C2 %f C3 %f\n", X, F1, D1, C2, C3);
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
-
 
 void VecF::chfe_xy(VecF &x, VecF &y, VecF &new_x, VecF &out_new_y, int sorted) {
     VecF::xy_to_x(x,y);
@@ -1067,7 +895,6 @@ double VecF::avg_abs_diff(VecF &x, VecF &y) {
     return sum/x.length();
 }
 
-
 void VecF::rsq_slope_intercept(VecF &x, VecF &y, double &rsq, double &slope, double &y_intercept) {
     int i;
     double mean_x = x.avg();
@@ -1075,87 +902,76 @@ void VecF::rsq_slope_intercept(VecF &x, VecF &y, double &rsq, double &slope, dou
     double sum_sq_res_xx = 0.0;
     double sum_sq_res_yy = 0.0;
     double sum_sq_res_xy = 0.0;
-//    double *sq_res_xx = new double[x.length()];
-//    double *sq_res_yy = new double[y.length()];
-//    double *sq_res_xy = new double[x.length()];
+    //    double *sq_res_xx = new double[x.length()];
+    //    double *sq_res_yy = new double[y.length()];
+    //    double *sq_res_xy = new double[x.length()];
     //VecD sq_res_xx(x.length());
     //VecD sq_res_yy(x.length());
     //VecD sq_res_xy(x.length());
     for (i = 0; i < x.length(); ++i) {
         double x_minus_mean_i, y_minus_mean_i;
-        x_minus_mean_i = ( (double)(x[i]) ) - mean_x;
-        y_minus_mean_i = ( (double)(y[i]) ) - mean_y;
+        x_minus_mean_i = ( static_cast<double>(x[i]) ) - mean_x;
+        y_minus_mean_i = ( static_cast<double>(y[i]) ) - mean_y;
         sum_sq_res_xx += x_minus_mean_i*x_minus_mean_i;
         sum_sq_res_yy += y_minus_mean_i*y_minus_mean_i;
         sum_sq_res_xy += x_minus_mean_i*y_minus_mean_i;
     }
     slope = sum_sq_res_xy/sum_sq_res_xx;
-    y_intercept = mean_y - (slope * mean_x); 
+    y_intercept = mean_y - (slope * mean_x);
     rsq = (sum_sq_res_xy*sum_sq_res_xy)/(sum_sq_res_xx*sum_sq_res_yy);
-//    delete[] sq_res_xx;
-//    delete[] sq_res_yy;
-//    delete[] sq_res_xy;
+    //    delete[] sq_res_xx;
+    //    delete[] sq_res_yy;
+    //    delete[] sq_res_xy;
 }
-
-
-
 
 /****************************************************************
  * VecD
  ***************************************************************/
 
 // Constructors:
-VecD::VecD() : _n(0), _shallow(true) {
+VecD::VecD() : _n(0) {
 #ifdef JTP_DEBUG
     puts("Creating DATA (NO ARGS)");
 #endif
 }
 
-VecD::VecD(int n) : _n(n), _shallow(false) {
+VecD::VecD(int n) : _n(n) {
 #ifdef JTP_BOUNDS_CHECK
     if (n < 0) { puts("n < 0, exiting"); exit(1); }
 #endif
-    _dat = new double[_n];
+    _dat.resize(_n);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N)");
 #endif
 }
 
-VecD::VecD(int n, const double &val) : _n(n), _shallow(false) {
-    _dat = new double[_n];
+VecD::VecD(int n, const double &val) : _n(n) {
+    _dat.reserve(_n);
     for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;            
+        _dat.push_back(val);
     }
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,double)");
 #endif
 }
 
-VecD::VecD(int n, double *arr, bool shallow) : _n(n), _dat(arr), _shallow(shallow) {
+VecD::VecD(int n, std::vector<double> arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
 }
 
-VecD::VecD(const VecD &A, bool shallow) : _n(A._n), _shallow(shallow) { 
-    if (!shallow) {
-        _dat = new double[_n];
-        for (int i = 0; i < _n; ++i) {
-            _dat[i] = A._dat[i];
-        }
-    }
-    else {
-        _dat = A._dat;
-    }
+VecD::VecD(const VecD &A) : _n(A._n) {
+    _dat = A._dat;
 #ifdef JTP_DEBUG
     puts("created with VecD(const VecD &A)");
 #endif
 }
 
-void VecD::to_f(VecF &out) {
-    VecF _tmp(_n);
+void VecD::to_f(VecD &out) {
+    VecD _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (float)(_dat[i]);
+        _tmp[i] = static_cast<double>(_dat[i]);
     }
     out.take(_tmp);
 }
@@ -1163,51 +979,30 @@ void VecD::to_f(VecF &out) {
 void VecD::to_i(VecI &out) {
     VecI _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (int)(_dat[i]);
+        _tmp[i] = static_cast<int>(_dat[i]);
     }
     out.take(_tmp);
 }
 
 
-void VecD::set(int n, double *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecD::set(int n, std::vector<double> arr) {
     _dat = arr;
-    _shallow = true;
     _n = n;
 }
 
-void VecD::take(int n, double *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecD::take(int n, std::vector<double> arr) {
     _dat = arr;
-    _shallow = false;
     _n = n;
 }
 
 void VecD::set(VecD &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
     _dat = A._dat;
-    _shallow = true;
     _n = A._n;
 }
 
 
 void VecD::take(VecD &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
-    if (A._shallow) {
-        puts("Can't take ownership of memory of a shallow Vec!");
-        exit(1);
-    }
     _dat = A._dat;
-    A._shallow = true;
-    _shallow = false;
     _n = A._n;
 }
 
@@ -1215,46 +1010,15 @@ void VecD::take(VecD &A) {
 bool VecD::operator==(const VecD &A) {
     // We don't care if one is shallow and the A is not!
     if (A._n == _n) { // Same size
-        if (A._dat == _dat) { return true; }  // Same data
-        else {
-            for (int i = 0; i < _n; ++i) {
-                if (A._dat[i] != _dat[i]) { return false; } 
-            }
-            return true;
-        }
+        if (A._dat == _dat)
+            return true; // Same data
     }
-    else { 
-        return false;
-    }
+    return false;
 }
 
-void VecD::copy(VecD &receiver, bool shallow) const {
-    if (!receiver._shallow) {
-        delete[] receiver._dat;
-    }
-    if (shallow) {
-        receiver._dat = _dat;
-        receiver._n = _n;
-        receiver._shallow = true;
-    }
-    else {
-        receiver._n = _n;
-        receiver._dat = new double[_n];
-        _copy(receiver._dat, _dat, _n);
-        receiver._shallow = false;
-    }
-}
-
-void VecD::_copy(double *p1, const double *p2, int len) const {
-    // This is slightly faster on gcc Linux Mandrake
-    for (int i = 0; i < len; ++i) {
-        p1[i] = p2[i];
-    }
-    // Slightly slower
-//    double *end = p1 + len;
-//    while(p1 < end) {
-//        *p1++ = *p2++;
-//    }
+void VecD::copy(VecD &receiver) const {
+    receiver._n = _n;
+    receiver._dat = _dat;
 }
 
 VecD & VecD::operator=(const double &val) {
@@ -1272,13 +1036,8 @@ VecD & VecD::operator=(VecD &A) {
 #ifdef JTP_DEBUG
         puts("IN ASSIGNMENT OP MID");
 #endif
-        if (!_shallow) {
-            delete[] _dat;
-        }
         _n = A._n;
-        _dat = new double[_n];
-        _copy(_dat, A._dat, _n);
-        _shallow = false;
+        _dat = A._dat;
     }
     return *this;
 }
@@ -1287,12 +1046,12 @@ VecD::~VecD( ) {
 #ifdef JTP_DEBUG
     puts("DESTRUCTOR");
 #endif
-    if (!_shallow) {
-#ifdef JTP_DEBUG
-        puts("DELETING DATA");
-#endif
-        delete[] _dat;
-    }
+}
+
+std::vector<double> VecD::slice(int start, int end)
+{
+    std::vector<double> out(&_dat[start], &_dat[end]);
+    return out;
 }
 
 /*************************
@@ -1304,24 +1063,27 @@ void VecD::operator+=(double val) {
         _dat[i] += val;
     }
 }
+
 void VecD::operator-=(double val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] -= val;
     }
 }
+
 void VecD::operator*=(double val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] *= val;
     }
 }
+
 void VecD::operator/=(double val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] /= val;
     }
 }
+
 void VecD::operator+=(const VecD &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -1330,8 +1092,7 @@ void VecD::operator+=(const VecD &A) {
 }
 
 void VecD::operator-=(const VecD &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -1340,8 +1101,7 @@ void VecD::operator-=(const VecD &A) {
 }
 
 void VecD::operator*=(const VecD &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -1350,8 +1110,7 @@ void VecD::operator*=(const VecD &A) {
 }
 
 void VecD::operator/=(const VecD &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -1361,70 +1120,53 @@ void VecD::operator/=(const VecD &A) {
 
 void VecD::add(const VecD &toadd, VecD &out) {
     if (toadd._n == _n) {
-        double *_tmparr = new double[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] + toadd[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] + toadd[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecD::sub(const VecD &tosub, VecD &out) {
     if (tosub._n == _n) {
-        double *_tmparr = new double[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] - tosub[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] - tosub[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecD::mul(const VecD &tomul, VecD &out) {
     if (tomul._n == _n) {
-        double *_tmparr = new double[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] * tomul[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] * tomul[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
-
 void VecD::div(const VecD &todiv, VecD &out) {
     if (todiv._n == _n) {
-        double *_tmparr = new double[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] / todiv[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] / todiv[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecD::square_root() {
-    double *me = (double*)(*this);
-    for (int i = 0; i < _n; ++i) {
-        me[i] = (double)sqrt((double)me[i]);      
-    }
+    std::transform(_dat.begin(),
+                   _dat.end(),
+                   _dat.begin(),
+                   sqrtf);
 }
 
 /*
@@ -1436,34 +1178,28 @@ VecD VecD::operator+(const VecD &A) {
         return blank;
     }
 
-    else {
-        VecD *C = new VecD(_n);
-        VecD tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    VecD *C = new VecD(_n);
+    VecD tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 */
 
 double VecD::sum() {
-    double *me = (double*)(*this);
-    double sum = 0;
-    for( int n = 0; n < _n; n++) {
-        sum += me[n];
-    }
-    return sum;
+    return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
 char * VecD::class_name() {
-    char *name = new char[7]; 
+    char *name = new char[7];
     strcpy(name, "VecD");
     return name;
 }
-
 
 void VecD::abs_val() {
     for (int n = 0; n < _n; ++n) {
@@ -1471,60 +1207,34 @@ void VecD::abs_val() {
     }
 }
 
-
 void VecD::std_normal() {
-    // @TODO: would like avg and stdev to stay double, even for floats!
-    (*this) -= (double)this->avg();
+    // @TODO: would like avg and stdev to stay double, even for doubles!
+    (*this) -= static_cast<double>(this->avg());
     double mean, stdev;
     this->sample_stats(mean, stdev);
-    (*this) /= (double)stdev;
+    (*this) /= static_cast<double>(stdev);
 }
-
 
 void VecD::remove(int index) {
-    double *_tmp_arr = new double[_n - 1];
-    int _cnt = 0;
-    for (int i = 0; i < _n; ++i) {
-        if (i != index) {
-            _tmp_arr[_cnt] = _dat[i];
-            ++_cnt;
-        }
-    }
-    if (!_shallow) {
-        delete []_dat;
-    }
+    _dat.erase(_dat.begin() + index);
     _n = _n - 1;
-    _dat = _tmp_arr;
-    _shallow = false;
-}
-
-// Could be faster for ints
-int VecD::doubleCompare( const void *a, const void *b ) {
-    double c = *(double *)a - *(double *)b;
-    if ( c < 0 ) return -1;
-    if ( c > 0 ) return 1;
-    return 0;
 }
 
 void VecD::sort() {
-    qsort(_dat, _n, sizeof(double), doubleCompare);
+    std::sort(_dat.begin(), _dat.end());
 }
 
-int VecD::index(double val) { 
-    for (int i = 0; i < _n; ++i) {
-        if (val == _dat[i]) {
-            return i;
-        }
+int VecD::index(double val) {
+    auto result = std::find(_dat.begin(), _dat.end(), val);
+    if (result != _dat.end()) {
+        return (result - _dat.begin());
     }
     return -1;
 }
 
 double VecD::avg() const {
-    double total = 0;
-    for( int n = 0; n < _n; ++n) {
-        total += _dat[n];
-    }
-    return total/_n;
+    double total = std::accumulate(_dat.begin(), _dat.end(), 0.0);
+    return total / static_cast<double>(_n);
 }
 
 //double VecD::prob_one_side_right(double x) {
@@ -1536,19 +1246,18 @@ double VecD::avg() const {
 //
 //    // @TODO: THIS IS BROKEN until I can figure out how to calc the normalCDF
 //    // using public domain sources:
-//    //return _normalCDF(_mean, _sigma, x); 
+//    //return _normalCDF(_mean, _sigma, x);
 //}
 
 void VecD::sample_stats(double &mean, double &std_dev) {
     // Raw score method (below) is faster (~1.5X) than deviation score method
     // commonly used
-    double *me = this->pointer();
     double _sum = 0.0;
-    double _val;
+    double _val = 0.0;
     double _sumSq = 0.0;
     int _len = this->dim();
     for( int i=0; i<_len; ++i ) {
-        _val = (double)me[i]; 
+        _val = static_cast<double>(_dat[i]);
         _sum += _val;
         _sumSq += _val *_val;
     }
@@ -1568,13 +1277,12 @@ double VecD::_zScore(double mean, double sigma, double x) {
 
 void VecD::mask_as_vec(double return_val, VecI &mask, VecD &out) {
     if (mask.size() != _n) { puts("mask.size() != this->length()"); exit(1); }
-    double *me = (double*)(*this);
-    int *maskptr = (int*)(mask);
-    double *tmparr = new double[_n];
+    std::vector<double> tmparr;
+    tmparr.reserve(_n);
     int newcnt = 0;
     for (int i = 0; i < _n; ++i) {
-        if (maskptr[i] == return_val) {
-            tmparr[newcnt] = me[i];
+        if (mask[i] == return_val) {
+            tmparr.push_back(_dat[i]);
             ++newcnt;
         }
     }
@@ -1582,23 +1290,21 @@ void VecD::mask_as_vec(double return_val, VecI &mask, VecD &out) {
 }
 
 void VecD::hist(int num_bins, VecD &bins, VecI &freqs) {
-    int i;
-
     // Create the scaling factor
-    double _min; double _max;
+    double _min = 0.0f;
+    double _max = 0.0f;
     min_max(_min, _max);
-    double dmin = (double)_min;
-    double conv = ((double)num_bins)/(double)(_max - _min);
+    double dmin = static_cast<double>(_min);
+    double conv = static_cast<double>(num_bins)/static_cast<double>(_max - _min);
 
     // initialize arrays
     VecD _bins(num_bins);
     VecI _freqs(num_bins, 0);
     int _len = this->dim();
-    double *me = this->pointer();
 
     // Create the histogram:
-    for (i = 0; i < _len; ++i) {
-        int index = (int)((me[i]-_min)*conv);
+    for (int i = 0; i < _len; ++i) {
+        int index = static_cast<int>((_dat[i] - _min) * conv);
         if (index == num_bins) {
             --index;
         }
@@ -1607,7 +1313,7 @@ void VecD::hist(int num_bins, VecD &bins, VecI &freqs) {
 
     // Create the bins:
     double iconv = 1.0/conv;
-    for (i = 0; i < num_bins; ++i) {
+    for (int i = 0; i < num_bins; ++i) {
         _bins[i] = ((i+0.5) * iconv) + dmin;  // avg
         // _bins[i] = ((i+0.5) * iconv) + dmin; //min
     }
@@ -1617,59 +1323,18 @@ void VecD::hist(int num_bins, VecD &bins, VecI &freqs) {
 }
 
 void VecD::logarithm(double base) {
-    double *me = (double*)(*this);
     for (int i = 0; i < _n; ++i) {
         //printf("ME: %f\n", me[i]);
-        me[i] = (double)(log((double)(me[i]))/log(base));
+        _dat[i] = static_cast<double>(log(static_cast<double>(_dat[i]))
+                                     / log(base));
         //printf("MELOGGED: %f\n", me[i]);
     }
 }
 
 void VecD::min_max(double &mn, double &mx) {
-    double *me = (double*)(*this);
-    mn = me[0];
-    mx = me[0];
-    for (int n = 0; n < _n; ++n) {
-        mn = min(mn, me[n]);
-        mx = max(mx, me[n]);
-    }
+    mn = *(std::min_element(_dat.begin(), _dat.end()));
+    mx = *(std::max_element(_dat.begin(), _dat.end()));
 }
-
-
-
-void VecD::print(bool without_length ) {
-    if (!without_length) {
-        std::cout << _n << std::endl;
-    }
-    int i;
-    for (i = 0; i < _n - 1; ++i) {
-        std::cout << _dat[i] << " ";
-    }
-    std::cout << _dat[i]; // the last one
-    std::cout << std::endl;
-}
-
-void VecD::print(const char *filename, bool without_length) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_length);
-    fh.close();
-}
-
-void VecD::print(std::ostream &fout, bool without_length) {
-    int i;
-    if (!without_length) {
-        fout << _n << std::endl;
-    }
-    for (i = 0; i < _n - 1; ++i) {
-        fout << _dat[i] << " ";
-    }
-    fout << _dat[i];
-    fout << std::endl;
-}
-
 
 // Class functions:
 // THIS MUST BE FOR double AND DOUBLE ONLY!!!
@@ -1682,11 +1347,12 @@ void VecD::print(std::ostream &fout, bool without_length) {
 // If length == 1 then derivs[0] is set to 0
 // If length == 0 then prints message to STDERR and returns;
 void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
-    double *tmp_derivs = new double[x.length()];
+    std::vector<double> tmp_derivs;
+    tmp_derivs.resize(x.length());
     // if they aren't the right type then warn
-    
-    //if (typeid(T) != typeid(float) || typeid(T) != typeid(double)) 
-    //    printf("vec2 calling object must be of type float or double!\n");
+
+    //if (typeid(T) != typeid(double) || typeid(T) != typeid(double))
+    //    printf("vec2 calling object must be of type double or double!\n");
     //    exit(2);
     // }
 
@@ -1703,7 +1369,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
     double w2;
     double dmax;
     double dmin;
-    double three = (double)3.0;
+    double three = 3.0f;
     double dsave;
     double drat1;
     double drat2;
@@ -1711,8 +1377,8 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
 
     int ierr = 0;
     int lengthLess1 = length - 1;
-    
-    if (length < 2) { 
+
+    if (length < 2) {
         if (length == 1) {
             tmp_derivs[0] = 0;
             return;
@@ -1722,18 +1388,18 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
         }
     }
 
-// THIS can be done BEFORE this routine if someone cares to...
-//    // Check monotonicity
-//    for (int i = 2; i < length; i++) {
-//        if (x[i] <= x[i-1]) { 
+    // THIS can be done BEFORE this routine if someone cares to...
+    //    // Check monotonicity
+    //    for (int i = 2; i < length; i++) {
+    //        if (x[i] <= x[i-1]) {
 //            return 2;
-//        }
-//    }
+    //        }
+    //    }
 
     h1 = x[1] - x[0];
     del1 = (y[1] - y[0]) / h1;
     dsave = del1;
-    
+
     // special case length=2 --use linear interpolation
     if (lengthLess1 < 2) {
         tmp_derivs[0] = del1;
@@ -1741,22 +1407,22 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
         out_derivs.take(3, tmp_derivs);
         return;
     }
-    
+
     // Normal case (length >= 3)
-// 10
+    // 10
 
     h2 = x[2] - x[1];
     del2 = (y[2] - y[1]) / h2;
 
-// SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
-//     SHAPE-PRESERVING.
+    // SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
+    //     SHAPE-PRESERVING.
 
     hsum = h1 + h2;
     w1 = (h1 + hsum)/hsum;
     w2 = -h1/hsum;
     tmp_derivs[0] = (w1*del1) + (w2*del2);
     if ( pchst(tmp_derivs[0],del1) <= 0 ) {
-        tmp_derivs[0] = (double)0;
+        tmp_derivs[0] = 0.0f;
     }
     else if ( pchst(del1,del2) < 0 ) {
         // need to do this check only if monotonicity switches
@@ -1777,72 +1443,66 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
             del1 = del2;
             del2 = (y[ind+1] - y[ind])/h2;
         }
-// 40
-        tmp_derivs[ind] = (double)0;
+        // 40
+        tmp_derivs[ind] = 0.0f;
 
         pchstval = pchst(del1,del2);
 
-// 45
+        // 45
         if (pchstval > 0) {
             hsumt3 = hsum+hsum+hsum;
             w1 = (hsum + h1)/hsumt3;
             w2 = (hsum + h2)/hsumt3;
-            dmax = (double)max( fabs(del1), fabs(del2) );
-            dmin = (double)min( fabs(del1), fabs(del2) );
+            dmax = static_cast<double>(max(fabs(del1), fabs(del2)));
+            dmin = static_cast<double>(min(fabs(del1), fabs(del2)));
             drat1 = del1/dmax;
             drat2 = del2/dmax;
             tmp_derivs[ind] = dmin/(w1*drat1 + w2*drat2);
         }
-// 42
+        // 42
         else if (pchstval < 0 ) {
             ierr = ierr + 1;
             dsave = del2;
             continue;
         }
-// 41
+        // 41
         else {  // equal to zero
-            if (del2 == (double)0) { continue; }
+            if (del2 == 0.0f) { continue; }
             if (VecD::pchst(dsave,del2) < 0) { ierr = ierr + 1; }
             dsave = del2;
             continue;
         }
     }
 
-// 50 
+    // 50
     w1 = -h2/hsum;
     w2 = (h2 + hsum)/hsum;
     tmp_derivs[ind] = w1*del1 + w2*del2;
     if ( VecD::pchst(tmp_derivs[ind],del2) <= 0 ) {
-        tmp_derivs[ind] = (double)0;
+        tmp_derivs[ind] = 0.0f;
     }
     else if ( VecD::pchst(del1, del2) < 0) {
         // NEED DO THIS CHECK ONLY IF MONOTONICITY SWITCHES.
         dmax = three*del2;
         if (fabs(tmp_derivs[ind]) > fabs(dmax)) {
-            tmp_derivs[ind] = dmax;      
+            tmp_derivs[ind] = dmax;
         }
     }
     out_derivs.take(length, tmp_derivs);
     return;
 }
 
-
 void VecD::xy_to_x(VecD &x, VecD &y) {
-    double *_x = (double*)x;
-    double *_y = (double*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] - _x[i]; 
+        y._dat[i] = y._dat[i] - x._dat[i];
     }
 }
 
 void VecD::x_to_xy(VecD &x, VecD &y) {
-    double *_x = (double*)x;
-    double *_y = (double*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] + _x[i]; 
+        y._dat[i] = y._dat[i] + x._dat[i];
     }
 }
-
 
 void VecD::linear_derivs(VecD &x, VecD &y, VecD &out_derivs) {
     VecD tmp_d(x.size());
@@ -1852,12 +1512,11 @@ void VecD::linear_derivs(VecD &x, VecD &y, VecD &out_derivs) {
     out_derivs.take(tmp_d);
 }
 
-
 void VecD::linear_interp(VecD &xin, VecD &yin, VecD &xe, VecD &out_ye, int sorted) {
 
     if (out_ye.size() == 0) {
-        double *to_take = new double[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -1891,7 +1550,7 @@ void VecD::linear_interp(VecD &xin, VecD &yin, VecD &xe, VecD &out_ye, int sorte
                 ifirst = ir - 1;
             }
             istart = i;
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt*derivs[ifirst]);
         }
     }
@@ -1918,36 +1577,34 @@ void VecD::linear_interp(VecD &xin, VecD &yin, VecD &xe, VecD &out_ye, int sorte
                 ir = i - 1;
                 ifirst = ir - 1;
             }
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt * ((yin[ir] - yin[ifirst]) / (xin[ir]-xin[ifirst])) );
         }
     }
 }
 
 double VecD::sum_of_sq() {
-    double *me = this->pointer();
-    double total = 0;
-    for( int n = 0; n < this->size(); n++) {
-        total += me[n]*me[n];
-    }
-    return total;
+    double total = accumulate(_dat.begin(),
+                              _dat.end(),
+                              0.0,
+                              [](double s, double x) { return s + (x * x); });
+    return static_cast<double>(total);
 }
 
-
 double VecD::pearsons_r(VecD &x, VecD &y) {
-    
+
     // Preparation:
     double sum_xTy = VecD::dot_product(x,y);
-    double sum_x = x.sum();         
-    double sum_y = y.sum();       
+    double sum_x = x.sum();
+    double sum_y = y.sum();
     // Could this step be sped up?
     double sum_x2 = x.sum_of_sq();
     double sum_y2 = y.sum_of_sq();
     int N = x.dim();
-    
+
     // Here it is:
-    // 'E' is Capital Sigma 
-    // r = EXY - (EXEY/N) 
+    // 'E' is Capital Sigma
+    // r = EXY - (EXEY/N)
     //    -----------------
     //    sqrt( (EX^2 - (EX)^2/N) * (EY^2 - (EY)^2/N) )
 
@@ -1978,10 +1635,10 @@ double VecD::covariance(VecD &x, VecD &y) {
 }
 
 double VecD::euclidean(VecD &x, VecD &y) {
-    VecF diff(x.size());
+    VecD diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
-        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]); 
+        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
     }
     return sqrt(sum_of_diffs);
 }
@@ -1999,8 +1656,8 @@ void VecD::chfe(VecD &xin, VecD &yin, VecD &xe, VecD &out_ye, int sorted) {
     //xin.print(); yin.print();
 
     if (out_ye.size() == 0) {
-        double *to_take = new double[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -2070,9 +1727,6 @@ void VecD::chfe(VecD &xin, VecD &yin, VecD &xe, VecD &out_ye, int sorted) {
     }
 }
 
-
-
-
 void VecD::calc_cubic_coeff(VecD &x, VecD &y, VecD &derivs, VecD &c2, VecD &c3) {
 
     //  COMPUTE CUBIC COEFFICIENTS (EXPANDED ABOUT X1).
@@ -2105,14 +1759,12 @@ void VecD::chfev_all(double X1, double X2, double F1, double F2, double D1, doub
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
 
-
 void VecD::chfev(double X1, double F1, double D1, double C2, double C3, double XE, double &FE) {
     double X;
     X = XE - X1;
     //printf("X: %f F1 %f D1 %f C2 %f C3 %f\n", X, F1, D1, C2, C3);
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
-
 
 void VecD::chfe_xy(VecD &x, VecD &y, VecD &new_x, VecD &out_new_y, int sorted) {
     VecD::xy_to_x(x,y);
@@ -2144,7 +1796,6 @@ double VecD::avg_abs_diff(VecD &x, VecD &y) {
     return sum/x.length();
 }
 
-
 void VecD::rsq_slope_intercept(VecD &x, VecD &y, double &rsq, double &slope, double &y_intercept) {
     int i;
     double mean_x = x.avg();
@@ -2152,87 +1803,76 @@ void VecD::rsq_slope_intercept(VecD &x, VecD &y, double &rsq, double &slope, dou
     double sum_sq_res_xx = 0.0;
     double sum_sq_res_yy = 0.0;
     double sum_sq_res_xy = 0.0;
-//    double *sq_res_xx = new double[x.length()];
-//    double *sq_res_yy = new double[y.length()];
-//    double *sq_res_xy = new double[x.length()];
+    //    double *sq_res_xx = new double[x.length()];
+    //    double *sq_res_yy = new double[y.length()];
+    //    double *sq_res_xy = new double[x.length()];
     //VecD sq_res_xx(x.length());
     //VecD sq_res_yy(x.length());
     //VecD sq_res_xy(x.length());
     for (i = 0; i < x.length(); ++i) {
         double x_minus_mean_i, y_minus_mean_i;
-        x_minus_mean_i = ( (double)(x[i]) ) - mean_x;
-        y_minus_mean_i = ( (double)(y[i]) ) - mean_y;
+        x_minus_mean_i = ( static_cast<double>(x[i]) ) - mean_x;
+        y_minus_mean_i = ( static_cast<double>(y[i]) ) - mean_y;
         sum_sq_res_xx += x_minus_mean_i*x_minus_mean_i;
         sum_sq_res_yy += y_minus_mean_i*y_minus_mean_i;
         sum_sq_res_xy += x_minus_mean_i*y_minus_mean_i;
     }
     slope = sum_sq_res_xy/sum_sq_res_xx;
-    y_intercept = mean_y - (slope * mean_x); 
+    y_intercept = mean_y - (slope * mean_x);
     rsq = (sum_sq_res_xy*sum_sq_res_xy)/(sum_sq_res_xx*sum_sq_res_yy);
-//    delete[] sq_res_xx;
-//    delete[] sq_res_yy;
-//    delete[] sq_res_xy;
+    //    delete[] sq_res_xx;
+    //    delete[] sq_res_yy;
+    //    delete[] sq_res_xy;
 }
-
-
-
 
 /****************************************************************
  * VecI
  ***************************************************************/
 
 // Constructors:
-VecI::VecI() : _n(0), _shallow(true) {
+VecI::VecI() : _n(0) {
 #ifdef JTP_DEBUG
     puts("Creating DATA (NO ARGS)");
 #endif
 }
 
-VecI::VecI(int n) : _n(n), _shallow(false) {
+VecI::VecI(int n) : _n(n) {
 #ifdef JTP_BOUNDS_CHECK
     if (n < 0) { puts("n < 0, exiting"); exit(1); }
 #endif
-    _dat = new int[_n];
+    _dat.resize(_n);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N)");
 #endif
 }
 
-VecI::VecI(int n, const int &val) : _n(n), _shallow(false) {
-    _dat = new int[_n];
+VecI::VecI(int n, const int &val) : _n(n) {
+    _dat.reserve(_n);
     for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;            
+        _dat.push_back(val);
     }
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,int)");
 #endif
 }
 
-VecI::VecI(int n, int *arr, bool shallow) : _n(n), _dat(arr), _shallow(shallow) {
+VecI::VecI(int n, std::vector<int> arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
 }
 
-VecI::VecI(const VecI &A, bool shallow) : _n(A._n), _shallow(shallow) { 
-    if (!shallow) {
-        _dat = new int[_n];
-        for (int i = 0; i < _n; ++i) {
-            _dat[i] = A._dat[i];
-        }
-    }
-    else {
-        _dat = A._dat;
-    }
+VecI::VecI(const VecI &A) : _n(A._n) {
+    _dat = A._dat;
 #ifdef JTP_DEBUG
     puts("created with VecI(const VecI &A)");
 #endif
 }
 
-void VecI::to_f(VecF &out) {
-    VecF _tmp(_n);
+void VecI::to_f(VecI &out) {
+    VecI _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (float)(_dat[i]);
+        _tmp[i] = static_cast<int>(_dat[i]);
     }
     out.take(_tmp);
 }
@@ -2240,51 +1880,30 @@ void VecI::to_f(VecF &out) {
 void VecI::to_i(VecI &out) {
     VecI _tmp(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = (int)(_dat[i]);
+        _tmp[i] = static_cast<int>(_dat[i]);
     }
     out.take(_tmp);
 }
 
 
-void VecI::set(int n, int *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecI::set(int n, std::vector<int> arr) {
     _dat = arr;
-    _shallow = true;
     _n = n;
 }
 
-void VecI::take(int n, int *arr) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
+void VecI::take(int n, std::vector<int> arr) {
     _dat = arr;
-    _shallow = false;
     _n = n;
 }
 
 void VecI::set(VecI &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
     _dat = A._dat;
-    _shallow = true;
     _n = A._n;
 }
 
 
 void VecI::take(VecI &A) {
-    if (!_shallow) {
-        delete[] _dat;
-    }
-    if (A._shallow) {
-        puts("Can't take ownership of memory of a shallow Vec!");
-        exit(1);
-    }
     _dat = A._dat;
-    A._shallow = true;
-    _shallow = false;
     _n = A._n;
 }
 
@@ -2292,46 +1911,15 @@ void VecI::take(VecI &A) {
 bool VecI::operator==(const VecI &A) {
     // We don't care if one is shallow and the A is not!
     if (A._n == _n) { // Same size
-        if (A._dat == _dat) { return true; }  // Same data
-        else {
-            for (int i = 0; i < _n; ++i) {
-                if (A._dat[i] != _dat[i]) { return false; } 
-            }
-            return true;
-        }
+        if (A._dat == _dat)
+            return true; // Same data
     }
-    else { 
-        return false;
-    }
+    return false;
 }
 
-void VecI::copy(VecI &receiver, bool shallow) const {
-    if (!receiver._shallow) {
-        delete[] receiver._dat;
-    }
-    if (shallow) {
-        receiver._dat = _dat;
-        receiver._n = _n;
-        receiver._shallow = true;
-    }
-    else {
-        receiver._n = _n;
-        receiver._dat = new int[_n];
-        _copy(receiver._dat, _dat, _n);
-        receiver._shallow = false;
-    }
-}
-
-void VecI::_copy(int *p1, const int *p2, int len) const {
-    // This is slightly faster on gcc Linux Mandrake
-    for (int i = 0; i < len; ++i) {
-        p1[i] = p2[i];
-    }
-    // Slightly slower
-//    int *end = p1 + len;
-//    while(p1 < end) {
-//        *p1++ = *p2++;
-//    }
+void VecI::copy(VecI &receiver) const {
+    receiver._n = _n;
+    receiver._dat = _dat;
 }
 
 VecI & VecI::operator=(const int &val) {
@@ -2349,13 +1937,8 @@ VecI & VecI::operator=(VecI &A) {
 #ifdef JTP_DEBUG
         puts("IN ASSIGNMENT OP MID");
 #endif
-        if (!_shallow) {
-            delete[] _dat;
-        }
         _n = A._n;
-        _dat = new int[_n];
-        _copy(_dat, A._dat, _n);
-        _shallow = false;
+        _dat = A._dat;
     }
     return *this;
 }
@@ -2364,12 +1947,12 @@ VecI::~VecI( ) {
 #ifdef JTP_DEBUG
     puts("DESTRUCTOR");
 #endif
-    if (!_shallow) {
-#ifdef JTP_DEBUG
-        puts("DELETING DATA");
-#endif
-        delete[] _dat;
-    }
+}
+
+std::vector<int> VecI::slice(int start, int end)
+{
+    std::vector<int> out(&_dat[start], &_dat[end]);
+    return out;
 }
 
 /*************************
@@ -2381,24 +1964,27 @@ void VecI::operator+=(int val) {
         _dat[i] += val;
     }
 }
+
 void VecI::operator-=(int val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] -= val;
     }
 }
+
 void VecI::operator*=(int val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] *= val;
     }
 }
+
 void VecI::operator/=(int val) {
     for (int i = 0; i < _n; ++i) {
         _dat[i] /= val;
     }
 }
+
 void VecI::operator+=(const VecI &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -2407,8 +1993,7 @@ void VecI::operator+=(const VecI &A) {
 }
 
 void VecI::operator-=(const VecI &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -2417,8 +2002,7 @@ void VecI::operator-=(const VecI &A) {
 }
 
 void VecI::operator*=(const VecI &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -2427,8 +2011,7 @@ void VecI::operator*=(const VecI &A) {
 }
 
 void VecI::operator/=(const VecI &A) {
-    int n = A.dim();
-    if (n != _n) {
+    if (A.dim() != _n) {
         return;
     }
     for (int i = 0; i < _n; ++i) {
@@ -2438,70 +2021,53 @@ void VecI::operator/=(const VecI &A) {
 
 void VecI::add(const VecI &toadd, VecI &out) {
     if (toadd._n == _n) {
-        int *_tmparr = new int[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] + toadd[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] + toadd[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecI::sub(const VecI &tosub, VecI &out) {
     if (tosub._n == _n) {
-        int *_tmparr = new int[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] - tosub[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] - tosub[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecI::mul(const VecI &tomul, VecI &out) {
     if (tomul._n == _n) {
-        int *_tmparr = new int[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] * tomul[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] * tomul[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
-
 void VecI::div(const VecI &todiv, VecI &out) {
     if (todiv._n == _n) {
-        int *_tmparr = new int[_n];
+        out._dat.clear();
+        out._dat.reserve(_n);
         for (int i = 0; i < _n; ++i) {
-            _tmparr[i] = _dat[i] / todiv[i];
-        }
-        if (!out._shallow) {
-            delete[] out._dat;
+            out._dat.push_back(_dat[i] / todiv[i]);
         }
         out._n = _n;
-        out._shallow = false;
-        out._dat = _tmparr;
     }
 }
 
 void VecI::square_root() {
-    int *me = (int*)(*this);
-    for (int i = 0; i < _n; ++i) {
-        me[i] = (int)sqrt((double)me[i]);      
-    }
+    std::transform(_dat.begin(),
+                   _dat.end(),
+                   _dat.begin(),
+                   sqrtf);
 }
 
 /*
@@ -2513,34 +2079,28 @@ VecI VecI::operator+(const VecI &A) {
         return blank;
     }
 
-    else {
-        VecI *C = new VecI(_n);
-        VecI tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    VecI *C = new VecI(_n);
+    VecI tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 */
 
 int VecI::sum() {
-    int *me = (int*)(*this);
-    int sum = 0;
-    for( int n = 0; n < _n; n++) {
-        sum += me[n];
-    }
-    return sum;
+    return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
 char * VecI::class_name() {
-    char *name = new char[7]; 
+    char *name = new char[7];
     strcpy(name, "VecI");
     return name;
 }
-
 
 void VecI::abs_val() {
     for (int n = 0; n < _n; ++n) {
@@ -2548,60 +2108,34 @@ void VecI::abs_val() {
     }
 }
 
-
 void VecI::std_normal() {
-    // @TODO: would like avg and stdev to stay double, even for floats!
-    (*this) -= (int)this->avg();
+    // @TODO: would like avg and stdev to stay double, even for ints!
+    (*this) -= static_cast<int>(this->avg());
     double mean, stdev;
     this->sample_stats(mean, stdev);
-    (*this) /= (int)stdev;
+    (*this) /= static_cast<int>(stdev);
 }
-
 
 void VecI::remove(int index) {
-    int *_tmp_arr = new int[_n - 1];
-    int _cnt = 0;
-    for (int i = 0; i < _n; ++i) {
-        if (i != index) {
-            _tmp_arr[_cnt] = _dat[i];
-            ++_cnt;
-        }
-    }
-    if (!_shallow) {
-        delete []_dat;
-    }
+    _dat.erase(_dat.begin() + index);
     _n = _n - 1;
-    _dat = _tmp_arr;
-    _shallow = false;
-}
-
-// Could be faster for ints
-int VecI::intCompare( const void *a, const void *b ) {
-    int c = *(int *)a - *(int *)b;
-    if ( c < 0 ) return -1;
-    if ( c > 0 ) return 1;
-    return 0;
 }
 
 void VecI::sort() {
-    qsort(_dat, _n, sizeof(int), intCompare);
+    std::sort(_dat.begin(), _dat.end());
 }
 
-int VecI::index(int val) { 
-    for (int i = 0; i < _n; ++i) {
-        if (val == _dat[i]) {
-            return i;
-        }
+int VecI::index(int val) {
+    auto result = std::find(_dat.begin(), _dat.end(), val);
+    if (result != _dat.end()) {
+        return (result - _dat.begin());
     }
     return -1;
 }
 
 double VecI::avg() const {
-    double total = 0;
-    for( int n = 0; n < _n; ++n) {
-        total += _dat[n];
-    }
-    return total/_n;
+    double total = std::accumulate(_dat.begin(), _dat.end(), 0.0);
+    return total / static_cast<double>(_n);
 }
 
 //double VecI::prob_one_side_right(double x) {
@@ -2613,19 +2147,18 @@ double VecI::avg() const {
 //
 //    // @TODO: THIS IS BROKEN until I can figure out how to calc the normalCDF
 //    // using public domain sources:
-//    //return _normalCDF(_mean, _sigma, x); 
+//    //return _normalCDF(_mean, _sigma, x);
 //}
 
 void VecI::sample_stats(double &mean, double &std_dev) {
     // Raw score method (below) is faster (~1.5X) than deviation score method
     // commonly used
-    int *me = this->pointer();
     double _sum = 0.0;
-    double _val;
+    double _val = 0.0;
     double _sumSq = 0.0;
     int _len = this->dim();
     for( int i=0; i<_len; ++i ) {
-        _val = (double)me[i]; 
+        _val = static_cast<double>(_dat[i]);
         _sum += _val;
         _sumSq += _val *_val;
     }
@@ -2645,13 +2178,12 @@ double VecI::_zScore(double mean, double sigma, double x) {
 
 void VecI::mask_as_vec(int return_val, VecI &mask, VecI &out) {
     if (mask.size() != _n) { puts("mask.size() != this->length()"); exit(1); }
-    int *me = (int*)(*this);
-    int *maskptr = (int*)(mask);
-    int *tmparr = new int[_n];
+    std::vector<int> tmparr;
+    tmparr.reserve(_n);
     int newcnt = 0;
     for (int i = 0; i < _n; ++i) {
-        if (maskptr[i] == return_val) {
-            tmparr[newcnt] = me[i];
+        if (mask[i] == return_val) {
+            tmparr.push_back(_dat[i]);
             ++newcnt;
         }
     }
@@ -2659,23 +2191,21 @@ void VecI::mask_as_vec(int return_val, VecI &mask, VecI &out) {
 }
 
 void VecI::hist(int num_bins, VecD &bins, VecI &freqs) {
-    int i;
-
     // Create the scaling factor
-    int _min; int _max;
+    int _min = 0.0f;
+    int _max = 0.0f;
     min_max(_min, _max);
-    double dmin = (double)_min;
-    double conv = ((double)num_bins)/(double)(_max - _min);
+    double dmin = static_cast<double>(_min);
+    double conv = static_cast<double>(num_bins)/static_cast<double>(_max - _min);
 
     // initialize arrays
     VecD _bins(num_bins);
     VecI _freqs(num_bins, 0);
     int _len = this->dim();
-    int *me = this->pointer();
 
     // Create the histogram:
-    for (i = 0; i < _len; ++i) {
-        int index = (int)((me[i]-_min)*conv);
+    for (int i = 0; i < _len; ++i) {
+        int index = static_cast<int>((_dat[i] - _min) * conv);
         if (index == num_bins) {
             --index;
         }
@@ -2684,7 +2214,7 @@ void VecI::hist(int num_bins, VecD &bins, VecI &freqs) {
 
     // Create the bins:
     double iconv = 1.0/conv;
-    for (i = 0; i < num_bins; ++i) {
+    for (int i = 0; i < num_bins; ++i) {
         _bins[i] = ((i+0.5) * iconv) + dmin;  // avg
         // _bins[i] = ((i+0.5) * iconv) + dmin; //min
     }
@@ -2694,59 +2224,18 @@ void VecI::hist(int num_bins, VecD &bins, VecI &freqs) {
 }
 
 void VecI::logarithm(double base) {
-    int *me = (int*)(*this);
     for (int i = 0; i < _n; ++i) {
         //printf("ME: %f\n", me[i]);
-        me[i] = (int)(log((double)(me[i]))/log(base));
+        _dat[i] = static_cast<int>(log(static_cast<double>(_dat[i]))
+                                     / log(base));
         //printf("MELOGGED: %f\n", me[i]);
     }
 }
 
 void VecI::min_max(int &mn, int &mx) {
-    int *me = (int*)(*this);
-    mn = me[0];
-    mx = me[0];
-    for (int n = 0; n < _n; ++n) {
-        mn = min(mn, me[n]);
-        mx = max(mx, me[n]);
-    }
+    mn = *(std::min_element(_dat.begin(), _dat.end()));
+    mx = *(std::max_element(_dat.begin(), _dat.end()));
 }
-
-
-
-void VecI::print(bool without_length ) {
-    if (!without_length) {
-        std::cout << _n << std::endl;
-    }
-    int i;
-    for (i = 0; i < _n - 1; ++i) {
-        std::cout << _dat[i] << " ";
-    }
-    std::cout << _dat[i]; // the last one
-    std::cout << std::endl;
-}
-
-void VecI::print(const char *filename, bool without_length) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_length);
-    fh.close();
-}
-
-void VecI::print(std::ostream &fout, bool without_length) {
-    int i;
-    if (!without_length) {
-        fout << _n << std::endl;
-    }
-    for (i = 0; i < _n - 1; ++i) {
-        fout << _dat[i] << " ";
-    }
-    fout << _dat[i];
-    fout << std::endl;
-}
-
 
 // Class functions:
 // THIS MUST BE FOR int AND DOUBLE ONLY!!!
@@ -2759,11 +2248,12 @@ void VecI::print(std::ostream &fout, bool without_length) {
 // If length == 1 then derivs[0] is set to 0
 // If length == 0 then prints message to STDERR and returns;
 void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
-    int *tmp_derivs = new int[x.length()];
+    std::vector<int> tmp_derivs;
+    tmp_derivs.resize(x.length());
     // if they aren't the right type then warn
-    
-    //if (typeid(T) != typeid(float) || typeid(T) != typeid(double)) 
-    //    printf("vec2 calling object must be of type float or double!\n");
+
+    //if (typeid(T) != typeid(int) || typeid(T) != typeid(double))
+    //    printf("vec2 calling object must be of type int or double!\n");
     //    exit(2);
     // }
 
@@ -2780,7 +2270,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
     int w2;
     int dmax;
     int dmin;
-    int three = (int)3.0;
+    int three = 3.0f;
     int dsave;
     int drat1;
     int drat2;
@@ -2788,8 +2278,8 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
 
     int ierr = 0;
     int lengthLess1 = length - 1;
-    
-    if (length < 2) { 
+
+    if (length < 2) {
         if (length == 1) {
             tmp_derivs[0] = 0;
             return;
@@ -2799,18 +2289,18 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
         }
     }
 
-// THIS can be done BEFORE this routine if someone cares to...
-//    // Check monotonicity
-//    for (int i = 2; i < length; i++) {
-//        if (x[i] <= x[i-1]) { 
+    // THIS can be done BEFORE this routine if someone cares to...
+    //    // Check monotonicity
+    //    for (int i = 2; i < length; i++) {
+    //        if (x[i] <= x[i-1]) {
 //            return 2;
-//        }
-//    }
+    //        }
+    //    }
 
     h1 = x[1] - x[0];
     del1 = (y[1] - y[0]) / h1;
     dsave = del1;
-    
+
     // special case length=2 --use linear interpolation
     if (lengthLess1 < 2) {
         tmp_derivs[0] = del1;
@@ -2818,22 +2308,22 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
         out_derivs.take(3, tmp_derivs);
         return;
     }
-    
+
     // Normal case (length >= 3)
-// 10
+    // 10
 
     h2 = x[2] - x[1];
     del2 = (y[2] - y[1]) / h2;
 
-// SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
-//     SHAPE-PRESERVING.
+    // SET D(1) VIA NON-CENTERED THREE-POINT FORMULA, ADJUSTED TO BE
+    //     SHAPE-PRESERVING.
 
     hsum = h1 + h2;
     w1 = (h1 + hsum)/hsum;
     w2 = -h1/hsum;
     tmp_derivs[0] = (w1*del1) + (w2*del2);
     if ( pchst(tmp_derivs[0],del1) <= 0 ) {
-        tmp_derivs[0] = (int)0;
+        tmp_derivs[0] = 0.0f;
     }
     else if ( pchst(del1,del2) < 0 ) {
         // need to do this check only if monotonicity switches
@@ -2854,72 +2344,66 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
             del1 = del2;
             del2 = (y[ind+1] - y[ind])/h2;
         }
-// 40
-        tmp_derivs[ind] = (int)0;
+        // 40
+        tmp_derivs[ind] = 0.0f;
 
         pchstval = pchst(del1,del2);
 
-// 45
+        // 45
         if (pchstval > 0) {
             hsumt3 = hsum+hsum+hsum;
             w1 = (hsum + h1)/hsumt3;
             w2 = (hsum + h2)/hsumt3;
-            dmax = (int)max( fabs(del1), fabs(del2) );
-            dmin = (int)min( fabs(del1), fabs(del2) );
+            dmax = static_cast<int>(max(fabs(del1), fabs(del2)));
+            dmin = static_cast<int>(min(fabs(del1), fabs(del2)));
             drat1 = del1/dmax;
             drat2 = del2/dmax;
             tmp_derivs[ind] = dmin/(w1*drat1 + w2*drat2);
         }
-// 42
+        // 42
         else if (pchstval < 0 ) {
             ierr = ierr + 1;
             dsave = del2;
             continue;
         }
-// 41
+        // 41
         else {  // equal to zero
-            if (del2 == (int)0) { continue; }
+            if (del2 == 0.0f) { continue; }
             if (VecI::pchst(dsave,del2) < 0) { ierr = ierr + 1; }
             dsave = del2;
             continue;
         }
     }
 
-// 50 
+    // 50
     w1 = -h2/hsum;
     w2 = (h2 + hsum)/hsum;
     tmp_derivs[ind] = w1*del1 + w2*del2;
     if ( VecI::pchst(tmp_derivs[ind],del2) <= 0 ) {
-        tmp_derivs[ind] = (int)0;
+        tmp_derivs[ind] = 0.0f;
     }
     else if ( VecI::pchst(del1, del2) < 0) {
         // NEED DO THIS CHECK ONLY IF MONOTONICITY SWITCHES.
         dmax = three*del2;
         if (fabs(tmp_derivs[ind]) > fabs(dmax)) {
-            tmp_derivs[ind] = dmax;      
+            tmp_derivs[ind] = dmax;
         }
     }
     out_derivs.take(length, tmp_derivs);
     return;
 }
 
-
 void VecI::xy_to_x(VecI &x, VecI &y) {
-    int *_x = (int*)x;
-    int *_y = (int*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] - _x[i]; 
+        y._dat[i] = y._dat[i] - x._dat[i];
     }
 }
 
 void VecI::x_to_xy(VecI &x, VecI &y) {
-    int *_x = (int*)x;
-    int *_y = (int*)y;
     for (int i = 0; i < x.length(); i++) {
-        _y[i] = _y[i] + _x[i]; 
+        y._dat[i] = y._dat[i] + x._dat[i];
     }
 }
-
 
 void VecI::linear_derivs(VecI &x, VecI &y, VecI &out_derivs) {
     VecI tmp_d(x.size());
@@ -2929,12 +2413,11 @@ void VecI::linear_derivs(VecI &x, VecI &y, VecI &out_derivs) {
     out_derivs.take(tmp_d);
 }
 
-
 void VecI::linear_interp(VecI &xin, VecI &yin, VecI &xe, VecI &out_ye, int sorted) {
 
     if (out_ye.size() == 0) {
-        int *to_take = new int[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -2968,7 +2451,7 @@ void VecI::linear_interp(VecI &xin, VecI &yin, VecI &xe, VecI &out_ye, int sorte
                 ifirst = ir - 1;
             }
             istart = i;
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt*derivs[ifirst]);
         }
     }
@@ -2995,36 +2478,34 @@ void VecI::linear_interp(VecI &xin, VecI &yin, VecI &xe, VecI &out_ye, int sorte
                 ir = i - 1;
                 ifirst = ir - 1;
             }
-            dt = xe[j] - xin[ifirst];  // diff in x, eval to input 
+            dt = xe[j] - xin[ifirst];  // diff in x, eval to input
             out_ye[j] = yin[ifirst] + (dt * ((yin[ir] - yin[ifirst]) / (xin[ir]-xin[ifirst])) );
         }
     }
 }
 
 int VecI::sum_of_sq() {
-    int *me = this->pointer();
-    int total = 0;
-    for( int n = 0; n < this->size(); n++) {
-        total += me[n]*me[n];
-    }
-    return total;
+    double total = accumulate(_dat.begin(),
+                              _dat.end(),
+                              0.0,
+                              [](double s, double x) { return s + (x * x); });
+    return static_cast<int>(total);
 }
 
-
 double VecI::pearsons_r(VecI &x, VecI &y) {
-    
+
     // Preparation:
     double sum_xTy = VecI::dot_product(x,y);
-    double sum_x = x.sum();         
-    double sum_y = y.sum();       
+    double sum_x = x.sum();
+    double sum_y = y.sum();
     // Could this step be sped up?
     double sum_x2 = x.sum_of_sq();
     double sum_y2 = y.sum_of_sq();
     int N = x.dim();
-    
+
     // Here it is:
-    // 'E' is Capital Sigma 
-    // r = EXY - (EXEY/N) 
+    // 'E' is Capital Sigma
+    // r = EXY - (EXEY/N)
     //    -----------------
     //    sqrt( (EX^2 - (EX)^2/N) * (EY^2 - (EY)^2/N) )
 
@@ -3055,10 +2536,10 @@ double VecI::covariance(VecI &x, VecI &y) {
 }
 
 double VecI::euclidean(VecI &x, VecI &y) {
-    VecF diff(x.size());
+    VecI diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
-        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]); 
+        sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
     }
     return sqrt(sum_of_diffs);
 }
@@ -3076,8 +2557,8 @@ void VecI::chfe(VecI &xin, VecI &yin, VecI &xe, VecI &out_ye, int sorted) {
     //xin.print(); yin.print();
 
     if (out_ye.size() == 0) {
-        int *to_take = new int[xe.size()];
-        out_ye.take(xe.size(), to_take);
+        out_ye._dat.clear();
+        out_ye._dat.resize(xe.size());
     }
 
     // Calc the derivs:
@@ -3147,9 +2628,6 @@ void VecI::chfe(VecI &xin, VecI &yin, VecI &xe, VecI &out_ye, int sorted) {
     }
 }
 
-
-
-
 void VecI::calc_cubic_coeff(VecI &x, VecI &y, VecI &derivs, VecI &c2, VecI &c3) {
 
     //  COMPUTE CUBIC COEFFICIENTS (EXPANDED ABOUT X1).
@@ -3182,14 +2660,12 @@ void VecI::chfev_all(int X1, int X2, int F1, int F2, int D1, int D2, int XE, int
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
 
-
 void VecI::chfev(int X1, int F1, int D1, int C2, int C3, int XE, int &FE) {
     int X;
     X = XE - X1;
     //printf("X: %f F1 %f D1 %f C2 %f C3 %f\n", X, F1, D1, C2, C3);
     FE = F1 + X*(D1 + X*(C2 + X*C3));
 }
-
 
 void VecI::chfe_xy(VecI &x, VecI &y, VecI &new_x, VecI &out_new_y, int sorted) {
     VecI::xy_to_x(x,y);
@@ -3221,7 +2697,6 @@ double VecI::avg_abs_diff(VecI &x, VecI &y) {
     return sum/x.length();
 }
 
-
 void VecI::rsq_slope_intercept(VecI &x, VecI &y, double &rsq, double &slope, double &y_intercept) {
     int i;
     double mean_x = x.avg();
@@ -3229,28 +2704,27 @@ void VecI::rsq_slope_intercept(VecI &x, VecI &y, double &rsq, double &slope, dou
     double sum_sq_res_xx = 0.0;
     double sum_sq_res_yy = 0.0;
     double sum_sq_res_xy = 0.0;
-//    double *sq_res_xx = new double[x.length()];
-//    double *sq_res_yy = new double[y.length()];
-//    double *sq_res_xy = new double[x.length()];
+    //    double *sq_res_xx = new double[x.length()];
+    //    double *sq_res_yy = new double[y.length()];
+    //    double *sq_res_xy = new double[x.length()];
     //VecD sq_res_xx(x.length());
     //VecD sq_res_yy(x.length());
     //VecD sq_res_xy(x.length());
     for (i = 0; i < x.length(); ++i) {
         double x_minus_mean_i, y_minus_mean_i;
-        x_minus_mean_i = ( (double)(x[i]) ) - mean_x;
-        y_minus_mean_i = ( (double)(y[i]) ) - mean_y;
+        x_minus_mean_i = ( static_cast<double>(x[i]) ) - mean_x;
+        y_minus_mean_i = ( static_cast<double>(y[i]) ) - mean_y;
         sum_sq_res_xx += x_minus_mean_i*x_minus_mean_i;
         sum_sq_res_yy += y_minus_mean_i*y_minus_mean_i;
         sum_sq_res_xy += x_minus_mean_i*y_minus_mean_i;
     }
     slope = sum_sq_res_xy/sum_sq_res_xx;
-    y_intercept = mean_y - (slope * mean_x); 
+    y_intercept = mean_y - (slope * mean_x);
     rsq = (sum_sq_res_xy*sum_sq_res_xy)/(sum_sq_res_xx*sum_sq_res_yy);
-//    delete[] sq_res_xx;
-//    delete[] sq_res_yy;
-//    delete[] sq_res_xy;
+    //    delete[] sq_res_xx;
+    //    delete[] sq_res_yy;
+    //    delete[] sq_res_xy;
 }
-
 
 // END TEMPLATE
 

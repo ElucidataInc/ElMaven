@@ -26,26 +26,19 @@ ObiWarp::ObiWarp(ObiParams *obiParams){
     this->init_penalty = obiParams->init_penalty;
     this->response = obiParams->response;
     this->nostdnrm = obiParams->nostdnrm;
-    
-    tmPoint = NULL;
-    mzPoint = NULL;
-
 }
+
 ObiWarp::~ObiWarp(){
 
 }
 
 void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
-    _tm_vals = rtPoints.size();
-    tmPoint = new float[_tm_vals];
-    for(int i=0; i < _tm_vals ; ++i)
-        tmPoint[i] = rtPoints[i];
+    tmPoint = rtPoints;
+    _tm_vals = tmPoint.size();
     _tm.take(_tm_vals, tmPoint);
 
-    _mz_vals = mzPoints.size();
-    mzPoint = new float[_mz_vals];
-    for(int i = 0; i < _mz_vals; ++i)
-        mzPoint[i] = mzPoints[i];
+    mzPoint = mzPoints;
+    _mz_vals = mzPoint.size();
     _mz.take(_mz_vals, mzPoint);
 
     assert(_tm_vals == intMat.size());
@@ -62,17 +55,13 @@ void ObiWarp::setReferenceData(vector<float> &rtPoints, vector<float> &mzPoints,
 vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, vector<vector<float> >& intMat){
     
     VecF tm;
-    int tm_vals = rtPoints.size();
-    float* tmPoint = new float[tm_vals];
-    for(int i = 0; i < tm_vals; ++i)
-        tmPoint[i] = rtPoints[i];
+    vector<float> tmPoint(rtPoints);
+    int tm_vals = tmPoint.size();
     tm.take(tm_vals, tmPoint);
 
     VecF mz;
-    int mz_vals = mzPoints.size();
-    float* mzPoint = new float[mz_vals];
-    for(int i = 0; i < mz_vals; ++i)
-        mzPoint[i] = mzPoints[i];
+    vector<float> mzPoint(mzPoints);
+    int mz_vals = mzPoint.size();
     mz.take(mz_vals, mzPoint);
 
     assert(tm_vals = intMat.size());
@@ -111,10 +100,9 @@ vector<float> ObiWarp::align(vector<float> &rtPoints, vector<float> &mzPoints, v
         !tm_axis_vals(nOut, nOutF, tm,tm_vals))
         return alignedRts;
     warp_tm(nOutF, mOutF, tm);
-    
-    float* rts = tm.pointer();
+
     for(int i = 0; i < tm_vals; ++i)
-        alignedRts.push_back(rts[i]);
+        alignedRts.push_back(tm[i]);
     
     // delete[] tmPoint;
     // delete[] mzPoint;

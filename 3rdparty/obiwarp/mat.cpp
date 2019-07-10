@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <numeric>
 #include "mat.h"
 #include "vec.h"
 
@@ -40,35 +41,35 @@ MatF::MatF(int m, int n, const float &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatF::MatF(int m, int n, float *arr, bool shallow) : _m(m), _n(n), _dat(m*n,arr,shallow) {
+MatF::MatF(int m, int n, std::vector<float> arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatF(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-MatF::MatF(const MatF &A, bool shallow) : _m(A._m), _n(A._n), _dat(A._dat, shallow) { 
+MatF::MatF(const MatF &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatF(MatF &A,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-void MatF::to_vec(VecF &outvec, bool shallow) {
-    if (shallow) {
-        outvec.set(_dat);
-    }
-    else {
-        _dat.copy(outvec);
-    }
+std::vector<float> MatF::pointer(int m)
+{
+    return _dat.slice((m * _n), (m * _n) + _n);
 }
 
-void MatF::set(int m, int n, float *arr) {
+void MatF::to_vec(VecF &outvec) {
+    _dat.copy(outvec);
+}
+
+void MatF::set(int m, int n, std::vector<float> arr) {
     _dat.set(m*n,arr);
     _m = m;
     _n = n;
 }
 
 void MatF::set(MatF &A) {
-    _dat.set(A._dat);  
+    _dat.set(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -77,7 +78,7 @@ void MatF::set(MatF &A) {
 }
 
 
-void MatF::take(int m, int n, float *arr) {
+void MatF::take(int m, int n, std::vector<float> arr) {
     _dat.take(m*n,arr);
     _m = m;
     _n = n;
@@ -85,7 +86,7 @@ void MatF::take(int m, int n, float *arr) {
 
 void MatF::take(MatF &A) {
     // Checking is done in Vec to ensure we're not taking a shallow!
-    _dat.take(A._dat);  
+    _dat.take(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -97,7 +98,7 @@ void MatF::row_vecs(int &cnt, VecF *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        float *ptr = this->pointer(i);
+        std::vector<float> ptr = this->pointer(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -114,122 +115,14 @@ bool MatF::operator==(const MatF &A) {
     }
 }
 
-void MatF::copy(MatF &receiver, bool shallow) const {
+void MatF::copy(MatF &receiver) const {
     receiver._m = _m;
     receiver._n = _n;
-    _dat.copy(receiver._dat, shallow);
+    _dat.copy(receiver._dat);
 #ifdef JTP_DEBUG
     puts("copy called!");
 #endif
 }
-
-void MatF::file_rows_cols(std::ifstream &stream, int &rows, int &cols) {
-    rows = 0;
-    cols = 0;
-    int BIGGEST_LINE = 1000000;
-    char line[1000000];  // windows doesn't like that variable there
-    stream.getline(line, BIGGEST_LINE);
-    ++rows;
-    char *ptr = line;
-    int linelength = 0;
-    while(*ptr != '\0') {
-        if (*ptr == ' ') {
-            *ptr = '\0';  // keep track of spaces
-            ++cols;    
-        }
-        ++ptr;
-        ++linelength;
-    }
-    ++cols; // for the last one
-    // Check for spaces on the end:
-    while(1) {
-        --ptr;
-        // char is !\n && \r && \0
-        if (*ptr == '\n' || *ptr == '\r') {
-            continue;
-        }
-        else if (*ptr == '\0') {
-            --cols;  // decrement for each space at the end
-        }
-        else { break; }
-    }
-    // Count the rows:
-    while( stream.getline(line, BIGGEST_LINE) ) {
-        // if the line starts with a real char:
-        if (line[0] != ' ' && line[0] != '\n' && line[0] != '\r' && line[0] != '\0') {
-            ++rows;
-        }
-    }
-}
-
-void MatF::set_from_ascii(std::ifstream &stream, int m, int n, MatF &out) {
-    MatF tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatF::set_from_ascii(std::ifstream &stream, MatF &out) {
-    int m,n;
-    stream >> m >> n;
-    MatF tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatF::set_from_ascii(const char *file, bool without_axes) {
-    std::ifstream fh(file);
-    if (fh.is_open()) {
-        if (without_axes) {
-            int m,n;
-            file_rows_cols(fh,m,n);
-            // Rewind the stream to beginning
-            fh.clear(); // forget we saw the eof
-            fh.seekg(0,std::ios::beg);
-            set_from_ascii(fh,m,n,(*this));
-        }
-        else {
-            set_from_ascii(fh,(*this));
-        }
-        fh.close(); 
-    }
-    else {
-        printf("Couldn't open %s\n", file);
-        exit(1);
-    }
-}
-
-void MatF::set_from_binary(const char *file) {
-    int bytes_read;
-    FILE *fh = fopen(file, "rb"); 
-    if (fh == NULL) {
-        printf("Could not open %s for reading\n", file);
-        exit(1);
-    }
-    bytes_read = fread(&_m, sizeof(int), 1, fh);
-    bytes_read = fread(&_n, sizeof(int), 1, fh);
-    // Read the matrix:
-    int rows_by_cols = _m*_n;
-    //printf("rbycools: %d\n", rows_by_cols);
-    float *dat_tmp = new float[rows_by_cols];
-    bytes_read = fread(dat_tmp, sizeof(float), rows_by_cols, fh);
-    //puts("**********************************************************");
-    //puts("THIS IS THE BINARY MAT READ in:");
-    //printf("First: %d:%.0f\n", 0, dat_tmp[0]);
-    //printf("Last: %d:%.0f\n", rows_by_cols, dat_tmp[rows_by_cols-1]);
-    //puts("**********************************************************");
-
-    _dat.take(rows_by_cols, dat_tmp);
-    fclose(fh);
-}
-
 
 MatF & MatF::operator=(const float &val) {
     _dat = val;
@@ -309,7 +202,7 @@ void MatF::div(const MatF &todiv, MatF &out) {
 }
 
 void MatF::transpose(MatF &out) {
-    MatF me(*this, 1);
+    MatF me(*this);
     MatF tmp(me.nlen(), me.mlen());  // reverse m,n
     for (int m = 0; m < mlen(); ++m) {
         for (int n = 0; n < nlen(); ++n) {
@@ -328,22 +221,22 @@ MatF MatF::operator+(const MatF &A) {
         return blank;
     }
 
-    else {
-        MatF *C = new MatF(_n);
-        MatF tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    MatF *C = new MatF(_n);
+    MatF tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 
 */
 
 
-void MatF::expand(MatF &result, float match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
+    void MatF::expand(MatF &result, float match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
     int i;
     int m_len = this->dim1();
     int n_len = this->dim2();
@@ -398,77 +291,14 @@ void MatF::expand(MatF &result, float match, int expand_x_lt, int expand_x_rt, i
 
 
 void MatF::mask_as_vec(float return_val, MatI &mask, VecF &out) {
-    _dat.mask_as_vec(return_val, mask._dat, out);    
+    _dat.mask_as_vec(return_val, mask._dat, out);
 }
 
 
 float MatF::sum(int m) {
-    float sum = 0;
-    float *ptr = pointer(m);
-    for (int i = 0; i < _n; ++i) {
-        sum += ptr[i];
-    }
+    std::vector<float> ptr = pointer(m);
+    float sum = std::accumulate(ptr.begin(), ptr.end(), 0.0f);
     return sum;
-}
-
-
-void MatF::print(bool without_axes) {
-    MatF tmp((*this),1); 
-    if (!without_axes) {
-        std::cout << _m << ' ' << _n << std::endl;
-    }
-    for (int m = 0; m < _m; ++m) {
-        int n;
-        for (n = 0; n < _n - 1; ++n) {
-            std::cout << tmp(m,n) << " ";
-        }
-        std::cout << tmp(m,n);
-        std::cout << std::endl;
-    }
-}
-
-void MatF::print(const char *filename, bool without_axes) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_axes);
-    fh.close();
-}
-
-void MatF::print(std::ostream &fout, bool without_axes) {
-    int m;
-    if (!without_axes) {
-        fout << _m << ' ' << _n << std::endl;
-    }
-    for (m = 0; m < _m; m++) {
-        int n;
-        for (n = 0; n < _n - 1; n++) {
-            fout << _dat[(m*_n)+n] << " ";
-        }
-        fout << _dat[m*_n+n];
-        fout << std::endl;
-    }
-}
-
-void MatF::write(const char *file) {
-    if (file != NULL) {
-        FILE *fh = fopen(file, "wb");
-        fwrite(&_m, sizeof(int), 1, fh);
-        fwrite(&_n, sizeof(int), 1, fh);
-        fwrite((float*)(_dat), sizeof(float), _m*_n, fh);
-        fclose(fh);
-    }
-    else {
-        fwrite(&_m, sizeof(int), 1, stdout);
-        fwrite(&_n, sizeof(int), 1, stdout);
-        fwrite((float*)(_dat), sizeof(float), _m*_n, stdout);
-    }
-    //puts("**********************************************************");
-    //puts("WRITING THE BINARY MAT:");
-    //printf("1st val: %f\n", mptr[0]);
-    //printf("last val: %f\n", mptr[rows_by_cols-1]);
-    //puts("**********************************************************");
 }
 
 
@@ -498,35 +328,35 @@ MatD::MatD(int m, int n, const double &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatD::MatD(int m, int n, double *arr, bool shallow) : _m(m), _n(n), _dat(m*n,arr,shallow) {
+MatD::MatD(int m, int n, std::vector<double> arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatD(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-MatD::MatD(const MatD &A, bool shallow) : _m(A._m), _n(A._n), _dat(A._dat, shallow) { 
+MatD::MatD(const MatD &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatD(MatD &A,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-void MatD::to_vec(VecD &outvec, bool shallow) {
-    if (shallow) {
-        outvec.set(_dat);
-    }
-    else {
-        _dat.copy(outvec);
-    }
+std::vector<double> MatD::pointer(int m)
+{
+    return _dat.slice((m * _n), (m * _n) + _n);
 }
 
-void MatD::set(int m, int n, double *arr) {
+void MatD::to_vec(VecD &outvec) {
+    _dat.copy(outvec);
+}
+
+void MatD::set(int m, int n, std::vector<double> arr) {
     _dat.set(m*n,arr);
     _m = m;
     _n = n;
 }
 
 void MatD::set(MatD &A) {
-    _dat.set(A._dat);  
+    _dat.set(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -535,7 +365,7 @@ void MatD::set(MatD &A) {
 }
 
 
-void MatD::take(int m, int n, double *arr) {
+void MatD::take(int m, int n, std::vector<double> arr) {
     _dat.take(m*n,arr);
     _m = m;
     _n = n;
@@ -543,7 +373,7 @@ void MatD::take(int m, int n, double *arr) {
 
 void MatD::take(MatD &A) {
     // Checking is done in Vec to ensure we're not taking a shallow!
-    _dat.take(A._dat);  
+    _dat.take(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -555,7 +385,7 @@ void MatD::row_vecs(int &cnt, VecD *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        double *ptr = this->pointer(i);
+        std::vector<double> ptr = this->pointer(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -572,122 +402,14 @@ bool MatD::operator==(const MatD &A) {
     }
 }
 
-void MatD::copy(MatD &receiver, bool shallow) const {
+void MatD::copy(MatD &receiver) const {
     receiver._m = _m;
     receiver._n = _n;
-    _dat.copy(receiver._dat, shallow);
+    _dat.copy(receiver._dat);
 #ifdef JTP_DEBUG
     puts("copy called!");
 #endif
 }
-
-void MatD::file_rows_cols(std::ifstream &stream, int &rows, int &cols) {
-    rows = 0;
-    cols = 0;
-    int BIGGEST_LINE = 1000000;
-    char line[1000000];  // windows doesn't like that variable there
-    stream.getline(line, BIGGEST_LINE);
-    ++rows;
-    char *ptr = line;
-    int linelength = 0;
-    while(*ptr != '\0') {
-        if (*ptr == ' ') {
-            *ptr = '\0';  // keep track of spaces
-            ++cols;    
-        }
-        ++ptr;
-        ++linelength;
-    }
-    ++cols; // for the last one
-    // Check for spaces on the end:
-    while(1) {
-        --ptr;
-        // char is !\n && \r && \0
-        if (*ptr == '\n' || *ptr == '\r') {
-            continue;
-        }
-        else if (*ptr == '\0') {
-            --cols;  // decrement for each space at the end
-        }
-        else { break; }
-    }
-    // Count the rows:
-    while( stream.getline(line, BIGGEST_LINE) ) {
-        // if the line starts with a real char:
-        if (line[0] != ' ' && line[0] != '\n' && line[0] != '\r' && line[0] != '\0') {
-            ++rows;
-        }
-    }
-}
-
-void MatD::set_from_ascii(std::ifstream &stream, int m, int n, MatD &out) {
-    MatD tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatD::set_from_ascii(std::ifstream &stream, MatD &out) {
-    int m,n;
-    stream >> m >> n;
-    MatD tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatD::set_from_ascii(const char *file, bool without_axes) {
-    std::ifstream fh(file);
-    if (fh.is_open()) {
-        if (without_axes) {
-            int m,n;
-            file_rows_cols(fh,m,n);
-            // Rewind the stream to beginning
-            fh.clear(); // forget we saw the eof
-            fh.seekg(0,std::ios::beg);
-            set_from_ascii(fh,m,n,(*this));
-        }
-        else {
-            set_from_ascii(fh,(*this));
-        }
-        fh.close(); 
-    }
-    else {
-        printf("Couldn't open %s\n", file);
-        exit(1);
-    }
-}
-
-void MatD::set_from_binary(const char *file) {
-    int bytes_read;
-    FILE *fh = fopen(file, "rb"); 
-    if (fh == NULL) {
-        printf("Could not open %s for reading\n", file);
-        exit(1);
-    }
-    bytes_read = fread(&_m, sizeof(int), 1, fh);
-    bytes_read = fread(&_n, sizeof(int), 1, fh);
-    // Read the matrix:
-    int rows_by_cols = _m*_n;
-    //printf("rbycools: %d\n", rows_by_cols);
-    double *dat_tmp = new double[rows_by_cols];
-    bytes_read = fread(dat_tmp, sizeof(double), rows_by_cols, fh);
-    //puts("**********************************************************");
-    //puts("THIS IS THE BINARY MAT READ in:");
-    //printf("First: %d:%.0f\n", 0, dat_tmp[0]);
-    //printf("Last: %d:%.0f\n", rows_by_cols, dat_tmp[rows_by_cols-1]);
-    //puts("**********************************************************");
-
-    _dat.take(rows_by_cols, dat_tmp);
-    fclose(fh);
-}
-
 
 MatD & MatD::operator=(const double &val) {
     _dat = val;
@@ -767,7 +489,7 @@ void MatD::div(const MatD &todiv, MatD &out) {
 }
 
 void MatD::transpose(MatD &out) {
-    MatD me(*this, 1);
+    MatD me(*this);
     MatD tmp(me.nlen(), me.mlen());  // reverse m,n
     for (int m = 0; m < mlen(); ++m) {
         for (int n = 0; n < nlen(); ++n) {
@@ -786,22 +508,22 @@ MatD MatD::operator+(const MatD &A) {
         return blank;
     }
 
-    else {
-        MatD *C = new MatD(_n);
-        MatD tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    MatD *C = new MatD(_n);
+    MatD tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 
 */
 
 
-void MatD::expand(MatD &result, double match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
+    void MatD::expand(MatD &result, double match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
     int i;
     int m_len = this->dim1();
     int n_len = this->dim2();
@@ -856,79 +578,15 @@ void MatD::expand(MatD &result, double match, int expand_x_lt, int expand_x_rt, 
 
 
 void MatD::mask_as_vec(double return_val, MatI &mask, VecD &out) {
-    _dat.mask_as_vec(return_val, mask._dat, out);    
+    _dat.mask_as_vec(return_val, mask._dat, out);
 }
 
 
 double MatD::sum(int m) {
-    double sum = 0;
-    double *ptr = pointer(m);
-    for (int i = 0; i < _n; ++i) {
-        sum += ptr[i];
-    }
+    std::vector<double> ptr = pointer(m);
+    double sum = std::accumulate(ptr.begin(), ptr.end(), 0.0);
     return sum;
 }
-
-
-void MatD::print(bool without_axes) {
-    MatD tmp((*this),1); 
-    if (!without_axes) {
-        std::cout << _m << ' ' << _n << std::endl;
-    }
-    for (int m = 0; m < _m; ++m) {
-        int n;
-        for (n = 0; n < _n - 1; ++n) {
-            std::cout << tmp(m,n) << " ";
-        }
-        std::cout << tmp(m,n);
-        std::cout << std::endl;
-    }
-}
-
-void MatD::print(const char *filename, bool without_axes) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_axes);
-    fh.close();
-}
-
-void MatD::print(std::ostream &fout, bool without_axes) {
-    int m;
-    if (!without_axes) {
-        fout << _m << ' ' << _n << std::endl;
-    }
-    for (m = 0; m < _m; m++) {
-        int n;
-        for (n = 0; n < _n - 1; n++) {
-            fout << _dat[(m*_n)+n] << " ";
-        }
-        fout << _dat[m*_n+n];
-        fout << std::endl;
-    }
-}
-
-void MatD::write(const char *file) {
-    if (file != NULL) {
-        FILE *fh = fopen(file, "wb");
-        fwrite(&_m, sizeof(int), 1, fh);
-        fwrite(&_n, sizeof(int), 1, fh);
-        fwrite((double*)(_dat), sizeof(double), _m*_n, fh);
-        fclose(fh);
-    }
-    else {
-        fwrite(&_m, sizeof(int), 1, stdout);
-        fwrite(&_n, sizeof(int), 1, stdout);
-        fwrite((double*)(_dat), sizeof(double), _m*_n, stdout);
-    }
-    //puts("**********************************************************");
-    //puts("WRITING THE BINARY MAT:");
-    //printf("1st val: %f\n", mptr[0]);
-    //printf("last val: %f\n", mptr[rows_by_cols-1]);
-    //puts("**********************************************************");
-}
-
 
 /****************************************************************
  * MatI
@@ -956,35 +614,35 @@ MatI::MatI(int m, int n, const int &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatI::MatI(int m, int n, int *arr, bool shallow) : _m(m), _n(n), _dat(m*n,arr,shallow) {
+MatI::MatI(int m, int n, std::vector<int> arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatI(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-MatI::MatI(const MatI &A, bool shallow) : _m(A._m), _n(A._n), _dat(A._dat, shallow) { 
+MatI::MatI(const MatI &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatI(MatI &A,shallow) shallow=%d!\n", this->shallow());
 #endif
 }
 
-void MatI::to_vec(VecI &outvec, bool shallow) {
-    if (shallow) {
-        outvec.set(_dat);
-    }
-    else {
-        _dat.copy(outvec);
-    }
+std::vector<int> MatI::pointer(int m)
+{
+    return _dat.slice((m * _n), (m * _n) + _n);
 }
 
-void MatI::set(int m, int n, int *arr) {
+void MatI::to_vec(VecI &outvec) {
+    _dat.copy(outvec);
+}
+
+void MatI::set(int m, int n, std::vector<int> arr) {
     _dat.set(m*n,arr);
     _m = m;
     _n = n;
 }
 
 void MatI::set(MatI &A) {
-    _dat.set(A._dat);  
+    _dat.set(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -993,7 +651,7 @@ void MatI::set(MatI &A) {
 }
 
 
-void MatI::take(int m, int n, int *arr) {
+void MatI::take(int m, int n, std::vector<int> arr) {
     _dat.take(m*n,arr);
     _m = m;
     _n = n;
@@ -1001,7 +659,7 @@ void MatI::take(int m, int n, int *arr) {
 
 void MatI::take(MatI &A) {
     // Checking is done in Vec to ensure we're not taking a shallow!
-    _dat.take(A._dat);  
+    _dat.take(A._dat);
     _m = A._m;
     _n = A._n;
 #ifdef JTP_DEBUG
@@ -1013,7 +671,7 @@ void MatI::row_vecs(int &cnt, VecI *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        int *ptr = this->pointer(i);
+        std::vector<int> ptr = this->pointer(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -1030,122 +688,14 @@ bool MatI::operator==(const MatI &A) {
     }
 }
 
-void MatI::copy(MatI &receiver, bool shallow) const {
+void MatI::copy(MatI &receiver) const {
     receiver._m = _m;
     receiver._n = _n;
-    _dat.copy(receiver._dat, shallow);
+    _dat.copy(receiver._dat);
 #ifdef JTP_DEBUG
     puts("copy called!");
 #endif
 }
-
-void MatI::file_rows_cols(std::ifstream &stream, int &rows, int &cols) {
-    rows = 0;
-    cols = 0;
-    int BIGGEST_LINE = 1000000;
-    char line[1000000];  // windows doesn't like that variable there
-    stream.getline(line, BIGGEST_LINE);
-    ++rows;
-    char *ptr = line;
-    int linelength = 0;
-    while(*ptr != '\0') {
-        if (*ptr == ' ') {
-            *ptr = '\0';  // keep track of spaces
-            ++cols;    
-        }
-        ++ptr;
-        ++linelength;
-    }
-    ++cols; // for the last one
-    // Check for spaces on the end:
-    while(1) {
-        --ptr;
-        // char is !\n && \r && \0
-        if (*ptr == '\n' || *ptr == '\r') {
-            continue;
-        }
-        else if (*ptr == '\0') {
-            --cols;  // decrement for each space at the end
-        }
-        else { break; }
-    }
-    // Count the rows:
-    while( stream.getline(line, BIGGEST_LINE) ) {
-        // if the line starts with a real char:
-        if (line[0] != ' ' && line[0] != '\n' && line[0] != '\r' && line[0] != '\0') {
-            ++rows;
-        }
-    }
-}
-
-void MatI::set_from_ascii(std::ifstream &stream, int m, int n, MatI &out) {
-    MatI tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatI::set_from_ascii(std::ifstream &stream, MatI &out) {
-    int m,n;
-    stream >> m >> n;
-    MatI tmp(m,n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            stream >> tmp(i,j);
-        }
-    }
-    out.take(tmp);
-}
-
-void MatI::set_from_ascii(const char *file, bool without_axes) {
-    std::ifstream fh(file);
-    if (fh.is_open()) {
-        if (without_axes) {
-            int m,n;
-            file_rows_cols(fh,m,n);
-            // Rewind the stream to beginning
-            fh.clear(); // forget we saw the eof
-            fh.seekg(0,std::ios::beg);
-            set_from_ascii(fh,m,n,(*this));
-        }
-        else {
-            set_from_ascii(fh,(*this));
-        }
-        fh.close(); 
-    }
-    else {
-        printf("Couldn't open %s\n", file);
-        exit(1);
-    }
-}
-
-void MatI::set_from_binary(const char *file) {
-    int bytes_read;
-    FILE *fh = fopen(file, "rb"); 
-    if (fh == NULL) {
-        printf("Could not open %s for reading\n", file);
-        exit(1);
-    }
-    bytes_read = fread(&_m, sizeof(int), 1, fh);
-    bytes_read = fread(&_n, sizeof(int), 1, fh);
-    // Read the matrix:
-    int rows_by_cols = _m*_n;
-    //printf("rbycools: %d\n", rows_by_cols);
-    int *dat_tmp = new int[rows_by_cols];
-    bytes_read = fread(dat_tmp, sizeof(int), rows_by_cols, fh);
-    //puts("**********************************************************");
-    //puts("THIS IS THE BINARY MAT READ in:");
-    //printf("First: %d:%.0f\n", 0, dat_tmp[0]);
-    //printf("Last: %d:%.0f\n", rows_by_cols, dat_tmp[rows_by_cols-1]);
-    //puts("**********************************************************");
-
-    _dat.take(rows_by_cols, dat_tmp);
-    fclose(fh);
-}
-
 
 MatI & MatI::operator=(const int &val) {
     _dat = val;
@@ -1225,7 +775,7 @@ void MatI::div(const MatI &todiv, MatI &out) {
 }
 
 void MatI::transpose(MatI &out) {
-    MatI me(*this, 1);
+    MatI me(*this);
     MatI tmp(me.nlen(), me.mlen());  // reverse m,n
     for (int m = 0; m < mlen(); ++m) {
         for (int n = 0; n < nlen(); ++n) {
@@ -1244,22 +794,22 @@ MatI MatI::operator+(const MatI &A) {
         return blank;
     }
 
-    else {
-        MatI *C = new MatI(_n);
-        MatI tmp = *C;
-        tmp._to_pass_up = C; 
+else {
+    MatI *C = new MatI(_n);
+    MatI tmp = *C;
+    tmp._to_pass_up = C;
         printf("TMPENEW %d\n", tmp.shallow());
-        for (int i = 0; i < _n; ++i) {
-            tmp[i] = _dat[i] + A[i];
-        }
-        return tmp;
+    for (int i = 0; i < _n; ++i) {
+        tmp[i] = _dat[i] + A[i];
     }
+    return tmp;
+}
 }
 
 */
 
 
-void MatI::expand(MatI &result, int match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
+    void MatI::expand(MatI &result, int match, int expand_x_lt, int expand_x_rt, int expand_y_up, int expand_y_dn, int expand_diag_lt_up, int expand_diag_rt_up, int expand_diag_lt_dn, int expand_diag_rt_dn ) {
     int i;
     int m_len = this->dim1();
     int n_len = this->dim2();
@@ -1314,77 +864,14 @@ void MatI::expand(MatI &result, int match, int expand_x_lt, int expand_x_rt, int
 
 
 void MatI::mask_as_vec(int return_val, MatI &mask, VecI &out) {
-    _dat.mask_as_vec(return_val, mask._dat, out);    
+    _dat.mask_as_vec(return_val, mask._dat, out);
 }
 
 
 int MatI::sum(int m) {
-    int sum = 0;
-    int *ptr = pointer(m);
-    for (int i = 0; i < _n; ++i) {
-        sum += ptr[i];
-    }
+    std::vector<int> ptr = pointer(m);
+    int sum = std::accumulate(ptr.begin(), ptr.end(), 0);
     return sum;
-}
-
-
-void MatI::print(bool without_axes) {
-    MatI tmp((*this),1); 
-    if (!without_axes) {
-        std::cout << _m << ' ' << _n << std::endl;
-    }
-    for (int m = 0; m < _m; ++m) {
-        int n;
-        for (n = 0; n < _n - 1; ++n) {
-            std::cout << tmp(m,n) << " ";
-        }
-        std::cout << tmp(m,n);
-        std::cout << std::endl;
-    }
-}
-
-void MatI::print(const char *filename, bool without_axes) {
-    std::ofstream fh(filename);
-    if (!fh) {
-        std::cout << "Error opening file " << filename << std::endl;
-    }
-    this->print(fh, without_axes);
-    fh.close();
-}
-
-void MatI::print(std::ostream &fout, bool without_axes) {
-    int m;
-    if (!without_axes) {
-        fout << _m << ' ' << _n << std::endl;
-    }
-    for (m = 0; m < _m; m++) {
-        int n;
-        for (n = 0; n < _n - 1; n++) {
-            fout << _dat[(m*_n)+n] << " ";
-        }
-        fout << _dat[m*_n+n];
-        fout << std::endl;
-    }
-}
-
-void MatI::write(const char *file) {
-    if (file != NULL) {
-        FILE *fh = fopen(file, "wb");
-        fwrite(&_m, sizeof(int), 1, fh);
-        fwrite(&_n, sizeof(int), 1, fh);
-        fwrite((int*)(_dat), sizeof(int), _m*_n, fh);
-        fclose(fh);
-    }
-    else {
-        fwrite(&_m, sizeof(int), 1, stdout);
-        fwrite(&_n, sizeof(int), 1, stdout);
-        fwrite((int*)(_dat), sizeof(int), _m*_n, stdout);
-    }
-    //puts("**********************************************************");
-    //puts("WRITING THE BINARY MAT:");
-    //printf("1st val: %f\n", mptr[0]);
-    //printf("last val: %f\n", mptr[rows_by_cols-1]);
-    //puts("**********************************************************");
 }
 
 // END TEMPLATE

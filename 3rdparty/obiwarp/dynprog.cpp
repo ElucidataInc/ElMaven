@@ -165,18 +165,24 @@ void DynProg::bijective_anchors(VecI &mCoords, VecI &nCoords, VecF &scores, VecI
     //puts("equivs:"); mCoords.print(); nCoords.print(); scores.print();
     int lengthEquiv = mCoords.dim();
 
-    int *nC_arr = new int[lengthEquiv];  // Max length...
-    int *mC_arr = new int[lengthEquiv];  // Max length...
-    float *sC_arr = new float[lengthEquiv];  // Max length...
+    std::vector<int> nC_arr;
+    nC_arr.resize(lengthEquiv);  // Max length...
+    std::vector<int> mC_arr;
+    mC_arr.resize(lengthEquiv);  // Max length...
+    std::vector<float> sC_arr;
+    sC_arr.resize(lengthEquiv);  // Max length...
 
     // monoMaps do NOT include the first and last equivalents!
 
     // find the length of the equivalents for MONOTONIC pairs (gaps collapse)
 
     // Eliminate the equivalents that have the same m or n as the two corners
-    int *mCoordsS_arr = new int[lengthEquiv-2];
-    int *nCoordsS_arr = new int[lengthEquiv-2];
-    float *scoresS_arr = new float[lengthEquiv-2];
+    std::vector<int> mCoordsS_arr;
+    mCoordsS_arr.resize(lengthEquiv-2);
+    std::vector<int> nCoordsS_arr;
+    nCoordsS_arr.resize(lengthEquiv-2);
+    std::vector<float> scoresS_arr;
+    scoresS_arr.resize(lengthEquiv-2);
     int last_index = lengthEquiv - 1;
     int startm = mCoords[0];
     int startn = nCoords[0];
@@ -377,17 +383,20 @@ void _traceback(MatI &tb, MatF &smat, int m, int n, MatI &tbpath, VecI &mCoord, 
         cnt++;
     }
 
-    int *tmpEquiv_m = new int[cnt];
-    int *tmpEquiv_n = new int[cnt];
-    float *tmpScores = new float[cnt];
+    std::vector<int> tmpEquiv_m;
+    tmpEquiv_m.reserve(cnt);
+    std::vector<int> tmpEquiv_n;
+    tmpEquiv_n.reserve(cnt);
+    std::vector<float> tmpScores;
+    tmpScores.reserve(cnt);
 
     // Reverse the arrays
     int rev = cnt - 1;
     // This could be made a little faster...
     for (i = 0; i < cnt; ++i) {
-        tmpEquiv_m[i] = m_eqr[rev];
-        tmpEquiv_n[i] = n_eqr[rev];
-        tmpScores[i] = score_pathr[rev];
+        tmpEquiv_m.push_back(m_eqr[rev]);
+        tmpEquiv_n.push_back(n_eqr[rev]);
+        tmpScores.push_back(score_pathr[rev]);
         rev--;
     }
     delete[] n_eqr;
@@ -1053,8 +1062,8 @@ float entropy(MatF &mat, int rowNum, int numBins, float minVal, float scaleFacto
 
 //Subtract a value
 void _subtract(MatF &mat, int rowNum, float val, MatF &minused) {
-    float *matptr = mat.pointer(rowNum);
-    float *minusedptr = minused.pointer(rowNum);
+    std::vector<float> matptr = mat.pointer(rowNum);
+    std::vector<float> minusedptr = minused.pointer(rowNum);
     for (int i = 0; i < mat.cols(); ++i) {
         minusedptr[i] = matptr[i] - val;
     }
@@ -1062,8 +1071,8 @@ void _subtract(MatF &mat, int rowNum, float val, MatF &minused) {
 
 //Sum of the products (i.e. the dot product at that row)
 float sumOfProducts(MatF &mat1, int rowNum1, MatF &mat2, int rowNum2) {
-    float *mat1ptr = mat1.pointer(rowNum1);
-    float *mat2ptr = mat2.pointer(rowNum2);
+    std::vector<float> mat1ptr = mat1.pointer(rowNum1);
+    std::vector<float> mat2ptr = mat2.pointer(rowNum2);
     float sum = 0;
     for (int i = 0; i < mat1.cols(); ++i) {
         sum += mat1ptr[i] * mat2ptr[i]; 
@@ -1075,7 +1084,7 @@ float sumOfProducts(MatF &mat1, int rowNum1, MatF &mat2, int rowNum2) {
 // could increase the speed here by getting the oneD version and doing pointer
 // math(?)
 float sumXSquared(MatF &mat, int rowNum) {
-    float *matptr = mat.pointer(rowNum);
+    std::vector<float> matptr = mat.pointer(rowNum);
     float sum = 0;
     for (int i = 0; i < mat.cols(); ++i) {
         sum += matptr[i] * matptr[i]; 
@@ -1098,20 +1107,20 @@ void DynProg::less_before(VecF &arr) {
 // linear function given in terms of mx + b where m is slope and b is y
 // intercept
 void DynProg::linear(float m, float b, int len,  VecF &arr) {
-    float *tmparr = new float[len];
-    int ind = 0;
-    while (ind < len) { 
-        tmparr[ind] = m*ind + b;
-        ++ind;
+    std::vector<float> tmparr;
+    tmparr.reserve(len);
+    for (int i = 1; i < len; ++i) {
+        tmparr.push_back(m*i + b);
     }
     arr.take(len, tmparr);
 }
 
 void DynProg::linear_less_before(float m, float b, int veclen, VecF &lessbefore) {
-    float *tmparr = new float[veclen];
+    std::vector<float> tmparr;
+    tmparr.reserve(veclen);
     tmparr[0] = b;
     for (int i = 1; i < veclen; ++i) {
-        tmparr[i] = m;
+        tmparr.push_back(m*i + b);
     }
     lessbefore.take(veclen, tmparr);
 }
