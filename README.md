@@ -66,7 +66,7 @@ in the .bashrc file. It can be achieved by either manually editing the .bashrc f
     - From msys2 shell: `source ~/.bashrc`
 
   **For editing the file via command line:**
-    - `echo export PATH=/c/msys64/mingw64/bin/:$PATH > ~/.bashrc`
+    - `echo export PATH=/c/msys64/usr/bin/:/c/msys64/mingw64/bin/:$PATH > ~/.bashrc`
     - `source ~/.bashrc`
 
 
