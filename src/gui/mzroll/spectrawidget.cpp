@@ -710,43 +710,54 @@ void SpectraWidget::drawGraph()
 
 void SpectraWidget::findBounds(bool checkX, bool checkY)
 {
-    //bounds
-    if (_currentScan == NULL) return;
+    // bounds
+    if (_currentScan == NULL)
+        return;
 
     if (_currentScan->mz.size() == 0) {
         qDebug() << "Empty scan: " << _currentScan->scannum << endl;
         return;
     }
 
-	float minMZ; float maxMZ;
-	if ( _currentScan->mz.size() == 1 ) {
-		minMZ = _currentScan->mz[0]-0.5;
-		maxMZ = _currentScan->mz[0]+0.5;
-	} else {
-		minMZ = _currentScan->mz[0]-0.01;
-		maxMZ = _currentScan->mz[_currentScan->mz.size()-1]+0.01;
-	}
+    float minMZ;
+    float maxMZ;
+    if (_currentScan->mz.size() == 1) {
+        minMZ = _currentScan->mz[0] - 0.5;
+        maxMZ = _currentScan->mz[0] + 0.5;
+    } else {
+        minMZ = _currentScan->mz[0] - 0.01;
+        maxMZ = _currentScan->mz[_currentScan->mz.size() - 1] + 0.01;
+    }
 
-	cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
+    cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
     cerr << "findBounds():  RANGE=" << minMZ << "-" << maxMZ << endl;
-	if( _minX < minMZ) _minX = minMZ;
-	if( _maxX > maxMZ) _maxX = maxMZ;
+    if (_minX < minMZ)
+        _minX = minMZ;
+    if (_maxX > maxMZ)
+        _maxX = maxMZ;
 
-    if ( checkX ) { _minX = minMZ; _maxX = maxMZ; }
-    if ( _minX == _maxX ) { _minX-=0.5; _maxX+=0.5; }
+    if (checkX) {
+        _minX = minMZ;
+        _maxX = maxMZ;
+    }
+    if (_minX == _maxX) {
+        _minX -= 0.5;
+        _maxX += 0.5;
+    }
 
-    if (checkY)  {
-    	_minY = 0;
-		_maxY = 1;
-		for(int j=0; j<_currentScan->nobs(); j++ ) {
-			if (_currentScan->mz[j] >= _minX && _currentScan->mz[j] <= _maxX) {
-				if (_currentScan->intensity[j] > _maxY) _maxY = _currentScan->intensity[j];
+    if (checkY) {
+        _minY = 0;
+        _maxY = 1;
+        for (int j = 0; j < _currentScan->nobs(); j++) {
+            if (_currentScan->mz[j] >= _minX && _currentScan->mz[j] <= _maxX) {
+                if (_currentScan->intensity[j] > _maxY)
+                    _maxY = _currentScan->intensity[j];
             }
         }
     }
 
-    _minY=0; _maxY *= 1.3;
-   // cerr << "findBounds():  mz=" << _minX << "-" << _maxX << " ints=" << _minY << "-" << _maxY << endl;
+    _minY = 0;
+    _maxY *= 1.3;
 }
 
 void SpectraWidget::keyPressEvent( QKeyEvent *e )
