@@ -710,43 +710,70 @@ void SpectraWidget::drawGraph()
 
 void SpectraWidget::findBounds(bool checkX, bool checkY)
 {
-    //bounds
-    if (_currentScan == NULL) return;
+    // TODO: Do we only check for existence of a scan? Having an "mzList" in a
+    // `_spectralHit` should also be checked, but right now, once set
+    // `_spectralHit` is never unset/cleared. What would be the best place to
+    // do so.
+    if (_currentScan == NULL)
+        return;
 
+    // TODO: similarly size of `_spectralHit->mzList` can also be checked here
     if (_currentScan->mz.size() == 0) {
         qDebug() << "Empty scan: " << _currentScan->scannum << endl;
         return;
     }
 
-	float minMZ; float maxMZ;
-	if ( _currentScan->mz.size() == 1 ) {
-		minMZ = _currentScan->mz[0]-0.5;
-		maxMZ = _currentScan->mz[0]+0.5;
-	} else {
-		minMZ = _currentScan->mz[0]-0.01;
-		maxMZ = _currentScan->mz[_currentScan->mz.size()-1]+0.01;
-	}
+    // obtain the minimum and maximum m/z values of the current scan
+    float minMZ = _currentScan->mz.front();
+    float maxMZ = _currentScan->mz.back();
 
-	cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
-    cerr << "findBounds():  RANGE=" << minMZ << "-" << maxMZ << endl;
-	if( _minX < minMZ) _minX = minMZ;
-	if( _maxX > maxMZ) _maxX = maxMZ;
+    // if spectral hit has an m/z list, then set minMZ and maxMZ to be the
+    // minimum and maximum of this list, if they are smaller or greater in
+    // magnitude, respectively
+    if (_spectralHit.mzList.size() > 0) {
+        QVector<double> mzListCopy = _spectralHit.mzList;
+        qSort(mzListCopy.begin(), mzListCopy.end(), qLess<double>());
+        minMZ = min(minMZ, static_cast<float>(mzListCopy.front()));
+        maxMZ = max(maxMZ, static_cast<float>(mzListCopy.back()));
+    }
 
-    if ( checkX ) { _minX = minMZ; _maxX = maxMZ; }
-    if ( _minX == _maxX ) { _minX-=0.5; _maxX+=0.5; }
+    // buffer of ± 20 Da, to ensure that labels and bars on the edges come into
+    // the picture fully
+    minMZ -= 20;
+    maxMZ += 20;
 
-    if (checkY)  {
-    	_minY = 0;
-		_maxY = 1;
-		for(int j=0; j<_currentScan->nobs(); j++ ) {
-			if (_currentScan->mz[j] >= _minX && _currentScan->mz[j] <= _maxX) {
-				if (_currentScan->intensity[j] > _maxY) _maxY = _currentScan->intensity[j];
+    cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
+    cerr << "findBounds(): range [" << minMZ << ", " << maxMZ << "]" << endl;
+
+    if (_minX < minMZ)
+        _minX = minMZ;
+    if (_maxX > maxMZ)
+        _maxX = maxMZ;
+
+    if (checkX) {
+        _minX = minMZ;
+        _maxX = maxMZ;
+    }
+
+    // is this condition ever going to be true?
+    if (_minX == _maxX) {
+        _minX -= 0.5;
+        _maxX += 0.5;
+    }
+
+    if (checkY) {
+        _minY = 0;
+        _maxY = 1;
+        for (int j = 0; j < _currentScan->nobs(); j++) {
+            if (_currentScan->mz[j] >= _minX && _currentScan->mz[j] <= _maxX) {
+                if (_currentScan->intensity[j] > _maxY)
+                    _maxY = _currentScan->intensity[j];
             }
         }
     }
 
-    _minY=0; _maxY *= 1.3;
-   // cerr << "findBounds():  mz=" << _minX << "-" << _maxX << " ints=" << _minY << "-" << _maxY << endl;
+    _minY = 0;
+    _maxY *= 1.3;
 }
 
 void SpectraWidget::keyPressEvent( QKeyEvent *e )
