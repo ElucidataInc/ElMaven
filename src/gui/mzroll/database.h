@@ -12,6 +12,7 @@ class MassCutoff;
 class Pathway;
 class Peak;
 class Reaction;
+class PeakGroup;
 
 namespace bsignal = boost::signals2;
 
