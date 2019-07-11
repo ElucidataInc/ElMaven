@@ -710,27 +710,39 @@ void SpectraWidget::drawGraph()
 
 void SpectraWidget::findBounds(bool checkX, bool checkY)
 {
-    // bounds
+    // TODO: Do we only check for existence of a scan? Having an "mzList" in a
+    // `_spectralHit` should also be checked, but right now, once set
+    // `_spectralHit` is never unset/cleared. What would be the best place to
+    // do so.
     if (_currentScan == NULL)
         return;
 
+    // TODO: similarly size of `_spectralHit->mzList` can also be checked here
     if (_currentScan->mz.size() == 0) {
         qDebug() << "Empty scan: " << _currentScan->scannum << endl;
         return;
     }
 
-    float minMZ;
-    float maxMZ;
-    if (_currentScan->mz.size() == 1) {
-        minMZ = _currentScan->mz[0] - 0.5;
-        maxMZ = _currentScan->mz[0] + 0.5;
-    } else {
-        minMZ = _currentScan->mz[0] - 0.01;
-        maxMZ = _currentScan->mz[_currentScan->mz.size() - 1] + 0.01;
+    // obtain the minimum and maximum m/z values of the current scan
+    float minMZ = _currentScan->mz.front();
+    float maxMZ = _currentScan->mz.back();
+
+    // if spectral hit has an m/z list, then set minMZ and maxMZ to be the
+    // minimum and maximum of this list, if they are smaller or greater in
+    // magnitude, respectively
+    if (_spectralHit.mzList.size() > 0) {
+        QVector<double> mzListCopy = _spectralHit.mzList;
+        qSort(mzListCopy.begin(), mzListCopy.end(), qLess<double>());
+        minMZ = min(minMZ, static_cast<float>(mzListCopy.front()));
+        maxMZ = max(maxMZ, static_cast<float>(mzListCopy.back()));
     }
 
+    minMZ -= 0.01;
+    maxMZ += 0.01;
+
     cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
-    cerr << "findBounds():  RANGE=" << minMZ << "-" << maxMZ << endl;
+    cerr << "findBounds(): range [" << minMZ << ", " << maxMZ << "]" << endl;
+
     if (_minX < minMZ)
         _minX = minMZ;
     if (_maxX > maxMZ)
@@ -740,6 +752,8 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
         _minX = minMZ;
         _maxX = maxMZ;
     }
+
+    // is this condition ever going to be true?
     if (_minX == _maxX) {
         _minX -= 0.5;
         _maxX += 0.5;
