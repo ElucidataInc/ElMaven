@@ -737,8 +737,10 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
         maxMZ = max(maxMZ, static_cast<float>(mzListCopy.back()));
     }
 
-    minMZ -= 0.01;
-    maxMZ += 0.01;
+    // buffer of ± 20 Da, to ensure that labels and bars on the edges come into
+    // the picture fully
+    minMZ -= 20;
+    maxMZ += 20;
 
     cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
     cerr << "findBounds(): range [" << minMZ << ", " << maxMZ << "]" << endl;
