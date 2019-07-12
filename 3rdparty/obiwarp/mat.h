@@ -45,7 +45,10 @@ class MatF {
     // shallow is used for a quick copy with which to work
         MatF(const MatF &A);
 
-    std::vector<float> pointer(int m);
+    std::vector<float> row(int m);
+    std::pair<std::vector<float>::iterator, std::vector<float>::iterator> rowIters(int m);
+    float* rowData(int m);
+    std::vector<float>::iterator rowIter(int m);
     // creates vec objects
         // caller must have allocated the array for the vec objects
     // the data is a shallow copy!

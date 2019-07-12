@@ -1062,20 +1062,20 @@ float entropy(MatF &mat, int rowNum, int numBins, float minVal, float scaleFacto
 
 //Subtract a value
 void _subtract(MatF &mat, int rowNum, float val, MatF &minused) {
-    std::vector<float> matptr = mat.pointer(rowNum);
-    std::vector<float> minusedptr = minused.pointer(rowNum);
+    float* matPtr = mat.rowData(rowNum);
+    float* minusedptr = minused.rowData(rowNum);
     for (int i = 0; i < mat.cols(); ++i) {
-        minusedptr[i] = matptr[i] - val;
+        minusedptr[i] = matPtr[i] - val;
     }
 }
 
 //Sum of the products (i.e. the dot product at that row)
 float sumOfProducts(MatF &mat1, int rowNum1, MatF &mat2, int rowNum2) {
-    std::vector<float> mat1ptr = mat1.pointer(rowNum1);
-    std::vector<float> mat2ptr = mat2.pointer(rowNum2);
+    float* mat1ptr = mat1.rowData(rowNum1);
+    float* mat2ptr = mat2.rowData(rowNum2);
     float sum = 0;
     for (int i = 0; i < mat1.cols(); ++i) {
-        sum += mat1ptr[i] * mat2ptr[i]; 
+        sum += mat1ptr[i] * mat2ptr[i];
     }
     return sum;
 }
@@ -1084,10 +1084,10 @@ float sumOfProducts(MatF &mat1, int rowNum1, MatF &mat2, int rowNum2) {
 // could increase the speed here by getting the oneD version and doing pointer
 // math(?)
 float sumXSquared(MatF &mat, int rowNum) {
-    std::vector<float> matptr = mat.pointer(rowNum);
+    float* ptr = mat.rowData(rowNum);
     float sum = 0;
     for (int i = 0; i < mat.cols(); ++i) {
-        sum += matptr[i] * matptr[i]; 
+        sum += ptr[i] * ptr[i];
     }
     return sum;
 }

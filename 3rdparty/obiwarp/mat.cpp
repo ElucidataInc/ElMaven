@@ -53,9 +53,24 @@ MatF::MatF(const MatF &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #endif
 }
 
-std::vector<float> MatF::pointer(int m)
+std::vector<float> MatF::row(int m)
 {
     return _dat.slice((m * _n), (m * _n) + _n);
+}
+
+std::pair<std::vector<float>::iterator, std::vector<float>::iterator> MatF::rowIters(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n);
+}
+
+float* MatF::rowData(int m)
+{
+    return (_dat.data() + (m * _n));
+}
+
+std::vector<float>::iterator MatF::rowIter(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n).first;
 }
 
 void MatF::to_vec(VecF &outvec) {
@@ -98,7 +113,7 @@ void MatF::row_vecs(int &cnt, VecF *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        std::vector<float> ptr = this->pointer(i);
+        std::vector<float> ptr = this->row(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -296,8 +311,8 @@ void MatF::mask_as_vec(float return_val, MatI &mask, VecF &out) {
 
 
 float MatF::sum(int m) {
-    std::vector<float> ptr = pointer(m);
-    float sum = std::accumulate(ptr.begin(), ptr.end(), 0.0f);
+    auto iters = rowIters(m);
+    float sum = std::accumulate(iters.first, iters.second, 0.0f);
     return sum;
 }
 

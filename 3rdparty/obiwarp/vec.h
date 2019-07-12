@@ -43,8 +43,8 @@ class VecF {
     // shallow is used for a quick copy with which to work
         VecF(const VecF &A);
 
-    float first() { return _dat[0]; }
-    float last() { return _dat[_n-1]; }
+    float first() { return _dat.front(); }
+    float last() { return _dat.back(); }
 
     // Returns the name of the class
     // del needs to be called
@@ -127,6 +127,8 @@ class VecF {
     }
 
     std::vector<float> slice(int start, int end);
+    std::pair<std::vector<float>::iterator, std::vector<float>::iterator> slice2(int start, int end);
+    float* data();
 
     // NOTE: All operators act on the caller!
     // Operators

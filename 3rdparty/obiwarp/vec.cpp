@@ -45,10 +45,8 @@ VecF::VecF(int n) : _n(n) {
 }
 
 VecF::VecF(int n, const float &val) : _n(n) {
-    _dat.reserve(_n);
-    for (int i = 0; i < _n; ++i) {
-        _dat.push_back(val);
-    }
+    _dat.resize(_n);
+    fill(_dat.begin(), _dat.end(), val);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,float)");
 #endif
@@ -121,9 +119,7 @@ void VecF::copy(VecF &receiver) const {
 }
 
 VecF & VecF::operator=(const float &val) {
-    for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;
-    }
+    std::fill(_dat.begin(), _dat.end(), val);
     return *this;
 }
 
@@ -151,6 +147,18 @@ std::vector<float> VecF::slice(int start, int end)
 {
     std::vector<float> out(&_dat[start], &_dat[end]);
     return out;
+}
+
+std::pair<std::vector<float>::iterator, std::vector<float>::iterator>
+VecF::slice2(int start, int end)
+{
+    return std::make_pair(_dat.begin() + start, _dat.begin() + end);
+}
+
+float* VecF::data() {
+    if (_dat.size() == 0)
+        return nullptr;
+    return _dat.data();
 }
 
 /*************************
