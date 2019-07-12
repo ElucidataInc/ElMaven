@@ -17,7 +17,8 @@ namespace ProjectVersioning {
  */
 map<Version, int> appDbVersionMap = {
     {Version("0.6.0"), 0},
-    {Version("0.7.0"), 1}
+    {Version("0.7.0"), 1},
+    {Version("0.8.0"), 2}
 };
 
 /**
@@ -109,6 +110,12 @@ map<int, string> dbVersionUpgradeScripts = {
         "                   FROM compounds_old        ;"
         "DROP TABLE compounds_old;"
 
+        "COMMIT;"
+    },
+    {
+        1,
+        "BEGIN TRANSACTION;"
+        "ALTER TABLE user_settings ADD COLUMN must_have_fragmentation INTEGER;"
         "COMMIT;"
     }
 };
