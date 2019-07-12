@@ -1139,4 +1139,19 @@ Series:  Prentice-Hall Series in Automatic Computation
         return buf.vec;
     }
 
+    chrono::time_point<chrono::high_resolution_clock> startTimer()
+    {
+        return chrono::high_resolution_clock::now();
+    }
+
+    void stopTimer(chrono::time_point<chrono::high_resolution_clock>& clock,
+                   string name)
+    {
+        auto now = chrono::high_resolution_clock::now();
+        auto diff = now - clock;
+        cerr << "RUNTIME OF " << name << ": "
+             << chrono::duration_cast<chrono::milliseconds>(diff).count()
+             << " ms\n";
+    }
+
 } //namespace end
