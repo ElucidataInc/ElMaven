@@ -578,7 +578,7 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     return(stopped);
 }
 
-float AligmentSegment::updateRt(float oldRt)
+float AlignmentSegment::updateRt(float oldRt)
 {
     // fractional distance from start of a segement
     if (oldRt >= seg_start and oldRt <= seg_end) {
@@ -597,14 +597,14 @@ float AligmentSegment::updateRt(float oldRt)
     }
 }
 
-void Aligner::addSegment(string sampleName, AligmentSegment* seg) {
+void Aligner::addSegment(string sampleName, AlignmentSegment* seg) {
     if (_alignmentSegments.count(sampleName) == 0) {
         _alignmentSegments[sampleName] = {};
     }
     _alignmentSegments.at(sampleName).push_back(seg);
 }
 
-void Aligner::performSegmentedAligment()
+void Aligner::performSegmentedAlignment()
 {
     for (auto sample : samples) {
         if (sample == nullptr)
@@ -620,7 +620,7 @@ void Aligner::performSegmentedAligment()
 
         int corcount = 0;
         for (auto scan : sample->scans) {
-            AligmentSegment* seg = nullptr;
+            AlignmentSegment* seg = nullptr;
             for (auto segment : _alignmentSegments[sampleName]) {
                 if (scan->rt >= segment->seg_start
                     && scan->rt <= segment->seg_end) {

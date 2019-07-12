@@ -14,7 +14,7 @@ class MavenParameters;
 
 using namespace std;
 
-struct AligmentSegment {
+struct AlignmentSegment {
     string sampleName;
     float seg_start;
     float seg_end;
@@ -71,14 +71,14 @@ class Aligner {
      * @param sampleName Name of the sample associated with this segment.
      * @param seg Pointer to the AlignmentSegment to be added.
      */
-    void addSegment(string sampleName, AligmentSegment* seg);
+    void addSegment(string sampleName, AlignmentSegment* seg);
 
     /**
      * @brief Perform alignment using segments of known retention times, where
      * the rt values in-between these known (aligned) segments will be simply
      * interpolated.
      */
-    void performSegmentedAligment();
+    void performSegmentedAlignment();
 
     /**
      * @brief Set the samples for the next alignment operation.
@@ -93,7 +93,7 @@ public:
     vector<PeakGroup*> allgroups;
     int maxIterations;
     int polynomialDegree;
-    map<string,vector<AligmentSegment*>> _alignmentSegments;
+    map<string,vector<AlignmentSegment*>> _alignmentSegments;
 };
 
 

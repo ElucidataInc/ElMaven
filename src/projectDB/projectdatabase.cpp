@@ -1203,7 +1203,7 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
 
     Aligner aligner;
     aligner.setSamples(loaded);
-    AligmentSegment* lastSegment = nullptr;
+    AlignmentSegment* lastSegment = nullptr;
     int segCount = 0;
 
     while (alignmentQuery->next()) {
@@ -1229,7 +1229,7 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
         } else {
             // perform segmented alignment
             segCount++;
-            AligmentSegment* seg = new AligmentSegment();
+            AlignmentSegment* seg = new AlignmentSegment();
             seg->sampleName = sampleName;
             seg->seg_start = 0;
             seg->seg_end   = alignmentQuery->floatValue("rt_original");
@@ -1247,7 +1247,7 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
     }
 
     if (segCount > 0)
-        aligner.performSegmentedAligment();
+        aligner.performSegmentedAlignment();
 }
 
 map<string, variant> ProjectDatabase::loadSettings()
