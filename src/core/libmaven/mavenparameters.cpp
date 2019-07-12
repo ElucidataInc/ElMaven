@@ -18,7 +18,6 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         processAllSlices = false;
         pullIsotopesFlag = false;
         matchRtFlag = false;
-        checkConvergance = false;
         stop = false;
 
         outputdir = "reports" + string(DIR_SEPARATOR_STR);
