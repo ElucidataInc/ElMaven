@@ -319,6 +319,21 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
+    auto samples = mainwindow->getVisibleSamples();
+    auto iter = find_if(begin(samples),
+                        end(samples),
+                        [](mzSample* s) {
+                           return ((s->ms1ScanCount() > 0)
+                                   && (s->ms2ScanCount() > 0));
+                        });
+    bool foundDda = iter != end(samples);
+    if (foundDda && featureOptions->isEnabled()) {
+        mustHaveMs2->setEnabled(true);
+    } else {
+        mustHaveMs2->setEnabled(false);
+        mustHaveMs2->setChecked(false);
+    }
+
 	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
