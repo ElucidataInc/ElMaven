@@ -31,6 +31,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
+    settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbOptions));
