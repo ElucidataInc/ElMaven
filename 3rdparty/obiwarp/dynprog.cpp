@@ -799,13 +799,16 @@ void DynProg::score_pearsons_r(MatF &mCoords, MatF &nCoords, MatF &scores) {
     // CALCULATE ALL PAIR calculations
     for (int n = 0; n < s_nlen; ++n) {
         for (int m = 0; m < s_mlen; ++m) {
-            //        sum(X * Y) -    
-            double top = sumOfProducts(mCoords, m, nCoords, n) -
-                ((sum_x[n] * sum_y[m])/cols);
-            //  (sum(x)      * sum(y))/num_elements
             double bot = sqrt(bot_x[n] * bot_y[m]);
-            if (bot == 0) { tmp(m,n) = 0; }  // no undefined 
-            else { tmp(m,n) = (float)(top/bot); }
+            if (bot == 0) {
+                // no undefined
+                tmp(m, n) = 0;
+            } else {
+                // sum(X * Y) - (sum(x) * sum(y))/num_elements
+                double top = sumOfProducts(mCoords, m, nCoords, n)
+                             - ((sum_x[n] * sum_y[m]) / cols);
+                tmp(m, n) = static_cast<float>(top / bot);
+            }
         }
     }
     delete[] bot_x; delete[] bot_y; delete[] sum_x; delete[] sum_y;
