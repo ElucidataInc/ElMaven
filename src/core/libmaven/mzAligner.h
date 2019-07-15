@@ -14,6 +14,15 @@ class MavenParameters;
 
 using namespace std;
 
+struct AlignmentSegment {
+    string sampleName;
+    float segStart;
+    float segEnd;
+    float newStart;
+    float newEnd;
+    float updateRt(float oldRt);
+};
+
 class Aligner {
    public:
     Aligner();
@@ -56,6 +65,27 @@ class Aligner {
     static mzSample* refSample;
     static void setRefSample(mzSample* sample);
 
+    /**
+     * @brief Add an AlignmentSegment that will be used when performing
+     * segmented alignment on the next call to `performSegmentedAlignment`.
+     * @param sampleName Name of the sample associated with this segment.
+     * @param seg Pointer to the AlignmentSegment to be added.
+     */
+    void addSegment(string sampleName, AlignmentSegment* seg);
+
+    /**
+     * @brief Perform alignment using segments of known retention times, where
+     * the rt values in-between these known (aligned) segments will be simply
+     * interpolated.
+     */
+    void performSegmentedAlignment();
+
+    /**
+     * @brief Set the samples for the next alignment operation.
+     * @param set A vector of pointers to samples.
+     */
+    void setSamples(vector<mzSample*> set) { samples = set; }
+
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > setAlignmentProgress;
 
@@ -63,7 +93,7 @@ public:
     vector<PeakGroup*> allgroups;
     int maxIterations;
     int polynomialDegree;
-
+    map<string,vector<AlignmentSegment*>> _alignmentSegments;
 };
 
 

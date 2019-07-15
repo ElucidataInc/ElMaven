@@ -577,3 +577,67 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     delete obiWarp;
     return(stopped);
 }
+
+float AlignmentSegment::updateRt(float oldRt)
+{
+    // fractional distance from start of a segement
+    if (oldRt >= segStart and oldRt <= segEnd) {
+        float frac = (oldRt - segStart) / (segEnd - segStart);
+        return newStart + frac * (newEnd - newStart);
+    } else {
+        cerr << "Bad Map: "
+             << oldRt << "\t"
+             << segStart
+             << "\t"
+             << segEnd
+             << endl;
+
+        // could not correct return old rt
+        return oldRt;
+    }
+}
+
+void Aligner::addSegment(string sampleName, AlignmentSegment* seg) {
+    if (_alignmentSegments.count(sampleName) == 0) {
+        _alignmentSegments[sampleName] = {};
+    }
+    _alignmentSegments.at(sampleName).push_back(seg);
+}
+
+void Aligner::performSegmentedAlignment()
+{
+    for (auto sample : samples) {
+        if (sample == nullptr)
+            continue;
+
+        string sampleName = sample->sampleName;
+        if (_alignmentSegments.count(sampleName) == 0) {
+            cerr << "Cannot find alignment information for sample "
+                 << sampleName
+                 << endl;
+            continue;
+        }
+
+        for (auto scan : sample->scans) {
+            AlignmentSegment* seg = nullptr;
+            for (auto segment : _alignmentSegments[sampleName]) {
+                if (scan->rt >= segment->segStart
+                    && scan->rt <= segment->segEnd) {
+                    seg = segment;
+                    break;
+                }
+            }
+
+            if (seg) {
+                double newRt = seg->updateRt(scan->rt);
+                scan->rt = newRt;
+            } else {
+                cerr << "Cannot find segment for: "
+                     << sampleName
+                     << "\t"
+                     << scan->rt
+                     << endl;
+            }
+        }
+    }
+}
