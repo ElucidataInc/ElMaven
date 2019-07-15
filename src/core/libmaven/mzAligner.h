@@ -16,10 +16,10 @@ using namespace std;
 
 struct AlignmentSegment {
     string sampleName;
-    float seg_start;
-    float seg_end;
-    float new_start;
-    float new_end;
+    float segStart;
+    float segEnd;
+    float newStart;
+    float newEnd;
     float updateRt(float oldRt);
 };
 

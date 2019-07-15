@@ -581,15 +581,15 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
 float AlignmentSegment::updateRt(float oldRt)
 {
     // fractional distance from start of a segement
-    if (oldRt >= seg_start and oldRt <= seg_end) {
-        float frac = (oldRt - seg_start) / (seg_end - seg_start);
-        return new_start + frac * (new_end - new_start);
+    if (oldRt >= segStart and oldRt <= segEnd) {
+        float frac = (oldRt - segStart) / (segEnd - segStart);
+        return newStart + frac * (newEnd - newStart);
     } else {
         cerr << "Bad Map: "
              << oldRt << "\t"
-             << seg_start
+             << segStart
              << "\t"
-             << seg_end
+             << segEnd
              << endl;
 
         // could not correct return old rt
@@ -621,8 +621,8 @@ void Aligner::performSegmentedAlignment()
         for (auto scan : sample->scans) {
             AlignmentSegment* seg = nullptr;
             for (auto segment : _alignmentSegments[sampleName]) {
-                if (scan->rt >= segment->seg_start
-                    && scan->rt <= segment->seg_end) {
+                if (scan->rt >= segment->segStart
+                    && scan->rt <= segment->segEnd) {
                     seg = segment;
                     break;
                 }

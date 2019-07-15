@@ -1231,14 +1231,14 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
             segCount++;
             AlignmentSegment* seg = new AlignmentSegment();
             seg->sampleName = sampleName;
-            seg->seg_start = 0;
-            seg->seg_end   = alignmentQuery->floatValue("rt_original");
-            seg->new_start = 0;
-            seg->new_end   = alignmentQuery->floatValue("rt_updated");
+            seg->segStart = 0;
+            seg->segEnd   = alignmentQuery->floatValue("rt_original");
+            seg->newStart = 0;
+            seg->newEnd   = alignmentQuery->floatValue("rt_updated");
 
             if (lastSegment and lastSegment->sampleName == seg->sampleName) {
-                seg->seg_start = lastSegment->seg_end;
-                seg->new_start = lastSegment->new_end;
+                seg->segStart = lastSegment->segEnd;
+                seg->newStart = lastSegment->newEnd;
             }
 
             aligner.addSegment(sampleName, seg);
