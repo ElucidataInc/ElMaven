@@ -31,6 +31,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
+    settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbOptions));
@@ -319,6 +320,21 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
+    auto samples = mainwindow->getVisibleSamples();
+    auto iter = find_if(begin(samples),
+                        end(samples),
+                        [](mzSample* s) {
+                           return ((s->ms1ScanCount() > 0)
+                                   && (s->ms2ScanCount() > 0));
+                        });
+    bool foundDda = iter != end(samples);
+    if (foundDda && featureOptions->isEnabled()) {
+        mustHaveMs2->setEnabled(true);
+    } else {
+        mustHaveMs2->setEnabled(false);
+        mustHaveMs2->setChecked(false);
+    }
+
 	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
@@ -496,12 +512,12 @@ void PeakDetectionDialog::findPeaks()
     if (peakupdater == NULL) return;
     if (peakupdater->isRunning()) cancel();
     if (peakupdater->isRunning()) return;
+    peakupdater->setUntargetedMustHaveMs2(false);
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
 
     mainwindow->setTotalCharge();
-
 
     if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
@@ -509,8 +525,17 @@ void PeakDetectionDialog::findPeaks()
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
     } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
-        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Untargeted");
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
+        if (mustHaveMs2->isChecked()) {
+            peakupdater->setUntargetedMustHaveMs2(true);
+            mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                 "Untargeted",
+                                                 "Filter for MS2 events");
+        } else {
+            mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                 "Untargeted"
+                                                 "No filter");
+        }
     } else {
         _featureDetectionType = FullSpectrum;
     }
