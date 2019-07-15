@@ -618,7 +618,6 @@ void Aligner::performSegmentedAlignment()
             continue;
         }
 
-        int corcount = 0;
         for (auto scan : sample->scans) {
             AlignmentSegment* seg = nullptr;
             for (auto segment : _alignmentSegments[sampleName]) {
@@ -632,7 +631,6 @@ void Aligner::performSegmentedAlignment()
             if (seg) {
                 double newRt = seg->updateRt(scan->rt);
                 scan->rt = newRt;
-                corcount++;
             } else {
                 cerr << "Cannot find segment for: "
                      << sampleName
