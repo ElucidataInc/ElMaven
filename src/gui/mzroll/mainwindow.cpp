@@ -3430,7 +3430,7 @@ void MainWindow::Align()
 
     BackgroundPeakUpdate* workerThread;
 
-    if (alignmentDialog->alignAlgo->currentIndex() == 1) {
+    if (alignmentDialog->alignAlgo->currentIndex() == 0) {
         analytics->hitEvent("Alignment", "Obi-Warp");
         workerThread = newWorkerThread("alignWithObiWarp");
         workerThread->setMavenParameters(mavenParameters);

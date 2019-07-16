@@ -432,7 +432,7 @@ void BackgroundPeakUpdate::align() {
                 Aligner aligner;
                 int alignAlgo = mainwindow->alignmentDialog->alignAlgo->currentIndex();
 
-                if (alignAlgo == 0) {
+                if (alignAlgo == 1) {
                         mainwindow->getAnalytics()->hitEvent("Alignment", "PolyFit");
                         aligner.setMaxIterations(mainwindow->alignmentDialog->maxIterations->value());
                         aligner.setPolymialDegree(mainwindow->alignmentDialog->polynomialDegree->value());

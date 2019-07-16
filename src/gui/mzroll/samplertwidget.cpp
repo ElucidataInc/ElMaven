@@ -119,10 +119,10 @@ void SampleRtWidget::plotIndividualGraph(mzSample* sample)
 
     int alignAlgo = _mw->alignmentDialog->alignAlgo->currentIndex();
 
-    if(alignAlgo == 0)
+    if(alignAlgo == 1)
         prepareGraphDataPolyFit(xAxis, yAxis, sample);
 
-    if(alignAlgo == 1)
+    if(alignAlgo == 0)
         prepareGraphDataObiWarp(xAxis, yAxis, sample);
 
     if(!xAxis.isEmpty() && !yAxis.isEmpty()){
