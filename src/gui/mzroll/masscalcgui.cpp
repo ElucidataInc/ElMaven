@@ -103,7 +103,7 @@ void MassCalcWidget::showTable()
         QString item2 = compoundName;
         QString item3 = QString::number(match->rtDiff, 'f', 2);
         QString item4 = QString::number(match->diff, 'f', 2);
-        QString item5 = QString::number(match->fragScore.mergedScore, 'f', 3);
+        QString item5 = QString::number(match->fragScore.hypergeomScore, 'f', 3);
         QString item6 = databaseName;
         QStringList rowItems = QStringList() << item1
                                              << item2
@@ -190,7 +190,8 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
         Compound* cpd = m->compoundLink;
 
         if(grp->fragmentationPattern.nobs() != 0) {
-            m->fragScore = grp->fragMatchScore;
+            m->fragScore = cpd->scoreCompoundHit(&(grp->fragmentationPattern),
+                                                 fragPpm->value());
         }
 
         if (cpd->expectedRt > 0)
