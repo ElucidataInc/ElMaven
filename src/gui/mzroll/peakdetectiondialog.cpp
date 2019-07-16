@@ -328,7 +328,7 @@ void PeakDetectionDialog::show() {
                                    && (s->ms2ScanCount() > 0));
                         });
     bool foundDda = iter != end(samples);
-    if (foundDda && featureOptions->isEnabled()) {
+    if (foundDda && featureOptions->isChecked()) {
         mustHaveMs2->setEnabled(true);
     } else {
         mustHaveMs2->setEnabled(false);
