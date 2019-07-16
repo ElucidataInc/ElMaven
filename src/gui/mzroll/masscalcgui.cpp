@@ -22,7 +22,7 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   database->addItem("All");
 
   connect(computeButton, SIGNAL(clicked(bool)), SLOT(compute()));
-  connect(database, SIGNAL(currentIndexChanged(int)), SLOT(compute()));
+  connect(database, SIGNAL(currentIndexChanged(int)), SLOT(showTable()));
   connect(precursorMz,SIGNAL(returnPressed()),SLOT(compute()));
   connect(ionization,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(precursorPpm,SIGNAL(valueChanged(double)),SLOT(compute()));
@@ -97,7 +97,7 @@ void MassCalcWidget::showTable()
 
         if (database->currentIndex() != 0
             && database->currentText() != databaseName)
-            return;
+            continue;
 
         QString item1 = QString(match->name.c_str());
         QString item2 = compoundName;
