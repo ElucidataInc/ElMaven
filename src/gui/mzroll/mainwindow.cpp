@@ -3490,7 +3490,6 @@ void MainWindow::Align()
     mavenParameters->alignPolynomialDegree =
         alignmentDialog->polynomialDegree->value();
 
-    mavenParameters->checkConvergance = false;
     mavenParameters->alignSamplesFlag = true;
     mavenParameters->keepFoundGroups = true;
     mavenParameters->eicMaxGroups = peakDetectionDialog->eicMaxGroups->value();
