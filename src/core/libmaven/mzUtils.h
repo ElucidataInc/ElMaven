@@ -642,9 +642,12 @@ namespace mzUtils {
          * estimate an optimal resampling factor, without losing information, it
          * would have to consider the nature of the signal itself.
          * @param dataSize Length of the digital signal.
+         * @param lowerSizeLimit Length which the returned resampling factor is
+         * guaranteed to not cross if used to resize data of given size.
          * @return A integer resampling factor (always ≥ 1).
          */
-        int approximateResamplingFactor(size_t dataSize);
+        int approximateResamplingFactor(size_t dataSize,
+                                        int lowerSizeLimit=100);
 
         /**
          * @brief Resample an input signal according to the given interpolation

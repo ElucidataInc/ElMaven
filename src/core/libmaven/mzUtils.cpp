@@ -1113,9 +1113,9 @@ Series:  Prentice-Hall Series in Automatic Computation
         return firDesignKaiser(numTaps, fc, beta, interpRate);
     }
 
-    int approximateResamplingFactor(const size_t dataSize)
+    int approximateResamplingFactor(const size_t dataSize, int lowerSizeLimit)
     {
-        int resamplingFactor = static_cast<int>(dataSize / 100) - 1;
+        int resamplingFactor = static_cast<int>(dataSize / lowerSizeLimit) - 1;
         if (resamplingFactor < 1)
             resamplingFactor = 1;
 
