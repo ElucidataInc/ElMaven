@@ -320,20 +320,8 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
-    auto samples = mainwindow->getVisibleSamples();
-    auto iter = find_if(begin(samples),
-                        end(samples),
-                        [](mzSample* s) {
-                           return ((s->ms1ScanCount() > 0)
-                                   && (s->ms2ScanCount() > 0));
-                        });
-    bool foundDda = iter != end(samples);
-    if (foundDda && featureOptions->isChecked()) {
-        mustHaveMs2->setEnabled(true);
-    } else {
-        mustHaveMs2->setEnabled(false);
-        mustHaveMs2->setChecked(false);
-    }
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 
 	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
@@ -476,6 +464,21 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
     } else {
         matchFragmentationOptions->setChecked(false);
         matchFragmentationOptions->setEnabled(false);
+    }
+
+    auto samples = mainwindow->getVisibleSamples();
+    auto iter = find_if(begin(samples),
+                        end(samples),
+                        [](mzSample* s) {
+                           return ((s->ms1ScanCount() > 0)
+                                   && (s->ms2ScanCount() > 0));
+                        });
+    bool foundDda = iter != end(samples);
+    if (foundDda && featureOptions->isChecked()) {
+        mustHaveMs2->setEnabled(true);
+    } else {
+        mustHaveMs2->setEnabled(false);
+        mustHaveMs2->setChecked(false);
     }
 }
 
