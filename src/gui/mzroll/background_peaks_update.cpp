@@ -30,22 +30,8 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         _stopped = true;
         setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
-
         peakDetector = new PeakDetector();
         peakDetector->boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
-
-        /**
-         * create one python program for running alignment
-         */
-        pythonProg = new QProcess();
-        QString programPath;
-        #if defined(Q_OS_LINUX)
-                programPath =  QCoreApplication::applicationDirPath() + QDir::separator() + "linux" + QDir::separator() + "python_exe";
-        #elif defined(Q_OS_WIN)
-                programPath = QCoreApplication::applicationDirPath() + QDir::separator() + "windows" + QDir::separator() + "python_exe.exe";
-        #endif
-        pythonProg->setProgram(programPath);
-        connect(pythonProg,SIGNAL(readyRead()),this,SLOT(readDataFromPython()));
 }
 
 QString BackgroundPeakUpdate::printSettings() {
@@ -318,7 +304,7 @@ void BackgroundPeakUpdate::alignWithObiWarp()
                                          mainwindow->alignmentDialog->noStdNormal->isChecked(),
                                          mainwindow->alignmentDialog->binSizeObiWarp->value());
 
-    Q_EMIT(updateProgressBar("Aligning Samples", 0, 100));
+    Q_EMIT(updateProgressBar("Aligning samples…", 0, 100));
 
     Aligner aligner;
     aligner.setAlignmentProgress.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
@@ -423,64 +409,6 @@ void BackgroundPeakUpdate::getProcessSlicesSettings() {
 
 }
 
-
-void BackgroundPeakUpdate::sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson)
-{
-    // prepare the data we have to send to python
-    QJsonObject jObj;
-    jObj.insert("groups", grpJson);
-    jObj.insert("rts", rtsJson);
-
-
-    QJsonDocument jDoc(jObj);
-    QByteArray data = jDoc.toJson();
-
-    writeToPythonProcess(data);
-
-}
-
-void BackgroundPeakUpdate::readDataFromPython()
-{
-        while(pythonProg->bytesAvailable())
-                processedDataFromPython += pythonProg->readLine(1024*1024);
-        
-}
-void BackgroundPeakUpdate::writeToPythonProcess(QByteArray data){
-
-        if(pythonProg->state()!=QProcess::Running){
-                qDebug()<<"Error in pipe- data sent to be written but python process is not running";
-                return;
-        }
-        QTextStream stream(pythonProg);
-        int quantumOfData=1024*1024;
-        for(int i=0;i<data.size();i+=quantumOfData){
-                stream<<data.mid(i,quantumOfData);
-        }
-        stream.flush();
-        pythonProg->closeWriteChannel();
-}
-
-void BackgroundPeakUpdate::runPythonProg(Aligner* aligner)
-{
-
-    if(pythonProg->state() != QProcess::NotRunning)
-        pythonProg->kill();
-
-    pythonProg->start();
-
-    /**
-     * wait for python to start otherwise exit
-     */
-    if(pythonProg->waitForStarted(-1)) {
-        qDebug()<<"python program is running...";
-        sendDataToPython(aligner->groupsJson, aligner->rtsJson);
-    }
-    else{
-        qDebug()<<"Python program did not start. Check availability of execcutable";
-    }
-
-}
-
 void BackgroundPeakUpdate::align() {
 
         //These else if statements will take care of all corner cases of undoAlignment
@@ -497,7 +425,7 @@ void BackgroundPeakUpdate::align() {
         }
 
         if (mavenParameters->alignSamplesFlag && !mavenParameters->stop) {
-                Q_EMIT(updateProgressBar("Aligning Samples", 0, 0));
+                Q_EMIT(updateProgressBar("Aligning samples…", 0, 0));
                 vector<PeakGroup*> groups(mavenParameters->allgroups.size());
                 for (int i = 0; i < mavenParameters->allgroups.size(); i++)
                         groups[i] = &mavenParameters->allgroups[i];
@@ -511,54 +439,6 @@ void BackgroundPeakUpdate::align() {
                         aligner.doAlignment(groups);
                         mainwindow->sampleRtWidget->setDegreeMap(aligner.sampleDegree);
                         mainwindow->sampleRtWidget->setCoefficientMap(aligner.sampleCoefficient);
-                } else if (alignAlgo == 2) {
-                        mainwindow->getAnalytics()->hitEvent("Alignment", "LoessFit");
-                        aligner.preProcessing(groups, mavenParameters->alignWrtExpectedRt);
-                        // initialize processedDataFromPython with null 
-                        processedDataFromPython="";
-                         /**runPythonProg()
-                         * sends the json of groups and samples rt to the python exe. for more look in sendDataToPython()
-                         * python exe is going to correct the rts and send it back to us in json format
-                         */
-                        runPythonProg(&aligner);
-                        // wait for processing of data by python program
-                        pythonProg->waitForFinished(-1);                        
-
-                        // convert the data to json
-                        QJsonDocument jDoc;
-                        QJsonObject parentObj;
-
-                        // if jDoc is null that means the json returned from python is malformed
-                        // in such a case our rts wont update with new values
-                        jDoc = QJsonDocument::fromJson(processedDataFromPython);
-
-                        QString errorMessage=QString::number(processedDataFromPython.size());
-
-                        if(!jDoc.isNull()){
-                                parentObj = jDoc.object();
-                        }
-                        else{
-                                if(processedDataFromPython.size()==0){
-                                        errorMessage=errorMessage + " good groups found." +"<br>"+"Relax parameters for better result";
-                                }
-                                else{
-                                        errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
-                                }
-                                qDebug()<<errorMessage;
-                                Q_EMIT alignmentError(errorMessage);
-                                return;
-                        }
-
-                        if(!parentObj.isEmpty()){
-                                aligner.updateRts(parentObj);
-                                qDebug()<<"Alignment complete";
-                        }
-                        else{
-                                errorMessage=errorMessage+"<br>"+"Incomplete data, re-run alignment";
-                                qDebug()<<errorMessage;
-                                Q_EMIT alignmentError(errorMessage);
-                                return;
-                        }
                 }
 
                 mainwindow->deltaRt = aligner.getDeltaRt();

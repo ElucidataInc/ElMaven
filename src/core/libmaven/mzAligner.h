@@ -26,7 +26,6 @@ struct AlignmentSegment {
 class Aligner {
    public:
     Aligner();
-    void preProcessing(vector<PeakGroup*>& peakgroups,bool alignWrtExpectedRt);
     void doAlignment(vector<PeakGroup*>& peakgroups);
     vector<double> groupMeanRt();
     double checkFit();
@@ -54,13 +53,6 @@ class Aligner {
     float tolerance;
     map<mzSample*, int> sampleDegree;
     map<mzSample*, vector<double> > sampleCoefficient;
-
-    void updateRts(QJsonObject& parentObj);
-    void updateSampleRts(QJsonObject& sampleRts);
-    void updateGroupsRts(QJsonObject& groupsRts);
-
-    QJsonObject groupsJson;
-    QJsonObject rtsJson;
 
     static mzSample* refSample;
     static void setRefSample(mzSample* sample);

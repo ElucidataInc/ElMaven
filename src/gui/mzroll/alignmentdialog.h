@@ -16,7 +16,7 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		AlignmentDialog(QWidget *parent);
 		~AlignmentDialog();
 		void setMainWindow(MainWindow* mw);
-		void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread) {workerThread = alignmentWorkerThread;}
+                void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread);
 		MainWindow* _mw;
         BackgroundPeakUpdate* workerThread;
 
@@ -38,7 +38,6 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 		void setAlignWrtExpectedRt(bool checked);
 		void setInitPenalty(bool checked);
 		void restorDefaultValues(bool checked);
-		void toggleObiParams(bool show);
 		void showAdvanceParameters(bool checked);
 		void samplesAligned(bool status);
 		void updateRestoreStatus();

@@ -99,11 +99,6 @@ public:
 		mainwindow = mw;
 	}
 
-    void readDataFromPython(QByteArray& data);
-    void runPythonProg(Aligner* aligner);
-	void sendDataToPython(QJsonObject& grpJson, QJsonObject& rtsJson);
-	void writeToPythonProcess( QByteArray data);
-
     PeakDetector* peakDetector;
     MavenParameters* mavenParameters;
 
@@ -147,15 +142,11 @@ protected:
 	 * [run method for a thread]
 	 */
 	void run(void);
-private Q_SLOTS:
-	void readDataFromPython();
 	
 private:
     bool _untargetedMustHaveMs2;
 	string runFunction;
 	MainWindow *mainwindow;
-	QProcess* pythonProg;
-	QByteArray processedDataFromPython;
 
 	/**
 	 * [align function]
