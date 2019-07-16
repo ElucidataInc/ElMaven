@@ -3,6 +3,7 @@
 
 #include "elementMass.h"
 #include "standardincludes.h"
+#include "Fragment.h"
 
 class Adduct;
 class Compound;

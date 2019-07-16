@@ -9,6 +9,7 @@
 #include "database.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "peakdetectiondialog.h"

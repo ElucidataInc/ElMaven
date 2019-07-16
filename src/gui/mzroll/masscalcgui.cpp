@@ -1,4 +1,5 @@
 #include "Compound.h"
+#include "eicwidget.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"

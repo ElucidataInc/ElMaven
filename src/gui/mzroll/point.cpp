@@ -8,6 +8,7 @@
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "mzSample.h"
 #include "note.h"
 #include "pathwaywidget.h"

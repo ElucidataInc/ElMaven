@@ -12,6 +12,7 @@ class MassCalculator;
 class Database;
 class MassCutoff;
 class Compound;
+class PeakGroup;
 
 class MassCalcWidget: public QDockWidget,  public Ui_MassCalcWidget {
       Q_OBJECT

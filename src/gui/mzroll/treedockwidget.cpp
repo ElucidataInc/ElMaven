@@ -3,6 +3,7 @@
 #include "eicwidget.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "numeric_treewidgetitem.h"
 #include "pathwaywidget.h"
 #include "projectdockwidget.h"

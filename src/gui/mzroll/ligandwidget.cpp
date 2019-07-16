@@ -4,6 +4,7 @@
 #include "analytics.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "mavenparameters.h"
 #include "mzfileio.h"
 #include "mzSample.h"
