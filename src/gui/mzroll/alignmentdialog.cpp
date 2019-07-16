@@ -183,7 +183,7 @@ void AlignmentDialog::showAdvanceParameters(bool checked)
 
 void AlignmentDialog::algoChanged()
 {
-    bool obiWarp = (alignAlgo->currentIndex() == 1);
+    bool obiWarp = (alignAlgo->currentIndex() == 0);
     showAdvanceParameters(showAdvanceParams->isChecked());
 
     auto samples = _mw->getSamples();
