@@ -17,7 +17,7 @@ TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {
 		treeWidget=new QTreeWidget(this);
 		treeWidget->setColumnCount(numColms);
 		treeWidget->setObjectName(title);
-		connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showInfo()));
+        connect(treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(showInfo()));
         connect(treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));        
         treeWidget->setHeaderHidden(true);
 
@@ -36,14 +36,14 @@ TreeDockWidget::TreeDockWidget(MainWindow* mw, QString title, int numColms) {
 
 
 QTreeWidgetItem* TreeDockWidget::addItem(QTreeWidgetItem* parentItem, string key , float value, int type=0) {
-	QTreeWidgetItem *item = new QTreeWidgetItem(parentItem,type);
+    auto item = new NumericTreeWidgetItem(parentItem, type);
 	item->setText(0, QString(key.c_str()));
 	item->setText(1, QString::number(value,'f',3));
 	return item;
 }
 
 QTreeWidgetItem* TreeDockWidget::addItem(QTreeWidgetItem* parentItem, string key , string value, int type=0) {
-	QTreeWidgetItem *item = new QTreeWidgetItem(parentItem,type);
+    auto item = new NumericTreeWidgetItem(parentItem, type);
 	item->setText(0, QString(key.c_str()));
 	if (! value.empty() ) { item->setText(1, QString(value.c_str())); }
 	return item;
@@ -66,7 +66,7 @@ void TreeDockWidget::setInfo(vector<mzSlice*>& slices) {
 			Compound* x = slice->compound;
 			QString tag = QString(slice->srmId.c_str());
 
-			QTreeWidgetItem *parent = new QTreeWidgetItem(treeWidget,mzSliceType);
+                        auto parent = new NumericTreeWidgetItem(treeWidget,mzSliceType);
 			parent->setText(0,tag);
   	    	parent->setData(0,Qt::UserRole,QVariant::fromValue(*slice));
 
@@ -135,17 +135,17 @@ void TreeDockWidget::showInfo() {
 
 QTreeWidgetItem* TreeDockWidget::addPeak(Peak* peak, QTreeWidgetItem* parent) {
     if (peak == NULL ) return NULL;
-	QTreeWidgetItem *item=NULL;
+        NumericTreeWidgetItem *item=NULL;
     if ( parent == NULL ) {
-	    item = new QTreeWidgetItem(treeWidget,PeakType);
+        item = new NumericTreeWidgetItem(treeWidget,PeakType);
     } else {
-	    item = new QTreeWidgetItem(parent,PeakType);
+        item = new NumericTreeWidgetItem(parent,PeakType);
     }
 
 }
 
 void TreeDockWidget::keyPressEvent(QKeyEvent *e ) {
-	QTreeWidgetItem *item = treeWidget->currentItem();
+    auto item = treeWidget->currentItem();
 	if (e->key() == Qt::Key_Delete ) { 
     	if ( item->type() == PeakGroupType ) {
 			unlinkGroup(); 
@@ -156,7 +156,7 @@ void TreeDockWidget::keyPressEvent(QKeyEvent *e ) {
 }
 	
 void TreeDockWidget::unlinkGroup() {
-	QTreeWidgetItem *item = treeWidget->currentItem();
+    auto item = treeWidget->currentItem();
 	if ( item == NULL ) return;
 	PeakGroup* group=NULL;
 	Compound*  cpd=NULL;
@@ -179,7 +179,7 @@ void TreeDockWidget::unlinkGroup() {
 	} else if (group && group->parent) {
 		PeakGroup* parentGroup = group->parent;
 		if ( parentGroup->deleteChild(group) ) {
-			QTreeWidgetItem* parentItem = item->parent();
+                        auto parentItem = item->parent();
 			if ( parentItem ) { parentItem->removeChild(item); delete(item); }
 			mainwindow->getEicWidget()->setPeakGroup(parentGroup);
 		}
@@ -209,7 +209,7 @@ void TreeDockWidget::unlinkGroup() {
 
 
 QTreeWidgetItem* TreeDockWidget::addSlice(mzSlice* s, QTreeWidgetItem* parent) {
-        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget,mzSliceType);
+        auto item = new NumericTreeWidgetItem(treeWidget,mzSliceType);
         item->setText(0,QString::number(s->mzmin,'f',4));
         item->setText(1,QString::number(s->mzmax,'f',4));
         item->setText(2,QString::number(s->rtmin,'f',4));
@@ -227,7 +227,7 @@ void TreeDockWidget::setInfo(vector<mzLink>& links) {
     treeWidget->setHeaderLabels( header );
     treeWidget->setSortingEnabled(false);
 
-    QTreeWidgetItem *item0 = new QTreeWidgetItem(treeWidget,mzLinkType);
+    auto item0 = new NumericTreeWidgetItem(treeWidget,mzLinkType);
     item0->setText(0,QString::number(links[0].mz1,'f',4));
     item0->setExpanded(true);
     for(int i=0; i < links.size(); i++) addLink(&links[i],item0);
@@ -238,13 +238,13 @@ void TreeDockWidget::setInfo(vector<mzLink>& links) {
 
 QTreeWidgetItem* TreeDockWidget::addLink(mzLink* s,QTreeWidgetItem* parent)  {
 
-        if (!s) return NULL;
+    if (!s) return NULL;
 
-        QTreeWidgetItem *item=NULL;
+    NumericTreeWidgetItem *item=NULL;
     if( parent == NULL ){
-            item = new QTreeWidgetItem(treeWidget,mzLinkType);
+            item = new NumericTreeWidgetItem(treeWidget,mzLinkType);
         } else {
-            item = new QTreeWidgetItem(parent,mzLinkType);
+            item = new NumericTreeWidgetItem(parent,mzLinkType);
         }
 
         if ( item ) {
@@ -265,7 +265,7 @@ void TreeDockWidget::setInfo(deque<Pathway*>& pathways) {
 
     for(int i=0; i < pathways.size(); i++ ) {
         Pathway* p = pathways[i];
-        QTreeWidgetItem *parent = new QTreeWidgetItem(treeWidget, PathwayType);
+        auto parent = new NumericTreeWidgetItem(treeWidget, PathwayType);
         parent->setText(0,QString((p->name +"("+p->id+")").c_str() 	));
         parent->setData(0,Qt::UserRole,QVariant::fromValue(QString(p->id.c_str())));
     }
@@ -274,7 +274,7 @@ void TreeDockWidget::setInfo(deque<Pathway*>& pathways) {
 void TreeDockWidget::filterTree(QString needle) {
         int itemCount = treeWidget->topLevelItemCount();
         for(int i=0; i < itemCount; i++ ) {
-                QTreeWidgetItem *item = treeWidget->topLevelItem(i);
+                auto item = treeWidget->topLevelItem(i);
                 if ( item == NULL) continue;
                 if ( needle.isEmpty() || item->text(0).contains(needle,Qt::CaseInsensitive) ) {
                         item->setHidden(false);
@@ -301,7 +301,7 @@ void TreeDockWidget::addScanItem(Scan* scan) {
 
         QIcon icon = _mainWindow->projectDockWidget->getSampleIcon(scan->sample);
 
-        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget, ScanType);
+        auto item = new NumericTreeWidgetItem(treeWidget, ScanType);
         item->setData(0, Qt::UserRole, QVariant::fromValue(scan));
         item->setIcon(0, icon);	
         item->setText(1, QString::number(scan->precursorMz, 'f', 4));	
@@ -344,14 +344,14 @@ void TreeDockWidget::setInfo(PeakGroup* group) {
 bool TreeDockWidget::hasPeakGroup(PeakGroup* group) {
     if (treeWidget == NULL) return true;
     for(int i=0; i < treeWidget->topLevelItemCount();i++ ) {
-        QTreeWidgetItem* item = treeWidget->topLevelItem(i);
+        auto item = treeWidget->topLevelItem(i);
         if ( item->type() != PeakGroupType ) continue;
         QVariant v = item->data(0,Qt::UserRole);
         PeakGroup*  g = v.value<PeakGroup*>();
         if (g && g == group ) return true;
 
         for(int j=0; j < item->childCount();j++ ) {
-            QTreeWidgetItem* item2 = item->child(j);
+            auto item2 = item->child(j);
             if ( item2->type() != PeakGroupType ) continue;
             QVariant v = item2->data(0,Qt::UserRole);
             PeakGroup*  g = v.value<PeakGroup*>();
@@ -363,12 +363,12 @@ bool TreeDockWidget::hasPeakGroup(PeakGroup* group) {
 
 QTreeWidgetItem* TreeDockWidget::addCompound(Compound* c, QTreeWidgetItem* parent) {
     if (c == NULL) return NULL;
-    QTreeWidgetItem* item = NULL;
+    NumericTreeWidgetItem* item = NULL;
 
     if ( parent == NULL ) {
-            item = new QTreeWidgetItem(treeWidget, CompoundType);
+            item = new NumericTreeWidgetItem(treeWidget, CompoundType);
     } else {
-            item = new QTreeWidgetItem(parent, CompoundType);
+            item = new NumericTreeWidgetItem(parent, CompoundType);
     }
 
         if (!item) return NULL;
@@ -387,12 +387,12 @@ QTreeWidgetItem* TreeDockWidget::addCompound(Compound* c, QTreeWidgetItem* paren
 
 QTreeWidgetItem* TreeDockWidget::addPeakGroup(PeakGroup* group, QTreeWidgetItem* parent) {
     if (group == NULL) return NULL;
-    QTreeWidgetItem* item = NULL;
+    NumericTreeWidgetItem* item = NULL;
 
     if ( parent == NULL ) {
-            item = new QTreeWidgetItem(treeWidget, PeakGroupType);
+        item = new NumericTreeWidgetItem(treeWidget, PeakGroupType);
     } else {
-            item = new QTreeWidgetItem(parent, PeakGroupType);
+        item = new NumericTreeWidgetItem(parent, PeakGroupType);
     }
 
         if (!item) return NULL;
@@ -423,9 +423,9 @@ void TreeDockWidget::copyToClipbard() {
 
         QString clipboardtext;
         for(int i=0; i < itemCount; i++ ) {
-                QTreeWidgetItem *item = treeWidget->topLevelItem(i);
-                if ( item == NULL) continue;
-                itemToClipboard(item,clipboardtext);
+            auto item = treeWidget->topLevelItem(i);
+            if ( item == NULL) continue;
+            itemToClipboard(item,clipboardtext);
         }
 
 		QClipboard *clipboard = QApplication::clipboard();
@@ -518,10 +518,10 @@ void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
 
 void TreeDockWidget::annotateCompound(QAction* action) {
 
-    QTreeWidgetItem *item = treeWidget->currentItem();
+    auto item = treeWidget->currentItem();
     QVariant v =   item->data(0,Qt::UserRole);
     
-    QTreeWidgetItem *childItem = item->child(0);
+    auto childItem = item->child(0);
     string existingCompound = childItem->text(0).toStdString();
 
     mzSlice slice = v.value<mzSlice>();

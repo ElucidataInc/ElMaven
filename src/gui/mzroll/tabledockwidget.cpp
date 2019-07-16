@@ -384,7 +384,7 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     item->setText(6, QString::number(group->sampleCount));
     item->setText(7, QString::number(group->goodPeakCount));
     item->setText(8, QString::number(group->maxNoNoiseObs));
-    item->setText(9, QString::number(extractMaxIntensity(group), 'g', 2));
+    item->setText(9, QString::number(extractMaxIntensity(group), 'g', 3));
     item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
