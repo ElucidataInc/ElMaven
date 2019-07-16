@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
-#include "masscutofftype.h".h"
+#include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "Scan.h"
 #include "spectrawidget.h"
