@@ -100,8 +100,12 @@ bool Database::addCompound(Compound* newCompound)
 
     // existing compound, change its name according to the number of
     // compounds with the same ID
-    if (compoundIdCount.count(newCompound->id + newCompound->db)) {
-        int loadOrder = compoundIdCount.at(newCompound->id + newCompound->db);
+    if (compoundIdenticalCount.count(newCompound->id
+                                     + newCompound->name
+                                     + newCompound->db)) {
+        int loadOrder = compoundIdenticalCount.at(newCompound->id
+                                                  + newCompound->name
+                                                  + newCompound->db);
 
         // return false if any of the compounds having the same ID are the
         // exact same in all aspects.
@@ -117,13 +121,18 @@ bool Database::addCompound(Compound* newCompound)
                 return false;
         }
 
-        newCompound->name = newCompound->name
+        auto originalName = newCompound->name;
+        newCompound->name = originalName
                             + " ("
                             + to_string(loadOrder)
                             + ")";
-        compoundIdCount[newCompound->id + newCompound->db] = ++loadOrder;
+        compoundIdenticalCount[newCompound->id
+                               + originalName
+                               + newCompound->db] = ++loadOrder;
     } else {
-        compoundIdCount[newCompound->id + newCompound->db] = 1;
+        compoundIdenticalCount[newCompound->id
+                               + newCompound->name
+                               + newCompound->db] = 1;
     }
 
     compoundIdNameDbMap[newCompound->id
