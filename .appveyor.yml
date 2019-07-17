@@ -157,6 +157,7 @@ after_build:
           Copy-item -recurse "$qt_plugins_path\sqldrivers" .
           Copy-item -recurse "$qt_plugins_path\bearer" .
           Copy-item -recurse "$qt_plugins_path\mediaservice" .
+          Copy-item -recurse "$qt_plugins_path\styles" .
 
           # QtNetwork module requires extra ssl dlls to work
           Copy-item ..\libs\OpenSSL\* .
