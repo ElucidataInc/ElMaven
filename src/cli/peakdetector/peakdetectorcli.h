@@ -143,31 +143,6 @@ public:
 
     int prepareCompoundDbForPolly(QString fileName);
 
-    /**
-     * [write Sample List in XML]
-     * @param parent [parent node]
-     */
-    void writeSampleListXML(xml_node& parent);
-
-    /**
-     * [write Peak Table in XML]
-     * @param filename [name of the file]
-     */
-    void writePeakTableXML(string filename);
-
-    /**
-     * [write Group information in XML]
-     * @param parent [parent ion]
-     * @param g      [peak group]
-     */
-    void writeGroupXML(xml_node& parent, PeakGroup* g);
-
-    /**
-     * [write Parameters of ion in XML]
-     * @param parent [parent ion]
-     */
-    void writeParametersXML(xml_node& parent);
-
     inline const vector<char*> getOptions()
     {
         const vector<char*> options = {
