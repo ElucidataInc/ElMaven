@@ -456,7 +456,6 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
     for (xml_node spectrum = spectrumList.child("spectrum"); spectrum;
          spectrum = spectrum.next_sibling("spectrum")) {
         string spectrumId = spectrum.attribute("id").value();
-        cerr << "Processing: " << spectrumId << endl;
 
         if (spectrum.empty())
             continue;
@@ -561,8 +560,6 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
             }
         }
 
-        cerr << " scan=" << scannum << "\tms=" << mslevel << "\tprecMz"
-             << precursorMz << "\t rt=" << rt << endl;
         Scan* scan =
             new Scan(this, scannum++, mslevel, rt, precursorMz, scanpolarity);
         scan->isolationWindow = precursorIsolationWindow;
@@ -701,14 +698,12 @@ xml_node mzSample::getmzXMLSpectrumData(xml_document& doc, const char* filename)
     // Checking if the node is empty which means that msRun is not there
     // but then it might have scan which contain the data
     if (spectrumstore.empty()) {
-        cerr << "This is here" << endl;
         // Getting the first child named "scan"
         xml_node scan = doc.first_child().child("scan");
         // If scan is not present then there is no data
         // which means that there is no information in the
         // mzXML file
         if (!scan.empty()) {
-            cerr << "This is here1" << endl;
             spectrumstore = doc.first_child();
         } else {
             // if the above condition is not satisfied return a empty
