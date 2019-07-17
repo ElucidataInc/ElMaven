@@ -289,7 +289,7 @@ else {
     VecF *C = new VecF(_n);
     VecF tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -298,7 +298,7 @@ else {
 }
 */
 
-float VecF::sum() {
+    float VecF::sum() {
     return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
@@ -499,7 +499,7 @@ void VecF::chim(VecF &x, VecF &y, VecF &out_derivs) {
     //    // Check monotonicity
     //    for (int i = 2; i < length; i++) {
     //        if (x[i] <= x[i-1]) {
-//            return 2;
+    //            return 2;
     //        }
     //    }
 
@@ -954,10 +954,8 @@ VecD::VecD(int n) : _n(n) {
 }
 
 VecD::VecD(int n, const double &val) : _n(n) {
-    _dat.reserve(_n);
-    for (int i = 0; i < _n; ++i) {
-        _dat.push_back(val);
-    }
+    _dat.resize(_n);
+    fill(_dat.begin(), _dat.end(), val);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,double)");
 #endif
@@ -1030,9 +1028,7 @@ void VecD::copy(VecD &receiver) const {
 }
 
 VecD & VecD::operator=(const double &val) {
-    for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;
-    }
+    std::fill(_dat.begin(), _dat.end(), val);
     return *this;
 }
 
@@ -1060,6 +1056,18 @@ std::vector<double> VecD::slice(int start, int end)
 {
     std::vector<double> out(&_dat[start], &_dat[end]);
     return out;
+}
+
+std::pair<std::vector<double>::iterator, std::vector<double>::iterator>
+VecD::slice2(int start, int end)
+{
+    return std::make_pair(_dat.begin() + start, _dat.begin() + end);
+}
+
+double* VecD::data() {
+    if (_dat.size() == 0)
+        return nullptr;
+    return _dat.data();
 }
 
 /*************************
@@ -1190,7 +1198,7 @@ else {
     VecD *C = new VecD(_n);
     VecD tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -1199,7 +1207,7 @@ else {
 }
 */
 
-double VecD::sum() {
+    double VecD::sum() {
     return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
@@ -1334,7 +1342,7 @@ void VecD::logarithm(double base) {
     for (int i = 0; i < _n; ++i) {
         //printf("ME: %f\n", me[i]);
         _dat[i] = static_cast<double>(log(static_cast<double>(_dat[i]))
-                                     / log(base));
+                                      / log(base));
         //printf("MELOGGED: %f\n", me[i]);
     }
 }
@@ -1400,7 +1408,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
     //    // Check monotonicity
     //    for (int i = 2; i < length; i++) {
     //        if (x[i] <= x[i-1]) {
-//            return 2;
+    //            return 2;
     //        }
     //    }
 
@@ -1855,10 +1863,8 @@ VecI::VecI(int n) : _n(n) {
 }
 
 VecI::VecI(int n, const int &val) : _n(n) {
-    _dat.reserve(_n);
-    for (int i = 0; i < _n; ++i) {
-        _dat.push_back(val);
-    }
+    _dat.resize(_n);
+    fill(_dat.begin(), _dat.end(), val);
 #ifdef JTP_DEBUG
     puts("Creating DATA(N,int)");
 #endif
@@ -1931,9 +1937,7 @@ void VecI::copy(VecI &receiver) const {
 }
 
 VecI & VecI::operator=(const int &val) {
-    for (int i = 0; i < _n; ++i) {
-        _dat[i] = val;
-    }
+    std::fill(_dat.begin(), _dat.end(), val);
     return *this;
 }
 
@@ -1961,6 +1965,18 @@ std::vector<int> VecI::slice(int start, int end)
 {
     std::vector<int> out(&_dat[start], &_dat[end]);
     return out;
+}
+
+std::pair<std::vector<int>::iterator, std::vector<int>::iterator>
+VecI::slice2(int start, int end)
+{
+    return std::make_pair(_dat.begin() + start, _dat.begin() + end);
+}
+
+int* VecI::data() {
+    if (_dat.size() == 0)
+        return nullptr;
+    return _dat.data();
 }
 
 /*************************
@@ -2091,7 +2107,7 @@ else {
     VecI *C = new VecI(_n);
     VecI tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -2100,7 +2116,7 @@ else {
 }
 */
 
-int VecI::sum() {
+    int VecI::sum() {
     return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
 }
 
@@ -2235,7 +2251,7 @@ void VecI::logarithm(double base) {
     for (int i = 0; i < _n; ++i) {
         //printf("ME: %f\n", me[i]);
         _dat[i] = static_cast<int>(log(static_cast<double>(_dat[i]))
-                                     / log(base));
+                                   / log(base));
         //printf("MELOGGED: %f\n", me[i]);
     }
 }
@@ -2301,7 +2317,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
     //    // Check monotonicity
     //    for (int i = 2; i < length; i++) {
     //        if (x[i] <= x[i-1]) {
-//            return 2;
+    //            return 2;
     //        }
     //    }
 

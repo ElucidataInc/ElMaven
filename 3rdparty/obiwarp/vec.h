@@ -41,7 +41,7 @@ class VecF {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        VecF(const VecF &A);
+    VecF(const VecF &A);
 
     float first() { return _dat.front(); }
     float last() { return _dat.back(); }
@@ -87,9 +87,9 @@ class VecF {
 
     // Returns true if all values are the same, false otherwise
     bool all_equal() {
-            float _min, _max; min_max(_min, _max);
+        float _min, _max; min_max(_min, _max);
         if (_min == _max) { return 1; }
-            else { return 0; }
+        else { return 0; }
     }
 
     float& operator[](int i) {
@@ -98,14 +98,14 @@ class VecF {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const float& operator[](int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     float& at(int i) {
 #ifdef JTP_BOUNDS_CHECK
@@ -113,14 +113,14 @@ class VecF {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const float& at(int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     bool shallow() {
         return false;
@@ -169,7 +169,7 @@ class VecF {
 
     // Removes the value at index and shortens the array by one
     // not shallow anymore regardless of previous state
-        void remove(int index);
+    void remove(int index);
 
     //VecF operator+(const VecF &A);
     //void operator++();
@@ -179,7 +179,7 @@ class VecF {
     static int pchst(float arg1, float arg2) {
         if      (arg1*arg2 > 0) { return  1; }
         else if (arg1*arg2 < 0) { return -1; }
-            else                    { return  0; }
+        else                    { return  0; }
     }
 
     static double pearsons_r(VecF &x, VecF &y);
@@ -219,7 +219,7 @@ class VecF {
     //       A --------C
     //             b
     //
-        //  cPerp = Perpendicular from C to c
+    //  cPerp = Perpendicular from C to c
     //  (sin A)/a = (sin C)/c
     //  sin C = 1
     //  c = sqrt(a^2 + b^2)
@@ -276,10 +276,10 @@ class VecD {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        VecD(const VecD &A);
+    VecD(const VecD &A);
 
-    double first() { return _dat[0]; }
-    double last() { return _dat[_n-1]; }
+    double first() { return _dat.front(); }
+    double last() { return _dat.back(); }
 
     // Returns the name of the class
     // del needs to be called
@@ -322,9 +322,9 @@ class VecD {
 
     // Returns true if all values are the same, false otherwise
     bool all_equal() {
-            double _min, _max; min_max(_min, _max);
+        double _min, _max; min_max(_min, _max);
         if (_min == _max) { return 1; }
-            else { return 0; }
+        else { return 0; }
     }
 
     double& operator[](int i) {
@@ -333,14 +333,14 @@ class VecD {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const double& operator[](int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     double& at(int i) {
 #ifdef JTP_BOUNDS_CHECK
@@ -348,20 +348,22 @@ class VecD {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const double& at(int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     bool shallow() {
         return false;
     }
 
     std::vector<double> slice(int start, int end);
+    std::pair<std::vector<double>::iterator, std::vector<double>::iterator> slice2(int start, int end);
+    double* data();
 
     // NOTE: All operators act on the caller!
     // Operators
@@ -402,7 +404,7 @@ class VecD {
 
     // Removes the value at index and shortens the array by one
     // not shallow anymore regardless of previous state
-        void remove(int index);
+    void remove(int index);
 
     //VecD operator+(const VecD &A);
     //void operator++();
@@ -412,7 +414,7 @@ class VecD {
     static int pchst(double arg1, double arg2) {
         if      (arg1*arg2 > 0) { return  1; }
         else if (arg1*arg2 < 0) { return -1; }
-            else                    { return  0; }
+        else                    { return  0; }
     }
 
     static double pearsons_r(VecD &x, VecD &y);
@@ -452,7 +454,7 @@ class VecD {
     //       A --------C
     //             b
     //
-        //  cPerp = Perpendicular from C to c
+    //  cPerp = Perpendicular from C to c
     //  (sin A)/a = (sin C)/c
     //  sin C = 1
     //  c = sqrt(a^2 + b^2)
@@ -509,10 +511,10 @@ class VecI {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        VecI(const VecI &A);
+    VecI(const VecI &A);
 
-    int first() { return _dat[0]; }
-    int last() { return _dat[_n-1]; }
+    int first() { return _dat.front(); }
+    int last() { return _dat.back(); }
 
     // Returns the name of the class
     // del needs to be called
@@ -555,9 +557,9 @@ class VecI {
 
     // Returns true if all values are the same, false otherwise
     bool all_equal() {
-            int _min, _max; min_max(_min, _max);
+        int _min, _max; min_max(_min, _max);
         if (_min == _max) { return 1; }
-            else { return 0; }
+        else { return 0; }
     }
 
     int& operator[](int i) {
@@ -566,14 +568,14 @@ class VecI {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const int& operator[](int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     int& at(int i) {
 #ifdef JTP_BOUNDS_CHECK
@@ -581,20 +583,22 @@ class VecI {
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
     const int& at(int i) const {
 #ifdef JTP_BOUNDS_CHECK
         if (i < 0) { puts("index < 0 !"); exit(1); }
         if (i >= _n) { puts("i >= _n !"); exit(1); }
 #endif
         return _dat[i];
-        }
+    }
 
     bool shallow() {
         return false;
     }
 
     std::vector<int> slice(int start, int end);
+    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> slice2(int start, int end);
+    int* data();
 
     // NOTE: All operators act on the caller!
     // Operators
@@ -635,7 +639,7 @@ class VecI {
 
     // Removes the value at index and shortens the array by one
     // not shallow anymore regardless of previous state
-        void remove(int index);
+    void remove(int index);
 
     //VecI operator+(const VecI &A);
     //void operator++();
@@ -645,7 +649,7 @@ class VecI {
     static int pchst(int arg1, int arg2) {
         if      (arg1*arg2 > 0) { return  1; }
         else if (arg1*arg2 < 0) { return -1; }
-            else                    { return  0; }
+        else                    { return  0; }
     }
 
     static double pearsons_r(VecI &x, VecI &y);
@@ -685,7 +689,7 @@ class VecI {
     //       A --------C
     //             b
     //
-        //  cPerp = Perpendicular from C to c
+    //  cPerp = Perpendicular from C to c
     //  (sin A)/a = (sin C)/c
     //  sin C = 1
     //  c = sqrt(a^2 + b^2)

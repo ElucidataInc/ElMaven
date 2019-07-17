@@ -240,7 +240,7 @@ else {
     MatF *C = new MatF(_n);
     MatF tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -316,7 +316,6 @@ float MatF::sum(int m) {
     return sum;
 }
 
-
 /****************************************************************
  * MatD
  ***************************************************************/
@@ -355,9 +354,24 @@ MatD::MatD(const MatD &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #endif
 }
 
-std::vector<double> MatD::pointer(int m)
+std::vector<double> MatD::row(int m)
 {
     return _dat.slice((m * _n), (m * _n) + _n);
+}
+
+std::pair<std::vector<double>::iterator, std::vector<double>::iterator> MatD::rowIters(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n);
+}
+
+double* MatD::rowData(int m)
+{
+    return (_dat.data() + (m * _n));
+}
+
+std::vector<double>::iterator MatD::rowIter(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n).first;
 }
 
 void MatD::to_vec(VecD &outvec) {
@@ -400,7 +414,7 @@ void MatD::row_vecs(int &cnt, VecD *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        std::vector<double> ptr = this->pointer(i);
+        std::vector<double> ptr = this->row(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -527,7 +541,7 @@ else {
     MatD *C = new MatD(_n);
     MatD tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -598,8 +612,8 @@ void MatD::mask_as_vec(double return_val, MatI &mask, VecD &out) {
 
 
 double MatD::sum(int m) {
-    std::vector<double> ptr = pointer(m);
-    double sum = std::accumulate(ptr.begin(), ptr.end(), 0.0);
+    auto iters = rowIters(m);
+    double sum = std::accumulate(iters.first, iters.second, 0.0f);
     return sum;
 }
 
@@ -641,9 +655,24 @@ MatI::MatI(const MatI &A) : _m(A._m), _n(A._n), _dat(A._dat) {
 #endif
 }
 
-std::vector<int> MatI::pointer(int m)
+std::vector<int> MatI::row(int m)
 {
     return _dat.slice((m * _n), (m * _n) + _n);
+}
+
+std::pair<std::vector<int>::iterator, std::vector<int>::iterator> MatI::rowIters(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n);
+}
+
+int* MatI::rowData(int m)
+{
+    return (_dat.data() + (m * _n));
+}
+
+std::vector<int>::iterator MatI::rowIter(int m)
+{
+    return _dat.slice2((m * _n), (m * _n) + _n).first;
 }
 
 void MatI::to_vec(VecI &outvec) {
@@ -686,7 +715,7 @@ void MatI::row_vecs(int &cnt, VecI *vecs) {
     cnt = rows();
     int _cols = cols();
     for (int i = 0; i < cnt; ++i) {
-        std::vector<int> ptr = this->pointer(i);
+        std::vector<int> ptr = this->row(i);
         vecs[i].set(_cols, ptr);  // shallow allocation
     }
 }
@@ -813,7 +842,7 @@ else {
     MatI *C = new MatI(_n);
     MatI tmp = *C;
     tmp._to_pass_up = C;
-        printf("TMPENEW %d\n", tmp.shallow());
+    printf("TMPENEW %d\n", tmp.shallow());
     for (int i = 0; i < _n; ++i) {
         tmp[i] = _dat[i] + A[i];
     }
@@ -884,8 +913,8 @@ void MatI::mask_as_vec(int return_val, MatI &mask, VecI &out) {
 
 
 int MatI::sum(int m) {
-    std::vector<int> ptr = pointer(m);
-    int sum = std::accumulate(ptr.begin(), ptr.end(), 0);
+    auto iters = rowIters(m);
+    int sum = std::accumulate(iters.first, iters.second, 0.0f);
     return sum;
 }
 

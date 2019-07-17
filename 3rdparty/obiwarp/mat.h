@@ -43,14 +43,14 @@ class MatF {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        MatF(const MatF &A);
+    MatF(const MatF &A);
 
     std::vector<float> row(int m);
     std::pair<std::vector<float>::iterator, std::vector<float>::iterator> rowIters(int m);
     float* rowData(int m);
     std::vector<float>::iterator rowIter(int m);
     // creates vec objects
-        // caller must have allocated the array for the vec objects
+    // caller must have allocated the array for the vec objects
     // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecF *vecs);
@@ -99,7 +99,7 @@ class MatF {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
     const float& operator()(int m, int n) const {
 #ifdef JTP_BOUNDS_CHECK
         if (n < 0) { puts("n < 0"); exit(1); }
@@ -108,7 +108,7 @@ class MatF {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
 
     // NOTE: All assignment operators act on the caller!
     void operator+=(const MatF &A);
@@ -178,11 +178,14 @@ class MatD {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        MatD(const MatD &A);
+    MatD(const MatD &A);
 
-    std::vector<double> pointer(int m);
+    std::vector<double> row(int m);
+    std::pair<std::vector<double>::iterator, std::vector<double>::iterator> rowIters(int m);
+    double* rowData(int m);
+    std::vector<double>::iterator rowIter(int m);
     // creates vec objects
-        // caller must have allocated the array for the vec objects
+    // caller must have allocated the array for the vec objects
     // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecD *vecs);
@@ -231,7 +234,7 @@ class MatD {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
     const double& operator()(int m, int n) const {
 #ifdef JTP_BOUNDS_CHECK
         if (n < 0) { puts("n < 0"); exit(1); }
@@ -240,7 +243,7 @@ class MatD {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
 
     // NOTE: All assignment operators act on the caller!
     void operator+=(const MatD &A);
@@ -310,11 +313,14 @@ class MatI {
     // if (shallow == 1 (true)) a copy of the pointer is made
     // if (shallow) then no memory is released upon destruction
     // shallow is used for a quick copy with which to work
-        MatI(const MatI &A);
+    MatI(const MatI &A);
 
-    std::vector<int> pointer(int m);
+    std::vector<int> row(int m);
+    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> rowIters(int m);
+    int* rowData(int m);
+    std::vector<int>::iterator rowIter(int m);
     // creates vec objects
-        // caller must have allocated the array for the vec objects
+    // caller must have allocated the array for the vec objects
     // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecI *vecs);
@@ -363,7 +369,7 @@ class MatI {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
     const int& operator()(int m, int n) const {
 #ifdef JTP_BOUNDS_CHECK
         if (n < 0) { puts("n < 0"); exit(1); }
@@ -372,7 +378,7 @@ class MatI {
         if (m >= _m) { puts("m >= _m"); exit(1); }
 #endif
         return _dat[m*_n + n];
-        }
+    }
 
     // NOTE: All assignment operators act on the caller!
     void operator+=(const MatI &A);
