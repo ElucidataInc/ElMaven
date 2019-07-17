@@ -97,7 +97,6 @@ public:
 	}
 
 	AutoSave* autosave;
-    QSet<QString> pendingMzRollSaves;
 	MavenParameters* mavenParameters;
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
@@ -214,10 +213,6 @@ public:
 	void autoSaveSignal();
 	void normalizeIsotopicMatrix(MatrixXf &MM);
 
-    void savePeakTableAsMzRoll(TableDockWidget* peaksTable,
-                               QString fileName,
-                               QString tableName);
-
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
 	//TODO: Sahil - Kiran, Removed while merging mainwindow
@@ -290,7 +285,6 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
-	void printvalue();
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -425,9 +419,6 @@ private Q_SLOTS:
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());
    		QStringList arguments;
-        Q_FOREACH( QString newFileName, this->pendingMzRollSaves) {
-			arguments << newFileName;
-		}
    		QProcess *myProcess = new QProcess();
     	myProcess->start(rep, arguments);
 		settings->setValue("closeEvent", 1);
@@ -508,8 +499,6 @@ private:
     QString _newAutosaveFile();
     void _setProjectFilenameIfEmpty();
     QString _getProjectFilenameFromProjectDockWidget();
-    void _saveMzRollList(QString projectFileName);
-    void _saveAllTablesAsMzRoll();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
 

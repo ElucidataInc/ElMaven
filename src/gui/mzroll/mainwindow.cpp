@@ -125,61 +125,6 @@ void MainWindow::setValue(int value)
     }
 }
 
-//TODO: remove this fucntion. use another function to start
-// crashReporter
-void MainWindow::printvalue() {
-
-    // TODO: hide all this ugliness somewhere. OS dependent paths are used in a lot of places and hence
-    // this should be abstracted out somewhere
-
-    QString crashReporterPath;
-    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-    #endif
-
-    #if defined(Q_OS_MAC)
-        QString binFolder = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." \
-            + QDir::separator() + ".." + QDir::separator();
-        crashReporterPath = binFolder + "CrashReporter.app" + QDir::separator() + "Contents" + QDir::separator() + "MacOS" + QDir::separator() + "CrashReporter";
-    #endif
-
-
-    if (samples.size() > 0 ) {
-        settings->setValue("closeEvent", 1);
-        QFileInfo fi(QString::fromStdString(samples[0]->fileName));
-        QString samplePath = fi.absolutePath() + QDir::separator();
-        const QDateTime nowTime = QDateTime::currentDateTime();
-        const QString timestamp = nowTime.toString(QLatin1String("yyyyMMdd-hhmmsszzz"));
-        QString AutosavePath = samplePath + timestamp + ".mzroll";
-        this->_currentProjectName = AutosavePath;
-        this->timestampFileExists = true;
-        this->saveProject();
-        unsigned int countCrashState = 0;
-        settings->beginWriteArray("crashTables");
-        Q_FOREACH( QString newFileName, this->pendingMzRollSaves) {
-            settings->setArrayIndex(countCrashState++);
-            settings->setValue("crashTable", newFileName);
-        }
-        settings->endArray();
-        settings->sync();
-    }
-
-    saveSettingsToLog();
-
-    //IMP: start the process in detached mode otherwise
-    // crashreporter gets killed as soon as parent dies
-    QProcess *pr = new QProcess;
-    pr->setProgram(crashReporterPath);
-    pr->setProcessChannelMode(QProcess::SeparateChannels);
-
-		#if defined(Q_OS_WIN)
-			pr->start();
-		#else
-			pr->startDetached(crashReporterPath);
-		#endif
-
-}
-
 using namespace mzUtils;
 
  MainWindow::MainWindow(Controller* controller, QWidget *parent) :
@@ -945,11 +890,6 @@ AutoSave::AutoSave(MainWindow* mw)
     saveTablesOnly = false;
 }
 
-void MainWindow::_saveMzRollList(QString projectFileName)
-{
-    pendingMzRollSaves.insert(projectFileName);
-}
-
 void AutoSave::saveProjectWorker(bool tablesOnly)
 {
     saveTablesOnly = tablesOnly;
@@ -1073,6 +1013,11 @@ void MainWindow::saveProject(bool explicitSave)
         if (_currentProjectName.isEmpty())
             _currentProjectName = _getProjectFilenameFromProjectDockWidget();
 
+        // If the currently loaded project is an mzroll Project, then we should
+        // not consider it for our session closure
+        if (fileLoader->isMzRollProject(_currentProjectName))
+            _currentProjectName = "";
+
         // if no projects were saved or opened
         if (_latestUserProjectName.isEmpty()) {
             QString message = "Would you like to save your data for this "
@@ -1170,9 +1115,7 @@ void MainWindow::saveProject(bool explicitSave)
 
 void MainWindow::saveProjectForFilename(bool tablesOnly)
 {
-    if (fileLoader->isMzRollProject(_currentProjectName)) {
-        _saveAllTablesAsMzRoll();
-    } else if (fileLoader->isEmdbProject(_currentProjectName)) {
+    if (fileLoader->isEmdbProject(_currentProjectName)) {
         if (tablesOnly) {
             auto allTables = getPeakTableList();
             allTables.append(bookmarkedPeaks);
@@ -1180,55 +1123,6 @@ void MainWindow::saveProjectForFilename(bool tablesOnly)
                 projectDockWidget->savePeakTableInSQLite(table, _currentProjectName);
         } else {
             projectDockWidget->saveSQLiteProject(_currentProjectName);
-        }
-    }
-}
-
-void MainWindow::_saveAllTablesAsMzRoll()
-{
-    if (_currentProjectName.isEmpty()) {
-        _currentProjectName = this->projectDockWidget->getLastSavedProject();
-        if (!fileLoader->isMzRollProject(_currentProjectName)) {
-            projectDockWidget->saveProjectAsMzRoll();
-            return;
-        }
-    }
-    if (!newFileName.isEmpty()
-            && this->projectDockWidget->getLastSavedProject() == newFileName) {
-        projectDockWidget->saveMzRollProject(newFileName);
-    } else {
-        projectDockWidget->saveMzRollProject(_currentProjectName);
-    }
-}
-
-void MainWindow::savePeakTableAsMzRoll(TableDockWidget* peaksTable,
-                                        QString fileName,
-                                        QString tableName)
-{
-    if (fileName.endsWith(".mzroll", Qt::CaseInsensitive)) {
-        QRegExp rxr("_table-[0-9]+");
-        fileName = fileName.replace(rxr, "");
-        QRegExp rxr1("_bookmarkedPeaks");
-        fileName = fileName.replace(rxr1, "");
-        QFileInfo fi(fileName);
-
-        if (peaksTable) {
-            newFileName = fi.absolutePath() + QDir::separator()
-                          + fi.completeBaseName() + "_table-" + tableName
-                          + ".mzroll";
-            _saveMzRollList(newFileName);
-            this->projectDockWidget->saveMzRollTable(newFileName, peaksTable);
-        } else if (!this->bookmarkedPeaks->getGroups().isEmpty()) {
-            newFileName = fi.absolutePath() + QDir::separator()
-                          + fi.completeBaseName() + "_bookmarkedPeaks"
-                          + ".mzroll";
-            _saveMzRollList(newFileName);
-            this->projectDockWidget->saveMzRollTable(newFileName);
-        } else {
-            newFileName = fi.absolutePath() + QDir::separator()
-                          + fi.completeBaseName() + ".mzroll";
-            _saveMzRollList(newFileName);
-            this->projectDockWidget->saveMzRollTable(newFileName);
         }
     }
 }
@@ -2662,7 +2556,7 @@ void MainWindow::createMenus() {
 	fileMenu->addAction(loadCompoundsFile);
 
     // add option to save the current project, if any
-    QAction* saveProject = new QAction(tr("Save Project"),
+    QAction* saveProject = new QAction(tr("Save project"),
                                        this);
     saveProject->setShortcut(tr("Ctrl+S"));
     connect(saveProject,
@@ -2671,11 +2565,10 @@ void MainWindow::createMenus() {
             SLOT(explicitSave()));
     fileMenu->addAction(saveProject);
 
-    QMenu* saveProjectFile = new QMenu(tr("Save Project As…"), this);
-
     // add option to save as a database
-    QAction* saveProjectAsSQLite = new QAction(tr("El-MAVEN Database Format (.emDB)"),
+    QAction* saveProjectAsSQLite = new QAction(tr("Save project as…"),
                                                this);
+    saveProjectAsSQLite->setShortcut(tr("Ctrl+Shift+S"));
     connect(saveProjectAsSQLite,
             SIGNAL(triggered()),
             projectDockWidget,
@@ -2684,21 +2577,7 @@ void MainWindow::createMenus() {
     {
         this->analytics->hitEvent("Project Save", "emDB");
     });
-    saveProjectFile->addAction(saveProjectAsSQLite);
-
-    // add option to save as mzroll
-    QAction* saveProjectAsMzRoll = new QAction(tr("MAVEN Project (.mzroll) [Deprecated]"),
-                                               this);
-    connect(saveProjectAsMzRoll,
-            SIGNAL(triggered()),
-            projectDockWidget,
-            SLOT(saveMzRollProject()));
-    connect(saveProjectAsMzRoll, &QAction::triggered, [this]()
-    {
-        this->analytics->hitEvent("Project Save", "mzroll");
-    });
-    saveProjectFile->addAction(saveProjectAsMzRoll);
-    fileMenu->addMenu(saveProjectFile);
+    fileMenu->addAction(saveProjectAsSQLite);
 
     QAction* saveSettings = new QAction("Save Settings", this);
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
@@ -4438,28 +4317,3 @@ void MainWindow::startEmbededHttpServer() {
 
 #endif
 }
-
-//TODO: sahil-Kiran, removed while merging mainwindow
-// bool MainWindow::isSampleFileType(QString filename) {
-// 	if (filename.endsWith("mzXML", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	} else if (filename.endsWith("cdf", Qt::CaseInsensitive)
-// 			|| filename.endsWith("nc", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	} else if (filename.endsWith("mzCSV", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	} else if (filename.contains("mzData", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	} else if (filename.contains("mzML", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	}
-// 	return 0;
-// }
-
-//TODO: sahil-Kiran, removed while merging mainwindow
-// bool MainWindow::isProjectFileType(QString filename) {
-// 	if (filename.endsWith("mzroll", Qt::CaseInsensitive)) {
-// 		return 1;
-// 	}
-// 	return 0;
-// }

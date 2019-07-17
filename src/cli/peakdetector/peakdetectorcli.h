@@ -64,7 +64,6 @@ public:
     MavenParameters* mavenParameters;
     PeakDetector* peakDetector;
     bool saveJsonEIC;
-    bool saveMzrollFile;
     PeakGroup::QType quantitationType;
     string clsfModelFilename;
     QString pollyArgs;
@@ -126,13 +125,7 @@ public:
     void saveJson(string setName);
 
     /**
-     * @brief save project as .mzroll
-     * @param setName file name with full path
-     */
-    void saveMzRoll(string setName);
-
-    /**
-     * @brief save project as .mzroll
+     * @brief save project as CSV
      * @param setName file name with full path
      */
     void saveCSV(string setName, bool pollyExport);
@@ -149,31 +142,6 @@ public:
                           QMap<QString, QString> creds);
 
     int prepareCompoundDbForPolly(QString fileName);
-
-    /**
-     * [write Sample List in XML]
-     * @param parent [parent node]
-     */
-    void writeSampleListXML(xml_node& parent);
-
-    /**
-     * [write Peak Table in XML]
-     * @param filename [name of the file]
-     */
-    void writePeakTableXML(string filename);
-
-    /**
-     * [write Group information in XML]
-     * @param parent [parent ion]
-     * @param g      [peak group]
-     */
-    void writeGroupXML(xml_node& parent, PeakGroup* g);
-
-    /**
-     * [write Parameters of ion in XML]
-     * @param parent [parent ion]
-     */
-    void writeParametersXML(xml_node& parent);
 
     inline const vector<char*> getOptions()
     {
@@ -198,7 +166,6 @@ public:
             "q?minQuality: Enter min peak quality threshold for a group. <float>",
             "Q?quantileQuality: Specify required percentage of peaks above quality threshold. <float>",
             "r?rtStepSize: Enter retention time window for untargeted peak detection. <float>",
-            "s?savemzroll: Enter non-zero integer to save mzroll in the output folder. <int>",
             "v?ionizationMode: Enter 0, -1 or 1 ionization mode. <int>",
             "w?minPeakWidth: Enter min peak width threshold in a group. <int>",
             "x?xml: Enter full path to the config file. <string>",
@@ -288,7 +255,6 @@ struct Arguments
         generalArgs << "int" << "alignSamples" << "0";
         generalArgs << "int" << "saveEicJson" << "0";
         generalArgs << "string" << "outputdir" << "0";
-        generalArgs << "int" << "savemzroll" << "0";
         generalArgs << "string" << "pollyExtra" << "";
         generalArgs << "string" << "samples" << "path/to/sample1";
         generalArgs << "string" << "samples" << "path/to/sample2";

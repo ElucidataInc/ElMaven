@@ -188,10 +188,6 @@ Q_OBJECT
          */
         void cleanString(QString& name);
 
-        void writeGroupXML(QXmlStreamWriter& stream, PeakGroup* group);
-        void writeGroupsXML(QXmlStreamWriter& stream,
-                            vector<PeakGroup>& groups);
-
         /**
          * @brief It will add samples used to group being generated while
          * creating from mzroll file
