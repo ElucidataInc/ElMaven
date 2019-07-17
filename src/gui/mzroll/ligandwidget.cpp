@@ -4,6 +4,7 @@
 #include "analytics.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "mavenparameters.h"
 #include "mzfileio.h"
 #include "mzSample.h"
@@ -110,8 +111,12 @@ LigandWidget::LigandWidget(MainWindow* mw) {
 
   QDirIterator itr(":/databases/");
 
-  while(itr.hasNext())
-      DB.loadCompoundCSVFile(itr.next().toStdString());
+  while(itr.hasNext()) {
+    auto filename = itr.next().toStdString();
+    DB.loadCompoundCSVFile(filename);
+    string dbname = mzUtils::cleanFilename(filename);
+    _mw->massCalcWidget->database->addItem(QString::fromStdString(dbname));
+  }
 
   QSet<QString>set;
   for(int i=0; i< DB.compoundsDB.size(); i++) {

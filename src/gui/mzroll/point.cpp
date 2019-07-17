@@ -8,6 +8,7 @@
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
+#include "masscalcgui.h"
 #include "mzSample.h"
 #include "note.h"
 #include "pathwaywidget.h"
@@ -50,6 +51,14 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
          connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
     }
+    connect(this,
+            SIGNAL(peakGroupSelected(PeakGroup*)),
+            mw->massCalcWidget,
+            SLOT(setPeakGroup(PeakGroup*)));
+    connect(this,
+            SIGNAL(ms2MarkerSelected(Scan*)),
+            mw->massCalcWidget,
+            SLOT(setFragmentationScan(Scan*)));
 }
 
 EicPoint::~EicPoint() {}
@@ -155,10 +164,16 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     setZValue(10);
-    if (_group)
+    if (_group) {
+        cerr << "GROUP EXISTS!" << endl;
         emit peakGroupSelected(_group);
-    if (_peak)
+    }
+
+    if (_peak) {
         emit peakSelected(_peak);
+    } else {
+        emit ms2MarkerSelected(_scan);
+    }
 
     // make changes through static functions, since this object might be
     // destroyed during the execution period of those functions.

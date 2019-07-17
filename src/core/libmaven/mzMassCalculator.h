@@ -3,6 +3,7 @@
 
 #include "elementMass.h"
 #include "standardincludes.h"
+#include "Fragment.h"
 
 class Adduct;
 class Compound;
@@ -44,6 +45,8 @@ class MassCalculator {
             std::string name;
             double mass;
             double diff;
+            double rtDiff;
+            FragmentationMatchScore fragScore;
             Compound* compoundLink;
         } Match;
 

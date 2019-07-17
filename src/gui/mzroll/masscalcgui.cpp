@@ -1,8 +1,9 @@
 #include "Compound.h"
+#include "eicwidget.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
-#include "masscutofftype.h".h"
+#include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "Scan.h"
 #include "spectrawidget.h"
@@ -18,19 +19,21 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setCharge(-1);
   setMassCutoff(mw->getUserMassCutoff());
 
+  database->addItem("All");
+
   connect(computeButton, SIGNAL(clicked(bool)), SLOT(compute()));
-  connect(lineEdit,SIGNAL(returnPressed()),SLOT(compute()));
+  connect(database, SIGNAL(currentIndexChanged(int)), SLOT(showTable()));
+  connect(precursorMz,SIGNAL(returnPressed()),SLOT(compute()));
   connect(ionization,SIGNAL(valueChanged(double)),SLOT(compute()));
-  connect(maxppmdiff,SIGNAL(valueChanged(double)),SLOT(compute()));
-  connect(mTable, SIGNAL(currentCellChanged(int,int,int,int)), SLOT(showCellInfo(int,int,int,int)));
+  connect(precursorPpm,SIGNAL(valueChanged(double)),SLOT(compute()));
+  connect(mTable, SIGNAL(itemSelectionChanged()), SLOT(_showInfo()));
 }
 
 void MassCalcWidget::setMass(float mz) {
 	if ( mz == _mz ) return;
 
-    lineEdit->setText(QString::number(mz,'f',5));
+    precursorMz->setText(QString::number(mz,'f',5));
     _mz = mz;
-    mzUtils::delete_all(matches);
     getMatches();
     showTable();
 }
@@ -40,8 +43,8 @@ void MassCalcWidget::setCharge(float charge) {
                 ionization->setValue(charge);
                 _charge=charge;
 }
-void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff;
-    maxppmdiff->setValue(massCutoff->getMassCutoff());
+void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { precursorPpm->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff;
+    precursorPpm->setValue(massCutoff->getMassCutoff());
     string massCutoffType=massCutoff->getMassCutoffType();
 
     label_3->setText(QApplication::translate("MassCalcWidget", &massCutoffType[0], 0));
@@ -50,100 +53,167 @@ void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { maxppmdiff->setValu
 
 void MassCalcWidget::compute() {
 	 bool isDouble =false;
-	 _mz = 		lineEdit->text().toDouble(&isDouble);
+         _mz = 		precursorMz->text().toDouble(&isDouble);
   	 _charge =  ionization->value();
-       _massCutoff->setMassCutoff(maxppmdiff->value());
+       _massCutoff->setMassCutoff(precursorPpm->value());
 	 if (!isDouble) return;
 	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
-         mzUtils::delete_all(matches);
-
 	_mw->setStatusText("Searching for formulas..");
-     mcalc.enumerateMasses(_mz,_charge,_massCutoff, matches);
 	 getMatches();
 	_mw->setStatusText(tr("Found %1 formulas").arg(matches.size()));
 
      showTable();
 }
 
-void MassCalcWidget::showTable() {
-
-    QTableWidget *p = mTable;
+void MassCalcWidget::showTable()
+{
+    QTreeWidget *p = mTable;
     p->setUpdatesEnabled(false);
     p->clear();
-    p->setColumnCount( 5 );
-    p->setRowCount(  matches.size() ) ;
-    QString massCutoffDiff=label_3->text()+"Diff";
-    p->setHorizontalHeaderLabels(  QStringList() << "Formula" << "Compound" << "Mass" << massCutoffDiff << "DB");
+    p->setColumnCount(6);
+    QString massCutoffDiff = "Δm/z (" + label_3->text() + ")";
+    p->setHeaderLabels(QStringList() << "Formula"
+                                     << "Compound"
+                                     << "Δrt"
+                                     << massCutoffDiff
+                                     << "MS2 Score"
+                                     << "DB");
     p->setSortingEnabled(false);
     p->setUpdatesEnabled(false);
 
     for(unsigned int i=0;  i < matches.size(); i++ ) {
         //no duplicates in the list
-        Compound* c = matches[i]->compoundLink;
+        auto match = matches[i];
+        Compound* c = match->compoundLink;
+
         QString compoundName="";
-        if (c != NULL) compoundName = QString(c->name.c_str());
+        if (c != nullptr)
+            compoundName = QString(c->name.c_str());
+
         QString databaseName="";
-        if(c != NULL ) databaseName = QString(c->db.c_str());
-        QString item1 = QString(matches[i]->name.c_str() );
-        QString item2 = QString(compoundName);
-        QString item3 = QString::number( matches[i]->mass , 'f', 4);
-        QString item4 = QString::number( matches[i]->diff , 'f', 4);
-        QString item5 = QString(databaseName);
+        if(c != nullptr)
+            databaseName = QString(c->db.c_str());
 
-		QTableWidgetItem* item = new QTableWidgetItem(item1,0);
+        if (database->currentIndex() != 0
+            && database->currentText() != databaseName)
+            continue;
 
-        p->setItem(i,0, item );
-        p->setItem(i,1, new QTableWidgetItem(item2,0));
-        p->setItem(i,2, new QTableWidgetItem(item3,0));
-        p->setItem(i,3, new QTableWidgetItem(item4,0));
-        p->setItem(i,4, new QTableWidgetItem(item5,0));
-		if (c != NULL) item->setData(Qt::UserRole,QVariant::fromValue(c));
+        QString item1 = QString(match->name.c_str());
+        QString item2 = compoundName;
+        QString item3 = QString::number(match->rtDiff, 'f', 2);
+        QString item4 = QString::number(match->diff, 'f', 2);
+        QString item5 = QString::number(match->fragScore.hypergeomScore, 'f', 3);
+        QString item6 = databaseName;
+        QStringList rowItems = QStringList() << item1
+                                             << item2
+                                             << item3
+                                             << item4
+                                             << item5
+                                             << item6;
+        QTreeWidgetItem *item = new QTreeWidgetItem(rowItems);
+        item->setData(0, Qt::UserRole, QVariant(i));
+        p->addTopLevelItem(item);
     }
 
+    p->sortByColumn(3,Qt::DescendingOrder);
+    p->header()->setStretchLastSection(true);
     p->setSortingEnabled(true);
     p->setUpdatesEnabled(true);
     p->update();
-
 }
 
 void MassCalcWidget::setupSortedCompoundsDB() {
     sortedcompounds.clear();
-    sortedcompounds.resize(DB.compoundsDB.size());
-    copy(DB.compoundsDB.begin(), DB.compoundsDB.end(),   sortedcompounds.begin());
+    copy(DB.compoundsDB.begin(),
+         DB.compoundsDB.end(),
+         back_inserter(sortedcompounds));
     sort(sortedcompounds.begin(), sortedcompounds.end(), Compound::compMass);
 }
 
 QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, MassCutoff *massCutoff, float charge) {
-	if (sortedcompounds.size() != DB.compoundsDB.size() ) { setupSortedCompoundsDB(); }
-
-	QSet<Compound*>uniqset;
+    setupSortedCompoundsDB();
     MassCalculator mcalc;
-    Compound x("find", "", "",0);
-    x.mass = mz-2;
-    vector<Compound*>::iterator itr = lower_bound(sortedcompounds.begin(), sortedcompounds.end(), &x, Compound::compMass);
-
-	//cerr << "findMathchingCompounds() mz=" << mz << " ppm=" << ppm << " charge=" <<  charge;
-    for(;itr != sortedcompounds.end(); itr++ ) {
-        Compound* c = *itr; if (!c) continue;
+    QSet<Compound*>uniqset;
+    Compound x("", "", "", 0);
+    x.mass = mz - 2;
+    vector<Compound*>::iterator itr = lower_bound(sortedcompounds.begin(),
+                                                  sortedcompounds.end(),
+                                                  &x,
+                                                  Compound::compMass);
+    for (; itr != sortedcompounds.end(); itr++) {
+        Compound* c = *itr;
+        if (!c)
+            continue;
         double cmass = MassCalculator::computeMass(c->formula, charge);
-        if ( mzUtils::massCutoffDist((double) cmass, (double) mz,massCutoff) < massCutoff->getMassCutoff() && !uniqset.contains(c) ) uniqset << c;
-        if (cmass > mz+2) break;
-	}
-	return uniqset;
+        if (mzUtils::massCutoffDist((double) cmass,
+                                    (double) mz,
+                                    massCutoff) < massCutoff->getMassCutoff()
+            && !uniqset.contains(c))
+            uniqset << c;
+        if (cmass > mz + 2)
+            break;
+    }
+    return uniqset;
 }
 
 void MassCalcWidget::getMatches() {
     int charge = _mw->mavenParameters->getCharge();
-	QSet<Compound*> compounds = findMathchingCompounds(_mz,_massCutoff,charge);
-	Q_FOREACH(Compound* c, compounds) {
-          MassCalculator::Match* m = new MassCalculator::Match();
-          m->name = c->formula;
-          m->mass = MassCalculator::computeMass(c->formula,_mw->mavenParameters->getCharge(c));
-          m->diff = mzUtils::massCutoffDist((double) m->mass,(double) _mz,_massCutoff);
-          m->compoundLink = c;
-          matches.push_back(m);
+    QSet<Compound*> compounds = findMathchingCompounds(_mz,
+                                                       _massCutoff,
+                                                       charge);
+    delete_all(matches);
+    Q_FOREACH(Compound* c, compounds) {
+        MassCalculator::Match* m = new MassCalculator::Match();
+        m->name = c->formula;
+        m->mass = MassCalculator::computeMass(c->formula,
+                                              _mw->mavenParameters->getCharge(c));
+        m->diff = mzUtils::massCutoffDist((double)m->mass,
+                                          (double)_mz,
+                                          _massCutoff);
+        m->compoundLink = c;
+        matches.push_back(m);
     }
+}
+
+void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
+    if(!grp)
+        return;
+
+    _mz = grp->meanMz;
+    getMatches();
+
+    if(grp->ms2EventCount == 0)
+        grp->computeFragPattern(fragPpm->value());
+
+    for(auto& m : matches) {
+        Compound* cpd = m->compoundLink;
+
+        if(grp->fragmentationPattern.nobs() != 0) {
+            m->fragScore = cpd->scoreCompoundHit(&(grp->fragmentationPattern),
+                                                 fragPpm->value());
+        }
+
+        if (cpd->expectedRt > 0)
+            m->rtDiff = grp->meanRt - cpd->expectedRt;
+    }
+    showTable();
+}
+
+void MassCalcWidget::setFragmentationScan(Scan* scan) {
+    if(!scan)
+        return;
+
+    Fragment f(scan, 0, 0, 1024);
+    _mz = scan->precursorMz;
+    getMatches();
+
+    for(auto& m : matches ) {
+        Compound* cpd = m->compoundLink;
+        m->fragScore = cpd->scoreCompoundHit(&f, fragPpm->value(), false);
+        m->fragScore.mergedScore = m->fragScore.hypergeomScore;
+    }
+    showTable();
 }
 
 void MassCalcWidget::pubChemLink(QString formula){
@@ -162,26 +232,26 @@ void MassCalcWidget::keggLink(QString formula){
     _mw->setUrl(requestStr);
 }
 
-void MassCalcWidget::showCellInfo(int row, int col, int lrow, int lcol) {
+void MassCalcWidget::_showInfo()
+{
+    if (matches.size() == 0)
+        return;
 
-	lrow=lcol=0;
-    if ( row < 0 || col < 0 )  return;
-    if ( row < mTable->rowCount()  ) {
+    auto items = mTable->selectedItems();
+    if (items.isEmpty())
+        return;
 
-		QVariant v = mTable->item(row,0)->data(Qt::UserRole);
-    	Compound*  c =  v.value<Compound*>();
+    QTreeWidgetItem* item = items.last();
+    if(!item)
+        return;
 
-		if ( c) {
-			_mw->setCompoundFocus(c);
-			return;
-		}
+    QVariant v = item->data(0, Qt::UserRole);
+    int matchNum = v.toInt();
 
-        QString formula = mTable->item(row,0)->text();
-		if (!formula.isEmpty()) {
-			_mw->setFormulaFocus(formula);
-			return;
-		}
-
+    MassCalculator::Match* match = matches[matchNum];
+    if (match->compoundLink) {
+        _mw->getEicWidget()->setCompound(match->compoundLink);
+        _mw->fragSpectraWidget->overlayCompoundFragmentation(match->compoundLink);
     }
 }
 

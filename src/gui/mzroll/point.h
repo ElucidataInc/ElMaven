@@ -71,8 +71,7 @@ Q_SIGNALS:
     void peakGroupSelected(PeakGroup*);
     void spectaFocused(Peak*);
     void peakGroupFocus(PeakGroup*);
-
-
+    void ms2MarkerSelected(Scan*);
 };
 
 #endif

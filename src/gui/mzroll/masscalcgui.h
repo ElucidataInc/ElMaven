@@ -12,6 +12,7 @@ class MassCalculator;
 class Database;
 class MassCutoff;
 class Compound;
+class PeakGroup;
 
 class MassCalcWidget: public QDockWidget,  public Ui_MassCalcWidget {
       Q_OBJECT
@@ -29,12 +30,14 @@ public Q_SLOTS:
 	  void setMassCutoff(MassCutoff *massCutoff);
       void compute();
 	  QSet<Compound*> findMathchingCompounds(float mz, MassCutoff *massCutoff, float charge);
+      void setPeakGroup(PeakGroup* grp);
+      void setFragmentationScan(Scan* scan);
 
 private Q_SLOTS:
-      void showCellInfo(int row, int col, int lrow, int lcol);
+      void _showInfo();
 	  void getMatches();
       void showTable();
-   
+
 private:
       MainWindow* _mw;
       MassCalculator mcalc;
