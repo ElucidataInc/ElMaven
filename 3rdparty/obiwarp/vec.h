@@ -4,12 +4,6 @@
 #include <fstream>
 #include <vector>
 
-/*************************************************************
- * Creation from existing object/array is always deep!.  
- * If you want shallow, use a pointer!
- ************************************************************/ 
-
-
 namespace VEC {
 
 class VecF;
@@ -27,20 +21,21 @@ class VecF {
 
     public:
     // Constructors:
+
+    // Creates an empty VecF vector.
     VecF();
-    // Data values are NOT set by default
+
+    // Creates a VecF with given size but data values are NOT set by default.
     explicit VecF(int n);
+
+    // Creates a VecF with given size and initializes all elements to a given
+    // default value.
     VecF(int n, const float &val);
 
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    VecF(int n, std::vector<float> arr);
+    // Construct using an STL vector.
+    VecF(int n, std::vector<float>& arr);
 
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Construct using another VecF.
     VecF(const VecF &A);
 
     float first() { return _dat.front(); }
@@ -49,30 +44,33 @@ class VecF {
     // Returns the name of the class
     // del needs to be called
     char * class_name();
-    // shallow ownership
+
+    // Set the size and internal vector to the given values.
     void set(int n, std::vector<float> arr);
-    // Deletes the object's previous memory (if not shallow) and takes
-    // ownership of the array (destructor call delete[])
-    // shallow in this context only refers to calling delete
-    // no data is copied
-    // deep ownership (no copy is performed)
+
+    // Same as `VecF::set` now, but allowed to remain for legacy semantics.
     void take(int n, std::vector<float> arr);
 
-    void to_f(VecF &out);
+    void to_d(VecD &out);
     void to_i(VecI &out);
 
     // returns the first index at the value, else -1
     int index(float val);
 
-    // shallow ownership
+    // Copies the data and length and essentially becoming a copy of the given
+    // VecF.
     void set(VecF &A);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `VecF::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(VecF &A);
+
     VecF & operator=(const float &val);
     VecF & operator=(VecF &A);
     ~VecF();
-    // A deep copy unless shallow is set
+
+    // Changes the receiver's data and length to match its own, essentially
+    // making them both copies of each other.
     void copy(VecF &receiver) const;
 
     bool operator==(const VecF &A);
@@ -82,6 +80,7 @@ class VecF {
     int size() const { return _n; }
     int dim() const { return _n; }
     int dim1() const { return _n; }
+
     // Returns in a vector all the values matching mask value
     void mask_as_vec(float return_val, VecI &mask, VecF &vec);
 
@@ -145,13 +144,14 @@ class VecF {
     void sub(const VecF &tosub, VecF &out);
     void mul(const VecF &tomul, VecF &out);
     void div(const VecF &todiv, VecF &out);
-    // This may be slow because we cast every value to double regardless
-    void square_root();
 
+    void square_root();
     void logarithm(double base);
     void min_max(float &mn, float &mx);
+
     // alias for min_max
     void mn_mx(float &mn, float &mx) {min_max(mn,mx);}
+
     double avg() const;
     void hist(int num_bins, VecD &bins, VecI &freqs);
     void sample_stats(double &mean, double &std_dev);
@@ -160,6 +160,7 @@ class VecF {
     float sum_of_sq();
 
     void abs_val();
+
     // converts the distribution of values into standard normal
     // Only for floating points right now!
     void std_normal();
@@ -167,8 +168,7 @@ class VecF {
     // uses quicksort to sort the values
     void sort();
 
-    // Removes the value at index and shortens the array by one
-    // not shallow anymore regardless of previous state
+    // Removes the value at index and shortens the array by one.
     void remove(int index);
 
     //VecF operator+(const VecF &A);
@@ -262,20 +262,21 @@ class VecD {
 
     public:
     // Constructors:
+
+    // Creates an empty VecD vector.
     VecD();
-    // Data values are NOT set by default
+
+    // Creates a VecD with given size but data values are NOT set by default.
     explicit VecD(int n);
+
+    // Creates a VecD with given size and initializes all elements to a given
+    // default value.
     VecD(int n, const double &val);
 
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    VecD(int n, std::vector<double> arr);
+    // Construct using an STL vector.
+    VecD(int n, std::vector<double>& arr);
 
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Construct using another VecD.
     VecD(const VecD &A);
 
     double first() { return _dat.front(); }
@@ -284,30 +285,33 @@ class VecD {
     // Returns the name of the class
     // del needs to be called
     char * class_name();
-    // shallow ownership
+
+    // Set the size and internal vector to the given values.
     void set(int n, std::vector<double> arr);
-    // Deletes the object's previous memory (if not shallow) and takes
-    // ownership of the array (destructor call delete[])
-    // shallow in this context only refers to calling delete
-    // no data is copied
-    // deep ownership (no copy is performed)
+
+    // Same as `VecD::set` now, but allowed to remain for legacy semantics.
     void take(int n, std::vector<double> arr);
 
-    void to_f(VecD &out);
+    void to_f(VecF &out);
     void to_i(VecI &out);
 
     // returns the first index at the value, else -1
     int index(double val);
 
-    // shallow ownership
+    // Copies the data and length and essentially becoming a copy of the given
+    // VecD.
     void set(VecD &A);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `VecD::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(VecD &A);
+
     VecD & operator=(const double &val);
     VecD & operator=(VecD &A);
     ~VecD();
-    // A deep copy unless shallow is set
+
+    // Changes the receiver's data and length to match its own, essentially
+    // making them both copies of each other.
     void copy(VecD &receiver) const;
 
     bool operator==(const VecD &A);
@@ -317,6 +321,7 @@ class VecD {
     int size() const { return _n; }
     int dim() const { return _n; }
     int dim1() const { return _n; }
+
     // Returns in a vector all the values matching mask value
     void mask_as_vec(double return_val, VecI &mask, VecD &vec);
 
@@ -380,13 +385,14 @@ class VecD {
     void sub(const VecD &tosub, VecD &out);
     void mul(const VecD &tomul, VecD &out);
     void div(const VecD &todiv, VecD &out);
-    // This may be slow because we cast every value to double regardless
-    void square_root();
 
+    void square_root();
     void logarithm(double base);
     void min_max(double &mn, double &mx);
+
     // alias for min_max
     void mn_mx(double &mn, double &mx) {min_max(mn,mx);}
+
     double avg() const;
     void hist(int num_bins, VecD &bins, VecI &freqs);
     void sample_stats(double &mean, double &std_dev);
@@ -395,15 +401,14 @@ class VecD {
     double sum_of_sq();
 
     void abs_val();
+
     // converts the distribution of values into standard normal
-    // Only for doubleing points right now!
     void std_normal();
 
     // uses quicksort to sort the values
     void sort();
 
-    // Removes the value at index and shortens the array by one
-    // not shallow anymore regardless of previous state
+    // Removes the value at index and shortens the array by one.
     void remove(int index);
 
     //VecD operator+(const VecD &A);
@@ -497,20 +502,21 @@ class VecI {
 
     public:
     // Constructors:
+
+    // Creates an empty VecI vector.
     VecI();
-    // Data values are NOT set by default
+
+    // Creates a VecI with given size but data values are NOT set by default.
     explicit VecI(int n);
+
+    // Creates a VecI with given size and initializes all elements to a given
+    // default value.
     VecI(int n, const int &val);
 
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    VecI(int n, std::vector<int> arr);
+    // Construct using an STL vector.
+    VecI(int n, std::vector<int>& arr);
 
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Construct using another VecI.
     VecI(const VecI &A);
 
     int first() { return _dat.front(); }
@@ -519,30 +525,33 @@ class VecI {
     // Returns the name of the class
     // del needs to be called
     char * class_name();
-    // shallow ownership
+
+    // Set the size and internal vector to the given values.
     void set(int n, std::vector<int> arr);
-    // Deletes the object's previous memory (if not shallow) and takes
-    // ownership of the array (destructor call delete[])
-    // shallow in this context only refers to calling delete
-    // no data is copied
-    // deep ownership (no copy is performed)
+
+    // Same as `VecI::set` now, but allowed to remain for legacy semantics.
     void take(int n, std::vector<int> arr);
 
-    void to_f(VecI &out);
-    void to_i(VecI &out);
+    void to_f(VecF &out);
+    void to_d(VecD &out);
 
     // returns the first index at the value, else -1
     int index(int val);
 
-    // shallow ownership
+    // Copies the data and length and essentially becoming a copy of the given
+    // VecI.
     void set(VecI &A);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `VecI::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(VecI &A);
+
     VecI & operator=(const int &val);
     VecI & operator=(VecI &A);
     ~VecI();
-    // A deep copy unless shallow is set
+
+    // Changes the receiver's data and length to match its own, essentially
+    // making them both copies of each other.
     void copy(VecI &receiver) const;
 
     bool operator==(const VecI &A);
@@ -552,6 +561,7 @@ class VecI {
     int size() const { return _n; }
     int dim() const { return _n; }
     int dim1() const { return _n; }
+
     // Returns in a vector all the values matching mask value
     void mask_as_vec(int return_val, VecI &mask, VecI &vec);
 
@@ -615,13 +625,14 @@ class VecI {
     void sub(const VecI &tosub, VecI &out);
     void mul(const VecI &tomul, VecI &out);
     void div(const VecI &todiv, VecI &out);
-    // This may be slow because we cast every value to double regardless
-    void square_root();
 
+    void square_root();
     void logarithm(double base);
     void min_max(int &mn, int &mx);
+
     // alias for min_max
     void mn_mx(int &mn, int &mx) {min_max(mn,mx);}
+
     double avg() const;
     void hist(int num_bins, VecD &bins, VecI &freqs);
     void sample_stats(double &mean, double &std_dev);
@@ -630,15 +641,14 @@ class VecI {
     int sum_of_sq();
 
     void abs_val();
+
     // converts the distribution of values into standard normal
-    // Only for inting points right now!
     void std_normal();
 
     // uses quicksort to sort the values
     void sort();
 
-    // Removes the value at index and shortens the array by one
-    // not shallow anymore regardless of previous state
+    // Removes the value at index and shortens the array by one.
     void remove(int index);
 
     //VecI operator+(const VecI &A);

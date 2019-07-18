@@ -52,7 +52,7 @@ VecF::VecF(int n, const float &val) : _n(n) {
 #endif
 }
 
-VecF::VecF(int n, std::vector<float> arr) : _n(n), _dat(arr) {
+VecF::VecF(int n, std::vector<float>& arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
@@ -65,20 +65,20 @@ VecF::VecF(const VecF &A) : _n(A._n) {
 #endif
 }
 
-void VecF::to_f(VecF &out) {
-    VecF _tmp(_n);
+void VecF::to_d(VecD &out) {
+    std::vector<double> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<float>(_dat[i]);
+        dat.push_back(static_cast<double>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
 void VecF::to_i(VecI &out) {
-    VecI _tmp(_n);
+    std::vector<int> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<int>(_dat[i]);
+        dat.push_back(static_cast<int>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
 
@@ -961,7 +961,7 @@ VecD::VecD(int n, const double &val) : _n(n) {
 #endif
 }
 
-VecD::VecD(int n, std::vector<double> arr) : _n(n), _dat(arr) {
+VecD::VecD(int n, std::vector<double>& arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
@@ -974,20 +974,20 @@ VecD::VecD(const VecD &A) : _n(A._n) {
 #endif
 }
 
-void VecD::to_f(VecD &out) {
-    VecD _tmp(_n);
+void VecD::to_f(VecF &out) {
+    std::vector<float> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<double>(_dat[i]);
+        dat.push_back(static_cast<float>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
 void VecD::to_i(VecI &out) {
-    VecI _tmp(_n);
+    std::vector<int> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<int>(_dat[i]);
+        dat.push_back(static_cast<int>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
 
@@ -1870,7 +1870,7 @@ VecI::VecI(int n, const int &val) : _n(n) {
 #endif
 }
 
-VecI::VecI(int n, std::vector<int> arr) : _n(n), _dat(arr) {
+VecI::VecI(int n, std::vector<int>& arr) : _n(n), _dat(arr) {
 #ifdef JTP_DEBUG
     puts("SHALLOW, (N,*ARR)");
 #endif
@@ -1883,20 +1883,20 @@ VecI::VecI(const VecI &A) : _n(A._n) {
 #endif
 }
 
-void VecI::to_f(VecI &out) {
-    VecI _tmp(_n);
+void VecI::to_f(VecF &out) {
+    std::vector<float> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<int>(_dat[i]);
+        dat.push_back(static_cast<float>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
-void VecI::to_i(VecI &out) {
-    VecI _tmp(_n);
+void VecI::to_d(VecD &out) {
+    std::vector<double> dat(_n);
     for (int i = 0; i < _n; ++i) {
-        _tmp[i] = static_cast<int>(_dat[i]);
+        dat.push_back(static_cast<double>(_dat[i]));
     }
-    out.take(_tmp);
+    out.set(_n, dat);
 }
 
 

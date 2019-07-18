@@ -41,7 +41,7 @@ MatF::MatF(int m, int n, const float &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatF::MatF(int m, int n, std::vector<float> arr) : _m(m), _n(n), _dat(m*n,arr) {
+MatF::MatF(int m, int n, std::vector<float>& arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatF(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif
@@ -342,7 +342,7 @@ MatD::MatD(int m, int n, const double &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatD::MatD(int m, int n, std::vector<double> arr) : _m(m), _n(n), _dat(m*n,arr) {
+MatD::MatD(int m, int n, std::vector<double>& arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatD(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif
@@ -643,7 +643,7 @@ MatI::MatI(int m, int n, const int &val) : _m(m), _n(n), _dat(m*n, val) {
 #endif
 }
 
-MatI::MatI(int m, int n, std::vector<int> arr) : _m(m), _n(n), _dat(m*n,arr) {
+MatI::MatI(int m, int n, std::vector<int>& arr) : _m(m), _n(n), _dat(m*n,arr) {
 #ifdef JTP_DEBUG
     printf("CONSTRUCTOR MatI(m,n,*arr,shallow) shallow=%d!\n", this->shallow());
 #endif

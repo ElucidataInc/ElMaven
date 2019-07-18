@@ -3,14 +3,6 @@
 
 #include "vec.h"
 
-/*************************************************************
- * Creation from existing object/array is always shallow!.  
- * Will delete any memory allocated.
- * Will NOT delete any memory not allocated.
- * If you want deep then use copy function!
- ************************************************************/ 
-
-
 namespace VEC {
 
 class MatI;
@@ -22,60 +14,63 @@ class MatD;
 class MatF {
 
     public:
+
     // length
     int _m;
     int _n;
     VecF _dat;
+
     // Constructors:
+
+    // Creates an empty matrix.
     MatF();
+
+    // Creates a matrix with given row and column size but does not initialize
+    // the data.
     MatF(int m, int n);
+
+    // Creates a matrix with given row and column size and initialize elements
+    // with the given value.
     MatF(int m, int n, const float &val);
 
+    // Creates a matrix with the given STL vector.
+    MatF(int m, int n, std::vector<float>& arr);
 
-    // (copied from vec.h)
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    MatF(int m, int n, std::vector<float> arr);
-
-    // (copied from vec.h)
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Creates a matrix by copying the data from the given matrix.
     MatF(const MatF &A);
 
     std::vector<float> row(int m);
     std::pair<std::vector<float>::iterator, std::vector<float>::iterator> rowIters(int m);
     float* rowData(int m);
     std::vector<float>::iterator rowIter(int m);
+
     // creates vec objects
-    // caller must have allocated the array for the vec objects
-    // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecF *vecs);
 
     MatF & operator=(const float &val);
-    // DEEP
     MatF & operator=(MatF &A);
     ~MatF();
-    // Deep copy unless shallow == true
+
+    // Overwrite receiver's internals to be the same as this matrix.
     void copy(MatF &receiver) const;
 
-    // shallow copy and no ownership of memory
+    // Set the row, columns and internal vector to the given values.
     void set(int m, int n, std::vector<float> arr);
-    // shallow copy and no ownership of memory
+
+    // Set the row, columns and internal vector from the given matrix.
     void set(MatF &A);
 
     bool all_equal() {
         return _dat.all_equal();
     }
 
-    // Deletes the object's memory (if not shallow) and takes ownership
-    // of the array memory (we will call delete[])
+    // Same as its `MatF::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(int m, int n, std::vector<float> arr);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `MatF::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(MatF &A);
 
     // flattens the matrix and returns a vector
@@ -157,60 +152,63 @@ class MatF {
 class MatD {
 
     public:
+
     // length
     int _m;
     int _n;
     VecD _dat;
+
     // Constructors:
+
+    // Creates an empty matrix.
     MatD();
+
+    // Creates a matrix with given row and column size but does not initialize
+    // the data.
     MatD(int m, int n);
+
+    // Creates a matrix with given row and column size and initialize elements
+    // with the given value.
     MatD(int m, int n, const double &val);
 
+    // Creates a matrix with the given STL vector.
+    MatD(int m, int n, std::vector<double>& arr);
 
-    // (copied from vec.h)
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    MatD(int m, int n, std::vector<double> arr);
-
-    // (copied from vec.h)
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Creates a matrix by copying the data from the given matrix.
     MatD(const MatD &A);
 
     std::vector<double> row(int m);
     std::pair<std::vector<double>::iterator, std::vector<double>::iterator> rowIters(int m);
     double* rowData(int m);
     std::vector<double>::iterator rowIter(int m);
+
     // creates vec objects
-    // caller must have allocated the array for the vec objects
-    // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecD *vecs);
 
     MatD & operator=(const double &val);
-    // DEEP
     MatD & operator=(MatD &A);
     ~MatD();
-    // Deep copy unless shallow == true
+
+    // Overwrite receiver's internals to be the same as this matrix.
     void copy(MatD &receiver) const;
 
-    // shallow copy and no ownership of memory
+    // Set the row, columns and internal vector to the given values.
     void set(int m, int n, std::vector<double> arr);
-    // shallow copy and no ownership of memory
+
+    // Set the row, columns and internal vector from the given matrix.
     void set(MatD &A);
 
     bool all_equal() {
         return _dat.all_equal();
     }
 
-    // Deletes the object's memory (if not shallow) and takes ownership
-    // of the array memory (we will call delete[])
+    // Same as its `MatD::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(int m, int n, std::vector<double> arr);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `MatD::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(MatD &A);
 
     // flattens the matrix and returns a vector
@@ -289,63 +287,67 @@ class MatD {
 
 }; // End class MatD
 
+
 class MatI {
 
     public:
+
     // length
     int _m;
     int _n;
     VecI _dat;
+
     // Constructors:
+
+    // Creates an empty matrix.
     MatI();
+
+    // Creates a matrix with given row and column size but does not initialize
+    // the data.
     MatI(int m, int n);
+
+    // Creates a matrix with given row and column size and initialize elements
+    // with the given value.
     MatI(int m, int n, const int &val);
 
+    // Creates a matrix with the given STL vector.
+    MatI(int m, int n, std::vector<int>& arr);
 
-    // (copied from vec.h)
-    // if (shallow == 1 (true)) then no memory is deleted upon destruction
-    // if (shallow == 0 (false)) then delete[] is called
-    // FOR THIS CONSTRUCTOR ONLY, there is no DEEP copying, EVER!
-    MatI(int m, int n, std::vector<int> arr);
-
-    // (copied from vec.h)
-    // if (shallow == 0 (false)) a DEEP copy is made of the data
-    // if (shallow == 1 (true)) a copy of the pointer is made
-    // if (shallow) then no memory is released upon destruction
-    // shallow is used for a quick copy with which to work
+    // Creates a matrix by copying the data from the given matrix.
     MatI(const MatI &A);
 
     std::vector<int> row(int m);
     std::pair<std::vector<int>::iterator, std::vector<int>::iterator> rowIters(int m);
     int* rowData(int m);
     std::vector<int>::iterator rowIter(int m);
+
     // creates vec objects
-    // caller must have allocated the array for the vec objects
-    // the data is a shallow copy!
     // transpose and call row_vecs for col_vecs!
     void row_vecs(int &cnt, VecI *vecs);
 
     MatI & operator=(const int &val);
-    // DEEP
     MatI & operator=(MatI &A);
     ~MatI();
-    // Deep copy unless shallow == true
+
+    // Overwrite receiver's internals to be the same as this matrix.
     void copy(MatI &receiver) const;
 
-    // shallow copy and no ownership of memory
+    // Set the row, columns and internal vector to the given values.
     void set(int m, int n, std::vector<int> arr);
-    // shallow copy and no ownership of memory
+
+    // Set the row, columns and internal vector from the given matrix.
     void set(MatI &A);
 
     bool all_equal() {
         return _dat.all_equal();
     }
 
-    // Deletes the object's memory (if not shallow) and takes ownership
-    // of the array memory (we will call delete[])
+    // Same as its `MatI::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(int m, int n, std::vector<int> arr);
-    // Deletes previous memory (if not shallow) and takes ownership
-    // of the other's memory.
+
+    // Same as its `MatI::set` equivalent now, but allowed to remain for legacy
+    // semantics.
     void take(MatI &A);
 
     // flattens the matrix and returns a vector
