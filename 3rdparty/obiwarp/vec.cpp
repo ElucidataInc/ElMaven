@@ -1207,7 +1207,7 @@ else {
 */
 
     double VecD::sum() {
-    return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
+    return std::accumulate(_dat.begin(), _dat.end(), 0.0);
 }
 
 char * VecD::class_name() {
@@ -1306,8 +1306,8 @@ void VecD::mask_as_vec(double return_val, VecI &mask, VecD &out) {
 
 void VecD::hist(int num_bins, VecD &bins, VecI &freqs) {
     // Create the scaling factor
-    double _min = 0.0f;
-    double _max = 0.0f;
+    double _min = 0.0;
+    double _max = 0.0;
     min_max(_min, _max);
     double dmin = static_cast<double>(_min);
     double conv = static_cast<double>(num_bins)/static_cast<double>(_max - _min);
@@ -1384,7 +1384,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
     double w2;
     double dmax;
     double dmin;
-    double three = 3.0f;
+    double three = 3.0;
     double dsave;
     double drat1;
     double drat2;
@@ -1437,7 +1437,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
     w2 = -h1/hsum;
     tmp_derivs[0] = (w1*del1) + (w2*del2);
     if ( pchst(tmp_derivs[0],del1) <= 0 ) {
-        tmp_derivs[0] = 0.0f;
+        tmp_derivs[0] = 0.0;
     }
     else if ( pchst(del1,del2) < 0 ) {
         // need to do this check only if monotonicity switches
@@ -1459,7 +1459,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
             del2 = (y[ind+1] - y[ind])/h2;
         }
         // 40
-        tmp_derivs[ind] = 0.0f;
+        tmp_derivs[ind] = 0.0;
 
         pchstval = pchst(del1,del2);
 
@@ -1482,7 +1482,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
         }
         // 41
         else {  // equal to zero
-            if (del2 == 0.0f) { continue; }
+            if (del2 == 0.0) { continue; }
             if (VecD::pchst(dsave,del2) < 0) { ierr = ierr + 1; }
             dsave = del2;
             continue;
@@ -1494,7 +1494,7 @@ void VecD::chim(VecD &x, VecD &y, VecD &out_derivs) {
     w2 = (h2 + hsum)/hsum;
     tmp_derivs[ind] = w1*del1 + w2*del2;
     if ( VecD::pchst(tmp_derivs[ind],del2) <= 0 ) {
-        tmp_derivs[ind] = 0.0f;
+        tmp_derivs[ind] = 0.0;
     }
     else if ( VecD::pchst(del1, del2) < 0) {
         // NEED DO THIS CHECK ONLY IF MONOTONICITY SWITCHES.
@@ -2114,8 +2114,8 @@ else {
 }
 */
 
-    int VecI::sum() {
-    return std::accumulate(_dat.begin(), _dat.end(), 0.0f);
+int VecI::sum() {
+    return std::accumulate(_dat.begin(), _dat.end(), 0);
 }
 
 char * VecI::class_name() {
@@ -2214,8 +2214,8 @@ void VecI::mask_as_vec(int return_val, VecI &mask, VecI &out) {
 
 void VecI::hist(int num_bins, VecD &bins, VecI &freqs) {
     // Create the scaling factor
-    int _min = 0.0f;
-    int _max = 0.0f;
+    int _min = 0;
+    int _max = 0;
     min_max(_min, _max);
     double dmin = static_cast<double>(_min);
     double conv = static_cast<double>(num_bins)/static_cast<double>(_max - _min);
@@ -2292,7 +2292,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
     int w2;
     int dmax;
     int dmin;
-    int three = 3.0f;
+    int three = 3;
     int dsave;
     int drat1;
     int drat2;
@@ -2345,7 +2345,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
     w2 = -h1/hsum;
     tmp_derivs[0] = (w1*del1) + (w2*del2);
     if ( pchst(tmp_derivs[0],del1) <= 0 ) {
-        tmp_derivs[0] = 0.0f;
+        tmp_derivs[0] = 0;
     }
     else if ( pchst(del1,del2) < 0 ) {
         // need to do this check only if monotonicity switches
@@ -2367,7 +2367,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
             del2 = (y[ind+1] - y[ind])/h2;
         }
         // 40
-        tmp_derivs[ind] = 0.0f;
+        tmp_derivs[ind] = 0;
 
         pchstval = pchst(del1,del2);
 
@@ -2390,7 +2390,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
         }
         // 41
         else {  // equal to zero
-            if (del2 == 0.0f) { continue; }
+            if (del2 == 0) { continue; }
             if (VecI::pchst(dsave,del2) < 0) { ierr = ierr + 1; }
             dsave = del2;
             continue;
@@ -2402,7 +2402,7 @@ void VecI::chim(VecI &x, VecI &y, VecI &out_derivs) {
     w2 = (h2 + hsum)/hsum;
     tmp_derivs[ind] = w1*del1 + w2*del2;
     if ( VecI::pchst(tmp_derivs[ind],del2) <= 0 ) {
-        tmp_derivs[ind] = 0.0f;
+        tmp_derivs[ind] = 0;
     }
     else if ( VecI::pchst(del1, del2) < 0) {
         // NEED DO THIS CHECK ONLY IF MONOTONICITY SWITCHES.

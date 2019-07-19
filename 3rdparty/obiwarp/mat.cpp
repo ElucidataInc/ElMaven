@@ -613,7 +613,7 @@ void MatD::mask_as_vec(double return_val, MatI &mask, VecD &out) {
 
 double MatD::sum(int m) {
     auto iters = rowIters(m);
-    double sum = std::accumulate(iters.first, iters.second, 0.0f);
+    double sum = std::accumulate(iters.first, iters.second, 0.0);
     return sum;
 }
 
@@ -914,7 +914,7 @@ void MatI::mask_as_vec(int return_val, MatI &mask, VecI &out) {
 
 int MatI::sum(int m) {
     auto iters = rowIters(m);
-    int sum = std::accumulate(iters.first, iters.second, 0.0f);
+    int sum = std::accumulate(iters.first, iters.second, 0);
     return sum;
 }
 
