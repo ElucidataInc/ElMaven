@@ -335,10 +335,10 @@ bool Aligner::alignSampleRts(mzSample* sample,
     // we set the rt interval using the reference sample
     int rtBinSize = 1;
     if (setAsReference && sample != nullptr) {
-        rtBinSize = mzUtils::approximateResamplingFactor(sample->scanCount(),
+        rtBinSize = mzUtils::approximateResamplingFactor(sample->ms1ScanCount(),
                                                          500);
     } else if (refSample != nullptr) {
-        rtBinSize = mzUtils::approximateResamplingFactor(refSample->scanCount(),
+        rtBinSize = mzUtils::approximateResamplingFactor(refSample->ms1ScanCount(),
                                                          500);
     }
 
