@@ -49,9 +49,7 @@ public:
 	 * [set Peak Detector]
 	 * @param pd [pointer to peakDetector]
 	 */
-	void setPeakDetector(PeakDetector* pd) {
-                peakDetector = pd;
-	}
+        void setPeakDetector(PeakDetector* pd);
 
 	/**
 	 * [get Peak Detector]
