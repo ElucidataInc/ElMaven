@@ -742,7 +742,6 @@ double VecF::covariance(VecF &x, VecF &y) {
 }
 
 double VecF::euclidean(VecF &x, VecF &y) {
-    VecF diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
         sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
@@ -1651,7 +1650,6 @@ double VecD::covariance(VecD &x, VecD &y) {
 }
 
 double VecD::euclidean(VecD &x, VecD &y) {
-    VecD diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
         sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
@@ -2560,7 +2558,6 @@ double VecI::covariance(VecI &x, VecI &y) {
 }
 
 double VecI::euclidean(VecI &x, VecI &y) {
-    VecI diff(x.size());
     double sum_of_diffs = 0;
     for (int i = 0; i < x.size(); ++i) {
         sum_of_diffs += (x[i] - y[i]) * (x[i] - y[i]);
