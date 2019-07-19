@@ -42,7 +42,6 @@ class MatF {
     std::vector<float> row(int m);
     std::pair<std::vector<float>::iterator, std::vector<float>::iterator> rowIters(int m);
     float* rowData(int m);
-    std::vector<float>::iterator rowIter(int m);
 
     // creates vec objects
     // transpose and call row_vecs for col_vecs!

@@ -80,11 +80,6 @@ float* MatF::rowData(int m)
     return (_dat.data() + (m * _n));
 }
 
-std::vector<float>::iterator MatF::rowIter(int m)
-{
-    return _dat.slice2((m * _n), (m * _n) + _n).first;
-}
-
 void MatF::to_vec(VecF &outvec) {
     _dat.copy(outvec);
 }
